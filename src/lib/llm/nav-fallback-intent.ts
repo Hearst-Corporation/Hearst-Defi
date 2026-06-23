@@ -2,9 +2,9 @@
  * Regex navigation shortcuts for the Master Agent.
  *
  * When a user message matches an explicit navigation intent, the route
- * short-circuits BEFORE the LLM (fixed ack + publishNav) — same pattern as
- * Product Workspace. Post-LLM fallback reuses the same resolver when the model
- * answered in text without calling `navigate`.
+ * short-circuits BEFORE the LLM (fixed ack + publishNav + deterministic
+ * NavTrace) — same pattern as Product Workspace. Navigation is 100%
+ * deterministic; no LLM call is made for nav-intent messages.
  */
 
 import type { NavProfile } from "@/lib/llm/navigate-tool";

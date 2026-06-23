@@ -1,13 +1,12 @@
 /**
- * Navigation tool + destination whitelist for the LP-facing Master Agent.
+ * Navigation destination whitelist for the cockpit.
  *
- * The conversational assistant can guide the user by navigating to the right
- * page. To keep that capability SAFE on an institutional product:
- *  - The model never emits a free-form URL. It picks a `key` from a closed
- *    enum (`NAV_DESTINATIONS`), which the server maps to a real route. The
- *    model cannot invent or reach an arbitrary/admin route.
- *  - This is the ONLY tool the agent has. There is no write / financial /
- *    admin tool — navigation is a client-side, read-only route change.
+ * Navigation is now 100% deterministic: the regex router (resolveNavFallbackDestinationKey)
+ * in the cockpit-chat route resolves the destination BEFORE any LLM turn. The
+ * model is NEVER given a navigate tool — it cannot propose destinations. This
+ * module provides the closed whitelist (NAV_DESTINATIONS, LP_/ADMIN_NAV_DESTINATIONS)
+ * and the resolvers (resolveNavDestination, resolveNavDestinationForProfile,
+ * isProtectedRoute) that the deterministic router and the client nav bridge use.
  *
  * Pure module (no I/O, no server-only) so both the server handler and the
  * client navigation bridge import the SAME whitelist — one source of truth.
@@ -376,54 +375,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   ...ADMIN_NAV_DESTINATIONS,
 ] as const;
 
-/** Closed enum of destination keys exposed to the model by profile. */
-export function getNavKeys(profile: NavProfile): readonly string[] {
-  return NAV_DESTINATIONS.filter((d) => d.profile === profile).map((d) => d.key);
-}
-
-/**
- * OpenAI Chat Completions function tool. The single, read-only capability of
- * the Master Agent.
- */
-export function createNavigateTool(profile: NavProfile) {
-  const dests = NAV_DESTINATIONS.filter((d) => d.profile === profile);
-  const keys = dests.map((d) => d.key);
-  // The tool schema only exposes the ENUM OF KEYS to the model — the per-
-  // destination labels are not otherwise visible. Now that the whitelist covers
-  // the whole site (~40 pages), inline a compact `key → label` gloss so the
-  // model can map an intent to the right page instead of guessing from the key
-  // string alone. Single source of truth: derived from NAV_DESTINATIONS.
-  const gloss = dests.map((d) => `- ${d.key} → ${d.label}`).join("\n");
-  const intro =
-    profile === "admin"
-      ? "Amène l'utilisateur admin à la surface interne la plus pertinente sur tout le site admin. Pour toute demande de création/cadrage d'un nouveau produit, privilégie admin-product-workspace comme page indépendante. Utilise admin-scenario-lab uniquement pour des simulations/stress tests d'un produit déjà cadré."
-      : "Amène l'utilisateur à la page la plus pertinente de Hearst Connect quand ta réponse renvoie à une surface précise — par exemple « où vois-je mon allocation ? », « mes distributions ? », « comment souscrire ? », ou pour appuyer une explication par la bonne page.";
-  return {
-    type: "function" as const,
-    function: {
-      name: "navigate",
-      // The gloss below is AUTHORITATIVE: it is the real, exhaustive set of
-      // pages that exist. The model must navigate to a listed page when asked
-      // and must never claim a listed page does not exist (GPT-4.1 otherwise
-      // refuses surfaces it doesn't "believe in", e.g. /admin/security).
-      description: `${intro} La liste ci-dessous est la liste RÉELLE et EXHAUSTIVE des pages existantes de l'application : si la demande de l'utilisateur correspond à l'une d'elles, APPELLE navigate avec sa clé — n'affirme JAMAIS qu'une page n'existe pas si elle figure dans la liste. Continue TOUJOURS de répondre en texte aussi. Ne choisis QU'une clé EXACTE de la liste, n'invente jamais de destination ni d'URL.\n\nDestinations:\n${gloss}`,
-      parameters: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          destination: {
-            type: "string",
-            enum: [...keys],
-            description: "La clé EXACTE de la destination à ouvrir (depuis la liste).",
-          },
-        },
-        required: ["destination"],
-      },
-    },
-  } as const;
-}
-
-/** Maps a model-supplied key back to its destination, or null when unknown. */
+/** Maps a router-supplied key back to its destination, or null when unknown. */
 export function resolveNavDestination(
   key: string | null | undefined,
 ): NavDestination | null {

@@ -26,4 +26,16 @@ export const FEATURE_FLAGS = {
    * (the route returns 503) — there is no second engine to fall back to.
    */
   CHAT_MASTER_AGENT: process.env.CHAT_MASTER_AGENT !== "0",
+
+  /**
+   * SWARMS_ENGINE — gates the external MySwarms / crewai-engine integration
+   * (agentic orchestration delegated over HTTP, kickoff→poll). Server-only.
+   *
+   * OFF by default. Set SWARMS_ENGINE=1 to route agentic work to the external
+   * CrewAI engine. When off, the swarm client is dormant — nothing reaches the
+   * external backend, and the in-repo agents keep running unchanged. Activation
+   * also requires CREWAI_ENGINE_URL + CREWAI_ENGINE_AUTH_TOKEN (env.ts warns in
+   * prod when the flag is on but they are missing — never throws).
+   */
+  SWARMS_ENGINE: process.env.SWARMS_ENGINE === "1",
 } as const;

@@ -40,3 +40,42 @@ export function detectCanvasIntent(message: string): CanvasIntent | null {
   const cleanedMessage = message.replace(MARKER_RE, "").trim();
   return { canvasId: id, cleanedMessage };
 }
+
+/**
+ * Hidden marker persisted on the assistant turn when a canvas opens, so the NEXT
+ * turn knows a canvas is still active (cross-turn memory without a DB migration).
+ * Stripped before display by the same compliance/render path that ignores
+ * control sequences; kept short + bracketed so it never reads as prose.
+ */
+const OPEN_MARKER_RE = /\[\[canvas-open:([a-z-]+)\]\]/i;
+
+export function canvasOpenMarker(canvasId: CanvasId): string {
+  return `[[canvas-open:${canvasId}]]`;
+}
+
+/**
+ * Scan recent chat history (most-recent-first) for the last opened canvas. Used
+ * on a follow-up turn ("on commence comment") so the agent stays in the same
+ * workshop instead of falling back to a generic answer. Only the most recent
+ * marker wins; a later non-canvas turn does NOT clear it (the canvas page is
+ * still open in Section 2 until the operator navigates away).
+ */
+export function detectActiveCanvasFromHistory(
+  history: ReadonlyArray<{ role: string; content: string }>,
+): CanvasId | null {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const entry = history[i];
+    if (!entry || entry.role !== "assistant") continue;
+    const m = OPEN_MARKER_RE.exec(entry.content);
+    if (m) {
+      const id = (m[1] ?? "").toLowerCase();
+      return isKnownCanvasId(id) ? id : null;
+    }
+  }
+  return null;
+}
+
+/** Strip the open-marker from a string before it is shown to the user. */
+export function stripCanvasOpenMarker(text: string): string {
+  return text.replace(OPEN_MARKER_RE, "").trim();
+}

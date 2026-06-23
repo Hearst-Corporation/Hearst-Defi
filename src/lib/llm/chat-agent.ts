@@ -1,12 +1,6 @@
 import "server-only";
 
 import { chatOutputViolation, guardChatStream } from "@/lib/llm/output-guard";
-import {
-  createNavigateTool,
-  resolveNavDestinationForProfile,
-  type NavProfile,
-  type NavDestination,
-} from "@/lib/llm/navigate-tool";
 import { projectAdminReadResultForExternal } from "@/lib/llm/tools/redaction";
 import { getAllowedAdminReadTools, executeAdminReadTool } from "@/lib/llm/tools/registry";
 import { ADMIN_WRITE_TOOL_IDS } from "@/lib/llm/tools/types";
@@ -16,19 +10,15 @@ import { logger } from "@/lib/logger";
 /**
  * App-side, tool-capable streaming chat engine for the LP Master Agent.
  *
- * Why this exists: the @hearst/cockpit-shell handler streams plain text with NO
- * tool support, so it cannot expose the `navigate` tool. Rather than fork the
- * shared package, the conversational path runs through this app-owned engine,
- * which calls OpenAI with the single `navigate` tool, streams the guarded text
- * answer to the client (same text/plain contract the cockpit-shell client
- * expects), and surfaces the chosen navigation destination out-of-band.
+ * Navigation is 100% deterministic: the route resolves the destination via a
+ * closed regex whitelist (resolveNavFallbackDestinationKey) BEFORE the LLM turn.
+ * The model exposes NO navigate tool — navigation never depends on model output.
  *
  * Safety:
  * - The user-facing stream is wrapped by `guardChatStream` (forbidden words /
  *   single-point APY), exactly like the buffered path.
- * - `nav` resolves to a destination ONLY when the model picked a whitelisted
- *   key AND the full answer is compliant — we never navigate off the back of a
- *   blocked / non-compliant answer.
+ * - Admin read tools are the only tools exposed to the model; write tools are
+ *   always human-in-the-loop and never auto-executed.
  */
 
 // Minimal structural client type — avoids hard-coupling to a specific `openai`
@@ -80,8 +70,7 @@ export interface StreamingChatClient {
 export type ChatTurnStatus = "success" | "failed" | "timeout";
 
 /** Result surfaced by the `final` promise. Carries the real turn outcome so the
- *  caller can persist an honest LlmRun (no hard-coded "success") and trace the
- *  navigation decision. Never rejects. */
+ *  caller can persist an honest LlmRun (no hard-coded "success"). Never rejects. */
 export interface ChatTurnFinal {
   text: string;
   blocked: boolean;
@@ -90,12 +79,6 @@ export interface ChatTurnFinal {
   errorType: string | null;
   /** Token usage when the provider reported it; null when unavailable. */
   usage: ChatTurnUsage | null;
-  /** Whitelisted destination key the model proposed (even if later blocked),
-   *  or null when the model proposed no navigation. */
-  navProposedKey: string | null;
-  /** True when a proposed navigation was dropped because the answer was not
-   *  compliant (so the directive was never published). */
-  navBlocked: boolean;
 }
 
 export interface ChatAgentMessage {
@@ -107,15 +90,10 @@ export interface ChatAgentResult {
   /** Guarded text stream (text/plain) to return to the client. */
   stream: ReadableStream<Uint8Array>;
   /**
-   * Resolves AFTER the model turn completes with the navigation destination the
-   * model chose (whitelisted + compliant answer), or null. Never rejects.
-   */
-  nav: Promise<NavDestination | null>;
-  /**
    * Resolves AFTER the turn with the final answer text (for persistence),
    * whether it was compliance-blocked, and the real turn telemetry (status,
-   * usage, navigation decision). When `blocked` is true the caller MUST NOT
-   * persist `text` (it never reached the user either). Never rejects.
+   * usage). When `blocked` is true the caller MUST NOT persist `text` (it
+   * never reached the user either). Never rejects.
    */
   final: Promise<ChatTurnFinal>;
 }
@@ -147,9 +125,6 @@ interface ConsumeResult {
  */
 export const DEFAULT_CHAT_TURN_TIMEOUT_MS = 60_000;
 
-/** Short FR fallback emitted when the model returns a navigate-only completion
- *  (a tool call with no text content) so the chat bubble is never blank. */
-const NAV_ONLY_FALLBACK = "Je vous y emmène.";
 
 /** Generic FR error surfaced to the user on an upstream/LLM failure. The
  *  cockpit-shell client shows the text after `\x00ERROR:` verbatim, so this must
@@ -159,24 +134,6 @@ const LLM_ERROR_MESSAGE =
   "\x00ERROR:Le service est momentanément indisponible — réessayez dans un instant.";
 
 const ADMIN_WRITE_TOOL_ID_SET = new Set<string>(ADMIN_WRITE_TOOL_IDS);
-
-/** Picks the first valid `navigate` destination from accumulated tool calls. */
-function destinationFromToolCalls(
-  toolCalls: AggregatedToolCall[],
-  navProfile: NavProfile,
-): NavDestination | null {
-  for (const { name, args } of toolCalls) {
-    if (name !== "navigate") continue;
-    try {
-      const parsed = JSON.parse(args) as { destination?: string };
-      const dest = resolveNavDestinationForProfile(parsed.destination, navProfile);
-      if (dest) return dest;
-    } catch {
-      // malformed arguments JSON — ignore this call
-    }
-  }
-  return null;
-}
 
 function mapToolCalls(toolCallsByIndex: Map<number, AggregatedToolCall>): AggregatedToolCall[] {
   return [...toolCallsByIndex.entries()]
@@ -403,8 +360,9 @@ function toToolResultMessages(
 }
 
 /**
- * Runs one Master Agent turn. Returns the guarded text stream and a promise for
- * the navigation destination.
+ * Runs one Master Agent turn. Returns the guarded text stream and a final
+ * promise for persistence metadata. Navigation is resolved deterministically
+ * by the route (regex router) — the model exposes NO navigate tool.
  */
 export function runChatAgent(
   client: StreamingChatClient,
@@ -413,19 +371,11 @@ export function runChatAgent(
   options?: {
     signal?: AbortSignal;
     timeoutMs?: number;
-    navProfile?: NavProfile;
     chatMode?: "normal" | "admin";
     userId?: string;
-    /** When false, the `navigate` tool is NOT declared to the model — used by
-     *  review mode, a facilitation chat that must not yank the user away. The
-     *  `nav` promise then always resolves to null. Default: true. */
-    exposeNavigate?: boolean;
   },
 ): ChatAgentResult {
   const enc = new TextEncoder();
-  const navProfile = options?.navProfile ?? "lp";
-  const exposeNavigate = options?.exposeNavigate ?? true;
-  const navigateTool = createNavigateTool(navProfile);
 
   // Combine the optional caller signal with an internal timeout so the model
   // turn can never hang unboundedly (B1). Whichever fires first aborts the turn.
@@ -434,17 +384,6 @@ export function runChatAgent(
   const signal = options?.signal
     ? AbortSignal.any([options.signal, timeoutSignal])
     : timeoutSignal;
-
-  let resolveNav: (d: NavDestination | null) => void = () => {};
-  const nav = new Promise<NavDestination | null>((r) => {
-    resolveNav = r;
-  });
-  let navSettled = false;
-  const finishNav = (d: NavDestination | null): void => {
-    if (navSettled) return;
-    navSettled = true;
-    resolveNav(d);
-  };
 
   let resolveFinal: (r: ChatTurnFinal) => void = () => {};
   const final = new Promise<ChatTurnFinal>((r) => {
@@ -466,8 +405,6 @@ export function runChatAgent(
       status: timeoutSignal.aborted ? "timeout" : "failed",
       errorType,
       usage: null,
-      navProposedKey: null,
-      navBlocked: false,
     });
   };
 
@@ -484,8 +421,9 @@ export function runChatAgent(
               profile: "admin",
             })
           : [];
+        // Navigation is now 100% deterministic (regex router in the route).
+        // The model exposes NO navigate tool — only admin read tools remain.
         const declaredTools: unknown[] = [
-          ...(exposeNavigate ? [navigateTool] : []),
           ...adminReadTools.map((tool) => ({
             type: "function" as const,
             function: {
@@ -539,14 +477,12 @@ export function runChatAgent(
           } catch {
             /* already closed */
           }
-          finishNav(null);
           finishFailed("llm_stream");
           return;
         }
 
         let effectiveText = firstPass.text;
         let effectiveUsage = firstPass.usage;
-        let finalToolCalls = firstPass.toolCalls;
 
         if (isAdminMode) {
           const { readRuns, blockedWriteCalls } = await executeAdminReadCalls(
@@ -590,7 +526,6 @@ export function runChatAgent(
                 effectiveText = secondPass.text;
               }
               effectiveUsage = secondPass.usage ?? effectiveUsage;
-              finalToolCalls = secondPass.toolCalls;
             } catch (err) {
               logger.warn(
                 "chat-agent: admin second-pass stream failed",
@@ -603,7 +538,6 @@ export function runChatAgent(
               } catch {
                 /* already closed */
               }
-              finishNav(null);
               finishFailed("admin_second_pass");
               return;
             }
@@ -612,35 +546,7 @@ export function runChatAgent(
           // pass already streamed its text live above.
         }
 
-        // Navigate only when the model picked a whitelisted destination AND the
-        // answer is compliant — never off the back of a blocked answer.
         const blocked = chatOutputViolation(effectiveText, true) !== null;
-        // The key the model proposed, BEFORE the compliance gate — kept for the
-        // nav trace so a blocked navigation is still observable.
-        const proposed = destinationFromToolCalls(
-          finalToolCalls.length > 0 ? finalToolCalls : firstPass.toolCalls,
-          navProfile,
-        );
-        const navProposedKey = proposed?.key ?? null;
-        const navBlocked = proposed !== null && blocked;
-        let dest = proposed;
-        if (dest && blocked) {
-          dest = null;
-        }
-
-        // B2: a tool-call-only completion produces no text. Emit a short FR
-        // fallback so the bubble is never blank — but only when we actually have
-        // a valid destination to send the user to, and only if the answer so far
-        // is compliant (never bypass the output guard).
-        let persistText = effectiveText;
-        if (
-          effectiveText.trim().length === 0 &&
-          dest &&
-          !chatOutputViolation(NAV_ONLY_FALLBACK, true)
-        ) {
-          safeEnqueue(NAV_ONLY_FALLBACK);
-          persistText = NAV_ONLY_FALLBACK;
-        }
 
         try {
           controller.close();
@@ -648,16 +554,13 @@ export function runChatAgent(
           /* already closed */
         }
 
-        finishNav(dest);
         // Persist only a compliant answer — a blocked one never reached the user.
         finishFinal({
-          text: blocked ? "" : persistText,
+          text: blocked ? "" : effectiveText,
           blocked,
           status: "success",
           errorType: null,
           usage: effectiveUsage,
-          navProposedKey,
-          navBlocked,
         });
         return;
       } catch (err) {
@@ -676,7 +579,6 @@ export function runChatAgent(
         } catch {
           /* already closed */
         }
-        finishNav(null);
         finishFailed("llm_create");
         return;
       }
@@ -684,7 +586,6 @@ export function runChatAgent(
     },
 
     cancel() {
-      finishNav(null);
       // Consumer (client) went away mid-stream — not an upstream error, but the
       // turn did not complete. Mark it distinctly so monitoring isn't polluted.
       finishFinal({
@@ -693,11 +594,9 @@ export function runChatAgent(
         status: "failed",
         errorType: "client_cancelled",
         usage: null,
-        navProposedKey: null,
-        navBlocked: false,
       });
     },
   });
 
-  return { stream: guardChatStream(raw), nav, final };
+  return { stream: guardChatStream(raw), final };
 }

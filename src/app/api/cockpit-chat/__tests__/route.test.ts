@@ -74,11 +74,19 @@ vi.mock("@/lib/llm/nav-channel", () => ({
   publishNav: vi.fn(),
 }));
 
-// Product-intent classification is now an LLM call; mock it so tests choose the
-// verdict deterministically (default: not a product intent → no short-circuit).
-vi.mock("@/lib/llm/classify-product-intent", () => ({
-  classifyProductIntentLlm: vi.fn(),
-}));
+// Product-intent classification is now a deterministic regex; mock it so tests
+// choose the verdict explicitly (default: not a product intent → no short-circuit).
+vi.mock("@/lib/llm/product-workspace-intent", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/llm/product-workspace-intent")>();
+  return {
+    ...original,
+    classifyProductWorkspaceIntent: vi.fn().mockReturnValue({
+      kind: "none",
+      shouldOpenProductWorkspace: false,
+      shouldOpenScenarioLab: false,
+    }),
+  };
+});
 
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
@@ -86,8 +94,10 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { runChatAgent, type ChatTurnFinal } from "@/lib/llm/chat-agent";
 import { publishNav } from "@/lib/llm/nav-channel";
-import { classifyProductIntentLlm } from "@/lib/llm/classify-product-intent";
-import { PRODUCT_WORKSPACE_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
+import {
+  classifyProductWorkspaceIntent,
+  PRODUCT_WORKSPACE_DESTINATION_KEY,
+} from "@/lib/llm/product-workspace-intent";
 
 const mockRequireAuth = vi.mocked(requireAuth);
 const mockAdminChatModeFindUnique = vi.mocked(prisma.adminChatMode.findUnique);
@@ -97,15 +107,15 @@ const mockLlmRunCreate = vi.mocked(prisma.llmRun.create);
 const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
-const mockClassify = vi.mocked(classifyProductIntentLlm);
+const mockClassify = vi.mocked(classifyProductWorkspaceIntent);
 const mockGetSession = vi.mocked(getSession);
 
 /** Default: not a product intent (so most tests exercise the normal chat path). */
 function classifyNotProduct() {
-  mockClassify.mockResolvedValue({
-    isProductIntent: false,
+  mockClassify.mockReturnValue({
     kind: "none",
-    wantsSimulation: false,
+    shouldOpenProductWorkspace: false,
+    shouldOpenScenarioLab: false,
   });
 }
 
@@ -133,7 +143,7 @@ function makeChatRequest(message: string): NextRequest {
 }
 
 function mockMasterAgentTurn(
-  modelDestinationKey: string,
+  _destinationKey: string,
   finalOverride?: Partial<ChatTurnFinal>,
 ) {
   mockRunChatAgent.mockReturnValue({
@@ -143,21 +153,12 @@ function mockMasterAgentTurn(
         controller.close();
       },
     }),
-    nav: Promise.resolve({
-      key: modelDestinationKey,
-      profile: "admin" as const,
-      route: "/admin/scenario-lab",
-      label: "Scenario Lab",
-      description: "Simulation surface",
-    }),
     final: Promise.resolve({
       text: "ok",
       blocked: false,
       status: "success",
       errorType: null,
       usage: null,
-      navProposedKey: modelDestinationKey,
-      navBlocked: false,
       ...finalOverride,
     }),
   });
@@ -171,15 +172,12 @@ function mockMasterAgentTurnWithoutNav(finalOverride?: Partial<ChatTurnFinal>) {
         controller.close();
       },
     }),
-    nav: Promise.resolve(null),
     final: Promise.resolve({
       text: "ok",
       blocked: false,
       status: "success",
       errorType: null,
       usage: null,
-      navProposedKey: null,
-      navBlocked: false,
       ...finalOverride,
     }),
   });
@@ -200,15 +198,18 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
     mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
-  it("short-circuits when the LLM classifies a product intent: ack bubble, workspace nav, NO chat LLM call", async () => {
-    mockClassify.mockResolvedValue({
-      isProductIntent: true,
+  it("short-circuits when the deterministic classifier detects a product intent: ack bubble, workspace nav, NO chat LLM call", async () => {
+    mockClassify.mockReturnValue({
       kind: "product_creation",
       objective: "Monter un véhicule défensif",
-      wantsSimulation: false,
+      primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+      autostart: true,
+      shouldOpenProductWorkspace: true,
+      shouldOpenScenarioLab: false,
     });
 
     const res = await POST(makeChatRequest("monte-moi un truc défensif"));
@@ -230,19 +231,27 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
   });
 
   it("carries Scenario Lab as secondary metadata when the product intent also wants simulation", async () => {
-    mockClassify.mockResolvedValue({
-      isProductIntent: true,
+    mockClassify.mockReturnValue({
       kind: "mixed_product_creation_simulation",
-      objective: "Créer un vault BTC Plus et le stresser",
-      wantsSimulation: true,
+      objective: "Créer un vault BTC Plus défensif",
+      primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+      secondaryDestinationKey: "admin-scenario-lab",
+      secondaryHint: "Scenario Lab validation requested",
+      autostart: true,
+      shouldOpenProductWorkspace: true,
+      shouldOpenScenarioLab: true,
     });
 
-    const res = await POST(makeChatRequest("fais un vault BTC plus et stress-teste-le"));
+    // Use a message that the product-workspace classifier catches (mocked to return
+    // shouldOpenProductWorkspace: true) but that the pre-LLM regex shortcut does
+    // NOT catch (no nav verb + no standalone "simuler" keyword that would route to
+    // scenario-lab first).
+    const res = await POST(makeChatRequest("créer un vault BTC Plus défensif avec validation"));
     expect(res.status).toBe(200);
     await vi.waitFor(() => {
       expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
         destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un vault BTC Plus et le stresser",
+        objective: "Créer un vault BTC Plus défensif",
         autostart: true,
         intentKind: "mixed_product_creation_simulation",
         secondaryDestinationKey: "admin-scenario-lab",
@@ -251,7 +260,7 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
-  it("does NOT short-circuit when the LLM says it is not a product intent — normal chat answer", async () => {
+  it("does NOT short-circuit when the regex says it is not a product intent — normal chat answer", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav({ text: "Le runbook a 5 étapes." });
 
@@ -264,23 +273,12 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
   });
 
-  it("publishes the model's own destination on a non-product navigation", async () => {
-    classifyNotProduct();
-    mockMasterAgentTurn("admin-dashboard");
-
-    const res = await POST(makeChatRequest("montre le dashboard admin"));
-    expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: "admin-dashboard",
-      });
-    });
-  });
-
-  it("falls back to Scenario Lab for a standalone simulation answered in plain text", async () => {
+  it("falls back to Scenario Lab for a standalone simulation intent in plain text (regex nav)", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav();
 
+    // "simuler" is handled by the pre-LLM regex shortcut (resolveNavFallbackDestinationKey)
+    // — it routes directly before the LLM runs.
     const res = await POST(makeChatRequest("simuler un stress test BTC bear"));
     expect(res.status).toBe(200);
     await vi.waitFor(() => {
@@ -290,7 +288,7 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
-  it("falls back to Customers when admin asks to create a client in plain text", async () => {
+  it("falls back to Customers when admin asks to create a client in plain text (regex nav)", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav();
 
@@ -303,7 +301,7 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
-  it("falls back to Outreach for an email prospection intent in plain text", async () => {
+  it("falls back to Outreach for an email prospection intent in plain text (regex nav)", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav();
 
@@ -331,6 +329,7 @@ describe("POST /api/cockpit-chat — LP nav fallback", () => {
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
     mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
@@ -360,6 +359,7 @@ describe("POST /api/cockpit-chat — admin nav regex shortcut", () => {
     });
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
@@ -399,7 +399,6 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       userId: USER_ID,
     } as never);
     mockMasterAgentTurn("portfolio", {
-      navProposedKey: null,
       usage: { prompt_tokens: 1000, completion_tokens: 500, total_tokens: 1500 },
     });
 
@@ -438,7 +437,6 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       status: "failed",
       errorType: "llm_create",
       usage: null,
-      navProposedKey: null,
     });
 
     const res = await POST(makeChatRequest("déclenche une erreur"));
@@ -463,7 +461,6 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       blocked: true,
       status: "success",
       errorType: null,
-      navProposedKey: null,
       usage: { prompt_tokens: 800, completion_tokens: 0, total_tokens: 800 },
     });
 
@@ -498,68 +495,54 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
     mockPublishNav.mockResolvedValue(undefined);
   });
 
-  it("traces a proposed+compliant navigation as published", async () => {
-    mockMasterAgentTurn("portfolio", { navProposedKey: "portfolio", navBlocked: false });
+  // Navigation is deterministic (regex shortcut). NavTrace rows are written by
+  // the shortcut block, not the LLM path — a normal chat turn (no nav intent)
+  // never touches navTrace.create, and a nav-shortcut turn writes exactly one
+  // deterministic row with status:"published" / reason:"deterministic_router".
+
+  it("writes no nav trace on a plain LLM answer (no nav intent, shortcut not triggered)", async () => {
+    mockMasterAgentTurnWithoutNav();
 
     const res = await POST(makeChatRequest("quelle est la structure Cayman ?"));
-    expect(res.status).toBe(200);
-
-    await vi.waitFor(() => {
-      expect(mockNavTraceCreate).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          id: expect.stringMatching(/^nav:turn_/),
-          userId: USER_ID,
-          profile: "lp",
-          mode: "normal",
-          destinationKey: "portfolio",
-          status: "published",
-          reason: null,
-        }),
-      });
-    });
-
-    const llmTurnId = String(mockLlmRunCreate.mock.calls[0]?.[0]?.data.id).replace(
-      /^llm:/,
-      "",
-    );
-    expect(mockNavTraceCreate.mock.calls[0]?.[0]?.data.id).toBe(`nav:${llmTurnId}`);
-  });
-
-  it("traces a navigation dropped by the compliance guard as blocked", async () => {
-    mockMasterAgentTurn("portfolio", {
-      text: "",
-      blocked: true,
-      navProposedKey: "portfolio",
-      navBlocked: true,
-    });
-
-    // The message must NOT lead with a bare nav verb: a nav-verb-only message
-    // with no resolvable destination is now short-circuited to NAV_REJECT_ACK in
-    // POST (before runChatAgent runs), which would bypass the model-proposed nav
-    // this test exercises. Drive the blocked-nav-trace path via a normal question
-    // — runChatAgent is mocked, so the message text doesn't shape the verdict.
-    const res = await POST(makeChatRequest("explique-moi la structure Cayman du vault"));
-    expect(res.status).toBe(200);
-
-    await vi.waitFor(() => {
-      expect(mockNavTraceCreate).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          destinationKey: "portfolio",
-          status: "blocked",
-          reason: "non_compliant_answer",
-        }),
-      });
-    });
-  });
-
-  it("writes no nav trace when the model proposed no navigation", async () => {
-    mockMasterAgentTurn("portfolio", { navProposedKey: null });
-
-    const res = await POST(makeChatRequest("juste une question"));
     expect(res.status).toBe(200);
 
     // Let the off-path persistence settle, then assert no nav trace was written.
     await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
     expect(mockNavTraceCreate).not.toHaveBeenCalled();
+  });
+
+  it("writes no nav trace on a compliance-blocked LLM answer (shortcut not triggered)", async () => {
+    mockMasterAgentTurnWithoutNav({
+      text: "",
+      blocked: true,
+      status: "success",
+      errorType: null,
+    });
+
+    const res = await POST(makeChatRequest("explique-moi la structure Cayman du vault"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
+    expect(mockNavTraceCreate).not.toHaveBeenCalled();
+  });
+
+  it("writes a deterministic NavTrace row when the regex shortcut fires", async () => {
+    // "ouvre mon portefeuille" matches the LP nav shortcut (portfolio).
+    // The shortcut fires before the LLM, so runChatAgent is NOT called.
+    // The NavTrace row must carry status:"published" + reason:"deterministic_router".
+    const res = await POST(makeChatRequest("ouvre mon portefeuille"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockNavTraceCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          destinationKey: "portfolio",
+          status: "published",
+          reason: "deterministic_router",
+        }),
+      });
+    });
+    // The LLM never ran — the shortcut returned early.
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
   });
 });

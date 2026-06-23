@@ -1,8 +1,32 @@
 import "server-only";
 
 import type { CanvasId } from "@/lib/canvas/contract";
-import type { ClassifyClient } from "@/lib/llm/classify-product-intent";
 import { logger } from "@/lib/logger";
+
+/**
+ * Minimal structural client (subset of the OpenAI SDK) for LLM classifiers
+ * that make small, non-streaming JSON calls. Injected by callers so classifiers
+ * are testable with a fake (no real API spend in unit tests).
+ *
+ * Formerly in classify-product-intent.ts (deleted when the LLM classifier was
+ * replaced by the deterministic classifyProductWorkspaceIntent). Kept here as
+ * the shared type for classifyCanvasIntentLlm + extractOutreachFieldsLlm.
+ */
+export interface ClassifyClient {
+  chat: {
+    completions: {
+      create(
+        params: {
+          model: string;
+          messages: Array<{ role: string; content: string }>;
+          max_tokens?: number;
+          response_format?: { type: "json_object" };
+        },
+        options?: { timeout?: number },
+      ): Promise<{ choices?: Array<{ message?: { content?: string | null } }> }>;
+    };
+  };
+}
 
 /**
  * LLM-based canvas-intent classifier for the admin cockpit chat.
@@ -12,11 +36,14 @@ import { logger } from "@/lib/logger";
  * campagne outreach") never opened the canvas; the agent just answered in the
  * chat and ran the tools inline. This classifier closes that gap: it detects, in
  * any phrasing, whether an admin message wants to OPEN a canvas workshop, and
- * which one — mirroring `classifyProductIntentLlm`.
+ * which one — a small, fail-safe LLM classification (canvas only — NOT navigation,
+ * which is fully deterministic per ADR-018).
  *
  * Scope (V1): OUTREACH only. Product/vault creation is already handled by the
- * existing product-intent classifier (→ product workspace); routing that to the
- * canvas instead is a separate product decision, so this stays narrow on purpose.
+ * deterministic regex classifier classifyProductWorkspaceIntent (→ product workspace)
+ * and navigation by resolveNavFallbackDestinationKey (→ regex router, no LLM);
+ * routing those to the canvas instead is a separate product decision, so this stays
+ * narrow on purpose.
  *
  * FAIL-SAFE: any error / malformed output → null (no canvas). A hiccup must never
  * break the chat — it degrades to a normal answer.
@@ -62,6 +89,66 @@ function parse(raw: string): CanvasIntentClassification | null {
   const objective =
     objectiveRaw.length > 0 ? objectiveRaw.slice(0, MAX_OBJECTIVE_LEN) : undefined;
   return { canvasId: "outreach", ...(objective ? { objective } : {}) };
+}
+
+// ---------------------------------------------------------------------------
+// Field extraction — when the operator dictates campaign values in chat
+// ("appelle-la Distributeurs Q3, en cold"), pull them so the canvas fills.
+// ---------------------------------------------------------------------------
+
+const EXTRACT_SYSTEM_PROMPT = [
+  "Tu extrais les paramètres d'une campagne outreach depuis UN message admin.",
+  "Réponds STRICTEMENT en JSON, ce schéma exact:",
+  '{ "name": string, "kind": "cold" | "newsletter" }',
+  "Règles:",
+  "- name: le nom de campagne si l'opérateur en donne un (ex: « appelle-la Distributeurs Q3 » → name=\"Distributeurs Q3\"), sinon \"\".",
+  "- kind: \"newsletter\" si l'opérateur le précise, sinon \"cold\".",
+  "- N'invente RIEN. Si aucun nom n'est donné, name=\"\".",
+  "- Ne mets RIEN d'autre que le JSON.",
+].join("\n");
+
+export interface OutreachFieldValues {
+  name?: string;
+  kind?: "cold" | "newsletter";
+}
+
+/**
+ * Extract outreach campaign field values from an admin message. Never throws —
+ * any failure → {} (no fill). Only the fields actually present are returned.
+ */
+export async function extractOutreachFieldsLlm(
+  client: ClassifyClient,
+  _model: string,
+  message: string,
+): Promise<OutreachFieldValues> {
+  const trimmed = message.trim();
+  if (trimmed.length === 0) return {};
+  try {
+    const completion = await client.chat.completions.create(
+      {
+        model: CLASSIFY_MODEL,
+        max_tokens: 80,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: EXTRACT_SYSTEM_PROMPT },
+          { role: "user", content: trimmed },
+        ],
+      },
+      { timeout: CLASSIFY_TIMEOUT_MS },
+    );
+    const content = completion.choices?.[0]?.message?.content ?? "";
+    if (content.trim().length === 0) return {};
+    const parsed = JSON.parse(content) as Record<string, unknown>;
+    const out: OutreachFieldValues = {};
+    if (typeof parsed.name === "string" && parsed.name.trim().length > 0) {
+      out.name = parsed.name.trim().slice(0, 160);
+    }
+    if (parsed.kind === "newsletter") out.kind = "newsletter";
+    else if (parsed.kind === "cold") out.kind = "cold";
+    return out;
+  } catch {
+    return {};
+  }
 }
 
 /**

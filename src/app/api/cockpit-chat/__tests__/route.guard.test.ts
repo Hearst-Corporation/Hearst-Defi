@@ -96,11 +96,6 @@ vi.mock("@/lib/llm/nav-channel", () => ({
 vi.mock("@/lib/llm/nav-fallback-intent", () => ({
   resolveNavFallbackDestinationKey: vi.fn().mockReturnValue(null),
   NAV_SHORTCUT_ACK: "Je vous y emmène.",
-  // The route now calls looksLikeNavIntent() in the EARLY fast-path; these test
-  // messages are real questions (not bare nav gestures), so it must return false
-  // and let the message flow through to the real LLM engine under test.
-  looksLikeNavIntent: vi.fn().mockReturnValue(false),
-  NAV_REJECT_ACK: "Je n'ai pas trouvé la page correspondante.",
 }));
 
 // Product-chart stream events are an orthogonal concern — pass the guarded
@@ -111,9 +106,18 @@ vi.mock("@/lib/llm/product-chat-stream", () => ({
   inferVault: vi.fn(),
 }));
 
-vi.mock("@/lib/llm/classify-product-intent", () => ({
-  classifyProductIntentLlm: vi.fn(),
-}));
+// Deterministic product-workspace classifier — default: not a product intent.
+vi.mock("@/lib/llm/product-workspace-intent", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/llm/product-workspace-intent")>();
+  return {
+    ...original,
+    classifyProductWorkspaceIntent: vi.fn().mockReturnValue({
+      kind: "none",
+      shouldOpenProductWorkspace: false,
+      shouldOpenScenarioLab: false,
+    }),
+  };
+});
 
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";

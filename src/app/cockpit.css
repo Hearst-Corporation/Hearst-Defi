@@ -6360,3 +6360,218 @@ main#main-content>.admin-doc.admin-doc-shell {
   background: var(--ct-surface-3);
   color: var(--ct-text-strong);
 }
+
+/* ===========================================================================
+   Agent Canvas Workspace — the central page the chat agent writes into.
+   SCROLLABLE: .ct-canvas is the scroll container (the shell .ct-page-area is
+   overflow:hidden / no-scroll, so the canvas owns its own vertical scroll).
+   =========================================================================== */
+.ct-canvas {
+  /* `flex` uses !important to win over the high-specificity
+     `.ct-page-area > :not(...main#main-content)` rule, which otherwise pins the
+     canvas to flex:0 0 auto and clips it (no scroll). The canvas grows into the
+     available height and owns its own vertical scroll (the shell is no-scroll). */
+  flex: 1 1 auto !important;
+  min-height: 0;
+  /* !important: the same high-specificity page-area rule forces overflow:visible,
+     which would push the scroll up to the clipped .ct-page-area. The canvas must
+     be the scroller. */
+  overflow-y: auto !important;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding-bottom: var(--ct-space-8);
+}
+.ct-canvas-disclaimer {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+}
+.ct-canvas-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+.ct-canvas-sections--offline {
+  opacity: var(--ct-opacity-60);
+}
+.ct-canvas-empty {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Section card */
+.ct-canvas-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+.ct-canvas-section--building {
+  opacity: var(--ct-opacity-70);
+}
+.ct-canvas-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+.ct-canvas-section-title {
+  font-size: var(--ct-text-sm);
+  font-weight: 600;
+  color: var(--ct-text-strong);
+  margin: 0;
+}
+.ct-canvas-section-status {
+  font-size: var(--ct-text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide, 0.04em);
+  color: var(--ct-text-muted);
+}
+.ct-canvas-section-intro {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-body);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Fields */
+.ct-canvas-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--ct-space-3);
+  margin: 0;
+}
+.ct-canvas-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-3);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  background: var(--ct-surface-1);
+}
+.ct-canvas-field-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  font-size: var(--ct-text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide, 0.04em);
+  color: var(--ct-text-muted);
+  margin: 0;
+}
+.ct-canvas-field-value {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-strong);
+  margin: 0;
+}
+.ct-canvas-field-note {
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+  margin: 0;
+}
+
+/* Options (prefill chat / set field) */
+.ct-canvas-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-2);
+}
+
+/* HITL action proposals */
+.ct-canvas-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+.ct-canvas-action {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-4);
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius-md);
+  background: var(--ct-surface-2);
+}
+.ct-canvas-action-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+.ct-canvas-action-label {
+  font-size: var(--ct-text-sm);
+  font-weight: 600;
+  color: var(--ct-text-strong);
+}
+.ct-canvas-action-risk {
+  font-size: var(--ct-text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide, 0.04em);
+  padding: var(--ct-space-0_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-muted);
+}
+.ct-canvas-action-risk--high {
+  color: var(--ct-status-danger, var(--ct-text-strong));
+  border-color: var(--ct-bc-danger, var(--ct-border));
+}
+.ct-canvas-ptai {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--ct-space-1) var(--ct-space-3);
+  margin: 0;
+  font-size: var(--ct-text-xs);
+}
+.ct-canvas-ptai > div {
+  display: contents;
+}
+.ct-canvas-ptai dt {
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide, 0.04em);
+  font-size: var(--ct-text-2xs);
+}
+.ct-canvas-ptai dd {
+  color: var(--ct-text-body);
+  margin: 0;
+}
+.ct-canvas-willnotdo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+}
+.ct-canvas-willnotdo li::before {
+  content: "— ";
+}
+.ct-canvas-action-confirm {
+  display: flex;
+  gap: var(--ct-space-2);
+  align-items: center;
+}
+.ct-canvas-action-feedback {
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+  margin: 0;
+}
+.ct-canvas-action-done {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-status-success, var(--ct-accent));
+  margin: 0;
+}
+.ct-canvas-action-error {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-status-danger, var(--ct-text-strong));
+  margin: 0;
+}

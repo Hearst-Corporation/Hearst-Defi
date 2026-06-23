@@ -230,6 +230,16 @@ const serverEnvSchema = z.object({
       "HEARST_PUBLISHER_PRIVATE_KEY must be a 0x-prefixed 64-hex secp256k1 private key",
     )
     .optional(),
+  // ── MySwarms / crewai-engine (external agentic orchestration backend) ──────
+  // Hearst Connect drives the external CrewAI engine over HTTP (kickoff→poll,
+  // Bearer auth). ALL optional: when SWARMS_ENGINE is off (default) these are
+  // unused. When on but unset, the prod guard below WARNS (never throws) and the
+  // swarm client fails at use-site with a clear EngineError — never a global
+  // boot outage. CREWAI_ENGINE_URL defaults to localhost:8000 in the client when
+  // absent; the token has no default (min 32 chars only when explicitly set).
+  CREWAI_ENGINE_URL: z.string().url().optional(),
+  CREWAI_ENGINE_AUTH_TOKEN: z.string().min(32).optional(),
+  CREWAI_ENGINE_TIMEOUT_MS: z.coerce.number().int().positive().default(30000),
 });
 
 type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -308,6 +318,17 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
         "other value keeps the unified runChatAgent engine ON.",
     );
   }
+  // MySwarms engine: warn (never throw) when the flag is on but the connection
+  // is not provisioned — swarm kickoffs then fail at use-site, not at boot.
+  if (process.env.SWARMS_ENGINE === "1") {
+    if (!d.CREWAI_ENGINE_URL || !d.CREWAI_ENGINE_AUTH_TOKEN) {
+      console.warn(
+        "[env] SWARMS_ENGINE=1 but CREWAI_ENGINE_URL / CREWAI_ENGINE_AUTH_TOKEN " +
+          "is missing — swarm kickoffs will fail at use-site (EngineError) until " +
+          "both are configured.",
+      );
+    }
+  }
   // P0: Redis is REQUIRED in production for distributed rate limiting.
   // Without it, rate limits are per-instance only and can be bypassed
   // by distributing requests across serverless instances.
@@ -377,6 +398,7 @@ function resolveEnv(): ServerEnv {
         SUPABASE_STORAGE_BUCKET: lenient.data.SUPABASE_STORAGE_BUCKET ?? "reports",
         OUTREACH_AUTONOMY: lenient.data.OUTREACH_AUTONOMY ?? "SUGGEST",
         OUTREACH_DAILY_SEND_CAP: lenient.data.OUTREACH_DAILY_SEND_CAP ?? 30,
+        CREWAI_ENGINE_TIMEOUT_MS: lenient.data.CREWAI_ENGINE_TIMEOUT_MS ?? 30000,
       };
       return data;
     }
