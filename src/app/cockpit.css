@@ -3869,6 +3869,10 @@ button.ct-choice-card {
   min-width: var(--ct-rail-left) !important;
   max-width: var(--ct-rail-left) !important;
   position: relative;
+  /* Harmonize borders : fade out the border and background at the very bottom
+     to match the black plinth. */
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
 .ct-rail-left::after {
@@ -3901,6 +3905,10 @@ button.ct-choice-card {
      doit déborder par-dessus la bordure gauche. Le header tronque déjà son titre. */
   overflow: hidden;
   position: relative;
+  /* Harmonize borders : fade out the border and background at the very bottom
+     to match the black plinth. */
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
 .ct-rail-right::after {
@@ -4559,7 +4567,8 @@ button.ct-choice-card {
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--ct-space-16); /* ~64px fade */
+  /* Responsive fade height: smaller on mobile, generous on desktop. */
+  height: clamp(var(--ct-space-8), 8vh, var(--ct-space-16));
   background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
   pointer-events: none;
   z-index: 10;
@@ -4713,7 +4722,11 @@ main#main-content>.admin-doc.admin-doc-shell {
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
    auto-scroll-to-bottom effect keep the newest message in view without clipping
    the top. The zero-state placeholder keeps its own margin:auto centering. */
-.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; }
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; 
+  /* Bottom fade for messages before the composer. */
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+}
 .ct-chat-list::-webkit-scrollbar           { width: 4px; }
 .ct-chat-list::-webkit-scrollbar-track     { background: transparent; }
 .ct-chat-list::-webkit-scrollbar-thumb     { background: var(--ct-border-soft); border-radius: var(--ct-radius-full); }
