@@ -1,8 +1,32 @@
 import "server-only";
 
 import type { CanvasId } from "@/lib/canvas/contract";
-import type { ClassifyClient } from "@/lib/llm/classify-product-intent";
 import { logger } from "@/lib/logger";
+
+/**
+ * Minimal structural client (subset of the OpenAI SDK) for LLM classifiers
+ * that make small, non-streaming JSON calls. Injected by callers so classifiers
+ * are testable with a fake (no real API spend in unit tests).
+ *
+ * Formerly in classify-product-intent.ts (deleted when the LLM classifier was
+ * replaced by the deterministic classifyProductWorkspaceIntent). Kept here as
+ * the shared type for classifyCanvasIntentLlm + extractOutreachFieldsLlm.
+ */
+export interface ClassifyClient {
+  chat: {
+    completions: {
+      create(
+        params: {
+          model: string;
+          messages: Array<{ role: string; content: string }>;
+          max_tokens?: number;
+          response_format?: { type: "json_object" };
+        },
+        options?: { timeout?: number },
+      ): Promise<{ choices?: Array<{ message?: { content?: string | null } }> }>;
+    };
+  };
+}
 
 /**
  * LLM-based canvas-intent classifier for the admin cockpit chat.
@@ -15,8 +39,9 @@ import { logger } from "@/lib/logger";
  * which one — mirroring `classifyProductIntentLlm`.
  *
  * Scope (V1): OUTREACH only. Product/vault creation is already handled by the
- * existing product-intent classifier (→ product workspace); routing that to the
- * canvas instead is a separate product decision, so this stays narrow on purpose.
+ * deterministic regex classifier classifyProductWorkspaceIntent (→ product workspace);
+ * routing that to the canvas instead is a separate product decision, so this stays
+ * narrow on purpose.
  *
  * FAIL-SAFE: any error / malformed output → null (no canvas). A hiccup must never
  * break the chat — it degrades to a normal answer.

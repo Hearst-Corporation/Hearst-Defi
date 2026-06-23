@@ -3,8 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   ADMIN_NAV_DESTINATIONS,
   LP_NAV_DESTINATIONS,
-  createNavigateTool,
-  getNavKeys,
   resolveNavDestination,
   resolveNavDestinationForProfile,
   isProtectedRoute,
@@ -73,19 +71,6 @@ describe("navigate-tool whitelist", () => {
       expect(d.route).toMatch(/^\/admin(\/|$)/);
       expect(d.route).not.toContain("[");
     }
-  });
-
-  it("the tool enum is scoped by profile (model can't invent cross-profile keys)", () => {
-    const lpTool = createNavigateTool("lp");
-    const adminTool = createNavigateTool("admin");
-    expect(lpTool.function.parameters.properties.destination.enum).toEqual([
-      ...getNavKeys("lp"),
-    ]);
-    expect(adminTool.function.parameters.properties.destination.enum).toEqual([
-      ...getNavKeys("admin"),
-    ]);
-    expect(lpTool.function.name).toBe("navigate");
-    expect(adminTool.function.name).toBe("navigate");
   });
 
   it("resolves a known key and rejects an unknown one", () => {

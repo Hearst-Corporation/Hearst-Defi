@@ -45,9 +45,8 @@ import {
   SCENARIO_LAB_DESTINATION_KEY,
 } from "@/lib/llm/product-workspace-intent";
 import {
-  classifyProductIntentLlm,
-  type ClassifyClient,
-} from "@/lib/llm/classify-product-intent";
+  classifyProductWorkspaceIntent,
+} from "@/lib/llm/product-workspace-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
 import {
   detectCanvasIntent,
@@ -58,6 +57,7 @@ import {
 import {
   classifyCanvasIntentLlm,
   extractOutreachFieldsLlm,
+  type ClassifyClient,
 } from "@/lib/canvas/classify-canvas-intent";
 import { withCanvasStreamEvents } from "@/lib/canvas/emit";
 import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
@@ -710,11 +710,10 @@ async function runMasterAgentTurn(args: {
   // and the workspace itself generates + streams the framing brief live (POST
   // /api/admin/product-workspace/brief).
   //
-  // Intent detection is an LLM classification (not a keyword regex): any phrasing
-  // of "create/frame a product" — even indirect — is recognized. It is FAIL-SAFE
-  // (a classifier error returns not-a-product-intent), so a hiccup degrades to a
-  // normal conversational answer rather than breaking the chat. Admin-only: the
-  // workspace is an admin surface, so we never spend a classification call on LP.
+  // Intent detection is now DETERMINISTIC (regex, synchronous) — no LLM call,
+  // no latency, no failure mode. Covers all known phrasings via
+  // classifyProductWorkspaceIntent. Admin-only: the workspace is an admin surface.
+  // Skip when a canvas intent already won (e.g. outreach canvas).
 
   const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
     (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
@@ -722,19 +721,12 @@ async function runMasterAgentTurn(args: {
   // Gate on the admin ROLE, not the chat mode: an admin gets a product intent
   // diverted to the workspace even from plain Conversation mode. A LP never
   // reaches here for the workspace (the surface is admin-only).
-  // Skip the product classifier when a canvas intent already won (e.g. outreach)
-  // — otherwise an outreach request could also match "frame a product" and race
-  // the two short-circuits.
   const productIntent =
     !isReview && isAdmin && productWorkspaceNavEnabled && !canvasIntent
-      ? await classifyProductIntentLlm(
-          openai as unknown as ClassifyClient,
-          model,
-          message,
-        )
+      ? classifyProductWorkspaceIntent(message)
       : null;
 
-  if (productIntent?.isProductIntent) {
+  if (productIntent?.shouldOpenProductWorkspace) {
     const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
       (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
     );
@@ -743,7 +735,7 @@ async function runMasterAgentTurn(args: {
     // MUST be in the channel before we return the response — otherwise the
     // first poll races ahead of the write and the page never opens. publishNav
     // is best-effort internally (never throws), so awaiting it is safe.
-    // Fallback: if the classifier didn't extract an objective, use the raw
+    // Fallback: if the regex classifier didn't extract an objective, use the raw
     // message (truncated) so the workspace always has something to brief on.
     const _rawFallback = message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220);
     const workspaceObjective = productIntent.objective ?? (_rawFallback || undefined);
@@ -754,7 +746,7 @@ async function runMasterAgentTurn(args: {
       intentKind: productIntent.kind,
       // Carry Scenario Lab as secondary metadata when the same message also
       // asked to simulate, so the workspace can surface that next step.
-      ...(productIntent.wantsSimulation && scenarioLabNavEnabled
+      ...(productIntent.shouldOpenScenarioLab && scenarioLabNavEnabled
         ? {
             secondaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
             secondaryHint: "Scenario Lab validation requested",
@@ -832,7 +824,7 @@ async function runMasterAgentTurn(args: {
     }
   }
 
-  const { stream, nav, final } = runChatAgent(
+  const { stream, final } = runChatAgent(
     openai as unknown as StreamingChatClient,
     model,
     messages,
@@ -841,8 +833,6 @@ async function runMasterAgentTurn(args: {
       navProfile,
       chatMode: chatMode === "admin" ? "admin" : "normal",
       userId,
-      // Review mode never navigates — don't even declare the navigate tool.
-      exposeNavigate: !isReview,
     },
   );
   // Stream-event wrappers (both interleave over the same in-band multiplexer,
@@ -913,42 +903,9 @@ async function runMasterAgentTurn(args: {
       /* tracing/persistence must never break the response */
     });
 
-  // Publish the chosen navigation destination for the client bridge. NOTE: a
-  // PRODUCT intent never reaches here — it was classified (LLM) and
-  // short-circuited above. So this path only publishes the model's own chosen
-  // destination, plus a fallback to Scenario Lab for a standalone simulation
-  // intent the model answered in plain text without a navigate tool call.
-  //
-  // SKIP when a canvas is active: the canvas handoff already published its
-  // directive (→ /admin/agent-canvas/<id>) above. Letting the model's own
-  // navigate tool (or the regex fallback) publish here would OVERWRITE it with
-  // e.g. /admin/outreach and the canvas would never open.
-  if (!isReview && !canvasActive) void nav
-    .then(async (dest) => {
-      if (dest) {
-        await publishNav(userId, { destinationKey: dest.key });
-        return;
-      }
-
-      const fallbackKey = resolveNavFallbackDestinationKey({
-        navProfile,
-        isAdmin,
-        message,
-        scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-        scenarioLabNavEnabled,
-      });
-      const fallbackProfile: "lp" | "admin" =
-        fallbackKey?.startsWith("admin-") === true ? "admin" : "lp";
-      if (
-        fallbackKey &&
-        resolveNavDestinationForProfile(fallbackKey, fallbackProfile)
-      ) {
-        await publishNav(userId, { destinationKey: fallbackKey });
-      }
-    })
-    .catch(() => {
-      /* best-effort nav publish */
-    });
+  // Navigation is resolved deterministically by the regex router above (the
+  // pre-LLM shortcut, resolveNavFallbackDestinationKey). No post-LLM nav
+  // publish needed — the model exposes no navigate tool.
 
   return new Response(responseStream, {
     headers: {

@@ -99,15 +99,17 @@ describe("runChatAgent", () => {
     mockGetAllowedAdminReadTools.mockReturnValue([]);
   });
 
-  it("streams a text-only answer and resolves nav=null", async () => {
+  it("streams a text-only answer and resolves final with text", async () => {
     const client = fakeClient([
       textChunk("Target 8 à 15 % annualisé, "),
       textChunk("distributions mensuelles."),
     ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     const text = await readAll(stream);
     expect(text).toBe("Target 8 à 15 % annualisé, distributions mensuelles.");
-    expect(await nav).toBeNull();
+    const result = await final;
+    expect(result.navProposedKey).toBeNull();
+    expect(result.navBlocked).toBe(false);
   });
 
   it("captures token usage from the terminal usage chunk and reports success (OBS-03)", async () => {
@@ -137,61 +139,17 @@ describe("runChatAgent", () => {
     expect(result.usage).toBeNull();
   });
 
-  it("surfaces the proposed nav key on final even though LP nav is read-only (OBS-02)", async () => {
+  it("navProposedKey is always null (navigation is deterministic, model has no navigate tool)", async () => {
+    // The model may still emit tool_call chunks but they won't be acted on
+    // for navigation (navigate is no longer a declared tool).
     const client = fakeClient([
       textChunk("Voici votre portefeuille. "),
-      toolChunk(0, { name: "navigate", arguments: '{"destination":"portfolio"}' }),
     ]);
     const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     await readAll(stream);
     const result = await final;
-    expect(result.navProposedKey).toBe("portfolio");
+    expect(result.navProposedKey).toBeNull();
     expect(result.navBlocked).toBe(false);
-  });
-
-  it("captures a navigate tool call (fragmented args) and resolves the destination", async () => {
-    const client = fakeClient([
-      textChunk("Voici votre portefeuille. "),
-      toolChunk(0, { name: "navigate", arguments: '{"desti' }),
-      toolChunk(0, { arguments: 'nation":"portfolio"}' }),
-    ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
-    const text = await readAll(stream);
-    expect(text).toBe("Voici votre portefeuille. ");
-    const dest = await nav;
-    expect(dest?.route).toBe("/portfolio");
-  });
-
-  it("ignores an unknown navigate destination", async () => {
-    const client = fakeClient([
-      textChunk("D'accord. "),
-      toolChunk(0, { name: "navigate", arguments: '{"destination":"admin"}' }),
-    ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
-    await readAll(stream);
-    expect(await nav).toBeNull();
-  });
-
-  it("scopes destinations to LP profile by default (admin key rejected)", async () => {
-    const client = fakeClient([
-      toolChunk(0, { name: "navigate", arguments: '{"destination":"admin-dashboard"}' }),
-    ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
-    await readAll(stream);
-    expect(await nav).toBeNull();
-  });
-
-  it("accepts admin destinations when navProfile=admin", async () => {
-    const client = fakeClient([
-      textChunk("Je t'ouvre la gouvernance. "),
-      toolChunk(0, { name: "navigate", arguments: '{"destination":"admin-governance"}' }),
-    ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS, {
-      navProfile: "admin",
-    });
-    const text = await readAll(stream);
-    expect(text).toContain("gouvernance");
-    expect((await nav)?.route).toBe("/admin/governance");
   });
 
   it("admin mode executes allowed read tool and uses it in same response", async () => {
@@ -211,14 +169,14 @@ describe("runChatAgent", () => {
       toolChunk(0, { name: "read_runtime_capabilities", arguments: "{}" }, "call_read_1"),
       textChunk("Synthese admin: internet live non outille."),
     ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS, {
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS, {
       navProfile: "admin",
       chatMode: "admin",
     });
     const text = await readAll(stream);
     expect(text).toContain("internet live");
     expect(mockExecuteAdminReadTool).toHaveBeenCalledTimes(1);
-    expect(await nav).toBeNull();
+    expect((await final).navProposedKey).toBeNull();
   });
 
   it("admin mode invokes generate_chart_spec with parsed args", async () => {
@@ -401,7 +359,7 @@ describe("runChatAgent", () => {
       textChunk("Je fournis une proposition a confirmer manuellement."),
     ]);
 
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS, {
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS, {
       chatMode: "admin",
       navProfile: "admin",
     });
@@ -413,10 +371,10 @@ describe("runChatAgent", () => {
       "chat-agent: blocked model write tool auto-exec attempt",
       { toolId: "create_governance_proposal_draft" },
     );
-    expect(await nav).toBeNull();
+    expect((await final).navProposedKey).toBeNull();
   });
 
-  it("keeps navigate working while write tool auto-exec stays blocked", async () => {
+  it("write tool auto-exec stays blocked (navigate tool removed, model unknown tool calls ignored)", async () => {
     mockGetAllowedAdminReadTools.mockReturnValue([]);
     const client = fakeClient([
       toolChunk(
@@ -427,14 +385,9 @@ describe("runChatAgent", () => {
         },
         "call_write_nav_1",
       ),
-      toolChunk(
-        1,
-        { name: "navigate", arguments: '{"destination":"admin-governance"}' },
-        "call_nav_1",
-      ),
       textChunk("Je vous dirige vers la gouvernance avec proposition manuelle."),
     ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS, {
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS, {
       chatMode: "admin",
       navProfile: "admin",
     });
@@ -445,32 +398,34 @@ describe("runChatAgent", () => {
       "chat-agent: blocked model write tool auto-exec attempt",
       { toolId: "create_governance_proposal_draft" },
     );
-    expect((await nav)?.route).toBe("/admin/governance");
+    // Navigation is deterministic (regex), not model-proposed.
+    expect((await final).navProposedKey).toBeNull();
   });
 
-  it("does NOT navigate when the answer is non-compliant (blocked)", async () => {
+  it("compliance guard blocks non-compliant answer and final reflects it", async () => {
     const client = fakeClient([
       textChunk("Le rendement est garanti. "),
-      toolChunk(0, { name: "navigate", arguments: '{"destination":"portfolio"}' }),
     ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     const text = await readAll(stream);
     expect(text).toContain(BLOCK_SENTINEL);
-    expect(await nav).toBeNull();
+    const result = await final;
+    expect(result.blocked).toBe(true);
+    expect(result.navProposedKey).toBeNull();
   });
 
-  it("surfaces an upstream create() failure as an error sentinel, nav=null", async () => {
+  it("surfaces an upstream create() failure as an error sentinel", async () => {
     const client = fakeClient([], { throwOnCreate: true });
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
+    const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     const text = await readAll(stream);
     expect(text).toContain("\x00ERROR:");
-    expect(await nav).toBeNull();
+    expect((await final).navProposedKey).toBeNull();
   });
 
   // BUG B1 — repro: a stream that yields one chunk then HANGS forever (never
   // returns). Without an internal abort the turn (and nav) would deadlock the
   // route. With a short injected timeout the stream ends and nav resolves.
-  it("aborts a hanging upstream stream via internal timeout and settles nav", async () => {
+  it("aborts a hanging upstream stream via internal timeout and settles final", async () => {
     const hangingClient: StreamingChatClient = {
       chat: {
         completions: {
@@ -497,29 +452,57 @@ describe("runChatAgent", () => {
       },
     };
 
-    const { stream, nav } = runChatAgent(hangingClient, "gpt-4.1", MSGS, {
+    const { stream, final } = runChatAgent(hangingClient, "gpt-4.1", MSGS, {
       timeoutMs: 30,
     });
     // Must resolve (not hang). readAll completing IS the assertion the stream
     // ended; the partial text streamed before the stall is preserved.
     const text = await readAll(stream);
     expect(text).toContain("Un instant");
-    expect(await nav).toBeNull();
+    expect((await final).navProposedKey).toBeNull();
   });
 
-  // BUG B2 — repro: tool-call-only completion with NO text content. The bubble
-  // must not be empty — a short FR fallback sentence is emitted, and nav still
-  // resolves the chosen destination.
-  it("emits a fallback sentence when the model returns a tool call with no text", async () => {
-    const client = fakeClient([
-      toolChunk(0, { name: "navigate", arguments: '{"destination":"portfolio"}' }),
+  // The navigate tool is gone, so a tool-call-only first pass (admin read tool)
+  // is handled by the second pass. A plain text-only completion is the LP default.
+  it("tool-call-only first pass without text: admin second pass provides text", async () => {
+    mockGetAllowedAdminReadTools.mockReturnValue([
+      {
+        id: "read_runtime_capabilities",
+        description: "Runtime capabilities matrix",
+      },
     ]);
-    const { stream, nav } = runChatAgent(client, "gpt-4.1", MSGS);
+    mockExecuteAdminReadTool.mockResolvedValue({
+      id: "read_runtime_capabilities",
+      format: "multiline_text_block",
+      title: "CAPS",
+      lines: ["ok"],
+    });
+    // First pass: tool call only (no text). Second pass: text.
+    let callCount = 0;
+    const twoPassClient: StreamingChatClient = {
+      chat: {
+        completions: {
+          create: async () => {
+            callCount++;
+            if (callCount === 1) {
+              return (async function* () {
+                yield toolChunk(0, { name: "read_runtime_capabilities", arguments: "{}" }, "call_1");
+              })();
+            }
+            return (async function* () {
+              yield textChunk("Caps chargées.");
+            })();
+          },
+        },
+      },
+    };
+    const { stream } = runChatAgent(twoPassClient, "gpt-4.1", MSGS, {
+      chatMode: "admin",
+      navProfile: "admin",
+    });
     const text = await readAll(stream);
-    expect(text.trim().length).toBeGreaterThan(0);
+    expect(text).toContain("Caps");
     expect(text).not.toContain(BLOCK_SENTINEL);
-    const dest = await nav;
-    expect(dest?.route).toBe("/portfolio");
   });
 
   it("resolves `final` with the answer text for persistence (compliant)", async () => {

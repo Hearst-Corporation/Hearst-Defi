@@ -3,8 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/logger", () => ({ logger: { warn: vi.fn() } }));
 
-import { classifyCanvasIntentLlm } from "@/lib/canvas/classify-canvas-intent";
-import type { ClassifyClient } from "@/lib/llm/classify-product-intent";
+import { classifyCanvasIntentLlm, type ClassifyClient } from "@/lib/canvas/classify-canvas-intent";
 
 function fakeClient(content: string | (() => never)): ClassifyClient {
   return {

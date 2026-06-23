@@ -161,13 +161,13 @@ const ORCHESTRATION_EDGES: ReadonlyArray<[string, string]> = [
 
 const MASTER_AGENT_NODES: readonly NodeDef[] = [
   { id: "ma-user", label: "User message", kind: "source", column: 0, description: "Inbound chat turn (auth-scoped, sanitized)." },
-  { id: "ma-intent", label: "Intent classifier", kind: "method", column: 1, description: "gpt-4.1-nano · product/framing intent → workspace divert. Fail-safe." },
+  { id: "ma-intent", label: "Intent classifier", kind: "method", column: 1, description: "Deterministic regex · product/framing intent → workspace divert. Synchronous, no LLM call." },
   { id: "ma-ctx-portfolio", label: "Portfolio context", kind: "method", column: 1, description: "Per-user figures, provenance-qualified, guard-validated." },
   { id: "ma-ctx-admin", label: "Admin context", kind: "method", column: 1, description: "Bounded read-tool snapshot (admin mode only)." },
-  { id: "ma-core", label: "Master Agent", kind: "agent", column: 2, binding: { llmAgent: "cockpit-chat" }, description: "GPT-4.1 · streamed · single navigate tool exposed." },
+  { id: "ma-core", label: "Master Agent", kind: "agent", column: 2, binding: { llmAgent: "cockpit-chat" }, description: "GPT-4.1 · streamed · no navigate tool — navigation is deterministic (regex whitelist)." },
   { id: "ma-readtools", label: "Read tools", kind: "tool", column: 3, binding: { toolKind: "read" }, riskLevel: "low", description: "11 bounded read instruments (allowlist, admin)." },
   { id: "ma-guard", label: "Output guard", kind: "guard", column: 3, description: "Forbidden words + APY-always-a-range, mid-stream." },
-  { id: "ma-navigate", label: "Navigate tool", kind: "method", column: 4, description: "Closed route whitelist — read-only, no write/financial." },
+  { id: "ma-navigate", label: "Nav router (regex)", kind: "method", column: 4, description: "Deterministic regex over the closed route whitelist — resolved before the LLM turn, no model involvement." },
   { id: "ma-writetools", label: "Write tools (HITL)", kind: "tool", column: 4, binding: { toolKind: "write" }, riskLevel: "high", confirmationRequired: true, description: "Draft-only · confirmation token · human-in-the-loop." },
   { id: "ma-reply", label: "Chat reply", kind: "output", column: 5, description: "Guarded text stream to the cockpit shell." },
   { id: "ma-navbridge", label: "Nav bridge", kind: "output", column: 5, description: "Out-of-band nav channel → client router.push." },
@@ -252,7 +252,7 @@ const VIEW_DEFS: readonly ViewDef[] = [
     id: "master-agent",
     label: "Master Agent",
     description:
-      "The cockpit chat pipeline (right rail): intent → context → core → guard → navigate / tools. Static wiring is neutral; bound surfaces light up live.",
+      "The cockpit chat pipeline (right rail): deterministic nav router → context → core → guard → tools. Navigation is 100% regex, resolved before the LLM. Static wiring is neutral; bound surfaces light up live.",
     nodes: MASTER_AGENT_NODES,
     edges: MASTER_AGENT_EDGES,
   },

@@ -13,9 +13,8 @@ import {
   stripCanvasOpenMarker,
   detectActiveCanvasFromHistory,
 } from "@/lib/canvas/intent";
-import { extractOutreachFieldsLlm } from "@/lib/canvas/classify-canvas-intent";
+import { extractOutreachFieldsLlm, type ClassifyClient } from "@/lib/canvas/classify-canvas-intent";
 import { composeCanvasState } from "@/lib/canvas/compose";
-import type { ClassifyClient } from "@/lib/llm/classify-product-intent";
 
 function fakeClient(content: string | (() => never)): ClassifyClient {
   return {

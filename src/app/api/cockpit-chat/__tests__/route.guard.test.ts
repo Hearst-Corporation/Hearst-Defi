@@ -111,9 +111,18 @@ vi.mock("@/lib/llm/product-chat-stream", () => ({
   inferVault: vi.fn(),
 }));
 
-vi.mock("@/lib/llm/classify-product-intent", () => ({
-  classifyProductIntentLlm: vi.fn(),
-}));
+// Deterministic product-workspace classifier — default: not a product intent.
+vi.mock("@/lib/llm/product-workspace-intent", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/llm/product-workspace-intent")>();
+  return {
+    ...original,
+    classifyProductWorkspaceIntent: vi.fn().mockReturnValue({
+      kind: "none",
+      shouldOpenProductWorkspace: false,
+      shouldOpenScenarioLab: false,
+    }),
+  };
+});
 
 import { POST } from "@/app/api/cockpit-chat/route";
 import { requireAuth } from "@/lib/auth/require-auth";
