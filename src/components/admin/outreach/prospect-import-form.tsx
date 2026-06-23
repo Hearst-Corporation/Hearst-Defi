@@ -48,7 +48,7 @@ export function ProspectImportForm() {
     <form
       ref={formRef}
       action={onSubmit}
-      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions"
+      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions w-full"
       aria-label="Import prospects"
     >
       <div className="admin-doc-stack admin-doc-stack--tight">

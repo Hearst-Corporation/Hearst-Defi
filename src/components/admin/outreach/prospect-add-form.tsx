@@ -42,7 +42,7 @@ export function ProspectAddForm() {
     <form
       ref={formRef}
       action={onSubmit}
-      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions"
+      className="admin-doc-inset admin-doc-stack admin-doc-stack--actions w-full"
       aria-label="Add prospect"
     >
       <div className="admin-doc-stack admin-doc-stack--tight">

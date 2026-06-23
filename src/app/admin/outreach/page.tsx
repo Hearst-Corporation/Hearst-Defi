@@ -99,7 +99,10 @@ export default async function OutreachPage() {
         <h2 className="h2">Prospect directory ({prospects.total})</h2>
 
         <div className="admin-doc-toolbar">
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+          {/* items-start + flex-wrap so an OPENED form (w-full) drops to its own
+              row and the still-collapsed button stays top-aligned, never floating
+              centred beside the tall form. */}
+          <div className="admin-doc-inline-row admin-doc-inline-row--actions flex-wrap items-start">
             <ProspectAddForm />
             <ProspectImportForm />
           </div>
