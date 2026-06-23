@@ -1546,15 +1546,22 @@
 
 .dashboard-kpi-strip {
   display: grid;
-  /* gap:1px + fond ghost = hairlines de séparation (cf. bloc bordures plus bas). */
-  gap: 1px;
-  background: var(--ct-border-ghost);
+  /* Strip TRANSPARENTE et SANS fond : le panel parent (.dashboard-cockpit-panel)
+     EST la surface. Pas de fond ghost ici (créait un 2e cadre = cage-in-cage).
+     Séparateurs = hairlines par cellule (bloc plus bas). */
+  gap: 0;
   /* auto-fit : autant de colonnes que la largeur le permet — la strip tient sur
      UNE ligne dès que le panel est assez large, quel que soit le nombre de KPI
      (4, 5 ou 8). Remplace les anciens paliers fixes repeat(2/3/4/8) qui
      cassaient en 2×2 sur les panels étroits. min 7.5rem = une cellule lisible. */
   grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   min-width: 0;
+  /* Clippe la hairline droite de la dernière colonne et la hairline bas de la
+     dernière ligne : marge négative 1px + overflow hidden. Aucune bordure ne
+     touche le bord du panel → pas de double cadre. */
+  margin-right: -1px;
+  margin-bottom: -1px;
+  overflow: hidden;
 }
 
 /* Inside an overview cluster pane the strip is narrow (a quarter of the board):
@@ -1572,9 +1579,9 @@
   white-space: normal;
 }
 
-/* Stacked rows (1 colonne) : les hairlines horizontales sont déjà produites par
-   le gap:1px coloré de la strip — aucune bordure explicite nécessaire (sinon
-   double-ligne). Le système gap+background gère uni-colonne ET multi-colonnes. */
+/* Stacked rows (1 colonne, overview-pane) : la hairline bas de chaque cellule
+   sépare les KPI empilés ; la hairline droite déborde et est clippée par
+   l'overflow:hidden de la strip. Aucune règle spécifique nécessaire. */
 
 .dashboard-kpi-strip__cell {
   display: flex;
@@ -1583,10 +1590,11 @@
   gap: var(--ct-space-1_5);
   min-height: var(--ct-dashboard-kpi-cell-min-height);
   padding: var(--ct-space-4);
-  /* Fond opaque : avec le gap:1px coloré de la strip, ce fond fait apparaître
-     les hairlines de séparation. Les modificateurs --accent (fond translucide)
-     se superposent par-dessus, --alert garde son box-shadow inset. */
-  background: var(--ct-graphite-subtle-bg);
+  /* Pas de fond (transparent) : la cellule laisse voir la surface du panel —
+     pas de 2e cadre. Séparateurs = hairline droite + bas ; la strip clippe
+     (overflow + marge négative) le débord de la dernière colonne/ligne. */
+  border-right: 1px solid var(--ct-border-ghost);
+  border-bottom: 1px solid var(--ct-border-ghost);
 }
 
 .dashboard-kpi-strip__cell--alert {
