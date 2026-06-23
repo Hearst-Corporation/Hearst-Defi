@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
 import { loadAgentTemplate } from "@/lib/data/agent-templates";
@@ -34,7 +33,6 @@ export default async function EditAgentTemplatePage({
             ← Agents
           </Link>
         }
-        actions={template.archived ? <Badge variant="warning">Archived</Badge> : undefined}
       />
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Edit template">
         <Card className="w-full p-[var(--ct-space-6)]" hoverOverlay={false}>

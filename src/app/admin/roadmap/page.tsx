@@ -1,6 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { RoadmapBoard } from "@/components/admin/roadmap-board";
-import { Badge } from "@/components/ui/badge";
 import { getRoadmap } from "@/lib/roadmap";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +9,7 @@ export const metadata = {
 };
 
 export default async function RoadmapPage() {
-  const { version, phases } = await getRoadmap();
+  const { phases } = await getRoadmap();
 
   return (
     <>
@@ -18,7 +17,6 @@ export default async function RoadmapPage() {
         titleLead="Product"
         titleAccent="Roadmap"
         contextLabel="Operations"
-        actions={<Badge variant="default">v {version}</Badge>}
       />
       <RoadmapBoard phases={phases} />
     </>

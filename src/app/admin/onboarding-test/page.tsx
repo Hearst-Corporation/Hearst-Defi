@@ -7,7 +7,6 @@ import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { OnboardingForm } from "./onboarding-form";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +14,6 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Onboarding test — Hearst Connect" };
 
 export default function OnboardingTestPage() {
-  const hubspotConfigured = Boolean(process.env.HUBSPOT_API_KEY);
-
   return (
     <>
       <AdminPageHeader
@@ -28,13 +25,6 @@ export default function OnboardingTestPage() {
           <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
             ← Investors
           </Link>
-        }
-        actions={
-          hubspotConfigured ? (
-            <Badge variant="success">HubSpot configured</Badge>
-          ) : (
-            <Badge variant="warning">HubSpot not configured</Badge>
-          )
         }
       />
 

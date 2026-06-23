@@ -15,7 +15,6 @@ import { ActivationLinkButton } from "@/components/admin/customer/activation-lin
 import { QualificationForm } from "@/components/admin/customer/qualification-form";
 import { AgentAssignForm } from "@/components/admin/customer/agent-assign-form";
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
-import { cn } from "@/lib/cn";
 import { loadCustomerDetail } from "@/lib/data/customer-detail";
 import { loadActiveTemplates } from "@/lib/data/agent-templates";
 import { formatAdminDate } from "@/lib/vaults/product-display";
@@ -30,18 +29,6 @@ const usdFull = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
-
-const KYC_DOT: Record<string, string> = {
-  approved: "ct-status-dot-success",
-  pending: "ct-status-dot-warning",
-  rejected: "ct-status-dot-danger",
-};
-
-const KYC_LABEL: Record<string, string> = {
-  approved: "Verified",
-  pending: "Verification pending",
-  rejected: "Verification failed",
-};
 
 const POSITION_STATUS_LABEL: Record<string, string> = {
   active: "Active",
@@ -86,23 +73,10 @@ export default async function CustomerDetailPage({
           </Link>
         }
         actions={
-          <div className="admin-doc-inline-row">
-            <span className="inline-flex items-center gap-[var(--ct-space-1_5)] body-xs">
-              <span
-                aria-hidden
-                className={cn("ct-dot", KYC_DOT[detail.kycStatus] ?? "ct-status-dot-warning")}
-              />
-              <span
-                className={cn(
-                  "ct-text-muted",
-                  detail.kycStatus === "rejected" && "ct-status-danger",
-                )}
-              >
-                KYC · {KYC_LABEL[detail.kycStatus] ?? detail.kycStatus}
-              </span>
-            </span>
-            <KycAction investorId={detail.investorId} status={detail.kycStatus as "pending" | "approved" | "rejected"} />
-          </div>
+          <KycAction
+            investorId={detail.investorId}
+            status={detail.kycStatus as "pending" | "approved" | "rejected"}
+          />
         }
       />
 

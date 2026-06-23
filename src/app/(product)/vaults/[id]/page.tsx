@@ -3,14 +3,9 @@ import Link from "next/link";
 
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { ApyRange } from "@/components/ui/apy-range";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
-import {
-  VAULT_STATUS_VARIANT,
-  vaultStatusLabel,
-} from "@/lib/constants/vault";
 import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
@@ -96,14 +91,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
         >
           ← Products
         </Link>
-      }
-      actions={
-        <>
-          <Badge variant="accent" className="mono">{vault.ticker}</Badge>
-          <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
-            {vaultStatusLabel(vault.status)}
-          </Badge>
-        </>
       }
     >
       <section className="vault-detail-overview" aria-label="Key terms">
