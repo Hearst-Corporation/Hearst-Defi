@@ -95,22 +95,87 @@
   margin-inline: auto;
 }
 
+.admin-strategy-wizard__stepper {
+  margin-bottom: var(--ct-space-4);
+}
+
+.admin-strategy-wizard__step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-1);
+  position: relative;
+  z-index: 1;
+}
+
+.admin-strategy-wizard__step-item .step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-space-6);
+  height: var(--ct-space-6);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-bg-deep);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-faint);
+  font-family: var(--ct-font-mono);
+  font-size: var(--ct-text-xs);
+  transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: default;
+}
+
+.admin-strategy-wizard__step-item.completed .step-number {
+  cursor: pointer;
+}
+
+.admin-strategy-wizard__step-item.completed:hover .step-number {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-accent), transparent 80%);
+}
+
+.admin-strategy-wizard__step-item .step-label {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-faint);
+  font-weight: 500;
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.admin-strategy-wizard__step-item.active .step-number {
+  border-color: var(--ct-accent);
+  color: var(--ct-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ct-accent), transparent 80%);
+}
+
+.admin-strategy-wizard__step-item.active .step-label {
+  color: var(--ct-text-strong);
+}
+
+.admin-strategy-wizard__step-item.completed .step-number {
+  background: var(--ct-accent);
+  border-color: var(--ct-accent);
+  color: var(--ct-bg-deep);
+}
+
+.admin-strategy-wizard__step-item.completed .step-label {
+  color: var(--ct-text-muted);
+}
+
 /* Wide screens: 2-column wizard — form (left) + live projection summary pinned
    on the right, so the deployment page uses the space instead of leaving a dead
-   zone beside a narrow form. Progress bar spans both columns. Below 62rem (chat
+   zone beside a narrow form. Progress bar spans both columns. Below 52rem (chat
    open / tablet / mobile) it falls back to the single narrow column (stacks). */
-@container admin-doc (min-width: 62rem) {
+@container admin-doc (min-width: 52rem) {
   .admin-strategy-wizard {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 17rem;
-    gap: var(--ct-space-6);
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: var(--ct-space-8);
     align-items: start;
-    max-width: 60rem;
+    max-width: 72rem;
     margin-inline: 0;
   }
 
   /* Progress bar (first child) spans the full width above both columns. */
-  .admin-strategy-wizard > .admin-doc-stack--actions:first-child {
+  .admin-strategy-wizard > .admin-strategy-wizard__stepper:first-child {
     grid-column: 1 / -1;
   }
 
@@ -127,6 +192,56 @@
   }
 }
 
+/* Summary panel adaptation when in the sidebar */
+.admin-strategy-wizard__aside .ct-projection-footer {
+  position: static;
+  background: var(--ct-bg-card);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-lg);
+  padding: var(--ct-space-6);
+  box-shadow: var(--ct-shadow-sm);
+}
+
+.admin-strategy-wizard__aside .ct-projection-footer-inner {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ct-space-5);
+}
+
+.admin-strategy-wizard__aside .ct-projection-footer .ct-separator-v {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--ct-border-ghost);
+}
+
+.admin-strategy-wizard__aside .ct-projection-footer .flex-1 {
+  display: none;
+}
+
+.admin-strategy-wizard__aside .ct-projection-footer .stat-label {
+  display: block;
+  font-size: var(--ct-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--ct-space-1);
+}
+
+.admin-strategy-wizard__aside .ct-projection-footer p {
+  text-align: left;
+  border-top: 1px solid var(--ct-border-ghost);
+  padding-top: var(--ct-space-4);
+  width: 100%;
+  opacity: 0.6;
+}
+
+/* Ensure MetricGrid stacks on mobile within the wizard */
+@media (max-width: 40rem) {
+  .admin-strategy-wizard__main .ct-metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .admin-strategy-confirm-rows--head {
   padding-bottom: var(--ct-space-3);
 }
@@ -140,6 +255,43 @@
 .admin-strategy-pill--disabled {
   opacity: var(--ct-opacity-40);
   cursor: not-allowed;
+}
+
+/* Micro-interactions for interactive elements */
+.ct-pill {
+  transition: all var(--ct-dur-fast) var(--ct-ease);
+}
+
+.ct-pill:not(.admin-strategy-pill--disabled):hover {
+  transform: translateY(-1px);
+  background: var(--ct-bg-deep);
+  border-color: var(--ct-border-strong);
+}
+
+.ct-pill.accent:hover {
+  background: var(--ct-accent);
+  filter: brightness(1.1);
+}
+
+.ct-input, .ct-select, .ct-textarea {
+  transition: border-color var(--ct-dur-fast) var(--ct-ease), box-shadow var(--ct-dur-fast) var(--ct-ease);
+}
+
+.ct-input:focus, .ct-select:focus, .ct-textarea:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ct-accent), transparent 90%);
+}
+
+/* Responsive grid adjustments for small screens */
+@media (max-width: 40rem) {
+  .admin-strategy-wizard__stepper .admin-doc-row-spread {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--ct-space-4);
+  }
+  
+  .admin-strategy-wizard__step-item .step-label {
+    display: none; /* Hide labels on very small screens to prevent overlap */
+  }
 }
 
 .admin-strategy-wizard-error {

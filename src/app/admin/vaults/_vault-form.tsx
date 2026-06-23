@@ -14,6 +14,7 @@ import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { SHARE_CLASS_A } from "@/lib/engine/share-class";
+import { cn } from "@/lib/cn";
 import {
   createDraftVault,
   updateDraftVault,
@@ -238,6 +239,13 @@ export function VaultForm(props: VaultFormProps) {
     if (idx > 0) setStep(STEPS[idx - 1]!.key);
   }
 
+  function goToStep(target: Step) {
+    const targetIdx = STEPS.findIndex((s) => s.key === target);
+    if (targetIdx < stepIndex) {
+      setStep(target);
+    }
+  }
+
   function buildInput(): CreateDraftInput {
     return {
       ticker: form.ticker,
@@ -320,24 +328,25 @@ export function VaultForm(props: VaultFormProps) {
   return (
     <div className="admin-strategy-wizard" onBlur={handleBlur}>
       {/* Progress bar */}
-      <div className="admin-doc-stack admin-doc-stack--actions">
+      <div className="admin-strategy-wizard__stepper admin-doc-stack admin-doc-stack--actions">
         <div className="admin-doc-row-spread">
           {STEPS.map((s, i) => (
-            <span
+            <button
               key={s.key}
-              className={
-                i === stepIndex
-                  ? "body-sm font-semibold ct-text-strong"
-                  : i < stepIndex
-                    ? "body-sm ct-text-muted"
-                    : "body-sm ct-text-faint"
-              }
+              type="button"
+              onClick={() => goToStep(s.key)}
+              className={cn(
+                "admin-strategy-wizard__step-item",
+                i === stepIndex && "active",
+                i < stepIndex && "completed"
+              )}
             >
-              {s.label}
-            </span>
+              <span className="step-number">{i + 1}</span>
+              <span className="step-label">{s.label}</span>
+            </button>
           ))}
         </div>
-        <Progress value={progressPct} label="Wizard progress" />
+        <Progress value={progressPct} label="Wizard progress" className="h-1" />
       </div>
 
       <div className="admin-strategy-wizard__main">
@@ -347,46 +356,64 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Identity &amp; Strategy</CardTitle>
 
-            <label className="admin-doc-field block">
-              <span className="stat-label">Ticker *</span>
-              <input
-                className={inputClass()}
-                value={form.ticker}
-                onChange={(e) => set("ticker", e.target.value.toUpperCase())}
-                placeholder="HYV-A"
-                maxLength={12}
-              />
-              <span className="body-xs ct-text-faint">
-                3-12 uppercase letters, digits, hyphens
-              </span>
-            </label>
+            <MetricGrid columns={2}>
+              <label className="admin-doc-field block">
+                <span className="stat-label">Ticker *</span>
+                <input
+                  className={inputClass()}
+                  value={form.ticker}
+                  onChange={(e) => set("ticker", e.target.value.toUpperCase())}
+                  placeholder="HYV-A"
+                  maxLength={12}
+                />
+                <span className="body-xs ct-text-faint">
+                  3-12 uppercase letters, digits, hyphens
+                </span>
+              </label>
 
-            <label className="admin-doc-field block">
-              <span className="stat-label">Name *</span>
-              <ForbiddenWordsInput
-                className={inputClass()}
-                value={form.name}
-                onChange={(v) => set("name", v)}
-                placeholder="Hearst Yield Vault — Series A"
-                maxLength={80}
-                aria-label="Vault name"
-              />
-            </label>
+              <label className="admin-doc-field block">
+                <span className="stat-label">Name *</span>
+                <ForbiddenWordsInput
+                  className={inputClass()}
+                  value={form.name}
+                  onChange={(v) => set("name", v)}
+                  placeholder="Hearst Yield Vault — Series A"
+                  maxLength={80}
+                  aria-label="Vault name"
+                />
+              </label>
+            </MetricGrid>
 
-            <label className="admin-doc-field block">
-              <span className="stat-label">Strategy *</span>
-              <select
-                className={inputClass("ct-select")}
-                value={form.strategy}
-                onChange={(e) =>
-                  set("strategy", e.target.value as FormState["strategy"])
-                }
-              >
-                <option value="mining_yield">Mining Yield</option>
-                <option value="btc_tactical">BTC Tactical</option>
-                <option value="stable_reserve">Stable Reserve</option>
-              </select>
-            </label>
+            <MetricGrid columns={2}>
+              <label className="admin-doc-field block">
+                <span className="stat-label">Strategy *</span>
+                <select
+                  className={inputClass("ct-select")}
+                  value={form.strategy}
+                  onChange={(e) =>
+                    set("strategy", e.target.value as FormState["strategy"])
+                  }
+                >
+                  <option value="mining_yield">Mining Yield</option>
+                  <option value="btc_tactical">BTC Tactical</option>
+                  <option value="stable_reserve">Stable Reserve</option>
+                </select>
+              </label>
+
+              <label className="admin-doc-field block">
+                <span className="stat-label">UI Theme Color</span>
+                <input
+                  className={inputClass()}
+                  value={form.colorTag}
+                  onChange={(e) => set("colorTag", e.target.value)}
+                  placeholder="e.g. accent, #A7FB90"
+                  maxLength={32}
+                />
+                <span className="body-xs ct-text-faint">
+                  CSS variable or hex code for visual branding
+                </span>
+              </label>
+            </MetricGrid>
 
             <label className="admin-doc-field block">
               <span className="stat-label">Description</span>
@@ -399,20 +426,6 @@ export function VaultForm(props: VaultFormProps) {
                 placeholder="Optional — brief fund description for admin UI"
                 aria-label="Vault description"
               />
-            </label>
-
-            <label className="admin-doc-field block">
-              <span className="stat-label">Color Tag</span>
-              <input
-                className={inputClass()}
-                value={form.colorTag}
-                onChange={(e) => set("colorTag", e.target.value)}
-                placeholder="accent"
-                maxLength={32}
-              />
-              <span className="body-xs ct-text-faint">
-                CSS token or hex color for UI tagging
-              </span>
             </label>
           </div>
         )}
@@ -431,18 +444,22 @@ export function VaultForm(props: VaultFormProps) {
                   value={form.minTicketUsdc}
                   onChange={(e) => setNumber("minTicketUsdc", e.target.value)}
                   min={1000}
+                  placeholder="e.g. 250000"
                 />
+                <span className="body-xs ct-text-faint">Minimum investment per LP</span>
               </label>
 
               <label className="admin-doc-field block">
-                <span className="stat-label">Capacity (USDC) *</span>
+                <span className="stat-label">Vault Capacity (USDC) *</span>
                 <input
                   type="number"
                   className={inputClass()}
                   value={form.capacityUsdc}
                   onChange={(e) => setNumber("capacityUsdc", e.target.value)}
                   min={1000}
+                  placeholder="e.g. 10000000"
                 />
+                <span className="body-xs ct-text-faint">Hard cap for this share class</span>
               </label>
             </MetricGrid>
 
@@ -478,33 +495,37 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </MetricGrid>
 
-            {/* #5 — Hurdle rate (bps): annual hurdle before carry applies */}
-            <label className="admin-doc-field block">
-              <span className="stat-label">Hurdle (bps)</span>
-              <input
-                type="number"
-                className={inputClass()}
-                value={form.hurdleBps}
-                onChange={(e) => setNumber("hurdleBps", e.target.value)}
-                min={0}
-                max={2000}
-              />
-              <span className="body-xs ct-text-faint">
-                {pct(form.hurdleBps)}% annual hurdle — carry applies only above this rate. Default 0 (no hurdle).
-              </span>
-            </label>
+            <MetricGrid columns={2}>
+              <label className="admin-doc-field block">
+                <span className="stat-label">Hurdle Rate (bps)</span>
+                <input
+                  type="number"
+                  className={inputClass()}
+                  value={form.hurdleBps}
+                  onChange={(e) => setNumber("hurdleBps", e.target.value)}
+                  min={0}
+                  max={2000}
+                />
+                <span className="body-xs ct-text-faint">
+                  {pct(form.hurdleBps)}% annual hurdle (optional)
+                </span>
+              </label>
 
-            <label className="admin-doc-field block">
-              <span className="stat-label">Soft Lock-up (days) *</span>
-              <input
-                type="number"
-                className={inputClass()}
-                value={form.softLockupDays}
-                onChange={(e) => setNumber("softLockupDays", e.target.value)}
-                min={0}
-                max={365}
-              />
-            </label>
+              <label className="admin-doc-field block">
+                <span className="stat-label">Soft Lock-up (days) *</span>
+                <input
+                  type="number"
+                  className={inputClass()}
+                  value={form.softLockupDays}
+                  onChange={(e) => setNumber("softLockupDays", e.target.value)}
+                  min={0}
+                  max={365}
+                />
+                <span className="body-xs ct-text-faint">
+                  Redemption notice period
+                </span>
+              </label>
+            </MetricGrid>
 
             <MetricGrid columns={2}>
               <label className="admin-doc-field block">
@@ -560,34 +581,36 @@ export function VaultForm(props: VaultFormProps) {
               </span>
             </p>
 
-            {(
-              [
-                { key: "targetMiningBps", label: "Mining" },
-                { key: "targetBtcTacticalBps", label: "BTC Tactical" },
-                { key: "targetUsdcBaseBps", label: "USDC Base" },
-                { key: "targetStableReserveBps", label: "Stable Reserve" },
-              ] as const
-            ).map(({ key, label }) => (
-              <div key={key} className="admin-doc-stack admin-doc-stack--tight">
-                <div className="admin-doc-row-spread">
-                  <span className="stat-label">{label}</span>
-                  <span className="mono tabular body-sm ct-text-primary">
-                    {pct(form[key])}%
-                  </span>
+            <MetricGrid columns={2} className="gap-y-6">
+              {(
+                [
+                  { key: "targetMiningBps", label: "Mining" },
+                  { key: "targetBtcTacticalBps", label: "BTC Tactical" },
+                  { key: "targetUsdcBaseBps", label: "USDC Base" },
+                  { key: "targetStableReserveBps", label: "Stable Reserve" },
+                ] as const
+              ).map(({ key, label }) => (
+                <div key={key} className="admin-doc-stack admin-doc-stack--tight">
+                  <div className="admin-doc-row-spread">
+                    <span className="stat-label">{label}</span>
+                    <span className="mono tabular body-sm ct-text-primary">
+                      {pct(form[key])}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={10000}
+                    step={50}
+                    value={form[key]}
+                    onChange={(e) => setAllocationBps(key, e.target.value)}
+                    className="w-full accent-(--ct-accent)"
+                    aria-label={`${label} allocation`}
+                  />
+                  <Progress value={form[key]} max={10000} label={`${label} allocation`} className="h-1" />
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={10000}
-                  step={50}
-                  value={form[key]}
-                  onChange={(e) => setAllocationBps(key, e.target.value)}
-                  className="w-full accent-(--ct-accent)"
-                  aria-label={`${label} allocation`}
-                />
-                <Progress value={form[key]} max={10000} label={`${label} allocation`} />
-              </div>
-            ))}
+              ))}
+            </MetricGrid>
           </div>
         )}
 
@@ -596,7 +619,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Legal &amp; SPV</CardTitle>
 
-            <MetricGrid columns={2}>
+            <MetricGrid columns={3}>
               <label className="admin-doc-field block">
                 <span className="stat-label">SPV Jurisdiction *</span>
                 <select
@@ -623,37 +646,42 @@ export function VaultForm(props: VaultFormProps) {
                   maxLength={1}
                 />
               </label>
+
+              <label className="admin-doc-field block">
+                <span className="stat-label">Regulatory Exemption *</span>
+                <select
+                  className={inputClass("ct-select")}
+                  value={form.regExemption}
+                  onChange={(e) =>
+                    set("regExemption", e.target.value as FormState["regExemption"])
+                  }
+                >
+                  <option value="regD_506c">Reg D 506(c)</option>
+                  <option value="regS">Reg S</option>
+                  <option value="art2_lux">Art. 2 Lux</option>
+                </select>
+              </label>
             </MetricGrid>
 
             <label className="admin-doc-field block">
-              <span className="stat-label">Regulatory Exemption *</span>
-              <select
-                className={inputClass("ct-select")}
-                value={form.regExemption}
-                onChange={(e) =>
-                  set("regExemption", e.target.value as FormState["regExemption"])
-                }
-              >
-                <option value="regD_506c">Reg D 506(c) — US Accredited</option>
-                <option value="regS">Reg S — Non-US investors</option>
-                <option value="art2_lux">Art. 2 Lux — Qualified Investors</option>
-              </select>
-            </label>
-
-            <label className="admin-doc-field block">
-              <span className="stat-label">Disclaimers * (min 80 chars)</span>
+              <span className="stat-label">Legal Disclaimers *</span>
               <ForbiddenWordsInput
                 multiline
                 className={inputClass("ct-textarea")}
                 value={form.disclaimers}
                 onChange={(v) => set("disclaimers", v)}
                 rows={6}
-                placeholder="Required legal disclaimers. Must include 'not guaranteed' and assumptions..."
+                placeholder="Institutional disclaimers. Must include 'not guaranteed' and mention risks..."
                 aria-label="Vault disclaimers"
               />
-              <span className="body-xs ct-text-faint">
-                {form.disclaimers.length} chars — restricted terms will be flagged on submit
-              </span>
+              <div className="admin-doc-row-spread mt-1">
+                <span className="body-xs ct-text-faint">
+                  {form.disclaimers.length} chars (min 80)
+                </span>
+                <span className="body-xs ct-text-faint">
+                  Restricted terms will be flagged
+                </span>
+              </div>
             </label>
           </div>
         )}
@@ -663,99 +691,116 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Governance</CardTitle>
 
-            <div className="admin-doc-stack admin-doc-stack--actions">
-              <span className="stat-label block">Signers Whitelist (2–5 signer identities) *</span>
-              {form.signersWhitelist.map((s, i) => {
-                const isValid = isValidSigner(s);
-                return (
-                  <div key={i} className="admin-doc-stack admin-doc-stack--tight">
-                    <div className="admin-doc-inline-row">
-                      <input
-                        className={inputClass("flex-1")}
-                        value={s}
-                        onChange={(e) => {
-                          const next = [...form.signersWhitelist];
-                          next[i] = e.target.value;
-                          set("signersWhitelist", next);
-                        }}
-                        placeholder={`0x… or admin id — signer ${i + 1}`}
-                        aria-invalid={!isValid}
-                      />
-                      {form.signersWhitelist.length > 2 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          type="button"
-                          onClick={() => {
-                            const next = form.signersWhitelist.filter((_, j) => j !== i);
-                            set("signersWhitelist", next);
-                          }}
-                          aria-label="Remove signer"
-                        >
-                          ✕
-                        </Button>
-                      )}
-                    </div>
-                    {!isValid && (
-                      <span className="body-xs ct-status-danger">
-                        Must be a 0x… Ethereum address or a 25-char admin id.
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-              {form.signersWhitelist.length < 5 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  type="button"
-                  onClick={() => set("signersWhitelist", [...form.signersWhitelist, ""])}
-                >
-                  + Add signer
-                </Button>
-              )}
+            <div className="admin-doc-stack admin-doc-stack--relaxed">
+              <div className="admin-doc-stack admin-doc-stack--tight">
+                <span className="stat-label block mb-2">Authorized Signers (2–5 identities) *</span>
+                <div className="admin-doc-stack admin-doc-stack--tight">
+                  {form.signersWhitelist.map((s, i) => {
+                    const isValid = isValidSigner(s);
+                    return (
+                      <div key={i} className="admin-doc-stack admin-doc-stack--tight">
+                        <div className="admin-doc-inline-row">
+                          <input
+                            className={inputClass("flex-1 mono body-sm")}
+                            value={s}
+                            onChange={(e) => {
+                              const next = [...form.signersWhitelist];
+                              next[i] = e.target.value;
+                              set("signersWhitelist", next);
+                            }}
+                            placeholder={`0x… or admin id — signer ${i + 1}`}
+                            aria-invalid={!isValid}
+                          />
+                          {form.signersWhitelist.length > 2 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              type="button"
+                              className="h-9 w-9 p-0"
+                              onClick={() => {
+                                const next = form.signersWhitelist.filter((_, j) => j !== i);
+                                set("signersWhitelist", next);
+                              }}
+                              aria-label="Remove signer"
+                            >
+                              ✕
+                            </Button>
+                          )}
+                        </div>
+                        {!isValid && (
+                          <span className="body-xs ct-status-danger">
+                            Invalid format: must be a 0x… address or 25-char ID.
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {form.signersWhitelist.length < 5 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    className="w-fit mt-1"
+                    onClick={() => set("signersWhitelist", [...form.signersWhitelist, ""])}
+                  >
+                    + Add another signer
+                  </Button>
+                )}
+              </div>
 
-              {/* Admin identity helper — what to whitelist so THIS admin can sign.
-                  signApproval derives actorWallet = walletAddress ?? userId; admins
-                  have no walletAddress, so the userId below is the value to add. */}
+              {/* Admin identity helper */}
               {props.adminId && (
-                <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
+                <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight bg-(--ct-bg-deep)/50 border border-(--ct-border-ghost)">
                   <span className="body-xs ct-text-muted">
-                    Your admin identity (whitelist it to be able to sign):
+                    Your current admin identity:
                   </span>
                   <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                    <code className="mono body-xs ct-text-strong break-all">{props.adminId}</code>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      type="button"
-                      onClick={() => {
-                        const list = form.signersWhitelist;
-                        if (list.some((s) => s.trim() === props.adminId)) return;
-                        const slot = list.findIndex((s) => s.trim().length === 0);
-                        const next = [...list];
-                        if (slot >= 0) {
-                          next[slot] = props.adminId!;
-                        } else if (next.length < 5) {
-                          next.push(props.adminId!);
-                        } else {
-                          return;
-                        }
-                        set("signersWhitelist", next);
-                      }}
-                    >
-                      Add me
-                    </Button>
+                    <code className="mono body-xs ct-text-strong break-all select-all">{props.adminId}</code>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(props.adminId!);
+                        }}
+                        title="Copy to clipboard"
+                      >
+                        Copy
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        onClick={() => {
+                          const list = form.signersWhitelist;
+                          if (list.some((s) => s.trim() === props.adminId)) return;
+                          const slot = list.findIndex((s) => s.trim().length === 0);
+                          const next = [...list];
+                          if (slot >= 0) {
+                            next[slot] = props.adminId!;
+                          } else if (next.length < 5) {
+                            next.push(props.adminId!);
+                          } else {
+                            return;
+                          }
+                          set("signersWhitelist", next);
+                        }}
+                      >
+                        Add to list
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="admin-doc-stack admin-doc-stack--tight pt-(--ct-space-2) border-t border-(--ct-border-soft)">
-                <span className="stat-label block">
-                  Required signers (M-of-N quorum) *
+              <div className="admin-doc-stack admin-doc-stack--tight pt-(--ct-space-4) border-t border-(--ct-border-soft)">
+                <span className="stat-label block mb-2">
+                  Approval Quorum (M-of-N) *
                 </span>
-                <div className="admin-doc-inline-row" role="radiogroup" aria-label="Required signers">
+                <div className="admin-doc-inline-row" role="radiogroup" aria-label="Approval quorum">
                   {[2, 3, 4, 5].map((n) => {
                     const disabled = n > form.signersWhitelist.length;
                     const active = form.requiredSigners === n;
@@ -767,21 +812,19 @@ export function VaultForm(props: VaultFormProps) {
                         aria-checked={active}
                         disabled={disabled}
                         onClick={() => set("requiredSigners", n)}
-                        className={
-                          active
-                            ? "ct-pill accent"
-                            : disabled
-                              ? "ct-pill admin-strategy-pill--disabled"
-                              : "ct-pill"
-                        }
+                        className={cn(
+                          "ct-pill",
+                          active && "accent",
+                          disabled && "admin-strategy-pill--disabled"
+                        )}
                       >
                         {n} of {form.signersWhitelist.length}
                       </button>
                     );
                   })}
                 </div>
-                <p className="body-xs ct-text-faint">
-                  Threshold of distinct signers required to approve deployment. Must be ≤ whitelist size.
+                <p className="body-xs ct-text-faint mt-1">
+                  Threshold of distinct signatures required to authorize deployment.
                 </p>
               </div>
             </div>
@@ -795,113 +838,123 @@ export function VaultForm(props: VaultFormProps) {
 
             <div className="admin-doc-inset admin-confirm-panel divide-y divide-border-subtle">
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--head">
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Ticker</span>
-                  <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Name</span>
-                  <span className="body-sm ct-text-primary">{form.name}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Strategy</span>
-                  <span className="body-sm ct-text-primary">{form.strategy}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Color Tag</span>
-                  <span className="body-sm ct-text-primary">{form.colorTag}</span>
-                </div>
+                <MetricGrid columns={2}>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Ticker</span>
+                    <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Name</span>
+                    <span className="body-sm ct-text-primary truncate" title={form.name}>{form.name}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Strategy</span>
+                    <span className="body-sm ct-text-primary capitalize">{form.strategy.replace(/_/g, " ")}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">UI Theme</span>
+                    <span className="body-sm ct-text-primary">{form.colorTag}</span>
+                  </div>
+                </MetricGrid>
               </div>
 
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Min Ticket</span>
-                  <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Capacity</span>
-                  <span className="mono tabular body-sm">{formatUsdFull(form.capacityUsdc)}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Fees</span>
-                  <span className="mono tabular body-sm">
-                    {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
-                    {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
-                  </span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Lockup</span>
-                  <span className="mono tabular body-sm">{form.softLockupDays} days</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Target APY</span>
-                  <ApyRange
-                    low={form.targetApyLowBps / 100}
-                    high={form.targetApyHighBps / 100}
-                    precision={1}
-                  />
-                </div>
+                <MetricGrid columns={2}>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Min Ticket</span>
+                    <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Capacity</span>
+                    <span className="mono tabular body-sm">{formatUsdFull(form.capacityUsdc)}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Fees</span>
+                    <span className="mono tabular body-sm">
+                      {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
+                      {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
+                    </span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Lockup</span>
+                    <span className="mono tabular body-sm">{form.softLockupDays} days</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Target APY</span>
+                    <ApyRange
+                      low={form.targetApyLowBps / 100}
+                      high={form.targetApyHighBps / 100}
+                      precision={1}
+                    />
+                  </div>
+                </MetricGrid>
               </div>
 
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">SPV</span>
-                  <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Share Class</span>
-                  <span className="body-sm">{form.shareClass}</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Reg Exemption</span>
-                  <span className="body-sm">{form.regExemption}</span>
-                </div>
+                <MetricGrid columns={3}>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">SPV</span>
+                    <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Share Class</span>
+                    <span className="body-sm">{form.shareClass}</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Reg Exemption</span>
+                    <span className="body-sm">{form.regExemption}</span>
+                  </div>
+                </MetricGrid>
               </div>
 
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Mining</span>
-                  <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">BTC Tactical</span>
-                  <span className="mono tabular body-sm">{pct(form.targetBtcTacticalBps)}%</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">USDC Base</span>
-                  <span className="mono tabular body-sm">{pct(form.targetUsdcBaseBps)}%</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Stable Reserve</span>
-                  <span className="mono tabular body-sm">{pct(form.targetStableReserveBps)}%</span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Total</span>
-                  <span
-                    className={
-                      allocTotal() === 10000
-                        ? "mono tabular body-sm ct-status-success font-semibold"
-                        : "mono tabular body-sm ct-status-danger font-semibold"
-                    }
-                  >
-                    {pct(allocTotal())}%
-                  </span>
-                </div>
+                <MetricGrid columns={2}>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Mining</span>
+                    <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">BTC Tactical</span>
+                    <span className="mono tabular body-sm">{pct(form.targetBtcTacticalBps)}%</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">USDC Base</span>
+                    <span className="mono tabular body-sm">{pct(form.targetUsdcBaseBps)}%</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Stable Reserve</span>
+                    <span className="mono tabular body-sm">{pct(form.targetStableReserveBps)}%</span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Total</span>
+                    <span
+                      className={
+                        allocTotal() === 10000
+                          ? "mono tabular body-sm ct-status-success font-semibold"
+                          : "mono tabular body-sm ct-status-danger font-semibold"
+                      }
+                    >
+                      {pct(allocTotal())}%
+                    </span>
+                  </div>
+                </MetricGrid>
               </div>
 
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Signers</span>
-                  <span className="body-sm ct-text-primary">
-                    {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
-                  </span>
-                </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Required Quorum</span>
-                  <span className="mono tabular body-sm">
-                    {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
-                  </span>
-                </div>
+                <MetricGrid columns={2}>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Signers</span>
+                    <span className="body-sm ct-text-primary">
+                      {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
+                    </span>
+                  </div>
+                  <div className="admin-confirm-panel__row">
+                    <span className="stat-label">Required Quorum</span>
+                    <span className="mono tabular body-sm">
+                      {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
+                    </span>
+                  </div>
+                </MetricGrid>
               </div>
             </div>
 
