@@ -80,19 +80,19 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       >
         <Link
           href={vault.href}
-          className="text-[12px] ct-text-strong min-w-0 truncate cockpit-metric-link font-semibold"
+          className="cockpit-value-md cockpit-metric-link uppercase"
         >
           {vault.vaultName}
         </Link>
         {vault.hasTimelineData ? (
-          <VaultStatusPill status={vault.status} className="shrink-0 scale-90 origin-right" />
+          <VaultStatusPill status={vault.status} className="shrink-0 scale-75 origin-right" />
         ) : (
-          <span className="shrink-0 text-[10px] ct-text-faint font-medium uppercase tracking-wider">No telemetry</span>
+          <span className="shrink-0 cockpit-label-xs">No telemetry</span>
         )}
       </div>
 
       {vault.hasTimelineData ? (
-        <div className="dashboard-live-metrics__grid mt-(--ct-space-1) py-(--ct-space-1) gap-(--ct-space-2)">
+        <div className="dashboard-live-metrics__grid mt-(--ct-space-1) py-(--ct-space-1) gap-(--ct-space-2) border-t border-(--ct-border-ghost)">
           <MetricCell
             label="TVL"
             value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
@@ -127,7 +127,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           />
         </div>
       ) : (
-        <p className="text-[11px] ct-text-muted m-0">Awaiting first telemetry close</p>
+        <p className="cockpit-label-sm m-0 opacity-60">Awaiting first telemetry close</p>
       )}
     </div>
   );
@@ -144,12 +144,12 @@ function MetricCell({
 }) {
   return (
     <div className="admin-doc-stack admin-doc-stack--micro min-w-0 gap-0">
-      <span className="text-[9px] font-bold ct-text-faint uppercase tracking-widest leading-none truncate">
+      <span className="cockpit-label-xs opacity-70 truncate">
         {label}
       </span>
       <span
         className={cn(
-          "text-[10px] tabular ct-text-strong font-bold leading-tight truncate",
+          "cockpit-value-sm truncate",
           valueClassName,
         )}
       >

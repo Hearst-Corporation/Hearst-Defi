@@ -61,7 +61,7 @@ export function DashboardPanelHeader({
                 statusTone === "idle" && "bg-(--ct-text-faint)",
               )} />
               <span className={cn(
-                "text-[8px] font-(--ct-font-bold) uppercase tracking-(--ct-tracking-widest) pt-px",
+                "cockpit-label-xs pt-px",
                 statusTone === "ok" && "text-(--ct-status-success)",
                 statusTone === "watch" && "text-(--ct-status-warning)",
                 statusTone === "alert" && "text-(--ct-status-danger)",

@@ -26,21 +26,23 @@ export function DashboardRecentEvents({
       {events.map((event) => (
         <li
           key={event.id}
-          className="dashboard-event-item"
+          className="dashboard-event-item cockpit-hover-row cockpit-hover-row--inset py-1 px-2 rounded-(--ct-radius-xs) flex items-center justify-between gap-4"
           aria-label={`${event.ruleId}: ${event.actionText}`}
         >
-          <div className="dashboard-event-main">
-            <span className="dashboard-event-action truncate">
-              {event.actionText}
-            </span>
-            <p className="dashboard-event-trigger truncate m-0">
+          <div className="dashboard-event-main min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <span className="cockpit-value-md uppercase truncate">
+                {event.actionText}
+              </span>
+              <span className="cockpit-value-xs truncate opacity-70">
+                {event.impactText}
+              </span>
+            </div>
+            <p className="cockpit-label-sm truncate m-0 opacity-80">
               {event.triggerText}
             </p>
-            <p className="dashboard-event-impact truncate m-0">
-              {event.impactText}
-            </p>
           </div>
-          <span className="dashboard-event-time shrink-0">
+          <span className="cockpit-label-xs shrink-0 opacity-60">
             {formatAdminMonthDay(event.takenAt)}
           </span>
         </li>

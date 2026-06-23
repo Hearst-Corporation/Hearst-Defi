@@ -30,29 +30,29 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   }
 
   return (
-    <div aria-label="Audit trail">
-      <div className="overflow-hidden">
+    <div aria-label="Audit trail" className="dashboard-audit-trail">
+      <div className="overflow-hidden border border-(--ct-border-ghost) rounded-(--ct-radius-sm)">
         <table className="w-full table-fixed body-sm" aria-label="Audit trail">
           <thead>
-            <tr className="cockpit-table-rule">
-              <th className="cockpit-col-time text-left ct-table-header stat-label">
+            <tr className="bg-ct-bg-soft/30">
+              <th className="cockpit-col-time text-left px-2 py-1.5 cockpit-label-xs border-b border-(--ct-border-ghost)">
                 Time
               </th>
-              <th className="cockpit-col-actor text-left ct-table-header stat-label">
+              <th className="cockpit-col-actor text-left px-2 py-1.5 cockpit-label-xs border-b border-(--ct-border-ghost)">
                 Actor
               </th>
-              <th className="cockpit-col-action text-left ct-table-header stat-label">
+              <th className="cockpit-col-action text-left px-2 py-1.5 cockpit-label-xs border-b border-(--ct-border-ghost)">
                 Action
               </th>
-              <th className="hidden cockpit-col-entity text-left ct-table-header stat-label md:table-cell">
+              <th className="hidden cockpit-col-entity text-left px-2 py-1.5 cockpit-label-xs border-b border-(--ct-border-ghost) md:table-cell">
                 Entity
               </th>
-              <th className="hidden cockpit-col-entity-id text-left ct-table-header stat-label lg:table-cell">
+              <th className="hidden cockpit-col-entity-id text-left px-2 py-1.5 cockpit-label-xs border-b border-(--ct-border-ghost) lg:table-cell">
                 Entity ID
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-(--ct-border-ghost)">
             {entries.map((entry) => (
               <AuditRow key={entry.id} entry={entry} />
             ))}
@@ -65,25 +65,25 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
 
 function AuditRow({ entry }: { entry: AuditTrailEntry }) {
   const wallet = truncateWallet(entry.actorWallet);
-  const entityId = entry.entityId.length > 12
-    ? `${entry.entityId.slice(0, 12)}…`
+  const entityId = entry.entityId.length > 10
+    ? `${entry.entityId.slice(0, 10)}…`
     : entry.entityId;
 
   return (
-    <tr className="cockpit-table-rule cockpit-hover-row cursor-default">
-      <td className="ct-table-cell tabular body-xs ct-text-muted text-left">
+    <tr className="cockpit-hover-row cursor-default group transition-colors hover:bg-ct-accent/5">
+      <td className="px-2 py-1.5 cockpit-value-xs text-left">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>
-      <td className="ct-table-cell ct-text-muted mono body-xs text-left">
+      <td className="px-2 py-1.5 cockpit-value-xs text-left mono opacity-80 group-hover:opacity-100">
         {wallet}
       </td>
-      <td className="ct-table-cell ct-text-body truncate text-left">
+      <td className="px-2 py-1.5 cockpit-value-sm text-left uppercase truncate">
         {entry.action}
       </td>
-      <td className="hidden ct-table-cell ct-text-muted text-left md:table-cell">
+      <td className="hidden px-2 py-1.5 cockpit-value-sm text-left md:table-cell uppercase opacity-70">
         {entry.entityType}
       </td>
-      <td className="hidden ct-table-cell ct-text-muted mono body-xs text-left lg:table-cell">
+      <td className="hidden px-2 py-1.5 cockpit-value-xs text-left lg:table-cell mono opacity-60">
         {entityId}
       </td>
     </tr>

@@ -170,7 +170,7 @@ export function DashboardAssetsBoard({
   });
 
   return (
-    <div className="dashboard-cockpit dashboard-cockpit--fit">
+    <div className="dashboard-cockpit">
 
       {/* ── Row 0: System readiness (full-width operator header) ── */}
       <div className="dashboard-cockpit-row dashboard-cockpit-row--readiness">

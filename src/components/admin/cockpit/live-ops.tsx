@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PanelStatus } from "@/components/ui/panel-status";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import type {
@@ -26,11 +27,14 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <div aria-label="Platform status">
+    <div aria-label="Platform status" className="dashboard-live-ops">
 
       <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">
-          <h3 className="dashboard-live-ops-section__title">Job runs</h3>
+          <header className="flex items-center justify-between mb-1.5 px-1">
+            <h3 className="cockpit-label-sm m-0">Inngest Jobs</h3>
+            <span className="cockpit-label-xs opacity-60">Real-time</span>
+          </header>
           <div className="dashboard-command-divide-stack">
             {inngestJobs.map((job) => (
               <InngestRow key={job.id} job={job} />
@@ -39,25 +43,54 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <h3 className="dashboard-live-ops-section__title">LLM run failures · 24h</h3>
-          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions">
-            <SentryCounter
-              label="Errors"
-              count={sentryStats.errors24h}
-              alert={sentryStats.errors24h > 0}
-            />
-            <SentryCounter
-              label="Warnings"
-              count={sentryStats.warnings24h}
-              alert={false}
-            />
+          <header className="flex items-center justify-between mb-1.5 px-1">
+            <h3 className="cockpit-label-sm m-0">LLM Health</h3>
+            <span className="cockpit-label-xs opacity-60">24h Window</span>
+          </header>
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions bg-ct-bg-soft/50 rounded-(--ct-radius-sm) p-1.5 border border-(--ct-border-ghost)">
+            <Tooltip
+              content={(
+                <div className="dashboard-metric-tooltip">
+                  <div className="dashboard-metric-tooltip__title">Sentry Errors</div>
+                  <div className="dashboard-metric-tooltip__desc">Critical exceptions captured in the last 24 hours across all services.</div>
+                </div>
+              )}
+            >
+              <div className="flex-1 cursor-help">
+                <SentryCounter
+                  label="Errors"
+                  count={sentryStats.errors24h}
+                  alert={sentryStats.errors24h > 0}
+                />
+              </div>
+            </Tooltip>
+            <div className="w-px h-4 bg-(--ct-border-ghost)" />
+            <Tooltip
+              content={(
+                <div className="dashboard-metric-tooltip">
+                  <div className="dashboard-metric-tooltip__title">Sentry Warnings</div>
+                  <div className="dashboard-metric-tooltip__desc">Non-critical warnings captured in the last 24 hours.</div>
+                </div>
+              )}
+            >
+              <div className="flex-1 cursor-help">
+                <SentryCounter
+                  label="Warnings"
+                  count={sentryStats.warnings24h}
+                  alert={false}
+                />
+              </div>
+            </Tooltip>
           </div>
         </div>
 
         <div className="dashboard-live-ops-section">
-          <h3 className="dashboard-live-ops-section__title">Chain activity</h3>
+          <header className="flex items-center justify-between mb-1.5 px-1">
+            <h3 className="cockpit-label-sm m-0">Chain Activity</h3>
+            <span className="cockpit-label-xs opacity-60">Live Feed</span>
+          </header>
           {onChainEvents.length === 0 ? (
-            <PanelStatus message="No recent on-chain events." />
+            <PanelStatus message="No recent on-chain events." className="cockpit-value-sm py-2" />
           ) : (
             <ul className="dashboard-command-divide-stack" role="list">
               {onChainEvents.map((ev) => (
@@ -81,15 +114,15 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row py-1"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row cockpit-hover-row cockpit-hover-row--inset py-1"
       aria-label={`${job.name}: ${label}`}
     >
-      <span className="text-[12px] font-medium ct-text-strong truncate">{job.name}</span>
+      <span className="cockpit-value-sm truncate uppercase">{job.name}</span>
       <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0 gap-1.5">
-        <span aria-hidden className={cn("dashboard-status-dot scale-75", dot)} />
+        <span aria-hidden className={cn("dashboard-status-dot scale-50", dot)} />
         <span
           className={cn(
-            "text-[11px] font-bold uppercase tracking-wider",
+            "cockpit-label-xs",
             job.status === "ok"
               ? "ct-status-success"
               : job.status === "err"
@@ -129,10 +162,10 @@ function SentryCounter({
 }) {
   return (
     <div className="admin-doc-stack admin-doc-stack--micro gap-0">
-      <span className="text-[9px] font-bold ct-text-faint uppercase tracking-widest leading-none">{label}</span>
+      <span className="cockpit-label-xs mb-0.5">{label}</span>
       <span
         className={cn(
-          "text-[12px] tabular font-bold",
+          "cockpit-value-md",
           alert && count > 0 ? "ct-status-danger" : "ct-text-strong",
         )}
       >
@@ -158,19 +191,19 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     <>
       <span
         aria-hidden
-        className="shrink-0 ct-text-muted text-[11px] font-bold w-4 text-center mt-[2px]"
+        className="shrink-0 ct-text-faint text-[10px] font-bold w-4 text-center mt-[1px] opacity-60"
       >
         {icon}
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="text-[12px] ct-text-strong truncate block font-medium leading-tight">{event.label}</span>
-        <span className="text-[10px] ct-text-muted uppercase tracking-wider font-bold">{ago}</span>
-      </span>
+      <div className="min-w-0 flex-1">
+        <span className="cockpit-value-sm truncate block uppercase">{event.label}</span>
+        <span className="cockpit-label-xs opacity-60">{ago}</span>
+      </div>
     </>
   );
 
   const rowClassName =
-    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row py-1.5";
+    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row py-1.5 cockpit-hover-row cockpit-hover-row--inset";
 
   const interactiveContent =
     event.txHash && !isPlaceholderTxHash(event.txHash) ? (

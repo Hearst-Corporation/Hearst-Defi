@@ -37,30 +37,32 @@ export function NavSlot({
         provenance={!isMuted ? navProvenance : undefined}
         className="dashboard-nav-slot__header"
       />
-      <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-(--ct-space-1)">
-          {lastNav !== null ? (
-            <>
-              <span className="text-[10px] font-bold ct-text-faint uppercase tracking-widest opacity-50">USD</span>
-              <span>{dashboardUsdCompact.format(lastNav)}</span>
-            </>
-          ) : (
-            <span className="body-md ct-text-faint font-medium tracking-normal opacity-50">Awaiting data</span>
-          )}
-      </p>
+      <div className="dashboard-nav-slot__value-row">
+        <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-(--ct-space-1)">
+            {lastNav !== null ? (
+              <>
+                <span className="cockpit-label-xs opacity-50">USD</span>
+                <span className="cockpit-value-md text-[20px]!">{dashboardUsdCompact.format(lastNav)}</span>
+              </>
+            ) : (
+              <span className="cockpit-label-sm opacity-50">Awaiting data</span>
+            )}
+        </p>
+
+        {navDelta !== null ? (
+          <p
+            className={cn(
+              "dashboard-nav-slot__delta cockpit-value-sm m-0",
+              navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
+            )}
+          >
+            {navDelta >= 0 ? "+" : ""}
+            {navDelta.toFixed(1)}%
+          </p>
+        ) : null}
+      </div>
 
       <NavBarChart points={navPoints} muted={isMuted} />
-
-      {navDelta !== null ? (
-        <p
-          className={cn(
-            "dashboard-nav-slot__delta body-xs tabular font-semibold m-0",
-            navDelta >= 0 ? "ct-status-success" : "ct-status-danger",
-          )}
-        >
-          {navDelta >= 0 ? "+" : ""}
-          {navDelta.toFixed(1)}% · 30d
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -132,7 +134,7 @@ function NavBarChartShell({
       {monthLabels ? (
         <div className="dashboard-nav-bars__months" aria-hidden>
           {monthLabels.map((label, index) => (
-            <span key={`${label}-${index}`}>{label}</span>
+            <span key={`${label}-${index}`} className="cockpit-label-xs opacity-60">{label}</span>
           ))}
         </div>
       ) : null}

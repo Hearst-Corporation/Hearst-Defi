@@ -66,20 +66,20 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
         aria-label={`${kpi.label}: ${kpi.value}`}
       >
         <div className="dashboard-kpi-strip__label-row">
-          <span className="dashboard-kpi-strip__label stat-label">
+          <span className="cockpit-label-xs">
             {kpi.label}
           </span>
           <ProvenanceBadge kind={kpi.provenance} variant="strip" />
         </div>
         <span
           className={cn(
-            "dashboard-kpi-strip__value stat-value tabular",
+            "dashboard-kpi-strip__value tabular",
             kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong",
           )}
         >
           {kpi.value}
         </span>
-        <span className="dashboard-kpi-strip__meta body-xs ct-text-faint truncate flex items-center gap-1.5">
+        <span className="dashboard-kpi-strip__meta cockpit-label-xs flex items-center gap-1.5 lowercase">
           <span className="opacity-70">{kpi.sublabel?.replace(/[↑↓]/g, "")}</span>
           {kpi.sublabel?.includes("↑") && (
             <span className={cn("dashboard-kpi-delta", deltaClass)}>↑</span>

@@ -89,11 +89,14 @@ export function AllocationOrbit({
       <div className="dashboard-orbit__visual">
         <SvgDonut allocations={allocations} />
         <div className="dashboard-orbit__core">
-          <span>AUM</span>
-          <strong>
+          <span className="cockpit-label-xs opacity-70">AUM Total</span>
+          <strong className="cockpit-value-md text-[16px]! leading-none">
             {dashboardUsdCompact.format(capitalUsdc)}
           </strong>
-          <small>{allocationTotal.toFixed(0)}% mapped</small>
+          <div className="dashboard-orbit__core-meta">
+            <span className="cockpit-value-sm text-ct-accent">{allocationTotal.toFixed(0)}%</span>
+            <span className="cockpit-label-xs opacity-60">Mapped</span>
+          </div>
         </div>
       </div>
         <ul className="dashboard-orbit__legend" aria-label="Allocation legend">
@@ -104,8 +107,8 @@ export function AllocationOrbit({
                 style={{ color: allocationStrokeFor(item.bucket) }}
                 aria-hidden
               />
-              <span className="dashboard-orbit__legend-label truncate">{allocationLabelFor(item.bucket)}</span>
-              <span className="dashboard-orbit__legend-value tabular font-bold text-[10px]">{item.pct.toFixed(1)}%</span>
+              <span className="cockpit-label-sm truncate opacity-80">{allocationLabelFor(item.bucket)}</span>
+              <span className="cockpit-value-sm">{item.pct.toFixed(1)}%</span>
             </li>
           ))}
         </ul>

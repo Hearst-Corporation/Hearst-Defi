@@ -64,8 +64,8 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
       <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1 dashboard-action-copy gap-(--ct-space-2)">
         <SeverityPill severity={item.severity} />
         <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0 gap-0">
-          <span className="text-[12px] font-semibold ct-text-strong truncate dashboard-action-title leading-tight block">{item.title}</span>
-          <span className="text-[10px] ct-text-muted truncate dashboard-action-context leading-tight block">
+          <span className="cockpit-value-md truncate block">{item.title}</span>
+          <span className="cockpit-label-sm truncate block opacity-70">
             {item.context}
           </span>
         </div>
@@ -75,8 +75,10 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "dashboard-action-cta text-[10px] py-1 px-2 rounded-(--ct-radius-sm) font-bold uppercase tracking-wider",
-            item.severity === "P0" ? "dashboard-action-cta--danger" : "dashboard-action-cta--neutral",
+            "dashboard-action-cta cockpit-label-xs py-0.5 px-1.5 rounded-(--ct-radius-sm) border border-transparent transition-colors",
+            item.severity === "P0" 
+              ? "bg-ct-status-danger/10 text-ct-status-danger border-ct-status-danger/20 hover:bg-ct-status-danger/20" 
+              : "bg-ct-bg-soft text-ct-text-muted border-ct-border-ghost hover:text-ct-text-strong hover:border-ct-border-muted",
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >

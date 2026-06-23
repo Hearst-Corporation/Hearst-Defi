@@ -46,6 +46,51 @@
 }
 
 /* =============================================================================
+   1B. TECHNICAL TYPOGRAPHY — standardized sizes for high-density data
+   ============================================================================= */
+
+.cockpit-label-xs {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
+  line-height: 1;
+}
+
+.cockpit-label-sm {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
+  line-height: 1.2;
+}
+
+.cockpit-value-xs {
+  font-size: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-muted);
+}
+
+.cockpit-value-sm {
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+  letter-spacing: -0.01em;
+}
+
+.cockpit-value-md {
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+  letter-spacing: -0.01em;
+}
+
+/* =============================================================================
    2. SEVERITY PILL — colour variants for .dashboard-severity-pill (action-queue)
       (geometry + `border: 1px solid` already set in cockpit.css)
    ============================================================================= */
@@ -843,13 +888,16 @@
    16. CONSISTENCY & RHYTHM — surface spacing
    ============================================================================= */
 
-.dashboard-cockpit-row {
-  margin-bottom: var(--ct-space-5);
-  transition: opacity var(--ct-dur-base) var(--ct-ease), transform var(--ct-dur-base) var(--ct-ease);
+.dashboard-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding-bottom: var(--ct-space-8);
 }
 
-.dashboard-cockpit-row:last-child {
-  margin-bottom: 0;
+.dashboard-cockpit-row {
+  margin-bottom: 0; /* Handled by parent gap */
+  transition: opacity var(--ct-dur-base) var(--ct-ease), transform var(--ct-dur-base) var(--ct-ease);
 }
 
 .dashboard-ops-surface,
@@ -862,6 +910,10 @@
   border-radius: var(--ct-radius-lg);
   overflow: hidden;
   transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-lower-surface {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 /* Responsive: 3 columns → stacked on small screens */
@@ -890,6 +942,10 @@
 
 /* Wide screens (21:9 desktop): enhanced spacing */
 @media (min-width: 120rem) {
+  .dashboard-cockpit {
+    gap: var(--ct-space-6);
+  }
+
   .dashboard-ops-surface,
   .dashboard-lower-surface {
     gap: 1px;
@@ -899,6 +955,7 @@
   .dashboard-ops-pane,
   .dashboard-lower-pane {
     background: var(--ct-graphite-subtle-bg);
+    padding: var(--ct-space-5) var(--ct-space-6);
   }
 }
 

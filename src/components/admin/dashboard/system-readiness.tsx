@@ -54,15 +54,15 @@ export function SystemReadinessModule({
               System readiness
             </span>
             <div className="dashboard-readiness__scan-badge">
-              <span className="text-var(--ct-text-faint) uppercase tracking-var(--ct-tracking-widest) text-[10px] font-var(--ct-font-bold)">
+              <span className="cockpit-label-xs opacity-70">
                 Last scan:
               </span>
-              <span className="text-var(--ct-text-muted) tabular text-[10px] font-var(--ct-font-medium)">
+              <span className="cockpit-value-xs">
                 {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>
-          <p className="dashboard-readiness__blurb body-sm ct-text-muted m-0">
+          <p className="dashboard-readiness__blurb cockpit-value-xs m-0 normal-case opacity-80">
             {view.postureBlurb}
           </p>
         </div>
@@ -104,7 +104,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       aria-label={`${stat.label}: ${stat.value}`}
     >
       <div className="dashboard-readiness__stat-top">
-        <span className="dashboard-readiness__stat-label stat-label">
+        <span className="cockpit-label-xs">
           {stat.label}
         </span>
         {stat.provenance ? (
@@ -119,7 +119,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       >
         {stat.value}
       </span>
-      <span className="dashboard-readiness__stat-detail body-xs ct-text-faint truncate">
+      <span className="cockpit-value-xs truncate opacity-70">
         {stat.detail}
       </span>
     </div>
@@ -139,7 +139,7 @@ function ReadinessFactorDot({ factor }: { factor: ReadinessFactor }) {
         aria-hidden
         className={cn("dashboard-readiness__dot", toneDot(factor.tone))}
       />
-      <span className={cn("dashboard-readiness__factor-dot-label body-xs", toneText(factor.tone))}>
+      <span className={cn("cockpit-label-sm", toneText(factor.tone))}>
         {factor.label}
       </span>
     </div>
