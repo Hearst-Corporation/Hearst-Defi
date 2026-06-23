@@ -55,6 +55,7 @@ export default async function PortfolioPage() {
         now={now}
         ticker={{
           totalValueUsdc: data.totalValueUsdc,
+          deployedUsdc: data.deployedUsdc,
           totalYieldYtdUsdc: data.totalYieldYtdUsdc,
           nextDistributionAt: data.nextDistributionAt,
           nextPayoutUsdc,

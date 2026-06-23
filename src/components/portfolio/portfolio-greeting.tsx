@@ -4,6 +4,8 @@ import { cn } from "@/lib/cn";
 
 export interface PortfolioTickerProps {
   totalValueUsdc: number;
+  /** Total principal deployed (used for yield % calc). */
+  deployedUsdc?: number;
   /** Realized YTD yield + accrued pending (USDC, since Jan 1 UTC). */
   totalYieldYtdUsdc: number;
   nextDistributionAt: Date;
@@ -29,6 +31,14 @@ const monthDayYearFmt = new Intl.DateTimeFormat("en-US", {
 
 const DASH = "—";
 
+/** Format pct with sign (+1.2% / -0.5%). */
+function fmtDeltaPct(numerator: number, denominator: number): string {
+  if (denominator === 0) return "+0.0%";
+  const pct = ((numerator / denominator) * 100);
+  const sign = pct >= 0 ? "+" : "";
+  return `${sign}${pct.toFixed(1)}%`;
+}
+
 /**
  * Portfolio hub header (mockup-matched): greeting + a right-aligned KPI strip.
  * Four inline metrics — Portfolio value · APY range · Next payout · YTD yield.
@@ -45,6 +55,12 @@ export function PortfolioGreeting({ name, ticker, now }: PortfolioGreetingProps)
     has && ticker?.nextPayoutUsdc != null && ticker.nextPayoutUsdc > 0
       ? formatUsdCompact(ticker.nextPayoutUsdc)
       : DASH;
+
+  // Yield indicator: accrued yield % over principal
+  const yieldDelta =
+    has && ticker && ticker.deployedUsdc && ticker.deployedUsdc > 0
+      ? fmtDeltaPct(ticker.totalValueUsdc - ticker.deployedUsdc, ticker.deployedUsdc)
+      : null;
 
   const todayFmt = new Intl.DateTimeFormat("en-US", {
     weekday: "short",
@@ -69,10 +85,15 @@ export function PortfolioGreeting({ name, ticker, now }: PortfolioGreetingProps)
       </div>
 
       {ticker ? (
-        <dl className={cn("pf-ticker-inline", !has && "opacity-60 grayscale-50")}>
+        <dl className={cn("pf-ticker-inline", !has && "opacity-60")}>
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">Portfolio value</dt>
             <dd className="pf-ticker-value tabular">{has ? formatUsdCompact(ticker.totalValueUsdc) : DASH}</dd>
+            {has && yieldDelta ? (
+              <dd className={cn("pf-ticker-note", yieldDelta.startsWith("+") ? "ct-text-accent" : "ct-text-tertiary")}>
+                {yieldDelta} accrued
+              </dd>
+            ) : null}
           </div>
           <div className="pf-ticker-cell">
             <dt className="pf-ticker-label">APY range</dt>
