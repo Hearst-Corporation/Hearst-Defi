@@ -44,3 +44,27 @@ export function resolveCtaUrl(): string {
   );
   return `${appBase}/apply`;
 }
+
+/** True when the (LLM-generated) body already embeds the CTA URL verbatim. */
+export function bodyHasCtaUrl(body: string, ctaUrl: string): boolean {
+  return body.includes(ctaUrl.trim());
+}
+
+/**
+ * Guarantees a cold-email body ends with a working CTA link.
+ *
+ * The writer prompt instructs the LLM to embed the qualification URL verbatim,
+ * but a prompt is not a guarantee — a stray rewrite, truncation, or a model
+ * that drops the link would otherwise ship a dead-end email with no way for the
+ * prospect to qualify. This deterministic backstop appends the CTA only when it
+ * is genuinely missing, so a malformed draft is repaired instead of sent broken.
+ * It never duplicates an already-present link.
+ */
+export function ensureCtaInBody(body: string, ctaUrl: string): string {
+  const url = ctaUrl.trim();
+  if (url.length === 0 || bodyHasCtaUrl(body, url)) {
+    return body;
+  }
+  const trimmed = body.replace(/\s+$/, "");
+  return `${trimmed}\n\nQualify here: ${url}`;
+}
