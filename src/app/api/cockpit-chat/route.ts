@@ -727,9 +727,6 @@ async function runMasterAgentTurn(args: {
       : null;
 
   if (productIntent?.shouldOpenProductWorkspace) {
-    const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-      (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
-    );
     // AWAIT the publish (do NOT fire-and-forget): the client bridge starts
     // polling /api/chat-nav the moment it sees the answer, so the directive
     // MUST be in the channel before we return the response — otherwise the

@@ -7,7 +7,6 @@ import {
   deriveProductWorkspaceObjective,
   isExplicitSimulationIntent,
   isProductWorkspaceIntent,
-  resolveMasterAgentNavPublish,
 } from "@/lib/llm/product-workspace-intent";
 
 describe("product workspace intent", () => {
@@ -60,67 +59,4 @@ describe("product workspace intent", () => {
     expect(objective).toMatch(/^créer un produit/);
   });
 
-  describe("resolveMasterAgentNavPublish", () => {
-    it("overrides model destination for admin product creation intents", () => {
-      const directive = resolveMasterAgentNavPublish({
-        navProfile: "admin",
-        message: "Créer un nouveau produit Defensive",
-        modelDestinationKey: "admin-scenario-lab",
-        productWorkspaceNavEnabled: true,
-      });
-      expect(directive).toEqual({
-        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un nouveau produit Defensive",
-        autostart: true,
-        intentKind: "product_creation",
-      });
-    });
-
-    it("preserves Scenario Lab as secondary validation for mixed intents", () => {
-      const directive = resolveMasterAgentNavPublish({
-        navProfile: "admin",
-        message: "Créer un produit Defensive puis simuler un stress test",
-        modelDestinationKey: "admin-scenario-lab",
-        productWorkspaceNavEnabled: true,
-      });
-      expect(directive).toEqual({
-        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-        objective: "Créer un produit Defensive puis simuler un stress test",
-        autostart: true,
-        intentKind: "mixed_product_creation_simulation",
-        secondaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-        secondaryHint: "Scenario Lab validation requested",
-      });
-    });
-
-    it("keeps model destination for explicit simulation requests", () => {
-      const directive = resolveMasterAgentNavPublish({
-        navProfile: "admin",
-        message: "simuler un scénario BTC bear",
-        modelDestinationKey: "admin-scenario-lab",
-        productWorkspaceNavEnabled: true,
-      });
-      expect(directive).toEqual({ destinationKey: "admin-scenario-lab" });
-    });
-
-    it("does not override LP profile or disabled workspace nav", () => {
-      expect(
-        resolveMasterAgentNavPublish({
-          navProfile: "lp",
-          message: "Créer un nouveau produit",
-          modelDestinationKey: "portfolio",
-          productWorkspaceNavEnabled: true,
-        }),
-      ).toEqual({ destinationKey: "portfolio" });
-
-      expect(
-        resolveMasterAgentNavPublish({
-          navProfile: "admin",
-          message: "Créer un nouveau produit",
-          modelDestinationKey: "admin-vaults",
-          productWorkspaceNavEnabled: false,
-        }),
-      ).toEqual({ destinationKey: "admin-vaults" });
-    });
-  });
 });
