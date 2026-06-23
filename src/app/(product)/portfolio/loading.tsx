@@ -11,20 +11,19 @@ export default function PortfolioLoading() {
         <Skeleton className="pf-skeleton-greeting-ticker" />
       </div>
 
-      <div className="pf-cockpit pf-terminal-surface">
-        <div className="pf-terminal-pane pf-terminal-pane--left">
-          <Skeleton className="pf-embedded-pane h-[300px]" />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <Skeleton className="pf-embedded-pane h-[200px]" />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <Skeleton className="pf-embedded-pane h-[280px]" />
+      <div className="pf-cockpit">
+        {/* PLATE 1 */}
+        <div className="pf-terminal-band">
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[300px]" /></div>
+          <div className="pf-terminal-cell pf-terminal-cell--flat"><Skeleton className="pf-embedded-pane h-[300px]" /></div>
+          <div className="pf-terminal-cell pf-terminal-row--bottom"><Skeleton className="pf-embedded-pane h-[200px]" /></div>
+          <div className="pf-terminal-cell pf-terminal-cell--flat pf-terminal-row--bottom"><Skeleton className="pf-embedded-pane h-[200px]" /></div>
         </div>
-        <div className="pf-terminal-pane pf-terminal-pane--right">
-          <Skeleton className="pf-embedded-pane h-[180px]" />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <Skeleton className="pf-embedded-pane h-[240px]" />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <Skeleton className="pf-embedded-pane h-[200px]" />
+
+        {/* PLATE 2 */}
+        <div className="pf-terminal-band">
+          <div className="pf-terminal-cell"><Skeleton className="pf-embedded-pane h-[240px]" /></div>
+          <div className="pf-terminal-cell pf-terminal-cell--flat"><Skeleton className="pf-embedded-pane h-[240px]" /></div>
         </div>
       </div>
     </div>

@@ -67,69 +67,79 @@ export default async function PortfolioPage() {
 
       <div className="pf-hairline" aria-hidden="true" />
 
-      <div className="pf-cockpit pf-terminal-surface">
-        <div className="pf-terminal-pane pf-terminal-pane--left">
-          <ValueChart
-            positions={data.positions}
-            totalValueUsdc={data.totalValueUsdc}
-            valueChartTransactions={data.valueChartTransactions}
-            source={data.source}
-            updatedAt={data.updatedAt}
-            asOf={now}
-            embedded
-          />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <PositionsList
-            positions={data.positions}
-            source={data.source}
-            updatedAt={data.updatedAt}
-            leafHref="/portfolio/positions"
-            embedded
-          />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <CapitalYield
-            {...yieldStackProps}
-            buckets={allocationDonutProps.buckets}
-            totalValueUsdc={data.totalValueUsdc}
-            leafHref="/portfolio/yield"
-            embedded
-          />
+      <div className="pf-cockpit">
+        {/* PLATE 1: Analytics (Fixed Height) */}
+        <div className="pf-terminal-band">
+          <div className="pf-terminal-cell">
+            <ValueChart
+              positions={data.positions}
+              totalValueUsdc={data.totalValueUsdc}
+              valueChartTransactions={data.valueChartTransactions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              asOf={now}
+              embedded
+            />
+          </div>
+          <div className="pf-terminal-cell pf-terminal-cell--flat">
+            <PortfolioStatusPanel
+              hasPositions={hasPositions}
+              positionsCount={data.positions.length}
+              deployedUsdc={data.deployedUsdc}
+              totalValueUsdc={data.totalValueUsdc}
+              accruedYieldUsdc={data.accruedYieldUsdc}
+              source={data.source}
+              proof={{
+                statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,
+                onChainTvlUsdc: proofPulseProps.lastPor.onChainTvlUsdc,
+                timestamp: proofPulseProps.lastPor.timestamp,
+                source: proofPulseProps.source,
+              }}
+              embedded
+              {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
+            />
+          </div>
+          <div className="pf-terminal-cell pf-terminal-row--bottom">
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              leafHref="/portfolio/yield"
+              embedded
+            />
+          </div>
+          <div className="pf-terminal-cell pf-terminal-cell--flat pf-terminal-row--bottom">
+            <DistribCalendar
+              {...distribCalendarProps}
+              leafHref="/portfolio/distributions"
+              secondaryLeafHref="/portfolio/tax"
+              secondaryLeafLabel="Tax preview"
+              embedded
+            />
+          </div>
         </div>
 
-        <div className="pf-terminal-pane pf-terminal-pane--right">
-          <PortfolioStatusPanel
-            hasPositions={hasPositions}
-            positionsCount={data.positions.length}
-            deployedUsdc={data.deployedUsdc}
-            totalValueUsdc={data.totalValueUsdc}
-            accruedYieldUsdc={data.accruedYieldUsdc}
-            source={data.source}
-            proof={{
-              statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,
-              onChainTvlUsdc: proofPulseProps.lastPor.onChainTvlUsdc,
-              timestamp: proofPulseProps.lastPor.timestamp,
-              source: proofPulseProps.source,
-            }}
-            embedded
-            {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
-          />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <DistribCalendar
-            {...distribCalendarProps}
-            leafHref="/portfolio/distributions"
-            secondaryLeafHref="/portfolio/tax"
-            secondaryLeafLabel="Tax preview"
-            embedded
-          />
-          <div className="pf-terminal-divider" aria-hidden="true" />
-          <RecentActivity
-            transactions={data.recentTransactions}
-            source={data.source}
-            updatedAt={data.updatedAt}
-            asOf={now}
-            leafHref="/portfolio/activity"
-            embedded
-          />
+        {/* PLATE 2: Ledgers & Activity (Dynamic Height) */}
+        <div className="pf-terminal-band">
+          <div className="pf-terminal-cell">
+            <PositionsList
+              positions={data.positions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              leafHref="/portfolio/positions"
+              embedded
+            />
+          </div>
+          <div className="pf-terminal-cell pf-terminal-cell--flat">
+            <RecentActivity
+              transactions={data.recentTransactions}
+              source={data.source}
+              updatedAt={data.updatedAt}
+              asOf={now}
+              leafHref="/portfolio/activity"
+              embedded
+            />
+          </div>
         </div>
       </div>
     </div>

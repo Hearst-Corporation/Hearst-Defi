@@ -145,43 +145,39 @@
   min-width: 0;
 }
 
-/* Bloomberg Terminal Layout */
-.pf-terminal-surface {
-  position: relative;
+/* Bloomberg Terminal Layout V2 (Horizontal Plates) */
+.pf-terminal-band {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0;
-  min-width: 0;
+  gap: 1px; /* Hairline trick */
+  background-color: var(--ct-border-soft);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
-  background-color: var(--ct-surface-1);
   overflow: hidden;
   box-shadow: var(--ct-shadow-sm);
 }
 
 @container pf (min-width: 58rem) {
-  .pf-terminal-surface {
+  .pf-terminal-band {
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   }
 }
 
-.pf-terminal-pane {
+.pf-terminal-cell {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background-color: var(--ct-graphite-subtle-bg);
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, #ffffff 4%, transparent),
+    transparent 80%
+  );
 }
 
-@container pf (min-width: 58rem) {
-  .pf-terminal-pane--right {
-    border-left: 1px solid var(--ct-border-soft);
-  }
-}
-
-.pf-terminal-divider {
-  flex: 0 0 auto;
-  height: 1px;
-  background: var(--ct-border-soft);
-  margin: 0;
+.pf-terminal-cell--flat {
+  background-color: var(--ct-surface-1);
+  background-image: none;
 }
 
 .pf-cockpit-row {
