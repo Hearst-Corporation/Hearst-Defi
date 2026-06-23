@@ -50,6 +50,7 @@ import {
 } from "@/lib/llm/classify-product-intent";
 import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
 import { detectCanvasIntent } from "@/lib/canvas/intent";
+import { classifyCanvasIntentLlm } from "@/lib/canvas/classify-canvas-intent";
 import { withCanvasStreamEvents } from "@/lib/canvas/emit";
 import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
 import { createRequestContext, withRequestContext } from "@/lib/request-context";
@@ -552,7 +553,7 @@ async function runMasterAgentTurn(args: {
   // ([[canvas:<id>]]); we strip it so the model + the stored transcript only
   // ever see the human text, while the route opens the right canvas. A message
   // without the marker never opens a canvas (returns null).
-  const canvasIntent = detectCanvasIntent(rawMessage);
+  let canvasIntent = detectCanvasIntent(rawMessage);
   const message = canvasIntent ? canvasIntent.cleanedMessage || rawMessage : rawMessage;
 
   const persistence = createUserScopedPersistence(userId, chatMode);
@@ -666,14 +667,36 @@ async function runMasterAgentTurn(args: {
   // (a classifier error returns not-a-product-intent), so a hiccup degrades to a
   // normal conversational answer rather than breaking the chat. Admin-only: the
   // workspace is an admin surface, so we never spend a classification call on LP.
+  // Agent-canvas intent in natural language. The preset chip emits a marker, but
+  // a free-typed admin request ("lance une campagne outreach") wouldn't open the
+  // canvas without this. Admin-only, fail-safe (null → no canvas), and only when
+  // a marker didn't already pick a canvas. Runs BEFORE the product classifier so
+  // an outreach request lands on the canvas rather than the product workspace.
+  if (!isReview && isAdmin && !canvasIntent) {
+    const detected = await classifyCanvasIntentLlm(
+      openai as unknown as ClassifyClient,
+      model,
+      message,
+    );
+    if (detected) {
+      canvasIntent = {
+        canvasId: detected.canvasId,
+        cleanedMessage: message,
+      };
+    }
+  }
+
   const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
     (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
   );
   // Gate on the admin ROLE, not the chat mode: an admin gets a product intent
   // diverted to the workspace even from plain Conversation mode. A LP never
   // reaches here for the workspace (the surface is admin-only).
+  // Skip the product classifier when a canvas intent already won (e.g. outreach)
+  // — otherwise an outreach request could also match "frame a product" and race
+  // the two short-circuits.
   const productIntent =
-    !isReview && isAdmin && productWorkspaceNavEnabled
+    !isReview && isAdmin && productWorkspaceNavEnabled && !canvasIntent
       ? await classifyProductIntentLlm(
           openai as unknown as ClassifyClient,
           model,
