@@ -1,0 +1,63 @@
+---
+title: Agentic Reporting & Adverse Review
+order: 11
+---
+
+# Agentic Reporting & Adverse Review (Phase 2)
+
+> **Status: design / not built.** Forward spec per **ADR-018**. No execution code,
+> no blockchain, no DB migration here. Crews run on the MySwarms `crewai-engine`
+> **once the engine is reconfigured to GPT-4.1** (precondition, see ADR-018); until
+> then this is a target map.
+
+## Why Phase 2 first (after the router)
+
+Reporting is the **lowest-risk** crew domain — zero blockchain, zero custody, no
+fund movement — so it validates the end-to-end pattern (Crew → read-only adapter →
+draft → Adverse Review → human gate → publish) before any sensitive workflow.
+
+## Adverse Review crew (transverse compliance gate)
+
+Every human-facing crew output passes Adverse Review **before** any human gate.
+It reuses the in-repo validators — it does not invent a parallel weaker check:
+
+- **forbidden-words** (`src/lib/agents/forbidden-words.ts`),
+- **APY-always-a-range** (`apy-range.ts`),
+- **mandatory PTAI** where applicable (`PtaiSchema`),
+- **assumptions cited** + **"not guaranteed"** disclaimer,
+- **provenance present** per metric (Live/Oracle/Attested/Estimated/Manual/Stale),
+- **no fake data, no misleading control**, custody/governance constraints honored.
+
+Output: a verdict `{ ok, violations[] }`. A degraded cell (structural → flat /
+none) is a P0 surfaced in red; a violation **blocks** publish. A crew output that
+replaces a structured in-repo agent must be re-parsed through that agent's **same
+Zod schema + validator stack**, never a flat-string guard.
+
+## Daily Executive Brief (first reporting crew)
+
+| Field | Value |
+|---|---|
+| Inputs | vault snapshot, mining metrics, risk framework, custody snapshot, cron/job health — all via **read-only** in-repo loaders/adapters |
+| Crew | exec-brief composer (+ Adverse Review) on the engine |
+| Output | brief (Markdown + JSON), provenance-qualified per figure |
+| Human gate | **publish** (internal) — nothing auto-published |
+| Schedule | daily cron (Inngest kickoff, single owner — resolve vs the engine's APScheduler to avoid double-fire) |
+| Storage | Supabase `reports` bucket |
+| Delivery | admin cockpit |
+
+## Hard invariants (also in every crew's willNotDo)
+
+1. Crews are **non-custodial / non-signing**; signing/keys/on-chain execution stay
+   human-gated in-repo (ADR-006/012/018).
+2. A crew's `result_text` is **untrusted** — never a write-tool/route input, only
+   rendered as a human-gated draft.
+3. Outreach **send** guardrails (Tier-A never auto, daily cap, warm-up, suppression
+   re-check, unsubscribe, audit — ADR-016) stay in-repo regardless of any crew.
+4. No model name / token / prompt / fabricated confidence in any trace or report.
+
+## Next reporting crews (after the brief)
+
+Weekly Investor Report, Vault Readiness Report, Risk Report, Mining Ops Report,
+Investor Pipeline Report, Governance Readiness Report, Deployment Report, Incident
+Report, Board/IC Memo — each: inputs (read-only) → crew → Adverse Review → human
+gate (publish/send) → `reports` storage. Detail deferred to a per-crew spec.
