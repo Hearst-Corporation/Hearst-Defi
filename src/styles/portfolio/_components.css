@@ -1,6 +1,5 @@
-/* 6. PORTFOLIO STATUS PANEL (hero sidebar) */
+/* 6. PORTFOLIO STATUS PANEL */
 
-/* Welded into the hero-grid right slot — flat graphite, 5 icon rows. */
 .pf-status-panel {
   flex: 1 1 auto;
   display: flex;
@@ -218,7 +217,6 @@
   transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
-/* head-caps base (font/transform/color) grouped in _tokens.css §0; extras here. */
 .pf-positions__row--head {
   border-bottom: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
   background: color-mix(in srgb, var(--ct-surface-2) 40%, transparent);
@@ -340,14 +338,12 @@
 
 .pf-positions-empty-link:hover { color: var(--ct-accent-strong); }
 
-/* 8. CAPITAL & YIELD (.cy-* full instrument) */
+/* 8. CAPITAL & YIELD */
 
 .cy-panel {
-  /* inherits the plate from .pf-cockpit-panel; only layout specifics here */
   min-width: 0;
 }
 
-/* shared hero-grid frame in _tokens.css §0; only the column ratio differs. */
 .cy-hero {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
 }
@@ -713,7 +709,6 @@
   gap: var(--ct-space-3);
 }
 
-/* shared summary-band frame in _tokens.css §0; specifics below. */
 .pf-calendar-summary {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr);
   gap: 0;
@@ -876,7 +871,6 @@
   overflow-x: hidden;
 }
 
-/* shared summary-band frame in _tokens.css §0; specifics below. */
 .pf-activity-summary {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--ct-space-3);
@@ -1372,11 +1366,8 @@
   flex: 0 0 auto;
 }
 
-/*    13. ZERO-STATE OVERRIDES
-   Plates are full height (rows share fr). Placeholder content is vertically
-   centered; ghost charts are subtle; no fake Live/Verified badges. */
+/* 13. ZERO-STATE OVERRIDES */
 
-/* Center placeholder content inside each plate. */
 .pf-container--zero .pf-positions-empty,
 .pf-container--zero .pf-activity--empty,
 .pf-container--zero .pf-trust-compact-kpis {
@@ -1384,15 +1375,6 @@
   justify-content: center;
 }
 
-/* cy-panel zero : pile PROPRE = header / donut (cy-body) / copy.
-   Le panneau devient une colonne flex et RÉPARTIT verticalement le donut et le
-   texte "Live allocation unlocks…" — fini le chevauchement (texte par-dessus le
-   donut) causé par le double margin:auto + place-items:center sur la même bande. */
-/* ── Capital & Yield ZERO (onboarding-empty) — pile centrée SANS chevauchement ──
-   Le panneau = colonne flex qui centre verticalement le GROUPE {donut, copy}.
-   body et copy sont content-sized (flex:0 0 auto) → ils s'empilent naturellement,
-   donut PUIS copy, jamais l'un par-dessus l'autre. (Bug : avant, body flex:1 +
-   double centrage faisaient se rencontrer le donut et le texte au milieu.) */
 .cy-panel--onboarding-empty {
   display: flex;
   flex-direction: column;
@@ -1420,8 +1402,6 @@
   display: none;
 }
 
-/* Donut placeholder zero : carré FIXE (largeur ET hauteur) + flex-shrink:0 pour
-   qu'il ne s'étire pas et n'empiète pas sur la copy en dessous. */
 .cy-panel--onboarding-empty .cy-donut,
 .cy-panel--onboarding-empty .dash-chart-container {
   width: var(--pf-donut-size-zero);
@@ -1475,18 +1455,13 @@
   gap: var(--ct-space-4);
 }
 
-/*    14. RESPONSIVE @container TIERS
-   Column reflow is driven by the CONTENT slot (@container pf), not the viewport,
-   so a narrow center panel with the chat rail open reflows correctly. Copy
-   scales down so nothing clips in tight slots. */
+/* 14. RESPONSIVE @container TIERS */
 
-/* ---- DECK: 1 → 2 → 3 colonnes ---- */
 @container pf (min-width: 36rem) {
   .pf-cockpit-row--deck { grid-template-columns: 1fr 1fr; }
 }
 
-
-/* ---- Capital & Yield body: drop the spine + stack donut over ledger when tight ---- */
+/* Capital & Yield: stack donut over ledger when tight */
 @container pf (max-width: 30rem) {
   .cy-body {
     grid-template-columns: 1fr;
@@ -1505,7 +1480,7 @@
   .cy-ledger { width: 100%; }
 }
 
-/* ---- Panel-level container (each plate can host its own query) ---- */
+/* Panel-level container queries */
 .pf-cockpit-panel,
 .pf-payout-calendar-panel,
 .cy-panel {
@@ -1523,7 +1498,6 @@
   .pf-positions__row {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
   }
-  /* Keep the core reading path in tiny slots: Vault, current Value, APY range. */
   .pf-positions__row > :nth-child(2),
   .pf-positions__row > :nth-child(4),
   .pf-positions__row > :nth-child(6) { display: none; }
@@ -1585,20 +1559,18 @@
   }
 }
 
-/* MOTION KEYFRAMES + reduced-motion freeze */
+/* Motion keyframes */
 
 @keyframes pf-shimmer {
   0% { background-position: 200% 0; transform: translateX(-100%); }
   100% { background-position: -200% 0; transform: translateX(100%); }
 }
 
-/* Line-draw animation for ValueChart — strokeDashoffset from full-length to 0. */
 @keyframes pf-line-draw {
   from { stroke-dashoffset: 1000; }
   to   { stroke-dashoffset: 0; }
 }
 
-/* SVG path class — owns the draw animation (moved from inline style). */
 .pf-vc-line {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
@@ -1665,41 +1637,32 @@
   gap: var(--ct-space-2);
 }
 
-/* ── Zero-state skeleton primitives — muted placeholder bars/dots shared by
-   Positions, Recent Activity and the Capital & Yield ledger. They render the
-   widget's structural frame while no real data exists, then disappear as the
-   real rows fill in. No invented values, no "no data yet" phrase. ── */
+/* Zero-state skeleton primitives */
 .pf-activity__row--skeleton,
 .pf-positions__row--skeleton { pointer-events: none; }
 
-/* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
 .pf-distrib-chart--skeleton rect {
-  fill: var(--ct-surface-3); /* Increased contrast from surface-4 */
+  fill: var(--ct-surface-3);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
+
 .pf-vc-line--skeleton {
   opacity: 1;
   animation: none;
   stroke-dasharray: none;
 }
 
-/* ── Capital & Yield zero-state polish — segmented muted donut + structured
-   ledger skeleton, so the empty widget reads as a calm pre-filled instrument
-   rather than a flat grey ring with dashes. ── */
 .dash-chart-svg--skeleton {
   opacity: var(--ct-opacity-80);
 }
+
 .cy-donut-arc--skeleton {
   fill: none;
-  stroke-width: 3.4; /* chart-geometry — matches .dash-chart-circle */
+  stroke-width: 3.4;
   stroke: var(--ct-surface-3);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 
-/* ── Portfolio status leading mark: circled icon when there's room, plain dot
-   when the panel gets too narrow (icon discs were cramping the rows). The
-   88rem gate mirrors the cockpit no-scroll breakpoint — below it the layout
-   compresses, so we drop to the compact dot. ── */
 @media not all and (min-width: 75rem) {
   .pf-status-row__icon { display: none; }
   .pf-status-row__dot { display: inline-block; }

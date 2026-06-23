@@ -31,7 +31,6 @@ const monthDayYearFmt = new Intl.DateTimeFormat("en-US", {
 
 const DASH = "—";
 
-/** Format pct with sign (+1.2% / -0.5%). */
 function fmtDeltaPct(numerator: number, denominator: number): string {
   if (denominator === 0) return "+0.0%";
   const pct = ((numerator / denominator) * 100);
@@ -39,11 +38,6 @@ function fmtDeltaPct(numerator: number, denominator: number): string {
   return `${sign}${pct.toFixed(1)}%`;
 }
 
-/**
- * Portfolio hub header (mockup-matched): greeting + a right-aligned KPI strip.
- * Four inline metrics — Portfolio value · APY range · Next payout · YTD yield.
- * Zero-state renders honest em-dash placeholders (no fabricated numbers).
- */
 export function PortfolioGreeting({ name, ticker, now }: PortfolioGreetingProps) {
   const has = !!ticker?.hasPositions;
   const apyRange =

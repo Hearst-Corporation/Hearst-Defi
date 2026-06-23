@@ -37,7 +37,6 @@ interface RecentActivityProps {
   transactions: PortfolioTransaction[];
   source: "live" | "fallback";
   updatedAt?: Date;
-  /** Server reference time — must match the portfolio hub `now`. */
   asOf?: Date;
   leafHref?: string;
   embedded?: boolean;
@@ -138,8 +137,6 @@ export function RecentActivity({
           </div>
         </div>
       ) : (
-        /* Zero-state text — plain and honest empty state instead of skeleton rows
-           since we're cleaning up the empty states to be more explicit. */
         <div className="pf-activity pf-activity--empty" aria-label="No activity yet">
           <span className="pf-activity__empty-lead">No recent activity</span>
           <span className="pf-activity__empty-hint ct-text-muted">

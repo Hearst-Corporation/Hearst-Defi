@@ -41,9 +41,6 @@ export interface TaxPreviewPanelProps {
   preview: TaxPreview;
 }
 
-/**
- * YTD tax preview — 1099-INT, 1099-B, CRS. Preview only; not filed documents.
- */
 export function TaxPreviewPanel({ preview }: TaxPreviewPanelProps) {
   const { form1099Int, form1099B, crs } = preview;
   const year = form1099Int.taxYear;

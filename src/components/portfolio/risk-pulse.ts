@@ -1,8 +1,3 @@
-/**
- * Risk pulse — types + pure helpers for TrustProofCompact and loaders.
- * The full RiskPulse panel is not mounted on the hub; trust uses KPI summary only.
- */
-
 export interface RiskScore {
   dimension:
     | "market"
@@ -31,7 +26,6 @@ export interface RiskPulseProps {
   updatedAt?: Date;
 }
 
-/** Map composite label → CSS token colour class for the composite value. */
 export function compositeLabelColor(label: CompositeLabel): string {
   switch (label) {
     case "Low":
@@ -46,7 +40,6 @@ export function compositeLabelColor(label: CompositeLabel): string {
   }
 }
 
-/** Trend icon + colour for a 30d delta. */
 export function trendMeta(delta: number): {
   icon: string;
   colorClass: string;
@@ -73,7 +66,6 @@ export function trendMeta(delta: number): {
   };
 }
 
-/** Build a minimal inline SVG sparkline path from a series of 0–100 values. */
 export function buildSparklinePath(series: number[]): string {
   if (series.length < 2) return "";
   const w = 64;

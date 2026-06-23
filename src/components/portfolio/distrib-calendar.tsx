@@ -1,65 +1,32 @@
-/**
- * DistribCalendar — Payout Calendar widget for the investor dashboard.
- * ("Payout" is the investor-facing word for a vault distribution; the internal
- * component/prop names keep "distrib" to avoid touching data wiring.)
- *
- * 12 paid entries + 1 forecast bar = 13-bar horizontal histogram.
- * Pure Server Component — no client JS. CSS :focus-within for accessible
- * hover reveals via sibling selector in `group`.
- *
- * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
- */
-
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { useId } from "react";
-
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { barHeight as barHeightIn, barX as barXIn } from "@/lib/portfolio/geometry";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull } from "@/lib/vaults/product-display";
-import {
-  PfCockpitPanel,
-} from "@/components/portfolio/pf-cockpit-panel";
-
-// ── Canonical reference component ─────────────────────────────────────────────
-// All CSS values use --ct-* tokens. SVG geometry (viewBox coordinates, BAR_W,
-// GAP, COMPACT_VB_H etc.) is the documented escape hatch — these are coordinate
-// system values, not CSS spacing. See "chart-geometry escape hatch" comments below.
-
-// ── Public types ──────────────────────────────────────────────────────────────
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 
 export interface DistribEntry {
-  /** ISO month string, e.g. "2026-04" */
   period: string;
   amountUsdc: number;
-  /** null = forecast */
   paidAt: Date | null;
   txHash?: string;
 }
 
 export interface DistribCalendarProps {
-  /** Last 12 paid + 1 forecast */
   entries: DistribEntry[];
-  /** e.g. "A" */
   shareClass: string | null;
-  /** e.g. "monthly, T+5" */
   cadence: string | null;
   asOf?: Date;
-  /** Provenance metadata from the loader. */
   source?: "live" | "stale";
   updatedAt?: Date;
-  /** Hub-only link to the focused leaf page. */
   leafHref?: string;
   secondaryLeafHref?: string;
   secondaryLeafLabel?: string;
-  /** Render inside a fused surface (no panel chrome) — hub hero/timeline. */
   embedded?: boolean;
 }
 
-// ── Formatting helpers (exported for tests) ───────────────────────────────────
-
-/** Format period "2026-04" → "Apr'26" (first month of the series) or "Apr" (same year). */
 export function formatPeriod(period: string, refYear: number): string {
   const [yearStr, monthStr] = period.split("-");
   if (!yearStr || !monthStr) return period;
@@ -71,56 +38,41 @@ export function formatPeriod(period: string, refYear: number): string {
   return year !== refYear ? `${label}'${String(year).slice(2)}` : label;
 }
 
-// ── SVG constants — chart-geometry escape hatch ───────────────────────────────
-// These are viewBox coordinate values, not CSS spacing tokens.
-
 const VB_W = 560;
 const VB_H = 180;
 const BAR_AREA_TOP = 8;
-const BAR_AREA_BOT = 140;  // bottom of bars (label zone below)
+const BAR_AREA_BOT = 140;
 const BAR_AREA_H = BAR_AREA_BOT - BAR_AREA_TOP;
 const LABEL_Y = BAR_AREA_BOT + 14;
 const AMOUNT_Y = BAR_AREA_BOT + 28;
 const BAR_FILL = "color-mix(in srgb, var(--ct-surface-3) 92%, var(--ct-text-strong) 8%)";
 const BAR_STROKE = "color-mix(in srgb, var(--ct-text-strong) 10%, transparent)";
 
-// ── Bar geometry — bind this chart's viewBox to the shared pure helpers ────────
-// The math lives in @/lib/portfolio/geometry (shared with value-chart); these
-// thin wrappers inject this chart's VB_W / BAR_AREA_H. Exported for tests.
-
-/** Compute x-position of a bar's left edge (0-indexed) in the viewBox. */
 export function barX(index: number, total: number, barW: number, gapW: number): number {
   return barXIn(index, total, barW, gapW, VB_W);
 }
 
-/** Compute bar height, normalised to BAR_AREA_H. Returns 0 for empty series. */
 export function barHeight(amount: number, maxAmount: number): number {
   return barHeightIn(amount, maxAmount, BAR_AREA_H);
 }
 
-/** Quarter-month indices (0-based) for compact zero-state labels: Jan, Apr, Jul, Oct. */
 const COMPACT_LABEL_INDICES = [0, 3, 6, 9] as const;
 
 export function shouldShowCompactPeriodLabel(index: number): boolean {
   return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
 }
 
-// ── SVG component ─────────────────────────────────────────────────────────────
-
 interface BarChartProps {
   entries: DistribEntry[];
   refYear: number;
   currentPeriod: string;
-  /** Zero-state skeleton: 12 muted empty bars, no amounts/labels. */
   skeleton?: boolean;
 }
 
-/** 12 flat low-height grey bars for the empty-state histogram frame. */
 function SkeletonBars() {
   const n = 12;
   const GAP = 4;
   const BAR_W = Math.floor((VB_W - (n - 1) * GAP) / n);
-  // Subtle uneven baseline so the frame reads as a chart, not a flat block.
   const HEIGHTS = [6, 9, 7, 11, 8, 12, 9, 13, 10, 12, 9, 11];
   return (
     <svg
@@ -134,15 +86,15 @@ function SkeletonBars() {
         const bh = HEIGHTS[i] ?? 8;
         const bx = barX(i, n, BAR_W, GAP);
         return (
-            <rect
-              key={i}
-              x={bx}
-              y={BAR_AREA_BOT - bh}
-              width={BAR_W}
-              height={bh}
-              rx="1"
-              aria-hidden="true"
-            />
+          <rect
+            key={i}
+            x={bx}
+            y={BAR_AREA_BOT - bh}
+            width={BAR_W}
+            height={bh}
+            rx="1"
+            aria-hidden="true"
+          />
         );
       })}
     </svg>
@@ -155,8 +107,6 @@ function BarChart({
   currentPeriod,
   skeleton = false,
 }: BarChartProps) {
-  // ids uniques par instance — évite les collisions <defs>/aria-labelledby si
-  // plusieurs DistribCalendar coexistent sur le document (HTML invalide sinon).
   const uid = useId();
   const n = entries.length;
   if (skeleton || n === 0) return <SkeletonBars />;
@@ -177,13 +127,9 @@ function BarChart({
       role="img"
       aria-labelledby={titleId}
     >
-      {/* Single text child (template literal) — an SVG <title> with mixed
-          string + expression children serialises empty on the server and
-          triggers a hydration mismatch. */}
       <title id={titleId}>{`Payout calendar — ${n} periods`}</title>
 
       <defs>
-        {/* Diagonal hatch pattern for forecast bar */}
         <pattern
           id={forecastPatternId}
           patternUnits="userSpaceOnUse"
@@ -214,9 +160,7 @@ function BarChart({
         const cx = bx + BAR_W / 2;
 
         const barEl = isForecast ? (
-          // Forecast: dashed-border rect + hatch fill
           <g key={i} role="img" aria-label={`Forecast ${periodLabel} — ${amountLabel} (Estimated)`}>
-            {/* svg-render: dash pattern 4on/2off in viewBox units */}
             <rect
               x={bx}
               y={by}
@@ -229,7 +173,6 @@ function BarChart({
               style={{ opacity: "var(--ct-opacity-75)" }}
               rx="1"
             />
-            {/* [Estimate] badge text above bar */}
             <text
               x={cx}
               y={by - 4}
@@ -242,7 +185,6 @@ function BarChart({
             </text>
           </g>
         ) : entry.txHash && !isPlaceholderTxHash(entry.txHash) ? (
-          // Paid with a real tx hash — wrap in anchor.
           <a
             key={i}
             href={explorerTxUrl(entry.txHash)}
@@ -264,7 +206,6 @@ function BarChart({
             />
           </a>
         ) : (
-          // Paid, no tx hash
           <rect
             key={i}
             x={bx}
@@ -283,8 +224,6 @@ function BarChart({
         return (
           <g key={i}>
             {barEl}
-
-            {/* Period label */}
             <text
               x={cx}
               y={LABEL_Y}
@@ -295,8 +234,6 @@ function BarChart({
             >
               {periodLabel}
             </text>
-
-            {/* Amount label */}
             <text
               x={cx}
               y={AMOUNT_Y}
@@ -313,8 +250,6 @@ function BarChart({
     </svg>
   );
 }
-
-// ── Main component ────────────────────────────────────────────────────────────
 
 function calendarHeaderTrail(
   leafHref?: string,
@@ -350,16 +285,12 @@ export function DistribCalendar({
   const chrome = embedded ? ("embedded" as const) : ("panel" as const);
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
-
   const currentPeriod = `${refYear}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
   const latestPaidEntry = [...entries].reverse().find((e) => e.paidAt !== null) ?? null;
   const forecastEntry = entries.find((e) => e.paidAt === null) ?? null;
 
-  // Zero-state: render the histogram SKELETON (empty muted bars), no phrase.
-  // The frame fills in with real bars as soon as the first distribution lands.
   if (!hasEntries) {
     return (
       <PfCockpitPanel
@@ -381,12 +312,9 @@ export function DistribCalendar({
     );
   }
 
-  // CRITICAL provenance rule — preserved verbatim:
-  // In live mode with hasEntries: source==="live" → "attested"; otherwise resolveProvenance fallback.
-  const liveProvenance =
-    source === "live"
-      ? ("attested" as const)
-      : resolveProvenance(source, updatedAt, "estimated");
+  const liveProvenance = source === "live"
+    ? ("attested" as const)
+    : resolveProvenance(source, updatedAt, "estimated");
 
   const header = (
     <DashboardPanelHeader

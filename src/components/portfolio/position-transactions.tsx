@@ -1,7 +1,3 @@
-// PositionTransactions — transactions table for /portfolio/[positionId]
-// Server Component.
-// Shows up to 50 rows: Date · Type icon · Amount (signed) · Tx hash (BaseScan link).
-
 import type { PositionDetailTransaction } from "@/lib/data/portfolio";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
@@ -41,7 +37,6 @@ const TYPE_LABEL: Record<TxType, string> = {
   distribution: "Distribution",
 };
 
-/** Returns true when the transaction represents money flowing in (positive). */
 function isIncoming(type: TxType): boolean {
   return type === "deposit";
 }
@@ -51,10 +46,6 @@ interface PositionTransactionsProps {
   source: "live" | "fallback";
 }
 
-/**
- * Transaction history table.
- * Filter chips are visual-only at MVP — interactivity can be added later.
- */
 export function PositionTransactions({
   transactions,
   source,
@@ -69,7 +60,6 @@ export function PositionTransactions({
       aria-label="Transaction history"
       className="position-detail-transactions"
     >
-      {/* Header */}
       <div className="position-detail-transactions__head">
         <span className="eyebrow ct-text-muted">
           Transaction history
@@ -77,7 +67,6 @@ export function PositionTransactions({
         <ProvenanceBadge kind={provenance} />
       </div>
 
-      {/* Visual filter chips — decorative only, not interactive */}
       <div
         className="position-detail-transactions__chips"
         aria-hidden="true"
@@ -113,12 +102,10 @@ export function PositionTransactions({
                 const incoming = isIncoming(tx.type);
                 return (
                   <tr key={tx.id} className="position-detail-transactions__row">
-                    {/* Date */}
                     <td className="tabular body-xs ct-text-muted mono whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad">
                       {dateFmt.format(tx.occurredAt)}
                     </td>
 
-                    {/* Type + icon */}
                     <td className="position-detail-transactions__cell position-detail-transactions__cell--pad">
                       <span className="body-xs ct-text-body pf-inline-row pf-inline-row--dense">
                         <span
@@ -131,7 +118,6 @@ export function PositionTransactions({
                       </span>
                     </td>
 
-                    {/* Amount — green for incoming (deposit), muted for outgoing */}
                     <td
                       className={cn(
                         "tabular body-md text-right mono font-semibold whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad",
@@ -142,7 +128,6 @@ export function PositionTransactions({
                       {usdSigned.format(tx.amountUsdc)}
                     </td>
 
-                    {/* Tx hash — never link a fabricated seed/demo hash (dead BaseScan). */}
                     <td className="whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--right">
                       {tx.txHash && !isPlaceholderTxHash(tx.txHash) ? (
                         <a

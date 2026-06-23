@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import {
-  PfCockpitPanel,
-} from "@/components/portfolio/pf-cockpit-panel";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import {
   barWidthPct,
   formatContribution,
@@ -14,28 +12,10 @@ import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { formatApyRange } from "@/lib/format/apy";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
 
-/**
- * Capital & Yield — "Living Precision" instrument panel.
- *
- * Merges the former Yield Source Stack + Allocation donut into ONE full-width
- * showpiece: a haloed allocation gauge (left) reading across a hairline spine
- * into a precision yield ledger (right) whose rows ARE the donut legend.
- *
- * Client Component: hover interactions between ledger and donut arcs.
- *
- * CLAUDE.md non-negotiables: APY always a range (#1), provenance badge (#2),
- * forbidden words absent (#5), "not guaranteed" disclaimer (#10).
- */
-
-/**
- * Monochrome-green bucket palette — LOCAL to the portfolio "Living Precision"
- * panel (Adrien's premium direction: green + derivations only, no other hue).
- */
 const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
   mining: "var(--ct-accent)",
   usdc_base: "color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-neutral))",
@@ -71,49 +51,28 @@ export function CapitalYield({
   leafHref,
   embedded = false,
 }: CapitalYieldProps) {
-  // Hover state for donut <-> ledger interaction
   const [hoveredBucket, setHoveredBucket] = useState<string | null>(null);
 
-  // Zero-state = the graphic SKELETON renders (empty ring + zeroed ledger rows),
-  // NO invented data. As soon as real vault data arrives, the donut/ledger fill in.
   const hasData = sources.length > 0 && buckets.length > 0;
-
   const hasYield = hasData && sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0) > 0;
-
   const maxAbsPct = hasData
     ? sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0)
     : 0;
-
-  // Capital is deployed as soon as the position is funded — independent of
-  // whether the vault allocation snapshot has settled. This drives the donut
-  // centre so it never reads "Pending" while the positions table shows a value.
   const hasCapital = totalValueUsdc > 0;
-
-  // Badge/disclaimer only when there is real allocation data AND a position.
   const isFilled = hasYield && totalValueUsdc > 0;
 
-  const [rLow, rHigh] =
-    blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
-  const [sLow, sHigh] =
-    stressedBearRange.low <= stressedBearRange.high
-      ? [stressedBearRange.low, stressedBearRange.high]
-      : [stressedBearRange.high, stressedBearRange.low];
+  const [rLow, rHigh] = blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
+  const [sLow, sHigh] = stressedBearRange.low <= stressedBearRange.high
+    ? [stressedBearRange.low, stressedBearRange.high]
+    : [stressedBearRange.high, stressedBearRange.low];
 
-  // A range exists once we have either real vault yield OR a position-derived
-  // fallback range (blendedLow/High grafted upstream from the position's APY).
   const hasRange = rLow + rHigh > 0;
   const hasStress = sLow + sHigh > 0;
-
-  // Reference range: a real range but not the full forward projection (no
-  // settled allocation breakdown yet). Keeps the hero populated instead of "—".
   const showReferenceRange = hasRange && !isFilled;
 
-  // Filled → real source (live). Reference range (position-derived) → estimated,
-  // not "stale": it's a current vault/position reference, not aged data.
-  const provenance =
-    isFilled || hasRange
-      ? resolveProvenance(isFilled ? source : "estimated", updatedAt ?? new Date(), "estimated")
-      : undefined;
+  const provenance = isFilled || hasRange
+    ? resolveProvenance(isFilled ? source : "estimated", updatedAt ?? new Date(), "estimated")
+    : undefined;
 
   const heroRangeLabel = isFilled
     ? "Forward range"
@@ -143,8 +102,6 @@ export function CapitalYield({
       aria-label="Capital and yield — allocation and 12 month forward yield"
       className={cn(
         embedded ? "pf-capital-yield--embedded" : "cy-panel",
-        // Empty layout only with neither capital nor allocation data — a funded
-        // position ($11) keeps the normal hero+donut+ledger layout.
         !hasCapital && !hasData && (embedded ? "pf-capital-yield--embedded-empty" : "cy-panel--onboarding-empty")
       )}
     >
@@ -173,25 +130,22 @@ export function CapitalYield({
       </div>
 
       <div className="cy-body">
-        {/* ── Zone 1 — allocation gauge ── */}
         <div className="cy-donut-shell">
-          <div className="cy-donut dash-chart-container group/donut">
-          {/* svg-geometry: cx/cy/r/strokeDasharray/viewBox are raw numbers by SVG spec */}
-            <svg
-              className={cn("dash-chart-svg", !hasYield && "dash-chart-svg--skeleton")}
-              viewBox="0 0 42 42"
-              role="img"
-              aria-label={hasYield ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
-            >
-            {/* Background track ring (always present). */}
-              <circle
-                className="dash-chart-circle"
-                cx="21"
-                cy="21"
-                r="15.9155"
-                stroke="var(--ct-surface-2)"
-                strokeDasharray="100 0"
-              />
+        <div className="cy-donut dash-chart-container group/donut">
+          <svg
+            className={cn("dash-chart-svg", !hasYield && "dash-chart-svg--skeleton")}
+            viewBox="0 0 42 42"
+            role="img"
+            aria-label={hasYield ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
+          >
+            <circle
+              className="dash-chart-circle"
+              cx="21"
+              cy="21"
+              r="15.9155"
+              stroke="var(--ct-surface-2)"
+              strokeDasharray="100 0"
+            />
             {hasYield ? (
               <>
                 {segments
@@ -232,8 +186,6 @@ export function CapitalYield({
                 })}
               </>
             ) : (
-              /* Zero-state: four evenly-spaced muted arcs suggest the allocation
-                 structure to come — a quiet skeleton, not a flat grey ring. */
               [0, 25, 50, 75].map((offset) => (
                 <circle
                   key={offset}
@@ -247,7 +199,7 @@ export function CapitalYield({
                 />
               ))
             )}
-            </svg>
+          </svg>
             <div className="donut-center">
               {hasCapital ? (
                 <>
@@ -273,11 +225,9 @@ export function CapitalYield({
           </div>
         </div>
 
-        {/* ── Zone 2 — hairline spine ── */}
         <div className="cy-spine" aria-hidden />
 
-        {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
-        <div className="cy-ledger">
+      <div className="cy-ledger">
           {!hasData ? (
             <div className="cy-ledger-empty">
               <p className="cy-ledger-empty__lead">Yield allocation pending</p>

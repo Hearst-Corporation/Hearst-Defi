@@ -22,14 +22,12 @@
   color: var(--ct-accent);
 }
 
-
-  .pf-value-chart__chart-wrapper {
+.pf-value-chart__chart-wrapper {
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
-  /* aspect-ratio is the collapse backstop once min-height:0 fires */
-  aspect-ratio: 200 / 62; /* chart-geometry */
+  aspect-ratio: auto;
   overflow: hidden;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
   background: radial-gradient(
@@ -41,30 +39,6 @@
     color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
     color-mix(in srgb, var(--ct-surface-1) 60%, transparent)
   );
-}
-
-.pf-value-chart__chart-wrapper--interactive {
-  overflow: visible !important;
-  cursor: crosshair;
-}
-
-.pf-value-chart__chart-wrapper--interactive:focus-visible {
-  outline: 1px solid color-mix(in srgb, var(--ct-accent) 75%, transparent);
-  outline-offset: var(--ct-space-1);
-}
-
-.pf-value-chart__y-axis {
-  position: absolute;
-  inset: var(--ct-space-2) auto var(--ct-space-2) var(--ct-space-2);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  pointer-events: none;
-  z-index: 5;
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  font-variant-numeric: tabular-nums;
-  opacity: var(--ct-opacity-60);
 }
 
 .pf-value-chart__chart-wrapper::before {
@@ -92,6 +66,27 @@
   pointer-events: none;
 }
 
+.pf-value-chart__chart-wrapper--interactive {
+  overflow: visible !important;
+  cursor: crosshair;
+}
+
+.pf-value-chart__chart-wrapper--interactive:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--ct-accent) 75%, transparent);
+  outline-offset: var(--ct-space-1);
+}
+
+.pf-value-chart__y-axis {
+  position: absolute;
+  inset: 0 var(--ct-space-2) 0 var(--ct-space-2);
+  pointer-events: none;
+  z-index: 5;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  opacity: var(--ct-opacity-60);
+}
+
 .pf-value-chart__plot {
   position: relative;
   width: 100%;
@@ -105,7 +100,48 @@
   height: 100%;
 }
 
-/* Tooltip for ValueChart */
+.pf-vc-grid {
+  stroke: var(--ct-border-base);
+  stroke-width: 0.5;
+  opacity: var(--ct-opacity-65);
+}
+
+.pf-vc-line {
+  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
+}
+
+.pf-vc-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pf-vc-dot {
+  position: absolute;
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-text-muted);
+  transform: translate(-50%, -50%);
+}
+
+.pf-vc-dot--endcap {
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  background: var(--ct-accent);
+  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 14%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 60%, transparent);
+}
+
+.pf-vc-dist-marker {
+  animation: pf-dist-pulse 2s var(--ct-ease-in-out) infinite;
+}
+
+@keyframes pf-dist-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .pf-vc-tooltip {
   pointer-events: none;
   z-index: var(--ct-z-overlay);
@@ -138,72 +174,6 @@
   line-height: 1.2;
 }
 
-/* Chart line + area — flat stroke, no glow animation. */
-.pf-value-chart__plot svg path[data-role="line"],
-.pf-value-chart__plot svg .vc-line,
-.pf-value-chart__plot svg path[stroke="var(--ct-accent)"] {
-  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
-  opacity: 1;
-}
-
-.pf-value-chart__plot svg .vc-area {
-  fill: none;
-  opacity: 0;
-  filter: none;
-}
-
-.pf-vc-grid {
-  stroke: var(--ct-border-base);
-  stroke-width: 0.5; /* chart-geometry */
-  opacity: var(--ct-opacity-65);
-}
-
-.pf-vc-axis {
-  stroke: color-mix(in srgb, var(--ct-text-strong) 16%, transparent);
-  stroke-width: 0.75;
-  opacity: 1;
-}
-
-/* Endpoint dots overlaid on the plot. */
-.pf-vc-dots {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.pf-vc-dot {
-  position: absolute;
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-text-muted);
-  transform: translate(-50%, -50%);
-}
-
-.pf-vc-dot--endcap {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  background: var(--ct-accent);
-  border: 1px solid color-mix(in srgb, var(--ct-text-strong) 14%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 60%, transparent);
-}
-
-/* Distribution markers (small triangles above payout points) */
-.pf-vc-dist-marker {
-  animation: pf-dist-pulse 2s var(--ct-ease-in-out) infinite;
-}
-
-@keyframes pf-dist-pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-.pf-positions-empty__hint,
-.pf-activity__empty-hint,
-.pf-value-chart__disclaimer {
-  color: var(--ct-text-tertiary);
-}
-
 .pf-value-chart__month-labels {
   position: relative;
   height: var(--ct-space-4);
@@ -217,6 +187,12 @@
   font-size: var(--ct-text-micro);
   color: var(--ct-text-neutral);
   white-space: nowrap;
+}
+
+.pf-positions-empty__hint,
+.pf-activity__empty-hint,
+.pf-value-chart__disclaimer {
+  color: var(--ct-text-tertiary);
 }
 
 .pf-value-chart__disclaimer {

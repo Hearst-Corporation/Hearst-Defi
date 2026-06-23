@@ -8,17 +8,6 @@ export { PanelStatus } from "@/components/ui/panel-status";
 export type PfCockpitPanelVariant = "wide" | "compact" | "table";
 export type PfCockpitPanelChrome = "panel" | "embedded";
 
-/** Flat graphite panel — same surface family as the hero rail sidebar.
- *
- * Portfolio widget shell tiers (cockpit /portfolio):
- *   L1 — PfCockpitPanel: standalone widget shell when a module owns its surface
- *   L2 — embedded pane: widget content rendered inside a fused parent surface
- *   L3 — ProductSection: multi-widget section chrome (header + welded bento grid)
- *
- * ModuleChrome (glass Card) stays reserved for non-portfolio modules embedded in
- * ProductSection elsewhere. Portfolio widgets may render either as a standalone
- * PfCockpitPanel or as an embedded pane inside a fused cockpit surface.
- */
 export function PfCockpitPanel({
   variant = "wide",
   chrome = "panel",

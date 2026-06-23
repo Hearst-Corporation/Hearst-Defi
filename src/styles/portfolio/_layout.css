@@ -136,9 +136,7 @@
   font-weight: var(--ct-font-semibold);
 }
 
-/*    3. COCKPIT LAYOUT + THE NO-SCROLL CONTRACT
-   The contract holds at 1440×900, 1280×800 AND 1659×821 with the right chat
-   rail open. Below the gate (narrow OR short), the page scrolls naturally. */
+/* 3. COCKPIT LAYOUT */
 
 .pf-cockpit {
   display: flex;
@@ -147,7 +145,6 @@
   min-width: 0;
 }
 
-/* Rows are BOTH flex items (height in fr) AND grids (their own columns). */
 .pf-cockpit-row {
   min-height: 0;
   min-width: 0;
@@ -155,27 +152,16 @@
   gap: var(--ct-space-6);
 }
 
-/* Default (narrow): single-column stacking. */
 .pf-cockpit-row--hero       { grid-template-columns: 1fr; align-items: start; }
 .pf-cockpit-row--positions  { grid-template-columns: 1fr; align-items: start; }
 .pf-cockpit-row--deck       { grid-template-columns: 1fr; align-items: start; }
 
-/* ROW 1 — HERO: chart + status fused (50/50 split on wide) */
-@container pf (min-width: 48rem) {
-  .pf-cockpit-row--hero {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ROW 3 — Deck: Yield (60%) | [Calendar + Activity] (40%) on wide */
 @container pf (min-width: 58rem) {
   .pf-cockpit-row--deck {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
     align-items: start;
   }
 }
-
-/* 3b. FLUID LAYOUT (no card-per-widget rule) — edge-to-edge surfaces */
 
 /* Hero unified: Chart + Status as one seamless surface */
 .pf-hero-unified {
@@ -196,7 +182,6 @@
   min-height: 0;
 }
 
-/* Seamless fusion — no internal border between chart and status */
 .pf-hero__chart {
   border-bottom: 1px solid var(--ct-border-base);
 }
@@ -274,7 +259,6 @@
   min-height: 0;
 }
 
-/* Deck fluid: Yield wider (65%) + Timeline (35%) */
 @container pf (min-width: 58rem) {
   .pf-cockpit-row--deck-fluid {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
@@ -288,6 +272,7 @@
   flex-direction: column;
 }
 
+/* Fused surface — used by loading.tsx skeleton */
 .pf-fused-surface {
   position: relative;
   display: grid;
@@ -300,81 +285,20 @@
   box-shadow: var(--ct-shadow-sm);
 }
 
-
-/* ROW 1 — HERO: Chart (50%) + Status (50%) fused surface */
-.pf-fused-surface--hero {
-  grid-template-columns: 1fr;
-  background: var(--ct-surface-1);
+.pf-fused-surface__pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-@container pf (min-width: 48rem) {
-  .pf-fused-surface--hero {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
+.pf-fused-surface__pane > .pf-embedded-pane {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
-/* Status pane in hero: compact padding for horizontal layout */
-.pf-fused-surface__pane--status {
-  background: var(--ct-surface-1);
-}
-
-@container pf (min-width: 48rem) {
-  .pf-fused-surface__pane--status .pf-status-panel {
-    padding: var(--ct-space-3);
-  }
-  .pf-fused-surface__pane--status .pf-status-hero {
-    padding-bottom: var(--ct-space-2);
-  }
-  .pf-fused-surface__pane--status .pf-status-row {
-    padding: var(--ct-space-2) 0;
-  }
-}
-
-/* Pane chart : fond légèrement différencié pour le distinguer des positions */
-.pf-fused-surface__pane--chart {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 40%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 15%, transparent)
-  );
-}
-
-/* Cap la hauteur du chart dans le hero pour qu'il reste compact */
-.pf-fused-surface--hero .pf-value-chart__chart-wrapper {
-  aspect-ratio: auto;
-  min-height: 9rem;
-  max-height: 16rem;
-}
-
-/* ValueChart dans hero: flat chrome (fused-surface porte la bordure) */
-.pf-fused-surface--hero .pf-fused-surface__pane--chart .pf-cockpit-panel,
-.pf-fused-surface--hero .pf-fused-surface__pane--chart .pf-embedded-pane {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-/* Status panel dans hero: flat chrome */
-.pf-fused-surface--hero .pf-fused-surface__pane--status .pf-cockpit-panel,
-.pf-fused-surface--hero .pf-fused-surface__pane--status .pf-embedded-pane {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-/* Séparateur entre chart et status (hero row) */
-.pf-fused-surface--hero .pf-fused-surface__pane + .pf-fused-surface__pane {
+.pf-fused-surface__pane + .pf-fused-surface__pane {
   border-left: 1px solid var(--ct-border-base);
-  border-top: none;
-}
-
-@container pf (max-width: 47.99rem) {
-  .pf-fused-surface--hero .pf-fused-surface__pane + .pf-fused-surface__pane {
-    border-left: none;
-    border-top: 1px solid var(--ct-border-base);
-  }
 }
 
 /* Auxiliary stack: Calendar + Activity stacked in deck right column */
@@ -389,21 +313,18 @@
   min-height: 0;
 }
 
-/* StatusPanel en mode bannière full-width (row summary) — affichage horizontal compact */
+/* StatusPanel in full-width banner mode */
 .pf-cockpit-row--summary .pf-cockpit-panel {
   border-radius: var(--ct-radius-xl);
 }
 
-/* Sur large : le panneau status passe en mode bannière horizontale */
 @container pf (min-width: 52rem) {
-  /* Le panneau lui-même (pf-cockpit-panel = pf-status-panel) passe en row */
   .pf-cockpit-row--summary .pf-status-panel {
     flex-direction: row;
     align-items: stretch;
     gap: 0;
   }
 
-  /* Header (titre + provenance) — colonne gauche fixe */
   .pf-cockpit-row--summary .pf-status-panel .pf-cockpit-panel__header {
     flex: 0 0 auto;
     width: 13rem;
@@ -415,7 +336,6 @@
     margin-right: var(--ct-space-5);
   }
 
-  /* status-hero (Snapshot + Proof) — colonne après le titre */
   .pf-cockpit-row--summary .pf-status-hero {
     flex: 0 0 auto;
     flex-direction: column;
@@ -428,7 +348,6 @@
     grid-template-columns: 1fr;
   }
 
-  /* status-list — occupe le reste en horizontal */
   .pf-cockpit-row--summary .pf-status-list {
     flex: 1 1 auto;
     flex-direction: row;
@@ -438,7 +357,6 @@
     gap: 0;
   }
 
-  /* Chaque row devient une colonne verticale (override le display:grid natif) */
   .pf-cockpit-row--summary .pf-status-row {
     display: flex;
     flex: 1 1 0;
@@ -456,23 +374,19 @@
     padding-right: 0;
   }
 
-  /* Icône en haut */
   .pf-cockpit-row--summary .pf-status-row__icon {
     color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-text-secondary));
   }
 
-  /* Dot inutile en horizontal */
   .pf-cockpit-row--summary .pf-status-row__dot {
     display: none;
   }
 
-  /* Label en dessous de l'icône */
   .pf-cockpit-row--summary dt.pf-status-row__label {
     font-size: var(--ct-text-xs);
     color: var(--ct-text-secondary);
   }
 
-  /* Valeur + meta en dessous */
   .pf-cockpit-row--summary .pf-status-row__trail {
     display: flex;
     flex-direction: column;
@@ -493,22 +407,7 @@
   }
 }
 
-.pf-fused-surface__pane {
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.pf-fused-surface__pane > .pf-embedded-pane {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-left: 1px solid var(--ct-border-base);
-}
-
+/* Empty states */
 .pf-positions-empty--embedded {
   gap: var(--ct-space-2);
 }
@@ -541,10 +440,7 @@
   gap: var(--ct-space-2);
 }
 
-/* ---- SCROLL NATUREL À TOUTES LES TAILLES — l'ancien fit-pin no-scroll a été
-   SUPPRIMÉ (plus de gate 88rem, plus de pin 100dvh, plus de compression en `fr`).
-   Les panneaux prennent leur hauteur naturelle, rien ne clippe, main#main-content
-   scrolle. La largeur 2-col reste pilotée par @container pf. ---- */
+/* Natural scroll at all sizes */
 @media all {
   .pf-container--fit { height: auto; overflow: visible; }
   .pf-container--fit .pf-cockpit { overflow: visible; }
@@ -552,8 +448,17 @@
 
   .pf-container--fit .pf-value-chart__chart-wrapper {
     aspect-ratio: auto;
-    min-height: 9rem;
-    max-height: 16rem;
+    min-height: 14rem;
+    max-height: 28rem;
+    height: 38vh;
+  }
+
+  @media (min-width: 80rem) {
+    .pf-container--fit .pf-value-chart__chart-wrapper {
+      min-height: 20rem;
+      max-height: 36rem;
+      height: 45vh;
+    }
   }
 
   .pf-cockpit-row--deck .pf-distrib-chart-shell {
@@ -562,10 +467,6 @@
     max-height: 12rem;
   }
 
-  /* Below the gate the page scrolls, so panels must take their NATURAL height and
-     never clip: drop the 100%-height/overflow:hidden lock and the internal-scroll
-     soupape (which only exists to survive the no-scroll gate). Content pushes the
-     page taller and main#main-content scrolls — nothing is hidden. */
   .pf-container--fit .pf-cockpit-panel,
   .pf-container--fit .pf-embedded-pane,
   .pf-container--fit .pf-fused-surface,

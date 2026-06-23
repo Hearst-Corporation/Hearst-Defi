@@ -12,6 +12,12 @@ export function project(values: number[], box: ViewBox): Pt[] {
   if (n === 0) return [];
   const lo = Math.min(...values);
   const hi = Math.max(...values);
+  return projectWithBounds(values, box, lo, hi);
+}
+
+export function projectWithBounds(values: number[], box: ViewBox, lo: number, hi: number): Pt[] {
+  const n = values.length;
+  if (n === 0) return [];
   const yLo = lo === hi ? lo - 1 : lo;
   const yHi = lo === hi ? hi + 1 : hi;
   const span = yHi - yLo || 1;

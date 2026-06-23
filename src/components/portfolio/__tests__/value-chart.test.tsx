@@ -16,7 +16,7 @@ describe("ValueChart zero-state — flat skeleton baseline, unlabelled", () => {
       />,
     );
 
-    expect(html).toContain('viewBox="0 0 200 62"');
+    expect(html).toContain('viewBox="0 0 800 320"');
     expect(html).toContain("pf-vc-line--skeleton");
   });
 
@@ -62,7 +62,7 @@ describe("ValueChart live state (real position)", () => {
       />,
     );
 
-    expect(html).toContain('viewBox="0 0 200 62"');
+    expect(html).toContain('viewBox="0 0 800 320"');
     expect(html).not.toContain("pf-vc-line--skeleton");
     // Live disclaimer underlay present in non-skeleton mode
     expect(html).toContain("ct-chart-disclaimer-text");
