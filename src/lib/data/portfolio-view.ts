@@ -69,7 +69,6 @@ export async function loadPortfolioView() {
     proofPulseProps,
     yieldStackProps: blendedYieldStackProps,
     allocationDonutProps,
-    timeToCashProps,
     nextPayoutUsdc,
   };
 }
