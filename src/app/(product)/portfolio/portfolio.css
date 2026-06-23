@@ -1488,10 +1488,20 @@
 
 .cy-donut-arc {
   stroke: var(--ct-accent);
+  transition: opacity var(--ct-dur-fast) var(--ct-ease), stroke-width var(--ct-dur-fast) var(--ct-ease);
 }
 
 .cy-arc-mining {
   stroke-width: 4.8;
+}
+
+/* Donut arc highlight/dimmed states (hover interaction from ledger) */
+.cy-donut-arc--highlight {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ct-accent) 60%, transparent));
+}
+
+.cy-donut-arc--dimmed {
+  filter: grayscale(0.3);
 }
 
 .cy-donut-halo {
@@ -1581,6 +1591,11 @@
 
 .cy-row:hover {
   background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-surface-2));
+}
+
+/* Ledger row highlight state (sync with donut arc) */
+.cy-row--highlight {
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
 }
 
 .cy-row .cy-track {
@@ -1687,6 +1702,11 @@
     var(--ct-status-warning-soft),
     var(--ct-status-warning)
   );
+}
+
+/* Ledger row fill highlight (sync with donut arc) */
+.cy-fill--highlight {
+  filter: brightness(1.15);
 }
 
 .cy-bucket {

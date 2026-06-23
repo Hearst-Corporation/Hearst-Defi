@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import {
   PfCockpitPanel,
@@ -23,8 +26,7 @@ import { cn } from "@/lib/cn";
  * showpiece: a haloed allocation gauge (left) reading across a hairline spine
  * into a precision yield ledger (right) whose rows ARE the donut legend.
  *
- * Pure Server Component. No client JS, no Date.now()/Math.random(); all motion
- * is CSS-only (@keyframes, behind prefers-reduced-motion).
+ * Client Component: hover interactions between ledger and donut arcs.
  *
  * CLAUDE.md non-negotiables: APY always a range (#1), provenance badge (#2),
  * forbidden words absent (#5), "not guaranteed" disclaimer (#10).
@@ -69,6 +71,9 @@ export function CapitalYield({
   leafHref,
   embedded = false,
 }: CapitalYieldProps) {
+  // Hover state for donut <-> ledger interaction
+  const [hoveredBucket, setHoveredBucket] = useState<string | null>(null);
+
   // Zero-state = the graphic SKELETON renders (empty ring + zeroed ledger rows),
   // NO invented data. As soon as real vault data arrives, the donut/ledger fill in.
   const hasData = sources.length > 0 && buckets.length > 0;
@@ -184,21 +189,29 @@ export function CapitalYield({
                       strokeDashoffset={s.dashOffset.toFixed(2)}
                     />
                   ))}
-                {segments.map((s) => (
-                  <circle
-                    key={s.bucket}
-                    className={cn(
-                      "dash-chart-circle cy-donut-arc",
-                      s.bucket === "mining" && "cy-arc-mining",
-                    )}
-                    cx="21"
-                    cy="21"
-                    r="15.9155"
-                    stroke={CY_BUCKET_GREEN[s.bucket]}
-                    strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
-                    strokeDashoffset={s.dashOffset.toFixed(2)}
-                  />
-                ))}
+                {segments.map((s) => {
+                  const isDimmed = hoveredBucket !== null && hoveredBucket !== s.bucket;
+                  const isHighlighted = hoveredBucket === s.bucket;
+                  return (
+                    <circle
+                      key={s.bucket}
+                      className={cn(
+                        "dash-chart-circle cy-donut-arc",
+                        s.bucket === "mining" && "cy-arc-mining",
+                        isHighlighted && "cy-donut-arc--highlight",
+                        isDimmed && "cy-donut-arc--dimmed",
+                      )}
+                      cx="21"
+                      cy="21"
+                      r="15.9155"
+                      stroke={CY_BUCKET_GREEN[s.bucket]}
+                      strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
+                      strokeDashoffset={s.dashOffset.toFixed(2)}
+                      opacity={isDimmed ? 0.3 : isHighlighted ? 1 : 0.85}
+                      strokeWidth={isHighlighted ? 5.2 : undefined}
+                    />
+                  );
+                })}
               </>
             ) : (
               /* Zero-state: four evenly-spaced muted arcs suggest the allocation
@@ -256,15 +269,19 @@ export function CapitalYield({
                 const w = hasYield ? barWidthPct(s.contributionPct, maxAbsPct) : 0;
                 const isNeg = s.contributionPct < 0;
                 const val = hasYield ? formatContribution(s.contributionPct, s.isVolatile ?? false) : "—";
+                const isRowHovered = hoveredBucket === s.bucket;
                 return (
                   <div
                     key={s.bucket}
                     className={cn(
                       "cy-row",
                       s.bucket === "mining" && "cy-row-mining",
-                      !hasYield && "opacity-60"
+                      !hasYield && "opacity-60",
+                      isRowHovered && "cy-row--highlight"
                     )}
                     style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
+                    onMouseEnter={() => setHoveredBucket(s.bucket)}
+                    onMouseLeave={() => setHoveredBucket(null)}
                   >
                     <span className="cy-dot" aria-hidden />
                     <span className="cy-label body-xs min-w-0 truncate ct-text-body font-medium">
@@ -280,6 +297,7 @@ export function CapitalYield({
                           "cy-fill",
                           isNeg && "cy-fill--neg",
                           s.isVolatile && "cy-fill--volatile",
+                          isRowHovered && "cy-fill--highlight"
                         )}
                         style={{ width: `${w.toFixed(1)}%` }}
                       />
