@@ -27,6 +27,7 @@ import {
   getServerSnapshot as getActiveChatSSR,
   setActiveChat,
 } from "../stores/activeChatStore";
+import { setChatStreaming } from "../stores/chatStreamingStore";
 import { useCockpit } from "../shell/context";
 import { HearstMark } from "../shell/HearstMark";
 import type { ChatChart, ChatMessage } from "./types";
@@ -139,6 +140,25 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       behavior: "smooth",
     });
   }, [messages]);
+
+  // Publie l'état streaming dans le store partagé pour que le header du rail
+  // droit (RailRight, hors de ce hook) puisse pulser sa pastille en mode "live".
+  // On le remet à false au démontage pour ne jamais laisser le dot bloqué.
+  useEffect(() => {
+    setChatStreaming(streaming);
+  }, [streaming]);
+  useEffect(() => {
+    return () => setChatStreaming(false);
+  }, []);
+
+  // Auto-grow : le textarea part à ~3 lignes et grandit avec le contenu jusqu'à
+  // un plafond, sans scroll interne tant qu'on est sous le cap (UX message long).
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
+  }, [input]);
 
   const newConversation = useCallback(() => {
     setActiveChat(null);
@@ -316,7 +336,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         <textarea
           ref={textareaRef}
           className="ct-chat-input"
-          rows={2}
+          rows={3}
           placeholder="Message the assistant…"
           value={input}
           onChange={(e) => setInput(e.target.value)}

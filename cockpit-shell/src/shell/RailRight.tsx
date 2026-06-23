@@ -19,6 +19,11 @@ import {
   getServerSnapshot as getViewSSR,
   setView,
 } from "../stores/chatViewStore";
+import {
+  subscribe as subStreaming,
+  getSnapshot as getStreaming,
+  getServerSnapshot as getStreamingSSR,
+} from "../stores/chatStreamingStore";
 import { ChatKimi } from "../chat/ChatKimi";
 import { ChatSettings } from "../chat/ChatSettings";
 import { ChatHistory } from "../chat/ChatHistory";
@@ -51,6 +56,7 @@ export function RailRight() {
   const expanded = mode === "expanded";
   const active = useSyncExternalStore(subActive, getActive, getActiveSSR);
   const view = useSyncExternalStore(subView, getView, getViewSSR);
+  const streaming = useSyncExternalStore(subStreaming, getStreaming, getStreamingSSR);
   const { getProduct } = useCockpit();
   const product = getProduct(active);
 
@@ -68,7 +74,7 @@ export function RailRight() {
         {open && (
           <span className="ct-rail-right-title">
             <span
-              className="ct-chat-ctx-dot"
+              className={`ct-chat-ctx-dot${streaming ? " ct-chat-ctx-dot--live" : ""}`}
               style={{ background: product.color }}
             />
             {TITLES[view] ?? "Assistant"}

@@ -4672,8 +4672,16 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-chat-ctx-name { display: none; }
 }
 
-/* Bubbles — harmonise user + assistant: no border on either, distinction by background only. */
-.ct-chat-msg.assistant { border: none; }
+/* Bubbles — the assistant reply is FLAT: no surface fill, no border. It reads as
+   bare prose under its green badge, so the rail feels less "cage-in-cage". Only
+   the user message keeps a bubble (surface-3, flex-end). Padding trimmed to the
+   inline edges so the flat text doesn't sit in a phantom box. */
+.ct-chat-msg.assistant {
+  background: transparent;
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+}
 
 /* Badge d'expéditeur en tête de bulle — distinction agent/user par le badge +
    l'alignement (le corps du texte reste dans ses couleurs lisibles). */
@@ -4776,6 +4784,39 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 @media (prefers-reduced-motion: reduce) {
   .ct-chat-queued-dot { animation: none; }
+}
+
+/* Input — taller default (3 lines) + auto-grow. The textarea height is driven in
+   JS (ChatKimi resizes on input up to a cap); this caps it visually too and gives
+   it room to breathe so multi-line messages stay comfortable. min-height matches
+   ~3 rows of the 13px body; max-height = the JS cap (168px), after which it
+   scrolls internally instead of pushing the message list. */
+.ct-chat-input {
+  min-height: 4.5rem;   /* ~3 lines at 13px / 1.5 */
+  max-height: 10.5rem;  /* 168px — JS auto-grow cap */
+  overflow-y: auto;
+}
+
+/* Header context dot — "live" pulse while the assistant is streaming a reply.
+   A soft accent halo breathes around the product pastille so the rail header
+   signals an in-progress turn without adding chrome. The base dot already
+   carries `box-shadow: 0 0 8px currentColor`; we layer an animated accent ring
+   on top via box-shadow keyframes. */
+.ct-chat-ctx-dot--live {
+  animation: ct-chat-ctx-pulse 1.4s var(--ct-ease) infinite;
+}
+@keyframes ct-chat-ctx-pulse {
+  0%, 100% {
+    box-shadow: 0 0 6px currentColor,
+                0 0 0 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 10px currentColor,
+                0 0 0 4px color-mix(in srgb, var(--ct-accent) 0%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ct-chat-ctx-dot--live { animation: none; }
 }
 
 /* Markdown body — tokenised replacement for the former inline px/rgba styles.
