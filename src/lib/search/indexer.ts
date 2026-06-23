@@ -54,6 +54,17 @@ function keep(title: string, subtitle: string | undefined, q: string): number {
   return s;
 }
 
+/**
+ * Shared section tail: drop below-threshold results, sort by score desc, cap at
+ * MAX_PER_SECTION. Every searchX() ends with this — factored to one place.
+ */
+function rank(results: SearchResult[]): SearchResult[] {
+  return results
+    .filter((r) => (r.score ?? 0) >= SCORE_THRESHOLD)
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    .slice(0, MAX_PER_SECTION);
+}
+
 // ---------------------------------------------------------------------------
 // Entity-specific Prisma queries
 // ---------------------------------------------------------------------------
@@ -79,8 +90,8 @@ async function searchVaults(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "vault" as Entity,
       id: r.id,
       title: r.ticker,
@@ -89,9 +100,7 @@ async function searchVaults(q: string): Promise<SearchResult[]> {
       href: `/admin/vaults/${r.id}`,
       score: keep(r.ticker + " " + r.name, r.strategy, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchInvestors(q: string): Promise<SearchResult[]> {
@@ -115,8 +124,8 @@ async function searchInvestors(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => {
+  return rank(
+    rows.map((r) =>{
       const displayEmail = r.email ?? r.user.email;
       const title = r.walletAddress
         ? `${r.walletAddress.slice(0, 8)}…${r.walletAddress.slice(-4)}`
@@ -131,9 +140,7 @@ async function searchInvestors(q: string): Promise<SearchResult[]> {
         score: keep(title, displayEmail ?? undefined, q),
       };
     })
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchPositions(q: string): Promise<SearchResult[]> {
@@ -157,8 +164,8 @@ async function searchPositions(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => {
+  return rank(
+    rows.map((r) =>{
       const wallet = r.investor.walletAddress;
       const subtitle = wallet
         ? `${wallet.slice(0, 8)}…${wallet.slice(-4)}`
@@ -173,9 +180,7 @@ async function searchPositions(q: string): Promise<SearchResult[]> {
         score: keep(r.vaultKey, subtitle, q),
       };
     })
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchDistributions(q: string): Promise<SearchResult[]> {
@@ -199,8 +204,8 @@ async function searchDistributions(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "distribution" as Entity,
       id: r.id,
       title: `Distribution ${r.period}`,
@@ -209,9 +214,7 @@ async function searchDistributions(q: string): Promise<SearchResult[]> {
       href: "/admin/distributions",
       score: keep(`Distribution ${r.period}`, r.txHash ?? undefined, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchProofs(q: string): Promise<SearchResult[]> {
@@ -236,8 +239,8 @@ async function searchProofs(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "proof" as Entity,
       id: r.id,
       title: `${r.proofType}${r.period ? ` — ${r.period}` : ""}`,
@@ -246,9 +249,7 @@ async function searchProofs(q: string): Promise<SearchResult[]> {
       href: "/proof-center",
       score: keep(r.proofType, r.period ?? undefined, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchSignatures(q: string): Promise<SearchResult[]> {
@@ -271,8 +272,8 @@ async function searchSignatures(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => {
+  return rank(
+    rows.map((r) =>{
       const short = `${r.signerAddress.slice(0, 8)}…${r.signerAddress.slice(-4)}`;
       return {
         entity: "signature" as Entity,
@@ -284,9 +285,7 @@ async function searchSignatures(q: string): Promise<SearchResult[]> {
         score: keep(r.signerAddress, r.decision, q),
       };
     })
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchScenarios(q: string): Promise<SearchResult[]> {
@@ -310,8 +309,8 @@ async function searchScenarios(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "scenario" as Entity,
       id: r.id,
       title: r.preset ?? `Scenario ${r.id.slice(0, 8)}`,
@@ -320,9 +319,7 @@ async function searchScenarios(q: string): Promise<SearchResult[]> {
       href: "/admin/scenario-lab?vault=yield",
       score: keep(r.preset ?? r.id, r.narrative ?? undefined, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchBacktests(q: string): Promise<SearchResult[]> {
@@ -345,8 +342,8 @@ async function searchBacktests(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "backtest" as Entity,
       id: r.id,
       title: r.backtestKey,
@@ -355,9 +352,7 @@ async function searchBacktests(q: string): Promise<SearchResult[]> {
       href: "/admin/scenario-lab?vault=yield",
       score: keep(r.backtestKey, r.rulesMode, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchMemos(q: string): Promise<SearchResult[]> {
@@ -379,8 +374,8 @@ async function searchMemos(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "memo" as Entity,
       id: r.id,
       title: `Memo — ${r.clientName}`,
@@ -389,9 +384,7 @@ async function searchMemos(q: string): Promise<SearchResult[]> {
       href: "/admin/investor-memo?vault=yield",
       score: keep(r.clientName, r.methodologyVersion, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 async function searchEvents(q: string): Promise<SearchResult[]> {
@@ -417,8 +410,8 @@ async function searchEvents(q: string): Promise<SearchResult[]> {
     },
   });
 
-  return rows
-    .map((r) => ({
+  return rank(
+    rows.map((r) =>({
       entity: "event" as Entity,
       id: r.id,
       title: `[${r.ruleId}] ${r.triggerText.slice(0, 60)}`,
@@ -427,9 +420,7 @@ async function searchEvents(q: string): Promise<SearchResult[]> {
       href: "/admin/audit",
       score: keep(r.ruleId + " " + r.triggerText, r.status, q),
     }))
-    .filter((r) => r.score! >= SCORE_THRESHOLD)
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, MAX_PER_SECTION);
+  );
 }
 
 // ---------------------------------------------------------------------------
