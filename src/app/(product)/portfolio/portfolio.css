@@ -2312,14 +2312,14 @@
 }
 
 .pf-position-badge:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 40%, var(--ct-graphite-border-nested));
-  background: color-mix(in srgb, var(--ct-accent) 2%, var(--ct-graphite-subtle-bg));
+  border-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-accent) 3%, var(--ct-graphite-subtle-bg));
   transform: translateY(-1px);
 }
 
 .pf-position-badge--active {
-  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-graphite-subtle-bg));
-  border-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-accent) 5%, var(--ct-graphite-subtle-bg));
+  border-color: color-mix(in srgb, var(--ct-accent) 40%, var(--ct-graphite-border-nested));
 }
 
 .pf-position-badge--active::after {
@@ -2327,9 +2327,9 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to bottom right,
-    color-mix(in srgb, var(--ct-accent) 5%, transparent),
-    transparent
+    135deg,
+    color-mix(in srgb, var(--ct-accent) 8%, transparent),
+    transparent 60%
   );
   pointer-events: none;
 }
@@ -2337,13 +2337,19 @@
 .pf-position-badge--cta {
   background: transparent;
   border-style: dashed;
-  border-color: color-mix(in srgb, var(--ct-accent) 40%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 30%, transparent);
   min-width: 10rem;
 }
 
+.pf-position-badge--cta .pf-position-badge__content {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
 .pf-position-badge--cta:hover {
-  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
-  border-color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 60%, transparent);
 }
 
 .pf-position-badge--more {
@@ -2358,7 +2364,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 0 var(--ct-space-4);
-  gap: var(--ct-space-0_5);
+  gap: 0;
   min-width: 0;
   z-index: 1;
 }
@@ -2366,15 +2372,30 @@
 .pf-position-badge__main,
 .pf-position-badge__metrics {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-3);
   min-width: 0;
 }
 
+.pf-position-badge__main {
+  padding-bottom: var(--ct-space-1);
+}
+
+.pf-position-badge__metrics {
+  padding-top: var(--ct-space-1);
+}
+
+.pf-position-badge__separator {
+  height: 1px;
+  background: var(--ct-border-soft);
+  opacity: 0.4;
+  margin: 0;
+}
+
 .pf-position-badge__name {
   font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
+  font-weight: var(--ct-font-medium);
   color: var(--ct-text-strong);
   white-space: nowrap;
   overflow: hidden;
@@ -2382,12 +2403,27 @@
 }
 
 .pf-position-badge__status {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
-  opacity: 0.8;
+  opacity: 0.7;
+}
+
+.pf-position-badge__value-group,
+.pf-position-badge__apy-group {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1_5);
+}
+
+.pf-position-badge__micro-label {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-tertiary);
+  opacity: 0.5;
+  letter-spacing: var(--ct-tracking-widest);
 }
 
 .pf-position-badge__value {
@@ -2395,11 +2431,12 @@
   font-weight: var(--ct-font-bold);
   color: var(--ct-accent);
   font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ct-tracking-tight);
 }
 
 .pf-position-badge__apy {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
   color: var(--ct-text-secondary);
   font-variant-numeric: tabular-nums;
 }

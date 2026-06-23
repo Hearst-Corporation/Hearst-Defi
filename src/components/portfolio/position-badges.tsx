@@ -75,13 +75,20 @@ export function PositionBadges({
                       {STATUS_CONFIG[p.status]?.label ?? "Active"}
                     </span>
                   </span>
+                  <div className="pf-position-badge__separator" />
                   <span className="pf-position-badge__metrics">
-                    <span className="pf-position-badge__value">
-                      {formatUsdCompact(p.valueUsdc)}
+                    <span className="pf-position-badge__value-group">
+                      <span className="pf-position-badge__micro-label">POS</span>
+                      <span className="pf-position-badge__value">
+                        {formatUsdCompact(p.valueUsdc)}
+                      </span>
                     </span>
                     {p.apyLow !== null && p.apyHigh !== null && (
-                      <span className="pf-position-badge__apy">
-                        {p.apyLow}-{p.apyHigh}%
+                      <span className="pf-position-badge__apy-group">
+                        <span className="pf-position-badge__micro-label">APY</span>
+                        <span className="pf-position-badge__apy">
+                          {p.apyLow}-{p.apyHigh}%
+                        </span>
                       </span>
                     )}
                   </span>
