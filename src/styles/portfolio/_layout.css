@@ -145,6 +145,45 @@
   min-width: 0;
 }
 
+/* Bloomberg Terminal Layout */
+.pf-terminal-surface {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  min-width: 0;
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-xl);
+  background-color: var(--ct-surface-1);
+  overflow: hidden;
+  box-shadow: var(--ct-shadow-sm);
+}
+
+@container pf (min-width: 58rem) {
+  .pf-terminal-surface {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+}
+
+.pf-terminal-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@container pf (min-width: 58rem) {
+  .pf-terminal-pane--right {
+    border-left: 1px solid var(--ct-border-soft);
+  }
+}
+
+.pf-terminal-divider {
+  flex: 0 0 auto;
+  height: 1px;
+  background: var(--ct-border-soft);
+  margin: 0;
+}
+
 .pf-cockpit-row {
   min-height: 0;
   min-width: 0;
@@ -158,7 +197,7 @@
 
 @container pf (min-width: 58rem) {
   .pf-cockpit-row--deck {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     align-items: start;
   }
 }
@@ -170,8 +209,8 @@
   gap: 0;
   min-width: 0;
   min-height: 0;
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-base);
+  background-color: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
   overflow: hidden;
 }
@@ -183,17 +222,17 @@
 }
 
 .pf-hero__chart {
-  border-bottom: 1px solid var(--ct-border-base);
+  border-bottom: 1px solid var(--ct-graphite-border-nested);
 }
 
-@container pf (min-width: 52rem) {
+@container pf (min-width: 58rem) {
   .pf-hero-unified {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   }
 
   .pf-hero__chart {
     border-bottom: none;
-    border-right: 1px solid var(--ct-border-base);
+    border-right: 1px solid var(--ct-graphite-border-nested);
   }
 }
 
@@ -208,8 +247,13 @@
 /* Yield fluid: wider, integrated donut + ledger */
 .pf-yield-fluid {
   min-width: 0;
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-base);
+  background-color: var(--ct-graphite-subtle-bg);
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, #ffffff 4%, transparent),
+    transparent 70%
+  );
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-5);
 }
@@ -261,7 +305,7 @@
 
 @container pf (min-width: 58rem) {
   .pf-cockpit-row--deck-fluid {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   }
 }
 
@@ -278,9 +322,14 @@
   display: grid;
   min-width: 0;
   min-height: 0;
-  border: 1px solid var(--ct-border-base);
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-surface-1);
+  background-color: var(--ct-graphite-subtle-bg);
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, #ffffff 4%, transparent),
+    transparent 70%
+  );
   overflow: hidden;
   box-shadow: var(--ct-shadow-sm);
 }
@@ -298,104 +347,10 @@
 }
 
 .pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-left: 1px solid var(--ct-border-base);
+  border-left: 1px solid var(--ct-graphite-border-nested);
 }
 
 /* Auxiliary stack: Calendar + Activity stacked in deck right column */
-
-/* StatusPanel in full-width banner mode */
-.pf-cockpit-row--summary .pf-cockpit-panel {
-  border-radius: var(--ct-radius-xl);
-}
-
-@container pf (min-width: 52rem) {
-  .pf-cockpit-row--summary .pf-status-panel {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 0;
-  }
-
-  .pf-cockpit-row--summary .pf-status-panel .pf-cockpit-panel__header {
-    flex: 0 0 auto;
-    width: 13rem;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    border-right: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
-    padding-right: var(--ct-space-5);
-    margin-right: var(--ct-space-5);
-  }
-
-  .pf-cockpit-row--summary .pf-status-hero {
-    flex: 0 0 auto;
-    flex-direction: column;
-    justify-content: center;
-    gap: var(--ct-space-2);
-    padding: 0 var(--ct-space-5) 0 0;
-    border-bottom: none;
-    border-right: 1px solid color-mix(in srgb, var(--ct-border-base) 60%, transparent);
-    margin-right: var(--ct-space-5);
-    grid-template-columns: 1fr;
-  }
-
-  .pf-cockpit-row--summary .pf-status-list {
-    flex: 1 1 auto;
-    flex-direction: row;
-    overflow: visible;
-    align-items: stretch;
-    justify-content: stretch;
-    gap: 0;
-  }
-
-  .pf-cockpit-row--summary .pf-status-row {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: var(--ct-space-1);
-    padding: 0 var(--ct-space-4);
-    border-bottom: none;
-    border-right: 1px solid color-mix(in srgb, var(--ct-border-base) 38%, transparent);
-  }
-
-  .pf-cockpit-row--summary .pf-status-row:last-child {
-    border-right: none;
-    padding-right: 0;
-  }
-
-  .pf-cockpit-row--summary .pf-status-row__icon {
-    color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-text-secondary));
-  }
-
-  .pf-cockpit-row--summary .pf-status-row__dot {
-    display: none;
-  }
-
-  .pf-cockpit-row--summary dt.pf-status-row__label {
-    font-size: var(--ct-text-xs);
-    color: var(--ct-text-secondary);
-  }
-
-  .pf-cockpit-row--summary .pf-status-row__trail {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ct-space-0_5);
-  }
-
-  .pf-cockpit-row--summary .pf-status-row__value {
-    font-size: var(--ct-text-lg);
-    font-weight: var(--ct-font-bold);
-    line-height: var(--ct-leading-none);
-    font-family: var(--font-mono);
-    letter-spacing: var(--ct-tracking-tight);
-  }
-
-  .pf-cockpit-row--summary .pf-status-row__meta {
-    font-size: var(--ct-text-xs);
-    color: var(--ct-text-tertiary);
-  }
-}
 
 /* Empty states */
 .pf-positions-empty--embedded {
@@ -492,9 +447,9 @@
 
 .pf-cockpit-panel {
   position: relative;
-  border: 1px solid var(--ct-border-base);
+  border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-surface-1);
+  background-color: var(--ct-surface-1);
   overflow: hidden;
 }
 
@@ -502,29 +457,6 @@
 
 .pf-embedded-pane[data-pf-panel-variant="compact"] {
   gap: var(--ct-space-2_5);
-}
-
-/* Mid/deck panels share the same flat graphite plate as the hero weld. */
-.pf-cockpit-row--mid .pf-cockpit-panel,
-.pf-cockpit-row--deck .pf-cockpit-panel {
-  border-color: var(--ct-border-base);
-  background: var(--ct-surface-1);
-}
-
-.pf-fused-surface .pf-embedded-pane {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-  padding: var(--ct-space-4);
-  gap: var(--ct-space-3);
-}
-
-.pf-cockpit-cell[data-section="yield-trust"] .pf-cockpit-panel,
-.pf-fused-surface__pane[data-section="yield-trust"] .pf-cockpit-panel {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
 }
 
 .pf-cockpit-cell[data-section="yield-trust"] {

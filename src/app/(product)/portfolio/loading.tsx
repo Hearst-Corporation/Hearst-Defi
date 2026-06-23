@@ -11,33 +11,20 @@ export default function PortfolioLoading() {
         <Skeleton className="pf-skeleton-greeting-ticker" />
       </div>
 
-      <div className="pf-cockpit">
-        {/* ROW 1 — Status banner */}
-        <div className="pf-cockpit-row pf-cockpit-row--summary">
-          <div className="pf-cockpit-cell">
-            <Skeleton className="pf-cockpit-panel pf-skeleton-widget" />
-          </div>
+      <div className="pf-cockpit pf-terminal-surface">
+        <div className="pf-terminal-pane pf-terminal-pane--left">
+          <Skeleton className="pf-embedded-pane h-[300px]" />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <Skeleton className="pf-embedded-pane h-[200px]" />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <Skeleton className="pf-embedded-pane h-[280px]" />
         </div>
-
-        {/* ROW 2 — Chart + Positions */}
-        <div className="pf-cockpit-row pf-cockpit-row--mid">
-          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--chart-positions">
-            <Skeleton className="pf-skeleton-chart" />
-            <Skeleton className="pf-skeleton-widget" />
-          </div>
-        </div>
-
-        {/* ROW 3 — Deck */}
-        <div className="pf-cockpit-row pf-cockpit-row--deck">
-          <div className="pf-cockpit-cell">
-            <Skeleton className="pf-cockpit-panel pf-skeleton-widget" />
-          </div>
-          <div className="pf-cockpit-cell">
-            <Skeleton className="pf-cockpit-panel pf-skeleton-widget--md" />
-          </div>
-          <div className="pf-cockpit-cell">
-            <Skeleton className="pf-cockpit-panel pf-skeleton-widget--md" />
-          </div>
+        <div className="pf-terminal-pane pf-terminal-pane--right">
+          <Skeleton className="pf-embedded-pane h-[180px]" />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <Skeleton className="pf-embedded-pane h-[240px]" />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <Skeleton className="pf-embedded-pane h-[200px]" />
         </div>
       </div>
     </div>

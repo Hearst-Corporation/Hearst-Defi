@@ -67,93 +67,69 @@ export default async function PortfolioPage() {
 
       <div className="pf-hairline" aria-hidden="true" />
 
-      <div className="pf-cockpit pf-cockpit--fluid">
-        {/* ROW 1 — HERO: Chart + Status in one seamless surface */}
-        <div className="pf-cockpit-row pf-cockpit-row--hero">
-          <div className="pf-hero-unified" data-section="hero">
-            <div className="pf-hero__chart">
-              <ValueChart
-                positions={data.positions}
-                totalValueUsdc={data.totalValueUsdc}
-                valueChartTransactions={data.valueChartTransactions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                asOf={now}
-                embedded
-              />
-            </div>
-            <div className="pf-hero__status">
-              <PortfolioStatusPanel
-                hasPositions={hasPositions}
-                positionsCount={data.positions.length}
-                deployedUsdc={data.deployedUsdc}
-                totalValueUsdc={data.totalValueUsdc}
-                accruedYieldUsdc={data.accruedYieldUsdc}
-                source={data.source}
-                proof={{
-                  statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,
-                  onChainTvlUsdc: proofPulseProps.lastPor.onChainTvlUsdc,
-                  timestamp: proofPulseProps.lastPor.timestamp,
-                  source: proofPulseProps.source,
-                }}
-                embedded
-                {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
-              />
-            </div>
-          </div>
+      <div className="pf-cockpit pf-terminal-surface">
+        <div className="pf-terminal-pane pf-terminal-pane--left">
+          <ValueChart
+            positions={data.positions}
+            totalValueUsdc={data.totalValueUsdc}
+            valueChartTransactions={data.valueChartTransactions}
+            source={data.source}
+            updatedAt={data.updatedAt}
+            asOf={now}
+            embedded
+          />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <PositionsList
+            positions={data.positions}
+            source={data.source}
+            updatedAt={data.updatedAt}
+            leafHref="/portfolio/positions"
+            embedded
+          />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <CapitalYield
+            {...yieldStackProps}
+            buckets={allocationDonutProps.buckets}
+            totalValueUsdc={data.totalValueUsdc}
+            leafHref="/portfolio/yield"
+            embedded
+          />
         </div>
 
-        {/* ROW 2 — Positions: edge-to-edge table, minimal chrome */}
-        <div className="pf-cockpit-row pf-cockpit-row--positions">
-          <div className="pf-positions-fluid" data-section="positions">
-            <PositionsList
-              positions={data.positions}
-              source={data.source}
-              updatedAt={data.updatedAt}
-              leafHref="/portfolio/positions"
-              embedded={false}
-            />
-          </div>
-        </div>
-
-        {/* ROW 3 — Deck: Yield (wide) + Timeline (Calendar+Activity merged) */}
-        <div className="pf-cockpit-row pf-cockpit-row--deck pf-cockpit-row--deck-fluid">
-          <div
-            className="pf-yield-fluid"
-            data-section="yield-allocation"
-            data-testid="capital-yield-widget"
-          >
-            <CapitalYield
-              {...yieldStackProps}
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              leafHref="/portfolio/yield"
-              embedded
-            />
-          </div>
-          <div className="pf-timeline-fluid" data-section="timeline">
-            <div className="pf-timeline-header">
-              <span className="pf-timeline-title">Activity & Distributions</span>
-              <a href="/portfolio/activity" className="pf-timeline-link">View all</a>
-            </div>
-            <div className="pf-timeline-content">
-              <DistribCalendar
-                {...distribCalendarProps}
-                leafHref="/portfolio/distributions"
-                secondaryLeafHref="/portfolio/tax"
-                secondaryLeafLabel="Tax preview"
-                embedded
-              />
-              <RecentActivity
-                transactions={data.recentTransactions}
-                source={data.source}
-                updatedAt={data.updatedAt}
-                asOf={now}
-                leafHref="/portfolio/activity"
-                embedded
-              />
-            </div>
-          </div>
+        <div className="pf-terminal-pane pf-terminal-pane--right">
+          <PortfolioStatusPanel
+            hasPositions={hasPositions}
+            positionsCount={data.positions.length}
+            deployedUsdc={data.deployedUsdc}
+            totalValueUsdc={data.totalValueUsdc}
+            accruedYieldUsdc={data.accruedYieldUsdc}
+            source={data.source}
+            proof={{
+              statedTvlUsdc: proofPulseProps.lastPor.statedTvlUsdc,
+              onChainTvlUsdc: proofPulseProps.lastPor.onChainTvlUsdc,
+              timestamp: proofPulseProps.lastPor.timestamp,
+              source: proofPulseProps.source,
+            }}
+            embedded
+            {...(data.updatedAt ? { updatedAt: data.updatedAt } : {})}
+          />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <DistribCalendar
+            {...distribCalendarProps}
+            leafHref="/portfolio/distributions"
+            secondaryLeafHref="/portfolio/tax"
+            secondaryLeafLabel="Tax preview"
+            embedded
+          />
+          <div className="pf-terminal-divider" aria-hidden="true" />
+          <RecentActivity
+            transactions={data.recentTransactions}
+            source={data.source}
+            updatedAt={data.updatedAt}
+            asOf={now}
+            leafHref="/portfolio/activity"
+            embedded
+          />
         </div>
       </div>
     </div>
