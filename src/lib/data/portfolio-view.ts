@@ -10,6 +10,7 @@ import {
   loadAllocationDonutProps,
   loadTimeToCashProps,
   resolveProvenance,
+  type PortfolioData,
 } from "@/lib/data/portfolio";
 
 /**
@@ -54,6 +55,16 @@ export async function loadPortfolioView() {
       ? timeToCashProps.projectedUsdc
       : undefined;
 
+  // APY-range fallback: the header ticker + Capital & Yield read blendedLow/High
+  // from the vault snapshot. When no snapshot-with-allocations exists yet, those
+  // are 0 and the header shows "—" while the positions table shows the real range
+  // (8–15%) — a glaring inconsistency. Fall back to the investor's own position
+  // range so every surface agrees. Provenance drops to "estimated" (not "live").
+  const blendedYieldStackProps =
+    yieldStackProps.blendedLow + yieldStackProps.blendedHigh === 0
+      ? applyPositionApyFallback(yieldStackProps, data.positions)
+      : yieldStackProps;
+
   const portfolioProvenance = resolveProvenance(data.source, data.updatedAt);
 
   const now = new Date();
@@ -65,11 +76,37 @@ export async function loadPortfolioView() {
     riskPulseProps,
     distribCalendarProps,
     proofPulseProps,
-    yieldStackProps,
+    yieldStackProps: blendedYieldStackProps,
     allocationDonutProps,
     portfolioProvenance,
     timeToCashProps,
     nextPayoutUsdc,
     now,
   };
+}
+
+/**
+ * Derive a blended APY range from the investor's ACTIVE positions (min low / max
+ * high across positions that carry a range) and graft it onto the yield-stack
+ * props when the vault snapshot didn't provide one. Keeps `sources` empty (we
+ * don't fabricate a yield-source breakdown) but gives the header + Capital&Yield
+ * a real range instead of "—". Returns the input untouched when no position
+ * range is available.
+ */
+function applyPositionApyFallback<
+  T extends { blendedLow: number; blendedHigh: number; source: "live" | "stale" },
+>(
+  props: T,
+  positions: PortfolioData["positions"],
+): T & { source: "live" | "stale" | "estimated" } {
+  const ranges = positions
+    .filter((p) => p.status === "active" && p.apyLow !== null && p.apyHigh !== null)
+    .map((p) => ({ low: p.apyLow as number, high: p.apyHigh as number }));
+
+  if (ranges.length === 0) return props;
+
+  const low = Math.min(...ranges.map((r) => r.low));
+  const high = Math.max(...ranges.map((r) => r.high));
+
+  return { ...props, blendedLow: low, blendedHigh: high, source: "estimated" };
 }

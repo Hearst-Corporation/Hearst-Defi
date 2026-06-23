@@ -169,10 +169,10 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
   {
     key: "admin-agent-canvas",
     profile: "admin",
-    route: "/admin/agent-canvas",
+    route: "/agent-canvas",
     label: "Agent Canvas",
     description:
-      "Page de travail centrale que l'agent remplit en direct (sections, champs, propositions d'action HITL) pour cadrer un produit ou une campagne outreach. Le canvasId précise quel atelier ouvrir.",
+      "Page de travail centrale que l'agent remplit en direct (sections, champs, propositions d'action HITL) pour cadrer un produit ou une campagne outreach. Le canvasId précise quel atelier ouvrir. La page applique elle-même le gate de rôle (canvas admin → rôle admin requis; canvas LP lecture seule).",
   },
   {
     key: "admin-dashboard",
