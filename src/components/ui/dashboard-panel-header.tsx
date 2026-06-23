@@ -11,6 +11,8 @@ export function DashboardPanelHeader({
   trailing,
   tone = "quiet",
   titleLevel = "widget",
+  status,
+  statusTone = "idle",
   id,
   className,
 }: {
@@ -21,7 +23,9 @@ export function DashboardPanelHeader({
   trustLabel?: string;
   trailing?: ReactNode;
   tone?: "primary" | "quiet";
-  titleLevel?: "section" | "widget";
+  titleLevel?: "widget" | "section";
+  status?: string;
+  statusTone?: "ok" | "watch" | "alert" | "idle";
   id?: string;
   className?: string;
 }) {
@@ -29,29 +33,51 @@ export function DashboardPanelHeader({
   const titleRoleClass = titleLevel === "section" ? "h2" : "h3";
 
   return (
-    <header className={cn("dashboard-card-header", className)}>
-      <div className="min-w-0 flex flex-col gap-[var(--ct-space-1)]">
+    <header className={cn("dashboard-card-header items-center", className)}>
+      <div className="min-w-0 flex flex-col gap-(--ct-space-1)">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-        {typeof title === "string" ? (
-          <TitleTag
-            id={id}
-            className={cn(
-              titleRoleClass,
-              "dashboard-panel-title min-w-0 wrap-break-word",
-              tone === "primary" && "ct-text-accent",
-            )}
-          >
-            {title}
-          </TitleTag>
-        ) : (
-          title
-        )}
+        <div className="flex items-center gap-(--ct-space-2)">
+          {typeof title === "string" ? (
+            <TitleTag
+              id={id}
+              className={cn(
+                titleRoleClass,
+                "dashboard-panel-title min-w-0 wrap-break-word",
+                tone === "primary" && "ct-text-accent",
+              )}
+            >
+              {title}
+            </TitleTag>
+          ) : (
+            title
+          )}
+          {status ? (
+            <div className="flex items-center gap-(--ct-space-1_5) px-(--ct-space-1_5) py-px rounded-(--ct-radius-sm) bg-(--ct-graphite-nested-bg) border border-(--ct-border-ghost) leading-none">
+              <span className={cn(
+                "w-[5px] h-[5px] rounded-full",
+                statusTone === "ok" && "bg-(--ct-status-success)",
+                statusTone === "watch" && "bg-(--ct-status-warning)",
+                statusTone === "alert" && "bg-(--ct-status-danger)",
+                statusTone === "idle" && "bg-(--ct-text-faint)",
+              )} />
+              <span className={cn(
+                "text-[8px] font-(--ct-font-bold) uppercase tracking-(--ct-tracking-widest) pt-px",
+                statusTone === "ok" && "text-(--ct-status-success)",
+                statusTone === "watch" && "text-(--ct-status-warning)",
+                statusTone === "alert" && "text-(--ct-status-danger)",
+                statusTone === "idle" && "text-(--ct-text-faint)",
+              )}>
+                {status}
+              </span>
+            </div>
+          ) : null}
+        </div>
         {subtitle ? (
           <p className="body-xs ct-text-tertiary m-0 mono">{subtitle}</p>
         ) : null}
       </div>
       {provenance || trustLabel || trailing ? (
-        <div className="flex items-center gap-[var(--ct-space-3)] shrink-0">
+        <div className="flex items-center gap-(--ct-space-3) shrink-0">
           {trailing}
           {trustLabel ? (
             <span className="body-xs ct-text-faint italic hidden sm:inline">

@@ -60,11 +60,11 @@ export function DashboardRiskSummaryCard({
         <div className="dashboard-risk-summary__overview">
           <div className="dashboard-risk-summary__hero">
             <div className="dashboard-risk-summary__headline">
-              <span className="stat-label">Composite</span>
+              <span className="stat-label">Composite score</span>
               <div className="dashboard-risk-summary__headline-row">
                 <span
                   className={cn(
-                    "dashboard-risk-summary__value stat-value tabular",
+                    "dashboard-risk-summary__value tabular",
                     data.band === "low"
                       ? "ct-status-success"
                       : data.band === "medium"
@@ -74,7 +74,7 @@ export function DashboardRiskSummaryCard({
                 >
                   {data.composite}
                 </span>
-                <span className="body-xs ct-text-faint tabular">/ 100</span>
+                <span className="text-[14px] font-semibold ct-text-faint tabular">/ 100</span>
               </div>
             </div>
             <Badge

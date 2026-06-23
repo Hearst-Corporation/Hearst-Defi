@@ -24,7 +24,7 @@ export function PlatformOverviewBand({ view }: { view: OverviewClustersView }) {
           )}
         >
           <DashboardPanelHeader
-            title={cluster.label}
+            title={<span className="dashboard-cluster-label">{cluster.label}</span>}
             eyebrow={index === 0 ? view.caption : undefined}
             trailing={<AdminLeafLink href={cluster.href} />}
           />

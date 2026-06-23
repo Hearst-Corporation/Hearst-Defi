@@ -16,6 +16,7 @@ export function DashboardRecentEvents({
         variant="inline"
         message="No rebalance events recorded yet."
         ariaLabel="Recent vault activity"
+        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
       />
     );
   }
@@ -25,17 +26,23 @@ export function DashboardRecentEvents({
       {events.map((event) => (
         <li
           key={event.id}
-          className="admin-doc-stack admin-doc-stack--micro min-w-0"
+          className="dashboard-event-item"
           aria-label={`${event.ruleId}: ${event.actionText}`}
         >
-          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--dense min-w-0">
-            <span className="body-sm ct-text-strong truncate">{event.actionText}</span>
-            <span className="body-xs ct-text-faint tabular shrink-0">
-              {formatAdminMonthDay(event.takenAt)}
+          <div className="dashboard-event-main">
+            <span className="dashboard-event-action truncate">
+              {event.actionText}
             </span>
+            <p className="dashboard-event-trigger truncate m-0">
+              {event.triggerText}
+            </p>
+            <p className="dashboard-event-impact truncate m-0">
+              {event.impactText}
+            </p>
           </div>
-          <p className="body-xs ct-text-muted m-0 truncate">{event.triggerText}</p>
-          <p className="body-xs ct-text-faint m-0 truncate">{event.impactText}</p>
+          <span className="dashboard-event-time shrink-0">
+            {formatAdminMonthDay(event.takenAt)}
+          </span>
         </li>
       ))}
     </ul>

@@ -18,7 +18,7 @@ export function AdminLeafLink({
   return (
     <Link href={href} className={cn("dashboard-cockpit-leaf-link", className)}>
       <span>{label}</span>
-      <span aria-hidden> →</span>
+      <span className="dashboard-cockpit-leaf-link__arrow" aria-hidden> →</span>
     </Link>
   );
 }

@@ -24,20 +24,22 @@ function AllocationBar({
   return (
     <div className="vault-alloc-bar">
       <div className="vault-alloc-bar__head">
-        <span
-          aria-hidden
-          className="vault-alloc-bar__swatch"
-          style={{ background: color }}
-        />
-        <span className="vault-alloc-bar__label body-sm font-semibold ct-text-primary">
-          {ALLOCATION_INVESTOR_LABELS[bucket]}
-        </span>
-        <span className="vault-alloc-bar__pct body-sm font-semibold tabular mono ct-text-strong">
+        <div className="flex items-center gap-(--ct-space-2_5) min-width-0 flex-1">
+          <span
+            aria-hidden
+            className="vault-alloc-bar__swatch border border-white/10 shadow-sm"
+            style={{ background: color }}
+          />
+          <span className="vault-alloc-bar__label body-sm font-semibold ct-text-strong truncate">
+            {ALLOCATION_INVESTOR_LABELS[bucket]}
+          </span>
+        </div>
+        <span className="vault-alloc-bar__pct body-sm font-bold tabular mono ct-text-strong">
           {bpsToPercent(bps, 0)}%
         </span>
       </div>
       <div
-        className="vault-alloc-bar__track"
+        className="vault-alloc-bar__track bg-(--ct-surface-2) border border-(--ct-border-ghost)"
         role="img"
         aria-label={`${ALLOCATION_INVESTOR_LABELS[bucket]} ${bpsToPercent(bps, 0)}%`}
       >
@@ -46,7 +48,7 @@ function AllocationBar({
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
-      <p className="vault-alloc-bar__desc body-xs ct-text-muted">
+      <p className="vault-alloc-bar__desc body-xs ct-text-faint leading-relaxed">
         {ALLOCATION_DESCRIPTIONS[bucket]}
       </p>
     </div>
@@ -59,7 +61,7 @@ export function VaultAllocationAdminRows({
   facts: VaultAllocationFacts;
 }) {
   return (
-    <div className="mt-[var(--ct-space-4)] admin-doc-stack admin-doc-stack--relaxed">
+    <div className="mt-(--ct-space-4) admin-doc-stack admin-doc-stack--relaxed">
       {ALLOCATION_BUCKETS.map((bucket) => {
         const bps = allocationBps(facts, bucket);
         const label = ALLOCATION_ADMIN_LABELS[bucket];

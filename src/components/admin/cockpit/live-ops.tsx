@@ -81,15 +81,15 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row py-1"
       aria-label={`${job.name}: ${label}`}
     >
-      <span className="body-sm ct-text-strong truncate">{job.name}</span>
-      <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0">
-        <span aria-hidden className={cn("dashboard-status-dot", dot)} />
+      <span className="text-[12px] font-medium ct-text-strong truncate">{job.name}</span>
+      <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0 gap-1.5">
+        <span aria-hidden className={cn("dashboard-status-dot scale-75", dot)} />
         <span
           className={cn(
-            "body-sm font-medium",
+            "text-[11px] font-bold uppercase tracking-wider",
             job.status === "ok"
               ? "ct-status-success"
               : job.status === "err"
@@ -128,11 +128,11 @@ function SentryCounter({
   alert: boolean;
 }) {
   return (
-    <div className="admin-doc-stack admin-doc-stack--micro">
-      <span className="stat-label ct-text-faint">{label}</span>
+    <div className="admin-doc-stack admin-doc-stack--micro gap-0">
+      <span className="text-[9px] font-bold ct-text-faint uppercase tracking-widest leading-none">{label}</span>
       <span
         className={cn(
-          "body-sm tabular font-semibold",
+          "text-[12px] tabular font-bold",
           alert && count > 0 ? "ct-status-danger" : "ct-text-strong",
         )}
       >
@@ -158,19 +158,19 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     <>
       <span
         aria-hidden
-        className="shrink-0 ct-text-muted body-sm w-4 text-center mt-[var(--ct-space-0_5)]"
+        className="shrink-0 ct-text-muted text-[11px] font-bold w-4 text-center mt-[2px]"
       >
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="body-sm ct-text-strong truncate block">{event.label}</span>
-        <span className="body-xs ct-text-muted">{ago}</span>
+        <span className="text-[12px] ct-text-strong truncate block font-medium leading-tight">{event.label}</span>
+        <span className="text-[10px] ct-text-muted uppercase tracking-wider font-bold">{ago}</span>
       </span>
     </>
   );
 
   const rowClassName =
-    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row";
+    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row py-1.5";
 
   const interactiveContent =
     event.txHash && !isPlaceholderTxHash(event.txHash) ? (

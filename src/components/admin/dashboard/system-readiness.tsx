@@ -42,7 +42,6 @@ export function SystemReadinessModule({
               aria-hidden
               className={cn("dashboard-readiness__dot", toneDot(view.posture))}
             />
-            {/* VERDICT is the dominant text element — xl/2xl, tone-coloured */}
             <span
               className={cn(
                 "dashboard-readiness__posture-label",
@@ -51,10 +50,17 @@ export function SystemReadinessModule({
             >
               {view.postureLabel}
             </span>
-            {/* Static eyebrow kicker — small, muted */}
             <span className="dashboard-readiness__title-kicker">
               System readiness
             </span>
+            <div className="dashboard-readiness__scan-badge">
+              <span className="text-var(--ct-text-faint) uppercase tracking-var(--ct-tracking-widest) text-[10px] font-var(--ct-font-bold)">
+                Last scan:
+              </span>
+              <span className="text-var(--ct-text-muted) tabular text-[10px] font-var(--ct-font-medium)">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
           </div>
           <p className="dashboard-readiness__blurb body-sm ct-text-muted m-0">
             {view.postureBlurb}

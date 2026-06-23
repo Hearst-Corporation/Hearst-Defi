@@ -10,8 +10,13 @@ interface DashboardKpiStripProps {
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   return (
     <div className="dashboard-kpi-strip">
-      {kpis.map((kpi) => (
-        <DashboardKpiCell key={kpi.label} kpi={kpi} />
+      {kpis.map((kpi, index) => (
+        <div key={kpi.label} className="flex items-center">
+          <DashboardKpiCell kpi={kpi} />
+          {index < kpis.length - 1 && (
+            <div className="dashboard-kpi-strip__separator" aria-hidden="true" />
+          )}
+        </div>
       ))}
     </div>
   );

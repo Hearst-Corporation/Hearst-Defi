@@ -46,6 +46,20 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         titleAccent="Command Center"
         contextLabel={`${activeTicker} · Admin Command`}
         className="dashboard-page-header"
+        actions={
+          <div className="dashboard-header-status">
+            <div className="dashboard-status-pill">
+              <span className="dashboard-status-dot" />
+              <span className="dashboard-status-label">Live</span>
+            </div>
+            <div className="dashboard-header-meta">
+              <span className="dashboard-meta-label">Last updated</span>
+              <span className="dashboard-meta-value">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            </div>
+          </div>
+        }
       />
 
       <DashboardAssetsBoard

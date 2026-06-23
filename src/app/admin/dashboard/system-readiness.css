@@ -60,6 +60,17 @@
   color: var(--ct-text-muted);
 }
 
+.dashboard-readiness__scan-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  padding: 2px var(--ct-space-2);
+  background: var(--ct-graphite-nested-bg);
+  border: 1px solid var(--ct-border-ghost);
+  border-radius: var(--ct-radius-sm);
+  margin-left: var(--ct-space-1);
+}
+
 .dashboard-readiness__blurb {
   max-width: 46ch;
 }

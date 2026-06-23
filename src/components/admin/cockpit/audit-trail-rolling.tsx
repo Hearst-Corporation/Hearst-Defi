@@ -24,6 +24,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
         variant="inline"
         message="No admin activity recorded yet."
         ariaLabel="Audit trail"
+        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
       />
     );
   }

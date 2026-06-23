@@ -30,6 +30,7 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
         variant="inline"
         message="No vault telemetry yet."
         ariaLabel="Vault health"
+        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
       />
     );
   }
@@ -70,27 +71,27 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   return (
     <div
-      className="dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default"
+      className="dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default py-(--ct-space-1_5)"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div
-        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0 cockpit-metric-head"
+        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0 cockpit-metric-head mb-(--ct-space-1)"
       >
         <Link
           href={vault.href}
-          className="body-sm ct-text-strong min-w-0 truncate cockpit-metric-link font-medium"
+          className="text-[13px] ct-text-strong min-w-0 truncate cockpit-metric-link font-semibold"
         >
           {vault.vaultName}
         </Link>
         {vault.hasTimelineData ? (
-          <VaultStatusPill status={vault.status} className="shrink-0" />
+          <VaultStatusPill status={vault.status} className="shrink-0 scale-90 origin-right" />
         ) : (
-          <span className="shrink-0 body-xs ct-text-faint font-medium">No telemetry</span>
+          <span className="shrink-0 text-[10px] ct-text-faint font-medium uppercase tracking-wider">No telemetry</span>
         )}
       </div>
 
       {vault.hasTimelineData ? (
-        <div className="dashboard-live-metrics__grid">
+        <div className="dashboard-live-metrics__grid mt-(--ct-space-1) py-(--ct-space-1) gap-(--ct-space-2)">
           <MetricCell
             label="TVL"
             value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
@@ -117,7 +118,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           />
         </div>
       ) : (
-        <p className="body-xs ct-text-muted m-0">Awaiting first telemetry close</p>
+        <p className="text-[11px] ct-text-muted m-0">Awaiting first telemetry close</p>
       )}
     </div>
   );
@@ -133,13 +134,13 @@ function MetricCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="admin-doc-stack admin-doc-stack--micro min-w-0">
-      <span className="stat-label ct-text-faint leading-none truncate">
+    <div className="admin-doc-stack admin-doc-stack--micro min-w-0 gap-0">
+      <span className="text-[9px] font-bold ct-text-faint uppercase tracking-widest leading-none truncate">
         {label}
       </span>
       <span
         className={cn(
-          "ct-text-micro-size tabular ct-text-strong font-semibold leading-tight truncate",
+          "text-[11px] tabular ct-text-strong font-bold leading-tight truncate",
           valueClassName,
         )}
       >

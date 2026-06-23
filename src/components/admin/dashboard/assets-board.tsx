@@ -279,6 +279,9 @@ export function DashboardAssetsBoard({
             <div className="dashboard-ops-pane">
               <DashboardPanelHeader
                 title="Operator queue"
+                eyebrow="Queue"
+                status="Active"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
               <ActionQueue items={cockpit.actionQueue} />
@@ -287,6 +290,9 @@ export function DashboardAssetsBoard({
             <div className="dashboard-ops-pane dashboard-ops-pane--divider">
               <DashboardPanelHeader
                 title="Vault health"
+                eyebrow="Telemetry"
+                status="Monitoring"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
               <LiveMetrics vaults={scopedVaultMetrics} />
@@ -295,6 +301,9 @@ export function DashboardAssetsBoard({
             <div className="dashboard-ops-pane dashboard-ops-pane--divider">
               <DashboardPanelHeader
                 title="Platform status"
+                eyebrow="Infrastructure"
+                status="Live"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
               <LiveOps
@@ -316,6 +325,9 @@ export function DashboardAssetsBoard({
             <div className="dashboard-lower-pane dashboard-lower-pane--risk">
               <DashboardPanelHeader
                 title="Risk posture"
+                eyebrow="Compliance"
+                status="Guarded"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/vaults" />}
                 provenance={riskProvenance}
               />
@@ -329,6 +341,9 @@ export function DashboardAssetsBoard({
             <div className="dashboard-lower-pane dashboard-lower-pane--audit dashboard-lower-pane--divider">
               <DashboardPanelHeader
                 title="Audit trail"
+                eyebrow="Ledger"
+                status="Logging"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/audit" />}
               />
               <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />

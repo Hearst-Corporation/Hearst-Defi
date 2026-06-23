@@ -49,7 +49,7 @@ export function EmptySurface({
         className={cn(
           "m-0",
           variant === "chart" && "body-xs ct-text-faint",
-          variant !== "chart" && "body-sm ct-text-muted",
+          variant !== "chart" && "body-sm ct-text-faint",
         )}
       >
         {message}

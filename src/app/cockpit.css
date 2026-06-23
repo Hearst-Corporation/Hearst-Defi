@@ -518,7 +518,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--ct-space-4);
-  padding: var(--ct-space-2_5) 0;
+  padding: var(--ct-space-3) var(--ct-space-4);
   border-bottom: 1px solid var(--ct-border-soft);
 }
 
@@ -528,12 +528,18 @@
 
 .ct-proof-row__label {
   flex-shrink: 0;
+  font-size: var(--ct-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
 }
 
 .ct-proof-row__value {
   min-width: 0;
   text-align: right;
   word-break: break-word;
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-primary);
 }
 
 .ct-proof-row__truncate {
@@ -1996,37 +2002,37 @@
 
 /* Live ops sections — padding replaces inline py-4 / mb-2 / m-0 hardcodes */
 .dashboard-live-ops-section {
-  padding-top: var(--ct-space-4);
-  padding-bottom: var(--ct-space-5);
+  padding-top: var(--ct-space-2);
+  padding-bottom: var(--ct-space-3);
 }
 .dashboard-live-ops-section:first-child { padding-top: 0; }
 .dashboard-live-ops-section:last-child  { padding-bottom: 0; }
 .dashboard-live-ops-section__title {
   display: block;
-  margin: 0 0 var(--ct-space-3);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-extrabold);
+  margin: 0 0 var(--ct-space-1_5);
+  font-size: 9px;
+  font-weight: 700;
   color: var(--ct-text-faint);
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
 }
 
 /* Action queue rows — padding replaces py-3 first:pt-0 last:pb-0 */
 .dashboard-action-row {
-  padding-top: var(--ct-space-4);
-  padding-bottom: var(--ct-space-5);
-  gap: var(--ct-space-4);
+  padding-top: var(--ct-space-1_5);
+  padding-bottom: var(--ct-space-2);
+  gap: var(--ct-space-3);
 }
 .dashboard-action-row:first-child { padding-top: 0; }
 .dashboard-action-row:last-child  { padding-bottom: 0; }
 
 .dashboard-action-row--critical {
-  border-left: 1px solid color-mix(in srgb, var(--ct-status-danger) 42%, transparent);
+  border-left: 2px solid var(--ct-status-danger);
   padding-left: var(--ct-space-3);
 }
 
 .dashboard-action-copy {
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-2);
 }
 
 .dashboard-action-title {
@@ -2034,13 +2040,14 @@
 }
 
 .dashboard-action-context {
-  max-width: 28ch;
+  max-width: 32ch;
 }
 
 /* Inngest job row — padding replaces py-2 first:pt-0 last:pb-0 */
 .dashboard-inngest-row {
-  padding-top: var(--ct-space-3);
-  padding-bottom: var(--ct-space-3);
+  padding-top: var(--ct-space-1);
+  padding-bottom: var(--ct-space-1);
+}
   gap: var(--ct-space-3);
 }
 .dashboard-inngest-row:first-child { padding-top: 0; }
@@ -3875,18 +3882,6 @@ button.ct-choice-card {
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
-.ct-rail-left::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: var(--ct-space-12);
-  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
-  pointer-events: none;
-  z-index: 5;
-}
-
 .ct-rail-right {
   /* Chat — verre TRANSLUCIDE : le fond spatial (sur .ct-panels-row) transparaît
      nettement derrière. Voile léger = glass, pas un bloc noir. Plus translucide
@@ -3909,18 +3904,6 @@ button.ct-choice-card {
      to match the black plinth. */
   mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
-}
-
-.ct-rail-right::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: var(--ct-space-12);
-  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
-  pointer-events: none;
-  z-index: 5;
 }
 
 .ct-rail-right.collapsed {
@@ -4236,6 +4219,9 @@ button.ct-choice-card {
   -webkit-line-clamp: 1;
   overflow: hidden;
   pointer-events: none;
+  /* Ensure rail labels stay above any background fades or ambient overlays. */
+  z-index: var(--ct-z-rail-tooltip);
+  position: relative;
 }
 
 /* Rail fixe — seul le mark H reste visible dans le header (nom produit masqué). */
@@ -4679,6 +4665,13 @@ main#main-content>.admin-doc.admin-doc-shell {
    Top padding lifted to --ct-space-5 (18px) so the two-tier "Hairline Marque"
    masthead lockup gets generous negative space without moving bottom density.
    See the CHAT RAIL HEADER block below for the full identity-stack treatment. */
+/* Fade for settings and history (scrolled by body) */
+.ct-rail-right-body:has(.ct-chat-settings),
+.ct-rail-right-body:has(.ct-chat-history) {
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+}
+
 .ct-rail-right-header                      { padding: var(--ct-space-5) var(--ct-space-4) var(--ct-space-2); }
 .ct-rail-right.collapsed .ct-rail-right-header { padding: var(--ct-space-2) 0; }
 .ct-rail-right-body                        { padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4); }
@@ -4722,10 +4715,11 @@ main#main-content>.admin-doc.admin-doc-shell {
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
    auto-scroll-to-bottom effect keep the newest message in view without clipping
    the top. The zero-state placeholder keeps its own margin:auto centering. */
-.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; 
-  /* Bottom fade for messages before the composer. */
-  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
-  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-12); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; 
+  /* Double fade: top for old messages, bottom for composer clearance. 
+     Increased padding-bottom ensures the newest message stays above the bottom fade. */
+  mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
 }
 .ct-chat-list::-webkit-scrollbar           { width: 4px; }
 .ct-chat-list::-webkit-scrollbar-track     { background: transparent; }

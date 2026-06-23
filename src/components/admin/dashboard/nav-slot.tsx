@@ -1,5 +1,6 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { type Provenance } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-formatters";
 import {
   computeNavBarHeights,
@@ -36,11 +37,14 @@ export function NavSlot({
         provenance={!isMuted ? navProvenance : undefined}
         className="dashboard-nav-slot__header"
       />
-      <p className="dashboard-nav-slot__value stat-value tabular m-0">
+      <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-(--ct-space-1)">
           {lastNav !== null ? (
-            dashboardUsdCompact.format(lastNav)
+            <>
+              <span className="text-[10px] font-bold ct-text-faint uppercase tracking-widest opacity-50">USD</span>
+              <span>{dashboardUsdCompact.format(lastNav)}</span>
+            </>
           ) : (
-            <span className="body-md ct-text-faint font-medium tracking-normal">Awaiting data</span>
+            <span className="body-md ct-text-faint font-medium tracking-normal opacity-50">Awaiting data</span>
           )}
       </p>
 
@@ -102,14 +106,22 @@ function NavBarChartShell({
         <div className="dashboard-nav-bars__bars" role="list">
           {slices.map((slice) => (
             <div key={slice.key} className="dashboard-nav-bars__cell" role="listitem">
-              <div
-                className="dashboard-nav-bars__bar"
-                style={{ height: `${slice.heightPct}%` }}
-                tabIndex={slice.label ? 0 : undefined}
-                aria-label={slice.label}
-                title={slice.label}
-                aria-hidden={slice.label ? undefined : true}
-              />
+              {slice.label ? (
+                <Tooltip content={slice.label} side="top">
+                  <div
+                    className="dashboard-nav-bars__bar"
+                    style={{ height: `${slice.heightPct}%` }}
+                    tabIndex={0}
+                    aria-label={slice.label}
+                  />
+                </Tooltip>
+              ) : (
+                <div
+                  className="dashboard-nav-bars__bar"
+                  style={{ height: `${slice.heightPct}%` }}
+                  aria-hidden={true}
+                />
+              )}
             </div>
           ))}
         </div>
