@@ -258,7 +258,15 @@ export function CapitalYield({
 
         {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
         <div className="cy-ledger">
-          {!hasData ? null : (
+          {!hasData ? (
+            <div className="cy-ledger-empty">
+              <p className="cy-ledger-empty__lead">Yield allocation pending</p>
+              <p className="cy-ledger-empty__hint">
+                Mining allocations settle within 24h of first deposit.
+                Forward yield estimates will appear here.
+              </p>
+            </div>
+          ) : (
             <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
               Yield source · 12m fwd contribution
             </p>

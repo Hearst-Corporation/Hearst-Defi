@@ -1603,6 +1603,32 @@
   color: var(--ct-text-secondary);
 }
 
+/* Ledger empty state — when yield data hasn't settled yet */
+.cy-ledger-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ct-space-2);
+  min-height: 0;
+  padding: var(--ct-space-4);
+  text-align: center;
+}
+
+.cy-ledger-empty__lead {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  margin: 0;
+}
+
+.cy-ledger-empty__hint {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-secondary);
+  line-height: var(--ct-leading-snug);
+  max-width: 32ch;
+  margin: 0 auto;
+}
+
 .cy-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
