@@ -50,6 +50,10 @@ const BEFORE_CONFIRM: Record<AdminWriteToolId, ToolMessage> = {
     title: "Create vault draft (DRAFT only)",
     body: "I can create this vault as a DRAFT. It is not deployed and never goes live from here — promoting a draft is a separate, multi-signer gated step. Confirm to create the draft.",
   },
+  create_campaign_draft: {
+    title: "Create outreach campaign (draft)",
+    body: "I can create this outreach campaign as a DRAFT. No leads are sourced, nothing is drafted or sent, and autonomy is unchanged — confirm to create the draft.",
+  },
 };
 
 const GENERIC_BEFORE: ToolMessage = {

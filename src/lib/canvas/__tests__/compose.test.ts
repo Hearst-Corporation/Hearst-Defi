@@ -60,6 +60,45 @@ describe("composeCanvasState — create-vault", () => {
   });
 });
 
+describe("composeCanvasState — outreach", () => {
+  const state = composeCanvasState({
+    canvasId: "outreach",
+    objective: "distributor campaign",
+    revision: 1,
+    agentLive: true,
+  });
+
+  it("proposes only allowlisted outreach write tools", () => {
+    const toolIds = state.sections.flatMap((s) => s.actions).map((a) => a.toolId);
+    for (const id of toolIds) {
+      expect(canvasAllowsWriteTool("outreach", id)).toBe(true);
+    }
+    expect(toolIds).toContain("create_campaign_draft");
+  });
+
+  it("the send-run proposal spells out Tier-A-never + autonomy ceiling", () => {
+    const send = state.sections
+      .flatMap((s) => s.actions)
+      .find((a) => a.toolId === "outreach_trigger_send_run");
+    expect(send).toBeTruthy();
+    const willNotDo = send!.willNotDo.join(" ").toLowerCase();
+    expect(willNotDo).toContain("tier a");
+    expect(willNotDo).toContain("autonomy");
+  });
+
+  it("never proposes a vault tool from the outreach canvas", () => {
+    const toolIds = state.sections.flatMap((s) => s.actions).map((a) => a.toolId);
+    expect(toolIds).not.toContain("create_vault_draft");
+  });
+
+  it("carries provenance + disclaimer like every canvas", () => {
+    expect(state.disclaimer.toLowerCase()).toContain("not guaranteed");
+    for (const f of state.sections.flatMap((s) => s.fields)) {
+      expect(f.provenance).toBeTruthy();
+    }
+  });
+});
+
 describe("composeCanvasState — lp-yield-explainer", () => {
   const state = composeCanvasState({
     canvasId: "lp-yield-explainer",

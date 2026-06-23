@@ -23,7 +23,11 @@ import {
   isAdminReadToolAllowed,
   isAdminWriteToolAllowed,
 } from "@/lib/llm/tools/policy";
-import { runSourcing, draftEmailForProspect } from "@/app/admin/outreach/actions";
+import {
+  runSourcing,
+  draftEmailForProspect,
+  createCampaign,
+} from "@/app/admin/outreach/actions";
 import { createDraftVault } from "@/app/admin/vaults/actions";
 import {
   CreateDraftSchema,
@@ -1335,6 +1339,17 @@ export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [
     allowedProfiles: ["admin"],
     run: async (_context, input) => runCreateVaultDraft(input),
   },
+  {
+    id: "create_campaign_draft",
+    kind: "write",
+    description:
+      "Create an outreach campaign in the DRAFT state only (name, kind cold/newsletter, optional body template, includeTypeform). Forbidden-words guarded. Does NOT source, draft, or send — and never raises OUTREACH_AUTONOMY.",
+    riskLevel: "medium",
+    confirmationRequired: true,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    run: async (_context, input) => runCreateCampaignDraft(input),
+  },
 ] as const;
 
 
@@ -1402,6 +1417,49 @@ async function runCreateVaultDraft(
   };
 }
 
+// createCampaign takes a FormData (it's a "use server" form action), so the
+// canvas's structured object input is adapted here. The action re-validates +
+// forbidden-words-guards internally; this pre-token parse keeps the propose path
+// a clean 400. `includeTypeform` is presence-detected by the action, so we only
+// set the key when true.
+const CreateCampaignDraftInputSchema = z.object({
+  name: z.string().trim().min(1).max(160),
+  kind: z.enum(["cold", "newsletter"]).default("cold"),
+  bodyTemplate: z.string().trim().max(8000).optional(),
+  includeTypeform: z.boolean().default(true),
+});
+
+function parseCreateCampaignDraftInput(
+  input: unknown,
+): z.infer<typeof CreateCampaignDraftInputSchema> {
+  const parsed = CreateCampaignDraftInputSchema.safeParse(input);
+  if (!parsed.success) throw new Error("invalid_create_campaign_draft_input");
+  return parsed.data;
+}
+
+async function runCreateCampaignDraft(
+  input: unknown,
+): Promise<AdminWriteToolExecutionResult> {
+  const payload = parseCreateCampaignDraftInput(input);
+  const form = new FormData();
+  form.set("name", payload.name);
+  form.set("kind", payload.kind);
+  if (payload.bodyTemplate) form.set("bodyTemplate", payload.bodyTemplate);
+  if (payload.includeTypeform) form.set("includeTypeform", "on");
+  await createCampaign(form);
+  return {
+    title: "OUTREACH CAMPAIGN DRAFT CREATED",
+    lines: [
+      `- name: ${payload.name}`,
+      `- kind: ${payload.kind}`,
+      `- includes Typeform link: ${payload.includeTypeform ? "yes" : "no"}`,
+      "- status: draft (no leads sourced, nothing drafted or sent from here)",
+    ],
+    // createCampaign returns void; the campaign name is the stable handle.
+    createdEntityId: payload.name,
+  };
+}
+
 /**
  * Validate write tool input against its Zod schema BEFORE a confirmation token
  * is created. This ensures that invalid inputs are rejected with a 400 (not a
@@ -1424,6 +1482,8 @@ function validateWriteToolInput(toolId: string, input: unknown): void {
     }
   } else if (toolId === "create_vault_draft") {
     parseCreateVaultDraftInput(input);
+  } else if (toolId === "create_campaign_draft") {
+    parseCreateCampaignDraftInput(input);
   }
   // outreach_trigger_send_run takes no input — nothing to validate.
 }

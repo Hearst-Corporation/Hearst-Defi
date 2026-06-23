@@ -41,8 +41,18 @@ describe("canvas registry", () => {
     expect(canvasAllowsWriteTool("create-vault", "outreach_trigger_send_run")).toBe(false);
   });
 
+  it("the outreach canvas allows only its outreach + campaign-draft tools", () => {
+    expect(isAdminCanvas("outreach")).toBe(true);
+    expect(canvasAllowsWriteTool("outreach", "create_campaign_draft")).toBe(true);
+    expect(canvasAllowsWriteTool("outreach", "outreach_source_leads")).toBe(true);
+    expect(canvasAllowsWriteTool("outreach", "outreach_trigger_send_run")).toBe(true);
+    // It can never reach into the vault tool.
+    expect(canvasAllowsWriteTool("outreach", "create_vault_draft")).toBe(false);
+  });
+
   it("the LP yield explainer allows zero writes", () => {
     expect(isAdminCanvas("lp-yield-explainer")).toBe(false);
     expect(canvasAllowsWriteTool("lp-yield-explainer", "create_vault_draft")).toBe(false);
+    expect(canvasAllowsWriteTool("lp-yield-explainer", "create_campaign_draft")).toBe(false);
   });
 });

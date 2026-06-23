@@ -33,6 +33,10 @@ export const ADMIN_WRITE_TOOL_IDS = [
   // live is a SEPARATE state-machine action (markAsLive) that is deliberately NOT
   // a tool — it can never be reached from the canvas. No financial/custodial action.
   "create_vault_draft",
+  // `create_campaign_draft` creates an OutreachCampaign in the `draft` state ONLY
+  // (it calls createCampaign). It does not source, draft, or send — those stay the
+  // existing outreach tools, all HITL, Tier A never auto-sent.
+  "create_campaign_draft",
 ] as const;
 
 export type AdminWriteToolId = (typeof ADMIN_WRITE_TOOL_IDS)[number];

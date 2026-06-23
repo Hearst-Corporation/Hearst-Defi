@@ -58,6 +58,7 @@ export const CANVAS_DEFINITIONS: Readonly<Record<CanvasId, CanvasDefinition>> = 
     // the gate + tests are in place. All three are HITL, Tier A never auto-sent.
     destinationKey: "admin-agent-canvas",
     writeToolAllowlist: [
+      "create_campaign_draft",
       "outreach_source_leads",
       "outreach_draft_email",
       "outreach_trigger_send_run",

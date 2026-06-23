@@ -201,6 +201,162 @@ function composeCreateVault(
   ];
 }
 
+function composeOutreach(
+  objective: string | undefined,
+  _agentLive: boolean,
+): CanvasSection[] {
+  const intro = guarded(
+    objective?.trim()
+      ? `Setting up distributor outreach: ${objective.trim()}`
+      : "Set up a distributor outreach campaign — every step is human-in-the-loop. Nothing auto-sends.",
+    "Set up a distributor outreach campaign — every step is human-in-the-loop. Nothing auto-sends.",
+  );
+
+  const campaignProposal: PendingActionProposal | null = canvasAllowsWriteTool(
+    "outreach",
+    "create_campaign_draft",
+  )
+    ? {
+        proposalId: "outreach-campaign-draft",
+        toolId: "create_campaign_draft",
+        input: { name: "", kind: "cold", includeTypeform: true },
+        label: "Create campaign draft",
+        riskLevel: "medium",
+        summary: {
+          projection: "A new outreach campaign is recorded as a draft.",
+          trigger: "You confirm after naming it and choosing its kind.",
+          action: "Persist an OutreachCampaign in the draft state.",
+          impact:
+            "The campaign is a container only — no leads sourced, nothing drafted or sent.",
+        },
+        willNotDo: [
+          "Does NOT source leads, draft, or send anything.",
+          "Does NOT change OUTREACH_AUTONOMY.",
+        ],
+      }
+    : null;
+
+  const sourceProposal: PendingActionProposal | null = canvasAllowsWriteTool(
+    "outreach",
+    "outreach_source_leads",
+  )
+    ? {
+        proposalId: "outreach-source-leads",
+        toolId: "outreach_source_leads",
+        input: { count: 20 },
+        label: "Source 20 leads (review only)",
+        riskLevel: "medium",
+        summary: {
+          projection: "Up to 20 distributor leads are sourced against the active ICP.",
+          trigger: "You confirm; an active ICP must exist.",
+          action: "Create 'new' prospects in the directory for review.",
+          impact: "Prospects await drafting. Nothing is emailed; no credit spent until you confirm.",
+        },
+        willNotDo: [
+          "Sends no email and spends no credit on its own.",
+          "Requires an active ICP — none means it cannot run.",
+        ],
+      }
+    : null;
+
+  const sendProposal: PendingActionProposal | null = canvasAllowsWriteTool(
+    "outreach",
+    "outreach_trigger_send_run",
+  )
+    ? {
+        proposalId: "outreach-send-run",
+        toolId: "outreach_trigger_send_run",
+        input: {},
+        label: "Trigger a governed send run",
+        riskLevel: "high",
+        summary: {
+          projection: "Queued agent drafts may dispatch within the autonomy dial.",
+          trigger: "You confirm; the run obeys OUTREACH_AUTONOMY.",
+          action: "Run the SAME governed job as the hourly cron.",
+          impact:
+            "In SUGGEST mode nothing sends. Tier A is NEVER auto-sent; daily cap + suppression re-check apply.",
+        },
+        willNotDo: [
+          "Tier A is NEVER auto-sent.",
+          "Cannot raise OUTREACH_AUTONOMY — in SUGGEST mode nothing leaves.",
+          "Bounded by the warm-up daily cap; suppression re-checked at send time.",
+        ],
+      }
+    : null;
+
+  return [
+    {
+      id: "outreach-campaign",
+      title: "Campaign",
+      status: "ready",
+      intro,
+      fields: [
+        {
+          key: "name",
+          label: "Campaign name",
+          value: "—",
+          provenance: "Manual",
+          editable: true,
+          inputBinding: { toolInputKey: "name" },
+          note: "1–160 characters; no forbidden words.",
+        },
+        {
+          key: "kind",
+          label: "Kind",
+          value: "cold",
+          provenance: "Manual",
+          editable: true,
+          inputBinding: { toolInputKey: "kind" },
+          note: "cold | newsletter",
+        },
+      ],
+      options: [
+        {
+          id: "outreach-opt-newsletter",
+          label: "Make it a newsletter",
+          effect: { kind: "set_field", sectionId: "outreach-campaign", fieldKey: "kind", value: "newsletter" },
+        },
+      ],
+      actions: campaignProposal ? [campaignProposal] : [],
+    },
+    {
+      id: "outreach-pipeline",
+      title: "Source → draft → send (all HITL)",
+      status: "ready",
+      intro:
+        "Each step needs an explicit confirmation. Drafting targets a specific prospect — ask in the chat once leads are sourced.",
+      fields: [
+        {
+          key: "autonomy",
+          label: "Autonomy",
+          value: "Governed by OUTREACH_AUTONOMY (SUGGEST = nothing sends)",
+          provenance: "Manual",
+          editable: false,
+          note: "Tier A is never auto-sent.",
+        },
+      ],
+      options: [
+        {
+          id: "outreach-opt-draft",
+          label: "Draft an email for a prospect",
+          effect: {
+            kind: "prefill_chat",
+            prompt: "Draft an outreach email for prospect <paste prospectId here>.",
+          },
+        },
+        {
+          id: "outreach-opt-list",
+          label: "List sourced prospects",
+          effect: { kind: "prefill_chat", prompt: "List the outreach prospects awaiting drafting." },
+        },
+      ],
+      actions: [sourceProposal, sendProposal].filter(
+        (p): p is PendingActionProposal => p !== null,
+      ),
+    },
+  ];
+}
+
 function composeLpYieldExplainer(objective: string | undefined): CanvasSection[] {
   const intro = guarded(
     objective?.trim()
@@ -267,18 +423,7 @@ export function composeCanvasState(args: {
       ? composeCreateVault(args.objective, args.agentLive)
       : args.canvasId === "lp-yield-explainer"
         ? composeLpYieldExplainer(args.objective)
-        : // outreach (Phase 2) — minimal placeholder section until wired.
-          [
-            {
-              id: "outreach-pending",
-              title: "Outreach workspace",
-              status: "building" as const,
-              intro: "Outreach actions are wired in Phase 2.",
-              fields: [],
-              options: [],
-              actions: [],
-            },
-          ];
+        : composeOutreach(args.objective, args.agentLive);
 
   return {
     contractVersion: CANVAS_CONTRACT_VERSION,
