@@ -475,7 +475,7 @@
   .pf-container--fit .pf-cockpit-panel,
   .pf-container--fit .pf-fused-surface,
   .pf-container--fit .pf-fused-surface__pane,
-    .pf-container--fit .pf-hero-grid,
+  .pf-container--fit .pf-hero-grid,
   .pf-container--fit .pf-status-panel,
   .pf-container--fit .pf-status-list,
   .pf-container--fit .pf-main-chart-wrapper,
@@ -961,10 +961,10 @@
   min-width: 0;
   min-height: 0;
   /* Background and border come from PfCockpitPanel wrapper */
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 .pf-status-panel .pf-cockpit-panel__header {
@@ -1119,7 +1119,7 @@
   gap: var(--ct-space-3);
   min-width: 0;
   font-weight: var(--ct-font-semibold);
-    color: var(--ct-text-strong);
+  color: var(--ct-text-strong);
 }
 
 .pf-positions__vault > span {
@@ -1311,7 +1311,6 @@
   grid-column: 1 / -1;
 }
 
-.cy-row--mining .cy-label,
 .cy-row-mining .cy-label {
   color: var(--ct-accent);
 }
@@ -1324,7 +1323,6 @@
   flex: 0 0 auto;
 }
 
-.cy-row--mining .cy-dot,
 .cy-row-mining .cy-dot { background: var(--ct-status-info); }
 
 .cy-label {
@@ -2138,7 +2136,7 @@
   .pf-hero-grid {
     grid-template-columns: 1.6fr minmax(16rem, 1fr);
   }
-    /* when split horizontally the sidebar divider becomes a left border */
+  /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
     border-top: 0;
     border-left: 1px solid var(--ct-graphite-border-nested);
