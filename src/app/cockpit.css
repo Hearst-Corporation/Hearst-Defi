@@ -1546,8 +1546,14 @@
 
 .dashboard-kpi-strip {
   display: grid;
-  gap: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* gap:1px + fond ghost = hairlines de séparation (cf. bloc bordures plus bas). */
+  gap: 1px;
+  background: var(--ct-border-ghost);
+  /* auto-fit : autant de colonnes que la largeur le permet — la strip tient sur
+     UNE ligne dès que le panel est assez large, quel que soit le nombre de KPI
+     (4, 5 ou 8). Remplace les anciens paliers fixes repeat(2/3/4/8) qui
+     cassaient en 2×2 sur les panels étroits. min 7.5rem = une cellule lisible. */
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   min-width: 0;
 }
 
@@ -1566,16 +1572,9 @@
   white-space: normal;
 }
 
-/* Stacked rows → horizontal hairline between KPIs, no vertical separators
-   (those assume a multi-column row). Last row needs no border. */
-.dashboard-overview-pane .dashboard-kpi-strip__cell {
-  border-right: none !important;
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-overview-pane .dashboard-kpi-strip__cell:last-child {
-  border-bottom: none;
-}
+/* Stacked rows (1 colonne) : les hairlines horizontales sont déjà produites par
+   le gap:1px coloré de la strip — aucune bordure explicite nécessaire (sinon
+   double-ligne). Le système gap+background gère uni-colonne ET multi-colonnes. */
 
 .dashboard-kpi-strip__cell {
   display: flex;
@@ -1584,6 +1583,10 @@
   gap: var(--ct-space-1_5);
   min-height: var(--ct-dashboard-kpi-cell-min-height);
   padding: var(--ct-space-4);
+  /* Fond opaque : avec le gap:1px coloré de la strip, ce fond fait apparaître
+     les hairlines de séparation. Les modificateurs --accent (fond translucide)
+     se superposent par-dessus, --alert garde son box-shadow inset. */
+  background: var(--ct-graphite-subtle-bg);
 }
 
 .dashboard-kpi-strip__cell--alert {
@@ -1625,9 +1628,10 @@
 
   .ct-page-area :is(.admin-doc, .product-doc, .pf-container)
     .dashboard-kpi-strip__value {
-    font-size: clamp(1.25rem, 1.25rem + (100vw - 80rem) * 0.00625, 1.5rem); /* 20 → 24 */
+    font-size: clamp(1.125rem, 1.125rem + (100vw - 80rem) * 0.003125, 1.25rem); /* 18 → 20 */
     /* bold (pas extrabold) : valeurs présentes mais les placeholders « — » ne
-       dominent plus la bande. */
+       dominent plus la bande. Taille resserrée (était 20→24, trop dominant sur
+       une strip télémétrie dense de 4-8 cellules). */
     font-weight: var(--ct-font-bold);
     letter-spacing: var(--ct-tracking-tighter);
   }
@@ -2481,57 +2485,16 @@
   outline: none;
 }
 
-/* Removed 18rem container query since 2 columns is now default */
+/* Le nombre de colonnes est désormais géré par `auto-fit` sur .dashboard-kpi-strip
+   (voir plus haut) — les anciens paliers fixes repeat(3/4/8) ont été retirés car
+   ils forçaient une grille rigide qui cassait en 2×2 sur panels étroits. Les
+   règles de BORDURES ci-dessous keyent toujours sur la largeur du board. */
 
-@container dash-board (min-width: 26rem) {
-  .dashboard-kpi-strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@container dash-board (min-width: 42rem) {
-  .dashboard-kpi-strip {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-/* 8 KPIs total — at the widest width fit them on a single 8-up row. */
-@container dash-board (min-width: 64rem) {
-  .dashboard-kpi-strip {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-}
-
-/* Borders for KPI strip cells — hairline ghost (telemetry strip, pas cartes). */
-.dashboard-kpi-strip__cell {
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-/* 2 columns */
-@container dash-board (max-width: 25.99rem) {
-  .dashboard-kpi-strip__cell:nth-child(odd) {
-    border-right: 1px solid var(--ct-border-ghost);
-  }
-}
-
-/* 3 columns */
-@container dash-board (min-width: 26rem) and (max-width: 41.99rem) {
-  .dashboard-kpi-strip__cell:not(:nth-child(3n)) {
-    border-right: 1px solid var(--ct-border-ghost);
-  }
-}
-
-/* 5 columns — one row for all vault KPIs.
-   Séparateurs HAIRLINE (ghost) : la bande lit comme une telemetry strip continue,
-   pas comme 5 cartes vides accolées. */
-@container dash-board (min-width: 42rem) {
-  .dashboard-kpi-strip__cell {
-    border-bottom: none;
-  }
-  .dashboard-kpi-strip__cell:not(:last-child) {
-    border-right: 1px solid var(--ct-border-ghost);
-  }
-}
+/* Séparateurs KPI strip : gérés par gap:1px + fond ghost posés sur
+   .dashboard-kpi-strip (bloc de base) + fond opaque par cellule. Avec la grille
+   auto-fit le nombre de colonnes est inconnu en CSS, donc impossible de cibler
+   la dernière de chaque ligne avec :nth-child — la technique du gap coloré
+   produit les hairlines automatiquement, en uni-colonne comme en multi. */
 
 @container dash-board (min-width: 30rem) {
   .dashboard-command-row-c {
