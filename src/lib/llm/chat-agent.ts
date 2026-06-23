@@ -1,9 +1,6 @@
 import "server-only";
 
 import { chatOutputViolation, guardChatStream } from "@/lib/llm/output-guard";
-import {
-  type NavProfile,
-} from "@/lib/llm/navigate-tool";
 import { projectAdminReadResultForExternal } from "@/lib/llm/tools/redaction";
 import { getAllowedAdminReadTools, executeAdminReadTool } from "@/lib/llm/tools/registry";
 import { ADMIN_WRITE_TOOL_IDS } from "@/lib/llm/tools/types";
@@ -82,12 +79,6 @@ export interface ChatTurnFinal {
   errorType: string | null;
   /** Token usage when the provider reported it; null when unavailable. */
   usage: ChatTurnUsage | null;
-  /** Always null — navigation is now deterministic (regex router) and never
-   *  proposed by the model. Kept for backwards compatibility with callers that
-   *  read this field (persistNavTrace, tests). */
-  navProposedKey: null;
-  /** Always false — no model-proposed navigation means nothing to block. */
-  navBlocked: false;
 }
 
 export interface ChatAgentMessage {
@@ -380,19 +371,11 @@ export function runChatAgent(
   options?: {
     signal?: AbortSignal;
     timeoutMs?: number;
-    navProfile?: NavProfile;
     chatMode?: "normal" | "admin";
     userId?: string;
-    /** Accepted but IGNORED: navigation is now always deterministic (regex).
-     *  Kept in the API so callers do not need updating. */
-    exposeNavigate?: boolean;
   },
 ): ChatAgentResult {
   const enc = new TextEncoder();
-  const navProfile = options?.navProfile ?? "lp";
-  // Suppress unused-variable warnings: navProfile is kept so the parameter
-  // is still accepted (backwards compat) even though the navigate tool is gone.
-  void navProfile;
 
   // Combine the optional caller signal with an internal timeout so the model
   // turn can never hang unboundedly (B1). Whichever fires first aborts the turn.
@@ -422,8 +405,6 @@ export function runChatAgent(
       status: timeoutSignal.aborted ? "timeout" : "failed",
       errorType,
       usage: null,
-      navProposedKey: null,
-      navBlocked: false,
     });
   };
 
@@ -580,8 +561,6 @@ export function runChatAgent(
           status: "success",
           errorType: null,
           usage: effectiveUsage,
-          navProposedKey: null,
-          navBlocked: false,
         });
         return;
       } catch (err) {
@@ -615,8 +594,6 @@ export function runChatAgent(
         status: "failed",
         errorType: "client_cancelled",
         usage: null,
-        navProposedKey: null,
-        navBlocked: false,
       });
     },
   });

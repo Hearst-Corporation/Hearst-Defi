@@ -62,7 +62,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Le chat ouvre la bonne route produit sans sortir de la whitelist autorisee.",
     initialStatus: "green",
     initialNote:
-      "navigate tool OU fallback keyword LP (resolveLpNavDestinationKey) quand le modèle répond en texte seul. Couvert par chat-agent + navigate-tool + route tests.",
+      "navigation 100% déterministe via regex (resolveNavFallbackDestinationKey) — avant le LLM, aucun navigate tool exposé au modèle. Couvert par nav-fallback-intent + route tests.",
   },
   {
     id: "review-distill-chat",

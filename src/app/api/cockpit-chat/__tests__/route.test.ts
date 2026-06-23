@@ -159,8 +159,6 @@ function mockMasterAgentTurn(
       status: "success",
       errorType: null,
       usage: null,
-      navProposedKey: null,
-      navBlocked: false,
       ...finalOverride,
     }),
   });
@@ -180,8 +178,6 @@ function mockMasterAgentTurnWithoutNav(finalOverride?: Partial<ChatTurnFinal>) {
       status: "success",
       errorType: null,
       usage: null,
-      navProposedKey: null,
-      navBlocked: false,
       ...finalOverride,
     }),
   });
@@ -202,6 +198,7 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
     mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
@@ -332,6 +329,7 @@ describe("POST /api/cockpit-chat — LP nav fallback", () => {
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
     mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
@@ -361,6 +359,7 @@ describe("POST /api/cockpit-chat — admin nav regex shortcut", () => {
     });
     mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
     mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
     mockPublishNav.mockResolvedValue(undefined);
   });
 
@@ -400,7 +399,6 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       userId: USER_ID,
     } as never);
     mockMasterAgentTurn("portfolio", {
-      navProposedKey: null,
       usage: { prompt_tokens: 1000, completion_tokens: 500, total_tokens: 1500 },
     });
 
@@ -439,7 +437,6 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       status: "failed",
       errorType: "llm_create",
       usage: null,
-      navProposedKey: null,
     });
 
     const res = await POST(makeChatRequest("déclenche une erreur"));
@@ -464,7 +461,6 @@ describe("POST /api/cockpit-chat — LlmRun observability (OBS-01 / OBS-03)", ()
       blocked: true,
       status: "success",
       errorType: null,
-      navProposedKey: null,
       usage: { prompt_tokens: 800, completion_tokens: 0, total_tokens: 800 },
     });
 
@@ -499,13 +495,12 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
     mockPublishNav.mockResolvedValue(undefined);
   });
 
-  // Navigation is now deterministic (regex); the model never proposes a
-  // destination. navProposedKey is always null on ChatTurnFinal, so
-  // persistNavTrace never fires — no NavTrace row is ever written from the LLM
-  // path (trace rows could in future be written for the regex shortcut path, but
-  // that is out of scope for the deterministic migration).
+  // Navigation is deterministic (regex shortcut). NavTrace rows are written by
+  // the shortcut block, not the LLM path — a normal chat turn (no nav intent)
+  // never touches navTrace.create, and a nav-shortcut turn writes exactly one
+  // deterministic row with status:"published" / reason:"deterministic_router".
 
-  it("writes no nav trace because navigation is deterministic (model never proposes a key)", async () => {
+  it("writes no nav trace on a plain LLM answer (no nav intent, shortcut not triggered)", async () => {
     mockMasterAgentTurnWithoutNav();
 
     const res = await POST(makeChatRequest("quelle est la structure Cayman ?"));
@@ -516,7 +511,7 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
     expect(mockNavTraceCreate).not.toHaveBeenCalled();
   });
 
-  it("writes no nav trace even on a compliance-blocked answer (navProposedKey always null)", async () => {
+  it("writes no nav trace on a compliance-blocked LLM answer (shortcut not triggered)", async () => {
     mockMasterAgentTurnWithoutNav({
       text: "",
       blocked: true,
@@ -529,5 +524,25 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
 
     await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
     expect(mockNavTraceCreate).not.toHaveBeenCalled();
+  });
+
+  it("writes a deterministic NavTrace row when the regex shortcut fires", async () => {
+    // "ouvre mon portefeuille" matches the LP nav shortcut (portfolio).
+    // The shortcut fires before the LLM, so runChatAgent is NOT called.
+    // The NavTrace row must carry status:"published" + reason:"deterministic_router".
+    const res = await POST(makeChatRequest("ouvre mon portefeuille"));
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockNavTraceCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          destinationKey: "portfolio",
+          status: "published",
+          reason: "deterministic_router",
+        }),
+      });
+    });
+    // The LLM never ran — the shortcut returned early.
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
   });
 });

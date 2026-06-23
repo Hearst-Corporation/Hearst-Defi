@@ -375,7 +375,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   ...ADMIN_NAV_DESTINATIONS,
 ] as const;
 
-/** Maps a model-supplied key back to its destination, or null when unknown. */
+/** Maps a router-supplied key back to its destination, or null when unknown. */
 export function resolveNavDestination(
   key: string | null | undefined,
 ): NavDestination | null {

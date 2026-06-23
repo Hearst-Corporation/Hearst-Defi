@@ -39,8 +39,9 @@ export interface ClassifyClient {
  * which one — mirroring `classifyProductIntentLlm`.
  *
  * Scope (V1): OUTREACH only. Product/vault creation is already handled by the
- * deterministic regex classifier classifyProductWorkspaceIntent (→ product workspace);
- * routing that to the canvas instead is a separate product decision, so this stays
+ * deterministic regex classifier classifyProductWorkspaceIntent (→ product workspace)
+ * and navigation by resolveNavFallbackDestinationKey (→ regex router, no LLM);
+ * routing those to the canvas instead is a separate product decision, so this stays
  * narrow on purpose.
  *
  * FAIL-SAFE: any error / malformed output → null (no canvas). A hiccup must never

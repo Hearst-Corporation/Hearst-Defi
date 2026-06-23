@@ -10,8 +10,8 @@ import { extractTurnIdFromTraceId } from "@/lib/trace-ids";
  *
  * Three honest, live views (tabs in the UI):
  *  - "orchestration": data sources → batch agents → outputs (the original graph).
- *  - "master-agent":  the cockpit chat pipeline (intent → context → core → guard
- *                     → navigate / tools), i.e. the right-side "Jean LLM".
+ *  - "master-agent":  the cockpit chat pipeline (intent → deterministic regex →
+ *                     context → core → guard → tools), i.e. the right-side "Jean LLM".
  *  - "instruments":   every bounded read/write tool the Master Agent can call.
  *
  * Each NODE declares a live BINDING (or none → "static" wiring):

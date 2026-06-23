@@ -1089,7 +1089,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     run: async () => ({
       title: "CAPACITES OUTILLEES (RUNTIME APP)",
       lines: [
-        `- navigation_outillee: ${FEATURE_FLAGS.CHAT_MASTER_AGENT ? "yes" : "no"} (navigate whitelist seulement)`,
+        `- navigation_deterministe: ${FEATURE_FLAGS.CHAT_MASTER_AGENT ? "yes" : "no"} (regex router avant LLM, aucun navigate tool)`,
         "- internet_live_outille: yes (coingecko btc price live)",
         "- deploy_execute_outille: no",
         "- db_write_outille: no",

@@ -419,42 +419,6 @@ async function persistChatLlmRun(args: {
 }
 
 /**
- * Persist a navigation trace for one Master Agent turn (OBS-02), off the
- * response path. One row only when the model actually proposed a whitelisted
- * destination. `published` = a compliant nav directive was emitted (the server
- * cannot observe the client-side router.push, which is best-effort); `blocked`
- * = the destination was dropped because the answer was not compliant. No
- * message content is stored — only the decision and its disposition.
- */
-async function persistNavTrace(args: {
-  result: ChatTurnFinal;
-  userId: string;
-  chatId: string | null;
-  profile: "lp" | "admin";
-  mode: ChatMode;
-  turnId: string;
-}): Promise<void> {
-  const { result, userId, chatId, profile, mode, turnId } = args;
-  if (!result.navProposedKey) return;
-  await prisma.navTrace
-    .create({
-      data: {
-        id: buildNavTraceId(turnId),
-        userId,
-        chatId,
-        profile,
-        mode,
-        destinationKey: result.navProposedKey,
-        status: result.navBlocked ? "blocked" : "published",
-        reason: result.navBlocked ? "non_compliant_answer" : null,
-      },
-    })
-    .catch(() => {
-      /* tracing must never break the response */
-    });
-}
-
-/**
  * Short, fixed chat-bubble acknowledgement emitted (instead of the model's
  * prose) when an ADMIN turn carries a product creation/framing intent. The
  * full framing brief the model authors is routed to the Product Workspace
@@ -688,6 +652,22 @@ async function runMasterAgentTurn(args: {
     await publishNav(userId, { destinationKey: navShortcutKey }).catch(() => {
       /* best-effort nav publish */
     });
+    prisma.navTrace
+      .create({
+        data: {
+          id: buildNavTraceId(turnId),
+          userId,
+          chatId,
+          profile: navShortcutProfile,
+          mode: chatMode,
+          destinationKey: navShortcutKey,
+          status: "published",
+          reason: "deterministic_router",
+        },
+      })
+      .catch(() => {
+        /* tracing must never break the response */
+      });
     persistAssistantAckMessage({
       persistence,
       chatId,
@@ -827,7 +807,6 @@ async function runMasterAgentTurn(args: {
     messages,
     {
       signal: req.signal,
-      navProfile,
       chatMode: chatMode === "admin" ? "admin" : "normal",
       userId,
     },
@@ -885,14 +864,6 @@ async function runMasterAgentTurn(args: {
         startedAt,
         userId,
         systemPromptHash: sha256Hex(systemPrompt),
-        turnId,
-      });
-      await persistNavTrace({
-        result,
-        userId,
-        chatId: persistChatId,
-        profile: navProfile,
-        mode: chatMode,
         turnId,
       });
     })

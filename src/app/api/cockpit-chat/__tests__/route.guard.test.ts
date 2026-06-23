@@ -96,11 +96,6 @@ vi.mock("@/lib/llm/nav-channel", () => ({
 vi.mock("@/lib/llm/nav-fallback-intent", () => ({
   resolveNavFallbackDestinationKey: vi.fn().mockReturnValue(null),
   NAV_SHORTCUT_ACK: "Je vous y emmène.",
-  // The route now calls looksLikeNavIntent() in the EARLY fast-path; these test
-  // messages are real questions (not bare nav gestures), so it must return false
-  // and let the message flow through to the real LLM engine under test.
-  looksLikeNavIntent: vi.fn().mockReturnValue(false),
-  NAV_REJECT_ACK: "Je n'ai pas trouvé la page correspondante.",
 }));
 
 // Product-chart stream events are an orthogonal concern — pass the guarded
