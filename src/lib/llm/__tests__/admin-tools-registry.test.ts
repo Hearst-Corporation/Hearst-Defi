@@ -43,7 +43,23 @@ vi.mock("@/lib/db", () => ({
     adminToolRun: { create: vi.fn() },
     miningMetric: { findMany: vi.fn(), findFirst: vi.fn() },
     vaultSnapshot: { findMany: vi.fn(), findFirst: vi.fn() },
+    outreachICP: { findFirst: vi.fn() },
   },
+}));
+
+// Outreach write tools delegate to these real-effect modules. Mock them so the
+// dispatch tests exercise the confirmation + execution flow WITHOUT sourcing,
+// drafting, or sending anything for real (no Apollo, no Resend, no DB writes).
+const mockRunSourcing = vi.fn();
+const mockDraftEmailForProspect = vi.fn();
+const mockOutreachAutoSendHandler = vi.fn();
+
+vi.mock("@/app/admin/outreach/actions", () => ({
+  runSourcing: (...args: unknown[]) => mockRunSourcing(...args),
+  draftEmailForProspect: (...args: unknown[]) => mockDraftEmailForProspect(...args),
+}));
+vi.mock("@/lib/inngest/functions/outreach-auto-send", () => ({
+  outreachAutoSendHandler: (...args: unknown[]) => mockOutreachAutoSendHandler(...args),
 }));
 
 const mockAdminWriteConfirmationCreate = prisma.adminWriteToolConfirmation
@@ -1306,5 +1322,136 @@ describe("admin write tools policy and confirmation", () => {
       }),
     );
     expect(failedTelemetry?.latencyMs).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Outreach write tools — the real-effect actions (source / draft / send run).
+// These verify the END-TO-END dispatch through executeAdminWriteTool:
+// confirmation is mandatory, the delegated effect module is only reached AFTER
+// a valid confirm, and a SUGGEST send run sends nothing. Effect modules are
+// mocked (no Apollo, no Resend, no DB write).
+// ---------------------------------------------------------------------------
+
+describe("outreach write tools — confirmed dispatch (no real effect)", () => {
+  const context = { chatMode: "admin" as const, profile: "admin" as const };
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    tokenStore.clear();
+    setupConfirmationMocks();
+    await clearWriteConfirmationsForTests();
+    mockAdminToolRunCreate.mockResolvedValue({ id: "run_1" } as never);
+  });
+
+  function tool(id: string): AdminWriteToolDefinition {
+    const found = ADMIN_WRITE_TOOLS.find((t) => t.id === id);
+    if (!found) throw new Error(`missing tool ${id}`);
+    return found;
+  }
+
+  it("outreach_trigger_send_run: SUGGEST run executes but sends NOTHING", async () => {
+    // The handler is the SAME governed job the cron runs; at SUGGEST it returns
+    // a zero-send result. We assert the tool surfaces that and never bypasses it.
+    mockOutreachAutoSendHandler.mockResolvedValue({
+      autonomy: "SUGGEST",
+      budget: 0,
+      sent: 0,
+      suppressed: 0,
+      failed: 0,
+      skippedIneligible: 0,
+    });
+
+    const send = tool("outreach_trigger_send_run");
+
+    // No token → confirmation required, handler NOT called yet.
+    const first = await executeAdminWriteTool(
+      send,
+      context,
+      { input: {} },
+      { userId: "admin_test", nowMs: 1_000, ttlMs: 60_000 },
+    );
+    expect(first.status).toBe("confirmation_required");
+    if (first.status !== "confirmation_required") return;
+    expect(mockOutreachAutoSendHandler).not.toHaveBeenCalled();
+
+    // Confirm → executes the governed handler exactly once.
+    const second = await executeAdminWriteTool(
+      send,
+      context,
+      { input: {}, confirmedToken: first.confirmation.token },
+      { userId: "admin_test", nowMs: 2_000 },
+    );
+    expect(second.status).toBe("executed");
+    if (second.status !== "executed") return;
+    expect(mockOutreachAutoSendHandler).toHaveBeenCalledTimes(1);
+    // The surfaced run reflects the SUGGEST posture: zero sends.
+    expect(second.result.lines.join("\n")).toMatch(/autonomy: SUGGEST/);
+    expect(second.result.lines.join("\n")).toMatch(/sent: 0/);
+    expect(second.result.lines.join("\n")).toMatch(/nothing auto-sends/i);
+  });
+
+  it("outreach_draft_email: confirmed run drafts only — never triggers a send", async () => {
+    mockDraftEmailForProspect.mockResolvedValue({
+      emailId: "email_1",
+      toEmail: "lead@example.com",
+      subject: "Intro",
+    });
+
+    const draft = tool("outreach_draft_email");
+    const input = { prospectId: "prospect_1" };
+
+    const first = await executeAdminWriteTool(
+      draft,
+      context,
+      { input },
+      { userId: "admin_test", nowMs: 1_000, ttlMs: 60_000 },
+    );
+    expect(first.status).toBe("confirmation_required");
+    if (first.status !== "confirmation_required") return;
+    expect(mockDraftEmailForProspect).not.toHaveBeenCalled();
+
+    const second = await executeAdminWriteTool(
+      draft,
+      context,
+      { input, confirmedToken: first.confirmation.token },
+      { userId: "admin_test", nowMs: 2_000 },
+    );
+    expect(second.status).toBe("executed");
+    if (second.status !== "executed") return;
+    expect(mockDraftEmailForProspect).toHaveBeenCalledWith("prospect_1");
+    // The send handler is NEVER reached from the draft tool.
+    expect(mockOutreachAutoSendHandler).not.toHaveBeenCalled();
+    expect(second.result.lines.join("\n")).toMatch(/NOT sent/i);
+  });
+
+  it("outreach_source_leads: invalid input is rejected BEFORE a token is minted", async () => {
+    const source = tool("outreach_source_leads");
+    // validateWriteToolInput runs the Zod schema before minting a token, so an
+    // invalid count throws (ZodError) at the validation step — no token, no run.
+    await expect(
+      executeAdminWriteTool(
+        source,
+        context,
+        { input: { count: -5 } }, // violates positive-int schema
+        { userId: "admin_test", nowMs: 1_000 },
+      ),
+    ).rejects.toThrow();
+    // No confirmation row created, no sourcing performed.
+    expect(tokenStore.size).toBe(0);
+    expect(mockRunSourcing).not.toHaveBeenCalled();
+  });
+
+  it("outreach write tools are denied (and never execute) outside admin/admin", async () => {
+    const send = tool("outreach_trigger_send_run");
+    await expect(
+      executeAdminWriteTool(
+        send,
+        { chatMode: "admin", profile: "lp" },
+        { input: {} },
+        { userId: "lp_user", nowMs: 1_000 },
+      ),
+    ).rejects.toThrow("admin_write_tool_not_allowed");
+    expect(mockOutreachAutoSendHandler).not.toHaveBeenCalled();
   });
 });
