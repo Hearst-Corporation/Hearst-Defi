@@ -3,7 +3,7 @@ import "./portfolio.css";
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { ValueChart } from "@/components/portfolio/value-chart";
-import { PositionsList } from "@/components/portfolio/positions-list";
+import { PositionBadges } from "@/components/portfolio/position-badges";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
@@ -88,30 +88,15 @@ export default async function PortfolioPage() {
           </div>
         </section>
 
-        <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Portfolio positions">
-          <div className="pf-cockpit-cell pf-fused-surface pf-fused-surface--mid">
-            <div className="pf-fused-surface__pane" data-section="positions">
-              <PositionsList
-                positions={positions}
-                source={source}
-                updatedAt={updatedAt}
-                leafHref="/portfolio/positions"
-                embedded
-              />
-            </div>
-            <div
-              className="pf-fused-surface__pane pf-fused-surface__pane--aside"
-              data-section="yield-allocation"
-              data-testid="capital-yield-widget"
-            >
-              <CapitalYield
-                {...yieldStackProps}
-                buckets={allocationDonutProps.buckets}
-                totalValueUsdc={data.totalValueUsdc}
-                leafHref="/portfolio/yield"
-                embedded
-              />
-            </div>
+        <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Capital and yield">
+          <div className="pf-cockpit-cell" data-section="yield-allocation" data-testid="capital-yield-widget">
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              leafHref="/portfolio/yield"
+              embedded={false}
+            />
           </div>
         </section>
 
@@ -152,6 +137,16 @@ export default async function PortfolioPage() {
             >
               <TrustProofCompact embedded risk={riskPulseProps} proof={proofPulseProps} />
             </div>
+          </div>
+        </section>
+
+        <section className="pf-cockpit-row pf-cockpit-row--positions" aria-label="Your positions">
+          <div className="pf-cockpit-cell" data-section="positions">
+            <PositionBadges
+              positions={positions}
+              leafHref="/portfolio/positions"
+              embedded={false}
+            />
           </div>
         </section>
       </div>

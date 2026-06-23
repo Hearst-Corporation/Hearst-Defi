@@ -2248,3 +2248,115 @@
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
 .cy-fill--skeleton::after { display: none; }
+
+/* =============================================================================
+   16. POSITION BADGES — Elegant pill navigation for positions
+   ============================================================================= */
+
+.pf-badges-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-2) 0;
+}
+
+.pf-position-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-2) var(--ct-space-4);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-full);
+  text-decoration: none;
+  transition: all var(--ct-dur-fast) var(--ct-ease);
+  overflow: hidden;
+}
+
+.pf-position-badge:hover {
+  border-color: var(--ct-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-accent) 15%, transparent);
+}
+
+.pf-position-badge--active {
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-graphite-subtle-bg));
+  border-color: color-mix(in srgb, var(--ct-accent) 50%, var(--ct-graphite-border-nested));
+}
+
+.pf-position-badge--cta {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--ct-accent);
+}
+
+.pf-position-badge--cta:hover {
+  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
+}
+
+.pf-position-badge--more {
+  background: transparent;
+  border-color: var(--ct-border-soft);
+}
+
+.pf-position-badge__glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--ct-dur-base) var(--ct-ease);
+  filter: blur(12px);
+  z-index: 0;
+}
+
+.pf-position-badge:hover .pf-position-badge__glow {
+  opacity: 0.15;
+}
+
+.pf-position-badge__glow--pulse {
+  background: var(--ct-accent);
+  animation: pf-badge-pulse 2s var(--ct-ease-in-out) infinite;
+}
+
+@keyframes pf-badge-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.pf-position-badge__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.pf-position-badge__name {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-strong);
+  white-space: nowrap;
+}
+
+.pf-position-badge__value {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-position-badge__dot {
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
+.pf-position-badge__icon {
+  color: var(--ct-accent);
+}
+
+/* Row for positions — full width at bottom */
+.pf-cockpit-row--positions {
+  grid-template-columns: 1fr;
+}
