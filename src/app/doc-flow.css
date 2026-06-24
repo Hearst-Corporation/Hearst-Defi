@@ -1528,6 +1528,7 @@
 }
 
 /* Desktop: switch to 2-col grid — primary takes ~60%, secondary ~40% */
+@container product-doc (min-width: 48rem) {
   .product-doc .invest-flow-detail__grid {
     display: grid;
     grid-template-columns: 1fr; /* Default to single column for product sheet feel */
