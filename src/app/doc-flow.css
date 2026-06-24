@@ -465,29 +465,53 @@
   flex: 1;
 }
 
-/* Shared admin page title */
+/* Shared admin page title — mirror of product-page-header */
 .admin-doc .admin-page-header {
   display: flex;
   flex-direction: column;
+}
+
+.admin-doc .admin-page-header--center {
+  align-items: center;
 }
 
 .admin-doc .admin-page-header__row {
   display: flex;
   width: 100%;
   min-width: 0;
-  min-height: 2.25rem;
   flex-wrap: wrap;
   gap: var(--ct-space-4);
   align-items: flex-start;
   justify-content: space-between;
 }
 
+.admin-doc .admin-page-header__row--center {
+  flex-direction: column;
+  align-items: center;
+}
+
 .admin-doc .admin-page-header__main {
   display: flex;
   min-width: 0;
   flex: 1;
+  align-items: center;
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-page-header__main--center {
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-doc .admin-page-header__title-stack {
+  display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-page-header__title-stack--center {
+  align-items: center;
 }
 
 .admin-doc .admin-page-header__actions {
@@ -498,13 +522,26 @@
   gap: var(--ct-space-2);
 }
 
-/* Pin action cluster to the H1 row when an eyebrow sits above the title */
-.admin-doc .admin-page-header__main:has(> .eyebrow) ~ .admin-page-header__actions {
-  margin-top: var(--ct-page-header-actions-offset-eyebrow);
+/* Pin action cluster to the H1 row */
+.admin-doc .admin-page-header__main:has(> .shrink-0) ~ .admin-page-header__actions {
+  align-self: center;
+  margin-top: 0;
 }
 
-.admin-doc .admin-page-header__main:not(:has(> .eyebrow)) ~ .admin-page-header__actions {
-  margin-top: 0;
+.admin-doc
+  .admin-page-header__main:not(:has(> .shrink-0)):has(
+    .admin-page-header__title-stack > :first-child:not(.eyebrow)
+  )
+  ~ .admin-page-header__actions {
+  margin-top: var(--ct-page-header-actions-offset-lead);
+}
+
+.admin-doc
+  .admin-page-header__main:not(:has(> .shrink-0)):has(.eyebrow):not(
+    :has(.admin-page-header__title-stack > :first-child:not(.eyebrow))
+  )
+  ~ .admin-page-header__actions {
+  margin-top: var(--ct-page-header-actions-offset-eyebrow);
 }
 
 .admin-doc .admin-page-header__actions--stack {
@@ -529,10 +566,7 @@
   .admin-doc .admin-page-header__actions {
     width: 100%;
     justify-content: flex-start;
-  }
-
-  .admin-doc .admin-page-header__actions--stack {
-    align-items: stretch;
+    margin-top: 0;
   }
 }
 
@@ -789,7 +823,7 @@
   gap: var(--ct-space-2);
 }
 
-:is(.admin-doc, .product-doc) .product-page-header__title-stack {
+:is(.admin-doc, .product-doc) :is(.admin-page-header__title-stack, .product-page-header__title-stack) {
   gap: var(--ct-space-3);
 }
 

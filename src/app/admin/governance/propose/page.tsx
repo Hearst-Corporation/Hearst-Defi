@@ -54,7 +54,8 @@ export default async function ProposePage() {
   return (
     <>
       <AdminPageHeader
-        title="New proposal"
+        titleLead="New"
+        titleAccent="Proposal"
         lead={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/governance">← Governance</Link>

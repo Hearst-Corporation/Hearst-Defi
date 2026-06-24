@@ -102,7 +102,8 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
   return (
     <>
       <AdminPageHeader
-        title="New Vault Deployment"
+        titleLead="New"
+        titleAccent="Vault Deployment"
       />
 
       {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (

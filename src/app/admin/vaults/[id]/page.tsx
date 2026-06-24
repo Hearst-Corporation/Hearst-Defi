@@ -170,7 +170,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
   return (
     <>
       <AdminPageHeader
-        title={vault.name}
+        titleLead="Vault"
+        titleAccent={vault.ticker}
+        contextLabel={vault.name}
         actions={
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {vault.status === "draft" && (

@@ -19,10 +19,6 @@
     "src/app/(product)/charts-shared.css",
     "src/app/(product)/portfolio/portfolio.css"
   ],
-  "donut-lbl": [
-    "src/app/(product)/charts-shared.css",
-    "src/app/(product)/portfolio/portfolio.css"
-  ],
   "pf-cockpit-panel": [
     "src/app/(product)/portfolio/portfolio.css",
     "src/app/cockpit.css"
@@ -218,6 +214,10 @@
   "ct-text-muted": [
     "src/app/cockpit.css",
     "src/app/doc-flow-typography.css"
+  ],
+  "admin-doc": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow.css"
   ],
   "product-doc": [
     "src/app/cockpit.css",

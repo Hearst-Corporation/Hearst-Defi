@@ -1,21 +1,10 @@
-import { Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
-import { AdminSubNav } from "@/components/nav/admin-sub-nav";
 import { cn } from "@/lib/cn";
 
 /**
- * Uniform admin page title — PORTFOLIO canon skeleton. Le HEADER COMPLET =
- *   H1 bicolore (`titleLead` blanc + `titleAccent` vert)
- *   → kicker « — CONTEXTE » (`contextLabel`)
- *   → section-nav (sous-niveau du titre, ENTRE le kicker et le trait)
- *   → trait accent (`.page-canon-rule`) qui CLÔT le bloc header.
- * Puis, hors header :
- *   → toolbar canon : `filters` à GAUCHE · `actions` (création) à DROITE
- *   → contenu (`children`).
- *
- * Le titre est TOUJOURS le premier repère ; la section-nav lui est subordonnée.
- *
- * API canon: `titleLead` + `titleAccent` + `contextLabel` (+ `filters`/`actions`).
+ * Uniform admin page title — mirror of ProductPageHeader.
+ * API canon: `titleLead` + `titleAccent` + `contextLabel`.
  * API legacy: `title` (+ `accent`, `eyebrow`, `description`).
  */
 export function AdminPageHeader({
@@ -27,74 +16,104 @@ export function AdminPageHeader({
   eyebrow,
   description,
   lead,
+  media,
   actions,
   filters,
-  subNav = true,
+  beforeRule,
   children,
   className,
+  align = "start",
 }: {
-  /** Legacy single-string title (pages non migrées). */
   title?: string;
-  /** Canon: portion blanche du titre. */
   titleLead?: string;
-  /** Canon: portion accent vert du titre (bicolore). */
   titleAccent?: string;
-  /** Legacy trailing accent segment appended to `title`. */
   accent?: ReactNode;
-  /** Canon: kicker court uppercase (« — OPERATOR CONSOLE »). */
   contextLabel?: string;
   eyebrow?: string;
   description?: ReactNode;
   lead?: ReactNode;
-  /** Commandes primaires de création — alignées à DROITE de la toolbar. */
+  media?: ReactNode;
   actions?: ReactNode;
-  /** Segmentation / list-state (tabs, statuts) — alignés à GAUCHE de la toolbar. */
   filters?: ReactNode;
-  /** Render the section-nav between the kicker and the rule. Default true. */
-  subNav?: boolean;
+  beforeRule?: ReactNode;
   children?: ReactNode;
   className?: string;
+  align?: "start" | "center";
 }) {
+  const centered = align === "center";
+
   return (
-    <header className={cn("admin-page-header", className)}>
-      <div className="admin-page-header__row">
-        <div className="admin-page-header__main">
-          {lead ? <div className="self-start max-w-full">{lead}</div> : null}
-          {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-          <h1 className="h1 shrink-0">
-            {titleLead != null || titleAccent != null ? (
-              <>
-                {titleLead}
-                {titleAccent ? (
-                  <>
-                    {titleLead ? " " : null}
-                    <span className="h1-accent">{titleAccent}</span>
-                  </>
-                ) : null}
-              </>
-            ) : (
-              <>
-                {title}
-                {accent ? <> <span className="h1-accent">{accent}</span></> : null}
-              </>
+    <header
+      className={cn(
+        "admin-page-header",
+        centered && "admin-page-header--center",
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          "admin-page-header__row",
+          centered && "admin-page-header__row--center",
+        )}
+      >
+        <div
+          className={cn(
+            "admin-page-header__main",
+            centered && "admin-page-header__main--center",
+          )}
+        >
+          {media ? <div className="shrink-0">{media}</div> : null}
+          <div
+            className={cn(
+              "admin-page-header__title-stack",
+              centered && "admin-page-header__title-stack--center",
             )}
-          </h1>
-          {contextLabel ? (
-            <p className="page-canon-kicker">{contextLabel}</p>
-          ) : null}
-          {description ? (
-            <div className="body-md ct-prose-md ct-text-muted">{description}</div>
-          ) : null}
+          >
+            {lead}
+            {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+            <h1 className="h1 shrink-0">
+              {titleLead != null || titleAccent != null ? (
+                <>
+                  {titleLead}
+                  {titleAccent ? (
+                    <>
+                      {titleLead ? " " : null}
+                      <span className="h1-accent">{titleAccent}</span>
+                    </>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {title}
+                  {accent ? <> <span className="h1-accent">{accent}</span></> : null}
+                </>
+              )}
+            </h1>
+            {contextLabel ? (
+              <p className="page-canon-kicker">{contextLabel}</p>
+            ) : null}
+            {description ? (
+              <div
+                className={cn(
+                  "body-md ct-prose-md ct-text-muted",
+                  centered && "mx-auto",
+                )}
+              >
+                {description}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
-      {subNav ? (
-        <Suspense fallback={null}>
-          <AdminSubNav />
-        </Suspense>
-      ) : null}
+      {beforeRule}
       <div className="page-canon-rule" aria-hidden="true" />
       {filters || actions ? (
-        <div className="page-canon-toolbar">
+        <div
+          className={cn(
+            "page-canon-toolbar",
+            centered && "page-canon-toolbar--center",
+          )}
+        >
           <div className="page-canon-toolbar__filters">{filters}</div>
           {actions ? (
             <div className="page-canon-toolbar__actions">{actions}</div>

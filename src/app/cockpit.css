@@ -1549,6 +1549,14 @@
   max-width: 42rem;
 }
 
+/* Admin surfaces — same graphite tier as product-doc (portfolio canon). */
+.admin-doc {
+  --ct-graphite-subtle-bg: var(--ct-surface-1);
+  --ct-graphite-nested-bg: var(--ct-surface-2);
+  --ct-graphite-border: var(--ct-figma-border-20);
+  --ct-graphite-border-nested: rgba(255, 255, 255, 0.14);
+}
+
 /* Admin cards — same padding tier as LP (.ct-card global rule). */
 .admin-doc .ct-card:not(.p-0) {
   transition:
@@ -4650,6 +4658,19 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-rail-right-body:has(.ct-chat-history) {
   mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+}
+
+/* Chat scroll fix (Fix 6): the chat view owns its OWN scroll on `.ct-chat-list`
+   (flex:1; overflow-y:auto). When the rail body ALSO scrolls (its default
+   overflow-y:auto), the two nest — the body grows and scrolls instead of the
+   list, which breaks the list's flex-end pinning + bottom-fade and makes older
+   messages hard/impossible to reach. While the chat view is mounted, lock the
+   body to a non-scrolling flex column so the inner `.ct-chat-list` is the single
+   scroll container and history scrolls cleanly. Settings/history views keep the
+   body-scroll behaviour above (they are plain scrollable content, no chat-root). */
+.ct-rail-right-body:has(.ct-chat-root) {
+  overflow: hidden;
+  min-height: 0;
 }
 
 .ct-rail-right-header                      { padding: var(--ct-space-5) var(--ct-space-4) var(--ct-space-2); }
