@@ -172,7 +172,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
               <div className="overflow-x-auto">
                 <table className="min-w-184 w-full table-fixed body-sm" aria-label="Address allowlist">
                   <thead>
-                    <tr className="border-b border-(--ct-border)">
+                    <tr className="border-b border-[var(--ct-border)]">
                       <th scope="col" className="w-[38%] stat-label ct-table-header text-left">Label / Address</th>
                       <th scope="col" className="hidden w-[18%] stat-label ct-table-header text-left md:table-cell">Category</th>
                       <th scope="col" className="hidden w-[14%] stat-label ct-table-header text-left lg:table-cell">Risk score</th>
@@ -180,7 +180,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                       <th scope="col" className="w-[40%] stat-label ct-table-header text-left md:w-[22%] lg:w-[8%]">Edit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-(--ct-border)">
+                  <tbody className="divide-y divide-[var(--ct-border)]">
                     {entries.map((entry) => (
                       <tr
                         key={entry.id}
@@ -220,8 +220,8 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                               className={cn(
                                 "ct-pill cursor-pointer body-xs font-semibold transition-colors ease-[var(--ct-ease)]",
                                 entry.active
-                                  ? "hover:border-(--ct-status-danger-border) hover:text-(--ct-status-danger)"
-                                  : "hover:border-(--ct-status-success-border) hover:text-(--ct-status-success)",
+                                  ? "hover:border-[var(--ct-status-danger-border)] hover:text-[var(--ct-status-danger)]"
+                                  : "hover:border-[var(--ct-status-success-border)] hover:text-[var(--ct-status-success)]",
                               )}
                             >
                               {entry.active ? "Active" : "Inactive"}
@@ -230,7 +230,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         </td>
                         <td className="ct-table-cell">
                           <details className="group">
-                            <summary className="cursor-pointer list-none body-xs ct-text-muted select-none hover:text-(--ct-text-primary)">
+                            <summary className="cursor-pointer list-none body-xs ct-text-muted select-none hover:text-[var(--ct-text-primary)]">
                               <span className="group-open:hidden">Edit ▾</span>
                               <span className="hidden group-open:inline">Close ▴</span>
                             </summary>

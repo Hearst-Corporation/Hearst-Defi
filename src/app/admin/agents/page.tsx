@@ -61,15 +61,15 @@ export default async function AgentsPage() {
           <h2 className="h2">Agent orchestration</h2>
           <div className="flex flex-wrap items-center gap-[var(--ct-space-3)] body-xs ct-text-muted">
             <span className="inline-flex items-center gap-[var(--ct-space-1_5)]">
-              <span className="h-2 w-2 rounded-full bg-(--ct-accent)" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-accent)]" aria-hidden />
               Active
             </span>
             <span className="inline-flex items-center gap-[var(--ct-space-1_5)]">
-              <span className="h-2 w-2 rounded-full bg-(--ct-text-faint)" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-text-faint)]" aria-hidden />
               Idle
             </span>
             <span className="inline-flex items-center gap-[var(--ct-space-1_5)]">
-              <span className="h-2 w-2 rounded-full bg-(--ct-status-danger)" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-status-danger)]" aria-hidden />
               Failed
             </span>
           </div>
@@ -113,14 +113,14 @@ export default async function AgentsPage() {
                     className="block h-full"
                   >
                     <Card
-                      className="h-full min-h-[13rem] cursor-pointer ct-transition-base group-hover:border-(--ct-border-accent)"
+                      className="h-full min-h-[13rem] cursor-pointer ct-transition-base group-hover:border-[var(--ct-border-accent)]"
                       contentClassName="flex h-full flex-col gap-[var(--ct-space-4)]"
                     >
                       {/* Header row: accent icon tile + scope badge */}
                       <div className="admin-doc-inline-row admin-doc-inline-row--start">
                         <span
                           aria-hidden
-                          className="flex size-12 shrink-0 items-center justify-center rounded-[var(--ct-radius-md)] border border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
+                          className="flex size-12 shrink-0 items-center justify-center rounded-[var(--ct-radius-md)] border border-[var(--ct-border-accent)] bg-[var(--ct-accent-soft)] ct-text-accent"
                         >
                           <Icon className="size-6" strokeWidth={2} />
                         </span>
