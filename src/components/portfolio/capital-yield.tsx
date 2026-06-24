@@ -186,12 +186,12 @@ export function CapitalYield({
           <div className="donut-center">
             {isFilled ? (
               <div className="flex flex-col items-center">
-                <span className="text-[9px] uppercase tracking-[0.15em] text-tertiary font-semibold mb-0.5">Total</span>
-                <span className="donut-val text-[20px] font-medium tracking-tight text-strong">{formatUsdCompact(totalValueUsdc)}</span>
+                <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-semibold mb-0.5">Total</span>
+                <span className="donut-val text-[var(--ct-text-hero-sym)] font-medium tracking-tight text-strong tabular">{formatUsdCompact(totalValueUsdc)}</span>
               </div>
             ) : (
               <div className="flex flex-col items-center">
-                <span className="text-[9px] uppercase tracking-[0.2em] text-tertiary font-medium opacity-50">Pending</span>
+                <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-50">Pending</span>
               </div>
             )}
           </div>
@@ -202,7 +202,7 @@ export function CapitalYield({
 
         {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
         <div className="cy-ledger px-2">
-          <p className="cy-ledger-head text-[10px] uppercase tracking-[0.15em] ct-text-tertiary font-medium mb-3 pb-2 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
+          <p className="cy-ledger-head text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] ct-text-tertiary font-medium mb-3 pb-2 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
             Yield source · 12m fwd
           </p>
 
@@ -223,7 +223,7 @@ export function CapitalYield({
                     >
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-[var(--cy-bucket)] shadow-[0_0_8px_var(--cy-bucket)]" aria-hidden />
-                        <span className="cy-label text-[12px] min-w-0 truncate ct-text-secondary group-hover:ct-text-primary transition-colors font-medium">
+                        <span className="cy-label text-[var(--ct-text-2xs)] min-w-0 truncate ct-text-secondary group-hover:ct-text-primary transition-colors font-medium">
                           {s.label}
                         </span>
                       </div>
@@ -238,7 +238,7 @@ export function CapitalYield({
                             style={{ width: `${w.toFixed(1)}%` }}
                           />
                         </div>
-                        <span className="cy-val tabular text-[13px] font-semibold ct-text-strong min-w-[3.5rem] text-right" aria-label={`${s.label} ${val}`}>
+                        <span className="cy-val tabular text-[var(--ct-text-xs)] font-semibold ct-text-strong min-w-[3.5rem] text-right" aria-label={`${s.label} ${val}`}>
                           {val}
                         </span>
                       </div>
@@ -248,32 +248,32 @@ export function CapitalYield({
               </div>
             : /* Premium empty state for the ledger. */
               <div className="flex flex-col gap-2 py-6 items-center justify-center text-center h-full">
-                <span className="text-[11px] uppercase tracking-[0.15em] text-secondary font-medium">No allocation yet</span>
-                <span className="text-[11px] text-tertiary max-w-[32ch] leading-relaxed opacity-60">
+                <span className="text-[var(--ct-text-micro)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium">No allocation yet</span>
+                <span className="text-[var(--ct-text-micro)] text-tertiary max-w-[32ch] leading-relaxed opacity-60">
                   Your capital allocation and projected yield will appear here once your position is confirmed on-chain.
                 </span>
               </div>
           }
           <hr className="cy-ledger-rule mt-5 mb-4 border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]" aria-hidden />
 
-          <dl className="pf-stack--dense group/footer bg-[color-mix(in_srgb,var(--ct-surface-1)_30%,transparent)] p-3 rounded-lg border border-[color-mix(in_srgb,var(--ct-border-soft)_15%,transparent)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--ct-surface-0)_20%,transparent)]">
+          <dl className="pf-stack--dense group/footer bg-[color-mix(in_srgb,var(--ct-surface-1)_30%,transparent)] p-3 rounded-lg border border-[color-mix(in_srgb,var(--ct-border-soft)_15%,transparent)] shadow-[var(--ct-shadow-inset)]">
             <div className="flex items-center justify-between cy-footer-row transition-all duration-200 cursor-default mb-1.5">
-              <dt className="text-[11px] uppercase tracking-[0.12em] min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
+              <dt className="text-[var(--ct-text-micro)] uppercase tracking-widest min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
                 Blended forward
               </dt>
               <dd
-                className={cn("tabular text-[14px] font-bold transition-colors duration-200", isFilled ? "ct-text-strong group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
+                className={cn("tabular text-[var(--ct-text-14)] font-bold transition-colors duration-200", isFilled ? "ct-text-strong group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
                 aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
               >
                 {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
               </dd>
             </div>
             <div className="flex items-center justify-between cy-footer-row transition-all duration-200 cursor-default">
-              <dt className="text-[11px] uppercase tracking-[0.12em] min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
+              <dt className="text-[var(--ct-text-micro)] uppercase tracking-widest min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
                 Stressed bear
               </dt>
               <dd
-                className={cn("tabular text-[12px] font-semibold transition-colors duration-200", isFilled ? "ct-text-secondary group-hover/footer:ct-text-accent opacity-80" : "ct-text-tertiary")}
+                className={cn("tabular text-[var(--ct-text-2xs)] font-semibold transition-colors duration-200", isFilled ? "ct-text-secondary group-hover/footer:ct-text-accent opacity-80" : "ct-text-tertiary")}
                 aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
               >
                 {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}

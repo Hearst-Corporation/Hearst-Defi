@@ -84,7 +84,7 @@ export function RecentActivity({
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>
                 <span className="pf-activity__main min-w-0">
-                  <span className="text-[13px] ct-text-primary font-medium tracking-tight truncate transition-colors group-hover/row:ct-text-accent">
+                  <span className="text-[var(--ct-text-xs)] ct-text-primary font-medium tracking-tight truncate transition-colors group-hover/row:ct-text-accent">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
                       <span className="ct-text-muted font-normal ml-1 text-xs">· {tx.positionVaultName}</span>
@@ -94,7 +94,7 @@ export function RecentActivity({
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className="pf-activity__amt tabular text-[13px] font-semibold transition-colors group-hover/row:ct-text-accent">
+                <span className="pf-activity__amt tabular text-[var(--ct-text-xs)] font-semibold transition-colors group-hover/row:ct-text-accent">
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
@@ -118,8 +118,8 @@ export function RecentActivity({
             ))}
           </div>
           <div className="z-10 flex flex-col items-center gap-1.5">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-secondary font-medium">No activity</span>
-            <span className="text-[11px] text-tertiary opacity-60">Transactions will appear here</span>
+            <span className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium">No activity</span>
+            <span className="text-[var(--ct-text-micro)] text-tertiary opacity-60">Transactions will appear here</span>
           </div>
         </div>
       )}

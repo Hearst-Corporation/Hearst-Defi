@@ -508,7 +508,6 @@
 .pf-container--fit .pf-value-chart__chart-wrapper {
   aspect-ratio: auto;
   min-height: 12rem;
-  max-height: 15rem;
 }
 
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
@@ -2752,15 +2751,16 @@
   min-height: 0;
 }
 
-/* Rows : partage proportionnel de la hauteur restante + plancher de sécurité.
-   (override le legacy `.pf-cockpit-row { flex: 0 0 auto }` par l'ordre.) */
-.pf-cockpit-row--chart     { flex: 1.4 1 auto; min-height: 24rem; }
-.pf-cockpit-row--yield     { flex: 1 1 auto; min-height: 12rem; }
-.pf-cockpit-row--deck      { flex: 1 1 auto; min-height: 15rem; }
-.pf-cockpit-row--positions { flex: 0.6 1 auto; min-height: 7rem; }
+/* Rows : hauteur NATURELLE (scroll relâché). Le min-height reste un plancher
+   de stabilité visuelle, mais plus de partage proportionnel qui plafonne le
+   contenu au viewport et clippe les empty-states (ex. "confirmed on-chain"). */
+.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 24rem; }
+.pf-cockpit-row--yield     { flex: 0 0 auto; min-height: 12rem; }
+.pf-cockpit-row--deck      { flex: 0 0 auto; min-height: 15rem; }
+.pf-cockpit-row--positions { flex: 0 0 auto; min-height: 7rem; }
 
-/* Les plates suivent la hauteur de leur row : on neutralise les min-height
-   fixes et les aspect-ratios qui empêcheraient le shrink ou ballonneraient. */
+/* Les plates prennent leur hauteur naturelle : on neutralise les aspect-ratios
+   et min-height fixes, sans forcer height:100% (qui écrasait/clippait). */
 .pf-cockpit-row .pf-hero-grid,
 .pf-cockpit-row .pf-fused-surface,
 .pf-cockpit-row .pf-fused-surface--deck,
@@ -2768,7 +2768,7 @@
 .pf-cockpit-row .pf-cockpit-panel,
 .pf-cockpit-row .pf-embedded-pane {
   min-height: 0;
-  height: 100%;
+  height: auto;
 }
 
 .pf-cockpit-row .pf-value-chart__chart-wrapper {

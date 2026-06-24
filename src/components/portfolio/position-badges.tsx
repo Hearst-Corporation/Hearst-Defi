@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ApyRange } from "@/components/ui/apy-range";
+import { Badge } from "@/components/ui/badge";
 import { type PortfolioPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
@@ -63,17 +64,17 @@ export function PositionCards({
                 )}
                 <span className="flex flex-col min-w-0 pl-2">
                   <span className="flex items-center gap-2.5 mb-1.5">
-                    <span className="text-[14px] font-semibold text-strong tracking-tight truncate group-hover:text-accent transition-colors">
+                    <span className="text-[var(--ct-text-14)] font-semibold text-strong tracking-tight truncate group-hover:text-accent transition-colors">
                       {p.vaultName ?? "Vault"}
                     </span>
-                    <span className={cn("text-[9px] uppercase tracking-[0.15em] font-bold px-1.5 py-0.5 rounded-sm border", p.status === "active" ? "text-accent bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]" : "text-tertiary bg-[color-mix(in_srgb,var(--ct-surface-2)_60%,transparent)] border-[color-mix(in_srgb,var(--ct-border-soft)_30%,transparent)]")}>
+                    <Badge variant={statusConfig.variant}>
                       {statusConfig.label}
-                    </span>
+                    </Badge>
                   </span>
                   <span className="flex items-center gap-4">
                     <span className="flex items-center gap-1.5">
-                      <span className="text-[10px] uppercase tracking-[0.1em] text-tertiary font-medium">Pos</span>
-                      <span className="text-[13px] font-bold text-secondary tabular tracking-tight">
+                      <span className="text-[var(--ct-text-deci)] uppercase tracking-wider text-tertiary font-medium">Pos</span>
+                      <span className="text-[var(--ct-text-xs)] font-bold text-secondary tabular tracking-tight">
                         {formatUsdCompact(p.valueUsdc)}
                       </span>
                     </span>
@@ -81,11 +82,11 @@ export function PositionCards({
                       <>
                         <span className="w-1 h-1 rounded-full bg-[color-mix(in_srgb,var(--ct-border-soft)_40%,transparent)]" aria-hidden />
                         <span className="flex items-center gap-1.5">
-                          <span className="text-[10px] uppercase tracking-[0.1em] text-tertiary font-medium">APY</span>
+                          <span className="text-[var(--ct-text-deci)] uppercase tracking-wider text-tertiary font-medium">APY</span>
                           <ApyRange
                             low={p.apyLow}
                             high={p.apyHigh}
-                            className="text-[13px] font-bold text-strong tracking-tight"
+                            className="text-[var(--ct-text-xs)] font-bold text-strong tracking-tight"
                           />
                         </span>
                       </>
@@ -94,7 +95,7 @@ export function PositionCards({
                 </span>
 
                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[color-mix(in_srgb,var(--ct-surface-2)_40%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] text-tertiary group-hover:text-strong group-hover:bg-[color-mix(in_srgb,var(--ct-surface-3)_60%,transparent)] transition-colors">
-                  <ChevronRight size={16} strokeWidth={2.5} />
+                  <ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" />
                 </span>
               </Link>
             );
@@ -105,18 +106,18 @@ export function PositionCards({
             className="group flex items-center justify-between py-3 transition-colors"
           >
             <span className="flex flex-col min-w-0">
-              <span className="text-[14px] font-semibold text-secondary tracking-tight group-hover:text-accent transition-colors">Explore Opportunities</span>
-              <span className="text-[12px] text-tertiary opacity-80">No active positions</span>
+              <span className="text-[var(--ct-text-14)] font-semibold text-secondary tracking-tight group-hover:text-accent transition-colors">Explore Opportunities</span>
+              <span className="text-[var(--ct-text-2xs)] text-tertiary opacity-80">No active positions</span>
             </span>
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] text-secondary group-hover:text-accent group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] transition-colors">
-              <Plus size={16} strokeWidth={2.5} />
+              <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
             </span>
           </Link>
         )}
 
         {hasPositions && leafHref && (
           <Link href={leafHref} className="group flex items-center justify-center gap-2 p-3 mt-1 rounded-lg bg-[color-mix(in_srgb,var(--ct-surface-1)_30%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-surface-2)_50%,transparent)] transition-colors">
-            <span className="text-[11px] uppercase tracking-[0.1em] font-semibold text-secondary group-hover:text-primary transition-colors">View all positions</span>
+            <span className="text-[var(--ct-text-micro)] uppercase tracking-wider font-semibold text-secondary group-hover:text-primary transition-colors">View all positions</span>
             <ChevronRight size={14} className="text-tertiary group-hover:text-primary transition-colors" />
           </Link>
         )}

@@ -368,7 +368,7 @@ function PositionActionsLive({ position }: PositionActionsProps) {
         </Button>
       </div>
       {error !== null && (
-        <div className="mt-4 p-3 rounded-md bg-red-500/10 border border-red-500/20">
+        <div className="mt-4 p-3 rounded-md bg-[var(--ct-status-danger-soft)] border border-[var(--ct-status-danger-border)]">
           <p role="alert" className="body-xs ct-status-danger">
             {error}
           </p>

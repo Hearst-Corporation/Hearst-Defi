@@ -115,11 +115,11 @@ const rows: ReadonlyArray<{
     >
       <header className="pf-cockpit-panel__header px-6 py-5 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
         <div className="flex flex-col gap-1.5">
-          <h2 className="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">Portfolio Status</h2>
+          <h2 className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] font-semibold text-secondary">Portfolio Status</h2>
           {provenance && (
             <div className="flex items-center gap-2 mt-1">
               <ProvenanceBadge kind={provenance} compact />
-              <span className="text-[9px] uppercase tracking-[0.15em] text-tertiary font-medium opacity-60">Verified Proof</span>
+              <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-60">Verified Proof</span>
             </div>
           )}
         </div>
@@ -134,16 +134,16 @@ const rows: ReadonlyArray<{
               <r.Icon size={14} strokeWidth={2} aria-hidden="true" />
             </span>
             <div className="flex flex-col min-w-0">
-              <dt className="text-[10px] uppercase tracking-[0.15em] text-secondary font-medium group-hover:text-primary transition-colors">
+              <dt className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium group-hover:text-primary transition-colors">
                 {r.label}
               </dt>
-              <span className="text-[11px] text-tertiary opacity-60 truncate group-hover:opacity-100 transition-opacity">
+              <span className="text-[var(--ct-text-micro)] text-tertiary opacity-60 truncate group-hover:opacity-100 transition-opacity">
                 {r.meta}
               </span>
             </div>
             <dd className="text-right">
               {r.value !== DASH ? (
-                <span className={cn("tabular text-[16px] font-semibold tracking-tight", r.valueAccent ? "text-accent" : "text-strong")}>
+                <span className={cn("tabular text-[var(--ct-text-base)] font-semibold tracking-tight", r.valueAccent ? "text-accent" : "text-strong")}>
                   {r.value}
                 </span>
               ) : (

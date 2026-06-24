@@ -151,8 +151,8 @@ function SkeletonBars() {
         })}
       </svg>
       <div className="z-10 flex flex-col items-center gap-1.5">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-secondary font-medium">No distributions yet</span>
-        <span className="text-[11px] text-tertiary opacity-60">Future payouts will appear here</span>
+        <span className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium">No distributions yet</span>
+        <span className="text-[var(--ct-text-micro)] text-tertiary opacity-60">Future payouts will appear here</span>
       </div>
     </div>
   );
@@ -365,7 +365,7 @@ function BarChart({
                 <span className="pf-vc-tooltip__date">
                   {formatPeriod(entry.period, refYear)}
                 </span>
-                <span className="text-[9px] text-accent font-bold uppercase tracking-widest">Yield</span>
+                <span className="text-[var(--ct-text-nano)] text-accent font-bold uppercase tracking-widest">Yield</span>
               </div>
             </div>
           </div>

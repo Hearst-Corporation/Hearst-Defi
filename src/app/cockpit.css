@@ -286,6 +286,11 @@
   --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
   --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
   --ct-text-base: 1rem;       /* 16px — fix */
+  /* portfolio scale fill — slots between existing steps + hero */
+  --ct-text-deci: 0.625rem;       /* 10px — between nano(9) and micro(11) */
+  --ct-text-14: 0.875rem;         /* 14px — between xs(13) and sm(15) */
+  --ct-text-hero-sym: 1.25rem;    /* 20px — hero value-chart symbol ($) */
+  --ct-text-hero-num: 3rem;       /* 48px — hero value-chart large number */
   /* Typography big scale — density calibration (headlines −1 step desktop max). */
   --ct-text-lg:      clamp(0.9375rem, 0.912rem + 0.141vw, 1.0625rem); /* 15 → 17 */
   --ct-text-xl:      clamp(1.0625rem, 1.024rem + 0.188vw, 1.1875rem); /* 17 → 19 */
