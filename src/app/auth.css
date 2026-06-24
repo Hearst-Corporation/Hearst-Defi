@@ -28,7 +28,7 @@
    weights, no Tailwind default scale.
    -------------------------------------------------------------------------- */
 
-:is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h1 {
+:is(.auth-shell, .auth-login-panel, .login-split) .h1 {
   font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
@@ -36,7 +36,7 @@
   color: var(--ct-text-strong);
 }
 
-:is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h2 {
+:is(.auth-shell, .auth-login-panel, .login-split) .h2 {
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
@@ -44,7 +44,7 @@
   color: var(--ct-text-strong);
 }
 
-:is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h3 {
+:is(.auth-shell, .auth-login-panel, .login-split) .h3 {
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-snug);
@@ -74,21 +74,26 @@
 /* Keep the ≥80rem doc-flow fluid bump from re-inflating the auth H1 (canon =
    fixed cockpit instrument, not a document title that balloons). */
 @media (min-width: 80rem) {
-  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h1 {
+  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split) .h1 {
     font-size: var(--ct-text-3xl-fixed);
   }
-  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split, .onboarding-shell) .h2 {
+  .ct-page-area :is(.auth-shell, .auth-login-panel, .login-split) .h2 {
     font-size: var(--ct-text-2xl);
   }
 }
 
-/* Login form h2 ("Sign in") stays COMPACT (xl), subordinate to the brand H1 —
-   the SINGLE source for this size (replaces the former `.login-split .h2`
-   duplicate in cockpit.css). Same specificity as the canon above, declared
-   later → wins; the ≥80rem bump is `.ct-page-area`-scoped and login is a bare
-   route, so it never re-inflates here. */
-.login-split .h2 {
-  font-size: var(--ct-text-xl);
+/* Brand-panel HERO title — the split-screen H1 is the focal headline, NOT a
+   fixed cockpit instrument. It overrides the auth heading pin above with a
+   large hero scale (32 → 52). Specificity beats the pin + its ≥80rem variant. */
+.login-split .login-split__title-wrap.h1 {
+  font-size: var(--ct-text-hero);
+  line-height: var(--ct-leading-tight);
+  letter-spacing: var(--ct-tracking-tight);
+}
+@media (min-width: 80rem) {
+  .ct-page-area .login-split .login-split__title-wrap.h1 {
+    font-size: var(--ct-text-hero);
+  }
 }
 
 /* -----------------------------------------------------------------------------

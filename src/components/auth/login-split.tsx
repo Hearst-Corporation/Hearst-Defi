@@ -14,20 +14,22 @@ export async function LoginSplit() {
 
   return (
     <div className="login-split relative p-0!">
-      <div aria-hidden="true" className="login-split__ambient" />
+      <div aria-hidden="true" className="login-split__ambient">
+        <div className="login-split__glow" />
+      </div>
 
       <div className="login-split__grid grid grid-cols-1 lg:grid-cols-2">
         <section className="login-split__brand auth-split__brand-inset relative">
-          <div className="login-split__brand-inner flex flex-col items-center">
-            <Image
-              src="/logos/hearst-connect-dark.svg"
-              alt="Hearst Connect"
-              width={831}
-              height={294}
-              className="login-split__logo"
-              priority
-            />
+          <Image
+            src="/logos/hearst-connect-dark.svg"
+            alt="Hearst Connect"
+            width={831}
+            height={294}
+            className="login-split__logo"
+            priority
+          />
 
+          <div className="login-split__brand-inner">
             <div className="login-split__tagline">
               <span className="eyebrow login-split__eyebrow-accent">
                 Real-World Asset Yield
@@ -56,7 +58,9 @@ export async function LoginSplit() {
 
         <section className="login-split__signin auth-split__signin-inset">
           <div className="flex w-full justify-center">
-            <LoginPanel />
+            <div className="login-split__signin-card">
+              <LoginPanel />
+            </div>
           </div>
         </section>
       </div>
