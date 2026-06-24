@@ -123,6 +123,15 @@
   color: var(--ct-accent);
 }
 
+/* Sub-module label — tier 4, body weight, blanc neutre. */
+:is(.product-doc, .admin-doc) .h4 {
+  font-size: var(--ct-text-xs);        /* 13px */
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-normal);
+  line-height: var(--ct-leading-normal);
+  color: var(--ct-text-body);
+}
+
 :is(.product-doc, .admin-doc) .stat-value {
   font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-bold);

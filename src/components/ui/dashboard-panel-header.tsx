@@ -40,6 +40,9 @@ export function DashboardPanelHeader({
           {typeof title === "string" ? (
             <TitleTag
               id={id}
+              // dashboard-panel-title is a marker class only (no CSS rules) — useful
+              // for scoped overrides or querySelector. Functional layout styles
+              // (min-w-0, wrap-break-word) are applied directly via Tailwind below.
               className={cn(
                 titleRoleClass,
                 "dashboard-panel-title min-w-0 wrap-break-word",

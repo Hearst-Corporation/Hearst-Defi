@@ -244,7 +244,7 @@ export default async function OutreachPage() {
             style={{ marginTop: 0 }}
           >
             <div className="outreach-engine-aside__head mb-(--ct-space-2)">
-              <h2 className="h4 ct-text-strong">Lead engine</h2>
+              <h2 className="h3 ct-text-strong">Lead engine</h2>
               <span className="body-xs ct-text-faint">
                 Source &amp; tier leads from ICP.
               </span>

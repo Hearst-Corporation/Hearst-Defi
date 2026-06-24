@@ -55,9 +55,9 @@ export default async function PositionDetailPage({ params }: PageProps) {
               contentClassName="pf-stack pf-stack--tight"
               className="bg-transparent border-none p-0"
             >
-              <h2 id="position-methodology-note" className="eyebrow ct-text-muted">
+              <p id="position-methodology-note" className="eyebrow ct-text-muted">
                 Return assumptions
-              </h2>
+              </p>
               <p className="position-detail-disclaimer body-xs ct-text-faint">
                 APY ranges are target projections based on stated assumptions. They are not
                 a commitment of future returns. Accrued yield figures are indicative and

@@ -50,7 +50,8 @@ export default async function SpecPage({
         <article className="admin-doc-article">
           <div className="admin-doc-prose-shell">
             <AdminPageHeader
-              title={doc.title}
+              titleLead="Spec"
+              titleAccent={doc.title}
               description="Reference specification for product, operations, or methodology review."
             />
           </div>

@@ -76,6 +76,57 @@ Labels KPI : `.stat-label` / `.eyebrow` → `uppercase` + `--ct-tracking-wider`
 (`0.08em`) + `--ct-text-muted`. Micro utilitaire Tailwind : `text-micro` = `ct-text-micro-size`
 (9px) — préférer la classe cockpit ou les rôles `.body-xs`/`.stat-label`.
 
+## 4.1 Typographie — Deux modes
+
+Le projet utilise **deux modes typographiques distincts et intentionnels**. Ne jamais mélanger les classes d'un mode dans l'autre — c'est un bug de hiérarchie.
+
+### Règle partagée : H1 = 24px fixe dans les deux modes
+
+`--ct-text-3xl-fixed` (24px, non-clamp) est le canon absolu du H1. Aucun mode ne le contourne.
+
+---
+
+### Mode A — Cockpit-dense (Bloomberg terminal)
+
+**Scope CSS** : `.pf-container` (et descendants directs `.pf-cockpit-panel`, `.pf-hero-*`)
+**Source** : `src/app/(product)/portfolio/portfolio.css`
+**Philosophie** : densité maximale, max info par cm², pas de headline flottant
+
+| Tier | Classe | Token | Taille | Traitement |
+|------|--------|-------|--------|------------|
+| Panel / section title | `.pf-panel-title` | `--ct-text-xs` | 13px | uppercase, semibold, `--ct-accent` |
+| Stat label | `.stat-label` | `--ct-text-micro` | 11px | uppercase, muted |
+| Chart label | `.chart-label` | `--ct-text-nano` | 9px | muted, tabular |
+| KPI value | `.pf-hero-kpi-value` | `--ct-text-xl` | 20px clamp | 800, tabular |
+| Corps | `.body-xs` | `--ct-text-xs` | 13px | — |
+
+---
+
+### Mode B — Doc-flow (pages admin, auth, légal, scenario-lab)
+
+**Scope CSS** : `.product-doc`, `.admin-doc`
+**Source** : `src/app/doc-flow-typography.css`
+**Philosophie** : hiérarchie lisible, respiration, structure par niveaux
+
+| Tier | Classe | Token | Taille | Traitement |
+|------|--------|-------|--------|------------|
+| H1 | `.h1` | `--ct-text-3xl-fixed` | **24px fixe** | 800, white (`--ct-text-primary`) |
+| H2 sections | `.h2` | `--ct-text-2xl` | 18→22px clamp | 700, **`--ct-accent`** |
+| H3 modules | `.h3` | `--ct-text-lg` | 15→17px clamp | 700, white, accent optionnel |
+| H4 sub-labels | `.h4` | `--ct-text-xs` | 13px | 600, muted |
+| Corps | `.body-sm` / `.body-xs` | `--ct-text-sm` / `--ct-text-xs` | 15px / 13px | — |
+
+---
+
+### Règles de non-mélange
+
+- `.pf-panel-title` dans un scope `.admin-doc` = **bug** (classe cockpit-dense hors contexte).
+- `.h2` avec `--ct-accent` dans un `.pf-container` = collision avec la hiérarchie dense.
+- `doc-flow-typography.css` est l'autorité pour admin / auth / légal. Ne pas y redéfinir de classes `.pf-*`.
+- `portfolio.css` est l'autorité pour le cockpit produit. Ne pas y redéfinir les classes `.h1`/`.h2`/`.h3` doc-flow.
+
+---
+
 ## 5. Charts SVG — convention canonique (RÈGLE)
 
 Tous les anneaux/jauges/donuts utilisent un cercle **circonférence = pathLength**
