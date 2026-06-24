@@ -84,7 +84,7 @@ export function MemoryManager({
           {memory.map((m) => (
             <li
               key={m.id}
-              className="admin-doc-row-spread admin-divider-row border-b border-[var(--ct-border-soft)] last:border-0"
+              className="admin-doc-row-spread admin-divider-row border-b border-(--ct-border-soft) last:border-0"
             >
               <div className="min-w-0">
                 <div className="admin-doc-inline-row">

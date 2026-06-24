@@ -2,7 +2,7 @@ import { SkeletonCard, Skeleton } from "@/components/ui/skeleton";
 
 export default function FeedbackLoading() {
   return (
-    <div className="animate-in fade-in duration-[var(--ct-dur-slower)]">
+    <div className="animate-in fade-in duration-(--ct-dur-slower)">
       {/* Header */}
       <div className="admin-doc-stack--actions">
         <Skeleton className="h-3 w-24" variant="text" />

@@ -103,7 +103,7 @@ export function AgentAssignForm({
           Recalibrate from questionnaire
         </Button>
         {!canRecalibrate && (
-          <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">
+          <p className="body-xs ct-text-muted mt-(--ct-space-1)">
             No questionnaire answers yet — fill the qualification above first.
           </p>
         )}

@@ -76,7 +76,7 @@ export default async function CustomerDetailPage({
       {/* Identity + positions */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Identity">
         <h2 className="h2">Investor profile</h2>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <dl className="admin-doc-form-grid-2 body-sm">
             <div>
               <dt className="ct-form-label">Email</dt>
@@ -95,7 +95,7 @@ export default async function CustomerDetailPage({
               <dd className="ct-text-body">{formatAdminDate(detail.joinedAt)}</dd>
             </div>
           </dl>
-          <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) pt-[var(--ct-space-4)] mt-[var(--ct-space-4)]">
+          <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) pt-(--ct-space-4) mt-(--ct-space-4)">
             <p className="body-xs ct-text-muted m-0">
               Account sign-in. Auto-created and admin-provisioned investors start
               with no usable password — they log in via a one-time activation
@@ -155,7 +155,7 @@ export default async function CustomerDetailPage({
           Open an off-chain position for this investor — fills the cockpit for demo or
           pilot use without requiring a real on-chain deposit. KYC must be approved first.
         </p>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <DeployPositionForm
             investorId={detail.investorId}
             kycStatus={detail.kycStatus as "pending" | "approved" | "rejected"}
@@ -171,7 +171,7 @@ export default async function CustomerDetailPage({
             ? `Source: ${QUAL_SOURCE_LABEL[detail.qualification.source] ?? detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
             : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."}
         </p>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <QualificationForm
             investorId={detail.investorId}
             userId={detail.userId}
@@ -185,7 +185,7 @@ export default async function CustomerDetailPage({
         <h2 className="h2">Assistant settings</h2>
 
         {persona && (
-          <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+          <Card className="p-(--ct-space-6)" hoverOverlay={false}>
             <div className="admin-doc-stack admin-doc-stack--compact">
               <h3 className="h3">Recommended</h3>
               <div className="admin-doc-inline-row flex-wrap">
@@ -202,7 +202,7 @@ export default async function CustomerDetailPage({
           </Card>
         )}
 
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <div className="admin-doc-stack admin-doc-stack--compact">
             <h3 className="h3">Current</h3>
             {applied ? (
@@ -238,7 +238,7 @@ export default async function CustomerDetailPage({
         <p className="body-xs ct-text-muted">
           Persistent context and notes for this investor.
         </p>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
+        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <MemoryManager
             investorId={detail.investorId}
             userId={detail.userId}

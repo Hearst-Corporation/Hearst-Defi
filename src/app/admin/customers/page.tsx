@@ -111,7 +111,7 @@ export default async function CustomersPage({
                   {customers.map((c) => (
                     <tr
                       key={c.id}
-                      className="border-b border-[var(--ct-border-soft)] last:border-0"
+                      className="border-b border-(--ct-border-soft) last:border-0"
                     >
                       <td className="ct-table-cell truncate ct-text-strong">
                         <Link href={`/admin/customers/${c.id}`} className="hover:underline">
@@ -123,7 +123,7 @@ export default async function CustomersPage({
                       </td>
                       <td className="ct-table-cell">
                         <div className="admin-doc-stack admin-doc-stack--micro">
-                          <span className="inline-flex items-center gap-[var(--ct-space-1_5)] body-sm">
+                          <span className="inline-flex items-center gap-(--ct-space-1_5) body-sm">
                             <span
                               aria-hidden
                               className={cn("ct-dot", KYC_DOT[c.kycStatus])}
@@ -161,27 +161,27 @@ export default async function CustomersPage({
 
         {/* Pagination controls */}
         {total > 0 && (
-          <div className="admin-doc-stack admin-doc-stack--compact border-t border-[var(--ct-border-soft)] py-[var(--ct-space-4)]">
+          <div className="admin-doc-stack admin-doc-stack--compact border-t border-(--ct-border-soft) py-(--ct-space-4)">
             <div className="admin-doc-row-spread">
               <p className="body-xs ct-text-muted">
                 Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
               </p>
               <div className="admin-doc-inline-row">
                 {page > 1 && (
-                  <a
+                  <Link
                     href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-[var(--ct-border-soft)] px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
+                    className="rounded-md border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1_5) body-xs ct-text-muted hover:ct-text-strong transition-colors ease-(--ct-ease)"
                   >
                     Previous
-                  </a>
+                  </Link>
                 )}
                 {hasMore && (
-                  <a
+                  <Link
                     href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-[var(--ct-border-soft)] px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
+                    className="rounded-md border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1_5) body-xs ct-text-muted hover:ct-text-strong transition-colors ease-(--ct-ease)"
                   >
                     Next
-                  </a>
+                  </Link>
                 )}
               </div>
             </div>
@@ -224,7 +224,7 @@ export default async function CustomersPage({
                   {orphanSubmissions.map((s) => (
                     <tr
                       key={s.id}
-                      className="border-b border-[var(--ct-border-soft)] last:border-0"
+                      className="border-b border-(--ct-border-soft) last:border-0"
                     >
                       <td className="ct-table-cell truncate ct-text-strong">
                         {s.email ?? "—"}
