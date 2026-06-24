@@ -4718,11 +4718,22 @@ main#main-content>.admin-doc.admin-doc-shell {
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
    auto-scroll-to-bottom effect keep the newest message in view without clipping
    the top. The zero-state placeholder keeps its own margin:auto centering. */
-.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-12); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; 
-  /* Double fade: top for old messages, bottom for composer clearance. 
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-12); scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent;
+  /* Double fade: top for old messages, bottom for composer clearance.
      Increased padding-bottom ensures the newest message stays above the bottom fade. */
   mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
   -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
+}
+/* Bottom-anchor short threads WITHOUT clipping long ones.
+   `justify-content: flex-end` on a scrollable flex column is a known browser bug:
+   once the content overflows, the top items are pushed above the scroll origin and
+   become UNREACHABLE — the history could not be scrolled up to (BUG: chat not
+   scrollable). Pushing only the first message child with `margin-top:auto` keeps the
+   "messages rest on the composer when the thread is short" behaviour while leaving the
+   container a normal top-anchored scroll area when it overflows, so every older message
+   stays reachable. The empty-state card keeps its own `margin:auto` centering. */
+.ct-chat-list > :first-child:not(.ct-chat-empty):not(.ct-placeholder) {
+  margin-top: auto;
 }
 .ct-chat-list::-webkit-scrollbar           { width: 4px; }
 .ct-chat-list::-webkit-scrollbar-track     { background: transparent; }

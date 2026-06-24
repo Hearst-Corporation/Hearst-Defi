@@ -34,6 +34,32 @@ describe("chatOutputViolation — forbidden vocabulary", () => {
   });
 });
 
+describe("chatOutputViolation — yield education (BUG 1) is allowed", () => {
+  it("does NOT block a generic 'how does yield work' answer", () => {
+    const answer =
+      "Le yield correspond au rendement généré par une stratégie ou un produit financier, souvent exprimé en APY. Il peut provenir de frais, d’intérêts, de récompenses ou de revenus de protocole selon la structure. Il varie dans le temps, dépend des risques, et n’est pas garanti.";
+    expect(chatOutputViolation(answer, true)).toBeNull();
+  });
+
+  it("does NOT block a per-source breakdown (mining / USDC base / réserve)", () => {
+    const answer =
+      "Le rendement provient de plusieurs sources : le cashflow du mining contribue environ 6,2 %, le yield USDC de base environ 4,8 %, et la réserve stable environ 4,5 %. Le rendement annualisé cible reste une fourchette de 8 à 15 %, et n’est pas garanti.";
+    expect(chatOutputViolation(answer, true)).toBeNull();
+  });
+
+  it("STILL blocks a headline single-point claim in an otherwise educational answer", () => {
+    const answer =
+      "Le yield est le rendement d’un produit. Le rendement annualisé de ce vault est de 11 %.";
+    expect(chatOutputViolation(answer, true)).toBe("single_point_apy");
+  });
+
+  it("STILL blocks a forbidden-words claim in an educational answer", () => {
+    expect(
+      chatOutputViolation("Le yield est le rendement. Ici il est garanti.", true),
+    ).toBe("forbidden_words");
+  });
+});
+
 describe("chatOutputViolation — single-point APY", () => {
   it("flags a single-point APY", () => {
     expect(chatOutputViolation("L'APY est de 11 %.", true)).toBe(

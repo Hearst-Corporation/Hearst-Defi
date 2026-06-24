@@ -16,7 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### fix/chat-yield-compliance-scroll
+Owner: Master Agent Chat Reliability Bug Owner
+Branch: fix/chat-yield-compliance-scroll
+Worktree: ../connect-agent-chat-reliability
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agents/apy-range.ts
+- src/lib/agents/__tests__/apy-single-point-yield.test.ts
+- src/lib/agents/__tests__/apy-range.test.ts
+- src/lib/llm/__tests__/output-guard.test.ts
+- src/app/cockpit.css
+
+Notes:
+- BUG 1: output guard false-positives on yield SOURCE breakdowns (mining ~6,2 %,
+  USDC base ~4,8 %, réserve ~4,5 %) → "Réponse bloquée" on educational answers.
+  Fix = source-attribution exemption in hasSinglePointApy (apy-range.ts). Guard
+  NOT disabled; headline single-point + forbidden words still blocked.
+- BUG 2: chat history unreachable — `.ct-chat-list { justify-content: flex-end }`
+  clips overflow at the top. Fix = margin-top:auto on first child (cockpit.css).
+- Does NOT touch sensitive single-owner files (cockpit-chat/route.ts, compose.ts,
+  emit.ts, registry.ts, globals.css). cockpit.css is NOT on the sensitive list.
 
 ---
 

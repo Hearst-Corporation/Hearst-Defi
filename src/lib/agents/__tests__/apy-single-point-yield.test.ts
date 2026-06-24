@@ -168,3 +168,55 @@ describe("hasSinglePointApy — multi-sentence: fires when ONE sentence is a sin
     expect(hasSinglePointApy(text, true)).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// SOURCE ATTRIBUTION exemption — a per-source component contribution is NOT the
+// headline APY, so a single-point figure attributed to a yield source must NOT
+// fire. This closed BUG 1 (educational "explique comment fonctionne le yield"
+// answers were blocked because the methodology's own source figures — mining
+// ~6,2 %, USDC base ~4,8 %, réserve ~4,5 % — looked like headline single-points).
+// ---------------------------------------------------------------------------
+
+describe("hasSinglePointApy — source attribution (BUG 1) MUST NOT FIRE", () => {
+  it("FR: full source breakdown (mining / USDC base / réserve)", () => {
+    const text =
+      "Le rendement provient de plusieurs sources : le cashflow du mining contribue environ 6,2 %, le yield USDC de base environ 4,8 %, et la réserve stable environ 4,5 %.";
+    expect(hasSinglePointApy(text, true)).toBe(false);
+  });
+
+  it('FR: single source "le mining génère un rendement d\'environ 6,2 % via le rev-share"', () => {
+    const text =
+      "Le mining génère un rendement d'environ 6,2 % via le rev-share des fermes partenaires.";
+    expect(hasSinglePointApy(text, true)).toBe(false);
+  });
+
+  it('FR: "le yield USDC de base apporte environ 4,8 %"', () => {
+    expect(
+      hasSinglePointApy("Le yield USDC de base apporte environ 4,8 %.", true),
+    ).toBe(false);
+  });
+
+  it('EN: "T-bills lending contributes around 4.8%"', () => {
+    expect(
+      hasSinglePointApy("Tokenized T-bills lending contributes around 4.8%.", true),
+    ).toBe(false);
+  });
+});
+
+// A source cue WITHOUT a real component, or a headline claim, must still fire —
+// the exemption requires BOTH a contribution cue AND a named component, so it
+// cannot launder the headline single-point rule.
+describe("hasSinglePointApy — source exemption does NOT launder headline claims", () => {
+  it('FR headline still blocks: "le rendement annualisé du vault est de 11 %"', () => {
+    expect(
+      hasSinglePointApy("Le rendement annualisé du vault est de 11 %.", true),
+    ).toBe(true);
+  });
+
+  it('FR: component noun but no contribution cue still blocks: "le mining vault rend 11 %"', () => {
+    // "mining" present but no contribution cue (provient/contribue/via…) → fires.
+    expect(hasSinglePointApy("Le rendement du mining vault est de 11 %.", true)).toBe(
+      true,
+    );
+  });
+});
