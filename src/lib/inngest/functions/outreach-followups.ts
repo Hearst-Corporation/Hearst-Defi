@@ -203,7 +203,10 @@ export async function outreachFollowupsHandler({
         const result = await sendTrackedEmail({
           to: p.email,
           subject,
-          html: renderPlainHtml(body, p.email),
+          html: renderPlainHtml(body, p.email, {
+            url: resolveCtaUrl(),
+            label: "Apply for access",
+          }),
           tags: { emailId: email.id, followup: String(nextStep) },
         });
 

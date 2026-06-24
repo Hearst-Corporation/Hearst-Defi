@@ -27,9 +27,9 @@ export type ResetPasswordResult =
  * the old flow was: set password → "Go to sign in" → re-type credentials →
  * dashboard. That double step is removed: consuming the token now returns the
  * userId, we open a real `hc_session` here (same primitives as `login`), and
- * `resolvePostLoginRedirect` routes an un-onboarded investor to
- * `/onboarding/accreditation` (persona discovery), or to their deep link /
- * portfolio if already onboarded.
+ * `resolvePostLoginRedirect` lands them on the platform (`/portfolio`) or their
+ * deep link. Onboarding (accreditation → KYC → wallet) is NOT a post-login gate
+ * anymore — it lives inside the platform and only gates investing.
  *
  * `redirect()` is called OUTSIDE the validation branch — it throws a
  * NEXT_REDIRECT control-flow signal that must propagate to the client so the

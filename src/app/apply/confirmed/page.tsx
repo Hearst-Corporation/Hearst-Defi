@@ -42,8 +42,9 @@ export default function ConfirmedPage() {
             <h2 className="h2 m-0">What to expect</h2>
             <p className="body-sm ct-text-muted m-0 text-pretty">
               Check your inbox now for the activation link to set your password —
-              it opens your cockpit once you sign in. Have a question in the
-              meantime? Reach out to Investor Relations any time.
+              you&rsquo;ll be signed in automatically and taken straight to your
+              cockpit. Have a question in the meantime? Reach out to Investor
+              Relations any time.
             </p>
           </div>
         </div>

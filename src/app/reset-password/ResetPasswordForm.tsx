@@ -22,10 +22,10 @@ export function ResetPasswordForm({ token }: Props) {
     setError(null);
     formData.set("token", token);
     startTransition(async () => {
-      // On success the server action signs the user in and redirects straight
-      // into onboarding (NEXT_REDIRECT) — it never returns `{ ok: true }`, so
-      // there is no success screen and no "go to sign in" step. We only get a
-      // returned value on failure.
+      // On success the server action signs the user in and redirects to the
+      // platform (NEXT_REDIRECT) — it never returns `{ ok: true }`, so there is
+      // no success screen and no "go to sign in" step. We only get a returned
+      // value on failure.
       const result = await resetPassword(formData);
       if (!result.ok) {
         setError(result.error);
