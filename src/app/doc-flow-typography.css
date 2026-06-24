@@ -123,6 +123,14 @@
   color: var(--ct-accent);
 }
 
+/* Semantic h3 elements + section-panel__title — accent, comme .pf-container h3
+   dans portfolio.css. La règle de classe ci-dessus ne couvre pas les balises
+   <h3> natives ni les titres de panneau de section. */
+:is(.product-doc, .admin-doc) h3,
+:is(.product-doc, .admin-doc) .section-panel__title {
+  color: var(--ct-accent);
+}
+
 /* Sub-module label — tier 4, body weight, blanc neutre. */
 :is(.product-doc, .admin-doc) .h4 {
   font-size: var(--ct-text-xs);        /* 13px */
