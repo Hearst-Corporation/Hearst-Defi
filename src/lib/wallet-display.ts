@@ -6,7 +6,7 @@
 export function truncateWallet(addr: string | null): string {
   if (!addr) return "—";
   if (addr.startsWith("0x") && addr.length >= 10) {
-    return `${addr.slice(0, 4)}…${addr.slice(-4)}`;
+    return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
   }
-  return addr.length > 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : addr;
+  return addr.length > 12 ? `${addr.slice(0, 10)}…` : addr;
 }
