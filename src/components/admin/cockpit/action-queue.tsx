@@ -75,7 +75,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "dashboard-action-cta cockpit-label-xs py-0.5 px-1.5 rounded-(--ct-radius-sm) border border-transparent transition-colors",
+            "dashboard-action-cta cockpit-label-xs py-[var(--ct-space-0_5)] px-[var(--ct-space-1_5)] rounded-(--ct-radius-sm) border border-transparent transition-colors",
             item.severity === "P0" 
               ? "bg-ct-status-danger/10 text-ct-status-danger border-ct-status-danger/20 hover:bg-ct-status-danger/20" 
               : "bg-ct-bg-soft text-ct-text-muted border-ct-border-ghost hover:text-ct-text-strong hover:border-ct-border-muted",

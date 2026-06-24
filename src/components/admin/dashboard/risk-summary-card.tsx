@@ -59,7 +59,7 @@ export function DashboardRiskSummaryCard({
     <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
 
       <div className="dashboard-risk-summary__body flex flex-col gap-4">
-        <div className="dashboard-risk-summary__overview flex items-start justify-between bg-ct-bg-soft/30 p-3 rounded-(--ct-radius-sm) border border-(--ct-border-ghost)">
+        <div className="dashboard-risk-summary__overview flex items-start justify-between bg-ct-bg-soft/30 p-[var(--ct-space-3)] rounded-(--ct-radius-sm) border border-[var(--ct-border-ghost)]">
           <div className="dashboard-risk-summary__hero flex flex-col gap-1">
             <div className="dashboard-risk-summary__headline">
               <Tooltip
@@ -71,11 +71,11 @@ export function DashboardRiskSummaryCard({
                 )}
               >
                 <div className="cursor-help">
-                  <span className="cockpit-label-sm block mb-0.5">Composite score</span>
+                  <span className="cockpit-label-sm block mb-[var(--ct-space-0_5)]">Composite score</span>
                   <div className="dashboard-risk-summary__headline-row flex items-baseline gap-1">
                     <span
                       className={cn(
-                        "text-(length:--ct-text-display-fixed) font-bold tabular tracking-tighter leading-none",
+                        "text-[length:var(--ct-text-display-fixed)] font-bold tabular tracking-tighter leading-none",
                         data.band === "low"
                           ? "ct-status-success"
                           : data.band === "medium"
@@ -85,7 +85,7 @@ export function DashboardRiskSummaryCard({
                     >
                       {data.composite}
                     </span>
-                    <span className="text-(length:--ct-text-2xs) font-bold ct-text-faint tabular opacity-50">/ 100</span>
+                    <span className="text-[length:var(--ct-text-2xs)] font-bold ct-text-faint tabular opacity-50">/ 100</span>
                   </div>
                 </div>
               </Tooltip>
@@ -98,13 +98,13 @@ export function DashboardRiskSummaryCard({
                     ? "warning"
                     : "danger"
               }
-              className="px-2 py-0.5 cockpit-label-xs w-fit"
+              className="px-[var(--ct-space-2)] py-[var(--ct-space-0_5)] cockpit-label-xs w-fit"
             >
               {data.bandLabel}
             </Badge>
           </div>
 
-          <div className="flex-1 max-w-[200px] ml-4">
+          <div className="flex-1 max-w-[200px] ml-[var(--ct-space-4)]">
             <p className="dashboard-risk-summary__blurb cockpit-value-xs m-0 leading-tight uppercase tracking-tight">
               Five-factor operator view: contract, mining, counterparties, market, liquidity.
             </p>
@@ -115,15 +115,15 @@ export function DashboardRiskSummaryCard({
           {data.dimensions.map((dimension) => (
             <article
               key={dimension.id}
-              className="dashboard-risk-summary__item group bg-ct-bg-soft/20 p-2 rounded-(--ct-radius-xs) border border-transparent hover:border-(--ct-border-ghost) transition-all"
+              className="dashboard-risk-summary__item group bg-ct-bg-soft/20 p-[var(--ct-space-2)] rounded-(--ct-radius-xs) border border-transparent hover:border-[var(--ct-border-ghost)] transition-all"
               aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
             >
-              <div className="dashboard-risk-summary__item-top flex items-center justify-between mb-1.5">
+              <div className="dashboard-risk-summary__item-top flex items-center justify-between mb-[var(--ct-space-1_5)]">
                 <div className="dashboard-risk-summary__item-copy flex items-center gap-3">
                   <span className="cockpit-value-md uppercase tracking-tight min-w-[100px]">
                     {dimension.label}
                   </span>
-                  <Badge variant={SEVERITY_BADGE[dimension.severity]} className="cockpit-label-xs px-1.5 py-0 h-3.5 min-w-0">
+                  <Badge variant={SEVERITY_BADGE[dimension.severity]} className="cockpit-label-xs px-[var(--ct-space-1_5)] py-0 h-3.5 min-w-0">
                     {dimension.status}
                   </Badge>
                   <p className="cockpit-label-sm m-0 leading-none opacity-70 group-hover:opacity-100 transition-opacity">

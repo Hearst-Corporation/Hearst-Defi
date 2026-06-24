@@ -31,7 +31,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
       <div className="dashboard-command-divide-stack">
         <div className="dashboard-live-ops-section">
-          <header className="flex items-center justify-between mb-1.5 px-1">
+          <header className="flex items-center justify-between mb-[var(--ct-space-1_5)] px-[var(--ct-space-1)]">
             <h3 className="cockpit-label-sm m-0">Inngest Jobs</h3>
             <span className="cockpit-label-xs opacity-60">Real-time</span>
           </header>
@@ -43,11 +43,11 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <header className="flex items-center justify-between mb-1.5 px-1">
+          <header className="flex items-center justify-between mb-[var(--ct-space-1_5)] px-[var(--ct-space-1)]">
             <h3 className="cockpit-label-sm m-0">LLM Health</h3>
             <span className="cockpit-label-xs opacity-60">24h Window</span>
           </header>
-          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions bg-ct-bg-soft/50 rounded-(--ct-radius-sm) p-1.5 border border-(--ct-border-ghost)">
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions bg-ct-bg-soft/50 rounded-(--ct-radius-sm) p-[var(--ct-space-1_5)] border border-[var(--ct-border-ghost)]">
             <Tooltip
               content={(
                 <div className="dashboard-metric-tooltip">
@@ -64,7 +64,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
                 />
               </div>
             </Tooltip>
-            <div className="w-px h-4 bg-(--ct-border-ghost)" />
+            <div className="w-px h-4 bg-[var(--ct-border-ghost)]" />
             <Tooltip
               content={(
                 <div className="dashboard-metric-tooltip">
@@ -85,7 +85,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
 
         <div className="dashboard-live-ops-section">
-          <header className="flex items-center justify-between mb-1.5 px-1">
+          <header className="flex items-center justify-between mb-[var(--ct-space-1_5)] px-[var(--ct-space-1)]">
             <h3 className="cockpit-label-sm m-0">Chain Activity</h3>
             <span className="cockpit-label-xs opacity-60">Live Feed</span>
           </header>
@@ -114,7 +114,7 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row cockpit-hover-row cockpit-hover-row--inset py-1"
+      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row cockpit-hover-row cockpit-hover-row--inset py-[var(--ct-space-1)]"
       aria-label={`${job.name}: ${label}`}
     >
       <span className="cockpit-value-sm truncate uppercase">{job.name}</span>
@@ -162,7 +162,7 @@ function SentryCounter({
 }) {
   return (
     <div className="admin-doc-stack admin-doc-stack--micro gap-0">
-      <span className="cockpit-label-xs mb-0.5">{label}</span>
+      <span className="cockpit-label-xs mb-[var(--ct-space-0_5)]">{label}</span>
       <span
         className={cn(
           "cockpit-value-md",
@@ -203,7 +203,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
   );
 
   const rowClassName =
-    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row py-1.5 cockpit-hover-row cockpit-hover-row--inset";
+    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row py-[var(--ct-space-1_5)] cockpit-hover-row cockpit-hover-row--inset";
 
   const interactiveContent =
     event.txHash && !isPlaceholderTxHash(event.txHash) ? (
