@@ -106,38 +106,40 @@ export default async function VaultDetailPage({ params }: PageProps) {
       }
     >
       <section className="vault-detail-overview" aria-label="Key terms">
-        <dl className="vault-detail-overview__kpis">
-          <div className="vault-detail-overview__kpi">
-            <dt className="stat-label">APY range</dt>
-            <dd className="mt-(--ct-space-1)">
-              <ApyRange
-                low={vault.apyLow}
-                high={vault.apyHigh}
-                precision={1}
-                className="vault-detail-overview__value tabular-nums mono"
-              />
-            </dd>
-          </div>
-          <div className="vault-detail-overview__kpi">
-            <dt className="stat-label">Min subscription</dt>
-            <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
-              {formatMinTicketUsdc(vault.minTicketUsdc)}
-            </dd>
-          </div>
-          <div className="vault-detail-overview__kpi">
-            <dt className="stat-label">Soft lock-up</dt>
-            <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
-              {vault.softLockupDays} days
-            </dd>
-          </div>
-        </dl>
+        <div className="vault-detail-overview__main">
+          <dl className="vault-detail-overview__kpis">
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">APY range</dt>
+              <dd className="mt-(--ct-space-1)">
+                <ApyRange
+                  low={vault.apyLow}
+                  high={vault.apyHigh}
+                  precision={1}
+                  className="vault-detail-overview__value tabular-nums mono"
+                />
+              </dd>
+            </div>
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">Min subscription</dt>
+              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
+                {formatMinTicketUsdc(vault.minTicketUsdc)}
+              </dd>
+            </div>
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">Soft lock-up</dt>
+              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
+                {vault.softLockupDays} days
+              </dd>
+            </div>
+          </dl>
+        </div>
         <div className="vault-detail-overview__cta">
           {!isLive ? (
-            <p className="body-xs ct-text-muted mb-(--ct-space-2)">
+            <p className="body-xs ct-text-faint mb-(--ct-space-3)">
               {nonLiveNote(vault.status)}
             </p>
           ) : null}
-          <InvestCta isLive={isLive} investHref={investHref} size="lg" />
+          <InvestCta isLive={isLive} investHref={investHref} size="lg" className="w-full sm:w-auto px-(--ct-space-12)" />
         </div>
       </section>
 

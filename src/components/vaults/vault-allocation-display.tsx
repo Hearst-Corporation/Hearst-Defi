@@ -90,29 +90,75 @@ export function VaultAllocationInvestorList({
     bucket,
     bps: allocationBps(facts, bucket),
     color: allocationStrokeFor(bucket),
-  }));
+  })).filter((s) => s.bps > 0);
+
+  // Donut chart calculations
+  const radius = 40;
+  const strokeWidth = 12;
+  const normalizedRadius = radius - strokeWidth / 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+
+  let accumulatedBps = 0;
 
   return (
-    <div className="vault-alloc-chart">
-      <div
-        className="vault-alloc-stack"
-        role="img"
-        aria-label="Target allocation breakdown"
-      >
-        {segments
-          .filter((s) => s.bps > 0)
-          .map((s) => (
-            <span
-              key={s.bucket}
-              className="vault-alloc-stack__seg"
-              style={{ width: `${s.bps / 100}%`, background: s.color }}
-            />
-          ))}
+    <div className="vault-alloc-chart-circular">
+      <div className="vault-alloc-donut">
+        <svg
+          viewBox={`0 0 ${radius * 2} ${radius * 2}`}
+          className="vault-alloc-donut__svg"
+        >
+          {segments.map((s) => {
+            const pct = s.bps / 10000;
+            const strokeDasharray = `${pct * circumference} ${circumference}`;
+            const rotation = (accumulatedBps / 10000) * 360;
+            accumulatedBps += s.bps;
+
+            return (
+              <circle
+                key={s.bucket}
+                cx={radius}
+                cy={radius}
+                r={normalizedRadius}
+                fill="transparent"
+                stroke={s.color}
+                strokeWidth={strokeWidth}
+                strokeDasharray={strokeDasharray}
+                strokeDashoffset={0}
+                transform={`rotate(${rotation - 90} ${radius} ${radius})`}
+                className="transition-all duration-700 ease-in-out hover:stroke-white/20 cursor-help"
+              />
+            );
+          })}
+        </svg>
+        <div className="vault-alloc-donut__center">
+          <span className="body-xs ct-text-faint uppercase tracking-widest">Target</span>
+          <span className="body-lg font-bold ct-text-strong">100%</span>
+        </div>
       </div>
 
-      <div className="vault-alloc-bars">
+      <div className="vault-alloc-legend">
         {segments.map((s) => (
-          <AllocationBar key={s.bucket} bucket={s.bucket} bps={s.bps} />
+          <div key={s.bucket} className="vault-alloc-legend__item group/item">
+            <div className="flex items-center gap-(--ct-space-3)">
+              <span
+                className="w-2 h-2 rounded-full shrink-0 transition-transform duration-300 group-hover/item:scale-125"
+                style={{ background: s.color }}
+              />
+              <div className="flex flex-col">
+                <div className="flex items-baseline gap-(--ct-space-2)">
+                  <span className="body-sm font-semibold ct-text-strong group-hover/item:ct-text-primary">
+                    {ALLOCATION_INVESTOR_LABELS[s.bucket]}
+                  </span>
+                  <span className="body-xs mono ct-text-accent">
+                    {bpsToPercent(s.bps, 0)}%
+                  </span>
+                </div>
+                <p className="body-xs ct-text-faint leading-tight mt-0.5">
+                  {ALLOCATION_DESCRIPTIONS[s.bucket]}
+                </p>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

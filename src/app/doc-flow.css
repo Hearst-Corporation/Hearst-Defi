@@ -1271,19 +1271,19 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-12); /* Increased from space-10 for better breathing */
+  gap: var(--ct-space-20); /* Increased for product sheet feel */
 }
 
 .product-doc .invest-flow-shell .product-page-header {
-  padding-bottom: var(--ct-space-2);
+  padding-bottom: var(--ct-space-8); /* Increased from space-2 */
 }
 
 .product-doc .invest-flow-shell__stepper {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4); /* Increased */
   padding-top: 0;
-  margin-bottom: 0;
+  margin-bottom: var(--ct-space-4); /* Added margin */
 }
 
 .product-doc .vault-invest-step-context {
@@ -1528,18 +1528,24 @@
 }
 
 /* Desktop: switch to 2-col grid — primary takes ~60%, secondary ~40% */
-@container product-doc (min-width: 48rem) {
   .product-doc .invest-flow-detail__grid {
     display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: var(--ct-doc-flow-gap);
+    grid-template-columns: 1fr; /* Default to single column for product sheet feel */
+    gap: var(--ct-space-16);
     align-items: start;
     min-height: 0;
   }
 
+  @container product-doc (min-width: 64rem) {
+    .product-doc .invest-flow-detail__grid {
+      grid-template-columns: 1.2fr 0.8fr; /* Slightly more balanced than 3fr 2fr */
+      gap: var(--ct-space-16);
+    }
+  }
+
   .product-doc .invest-flow-detail__secondary {
-    position: sticky;
-    top: var(--ct-space-8);
+    position: relative; /* Removed sticky */
+    top: 0;
   }
 }
 
@@ -1987,10 +1993,11 @@
 /* Regime scenario table — flat rows inside term sheet (no ct-table-surface box) */
 .product-doc .regime-scenario-table {
   width: 100%;
-  padding: var(--ct-space-6); /* Increased from space-4 */
+  padding: var(--ct-space-8) var(--ct-space-10); /* Increased for more air */
   background: var(--ct-surface-1);
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl); /* Increased from lg */
+  border-radius: var(--ct-radius-2xl); /* Rounder */
+  box-shadow: 0 4px 24px -12px rgba(0, 0, 0, 0.3);
 }
 
 .product-doc .regime-scenario-table table {
@@ -2001,11 +2008,11 @@
 }
 
 .product-doc .regime-scenario-table thead tr {
-  border-bottom: 1px solid var(--ct-border);
+  border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .product-doc .regime-scenario-table .ct-table-header {
-  padding-bottom: var(--ct-space-3);
+  padding-bottom: var(--ct-space-4);
   font-size: var(--ct-text-micro);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -2022,7 +2029,7 @@
 }
 
 .product-doc .regime-scenario-table .ct-table-cell {
-  padding-block: var(--ct-space-5); /* Increased from space-4 */
+  padding-block: var(--ct-space-6); /* Even more air */
 }
 
 .product-doc .regime-scenario-table tbody tr:last-child {
