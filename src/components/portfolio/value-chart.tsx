@@ -348,6 +348,8 @@ function Plot({
   );
 }
 
+import { ApyRange } from "@/components/ui/apy-range";
+
 /* ──────────────────────────────────────────────────────────────────────────
  * Public component.
  * ────────────────────────────────────────────────────────────────────────── */
@@ -358,6 +360,8 @@ interface ValueChartProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
+  apyLow?: number;
+  apyHigh?: number;
 }
 
 /** Flat zero baseline: 12 month-stamped points at value 0 (chart skeleton). */
@@ -384,6 +388,8 @@ export function ValueChart({
   source,
   updatedAt,
   embedded = false,
+  apyLow,
+  apyHigh,
 }: ValueChartProps) {
   const asOf = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
@@ -488,6 +494,22 @@ export function ValueChart({
           <div className="pf-value-chart__chart-wrapper">
             <div className={cn("pf-value-chart__plot", isEmpty && "pf-value-chart__plot--skeleton")}>
               {isEmpty ? null : <ChartDisclaimerUnderlay />}
+              
+              {/* Corner metrics */}
+              {!isEmpty && provenance && (
+                <ChartProvenanceCorner 
+                  kind={provenance} 
+                  lastUpdateAt={updatedAt} 
+                  position="top-right" 
+                />
+              )}
+              {!isEmpty && apyLow !== undefined && apyHigh !== undefined && (
+                <div className="pf-value-chart__apy-corner absolute bottom-2 left-2 z-10 flex flex-col gap-0.5">
+                  <span className="stat-label text-micro opacity-60">Target APY</span>
+                  <ApyRange low={apyLow} high={apyHigh} className="text-sm font-bold ct-text-accent" />
+                </div>
+              )}
+
               <Plot 
                 key={range}
                 series={series} 

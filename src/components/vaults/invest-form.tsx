@@ -163,7 +163,6 @@ function AmountLedger({
         "vault-amount-ledger",
         isCalculating && "vault-amount-ledger--calculating",
       )}
-      aria-hidden
     >
       <div className="vault-amount-ledger__header">
         <span className="stat-label ct-text-muted">Allocation amount</span>
@@ -238,6 +237,69 @@ function EligibilityChecklist({
   );
 }
 
+function InvestFormProjections({
+  amount,
+  vault,
+  ptai,
+}: {
+  amount: number;
+  vault: VaultProduct;
+  ptai: { projection: string; trigger: string; action: string; impact: string };
+}) {
+  return (
+    <>
+      <div className="vault-invest-section-divider">
+        <span className="body-xs ct-text-faint uppercase tracking-widest font-bold">
+          Analytics & Projections
+        </span>
+      </div>
+
+      <div className="vault-flow-flat-section">
+        <VaultPanelHeader title="Indicative NAV path — 24 month horizon" />
+        <div className="vault-panel-body">
+          <TimeToTargetChart amount={amount} vault={vault} />
+        </div>
+      </div>
+
+      <div className="vault-flow-flat-section">
+        <VaultPanelHeader title="PTAI estimate" />
+        <div className="vault-panel-body">
+          <Ptai
+            projection={ptai.projection}
+            trigger={ptai.trigger}
+            action={ptai.action}
+            impact={ptai.impact}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function AllocationSectionHeader({
+  amount,
+  placeholder,
+  isCalculating,
+}: {
+  amount: number;
+  placeholder: string;
+  isCalculating?: boolean;
+}) {
+  return (
+    <>
+      <VaultPanelHeader
+        title="Allocation amount"
+        eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
+      />
+      <AmountLedger
+        amount={amount}
+        placeholder={placeholder}
+        isCalculating={isCalculating}
+      />
+    </>
+  );
+}
+
 export function InvestForm({ vault, investor, session }: InvestFormProps) {
   if (!isPrivyConfigured()) {
     return <InvestFormUnconfigured vault={vault} investor={investor} session={session} />;
@@ -261,12 +323,8 @@ function InvestFormUnconfigured({
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader
-            title="Allocation amount"
-            eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
-          />
           <div className="vault-panel-body vault-panel-body--stack">
-            <AmountLedger amount={0} placeholder="—" />
+            <AllocationSectionHeader amount={0} placeholder="—" />
 
             <section>
               <label htmlFor="amt-input-disabled" className="sr-only">
@@ -326,23 +384,7 @@ function InvestFormUnconfigured({
           <EligibilityChecklist investor={investor} session={session} />
         </div>
 
-        <div className="vault-invest-section-divider">
-          <span className="body-xs ct-text-faint uppercase tracking-widest font-bold">
-            Analytics & Projections
-          </span>
-        </div>
-
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="PTAI estimate" />
-          <div className="vault-panel-body">
-            <Ptai
-              projection={ptai.projection}
-              trigger={ptai.trigger}
-              action={ptai.action}
-              impact={ptai.impact}
-            />
-          </div>
-        </div>
+        <InvestFormProjections amount={0} vault={vault} ptai={ptai} />
       </div>
 
       <div className="vault-invest-grid__rail">
@@ -535,12 +577,8 @@ function InvestFormLive({
     <div className="vault-invest-grid">
       <div className="vault-invest-form-main">
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader
-            title="Allocation amount"
-            eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
-          />
           <div className="vault-panel-body vault-panel-body--stack">
-            <AmountLedger
+            <AllocationSectionHeader
               amount={amount}
               placeholder={formatUsdAmount(vault.minTicketUsdc, true)}
               isCalculating={isCalculating}
@@ -742,30 +780,7 @@ function InvestFormLive({
           <EligibilityChecklist investor={investor} session={session} />
         </div>
 
-        <div className="vault-invest-section-divider">
-          <span className="body-xs ct-text-faint uppercase tracking-widest font-bold">
-            Analytics & Projections
-          </span>
-        </div>
-
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Indicative NAV path — 24 month horizon" />
-          <div className="vault-panel-body">
-            <TimeToTargetChart amount={deferredAmount} vault={vault} />
-          </div>
-        </div>
-
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="PTAI estimate" />
-          <div className="vault-panel-body">
-            <Ptai
-              projection={ptai.projection}
-              trigger={ptai.trigger}
-              action={ptai.action}
-              impact={ptai.impact}
-            />
-          </div>
-        </div>
+        <InvestFormProjections amount={deferredAmount} vault={vault} ptai={ptai} />
       </div>
 
       <div className="vault-invest-grid__rail">
@@ -773,7 +788,6 @@ function InvestFormLive({
         <PreFlightCheck
           walletAddress={walletAddress}
           amount={amount}
-          vaultId={vault.id}
           onAllowanceApproved={() => setAllowanceApproved(true)}
           allowanceApproved={allowanceApproved}
           approving={approving}

@@ -60,22 +60,9 @@ export default async function PortfolioPage() {
       <div className="pf-hairline" aria-hidden="true" />
 
       <div className="pf-cockpit">
-        <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio value">
-          <div className="pf-cockpit-cell" data-section="value-chart">
-            <ValueChart
-              positions={positions}
-              totalValueUsdc={data.totalValueUsdc}
-              valueChartTransactions={data.valueChartTransactions}
-              source={source}
-              updatedAt={updatedAt}
-              embedded={false}
-            />
-          </div>
-        </section>
-
-        <section className="pf-cockpit-row pf-cockpit-row--mid" aria-label="Capital yield and status">
-          <div className="pf-fused-surface pf-fused-surface--mid">
-            <div className="pf-fused-surface__pane">
+        <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
+          <div className="pf-hero-grid pf-cockpit-cell">
+            <div className="pf-fused-surface__pane pf-fused-surface__pane--rail">
               <CapitalYield
                 {...yieldStackProps}
                 buckets={allocationDonutProps.buckets}
@@ -84,18 +71,28 @@ export default async function PortfolioPage() {
                 embedded={true}
               />
             </div>
-            <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">
-              <PortfolioStatusPanel
-                hasPositions={hasPositions}
-                positionsCount={positionsCount}
-                deployedUsdc={deployedUsdc}
+            <div className="pf-main-chart-wrapper">
+              <ValueChart
+                positions={positions}
                 totalValueUsdc={data.totalValueUsdc}
-                accruedYieldUsdc={accruedYieldUsdc}
+                valueChartTransactions={data.valueChartTransactions}
                 source={source}
+                updatedAt={updatedAt}
                 embedded={true}
-                updatedAt={updatedAt ?? undefined}
+                apyLow={yieldStackProps.blendedLow}
+                apyHigh={yieldStackProps.blendedHigh}
               />
             </div>
+            <PortfolioStatusPanel
+              hasPositions={hasPositions}
+              positionsCount={positionsCount}
+              deployedUsdc={deployedUsdc}
+              totalValueUsdc={data.totalValueUsdc}
+              accruedYieldUsdc={accruedYieldUsdc}
+              source={source}
+              embedded={true}
+              updatedAt={updatedAt ?? undefined}
+            />
           </div>
         </section>
 

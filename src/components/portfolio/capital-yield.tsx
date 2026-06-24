@@ -253,24 +253,24 @@ export function CapitalYield({
 
           <hr className="cy-ledger-rule" aria-hidden />
 
-          <dl className="pf-stack--dense">
-            <div className="flex items-baseline justify-between">
-              <dt className="body-xs min-w-0 truncate ct-text-muted">
+          <dl className="pf-stack--dense group/footer">
+            <div className="flex items-baseline justify-between cy-footer-row transition-all duration-200 hover:translate-x-1 cursor-default">
+              <dt className="body-xs min-w-0 truncate ct-text-muted transition-colors duration-200 group-hover/footer:ct-text-primary">
                 Blended fwd range
               </dt>
               <dd
-                className={cn("tabular font-semibold", isFilled ? "ct-text-primary" : "ct-text-tertiary")}
+                className={cn("tabular font-semibold transition-colors duration-200", isFilled ? "ct-text-primary group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
                 aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
               >
                 {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
               </dd>
             </div>
-            <div className="flex items-baseline justify-between">
-              <dt className="body-xs min-w-0 truncate ct-text-muted">
+            <div className="flex items-baseline justify-between cy-footer-row transition-all duration-200 hover:translate-x-1 cursor-default">
+              <dt className="body-xs min-w-0 truncate ct-text-muted transition-colors duration-200 group-hover/footer:ct-text-primary">
                 Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
               </dt>
               <dd
-                className={cn("tabular font-medium", isFilled ? "ct-text-body" : "ct-text-tertiary")}
+                className={cn("tabular font-medium transition-colors duration-200", isFilled ? "ct-text-body group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
                 aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
               >
                 {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}

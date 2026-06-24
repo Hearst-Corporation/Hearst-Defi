@@ -37,8 +37,7 @@
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   background: var(--ct-graphite-subtle-bg);
-  transition: border-color var(--ct-dur-base) var(--ct-ease),
-              background-color var(--ct-dur-base) var(--ct-ease);
+  transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
 .vault-amount-ledger--calculating {
@@ -210,13 +209,17 @@
 
 /* 6. LEGAL BLOCK */
 
-.vault-legal-block {
+.vault-legal-block,
+.vault-confirm-panel__rows {
   display: flex;
   flex-direction: column;
-  padding: var(--ct-space-4);
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-md);
+}
+
+.vault-legal-block {
+  padding: var(--ct-space-4);
 }
 
 .vault-legal-block .vault-control--muted {
@@ -282,13 +285,8 @@
 }
 
 .vault-confirm-panel__rows {
-  display: flex;
-  flex-direction: column;
   gap: var(--ct-space-1);
   padding: var(--ct-space-3);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-md);
 }
 
 .vault-confirm-panel__disclaimer {

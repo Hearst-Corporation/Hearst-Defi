@@ -59,7 +59,6 @@ function CheckRow({
 interface PreFlightCheckProps {
   walletAddress: string | null;
   amount: number;
-  vaultId: string;
   onAllowanceApproved: () => void;
   allowanceApproved: boolean;
   approving: boolean;
@@ -71,7 +70,6 @@ interface PreFlightCheckProps {
 export function PreFlightCheck({
   walletAddress,
   amount,
-  vaultId: _vaultId,
   onAllowanceApproved,
   allowanceApproved,
   approving,

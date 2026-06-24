@@ -1,22 +1,21 @@
+"use client";
+
 /**
  * DistribCalendar — Payout Calendar widget for the investor dashboard.
  * ("Payout" is the investor-facing word for a vault distribution; the internal
  * component/prop names keep "distrib" to avoid touching data wiring.)
  *
  * 12 paid entries + 1 forecast bar = 13-bar horizontal histogram.
- * Pure Server Component — no client JS. CSS :focus-within for accessible
- * hover reveals via sibling selector in `group`.
- *
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
-import { useId } from "react";
+import { useId, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { formatUsdFull } from "@/lib/vaults/product-display";
+import { formatUsdFull, formatUsdDetailed } from "@/lib/vaults/product-display";
 
 export const formatUsdc = formatUsdFull;
 
@@ -163,6 +162,7 @@ function BarChart({
   // ids uniques par instance — évite les collisions <defs>/aria-labelledby si
   // plusieurs DistribCalendar coexistent sur le document (HTML invalide sinon).
   const uid = useId();
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const n = entries.length;
   if (skeleton || n === 0) return <SkeletonBars />;
 
@@ -175,88 +175,104 @@ function BarChart({
   const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
 
   return (
-    <svg
-      viewBox={`0 0 ${VB_W} ${VB_H}`}
-      preserveAspectRatio="xMidYMax meet"
-      className="pf-distrib-chart block h-full w-full"
-      role="img"
-      aria-labelledby={titleId}
-    >
-      {/* Single text child (template literal) — an SVG <title> with mixed
-          string + expression children serialises empty on the server and
-          triggers a hydration mismatch. */}
-      <title id={titleId}>{`Payout calendar — ${n} periods`}</title>
+    <div className="relative w-full h-full group/chart">
+      <svg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        preserveAspectRatio="xMidYMax meet"
+        className="pf-distrib-chart block h-full w-full"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        {/* Single text child (template literal) — an SVG <title> with mixed
+            string + expression children serialises empty on the server and
+            triggers a hydration mismatch. */}
+        <title id={titleId}>{`Payout calendar — ${n} periods`}</title>
 
-      <defs>
-        {/* Diagonal hatch pattern for forecast bar */}
-        <pattern
-          id={forecastPatternId}
-          patternUnits="userSpaceOnUse"
-          width="6"
-          height="6"
-          patternTransform="rotate(45)"
-        >
-          <line
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="6"
-            stroke="var(--ct-text-muted)"
-            strokeWidth="2"
-            style={{ strokeOpacity: "var(--ct-opacity-50)" }}
-          />
-        </pattern>
-      </defs>
-
-      {entries.map((entry, i) => {
-        const isForecast = entry.paidAt === null;
-        const isCurrent = entry.period === currentPeriod;
-        const bh = barHeight(entry.amountUsdc, maxAmount);
-        const bx = barX(i, n, BAR_W, GAP);
-        const by = BAR_AREA_BOT - bh;
-        const periodLabel = formatPeriod(entry.period, refYear);
-        const amountLabel = isForecast ? "~" + formatUsdFull(entry.amountUsdc) : formatUsdFull(entry.amountUsdc);
-        const cx = bx + BAR_W / 2;
-
-        const barEl = isForecast ? (
-          // Forecast: dashed-border rect + hatch fill
-          <g key={i} role="img" aria-label={`Forecast ${periodLabel} — ${amountLabel} (Estimated)`}>
-            {/* svg-render: dash pattern 4on/2off in viewBox units */}
-            <rect
-              x={bx}
-              y={by}
-              width={BAR_W}
-              height={bh}
-              fill={`url(#${forecastPatternId})`}
-              stroke="var(--ct-text-muted)"
-              strokeWidth="1"
-              strokeDasharray="4 2"
-              style={{ opacity: "var(--ct-opacity-75)" }}
-              rx="1"
-            />
-            {/* [Estimate] badge text above bar */}
-            <text
-              x={cx}
-              y={by - 4}
-              textAnchor="middle"
-              fill="var(--ct-text-muted)"
-              className="pf-distrib-chart__estimate"
-              aria-hidden="true"
-            >
-              [Estimate]
-            </text>
-          </g>
-        ) : entry.txHash && !isPlaceholderTxHash(entry.txHash) ? (
-          // Paid with a real tx hash — wrap in anchor.
-          <a
-            key={i}
-            href={explorerTxUrl(entry.txHash)}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={0}
-            aria-label={`${periodLabel} distribution ${amountLabel} — view on BaseScan`}
+        <defs>
+          {/* Diagonal hatch pattern for forecast bar */}
+          <pattern
+            id={forecastPatternId}
+            patternUnits="userSpaceOnUse"
+            width="6"
+            height="6"
+            patternTransform="rotate(45)"
           >
+            <line
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="6"
+              stroke="var(--ct-text-muted)"
+              strokeWidth="2"
+              style={{ strokeOpacity: "var(--ct-opacity-50)" }}
+            />
+          </pattern>
+        </defs>
+
+        {entries.map((entry, i) => {
+          const isForecast = entry.paidAt === null;
+          const isCurrent = entry.period === currentPeriod;
+          const bh = barHeight(entry.amountUsdc, maxAmount);
+          const bx = barX(i, n, BAR_W, GAP);
+          const by = BAR_AREA_BOT - bh;
+          const periodLabel = formatPeriod(entry.period, refYear);
+          const amountLabel = isForecast ? "~" + formatUsdFull(entry.amountUsdc) : formatUsdFull(entry.amountUsdc);
+          const cx = bx + BAR_W / 2;
+
+          const barEl = isForecast ? (
+            // Forecast: dashed-border rect + hatch fill
+            <g key={i} role="img" aria-label={`Forecast ${periodLabel} — ${amountLabel} (Estimated)`}>
+              {/* svg-render: dash pattern 4on/2off in viewBox units */}
+              <rect
+                x={bx}
+                y={by}
+                width={BAR_W}
+                height={bh}
+                fill={`url(#${forecastPatternId})`}
+                stroke="var(--ct-text-muted)"
+                strokeWidth="1"
+                strokeDasharray="4 2"
+                style={{ opacity: "var(--ct-opacity-75)" }}
+                rx="1"
+              />
+              {/* [Estimate] badge text above bar */}
+              <text
+                x={cx}
+                y={by - 4}
+                textAnchor="middle"
+                fill="var(--ct-text-muted)"
+                className="pf-distrib-chart__estimate"
+                aria-hidden="true"
+              >
+                [Estimate]
+              </text>
+            </g>
+          ) : entry.txHash && !isPlaceholderTxHash(entry.txHash) ? (
+            // Paid with a real tx hash — wrap in anchor.
+            <a
+              key={i}
+              href={explorerTxUrl(entry.txHash)}
+              target="_blank"
+              rel="noopener noreferrer"
+              tabIndex={0}
+              aria-label={`${periodLabel} distribution ${amountLabel} — view on BaseScan`}
+            >
+              <rect
+                x={bx}
+                y={by}
+                width={BAR_W}
+                height={bh}
+                fill={BAR_FILL}
+                stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
+                strokeWidth={isCurrent ? "1.5" : "0.75"}
+                style={{ opacity: 1 }}
+                rx="2"
+              />
+            </a>
+          ) : (
+            // Paid, no tx hash
             <rect
+              key={i}
               x={bx}
               y={by}
               width={BAR_W}
@@ -266,56 +282,68 @@ function BarChart({
               strokeWidth={isCurrent ? "1.5" : "0.75"}
               style={{ opacity: 1 }}
               rx="2"
+              aria-label={`${periodLabel} distribution ${amountLabel}`}
             />
-          </a>
-        ) : (
-          // Paid, no tx hash
-          <rect
-            key={i}
-            x={bx}
-            y={by}
-            width={BAR_W}
-            height={bh}
-            fill={BAR_FILL}
-            stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
-            strokeWidth={isCurrent ? "1.5" : "0.75"}
-            style={{ opacity: 1 }}
-            rx="2"
-            aria-label={`${periodLabel} distribution ${amountLabel}`}
-          />
-        );
+          );
 
-        return (
-          <g key={i} className="pf-distrib-chart__group">
-            {barEl}
-
-            {/* Period label */}
-            <text
-              x={cx}
-              y={LABEL_Y}
-              textAnchor="middle"
-              fill={isCurrent ? "var(--ct-accent)" : "var(--ct-text-muted)"}
-              className="pf-distrib-chart__period"
-              aria-hidden="true"
+          return (
+            <g 
+              key={i} 
+              className="pf-distrib-chart__group"
+              onMouseEnter={() => setHoverIndex(i)}
+              onMouseLeave={() => setHoverIndex(null)}
             >
-              {periodLabel}
-            </text>
+              {barEl}
 
-            {/* Amount label */}
-            <text
-              x={cx}
-              y={AMOUNT_Y}
-              textAnchor="middle"
-              fill="var(--ct-text-primary)"
-              className="pf-distrib-chart__amount"
-              aria-hidden="true"
-            >
-              {amountLabel}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+              {/* Period label */}
+              <text
+                x={cx}
+                y={LABEL_Y}
+                textAnchor="middle"
+                fill={isCurrent ? "var(--ct-accent)" : "var(--ct-text-muted)"}
+                className="pf-distrib-chart__period"
+                aria-hidden="true"
+              >
+                {periodLabel}
+              </text>
+
+              {/* Amount label */}
+              <text
+                x={cx}
+                y={AMOUNT_Y}
+                textAnchor="middle"
+                fill="var(--ct-text-primary)"
+                className="pf-distrib-chart__amount"
+                aria-hidden="true"
+              >
+                {amountLabel}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Tooltip calibrated with ValueChart */}
+      {hoverIndex !== null && entries[hoverIndex] && (
+        <div 
+          className="pf-vc-tooltip"
+          style={{
+            left: `${((barX(hoverIndex, n, BAR_W, GAP) + BAR_W / 2) / VB_W * 100).toFixed(3)}%`,
+            top: `${((BAR_AREA_BOT - barHeight(entries[hoverIndex]!.amountUsdc, maxAmount)) / VB_H * 100).toFixed(3)}%`,
+            transform: `translate(-50%, calc(-100% - var(--ct-space-4)))`
+          }}
+        >
+          <div className="pf-vc-tooltip__content">
+            <span className="pf-vc-tooltip__value tabular-nums">
+              {formatUsdDetailed(entries[hoverIndex]!.amountUsdc)}
+            </span>
+            <span className="pf-vc-tooltip__date">
+              {formatPeriod(entries[hoverIndex]!.period, refYear)}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

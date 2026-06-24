@@ -337,9 +337,24 @@
   border-left: 1px solid var(--ct-graphite-border-nested);
 }
 
-.pf-fused-surface__pane--aside {
+.pf-fused-surface__pane--rail {
   background: transparent;
+  border-right: 1px solid var(--ct-graphite-border-nested);
 }
+
+@container pf (max-width: 58rem) {
+  .pf-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .pf-fused-surface__pane--rail {
+    border-right: 0;
+    border-bottom: 1px solid var(--ct-graphite-border-nested);
+  }
+  .pf-hero-grid .pf-main-chart-wrapper {
+    border-left: 0;
+  }
+}
+
 
 .pf-fused-surface--mid .pf-cockpit-panel__header {
   padding-bottom: var(--ct-space-1);
@@ -1371,6 +1386,15 @@
   box-shadow: 0 0 8px var(--cy-bucket, var(--ct-accent));
 }
 
+.cy-row:hover .cy-val {
+  color: var(--ct-accent-light);
+}
+
+.cy-row:hover .cy-label {
+  color: var(--ct-text-strong);
+}
+
+
 .cy-label {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-medium);
@@ -2128,13 +2152,16 @@
         its own internal 2-column split). No @container override needed here. ---- */
 
 @container pf (min-width: 58rem) {
-  /* Hero welded grid split */
+  /* Hero welded grid split — 3 columns: Rail (Donut+APY) | Chart | Sidebar */
   .pf-hero-grid {
-    grid-template-columns: 1.6fr minmax(16rem, 1fr);
+    grid-template-columns: minmax(14rem, 0.8fr) 1.6fr minmax(16rem, 1fr);
   }
   /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
     border-top: 0;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+  .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 1px solid var(--ct-graphite-border-nested);
   }
 }

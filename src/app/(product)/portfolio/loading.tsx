@@ -30,6 +30,9 @@ export default function PortfolioLoading() {
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--chart">
           <div className="pf-hero-grid pf-cockpit-cell">
+            <div className="pf-fused-surface__pane pf-fused-surface__pane--rail">
+              <Skeleton className="pf-skeleton-widget" />
+            </div>
             <div className="pf-main-chart-wrapper">
               <Skeleton className="pf-skeleton-chart" />
             </div>
