@@ -73,7 +73,7 @@ export default async function OutreachPage() {
           {/* Prospect directory */}
           <section className="admin-doc-stack gap-[var(--ct-space-4)]" aria-label="Prospects">
             <div className="admin-doc-inline-row--between">
-              <h2 className="h3 ct-text-strong">Prospect directory <span className="ct-text-faint font-normal tabular-nums ml-1">({prospects.total})</span></h2>
+              <h2 className="h2">Prospect directory <span className="ct-text-faint font-normal tabular-nums ml-1">({prospects.total})</span></h2>
               <div className="admin-doc-inline-row--actions gap-[var(--ct-space-2)]">
                 <ProspectAddForm />
                 <ProspectImportForm />
@@ -162,7 +162,7 @@ export default async function OutreachPage() {
           <section className="admin-doc-stack gap-[var(--ct-space-4)]" aria-label="Campaigns">
             <div className="admin-doc-inline-row--between">
               <div className="admin-doc-stack gap-0">
-                <h2 className="h3 ct-text-strong">Campaign queue <span className="ct-text-faint font-normal tabular-nums ml-1">({campaigns.length})</span></h2>
+                <h2 className="h2">Campaign queue <span className="ct-text-faint font-normal tabular-nums ml-1">({campaigns.length})</span></h2>
                 <p className="body-xs ct-text-faint">
                   Define mandates, monitor drafting, and review recipient workflows.
                 </p>
@@ -244,7 +244,7 @@ export default async function OutreachPage() {
             style={{ marginTop: 0 }}
           >
             <div className="outreach-engine-aside__head mb-[var(--ct-space-2)]">
-              <h2 className="h3 ct-text-strong">Lead engine</h2>
+              <h2 className="h2">Lead engine</h2>
               <span className="body-xs ct-text-faint">
                 Source &amp; tier leads from ICP.
               </span>
