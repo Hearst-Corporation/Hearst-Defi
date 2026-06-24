@@ -95,6 +95,12 @@ export interface PortfolioPosition {
   subscribedAt: Date;
 }
 
+export const POSITION_STATUS_CONFIG = {
+  active: { label: "Active", variant: "success", dot: "pf-status-dot--active" },
+  matured: { label: "Matured", variant: "warning", dot: "pf-status-dot--matured" },
+  exited: { label: "Exited", variant: "default", dot: "pf-status-dot--exited" },
+} as const;
+
 export interface PortfolioTransaction {
   id: string;
   type: "deposit" | "claim" | "withdraw" | "distribution";
@@ -405,7 +411,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
 /**
  * Build LockMeterProps from the first active position.
  */
-export const loadLockMeterProps = cache(async (): Promise<LockMeterProps & { source: "live" | "stale"; updatedAt?: Date }> => {
+const loadLockMeterProps = cache(async (): Promise<LockMeterProps & { source: "live" | "stale"; updatedAt?: Date }> => {
   const now = new Date();
   const investor = await getInvestor();
   if (!investor) {
@@ -751,7 +757,7 @@ export const loadAllocationDonutProps = cache(
 /**
  * Build TimeToCashProps from the first active position and vault yield.
  */
-export const loadTimeToCashProps = cache(async (): Promise<TimeToCashProps & { source: "live" | "stale"; updatedAt?: Date }> => {
+const loadTimeToCashProps = cache(async (): Promise<TimeToCashProps & { source: "live" | "stale"; updatedAt?: Date }> => {
   const now = new Date();
   const investor = await getInvestor();
   

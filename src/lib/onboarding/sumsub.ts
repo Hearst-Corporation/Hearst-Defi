@@ -129,7 +129,7 @@ interface AccessTokenResponse {
  * @returns the WebSDK access token.
  * @throws when Sumsub returns a non-2xx response or the body is malformed.
  */
-export async function createAccessToken(
+async function createAccessToken(
   externalUserId: string,
   levelName: string = sumsubLevelName(),
 ): Promise<string> {
@@ -434,7 +434,7 @@ export interface ApplicantStatus {
  * the UI to surface progress. The authoritative approval still flows through the
  * webhook; this is a convenience poll only.
  */
-export async function getApplicantStatus(
+async function getApplicantStatus(
   applicantId: string,
 ): Promise<ApplicantStatus> {
   if (!applicantId || applicantId.trim() === "") {

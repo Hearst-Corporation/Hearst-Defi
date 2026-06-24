@@ -92,7 +92,7 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
   return (
     <Card aria-label={week.label} hoverOverlay={false}>
       <header className="admin-doc-stack admin-doc-stack--tight border-b border-(--ct-border-soft) pb-[var(--ct-space-6)]">
-        <h3 className="h3 ct-text-strong m-0">{week.label}</h3>
+        <h3 className="h3 m-0">{week.label}</h3>
         <div className="admin-doc-inline-row admin-doc-inline-row--loose body-sm ct-text-muted">
           <span className="mono tabular">
             {week.doneCount} / {week.total}

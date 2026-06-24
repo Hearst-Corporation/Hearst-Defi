@@ -16,6 +16,7 @@ export function DashboardRecentEvents({
         variant="inline"
         message="No rebalance events recorded yet."
         ariaLabel="Recent vault activity"
+        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
       />
     );
   }
@@ -25,17 +26,25 @@ export function DashboardRecentEvents({
       {events.map((event) => (
         <li
           key={event.id}
-          className="admin-doc-stack admin-doc-stack--micro min-w-0"
+          className="dashboard-event-item cockpit-hover-row cockpit-hover-row--inset py-1 px-2 rounded-(--ct-radius-xs) flex items-center justify-between gap-4"
           aria-label={`${event.ruleId}: ${event.actionText}`}
         >
-          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--dense min-w-0">
-            <span className="body-sm ct-text-strong truncate">{event.actionText}</span>
-            <span className="body-xs ct-text-faint tabular shrink-0">
-              {formatAdminMonthDay(event.takenAt)}
-            </span>
+          <div className="dashboard-event-main min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <span className="cockpit-value-md uppercase truncate">
+                {event.actionText}
+              </span>
+              <span className="cockpit-value-xs truncate opacity-70">
+                {event.impactText}
+              </span>
+            </div>
+            <p className="cockpit-label-xs truncate m-0 opacity-80">
+              {event.triggerText}
+            </p>
           </div>
-          <p className="body-xs ct-text-muted m-0 truncate">{event.triggerText}</p>
-          <p className="body-xs ct-text-faint m-0 truncate">{event.impactText}</p>
+          <span className="cockpit-label-xs shrink-0 opacity-60">
+            {formatAdminMonthDay(event.takenAt)}
+          </span>
         </li>
       ))}
     </ul>

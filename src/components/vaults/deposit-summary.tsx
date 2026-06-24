@@ -1,6 +1,7 @@
 import { ApyRange } from "@/components/ui/apy-range";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
+import { cn } from "@/lib/cn";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -33,15 +34,24 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
     <div className="vault-flow-flat-section">
       <VaultPanelHeader
         title="Deposit summary"
+        eyebrow="Projected allocation outcome"
         trailing={<ProvenanceBadge kind="estimated" />}
       />
 
       <div className="vault-panel-body vault-deposit-summary">
         <div className="vault-deposit-summary__headline">
           <span className="stat-label ct-text-muted">
-            Projected at soft close (gross)
+            {hasAmount
+              ? "Projected at soft close (gross)"
+              : "Allocation preview — enter amount"}
           </span>
-          <span className="vault-deposit-summary__total tabular mono">
+          <span
+            className={cn(
+              "vault-deposit-summary__total tabular mono transition-all duration-500",
+              !hasAmount && "vault-deposit-summary__total--empty",
+              hasAmount && "ct-text-accent scale-105 origin-right"
+            )}
+          >
             {totalAtClose !== null ? `${formatUsdFull(totalAtClose)} USDC` : "—"}
           </span>
         </div>
@@ -56,26 +66,29 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           }
         >
           <span
-            className="vault-deposit-summary__seg vault-deposit-summary__seg--principal"
+            className="vault-deposit-summary__seg vault-deposit-summary__seg--principal transition-all duration-500 ease-out"
             style={{ width: `${hasAmount ? principalShare : 100}%` }}
           />
           {hasAmount && yieldShare > 0 ? (
             <span
-              className="vault-deposit-summary__seg vault-deposit-summary__seg--yield"
+              className="vault-deposit-summary__seg vault-deposit-summary__seg--yield transition-all duration-500 ease-out"
               style={{ width: `${yieldShare}%` }}
             />
           ) : null}
         </div>
 
         <div className="vault-deposit-summary__legend">
-          <div className="vault-deposit-summary__legend-item">
+          <div className="vault-deposit-summary__legend-item transition-opacity duration-300">
             <span className="vault-deposit-summary__swatch vault-deposit-summary__swatch--principal" />
             <span className="body-xs ct-text-muted">Principal</span>
             <span className="body-xs tabular mono ct-text-primary">
               {hasAmount ? `${formatUsdFull(amount)} USDC` : "—"}
             </span>
           </div>
-          <div className="vault-deposit-summary__legend-item">
+          <div className={cn(
+            "vault-deposit-summary__legend-item transition-all duration-300",
+            !hasAmount && "opacity-40"
+          )}>
             <span className="vault-deposit-summary__swatch vault-deposit-summary__swatch--yield" />
             <span className="body-xs ct-text-muted">
               Est. gross yield · {vault.softLockupDays}d
@@ -87,7 +100,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         </div>
 
         <dl className="vault-deposit-summary__kpis">
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Target APY</dt>
             <dd>
               <ApyRange
@@ -98,19 +111,19 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
               />
             </dd>
           </div>
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Est. gross yield (p.a.)</dt>
             <dd className="body-sm tabular mono ct-text-strong">
               {yearlyYield !== null ? `~${formatUsdFull(yearlyYield)}` : "—"}
             </dd>
           </div>
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Lock-up</dt>
             <dd className="body-sm tabular mono ct-text-strong">
               {vault.softLockupDays}d soft
             </dd>
           </div>
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Fees</dt>
             <dd className="body-sm mono ct-text-strong">
               {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%

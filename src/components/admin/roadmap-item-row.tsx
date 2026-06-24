@@ -59,7 +59,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
 
   return (
     <div className="ct-roadmap-item-row" aria-label={item.label}>
-      <div className="flex min-w-0 flex-col gap-(--ct-space-4) lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex min-w-0 flex-col gap-[var(--ct-space-4)] lg:flex-row lg:items-start lg:justify-between">
         <div className="admin-doc-inline-row admin-doc-inline-row--relaxed items-start min-w-0 flex-1">
           <span
             role="img"
@@ -113,7 +113,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                   "rounded-md px-[var(--ct-space-2_5)] py-[var(--ct-space-1_5)] disabled:cursor-default",
                   item.status === s
                     ? "ct-surface-2 ct-text-primary"
-                    : "ct-text-muted hover:bg-(--ct-surface-2) hover:ct-text-primary",
+                    : "ct-text-muted hover:bg-[var(--ct-surface-2)] hover:ct-text-primary",
                 )}
                 title={statusLabel(s)}
                 aria-label={`Set status to ${statusLabel(s)}`}

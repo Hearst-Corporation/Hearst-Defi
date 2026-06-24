@@ -8,24 +8,29 @@ export function ProofCenterSection({
   id,
   title,
   actions,
+  variant = "product",
   children,
 }: {
   id: string;
   title: string;
   actions?: ReactNode;
+  variant?: "product" | "admin";
   children: ReactNode;
 }) {
+  const sectionClass = variant === "admin" ? "admin-doc-stack admin-doc-stack--compact" : "product-doc-section";
+  const titleClass = variant === "admin" ? "h2 ct-text-strong m-0" : "h2 m-0";
+
   return (
-    <section aria-labelledby={id} className="product-doc-section">
+    <section aria-labelledby={id} className={sectionClass}>
       {actions ? (
-        <div className="product-doc-section__head">
-          <h2 id={id} className="h2 m-0">
+        <div className={variant === "admin" ? "flex items-center justify-between" : "product-doc-section__head"}>
+          <h2 id={id} className={titleClass}>
             {title}
           </h2>
           {actions}
         </div>
       ) : (
-        <h2 id={id} className="h2 m-0">
+        <h2 id={id} className={titleClass}>
           {title}
         </h2>
       )}

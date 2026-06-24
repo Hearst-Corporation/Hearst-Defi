@@ -48,6 +48,16 @@ const LP_PRESETS: readonly Preset[] = [
       "[[canvas:lp-yield-explainer]] Explain how this vault generates its yield.",
   },
   {
+    id: "risk-assessment",
+    label: "Risk assessment",
+    prompt: "What are the primary risks associated with this vault?",
+  },
+  {
+    id: "distributions",
+    label: "Recent distributions",
+    prompt: "Show me the recent distributions for my active positions.",
+  },
+  {
     id: "show-portfolio",
     label: "Show my portfolio",
     prompt: "Take me to my portfolio.",

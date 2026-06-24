@@ -2,12 +2,21 @@
 
 import { useEffect, useRef, useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { Ptai } from "@/components/ui/ptai";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { PanelStatus, PanelStatusAccent, PanelStatusSection } from "@/components/ui/panel-status";
+import { Progress } from "@/components/ui/progress";
+import {
+  allocationStrokeFor,
+  allocationLabelFor,
+} from "@/lib/allocation-colors";
 import { cn } from "@/lib/cn";
 import { getPresetMetas } from "@/lib/engine/preset-meta";
 import {
@@ -25,6 +34,8 @@ type MatrixCell = {
   apyHigh: number;
   riskScore: number;
   scenarioRunId: string;
+  allocations: { bucket: string; pct: number }[];
+  confidence: string;
 };
 
 type StudyResult = {
@@ -87,22 +98,111 @@ type SliderProps = {
 
 function SliderField({ label, value, min, max, step, onChange, format }: SliderProps) {
   const fmt = format ?? ((v: number) => v.toFixed(2));
+  
+  // Visual validation for extreme values
+  const isBtcExtreme = label === "BTC Price Change" && Math.abs(value) >= 100;
+  const isHashExtreme = label === "Hashprice" && (value <= 0.03 || value >= 0.3);
+  const isExtreme = isBtcExtreme || isHashExtreme;
+
   return (
-    <div className="admin-doc-stack admin-doc-stack--dense">
+    <div className="admin-doc-stack admin-doc-stack--micro">
       <div className="admin-doc-inline-row admin-doc-inline-row--between">
-        <span className="ct-form-label">{label}</span>
-        <span className="mono tabular body-sm ct-text-primary">{fmt(value)}</span>
+        <label className={cn(
+          "ct-form-label mb-0 cursor-pointer select-none transition-colors duration-300",
+          isExtreme ? "ct-text-warning font-bold" : "ct-text-muted"
+        )}>
+          {label}
+          {isExtreme && (
+            <span className="ml-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-wider opacity-80">
+              (Extreme)
+            </span>
+          )}
+        </label>
+        <span className={cn(
+          "mono tabular body-xs font-semibold transition-colors duration-300",
+          isExtreme ? "ct-text-warning" : "ct-text-primary"
+        )}>
+          {fmt(value)}
+        </span>
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="projection-studio-range"
-        aria-label={`${label} (range ${fmt(min)}–${fmt(max)})`}
-      />
+      <div className="relative flex items-center h-6">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className={cn(
+            "projection-studio-range w-full",
+            isExtreme && "projection-studio-range--extreme"
+          )}
+          aria-label={`${label} (range ${fmt(min)}–${fmt(max)})`}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Allocation Visualization ───────────────────────────────────────────────
+
+function AllocationBreakdown({ allocations }: { allocations: MatrixCell["allocations"] }) {
+  return (
+    <div className="admin-doc-stack admin-doc-stack--compact">
+      <p className="eyebrow ct-text-muted">Derived Allocation</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--ct-space-4)]">
+        {allocations.map((alloc) => {
+          const color = allocationStrokeFor(alloc.bucket);
+          const label = allocationLabelFor(alloc.bucket);
+          return (
+            <div key={alloc.bucket} className="admin-doc-stack admin-doc-stack--micro">
+              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="body-xs font-semibold ct-text-strong">{label}</span>
+                </div>
+                <span className="mono tabular body-xs ct-text-primary">
+                  {(alloc.pct * 100).toFixed(1)}%
+                </span>
+              </div>
+              <Progress
+                value={alloc.pct * 100}
+                max={100}
+                className="h-1"
+                // @ts-expect-error - custom style for progress fill
+                style={{ "--ct-progress-fill": color }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Assumptions Strip ───────────────────────────────────────────────────────
+
+function AssumptionsStrip({ inputs }: { inputs: any }) {
+  const items = [
+    { label: "BTC", value: `${inputs.btc_price_change_pct > 0 ? "+" : ""}${inputs.btc_price_change_pct}%` },
+    { label: "Hashprice", value: `$${inputs.hashprice_usd_th_day.toFixed(3)}` },
+    { label: "Energy", value: `$${inputs.energy_cost_kwh.toFixed(3)}` },
+    { label: "Stable APY", value: `${inputs.stable_apy_pct}%` },
+    { label: "Vol", value: inputs.vol_index },
+  ];
+
+  return (
+    <div className="flex items-center gap-[var(--ct-space-4)] py-[var(--ct-space-2)] px-[var(--ct-space-4)] bg-[var(--ct-surface-1)] border border-[var(--ct-border-soft)] rounded-[var(--ct-radius-md)] overflow-x-auto no-scrollbar flex-nowrap">
+      <span className="eyebrow text-[length:var(--ct-text-deci)] ct-text-muted whitespace-nowrap">Inputs</span>
+      {items.map((item, idx) => (
+        <div key={idx} className="flex items-center gap-1.5 whitespace-nowrap">
+          <span className="body-xs ct-text-faint">{item.label}:</span>
+          <span className="mono tabular body-xs font-bold ct-text-primary">{item.value}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -127,20 +227,23 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
   return (
     <div className="admin-doc-stack admin-doc-stack--actions">
       {xAxis && (
-        <p className="body-xs ct-text-muted">
-          X: <span className="mono ct-text-body">{xAxis}</span>
+        <div className="flex items-center gap-[var(--ct-space-2)] body-xs ct-text-muted select-none">
+          <span className="eyebrow text-[length:var(--ct-text-deci)]">Axis</span>
+          <span className="mono ct-text-body px-1 bg-[var(--ct-graphite-nested-bg)] rounded border border-[var(--ct-border-soft)]">{xAxis}</span>
           {yAxis && (
             <>
-              {" "}— Y: <span className="mono ct-text-body">{yAxis}</span>
+              <span className="ct-text-faint">×</span>
+              <span className="mono ct-text-body px-1 bg-[var(--ct-graphite-nested-bg)] rounded border border-[var(--ct-border-soft)]">{yAxis}</span>
             </>
           )}
-        </p>
+        </div>
       )}
       <div
-        className="admin-doc-grid-dense"
+        className="admin-doc-grid-dense p-1 bg-[var(--ct-bg-deep)] rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)]"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           gridTemplateRows: `repeat(${rows}, auto)`,
+          gap: '2px',
         }}
         role="grid"
         aria-label="Projection heatmap"
@@ -148,33 +251,44 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
         {cells.map((cell, idx) => {
           const isSelected = cell.scenarioRunId === selectedRunId;
           return (
-            <button
+            <motion.button
               key={cell.scenarioRunId}
+              layoutId={cell.scenarioRunId}
               type="button"
               role="gridcell"
               onClick={() => onSelect(cell.scenarioRunId)}
               aria-selected={isSelected}
               aria-label={`APY ${cell.apyLow.toFixed(1)}–${cell.apyHigh.toFixed(1)}%, risk ${cell.riskScore}. Cell ${idx + 1} of ${cells.length}.`}
+              whileHover={{
+                zIndex: 20,
+              }}
+              whileTap={{ scale: 0.98 }}
+              animate={{
+                scale: isSelected ? 1.02 : 1,
+                zIndex: isSelected ? 10 : 1,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 25,
+              }}
               className={cn(
-                "admin-strategy-heatmap-cell border",
+                "admin-strategy-heatmap-cell border-0 transition-colors duration-300 relative",
                 riskBgClass(cell.riskScore),
-                "border-(--ct-border-soft)",
-                isSelected && "ring-2 ring-offset-1 ring-offset-(--ct-bg-deep)",
-                isSelected && "ring-(--ct-accent)",
-                "hover:border-(--ct-border) hover:shadow-(--ct-shadow-elevated) focus-visible:outline-none focus-visible:shadow-(--ct-shadow-focus-ring)",
+                isSelected ? "opacity-100 ring-1 ring-[var(--ct-border-strong)]" : "opacity-70 hover:opacity-100",
               )}
             >
               <div className="admin-doc-stack admin-doc-stack--micro">
                 <span
-                  className={cn("mono tabular body-xs font-semibold leading-tight", riskTextClass(cell.riskScore))}
+                  className={cn("mono tabular body-xs font-bold leading-tight", isSelected ? "ct-text-strong" : riskTextClass(cell.riskScore))}
                 >
                   {cell.apyLow.toFixed(1)}–{cell.apyHigh.toFixed(1)}%
                 </span>
-                <span className="eyebrow ct-text-muted mono">
-                  Risk {cell.riskScore}
+                <span className={cn("eyebrow text-[length:var(--ct-text-nano)] mono opacity-80", isSelected ? "ct-text-strong" : "ct-text-muted")}>
+                  R {cell.riskScore}
                 </span>
               </div>
-            </button>
+            </motion.button>
           );
         })}
       </div>
@@ -205,6 +319,7 @@ export function ProjectionStudio() {
   const [result, setResult] = useState<StudyResult | null>(null);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastRunAt, setLastRunAt] = useState<Date | null>(null);
 
   // Preset loader
   const loadPreset = useCallback(
@@ -263,6 +378,7 @@ export function ProjectionStudio() {
 
         setResult(res);
         setSelectedRunId(res.runIds[0] ?? null);
+        setLastRunAt(new Date());
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unexpected error.");
       }
@@ -303,20 +419,19 @@ export function ProjectionStudio() {
           <span className="eyebrow ct-text-muted">Presets</span>
           <span className="body-xs ct-text-faint">Load assumptions, then tune inputs below.</span>
         </div>
-        <div className="projection-studio-preset-rail__items">
+        <div className="projection-studio-preset-strip__items">
           {PRESETS.map((p) => (
-            <Button
+            <button
               key={p.id}
-              variant={selectedPreset === p.id ? "primary" : "secondary"}
-              size="sm"
+              type="button"
               onClick={() => loadPreset(p.id)}
               disabled={isPending}
               aria-pressed={selectedPreset === p.id}
-              className="projection-studio-preset-button"
+              className="projection-studio-preset-button ct-pill"
             >
               <span className="projection-studio-preset-button__label">{p.label}</span>
               <span className="projection-studio-preset-button__description">{p.description}</span>
-            </Button>
+            </button>
           ))}
         </div>
       </div>
@@ -324,131 +439,124 @@ export function ProjectionStudio() {
       <div className={cn("projection-studio-workspace", result ? "projection-studio-workspace--filled" : "projection-studio-workspace--empty")}>
       {/* ── LEFT: INPUTS ── */}
       <Card material="flat" hoverOverlay={false} className="projection-studio-input-card">
-        <div className="projection-studio-input-card__header">
-          <div>
-            <p className="eyebrow ct-text-muted">Control panel</p>
-            <h3 className="h3 mt-(--ct-space-1)">Projection inputs</h3>
+        <DashboardPanelHeader
+          title="Projection inputs"
+          eyebrow="Control panel"
+          subtitle={`Methodology ${methodologyVersion}`}
+          className="px-[var(--ct-space-5)] pt-[var(--ct-space-5)] pb-[var(--ct-space-2)]"
+        />
+
+        <div className="projection-studio-input-scroll px-[var(--ct-space-5)]">
+        {/* Market Environment */}
+        <div className="projection-studio-input-group mt-[var(--ct-space-4)]">
+          <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">Market Environment</p>
+          <div className="admin-doc-stack admin-doc-stack--actions">
+            <SliderField
+              label="BTC Price Change"
+              value={btcChange}
+              min={-100}
+              max={300}
+              step={1}
+              onChange={setBtcChange}
+              format={(v) => `${v > 0 ? "+" : ""}${v.toFixed(0)}%`}
+            />
+            <SliderField
+              label="Hashprice"
+              value={hashprice}
+              min={0.01}
+              max={0.5}
+              step={0.001}
+              onChange={setHashprice}
+              format={(v) => `$${v.toFixed(3)}/TH`}
+            />
+            <SliderField
+              label="Vol Index"
+              value={volIndex}
+              min={0}
+              max={100}
+              step={1}
+              onChange={setVolIndex}
+              format={(v) => v.toFixed(0)}
+            />
           </div>
-          <span className="body-xs ct-text-faint mono">{methodologyVersion}</span>
         </div>
 
-        <div className="projection-studio-input-scroll">
-        {/* Base inputs */}
+        <div className="projection-studio-input-divider" />
+
+        {/* Network & Yield */}
         <div className="projection-studio-input-group">
-          <p className="eyebrow ct-text-muted">Market Inputs</p>
-          <SliderField
-            label="BTC Price Change (%)"
-            value={btcChange}
-            min={-100}
-            max={300}
-            step={1}
-            onChange={setBtcChange}
-            format={(v) => `${v > 0 ? "+" : ""}${v.toFixed(0)}%`}
-          />
-          <SliderField
-            label="Hashprice (USD/TH/day)"
-            value={hashprice}
-            min={0.01}
-            max={0.5}
-            step={0.001}
-            onChange={setHashprice}
-            format={(v) => `$${v.toFixed(3)}`}
-          />
-          <SliderField
-            label="Energy Cost (USD/kWh)"
-            value={energyCost}
-            min={0.01}
-            max={1}
-            step={0.001}
-            onChange={setEnergyCost}
-            format={(v) => `$${v.toFixed(3)}`}
-          />
-          <SliderField
-            label="Stable APY (%)"
-            value={stableApy}
-            min={0}
-            max={30}
-            step={0.1}
-            onChange={setStableApy}
-            format={(v) => `${v.toFixed(1)}%`}
-          />
-          <SliderField
-            label="Vol Index (0-100)"
-            value={volIndex}
-            min={0}
-            max={100}
-            step={1}
-            onChange={setVolIndex}
-            format={(v) => v.toFixed(0)}
-          />
+          <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">Network & Yield</p>
+          <div className="admin-doc-stack admin-doc-stack--actions">
+            <SliderField
+              label="Energy Cost"
+              value={energyCost}
+              min={0.01}
+              max={1}
+              step={0.001}
+              onChange={setEnergyCost}
+              format={(v) => `$${v.toFixed(3)}/kWh`}
+            />
+            <SliderField
+              label="Stable APY"
+              value={stableApy}
+              min={0}
+              max={30}
+              step={0.1}
+              onChange={setStableApy}
+              format={(v) => `${v.toFixed(1)}%`}
+            />
+          </div>
         </div>
 
         <div className="projection-studio-input-divider" />
 
-        {/* Allocation — read-only note */}
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <p className="eyebrow ct-text-muted">Allocation</p>
-          <p className="body-xs ct-text-muted">
-            Allocation is derived by the engine from the scenario inputs and the
-            resulting vault mode. It is not set manually here — run a projection to
-            see the engine-derived allocation reflected in the APY range and risk score.
-          </p>
-        </div>
-
-        <div className="projection-studio-input-divider" />
-
-        {/* Batch mode toggle */}
+        {/* Execution Mode */}
         <div className="admin-doc-stack admin-doc-stack--actions">
-          <p className="eyebrow ct-text-muted">Batch Mode</p>
+          <p className="eyebrow ct-text-muted">Execution Mode</p>
           <div className="admin-doc-inline-row">
             {(
               [
-                { id: "none", label: "Single run" },
-                { id: "1d", label: "1D — BTC (5 vals)" },
-                { id: "2d", label: "2D — BTC × HP (3×3)" },
+                { id: "none", label: "Single" },
+                { id: "1d", label: "1D Sweep" },
+                { id: "2d", label: "2D Matrix" },
               ] as { id: BatchMode; label: string }[]
             ).map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setBatchMode(m.id)}
-                className={cn("ct-pill body-xs", batchMode === m.id && "accent")}
+                aria-pressed={batchMode === m.id}
+                className={cn(
+                  "ct-pill body-xs select-none transition-all",
+                  batchMode === m.id
+                    ? "bg-[var(--ct-surface-1)] border-[var(--ct-border-accent)] ct-text-accent"
+                    : "ct-text-muted hover:ct-text-body"
+                )}
               >
                 {m.label}
               </button>
             ))}
           </div>
           {batchMode === "1d" && (
-            <p className="body-xs ct-text-muted">
-              BTC chg sweep:{" "}
-              <span className="mono">{DEFAULT_1D_VALUES.join(", ")}%</span>
-              {" "}→ 5 parallel runs
+            <p className="body-xs ct-text-faint italic">
+              BTC sweep: <span className="mono ct-text-muted">{DEFAULT_1D_VALUES.join(", ")}%</span>
             </p>
           )}
           {batchMode === "2d" && (
-            <p className="body-xs ct-text-muted">
-              BTC chg × Hashprice — 3×3 = 9 cells, max 25
+            <p className="body-xs ct-text-faint italic">
+              BTC sweep × Hashprice (3×3 matrix)
             </p>
           )}
         </div>
 
         <div className="projection-studio-input-divider" />
 
-        {/* Methodology version */}
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <p className="eyebrow ct-text-muted">Methodology</p>
-          <select
-            className="ct-select w-full"
-            value={methodologyVersion}
-            aria-label="Methodology version"
-            disabled
-          >
-            {METHODOLOGY_VERSIONS.map((v) => (
-              <option key={v.id} value={v.id}>{v.label}</option>
-            ))}
-          </select>
-          <p className="body-xs ct-text-faint">
-            Pinned to v1.0. Bump version via ADR + spec update.
+        {/* Allocation Context */}
+        <div className="admin-inset-panel admin-inset-panel--md">
+          <p className="eyebrow ct-text-muted mb-[var(--ct-space-1)]">Allocation Note</p>
+          <p className="body-xs ct-text-faint leading-relaxed">
+            Derived by engine from scenario inputs. Not manually adjustable here.
+            Run projection to see derived targets.
           </p>
         </div>
         </div>
@@ -484,112 +592,226 @@ export function ProjectionStudio() {
       {/* ── RIGHT: OUTPUTS ── */}
       <div ref={outputRef} className="projection-studio-output">
         <Card material="flat" hoverOverlay={false} className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
-          {!result && (
-            <div
-              className="scenario-lab-output-idle projection-studio-output-placeholder"
+          <AnimatePresence mode="wait">
+          {!result ? (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="scenario-lab-output-idle projection-studio-output-placeholder p-[var(--ct-space-6)]"
               role="status"
               aria-label="Projection output — awaiting first run"
             >
-              <p className="body-sm ct-text-muted m-0 text-center admin-strategy-placeholder-copy">
-                Set assumptions, then run a projection or batch to populate the
-                APY range, risk score, and PTAI impact.
-              </p>
-            </div>
-          )}
-
-          {result && (
-            <div className="projection-studio-output-content">
-            {/* Study metadata */}
-            <div className="projection-studio-output-head">
-              <div>
-                <p className="eyebrow ct-text-muted">Result scene</p>
-                <h3 className="h3 mt-(--ct-space-1)">Projection output</h3>
-              </div>
-              <div className="admin-doc-inline-row">
-                <Badge variant="default">
-                  Study {result.studyId.slice(-8)}
-                </Badge>
-                <Badge variant="brand">
-                  {result.runIds.length} run{result.runIds.length > 1 ? "s" : ""}
-                </Badge>
-              </div>
-            </div>
-
-            {/* Single run: KPI grid */}
-            {result.runIds.length === 1 && selectedCell && (
-              <div className="admin-doc-form-grid-2">
-                <Metric
-                  label="APY Range"
-                  provenance="estimated"
-                  value={
-                    <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
-                  }
-                />
-                <Metric
-                  label="Risk Score"
-                  provenance="estimated"
-                  value={
-                    <span className={cn("tabular", riskTextClass(selectedCell.riskScore))}>
-                      {selectedCell.riskScore}
-                    </span>
-                  }
-                />
-              </div>
-            )}
-
-            {/* Batch: heatmap */}
-            {result.runIds.length > 1 && (
-              <div className="admin-doc-stack admin-doc-stack--actions admin-doc-inset">
-                <p className="eyebrow ct-text-muted">
-                  Projection Heatmap — {result.runIds.length} cells
+              <div className="admin-doc-stack admin-doc-stack--compact max-w-lg">
+                <p className="eyebrow ct-text-muted">Projection Output</p>
+                <p className="body-sm ct-text-faint">
+                  Configure market assumptions and network parameters, then run projection to generate yield estimates.
                 </p>
-                <Heatmap
-                  cells={result.matrix.cells}
-                  xAxis={result.matrix.x}
-                  yAxis={result.matrix.y}
-                  xValues={xVals}
-                  yValues={yVals}
-                  selectedRunId={selectedRunId}
-                  onSelect={setSelectedRunId}
-                />
-              </div>
-            )}
 
-            {/* Selected cell detail (batch) */}
-            {result.runIds.length > 1 && selectedCell && (
-              <div className="admin-doc-form-grid-2">
-                <Metric
-                  label="Selected APY Range"
-                  provenance="estimated"
-                  value={
-                    <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
-                  }
-                />
-                <Metric
-                  label="Risk Score"
-                  provenance="estimated"
-                  value={
-                    <span className={cn("tabular", riskTextClass(selectedCell.riskScore))}>
-                      {selectedCell.riskScore}
+                <div className="pt-[var(--ct-space-2)]">
+                  <p className="text-[length:var(--ct-text-deci)] uppercase tracking-wider ct-text-muted mb-[var(--ct-space-2)]">Workflow</p>
+                  <div className="flex flex-wrap gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-1)]">
+                    <span className="body-xs ct-text-muted">
+                    <span className="ct-text-muted mono">1.</span> Select preset
+                  </span>
+                  <span className="body-xs ct-text-muted">
+                    <span className="ct-text-muted mono">2.</span> Tune inputs
+                  </span>
+                  <span className="body-xs ct-text-muted">
+                    <span className="ct-text-muted mono">3.</span> Run projection
                     </span>
-                  }
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="projection-studio-output-content"
+            >
+            {/* Study metadata */}
+            <DashboardPanelHeader
+              title="Projection output"
+              eyebrow="Result scene"
+              subtitle={lastRunAt ? `Last run: ${lastRunAt.toLocaleTimeString()}` : undefined}
+              status="Live Engine"
+              statusTone="ok"
+              trailing={
+                <div className="flex items-center gap-[var(--ct-space-3)]">
+                  <div className="flex items-center gap-[var(--ct-space-1_5)] pr-[var(--ct-space-3)] border-r border-[var(--ct-border-soft)]">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-[length:var(--ct-text-deci)] mono ct-text-muted hover:ct-text-strong"
+                      onClick={() => {
+                        navigator.clipboard.writeText(result.studyId);
+                        toast.success("Study ID copied to clipboard");
+                      }}
+                    >
+                      Copy ID
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-[length:var(--ct-text-deci)] mono ct-text-muted hover:ct-text-strong"
+                      onClick={() => toast.info("Export to PDF/CSV coming soon")}
+                    >
+                      Export
+                    </Button>
+                  </div>
+                  <Badge variant="default" className="mono tabular">
+                    ID {result.studyId.slice(-8)}
+                  </Badge>
+                  <Badge variant="brand">
+                    {result.runIds.length} {result.runIds.length > 1 ? "Runs" : "Run"}
+                  </Badge>
+                </div>
+              }
+              className="px-[var(--ct-space-6)] py-[var(--ct-space-5)] border-b border-[var(--ct-border-soft)]"
+            />
+
+            <div className="px-[var(--ct-space-6)] py-[var(--ct-space-6)] admin-doc-stack admin-doc-stack--actions">
+              {/* Assumptions Strip */}
+              <AssumptionsStrip
+                inputs={{
+                  btc_price_change_pct: btcChange,
+                  hashprice_usd_th_day: hashprice,
+                  energy_cost_kwh: energyCost,
+                  stable_apy_pct: stableApy,
+                  vol_index: volIndex,
+                }}
+              />
+
+              {/* Single run: KPI grid */}
+              {result.runIds.length === 1 && selectedCell && (
+                <div className="admin-doc-form-grid-3">
+                  <Metric
+                    label="APY Range"
+                    provenance="estimated"
+                    value={
+                      <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
+                    }
+                  />
+                  <Metric
+                    label="Risk Score"
+                    provenance="estimated"
+                    value={
+                      <span className={cn("tabular", riskTextClass(selectedCell.riskScore))}>
+                        {selectedCell.riskScore}
+                      </span>
+                    }
+                  />
+                  <Metric
+                    label="Confidence"
+                    provenance="estimated"
+                    value={
+                      <Badge
+                        variant="default"
+                        className={cn(
+                          "uppercase tracking-wider text-[length:var(--ct-text-deci)] bg-transparent",
+                          selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
+                          selectedCell.confidence === "medium" ? "ct-text-warning border-warning-soft" :
+                          "ct-text-danger border-danger-soft"
+                        )}
+                      >
+                        {selectedCell.confidence}
+                      </Badge>
+                    }
+                  />
+                </div>
+              )}
+
+              {/* Batch: heatmap */}
+              {result.runIds.length > 1 && (
+                <div className="admin-doc-stack admin-doc-stack--actions">
+                  <p className="eyebrow ct-text-muted">
+                    Sensitivity Matrix
+                  </p>
+                  <Heatmap
+                    cells={result.matrix.cells}
+                    xAxis={result.matrix.x}
+                    yAxis={result.matrix.y}
+                    xValues={xVals}
+                    yValues={yVals}
+                    selectedRunId={selectedRunId}
+                    onSelect={setSelectedRunId}
+                  />
+                </div>
+              )}
+
+              {/* Selected cell detail (batch) */}
+              {result.runIds.length > 1 && selectedCell && (
+                <div className="admin-doc-form-grid-3">
+                  <Metric
+                    label="Selected APY Range"
+                    provenance="estimated"
+                    value={
+                      <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
+                    }
+                  />
+                  <Metric
+                    label="Risk Score"
+                    provenance="estimated"
+                    value={
+                      <span className={cn("tabular", riskTextClass(selectedCell.riskScore))}>
+                        {selectedCell.riskScore}
+                      </span>
+                    }
+                  />
+                  <Metric
+                    label="Confidence"
+                    provenance="estimated"
+                    value={
+                      <Badge
+                        variant="default"
+                        className={cn(
+                          "uppercase tracking-wider text-[length:var(--ct-text-deci)] bg-transparent",
+                          selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
+                          selectedCell.confidence === "medium" ? "ct-text-warning border-warning-soft" :
+                          "ct-text-danger border-danger-soft"
+                        )}
+                      >
+                        {selectedCell.confidence}
+                      </Badge>
+                    }
+                  />
+                </div>
+              )}
+
+              {/* Allocation Breakdown */}
+              {selectedCell && (
+                <AllocationBreakdown allocations={selectedCell.allocations} />
+              )}
+
+              {/* PTAI block — mandatory for every projection (#3) */}
+            {selectedCell && (
+              <div className="admin-inset-panel admin-inset-panel--md ct-surface-0">
+                <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">PTAI Projection Impact</p>
+                <Ptai
+                  projection={`APY range ${selectedCell.apyLow.toFixed(1)}–${selectedCell.apyHigh.toFixed(1)}% under current assumptions (methodology v1.0). Not guaranteed — projections are conditional on stated inputs.`}
+                  trigger={`Risk score ${selectedCell.riskScore}/100 computed from vol_index, hashprice margin, and BTC price change inputs. Rebalancing rule activates when risk > ${RISK_WARN_MAX}.`}
+                  action={`Admin review of projection study ${result.studyId.slice(-8)} required before promotion. Promote to vault draft via button below.`}
+                  impact={`Target APY range seeded into VaultDeployment (draft status). Requires 2-of-N multisig approval before going live. Past performance does not predict future results.`}
                 />
               </div>
             )}
 
-            {/* PTAI block — mandatory for every projection (#3) */}
-            {selectedCell && (
-              <Ptai
-                projection={`APY range ${selectedCell.apyLow.toFixed(1)}–${selectedCell.apyHigh.toFixed(1)}% under current assumptions (methodology v1.0). Not guaranteed — projections are conditional on stated inputs.`}
-                trigger={`Risk score ${selectedCell.riskScore}/100 computed from vol_index, hashprice margin, and BTC price change inputs. Rebalancing rule activates when risk > ${RISK_WARN_MAX}.`}
-                action={`Admin review of projection study ${result.studyId.slice(-8)} required before promotion. Promote to vault draft via button below.`}
-                impact={`Target APY range seeded into VaultDeployment (draft status). Requires 2-of-N multisig approval before going live. Past performance does not predict future results.`}
-              />
-            )}
+            {/* Readiness Note */}
+            <PanelStatus
+              message="Projection is ready for promotion."
+              detail="The model outputs are consistent with the selected methodology (v1.0). Promotion will create a draft deployment for further refinement."
+              tone="muted"
+              className="mt-[var(--ct-space-2)]"
+            />
 
             {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint admin-doc-inset">
-              <strong className="ct-text-muted">Disclaimer:</strong>{" "}
+            <p className="body-xs ct-text-faint italic leading-relaxed">
+              <strong className="ct-text-muted not-italic">Disclaimer:</strong>{" "}
               Projections are conditional on stated assumptions and are not guaranteed.
               Rule-based engine — no Monte Carlo. Past performance does not predict future
               results. Hearst Yield Vault is offered exclusively to professional / qualified
@@ -597,7 +819,7 @@ export function ProjectionStudio() {
             </p>
 
             {/* Promote to vault draft */}
-            <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+            <div className="admin-doc-inline-row admin-doc-inline-row--actions pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
               <Button
                 variant="primary"
                 size="md"
@@ -612,7 +834,9 @@ export function ProjectionStudio() {
               </span>
             </div>
             </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </Card>
       </div>
       </div>

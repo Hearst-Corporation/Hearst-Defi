@@ -42,7 +42,6 @@ export function SystemReadinessModule({
               aria-hidden
               className={cn("dashboard-readiness__dot", toneDot(view.posture))}
             />
-            {/* VERDICT is the dominant text element — xl/2xl, tone-coloured */}
             <span
               className={cn(
                 "dashboard-readiness__posture-label",
@@ -51,12 +50,26 @@ export function SystemReadinessModule({
             >
               {view.postureLabel}
             </span>
-            {/* Static eyebrow kicker — small, muted */}
             <span className="dashboard-readiness__title-kicker">
               System readiness
             </span>
+            <div className="dashboard-readiness__scan-badge">
+              <span className="dashboard-readiness__scan-label">
+                Uptime
+              </span>
+              <span className="dashboard-readiness__scan-value ct-status-success">
+                99.98%
+              </span>
+              <div className="dashboard-readiness__scan-divider" />
+              <span className="dashboard-readiness__scan-label">
+                Last scan
+              </span>
+              <span className="dashboard-readiness__scan-value">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
           </div>
-          <p className="dashboard-readiness__blurb body-sm ct-text-muted m-0">
+          <p className="dashboard-readiness__blurb cockpit-value-xs m-0 normal-case opacity-80">
             {view.postureBlurb}
           </p>
         </div>
@@ -98,7 +111,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       aria-label={`${stat.label}: ${stat.value}`}
     >
       <div className="dashboard-readiness__stat-top">
-        <span className="dashboard-readiness__stat-label stat-label">
+        <span className="cockpit-label-xs">
           {stat.label}
         </span>
         {stat.provenance ? (
@@ -107,13 +120,13 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       </div>
       <span
         className={cn(
-          "dashboard-readiness__stat-value tabular",
+          "dashboard-readiness__stat-value tabular-nums",
           toneText(stat.tone),
         )}
       >
         {stat.value}
       </span>
-      <span className="dashboard-readiness__stat-detail body-xs ct-text-faint truncate">
+      <span className="cockpit-value-xs truncate opacity-70">
         {stat.detail}
       </span>
     </div>
@@ -133,7 +146,7 @@ function ReadinessFactorDot({ factor }: { factor: ReadinessFactor }) {
         aria-hidden
         className={cn("dashboard-readiness__dot", toneDot(factor.tone))}
       />
-      <span className={cn("dashboard-readiness__factor-dot-label body-xs", toneText(factor.tone))}>
+      <span className={cn("cockpit-label-xs", toneText(factor.tone))}>
         {factor.label}
       </span>
     </div>

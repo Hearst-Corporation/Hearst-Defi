@@ -7,13 +7,7 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/badge";
-
-const usdSigned = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+import { formatUsdDetailed } from "@/lib/vaults/product-display";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -53,7 +47,6 @@ interface PositionTransactionsProps {
 
 /**
  * Transaction history table.
- * Filter chips are visual-only at MVP — interactivity can be added later.
  */
 export function PositionTransactions({
   transactions,
@@ -83,13 +76,12 @@ export function PositionTransactions({
         aria-hidden="true"
       >
         {chips.map((c) => (
-          <Badge
+          <span
             key={c}
-            variant="default"
-            className="body-xs select-none"
+            className="eyebrow ct-text-faint select-none"
           >
             {TYPE_LABEL[c]}
-          </Badge>
+          </span>
         ))}
       </div>
 
@@ -99,13 +91,13 @@ export function PositionTransactions({
         </p>
       ) : (
         <div className="position-detail-transactions__scroll">
-          <table className="body-sm position-detail-transactions__table">
+          <table className="body-xs position-detail-transactions__table">
             <thead>
-              <tr className="stat-label ct-text-muted position-detail-transactions__headrow">
-                <th className="position-detail-transactions__th position-detail-transactions__th--left">Date</th>
-                <th className="position-detail-transactions__th position-detail-transactions__th--left">Type</th>
-                <th className="position-detail-transactions__th position-detail-transactions__th--right">Amount</th>
-                <th className="position-detail-transactions__th position-detail-transactions__th--right">Tx</th>
+              <tr className="eyebrow ct-text-faint position-detail-transactions__headrow">
+                <th className="position-detail-transactions__th position-detail-transactions__th--left font-medium py-2.5">Date</th>
+                <th className="position-detail-transactions__th position-detail-transactions__th--left font-medium py-2.5">Type</th>
+                <th className="position-detail-transactions__th position-detail-transactions__th--right font-medium py-2.5">Amount</th>
+                <th className="position-detail-transactions__th position-detail-transactions__th--right font-medium py-2.5">Reference</th>
               </tr>
             </thead>
             <tbody>
@@ -114,16 +106,19 @@ export function PositionTransactions({
                 return (
                   <tr key={tx.id} className="position-detail-transactions__row">
                     {/* Date */}
-                    <td className="tabular body-xs ct-text-muted mono whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad">
+                    <td className="tabular ct-text-muted mono whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad py-3">
                       {dateFmt.format(tx.occurredAt)}
                     </td>
 
                     {/* Type + icon */}
-                    <td className="position-detail-transactions__cell position-detail-transactions__cell--pad">
-                      <span className="body-xs ct-text-body pf-inline-row pf-inline-row--dense">
+                    <td className="position-detail-transactions__cell position-detail-transactions__cell--pad py-3">
+                      <span className="ct-text-body pf-inline-row pf-inline-row--dense">
                         <span
                           aria-hidden="true"
-                          className={incoming ? "ct-status-success body-xs" : "ct-text-muted body-xs"}
+                          className={cn(
+                            "mono w-4 inline-block text-center",
+                            incoming ? "ct-status-success" : "ct-text-muted"
+                          )}
                         >
                           {TYPE_ICON[tx.type]}
                         </span>
@@ -134,28 +129,28 @@ export function PositionTransactions({
                     {/* Amount — green for incoming (deposit), muted for outgoing */}
                     <td
                       className={cn(
-                        "tabular body-md text-right mono font-semibold whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad",
+                        "tabular text-right mono font-semibold whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--pad py-3",
                         incoming ? "ct-status-success" : "ct-text-primary",
                       )}
                     >
                       {incoming ? "+" : ""}
-                      {usdSigned.format(tx.amountUsdc)}
+                      {formatUsdDetailed(tx.amountUsdc)}
                     </td>
 
                     {/* Tx hash — never link a fabricated seed/demo hash (dead BaseScan). */}
-                    <td className="whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--right">
+                    <td className="whitespace-nowrap position-detail-transactions__cell position-detail-transactions__cell--right py-3">
                       {tx.txHash && !isPlaceholderTxHash(tx.txHash) ? (
                         <a
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="tabular body-xs mono ct-text-accent-strong position-detail-transactions__tx"
+                          className="tabular mono ct-text-accent-strong position-detail-transactions__tx"
                           title={tx.txHash}
                         >
                           {tx.txHash.slice(0, 6)}&hellip;{tx.txHash.slice(-4)} ↗
                         </a>
                       ) : (
-                        <span className="body-xs ct-text-tertiary">
+                        <span className="ct-text-tertiary mono">
                           —
                         </span>
                       )}

@@ -6,14 +6,17 @@ import Link from "next/link";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 
 import { cn } from "@/lib/cn";
+import { ApyRange } from "@/components/ui/apy-range";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
-import { DataRow, NestedPanel } from "@/components/ui/nested-panel";
+import { LegalMetadataRow } from "@/components/ui/nested-panel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PanelStatus } from "@/components/ui/panel-status";
+import { Badge } from "@/components/ui/badge";
+import { kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
-import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
+import { VaultPanelHeader, VaultPanelLink } from "@/components/vaults/vault-flow-primitives";
 import { TimeToTargetChart } from "@/components/vaults/time-to-target-chart";
 import {
   investConfirmedPath,
@@ -30,6 +33,8 @@ import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe, checkSubscribeEligibility } from "@/app/actions/subscribe";
 import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import type { VaultProduct } from "@/lib/data/vaults";
+import type { Investor } from "@prisma/client";
+import type { SessionUser } from "@/lib/auth/session";
 import {
   formatUsdAmount,
   formatUsdcGrouped,
@@ -98,63 +103,320 @@ function buildPtai(
 
 interface InvestFormProps {
   vault: VaultProduct;
+  investor: Investor | null;
+  session: SessionUser | null;
 }
 
-export function InvestForm({ vault }: InvestFormProps) {
-  if (!isPrivyConfigured()) {
-    return <InvestFormUnconfigured vault={vault} />;
-  }
-  return <InvestFormLive vault={vault} />;
-}
-
-function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
-  const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
-  const ptai = buildPtai(0, vault);
+function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
+  const mgmtFee = vault.fees.mgmtBps / 100;
+  const perfFee = vault.fees.perfBps / 100;
 
   return (
-    <div className="vault-invest-grid">
-      <div className="vault-invest-form-main">
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader
-            title="Deposit amount"
-            eyebrow="Base Sepolia pilot · testnet USDC only"
+    <dl className="vault-invest-terms-strip">
+      <div className="vault-invest-terms-strip__row">
+        <dt className="stat-label ct-text-faint">Target APY</dt>
+        <dd>
+          <ApyRange
+            low={vault.apyLow}
+            high={vault.apyHigh}
+            precision={1}
+            className="body-sm mono tabular-nums ct-text-strong"
           />
-          <div className="vault-panel-body vault-panel-body--stack">
-            <section>
-              <label htmlFor="amt-input-disabled" className="sr-only">
-                Amount (USDC)
-              </label>
-              <div className="vault-amount-field">
-                <span aria-hidden className="vault-amount-prefix mono">
-                  $
-                </span>
-                <input
-                  id="amt-input-disabled"
-                  type="text"
-                  disabled
-                  readOnly
-                  value=""
-                  placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
-                  aria-describedby="amt-helper-disabled"
-                  className="ct-input tabular vault-amount-input vault-amount-input--muted mono body-lg"
-                />
-              </div>
-              <p id="amt-helper-disabled" className="body-xs mt-[var(--ct-space-1_5)] ct-text-muted">
-                Minimum {formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining:{" "}
-                {formatUsdAmount(maxAmount, true)}
-              </p>
-            </section>
+        </dd>
+      </div>
+      <div className="vault-invest-terms-strip__row">
+        <dt className="stat-label ct-text-faint">Lock-up</dt>
+        <dd className="body-sm tabular mono ct-text-strong">
+          {vault.softLockupDays}d soft
+        </dd>
+      </div>
+      <div className="vault-invest-terms-strip__row">
+        <dt className="stat-label ct-text-faint">Min ticket</dt>
+        <dd className="body-sm tabular mono ct-text-strong">
+          {formatUsdAmount(vault.minTicketUsdc, true)}
+        </dd>
+      </div>
+      <div className="vault-invest-terms-strip__row">
+        <dt className="stat-label ct-text-faint">Fees (gross)</dt>
+        <dd className="body-sm mono ct-text-strong">
+          {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%
+        </dd>
+      </div>
+    </dl>
+  );
+}
 
-            <Checkbox checked={false} onChange={() => {}} className="pointer-events-none vault-control--muted">
-              I have reviewed and accept the term sheet for {vault.name}.
-            </Checkbox>
+function AmountLedger({
+  children,
+  isCalculating,
+  isValid = true,
+  label = "Allocation amount",
+  currency = "USDC",
+}: {
+  children: React.ReactNode;
+  isCalculating?: boolean;
+  isValid?: boolean;
+  label?: string;
+  currency?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "vault-amount-ledger",
+        isCalculating && "vault-amount-ledger--calculating",
+        !isValid && "vault-amount-ledger--invalid",
+      )}
+    >
+      <div className="vault-amount-ledger__header">
+        <span className="stat-label ct-text-muted">{label}</span>
+        <span className="body-xs ct-text-faint mono tabular">{currency}</span>
+      </div>
+      <div className="vault-amount-ledger__content">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function InvestHelpLinks() {
+  return (
+    <div className="vault-invest-help-links">
+      <VaultPanelLink href="/proof-center">Proof Center</VaultPanelLink>
+      <span className="vault-invest-help-links__sep" aria-hidden>
+        ·
+      </span>
+      <VaultPanelLink href="/docs/methodology/v1.0.md">Methodology v1.0</VaultPanelLink>
+    </div>
+  );
+}
+
+function EligibilityChecklist({
+  investor,
+  session,
+}: {
+  investor: Investor | null;
+  session: SessionUser | null;
+}) {
+  const kycStatus = investor?.kycStatus ?? "none";
+  const accreditation = !!investor?.accreditationAttestedAt;
+  const walletConnected = !!session?.walletAddress;
+
+  return (
+    <div className="vault-eligibility-checklist">
+      <VaultPanelHeader
+        title="Eligibility & KYC"
+        eyebrow="Institutional compliance status"
+      />
+      <div className="vault-panel-body vault-panel-body--stack">
+        <LegalMetadataRow label="KYC status">
+          <Badge variant={kycBadgeVariant(kycStatus)}>
+            {kycLabel(kycStatus)}
+          </Badge>
+        </LegalMetadataRow>
+        <LegalMetadataRow label="Accreditation">
+          {accreditation ? (
+            <span className="ct-text-accent">Attested</span>
+          ) : (
+            <span className="ct-text-muted">Pending attestation</span>
+          )}
+        </LegalMetadataRow>
+        <LegalMetadataRow label="Wallet readiness">
+          {walletConnected ? (
+            <span className="ct-text-accent">Linked</span>
+          ) : (
+            <span className="ct-text-muted">Connection pending</span>
+          )}
+        </LegalMetadataRow>
+        <p className="body-xs ct-text-faint mt-3">
+          Subscription is restricted to verified qualified investors. All status flags must be green before final execution.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function InvestFormProjections({
+  amount,
+  vault,
+  ptai,
+}: {
+  amount: number;
+  vault: VaultProduct;
+  ptai: { projection: string; trigger: string; action: string; impact: string };
+}) {
+  return (
+    <>
+      <div className="vault-invest-section-divider">
+        <span className="body-xs ct-text-faint uppercase tracking-widest font-bold">
+          Analytics & Projections
+        </span>
+      </div>
+
+      <div className="vault-flow-flat-section">
+        <VaultPanelHeader title="Indicative NAV path — 24 month horizon" />
+        <div className="vault-panel-body">
+          <TimeToTargetChart amount={amount} vault={vault} />
+        </div>
+      </div>
+
+      <div className="vault-flow-flat-section">
+        <VaultPanelHeader title="PTAI estimate" />
+        <div className="vault-panel-body">
+          <Ptai
+            projection={ptai.projection}
+            trigger={ptai.trigger}
+            action={ptai.action}
+            impact={ptai.impact}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function AmountSection({
+  vault,
+  maxAmount,
+  amount,
+  rawAmount,
+  onAmountChange,
+  isCalculating,
+  amountValid,
+  helper,
+  disabled = false,
+}: {
+  vault: VaultProduct;
+  maxAmount: number;
+  amount: number;
+  rawAmount: string;
+  onAmountChange?: (val: string) => void;
+  isCalculating?: boolean;
+  amountValid: boolean;
+  helper: { text: string; variant: "ok" | "warn" | "neutral" };
+  disabled?: boolean;
+}) {
+  return (
+    <div className="vault-flow-flat-section">
+      <div className="vault-panel-body vault-panel-body--stack">
+        <VaultPanelHeader
+          title="Allocation amount"
+          eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
+        />
+
+        <section>
+          <AmountLedger isCalculating={isCalculating} isValid={amount === 0 || amountValid}>
+            <div className="vault-amount-field">
+              <span aria-hidden className="vault-amount-prefix mono">
+                $
+              </span>
+              <input
+                id={disabled ? "amt-input-disabled" : "amt-input"}
+                type={disabled ? "text" : "number"}
+                min={disabled ? undefined : vault.minTicketUsdc}
+                max={disabled ? undefined : maxAmount}
+                step={disabled ? undefined : 1000}
+                value={rawAmount}
+                onChange={disabled ? undefined : (e) => onAmountChange?.(e.target.value)}
+                disabled={disabled}
+                readOnly={disabled}
+                placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
+                aria-describedby={disabled ? "amt-helper-disabled" : "amt-helper"}
+                aria-invalid={!disabled && amount > 0 && !amountValid}
+                className={cn(
+                  "ct-input tabular vault-amount-input mono",
+                  disabled && "vault-amount-input--muted",
+                  !disabled && amount > 0 && !amountValid ? "vault-amount-input--invalid" : "",
+                )}
+              />
+            </div>
+          </AmountLedger>
+
+          <p
+            id={disabled ? "amt-helper-disabled" : "amt-helper"}
+            className={cn(
+              "body-xs mt-3 px-1",
+              helper.variant === "ok" && "ct-status-success",
+              helper.variant === "warn" && "ct-status-warning",
+              helper.variant === "neutral" && "ct-text-muted",
+            )}
+          >
+            {helper.text}
+          </p>
+        </section>
+
+        <InvestTermsStrip vault={vault} />
+      </div>
+    </div>
+  );
+}
+
+export function InvestForm({ vault, investor, session }: InvestFormProps) {
+  if (!isPrivyConfigured()) {
+    return <InvestFormUnconfigured vault={vault} investor={investor} session={session} />;
+  }
+  return <InvestFormLive vault={vault} investor={investor} session={session} />;
+}
+
+function InvestFormUnconfigured({
+  vault,
+  investor,
+  session,
+}: {
+  vault: VaultProduct;
+  investor: Investor | null;
+  session: SessionUser | null;
+}) {
+  const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
+  const ptai = buildPtai(0, vault);
+  const helper = {
+    text: `Minimum ${formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining: ${formatUsdAmount(maxAmount, true)}`,
+    variant: "neutral" as const,
+  };
+
+  return (
+    <div className="vault-invest-form-container">
+      <div className="vault-invest-form-main">
+        <AmountSection
+          vault={vault}
+          maxAmount={maxAmount}
+          amount={0}
+          rawAmount=""
+          amountValid={false}
+          helper={helper}
+          disabled
+        />
+
+        <DepositSummary vault={vault} amount={0} />
+
+        <PreFlightCheck
+          walletAddress={null}
+          amount={0}
+          onAllowanceApproved={() => {}}
+          allowanceApproved={false}
+          approving={false}
+          onApproveStart={() => {}}
+          onApproveEnd={() => {}}
+        />
+
+        <div className="vault-flow-flat-section">
+          <div className="vault-panel-body vault-panel-body--stack">
+            <div className="vault-legal-block">
+              <Checkbox checked={false} onChange={() => {}} className="pointer-events-none vault-control--muted">
+                I have reviewed and accept the term sheet for {vault.name}.
+              </Checkbox>
+              <p className="body-xs ct-text-faint mt-2 ml-7">
+                Structured product exclusively for qualified investors. Review the full subscription agreement before proceeding.
+              </p>
+            </div>
 
             <PanelStatus
               message="Wallet connection will be enabled for your account before deposit signing."
               detail="You can review the subscription path, assumptions, and checks now, then continue once wallet access is provisioned."
             />
 
-            <div className="vault-form-actions">
+            <InvestHelpLinks />
+
+            <div className="vault-form-actions vault-form-actions--split">
               <Button variant="secondary" size="md" asChild>
                 <Link href={investProductPath(vault.id)}>← Back</Link>
               </Button>
@@ -166,48 +428,24 @@ function InvestFormUnconfigured({ vault }: { vault: VaultProduct }) {
         </div>
 
         <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="PTAI estimate" />
-          <div className="vault-panel-body">
-            <Ptai
-              projection={ptai.projection}
-              trigger={ptai.trigger}
-              action={ptai.action}
-              impact={ptai.impact}
-            />
-          </div>
+          <EligibilityChecklist investor={investor} session={session} />
         </div>
-      </div>
 
-      <div className="vault-invest-grid__rail">
-        <DepositSummary vault={vault} amount={0} />
-        <NestedPanel className="ct-divide-soft py-0">
-          <VaultPanelHeader title="Pre-flight check" />
-          <div className="vault-panel-body">
-            <PanelStatus
-              className="vault-preflight-note"
-              message="Pre-flight is shown in review mode until wallet access is enabled."
-              detail="Network, allowance, and signing checks become actionable once your wallet is connected."
-            />
-            <DataRow label="Wallet">
-              <span className="ct-text-muted">Not connected yet</span>
-            </DataRow>
-            <DataRow label="Network">
-              <span className="ct-text-muted">Available once wallet access is enabled</span>
-            </DataRow>
-            <DataRow label="Allowance">
-              <span className="ct-text-muted">Available after wallet connection</span>
-            </DataRow>
-            <DataRow label="Epoch">
-              <span className="ct-text-muted">Active · closes in 18d · indicative</span>
-            </DataRow>
-          </div>
-        </NestedPanel>
+        <InvestFormProjections amount={0} vault={vault} ptai={ptai} />
       </div>
     </div>
   );
 }
 
-function InvestFormLive({ vault }: InvestFormProps) {
+function InvestFormLive({
+  vault,
+  investor,
+  session,
+}: {
+  vault: VaultProduct;
+  investor: Investor | null;
+  session: SessionUser | null;
+}) {
   const router = useRouter();
   const { ready } = usePrivy();
   const { wallets } = useWallets();
@@ -227,6 +465,7 @@ function InvestFormLive({ vault }: InvestFormProps) {
 
   const amount = rawAmount === "" ? 0 : Math.max(0, Number(rawAmount.replace(/,/g, "")));
   const deferredAmount = useDeferredValue(amount);
+  const isCalculating = amount !== deferredAmount;
 
   const amountValid = amount >= vault.minTicketUsdc && amount <= maxAmount;
 
@@ -356,79 +595,69 @@ function InvestFormLive({ vault }: InvestFormProps) {
   const ptai = buildPtai(deferredAmount, vault);
 
   return (
-    <div className="vault-invest-grid">
+    <div className="vault-invest-form-container">
       <div className="vault-invest-form-main">
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader
-            title="Deposit amount"
-            eyebrow="Base Sepolia pilot · testnet USDC only"
+        <AmountSection
+          vault={vault}
+          maxAmount={maxAmount}
+          amount={amount}
+          rawAmount={rawAmount}
+          onAmountChange={(val) => {
+            setRawAmount(val);
+            setAllowanceApproved(false);
+            setAwaitingConfirm(false);
+          }}
+          isCalculating={isCalculating}
+          amountValid={amountValid}
+          helper={helper}
+        />
+
+        <DepositSummary vault={vault} amount={amount} />
+
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
+          <PreFlightCheck
+            walletAddress={walletAddress}
+            amount={amount}
+            onAllowanceApproved={() => setAllowanceApproved(true)}
+            allowanceApproved={allowanceApproved}
+            approving={approving}
+            onApproveStart={() => setApproving(true)}
+            onApproveEnd={() => setApproving(false)}
+            onApproveError={(msg) => setDepositError(msg)}
           />
+        </div>
+
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
           <div className="vault-panel-body vault-panel-body--stack">
-            <section>
-              <label htmlFor="amt-input" className="sr-only">
-                Amount (USDC)
-              </label>
-
-              <div className="vault-amount-field">
-                <span aria-hidden className="vault-amount-prefix mono">
-                  $
-                </span>
-                <input
-                  id="amt-input"
-                  type="number"
-                  min={vault.minTicketUsdc}
-                  max={maxAmount}
-                  step={1000}
-                  value={rawAmount}
-                  onChange={(e) => {
-                    setRawAmount(e.target.value);
-                    setAllowanceApproved(false);
-                    setAwaitingConfirm(false);
-                  }}
-                  placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
-                  aria-describedby="amt-helper"
-                  aria-invalid={amount > 0 && !amountValid}
-                  className={cn(
-                    "ct-input tabular vault-amount-input mono body-lg",
-                    amount > 0 && !amountValid
-                      ? "ct-bc-warning ct-ring-warning"
-                      : "",
-                  )}
-                />
-              </div>
-
-              <p
-                id="amt-helper"
-                className={cn(
-                  "body-xs mt-[var(--ct-space-1_5)]",
-                  helper.variant === "ok" && "ct-status-success",
-                  helper.variant === "warn" && "ct-status-warning",
-                  helper.variant === "neutral" && "ct-text-muted",
-                )}
+            <div className="vault-legal-block">
+              <Checkbox
+                checked={agreedToTermSheet}
+                onChange={(checked) => {
+                  setAgreedToTermSheet(checked);
+                  setAwaitingConfirm(false);
+                }}
               >
-                {helper.text}
+                I have reviewed and accept the{" "}
+                <Link
+                  href={investProductPath(vault.id)}
+                  className="underline ct-text-primary hover:ct-text-strong vault-inline-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  term sheet
+                </Link>{" "}
+                for {vault.name}.
+              </Checkbox>
+              <p className="body-xs ct-text-faint mt-2 ml-7">
+                Structured product exclusively for qualified investors. Review the full subscription agreement before proceeding.
               </p>
-            </section>
-
-            <Checkbox
-              checked={agreedToTermSheet}
-              onChange={(checked) => {
-                setAgreedToTermSheet(checked);
-                setAwaitingConfirm(false);
-              }}
-            >
-              I have reviewed and accept the{" "}
-              <Link
-                href={investProductPath(vault.id)}
-                className="underline ct-text-primary hover:ct-text-strong vault-inline-link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                term sheet
-              </Link>{" "}
-              for {vault.name}. I understand this is a structured product offered
-              exclusively to qualified investors.
-            </Checkbox>
+            </div>
 
             {depositError ? (
               <PanelStatus
@@ -443,32 +672,63 @@ function InvestFormLive({ vault }: InvestFormProps) {
                 className="vault-confirm-panel vault-confirm-panel--seam"
                 aria-label="Confirm your deposit"
               >
-                <p className="stat-label">
-                  Confirm your deposit
-                </p>
+                <div className="flex items-baseline justify-between">
+                  <p className="stat-label">
+                    Confirm allocation
+                  </p>
+                  <Badge variant="default" className="ct-text-accent border-accent-soft bg-transparent shadow-none">
+                    Review mode
+                  </Badge>
+                </div>
                 <div className="vault-confirm-panel__rows">
                   <div className="vault-confirm-panel__row body-sm">
                     <span className="ct-text-muted">Vault</span>
                     <span className="ct-text-body font-semibold">{vault.name}</span>
                   </div>
                   <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Share class</span>
+                    <span className="ct-text-body tabular mono">
+                      Class {shareClassCode(vault.shareClass)}
+                    </span>
+                  </div>
+                  <div className="vault-confirm-panel__row body-sm">
                     <span className="ct-text-muted">Amount</span>
-                    <span className="ct-text-strong font-semibold tabular-nums">
+                    <span className="ct-text-strong font-semibold tabular-nums mono">
                       {formatUsdAmount(amount)} USDC
                     </span>
+                  </div>
+                  <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Target APY</span>
+                    <ApyRange
+                      low={vault.apyLow}
+                      high={vault.apyHigh}
+                      precision={1}
+                      className="body-sm mono tabular-nums ct-text-strong"
+                    />
+                  </div>
+                  <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Lock-up</span>
+                    <span className="ct-text-body tabular mono">
+                      {vault.softLockupDays}d soft
+                    </span>
+                  </div>
+                  <div className="vault-confirm-panel__row body-sm">
+                    <span className="ct-text-muted">Network</span>
+                    <span className="ct-text-body">Base Sepolia (testnet)</span>
                   </div>
                   <div className="vault-confirm-panel__row body-sm">
                     <span className="ct-text-muted">Action</span>
                     <span className="ct-text-body">Deposit</span>
                   </div>
                 </div>
-                <p className="body-xs ct-text-muted">
+                <p className="body-xs ct-text-muted vault-confirm-panel__disclaimer">
                   Base Sepolia testnet transaction — for pilot testing only.
                   Irreversible once submitted. Subject to{" "}
-                  {vault.softLockupDays}-day soft lock-up. Indicative estimate, not a
-                  return projection — see methodology v1.0.
+                  {vault.softLockupDays}-day soft lock-up. Target APY shown as a
+                  range — indicative estimate, not a return projection. See
+                  methodology v1.0.
                 </p>
-                <div className="vault-form-actions">
+                <div className="vault-form-actions vault-form-actions--split pt-2">
                   <Button
                     variant="secondary"
                     size="md"
@@ -491,7 +751,10 @@ function InvestFormLive({ vault }: InvestFormProps) {
                 </div>
               </div>
             ) : (
-              <div className="vault-form-actions">
+              <>
+                <InvestHelpLinks />
+
+                <div className="vault-form-actions vault-form-actions--split">
                 <Button variant="secondary" size="md" asChild>
                   <Link href={investProductPath(vault.id)}>← Back</Link>
                 </Button>
@@ -510,44 +773,24 @@ function InvestFormLive({ vault }: InvestFormProps) {
                   {ctaLabel(currentCtaState, amount)}
                 </Button>
               </div>
+              </>
             )}
-
           </div>
         </div>
 
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="Indicative NAV path — 24 month horizon" />
-          <div className="vault-panel-body">
-            <TimeToTargetChart amount={deferredAmount} vault={vault} />
-          </div>
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
+          <EligibilityChecklist investor={investor} session={session} />
         </div>
 
-        <div className="vault-flow-flat-section">
-          <VaultPanelHeader title="PTAI estimate" />
-          <div className="vault-panel-body">
-            <Ptai
-              projection={ptai.projection}
-              trigger={ptai.trigger}
-              action={ptai.action}
-              impact={ptai.impact}
-            />
-          </div>
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
+          <InvestFormProjections amount={deferredAmount} vault={vault} ptai={ptai} />
         </div>
-      </div>
-
-      <div className="vault-invest-grid__rail">
-        <DepositSummary vault={vault} amount={amount} />
-        <PreFlightCheck
-          walletAddress={walletAddress}
-          amount={amount}
-          vaultId={vault.id}
-          onAllowanceApproved={() => setAllowanceApproved(true)}
-          allowanceApproved={allowanceApproved}
-          approving={approving}
-          onApproveStart={() => setApproving(true)}
-          onApproveEnd={() => setApproving(false)}
-          onApproveError={(msg) => setDepositError(msg)}
-        />
       </div>
     </div>
   );

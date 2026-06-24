@@ -94,6 +94,7 @@
   --tracking-loose: 0.05em;   /* Tailwind-only */
   --tracking-wide: 0.04em;    /* = --ct-tracking-wide */
   --tracking-wider: 0.08em;   /* = --ct-tracking-wider */
+  --tracking-widest: 0.12em;  /* = --ct-tracking-widest */
   --tracking-display: 0.25em; /* Tailwind-only — display eyebrow */
 
   /* Line heights — mirror cockpit.css --ct-leading-* (source of truth) */
@@ -257,7 +258,7 @@ code,
 .app-footer {
   --app-footer-h: 3rem;
   flex: 0 0 auto;
-  background-color: var(--ct-surface-1);
+  background-color: var(--ct-bg-black);
   background-image: none;
   border-top: 1px solid var(--ct-border-soft);
 }

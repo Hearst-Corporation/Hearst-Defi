@@ -37,28 +37,37 @@ export default async function PositionDetailPage({ params }: PageProps) {
   return (
     <div className="position-detail-shell product-doc-shell--cap">
       <PositionHeader position={position} />
-      <PositionKpis position={position} />
-      <PositionActions position={position} />
-      <PositionTransactions transactions={position.transactions} source={position.source} />
 
-      {/* Disclaimer — non-negotiable #10 */}
-      <footer className="doc-page-disclaimer">
-        <Card
-          hoverOverlay={false}
-          aria-labelledby="position-methodology-note"
-          contentClassName="pf-stack pf-stack--tight"
-        >
-          <h2 id="position-methodology-note" className="eyebrow ct-text-muted">
-            Return assumptions
-          </h2>
-          <p className="position-detail-disclaimer body-xs ct-text-faint">
-            APY ranges are target projections based on stated assumptions. They are not
-            a commitment of future returns. Accrued yield figures are indicative and
-            subject to change based on vault conditions and Methodology v1.0. Past
-            performance does not predict future results.
-          </p>
-        </Card>
-      </footer>
+      <div className="position-detail-grid">
+        <div className="position-detail-main">
+          <PositionKpis position={position} />
+          <PositionTransactions transactions={position.transactions} source={position.source} />
+        </div>
+
+        <aside className="position-detail-aside">
+          <PositionActions position={position} />
+
+          {/* Disclaimer — non-negotiable #10 */}
+          <footer className="doc-page-disclaimer pt-0 border-t-0">
+            <Card
+              hoverOverlay={false}
+              aria-labelledby="position-methodology-note"
+              contentClassName="pf-stack pf-stack--tight"
+              className="bg-transparent border-none p-0"
+            >
+              <p id="position-methodology-note" className="eyebrow ct-text-muted">
+                Return assumptions
+              </p>
+              <p className="position-detail-disclaimer body-xs ct-text-faint">
+                APY ranges are target projections based on stated assumptions. They are not
+                a commitment of future returns. Accrued yield figures are indicative and
+                subject to change based on vault conditions and Methodology v1.0. Past
+                performance does not predict future results.
+              </p>
+            </Card>
+          </footer>
+        </aside>
+      </div>
     </div>
   );
 }

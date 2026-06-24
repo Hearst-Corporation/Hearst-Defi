@@ -283,7 +283,7 @@ export function RebalanceCard({
         {/* Allocation diff */}
         {(fromAlloc.length > 0 || toAlloc.length > 0) && (
           <div className="admin-doc-stack admin-doc-stack--tight">
-            <p className="body-xs font-semibold ct-text-body">Allocation delta</p>
+            <p className="h4">Allocation delta</p>
             <AllocationDiffTable from={fromAlloc} to={toAlloc} />
           </div>
         )}
@@ -291,7 +291,7 @@ export function RebalanceCard({
         {/* Approved signers list */}
         {signers.length > 0 && (
           <div className="admin-doc-stack admin-doc-stack--compact">
-            <p className="body-xs font-semibold ct-text-body">Signers</p>
+            <p className="h4">Signers</p>
             <ul className="admin-doc-stack admin-doc-stack--micro">
               {signers.map((w) => (
                 <li key={w} className="body-xs mono ct-text-muted">

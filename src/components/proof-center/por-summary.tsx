@@ -57,14 +57,25 @@ export function PorSummary({
   const attestedAt = formatNestedTimestamp(attestation.timestamp);
 
   return (
-    <Card>
-      <ProofCenterCardHeader
-        sectionLed={sectionLed}
-        eyebrow="Proof of Reserves"
-        title={`Period ${formatPorPeriod(attestation.period)} — Attestation #${attestation.attestationId.toString()}`}
-        provenance={provenance}
-        tone="primary"
-      />
+    <Card material="flat">
+      {!sectionLed && (
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
+          eyebrow="PoR Attestation"
+          title={`Period ${formatPorPeriod(attestation.period)} — #${attestation.attestationId.toString()}`}
+          provenance={provenance}
+          tone="quiet"
+        />
+      )}
+      {sectionLed && (
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
+          eyebrow="Proof of Reserves"
+          title={`Period ${formatPorPeriod(attestation.period)} — Attestation #${attestation.attestationId.toString()}`}
+          provenance={provenance}
+          tone="primary"
+        />
+      )}
 
       <MetricGrid columns={4}>
         <Metric variant="nested" label="Total AUM" value={formatUsdCompact(attestation.totalAumUsd)} />
@@ -78,20 +89,23 @@ export function PorSummary({
         <Metric variant="nested" label="Period" value={formatPorPeriod(attestation.period)} />
       </MetricGrid>
 
-      <div className={cn(sectionDividerClass, "proof-attestation-detail")}>
+      <div className={cn(sectionDividerClass, "proof-attestation-detail", stale && "opacity-[var(--ct-opacity-60)]")}>
         <ProofRow label="Attestor address">
           <a
             href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
             target="_blank"
             rel="noreferrer noopener"
-            className={explorerLinkClass}
+            className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
             title={attestation.attestor}
+            aria-label={`View attestor ${attestation.attestor} on explorer`}
           >
-            {abbreviateAddress(attestation.attestor)}
+            <span className="ct-proof-row__truncate">
+              {abbreviateAddress(attestation.attestor)}
+            </span>
           </a>
         </ProofRow>
         <ProofRow label="Evidence hash">
-          <span title={attestation.evidenceHash}>
+          <span title={attestation.evidenceHash} className="ct-proof-row__truncate">
             {abbreviateAddress(attestation.evidenceHash)}
           </span>
         </ProofRow>
@@ -104,6 +118,7 @@ export function PorSummary({
             href={`${EXPLORER_TX_BASE}${attestation.txHash}`}
             target="_blank"
             rel="noreferrer noopener"
+            aria-label="View attestation transaction on Base Sepolia explorer"
           >
             View attestation tx on Base Sepolia (Testnet)
           </a>
@@ -112,13 +127,20 @@ export function PorSummary({
           const href = ipfsGatewayUrl(attestation.evidenceCid);
           return href ? (
             <Button asChild variant="secondary" size="md">
-              <a href={href} target="_blank" rel="noreferrer noopener">
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label="View evidence document on IPFS"
+              >
                 View evidence (IPFS)
               </a>
             </Button>
           ) : attestation.evidenceCid.length > 0 ? (
             <span className="ct-text-muted body-sm">View evidence (IPFS)</span>
-          ) : null;
+          ) : (
+            <span className="ct-text-muted body-sm">No evidence CID available</span>
+          );
         })()}
       </div>
 

@@ -101,7 +101,7 @@ export function CampaignForm() {
             name="includeTypeform"
             value="1"
             defaultChecked
-            className="size-4 accent-(--ct-accent)"
+            className="size-4 accent-[var(--ct-accent)]"
           />
           <span>Personalise from Typeform qualification when available</span>
         </label>

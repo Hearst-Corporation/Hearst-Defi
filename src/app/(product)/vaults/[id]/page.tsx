@@ -3,9 +3,14 @@ import Link from "next/link";
 
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { ApyRange } from "@/components/ui/apy-range";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
+import {
+  VAULT_STATUS_VARIANT,
+  vaultStatusLabel,
+} from "@/lib/constants/vault";
 import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
@@ -54,8 +59,6 @@ function InvestCta({
     );
   }
 
-  // Non-live: never leave the term sheet actionless. The status badge already
-  // says *why* deposit is unavailable; this is the forward route out.
   return (
     <Button variant="secondary" size={size} asChild className={className}>
       <Link href={INVEST_SELECT_PATH}>Browse other products</Link>
@@ -72,7 +75,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const isLive = vault.status === "live";
   const investHref = investDepositPath(id);
 
-  // Bicolor split: last word of the vault name goes accent (e.g. "Hearst Yield" + "Vault").
   const nameParts = vault.name.trim().split(/\s+/);
   const titleAccent = nameParts.length > 1 ? nameParts.pop()! : vault.name;
   const titleLead = nameParts.length ? nameParts.join(" ") : undefined;
@@ -92,40 +94,52 @@ export default async function VaultDetailPage({ params }: PageProps) {
           ← Products
         </Link>
       }
+      actions={
+        <>
+          <Badge variant="accent" className="mono">
+            {vault.ticker}
+          </Badge>
+          <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
+            {vaultStatusLabel(vault.status)}
+          </Badge>
+        </>
+      }
     >
       <section className="vault-detail-overview" aria-label="Key terms">
-        <dl className="vault-detail-overview__kpis">
-          <div>
-            <dt className="stat-label">APY range</dt>
-            <dd className="mt-[var(--ct-space-1)]">
-              <ApyRange
-                low={vault.apyLow}
-                high={vault.apyHigh}
-                precision={1}
-                className="vault-detail-overview__value tabular mono"
-              />
-            </dd>
-          </div>
-          <div>
-            <dt className="stat-label">Min subscription</dt>
-            <dd className="vault-detail-overview__value tabular mono mt-[var(--ct-space-1)]">
-              {formatMinTicketUsdc(vault.minTicketUsdc)}
-            </dd>
-          </div>
-          <div>
-            <dt className="stat-label">Soft lock-up</dt>
-            <dd className="vault-detail-overview__value tabular mono mt-[var(--ct-space-1)]">
-              {vault.softLockupDays} days
-            </dd>
-          </div>
-        </dl>
+        <div className="vault-detail-overview__main">
+          <dl className="vault-detail-overview__kpis">
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">APY range</dt>
+              <dd className="mt-(--ct-space-1)">
+                <ApyRange
+                  low={vault.apyLow}
+                  high={vault.apyHigh}
+                  precision={1}
+                  className="vault-detail-overview__value tabular-nums mono"
+                />
+              </dd>
+            </div>
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">Min subscription</dt>
+              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
+                {formatMinTicketUsdc(vault.minTicketUsdc)}
+              </dd>
+            </div>
+            <div className="vault-detail-overview__kpi">
+              <dt className="stat-label">Soft lock-up</dt>
+              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
+                {vault.softLockupDays} days
+              </dd>
+            </div>
+          </dl>
+        </div>
         <div className="vault-detail-overview__cta">
           {!isLive ? (
-            <p className="body-xs ct-text-muted mb-[var(--ct-space-2)]">
+            <p className="body-xs ct-text-faint mb-(--ct-space-3)">
               {nonLiveNote(vault.status)}
             </p>
           ) : null}
-          <InvestCta isLive={isLive} investHref={investHref} size="lg" />
+          <InvestCta isLive={isLive} investHref={investHref} size="lg" className="w-full sm:w-auto px-(--ct-space-12)" />
         </div>
       </section>
 

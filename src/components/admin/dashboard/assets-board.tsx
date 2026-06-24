@@ -170,7 +170,7 @@ export function DashboardAssetsBoard({
   });
 
   return (
-    <div className="dashboard-cockpit dashboard-cockpit--fit">
+    <div className="dashboard-cockpit">
 
       {/* ── Row 0: System readiness (full-width operator header) ── */}
       <div className="dashboard-cockpit-row dashboard-cockpit-row--readiness">
@@ -182,7 +182,7 @@ export function DashboardAssetsBoard({
       {/* ── Row 1: Platform overview — executive totals across all vaults ── */}
       <div className="dashboard-cockpit-row dashboard-cockpit-row--overview">
         <div className="dashboard-cockpit-cell">
-          <PlatformOverviewBand view={overviewView} />
+          <PlatformOverviewBand view={overviewView} allocations={allocation} />
         </div>
       </div>
 
@@ -262,7 +262,7 @@ export function DashboardAssetsBoard({
                 <DashboardPanelHeader
                   title="Recent activity"
                   eyebrow="Rebalance log"
-                  tone="quiet"
+                  tone="primary"
                 />
                 <DashboardRecentEvents events={data.recentEvents} />
               </section>
@@ -279,6 +279,10 @@ export function DashboardAssetsBoard({
             <div className="dashboard-ops-pane">
               <DashboardPanelHeader
                 title="Operator queue"
+                eyebrow="Queue"
+                tone="primary"
+                status="Active"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
               <ActionQueue items={cockpit.actionQueue} />
@@ -287,6 +291,10 @@ export function DashboardAssetsBoard({
             <div className="dashboard-ops-pane dashboard-ops-pane--divider">
               <DashboardPanelHeader
                 title="Vault health"
+                eyebrow="Telemetry"
+                tone="primary"
+                status="Monitoring"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
               <LiveMetrics vaults={scopedVaultMetrics} />
@@ -295,6 +303,10 @@ export function DashboardAssetsBoard({
             <div className="dashboard-ops-pane dashboard-ops-pane--divider">
               <DashboardPanelHeader
                 title="Platform status"
+                eyebrow="Infrastructure"
+                tone="primary"
+                status="Live"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
               />
               <LiveOps
@@ -316,6 +328,10 @@ export function DashboardAssetsBoard({
             <div className="dashboard-lower-pane dashboard-lower-pane--risk">
               <DashboardPanelHeader
                 title="Risk posture"
+                eyebrow="Compliance"
+                tone="primary"
+                status="Guarded"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/vaults" />}
                 provenance={riskProvenance}
               />
@@ -329,6 +345,10 @@ export function DashboardAssetsBoard({
             <div className="dashboard-lower-pane dashboard-lower-pane--audit dashboard-lower-pane--divider">
               <DashboardPanelHeader
                 title="Audit trail"
+                eyebrow="Ledger"
+                tone="primary"
+                status="Logging"
+                statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/audit" />}
               />
               <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />

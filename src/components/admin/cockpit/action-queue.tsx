@@ -35,6 +35,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
         variant="inline"
         message="All clear — no operator actions queued."
         ariaLabel="Operator queue"
+        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
       />
     );
   }
@@ -55,16 +56,16 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
   return (
     <li
       className={cn(
-        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default",
+        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default py-(--ct-space-1_5)",
         isCritical && "dashboard-action-row--critical",
       )}
       aria-label={`${item.severity} — ${item.title}`}
     >
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1 dashboard-action-copy">
+      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1 dashboard-action-copy gap-(--ct-space-2)">
         <SeverityPill severity={item.severity} />
-        <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0">
-          <span className="body-sm ct-text-strong truncate dashboard-action-title">{item.title}</span>
-          <span className="body-xs ct-text-muted truncate dashboard-action-context">
+        <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0 gap-0">
+          <span className="cockpit-value-md truncate block">{item.title}</span>
+          <span className="cockpit-label-sm truncate block opacity-70">
             {item.context}
           </span>
         </div>
@@ -74,12 +75,14 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "dashboard-action-cta",
-            item.severity === "P0" ? "dashboard-action-cta--danger" : "dashboard-action-cta--neutral",
+            "dashboard-action-cta cockpit-label-xs py-[var(--ct-space-0_5)] px-[var(--ct-space-1_5)] rounded-(--ct-radius-sm) border border-transparent transition-colors",
+            item.severity === "P0"
+              ? "ct-status-danger bg-[color:color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] border-[color:color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)]"
+              : "ct-text-muted bg-(--ct-bg-soft) border-(--ct-border-ghost) hover:text-(--ct-text-strong) hover:border-(--ct-border-muted)",
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >
-          {actionLabel} →
+          {actionLabel}
         </Link>
       ) : null}
     </li>

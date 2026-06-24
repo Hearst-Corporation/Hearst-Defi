@@ -33,23 +33,28 @@ function CheckRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose py-[var(--ct-space-2_5)]">
-      <span
-        aria-hidden
-        className={cn(
-          "mt-[var(--ct-space-0_5)] h-2 w-2 shrink-0 rounded-full",
-          status === "ok" && "ct-status-dot-success",
-          status === "action" && "ct-status-dot-warning",
-          status === "pending" && "ct-status-dot-info",
-        )}
-      />
-      <div className="pf-inline-row pf-inline-row--between min-w-0 flex-1">
-        <div className="min-w-0">
+    <div className="vault-preflight-check__row">
+      <div className="vault-preflight-check__row-main">
+        <span
+          aria-hidden
+          className={cn(
+            "vault-preflight-check__dot",
+            status === "ok" && "ct-status-dot-success",
+            status === "action" && "ct-status-dot-warning",
+            status === "pending" && "ct-status-dot-info",
+          )}
+          style={{
+            transitionDelay: status === "ok" ? "150ms" : "0ms"
+          }}
+        />
+        <div className="vault-preflight-check__row-copy min-w-0">
           <span className="body-sm font-semibold ct-text-primary">{label}</span>
-          <span className="body-xs ct-text-muted ml-[var(--ct-space-2)]">{detail}</span>
+          <span className="body-xs ct-text-muted vault-preflight-check__detail">
+            {detail}
+          </span>
         </div>
-        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
+      {action ? <div className="vault-preflight-check__action shrink-0 animate-in fade-in slide-in-from-right-2 duration-300">{action}</div> : null}
     </div>
   );
 }
@@ -57,7 +62,6 @@ function CheckRow({
 interface PreFlightCheckProps {
   walletAddress: string | null;
   amount: number;
-  vaultId: string;
   onAllowanceApproved: () => void;
   allowanceApproved: boolean;
   approving: boolean;
@@ -69,7 +73,6 @@ interface PreFlightCheckProps {
 export function PreFlightCheck({
   walletAddress,
   amount,
-  vaultId: _vaultId,
   onAllowanceApproved,
   allowanceApproved,
   approving,
@@ -152,13 +155,14 @@ export function PreFlightCheck({
   const walletOk = resolvedAddress !== null;
   const allowanceOk = allowanceApproved;
   const epochOk = epochIndicative.status === "ACTIVE";
+  const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
   const panelBody = !ready ? (
-    <p className="body-xs ct-text-muted animate-pulse py-[var(--ct-space-4)] text-center">
+    <p className="body-xs ct-text-muted animate-pulse py-4 text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="product-doc-stack--tight py-[var(--ct-space-4)]">
+    <div className="product-doc-stack--tight py-4">
       <Badge variant="warning" className="self-start">
         Configuration pending
       </Badge>
@@ -169,8 +173,15 @@ export function PreFlightCheck({
     </div>
   ) : (
     <>
+      <p className="vault-preflight-readiness body-xs ct-text-muted">
+        <span className="tabular mono ct-text-primary font-semibold">
+          {checksComplete}
+        </span>
+        {" "}of 4 checks complete
+      </p>
+
       {vaultStale ? (
-        <div className="product-doc-stack--dense py-[var(--ct-space-3)]">
+        <div className="product-doc-stack--dense py-3">
           <Badge variant="warning" className="self-start">
             Testnet contract
           </Badge>
@@ -215,9 +226,19 @@ export function PreFlightCheck({
               type="button"
               onClick={() => void handleApprove()}
               disabled={approving || !networkOk}
-              className="border ct-bc-accent ct-text-accent hover:ct-surface-1"
+              className={cn(
+                "border ct-bc-accent ct-text-accent hover:ct-surface-1 transition-all duration-300",
+                approving && "opacity-70 cursor-wait",
+              )}
             >
-              {approving ? "Approving…" : "Approve"}
+              {approving ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-current animate-ping" />
+                  Approving…
+                </span>
+              ) : (
+                "Approve"
+              )}
             </Button>
           ) : undefined
         }
@@ -233,8 +254,11 @@ export function PreFlightCheck({
 
   return (
     <div className="vault-flow-flat-section">
-      <VaultPanelHeader title="Pre-flight check" />
-      <div className="vault-panel-body">{panelBody}</div>
+      <VaultPanelHeader
+        title="Pre-flight check"
+        eyebrow="Wallet · network · allowance · epoch"
+      />
+      <div className="vault-panel-body vault-preflight-check">{panelBody}</div>
     </div>
   );
 }

@@ -42,7 +42,7 @@ function AuditActionLabel({ action }: { action: string }) {
           "ct-dot",
           alert
             ? "ct-status-dot-danger"
-            : "bg-(--ct-border) audit-action-dot--muted",
+            : "bg-[var(--ct-border)] audit-action-dot--muted",
         )}
       />
       <span
@@ -194,7 +194,7 @@ export default async function AuditLogPage({
                   {entries.map((entry) => (
                     <tr
                       key={entry.id}
-                      className="border-b border-(--ct-border-soft) last:border-0 align-top"
+                      className="border-b border-[var(--ct-border-soft)] last:border-0 align-top"
                     >
                       {/* When */}
                       <td className="ct-table-cell mono body-xs ct-text-muted align-top">
@@ -280,7 +280,7 @@ export default async function AuditLogPage({
                 </tbody>
               </table>
             </div>
-            <div className="audit-retention-footer admin-doc-stack admin-doc-stack--micro border-t border-(--ct-border-soft)">
+            <div className="audit-retention-footer admin-doc-stack admin-doc-stack--micro border-t border-[var(--ct-border-soft)]">
               <p className="stat-label">Audit retention</p>
               <p className="body-xs ct-text-muted">
                 Showing up to 200 entries per query. Entries written by{" "}

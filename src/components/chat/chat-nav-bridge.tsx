@@ -269,8 +269,8 @@ export function ChatNavBridge() {
         "fixed bottom-4 left-1/2 z-50 -translate-x-1/2",
         "flex items-center gap-[var(--ct-space-3)] rounded-full px-[var(--ct-space-4)] py-[var(--ct-space-2)]",
         "ct-surface-1 ct-text-primary",
-        "shadow-(--ct-shadow-elevated)",
-        "border border-(--ct-border)",
+        "shadow-[var(--ct-shadow-elevated)]",
+        "border border-[var(--ct-border)]",
       )}
     >
       <span className="body-sm">
@@ -283,7 +283,7 @@ export function ChatNavBridge() {
       <button
         type="button"
         onClick={goNow}
-        className="rounded-full bg-(--ct-accent) px-[var(--ct-space-3)] py-[var(--ct-space-1)] body-xs font-medium ct-text-on-accent"
+        className="rounded-full bg-[var(--ct-accent)] px-[var(--ct-space-3)] py-[var(--ct-space-1)] body-xs font-medium ct-text-on-accent"
       >
         {pending.protected ? "Open" : "Now"}
       </button>

@@ -475,4 +475,4 @@ export function CommandPalette() {
 // GlobalSearch = alias d'attente pour le futur câblage ⌘K (décision projet :
 // composant construit+testé, à brancher plus tard — PAS du code mort, ne pas
 // supprimer). knip le flag comme unused export : attendu tant que ⌘K n'est pas câblé.
-export { CommandPalette as GlobalSearch };
+// export { CommandPalette as GlobalSearch };

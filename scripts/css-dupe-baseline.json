@@ -1,0 +1,250 @@
+{
+  "dash-chart-container": [
+    "src/app/(product)/charts-shared.css",
+    "src/app/(product)/portfolio/portfolio.css"
+  ],
+  "dash-chart-svg": [
+    "src/app/(product)/charts-shared.css",
+    "src/app/(product)/portfolio/portfolio.css"
+  ],
+  "dash-chart-circle": [
+    "src/app/(product)/charts-shared.css",
+    "src/app/(product)/portfolio/portfolio.css"
+  ],
+  "donut-center": [
+    "src/app/(product)/charts-shared.css",
+    "src/app/(product)/portfolio/portfolio.css"
+  ],
+  "donut-val": [
+    "src/app/(product)/charts-shared.css",
+    "src/app/(product)/portfolio/portfolio.css"
+  ],
+  "pf-cockpit-panel": [
+    "src/app/(product)/portfolio/portfolio.css",
+    "src/app/cockpit.css"
+  ],
+  "pf-container--fit": [
+    "src/app/(product)/portfolio/portfolio.css",
+    "src/app/cockpit.css"
+  ],
+  "pf-cockpit-panel__header-trail": [
+    "src/app/(product)/portfolio/portfolio.css",
+    "src/app/cockpit.css"
+  ],
+  "tabular": [
+    "src/app/(product)/portfolio/portfolio.css",
+    "src/app/globals.css"
+  ],
+  "ct-pill": [
+    "src/app/admin/admin-strategy.css",
+    "src/app/cockpit.css"
+  ],
+  "ct-input": [
+    "src/app/admin/admin-strategy.css",
+    "src/app/cockpit.css"
+  ],
+  "ct-select": [
+    "src/app/admin/admin-strategy.css",
+    "src/app/cockpit.css"
+  ],
+  "ct-textarea": [
+    "src/app/admin/admin-strategy.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__body": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__overview": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__hero": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__headline": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__headline-row": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__value": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__blurb": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__grid": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__item": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__item-top": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__item-copy": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__score": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-risk-summary__progress": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-kpi-strip": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-kpi-strip__label-row": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-kpi-strip__value": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-kpi-strip__meta": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-awaiting-analytics": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-merged-card": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-hero-card__analytics": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-hero-card__slot": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-hero-card__slot--allocation": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-nav-slot": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-orbit": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-orbit__visual": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-orbit__core": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-orbit__legend": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-orbit__legend-dot": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-nav-bars": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-cockpit": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-cockpit-row": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-ops-surface": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-lower-surface": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-ops-pane--divider": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-lower-pane--divider": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-ops-pane": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-lower-pane": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "dashboard-command-slot": [
+    "src/app/admin/dashboard/dashboard.css",
+    "src/app/cockpit.css"
+  ],
+  "login-split": [
+    "src/app/auth.css",
+    "src/app/cockpit.css"
+  ],
+  "ct-text-muted": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow-typography.css"
+  ],
+  "admin-doc": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow.css"
+  ],
+  "product-doc": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow.css"
+  ],
+  "eyebrow": [
+    "src/app/cockpit.css",
+    "src/app/globals.css"
+  ],
+  "body-lg": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow-typography.css"
+  ],
+  "body-md": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow-typography.css"
+  ],
+  "body-sm": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow-typography.css"
+  ],
+  "ct-hub-bar": [
+    "src/app/cockpit.css",
+    "src/app/globals.css"
+  ],
+  "ct-root": [
+    "src/app/cockpit.css",
+    "src/app/globals.css"
+  ]
+}

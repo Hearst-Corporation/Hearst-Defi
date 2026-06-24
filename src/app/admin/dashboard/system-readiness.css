@@ -9,19 +9,24 @@
 .dashboard-readiness {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
   min-width: 0;
   padding: var(--ct-space-4) var(--ct-space-5);
   border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  box-shadow: var(--ct-glass-bevel);
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
+  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-readiness:hover {
+  border-color: var(--ct-border-strong);
 }
 
 /* ── Head: posture + blurb (left), run action (right) ── */
 .dashboard-readiness__head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ct-space-2) var(--ct-space-4);
@@ -29,15 +34,15 @@
 
 .dashboard-readiness__head-main {
   display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-  flex: 1 1 18rem;
+  align-items: center;
+  gap: var(--ct-space-4);
+  flex: 1 1 auto;
 }
 
 .dashboard-readiness__posture {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-2_5);
   flex-wrap: wrap;
 }
 
@@ -45,23 +50,61 @@
    The posture label ("Operational" / "Action required") is what the operator
    reads first — it outranks the static section title. */
 .dashboard-readiness__posture-label {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-semibold);
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
 }
 
 /* Eyebrow kicker — static label demoted to small muted text after the verdict. */
 .dashboard-readiness__title-kicker {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
+  color: var(--ct-text-faint);
+  opacity: var(--ct-opacity-60);
+}
+
+.dashboard-readiness__scan-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  padding: 3px var(--ct-space-2);
+  background: transparent;
+  border: none;
+  border-radius: var(--ct-radius-sm);
+  margin-left: var(--ct-space-2);
+}
+
+.dashboard-readiness__scan-label {
+  font-size: var(--ct-text-nano);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
+  opacity: var(--ct-opacity-50);
+}
+
+.dashboard-readiness__scan-value {
+  font-size: var(--ct-text-nano);
+  font-weight: 600;
   color: var(--ct-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-readiness__scan-divider {
+  width: 1px;
+  height: 8px;
+  background: var(--ct-border-ghost);
+  margin: 0 var(--ct-space-1);
 }
 
 .dashboard-readiness__blurb {
-  max-width: 46ch;
+  max-width: 50ch;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-muted);
+  line-height: 1.4;
 }
 
 .dashboard-readiness__head-trail {
@@ -113,6 +156,11 @@
   min-width: 0;
   padding-left: var(--ct-space-4);
   border-left: 1px solid var(--ct-border-ghost);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease), border-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-readiness__stat:hover {
+  border-left-color: var(--ct-border-strong);
 }
 
 .dashboard-readiness__stat-top {
@@ -151,7 +199,7 @@
 .dashboard-readiness__dot-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ct-space-2) var(--ct-space-4);
+  gap: var(--ct-space-2) var(--ct-space-6);
   padding-top: var(--ct-space-3);
   border-top: 1px solid var(--ct-border-ghost);
 }
@@ -159,7 +207,15 @@
 .dashboard-readiness__factor-dot {
   display: inline-flex;
   align-items: center;
-  gap: var(--ct-space-1_5);
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-0_5) 0;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease), transform var(--ct-dur-fast) var(--ct-ease);
+  cursor: help;
+}
+
+.dashboard-readiness__factor-dot:hover {
+  opacity: var(--ct-opacity-80);
+  transform: translateX(2px);
 }
 
 .dashboard-readiness__factor-dot-label {

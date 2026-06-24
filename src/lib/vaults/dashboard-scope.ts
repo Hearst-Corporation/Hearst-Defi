@@ -73,6 +73,45 @@ function adminFixtureScopedHref(path: string, vaultId: string): string {
 }
 
 /**
+ * Prisma `where` for Distribution / RebalanceEvent rows scoped to a fixture vault.
+ * Yield includes legacy slugs (`hearst-yield-vault`) and pre-multi-vault rows (`null`).
+ */
+export function distributionVaultScopeWhere(vaultId: VaultId) {
+  if (vaultId === "yield") {
+    return {
+      OR: [
+        { vaultRef: "yield" as const },
+        { vaultRef: "hearst-yield-vault" as const },
+        { vaultRef: null },
+      ],
+    };
+  }
+  return { vaultRef: vaultId };
+}
+
+/** Client/post-filter mirror of {@link distributionVaultScopeWhere}. */
+export function matchesDistributionVaultScope(
+  entryVaultRef: string | null,
+  activeVaultId: VaultId,
+): boolean {
+  if (activeVaultId === "yield") {
+    return (
+      entryVaultRef === "yield" ||
+      entryVaultRef === "hearst-yield-vault" ||
+      entryVaultRef === null
+    );
+  }
+  return entryVaultRef === activeVaultId;
+}
+
+/** Normalize legacy proof-center / seed slugs to a fixture vault id. */
+export function resolveDistributionVaultScopeId(ref: string): VaultId {
+  if (ref === "hearst-yield-vault" || ref === "yield") return "yield";
+  if (isEngineFixtureVaultId(ref)) return ref;
+  return "yield";
+}
+
+/**
  * Admin href for a vault ref slug (fixtures → dashboard scope, deployments → vault detail).
  * Mirrors `src/app/admin/distributions/page.tsx` vault column links.
  */

@@ -7,9 +7,7 @@ import { Modal } from "@/components/ui/modal";
 import { Ptai } from "@/components/ui/ptai";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
 
-function cleanTriggerText(text: string): string {
-  return text.replace(/\s*\[REJECTED:.*\]$/, "");
-}
+import { cleanRebalanceTriggerText } from "./formatters";
 
 export function RebalancePtaiModalTrigger({
   event,
@@ -38,7 +36,7 @@ export function RebalancePtaiModalTrigger({
         <div className="product-doc-stack product-doc-stack--relaxed">
           <Ptai
             projection={event.projection || "No projection recorded for this event."}
-            trigger={cleanTriggerText(event.triggerText)}
+            trigger={cleanRebalanceTriggerText(event.triggerText)}
             action={event.actionText}
             impact={event.impactText}
           />

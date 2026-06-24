@@ -38,7 +38,7 @@ function Row({
   return (
     <div className={cn("ct-proof-row", className)}>
       <span className="ct-proof-row__label body-xs ct-text-muted">{label}</span>
-      <span className="ct-proof-row__value body-sm mono tabular-nums ct-text-primary">
+      <span className="ct-proof-row__value body-sm mono tabular ct-text-primary">
         {children}
       </span>
     </div>

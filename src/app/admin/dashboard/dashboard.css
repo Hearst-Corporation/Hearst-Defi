@@ -39,6 +39,57 @@
   opacity: var(--ct-opacity-60);
 }
 
+/* Live status dot — solid success without pulse (Zero Glow policy) */
+.dashboard-status-dot--live {
+  position: relative;
+  background: var(--ct-status-success);
+}
+
+/* =============================================================================
+   1B. TECHNICAL TYPOGRAPHY — standardized sizes for high-density data
+   ============================================================================= */
+
+.cockpit-label-xs {
+  font-size: var(--ct-text-octa);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
+  line-height: 1;
+}
+
+.cockpit-label-sm {
+  font-size: var(--ct-text-octa);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
+  line-height: 1.2;
+}
+
+.cockpit-value-xs {
+  font-size: var(--ct-text-nano);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-muted);
+}
+
+.cockpit-value-sm {
+  font-size: var(--ct-text-deci);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+  letter-spacing: -0.01em;
+}
+
+.cockpit-value-md {
+  font-size: var(--ct-text-micro);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+  letter-spacing: -0.01em;
+}
+
 /* =============================================================================
    2. SEVERITY PILL — colour variants for .dashboard-severity-pill (action-queue)
       (geometry + `border: 1px solid` already set in cockpit.css)
@@ -76,10 +127,10 @@
    gutter so the hover plate breathes past the panel padding. */
 .cockpit-hover-row--inset {
   border-radius: var(--ct-radius-md);
-  padding-left: var(--ct-space-2);
-  padding-right: var(--ct-space-2);
-  margin-left: calc(-1 * var(--ct-space-2));
-  margin-right: calc(-1 * var(--ct-space-2));
+  padding-left: var(--ct-space-3);
+  padding-right: var(--ct-space-3);
+  margin-left: calc(-1 * var(--ct-space-3));
+  margin-right: calc(-1 * var(--ct-space-3));
 }
 
 /* On-chain event link — opacity dip on hover (no surface change). */
@@ -95,7 +146,12 @@
    ============================================================================= */
 
 .cockpit-table-rule {
-  border-bottom: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-cockpit .ct-table-cell,
+.dashboard-cockpit .ct-table-header {
+  padding: var(--ct-space-1_5) var(--ct-space-2);
 }
 
 /* =============================================================================
@@ -124,6 +180,94 @@
       (risk-summary-card fillClassName)
    ============================================================================= */
 
+.dashboard-risk-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.dashboard-risk-summary__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+}
+
+.dashboard-risk-summary__overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding-bottom: var(--ct-space-5);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-risk-summary__hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+}
+
+.dashboard-risk-summary__headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.dashboard-risk-summary__headline-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1);
+}
+
+.dashboard-risk-summary__value {
+  font-size: var(--ct-text-28-fixed);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.dashboard-risk-summary__blurb {
+  max-width: 60ch;
+  font-size: var(--ct-text-micro);
+  line-height: 1.6;
+}
+
+.dashboard-risk-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ct-space-5) var(--ct-space-6);
+}
+
+.dashboard-risk-summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-risk-summary__item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-risk-summary__item-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+}
+
+.dashboard-risk-summary__score {
+  font-size: var(--ct-text-deca);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-risk-summary__progress {
+  height: 4px;
+}
+
 .cockpit-risk-fill--low {
   background: var(--ct-status-success);
 }
@@ -148,7 +292,436 @@
 }
 
 /* =============================================================================
-   8. FIT GATE — NEUTRALISÉE (2026-06-21).
+   8. KPI STRIP REFINEMENT — vertical separators + cell alignment
+   ============================================================================= */
+
+.dashboard-kpi-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.dashboard-kpi-strip__cell {
+  flex: 1;
+  padding: var(--ct-space-4) var(--ct-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+.dashboard-kpi-strip__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  margin-bottom: var(--ct-space-0_5);
+}
+
+.dashboard-kpi-strip__value {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-semibold);
+  line-height: 1.1;
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.dashboard-kpi-strip__meta {
+  font-size: var(--ct-text-deci);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: 0.01em;
+}
+
+.dashboard-kpi-strip__separator {
+  width: 1px;
+  height: var(--ct-space-8);
+  align-self: center;
+  background: var(--ct-border-ghost);
+}
+
+/* =============================================================================
+   9. ADMIN HEADER REFINEMENT — Command Center status indicators
+   ============================================================================= */
+
+.admin-doc-shell:has(.dashboard-cockpit) {
+  gap: var(--ct-space-5) !important;
+}
+
+.dashboard-page-header {
+  margin-bottom: 0;
+}
+
+.dashboard-page-header .page-canon-toolbar__actions {
+  display: none;
+}
+
+.dashboard-overview-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: var(--ct-space-2);
+}
+
+.dashboard-overview-ledger__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-2) 0;
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-overview-ledger__row:last-child {
+  border-bottom: none;
+}
+
+.dashboard-overview-ledger__label {
+  font-size: var(--ct-text-octa);
+  font-weight: 700;
+  color: var(--ct-text-faint);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  opacity: var(--ct-opacity-60);
+}
+
+.dashboard-overview-ledger__sublabel {
+  font-size: var(--ct-text-octa);
+  color: var(--ct-text-faint);
+  opacity: var(--ct-opacity-40);
+  margin-top: 1px;
+}
+
+.dashboard-awaiting-analytics {
+  padding: var(--ct-space-10) var(--ct-space-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-top: 1px solid var(--ct-border-ghost);
+  background: color-mix(in srgb, var(--ct-graphite-nested-bg) 40%, transparent);
+}
+
+.dashboard-awaiting-analytics p {
+  max-width: 45ch;
+  font-size: var(--ct-text-micro);
+  line-height: 1.6;
+  color: var(--ct-text-muted);
+  opacity: var(--ct-opacity-80);
+}
+
+.dashboard-merged-card {
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
+  border-radius: var(--ct-radius-xl);
+  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
+}
+
+.dashboard-hero-card__analytics {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0;
+  border-top: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-hero-card__slot {
+  padding: var(--ct-space-5) var(--ct-space-6);
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-hero-card__slot--allocation {
+  border-right: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-orbit-card, 
+.dashboard-nav-slot {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.dashboard-orbit {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-8);
+  margin-top: var(--ct-space-4);
+}
+
+.dashboard-orbit__visual {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.dashboard-orbit__core {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.dashboard-orbit__legend {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--ct-space-2) var(--ct-space-4);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-orbit__legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.dashboard-orbit__legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ct-radius-full);
+  background: currentColor;
+}
+
+.dashboard-nav-slot__value-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--ct-space-2);
+  margin-bottom: var(--ct-space-4);
+}
+
+.dashboard-nav-bars {
+  height: 80px;
+  margin-top: auto;
+}
+
+.dashboard-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding-bottom: var(--ct-space-8);
+}
+
+.dashboard-cockpit-row {
+  margin-bottom: 0; /* Handled by parent gap */
+  transition: opacity var(--ct-dur-base) var(--ct-ease), transform var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-ops-surface,
+.dashboard-lower-surface {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
+  border-radius: var(--ct-radius-xl);
+  overflow: hidden;
+  transition: all var(--ct-dur-base) var(--ct-ease);
+}
+
+.dashboard-lower-surface {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Responsive: 3 columns → stacked on small screens */
+@media (max-width: 90rem) {
+  .dashboard-ops-surface {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-ops-pane:last-child {
+    grid-column: 1 / -1;
+    border-left: none;
+    border-top: 1px solid var(--ct-border-ghost);
+  }
+}
+
+@media (max-width: 64rem) {
+  .dashboard-ops-surface,
+  .dashboard-lower-surface {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-ops-pane--divider,
+  .dashboard-lower-pane--divider {
+    border-left: none;
+    border-top: 1px solid var(--ct-border-ghost);
+  }
+}
+
+/* Wide screens (21:9 desktop): enhanced spacing */
+@media (min-width: 120rem) {
+  .dashboard-cockpit {
+    gap: var(--ct-space-6);
+  }
+
+  .dashboard-ops-surface,
+  .dashboard-lower-surface {
+    gap: 1px;
+    background: var(--ct-border-ghost);
+  }
+  
+  .dashboard-ops-pane,
+  .dashboard-lower-pane {
+    background: var(--ct-graphite-subtle-bg);
+    padding: var(--ct-space-5) var(--ct-space-6);
+  }
+}
+
+.dashboard-ops-pane,
+.dashboard-lower-pane {
+  padding: var(--ct-space-4) var(--ct-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-ops-pane:hover,
+.dashboard-lower-pane:hover {
+  background: var(--ct-graphite-nested-bg);
+}
+
+.dashboard-ops-pane .dashboard-card-header,
+.dashboard-lower-pane .dashboard-card-header {
+  margin-bottom: 0;
+}
+
+.dashboard-ops-pane--divider,
+.dashboard-lower-pane--divider {
+  border-left: 1px solid var(--ct-border-ghost);
+}
+
+/* =============================================================================
+   17. SMOOTH TRANSITIONS & LOADING STATES — fade/slide animations
+   ============================================================================= */
+
+/* Vault switch transition — subtle slide and fade */
+@keyframes dash-vault-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-cockpit--fit > .dashboard-cockpit-row {
+  animation: dash-vault-enter 0.4s var(--ct-ease) forwards;
+}
+
+.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(1) { animation-delay: 0ms; }
+.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(2) { animation-delay: 50ms; }
+.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(3) { animation-delay: 100ms; }
+.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(4) { animation-delay: 150ms; }
+.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(5) { animation-delay: 200ms; }
+
+/* Data update shimmer effect for refreshing metrics */
+@keyframes dash-data-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.dashboard-kpi-strip__cell--updating {
+  position: relative;
+}
+
+.dashboard-kpi-strip__cell--updating::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--ct-accent) 8%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: dash-data-shimmer 1.5s var(--ct-ease) infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Smooth loading state transitions */
+.dashboard-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ct-graphite-nested-bg) 0%,
+    color-mix(in srgb, var(--ct-accent) 5%, var(--ct-graphite-nested-bg)) 50%,
+    var(--ct-graphite-nested-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: dash-data-shimmer 2s var(--ct-ease) infinite;
+  border-radius: var(--ct-radius-md);
+}
+
+/* Micro-interaction: subtle scale on interactive elements */
+.dashboard-command-slot,
+.dashboard-orbit__segment--interactive {
+  transition: transform var(--ct-dur-fast) var(--ct-ease), opacity var(--ct-dur-fast) var(--ct-ease);
+}
+
+.dashboard-command-slot:hover {
+  transform: scale(1.005);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-cockpit--fit > .dashboard-cockpit-row,
+  .dashboard-kpi-strip__cell--updating::after,
+  .dashboard-skeleton,
+  .dashboard-status-dot--live::after {
+    animation: none;
+    transition: opacity 0.1s ease;
+  }
+}
+
+/* =============================================================================
+   18. TOOLTIP ENHANCEMENTS — technical precision for complex metrics
+   ============================================================================= */
+
+/* Metric cell tooltip trigger area */
+.dashboard-metric-tooltip-trigger {
+  cursor: help;
+  position: relative;
+}
+
+.dashboard-metric-tooltip-trigger::after {
+  content: "ⓘ";
+  font-size: var(--ct-text-nano);
+  color: var(--ct-text-faint);
+  opacity: 0;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+  margin-left: var(--ct-space-1);
+}
+
+.dashboard-metric-tooltip-trigger:hover::after {
+  opacity: var(--ct-opacity-60);
+}
+
+/* Enhanced tooltip styling for technical metrics */
+.dashboard-metric-tooltip {
+  max-width: 280px;
+  font-size: var(--ct-text-xs);
+  line-height: var(--ct-leading-normal);
+}
+
+.dashboard-metric-tooltip__title {
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  margin-bottom: var(--ct-space-1);
+}
+
+.dashboard-metric-tooltip__desc {
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-xs);
+}
+
+/* =============================================================================
+   12. FIT GATE — NEUTRALISÉE (2026-06-21).
 
    Le dashboard ne pin plus la hauteur du viewport (cf. cockpit.css : la gate
    ≥80rem×52rem ne verrouille plus `100dvh`/`overflow:hidden`). Les anciens blocs

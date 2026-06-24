@@ -121,6 +121,9 @@
 
 /* Back link in the page header lead slot. */
 .admin-doc .proof-back-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
   gap: var(--ct-space-1_5);
   margin-bottom: var(--ct-space-2);
 }
@@ -158,4 +161,54 @@
 
 .admin-doc .proof-skeleton-title {
   margin-bottom: var(--ct-space-3);
+}
+
+/* =============================================================================
+   6. PROOF-CENTER CANON — ported from proof-center.css
+   ============================================================================= */
+
+/* Event timeline / list status dots */
+.admin-doc .proof-dot {
+  height: var(--ct-space-3);
+  width: var(--ct-space-3);
+  border-radius: var(--ct-radius-full);
+  border: 2px solid var(--ct-surface-2);
+}
+
+.admin-doc .proof-dot--danger  { background: var(--ct-status-danger); }
+.admin-doc .proof-dot--success { background: var(--ct-status-success); }
+.admin-doc .proof-dot--warning { background: var(--ct-status-warning); }
+.admin-doc .proof-dot--info    { background: var(--ct-status-info); }
+.admin-doc .proof-dot--neutral { background: var(--ct-text-faint); }
+
+/* divide-y list rows — vertical rhythm */
+.admin-doc .proof-list-row {
+  padding-block: var(--ct-space-4);
+}
+.admin-doc .proof-list-row:first-child { padding-top: 0; }
+.admin-doc .proof-list-row:last-child  { padding-bottom: 0; }
+
+/* meta block under a row header */
+.admin-doc .proof-row-meta {
+  margin-top: var(--ct-space-2);
+}
+
+/* PTAI trigger trailing block */
+.admin-doc .proof-row-action {
+  margin-top: var(--ct-space-3);
+}
+
+/* release-gate footer divider block */
+.admin-doc .proof-release-gate {
+  margin-top: var(--ct-space-6);
+  padding-top: var(--ct-space-4);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+/* article heading + lede rhythm */
+.admin-doc .proof-article-title {
+  margin-bottom: var(--ct-space-2);
+}
+.admin-doc .proof-article-lede {
+  margin-bottom: var(--ct-space-4);
 }

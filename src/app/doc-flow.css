@@ -57,25 +57,6 @@
   padding-bottom: 0;
 }
 
-.admin-doc .admin-doc-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
-}
-
-.admin-doc .admin-doc-stack--tight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.admin-doc .admin-doc-stack--actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-3);
-}
-
 /* ── Fix largeur des CHAMPS dans un stack--actions ──────────────────────────
    `--actions` impose `align-items: flex-start` (pour garder les boutons collés
    à gauche), mais ça rétrécit aussi les champs/labels/grilles à leur largeur
@@ -91,42 +72,6 @@
 .admin-doc .admin-doc-stack--actions > .admin-doc-stack {
   align-self: stretch;
   width: 100%;
-}
-
-.admin-doc .admin-doc-stack--relaxed {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-inner-gap);
-}
-
-.admin-doc .admin-doc-stack--list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2_5);
-}
-
-.admin-doc .admin-doc-stack--compact {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.admin-doc .admin-doc-stack--dense {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-}
-
-.admin-doc .admin-doc-stack--roomy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-}
-
-.admin-doc .admin-doc-stack--micro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
 }
 
 .admin-doc .admin-doc-inline-row {
@@ -520,29 +465,53 @@
   flex: 1;
 }
 
-/* Shared admin page title */
+/* Shared admin page title — mirror of product-page-header */
 .admin-doc .admin-page-header {
   display: flex;
   flex-direction: column;
+}
+
+.admin-doc .admin-page-header--center {
+  align-items: center;
 }
 
 .admin-doc .admin-page-header__row {
   display: flex;
   width: 100%;
   min-width: 0;
-  min-height: 2.25rem;
   flex-wrap: wrap;
   gap: var(--ct-space-4);
   align-items: flex-start;
   justify-content: space-between;
 }
 
+.admin-doc .admin-page-header__row--center {
+  flex-direction: column;
+  align-items: center;
+}
+
 .admin-doc .admin-page-header__main {
   display: flex;
   min-width: 0;
   flex: 1;
+  align-items: center;
+  gap: var(--ct-space-4);
+}
+
+.admin-doc .admin-page-header__main--center {
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-doc .admin-page-header__title-stack {
+  display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: var(--ct-space-3);
+}
+
+.admin-doc .admin-page-header__title-stack--center {
+  align-items: center;
 }
 
 .admin-doc .admin-page-header__actions {
@@ -553,13 +522,26 @@
   gap: var(--ct-space-2);
 }
 
-/* Pin action cluster to the H1 row when an eyebrow sits above the title */
-.admin-doc .admin-page-header__main:has(> .eyebrow) ~ .admin-page-header__actions {
-  margin-top: var(--ct-page-header-actions-offset-eyebrow);
+/* Pin action cluster to the H1 row */
+.admin-doc .admin-page-header__main:has(> .shrink-0) ~ .admin-page-header__actions {
+  align-self: center;
+  margin-top: 0;
 }
 
-.admin-doc .admin-page-header__main:not(:has(> .eyebrow)) ~ .admin-page-header__actions {
-  margin-top: 0;
+.admin-doc
+  .admin-page-header__main:not(:has(> .shrink-0)):has(
+    .admin-page-header__title-stack > :first-child:not(.eyebrow)
+  )
+  ~ .admin-page-header__actions {
+  margin-top: var(--ct-page-header-actions-offset-lead);
+}
+
+.admin-doc
+  .admin-page-header__main:not(:has(> .shrink-0)):has(.eyebrow):not(
+    :has(.admin-page-header__title-stack > :first-child:not(.eyebrow))
+  )
+  ~ .admin-page-header__actions {
+  margin-top: var(--ct-page-header-actions-offset-eyebrow);
 }
 
 .admin-doc .admin-page-header__actions--stack {
@@ -584,10 +566,7 @@
   .admin-doc .admin-page-header__actions {
     width: 100%;
     justify-content: flex-start;
-  }
-
-  .admin-doc .admin-page-header__actions--stack {
-    align-items: stretch;
+    margin-top: 0;
   }
 }
 
@@ -599,27 +578,16 @@
 }
 
 @container admin-doc (min-width: 40rem) {
-  .admin-doc .admin-doc-toolbar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.admin-doc .admin-doc-stack--flat {
-  gap: 0;
-}
-
-/* =============================================================================
-   SECTION-NAV (canon « section-nav » family) — navigation secondaire de section.
-   Vit DANS le header, ENTRE le kicker et le trait : sous-niveau du titre. Famille
-   DISTINCTE des filtres (pills) et des actions (buttons). Quiet, premium : label
-   de section + séparateur + liens inline, marqueur actif = petit point accent.
-   AUCUNE bordure pleine (ne concurrence pas le trait vert), AUCUN underline lourd.
-   L'espacement vertical est géré par le flux colonne du header (pas de margin
-   propre) ; on resserre juste le lien à la kicker via un léger pull-up.
-   ============================================================================= */
-.admin-doc .section-nav {
+  /* =============================================================================
+     SECTION-NAV (canon « section-nav » family) — navigation secondaire de section.
+     Vit DANS le header, ENTRE le kicker et le trait : sous-niveau du titre. Famille
+     DISTINCTE des filtres (pills) et des actions (buttons). Quiet, premium : label
+     de section + séparateur + liens inline, marqueur actif = petit point accent.
+     AUCUNE bordure pleine (ne concurrence pas le trait vert), AUCUN underline lourd.
+     L'espacement vertical est géré par le flux colonne du header (pas de margin
+     propre) ; on resserre juste le lien à la kicker via un léger pull-up.
+     ============================================================================= */
+  .admin-doc .section-nav {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -682,6 +650,8 @@
 
 .admin-doc .section-nav__link--active .section-nav__dot {
   opacity: 1;
+}
+
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -757,6 +727,56 @@
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
+/* Stack — shared variants */
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack, .product-doc-stack) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-stack-gap);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--tight, .product-doc-stack--tight) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--actions, .product-doc-stack--actions) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--relaxed, .product-doc-stack--relaxed) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-inner-gap);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--list, .product-doc-stack--list) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2_5);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--compact, .product-doc-stack--compact) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--dense, .product-doc-stack--dense) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--flat, .product-doc-stack--flat) {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 /* Section — title group + head row, identical in both scopes */
 :is(.admin-doc, .product-doc) .doc-section,
 :is(.admin-doc, .product-doc) :is(.admin-doc-section, .product-doc-section) {
@@ -803,7 +823,7 @@
   gap: var(--ct-space-2);
 }
 
-:is(.admin-doc, .product-doc) .product-page-header__title-stack {
+:is(.admin-doc, .product-doc) :is(.admin-page-header__title-stack, .product-page-header__title-stack) {
   gap: var(--ct-space-3);
 }
 
@@ -963,18 +983,6 @@
 .product-doc .product-doc-shell--roomy {
   gap: var(--ct-doc-flow-gap);
   padding-bottom: 0;
-}
-
-.product-doc .product-doc-stack--micro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-}
-
-.product-doc .product-doc-stack--roomy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
 }
 
 .product-doc .product-doc-inline-row--end {
@@ -1266,7 +1274,7 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-doc-flow-gap);
+  gap: var(--ct-space-10); /* Increased from space-8 */
 }
 
 /* Page-level modifier roots (layout already owns admin-doc-shell). */
@@ -1287,7 +1295,7 @@
 }
 
 .product-doc .invest-flow-shell {
-  padding-bottom: 0;
+  padding-bottom: var(--ct-space-12); /* Added padding for better breathing */
 }
 
 /* Main content column — section(s) + optional footer (always, not only workspace).
@@ -1297,15 +1305,24 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-doc-flow-inner-gap);
+  gap: var(--ct-space-20); /* Increased for product sheet feel */
+}
+
+.product-doc .invest-flow-shell .product-page-header {
+  padding-bottom: var(--ct-space-8); /* Increased from space-2 */
 }
 
 .product-doc .invest-flow-shell__stepper {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4); /* Increased */
   padding-top: 0;
-  margin-bottom: 0;
+  margin-bottom: var(--ct-space-4); /* Added margin */
+}
+
+.product-doc .vault-invest-step-context {
+  opacity: 0.8;
+  letter-spacing: 0.01em;
 }
 
 /* Kicker « Investment Flow » + stepper « 1 2 3 4 » sur la MÊME ligne. */
@@ -1448,8 +1465,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-doc-flow-inner-gap);
-  padding-top: var(--ct-space-6);
-  padding-bottom: var(--ct-space-8);
+  padding-top: var(--ct-space-8); /* Increased from space-6 for breathing room */
+  padding-bottom: var(--ct-space-12); /* Increased from space-8 */
 }
 
 /* Remove the outer visual surface — keep layout only.
@@ -1471,8 +1488,8 @@
 /* Desktop: tighten the gap between header chrome and body */
 @container product-doc (min-width: 40rem) {
   .product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
-    gap: var(--ct-space-5);
-    padding-top: var(--ct-space-4);
+    gap: var(--ct-space-8); /* Increased from space-5 */
+    padding-top: var(--ct-space-8); /* Increased from space-4 */
   }
 }
 
@@ -1499,10 +1516,9 @@
   display: inline-flex;
 }
 
-/* Module header inside workspace Cards — L3 title (CardTitle / .h3) with a quiet
-   accent rail + divider so panel titles read above stat-label KPI rows.
-   Scoped to invest-flow grid only; non-workspace doc layout unchanged. */
-.product-doc .invest-flow-detail__grid .invest-flow-card-header {
+/* Module header inside workspace Cards — L3 title with accent rail.
+   Flat term-sheet sections use .vault-detail-block__header instead. */
+.product-doc .invest-flow-shell--workspace .invest-flow-detail__grid .invest-flow-card-header {
   margin-bottom: var(--ct-space-3);
   padding-bottom: var(--ct-space-2_5);
   padding-left: var(--ct-space-3);
@@ -1517,19 +1533,20 @@
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tighter);
+  text-shadow: 0 0 15px color-mix(in srgb, var(--ct-accent) 10%, transparent);
 }
 
 .product-doc .invest-flow-detail__grid {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
+  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
   min-height: 0;
 }
 
 .product-doc .invest-flow-detail__primary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
+  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-primary;
@@ -1538,24 +1555,31 @@
 .product-doc .invest-flow-detail__secondary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
+  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-secondary;
 }
 
 /* Desktop: switch to 2-col grid — primary takes ~60%, secondary ~40% */
-@container product-doc (min-width: 52rem) {
+@container product-doc (min-width: 48rem) {
   .product-doc .invest-flow-detail__grid {
     display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: var(--ct-doc-flow-gap);
+    grid-template-columns: 1fr; /* Default to single column for product sheet feel */
+    gap: var(--ct-space-16);
     align-items: start;
     min-height: 0;
   }
 
+  @container product-doc (min-width: 64rem) {
+    .product-doc .invest-flow-detail__grid {
+      grid-template-columns: 1.2fr 0.8fr; /* Slightly more balanced than 3fr 2fr */
+      gap: var(--ct-space-16);
+    }
+  }
+
   .product-doc .invest-flow-detail__secondary {
-    position: sticky;
+    position: relative; /* Removed sticky */
     top: 0;
   }
 }
@@ -1644,42 +1668,44 @@
   }
 }
 
-/* Deposit form — 2-col when shell is wide enough */
-.product-doc .vault-invest-grid {
-  display: grid;
-  width: 100%;
-  grid-template-columns: 1fr;
-  gap: var(--ct-space-6);
-}
-
-@container product-doc (min-width: 48rem) {
-  .product-doc .vault-invest-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .product-doc .vault-invest-grid__rail {
-    position: sticky;
-    top: var(--ct-space-6);
-    align-self: start;
-  }
-}
-
-.product-doc .vault-invest-grid__rail {
+/* Deposit form — single-column centered checkout flow */
+.product-doc .vault-invest-form-container {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  align-items: center;
+  width: 100%;
 }
 
 .product-doc .vault-invest-form-main {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  width: 100%;
+  max-width: 42rem;
+  gap: var(--ct-space-12); /* Increased from space-10 for deep breathing */
 }
 
-.product-doc .vault-panel-body--stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
+/* Re-style flat sections for the linear checkout flow */
+.product-doc .vault-invest-form-main .vault-flow-flat-section {
+  border-top: none;
+  padding-top: 0;
+}
+
+.product-doc .vault-invest-form-main .vault-flow-flat-section + .vault-flow-flat-section {
+  margin-top: 0;
+}
+
+.product-doc .vault-invest-form-main .vault-invest-section-divider {
+  padding-top: var(--ct-space-4);
+  border-top: 1px solid var(--ct-border-soft);
+  margin-top: var(--ct-space-2);
+}
+
+.product-doc .vault-invest-form-main .vault-panel-body--stack {
+  gap: var(--ct-space-8); /* Increased from space-6 */
+}
+
+.product-doc .vault-invest-grid__rail {
+  display: none;
 }
 
 /* ── Deposit summary — graphical principal ↔ yield split ─────────────────── */
@@ -1768,19 +1794,30 @@
 .product-doc .vault-confirm-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-5);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+  border-radius: var(--ct-radius-xl);
 }
 
 .product-doc .vault-confirm-panel__rows {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-1);
+  gap: 0;
 }
 
 .product-doc .vault-confirm-panel__row {
   display: flex;
   justify-content: space-between;
-  gap: var(--ct-space-2);
+  align-items: baseline;
+  gap: var(--ct-space-4);
+  padding-block: var(--ct-space-2_5);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.product-doc .vault-confirm-panel__row:last-child {
+  border-bottom: none;
 }
 
 .product-doc .vault-form-actions {
@@ -1794,15 +1831,14 @@
   flex: 1;
 }
 
-/* Vault detail — presentational overview band (in-flow, top of scroll body).
-   KPIs left, primary CTA right. No fixed header, no overlay. */
+/* Vault detail — single hero band (only boxed surface on the term sheet page). */
 .product-doc .vault-detail-overview {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
-  padding: var(--ct-space-6);
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-8); /* Increased from space-6 */
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl); /* Increased from lg */
   background: var(--ct-surface-1);
 }
 
@@ -1813,11 +1849,23 @@
   margin: 0;
 }
 
+.product-doc .vault-detail-overview__kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
 .product-doc .vault-detail-overview__value {
   font-size: var(--ct-text-2xl);
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
+  line-height: 1;
+  text-shadow: 0 0 20px color-mix(in srgb, var(--ct-accent) 15%, transparent);
+}
+
+.product-doc .vault-detail-overview__kpi dt {
+  margin-bottom: var(--ct-space-0_5);
 }
 
 .product-doc .vault-detail-overview__cta {
@@ -1846,23 +1894,41 @@
   }
 }
 
-/* Term sheet — block sans box (titre + contenu en flux, séparé par l'espace) */
+/* Term sheet — flat blocks (title + content, no nested box) */
 .product-doc .vault-detail-block {
   display: flex;
   flex-direction: column;
+  gap: var(--ct-space-6); /* Increased from space-4 */
+}
+
+.product-doc .vault-detail-block__header {
+  margin: 0;
+}
+
+.product-doc .vault-detail-block__header--split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .vault-detail-disclaimer {
+  margin: 0;
+  padding-top: var(--ct-space-12); /* Increased from space-8 for breathing room */
+  border-top: 1px solid var(--ct-border-soft);
 }
 
 /* ── Target allocation — graphique (barre empilée 100% + barres par bucket) ── */
 .product-doc .vault-alloc-chart {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-8); /* Increased from space-5 */
 }
 
 .product-doc .vault-alloc-stack {
   display: flex;
   width: 100%;
-  height: var(--ct-space-3);
+  height: var(--ct-space-4); /* Increased from space-3 */
   border-radius: var(--ct-radius-full);
   overflow: hidden;
   background: var(--ct-surface-2);
@@ -1878,26 +1944,28 @@
 }
 
 .product-doc .vault-alloc-bars {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Increased min-width */
+  gap: var(--ct-space-10) var(--ct-space-12); /* Increased from space-8/10 */
 }
 
 .product-doc .vault-alloc-bar {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-4); /* Increased from space-3 for breathing room */
 }
 
 .product-doc .vault-alloc-bar__head {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-2_5);
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  padding-bottom: var(--ct-space-0_5);
 }
 
 .product-doc .vault-alloc-bar__swatch {
-  width: var(--ct-space-2_5);
-  height: var(--ct-space-2_5);
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   flex-shrink: 0;
 }
@@ -1905,15 +1973,20 @@
 .product-doc .vault-alloc-bar__label {
   min-width: 0;
   flex: 1 1 auto;
+  font-size: var(--ct-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
 }
 
 .product-doc .vault-alloc-bar__pct {
   flex-shrink: 0;
+  font-size: var(--ct-text-base);
 }
 
 .product-doc .vault-alloc-bar__track {
   width: 100%;
-  height: var(--ct-space-2);
+  height: var(--ct-space-1_5);
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-2);
   overflow: hidden;
@@ -1928,6 +2001,9 @@
 
 .product-doc .vault-alloc-bar__desc {
   margin: 0;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-faint);
+  line-height: 1.5;
 }
 
 /* Workspace primary lane is ~60% of shell — defer row layout to primary width */
@@ -1952,6 +2028,11 @@
 /* Regime scenario table — flat rows inside term sheet (no ct-table-surface box) */
 .product-doc .regime-scenario-table {
   width: 100%;
+  padding: var(--ct-space-8) var(--ct-space-10); /* Increased for more air */
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-2xl); /* Rounder */
+  box-shadow: 0 4px 24px -12px rgba(0, 0, 0, 0.3);
 }
 
 .product-doc .regime-scenario-table table {
@@ -1965,8 +2046,25 @@
   border-bottom: 1px solid var(--ct-border-soft);
 }
 
+.product-doc .regime-scenario-table .ct-table-header {
+  padding-bottom: var(--ct-space-4);
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-faint);
+}
+
 .product-doc .regime-scenario-table tbody tr {
   border-bottom: 1px solid var(--ct-border-ghost);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.product-doc .regime-scenario-table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--ct-accent) 4%, transparent);
+}
+
+.product-doc .regime-scenario-table .ct-table-cell {
+  padding-block: var(--ct-space-6); /* Even more air */
 }
 
 .product-doc .regime-scenario-table tbody tr:last-child {
@@ -2066,15 +2164,56 @@
 .product-doc .position-detail-header {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-6);
+  padding-bottom: var(--ct-space-6);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+@container product-doc (min-width: 48rem) {
+  .product-doc .position-detail-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--ct-space-8);
+  }
+}
+
+.product-doc .position-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-6);
+  align-items: start;
+}
+
+@container product-doc (min-width: 64rem) {
+  .product-doc .position-detail-grid {
+    grid-template-columns: 1fr 20rem;
+    gap: var(--ct-space-8);
+  }
+}
+
+.product-doc .position-detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-8);
+  min-width: 0;
+}
+
+.product-doc .position-detail-aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  position: sticky;
+  top: var(--ct-space-6);
 }
 
 .product-doc .position-detail-header__title-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
   gap: var(--ct-space-3);
+  min-width: 0;
+  flex: 1;
 }
 
 .product-doc .position-detail-header__identity {
@@ -2086,43 +2225,49 @@
 
 .product-doc .position-detail-value-card {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-4) var(--ct-space-5);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-subtle-bg);
-  padding: var(--ct-space-3) var(--ct-space-4);
+  min-width: max-content;
+}
+
+@container product-doc (max-width: 47.999rem) {
+  .product-doc .position-detail-value-card {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .product-doc .position-detail-value-card__body {
   display: flex;
-  min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-0_5);
 }
 
 .product-doc .position-detail-kpis {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--ct-space-3);
-  align-items: start;
+  gap: var(--ct-space-4);
+  align-items: stretch;
 }
 
 .product-doc .position-detail-kpis .ct-card {
   background: var(--ct-graphite-subtle-bg);
   border-color: var(--ct-graphite-border-nested);
   box-shadow: none;
+  height: 100%;
 }
 
-@container product-doc (min-width: 28rem) {
+@container product-doc (min-width: 32rem) {
   .product-doc .position-detail-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container product-doc (min-width: 48rem) {
+@container product-doc (min-width: 64rem) {
   .product-doc .position-detail-kpis {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -2131,25 +2276,27 @@
 .product-doc .position-detail-transactions {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-6);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-subtle-bg);
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-6);
 }
 
 .product-doc .position-detail-transactions__head {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
+  padding-bottom: var(--ct-space-5);
+  border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .product-doc .position-detail-transactions__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-4);
+  margin-top: calc(-1 * var(--ct-space-2));
 }
 
 .product-doc .position-detail-transactions__empty {
@@ -2159,35 +2306,54 @@
 .product-doc .position-detail-transactions__scroll {
   overflow-x: auto;
   overflow-y: hidden;
+  margin-inline: calc(-1 * var(--ct-space-6));
+  padding-inline: var(--ct-space-6);
 }
 
 /* min-w-max keeps columns at natural width; the scroll wrapper handles overflow. */
 .product-doc .position-detail-transactions__table {
   width: 100%;
-  min-width: max-content;
+  min-width: 600px;
   border-collapse: collapse;
 }
 
-.product-doc .position-detail-transactions__headrow,
-.product-doc .position-detail-transactions__row {
+.product-doc .position-detail-transactions__headrow {
   border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.product-doc .position-detail-transactions__row {
+  border-bottom: 1px solid var(--ct-border-ghost);
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.product-doc .position-detail-transactions__row:hover {
+  background-color: color-mix(in srgb, var(--ct-accent) 4%, transparent);
+}
+
+.product-doc .position-detail-transactions__row:last-child {
+  border-bottom: none;
 }
 
 .product-doc .position-detail-transactions__th {
   font: inherit;
-  padding-bottom: var(--ct-space-2);
+  padding-bottom: var(--ct-space-3);
+  color: var(--ct-text-faint);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  font-size: var(--ct-text-nano);
 }
 
 .product-doc .position-detail-transactions__th--left { text-align: left; }
 .product-doc .position-detail-transactions__th--right { text-align: right; }
 
 .product-doc .position-detail-transactions__cell {
-  padding-top: var(--ct-space-2);
-  padding-bottom: var(--ct-space-2);
+  padding-top: var(--ct-space-4);
+  padding-bottom: var(--ct-space-4);
 }
 
 .product-doc .position-detail-transactions__cell--pad {
-  padding-right: var(--ct-space-4);
+  padding-right: var(--ct-space-6);
 }
 
 .product-doc .position-detail-transactions__cell--right {
@@ -2196,11 +2362,11 @@
 
 .product-doc .position-detail-transactions__tx {
   text-decoration: none;
-  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+  transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
 .product-doc .position-detail-transactions__tx:hover {
-  opacity: var(--ct-opacity-80);
+  color: var(--ct-accent);
 }
 
 .product-doc .position-detail-disclaimer {

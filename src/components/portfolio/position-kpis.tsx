@@ -7,13 +7,7 @@ import { Metric } from "@/components/ui/metric";
 import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
 import type { PositionDetail } from "@/lib/data/portfolio";
-
-const usdFull = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+import { formatUsdDetailed } from "@/lib/vaults/product-display";
 
 /** Signed percentage, e.g. +9.3% / -2.1%. */
 function fmtSignedPct(pct: number): string {
@@ -44,8 +38,8 @@ export function PositionKpis({ position }: PositionKpisProps) {
   // P&L sublabel: realized vs unrealized, plus annualised when a holding period exists.
   const pnlSublabel = pnl
     ? [
-        `Realised ${usdFull.format(pnl.realizedUsdc)}`,
-        `Unrealised ${usdFull.format(pnl.unrealizedUsdc)}`,
+        `Realised ${formatUsdDetailed(pnl.realizedUsdc)}`,
+        `Unrealised ${formatUsdDetailed(pnl.unrealizedUsdc)}`,
         pnl.annualizedReturnPct !== null
           ? `Annualised ${fmtSignedPct(pnl.annualizedReturnPct)}`
           : null,
@@ -63,7 +57,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
       <Metric
         variant="plain"
         label="Principal"
-        value={usdFull.format(position.principalUsdc)}
+        value={<span className="mono">{formatUsdDetailed(position.principalUsdc)}</span>}
         provenance={provenance}
         sublabel="Deposited"
       />
@@ -72,7 +66,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
       <Metric
         variant="plain"
         label="Accrued yield"
-        value={usdFull.format(position.accruedYieldUsdc)}
+        value={<span className="mono">{formatUsdDetailed(position.accruedYieldUsdc)}</span>}
         provenance={provenance}
         sublabel="Pending distribution"
         trend={
@@ -86,7 +80,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
       <Metric
         variant="plain"
         label="Distributed to date"
-        value={usdFull.format(position.distributedUsdc)}
+        value={<span className="mono">{formatUsdDetailed(position.distributedUsdc)}</span>}
         provenance={provenance}
         sublabel="USDC paid out"
       />
@@ -101,6 +95,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
               low={apyRange.low}
               high={apyRange.high}
               precision={1}
+              className="mono"
             />
           ) : (
             "Unavailable"
@@ -109,8 +104,8 @@ export function PositionKpis({ position }: PositionKpisProps) {
         provenance={apyRange ? "estimated" : "stale"}
         sublabel={
           apyRange
-            ? "Not guaranteed — indicative range"
-            : "Vault deployment APY not configured"
+            ? "Indicative range"
+            : "Not configured"
         }
       />
 
@@ -122,6 +117,7 @@ export function PositionKpis({ position }: PositionKpisProps) {
           value={
             <span
               className={cn(
+                "mono",
                 pnl.netReturnPct >= 0
                   ? "ct-status-success"
                   : "ct-status-danger",
@@ -132,10 +128,6 @@ export function PositionKpis({ position }: PositionKpisProps) {
           }
           provenance="estimated"
           sublabel={pnlSublabel}
-          trend={{
-            direction: pnl.netReturnPct >= 0 ? "up" : "down",
-            text: usdFull.format(pnl.totalReturnUsdc),
-          }}
         />
       ) : null}
     </section>

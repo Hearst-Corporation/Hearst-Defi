@@ -1,5 +1,6 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { Provenance } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { allocationLabelFor, allocationStrokeFor } from "@/lib/allocation-colors";
 import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
@@ -37,21 +38,23 @@ function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
       {/* Segments */}
       {segments.map(({ item, strokeDashoffset }) => {
         const strokeDasharray = `${item.pct} ${circumference - item.pct}`;
+        const label = `${allocationLabelFor(item.bucket)}: ${item.pct.toFixed(1)}%`;
 
         return (
-          <circle
-            key={item.bucket}
-            className="dashboard-orbit__segment"
-            cx="21"
-            cy="21"
-            r={radius}
-            fill="none"
-            stroke={allocationStrokeFor(item.bucket)}
-            strokeDasharray={strokeDasharray}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            style={{ transformOrigin: "center" }}
-          />
+          <Tooltip key={item.bucket} content={label}>
+            <circle
+              className="dashboard-orbit__segment dashboard-orbit__segment--interactive"
+              cx="21"
+              cy="21"
+              r={radius}
+              fill="none"
+              stroke={allocationStrokeFor(item.bucket)}
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              style={{ transformOrigin: "center", cursor: 'help' }}
+            />
+          </Tooltip>
         );
       })}
     </svg>
@@ -79,18 +82,21 @@ export function AllocationOrbit({
       <DashboardPanelHeader
         title="Capital allocation"
         eyebrow="Balance sheet"
-        tone="quiet"
+        tone="primary"
         provenance={!isEmpty ? provenance : undefined}
       />
       <div className="dashboard-orbit">
         <div className="dashboard-orbit__visual">
           <SvgDonut allocations={allocations} />
           <div className="dashboard-orbit__core">
-            <span>AUM</span>
-            <strong className="tabular">
+            <span className="cockpit-label-xs opacity-50">AUM Total</span>
+            <strong className="cockpit-value-md text-[length:var(--ct-text-xl-fixed)]! leading-none mt-1">
               {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
-            <small>{allocationTotal.toFixed(0)}% mapped</small>
+            <div className="dashboard-orbit__core-meta mt-1">
+              <span className="cockpit-value-xs text-(--ct-accent) font-bold">{allocationTotal.toFixed(0)}%</span>
+              <span className="cockpit-label-xs opacity-40 ml-1">Mapped</span>
+            </div>
           </div>
         </div>
         <ul className="dashboard-orbit__legend" aria-label="Allocation legend">
@@ -101,8 +107,8 @@ export function AllocationOrbit({
                 style={{ color: allocationStrokeFor(item.bucket) }}
                 aria-hidden
               />
-              <span>{allocationLabelFor(item.bucket)}</span>
-              <span className="tabular">{item.pct.toFixed(0)}%</span>
+              <span className="cockpit-label-sm truncate opacity-80">{allocationLabelFor(item.bucket)}</span>
+              <span className="cockpit-value-sm">{item.pct.toFixed(1)}%</span>
             </li>
           ))}
         </ul>

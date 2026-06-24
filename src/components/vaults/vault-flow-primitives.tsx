@@ -32,7 +32,9 @@ export function VaultKpiCell({
 }) {
   return (
     <div className="ct-metric-nested">
-      <span className="stat-label">{label}</span>
+      <span className="stat-label text-(--ct-text-nano) uppercase tracking-widest ct-text-faint">
+        {label}
+      </span>
       <span
         className={cn(
           "h4 tabular mono ct-text-strong ct-metric-nested__value",

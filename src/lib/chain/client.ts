@@ -2,6 +2,13 @@ import "server-only";
 
 import { createPublicClient, getAddress, http, type Address } from "viem";
 import { baseSepolia } from "viem/chains";
+import {
+  ACTIVE_CHAIN_ID,
+  EXPLORER_ADDRESS_BASE,
+  EXPLORER_TX_BASE,
+  explorerTxUrl,
+  isPlaceholderTxHash,
+} from "./explorer";
 
 const DEFAULT_RPC_URL = "https://sepolia.base.org";
 const RPC_TIMEOUT_MS = 10_000;
@@ -88,72 +95,10 @@ export function isChainConfigured(): boolean {
   return getEventLoggerAddress() !== null && getPoRRegistryAddress() !== null;
 }
 
-// ---------------------------------------------------------------------------
-// Block explorer — single source of truth, chain-aware
-// ---------------------------------------------------------------------------
-//
-// The explorer domain is derived from the SAME chain we transact on
-// (`baseSepolia`, imported above and used by `build()`), so the explorer can
-// never drift away from the on-chain network. Today that is Base Sepolia
-// (testnet) → sepolia.basescan.org. If/when the app is repointed at Base
-// mainnet (chain id 8453), this map yields basescan.org automatically.
-//
-// IMPORTANT: components must NOT hardcode basescan URLs — import `explorerTxUrl`
-// / `explorerAddressUrl` (or the `EXPLORER_*` constants below) instead.
-
-const BASE_SEPOLIA_CHAIN_ID = 84532;
-const BASE_MAINNET_CHAIN_ID = 8453;
-
-/** Explorer base origin (no trailing slash) for a given chain id. */
-function explorerOrigin(chainId: number): string {
-  switch (chainId) {
-    case BASE_MAINNET_CHAIN_ID:
-      return "https://basescan.org";
-    case BASE_SEPOLIA_CHAIN_ID:
-    default:
-      // Default to the Sepolia explorer — the chain we actually transact on.
-      // Defaulting here (rather than throwing) keeps link rendering total even
-      // if the chain config is ever widened; the on-chain calls themselves are
-      // already pinned to `baseSepolia` in `build()`.
-      return "https://sepolia.basescan.org";
-  }
-}
-
-/** The chain id the app transacts on — kept in lockstep with `build()`'s chain. */
-export const ACTIVE_CHAIN_ID: number = baseSepolia.id;
-
-/**
- * Recognises fabricated/placeholder tx hashes used by local seed + demo
- * fixtures. These hashes are intentionally NOT real on-chain transactions, so
- * the UI must never render an explorer link to them (it would 404 on BaseScan).
- *
- * Sentinel prefixes (after the 0x):
- *   - "feed…" — investor-demo fixtures (src/lib/dev/investor-demo.ts)
- *   - "5eed…" — admin distribution seed fixtures (prisma/seed.ts), reads as "seed"
- *   - "mock…" — fabricated mock-attestation hashes (the B4 convention:
- *     `distributionBadgeKind` treats a `0xmock…` hash as estimated/manual, never
- *     attested), so they must likewise never render a BaseScan link.
- *
- * A null/empty hash is also treated as "no link" (already handled by callers,
- * but covered here so a single guard suffices).
- */
-export function isPlaceholderTxHash(txHash: string | null | undefined): boolean {
-  if (!txHash) return true;
-  const lower = txHash.toLowerCase();
-  return (
-    lower.startsWith("0xfeed") ||
-    lower.startsWith("0x5eed") ||
-    lower.startsWith("0xmock")
-  );
-}
-
-/** Block-explorer URL for a transaction hash on the active chain. */
-export function explorerTxUrl(txHash: string): string {
-  return `${explorerOrigin(ACTIVE_CHAIN_ID)}/tx/${txHash}`;
-}
-
-// Backwards-compatible constants — now DERIVED from the chain-aware origin so
-// the existing Proof Center consumers stay correct without edits. Prefer the
-// `explorerTxUrl` helper / `EXPLORER_ADDRESS_BASE` constant in new code.
-export const EXPLORER_TX_BASE = `${explorerOrigin(ACTIVE_CHAIN_ID)}/tx/`;
-export const EXPLORER_ADDRESS_BASE = `${explorerOrigin(ACTIVE_CHAIN_ID)}/address/`;
+export {
+  ACTIVE_CHAIN_ID,
+  EXPLORER_ADDRESS_BASE,
+  EXPLORER_TX_BASE,
+  explorerTxUrl,
+  isPlaceholderTxHash,
+};

@@ -62,7 +62,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             </div>
 
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-              <div className="mt-[var(--ct-space-3)] border-t border-(--ct-border-soft) pt-[var(--ct-space-3)] body-xs ct-text-muted">
+              <div className="mt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)] body-xs ct-text-muted">
                 Timelock ETA:{" "}
                 <span className="mono ct-text-primary">
                   {formatGovernanceTimestamp(proposal.etaAt)}

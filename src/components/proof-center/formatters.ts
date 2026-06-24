@@ -52,3 +52,8 @@ export function resolveAttestationProvenance(
   return !isOlderThan24h(timestamp) && verified ? "attested" : "stale";
 }
 
+/** Strip admin rejection suffix from rebalance trigger copy. */
+export function cleanRebalanceTriggerText(text: string): string {
+  return text.replace(/\s*\[REJECTED:.*\]$/, "");
+}
+

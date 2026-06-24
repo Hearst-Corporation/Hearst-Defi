@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { EmptySurface } from "@/components/ui/empty-surface";
+import { Tooltip } from "@/components/ui/tooltip";
 import { resolveRiskProvenance } from "@/lib/admin/dashboard-board-view";
 import { cn } from "@/lib/cn";
 import type {
@@ -42,13 +44,13 @@ export function DashboardRiskSummaryCard({
   if (data.source === "fallback") {
     return (
       <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
-        <div className="dashboard-risk-summary__empty">
-          <p className="body-sm ct-text-muted m-0">No risk inputs yet.</p>
-          <p className="body-xs ct-text-faint m-0">
-            This block populates after the first vault snapshot and mining
-            metric are recorded.
-          </p>
-        </div>
+        <EmptySurface
+          variant="inline"
+          message="No risk inputs yet."
+          detail="This block populates after the first vault snapshot and mining metric are recorded."
+          ariaLabel="Risk posture"
+          className="flex-1 flex items-center justify-center py-(--ct-space-8)"
+        />
       </div>
     );
   }
@@ -56,26 +58,37 @@ export function DashboardRiskSummaryCard({
   return (
     <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
 
-      <div className="dashboard-risk-summary__body">
-        <div className="dashboard-risk-summary__overview">
-          <div className="dashboard-risk-summary__hero">
+      <div className="dashboard-risk-summary__body flex flex-col gap-4">
+        <div className="dashboard-risk-summary__overview flex items-start justify-between bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_30%,transparent)] p-[var(--ct-space-3)] rounded-(--ct-radius-sm) border border-[var(--ct-border-ghost)]">
+          <div className="dashboard-risk-summary__hero flex flex-col gap-1">
             <div className="dashboard-risk-summary__headline">
-              <span className="stat-label">Composite</span>
-              <div className="dashboard-risk-summary__headline-row">
-                <span
-                  className={cn(
-                    "dashboard-risk-summary__value stat-value tabular",
-                    data.band === "low"
-                      ? "ct-status-success"
-                      : data.band === "medium"
-                        ? "ct-status-warning"
-                        : "ct-status-danger",
-                  )}
-                >
-                  {data.composite}
-                </span>
-                <span className="body-xs ct-text-faint tabular">/ 100</span>
-              </div>
+              <Tooltip
+                content={(
+                  <div className="dashboard-metric-tooltip">
+                    <div className="dashboard-metric-tooltip__title">Composite Risk Score</div>
+                    <div className="dashboard-metric-tooltip__desc">Aggregated risk metric across all dimensions. 0-30 Low, 31-70 Medium, 71-100 High.</div>
+                  </div>
+                )}
+              >
+                <div className="cursor-help">
+                  <span className="cockpit-label-sm block mb-[var(--ct-space-0_5)]">Composite score</span>
+                  <div className="dashboard-risk-summary__headline-row flex items-baseline gap-1">
+                    <span
+                      className={cn(
+                        "text-[length:var(--ct-text-display-fixed)] font-bold tabular tracking-tighter leading-none",
+                        data.band === "low"
+                          ? "ct-status-success"
+                          : data.band === "medium"
+                            ? "ct-status-warning"
+                            : "ct-status-danger",
+                      )}
+                    >
+                      {data.composite}
+                    </span>
+                    <span className="text-[length:var(--ct-text-2xs)] font-bold ct-text-faint tabular opacity-50">/ 100</span>
+                  </div>
+                </div>
+              </Tooltip>
             </div>
             <Badge
               variant={
@@ -85,46 +98,41 @@ export function DashboardRiskSummaryCard({
                     ? "warning"
                     : "danger"
               }
+              className="px-[var(--ct-space-2)] py-[var(--ct-space-0_5)] cockpit-label-xs w-fit"
             >
               {data.bandLabel}
             </Badge>
           </div>
 
-          <p className="dashboard-risk-summary__blurb body-sm ct-text-muted m-0">
-            Five-factor operator view across contract, mining, counterparties,
-            market, and liquidity.
-          </p>
-
-          <p className="dashboard-risk-summary__footnote body-xs ct-text-faint m-0">
-            Weighted five-factor model from Methodology v1.0. Conditional
-            signal, not guaranteed.
-          </p>
+          <div className="flex-1 max-w-[200px] ml-[var(--ct-space-4)]">
+            <p className="dashboard-risk-summary__blurb cockpit-value-xs m-0 leading-tight uppercase tracking-tight">
+              Five-factor operator view: contract, mining, counterparties, market, liquidity.
+            </p>
+          </div>
         </div>
 
-        <div className="dashboard-risk-summary__grid">
+        <div className="dashboard-risk-summary__grid grid grid-cols-1 gap-2">
           {data.dimensions.map((dimension) => (
             <article
               key={dimension.id}
-              className="dashboard-risk-summary__item"
+              className="dashboard-risk-summary__item group bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_20%,transparent)] p-[var(--ct-space-2)] rounded-(--ct-radius-xs) border border-transparent hover:border-[var(--ct-border-ghost)] transition-all"
               aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
             >
-              <div className="dashboard-risk-summary__item-top">
-                <div className="dashboard-risk-summary__item-copy">
-                  <div className="admin-doc-inline-row admin-doc-inline-row--dense admin-doc-inline-row--start">
-                    <span className="body-sm ct-text-strong">
-                      {dimension.label}
-                    </span>
-                    <Badge variant={SEVERITY_BADGE[dimension.severity]}>
-                      {dimension.status}
-                    </Badge>
-                  </div>
-                  <p className="body-xs ct-text-faint m-0">
+              <div className="dashboard-risk-summary__item-top flex items-center justify-between mb-[var(--ct-space-1_5)]">
+                <div className="dashboard-risk-summary__item-copy flex items-center gap-3">
+                  <span className="cockpit-value-md uppercase tracking-tight min-w-[100px]">
+                    {dimension.label}
+                  </span>
+                  <Badge variant={SEVERITY_BADGE[dimension.severity]} className="cockpit-label-xs px-[var(--ct-space-1_5)] py-0 h-3.5 min-w-0">
+                    {dimension.status}
+                  </Badge>
+                  <p className="cockpit-label-sm m-0 leading-none opacity-70 group-hover:opacity-100 transition-opacity">
                     {dimension.detail}
                   </p>
                 </div>
                 <span
                   className={cn(
-                    "dashboard-risk-summary__score tabular",
+                    "cockpit-value-md",
                     SEVERITY_TEXT[dimension.severity],
                   )}
                 >
@@ -135,8 +143,8 @@ export function DashboardRiskSummaryCard({
               <Progress
                 value={dimension.score}
                 variant="plain"
-                fillClassName={SEVERITY_FILL[dimension.severity]}
-                className="dashboard-risk-summary__progress"
+                fillClassName={cn(SEVERITY_FILL[dimension.severity], "transition-all duration-500")}
+                className="dashboard-risk-summary__progress h-1 bg-(--ct-bg-deep)"
                 label={`${dimension.label} risk score ${dimension.score} of 100`}
               />
             </article>

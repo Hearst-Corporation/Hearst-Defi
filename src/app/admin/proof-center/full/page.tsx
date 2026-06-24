@@ -9,27 +9,9 @@ import { ArrowLeft } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { PanelStatus } from "@/components/ui/panel-status";
-import { Card } from "@/components/ui/card";
-import { ProofFilter } from "@/components/proof/proof-filter";
+import { ProofCenterFullSections } from "@/components/proof-center/proof-center-full-sections";
 import { parseFilter } from "@/components/proof/proof-filter-types";
-import { ProofGrid } from "@/components/proof/proof-grid";
-import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";
-import type { UnifiedProof } from "@/components/proof/proof-types";
-import { EventTimeline } from "@/components/proof-center/event-timeline";
-import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
-import { ProofCenterCardHeader } from "@/components/proof-center/proof-center-card-header";
-import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
-import { ProvenanceFooter } from "@/components/proof-center/provenance-footer";
-import { TimelockCountdown } from "@/components/governance/timelock-countdown";
-import { fetchOnChainEvents } from "@/lib/chain/event-logger";
-import { fetchOnChainAttestations } from "@/lib/chain/por-registry";
-import { loadCustody } from "@/lib/data/custody";
-import { getProofs } from "@/lib/data/proofs";
-import { buildPlatformAddresses } from "@/lib/proof-center/platform-addresses";
-import { prisma } from "@/lib/db";
-import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
+import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";
 
 import "../../admin-proof.css";
 
@@ -50,23 +32,8 @@ export default async function AdminProofCenterFullPage({
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
 
-  const [onChainEvents, onChainAttestations, paper, custody, timelockProposals] =
-    await Promise.all([
-      fetchOnChainEvents({ limit: 100 }),
-      fetchOnChainAttestations({ limit: 12 }),
-      getProofs().then((r) => r.data),
-      loadCustody(),
-      prisma.governanceProposal.findMany({
-        where: { state: "TIMELOCK" },
-        orderBy: { queuedAt: "asc" },
-      }),
-    ]);
-
-  const platformAddresses = buildPlatformAddresses(custody);
-
-  const proofs: UnifiedProof[] = paper.map(
-    (p): UnifiedProof => ({ ...p, source: "paper" }),
-  );
+  const { onChainEvents, proofs, platformAddresses, timelockProposals } =
+    await loadProofCenterFullLog();
 
   return (
     <div className="proof-center-shell admin-doc-shell">
@@ -77,7 +44,7 @@ export default async function AdminProofCenterFullPage({
         lead={
           <Link
             href="/admin/proof-center"
-            className="proof-back-link inline-flex items-center body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base self-start"
+            className="proof-back-link body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base"
             aria-label="Back to Proof Center hub"
           >
             <ArrowLeft className="ct-icon-sm" aria-hidden />
@@ -89,64 +56,13 @@ export default async function AdminProofCenterFullPage({
         }
       />
 
-      <ProofCenterSection
-        id="event-timeline-heading"
-        title="On-chain event log"
-      >
-        <EventTimeline events={onChainEvents} sectionLed />
-      </ProofCenterSection>
-
-      <ProofCenterSection
-        id="proof-grid-heading"
-        title="Off-chain proofs & documents"
-        actions={proofs.length > 0 ? <ProofFilter /> : null}
-      >
-        {proofs.length === 0 ? (
-          <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
-        ) : (
-          <ProofGrid proofs={proofs} filter={filter} demo={false} />
-        )}
-      </ProofCenterSection>
-
-      <ProofCenterSection
-        id="contracts-heading"
-        title="Contracts & review trail"
-      >
-        <ContractsAuditTrail platformAddresses={platformAddresses} />
-      </ProofCenterSection>
-
-      <ProofCenterSection
-        id="timelock-heading"
-        title="Pending governance timelocks"
-      >
-        {timelockProposals.length > 0 ? (
-          <div className="product-doc-stack--relaxed">
-            {timelockProposals.map((proposal) => (
-              <TimelockCountdown
-                key={proposal.id}
-                proposalId={proposal.id}
-                queueTime={(proposal.queuedAt ?? proposal.createdAt).toISOString()}
-                delayHours={proposal.timelockHours ?? TIMELOCK_DELAY_HOURS}
-              />
-            ))}
-          </div>
-        ) : (
-          <Card hoverOverlay={false}>
-            <ProofCenterCardHeader
-              sectionLed
-              eyebrow="Governance queue"
-              title="No pending timelocks"
-              tone="quiet"
-            />
-            <PanelStatus
-              message="No proposals are currently waiting on a timelock."
-              detail="Queued governance actions will appear here before execution."
-            />
-          </Card>
-        )}
-      </ProofCenterSection>
-
-      <ProvenanceFooter />
+      <ProofCenterFullSections
+        onChainEvents={onChainEvents}
+        proofs={proofs}
+        platformAddresses={platformAddresses}
+        filter={filter}
+        timelockProposals={timelockProposals}
+      />
     </div>
   );
 }

@@ -14,6 +14,9 @@ interface Props {
   proofId: string;
 }
 
+const TOAST_INFO_MS = 8000;
+const TOAST_SUCCESS_MS = 10000;
+
 /**
  * One-shot button that publishes a signed mining-attestation Proof to the
  * on-chain PoRRegistry. Only rendered for mining_attestation proofs that have
@@ -46,7 +49,7 @@ export function PublishOnChainButton({ proofId }: Props) {
 
       if (!result.armed) {
         toast.info("Publisher not armed — no on-chain write occurred. Set HEARST_PUBLISHER_PRIVATE_KEY to enable.", {
-          duration: 8000,
+          duration: TOAST_INFO_MS,
         });
         return;
       }
@@ -64,7 +67,7 @@ export function PublishOnChainButton({ proofId }: Props) {
               {abbreviateAddress(result.txHash)} ↗
             </a>
           </span>,
-          { duration: 10000 },
+          { duration: TOAST_SUCCESS_MS },
         );
       }
     });

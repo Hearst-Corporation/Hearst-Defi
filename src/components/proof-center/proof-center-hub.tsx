@@ -1,3 +1,5 @@
+import { resolveAttestationProvenance } from "@/components/proof-center/formatters";
+import type { Provenance as ProvenanceKind } from "@/components/ui/provenance-badge";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { ReactNode } from "react";
 
@@ -28,8 +30,6 @@ import { cn } from "@/lib/cn";
 export interface ProofCenterHubProps {
   variant: "product" | "admin";
   chainConfigured: boolean;
-  onChainEventsCount: number;
-  onChainAttestationCount: number;
   latestAttestation: OnChainAttestation | null;
   attestationVerified: boolean;
   custody: CustodySnapshot | null;
@@ -43,15 +43,25 @@ export interface ProofCenterHubProps {
 }
 
 function HubPanelHeader({
-  variant,
   title,
+  eyebrow,
+  provenance,
   trailing,
 }: {
-  variant: ProofCenterHubProps["variant"];
   title: string;
+  eyebrow?: string;
+  provenance?: ProvenanceKind;
   trailing?: ReactNode;
 }) {
-  return <DashboardPanelHeader title={title} trailing={trailing} tone="primary" />;
+  return (
+    <DashboardPanelHeader
+      title={title}
+      eyebrow={eyebrow}
+      provenance={provenance}
+      trailing={trailing}
+      tone="primary"
+    />
+  );
 }
 
 function HubLeafLink({
@@ -72,8 +82,6 @@ function HubLeafLink({
 export function ProofCenterHub({
   variant,
   chainConfigured,
-  onChainEventsCount,
-  onChainAttestationCount,
   latestAttestation,
   attestationVerified,
   custody,
@@ -87,10 +95,20 @@ export function ProofCenterHub({
   const fullHref =
     variant === "product" ? "/proof-center/full" : "/admin/proof-center/full";
 
+  const porProvenance = latestAttestation
+    ? resolveAttestationProvenance(
+        latestAttestation.timestamp,
+        attestationVerified,
+        demo,
+      )
+    : "manual";
+
+  const coverageProvenance = coverage?.provenance ?? "manual";
+
   return (
     <div
       className={cn(
-        "proof-center-shell",
+        variant === "product" ? "proof-center-shell" : "admin-doc-shell--roomy",
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >
@@ -99,33 +117,36 @@ export function ProofCenterHub({
           titleLead="Proof"
           titleAccent="Center"
           contextLabel="Vault Proof System"
+          className="mb-[var(--ct-space-8)]"
         />
       ) : (
         <AdminPageHeader
-          titleLead="Proof"
-          titleAccent="Operations"
+          titleLead="Proof Operations"
           contextLabel="Operator Proof Hub"
+          className="mb-[var(--ct-space-8)]"
         />
       )}
 
       {coldEmpty ? (
-        <>
+        <div className={cn(variant === "admin" ? "admin-doc-stack admin-doc-stack--roomy" : "product-doc-stack product-doc-stack--roomy")}>
           <ProofCenterColdShell chainConfigured={chainConfigured} variant={variant} />
           <ProofCenterSection
             id="contracts-heading"
             title="Contracts & review trail"
+            variant={variant}
           >
-            <ContractsAuditTrail platformAddresses={platformAddresses} />
+            <ContractsAuditTrail platformAddresses={platformAddresses} variant={variant} />
           </ProofCenterSection>
-        </>
+        </div>
       ) : (
-        <>
+        <div className={cn(variant === "admin" ? "admin-doc-stack admin-doc-stack--roomy" : "product-doc-stack product-doc-stack--roomy")}>
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
+                  eyebrow="On-chain reserves"
                   title="Proof of Reserves"
+                  provenance={porProvenance}
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
@@ -145,8 +166,9 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
-                  title="Mining cash-flow evidence"
+                  eyebrow="Yield source"
+                  title="Mining cash-flow"
+                  provenance={coverageProvenance === "pending" ? "manual" : coverageProvenance === "invalid" ? "stale" : coverageProvenance}
                 />
                 <div className="proof-panel-scroll">
                   <MiningCashFlowEvidence coverage={coverage} sectionLed={false} />
@@ -159,8 +181,9 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
+                  eyebrow="Payout history"
                   title="Latest distributions"
+                  provenance="manual"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
@@ -184,8 +207,9 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">
                 <HubPanelHeader
-                  variant={variant}
+                  eyebrow="Vault operations"
                   title="Rebalancing events"
+                  provenance="manual"
                   trailing={
                     <HubLeafLink variant={variant} href={fullHref} label="View full" />
                   }
@@ -206,7 +230,7 @@ export function ProofCenterHub({
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

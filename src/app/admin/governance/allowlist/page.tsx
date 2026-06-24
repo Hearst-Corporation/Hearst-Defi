@@ -12,7 +12,8 @@ export default async function AllowlistPage() {
   return (
     <>
       <AdminPageHeader
-        titleLead="Allowlist"
+        titleLead="Governance"
+        titleAccent="Allowlist"
         contextLabel="Governance · Allowlist"
         lead={
           <Link

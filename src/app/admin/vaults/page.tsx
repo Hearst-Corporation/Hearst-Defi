@@ -123,11 +123,11 @@ export default async function VaultsPage({ searchParams }: PageProps) {
         <section aria-label="Vault deployments" className="admin-vaults-list">
           {/* Column headers */}
           <div className="admin-vaults-list__header" aria-hidden>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Vault</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Status</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Principal vs Capacity</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Target APY</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider sr-only">Actions</span>
+            <span className="eyebrow">Vault</span>
+            <span className="eyebrow">Status</span>
+            <span className="eyebrow">Principal vs Capacity</span>
+            <span className="eyebrow">Target APY</span>
+            <span className="eyebrow sr-only">Actions</span>
           </div>
 
           {vaults.map((vault) => {
@@ -165,7 +165,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                 {/* Principal vs Capacity — positions-sum; may differ from LP-visible Reported AUM (VaultSnapshot) */}
                 <div className="admin-vaults-list__metrics">
-                  <div className="flex items-center gap-(--ct-space-2)">
+                  <div className="flex items-center gap-[var(--ct-space-2)]">
                     <Progress
                       value={aumPct}
                       label={`Deployed principal vs capacity for ${vault.ticker}`}
@@ -184,7 +184,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
 
                 {/* Target APY */}
                 <div className="admin-vaults-list__apy">
-                  <div className="flex items-center gap-(--ct-space-1_5)">
+                  <div className="flex items-center gap-[var(--ct-space-1_5)]">
                     <ApyRange low={apyLow} high={apyHigh} precision={1} />
                     <ProvenanceBadge kind="estimated" variant="strip" />
                   </div>

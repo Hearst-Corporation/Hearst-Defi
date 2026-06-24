@@ -70,7 +70,7 @@ export function AppChrome({
 
   if (bare) {
     return (
-      <div className="min-h-dvh bg-(--ct-bg-deep)">
+      <div className="min-h-dvh bg-[var(--ct-bg-deep)]">
         {children}
         {/* Public surfaces ("/" and /legal/*) carry the full institutional
             footer; auth funnels stay footer-free. */}

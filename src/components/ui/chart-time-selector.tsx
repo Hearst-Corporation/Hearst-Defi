@@ -3,15 +3,14 @@
 
 import { cn } from "@/lib/cn";
 
-export type TimeRange = "1D" | "7D" | "30D" | "90D" | "YTD" | "All";
+export type TimeRange = "1M" | "3M" | "6M" | "1Y" | "ALL";
 
 const ALL_OPTIONS: ReadonlyArray<TimeRange> = [
-  "1D",
-  "7D",
-  "30D",
-  "90D",
-  "YTD",
-  "All",
+  "1M",
+  "3M",
+  "6M",
+  "1Y",
+  "ALL",
 ];
 const CHART_TIME_RANGE_ARIA_LABEL = "Chart time range";
 
@@ -59,8 +58,9 @@ export function ChartTimeSelector({
               "h-6 rounded-sm px-[var(--ct-space-1_5)] transition-colors ease-[var(--ct-ease)]",
               isActive
                 ? [
-                    "ct-text-primary",
-                    "border-b border-b-[var(--ct-text-strong)]",
+                    "ct-text-accent",
+                    "font-bold",
+                    "border-b border-b-[var(--ct-accent)]",
                   ]
                 : [
                     "ct-text-muted",

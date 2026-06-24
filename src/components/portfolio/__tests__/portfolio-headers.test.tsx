@@ -24,25 +24,12 @@ const position: PositionDetail = {
 };
 
 describe("portfolio headers", () => {
-  it("renders the portfolio greeting with inline ticker", () => {
-    const html = renderToStaticMarkup(
-      <PortfolioGreeting
-        name="Alice"
-        ticker={{
-          totalValueUsdc: 500_000,
-          totalYieldYtdUsdc: 12_000,
-          nextDistributionAt: new Date("2026-07-01T00:00:00Z"),
-          blendedLow: 9.4,
-          blendedHigh: 12.8,
-          hasPositions: true,
-        }}
-      />,
-    );
+  it("renders the portfolio greeting", () => {
+    const html = renderToStaticMarkup(<PortfolioGreeting name="Alice" />);
 
     expect(html).toContain("pf-greeting");
-    expect(html).toContain("pf-ticker-inline");
     expect(html).toContain("Welcome back,");
-    expect(html).toContain("9.4 \u2013 12.8%");
+    expect(html).toContain("Alice");
     expect(html).not.toContain("product-page-header");
   });
 

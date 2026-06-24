@@ -1,4 +1,3 @@
-
 import { MetricGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
@@ -17,6 +16,7 @@ interface TermSheetPreviewProps {
   vault: VaultProduct;
 }
 
+/** LP term sheet body for step 2 (`/vaults/[id]`). Flat sections — one surface level. */
 export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   const aumProvenance =
     vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);
@@ -26,15 +26,15 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   return (
     <div className="invest-flow-detail__grid">
       <div className="invest-flow-detail__primary">
-        <section className="vault-detail-block">
-          <header className="invest-flow-card-header mb-0">
+        <section className="vault-detail-block" aria-label="Target allocation">
+          <header className="vault-detail-block__header">
             <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Target allocation</h3>
           </header>
           <VaultAllocationInvestorList facts={allocationFacts} />
         </section>
 
-        <section className="vault-detail-block">
-          <header className="invest-flow-card-header mb-0">
+        <section className="vault-detail-block" aria-label="Regime scenarios">
+          <header className="vault-detail-block__header">
             <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Regime scenarios</h3>
           </header>
           <RegimeScenarioTable vault={vault} />
@@ -45,10 +45,10 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       </div>
 
       <div className="invest-flow-detail__secondary">
-        <section className="vault-detail-block">
-          <header className="invest-flow-card-header mb-0">
+        <section className="vault-detail-block" aria-label="Vault metrics">
+          <header className="vault-detail-block__header vault-detail-block__header--split">
             <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Vault metrics</h3>
-            <div className="flex shrink-0 items-center gap-[var(--ct-space-1_5)]">
+            <div className="flex shrink-0 items-center gap-(--ct-space-2)">
               <ProvenanceBadge kind="estimated" variant="compact" />
               {vault.currentAumUsdc > 0 ? (
                 <ProvenanceBadge kind={aumProvenance} variant="compact" />
@@ -66,8 +66,8 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </MetricGrid>
         </section>
 
-        <section className="vault-detail-block">
-          <header className="invest-flow-card-header mb-0">
+        <section className="vault-detail-block" aria-label="Legal and structure">
+          <header className="vault-detail-block__header">
             <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Legal &amp; structure</h3>
           </header>
           <div className="ct-panel-fields">
@@ -75,7 +75,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           </div>
         </section>
 
-        <p className="body-xs ct-text-faint ct-leading-relaxed">
+        <p className="body-xs ct-text-faint ct-leading-relaxed vault-detail-disclaimer">
           {vault.disclaimers} {APY_DISCLAIMER_SUFFIX}
         </p>
       </div>

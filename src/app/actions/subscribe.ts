@@ -10,6 +10,7 @@ import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
 import { getVault } from "@/lib/data/vaults";
 import { SHARE_CLASS_A, SHARE_CLASS_B, type ShareClassTerms } from "@/lib/engine/share-class";
+import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
 
 /** Sentinel thrown inside the subscribe transaction when capacity is exceeded. */
 class CapacityError extends Error {}
@@ -128,17 +129,9 @@ export async function subscribe(
       ? demoMin
       : classTerms.minTicketUsdc;
   if (amountUsdc < effectiveMin) {
-    // Format: show raw dollar amount when < $1,000 (avoids "$0k" for small demo mins),
-    // otherwise use the canonical "Nk" or "NM" format for institutional ticket sizes.
-    const minLabel =
-      effectiveMin < 1_000
-        ? `$${effectiveMin.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
-        : effectiveMin < 1_000_000
-          ? `$${(effectiveMin / 1_000).toFixed(0)}k`
-          : `$${(effectiveMin / 1_000_000).toFixed(0)}M`;
     return {
       ok: false,
-      error: `Below minimum ticket of ${minLabel} for Class ${classCode}.`,
+      error: `Below minimum ticket of ${formatMinTicketUsdc(effectiveMin)} for Class ${classCode}.`,
     };
   }
 

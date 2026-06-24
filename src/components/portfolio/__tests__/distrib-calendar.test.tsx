@@ -95,7 +95,7 @@ describe("DistribCalendar — empty entries", () => {
     expect(entries).toHaveLength(0);
   });
 
-  it("zero-state renders the histogram skeleton (empty muted bars), no phrase", () => {
+  it("zero-state renders the histogram skeleton with premium empty-state badge", () => {
     const html = renderToStaticMarkup(
       <DistribCalendar entries={[]} shareClass={null} cadence={null} asOf={new Date("2026-06-01T00:00:00Z")} />,
     );
@@ -103,9 +103,9 @@ describe("DistribCalendar — empty entries", () => {
     // Skeleton frame is present
     expect(html).toContain("pf-distrib-chart--skeleton");
     expect(html).toContain("<svg");
-    // No "no data yet" phrase, no invented amounts/labels
-    expect(html).not.toContain("No distributions yet");
-    expect(html).not.toContain("Monthly USDC payouts appear here");
+    // Premium empty-state badge (intentional design from passe 2)
+    expect(html).toContain("No distributions yet");
+    // No invented amounts/labels — the badge is honest zero-state, not fake data
     expect(html).not.toContain("[Estimate]");
   });
 

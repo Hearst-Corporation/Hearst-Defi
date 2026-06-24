@@ -146,6 +146,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "spec", label: "Spec", href: "/admin/spec", icon: "FileCheck" },
       { id: "investor-memo", label: "Investor Memo", href: "/admin/investor-memo", icon: "FileText" },
       { id: "audit", label: "Audit Log", href: "/admin/audit", icon: "FileCheck" },
+      { id: "design-system", label: "Design System", href: "/admin/design-system", icon: "FileText" },
     ],
   },
 ];

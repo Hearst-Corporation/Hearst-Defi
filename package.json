@@ -14,6 +14,8 @@
     "quality:dead": "node scripts/quality-gate.mjs dead",
     "quality:update": "node scripts/quality-gate.mjs update",
     "quality:index": "node scripts/component-index.mjs",
+    "quality:css": "node scripts/css-dupe-check.mjs --report",
+    "quality:css:update": "node scripts/css-dupe-check.mjs --update",
     "quality:dup:report": "jscpd src --reporters html --output .jscpd-report && echo 'open .jscpd-report/html/index.html'",
     "quality:dead:report": "knip",
     "commit:check": "node scripts/staged-scope-check.mjs",

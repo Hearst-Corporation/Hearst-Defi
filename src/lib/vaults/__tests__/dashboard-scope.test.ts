@@ -7,7 +7,10 @@ import {
   adminSignalsVaultHref,
   adminVaultHrefFromSlug,
   DASHBOARD_FIXTURE_VAULTS,
+  distributionVaultScopeWhere,
   isEngineFixtureVaultId,
+  matchesDistributionVaultScope,
+  resolveDistributionVaultScopeId,
   resolveFixtureVaultId,
   withAdminVaultQuery,
 } from "@/lib/vaults/dashboard-scope";
@@ -67,5 +70,24 @@ describe("dashboard-scope", () => {
     expect(withAdminVaultQuery("/admin/distributions", "defensive")).toBe(
       "/admin/distributions?vault=defensive",
     );
+  });
+
+  it("distributionVaultScopeWhere includes legacy yield rows", () => {
+    expect(distributionVaultScopeWhere("yield")).toEqual({
+      OR: [{ vaultRef: "yield" }, { vaultRef: "hearst-yield-vault" }, { vaultRef: null }],
+    });
+    expect(distributionVaultScopeWhere("defensive")).toEqual({ vaultRef: "defensive" });
+  });
+
+  it("matchesDistributionVaultScope mirrors yield legacy + null rows", () => {
+    expect(matchesDistributionVaultScope(null, "yield")).toBe(true);
+    expect(matchesDistributionVaultScope("hearst-yield-vault", "yield")).toBe(true);
+    expect(matchesDistributionVaultScope(null, "defensive")).toBe(false);
+    expect(matchesDistributionVaultScope("defensive", "defensive")).toBe(true);
+  });
+
+  it("resolveDistributionVaultScopeId normalizes legacy slugs", () => {
+    expect(resolveDistributionVaultScopeId("hearst-yield-vault")).toBe("yield");
+    expect(resolveDistributionVaultScopeId("btc-plus")).toBe("btc-plus");
   });
 });

@@ -223,6 +223,7 @@
   --ct-dur-spin: 0.8s;    /* spinner rotation cycle (cp-spin loader) */
   /* --ct-ease : source unique tokens.css (valeur identique, non redéfinie ici). */
   --ct-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* symmetric — loops (pulse/shimmer), reversible toggles */
+  --ct-ease-out: cubic-bezier(0, 0, 0.2, 1);      /* decelerate — one-shot entries (fade-in, slide-up) */
 
   /* Blur scale — backdrop-filter & decorative ambient glows. Single source so
      no rule hardcodes a raw blur() radius (DS lint enforces this). */
@@ -280,12 +281,20 @@
        375px, plancher à la valeur min.
      Formule : fluid = (max_px − min_px) / (1440 − 375) × (100vw − 375px) + min_px,
      converti en `Xrem + Yvw`. */
+  --ct-text-octa: 0.5rem;      /* 8px — densest uppercase micro-label (dashboard value/label tier) */
   --ct-text-nano: 0.5625rem;   /* 9px — sub-micro kicker / SVG chart label */
   --ct-text-micro: 0.6875rem;  /* 11px — reading-tier bump */
   --ct-text-2xs: 0.75rem;      /* 12px — between micro(11) and xs(13), panel labels */
+  --ct-text-2xs-plus: 0.78125rem; /* 12.5px — chat error body (base-shell) */
   --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
   --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
   --ct-text-base: 1rem;       /* 16px — fix */
+  /* portfolio scale fill — slots between existing steps + hero */
+  --ct-text-deci: 0.625rem;       /* 10px — between nano(9) and micro(11) */
+  --ct-text-deca: 0.875rem;       /* 14px — between xs(13) and sm(15), delta/metric */
+  --ct-text-14: 0.875rem;         /* 14px — between xs(13) and sm(15) */
+  --ct-text-hero-sym: 1.25rem;    /* 20px — hero value-chart symbol ($) */
+  --ct-text-hero-num: 3rem;       /* 48px — hero value-chart large number */
   /* Typography big scale — density calibration (headlines −1 step desktop max). */
   --ct-text-lg:      clamp(0.9375rem, 0.912rem + 0.141vw, 1.0625rem); /* 15 → 17 */
   --ct-text-xl:      clamp(1.0625rem, 1.024rem + 0.188vw, 1.1875rem); /* 17 → 19 */
@@ -296,6 +305,8 @@
   /* Fixed headline tier — seeded from the portfolio page (new DS reference).
      Non-fluid: stable KPI/heading numbers that must not resize per viewport. */
   --ct-text-xl-fixed: 1.125rem;       /* 18px — fixed value display (ticker) */
+  --ct-text-2xl-fixed: 1.25rem;       /* 20px — fixed hero value (NAV) */
+  --ct-text-28-fixed: 1.75rem;        /* 28px — fixed hero number (risk summary value) */
   --ct-text-3xl-fixed: 1.5rem;        /* 24px — fixed heading (greeting lead) */
   --ct-text-display-fixed: 2rem;      /* 32px — fixed hero KPI number */
 
@@ -460,6 +471,18 @@
   gap: var(--ct-space-2);
 }
 
+/* Error pages render OUTSIDE .product-doc/.admin-doc, so the base .h1
+   (3xl fluid, extrabold) would apply instead of the page canon. Pin the
+   error H1 to the SAME canon as doc-flow/auth/legal (24px fixed, semibold)
+   so error surfaces match every other page. Tokens only, scoped to .error-shell. */
+.error-shell .h1 {
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
+}
+
 .error-shell__actions {
   display: flex;
   flex-wrap: wrap;
@@ -518,7 +541,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--ct-space-4);
-  padding: var(--ct-space-2_5) 0;
+  padding: var(--ct-space-3) var(--ct-space-4);
   border-bottom: 1px solid var(--ct-border-soft);
 }
 
@@ -528,12 +551,18 @@
 
 .ct-proof-row__label {
   flex-shrink: 0;
+  font-size: var(--ct-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
 }
 
 .ct-proof-row__value {
   min-width: 0;
   text-align: right;
   word-break: break-word;
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-primary);
 }
 
 .ct-proof-row__truncate {
@@ -933,9 +962,7 @@
   border-radius: var(--ct-radius-full);
   border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, transparent);
   background: color-mix(in srgb, var(--ct-text-strong) 92%, var(--ct-accent) 8%);
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
+  box-shadow: none;
 }
 
 .projection-studio-range::-moz-range-thumb {
@@ -944,9 +971,7 @@
   border: 1px solid color-mix(in srgb, var(--ct-text-strong) 24%, transparent);
   border-radius: var(--ct-radius-full);
   background: color-mix(in srgb, var(--ct-text-strong) 92%, var(--ct-accent) 8%);
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
+  box-shadow: none;
 }
 
 .scenario-lab-workspace,
@@ -1183,7 +1208,6 @@
   .mining-coverage-calibration__bar { animation: none; }
 }
 
-.projection-studio-preset-rail.ct-card,
 .projection-studio-input-card.ct-card,
 .projection-studio-output-stage.ct-card {
   padding: 0;
@@ -1215,22 +1239,6 @@
   max-height: inherit;
   flex: 1 1 auto;
   flex-direction: column;
-}
-
-.projection-studio-preset-rail {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-  background: var(--ct-surface-1);
-}
-
-.projection-studio-preset-rail > .relative {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-  padding: var(--ct-space-5) var(--ct-space-6);
 }
 
 /* Compact toolbar strip — replaces the full Card for the preset section. */
@@ -1289,16 +1297,7 @@
   }
 }
 
-.projection-studio-preset-rail__head {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-2) var(--ct-space-4);
-}
-
-.projection-studio-preset-rail__items {
+.projection-studio-preset-strip__items {
   display: flex;
   max-width: 100%;
   gap: var(--ct-space-3);
@@ -1306,9 +1305,9 @@
   padding-bottom: var(--ct-space-1);
   scrollbar-width: none; /* scrollbar masquée — scroll-x préservé */
 }
-.projection-studio-preset-rail__items::-webkit-scrollbar { width: 0; height: 0; }
+.projection-studio-preset-strip__items::-webkit-scrollbar { width: 0; height: 0; }
 
-.projection-studio-preset-rail__items > * {
+.projection-studio-preset-strip__items > * {
   flex: none;
 }
 
@@ -1320,6 +1319,21 @@
   gap: var(--ct-space-1);
   padding-block: var(--ct-space-3);
   white-space: normal;
+  /* Override ct-pill defaults for this multi-line use case */
+  text-align: left;
+  line-height: var(--ct-leading-snug);
+}
+
+/* Sober active state: subtle accent border, no glow, not competing with Run button
+   Specificity 0,2,0 to beat .ct-pill.accent (0,2,0) which comes later in file */
+.projection-studio-preset-button[aria-pressed="true"].projection-studio-preset-button {
+  border-color: var(--ct-border-accent);
+  background: var(--ct-surface-1);
+  box-shadow: none;
+}
+
+.projection-studio-preset-button[aria-pressed="true"] .projection-studio-preset-button__label {
+  color: var(--ct-accent);
 }
 
 .projection-studio-input-card__header,
@@ -1498,13 +1512,11 @@
     padding-bottom: var(--ct-space-3);
   }
 
-  .projection-studio-preset-rail,
   .projection-studio-preset-strip {
     padding: var(--ct-space-4) 0;
   }
 
-  .scenario-preset-bar__head,
-  .projection-studio-preset-rail__head {
+  .scenario-preset-bar__head {
     justify-content: flex-start;
   }
 
@@ -1535,6 +1547,18 @@
 
 .dashboard-page-header .admin-page-header__main {
   max-width: 42rem;
+}
+
+/* Admin surfaces — same graphite tier as product-doc (portfolio canon). */
+.admin-doc {
+  --ct-graphite-subtle-bg: #1A1C1F;
+  --ct-graphite-nested-bg: #232529;
+  --ct-graphite-border: var(--ct-figma-border-20);
+  --ct-graphite-border-nested: rgba(255, 255, 255, 0.14);
+  --ct-border-soft: rgba(255, 255, 255, 0.09);
+  --ct-text-secondary: #C3D2CA;
+  --ct-text-tertiary: #93A39B;
+  --ct-text-muted: rgba(245, 245, 245, 0.66);
 }
 
 /* Admin cards — same padding tier as LP (.ct-card global rule). */
@@ -1582,31 +1606,6 @@
 /* Stacked rows (1 colonne, overview-pane) : la hairline bas de chaque cellule
    sépare les KPI empilés ; la hairline droite déborde et est clippée par
    l'overflow:hidden de la strip. Aucune règle spécifique nécessaire. */
-
-.dashboard-kpi-strip__cell {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-  min-height: var(--ct-dashboard-kpi-cell-min-height);
-  padding: var(--ct-space-4);
-  /* Pas de fond (transparent) : la cellule laisse voir la surface du panel —
-     pas de 2e cadre. Séparateurs = hairline droite + bas ; la strip clippe
-     (overflow + marge négative) le débord de la dernière colonne/ligne. */
-  border-right: 1px solid var(--ct-border-ghost);
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-kpi-strip__cell--alert {
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-status-danger) 55%, transparent);
-}
-
-/* Positive-attention highlight (brand green) — e.g. action queue with pending
-   items. Distinct from --alert (danger red) so genuine degraded states keep red. */
-.dashboard-kpi-strip__cell--accent {
-  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ct-accent) 40%, transparent);
-  background: color-mix(in srgb, var(--ct-accent) 3%, transparent);
-}
 
 .dashboard-kpi-strip__label-row {
   display: flex;
@@ -1996,37 +1995,37 @@
 
 /* Live ops sections — padding replaces inline py-4 / mb-2 / m-0 hardcodes */
 .dashboard-live-ops-section {
-  padding-top: var(--ct-space-4);
-  padding-bottom: var(--ct-space-5);
+  padding-top: var(--ct-space-2);
+  padding-bottom: var(--ct-space-3);
 }
 .dashboard-live-ops-section:first-child { padding-top: 0; }
 .dashboard-live-ops-section:last-child  { padding-bottom: 0; }
 .dashboard-live-ops-section__title {
   display: block;
-  margin: 0 0 var(--ct-space-3);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-extrabold);
+  margin: 0 0 var(--ct-space-1_5);
+  font-size: var(--ct-text-nano);
+  font-weight: 700;
   color: var(--ct-text-faint);
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
 }
 
 /* Action queue rows — padding replaces py-3 first:pt-0 last:pb-0 */
 .dashboard-action-row {
-  padding-top: var(--ct-space-4);
-  padding-bottom: var(--ct-space-5);
-  gap: var(--ct-space-4);
+  padding-top: var(--ct-space-1_5);
+  padding-bottom: var(--ct-space-2);
+  gap: var(--ct-space-3);
 }
 .dashboard-action-row:first-child { padding-top: 0; }
 .dashboard-action-row:last-child  { padding-bottom: 0; }
 
 .dashboard-action-row--critical {
-  border-left: 1px solid color-mix(in srgb, var(--ct-status-danger) 42%, transparent);
+  border-left: 2px solid var(--ct-status-danger);
   padding-left: var(--ct-space-3);
 }
 
 .dashboard-action-copy {
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-2);
 }
 
 .dashboard-action-title {
@@ -2034,13 +2033,13 @@
 }
 
 .dashboard-action-context {
-  max-width: 28ch;
+  max-width: 32ch;
 }
 
 /* Inngest job row — padding replaces py-2 first:pt-0 last:pb-0 */
 .dashboard-inngest-row {
-  padding-top: var(--ct-space-3);
-  padding-bottom: var(--ct-space-3);
+  padding-top: var(--ct-space-1);
+  padding-bottom: var(--ct-space-1);
   gap: var(--ct-space-3);
 }
 .dashboard-inngest-row:first-child { padding-top: 0; }
@@ -3428,32 +3427,30 @@ pre.ct-surface-1.rounded-md {
 
 /* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = strong white · H1/H3 blanc fort (brand green reserved for chrome). */
 
-/* .h1 → titre de page (Level 1). 3xl (24→28), aligné sur la version doc-flow
-   pour une seule taille de H1 dans toute l'app. */
+/* .h1/.h2/.h3 — canon unique aligné sur doc-flow-typography.css.
+   Les overrides :is(.product-doc,.admin-doc) restent identiques → zéro divergence. */
 .h1 {
-  font-size: var(--ct-text-3xl);
-  font-weight: var(--ct-font-extrabold);
+  font-size: var(--ct-text-3xl-fixed);      /* 24px fixe — même que doc-flow */
+  font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-title-1);
+  color: var(--ct-text-strong);
 }
 
-/* .h2 → titres de sections (Level 2) — canon doc-flow 20→22 (aligné doc-flow-typography.css). */
 .h2 {
-  font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
-  font-weight: var(--ct-font-bold);
+  font-size: var(--ct-text-2xl);            /* 18 → 22 — même que doc-flow */
+  font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-title-2);
+  color: var(--ct-text-strong);
 }
 
-/* .h3 → titres de modules / cards (Level 3) — vert accent, tier 3. */
 .h3 {
-  font-size: var(--ct-text-lg);             /* 16 → 18 */
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-title-3);
+  font-size: var(--ct-text-lg);             /* 15 → 17 — même que doc-flow */
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-normal);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-accent);
 }
 
 /* .h4 → card heading */
@@ -3547,7 +3544,7 @@ pre.ct-surface-1.rounded-md {
   background: var(--ct-surface-2);
   border-color: var(--ct-border);
   color: var(--ct-text-strong);
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
+  box-shadow: none;
 }
 
 [role="tablist"] .ct-pill.accent[aria-selected="true"],
@@ -3555,7 +3552,7 @@ pre.ct-surface-1.rounded-md {
 [role="tablist"] .ct-pill.accent[aria-current="page"] {
   color: var(--ct-accent);
   border-color: var(--ct-border-accent);
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  background: var(--ct-surface-1);
 }
 
 /* Focus ring only fires on focusable pills (button/link/tabindex); static badge
@@ -3868,6 +3865,11 @@ button.ct-choice-card {
   width: var(--ct-rail-left) !important;
   min-width: var(--ct-rail-left) !important;
   max-width: var(--ct-rail-left) !important;
+  position: relative;
+  /* Harmonize borders : fade out the border and background at the very bottom
+     to match the black plinth. */
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
 .ct-rail-right {
@@ -3887,6 +3889,11 @@ button.ct-choice-card {
   /* Garde-fou : à 1024px le rail (≈225px) est étroit ; rien (header, toggle) ne
      doit déborder par-dessus la bordure gauche. Le header tronque déjà son titre. */
   overflow: hidden;
+  position: relative;
+  /* Harmonize borders : fade out the border and background at the very bottom
+     to match the black plinth. */
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
 .ct-rail-right.collapsed {
@@ -3981,7 +3988,7 @@ button.ct-choice-card {
    (noir) < nested --ct-graphite-nested-bg (gris). Wrappers transparents ;
    couleur portée par .ct-page-area (une seule plaque). */
 .ct-center-panel { background: transparent !important; }
-.ct-page-area    { background: var(--ct-surface-1); }
+.ct-page-area    { background: var(--ct-bg-deep); }
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
    .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
@@ -4202,6 +4209,9 @@ button.ct-choice-card {
   -webkit-line-clamp: 1;
   overflow: hidden;
   pointer-events: none;
+  /* Ensure rail labels stay above any background fades or ambient overlays. */
+  z-index: var(--ct-z-rail-tooltip);
+  position: relative;
 }
 
 /* Rail fixe — seul le mark H reste visible dans le header (nom produit masqué). */
@@ -4516,12 +4526,28 @@ button.ct-choice-card {
 /* Centre — page area & embed (global density calibration)
    Contrat shell authentifié : colonne flex, main scroll, footer pin. */
 .ct-page-area {
+  position: relative;
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
   padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-3);
+}
+
+/* Shell Black Fade — smooth transition to footer plinth.
+   Fades content as it reaches the bottom of the scroll viewport. */
+.ct-page-area::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* Responsive fade height: smaller on mobile, generous on desktop. */
+  height: clamp(var(--ct-space-8), 8vh, var(--ct-space-16));
+  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* Sonner, Privy iframe, analytics — hors budget flex (ne pas voler la hauteur). */
@@ -4553,7 +4579,7 @@ button.ct-choice-card {
      pinné au pied du shell). Sans ça, atteindre le haut/bas de main chaînait
      vers le body → micro-saccade / flutter au scroll. `contain` = scroll normal,
      zéro rebond, zéro chaînage. */
-  overscroll-behavior: contain;
+  /* overscroll-behavior: contain; -- Removed for more natural scroll feel */
   /* Ghost scrollbar — DS standard (cf. .proof-panel-scroll & co). Scroll
      fonctionnel (molette/trackpad/touch), gouttière non réservée, pas de
      layout-shift. Aligné sur les containers scroll nommés du cockpit. */
@@ -4608,10 +4634,10 @@ button.ct-choice-card {
 /* Admin + LP doc-flow — single centre plaque (portfolio canon), transparent
    inner shells; black boxes + gray nested insets above this layer. */
 .ct-page-area:has(:is(.admin-doc, .product-doc)) {
-  background: var(--ct-surface-2);
-  padding-top: var(--ct-space-9);
-  padding-inline: var(--ct-space-5);
-  padding-bottom: var(--ct-space-8);
+  background: var(--ct-bg-deep);
+  padding-top: var(--ct-space-12); /* Increased from space-9 */
+  padding-inline: var(--ct-space-8); /* Increased from space-5 */
+  padding-bottom: var(--ct-space-16); /* Increased from space-8 */
 }
 /* Admin layout fills main scroll column (mirrors product-doc-shell chain). */
 main#main-content>.admin-doc.admin-doc-shell {
@@ -4629,6 +4655,26 @@ main#main-content>.admin-doc.admin-doc-shell {
    Top padding lifted to --ct-space-5 (18px) so the two-tier "Hairline Marque"
    masthead lockup gets generous negative space without moving bottom density.
    See the CHAT RAIL HEADER block below for the full identity-stack treatment. */
+/* Fade for settings and history (scrolled by body) */
+.ct-rail-right-body:has(.ct-chat-settings),
+.ct-rail-right-body:has(.ct-chat-history) {
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-8)), transparent);
+}
+
+/* Chat scroll fix (Fix 6): the chat view owns its OWN scroll on `.ct-chat-list`
+   (flex:1; overflow-y:auto). When the rail body ALSO scrolls (its default
+   overflow-y:auto), the two nest — the body grows and scrolls instead of the
+   list, which breaks the list's flex-end pinning + bottom-fade and makes older
+   messages hard/impossible to reach. While the chat view is mounted, lock the
+   body to a non-scrolling flex column so the inner `.ct-chat-list` is the single
+   scroll container and history scrolls cleanly. Settings/history views keep the
+   body-scroll behaviour above (they are plain scrollable content, no chat-root). */
+.ct-rail-right-body:has(.ct-chat-root) {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .ct-rail-right-header                      { padding: var(--ct-space-5) var(--ct-space-4) var(--ct-space-2); }
 .ct-rail-right.collapsed .ct-rail-right-header { padding: var(--ct-space-2) 0; }
 .ct-rail-right-body                        { padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4); }
@@ -4672,8 +4718,28 @@ main#main-content>.admin-doc.admin-doc-shell {
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
    auto-scroll-to-bottom effect keep the newest message in view without clipping
    the top. The zero-state placeholder keeps its own margin:auto centering. */
-.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-2); justify-content: flex-end; }
-.ct-chat-msg                               { display: flex; flex-direction: column; padding: var(--ct-space-2) var(--ct-space-2_5); font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */ border-radius: var(--ct-radius-md); }
+.ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-12); justify-content: flex-end; scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent; 
+  /* Double fade: top for old messages, bottom for composer clearance. 
+     Increased padding-bottom ensures the newest message stays above the bottom fade. */
+  mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
+}
+.ct-chat-list::-webkit-scrollbar           { width: 4px; }
+.ct-chat-list::-webkit-scrollbar-track     { background: transparent; }
+.ct-chat-list::-webkit-scrollbar-thumb     { background: var(--ct-border-soft); border-radius: var(--ct-radius-full); }
+
+@keyframes ct-chat-msg-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ct-chat-msg                               { 
+  display: flex; 
+  flex-direction: column; 
+  padding: var(--ct-space-2) 0; 
+  font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */
+  animation: ct-chat-msg-fade-in 0.4s var(--ct-ease) forwards;
+}
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
 
 /* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails.
@@ -4826,9 +4892,19 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding-left: 0;
   padding-right: 0;
 }
-.ct-chat-msg.user,
+.ct-chat-msg.user {
+  align-self: flex-end;
+  text-align: right;
+  max-width: 85%;
+}
 .ct-chat-msg.user .ct-chat-msg-plain {
   color: var(--ct-text-primary);
+  font-style: italic; /* Elegant "personal note" feel */
+  opacity: 0.9;
+}
+.ct-chat-msg.assistant {
+  align-self: flex-start;
+  max-width: 100%;
 }
 
 /* Badge d'expéditeur en tête de bulle — distinction agent/user par le badge +
@@ -4904,7 +4980,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   background: var(--ct-surface-2);
   color: var(--ct-text-strong);
   cursor: pointer;
-  transition: border-color 120ms var(--ct-ease), background 120ms var(--ct-ease);
+  transition: border-color var(--ct-dur-fast) var(--ct-ease), background var(--ct-dur-fast) var(--ct-ease);
 }
 .ct-chat-preset-chip:hover {
   border-color: var(--ct-accent);
@@ -5012,54 +5088,71 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-chat-ctx-dot--live { animation: none; }
 }
 
-/* Markdown body — tokenised replacement for the former inline px/rgba styles.
-   Compact heading scale tuned for the narrow chat rail: rises from the bubble
-   body base (13→15px) without exploding. Distinct size + weight per level so
-   H1/H2/H3 actually read as a hierarchy. */
+/* Markdown body — Swiss Design refinements.
+   Tight heading scale, generous line-height, and refined code blocks.
+   No halos, no glows — just typography and spacing. */
+.ct-chat-msg-md {
+  line-height: 1.65;
+  color: var(--ct-text-body);
+}
 .ct-chat-msg-md h1,
 .ct-chat-msg-md h2,
 .ct-chat-msg-md h3 {
-  margin-top: var(--ct-space-3);
-  margin-bottom: var(--ct-space-1_5);
-  line-height: var(--ct-leading-snug);
+  margin-top: var(--ct-space-5);
+  margin-bottom: var(--ct-space-2);
+  line-height: var(--ct-leading-tight);
   color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tight);
 }
-.ct-chat-msg-md h1 { font-size: var(--ct-text-lg); font-weight: var(--ct-font-bold); }
-.ct-chat-msg-md h2 { font-size: var(--ct-text-base); font-weight: var(--ct-font-semibold); }
-.ct-chat-msg-md h3 { font-size: var(--ct-text-sm); font-weight: var(--ct-font-semibold); }
+.ct-chat-msg-md h1 { font-size: var(--ct-text-xl); font-weight: var(--ct-font-bold); }
+.ct-chat-msg-md h2 { font-size: var(--ct-text-lg); font-weight: var(--ct-font-semibold); }
+.ct-chat-msg-md h3 { font-size: var(--ct-text-base); font-weight: var(--ct-font-semibold); }
 .ct-chat-msg-md h1:first-child,
 .ct-chat-msg-md h2:first-child,
 .ct-chat-msg-md h3:first-child { margin-top: 0; }
-.ct-chat-msg-md p { margin: var(--ct-space-1_5) 0; }
+
+.ct-chat-msg-md p { margin: var(--ct-space-2) 0; }
 .ct-chat-msg-md p:first-child { margin-top: 0; }
 .ct-chat-msg-md p:last-child { margin-bottom: 0; }
-.ct-chat-msg-md strong { font-weight: var(--ct-font-semibold); color: var(--ct-text-strong); }
-.ct-chat-msg-md em { font-style: italic; }
-.ct-chat-msg-md a {
-  color: var(--ct-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.ct-chat-msg-md a:hover { text-decoration: none; }
+
+.ct-chat-msg-md strong { font-weight: var(--ct-font-bold); color: var(--ct-text-strong); }
+.ct-chat-msg-md em { font-style: italic; opacity: 0.9; }
+
 .ct-chat-msg-md ul,
-.ct-chat-msg-md ol { margin: var(--ct-space-1) 0; padding-left: var(--ct-space-4); }
-.ct-chat-msg-md li { margin: var(--ct-space-0_5) 0; }
+.ct-chat-msg-md ol { 
+  margin: var(--ct-space-2) 0; 
+  padding-left: var(--ct-space-5); 
+}
+.ct-chat-msg-md li { 
+  margin: var(--ct-space-1) 0; 
+}
+.ct-chat-msg-md li::marker {
+  color: var(--ct-accent);
+}
+
 .ct-chat-msg-md pre {
-  margin: var(--ct-space-1_5) 0;
-  padding: var(--ct-space-2) var(--ct-space-2_5);
-  border-radius: var(--ct-radius-sm);
+  margin: var(--ct-space-3) 0;
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
   overflow-x: auto;
-  font-size: var(--ct-text-sm);
-  background: color-mix(in srgb, var(--ct-bg-deep) 40%, transparent);
+  font-size: var(--ct-text-xs);
+  background: color-mix(in srgb, var(--ct-bg-deep) 60%, transparent);
   border: 1px solid var(--ct-border-soft);
+  font-family: var(--ct-font-mono);
 }
 .ct-chat-msg-md code {
-  padding: 1px var(--ct-space-1);
+  padding: 2px 5px;
   border-radius: var(--ct-radius-xs);
-  font-size: var(--ct-text-sm);
-  background: color-mix(in srgb, var(--ct-bg-deep) 35%, transparent);
+  font-size: 0.9em;
+  background: color-mix(in srgb, var(--ct-bg-deep) 45%, transparent);
+  font-family: var(--ct-font-mono);
+  color: var(--ct-accent);
 }
-.ct-chat-msg-md pre code { padding: 0; background: transparent; }
+.ct-chat-msg-md pre code { 
+  padding: 0; 
+  background: transparent; 
+  color: var(--ct-text-body);
+}
 
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
@@ -5082,7 +5175,199 @@ main#main-content>.admin-doc.admin-doc-shell {
   outline: none !important;
 }
 
-.ct-chat-thinking                          { padding-left: var(--ct-space-3_5); }
+@keyframes ct-chat-thinking-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.ct-chat-thinking {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--ct-space-3) 0;
+  opacity: 0;
+  transition: opacity 0.3s var(--ct-ease);
+}
+.ct-chat-thinking.active {
+  opacity: 1;
+  animation: ct-chat-thinking-pulse 2s var(--ct-ease) infinite;
+}
+
+/* Chat Chart Card — Flat integration.
+   Refined cards that sit comfortably in the bubble-less flow. */
+.ct-chat-chart {
+  background: color-mix(in srgb, var(--ct-surface-1) 30%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-3);
+  margin-top: var(--ct-space-2);
+  transition: border-color 0.2s var(--ct-ease);
+}
+.ct-chat-chart:hover {
+  border-color: var(--ct-border);
+}
+.ct-chat-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--ct-space-2);
+}
+.ct-chat-chart-title {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-bold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+}
+.ct-chat-chart-metric {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+}
+.ct-chat-chart-badge {
+  font-size: var(--ct-text-nano);
+  padding: 1px 4px;
+  border-radius: var(--ct-radius-xs);
+  background: var(--ct-surface-2);
+  color: var(--ct-text-faint);
+  text-transform: uppercase;
+}
+
+/* --- New Chat Panel UI Embellishments --- */
+
+/* Header Status */
+.ct-rail-right-id-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.ct-chat-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+  padding: 1px 6px;
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
+  color: var(--ct-accent);
+  font-size: var(--ct-text-deci);
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ct-chat-status-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ct-accent);
+}
+
+/* Welcome Message */
+.ct-chat-welcome {
+  text-align: center;
+  padding: var(--ct-space-4) 0;
+}
+
+.ct-chat-welcome-icon {
+  color: var(--ct-accent);
+  margin-bottom: var(--ct-space-3);
+  display: flex;
+  justify-content: center;
+}
+
+.ct-chat-welcome-title {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  margin-bottom: var(--ct-space-1);
+}
+
+.ct-chat-welcome-text {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-muted);
+  line-height: var(--ct-leading-relaxed);
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+/* Context Card */
+.ct-chat-context-card {
+  width: 100%;
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  padding: var(--ct-space-3);
+  margin-bottom: var(--ct-space-4);
+}
+
+.ct-chat-context-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  margin-bottom: var(--ct-space-2);
+}
+
+.ct-chat-context-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+.ct-chat-context-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-body);
+}
+
+.ct-chat-context-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ct-text-faint);
+}
+
+.ct-chat-suggestions-label {
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-faint);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  margin-bottom: var(--ct-space-2);
+  align-self: flex-start;
+}
+
+/* Composer Refinements */
+.ct-chat-composer-wrap {
+  margin-top: auto;
+  padding-top: var(--ct-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.ct-chat-composer-hint {
+  font-size: var(--ct-text-deci);
+  color: var(--ct-text-faint);
+  text-align: center;
+  font-style: italic;
+}
+
+.ct-chat-form {
+  border-radius: var(--ct-radius-lg) !important;
+  transition: border-color var(--ct-dur-base), box-shadow var(--ct-dur-base);
+}
+
+.ct-chat-input {
+  min-height: 2.5rem !important; /* Start smaller */
+  font-size: var(--ct-text-sm) !important;
+  line-height: 1.5 !important;
+}
 
 /* Chat settings */
 .ct-chat-settings                          { padding: var(--ct-space-1) var(--ct-space-0_5); }
@@ -5670,6 +5955,20 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Invest / vault flow — flat sections (no NestedPanel graphite shell). */
 .vault-flow-flat-section {
   min-width: 0;
+  transition: transform var(--ct-dur-base) var(--ct-ease), opacity var(--ct-dur-base) var(--ct-ease);
+}
+
+.vault-flow-flat-section--hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  max-height: 0;
+  overflow: hidden;
+  margin: 0 !important;
+  transition: max-height var(--ct-dur-base) var(--ct-ease), 
+              opacity var(--ct-dur-base) var(--ct-ease), 
+              transform var(--ct-dur-base) var(--ct-ease),
+              margin var(--ct-dur-base) var(--ct-ease);
 }
 
 .vault-flow-flat-section + .vault-flow-flat-section {
@@ -6420,10 +6719,9 @@ main#main-content>.admin-doc.admin-doc-shell {
   justify-content: space-between;
   gap: var(--ct-space-3);
 }
+/* Marker only — typography comes from canon `.h3` (vert accent, lg) applied on
+   the element. Card title hierarchy aligned on portfolio canon (doc-flow-typography). */
 .ct-canvas-section-title {
-  font-size: var(--ct-text-sm);
-  font-weight: 600;
-  color: var(--ct-text-strong);
   margin: 0;
 }
 .ct-canvas-section-status {

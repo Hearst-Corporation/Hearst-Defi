@@ -75,7 +75,8 @@ export default async function EditVaultPage({ params }: PageProps) {
             <Link href={`/admin/vaults/${id}`}>← {vault.ticker}</Link>
           </Button>
         }
-        title="Edit Vault Draft"
+        titleLead="Edit"
+        titleAccent="Vault Draft"
       />
 
       <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />

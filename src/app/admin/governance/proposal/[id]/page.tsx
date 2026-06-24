@@ -86,7 +86,8 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   return (
     <>
       <AdminPageHeader
-        title={proposal.actionType}
+        titleLead="Proposal"
+        titleAccent={proposal.actionType}
         lead={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/governance">← Governance</Link>

@@ -1,5 +1,6 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { type Provenance } from "@/components/ui/provenance-badge";
+import { Tooltip } from "@/components/ui/tooltip";
 import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-formatters";
 import {
   computeNavBarHeights,
@@ -32,31 +33,42 @@ export function NavSlot({
       <DashboardPanelHeader
         title="NAV trend · 30d"
         eyebrow="Analytics"
-        tone="quiet"
+        tone="primary"
         provenance={!isMuted ? navProvenance : undefined}
         className="dashboard-nav-slot__header"
       />
-      <p className="dashboard-nav-slot__value stat-value tabular m-0">
-          {lastNav !== null ? (
-            dashboardUsdCompact.format(lastNav)
-          ) : (
-            <span className="body-md ct-text-faint font-medium tracking-normal">Awaiting data</span>
-          )}
-      </p>
+      <div className="dashboard-nav-slot__value-row">
+        <div className="flex flex-col">
+          <span className="cockpit-label-xs opacity-50 mb-1">Current NAV</span>
+          <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-[var(--ct-space-1)]">
+              {lastNav !== null ? (
+                <>
+                  <span className="cockpit-label-xs opacity-40">USD</span>
+                  <span className="cockpit-value-md text-[length:var(--ct-text-2xl-fixed)]!">{dashboardUsdCompact.format(lastNav)}</span>
+                </>
+              ) : (
+                <span className="cockpit-label-sm opacity-50">Awaiting data</span>
+              )}
+          </p>
+        </div>
+
+        {navDelta !== null ? (
+          <div className="flex flex-col items-end">
+            <span className="cockpit-label-xs opacity-50 mb-1">30d Change</span>
+            <p
+              className={cn(
+                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-[length:var(--ct-text-deca)]!",
+                navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
+              )}
+            >
+              {navDelta >= 0 ? "+" : ""}
+              {navDelta.toFixed(1)}%
+            </p>
+          </div>
+        ) : null}
+      </div>
 
       <NavBarChart points={navPoints} muted={isMuted} />
-
-      {navDelta !== null ? (
-        <p
-          className={cn(
-            "dashboard-nav-slot__delta body-xs tabular font-semibold m-0",
-            navDelta >= 0 ? "ct-status-success" : "ct-status-danger",
-          )}
-        >
-          {navDelta >= 0 ? "+" : ""}
-          {navDelta.toFixed(1)}% · 30d
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -102,14 +114,22 @@ function NavBarChartShell({
         <div className="dashboard-nav-bars__bars" role="list">
           {slices.map((slice) => (
             <div key={slice.key} className="dashboard-nav-bars__cell" role="listitem">
-              <div
-                className="dashboard-nav-bars__bar"
-                style={{ height: `${slice.heightPct}%` }}
-                tabIndex={slice.label ? 0 : undefined}
-                aria-label={slice.label}
-                title={slice.label}
-                aria-hidden={slice.label ? undefined : true}
-              />
+              {slice.label ? (
+                <Tooltip content={slice.label} side="top">
+                  <div
+                    className="dashboard-nav-bars__bar"
+                    style={{ height: `${slice.heightPct}%` }}
+                    tabIndex={0}
+                    aria-label={slice.label}
+                  />
+                </Tooltip>
+              ) : (
+                <div
+                  className="dashboard-nav-bars__bar"
+                  style={{ height: `${slice.heightPct}%` }}
+                  aria-hidden={true}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -120,7 +140,7 @@ function NavBarChartShell({
       {monthLabels ? (
         <div className="dashboard-nav-bars__months" aria-hidden>
           {monthLabels.map((label, index) => (
-            <span key={`${label}-${index}`}>{label}</span>
+            <span key={`${label}-${index}`} className="cockpit-label-xs opacity-60">{label}</span>
           ))}
         </div>
       ) : null}

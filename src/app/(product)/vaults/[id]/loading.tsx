@@ -3,11 +3,10 @@ import { InvestFlowLoadingShell } from "@/components/vaults/invest-flow-loading-
 export default function VaultDetailLoading() {
   return (
     <InvestFlowLoadingShell
-      workspace
       showLead
       showActions
-      showKpiRow
-      bodyCards={3}
+      showOverview
+      bodySections={2}
     />
   );
 }

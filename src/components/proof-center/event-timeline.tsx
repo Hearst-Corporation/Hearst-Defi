@@ -88,7 +88,7 @@ function EventTimelineItem({
         />
       </div>
 
-      <div className="min-w-0 flex-1 pf-stack--dense">
+      <div className="min-w-0 flex-1 product-doc-stack product-doc-stack--compact">
         <div className="product-doc-inline-row">
           <Badge variant={KIND_VARIANT[event.kind]}>{KIND_LABEL[event.kind]}</Badge>
           <span className="body-xs">Event #{event.eventId.toString()}</span>

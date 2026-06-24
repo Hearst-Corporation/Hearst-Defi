@@ -36,7 +36,7 @@ export function CanvasSectionView({
   return (
     <Card className={cn("ct-canvas-section", section.status === "building" && "ct-canvas-section--building")}>
       <div className="ct-canvas-section-head">
-        <h3 className="ct-canvas-section-title">{section.title}</h3>
+        <h3 className="h3 ct-canvas-section-title m-0">{section.title}</h3>
         {section.status === "building" && (
           <span className="ct-canvas-section-status">Composing…</span>
         )}
