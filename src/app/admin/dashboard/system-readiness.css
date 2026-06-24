@@ -12,10 +12,10 @@
   gap: var(--ct-space-3);
   min-width: 0;
   padding: var(--ct-space-4) var(--ct-space-5);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-border-ghost);
-  box-shadow: none;
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
+  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
   transition: all var(--ct-dur-base) var(--ct-ease);
 }
 
@@ -58,7 +58,7 @@
 
 /* Eyebrow kicker — static label demoted to small muted text after the verdict. */
 .dashboard-readiness__title-kicker {
-  font-size: 8px;
+  font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
@@ -78,7 +78,7 @@
 }
 
 .dashboard-readiness__scan-label {
-  font-size: 8px;
+  font-size: var(--ct-text-nano);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -87,7 +87,7 @@
 }
 
 .dashboard-readiness__scan-value {
-  font-size: 9px;
+  font-size: var(--ct-text-nano);
   font-weight: 600;
   color: var(--ct-text-muted);
   font-variant-numeric: tabular-nums;
@@ -102,7 +102,7 @@
 
 .dashboard-readiness__blurb {
   max-width: 50ch;
-  font-size: 10px;
+  font-size: var(--ct-text-micro);
   color: var(--ct-text-muted);
   line-height: 1.4;
 }

@@ -409,8 +409,9 @@
 
 .dashboard-merged-card {
   background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-border-ghost);
-  box-shadow: none;
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
+  border-radius: var(--ct-radius-xl);
+  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
 }
 
 .dashboard-hero-card__analytics {
@@ -515,8 +516,8 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-border-ghost);
-  border-radius: var(--ct-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
+  border-radius: var(--ct-radius-xl);
   overflow: hidden;
   transition: all var(--ct-dur-base) var(--ct-ease);
 }
