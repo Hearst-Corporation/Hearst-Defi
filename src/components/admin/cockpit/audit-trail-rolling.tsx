@@ -34,7 +34,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
       <div className="overflow-hidden border border-[var(--ct-border-ghost)] rounded-(--ct-radius-sm)">
         <table className="w-full table-fixed body-sm" aria-label="Audit trail">
           <thead>
-            <tr className="bg-ct-bg-soft/30">
+            <tr className="bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_30%,transparent)]">
               <th className="cockpit-col-time text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)]">
                 Time
               </th>

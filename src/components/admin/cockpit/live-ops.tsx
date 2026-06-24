@@ -47,7 +47,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
             <h3 className="cockpit-label-sm m-0">LLM Health</h3>
             <span className="cockpit-label-xs opacity-60">24h Window</span>
           </header>
-          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions bg-ct-bg-soft/50 rounded-(--ct-radius-sm) p-[var(--ct-space-1_5)] border border-[var(--ct-border-ghost)]">
+          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_50%,transparent)] rounded-(--ct-radius-sm) p-[var(--ct-space-1_5)] border border-[var(--ct-border-ghost)]">
             <Tooltip
               content={(
                 <div className="dashboard-metric-tooltip">

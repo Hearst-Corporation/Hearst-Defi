@@ -76,9 +76,9 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
           href={item.href}
           className={cn(
             "dashboard-action-cta cockpit-label-xs py-[var(--ct-space-0_5)] px-[var(--ct-space-1_5)] rounded-(--ct-radius-sm) border border-transparent transition-colors",
-            item.severity === "P0" 
-              ? "bg-ct-status-danger/10 text-ct-status-danger border-ct-status-danger/20 hover:bg-ct-status-danger/20" 
-              : "bg-ct-bg-soft text-ct-text-muted border-ct-border-ghost hover:text-ct-text-strong hover:border-ct-border-muted",
+            item.severity === "P0"
+              ? "ct-status-danger bg-[color:color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] border-[color:color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)]"
+              : "ct-text-muted bg-(--ct-bg-soft) border-(--ct-border-ghost) hover:text-(--ct-text-strong) hover:border-(--ct-border-muted)",
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >

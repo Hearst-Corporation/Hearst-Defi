@@ -25,8 +25,9 @@ export function PlatformOverviewBand({ view, allocations }: { view: OverviewClus
           )}
         >
           <DashboardPanelHeader
-            title={<span className="dashboard-cluster-label">{cluster.label}</span>}
+            title={cluster.label}
             eyebrow={index === 0 ? view.caption : undefined}
+            tone="primary"
             trailing={<AdminLeafLink href={cluster.href} />}
           />
           <div className="dashboard-overview-ledger">
@@ -55,7 +56,7 @@ export function PlatformOverviewBand({ view, allocations }: { view: OverviewClus
               </div>
               <div className="h-1 w-full bg-[var(--ct-border-ghost)] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-ct-accent transition-all duration-500" 
+                  className="h-full bg-(--ct-accent) transition-all duration-500"
                   style={{ width: cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "0%" }}
                 />
               </div>

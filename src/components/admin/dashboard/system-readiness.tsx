@@ -57,7 +57,7 @@ export function SystemReadinessModule({
               <span className="dashboard-readiness__scan-label">
                 Uptime
               </span>
-              <span className="dashboard-readiness__scan-value text-ct-status-success">
+              <span className="dashboard-readiness__scan-value ct-status-success">
                 99.98%
               </span>
               <div className="dashboard-readiness__scan-divider" />

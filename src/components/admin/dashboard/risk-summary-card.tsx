@@ -59,7 +59,7 @@ export function DashboardRiskSummaryCard({
     <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
 
       <div className="dashboard-risk-summary__body flex flex-col gap-4">
-        <div className="dashboard-risk-summary__overview flex items-start justify-between bg-ct-bg-soft/30 p-[var(--ct-space-3)] rounded-(--ct-radius-sm) border border-[var(--ct-border-ghost)]">
+        <div className="dashboard-risk-summary__overview flex items-start justify-between bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_30%,transparent)] p-[var(--ct-space-3)] rounded-(--ct-radius-sm) border border-[var(--ct-border-ghost)]">
           <div className="dashboard-risk-summary__hero flex flex-col gap-1">
             <div className="dashboard-risk-summary__headline">
               <Tooltip
@@ -115,7 +115,7 @@ export function DashboardRiskSummaryCard({
           {data.dimensions.map((dimension) => (
             <article
               key={dimension.id}
-              className="dashboard-risk-summary__item group bg-ct-bg-soft/20 p-[var(--ct-space-2)] rounded-(--ct-radius-xs) border border-transparent hover:border-[var(--ct-border-ghost)] transition-all"
+              className="dashboard-risk-summary__item group bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_20%,transparent)] p-[var(--ct-space-2)] rounded-(--ct-radius-xs) border border-transparent hover:border-[var(--ct-border-ghost)] transition-all"
               aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
             >
               <div className="dashboard-risk-summary__item-top flex items-center justify-between mb-[var(--ct-space-1_5)]">
@@ -144,7 +144,7 @@ export function DashboardRiskSummaryCard({
                 value={dimension.score}
                 variant="plain"
                 fillClassName={cn(SEVERITY_FILL[dimension.severity], "transition-all duration-500")}
-                className="dashboard-risk-summary__progress h-1 bg-ct-bg-deep"
+                className="dashboard-risk-summary__progress h-1 bg-(--ct-bg-deep)"
                 label={`${dimension.label} risk score ${dimension.score} of 100`}
               />
             </article>

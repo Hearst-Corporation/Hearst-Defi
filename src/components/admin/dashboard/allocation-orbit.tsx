@@ -82,7 +82,7 @@ export function AllocationOrbit({
       <DashboardPanelHeader
         title="Capital allocation"
         eyebrow="Balance sheet"
-        tone="quiet"
+        tone="primary"
         provenance={!isEmpty ? provenance : undefined}
       />
       <div className="dashboard-orbit">
@@ -90,11 +90,11 @@ export function AllocationOrbit({
           <SvgDonut allocations={allocations} />
           <div className="dashboard-orbit__core">
             <span className="cockpit-label-xs opacity-50">AUM Total</span>
-            <strong className="cockpit-value-md text-(length:--ct-text-xl-fixed)! leading-none mt-1">
+            <strong className="cockpit-value-md text-[length:var(--ct-text-xl-fixed)]! leading-none mt-1">
               {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
             <div className="dashboard-orbit__core-meta mt-1">
-              <span className="cockpit-value-xs text-ct-accent font-bold">{allocationTotal.toFixed(0)}%</span>
+              <span className="cockpit-value-xs text-(--ct-accent) font-bold">{allocationTotal.toFixed(0)}%</span>
               <span className="cockpit-label-xs opacity-40 ml-1">Mapped</span>
             </div>
           </div>

@@ -6719,10 +6719,9 @@ main#main-content>.admin-doc.admin-doc-shell {
   justify-content: space-between;
   gap: var(--ct-space-3);
 }
+/* Marker only — typography comes from canon `.h3` (vert accent, lg) applied on
+   the element. Card title hierarchy aligned on portfolio canon (doc-flow-typography). */
 .ct-canvas-section-title {
-  font-size: var(--ct-text-sm);
-  font-weight: 600;
-  color: var(--ct-text-strong);
   margin: 0;
 }
 .ct-canvas-section-status {
