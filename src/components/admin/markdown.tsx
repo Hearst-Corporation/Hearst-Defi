@@ -19,32 +19,32 @@ export function Markdown({
         components={{
           h1: ({ children }) =>
             demoteH1 ? (
-              <h2 className="mt-[var(--ct-space-8)] mb-[var(--ct-space-3)] h2 first:mt-0">{children}</h2>
+              <h2 className="mt-(--ct-space-8) mb-(--ct-space-3) h2 first:mt-0">{children}</h2>
             ) : (
-              <h1 className="mt-[var(--ct-space-10)] mb-[var(--ct-space-4)] h1 first:mt-0">{children}</h1>
+              <h1 className="mt-(--ct-space-10) mb-(--ct-space-4) h1 first:mt-0">{children}</h1>
             ),
           h2: ({ children }) => (
-            <h2 className="mt-[var(--ct-space-8)] mb-[var(--ct-space-3)] h2">
+            <h2 className="mt-(--ct-space-8) mb-(--ct-space-3) h2">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-[var(--ct-space-6)] mb-[var(--ct-space-2)] h3">
+            <h3 className="mt-(--ct-space-6) mb-(--ct-space-2) h3">
               {children}
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-[var(--ct-space-3)] body-sm leading-[var(--ct-leading-relaxed)] ct-text-body">
+            <p className="my-(--ct-space-3) body-sm leading-(--ct-leading-relaxed) ct-text-body">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-[var(--ct-space-3)] admin-doc-list admin-doc-list--disc body-sm ct-text-body">
+            <ul className="my-(--ct-space-3) admin-doc-list admin-doc-list--disc body-sm ct-text-body">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-[var(--ct-space-3)] admin-doc-list admin-doc-list--decimal body-sm ct-text-body">
+            <ol className="my-(--ct-space-3) admin-doc-list admin-doc-list--decimal body-sm ct-text-body">
               {children}
             </ol>
           ),
@@ -58,18 +58,18 @@ export function Markdown({
               );
             }
             return (
-              <code className="rounded-sm ct-surface-1 px-[var(--ct-space-1)] py-[var(--ct-space-0_5)] mono body-xs ct-text-primary">
+              <code className="rounded-sm ct-surface-1 px-(--ct-space-1) py-(--ct-space-0_5) mono body-xs ct-text-primary">
                 {children}
               </code>
             );
           },
           pre: ({ children }) => (
-            <pre className="my-[var(--ct-space-4)] overflow-x-auto rounded-md border border-(--ct-border-soft) bg-transparent p-[var(--ct-space-4)] body-xs">
+            <pre className="my-(--ct-space-4) overflow-x-auto rounded-md border border-(--ct-border-soft) bg-transparent p-(--ct-space-4) body-xs">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-[var(--ct-space-4)] overflow-x-auto">
+            <div className="my-(--ct-space-4) overflow-x-auto">
               <table className="w-full border-collapse body-xs">
                 {children}
               </table>
@@ -99,12 +99,12 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-[var(--ct-space-4)] border-l-2 border-(--ct-text-strong) pl-[var(--ct-space-4)] body-sm italic ct-text-body">
+            <blockquote className="my-(--ct-space-4) border-l-2 border-(--ct-text-strong) pl-(--ct-space-4) body-sm italic ct-text-body">
               {children}
             </blockquote>
           ),
           hr: () => (
-            <hr className="my-[var(--ct-space-8)] border-t border-(--ct-border)" />
+            <hr className="my-(--ct-space-8) border-t border-(--ct-border)" />
           ),
           strong: ({ children }) => (
             <strong className="ct-text-primary">

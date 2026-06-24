@@ -106,10 +106,10 @@ export function AgentBriefLive({
   return (
     <div className="admin-doc-stack admin-doc-stack--tight">
       {phase === "streaming" ? (
-        <div className="flex items-center gap-[var(--ct-space-2)]">
+        <div className="flex items-center gap-(--ct-space-2)">
           <span
             aria-hidden
-            className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)] animate-pulse"
+            className="h-1.5 w-1.5 rounded-full bg-(--ct-accent) animate-pulse"
           />
           <p className="body-xs ct-text-muted">The agent is writing the brief…</p>
         </div>
