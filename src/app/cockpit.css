@@ -4719,6 +4719,13 @@ main#main-content>.admin-doc.admin-doc-shell {
    auto-scroll-to-bottom effect keep the newest message in view without clipping
    the top. The zero-state placeholder keeps its own margin:auto centering. */
 .ct-chat-list                              { gap: var(--ct-space-2); padding-bottom: var(--ct-space-12); scrollbar-width: thin; scrollbar-color: var(--ct-border-soft) transparent;
+  /* min-height:0 is REQUIRED for the scroll to work. As a flex:1 child of the
+     chat-root column, the default `min-height:auto` makes the list grow to its
+     full content height instead of staying bounded — so overflow-y:auto never
+     engages and the overflow gets clipped by `.ct-rail-right-body { overflow:hidden }`
+     (history unreachable, BUG: chat not scrollable). min-height:0 lets flex:1
+     constrain the list so it becomes the real scroll viewport. */
+  min-height: 0;
   /* Double fade: top for old messages, bottom for composer clearance.
      Increased padding-bottom ensures the newest message stays above the bottom fade. */
   mask-image: linear-gradient(to bottom, transparent, black var(--ct-space-8), black calc(100% - var(--ct-space-12)), transparent);
