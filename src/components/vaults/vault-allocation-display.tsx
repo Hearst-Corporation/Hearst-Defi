@@ -98,7 +98,22 @@ export function VaultAllocationInvestorList({
   const normalizedRadius = radius - strokeWidth / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
 
-  let accumulatedBps = 0;
+  // Precompute each segment's cumulative rotation before render so we never
+  // mutate a variable during the JSX map (react-hooks/immutability).
+  const donutSegments = segments.reduce<
+    Array<{ bucket: (typeof segments)[number]["bucket"]; color: string; bps: number; strokeDasharray: string; rotation: number }>
+  >((acc, s) => {
+    const precedingBps = acc.reduce((sum, prev) => sum + prev.bps, 0);
+    const pct = s.bps / 10000;
+    acc.push({
+      bucket: s.bucket,
+      color: s.color,
+      bps: s.bps,
+      strokeDasharray: `${pct * circumference} ${circumference}`,
+      rotation: (precedingBps / 10000) * 360,
+    });
+    return acc;
+  }, []);
 
   return (
     <div className="vault-alloc-chart-circular">
@@ -107,28 +122,21 @@ export function VaultAllocationInvestorList({
           viewBox={`0 0 ${radius * 2} ${radius * 2}`}
           className="vault-alloc-donut__svg"
         >
-          {segments.map((s) => {
-            const pct = s.bps / 10000;
-            const strokeDasharray = `${pct * circumference} ${circumference}`;
-            const rotation = (accumulatedBps / 10000) * 360;
-            accumulatedBps += s.bps;
-
-            return (
-              <circle
-                key={s.bucket}
-                cx={radius}
-                cy={radius}
-                r={normalizedRadius}
-                fill="transparent"
-                stroke={s.color}
-                strokeWidth={strokeWidth}
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={0}
-                transform={`rotate(${rotation - 90} ${radius} ${radius})`}
-                className="transition-all duration-700 ease-in-out hover:stroke-white/20 cursor-help"
-              />
-            );
-          })}
+          {donutSegments.map((s) => (
+            <circle
+              key={s.bucket}
+              cx={radius}
+              cy={radius}
+              r={normalizedRadius}
+              fill="transparent"
+              stroke={s.color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={s.strokeDasharray}
+              strokeDashoffset={0}
+              transform={`rotate(${s.rotation - 90} ${radius} ${radius})`}
+              className="transition-all duration-700 ease-in-out hover:stroke-white/20 cursor-help"
+            />
+          ))}
         </svg>
         <div className="vault-alloc-donut__center">
           <span className="body-xs ct-text-faint uppercase tracking-widest">Target</span>
