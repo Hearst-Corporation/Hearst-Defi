@@ -181,7 +181,7 @@ export async function validateResetToken(
 export async function consumeResetToken(
   rawToken: string,
   newPassword: string,
-): Promise<{ ok: true } | { ok: false; reason: TokenValidationError | "weak_password" }> {
+): Promise<{ ok: true; userId: string } | { ok: false; reason: TokenValidationError | "weak_password" }> {
   if (newPassword.length < 8) {
     return { ok: false, reason: "weak_password" };
   }
@@ -207,5 +207,8 @@ export async function consumeResetToken(
     prisma.session.deleteMany({ where: { userId } }),
   ]);
 
-  return { ok: true };
+  // Return the userId so the caller (the reset-password action) can open a
+  // fresh session and route the user straight into onboarding — no manual
+  // re-login step.
+  return { ok: true, userId };
 }
