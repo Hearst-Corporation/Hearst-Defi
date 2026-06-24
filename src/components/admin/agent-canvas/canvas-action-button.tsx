@@ -5,25 +5,6 @@ import { useCallback, useState } from "react";
 import type { PendingActionProposal } from "@/lib/canvas/contract";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { buildOutreachPostDraftMessage } from "@/lib/canvas/outreach-turn";
-
-/**
- * After a campaign draft is created, inject a DETERMINISTIC post-draft message
- * into the chat (template, no LLM) so the critical "draft created — nothing
- * sourced/sent — next step under confirmation" copy is reliable. useChat listens
- * for this event and appends it as an assistant bubble.
- */
-function announceCampaignDraftCreated(proposal: PendingActionProposal): void {
-  if (proposal.toolId !== "create_campaign_draft") return;
-  if (typeof window === "undefined") return;
-  const name =
-    typeof proposal.input.name === "string" ? proposal.input.name : "the campaign";
-  window.dispatchEvent(
-    new CustomEvent("cockpit:chat-append-assistant", {
-      detail: { text: buildOutreachPostDraftMessage(name) },
-    }),
-  );
-}
 
 /**
  * The ONLY component in the canvas that touches the network. It owns the
@@ -96,13 +77,7 @@ export function CanvasActionButton({
   const [token, setToken] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const propose = useCallback(async (event?: React.MouseEvent<HTMLButtonElement>) => {
-    // HARD guard (WIRE-1): a canvas action button must NEVER bubble into the
-    // cockpit chat <form> submit (or any ancestor handler) and re-send its label
-    // as a chat message. The button is also explicitly type="button" below, so a
-    // missing default type can't turn it into a submit either.
-    event?.preventDefault();
-    event?.stopPropagation();
+  const propose = useCallback(async () => {
     setFeedback(null);
     setPhase("proposing");
     try {
@@ -115,17 +90,14 @@ export function CanvasActionButton({
         // Some tools may execute without a confirmation step; treat as done.
         setPhase("done");
         setFeedback(r.result.lines.join(" "));
-        announceCampaignDraftCreated(proposal);
       }
     } catch (err) {
       setPhase("error");
       setFeedback(err instanceof Error ? err.message : "Action failed.");
     }
-  }, [proposal]);
+  }, [proposal.toolId, proposal.input]);
 
-  const confirm = useCallback(async (event?: React.MouseEvent<HTMLButtonElement>) => {
-    event?.preventDefault();
-    event?.stopPropagation();
+  const confirm = useCallback(async () => {
     if (!token) return;
     setFeedback(null);
     setPhase("executing");
@@ -140,8 +112,6 @@ export function CanvasActionButton({
       if (r.status === "executed") {
         setPhase("done");
         setFeedback(r.result.lines.join(" "));
-        // Deterministic post-draft chat message (template, no LLM).
-        announceCampaignDraftCreated(proposal);
       } else {
         // Token expired / re-mint — surface a re-confirm affordance.
         setToken(r.confirmation.token);
@@ -153,7 +123,7 @@ export function CanvasActionButton({
       setToken(null);
       setFeedback(err instanceof Error ? err.message : "Action failed.");
     }
-  }, [proposal, token]);
+  }, [proposal.toolId, proposal.input, token]);
 
   const busy = phase === "proposing" || phase === "executing";
 
@@ -183,7 +153,7 @@ export function CanvasActionButton({
       )}
 
       {(phase === "idle" || phase === "proposing" || phase === "error") && (
-        <Button type="button" variant="secondary" size="md" disabled={disabled || busy} onClick={propose}>
+        <Button variant="secondary" size="md" disabled={disabled || busy} onClick={propose}>
           {phase === "proposing" ? "Preparing…" : proposal.label}
         </Button>
       )}
@@ -191,17 +161,14 @@ export function CanvasActionButton({
       {(phase === "awaiting_confirm" || phase === "executing") && (
         <>
           <div className="ct-canvas-action-confirm">
-            <Button type="button" variant="primary" size="md" disabled={disabled || busy} onClick={confirm}>
+            <Button variant="primary" size="md" disabled={disabled || busy} onClick={confirm}>
               {phase === "executing" ? "Executing…" : "Confirm"}
             </Button>
             <Button
-              type="button"
               variant="ghost"
               size="md"
               disabled={busy}
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
+              onClick={() => {
                 setToken(null);
                 setPhase("idle");
                 setFeedback(null);

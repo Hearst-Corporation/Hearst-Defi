@@ -13,7 +13,21 @@ import {
   stripCanvasOpenMarker,
   detectActiveCanvasFromHistory,
 } from "@/lib/canvas/intent";
+import { extractOutreachFieldsLlm, type ClassifyClient } from "@/lib/canvas/classify-canvas-intent";
 import { composeCanvasState } from "@/lib/canvas/compose";
+
+function fakeClient(content: string | (() => never)): ClassifyClient {
+  return {
+    chat: {
+      completions: {
+        create: async () => {
+          if (typeof content === "function") content();
+          return { choices: [{ message: { content: content as string } }] };
+        },
+      },
+    },
+  };
+}
 
 describe("buildCanvasGuidanceBlock", () => {
   it("describes the outreach workshop steps + guardrails", () => {
@@ -53,6 +67,35 @@ describe("canvas open-marker (cross-turn memory)", () => {
   it("returns null when no marker is present", () => {
     expect(detectActiveCanvasFromHistory([{ role: "assistant", content: "hi" }])).toBeNull();
     expect(detectActiveCanvasFromHistory([])).toBeNull();
+  });
+});
+
+describe("extractOutreachFieldsLlm", () => {
+  it("pulls name + kind from a dictated message", async () => {
+    const v = await extractOutreachFieldsLlm(
+      fakeClient(JSON.stringify({ name: "Distributeurs Q3", kind: "newsletter" })),
+      "gpt-4.1",
+      "appelle-la Distributeurs Q3, en newsletter",
+    );
+    expect(v.name).toBe("Distributeurs Q3");
+    expect(v.kind).toBe("newsletter");
+  });
+  it("returns empty when nothing is dictated", async () => {
+    const v = await extractOutreachFieldsLlm(
+      fakeClient(JSON.stringify({ name: "", kind: "cold" })),
+      "gpt-4.1",
+      "on commence comment",
+    );
+    expect(v.name).toBeUndefined();
+    expect(v.kind).toBe("cold");
+  });
+  it("fail-safe: thrown error → {}", async () => {
+    const v = await extractOutreachFieldsLlm(
+      fakeClient(() => { throw new Error("boom"); }),
+      "gpt-4.1",
+      "x",
+    );
+    expect(v).toEqual({});
   });
 });
 

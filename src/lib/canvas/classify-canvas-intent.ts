@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger";
  *
  * Formerly in classify-product-intent.ts (deleted when the LLM classifier was
  * replaced by the deterministic classifyProductWorkspaceIntent). Kept here as
- * the shared type for classifyCanvasIntentLlm.
+ * the shared type for classifyCanvasIntentLlm + extractOutreachFieldsLlm.
  */
 export interface ClassifyClient {
   chat: {
@@ -91,13 +91,65 @@ function parse(raw: string): CanvasIntentClassification | null {
   return { canvasId: "outreach", ...(objective ? { objective } : {}) };
 }
 
-// NOTE: outreach campaign field extraction (name / kind) was previously an LLM
-// call here (extractOutreachFieldsLlm). It was retired because it could INVENT a
-// campaign name from a generic objective (e.g. "distributeurs institutionnels"),
-// diverging from the deterministic degraded path. The single canonical source is
-// now `deriveOutreachValuesFromObjective` in `@/lib/canvas/compose` (regex-only,
-// never invents), used by BOTH the live chat route and the degraded autostart
-// route. This classifier keeps ONLY the open-intent detection below.
+// ---------------------------------------------------------------------------
+// Field extraction — when the operator dictates campaign values in chat
+// ("appelle-la Distributeurs Q3, en cold"), pull them so the canvas fills.
+// ---------------------------------------------------------------------------
+
+const EXTRACT_SYSTEM_PROMPT = [
+  "Tu extrais les paramètres d'une campagne outreach depuis UN message admin.",
+  "Réponds STRICTEMENT en JSON, ce schéma exact:",
+  '{ "name": string, "kind": "cold" | "newsletter" }',
+  "Règles:",
+  "- name: le nom de campagne si l'opérateur en donne un (ex: « appelle-la Distributeurs Q3 » → name=\"Distributeurs Q3\"), sinon \"\".",
+  "- kind: \"newsletter\" si l'opérateur le précise, sinon \"cold\".",
+  "- N'invente RIEN. Si aucun nom n'est donné, name=\"\".",
+  "- Ne mets RIEN d'autre que le JSON.",
+].join("\n");
+
+export interface OutreachFieldValues {
+  name?: string;
+  kind?: "cold" | "newsletter";
+}
+
+/**
+ * Extract outreach campaign field values from an admin message. Never throws —
+ * any failure → {} (no fill). Only the fields actually present are returned.
+ */
+export async function extractOutreachFieldsLlm(
+  client: ClassifyClient,
+  _model: string,
+  message: string,
+): Promise<OutreachFieldValues> {
+  const trimmed = message.trim();
+  if (trimmed.length === 0) return {};
+  try {
+    const completion = await client.chat.completions.create(
+      {
+        model: CLASSIFY_MODEL,
+        max_tokens: 80,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: EXTRACT_SYSTEM_PROMPT },
+          { role: "user", content: trimmed },
+        ],
+      },
+      { timeout: CLASSIFY_TIMEOUT_MS },
+    );
+    const content = completion.choices?.[0]?.message?.content ?? "";
+    if (content.trim().length === 0) return {};
+    const parsed = JSON.parse(content) as Record<string, unknown>;
+    const out: OutreachFieldValues = {};
+    if (typeof parsed.name === "string" && parsed.name.trim().length > 0) {
+      out.name = parsed.name.trim().slice(0, 160);
+    }
+    if (parsed.kind === "newsletter") out.kind = "newsletter";
+    else if (parsed.kind === "cold") out.kind = "cold";
+    return out;
+  } catch {
+    return {};
+  }
+}
 
 /**
  * Classify whether an admin message wants to open a canvas workshop. Never

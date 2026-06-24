@@ -100,23 +100,5 @@ export function buildCanvasGuidanceBlock(canvasId: CanvasId): string {
     "",
     "Si l'opérateur demande « on commence comment / par quoi », réponds par la première étape concrète, pas par une question vague.",
   );
-  // ROUTE-2 — at OPENING, ask for the required fields when they are missing,
-  // and NEVER announce an automatic action. The chat must accuse réception,
-  // explain what is open, and ask the missing required fields — without
-  // inventing values, creating drafts, sourcing leads, or sending anything.
-  if (g.fillableFields.length > 0) {
-    lines.push(
-      "",
-      "À l'OUVERTURE de l'atelier : accuse réception, dis ce que tu ouvres, puis DEMANDE les champs requis manquants (ne les invente JAMAIS).",
-      "Pour une campagne outreach, les champs requis sont le NOM de campagne et le TYPE (cold | newsletter) ; tant qu'ils manquent, demande-les et NE propose PAS de créer le brouillon.",
-    );
-  }
-  lines.push(
-    "",
-    "RÈGLE ABSOLUE — n'annonce JAMAIS que tu vas exécuter une action toi-même.",
-    "Tu ne dis pas « je vais sourcer les leads maintenant », « je crée la campagne », « j'envoie » : INTERDIT.",
-    "Chaque action (créer le brouillon, sourcer des leads, rédiger, envoyer) passe par un bouton de confirmation explicite de l'opérateur.",
-    "Après une création, décris ce qui a été fait, rappelle que rien n'a été sourcé/rédigé/envoyé, et PROPOSE la prochaine étape SOUS RÉSERVE de confirmation (« souhaites-tu… ? cette étape demandera une confirmation »).",
-  );
   return lines.join("\n");
 }

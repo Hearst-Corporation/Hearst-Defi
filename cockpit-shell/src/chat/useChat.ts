@@ -351,36 +351,6 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
     [chatId, persistence],
   );
 
-  // Deterministic assistant-message injection. The canvas action button emits a
-  // `cockpit:chat-append-assistant` window event with FIXED template text (e.g.
-  // the post-draft confirmation after a campaign draft is created) — NOT an LLM
-  // turn. We append it as an assistant bubble and persist best-effort, so the
-  // critical post-action copy is reliable and survives a reload. Display-only:
-  // it never POSTs and never triggers a write.
-  useEffect(() => {
-    const onAppendAssistant = (event: Event): void => {
-      const detail = (event as CustomEvent).detail as { text?: unknown } | undefined;
-      const text = typeof detail?.text === "string" ? detail.text.trim() : "";
-      if (!text) return;
-      const assistantMsg: DisplayMessage = {
-        id: generateId(),
-        role: "assistant",
-        content: text,
-        createdAt: Date.now(),
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-      const activeChatId = chatId;
-      if (activeChatId && persistence) {
-        void persistence.saveMessage(activeChatId, assistantMsg).catch(() => {
-          /* best-effort persistence */
-        });
-      }
-    };
-    window.addEventListener("cockpit:chat-append-assistant", onAppendAssistant);
-    return () =>
-      window.removeEventListener("cockpit:chat-append-assistant", onAppendAssistant);
-  }, [chatId, persistence]);
-
   /**
    * runTurn — exécute UN tour réseau (envoi + lecture du stream). Ne décide PAS
    * de la mise en file / du force : c'est le rôle du `sendMessage` public.
@@ -411,10 +381,7 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
       // que les MAX_CLIENT_HISTORY derniers tours, pour ne jamais dépasser la
       // fenêtre acceptée côté serveur.
       const history = messagesRef.current
-        // Drop empties AND the seeded welcome greeting (id "welcome") — it is a
-        // client-only placeholder, not part of the real exchange, so the model
-        // must never receive it as assistant history.
-        .filter((m) => m.content.trim().length > 0 && m.id !== "welcome")
+        .filter((m) => m.content.trim().length > 0)
         .slice(-MAX_CLIENT_HISTORY)
         .map((m) => ({
           role: m.role,
