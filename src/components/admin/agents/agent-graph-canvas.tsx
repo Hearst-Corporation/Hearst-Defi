@@ -66,7 +66,7 @@ const BINDING_LABEL: Record<NodeBindingKind, string> = {
 };
 
 const META_PILL_CLASS =
-  "rounded-full px-(--ct-space-1_5) py-(--ct-space-0_5) text-(length:--ct-text-nano) uppercase";
+  "rounded-full px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase";
 const OUTLINE_META_PILL_CLASS = cn(
   META_PILL_CLASS,
   "border border-(--ct-border-soft) ct-text-faint",
@@ -380,10 +380,10 @@ function RuntimePanel({
   const isLive = node.bindingKind !== "static";
   return (
     <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 admin-doc-stack admin-doc-stack--tight">
-      <div className="flex items-start justify-between gap-(--ct-space-2)">
+      <div className="flex items-start justify-between gap-[var(--ct-space-2)]">
         <div>
           <p className="body-sm ct-text-strong m-0">{node.label}</p>
-          <p className="text-(length:--ct-text-nano) uppercase tracking-wide ct-text-faint">
+          <p className="text-[length:var(--ct-text-nano)] uppercase tracking-wide ct-text-faint">
             {node.kind} · {node.state}
           </p>
         </div>
@@ -402,7 +402,7 @@ function RuntimePanel({
       )}
 
       {/* Provenance + tool meta */}
-      <div className="flex flex-wrap gap-(--ct-space-1_5)">
+      <div className="flex flex-wrap gap-[var(--ct-space-1_5)]">
         <span className={OUTLINE_META_PILL_CLASS}>
           {BINDING_LABEL[node.bindingKind]}
         </span>
@@ -444,7 +444,7 @@ function RuntimePanel({
               {node.samples.map((s, i) => (
                 <div
                   key={`${s.atIso}-${i}`}
-                  className="flex items-center justify-between gap-(--ct-space-2) border-b border-(--ct-border-soft) py-(--ct-space-1) last:border-0 body-xs"
+                  className="flex items-center justify-between gap-[var(--ct-space-2)] border-b border-(--ct-border-soft) py-[var(--ct-space-1)] last:border-0 body-xs"
                 >
                   <div className="min-w-0">
                     <span
@@ -462,7 +462,7 @@ function RuntimePanel({
                       {s.status}
                     </span>
                     {s.turnId && (
-                      <div className="mt-(--ct-space-0_5) truncate font-mono text-micro ct-text-faint">
+                      <div className="mt-[var(--ct-space-0_5)] truncate font-mono text-micro ct-text-faint">
                         {s.turnId}
                       </div>
                     )}

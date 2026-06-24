@@ -117,13 +117,13 @@ export function ProofCenterHub({
           titleLead="Proof"
           titleAccent="Center"
           contextLabel="Vault Proof System"
-          className="mb-(--ct-space-8)"
+          className="mb-[var(--ct-space-8)]"
         />
       ) : (
         <AdminPageHeader
           titleLead="Proof Operations"
           contextLabel="Operator Proof Hub"
-          className="mb-(--ct-space-8)"
+          className="mb-[var(--ct-space-8)]"
         />
       )}
 

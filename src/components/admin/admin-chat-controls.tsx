@@ -857,7 +857,7 @@ export function AdminChatControls() {
     >,
   );
   const adminInputClassName =
-    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-[var(--ct-space-1)] body-xs";
+    "w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs";
   const updateCapabilityStatus = useCallback(
     (capabilityId: string, status: AgentCapabilityTestStatus) => {
       setCapabilityState((current) => ({
@@ -995,7 +995,7 @@ export function AdminChatControls() {
                 Internal copilot: architecture, allocations, available market,
                 deployments and runbooks. No autonomous execution.
               </div>
-              <div className="ct-chat-settings-label mt-(--ct-space-2)">Admin actions</div>
+              <div className="ct-chat-settings-label mt-[var(--ct-space-2)]">Admin actions</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -1142,7 +1142,7 @@ export function AdminChatControls() {
               {actionResult ? (
                 <div className="ct-chat-settings-hint">{actionResult}</div>
               ) : null}
-              <div className="ct-chat-settings-label mt-(--ct-space-2)">Read utilities</div>
+              <div className="ct-chat-settings-label mt-[var(--ct-space-2)]">Read utilities</div>
               <div className="ct-chat-settings-row">
                 <select
                   className={adminInputClassName}
@@ -1239,7 +1239,7 @@ export function AdminChatControls() {
                     />
                   </div>
                   <div className="ct-chat-settings-row">
-                    <label className="body-xs inline-flex items-center gap-(--ct-space-2)">
+                    <label className="body-xs inline-flex items-center gap-[var(--ct-space-2)]">
                       <input
                         type="checkbox"
                         checked={demoPackIncludeCharts}
@@ -1253,7 +1253,7 @@ export function AdminChatControls() {
                   </div>
                   {readUtilityTool === "export_demo_pack" ? (
                     <div className="ct-chat-settings-row">
-                      <label className="body-xs inline-flex items-center gap-(--ct-space-2)">
+                      <label className="body-xs inline-flex items-center gap-[var(--ct-space-2)]">
                         <input
                           type="checkbox"
                           checked={demoPackIncludeChecklist}
@@ -1286,7 +1286,7 @@ export function AdminChatControls() {
                       <div
                         className={cn(
                           "w-full rounded-md border border-(--ct-border-soft)",
-                          "ct-surface-1 px-(--ct-space-2) py-[var(--ct-space-1)] body-xs",
+                          "ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs",
                           "flex flex-wrap items-center gap-x-[var(--ct-space-3)] gap-y-[var(--ct-space-1)]",
                         )}
                         aria-label="Export pack summary"
@@ -1324,7 +1324,7 @@ export function AdminChatControls() {
                     <pre
                       className={cn(
                         "w-full max-h-56 overflow-auto rounded-md border border-(--ct-border-soft)",
-                        "ct-surface-1 p-(--ct-space-2) body-xs",
+                        "ct-surface-1 p-[var(--ct-space-2)] body-xs",
                       )}
                     >
                       {readUtilityResult}
@@ -1534,7 +1534,7 @@ function AgentCapabilityRow({
             value={note}
             onChange={(event) => onNoteChange(capability.id, event.target.value)}
             rows={3}
-            className="min-h-20 w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-(--ct-space-2) py-[var(--ct-space-1)] body-xs"
+            className="min-h-20 w-full rounded-md border-(--ct-border-strong) ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs"
             placeholder="Manual test observations"
             aria-label={`Notes for ${capability.label}`}
           />
