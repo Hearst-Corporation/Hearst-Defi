@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApyRange } from "@/components/ui/apy-range";
 import { type PortfolioPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
@@ -78,9 +79,11 @@ export function PositionCards({
                     {p.apyLow !== null && p.apyHigh !== null && (
                       <span className="pf-position-card__group">
                         <span className="pf-position-card__label text-nano opacity-60">Target APY</span>
-                        <span className="pf-position-card__apy font-bold">
-                          {p.apyLow}-{p.apyHigh}%
-                        </span>
+                        <ApyRange
+                          low={p.apyLow}
+                          high={p.apyHigh}
+                          className="pf-position-card__apy font-bold"
+                        />
                       </span>
                     )}
                   </span>

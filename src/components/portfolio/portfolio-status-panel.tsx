@@ -106,7 +106,7 @@ export function PortfolioStatusPanel({
     >
       <header className="pf-cockpit-panel__header px-6 pt-6 pb-2">
         <div className="flex flex-col gap-1.5">
-          <h2 className="pf-cockpit-panel__title--primary tracking-[0.2em] opacity-90">Portfolio Status</h2>
+          <h2 className="pf-cockpit-panel__title--primary tracking-wider opacity-90">Portfolio Status</h2>
           {provenance && (
             <div className="flex items-center gap-2">
               <ProvenanceBadge kind={provenance} compact />

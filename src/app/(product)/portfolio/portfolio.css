@@ -164,7 +164,6 @@
   flex-shrink: 0;
   background: var(--ct-accent);
   border-radius: 0;
-  box-shadow: 0 0 8px var(--ct-accent);
 }
 
 /* Ticker — 4 KPI cells, graphite plate (ADR-013), no hover lift. */
@@ -178,16 +177,12 @@
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 0 20px color-mix(in srgb, var(--ct-accent) 2%, transparent);
+  box-shadow: var(--ct-glass-bevel);
   transition: box-shadow var(--ct-dur-base) var(--ct-ease);
 }
 
 .pf-ticker-inline:hover {
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 0 30px color-mix(in srgb, var(--ct-accent) 5%, transparent);
+  box-shadow: var(--ct-glass-bevel);
 }
 
 .pf-ticker-cell {
@@ -872,7 +867,6 @@
   height: var(--ct-space-2);
   background: var(--ct-accent);
   border: 1.5px solid var(--ct-surface-0);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--ct-accent) 20%, transparent);
 }
 
 .pf-positions-empty__hint,
@@ -1065,7 +1059,6 @@
 .pf-status-row:hover .pf-status-row__dot {
   opacity: 1;
   height: var(--ct-space-6);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 40%, transparent);
 }
 
 .pf-status-row__label {
@@ -1424,7 +1417,6 @@
 
 .cy-row:hover .cy-dot {
   transform: scale(1.2);
-  box-shadow: 0 0 8px var(--cy-bucket, var(--ct-accent));
 }
 
 .cy-row:hover .cy-val {
@@ -2580,8 +2572,7 @@
   transform: translateY(-2px);
   box-shadow: 
     var(--ct-glass-bevel),
-    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent),
-    0 0 15px -5px color-mix(in srgb, var(--ct-accent) 10%, transparent);
+    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
 }
 
 .pf-position-card--active {
@@ -2694,6 +2685,9 @@
   .pf-position-card__content {
     grid-template-columns: 1fr 1fr;
     gap: var(--ct-space-4);
+  }
+  .pf-position-card__main {
+    grid-column: 1 / -1;
   }
   .pf-position-card__action {
     display: none;

@@ -457,7 +457,7 @@ export function ValueChart({
           <div className="pf-cockpit-panel__header-main min-w-0 flex-1">
             <div className="flex items-center justify-between w-full mb-4">
               <div className="flex flex-col gap-1.5">
-                <h2 className="pf-cockpit-panel__title--primary tracking-[0.2em] opacity-90">Portfolio Value</h2>
+                <h2 className="pf-cockpit-panel__title--primary tracking-wider opacity-90">Portfolio Value</h2>
                 {provenance && (
                   <div className="flex items-center gap-2">
                     <ProvenanceBadge kind={provenance} compact />

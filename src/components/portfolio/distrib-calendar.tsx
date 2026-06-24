@@ -334,25 +334,37 @@ function BarChart({
       </svg>
 
       {/* Tooltip calibrated with ValueChart */}
-      {hoverIndex !== null && entries[hoverIndex] && (
-        <div 
-          className="pf-vc-tooltip"
-          style={{
-            left: `${((barX(hoverIndex, n, BAR_W, GAP) + BAR_W / 2) / VB_W * 100).toFixed(3)}%`,
-            top: `${((BAR_AREA_BOT - barHeight(entries[hoverIndex]!.amountUsdc, maxAmount)) / VB_H * 100).toFixed(3)}%`,
-            transform: `translate(-50%, calc(-100% - var(--ct-space-4)))`
-          }}
-        >
-          <div className="pf-vc-tooltip__content">
-            <span className="pf-vc-tooltip__value tabular-nums">
-              {formatUsdDetailed(entries[hoverIndex]!.amountUsdc)}
-            </span>
-            <span className="pf-vc-tooltip__date">
-              {formatPeriod(entries[hoverIndex]!.period, refYear)}
-            </span>
+      {hoverIndex !== null && entries[hoverIndex] && (() => {
+        const entry = entries[hoverIndex];
+        if (!entry) return null;
+        return (
+          <div 
+            className="pf-vc-tooltip"
+            style={{
+              left: `${((barX(hoverIndex, n, BAR_W, GAP) + BAR_W / 2) / VB_W * 100).toFixed(3)}%`,
+              top: `${((BAR_AREA_BOT - barHeight(entry.amountUsdc, maxAmount)) / VB_H * 100).toFixed(3)}%`,
+              // Adjust transform to keep tooltip within bounds (match ValueChart)
+              transform: `translate(${
+                hoverIndex === 0 ? '0%' : 
+                hoverIndex === entries.length - 1 ? '-100%' : 
+                '-50%'
+              }, calc(-100% - var(--ct-space-4)))`
+            }}
+          >
+            <div className="pf-vc-tooltip__content">
+              <span className="pf-vc-tooltip__value tabular-nums">
+                {formatUsdDetailed(entry.amountUsdc)}
+              </span>
+              <div className="flex items-center justify-between gap-2 mt-1">
+                <span className="pf-vc-tooltip__date">
+                  {formatPeriod(entry.period, refYear)}
+                </span>
+                <span className="text-[9px] text-accent font-bold uppercase tracking-widest">Yield</span>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
