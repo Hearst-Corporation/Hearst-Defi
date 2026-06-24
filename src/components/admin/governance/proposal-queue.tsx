@@ -30,7 +30,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
           <Card className="cursor-pointer" hoverOverlay={false}>
             <div className="admin-doc-inline-row admin-doc-inline-row--relaxed">
               <div className="min-w-0 flex-1">
-                <div className="mb-[var(--ct-space-1)] admin-doc-inline-row">
+                <div className="gov-queue-title-row admin-doc-inline-row">
                   <Badge variant="accent" className="mono body-xs">{proposal.vaultTicker}</Badge>
                   <span className="body-md truncate font-semibold ct-text-strong">
                     {proposal.actionType}
@@ -50,7 +50,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
                 </span>{" "}
                 approved
                 {proposal.rejectionCount > 0 ? (
-                  <span className="ml-[var(--ct-space-2)] ct-status-danger">
+                  <span className="gov-queue-rejected ct-status-danger">
                     {proposal.rejectionCount} rejected
                   </span>
                 ) : null}
@@ -62,7 +62,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             </div>
 
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-              <div className="mt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)] body-xs ct-text-muted">
+              <div className="gov-queue-timelock body-xs ct-text-muted">
                 Timelock ETA:{" "}
                 <span className="mono ct-text-primary">
                   {formatGovernanceTimestamp(proposal.etaAt)}

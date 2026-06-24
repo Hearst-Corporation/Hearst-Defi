@@ -36,6 +36,11 @@ import { ApyRange } from "@/components/ui/apy-range";
 const VB_W = 200;
 const VB_H = 80;
 const PAD_Y = 8;
+/* Floor padding kept small (asymmetric vs PAD_Y top) so the plot fills its box:
+   the baseline/min lands near the bottom instead of floating ~10% above it,
+   removing the dead band between the baseline gridline and the axis. Data
+   unchanged — only the bottom headroom shrinks. */
+const PAD_BOTTOM = 3;
 const PAD_X = 8;
 
 type Pt = { x: number; y: number };
@@ -48,7 +53,7 @@ function project(values: number[]): Pt[] {
   const yLo = lo === hi ? lo - 1 : lo;
   const yHi = lo === hi ? hi + 1 : hi;
   const span = yHi - yLo || 1;
-  const innerH = VB_H - PAD_Y * 2;
+  const innerH = VB_H - PAD_Y - PAD_BOTTOM;
   const innerW = VB_W - PAD_X * 2;
   return values.map((v, i) => ({
     x: n === 1 ? VB_W / 2 : PAD_X + (i / (n - 1)) * innerW,
@@ -147,7 +152,7 @@ function Plot({ series, lineOnly = false, skeleton = false, hoverIndex = null, o
   const pts = skeleton
     ? series.map((_, i) => ({
         x: series.length === 1 ? VB_W / 2 : PAD_X + (i / (series.length - 1)) * (VB_W - PAD_X * 2),
-        y: VB_H - PAD_Y,
+        y: VB_H - PAD_BOTTOM,
       }))
     : project(values);
 
@@ -190,7 +195,7 @@ function Plot({ series, lineOnly = false, skeleton = false, hoverIndex = null, o
       {/* Grid */}
       <g className="pf-vc-grid" aria-hidden="true">
         {[0, 0.5, 1].map((f) => {
-          const y = PAD_Y + (VB_H - PAD_Y * 2) * f;
+          const y = PAD_Y + (VB_H - PAD_Y - PAD_BOTTOM) * f;
           return (
             <line key={`h-${f}`} x1={PAD_X} x2={VB_W} y1={y.toFixed(1)} y2={y.toFixed(1)}
               strokeDasharray={f === 1 ? "none" : "1 4"} strokeOpacity={f === 1 ? 0.35 : 0.15} />
@@ -199,7 +204,7 @@ function Plot({ series, lineOnly = false, skeleton = false, hoverIndex = null, o
         {[0, 0.25, 0.5, 0.75, 1].map((f) => {
           const x = PAD_X + (VB_W - PAD_X * 2) * f;
           return (
-            <line key={`v-${f}`} y1={PAD_Y} y2={VB_H - PAD_Y} x1={x.toFixed(1)} x2={x.toFixed(1)}
+            <line key={`v-${f}`} y1={PAD_Y} y2={VB_H - PAD_BOTTOM} x1={x.toFixed(1)} x2={x.toFixed(1)}
               strokeDasharray="1 4" strokeOpacity="0.1" />
           );
         })}
@@ -211,7 +216,7 @@ function Plot({ series, lineOnly = false, skeleton = false, hoverIndex = null, o
         <g aria-hidden="true">
           <line
             x1={pts[pts.length - 1]!.x} x2={pts[pts.length - 1]!.x}
-            y1={PAD_Y} y2={VB_H - PAD_Y}
+            y1={PAD_Y} y2={VB_H - PAD_BOTTOM}
             stroke="var(--ct-accent)" strokeWidth="0.35" strokeDasharray="1 2" opacity="0.35"
           />
         </g>

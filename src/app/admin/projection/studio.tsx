@@ -442,6 +442,7 @@ export function ProjectionStudio() {
         <DashboardPanelHeader
           title="Projection inputs"
           eyebrow="Control panel"
+          tone="primary"
           subtitle={`Methodology ${methodologyVersion}`}
           className="px-[var(--ct-space-5)] pt-[var(--ct-space-5)] pb-[var(--ct-space-2)]"
         />
@@ -638,6 +639,7 @@ export function ProjectionStudio() {
             <DashboardPanelHeader
               title="Projection output"
               eyebrow="Result scene"
+              tone="primary"
               subtitle={lastRunAt ? `Last run: ${lastRunAt.toLocaleTimeString()}` : undefined}
               status="Live Engine"
               statusTone="ok"
