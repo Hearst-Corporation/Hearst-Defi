@@ -285,6 +285,7 @@
   --ct-text-nano: 0.5625rem;   /* 9px — sub-micro kicker / SVG chart label */
   --ct-text-micro: 0.6875rem;  /* 11px — reading-tier bump */
   --ct-text-2xs: 0.75rem;      /* 12px — between micro(11) and xs(13), panel labels */
+  --ct-text-2xs-plus: 0.78125rem; /* 12.5px — chat error body (base-shell) */
   --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
   --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
   --ct-text-base: 1rem;       /* 16px — fix */
