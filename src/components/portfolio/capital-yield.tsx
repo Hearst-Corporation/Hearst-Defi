@@ -135,20 +135,6 @@ export function CapitalYield({
             />
             {hasData ? (
               <>
-                {segments
-                  .filter((s) => s.bucket === "mining")
-                  .map((s) => (
-                    <circle
-                      key="halo"
-                      className="dash-chart-circle cy-donut-halo"
-                      cx="21"
-                      cy="21"
-                      r="15.9155"
-                      strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
-                      strokeDashoffset={s.dashOffset.toFixed(2)}
-                      style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
-                    />
-                  ))}
                 {segments.map((s) => (
                   <circle
                     key={s.bucket}

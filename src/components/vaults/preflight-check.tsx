@@ -43,6 +43,9 @@ function CheckRow({
             status === "action" && "ct-status-dot-warning",
             status === "pending" && "ct-status-dot-info",
           )}
+          style={{
+            transitionDelay: status === "ok" ? "150ms" : "0ms"
+          }}
         />
         <div className="vault-preflight-check__row-copy min-w-0">
           <span className="body-sm font-semibold ct-text-primary">{label}</span>
@@ -155,11 +158,11 @@ export function PreFlightCheck({
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
   const panelBody = !ready ? (
-    <p className="body-xs ct-text-muted animate-pulse py-(--ct-space-4) text-center">
+    <p className="body-xs ct-text-muted animate-pulse py-4 text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="product-doc-stack--tight py-(--ct-space-4)">
+    <div className="product-doc-stack--tight py-4">
       <Badge variant="warning" className="self-start">
         Configuration pending
       </Badge>
@@ -178,7 +181,7 @@ export function PreFlightCheck({
       </p>
 
       {vaultStale ? (
-        <div className="product-doc-stack--dense py-(--ct-space-3)">
+        <div className="product-doc-stack--dense py-3">
           <Badge variant="warning" className="self-start">
             Testnet contract
           </Badge>
@@ -230,7 +233,7 @@ export function PreFlightCheck({
             >
               {approving ? (
                 <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-current animate-ping" />
                   Approving…
                 </span>
               ) : (

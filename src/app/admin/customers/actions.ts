@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { SHARE_CLASS_A, SHARE_CLASS_B } from "@/lib/engine/share-class";
 import { getVault } from "@/lib/data/vaults";
+import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
 
 /**
  * Admin KYC override. Lets a compliance officer (admin) set an investor's
@@ -265,17 +266,9 @@ export async function deployPosition(
       ? demoOverride
       : classTerms.minTicketUsdc;
   if (amountUsdc < effectiveMin) {
-    // P2 cosmetic fix: 3-tier label so "$0k" never appears for sub-$1k demo mins
-    // (mirrors subscribe.ts lines 117-122).
-    const minLabel =
-      effectiveMin < 1_000
-        ? `$${effectiveMin.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
-        : effectiveMin < 1_000_000
-          ? `$${(effectiveMin / 1_000).toFixed(0)}k`
-          : `$${(effectiveMin / 1_000_000).toFixed(0)}M`;
     return {
       ok: false,
-      error: `Below minimum ticket of ${minLabel} for Class ${classCode}.`,
+      error: `Below minimum ticket of ${formatMinTicketUsdc(effectiveMin)} for Class ${classCode}.`,
     };
   }
 

@@ -57,25 +57,6 @@
   padding-bottom: 0;
 }
 
-.admin-doc .admin-doc-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
-}
-
-.admin-doc .admin-doc-stack--tight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.admin-doc .admin-doc-stack--actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-3);
-}
-
 /* ── Fix largeur des CHAMPS dans un stack--actions ──────────────────────────
    `--actions` impose `align-items: flex-start` (pour garder les boutons collés
    à gauche), mais ça rétrécit aussi les champs/labels/grilles à leur largeur
@@ -91,42 +72,6 @@
 .admin-doc .admin-doc-stack--actions > .admin-doc-stack {
   align-self: stretch;
   width: 100%;
-}
-
-.admin-doc .admin-doc-stack--relaxed {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-inner-gap);
-}
-
-.admin-doc .admin-doc-stack--list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2_5);
-}
-
-.admin-doc .admin-doc-stack--compact {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.admin-doc .admin-doc-stack--dense {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-}
-
-.admin-doc .admin-doc-stack--roomy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-}
-
-.admin-doc .admin-doc-stack--micro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
 }
 
 .admin-doc .admin-doc-inline-row {
@@ -599,27 +544,16 @@
 }
 
 @container admin-doc (min-width: 40rem) {
-  .admin-doc .admin-doc-toolbar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.admin-doc .admin-doc-stack--flat {
-  gap: 0;
-}
-
-/* =============================================================================
-   SECTION-NAV (canon « section-nav » family) — navigation secondaire de section.
-   Vit DANS le header, ENTRE le kicker et le trait : sous-niveau du titre. Famille
-   DISTINCTE des filtres (pills) et des actions (buttons). Quiet, premium : label
-   de section + séparateur + liens inline, marqueur actif = petit point accent.
-   AUCUNE bordure pleine (ne concurrence pas le trait vert), AUCUN underline lourd.
-   L'espacement vertical est géré par le flux colonne du header (pas de margin
-   propre) ; on resserre juste le lien à la kicker via un léger pull-up.
-   ============================================================================= */
-.admin-doc .section-nav {
+  /* =============================================================================
+     SECTION-NAV (canon « section-nav » family) — navigation secondaire de section.
+     Vit DANS le header, ENTRE le kicker et le trait : sous-niveau du titre. Famille
+     DISTINCTE des filtres (pills) et des actions (buttons). Quiet, premium : label
+     de section + séparateur + liens inline, marqueur actif = petit point accent.
+     AUCUNE bordure pleine (ne concurrence pas le trait vert), AUCUN underline lourd.
+     L'espacement vertical est géré par le flux colonne du header (pas de margin
+     propre) ; on resserre juste le lien à la kicker via un léger pull-up.
+     ============================================================================= */
+  .admin-doc .section-nav {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -682,6 +616,8 @@
 
 .admin-doc .section-nav__link--active .section-nav__dot {
   opacity: 1;
+}
+
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -755,6 +691,56 @@
   border: 1px solid var(--ct-border-soft);
   background: transparent;
   padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+/* Stack — shared variants */
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack, .product-doc-stack) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-stack-gap);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--tight, .product-doc-stack--tight) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--actions, .product-doc-stack--actions) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--relaxed, .product-doc-stack--relaxed) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-inner-gap);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--list, .product-doc-stack--list) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2_5);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--compact, .product-doc-stack--compact) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--dense, .product-doc-stack--dense) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+:is(.admin-doc, .product-doc) :is(.admin-doc-stack--flat, .product-doc-stack--flat) {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* Section — title group + head row, identical in both scopes */
@@ -963,18 +949,6 @@
 .product-doc .product-doc-shell--roomy {
   gap: var(--ct-doc-flow-gap);
   padding-bottom: 0;
-}
-
-.product-doc .product-doc-stack--micro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-}
-
-.product-doc .product-doc-stack--roomy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
 }
 
 .product-doc .product-doc-inline-row--end {
@@ -1266,7 +1240,7 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-10); /* Increased from space-8 */
 }
 
 /* Page-level modifier roots (layout already owns admin-doc-shell). */
@@ -1287,7 +1261,7 @@
 }
 
 .product-doc .invest-flow-shell {
-  padding-bottom: 0;
+  padding-bottom: var(--ct-space-12); /* Added padding for better breathing */
 }
 
 /* Main content column — section(s) + optional footer (always, not only workspace).
@@ -1297,7 +1271,11 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-doc-flow-inner-gap);
+  gap: var(--ct-space-12); /* Increased from space-10 for better breathing */
+}
+
+.product-doc .invest-flow-shell .product-page-header {
+  padding-bottom: var(--ct-space-2);
 }
 
 .product-doc .invest-flow-shell__stepper {
@@ -1306,6 +1284,11 @@
   gap: var(--ct-space-3);
   padding-top: 0;
   margin-bottom: 0;
+}
+
+.product-doc .vault-invest-step-context {
+  opacity: 0.8;
+  letter-spacing: 0.01em;
 }
 
 /* Kicker « Investment Flow » + stepper « 1 2 3 4 » sur la MÊME ligne. */
@@ -1448,8 +1431,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-doc-flow-inner-gap);
-  padding-top: var(--ct-space-6);
-  padding-bottom: var(--ct-space-8);
+  padding-top: var(--ct-space-8); /* Increased from space-6 for breathing room */
+  padding-bottom: var(--ct-space-12); /* Increased from space-8 */
 }
 
 /* Remove the outer visual surface — keep layout only.
@@ -1471,8 +1454,8 @@
 /* Desktop: tighten the gap between header chrome and body */
 @container product-doc (min-width: 40rem) {
   .product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
-    gap: var(--ct-space-5);
-    padding-top: var(--ct-space-4);
+    gap: var(--ct-space-8); /* Increased from space-5 */
+    padding-top: var(--ct-space-8); /* Increased from space-4 */
   }
 }
 
@@ -1516,19 +1499,20 @@
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tighter);
+  text-shadow: 0 0 15px color-mix(in srgb, var(--ct-accent) 10%, transparent);
 }
 
 .product-doc .invest-flow-detail__grid {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
+  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
   min-height: 0;
 }
 
 .product-doc .invest-flow-detail__primary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
+  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-primary;
@@ -1537,14 +1521,14 @@
 .product-doc .invest-flow-detail__secondary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-doc-flow-stack-gap);
+  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-secondary;
 }
 
 /* Desktop: switch to 2-col grid — primary takes ~60%, secondary ~40% */
-@container product-doc (min-width: 52rem) {
+@container product-doc (min-width: 48rem) {
   .product-doc .invest-flow-detail__grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
@@ -1555,7 +1539,7 @@
 
   .product-doc .invest-flow-detail__secondary {
     position: sticky;
-    top: 0;
+    top: var(--ct-space-8);
   }
 }
 
@@ -1643,42 +1627,44 @@
   }
 }
 
-/* Deposit form — 2-col when shell is wide enough */
-.product-doc .vault-invest-grid {
-  display: grid;
-  width: 100%;
-  grid-template-columns: 1fr;
-  gap: var(--ct-space-6);
-}
-
-@container product-doc (min-width: 48rem) {
-  .product-doc .vault-invest-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .product-doc .vault-invest-grid__rail {
-    position: sticky;
-    top: var(--ct-space-6);
-    align-self: start;
-  }
-}
-
-.product-doc .vault-invest-grid__rail {
+/* Deposit form — single-column centered checkout flow */
+.product-doc .vault-invest-form-container {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  align-items: center;
+  width: 100%;
 }
 
 .product-doc .vault-invest-form-main {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  width: 100%;
+  max-width: 42rem;
+  gap: var(--ct-space-12); /* Increased from space-10 for deep breathing */
 }
 
-.product-doc .vault-panel-body--stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
+/* Re-style flat sections for the linear checkout flow */
+.product-doc .vault-invest-form-main .vault-flow-flat-section {
+  border-top: none;
+  padding-top: 0;
+}
+
+.product-doc .vault-invest-form-main .vault-flow-flat-section + .vault-flow-flat-section {
+  margin-top: 0;
+}
+
+.product-doc .vault-invest-form-main .vault-invest-section-divider {
+  padding-top: var(--ct-space-4);
+  border-top: 1px solid var(--ct-border-soft);
+  margin-top: var(--ct-space-2);
+}
+
+.product-doc .vault-invest-form-main .vault-panel-body--stack {
+  gap: var(--ct-space-8); /* Increased from space-6 */
+}
+
+.product-doc .vault-invest-grid__rail {
+  display: none;
 }
 
 /* ── Deposit summary — graphical principal ↔ yield split ─────────────────── */
@@ -1808,10 +1794,10 @@
 .product-doc .vault-detail-overview {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
-  padding: var(--ct-space-6);
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-8); /* Increased from space-6 */
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl); /* Increased from lg */
   background: var(--ct-surface-1);
 }
 
@@ -1834,6 +1820,11 @@
   letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
   line-height: 1;
+  text-shadow: 0 0 20px color-mix(in srgb, var(--ct-accent) 15%, transparent);
+}
+
+.product-doc .vault-detail-overview__kpi dt {
+  margin-bottom: var(--ct-space-0_5);
 }
 
 .product-doc .vault-detail-overview__cta {
@@ -1866,7 +1857,7 @@
 .product-doc .vault-detail-block {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-6); /* Increased from space-4 */
 }
 
 .product-doc .vault-detail-block__header {
@@ -1882,7 +1873,7 @@
 
 .product-doc .vault-detail-disclaimer {
   margin: 0;
-  padding-top: var(--ct-space-5);
+  padding-top: var(--ct-space-12); /* Increased from space-8 for breathing room */
   border-top: 1px solid var(--ct-border-soft);
 }
 
@@ -1890,13 +1881,13 @@
 .product-doc .vault-alloc-chart {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-8); /* Increased from space-5 */
 }
 
 .product-doc .vault-alloc-stack {
   display: flex;
   width: 100%;
-  height: var(--ct-space-3);
+  height: var(--ct-space-4); /* Increased from space-3 */
   border-radius: var(--ct-radius-full);
   overflow: hidden;
   background: var(--ct-surface-2);
@@ -1913,14 +1904,14 @@
 
 .product-doc .vault-alloc-bars {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--ct-space-8) var(--ct-space-10);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Increased min-width */
+  gap: var(--ct-space-10) var(--ct-space-12); /* Increased from space-8/10 */
 }
 
 .product-doc .vault-alloc-bar {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2_5);
+  gap: var(--ct-space-4); /* Increased from space-3 for breathing room */
 }
 
 .product-doc .vault-alloc-bar__head {
@@ -1928,6 +1919,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--ct-space-3);
+  padding-bottom: var(--ct-space-0_5);
 }
 
 .product-doc .vault-alloc-bar__swatch {
@@ -1995,10 +1987,10 @@
 /* Regime scenario table — flat rows inside term sheet (no ct-table-surface box) */
 .product-doc .regime-scenario-table {
   width: 100%;
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-6); /* Increased from space-4 */
   background: var(--ct-surface-1);
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  border-radius: var(--ct-radius-xl); /* Increased from lg */
 }
 
 .product-doc .regime-scenario-table table {
@@ -2030,7 +2022,7 @@
 }
 
 .product-doc .regime-scenario-table .ct-table-cell {
-  padding-block: var(--ct-space-4);
+  padding-block: var(--ct-space-5); /* Increased from space-4 */
 }
 
 .product-doc .regime-scenario-table tbody tr:last-child {

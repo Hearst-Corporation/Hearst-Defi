@@ -24,6 +24,19 @@ function FlatSectionSkeleton() {
   );
 }
 
+function KpisSkeleton({ height = "h-6" }: { height?: string }) {
+  return (
+    <dl className="vault-detail-overview__kpis">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="vault-detail-overview__kpi">
+          <Skeleton className="h-3 w-24" variant="text" />
+          <Skeleton className={cn("mt-(--ct-space-2) w-28", height)} />
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function InvestFlowLoadingShell({
   width = "cap",
   workspace = false,
@@ -65,29 +78,13 @@ export function InvestFlowLoadingShell({
         <div className="invest-flow-shell__stepper">
           <Skeleton className="h-2 w-full max-w-md" />
         </div>
-        {showKpiRow ? (
-          <dl className="vault-detail-overview__kpis">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="vault-detail-overview__kpi">
-                <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="mt-(--ct-space-2) h-6 w-28" />
-              </div>
-            ))}
-          </dl>
-        ) : null}
+        {showKpiRow ? <KpisSkeleton height="h-6" /> : null}
       </header>
 
       <div className="invest-flow-shell__body">
         {showOverview ? (
           <section className="vault-detail-overview mt-(--ct-space-2)" aria-hidden>
-            <dl className="vault-detail-overview__kpis">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="vault-detail-overview__kpi">
-                  <Skeleton className="h-3 w-24" variant="text" />
-                  <Skeleton className="mt-(--ct-space-2) h-7 w-28" />
-                </div>
-              ))}
-            </dl>
+            <KpisSkeleton height="h-7" />
             <div className="vault-detail-overview__cta">
               <Skeleton className="h-10 w-44" />
             </div>
@@ -95,7 +92,7 @@ export function InvestFlowLoadingShell({
         ) : null}
 
         {bodySections > 0 ? (
-          <div className={cn(showOverview ? "invest-flow-detail__grid mt-(--ct-space-10)" : "vault-invest-grid")}>
+          <div className={cn(showOverview ? "invest-flow-detail__grid mt-(--ct-space-12)" : "vault-invest-grid")}>
             <div className={cn(showOverview ? "invest-flow-detail__primary" : "vault-invest-form-main", "product-doc-stack")}>
               {Array.from({ length: bodySections }).map((_, index) => (
                 <FlatSectionSkeleton key={index} />

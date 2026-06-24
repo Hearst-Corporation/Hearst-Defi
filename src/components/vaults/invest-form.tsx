@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Ptai } from "@/components/ui/ptai";
 import { Button } from "@/components/ui/button";
-import { DataRow, NestedPanel, LegalMetadataRow } from "@/components/ui/nested-panel";
+import { LegalMetadataRow } from "@/components/ui/nested-panel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Badge } from "@/components/ui/badge";
@@ -114,7 +114,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
   return (
     <dl className="vault-invest-terms-strip">
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Target APY</dt>
+        <dt className="stat-label ct-text-faint">Target APY</dt>
         <dd>
           <ApyRange
             low={vault.apyLow}
@@ -125,19 +125,19 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         </dd>
       </div>
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Lock-up</dt>
+        <dt className="stat-label ct-text-faint">Lock-up</dt>
         <dd className="body-sm tabular mono ct-text-strong">
           {vault.softLockupDays}d soft
         </dd>
       </div>
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Min ticket</dt>
+        <dt className="stat-label ct-text-faint">Min ticket</dt>
         <dd className="body-sm tabular mono ct-text-strong">
           {formatUsdAmount(vault.minTicketUsdc, true)}
         </dd>
       </div>
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Fees (gross)</dt>
+        <dt className="stat-label ct-text-faint">Fees (gross)</dt>
         <dd className="body-sm mono ct-text-strong">
           {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%
         </dd>
@@ -147,35 +147,33 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
 }
 
 function AmountLedger({
-  amount,
-  placeholder,
+  children,
   isCalculating,
+  isValid = true,
+  label = "Allocation amount",
+  currency = "USDC",
 }: {
-  amount: number;
-  placeholder: string;
+  children: React.ReactNode;
   isCalculating?: boolean;
+  isValid?: boolean;
+  label?: string;
+  currency?: string;
 }) {
-  const hasAmount = amount > 0;
-
   return (
     <div
       className={cn(
         "vault-amount-ledger",
         isCalculating && "vault-amount-ledger--calculating",
+        !isValid && "vault-amount-ledger--invalid",
       )}
     >
       <div className="vault-amount-ledger__header">
-        <span className="stat-label ct-text-muted">Allocation amount</span>
-        <span className="body-xs ct-text-faint mono tabular">USDC</span>
+        <span className="stat-label ct-text-muted">{label}</span>
+        <span className="body-xs ct-text-faint mono tabular">{currency}</span>
       </div>
-      <p
-        className={cn(
-          "vault-amount-ledger__display mono tabular",
-          !hasAmount && "vault-amount-ledger__display--empty",
-        )}
-      >
-        {hasAmount ? formatUsdAmount(amount) : placeholder}
-      </p>
+      <div className="vault-amount-ledger__content">
+        {children}
+      </div>
     </div>
   );
 }
@@ -209,7 +207,7 @@ function EligibilityChecklist({
         title="Eligibility & KYC"
         eyebrow="Institutional compliance status"
       />
-      <div className="vault-panel-body">
+      <div className="vault-panel-body vault-panel-body--stack">
         <LegalMetadataRow label="KYC status">
           <Badge variant={kycBadgeVariant(kycStatus)}>
             {kycLabel(kycStatus)}
@@ -229,7 +227,7 @@ function EligibilityChecklist({
             <span className="ct-text-muted">Connection pending</span>
           )}
         </LegalMetadataRow>
-        <p className="body-xs ct-text-faint mt-(--ct-space-3)">
+        <p className="body-xs ct-text-faint mt-3">
           Subscription is restricted to verified qualified investors. All status flags must be green before final execution.
         </p>
       </div>
@@ -276,27 +274,79 @@ function InvestFormProjections({
   );
 }
 
-function AllocationSectionHeader({
+function AmountSection({
+  vault,
+  maxAmount,
   amount,
-  placeholder,
+  rawAmount,
+  onAmountChange,
   isCalculating,
+  amountValid,
+  helper,
+  disabled = false,
 }: {
+  vault: VaultProduct;
+  maxAmount: number;
   amount: number;
-  placeholder: string;
+  rawAmount: string;
+  onAmountChange?: (val: string) => void;
   isCalculating?: boolean;
+  amountValid: boolean;
+  helper: { text: string; variant: "ok" | "warn" | "neutral" };
+  disabled?: boolean;
 }) {
   return (
-    <>
-      <VaultPanelHeader
-        title="Allocation amount"
-        eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
-      />
-      <AmountLedger
-        amount={amount}
-        placeholder={placeholder}
-        isCalculating={isCalculating}
-      />
-    </>
+    <div className="vault-flow-flat-section">
+      <div className="vault-panel-body vault-panel-body--stack">
+        <VaultPanelHeader
+          title="Allocation amount"
+          eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
+        />
+
+        <section>
+          <AmountLedger isCalculating={isCalculating} isValid={amount === 0 || amountValid}>
+            <div className="vault-amount-field">
+              <span aria-hidden className="vault-amount-prefix mono">
+                $
+              </span>
+              <input
+                id={disabled ? "amt-input-disabled" : "amt-input"}
+                type={disabled ? "text" : "number"}
+                min={disabled ? undefined : vault.minTicketUsdc}
+                max={disabled ? undefined : maxAmount}
+                step={disabled ? undefined : 1000}
+                value={rawAmount}
+                onChange={disabled ? undefined : (e) => onAmountChange?.(e.target.value)}
+                disabled={disabled}
+                readOnly={disabled}
+                placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
+                aria-describedby={disabled ? "amt-helper-disabled" : "amt-helper"}
+                aria-invalid={!disabled && amount > 0 && !amountValid}
+                className={cn(
+                  "ct-input tabular vault-amount-input mono",
+                  disabled && "vault-amount-input--muted",
+                  !disabled && amount > 0 && !amountValid ? "vault-amount-input--invalid" : "",
+                )}
+              />
+            </div>
+          </AmountLedger>
+
+          <p
+            id={disabled ? "amt-helper-disabled" : "amt-helper"}
+            className={cn(
+              "body-xs mt-3 px-1",
+              helper.variant === "ok" && "ct-status-success",
+              helper.variant === "warn" && "ct-status-warning",
+              helper.variant === "neutral" && "ct-text-muted",
+            )}
+          >
+            {helper.text}
+          </p>
+        </section>
+
+        <InvestTermsStrip vault={vault} />
+      </div>
+    </div>
   );
 }
 
@@ -318,46 +368,43 @@ function InvestFormUnconfigured({
 }) {
   const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
   const ptai = buildPtai(0, vault);
+  const helper = {
+    text: `Minimum ${formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining: ${formatUsdAmount(maxAmount, true)}`,
+    variant: "neutral" as const,
+  };
 
   return (
-    <div className="vault-invest-grid">
+    <div className="vault-invest-form-container">
       <div className="vault-invest-form-main">
+        <AmountSection
+          vault={vault}
+          maxAmount={maxAmount}
+          amount={0}
+          rawAmount=""
+          amountValid={false}
+          helper={helper}
+          disabled
+        />
+
+        <DepositSummary vault={vault} amount={0} />
+
+        <PreFlightCheck
+          walletAddress={null}
+          amount={0}
+          onAllowanceApproved={() => {}}
+          allowanceApproved={false}
+          approving={false}
+          onApproveStart={() => {}}
+          onApproveEnd={() => {}}
+        />
+
         <div className="vault-flow-flat-section">
           <div className="vault-panel-body vault-panel-body--stack">
-            <AllocationSectionHeader amount={0} placeholder="—" />
-
-            <section>
-              <label htmlFor="amt-input-disabled" className="sr-only">
-                Amount (USDC)
-              </label>
-              <div className="vault-amount-field">
-                <span aria-hidden className="vault-amount-prefix mono">
-                  $
-                </span>
-                <input
-                  id="amt-input-disabled"
-                  type="text"
-                  disabled
-                  readOnly
-                  value=""
-                  placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
-                  aria-describedby="amt-helper-disabled"
-                  className="ct-input tabular vault-amount-input vault-amount-input--muted mono body-lg"
-                />
-              </div>
-              <p id="amt-helper-disabled" className="body-xs mt-(--ct-space-1_5) ct-text-muted">
-                Minimum {formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining:{" "}
-                {formatUsdAmount(maxAmount, true)}
-              </p>
-            </section>
-
-            <InvestTermsStrip vault={vault} />
-
             <div className="vault-legal-block">
               <Checkbox checked={false} onChange={() => {}} className="pointer-events-none vault-control--muted">
                 I have reviewed and accept the term sheet for {vault.name}.
               </Checkbox>
-              <p className="body-xs ct-text-faint mt-(--ct-space-2) ml-(--ct-space-7)">
+              <p className="body-xs ct-text-faint mt-2 ml-7">
                 Structured product exclusively for qualified investors. Review the full subscription agreement before proceeding.
               </p>
             </div>
@@ -385,32 +432,6 @@ function InvestFormUnconfigured({
         </div>
 
         <InvestFormProjections amount={0} vault={vault} ptai={ptai} />
-      </div>
-
-      <div className="vault-invest-grid__rail">
-        <DepositSummary vault={vault} amount={0} />
-        <NestedPanel className="ct-divide-soft py-0">
-          <VaultPanelHeader title="Pre-flight check" />
-          <div className="vault-panel-body">
-            <PanelStatus
-              className="vault-preflight-note"
-              message="Pre-flight is shown in review mode until wallet access is enabled."
-              detail="Network, allowance, and signing checks become actionable once your wallet is connected."
-            />
-            <DataRow label="Wallet">
-              <span className="ct-text-muted">Not connected yet</span>
-            </DataRow>
-            <DataRow label="Network">
-              <span className="ct-text-muted">Available once wallet access is enabled</span>
-            </DataRow>
-            <DataRow label="Allowance">
-              <span className="ct-text-muted">Available after wallet connection</span>
-            </DataRow>
-            <DataRow label="Epoch">
-              <span className="ct-text-muted">Active · closes in 18d · indicative</span>
-            </DataRow>
-          </div>
-        </NestedPanel>
       </div>
     </div>
   );
@@ -574,64 +595,46 @@ function InvestFormLive({
   const ptai = buildPtai(deferredAmount, vault);
 
   return (
-    <div className="vault-invest-grid">
+    <div className="vault-invest-form-container">
       <div className="vault-invest-form-main">
-        <div className="vault-flow-flat-section">
+        <AmountSection
+          vault={vault}
+          maxAmount={maxAmount}
+          amount={amount}
+          rawAmount={rawAmount}
+          onAmountChange={(val) => {
+            setRawAmount(val);
+            setAllowanceApproved(false);
+            setAwaitingConfirm(false);
+          }}
+          isCalculating={isCalculating}
+          amountValid={amountValid}
+          helper={helper}
+        />
+
+        <DepositSummary vault={vault} amount={amount} />
+
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
+          <PreFlightCheck
+            walletAddress={walletAddress}
+            amount={amount}
+            onAllowanceApproved={() => setAllowanceApproved(true)}
+            allowanceApproved={allowanceApproved}
+            approving={approving}
+            onApproveStart={() => setApproving(true)}
+            onApproveEnd={() => setApproving(false)}
+            onApproveError={(msg) => setDepositError(msg)}
+          />
+        </div>
+
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
           <div className="vault-panel-body vault-panel-body--stack">
-            <AllocationSectionHeader
-              amount={amount}
-              placeholder={formatUsdAmount(vault.minTicketUsdc, true)}
-              isCalculating={isCalculating}
-            />
-
-            <section>
-              <label htmlFor="amt-input" className="sr-only">
-                Amount (USDC)
-              </label>
-
-              <div className="vault-amount-field">
-                <span aria-hidden className="vault-amount-prefix mono">
-                  $
-                </span>
-                <input
-                  id="amt-input"
-                  type="number"
-                  min={vault.minTicketUsdc}
-                  max={maxAmount}
-                  step={1000}
-                  value={rawAmount}
-                  onChange={(e) => {
-                    setRawAmount(e.target.value);
-                    setAllowanceApproved(false);
-                    setAwaitingConfirm(false);
-                  }}
-                  placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
-                  aria-describedby="amt-helper"
-                  aria-invalid={amount > 0 && !amountValid}
-                  className={cn(
-                    "ct-input tabular vault-amount-input mono body-lg",
-                    amount > 0 && !amountValid
-                      ? "ct-bc-warning ct-ring-warning"
-                      : "",
-                  )}
-                />
-              </div>
-
-              <p
-                id="amt-helper"
-                className={cn(
-                  "body-xs mt-(--ct-space-1_5)",
-                  helper.variant === "ok" && "ct-status-success",
-                  helper.variant === "warn" && "ct-status-warning",
-                  helper.variant === "neutral" && "ct-text-muted",
-                )}
-              >
-                {helper.text}
-              </p>
-            </section>
-
-            <InvestTermsStrip vault={vault} />
-
             <div className="vault-legal-block">
               <Checkbox
                 checked={agreedToTermSheet}
@@ -651,7 +654,7 @@ function InvestFormLive({
                 </Link>{" "}
                 for {vault.name}.
               </Checkbox>
-              <p className="body-xs ct-text-faint mt-(--ct-space-2) ml-(--ct-space-7)">
+              <p className="body-xs ct-text-faint mt-2 ml-7">
                 Structured product exclusively for qualified investors. Review the full subscription agreement before proceeding.
               </p>
             </div>
@@ -725,7 +728,7 @@ function InvestFormLive({
                   range — indicative estimate, not a return projection. See
                   methodology v1.0.
                 </p>
-                <div className="vault-form-actions vault-form-actions--split pt-(--ct-space-2)">
+                <div className="vault-form-actions vault-form-actions--split pt-2">
                   <Button
                     variant="secondary"
                     size="md"
@@ -772,29 +775,22 @@ function InvestFormLive({
               </div>
               </>
             )}
-
           </div>
         </div>
 
-        <div className="vault-flow-flat-section">
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
           <EligibilityChecklist investor={investor} session={session} />
         </div>
 
-        <InvestFormProjections amount={deferredAmount} vault={vault} ptai={ptai} />
-      </div>
-
-      <div className="vault-invest-grid__rail">
-        <DepositSummary vault={vault} amount={amount} />
-        <PreFlightCheck
-          walletAddress={walletAddress}
-          amount={amount}
-          onAllowanceApproved={() => setAllowanceApproved(true)}
-          allowanceApproved={allowanceApproved}
-          approving={approving}
-          onApproveStart={() => setApproving(true)}
-          onApproveEnd={() => setApproving(false)}
-          onApproveError={(msg) => setDepositError(msg)}
-        />
+        <div className={cn(
+          "vault-flow-flat-section",
+          amount === 0 && "vault-flow-flat-section--hidden"
+        )}>
+          <InvestFormProjections amount={deferredAmount} vault={vault} ptai={ptai} />
+        </div>
       </div>
     </div>
   );

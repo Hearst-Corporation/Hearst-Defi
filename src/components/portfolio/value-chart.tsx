@@ -257,14 +257,15 @@ function Plot({
                 x2={VB_W}
                 y1={y.toFixed(1)}
                 y2={y.toFixed(1)}
-                strokeDasharray={f === 0 || f === 1 ? "none" : "2 2"}
+                strokeDasharray={f === 0 || f === 1 ? "none" : "1 4"}
+                strokeOpacity={f === 0 || f === 1 ? 0.4 : 0.2}
               />
               {!skeleton && (
                 <text
                   x="2"
                   y={y - 2}
                   className="pf-vc-y-label"
-                  style={{ fontSize: '3px', fill: 'var(--ct-text-tertiary)', opacity: 0.6 }}
+                  style={{ fontSize: '2.5px', fill: 'var(--ct-text-tertiary)', opacity: 0.4, letterSpacing: '0.1em' }}
                 >
                   {formatUsdCompact(hi - (f * (hi - lo)))}
                 </text>
@@ -282,7 +283,8 @@ function Plot({
               y2={VB_H}
               x1={x.toFixed(1)}
               x2={x.toFixed(1)}
-              strokeDasharray="2 2"
+              strokeDasharray="1 4"
+              strokeOpacity="0.2"
             />
           );
         })}
@@ -292,8 +294,25 @@ function Plot({
           x2={VB_W}
           y1={VB_H - 0.5}
           y2={VB_H - 0.5}
+          strokeOpacity="0.3"
         />
       </g>
+
+      {/* Current value vertical marker (only if not skeleton) */}
+      {!skeleton && pts.length > 0 && (
+        <g className="pf-vc-current-marker" aria-hidden="true">
+          <line
+            x1={pts[pts.length - 1]!.x}
+            x2={pts[pts.length - 1]!.x}
+            y1={PAD_Y}
+            y2={VB_H - PAD_Y}
+            stroke="var(--ct-accent)"
+            strokeWidth="0.3"
+            strokeDasharray="1 2"
+            opacity="0.3"
+          />
+        </g>
+      )}
 
       {areaPath ? (
         <path d={areaPath} fill={`url(#${areaId})`} aria-hidden="true" />
@@ -325,17 +344,19 @@ function Plot({
             y1={0}
             y2={VB_H}
             stroke="var(--ct-accent)"
-            strokeWidth="0.5"
-            strokeDasharray="2 2"
-            opacity="0.5"
+            strokeWidth="0.4"
+            strokeDasharray="1 1"
+            opacity="0.6"
+            className="transition-all duration-150"
           />
           <circle
             cx={pts[hoverIndex]!.x}
             cy={pts[hoverIndex]!.y}
-            r="1.5"
+            r="2"
             fill="var(--ct-accent)"
             stroke="var(--ct-surface-0)"
-            strokeWidth="0.5"
+            strokeWidth="0.8"
+            className="transition-all duration-150"
           />
         </g>
       )}
@@ -432,10 +453,22 @@ export function ValueChart({
       )}
     >
       {embedded ? (
-        <header className="pf-cockpit-panel__header">
-          <div className="pf-cockpit-panel__header-main min-w-0">
-            <div className="flex items-center justify-between w-full">
-              <h2 className="pf-cockpit-panel__title--primary">Portfolio value</h2>
+        <header className="pf-cockpit-panel__header mb-6">
+          <div className="pf-cockpit-panel__header-main min-w-0 flex-1">
+            <div className="flex items-center justify-between w-full mb-4">
+              <div className="flex flex-col gap-1.5">
+                <h2 className="pf-cockpit-panel__title--primary tracking-[0.2em] opacity-90">Portfolio Value</h2>
+                {provenance && (
+                  <div className="flex items-center gap-2">
+                    <ProvenanceBadge kind={provenance} compact />
+                    {updatedAt && (
+                      <span className="text-[9px] uppercase tracking-[0.15em] text-tertiary font-bold opacity-50">
+                        Live • {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(updatedAt)}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
               {!isEmpty && (
                 <ChartTimeSelector
                   value={range}
@@ -445,18 +478,17 @@ export function ValueChart({
               )}
             </div>
             {isEmpty ? null : (
-              <p className="pf-hero-kpi-block m-0">
-                <span className="pf-hero-kpi-value tabular-nums">
+              <div className="pf-hero-kpi-block m-0 flex items-baseline gap-3">
+                <span className="pf-hero-kpi-value text-[44px] tracking-[-0.04em]">
                   {formatUsdDetailed(chartValue)}
                 </span>
-              </p>
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-[0.15em] text-accent font-bold">USDC</span>
+                  <span className="text-[10px] uppercase tracking-[0.15em] text-tertiary font-medium">Balance</span>
+                </div>
+              </div>
             )}
           </div>
-          {provenance && (
-            <div className="pf-cockpit-panel__header-trail">
-              <ProvenanceBadge kind={provenance} compact />
-            </div>
-          )}
         </header>
       ) : (
         <PfCockpitPanelHeader
@@ -537,9 +569,14 @@ export function ValueChart({
                     <span className="pf-vc-tooltip__value tabular-nums">
                       {formatUsdDetailed(series[hoverIndex]!.value)}
                     </span>
-                    <span className="pf-vc-tooltip__date">
-                      {series[hoverIndex]!.label}
-                    </span>
+                    <div className="flex items-center justify-between gap-2 mt-1">
+                      <span className="pf-vc-tooltip__date">
+                        {series[hoverIndex]!.label}
+                      </span>
+                      {series[hoverIndex]!.isDistribution && (
+                        <span className="text-[9px] text-accent font-bold uppercase tracking-widest">Yield</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

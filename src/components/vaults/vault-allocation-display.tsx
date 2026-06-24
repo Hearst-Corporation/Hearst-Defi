@@ -22,33 +22,33 @@ function AllocationBar({
   const pct = bps / 100;
 
   return (
-    <div className="vault-alloc-bar">
+    <div className="vault-alloc-bar group/bar transition-all duration-300 hover:translate-x-1">
       <div className="vault-alloc-bar__head">
         <div className="flex items-center gap-(--ct-space-2_5) min-width-0 flex-1">
           <span
             aria-hidden
-            className="vault-alloc-bar__swatch border border-white/10 shadow-sm"
+            className="vault-alloc-bar__swatch border border-white/10 shadow-sm transition-transform duration-300 group-hover/bar:scale-110"
             style={{ background: color }}
           />
-          <span className="vault-alloc-bar__label body-sm font-semibold ct-text-strong truncate">
+          <span className="vault-alloc-bar__label body-sm font-semibold ct-text-strong truncate group-hover/bar:ct-text-primary">
             {ALLOCATION_INVESTOR_LABELS[bucket]}
           </span>
         </div>
-        <span className="vault-alloc-bar__pct body-sm font-bold tabular mono ct-text-strong">
+        <span className="vault-alloc-bar__pct body-sm font-bold tabular mono ct-text-strong group-hover/bar:ct-text-accent">
           {bpsToPercent(bps, 0)}%
         </span>
       </div>
       <div
-        className="vault-alloc-bar__track bg-(--ct-surface-2) border border-(--ct-border-ghost)"
+        className="vault-alloc-bar__track bg-(--ct-surface-2) border border-(--ct-border-ghost) transition-colors group-hover/bar:border-(--ct-border-soft)"
         role="img"
         aria-label={`${ALLOCATION_INVESTOR_LABELS[bucket]} ${bpsToPercent(bps, 0)}%`}
       >
         <span
-          className="vault-alloc-bar__fill"
+          className="vault-alloc-bar__fill transition-all duration-500 ease-out group-hover/bar:brightness-110"
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
-      <p className="vault-alloc-bar__desc body-xs ct-text-faint leading-relaxed">
+      <p className="vault-alloc-bar__desc body-xs ct-text-faint leading-relaxed transition-colors group-hover/bar:ct-text-muted">
         {ALLOCATION_DESCRIPTIONS[bucket]}
       </p>
     </div>

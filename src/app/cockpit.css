@@ -4558,7 +4558,7 @@ button.ct-choice-card {
      pinné au pied du shell). Sans ça, atteindre le haut/bas de main chaînait
      vers le body → micro-saccade / flutter au scroll. `contain` = scroll normal,
      zéro rebond, zéro chaînage. */
-  overscroll-behavior: contain;
+  /* overscroll-behavior: contain; -- Removed for more natural scroll feel */
   /* Ghost scrollbar — DS standard (cf. .proof-panel-scroll & co). Scroll
      fonctionnel (molette/trackpad/touch), gouttière non réservée, pas de
      layout-shift. Aligné sur les containers scroll nommés du cockpit. */
@@ -4614,9 +4614,9 @@ button.ct-choice-card {
    inner shells; black boxes + gray nested insets above this layer. */
 .ct-page-area:has(:is(.admin-doc, .product-doc)) {
   background: var(--ct-bg-deep);
-  padding-top: var(--ct-space-9);
-  padding-inline: var(--ct-space-5);
-  padding-bottom: var(--ct-space-8);
+  padding-top: var(--ct-space-12); /* Increased from space-9 */
+  padding-inline: var(--ct-space-8); /* Increased from space-5 */
+  padding-bottom: var(--ct-space-16); /* Increased from space-8 */
 }
 /* Admin layout fills main scroll column (mirrors product-doc-shell chain). */
 main#main-content>.admin-doc.admin-doc-shell {
@@ -5921,6 +5921,20 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Invest / vault flow — flat sections (no NestedPanel graphite shell). */
 .vault-flow-flat-section {
   min-width: 0;
+  transition: transform var(--ct-dur-base) var(--ct-ease), opacity var(--ct-dur-base) var(--ct-ease);
+}
+
+.vault-flow-flat-section--hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  max-height: 0;
+  overflow: hidden;
+  margin: 0 !important;
+  transition: max-height var(--ct-dur-base) var(--ct-ease), 
+              opacity var(--ct-dur-base) var(--ct-ease), 
+              transform var(--ct-dur-base) var(--ct-ease),
+              margin var(--ct-dur-base) var(--ct-ease);
 }
 
 .vault-flow-flat-section + .vault-flow-flat-section {

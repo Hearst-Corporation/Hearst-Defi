@@ -1,3 +1,4 @@
+import { ArrowUpRight, ArrowDownLeft, Wallet, Receipt, ArrowDownRight, CircleDollarSign } from "lucide-react";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
@@ -19,6 +20,20 @@ const TYPE_LABELS: Record<string, string> = {
   withdraw: "Withdrawal",
   distribution: "Payout",
 };
+
+function TransactionIcon({ type, dir }: { type: string; dir: "in" | "out" }) {
+  const className = "w-3.5 h-3.5";
+  if (type === "deposit") return <Wallet className={className} />;
+  if (type === "distribution") return <CircleDollarSign className={className} />;
+  if (type === "withdraw") return <ArrowDownRight className={className} />;
+  if (type === "claim") return <Receipt className={className} />;
+  
+  return dir === "in" ? (
+    <ArrowUpRight className={className} />
+  ) : (
+    <ArrowDownLeft className={className} />
+  );
+}
 
 function flowSign(type: string): "in" | "out" {
   return type === "withdraw" ? "out" : "in";
@@ -64,12 +79,12 @@ export function RecentActivity({
           {displayed.map((tx) => {
             const dir = flowSign(tx.type);
             return (
-              <div key={tx.id} className="pf-activity__row">
+              <div key={tx.id} className="pf-activity__row group/row">
                 <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
-                  {dir === "in" ? "▲" : "▼"}
+                  <TransactionIcon type={tx.type} dir={dir} />
                 </span>
                 <span className="pf-activity__main min-w-0">
-                  <span className="text-sm ct-text-primary font-semibold truncate">
+                  <span className="text-sm ct-text-primary font-semibold truncate transition-colors group-hover/row:ct-text-accent">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
                       <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
@@ -79,7 +94,7 @@ export function RecentActivity({
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className="pf-activity__amt tabular text-sm mono font-semibold">
+                <span className="pf-activity__amt tabular text-sm mono font-semibold transition-colors group-hover/row:ct-text-accent">
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
@@ -93,7 +108,7 @@ export function RecentActivity({
         <div className="pf-activity pf-activity--skeleton" aria-label="No activity yet">
           {[0, 1, 2, 3, 4].map((i) => (
             <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
-              <span className="pf-activity__glyph pf-skeleton-dot" />
+              <span className="pf-skeleton-glyph" />
               <span className="pf-activity__main min-w-0">
                 <span className="pf-skeleton-bar pf-skeleton-bar--label" />
                 <span className="pf-skeleton-bar pf-skeleton-bar--meta" />

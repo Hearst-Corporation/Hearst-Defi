@@ -5,6 +5,7 @@ import {
 } from "@/components/portfolio/pf-cockpit-panel";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 
 const DASH = "—";
 
@@ -103,28 +104,42 @@ export function PortfolioStatusPanel({
       aria-label="Portfolio status"
       className="pf-status-panel"
     >
-      <PfCockpitPanelHeader
-        title="Portfolio status"
-        titleVariant="primary"
-        provenance={provenance}
-      />
-      <dl className="pf-status-list">
+      <header className="pf-cockpit-panel__header px-6 pt-6 pb-2">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="pf-cockpit-panel__title--primary tracking-[0.2em] opacity-90">Portfolio Status</h2>
+          {provenance && (
+            <div className="flex items-center gap-2">
+              <ProvenanceBadge kind={provenance} compact />
+              <span className="text-[9px] uppercase tracking-[0.15em] text-tertiary font-bold opacity-50">Verified Proof</span>
+            </div>
+          )}
+        </div>
+      </header>
+      <dl className="pf-status-list px-4 pb-6">
         {rows.map((r) => (
-          <div key={r.key} className="pf-status-row">
+          <div key={r.key} className="pf-status-row group">
             <span className="pf-status-row__dot" aria-hidden="true" />
-            <dt className="pf-status-row__label">{r.label}</dt>
+            <div className="flex flex-col min-w-0">
+              <dt className="pf-status-row__label text-[11px] uppercase tracking-[0.12em] group-hover:text-strong transition-colors">
+                {r.label}
+              </dt>
+              <span className="pf-status-row__meta text-[10px] opacity-60 group-hover:opacity-100 transition-opacity">
+                {r.meta}
+              </span>
+            </div>
             <dd className="pf-status-row__trail">
               {r.value !== DASH ? (
                 <span
                   className={cn(
-                    "pf-status-row__value tabular",
-                    r.valueAccent && "ct-text-accent"
+                    "pf-status-row__value tabular text-base font-bold",
+                    r.valueAccent ? "text-accent" : "text-strong"
                   )}
                 >
                   {r.value}
                 </span>
-              ) : null}
-              <span className="pf-status-row__meta">{r.meta}</span>
+              ) : (
+                <span className="text-tertiary opacity-40">{DASH}</span>
+              )}
             </dd>
           </div>
         ))}

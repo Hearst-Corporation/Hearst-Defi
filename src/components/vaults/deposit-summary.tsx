@@ -47,8 +47,9 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           </span>
           <span
             className={cn(
-              "vault-deposit-summary__total tabular mono",
+              "vault-deposit-summary__total tabular mono transition-all duration-500",
               !hasAmount && "vault-deposit-summary__total--empty",
+              hasAmount && "ct-text-accent scale-105 origin-right"
             )}
           >
             {totalAtClose !== null ? `${formatUsdFull(totalAtClose)} USDC` : "—"}
@@ -99,7 +100,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         </div>
 
         <dl className="vault-deposit-summary__kpis">
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Target APY</dt>
             <dd>
               <ApyRange
@@ -110,19 +111,19 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
               />
             </dd>
           </div>
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Est. gross yield (p.a.)</dt>
             <dd className="body-sm tabular mono ct-text-strong">
               {yearlyYield !== null ? `~${formatUsdFull(yearlyYield)}` : "—"}
             </dd>
           </div>
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Lock-up</dt>
             <dd className="body-sm tabular mono ct-text-strong">
               {vault.softLockupDays}d soft
             </dd>
           </div>
-          <div>
+          <div className="vault-confirm-panel__row">
             <dt className="stat-label">Fees</dt>
             <dd className="body-sm mono ct-text-strong">
               {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%

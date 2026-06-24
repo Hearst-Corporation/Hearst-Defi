@@ -220,7 +220,13 @@ function BarChart({
 
           const barEl = isForecast ? (
             // Forecast: dashed-border rect + hatch fill
-            <g key={i} role="img" aria-label={`Forecast ${periodLabel} — ${amountLabel} (Estimated)`}>
+            <g 
+              key={i} 
+              role="img" 
+              aria-label={`Forecast ${periodLabel} — ${amountLabel} (Estimated)`}
+              className="pf-distrib-chart__bar-group"
+              style={{ "--index": i } as React.CSSProperties}
+            >
               {/* svg-render: dash pattern 4on/2off in viewBox units */}
               <rect
                 x={bx}
@@ -233,6 +239,7 @@ function BarChart({
                 strokeDasharray="4 2"
                 style={{ opacity: "var(--ct-opacity-75)" }}
                 rx="1"
+                className="transition-all duration-300"
               />
               {/* [Estimate] badge text above bar */}
               <text
@@ -255,6 +262,8 @@ function BarChart({
               rel="noopener noreferrer"
               tabIndex={0}
               aria-label={`${periodLabel} distribution ${amountLabel} — view on BaseScan`}
+              className="pf-distrib-chart__bar-group"
+              style={{ "--index": i } as React.CSSProperties}
             >
               <rect
                 x={bx}
@@ -266,6 +275,7 @@ function BarChart({
                 strokeWidth={isCurrent ? "1.5" : "0.75"}
                 style={{ opacity: 1 }}
                 rx="2"
+                className="transition-all duration-300"
               />
             </a>
           ) : (
@@ -279,9 +289,10 @@ function BarChart({
               fill={BAR_FILL}
               stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
               strokeWidth={isCurrent ? "1.5" : "0.75"}
-              style={{ opacity: 1 }}
               rx="2"
               aria-label={`${periodLabel} distribution ${amountLabel}`}
+              className="pf-distrib-chart__bar-group transition-all duration-300"
+              style={{ opacity: 1, "--index": i } as React.CSSProperties}
             />
           );
 

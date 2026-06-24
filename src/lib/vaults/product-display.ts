@@ -21,10 +21,13 @@ const USD_DETAILED = new Intl.NumberFormat("en-US", {
 });
 
 export function formatMinTicketUsdc(usdc: number): string {
-  if (usdc >= 1_000_000) {
-    return `$${(usdc / 1_000_000).toFixed(usdc % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (usdc < 1_000) {
+    return `$${usdc.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
   }
-  return `$${(usdc / 1_000).toFixed(0)}k`;
+  if (usdc < 1_000_000) {
+    return `$${(usdc / 1_000).toFixed(0)}k`;
+  }
+  return `$${(usdc / 1_000_000).toFixed(0)}M`;
 }
 
 export function formatUsdFull(usdc: number): string {
