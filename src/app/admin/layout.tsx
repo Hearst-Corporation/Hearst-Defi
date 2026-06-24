@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { AdminRailIntra } from "@/components/nav/product-rail-intra";
+import { AdminSubNav } from "@/components/nav/admin-sub-nav";
 import { CommandPalette } from "@/components/power/command-palette";
 import { getSession } from "@/lib/auth/session";
 
@@ -45,7 +47,14 @@ export default async function AdminLayout({
       <div className="admin-search-dock">
         <CommandPalette />
       </div>
-      <div className="admin-doc admin-doc-shell w-full min-w-0">{children}</div>
+      <div className="admin-doc admin-doc-shell w-full min-w-0">
+        {/* Section sub-nav (Agents · Outreach · Investors · Feedback, etc.).
+            Suspense is required: AdminSubNav reads useSearchParams(). */}
+        <Suspense fallback={null}>
+          <AdminSubNav />
+        </Suspense>
+        {children}
+      </div>
     </>
   );
 }
