@@ -58,8 +58,9 @@ export function ChartTimeSelector({
               "h-6 rounded-sm px-[var(--ct-space-1_5)] transition-colors ease-[var(--ct-ease)]",
               isActive
                 ? [
-                    "ct-text-primary",
-                    "border-b border-b-[var(--ct-text-strong)]",
+                    "ct-text-accent",
+                    "font-bold",
+                    "border-b border-b-[var(--ct-accent)]",
                   ]
                 : [
                     "ct-text-muted",

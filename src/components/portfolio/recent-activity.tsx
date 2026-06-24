@@ -84,17 +84,17 @@ export function RecentActivity({
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>
                 <span className="pf-activity__main min-w-0">
-                  <span className="text-sm ct-text-primary font-semibold truncate transition-colors group-hover/row:ct-text-accent">
+                  <span className="text-[13px] ct-text-primary font-medium tracking-tight truncate transition-colors group-hover/row:ct-text-accent">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
-                      <span className="ct-text-muted font-normal"> · {tx.positionVaultName}</span>
+                      <span className="ct-text-muted font-normal ml-1 text-xs">· {tx.positionVaultName}</span>
                     ) : null}
                   </span>
-                  <span className="stat-label ct-text-muted mono truncate">
+                  <span className="stat-label ct-text-muted mono truncate opacity-70">
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className="pf-activity__amt tabular text-sm mono font-semibold transition-colors group-hover/row:ct-text-accent">
+                <span className="pf-activity__amt tabular text-[13px] font-semibold transition-colors group-hover/row:ct-text-accent">
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
@@ -103,19 +103,24 @@ export function RecentActivity({
           })}
         </div>
       ) : (
-        /* Zero-state skeleton — muted placeholder rows, no phrase. Fills in
-           with real transactions as soon as the first one lands. */
-        <div className="pf-activity pf-activity--skeleton" aria-label="No activity yet">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
-              <span className="pf-skeleton-glyph" />
-              <span className="pf-activity__main min-w-0">
-                <span className="pf-skeleton-bar pf-skeleton-bar--label" />
-                <span className="pf-skeleton-bar pf-skeleton-bar--meta" />
-              </span>
-              <span className="pf-skeleton-bar pf-skeleton-bar--amt" />
-            </div>
-          ))}
+        /* Zero-state skeleton — muted placeholder rows with an overlay message */
+        <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[160px]">
+          <div className="pf-activity pf-activity--skeleton absolute inset-0 opacity-20 pointer-events-none" aria-hidden="true">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
+                <span className="pf-skeleton-glyph" />
+                <span className="pf-activity__main min-w-0">
+                  <span className="pf-skeleton-bar pf-skeleton-bar--label" />
+                  <span className="pf-skeleton-bar pf-skeleton-bar--meta" />
+                </span>
+                <span className="pf-skeleton-bar pf-skeleton-bar--amt" />
+              </div>
+            ))}
+          </div>
+          <div className="z-10 flex flex-col items-center gap-1.5 px-6 py-3 rounded-lg bg-[color-mix(in_srgb,var(--ct-surface-0)_80%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] backdrop-blur-sm">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-secondary font-medium">No activity</span>
+            <span className="text-[11px] text-tertiary opacity-60">Transactions will appear here</span>
+          </div>
         </div>
       )}
     </PfCockpitPanel>

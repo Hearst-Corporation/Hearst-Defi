@@ -153,29 +153,47 @@ export function CapitalYield({
                 ))}
               </>
             ) : (
-              /* Zero-state: four evenly-spaced muted arcs suggest the allocation
-                 structure to come — a quiet skeleton, not a flat grey ring. */
-              [0, 25, 50, 75].map((offset) => (
+              <g className="opacity-60">
                 <circle
-                  key={offset}
-                  className="dash-chart-circle cy-donut-arc--skeleton"
+                  className="dash-chart-circle"
                   cx="21"
                   cy="21"
                   r="15.9155"
-                  stroke="var(--ct-surface-3)"
-                  strokeDasharray="22 3"
-                  strokeDashoffset={-offset}
+                  stroke="var(--ct-border-soft)"
+                  strokeWidth="0.5"
+                  strokeDasharray="1 3"
                 />
-              ))
+                <circle
+                  cx="21"
+                  cy="21"
+                  r="14"
+                  stroke="var(--ct-border-soft)"
+                  strokeWidth="0.2"
+                  fill="none"
+                />
+                <circle
+                  cx="21"
+                  cy="21"
+                  r="17.5"
+                  stroke="var(--ct-border-soft)"
+                  strokeWidth="0.2"
+                  fill="none"
+                />
+                <path d="M 21 2 L 21 6 M 21 36 L 21 40 M 2 21 L 6 21 M 36 21 L 40 21" stroke="var(--ct-border-soft)" strokeWidth="0.5" opacity="0.5" />
+              </g>
             )}
           </svg>
           <div className="donut-center">
             {isFilled ? (
-              <>
-                <span className="donut-val">{formatUsdCompact(totalValueUsdc)}</span>
-                <span className="donut-lbl">Capital</span>
-              </>
-            ) : null}
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] uppercase tracking-[0.15em] text-tertiary font-semibold mb-0.5">Total</span>
+                <span className="donut-val text-[20px] font-medium tracking-tight text-strong">{formatUsdCompact(totalValueUsdc)}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] uppercase tracking-[0.2em] text-tertiary font-medium opacity-50">Pending</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -183,80 +201,79 @@ export function CapitalYield({
         <div className="cy-spine" aria-hidden />
 
         {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
-        <div className="cy-ledger">
-          <p className="cy-ledger-head body-xs ct-text-tertiary mono m-0">
-            Yield source · 12m fwd contribution
+        <div className="cy-ledger px-2">
+          <p className="cy-ledger-head text-[10px] uppercase tracking-[0.15em] ct-text-tertiary font-medium mb-3 pb-2 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
+            Yield source · 12m fwd
           </p>
 
           {hasData
-            ? sources.map((s) => {
-                const w = barWidthPct(s.contributionPct, maxAbsPct);
-                const isNeg = s.contributionPct < 0;
-                const val = formatContribution(s.contributionPct, s.isVolatile ?? false);
-                return (
-                  <div
-                    key={s.bucket}
-                    className={cn(
-                      "cy-row group",
-                      s.bucket === "mining" && "cy-row-mining",
-                    )}
-                    style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
-                  >
-                    <span className="cy-dot" aria-hidden />
-                    <span className="cy-label body-xs min-w-0 truncate ct-text-body">
-                      {s.label}
-                    </span>
-                    <span className="cy-val" aria-label={`${s.label} ${val}`}>
-                      {val}
-                    </span>
-                    <div className="cy-track" aria-hidden>
-                      <span className="cy-ticks" />
-                      <span
-                        className={cn(
-                          "cy-fill",
-                          isNeg && "cy-fill--neg",
-                          s.isVolatile && "cy-fill--volatile",
-                        )}
-                        style={{ width: `${w.toFixed(1)}%` }}
-                      />
+            ? <div className="flex flex-col gap-3 mt-2">
+                {sources.map((s) => {
+                  const w = barWidthPct(s.contributionPct, maxAbsPct);
+                  const isNeg = s.contributionPct < 0;
+                  const val = formatContribution(s.contributionPct, s.isVolatile ?? false);
+                  return (
+                    <div
+                      key={s.bucket}
+                      className={cn(
+                        "cy-row group flex items-center justify-between",
+                        s.bucket === "mining" && "cy-row-mining",
+                      )}
+                      style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--cy-bucket)] shadow-[0_0_8px_var(--cy-bucket)]" aria-hidden />
+                        <span className="cy-label text-[12px] min-w-0 truncate ct-text-secondary group-hover:ct-text-primary transition-colors font-medium">
+                          {s.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="cy-track w-16 h-1 bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] rounded-full overflow-hidden" aria-hidden>
+                          <span
+                            className={cn(
+                              "cy-fill block h-full bg-[var(--cy-bucket)] transition-all duration-500",
+                              isNeg && "bg-destructive",
+                              s.isVolatile && "opacity-80",
+                            )}
+                            style={{ width: `${w.toFixed(1)}%` }}
+                          />
+                        </div>
+                        <span className="cy-val tabular text-[13px] font-semibold ct-text-strong min-w-[3.5rem] text-right" aria-label={`${s.label} ${val}`}>
+                          {val}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })
-            : /* Zero-state skeleton rows — muted dot + label/value bars + a
-                 graded track fill, so the ledger reads as a structured frame. */
-              [62, 44, 30, 18].map((w, i) => (
-                <div key={i} className="cy-row cy-row--skeleton" aria-hidden>
-                  <span className="cy-dot cy-dot--skeleton" />
-                  <span className="pf-skeleton-bar pf-skeleton-bar--cy-label" />
-                  <span className="pf-skeleton-bar pf-skeleton-bar--cy-val" />
-                  <div className="cy-track">
-                    <span className="cy-ticks" />
-                    <span className="cy-fill cy-fill--skeleton" style={{ width: `${w}%` }} />
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
+            : /* Premium empty state for the ledger. */
+              <div className="flex flex-col gap-2 py-6 items-center justify-center text-center h-full">
+                <span className="text-[11px] uppercase tracking-[0.15em] text-secondary font-medium">No allocation yet</span>
+                <span className="text-[11px] text-tertiary max-w-[32ch] leading-relaxed opacity-60">
+                  Your capital allocation and projected yield will appear here once your position is confirmed on-chain.
+                </span>
+              </div>
+          }
+          <hr className="cy-ledger-rule mt-5 mb-4 border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]" aria-hidden />
 
-          <hr className="cy-ledger-rule" aria-hidden />
-
-          <dl className="pf-stack--dense group/footer">
-            <div className="flex items-baseline justify-between cy-footer-row transition-all duration-200 hover:translate-x-1 cursor-default">
-              <dt className="body-xs min-w-0 truncate ct-text-muted transition-colors duration-200 group-hover/footer:ct-text-primary">
-                Blended fwd range
+          <dl className="pf-stack--dense group/footer bg-[color-mix(in_srgb,var(--ct-surface-1)_30%,transparent)] p-3 rounded-lg border border-[color-mix(in_srgb,var(--ct-border-soft)_15%,transparent)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--ct-surface-0)_20%,transparent)]">
+            <div className="flex items-center justify-between cy-footer-row transition-all duration-200 cursor-default mb-1.5">
+              <dt className="text-[11px] uppercase tracking-[0.12em] min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
+                Blended forward
               </dt>
               <dd
-                className={cn("tabular font-semibold transition-colors duration-200", isFilled ? "ct-text-primary group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
+                className={cn("tabular text-[14px] font-bold transition-colors duration-200", isFilled ? "ct-text-strong group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
                 aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
               >
                 {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
               </dd>
             </div>
-            <div className="flex items-baseline justify-between cy-footer-row transition-all duration-200 hover:translate-x-1 cursor-default">
-              <dt className="body-xs min-w-0 truncate ct-text-muted transition-colors duration-200 group-hover/footer:ct-text-primary">
-                Stressed (bear) <span className="body-xs opacity-(--ct-opacity-70)">(proxy)</span>
+            <div className="flex items-center justify-between cy-footer-row transition-all duration-200 cursor-default">
+              <dt className="text-[11px] uppercase tracking-[0.12em] min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
+                Stressed bear
               </dt>
               <dd
-                className={cn("tabular font-medium transition-colors duration-200", isFilled ? "ct-text-body group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
+                className={cn("tabular text-[12px] font-semibold transition-colors duration-200", isFilled ? "ct-text-secondary group-hover/footer:ct-text-accent opacity-80" : "ct-text-tertiary")}
                 aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
               >
                 {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}

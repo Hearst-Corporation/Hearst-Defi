@@ -125,30 +125,36 @@ function SkeletonBars() {
   // Subtle uneven baseline so the frame reads as a chart, not a flat block.
   const HEIGHTS = [6, 9, 7, 11, 8, 12, 9, 13, 10, 12, 9, 11];
   return (
-    <svg
-      viewBox={`0 0 ${VB_W} ${VB_H}`}
-      preserveAspectRatio="xMidYMax meet"
-      className="pf-distrib-chart pf-distrib-chart--skeleton block h-full w-full"
-      role="img"
-      aria-label="Payout calendar — awaiting first distribution"
-    >
-      {Array.from({ length: n }, (_, i) => {
-        const bh = HEIGHTS[i] ?? 8;
-        const bx = barX(i, n, BAR_W, GAP);
-        return (
-          <rect
-            key={i}
-            x={bx}
-            y={BAR_AREA_BOT - bh}
-            width={BAR_W}
-            height={bh}
-            fill="var(--ct-surface-3)"
-            rx="1"
-            aria-hidden="true"
-          />
-        );
-      })}
-    </svg>
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <svg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        preserveAspectRatio="xMidYMax meet"
+        className="pf-distrib-chart pf-distrib-chart--skeleton absolute inset-0 block h-full w-full opacity-20"
+        role="img"
+        aria-label="Payout calendar — awaiting first distribution"
+      >
+        {Array.from({ length: n }, (_, i) => {
+          const bh = HEIGHTS[i] ?? 8;
+          const bx = barX(i, n, BAR_W, GAP);
+          return (
+            <rect
+              key={i}
+              x={bx}
+              y={BAR_AREA_BOT - bh}
+              width={BAR_W}
+              height={bh}
+              fill="var(--ct-surface-3)"
+              rx="1"
+              aria-hidden="true"
+            />
+          );
+        })}
+      </svg>
+      <div className="z-10 flex flex-col items-center gap-1.5 px-6 py-3 rounded-lg bg-[color-mix(in_srgb,var(--ct-surface-0)_80%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] backdrop-blur-sm">
+        <span className="text-[10px] uppercase tracking-[0.2em] text-secondary font-medium">No distributions yet</span>
+        <span className="text-[11px] text-tertiary opacity-60">Future payouts will appear here</span>
+      </div>
+    </div>
   );
 }
 
