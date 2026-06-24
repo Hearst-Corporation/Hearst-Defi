@@ -329,7 +329,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       <div className="admin-doc-split-grid">
         <Card hoverOverlay={false}>
           <DashboardPanelHeader title="Legal" />
-          <div className="mt-(--ct-space-4)">
+          <div className="mt-[var(--ct-space-4)]">
             <VaultLegalProofRows facts={legalFacts} variant="admin" />
           </div>
         </Card>
@@ -478,7 +478,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       {/* Disclaimers */}
       <Card hoverOverlay={false}>
         <DashboardPanelHeader title="Disclaimers" />
-        <p className="body-sm ct-text-muted whitespace-pre-wrap mt-(--ct-space-4)">{vault.disclaimers}</p>
+        <p className="body-sm ct-text-muted whitespace-pre-wrap mt-[var(--ct-space-4)]">{vault.disclaimers}</p>
       </Card>
     </>
   );

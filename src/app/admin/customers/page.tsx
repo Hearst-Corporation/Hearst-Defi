@@ -111,7 +111,7 @@ export default async function CustomersPage({
                   {customers.map((c) => (
                     <tr
                       key={c.id}
-                      className="border-b border-(--ct-border-soft) last:border-0"
+                      className="border-b border-[var(--ct-border-soft)] last:border-0"
                     >
                       <td className="ct-table-cell truncate ct-text-strong">
                         <Link href={`/admin/customers/${c.id}`} className="hover:underline">
@@ -161,7 +161,7 @@ export default async function CustomersPage({
 
         {/* Pagination controls */}
         {total > 0 && (
-          <div className="admin-doc-stack admin-doc-stack--compact border-t border-(--ct-border-soft) py-[var(--ct-space-4)]">
+          <div className="admin-doc-stack admin-doc-stack--compact border-t border-[var(--ct-border-soft)] py-[var(--ct-space-4)]">
             <div className="admin-doc-row-spread">
               <p className="body-xs ct-text-muted">
                 Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
@@ -170,7 +170,7 @@ export default async function CustomersPage({
                 {page > 1 && (
                   <a
                     href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
+                    className="rounded-md border border-[var(--ct-border-soft)] px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
                   >
                     Previous
                   </a>
@@ -178,7 +178,7 @@ export default async function CustomersPage({
                 {hasMore && (
                   <a
                     href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-(--ct-border-soft) px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
+                    className="rounded-md border border-[var(--ct-border-soft)] px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-muted hover:ct-text-strong transition-colors ease-[var(--ct-ease)]"
                   >
                     Next
                   </a>
@@ -224,7 +224,7 @@ export default async function CustomersPage({
                   {orphanSubmissions.map((s) => (
                     <tr
                       key={s.id}
-                      className="border-b border-(--ct-border-soft) last:border-0"
+                      className="border-b border-[var(--ct-border-soft)] last:border-0"
                     >
                       <td className="ct-table-cell truncate ct-text-strong">
                         {s.email ?? "—"}

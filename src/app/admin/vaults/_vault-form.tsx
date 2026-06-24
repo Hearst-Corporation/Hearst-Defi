@@ -553,7 +553,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </MetricGrid>
 
-            <div className="admin-doc-inset flex flex-col gap-(--ct-space-1)">
+            <div className="admin-doc-inset flex flex-col gap-[var(--ct-space-1)]">
               <span className="stat-label block">APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
@@ -604,7 +604,7 @@ export function VaultForm(props: VaultFormProps) {
                     step={50}
                     value={form[key]}
                     onChange={(e) => setAllocationBps(key, e.target.value)}
-                    className="w-full accent-(--ct-accent)"
+                    className="w-full accent-[var(--ct-accent)]"
                     aria-label={`${label} allocation`}
                   />
                   <Progress value={form[key]} max={10000} label={`${label} allocation`} className="h-1" />
@@ -751,7 +751,7 @@ export function VaultForm(props: VaultFormProps) {
 
               {/* Admin identity helper */}
               {props.adminId && (
-                <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight bg-(--ct-bg-deep)/50 border border-(--ct-border-ghost)">
+                <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight bg-[var(--ct-bg-deep)]/50 border border-[var(--ct-border-ghost)]">
                   <span className="body-xs ct-text-muted">
                     Your current admin identity:
                   </span>
@@ -796,7 +796,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="admin-doc-stack admin-doc-stack--tight pt-(--ct-space-4) border-t border-(--ct-border-soft)">
+              <div className="admin-doc-stack admin-doc-stack--tight pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
                 <span className="stat-label block mb-2">
                   Approval Quorum (M-of-N) *
                 </span>
@@ -836,7 +836,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="admin-doc-stack">
             <CardTitle>Review &amp; Simulate</CardTitle>
 
-            <div className="admin-doc-inset admin-confirm-panel divide-y divide-border-subtle">
+            <div className="admin-doc-inset admin-confirm-panel divide-y divide-[var(--ct-border-soft)]">
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--head">
                 <MetricGrid columns={2}>
                   <div className="admin-confirm-panel__row">
@@ -971,7 +971,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-(--ct-space-3)">
+            <p className="body-xs ct-text-faint border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)]">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -1042,7 +1042,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {props.adminId !== undefined && !adminInWhitelist && (
-                <p className="body-xs ct-status-danger pt-(--ct-space-1)">
+                <p className="body-xs ct-status-danger pt-[var(--ct-space-1)]">
                   Your identity ({props.adminId}) is not in the whitelist — you
                   will not be able to sign this deployment yourself.
                 </p>
