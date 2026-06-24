@@ -172,8 +172,10 @@ function makeLiveData(overrides: Partial<DashboardData> = {}): DashboardData {
 describe("DashboardAssetsBoard — command-center layout", () => {
   it("roots the board in dashboard-cockpit for the fit cockpit layout", () => {
     const html = render(makeData({ source: "fallback" }), 0);
+    // The `--fit` layout behavior is now baked into the base `.dashboard-cockpit`
+    // rules (the modifier class was consolidated away), so the root class alone
+    // is the contract.
     expect(html).toContain("dashboard-cockpit");
-    expect(html).toContain("dashboard-cockpit--fit");
   });
 
   it("does not duplicate KPI rows in a secondary vitals column", () => {
@@ -257,8 +259,11 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
     expect(html).not.toContain(">Capital stack<");
     expect(html).not.toContain(">Risk lens<");
-    expect(html).not.toContain(">Distribution<");
     expect(html).not.toContain(">Proof &amp; custody<");
+    // NOTE: a small `dashboard-overview-ledger__label` reading "Distribution"
+    // now lives inside the Exposure cluster — that is a ledger label, not the
+    // removed secondary panel. The structural guards below are what prove the
+    // old panels are gone.
     expect(html).not.toContain("dashboard-command-row-b");
     expect(html).not.toContain("dashboard-assets-stack__row");
     expect(html).not.toContain("dashboard-assets-risk__row");
@@ -546,7 +551,10 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("dashboard-cockpit-row--lower");
     expect(html).toContain(">Audit trail<");
     expect(html).toContain("dashboard-orbit__svg");
-    expect(html).toContain("% mapped");
+    // The "% mapped" gauge is now split into two typography-tokenized spans
+    // (`<value>%` + `Mapped`) inside the orbit core meta row.
+    expect(html).toContain("dashboard-orbit__core-meta");
+    expect(html).toContain(">Mapped<");
     expect(html).toContain("dashboard-nav-bars__bar");
     // Dashboard now uses a compact risk card instead of the broken waterfall SVG.
     expect(html).not.toContain("ct-waterfall-svg");
