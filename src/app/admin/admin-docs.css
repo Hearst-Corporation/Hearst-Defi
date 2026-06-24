@@ -69,8 +69,8 @@
 
 .admin-doc .admin-doc-notice {
   padding: var(--ct-space-2) var(--ct-space-3);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
   background: transparent;
 }
 
@@ -78,7 +78,7 @@
 
 /* History table — top hairline between distribution rows. */
 .admin-doc .admin-doc-table-row {
-  border-top: 1px solid var(--ct-border-soft);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
 }
 
 /* -----------------------------------------------------------------------------

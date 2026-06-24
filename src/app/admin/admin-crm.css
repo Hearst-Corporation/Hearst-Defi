@@ -150,8 +150,8 @@
 .admin-doc .outreach-engine-aside {
   margin-top: var(--ct-space-2);
   padding: var(--ct-space-5);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
+  border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
 }
 
@@ -183,8 +183,8 @@
    l'inset partage le graphite de la carte, une bordure fine seule le délimite. */
 .admin-doc .admin-inset-panel {
   background: transparent;
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
+  border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-4);
 }
 
