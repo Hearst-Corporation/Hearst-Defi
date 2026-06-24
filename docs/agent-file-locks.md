@@ -22,6 +22,22 @@ _No active locks yet._
 
 ## RELEASED LOCKS
 
+### fix/admin-subnav-mount
+Owner: CI/Nav Fixer
+Branch: fix/admin-subnav-mount
+Worktree: ../connect-agent-subnav
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/app/admin/layout.tsx
+
+Result:
+- Re-mounted orphaned <AdminSubNav/> (unmounted by 2eb0918a) so admin
+  section sub-tabs (Overview · Investors · Agents · Outreach · Feedback)
+  render again under every /admin/* page. Verified live on /admin/agents
+  and /admin/outreach.
+
 ### agent/console-debug
 Owner: Console Debug Owner
 Branch: agent/console-debug
