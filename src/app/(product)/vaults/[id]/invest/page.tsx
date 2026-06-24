@@ -1,10 +1,12 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { InvestForm } from "@/components/vaults/invest-form";
 import { AppFooter } from "@/components/app-footer";
 import { getVault } from "@/lib/data/vaults";
 import { getInvestor, getSession } from "@/lib/auth/session";
+import { isSumsubConfigured } from "@/lib/onboarding/config";
+import { resolveKycWalletGate } from "@/lib/onboarding/kyc-gate";
 import type { Investor } from "@prisma/client";
 import type { SessionUser } from "@/lib/auth/session";
 
@@ -27,6 +29,22 @@ export default async function InvestDepositPage({ params }: PageProps) {
   ]);
 
   if (!vault || vault.status !== "live") notFound();
+
+  // Investing is the gated action. Entry to the platform is open (see
+  // resolvePostLoginRedirect), but allocating capital requires the investor to
+  // have completed onboarding first: accreditation attested, then KYC approved
+  // when Sumsub is live. Un-onboarded investors are routed into the funnel here
+  // (with ?from so they return to checkout once cleared) instead of at sign-in.
+  const investFrom = `/vaults/${id}/invest`;
+  if (!investor?.accreditationAttestedAt) {
+    redirect(`/onboarding/accreditation?from=${encodeURIComponent(investFrom)}`);
+  }
+  if (isSumsubConfigured() && session?.userId) {
+    const gate = await resolveKycWalletGate(session.userId);
+    if (gate === "requires_identity") {
+      redirect(`/onboarding/identity?from=${encodeURIComponent(investFrom)}`);
+    }
+  }
 
   return (
     <InvestFlowShell

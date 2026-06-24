@@ -1,6 +1,5 @@
 import "server-only";
 
-import { prisma } from "@/lib/db";
 import { safeFrom } from "@/lib/safe-redirect";
 
 /**
@@ -8,25 +7,20 @@ import { safeFrom } from "@/lib/safe-redirect";
  *
  * Where a freshly-authenticated user should land.
  *
- * - If the user followed an explicit deep link (`from` is a real same-origin
- *   path, validated by `safeFrom`), honour it verbatim — they asked to go
- *   somewhere specific, so we never hijack that.
- * - Otherwise (the common "just signed in" case, no `from`), inspect the
- *   investor's onboarding state and route an un-onboarded investor into the
- *   funnel at `/onboarding/accreditation` instead of dropping them on an empty
- *   `/portfolio`. An investor who has already attested accreditation continues
- *   to the default `/portfolio` dashboard.
+ * Model: `/apply` is the qualification funnel that GRANTS ACCESS to the
+ * platform. Once the account is activated (set password), the user enters the
+ * platform directly — they land on `/portfolio`, NOT in a blocking onboarding
+ * funnel. Onboarding (accreditation → KYC → wallet) is completed *inside* the
+ * platform and is NOT a gate on entry; it is only a gate on the sensitive
+ * action (investing / depositing), enforced at `/vaults/[id]/invest`.
  *
- * "Un-onboarded" is keyed on `accreditationAttestedAt` — the single gate that
- * the onboarding layout enforces for every step past accreditation. KYC and
- * wallet are completed downstream (KYC is async; wallet is optional), so they
- * do not change the *entry* decision.
- *
- * Non-investor accounts (e.g. admins) and any DB hiccup fall back to the
- * default — they should never be pushed into the investor funnel.
+ * - An explicit, validated deep link (`from`) always wins.
+ * - Otherwise everyone — onboarded or not — lands on the platform default
+ *   (`/portfolio`). We deliberately do NOT divert un-attested investors into
+ *   `/onboarding/accreditation` here anymore.
  */
 export async function resolvePostLoginRedirect(
-  userId: string,
+  _userId: string,
   from?: string,
 ): Promise<string> {
   // An explicit, validated deep link always wins.
@@ -34,20 +28,8 @@ export async function resolvePostLoginRedirect(
     return safeFrom(from);
   }
 
-  try {
-    const investor = await prisma.investor.findUnique({
-      where: { userId },
-      select: { accreditationAttestedAt: true },
-    });
-
-    // Only route *investors who have not yet entered onboarding* into the
-    // funnel. No investor row (admin / not provisioned) → default.
-    if (investor && investor.accreditationAttestedAt == null) {
-      return "/onboarding/accreditation";
-    }
-  } catch {
-    // Never block sign-in on an onboarding lookup — fall through to default.
-  }
-
+  // Everyone enters the platform directly. Onboarding lives inside the platform
+  // and only gates investing, not entry. `safeFrom` with no `from` resolves to
+  // the platform default (/portfolio).
   return safeFrom(from);
 }
