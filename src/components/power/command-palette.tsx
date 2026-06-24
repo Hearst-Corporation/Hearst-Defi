@@ -211,6 +211,10 @@ export function CommandPalette() {
     const q = query.trim();
 
     if (q.length < MIN_QUERY_LENGTH) {
+      // Debounced-search reset: when the query drops below the threshold the
+      // search side-effect cancels back into the idle state. This reset is part
+      // of the async search effect, not derivable during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchState({ kind: "idle" });
       setActiveIndex(0);
       return;

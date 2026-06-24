@@ -813,6 +813,10 @@ export function AdminChatControls() {
 
   useEffect(() => {
     if (!hydrated) return;
+    // Hydrate persisted capability-test state from localStorage AFTER mount —
+    // reading it during the SSR render would cause a hydration mismatch, so the
+    // post-hydration setState is required, not an avoidable cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCapabilityState(loadAgentCapabilityTestState());
   }, [hydrated]);
 

@@ -86,6 +86,10 @@ export function AgentBriefLive({
     if (initialBrief) return;
     if (!autostart || !objective) return;
     startedRef.current = true;
+    // One-shot async kickoff: generate() streams a brief and setStates only
+    // after awaits (not synchronously). This is an effect-driven side effect,
+    // not state derivable during render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void generate();
   }, [autostart, objective, initialBrief, generate]);
 

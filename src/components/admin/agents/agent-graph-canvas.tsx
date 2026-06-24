@@ -115,7 +115,13 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
   }, [views]);
 
   const viewRef = useRef<AgentGraphView | null>(activeView);
-  viewRef.current = activeView;
+  // Keep the latest view in a ref for the async poll + canvas render loop
+  // without re-subscribing them. Assign post-commit in an effect — mutating a
+  // ref during render is flagged by react-hooks/refs and the readers
+  // (poll/render loop) only run after commit, so the timing is unchanged.
+  useEffect(() => {
+    viewRef.current = activeView;
+  }, [activeView]);
   const placedRef = useRef<Placed[]>([]);
 
   // Auto-refresh: poll the live graph (paused when the tab is hidden).
@@ -141,6 +147,10 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
 
   // Clear selection when switching views (ids differ across views).
   useEffect(() => {
+    // Cross-view reset: selection ids are namespaced per view, so a stale id
+    // must be dropped when activeViewId changes. Genuine effect-driven reset,
+    // not derivable during render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelected(null);
   }, [activeViewId]);
 
