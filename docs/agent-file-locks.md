@@ -16,33 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### fix/chat-yield-compliance-scroll
-Owner: Master Agent Chat Reliability Bug Owner
-Branch: fix/chat-yield-compliance-scroll
-Worktree: ../connect-agent-chat-reliability
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agents/apy-range.ts
-- src/lib/agents/__tests__/apy-single-point-yield.test.ts
-- src/lib/agents/__tests__/apy-range.test.ts
-- src/lib/llm/__tests__/output-guard.test.ts
-- src/app/cockpit.css
-
-Notes:
-- BUG 1: output guard false-positives on yield SOURCE breakdowns (mining ~6,2 %,
-  USDC base ~4,8 %, réserve ~4,5 %) → "Réponse bloquée" on educational answers.
-  Fix = source-attribution exemption in hasSinglePointApy (apy-range.ts). Guard
-  NOT disabled; headline single-point + forbidden words still blocked.
-- BUG 2: chat history unreachable — `.ct-chat-list { justify-content: flex-end }`
-  clips overflow at the top. Fix = margin-top:auto on first child (cockpit.css).
-- Does NOT touch sensitive single-owner files (cockpit-chat/route.ts, compose.ts,
-  emit.ts, registry.ts, globals.css). cockpit.css is NOT on the sensitive list.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### fix/chat-yield-compliance-scroll
+Owner: Master Agent Chat Reliability Bug Owner
+Branch: fix/chat-yield-compliance-scroll
+Merged PR: #25
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agents/apy-range.ts
+- src/lib/agents/__tests__/apy-single-point-yield.test.ts
+- src/lib/llm/__tests__/output-guard.test.ts
+- src/app/cockpit.css
+
+Result:
+- BUG 1 (compliance guard too aggressive): added a source-attribution exemption
+  to hasSinglePointApy so educational yield breakdowns (mining ~6,2 %, USDC base
+  ~4,8 %, réserve ~4,5 %) pass, while headline single-point + forbidden words
+  still block. Guard not disabled. Proven via the real chatOutputViolation.
+- BUG 2 (chat not scrollable): replaced `.ct-chat-list { justify-content: flex-end }`
+  with margin-top:auto on the first message child — long history now scrolls to top.
+- Merged (3c306d7d), Vercel READY. Did NOT touch sensitive single-owner files.
 
 ### fix/admin-subnav-mount
 Owner: CI/Nav Fixer
