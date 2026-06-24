@@ -33,18 +33,18 @@ export function NavSlot({
       <DashboardPanelHeader
         title="NAV trend · 30d"
         eyebrow="Analytics"
-        tone="quiet"
+        tone="primary"
         provenance={!isMuted ? navProvenance : undefined}
         className="dashboard-nav-slot__header"
       />
       <div className="dashboard-nav-slot__value-row">
         <div className="flex flex-col">
           <span className="cockpit-label-xs opacity-50 mb-1">Current NAV</span>
-          <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-(--ct-space-1)">
+          <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-[var(--ct-space-1)]">
               {lastNav !== null ? (
                 <>
                   <span className="cockpit-label-xs opacity-40">USD</span>
-                  <span className="cockpit-value-md text-(length:--ct-text-2xl-fixed)!">{dashboardUsdCompact.format(lastNav)}</span>
+                  <span className="cockpit-value-md text-[length:var(--ct-text-2xl-fixed)]!">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
                 <span className="cockpit-label-sm opacity-50">Awaiting data</span>
@@ -57,7 +57,7 @@ export function NavSlot({
             <span className="cockpit-label-xs opacity-50 mb-1">30d Change</span>
             <p
               className={cn(
-                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-(length:--ct-text-deca)!",
+                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-[length:var(--ct-text-deca)]!",
                 navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
               )}
             >

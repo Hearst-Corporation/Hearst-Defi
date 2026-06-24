@@ -262,7 +262,7 @@ export function DashboardAssetsBoard({
                 <DashboardPanelHeader
                   title="Recent activity"
                   eyebrow="Rebalance log"
-                  tone="quiet"
+                  tone="primary"
                 />
                 <DashboardRecentEvents events={data.recentEvents} />
               </section>
@@ -280,6 +280,7 @@ export function DashboardAssetsBoard({
               <DashboardPanelHeader
                 title="Operator queue"
                 eyebrow="Queue"
+                tone="primary"
                 status="Active"
                 statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
@@ -291,6 +292,7 @@ export function DashboardAssetsBoard({
               <DashboardPanelHeader
                 title="Vault health"
                 eyebrow="Telemetry"
+                tone="primary"
                 status="Monitoring"
                 statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
@@ -302,6 +304,7 @@ export function DashboardAssetsBoard({
               <DashboardPanelHeader
                 title="Platform status"
                 eyebrow="Infrastructure"
+                tone="primary"
                 status="Live"
                 statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/monitoring" />}
@@ -326,6 +329,7 @@ export function DashboardAssetsBoard({
               <DashboardPanelHeader
                 title="Risk posture"
                 eyebrow="Compliance"
+                tone="primary"
                 status="Guarded"
                 statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/vaults" />}
@@ -342,6 +346,7 @@ export function DashboardAssetsBoard({
               <DashboardPanelHeader
                 title="Audit trail"
                 eyebrow="Ledger"
+                tone="primary"
                 status="Logging"
                 statusTone="ok"
                 trailing={<AdminLeafLink href="/admin/audit" />}
