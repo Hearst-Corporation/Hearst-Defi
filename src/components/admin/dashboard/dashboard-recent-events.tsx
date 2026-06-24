@@ -38,7 +38,7 @@ export function DashboardRecentEvents({
                 {event.impactText}
               </span>
             </div>
-            <p className="cockpit-label-sm truncate m-0 opacity-80">
+            <p className="cockpit-label-xs truncate m-0 opacity-80">
               {event.triggerText}
             </p>
           </div>

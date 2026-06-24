@@ -38,27 +38,33 @@ export function NavSlot({
         className="dashboard-nav-slot__header"
       />
       <div className="dashboard-nav-slot__value-row">
-        <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-(--ct-space-1)">
-            {lastNav !== null ? (
-              <>
-                <span className="cockpit-label-xs opacity-50">USD</span>
-                <span className="cockpit-value-md text-[20px]!">{dashboardUsdCompact.format(lastNav)}</span>
-              </>
-            ) : (
-              <span className="cockpit-label-sm opacity-50">Awaiting data</span>
-            )}
-        </p>
+        <div className="flex flex-col">
+          <span className="cockpit-label-xs opacity-50 mb-1">Current NAV</span>
+          <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-(--ct-space-1)">
+              {lastNav !== null ? (
+                <>
+                  <span className="cockpit-label-xs opacity-40">USD</span>
+                  <span className="cockpit-value-md text-[20px]!">{dashboardUsdCompact.format(lastNav)}</span>
+                </>
+              ) : (
+                <span className="cockpit-label-sm opacity-50">Awaiting data</span>
+              )}
+          </p>
+        </div>
 
         {navDelta !== null ? (
-          <p
-            className={cn(
-              "dashboard-nav-slot__delta cockpit-value-sm m-0",
-              navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
-            )}
-          >
-            {navDelta >= 0 ? "+" : ""}
-            {navDelta.toFixed(1)}%
-          </p>
+          <div className="flex flex-col items-end">
+            <span className="cockpit-label-xs opacity-50 mb-1">30d Change</span>
+            <p
+              className={cn(
+                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-[14px]!",
+                navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
+              )}
+            >
+              {navDelta >= 0 ? "+" : ""}
+              {navDelta.toFixed(1)}%
+            </p>
+          </div>
         ) : null}
       </div>
 

@@ -1197,7 +1197,6 @@
   .mining-coverage-calibration__bar { animation: none; }
 }
 
-.projection-studio-preset-rail.ct-card,
 .projection-studio-input-card.ct-card,
 .projection-studio-output-stage.ct-card {
   padding: 0;
@@ -1229,22 +1228,6 @@
   max-height: inherit;
   flex: 1 1 auto;
   flex-direction: column;
-}
-
-.projection-studio-preset-rail {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-  background: var(--ct-surface-1);
-}
-
-.projection-studio-preset-rail > .relative {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-  padding: var(--ct-space-5) var(--ct-space-6);
 }
 
 /* Compact toolbar strip — replaces the full Card for the preset section. */
@@ -1303,16 +1286,7 @@
   }
 }
 
-.projection-studio-preset-rail__head {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-2) var(--ct-space-4);
-}
-
-.projection-studio-preset-rail__items {
+.projection-studio-preset-strip__items {
   display: flex;
   max-width: 100%;
   gap: var(--ct-space-3);
@@ -1320,9 +1294,9 @@
   padding-bottom: var(--ct-space-1);
   scrollbar-width: none; /* scrollbar masquée — scroll-x préservé */
 }
-.projection-studio-preset-rail__items::-webkit-scrollbar { width: 0; height: 0; }
+.projection-studio-preset-strip__items::-webkit-scrollbar { width: 0; height: 0; }
 
-.projection-studio-preset-rail__items > * {
+.projection-studio-preset-strip__items > * {
   flex: none;
 }
 
@@ -1527,13 +1501,11 @@
     padding-bottom: var(--ct-space-3);
   }
 
-  .projection-studio-preset-rail,
   .projection-studio-preset-strip {
     padding: var(--ct-space-4) 0;
   }
 
-  .scenario-preset-bar__head,
-  .projection-studio-preset-rail__head {
+  .scenario-preset-bar__head {
     justify-content: flex-start;
   }
 
@@ -1611,31 +1583,6 @@
 /* Stacked rows (1 colonne, overview-pane) : la hairline bas de chaque cellule
    sépare les KPI empilés ; la hairline droite déborde et est clippée par
    l'overflow:hidden de la strip. Aucune règle spécifique nécessaire. */
-
-.dashboard-kpi-strip__cell {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-  min-height: var(--ct-dashboard-kpi-cell-min-height);
-  padding: var(--ct-space-4);
-  /* Pas de fond (transparent) : la cellule laisse voir la surface du panel —
-     pas de 2e cadre. Séparateurs = hairline droite + bas ; la strip clippe
-     (overflow + marge négative) le débord de la dernière colonne/ligne. */
-  border-right: 1px solid var(--ct-border-ghost);
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-kpi-strip__cell--alert {
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-status-danger) 55%, transparent);
-}
-
-/* Positive-attention highlight (brand green) — e.g. action queue with pending
-   items. Distinct from --alert (danger red) so genuine degraded states keep red. */
-.dashboard-kpi-strip__cell--accent {
-  box-shadow: none;
-  background: color-mix(in srgb, var(--ct-accent) 3%, transparent);
-}
 
 .dashboard-kpi-strip__label-row {
   display: flex;

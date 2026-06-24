@@ -73,7 +73,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
         </div>
         <span
           className={cn(
-            "dashboard-kpi-strip__value tabular",
+            "dashboard-kpi-strip__value tabular-nums",
             kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong",
           )}
         >

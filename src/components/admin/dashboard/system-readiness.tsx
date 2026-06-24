@@ -54,10 +54,17 @@ export function SystemReadinessModule({
               System readiness
             </span>
             <div className="dashboard-readiness__scan-badge">
-              <span className="cockpit-label-xs opacity-70">
-                Last scan:
+              <span className="dashboard-readiness__scan-label">
+                Uptime
               </span>
-              <span className="cockpit-value-xs">
+              <span className="dashboard-readiness__scan-value text-ct-status-success">
+                99.98%
+              </span>
+              <div className="dashboard-readiness__scan-divider" />
+              <span className="dashboard-readiness__scan-label">
+                Last scan
+              </span>
+              <span className="dashboard-readiness__scan-value">
                 {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
@@ -113,7 +120,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       </div>
       <span
         className={cn(
-          "dashboard-readiness__stat-value tabular",
+          "dashboard-readiness__stat-value tabular-nums",
           toneText(stat.tone),
         )}
       >
@@ -139,7 +146,7 @@ function ReadinessFactorDot({ factor }: { factor: ReadinessFactor }) {
         aria-hidden
         className={cn("dashboard-readiness__dot", toneDot(factor.tone))}
       />
-      <span className={cn("cockpit-label-sm", toneText(factor.tone))}>
+      <span className={cn("cockpit-label-xs", toneText(factor.tone))}>
         {factor.label}
       </span>
     </div>

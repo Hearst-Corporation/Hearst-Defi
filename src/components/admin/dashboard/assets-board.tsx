@@ -182,7 +182,7 @@ export function DashboardAssetsBoard({
       {/* ── Row 1: Platform overview — executive totals across all vaults ── */}
       <div className="dashboard-cockpit-row dashboard-cockpit-row--overview">
         <div className="dashboard-cockpit-cell">
-          <PlatformOverviewBand view={overviewView} />
+          <PlatformOverviewBand view={overviewView} allocations={allocation} />
         </div>
       </div>
 

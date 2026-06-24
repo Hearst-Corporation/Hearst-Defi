@@ -43,7 +43,7 @@ export function DashboardPanelHeader({
               className={cn(
                 titleRoleClass,
                 "dashboard-panel-title min-w-0 wrap-break-word",
-                tone === "primary" && "ct-text-accent",
+                tone === "primary" ? "ct-text-accent" : "ct-text-strong",
               )}
             >
               {title}

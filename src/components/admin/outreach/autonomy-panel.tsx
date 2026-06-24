@@ -29,8 +29,13 @@ const MODE_VARIANT: Record<
 function CapabilityChip({ label, on }: { label: string; on: boolean }) {
   return (
     <span className="inline-flex items-center gap-(--ct-space-1_5)">
-      <Badge variant={on ? "success" : "default"}>{on ? "On" : "Off"}</Badge>
-      <span className="body-xs ct-text-muted">{label}</span>
+      <Badge 
+        variant={on ? "success" : "default"} 
+        className="px-(--ct-space-1) py-0 h-3.5 text-[9px] uppercase tracking-wider min-w-[32px] justify-center"
+      >
+        {on ? "On" : "Off"}
+      </Badge>
+      <span className="body-xs ct-text-faint font-medium">{label}</span>
     </span>
   );
 }
@@ -38,14 +43,17 @@ function CapabilityChip({ label, on }: { label: string; on: boolean }) {
 /** A single readiness rule row — guard label, state, and explanation. */
 function ReadinessRow({ rule }: { rule: ReadinessRule }) {
   return (
-    <li className="flex items-start gap-(--ct-space-2) py-(--ct-space-1_5) border-b border-(--ct-border-soft) last:border-0">
-      <Badge variant={rule.ok ? "success" : "warning"}>
-        {rule.ok ? "Ready" : "Check"}
+    <li className="flex items-center gap-(--ct-space-3) py-(--ct-space-1_5) border-b border-(--ct-border-soft) last:border-0">
+      <Badge 
+        variant={rule.ok ? "success" : "warning"} 
+        className="px-(--ct-space-1) py-0 h-3.5 min-w-[42px] justify-center text-[9px] font-bold"
+      >
+        {rule.ok ? "OK" : "CHECK"}
       </Badge>
-      <span className="min-w-0">
-        <span className="body-sm ct-text-strong">{rule.label}</span>
-        <span className="block body-xs ct-text-muted">{rule.detail}</span>
-      </span>
+      <div className="min-w-0 flex-1 flex items-baseline justify-between gap-(--ct-space-2)">
+        <span className="body-xs ct-text-strong font-medium whitespace-nowrap">{rule.label}</span>
+        <span className="body-xs ct-text-faint truncate text-right tabular-nums">{rule.detail}</span>
+      </div>
     </li>
   );
 }
@@ -56,57 +64,54 @@ export function OutreachAutonomyPanel({
   status: OutreachAutonomyStatus;
 }) {
   return (
-    <Card hoverOverlay={false}>
-      <div className="flex flex-col gap-(--ct-space-4)">
-        {/* Header — mode + one-line description */}
-        <div className="flex flex-wrap items-center justify-between gap-(--ct-space-2)">
-          <div className="flex items-center gap-(--ct-space-2)">
-            <h3 className="h3">Outreach autonomy</h3>
-            <Badge variant={MODE_VARIANT[status.mode]}>{status.mode}</Badge>
-          </div>
-          <span className="body-xs ct-text-muted">
-            {status.forbiddenWordCount} prohibited claims guarded · Tier A always
-            human-sent
-          </span>
-        </div>
-
-        <p className="body-sm ct-text-body">{status.modeDescription}</p>
-
-        {/* Live-send warning — only when mode is SEND+ AND Resend is configured */}
-        {status.liveSendWarning ? (
-          <div
-            role="status"
-            className="rounded-(--ct-radius-md) border border-(--ct-bc-warning) ct-status-warning-bg px-(--ct-space-3) py-(--ct-space-2)"
-          >
-            <span className="body-sm ct-status-warning">
-              Live sending is possible at this mode — Resend is configured.
-            </span>
-            <span className="block body-xs ct-text-muted">
-              Eligible Tier B/C prospects can receive automatic email within the
-              daily budget. Tier A and suppressed addresses are still never
-              auto-sent.
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-(--ct-space-4)">
+      {/* Left: Status & Mode Summary */}
+      <Card className="admin-card--tight bg-(--ct-graphite-subtle-bg)" hoverOverlay={false}>
+        <div className="flex flex-col gap-(--ct-space-3)">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-(--ct-space-2)">
+              <span className="stat-label ct-text-faint">Autonomy</span>
+              <Badge variant={MODE_VARIANT[status.mode]} className="font-bold">{status.mode}</Badge>
+            </div>
+            <span className="body-2xs ct-text-faint tabular-nums uppercase tracking-widest">
+              {status.forbiddenWordCount} guards active
             </span>
           </div>
-        ) : null}
 
-        {/* Capability chips */}
-        <div className="flex flex-wrap items-center gap-x-(--ct-space-4) gap-y-(--ct-space-2)">
-          <CapabilityChip label="Auto first-touch" on={status.autoSendActive} />
-          <CapabilityChip label="Follow-ups" on={status.followUpsActive} />
-          <CapabilityChip label="Tier A protected" on={status.tierAProtected} />
-          <CapabilityChip label="Resend configured" on={status.resendConfigured} />
+          <p className="body-xs ct-text-body leading-relaxed max-w-[48ch]">
+            {status.modeDescription}
+          </p>
+
+          {status.liveSendWarning && (
+            <div className="rounded-(--ct-radius-sm) border border-(--ct-bc-warning)/20 bg-(--ct-bc-warning)/5 px-(--ct-space-2) py-(--ct-space-1)">
+              <p className="body-2xs ct-status-warning font-bold uppercase tracking-wide">
+                Live sending active (Resend OK)
+              </p>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-(--ct-space-4) gap-y-(--ct-space-2) pt-(--ct-space-2) border-t border-(--ct-border-soft)">
+            <CapabilityChip label="Auto-send" on={status.autoSendActive} />
+            <CapabilityChip label="Follow-ups" on={status.followUpsActive} />
+            <CapabilityChip label="Tier A Safe" on={status.tierAProtected} />
+          </div>
         </div>
+      </Card>
 
-        {/* Run readiness checklist */}
+      {/* Right: Readiness Ledger */}
+      <Card className="admin-card--tight" hoverOverlay={false}>
         <div className="flex flex-col gap-(--ct-space-2)">
-          <p className="stat-label">Run readiness</p>
+          <div className="flex items-center justify-between">
+            <span className="stat-label ct-text-faint">Readiness Ledger</span>
+            <span className="body-2xs ct-text-faint uppercase tracking-widest">System Check</span>
+          </div>
           <ul className="m-0 list-none p-0">
             {status.rules.map((rule) => (
               <ReadinessRow key={rule.label} rule={rule} />
             ))}
           </ul>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }

@@ -2,7 +2,6 @@
 // renders as a Server Component inside the outreach page. No data fetching here:
 // the numbers are computed server-side by computeOutreachStats() and passed in.
 
-import { Card } from "@/components/ui/card";
 import type { OutreachStats } from "@/lib/data/outreach";
 
 const integer = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
@@ -34,12 +33,12 @@ export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
   ];
 
   return (
-    <div className="admin-stat-grid grid grid-cols-2 sm:grid-cols-4">
+    <div className="flex flex-wrap items-center gap-(--ct-space-5)">
       {items.map((item) => (
-        <Card key={item.label} className="admin-card--tight" hoverOverlay={false}>
-          <p className="stat-label">{item.label}</p>
-          <p className="mt-[var(--ct-space-1)] stat-value tabular-nums ct-text-strong">{item.value}</p>
-        </Card>
+        <div key={item.label} className="flex items-baseline gap-(--ct-space-1_5)">
+          <span className="stat-label uppercase text-[9px] tracking-widest ct-text-faint">{item.label}</span>
+          <span className="body-sm tabular-nums font-bold ct-text-strong">{item.value}</span>
+        </div>
       ))}
     </div>
   );
