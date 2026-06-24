@@ -1,3 +1,98 @@
+# MANDATORY MULTI-AGENT WORKFLOW — WORKTREES, LOCKS, COMMIT, PUSH, MERGE
+
+This repository uses a strict multi-agent workflow.
+
+These rules are mandatory for every agent, every task, and every code change.
+
+Core rules:
+1. One agent = one isolated git worktree.
+2. One task = one short-lived branch.
+3. One coherent step = commit, push, PR, merge.
+4. Every agent must reserve files before editing.
+5. No agent may edit files owned by another active agent.
+6. No broad staging.
+7. No hidden unrelated cleanup.
+8. No destructive reset, rebase, stash pop, or checkout in another agent’s worktree.
+9. Production is currently treated as internal/dev, so frequent merges are allowed when validations pass.
+10. If the user says `merge`, `push`, `ship`, `deploy`, `mets en ligne`, or equivalent, the agent must stop coding and run the checkpoint/merge protocol.
+
+Required worktree protocol:
+- Agents must never develop directly in a shared, dirty, or active worktree.
+- Every task starts from latest `origin/main` in an isolated worktree.
+- If the worktree is not clean, STOP and report.
+
+File lock protocol:
+- Before editing, inspect `docs/agent-file-locks.md`.
+- Reserve intended files/directories before coding.
+- If a path is locked by another active agent, do not edit, stage, or commit it.
+- Report conflicts and wait for arbitration.
+- Release locks after merge.
+
+Sensitive single-owner files:
+- prisma/schema.prisma
+- package.json
+- pnpm-lock.yaml
+- next.config.*
+- tailwind.config.*
+- src/app/api/cockpit-chat/route.ts
+- src/lib/llm/tools/registry.ts
+- src/lib/canvas/compose.ts
+- src/lib/canvas/emit.ts
+- src/app/globals.css
+- src/app/doc-flow.css
+- src/app/admin/admin-proof.css
+- docs/agent-file-locks.md
+- CLAUDE.md
+- .mcp.json
+
+`.mcp.json` is security-sensitive. Supabase MCP must remain read-only unless the user explicitly approves a write-capable session. Never commit a change that removes `--read-only` from Supabase MCP without explicit approval.
+
+Checkpoint / merge protocol:
+- fetch origin;
+- reconcile with latest origin/main;
+- verify locks;
+- run validations relevant to the task;
+- stage explicit files only;
+- commit;
+- push;
+- create PR into main;
+- merge if PR is mergeable and checks are acceptable;
+- wait for Vercel READY if production-facing.
+
+Never use:
+- git add -A
+- git add -u
+- git commit -a
+
+Forbidden files:
+- .continue/
+- .env
+- .env.*
+- *.local
+- node_modules/
+- screenshots/
+- tmp/
+- logs/
+- coverage/
+- playwright-report/
+- .DS_Store
+
+Every final report must include:
+- worktree path;
+- branch;
+- lock acquired/released;
+- files changed;
+- files excluded;
+- validations;
+- commit hash;
+- PR URL;
+- merge commit;
+- origin/main HEAD;
+- Vercel deployment status if applicable;
+- safety confirmation.
+
+---
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
