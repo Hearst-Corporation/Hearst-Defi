@@ -1,9 +1,6 @@
-import { Layers, Wallet, TrendingUp, ArrowDownToLine, ShieldCheck } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { TrendingUp, ArrowDownToLine, ShieldCheck, Layers, Wallet } from "lucide-react";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import {
-  PfCockpitPanel,
-} from "@/components/portfolio/pf-cockpit-panel";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -20,22 +17,14 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
 export interface PortfolioStatusPanelProps {
   hasPositions: boolean;
   positionsCount: number;
-  /** principal currently deployed into vaults (USDC) */
   deployedUsdc: number;
-  /** principal + accrued (total value) — denominator for deployment % */
   totalValueUsdc: number;
-  /** accrued yield since inception (USDC) */
   accruedYieldUsdc: number;
-  /** provenance of the underlying proof (live → "Current", else pending/stale) */
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
 }
 
-/**
- * Hero sidebar — "Portfolio status" panel. Five line-item rows
- * (icon · label · value · sub-meta). Honest zero-state: em-dash values, no fabricated metrics.
- */
 export function PortfolioStatusPanel({
   hasPositions,
   positionsCount,
@@ -52,59 +41,15 @@ export function PortfolioStatusPanel({
       : 0;
 
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first confirmed on-chain position";
-
-const rows: ReadonlyArray<{
-    key: string;
-    Icon: LucideIcon;
-    label: string;
-    value: string;
-    valueAccent: boolean;
-    meta: string;
-  }> = [
-    {
-      key: "deployment",
-      Icon: Layers,
-      label: "Deployment",
-      value: hasPositions ? `${deploymentPct.toFixed(1)}%` : DASH,
-      valueAccent: false,
-      meta: hasPositions
-        ? `${formatUsdCompact(deployedUsdc)} deployed`
-        : "Awaiting first confirmed on-chain position",
-    },
-    {
-      key: "positions",
-      Icon: Wallet,
-      label: "Positions",
-      value: hasPositions ? String(positionsCount) : DASH,
-      valueAccent: false,
-      meta: hasPositions ? "Active" : "None yet",
-    },
-    {
-      key: "yield",
-      Icon: TrendingUp,
-      label: "Accrued yield",
-      value: hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH,
-      valueAccent: hasPositions,
-      meta: "Since inception",
-    },
-    {
-      key: "deposits",
-      Icon: ArrowDownToLine,
-      label: "Net deposits",
-      value: hasPositions ? formatUsdCompact(deployedUsdc) : DASH,
-      valueAccent: false,
-      meta: "Principal subscribed",
-    },
-    {
-      key: "proof",
-      Icon: ShieldCheck,
-      label: "Underlying proof",
-      value: hasPositions ? (source === "live" ? "Current" : "Pending") : DASH,
-      valueAccent: false,
-      meta: asOf,
-    },
-  ];
+  const asOf = updatedAt
+    ? `As of ${dateFmt.format(updatedAt)}`
+    : "Awaiting first position";
+  const proofLabel = hasPositions
+    ? source === "live"
+      ? "Current"
+      : "Pending"
+    : DASH;
+  const proofAccent = hasPositions && source === "live";
 
   return (
     <PfCockpitPanel
@@ -113,45 +58,111 @@ const rows: ReadonlyArray<{
       aria-label="Portfolio status"
       className="pf-status-panel !p-0"
     >
-      <header className="pf-cockpit-panel__header px-[var(--ct-space-4)] py-[var(--ct-space-2)] border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
-        <div className="flex flex-col gap-[var(--ct-space-1_5)]">
-          <h2 className="text-[length:var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] font-semibold text-secondary">Portfolio Status</h2>
-          {provenance && (
-            <div className="flex items-center gap-[var(--ct-space-2)] mt-[var(--ct-space-1)]">
-              <ProvenanceBadge kind={provenance} compact />
-              <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-[var(--ct-opacity-60)]">Verified Proof</span>
-            </div>
-          )}
+      {/* ── Header ── */}
+      <div className="pf-sp-header">
+        <div className="flex items-center justify-between min-w-0">
+          <h2 className="pf-sp-header__title">Portfolio Status</h2>
+          {provenance && <ProvenanceBadge kind={provenance} compact />}
         </div>
-      </header>
-      <dl className="flex flex-col flex-1 px-[var(--ct-space-4)]">
-        {rows.map((r) => (
+        {hasPositions && (
           <div
-            key={r.key}
-            className="pf-status-line group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[var(--ct-space-2_5)] py-[var(--ct-space-2)] border-b border-[color-mix(in_srgb,var(--ct-border-soft)_55%,transparent)] last:border-b-0"
+            className="pf-sp-deploy-track"
+            role="meter"
+            aria-valuenow={deploymentPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${deploymentPct.toFixed(0)}% deployed`}
           >
-            <span className="pf-status-line__icon flex items-center justify-center w-[var(--ct-space-7)] h-[var(--ct-space-7)] rounded-md bg-[color-mix(in_srgb,var(--ct-accent)_9%,transparent)] text-accent transition-colors group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]">
-              <r.Icon strokeWidth={2} aria-hidden="true" />
-            </span>
-            <div className="flex flex-col min-w-0">
-              <dt className="text-[length:var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium group-hover:text-primary transition-colors">
-                {r.label}
-              </dt>
-              <span className="text-[length:var(--ct-text-micro)] text-tertiary opacity-[var(--ct-opacity-60)] truncate group-hover:opacity-100 transition-opacity">
-                {r.meta}
-              </span>
-            </div>
-            <dd className="text-right">
-              {r.value !== DASH ? (
-                <span className={cn("tabular text-[length:var(--ct-text-base)] font-semibold tracking-tight", r.valueAccent ? "text-accent" : "text-strong")}>
-                  {r.value}
-                </span>
-              ) : (
-                <span className="text-tertiary opacity-[var(--ct-opacity-35)] text-[length:var(--ct-text-lg)] font-light leading-none">{DASH}</span>
-              )}
-            </dd>
+            <div
+              className="pf-sp-deploy-fill"
+              style={{ width: `${deploymentPct.toFixed(1)}%` }}
+            />
           </div>
-        ))}
+        )}
+      </div>
+
+      {/* ── KPI rows ── */}
+      <dl className="pf-sp-body">
+
+        {/* Row 1 — Deployed */}
+        <div className="pf-sp-row">
+          <div className="pf-sp-row__icon">
+            <Layers size={13} strokeWidth={2} aria-hidden />
+          </div>
+          <dt className="pf-sp-row__label">Deployed</dt>
+          <dd className="pf-sp-row__trail">
+            <span className={cn("pf-sp-row__value tabular", !hasPositions && "pf-sp-row__value--muted")}>
+              {hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
+            </span>
+            <span className="pf-sp-row__meta">
+              {hasPositions ? formatUsdCompact(deployedUsdc) : "No principal"}
+            </span>
+          </dd>
+        </div>
+
+        {/* Row 2 — Positions */}
+        <div className="pf-sp-row">
+          <div className="pf-sp-row__icon">
+            <Wallet size={13} strokeWidth={2} aria-hidden />
+          </div>
+          <dt className="pf-sp-row__label">Positions</dt>
+          <dd className="pf-sp-row__trail">
+            <span className={cn("pf-sp-row__value tabular", !hasPositions && "pf-sp-row__value--muted")}>
+              {hasPositions ? String(positionsCount) : DASH}
+            </span>
+            <span className="pf-sp-row__meta">{hasPositions ? "Active" : "None yet"}</span>
+          </dd>
+        </div>
+
+        {/* Row 3 — Accrued Yield (accent) */}
+        <div className="pf-sp-row pf-sp-row--accent">
+          <div className="pf-sp-row__icon pf-sp-row__icon--accent">
+            <TrendingUp size={13} strokeWidth={2} aria-hidden />
+          </div>
+          <dt className="pf-sp-row__label">Accrued yield</dt>
+          <dd className="pf-sp-row__trail">
+            <span className={cn("pf-sp-row__value tabular", hasPositions ? "pf-sp-row__value--accent" : "pf-sp-row__value--muted")}>
+              {hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH}
+            </span>
+            <span className="pf-sp-row__meta">Since inception</span>
+          </dd>
+        </div>
+
+        {/* Row 4 — Net deposits */}
+        <div className="pf-sp-row">
+          <div className="pf-sp-row__icon">
+            <ArrowDownToLine size={13} strokeWidth={2} aria-hidden />
+          </div>
+          <dt className="pf-sp-row__label">Net deposits</dt>
+          <dd className="pf-sp-row__trail">
+            <span className={cn("pf-sp-row__value tabular", !hasPositions && "pf-sp-row__value--muted")}>
+              {hasPositions ? formatUsdCompact(deployedUsdc) : DASH}
+            </span>
+            <span className="pf-sp-row__meta">Principal subscribed</span>
+          </dd>
+        </div>
+
+        {/* Row 5 — Underlying proof */}
+        <div className="pf-sp-row pf-sp-row--last">
+          <div className={cn("pf-sp-row__icon", proofAccent && "pf-sp-row__icon--accent")}>
+            <ShieldCheck size={13} strokeWidth={2} aria-hidden />
+          </div>
+          <dt className="pf-sp-row__label">Underlying proof</dt>
+          <dd className="pf-sp-row__trail">
+            <span className={cn(
+              "pf-sp-row__value tabular",
+              proofAccent
+                ? "pf-sp-row__value--accent"
+                : !hasPositions
+                  ? "pf-sp-row__value--muted"
+                  : "",
+            )}>
+              {proofLabel}
+            </span>
+            <span className="pf-sp-row__meta truncate">{asOf}</span>
+          </dd>
+        </div>
+
       </dl>
     </PfCockpitPanel>
   );

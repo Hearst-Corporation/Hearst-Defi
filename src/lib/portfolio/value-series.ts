@@ -188,6 +188,29 @@ export function buildPortfolioValueSeries(
     });
   }
 
+  // Sparse fresh-deposit shape: prior month $0 → deposit month at held value.
+  // A 2-point [$0, $V] series renders as a full-frame corner-to-corner diagonal
+  // (project() auto-scales 0→V across the whole plot height), which reads as a
+  // geometric artifact implying a continuous 2-month climb that never happened —
+  // the deposit was a single instant on a real date. Split the rising month into
+  // a flat pre-deposit foot ($0) plus the real held value, anchored on the SAME
+  // month label. No invented value: every y stays $0 (true: the portfolio held
+  // $0 until the deposit) or the real held value. We only add a truthful
+  // x-position so the curve sits flat then steps up late — "just deposited,
+  // holding", not "appreciated for two months".
+  if (
+    points.length === 2 &&
+    points[0]!.value === 0 &&
+    points[1]!.value > 0 &&
+    !points[1]!.isDistribution
+  ) {
+    return [
+      points[0]!, // prior month, $0 (real)
+      { ...points[1]!, value: 0 }, // deposit month, pre-deposit foot $0 (real)
+      points[1]!, // deposit month, held value (real)
+    ];
+  }
+
   return points;
 }
 

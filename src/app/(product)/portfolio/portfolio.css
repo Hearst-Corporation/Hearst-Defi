@@ -402,14 +402,17 @@
 .pf-container--fit .pf-cockpit { overflow: visible; }
 .pf-cockpit-row { flex: 0 0 auto; }
 
-/* In natural flow the chart was claiming its full aspect-ratio height (~360px),
-   dwarfing the welded status panel and opening a dead void of empty grid. Cap
-   the plot so the hero reads as one COMPACT, balanced module — chart and status
-   in proportion, not a giant flat curve over a thin row of stats. */
+/* Hero in natural-scroll mode: give the hero a fixed height so the chart fills
+   it properly. Without this the chart-wrapper's min-height wins and nothing
+   drives the panel to expand — leaving the plot as a thin strip. */
 .pf-hero-grid { min-height: 0; }
+.pf-container--fit .pf-hero-grid {
+  height: 18rem;
+}
 .pf-container--fit .pf-value-chart__chart-wrapper {
   aspect-ratio: auto;
-  min-height: 12rem;
+  min-height: 0;
+  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
 }
 
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
@@ -640,11 +643,8 @@
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
+/* Merged into .pf-vc-header (Premium Push 2) — kept as no-op for older embeds */
 .pf-value-chart > header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
   flex: 0 0 auto;
 }
 
@@ -2621,4 +2621,590 @@
 .pf-cockpit-row .pf-distrib-chart-shell {
   aspect-ratio: auto;
   min-height: 0;
+}
+
+/* =============================================================================
+   PREMIUM PUSH 2 — new component classes + visual upgrades
+   All tokens only. No raw hex/rgb. No glow. No halo.
+   ============================================================================= */
+
+/* ── Y-axis value labels (SVG text via .pf-vc-ylabel) ─────────────────────── */
+.pf-vc-ylabel {
+  font-size: 4.5px; /* chart-geometry — SVG coordinate units, not CSS px */
+  font-weight: 600;
+  fill: var(--ct-text-tertiary);
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ── Portfolio Status Panel (pf-sp-*) ─────────────────────────────────────── */
+
+.pf-sp-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-2_5);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 30%, transparent);
+  flex: 0 0 auto;
+}
+
+.pf-sp-header__title {
+  font-size: var(--ct-text-deci);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ct-text-secondary);
+  margin: 0;
+}
+
+/* Deployment progress track */
+.pf-sp-deploy-track {
+  height: 2px;
+  width: 100%;
+  background: color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
+  border-radius: var(--ct-radius-full);
+  overflow: hidden;
+}
+
+.pf-sp-deploy-fill {
+  height: 100%;
+  background: color-mix(in srgb, var(--ct-accent) 60%, transparent);
+  border-radius: var(--ct-radius-full);
+  transition: width var(--ct-dur-slower) var(--ct-ease-in-out);
+  max-width: 100%;
+}
+
+/* Body — dl containing 5 rows */
+.pf-sp-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--ct-space-1) 0;
+  margin: 0;
+}
+
+/* Each row: icon · label · trail(value+meta) */
+.pf-sp-row {
+  display: grid;
+  grid-template-columns: var(--ct-space-8) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-2) var(--ct-space-4);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+  transition: background var(--ct-dur-fast) var(--ct-ease);
+  min-width: 0;
+}
+
+.pf-sp-row--last {
+  border-bottom: none;
+}
+
+.pf-sp-row:hover {
+  background: color-mix(in srgb, var(--ct-surface-1) 35%, transparent);
+}
+
+.pf-sp-row--accent {
+  background: color-mix(in srgb, var(--ct-accent) 3%, transparent);
+}
+
+.pf-sp-row--accent:hover {
+  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
+}
+
+/* Icon cell */
+.pf-sp-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-space-7);
+  height: var(--ct-space-7);
+  border-radius: var(--ct-radius-md);
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+  color: var(--ct-text-tertiary);
+  flex: 0 0 auto;
+}
+
+.pf-sp-row__icon--accent {
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, transparent);
+}
+
+/* Label (dt) */
+.pf-sp-row__label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Trail — value stacked above meta */
+.pf-sp-row__trail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ct-space-px);
+  margin: 0;
+  text-align: right;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.pf-sp-row__value {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
+  white-space: nowrap;
+}
+
+.pf-sp-row__value--accent {
+  color: var(--ct-accent);
+}
+
+.pf-sp-row__value--muted {
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-35);
+  font-weight: var(--ct-font-light);
+}
+
+.pf-sp-row__meta {
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  line-height: var(--ct-leading-tight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10rem;
+}
+
+/* ── Capital & Yield — premium empty state ledger ──────────────────────────── */
+
+.cy-ledger-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-2) 0 var(--ct-space-3);
+  min-height: 0;
+}
+
+.cy-ledger-empty__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2_5);
+  pointer-events: none;
+}
+
+.cy-ledger-empty__line {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.cy-ledger-empty__dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+  flex: 0 0 auto;
+}
+
+.cy-ledger-empty__bar {
+  height: var(--ct-space-5);
+  background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+  font-size: 0; /* hide the text label — purely visual */
+  flex: 0 0 auto;
+}
+
+.cy-ledger-empty__val {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-tertiary);
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.cy-ledger-empty__caption {
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-60);
+  line-height: var(--ct-leading-snug);
+  max-width: 32ch;
+  margin: 0;
+}
+
+/* ── Recent Activity — premium zero-state ──────────────────────────────────── */
+
+.pf-activity-zero {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 10rem;
+  gap: var(--ct-space-3);
+}
+
+.pf-activity-zero__ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ct-space-1);
+  pointer-events: none;
+  padding: var(--ct-space-2) var(--ct-space-4);
+  opacity: 0.35;
+}
+
+.pf-activity-zero__ghost-row {
+  display: grid;
+  grid-template-columns: var(--ct-space-7) minmax(0, 1fr) 4rem;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
+}
+
+.pf-activity-zero__ghost-icon {
+  width: var(--ct-space-7);
+  height: var(--ct-space-7);
+  border-radius: var(--ct-radius-md);
+  background: var(--ct-surface-1);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+  display: block;
+}
+
+.pf-activity-zero__ghost-bar {
+  height: var(--ct-space-3);
+  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
+  border-radius: var(--ct-radius-sm);
+  display: block;
+}
+
+.pf-activity-zero__ghost-amt {
+  height: var(--ct-space-3);
+  width: 3rem;
+  background: color-mix(in srgb, var(--ct-surface-2) 50%, transparent);
+  border-radius: var(--ct-radius-sm);
+  display: block;
+  margin-left: auto;
+}
+
+.pf-activity-zero__label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-1);
+  text-align: center;
+}
+
+.pf-activity-zero__title {
+  font-size: var(--ct-text-deci);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-secondary);
+}
+
+.pf-activity-zero__hint {
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-60);
+  max-width: 30ch;
+}
+
+/* ── Position cards — premium rewrite ─────────────────────────────────────── */
+
+.pf-position-card {
+  display: block;
+  border-radius: var(--ct-radius-lg);
+  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 18%, transparent);
+  transition: background var(--ct-dur-base) var(--ct-ease),
+              border-color var(--ct-dur-base) var(--ct-ease),
+              transform var(--ct-dur-base) var(--ct-ease);
+  text-decoration: none;
+  animation: pf-card-entry 0.5s var(--ct-ease) both;
+}
+
+@keyframes pf-card-entry {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pf-position-card:hover {
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+  border-color: color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
+  transform: translateY(-1px);
+}
+
+.pf-position-card--active {
+  border-color: color-mix(in srgb, var(--ct-accent) 18%, transparent);
+}
+
+.pf-position-card--active:hover {
+  border-color: color-mix(in srgb, var(--ct-accent) 28%, transparent);
+}
+
+.pf-position-card__chevron {
+  background: color-mix(in srgb, var(--ct-surface-2) 30%, transparent);
+  color: var(--ct-text-tertiary);
+  transition: background var(--ct-dur-fast) var(--ct-ease),
+              color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-position-card:hover .pf-position-card__chevron {
+  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
+  color: var(--ct-text-secondary);
+}
+
+/* Empty state for positions */
+.pf-positions-empty-premium {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  position: relative;
+}
+
+.pf-positions-empty-premium__ghost {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.pf-positions-empty-premium__ghost-card {
+  border-radius: var(--ct-radius-lg);
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.pf-positions-empty-premium__ghost-line {
+  height: var(--ct-space-4);
+  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
+  border-radius: var(--ct-radius-sm);
+}
+
+.pf-positions-empty-premium__ghost-line--sm {
+  height: var(--ct-space-3);
+  width: 55%;
+  background: color-mix(in srgb, var(--ct-surface-2) 50%, transparent);
+}
+
+.pf-positions-empty-premium__cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
+  text-decoration: none;
+  transition: background var(--ct-dur-base) var(--ct-ease),
+              border-color var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-positions-empty-premium__cta:hover {
+  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, transparent);
+}
+
+/* Active accent bar — left edge on active position cards */
+.pf-position-card__accent-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: color-mix(in srgb, var(--ct-accent) 55%, transparent);
+  border-radius: var(--ct-radius-full) 0 0 var(--ct-radius-full);
+}
+
+/* Position status chip (replaces Badge in position cards) */
+.pf-position-status-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
+  border-radius: var(--ct-radius-sm);
+  padding: 2px var(--ct-space-1_5);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pf-position-status-chip--active {
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--ct-accent) 20%, transparent);
+}
+
+/* ── ValueChart header (pf-vc-*) ─────────────────────────────────────────── */
+
+.pf-vc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  flex: 0 0 auto;
+  min-width: 0;
+  /* margin-bottom supprimé — le gap du pf-value-chart (space-2) suffit */
+}
+
+.pf-vc-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pf-vc-header__row1 {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.pf-vc-header__date {
+  font-size: var(--ct-text-nano);
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  text-transform: uppercase;
+  font-weight: var(--ct-font-medium);
+  opacity: var(--ct-opacity-50);
+}
+
+.pf-vc-header__row2 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-4);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Balance display: $11.00 USDC — all three parts share the number's baseline. */
+.pf-vc-balance {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+
+.pf-vc-balance__sym {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-tertiary);
+  line-height: 1;
+  align-self: baseline;
+}
+
+.pf-vc-balance__unit {
+  font-size: var(--ct-text-2xs);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-70);
+  margin-left: var(--ct-space-0_5);
+  align-self: baseline;
+}
+
+/* APY badge inline — sits on the same baseline as the balance. */
+.pf-vc-apy {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1_5);
+}
+
+.pf-vc-apy__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-accent) 70%, transparent);
+  flex-shrink: 0;
+  align-self: center;
+  position: relative;
+  top: -1px;
+}
+
+.pf-vc-apy__label {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-70);
+}
+
+/* Y-axis HTML overlay labels */
+.pf-vc-ylabels {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--ct-space-8);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pf-vc-ylabel {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-tertiary);
+  opacity: 0.45;
+  white-space: nowrap;
+  letter-spacing: var(--ct-tracking-normal);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  padding-right: var(--ct-space-1_5);
+  line-height: 1;
+}
+
+/* Tooltip badge */
+.pf-vc-tooltip__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  margin-top: var(--ct-space-1_5);
+  padding-top: var(--ct-space-1_5);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
+}
+
+.pf-vc-tooltip__badge {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-accent);
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
+  border-radius: var(--ct-radius-sm);
+  background: color-mix(in srgb, var(--ct-accent) 15%, transparent);
 }

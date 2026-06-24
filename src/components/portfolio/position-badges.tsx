@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ApyRange } from "@/components/ui/apy-range";
-import { Badge } from "@/components/ui/badge";
 import { type PortfolioPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
@@ -46,79 +45,102 @@ export function PositionCards({
         }
       />
 
-      <div className="pf-positions-stack flex flex-col gap-3 px-4 pb-4">
+      <div className="pf-positions-stack flex flex-col gap-[var(--ct-space-2_5)] px-[var(--ct-space-4)] pb-[var(--ct-space-4)]">
         {hasPositions ? (
-          positions.map((p) => {
+          positions.map((p, idx) => {
             const statusConfig = POSITION_STATUS_CONFIG[p.status];
+            const isActive = p.status === "active";
             return (
               <Link
                 key={p.id}
                 href={`/portfolio/${p.id}`}
                 className={cn(
-                  "pf-position-card group relative flex items-center justify-between p-4 rounded-xl bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_15%,transparent)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--ct-surface-0)_20%,transparent),0_4px_16px_-4px_color-mix(in_srgb,var(--ct-surface-0)_40%,transparent)] transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--ct-surface-2)_60%,transparent)] hover:border-[color-mix(in_srgb,var(--ct-border-soft)_30%,transparent)] hover:translate-y-[-2px] hover:shadow-[0_8px_24px_-4px_color-mix(in_srgb,var(--ct-surface-0)_60%,transparent)] overflow-hidden",
-                  p.status === "active" && "pf-position-card--active ring-1 ring-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]"
+                  "pf-position-card group relative overflow-hidden",
+                  isActive && "pf-position-card--active"
                 )}
+                style={{ animationDelay: `${idx * 0.07}s` }}
               >
-                {p.status === "active" && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)] to-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] shadow-[4px_0_12px_color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" aria-hidden />
+                {/* Active left accent bar */}
+                {isActive && (
+                  <div className="pf-position-card__accent-bar" aria-hidden />
                 )}
-                <span className="flex flex-col min-w-0 pl-2">
-                  <span className="flex items-center gap-2.5 mb-1.5">
-                    <span className="text-[var(--ct-text-14)] font-semibold text-strong tracking-tight truncate group-hover:text-accent transition-colors">
-                      {p.vaultName ?? "Vault"}
-                    </span>
-                    <Badge variant={statusConfig.variant}>
-                      {statusConfig.label}
-                    </Badge>
-                  </span>
-                  <span className="flex items-center gap-4">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-[var(--ct-text-deci)] uppercase tracking-wider text-tertiary font-medium">Pos</span>
-                      <span className="text-[var(--ct-text-xs)] font-bold text-secondary tabular tracking-tight">
-                        {formatUsdCompact(p.valueUsdc)}
-                      </span>
-                    </span>
-                    {p.apyLow !== null && p.apyHigh !== null && (
-                      <>
-                        <span className="w-1 h-1 rounded-full bg-[color-mix(in_srgb,var(--ct-border-soft)_40%,transparent)]" aria-hidden />
-                        <span className="flex items-center gap-1.5">
-                          <span className="text-[var(--ct-text-deci)] uppercase tracking-wider text-tertiary font-medium">APY</span>
-                          <ApyRange
-                            low={p.apyLow}
-                            high={p.apyHigh}
-                            className="text-[var(--ct-text-xs)] font-bold text-strong tracking-tight"
-                          />
-                        </span>
-                      </>
-                    )}
-                  </span>
-                </span>
 
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[color-mix(in_srgb,var(--ct-surface-2)_40%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] text-tertiary group-hover:text-strong group-hover:bg-[color-mix(in_srgb,var(--ct-surface-3)_60%,transparent)] transition-colors">
-                  <ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" />
-                </span>
+                {/* Main content */}
+                <div className="flex items-center justify-between pl-[var(--ct-space-3)] pr-[var(--ct-space-2)] py-[var(--ct-space-3)]">
+                  <div className="flex flex-col min-w-0 flex-1 gap-[var(--ct-space-1_5)]">
+                    {/* Row 1 — vault name + status chip */}
+                    <div className="flex items-center gap-[var(--ct-space-2_5)]">
+                      <span className="text-[length:var(--ct-text-sm)] font-semibold text-strong tracking-tight truncate group-hover:text-accent transition-colors">
+                        {p.vaultName ?? "Vault"}
+                      </span>
+                      <span className={cn(
+                        "pf-position-status-chip",
+                        isActive && "pf-position-status-chip--active"
+                      )}>
+                        {statusConfig.label}
+                      </span>
+                    </div>
+                    {/* Row 2 — position value + APY */}
+                    <div className="flex items-center gap-[var(--ct-space-5)]">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium mb-[var(--ct-space-0_5)]">Position</span>
+                        <span className="text-[length:var(--ct-text-base)] font-bold tabular tracking-tight text-secondary">
+                          {formatUsdCompact(p.valueUsdc)}
+                        </span>
+                      </div>
+                      {p.apyLow !== null && p.apyHigh !== null && (
+                        <>
+                          <div className="w-px h-[2rem] bg-[color-mix(in_srgb,var(--ct-border-soft)_30%,transparent)]" aria-hidden />
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium mb-[var(--ct-space-0_5)]">Target APY</span>
+                            <ApyRange
+                              low={p.apyLow}
+                              high={p.apyHigh}
+                              className="text-[length:var(--ct-text-sm)] font-bold text-strong tracking-tight"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Chevron */}
+                  <span className="pf-position-card__chevron flex items-center justify-center w-[var(--ct-space-8)] h-[var(--ct-space-8)] rounded-full border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] transition-all duration-200 flex-shrink-0 ml-[var(--ct-space-2)]">
+                    <ChevronRight size={15} strokeWidth={2} aria-hidden="true" />
+                  </span>
+                </div>
               </Link>
             );
           })
         ) : (
-          <Link
-            href="/vaults"
-            className="group flex items-center justify-between py-3 transition-colors"
-          >
-            <span className="flex flex-col min-w-0">
-              <span className="text-[var(--ct-text-14)] font-semibold text-secondary tracking-tight group-hover:text-accent transition-colors">Explore Opportunities</span>
-              <span className="text-[var(--ct-text-2xs)] text-tertiary opacity-80">No active positions</span>
-            </span>
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] text-secondary group-hover:text-accent group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] transition-colors">
-              <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
-            </span>
-          </Link>
+          <div className="pf-positions-empty-premium">
+            <div className="pf-positions-empty-premium__ghost" aria-hidden="true">
+              {[85, 65].map((w, i) => (
+                <div key={i} className="pf-positions-empty-premium__ghost-card" style={{ opacity: 0.12 - i * 0.04 }}>
+                  <div className="pf-positions-empty-premium__ghost-line" style={{ width: `${w}%` }} />
+                  <div className="pf-positions-empty-premium__ghost-line pf-positions-empty-premium__ghost-line--sm" />
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/vaults"
+              className="pf-positions-empty-premium__cta group"
+            >
+              <span className="flex flex-col min-w-0">
+                <span className="text-[length:var(--ct-text-sm)] font-semibold text-secondary tracking-tight group-hover:text-accent transition-colors">Explore Opportunities</span>
+                <span className="text-[length:var(--ct-text-2xs)] text-tertiary opacity-70 mt-[var(--ct-space-0_5)]">Subscribe to your first vault position</span>
+              </span>
+              <span className="flex items-center justify-center w-[var(--ct-space-8)] h-[var(--ct-space-8)] rounded-full bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] text-secondary group-hover:text-accent group-hover:border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] transition-all flex-shrink-0">
+                <Plus size={15} strokeWidth={2.5} aria-hidden="true" />
+              </span>
+            </Link>
+          </div>
         )}
 
         {hasPositions && leafHref && (
-          <Link href={leafHref} className="group flex items-center justify-center gap-2 p-3 mt-1 rounded-lg bg-[color-mix(in_srgb,var(--ct-surface-1)_30%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-surface-2)_50%,transparent)] transition-colors">
-            <span className="text-[var(--ct-text-micro)] uppercase tracking-wider font-semibold text-secondary group-hover:text-primary transition-colors">View all positions</span>
-            <ChevronRight size={14} className="text-tertiary group-hover:text-primary transition-colors" />
+          <Link href={leafHref} className="group flex items-center justify-center gap-[var(--ct-space-2)] p-[var(--ct-space-2_5)] mt-[var(--ct-space-1)] rounded-lg border border-[color-mix(in_srgb,var(--ct-border-soft)_12%,transparent)] hover:border-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-surface-1)_40%,transparent)] transition-all">
+            <span className="text-[length:var(--ct-text-micro)] uppercase tracking-wider font-semibold text-tertiary group-hover:text-secondary transition-colors">View all positions</span>
+            <ChevronRight size={13} className="text-tertiary group-hover:text-secondary transition-colors" />
           </Link>
         )}
       </div>

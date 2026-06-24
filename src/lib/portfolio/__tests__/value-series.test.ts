@@ -61,6 +61,50 @@ describe("buildPortfolioValueSeries", () => {
     expect(series[series.length - 1]!.value).toBe(255_000);
   });
 
+  it("splits a fresh single-deposit [$0,$V] into a flat foot + held value (no corner diagonal)", () => {
+    // A 2-point [$0,$V] series renders as a full-frame corner-to-corner diagonal
+    // (auto-scaled 0→V), which lies that the portfolio climbed for two months.
+    // The series-floor fix inserts a flat $0 foot on the deposit month so the
+    // curve sits flat then steps up late — "just deposited, holding".
+    const series = buildPortfolioValueSeries(
+      [
+        {
+          type: "deposit",
+          amountUsdc: 11,
+          occurredAt: new Date("2026-06-22T00:00:00.000Z"),
+        },
+      ],
+      11,
+      new Date("2026-06-24T00:00:00.000Z"),
+      12,
+    );
+    expect(series).toHaveLength(3);
+    expect(series[0]!.value).toBe(0); // prior month, $0
+    expect(series[1]!.value).toBe(0); // deposit month, pre-deposit foot $0
+    expect(series[2]!.value).toBe(11); // deposit month, held value
+    // foot + held share the same month label (axis renders first + last only)
+    expect(series[1]!.label).toBe(series[2]!.label);
+    // every value is real ($0 pre-deposit truth, or the live mark) — no synthetic mid
+    expect(series.every((p) => p.value === 0 || p.value === 11)).toBe(true);
+  });
+
+  it("does NOT split a genuine multi-month history (guard is scoped to the 2-point case)", () => {
+    const series = buildPortfolioValueSeries(
+      [
+        {
+          type: "deposit",
+          amountUsdc: 100_000,
+          occurredAt: new Date("2026-01-10T00:00:00.000Z"),
+        },
+      ],
+      110_000,
+      asOf,
+      12,
+    );
+    // Jan…Jun = 6 honest months, untouched by the sparse-deposit guard.
+    expect(series).toHaveLength(6);
+  });
+
   it("caps the window at monthCount even when the first deposit is older", () => {
     const series = buildPortfolioValueSeries(
       [

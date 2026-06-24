@@ -76,10 +76,14 @@ export function RecentActivity({
       />
       {hasTransactions ? (
         <div className="pf-activity">
-          {displayed.map((tx) => {
+          {displayed.map((tx, idx) => {
             const dir = flowSign(tx.type);
             return (
-              <div key={tx.id} className="pf-activity__row group/row">
+              <div
+                key={tx.id}
+                className="pf-activity__row group/row"
+                style={{ animationDelay: `${idx * 0.06}s` }}
+              >
                 <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>
@@ -94,7 +98,7 @@ export function RecentActivity({
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className="pf-activity__amt tabular text-[var(--ct-text-xs)] font-semibold transition-colors group-hover/row:ct-text-accent">
+                <span className={`pf-activity__amt tabular text-[var(--ct-text-xs)] font-semibold transition-colors group-hover/row:ct-text-accent${dir === "in" ? " ct-text-accent" : ""}`}>
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
@@ -103,23 +107,20 @@ export function RecentActivity({
           })}
         </div>
       ) : (
-        /* Zero-state skeleton — muted placeholder rows with an overlay message */
-        <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[160px]">
-          <div className="pf-activity pf-activity--skeleton absolute inset-0 opacity-20 pointer-events-none" aria-hidden="true">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="pf-activity__row pf-activity__row--skeleton" aria-hidden>
-                <span className="pf-skeleton-glyph" />
-                <span className="pf-activity__main min-w-0">
-                  <span className="pf-skeleton-bar pf-skeleton-bar--label" />
-                  <span className="pf-skeleton-bar pf-skeleton-bar--meta" />
-                </span>
-                <span className="pf-skeleton-bar pf-skeleton-bar--amt" />
+        /* Premium zero-state — ghost rows + centered message */
+        <div className="pf-activity-zero">
+          <div className="pf-activity-zero__ghost" aria-hidden="true">
+            {[80, 62, 74, 55, 68].map((w, i) => (
+              <div key={i} className="pf-activity-zero__ghost-row">
+                <span className="pf-activity-zero__ghost-icon" />
+                <span className="pf-activity-zero__ghost-bar" style={{ width: `${w}%` }} />
+                <span className="pf-activity-zero__ghost-amt" />
               </div>
             ))}
           </div>
-          <div className="z-10 flex flex-col items-center gap-1.5">
-            <span className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium">No activity</span>
-            <span className="text-[var(--ct-text-micro)] text-tertiary opacity-60">Transactions will appear here</span>
+          <div className="pf-activity-zero__label">
+            <span className="pf-activity-zero__title">No transactions yet</span>
+            <span className="pf-activity-zero__hint">Deposits, payouts and withdrawals appear here</span>
           </div>
         </div>
       )}

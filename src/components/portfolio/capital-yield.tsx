@@ -222,7 +222,7 @@ export function CapitalYield({
                       style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
                     >
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--cy-bucket)] shadow-[0_0_8px_var(--cy-bucket)]" aria-hidden />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--cy-bucket)]" aria-hidden />
                         <span className="cy-label text-[var(--ct-text-2xs)] min-w-0 truncate ct-text-secondary group-hover:ct-text-primary transition-colors font-medium">
                           {s.label}
                         </span>
@@ -246,12 +246,20 @@ export function CapitalYield({
                   );
                 })}
               </div>
-            : /* Premium empty state for the ledger. */
-              <div className="flex flex-col gap-2 py-6 items-center justify-center text-center h-full">
-                <span className="text-[var(--ct-text-micro)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium">No allocation yet</span>
-                <span className="text-[var(--ct-text-micro)] text-tertiary max-w-[32ch] leading-relaxed opacity-60">
-                  Your capital allocation and projected yield will appear here once your position is confirmed on-chain.
-                </span>
+            : /* Premium empty state — structured placeholder, not a blank gap */
+              <div className="cy-ledger-empty">
+                <div className="cy-ledger-empty__lines" aria-hidden="true">
+                  {["Mining yield", "USDC base rate", "Tactical exposure"].map((label, i) => (
+                    <div key={i} className="cy-ledger-empty__line">
+                      <span className="cy-ledger-empty__dot" style={{ opacity: 0.18 - i * 0.04 }} />
+                      <span className="cy-ledger-empty__bar" style={{ width: `${72 - i * 14}%`, opacity: 0.10 - i * 0.02 }}>{label}</span>
+                      <span className="cy-ledger-empty__val" style={{ opacity: 0.08 }}>—</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="cy-ledger-empty__caption">
+                  Allocation and projected yield appear once your first position is confirmed on-chain.
+                </p>
               </div>
           }
           <hr className="cy-ledger-rule mt-5 mb-4 border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]" aria-hidden />
