@@ -58,4 +58,15 @@ describe("CanvasActionButton", () => {
     expect(html.toLowerCase()).not.toContain("confirmedtoken");
     expect(html).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}/i);
   });
+
+  it("renders the action CTA as type=button so a click can never submit the chat form (WIRE-1)", () => {
+    // A <button> with no explicit type defaults to type="submit"; inside (or
+    // bubbling toward) the cockpit chat <form> that re-sent the label as a chat
+    // message in C3. The CTA must be type="button".
+    const html = renderToStaticMarkup(
+      <CanvasActionButton canvasId="create-vault" proposal={PROPOSAL} />,
+    );
+    expect(html).toContain('type="button"');
+    expect(html).not.toContain('type="submit"');
+  });
 });
