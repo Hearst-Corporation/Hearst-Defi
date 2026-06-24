@@ -779,7 +779,10 @@ export async function sendDirectEmail(
     const sent = await sendTrackedEmail({
       to: toEmail,
       subject: parsed.data.subject,
-      html: renderPlainHtml(parsed.data.body, toEmail),
+      html: renderPlainHtml(parsed.data.body, toEmail, {
+        url: resolveCtaUrl(),
+        label: "Apply for access",
+      }),
       tags: { campaignId, emailId: email.id },
     });
     resendEmailId = sent.id;

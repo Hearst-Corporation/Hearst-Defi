@@ -6,6 +6,7 @@ import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
+import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
 import { isSuppressed } from "@/lib/outreach/suppression";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
@@ -121,7 +122,10 @@ export async function outreachSendHandler({
         const result = await sendTrackedEmail({
           to: email.toEmail,
           subject: email.subject,
-          html: renderPlainHtml(email.body, email.toEmail),
+          html: renderPlainHtml(email.body, email.toEmail, {
+            url: resolveCtaUrl(),
+            label: "Apply for access",
+          }),
           tags: { campaignId, emailId: email.id },
         });
 

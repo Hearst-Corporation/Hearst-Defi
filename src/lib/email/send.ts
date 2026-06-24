@@ -1,6 +1,6 @@
 import "server-only";
 
-import { buildEmailHtmlShell } from "@/lib/email/html-shell";
+import { buildEmailHtmlShell, type EmailCta } from "@/lib/email/html-shell";
 import { buildUnsubscribeUrl } from "@/lib/outreach/unsubscribe";
 
 /**
@@ -124,10 +124,18 @@ export async function sendTrackedEmail(
  * `recipientEmail` (optional) wires a working one-click unsubscribe link into
  * the footer — REQUIRED for cold outreach (CAN-SPAM / GDPR). When omitted (e.g.
  * transactional mail that is not marketing), no unsubscribe line is rendered.
+ *
+ * `cta` (optional) renders a styled green button (e.g. "Apply for access" →
+ * /apply) below the body — cold outreach passes this so the prospect gets a
+ * clear button into the qualification funnel rather than a bare inline link.
  */
-export function renderPlainHtml(body: string, recipientEmail?: string): string {
+export function renderPlainHtml(
+  body: string,
+  recipientEmail?: string,
+  cta?: EmailCta,
+): string {
   const unsubscribeUrl = recipientEmail
     ? buildUnsubscribeUrl(recipientEmail)
     : undefined;
-  return buildEmailHtmlShell(body, unsubscribeUrl);
+  return buildEmailHtmlShell(body, unsubscribeUrl, cta);
 }
