@@ -59,7 +59,7 @@
 }
 
 .cockpit-label-sm {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -303,7 +303,7 @@
 
 .dashboard-kpi-strip__cell {
   flex: 1;
-  padding: var(--ct-space-3) var(--ct-space-5);
+  padding: var(--ct-space-4) var(--ct-space-5);
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
@@ -341,208 +341,114 @@
    9. ADMIN HEADER REFINEMENT — Command Center status indicators
    ============================================================================= */
 
+.admin-doc-shell:has(.dashboard-cockpit) {
+  gap: var(--ct-space-5) !important;
+}
+
+.dashboard-page-header {
+  margin-bottom: 0;
+}
+
 .dashboard-page-header .page-canon-toolbar__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-6);
+  display: none;
 }
 
-.dashboard-header-status {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-4);
-}
-
-.dashboard-status-pill {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-1) var(--ct-space-3);
-  background: var(--ct-graphite-nested-bg);
-  border: 1px solid var(--ct-border-ghost);
-  border-radius: var(--ct-radius-full);
-}
-
-.dashboard-status-dot {
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-status-success);
-}
-
-.dashboard-status-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-status-success);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-.dashboard-header-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.dashboard-meta-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-faint);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-.dashboard-meta-value {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-/* =============================================================================
-   10. LEAF LINK REFINEMENT — subtle hover + arrow slide
-   ============================================================================= */
-
-.dashboard-cockpit-leaf-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-1) var(--ct-space-2);
-  border-radius: var(--ct-radius-sm);
-  background: transparent;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-faint);
-  transition: all var(--ct-dur-base) var(--ct-ease);
-}
-
-.dashboard-cockpit-leaf-link:hover {
-  background: var(--ct-graphite-nested-bg);
-  color: var(--ct-accent);
-}
-
-.dashboard-cockpit-leaf-link__arrow {
-  transition: transform var(--ct-dur-fast) var(--ct-ease);
-  display: inline-block;
-}
-
-.dashboard-cockpit-leaf-link:hover .dashboard-cockpit-leaf-link__arrow {
-  transform: translateX(2px);
-}
-
-/* =============================================================================
-   11. PROVENANCE BADGE REFINEMENT — reactive hover
-   ============================================================================= */
-
-.provenance-badge--strip {
-  transition: opacity var(--ct-dur-fast) var(--ct-ease), transform var(--ct-dur-fast) var(--ct-ease);
-  cursor: help;
-}
-
-.provenance-badge--strip:hover {
-  opacity: 1 !important;
-  transform: translateY(-1px);
-}
-
-/* =============================================================================
-   12. RECENT EVENTS REFINEMENT — vertical rhythm
-   ============================================================================= */
-
-.dashboard-recent-events-section {
-  padding: var(--ct-space-4) var(--ct-space-6);
-  border-top: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-recent-events-section .dashboard-card-header {
-  margin-bottom: var(--ct-space-4);
-}
-
-.dashboard-event-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-1_5) var(--ct-space-3);
-  border-radius: var(--ct-radius-sm);
-  transition: background-color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-event-item:hover {
-  background: var(--ct-graphite-nested-bg);
-}
-
-.dashboard-event-main {
+.dashboard-overview-ledger {
   display: flex;
   flex-direction: column;
   gap: 0;
-  min-width: 0;
+  margin-top: var(--ct-space-2);
 }
 
-.dashboard-event-action {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ct-text-strong);
-  letter-spacing: -0.01em;
+.dashboard-overview-ledger__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-2) 0;
+  border-bottom: 1px solid var(--ct-border-ghost);
 }
 
-.dashboard-event-trigger {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--ct-text-muted);
-  line-height: 1.2;
+.dashboard-overview-ledger__row:last-child {
+  border-bottom: none;
 }
 
-.dashboard-event-impact {
-  font-size: 10px;
-  font-family: var(--ct-font-mono);
-  color: var(--ct-accent);
-  opacity: 0.9;
-  font-weight: 600;
-}
-
-.dashboard-event-time {
-  font-size: 9px;
+.dashboard-overview-ledger__label {
+  font-size: 8px;
   font-weight: 700;
   color: var(--ct-text-faint);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
-  font-variant-numeric: tabular-nums;
-  padding-top: var(--ct-space-0_5);
+  opacity: 0.6;
 }
 
-/* =============================================================================
-   12. ALLOCATION ORBIT REFINEMENT — technical precision
-   ============================================================================= */
+.dashboard-overview-ledger__sublabel {
+  font-size: 8px;
+  color: var(--ct-text-faint);
+  opacity: 0.4;
+  margin-top: 1px;
+}
+
+.dashboard-awaiting-analytics {
+  padding: var(--ct-space-10) var(--ct-space-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-top: 1px solid var(--ct-border-ghost);
+  background: color-mix(in srgb, var(--ct-graphite-nested-bg) 40%, transparent);
+}
+
+.dashboard-awaiting-analytics p {
+  max-width: 45ch;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ct-text-muted);
+  opacity: 0.8;
+}
+
+.dashboard-merged-card {
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-border-ghost);
+  box-shadow: none;
+}
+
+.dashboard-hero-card__analytics {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0;
+  border-top: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-hero-card__slot {
+  padding: var(--ct-space-5) var(--ct-space-6);
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-hero-card__slot--allocation {
+  border-right: 1px solid var(--ct-border-ghost);
+}
+
+.dashboard-orbit-card, 
+.dashboard-nav-slot {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
 
 .dashboard-orbit {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-6);
-  padding: var(--ct-space-2) 0;
+  gap: var(--ct-space-8);
+  margin-top: var(--ct-space-4);
 }
 
 .dashboard-orbit__visual {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   flex-shrink: 0;
-}
-
-.dashboard-orbit__svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.dashboard-orbit__segment {
-  transition: stroke-dashoffset var(--ct-dur-slow) var(--ct-ease), stroke-dasharray var(--ct-dur-slow) var(--ct-ease), stroke-width var(--ct-dur-fast) var(--ct-ease), opacity var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-orbit__segment--interactive:hover {
-  stroke-width: 3;
-  opacity: 1;
-  filter: brightness(1.1);
 }
 
 .dashboard-orbit__core {
@@ -552,341 +458,44 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
-  pointer-events: none;
-}
-
-.dashboard-orbit__core-label {
-  font-size: 8px !important;
-  font-weight: 700 !important;
-  letter-spacing: var(--ct-tracking-widest) !important;
-  color: var(--ct-text-faint) !important;
-  text-transform: uppercase;
-}
-
-.dashboard-orbit__core-value {
-  font-size: 16px !important;
-  font-weight: 700 !important;
-  color: var(--ct-text-strong) !important;
-  line-height: 1.1 !important;
-  letter-spacing: -0.02em !important;
-}
-
-.dashboard-orbit__core-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  margin-top: var(--ct-space-0_5);
-}
-
-.dashboard-orbit__core-mapped {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--ct-accent);
-  font-variant-numeric: tabular-nums;
-}
-
-.dashboard-orbit__core-suffix {
-  font-size: 8px !important;
-  font-weight: 600 !important;
-  color: var(--ct-text-muted) !important;
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide) !important;
+  text-align: center;
 }
 
 .dashboard-orbit__legend {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--ct-space-2) var(--ct-space-4);
+  list-style: none;
   padding: 0;
   margin: 0;
-  list-style: none;
-  flex: 1;
-  min-width: 0;
 }
 
 .dashboard-orbit__legend li {
-  display: grid;
-  grid-template-columns: var(--ct-space-1_5) 1fr auto;
+  display: flex;
   align-items: center;
-  gap: var(--ct-space-2_5);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ct-text-muted);
+  gap: var(--ct-space-2);
 }
 
 .dashboard-orbit__legend-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: currentColor;
 }
-
-/* =============================================================================
-   13. NAV SLOT REFINEMENT — technical precision
-   ============================================================================= */
 
 .dashboard-nav-slot__value-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--ct-space-4);
-  margin-bottom: var(--ct-space-3);
-}
-
-.dashboard-nav-slot__value {
-  font-size: 20px !important;
-  font-weight: 700 !important;
-  color: var(--ct-text-strong) !important;
-  letter-spacing: -0.02em !important;
-  margin-bottom: 0 !important;
-}
-
-.dashboard-nav-slot__delta {
-  padding: 2px var(--ct-space-1_5);
-  border-radius: var(--ct-radius-sm);
-  font-size: 10px !important;
-  letter-spacing: var(--ct-tracking-wide);
-}
-
-.dashboard-nav-bars__bar {
-  transition: height var(--ct-dur-slow) var(--ct-ease), opacity var(--ct-dur-fast) var(--ct-ease), background-color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-nav-bars__bar:hover {
-  opacity: 1;
-  background-color: var(--ct-accent);
-  cursor: crosshair;
-}
-
-.dashboard-nav-bars__months {
-  display: flex;
-  justify-content: space-between;
   margin-top: var(--ct-space-2);
-  padding: 0 var(--ct-space-1);
+  margin-bottom: var(--ct-space-4);
 }
 
-.dashboard-nav-bars__months span {
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--ct-text-faint);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
+.dashboard-nav-bars {
+  height: 80px;
+  margin-top: auto;
 }
-
-/* =============================================================================
-   14. PLATFORM OVERVIEW BAND — visual hierarchy with elegant deltas
-   ============================================================================= */
-
-.dashboard-overview-surface {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-border-ghost);
-  border-radius: var(--ct-radius-lg);
-  overflow: hidden;
-  transition: all var(--ct-dur-slow) var(--ct-ease);
-}
-
-/* Responsive: 4 → 2 columns on smaller screens */
-@media (max-width: 80rem) {
-  .dashboard-overview-surface {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .dashboard-overview-pane:nth-child(2) {
-    border-left: 1px solid var(--ct-border-ghost);
-  }
-  .dashboard-overview-pane:nth-child(3),
-  .dashboard-overview-pane:nth-child(4) {
-    border-top: 1px solid var(--ct-border-ghost);
-  }
-}
-
-@media (max-width: 48rem) {
-  .dashboard-overview-surface {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-overview-pane {
-    border-left: none !important;
-    border-top: 1px solid var(--ct-border-ghost);
-  }
-  .dashboard-overview-pane:first-child {
-    border-top: none;
-  }
-}
-
-/* Wide screens (21:9): premium spacing */
-@media (min-width: 120rem) {
-  .dashboard-overview-surface {
-    gap: 1px;
-    background: var(--ct-border-ghost);
-  }
-  .dashboard-overview-pane {
-    background: var(--ct-graphite-subtle-bg);
-  }
-}
-
-.dashboard-overview-pane {
-  padding: var(--ct-space-4) var(--ct-space-5);
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  transition: background-color var(--ct-dur-fast) var(--ct-ease), transform var(--ct-dur-fast) var(--ct-ease);
-  will-change: transform;
-}
-
-.dashboard-overview-pane:hover {
-  background: var(--ct-graphite-nested-bg);
-  transform: translateY(-1px);
-}
-
-.dashboard-overview-pane .dashboard-card-header {
-  margin-bottom: 0;
-}
-
-.dashboard-overview-pane--divider {
-  border-left: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-cluster-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ct-text-muted);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  transition: color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-overview-pane:hover .dashboard-cluster-label {
-  color: var(--ct-accent);
-}
-
-/* Delta indicators — elegant and technical */
-.dashboard-kpi-delta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-0_5);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--ct-tracking-wide);
-  padding: var(--ct-space-0_5) var(--ct-space-1_5);
-  border-radius: var(--ct-radius-sm);
-  transition: all var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-kpi-delta::before {
-  content: "";
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  transition: transform var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-kpi-delta--up {
-  color: var(--ct-status-success);
-  background: var(--ct-status-success-soft);
-  border: 1px solid var(--ct-status-success-border);
-}
-
-.dashboard-kpi-delta--up::before {
-  border-width: 0 4px 5px 4px;
-  border-color: transparent transparent currentColor transparent;
-}
-
-.dashboard-kpi-delta--down {
-  color: var(--ct-status-danger);
-  background: var(--ct-status-danger-soft);
-  border: 1px solid var(--ct-status-danger-border);
-}
-
-.dashboard-kpi-delta--down::before {
-  border-width: 5px 4px 0 4px;
-  border-color: currentColor transparent transparent transparent;
-}
-
-.dashboard-kpi-delta--neutral {
-  color: var(--ct-text-muted);
-  background: var(--ct-graphite-nested-bg);
-  border: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-kpi-delta--neutral::before {
-  width: 6px;
-  height: 1px;
-  background: currentColor;
-  border: none;
-}
-
-/* Fade transition for value updates */
-@keyframes dash-value-fade {
-  0% { opacity: 0.7; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
-}
-
-.dashboard-kpi-strip__value--updating {
-  animation: dash-value-fade 0.4s var(--ct-ease);
-}
-
-/* =============================================================================
-   15. ACTION QUEUE & LIVE METRICS — ledger style
-   ============================================================================= */
-
-.dashboard-command-divide-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.dashboard-action-row {
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-action-row:last-child {
-  border-bottom: none;
-}
-
-.dashboard-action-title {
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.dashboard-live-ops-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-live-ops-section:not(:first-child) {
-  margin-top: var(--ct-space-4);
-  padding-top: var(--ct-space-4);
-  border-top: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-live-metrics__grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--ct-space-2);
-  margin-top: var(--ct-space-1_5);
-  padding: var(--ct-space-1_5) 0;
-  border-top: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-live-metrics .stat-label {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
-  color: var(--ct-text-faint);
-}
-
-/* =============================================================================
-   16. CONSISTENCY & RHYTHM — surface spacing
-   ============================================================================= */
 
 .dashboard-cockpit {
   display: flex;
