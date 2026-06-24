@@ -50,7 +50,7 @@
    ============================================================================= */
 
 .cockpit-label-xs {
-  font-size: 8px;
+  font-size: var(--ct-text-octa);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -59,7 +59,7 @@
 }
 
 .cockpit-label-sm {
-  font-size: 8px;
+  font-size: var(--ct-text-octa);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -68,14 +68,14 @@
 }
 
 .cockpit-value-xs {
-  font-size: 9px;
+  font-size: var(--ct-text-nano);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--ct-text-muted);
 }
 
 .cockpit-value-sm {
-  font-size: 10px;
+  font-size: var(--ct-text-deci);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ct-text-strong);
@@ -83,7 +83,7 @@
 }
 
 .cockpit-value-md {
-  font-size: 11px;
+  font-size: var(--ct-text-micro);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ct-text-strong);
@@ -220,7 +220,7 @@
 }
 
 .dashboard-risk-summary__value {
-  font-size: 28px;
+  font-size: var(--ct-text-28-fixed);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -228,7 +228,7 @@
 
 .dashboard-risk-summary__blurb {
   max-width: 60ch;
-  font-size: 11px;
+  font-size: var(--ct-text-micro);
   line-height: 1.6;
 }
 
@@ -259,7 +259,7 @@
 }
 
 .dashboard-risk-summary__score {
-  font-size: 14px;
+  font-size: var(--ct-text-deca);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -325,7 +325,7 @@
 }
 
 .dashboard-kpi-strip__meta {
-  font-size: 10px;
+  font-size: var(--ct-text-deci);
   font-weight: var(--ct-font-medium);
   letter-spacing: 0.01em;
 }
@@ -374,7 +374,7 @@
 }
 
 .dashboard-overview-ledger__label {
-  font-size: 8px;
+  font-size: var(--ct-text-octa);
   font-weight: 700;
   color: var(--ct-text-faint);
   text-transform: uppercase;
@@ -383,7 +383,7 @@
 }
 
 .dashboard-overview-ledger__sublabel {
-  font-size: 8px;
+  font-size: var(--ct-text-octa);
   color: var(--ct-text-faint);
   opacity: var(--ct-opacity-40);
   margin-top: 1px;
@@ -401,7 +401,7 @@
 
 .dashboard-awaiting-analytics p {
   max-width: 45ch;
-  font-size: 11px;
+  font-size: var(--ct-text-micro);
   line-height: 1.6;
   color: var(--ct-text-muted);
   opacity: var(--ct-opacity-80);
@@ -690,7 +690,7 @@
 
 .dashboard-metric-tooltip-trigger::after {
   content: "ⓘ";
-  font-size: 9px;
+  font-size: var(--ct-text-nano);
   color: var(--ct-text-faint);
   opacity: 0;
   transition: opacity var(--ct-dur-fast) var(--ct-ease);

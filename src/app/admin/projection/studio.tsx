@@ -113,7 +113,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         )}>
           {label}
           {isExtreme && (
-            <span className="ml-1.5 text-[9px] uppercase tracking-wider opacity-80">
+            <span className="ml-1.5 text-(length:--ct-text-nano) uppercase tracking-wider opacity-80">
               (Extreme)
             </span>
           )}
@@ -196,7 +196,7 @@ function AssumptionsStrip({ inputs }: { inputs: any }) {
 
   return (
     <div className="flex items-center gap-(--ct-space-4) py-(--ct-space-2) px-(--ct-space-4) bg-(--ct-surface-1) border border-(--ct-border-soft) rounded-(--ct-radius-md) overflow-x-auto no-scrollbar flex-nowrap">
-      <span className="eyebrow text-[10px] ct-text-muted whitespace-nowrap">Inputs</span>
+      <span className="eyebrow text-(length:--ct-text-deci) ct-text-muted whitespace-nowrap">Inputs</span>
       {items.map((item, idx) => (
         <div key={idx} className="flex items-center gap-1.5 whitespace-nowrap">
           <span className="body-xs ct-text-faint">{item.label}:</span>
@@ -228,7 +228,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
     <div className="admin-doc-stack admin-doc-stack--actions">
       {xAxis && (
         <div className="flex items-center gap-(--ct-space-2) body-xs ct-text-muted select-none">
-          <span className="eyebrow text-[10px]">Axis</span>
+          <span className="eyebrow text-(length:--ct-text-deci)">Axis</span>
           <span className="mono ct-text-body px-1 bg-(--ct-graphite-nested-bg) rounded border border-(--ct-border-soft)">{xAxis}</span>
           {yAxis && (
             <>
@@ -284,7 +284,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 >
                   {cell.apyLow.toFixed(1)}–{cell.apyHigh.toFixed(1)}%
                 </span>
-                <span className={cn("eyebrow text-[9px] mono opacity-80", isSelected ? "ct-text-strong" : "ct-text-muted")}>
+                <span className={cn("eyebrow text-(length:--ct-text-nano) mono opacity-80", isSelected ? "ct-text-strong" : "ct-text-muted")}>
                   R {cell.riskScore}
                 </span>
               </div>
@@ -611,7 +611,7 @@ export function ProjectionStudio() {
                 </p>
 
                 <div className="pt-(--ct-space-2)">
-                  <p className="text-[10px] uppercase tracking-wider ct-text-muted mb-(--ct-space-2)">Workflow</p>
+                  <p className="text-(length:--ct-text-deci) uppercase tracking-wider ct-text-muted mb-(--ct-space-2)">Workflow</p>
                   <div className="flex flex-wrap gap-x-(--ct-space-4) gap-y-(--ct-space-1)">
                     <span className="body-xs ct-text-muted">
                     <span className="ct-text-muted mono">1.</span> Select preset
@@ -647,7 +647,7 @@ export function ProjectionStudio() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-2 text-[10px] mono ct-text-muted hover:ct-text-strong"
+                      className="h-6 px-2 text-(length:--ct-text-deci) mono ct-text-muted hover:ct-text-strong"
                       onClick={() => {
                         navigator.clipboard.writeText(result.studyId);
                         toast.success("Study ID copied to clipboard");
@@ -658,7 +658,7 @@ export function ProjectionStudio() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-2 text-[10px] mono ct-text-muted hover:ct-text-strong"
+                      className="h-6 px-2 text-(length:--ct-text-deci) mono ct-text-muted hover:ct-text-strong"
                       onClick={() => toast.info("Export to PDF/CSV coming soon")}
                     >
                       Export
@@ -713,7 +713,7 @@ export function ProjectionStudio() {
                       <Badge
                         variant="default"
                         className={cn(
-                          "uppercase tracking-wider text-[10px] bg-transparent",
+                          "uppercase tracking-wider text-(length:--ct-text-deci) bg-transparent",
                           selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
                           selectedCell.confidence === "medium" ? "ct-text-warning border-warning-soft" :
                           "ct-text-danger border-danger-soft"
@@ -770,7 +770,7 @@ export function ProjectionStudio() {
                       <Badge
                         variant="default"
                         className={cn(
-                          "uppercase tracking-wider text-[10px] bg-transparent",
+                          "uppercase tracking-wider text-(length:--ct-text-deci) bg-transparent",
                           selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
                           selectedCell.confidence === "medium" ? "ct-text-warning border-warning-soft" :
                           "ct-text-danger border-danger-soft"

@@ -75,7 +75,7 @@ export function DashboardRiskSummaryCard({
                   <div className="dashboard-risk-summary__headline-row flex items-baseline gap-1">
                     <span
                       className={cn(
-                        "text-[32px] font-bold tabular tracking-tighter leading-none",
+                        "text-(length:--ct-text-display-fixed) font-bold tabular tracking-tighter leading-none",
                         data.band === "low"
                           ? "ct-status-success"
                           : data.band === "medium"
@@ -85,7 +85,7 @@ export function DashboardRiskSummaryCard({
                     >
                       {data.composite}
                     </span>
-                    <span className="text-[12px] font-bold ct-text-faint tabular opacity-50">/ 100</span>
+                    <span className="text-(length:--ct-text-2xs) font-bold ct-text-faint tabular opacity-50">/ 100</span>
                   </div>
                 </div>
               </Tooltip>

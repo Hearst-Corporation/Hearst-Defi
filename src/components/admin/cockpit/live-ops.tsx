@@ -191,7 +191,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     <>
       <span
         aria-hidden
-        className="shrink-0 ct-text-faint text-[10px] font-bold w-4 text-center mt-px opacity-60"
+        className="shrink-0 ct-text-faint text-(length:--ct-text-deci) font-bold w-4 text-center mt-px opacity-60"
       >
         {icon}
       </span>

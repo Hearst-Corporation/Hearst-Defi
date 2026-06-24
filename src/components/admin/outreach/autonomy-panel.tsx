@@ -31,7 +31,7 @@ function CapabilityChip({ label, on }: { label: string; on: boolean }) {
     <span className="inline-flex items-center gap-(--ct-space-1_5)">
       <Badge 
         variant={on ? "success" : "default"} 
-        className="px-(--ct-space-1) py-0 h-3.5 text-[9px] uppercase tracking-wider min-w-[32px] justify-center"
+        className="px-(--ct-space-1) py-0 h-3.5 text-(length:--ct-text-nano) uppercase tracking-wider min-w-[32px] justify-center"
       >
         {on ? "On" : "Off"}
       </Badge>
@@ -46,7 +46,7 @@ function ReadinessRow({ rule }: { rule: ReadinessRule }) {
     <li className="flex items-center gap-(--ct-space-3) py-(--ct-space-1_5) border-b border-(--ct-border-soft) last:border-0">
       <Badge 
         variant={rule.ok ? "success" : "warning"} 
-        className="px-(--ct-space-1) py-0 h-3.5 min-w-[42px] justify-center text-[9px] font-bold"
+        className="px-(--ct-space-1) py-0 h-3.5 min-w-[42px] justify-center text-(length:--ct-text-nano) font-bold"
       >
         {rule.ok ? "OK" : "CHECK"}
       </Badge>

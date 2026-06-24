@@ -36,7 +36,7 @@ export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
     <div className="flex flex-wrap items-center gap-(--ct-space-5)">
       {items.map((item) => (
         <div key={item.label} className="flex items-baseline gap-(--ct-space-1_5)">
-          <span className="stat-label uppercase text-[9px] tracking-widest ct-text-faint">{item.label}</span>
+          <span className="stat-label uppercase text-(length:--ct-text-nano) tracking-widest ct-text-faint">{item.label}</span>
           <span className="body-sm tabular-nums font-bold ct-text-strong">{item.value}</span>
         </div>
       ))}

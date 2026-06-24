@@ -44,7 +44,7 @@ export function NavSlot({
               {lastNav !== null ? (
                 <>
                   <span className="cockpit-label-xs opacity-40">USD</span>
-                  <span className="cockpit-value-md text-[20px]!">{dashboardUsdCompact.format(lastNav)}</span>
+                  <span className="cockpit-value-md text-(length:--ct-text-2xl-fixed)!">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
                 <span className="cockpit-label-sm opacity-50">Awaiting data</span>
@@ -57,7 +57,7 @@ export function NavSlot({
             <span className="cockpit-label-xs opacity-50 mb-1">30d Change</span>
             <p
               className={cn(
-                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-[14px]!",
+                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-(length:--ct-text-deca)!",
                 navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
               )}
             >
