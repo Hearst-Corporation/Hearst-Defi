@@ -102,7 +102,7 @@ export function PositionCards({
         ) : (
           <Link
             href="/vaults"
-            className="group flex items-center justify-between p-5 rounded-xl border border-dashed border-[color-mix(in_srgb,var(--ct-border-soft)_40%,transparent)] hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-accent)_5%,transparent)] transition-all duration-300"
+            className="group flex items-center justify-between py-3 transition-colors"
           >
             <span className="flex flex-col min-w-0">
               <span className="text-[14px] font-semibold text-secondary tracking-tight group-hover:text-accent transition-colors">Explore Opportunities</span>

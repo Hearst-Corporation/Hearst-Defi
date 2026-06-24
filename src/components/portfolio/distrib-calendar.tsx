@@ -150,7 +150,7 @@ function SkeletonBars() {
           );
         })}
       </svg>
-      <div className="z-10 flex flex-col items-center gap-1.5 px-6 py-3 rounded-lg bg-[color-mix(in_srgb,var(--ct-surface-0)_80%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)] backdrop-blur-sm">
+      <div className="z-10 flex flex-col items-center gap-1.5">
         <span className="text-[10px] uppercase tracking-[0.2em] text-secondary font-medium">No distributions yet</span>
         <span className="text-[11px] text-tertiary opacity-60">Future payouts will appear here</span>
       </div>

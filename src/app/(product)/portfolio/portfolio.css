@@ -28,7 +28,7 @@
    1. CONTAINER BASE
    ============================================================================= */
 
-/* Centre LP : une seule plaque derrière paddings + cockpit (menu/chat/footer inchangés). */
+/* Centre LP : fond sombre plat, aucune nappe, aucun glow. */
 .ct-page-area:has(.pf-container) {
   background: var(--ct-bg-deep);
 }
@@ -54,6 +54,26 @@
   --pf-bp-hero-stack: 64rem;
   position: relative;
   background: transparent;
+
+  /* ───────────────────────────────────────────────────────────────────────
+     REFONTE PREMIUM — calibration scopée portfolio (réversible).
+     Éclaircit les surfaces, creuse l'écart figure/fond, remonte le contraste
+     des textes "sage" (illisibles à 2.8–4.2:1) sans toucher aux tokens
+     globaux. Toutes les classes pf-* consommant ces vars en héritent.
+     ─────────────────────────────────────────────────────────────────────── */
+  /* Surfaces : cards remontées d'un cran, écart au fond doublé (9→~20 pts). */
+  --ct-graphite-subtle-bg: #1A1C1F;        /* L1 plate — était #141416 */
+  --ct-graphite-active-bg: #1A1C1F;
+  --ct-graphite-nested-bg: #232529;        /* L2 inset — était #1E1E1E */
+  --ct-surface-1: #1A1C1F;
+  --ct-surface-2: #232529;
+  /* Bordures : hairlines plus présentes pour dessiner les plaques. */
+  --ct-graphite-border-nested: rgba(255, 255, 255, 0.14);  /* était 10% */
+  --ct-border-soft: rgba(255, 255, 255, 0.09);             /* était 5% */
+  /* Texte : le sage trop sombre passe à des valeurs lisibles (WCAG AA). */
+  --ct-text-secondary: #C3D2CA;   /* était #9EB3A8 (4.2:1) → ~9:1 */
+  --ct-text-tertiary:  #93A39B;   /* était #7E8F86 (2.8:1) → ~5:1 */
+  --ct-text-muted:     rgba(245, 245, 245, 0.66);  /* était 0.55 */
 }
 
 /* All financial body text in portfolio scope inherits strong white. */
@@ -237,9 +257,12 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-5);   /* modules resserrés (était space-8 / 32px) */
   min-width: 0;
   margin-top: 0;
+  /* Box plus petites : les modules ne s'étirent pas sur toute la colonne. */
+  width: 100%;
+  max-width: 60rem;
 }
 
 /* Rows are BOTH flex items (height in fr) AND grids (their own columns). */
@@ -522,8 +545,8 @@
   min-width: 0;
   min-height: 0;
   height: 100%;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-5) var(--ct-space-6);
+  gap: var(--ct-space-3);   /* compacté (était space-4) */
+  padding: var(--ct-space-4) var(--ct-space-5);  /* compacté (était 5/6) */
 }
 
 .pf-cockpit-panel {
@@ -675,7 +698,7 @@
 
 .pf-hero-grid {
   grid-template-columns: 1fr;
-  min-height: 290px; /* chart-geometry — scroll-mode height floor; neutralised to 0 inside the fit gate */
+  min-height: 210px; /* chart-geometry — compacté (était 290px), hero moins envahissant */
   height: 100%;
   overflow: clip;
 }
@@ -761,12 +784,8 @@
 }
 
 .pf-value-chart__chart-wrapper {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 24%, transparent),
-    color-mix(in srgb, var(--ct-surface-1) 40%, transparent)
-  );
-  box-shadow: inset 0 0 40px color-mix(in srgb, var(--ct-surface-0) 30%, transparent);
+  background: var(--ct-surface-1);
+  box-shadow: none;
   animation: pf-chart-entry 1s var(--ct-ease) forwards;
 }
 
@@ -972,9 +991,9 @@
 }
 
 .pf-status-row:hover {
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
-  transform: translateX(var(--ct-space-1_5));
-  box-shadow: inset 1px 0 0 var(--ct-accent);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
 }
 
 .pf-status-row:hover .pf-status-row__label {
@@ -1020,21 +1039,23 @@
 }
 .pf-status-list::-webkit-scrollbar { width: 0; height: 0; }
 
-/* icon · label · (value / meta) — value+meta right-aligned. Rows grow to share
-   the panel height so the list fills the hero, never glued to the top. */
+/* icon · label · (value / meta) — value+meta right-aligned. FLAT rows: no
+   mini-box (no radius, no per-row plate). Items are separated by a single
+   hairline so the panel reads as ONE surface, never box-in-box. */
 .pf-status-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ct-space-3);
   flex: 0 0 auto;
-  min-height: var(--ct-space-10);
-  padding: var(--ct-space-2) var(--ct-space-3);
-  border-radius: var(--ct-radius-md);
+  min-height: var(--ct-space-9);
+  padding: var(--ct-space-2) 0;
+  border-radius: 0;
 }
 
 .pf-status-row + .pf-status-row {
-  margin-top: var(--ct-space-1);
+  margin-top: 0;
+  border-top: 1px solid var(--ct-border-soft);
 }
 
 /* Status rows lead with a fine vertical marker - institutional style. */
