@@ -360,6 +360,12 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         )}
 
         {!isConversationEmpty && messages.map((msg) => {
+          // The seeded greeting (id "welcome") lives ONLY in the empty-state card
+          // above; never render it as a bubble. Otherwise, the instant the first
+          // message is sent, the big welcome card is replaced by a redundant tiny
+          // welcome bubble flashing in — the "brutal" disappearance. Skipping it
+          // makes the empty-state replaced cleanly by the real conversation.
+          if (msg.id === "welcome") return null;
           // Cache la bulle assistant vide en attente de stream — on affiche
           // uniquement le logo H (ct-chat-thinking) à la place.
           if (

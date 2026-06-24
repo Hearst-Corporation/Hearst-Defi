@@ -56,10 +56,18 @@ import {
 } from "@/lib/canvas/intent";
 import {
   classifyCanvasIntentLlm,
-  extractOutreachFieldsLlm,
   type ClassifyClient,
 } from "@/lib/canvas/classify-canvas-intent";
-import { withCanvasStreamEvents } from "@/lib/canvas/emit";
+import {
+  withCanvasStreamEvents,
+  buildDeterministicCanvasStream,
+} from "@/lib/canvas/emit";
+import { deriveOutreachValuesFromObjective } from "@/lib/canvas/compose";
+import {
+  classifyOutreachIntent,
+  buildOutreachAskFieldsMessage,
+  buildOutreachFieldsAckMessage,
+} from "@/lib/canvas/outreach-turn";
 import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
 import { buildCanvasGuidanceBlock } from "@/lib/canvas/guidance";
 import { createRequestContext, withRequestContext } from "@/lib/request-context";
@@ -600,12 +608,20 @@ async function runMasterAgentTurn(args: {
     (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
   );
 
+  // DETERMINISM FIRST (no LLM): the canonical outreach phrasing is detected by a
+  // regex classifier BEFORE any model call, so opening the workshop never depends
+  // on the LLM. The LLM classifier below stays only as a fallback for phrasings
+  // the regex misses.
+  if (!isReview && isAdmin && !canvasIntent && classifyOutreachIntent(message).isOutreach) {
+    canvasIntent = { canvasId: "outreach", cleanedMessage: message };
+  }
+
   // Agent-canvas intent in natural language. MUST run BEFORE the regex nav
   // shortcut: a word like "outreach" matches the shortcut (→ /admin/outreach
   // page) and returns early, so the canvas would never open. The preset chip
   // emits a marker (already in `canvasIntent`); this also catches free-typed
-  // admin requests ("lance une campagne outreach"). Admin-only, fail-safe (null
-  // → no canvas), and only when a marker didn't already pick a canvas.
+  // admin requests the deterministic classifier missed. Admin-only, fail-safe
+  // (null → no canvas), and only when nothing already picked a canvas.
   if (!isReview && isAdmin && !canvasIntent) {
     const detected = await classifyCanvasIntentLlm(
       openai as unknown as ClassifyClient,
@@ -752,6 +768,92 @@ async function runMasterAgentTurn(args: {
     !isReview &&
     canvasIntent !== null &&
     (isAdmin || !isAdminCanvas(canvasIntent.canvasId));
+
+  // ────────────────────────────────────────────────────────────────────────
+  // DETERMINISTIC OUTREACH TURN (state machine, NO LLM).
+  //
+  // The structured campaign-setup steps are handled by templates, NOT the model,
+  // so the question/ack is reliable and the model can never improvise. This fires
+  // when the outreach workshop is active AND this message is a structured setup
+  // message — i.e. an open-intent message, OR a follow-up that supplies a
+  // campaign field (name / kind). A genuine off-script question while the canvas
+  // is open falls through to the LLM path below (with guidance) untouched.
+  //   - fields missing → open canvas + deterministic "name + kind?" question;
+  //   - both fields present → ready canvas (with the HITL button) + deterministic
+  //     ack ("nothing is created until you confirm").
+  // It NEVER creates a draft, sources leads, or announces an automatic action.
+  // ────────────────────────────────────────────────────────────────────────
+  if (canvasActive && canvasIntent && canvasIntent.canvasId === "outreach") {
+    const outreachValues = deriveOutreachValuesFromObjective(message);
+    const intent = classifyOutreachIntent(message);
+    const suppliesField = Boolean(
+      outreachValues && (outreachValues.name || outreachValues.kind),
+    );
+    const isSetupMessage = intent.isOutreach || suppliesField;
+    if (isSetupMessage) {
+      const fieldsComplete = Boolean(outreachValues?.name && outreachValues?.kind);
+      const detValues: Record<string, string> = {};
+      if (outreachValues?.name) detValues.name = outreachValues.name;
+      if (outreachValues?.kind) detValues.kind = outreachValues.kind;
+      const detObjective =
+        message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220) || undefined;
+
+      // Open / refresh the workshop page (best-effort — never blocks the response).
+      await publishNav(userId, {
+        destinationKey: getCanvasDefinition("outreach").destinationKey,
+        canvasId: "outreach",
+        ...(detObjective ? { objective: detObjective } : {}),
+        autostart: true,
+      }).catch(() => {
+        /* best-effort nav publish */
+      });
+
+      const templateText =
+        fieldsComplete && outreachValues?.name && outreachValues?.kind
+          ? buildOutreachFieldsAckMessage({
+              name: outreachValues.name,
+              kind: outreachValues.kind,
+            })
+          : buildOutreachAskFieldsMessage({
+              ...(intent.target ? { target: intent.target } : {}),
+              ...(intent.product ? { product: intent.product } : {}),
+            });
+
+      // Persist the assistant template + the hidden canvas open-marker so the
+      // NEXT turn (detectActiveCanvasFromHistory) knows the workshop is on screen.
+      if (chatId) {
+        void persistence
+          .saveMessage(chatId, {
+            id: buildCockpitMessageId(turnId, "assistant", "outreach-template"),
+            role: "assistant",
+            content: `${templateText}\n${canvasOpenMarker("outreach")}`,
+            createdAt: Date.now(),
+          })
+          .catch(() => {
+            /* best-effort persistence */
+          });
+      }
+
+      // No LLM was invoked → no LlmRun trace (honest: nothing ran on the model).
+      return new Response(
+        buildDeterministicCanvasStream({
+          canvasId: "outreach",
+          ...(detObjective ? { objective: detObjective } : {}),
+          agentLive: FEATURE_FLAGS.CHAT_MASTER_AGENT,
+          ...(Object.keys(detValues).length > 0 ? { values: detValues } : {}),
+          text: templateText,
+        }),
+        {
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-cache",
+            ...(chatId ? { "x-chat-id": chatId } : {}),
+          },
+        },
+      );
+    }
+  }
+
   // Field values the agent extracts from THIS message (e.g. campaign name/kind),
   // merged into the canvas as it fills. Outreach only for now; undefined otherwise.
   let canvasValues: Record<string, string> | undefined;
@@ -789,15 +891,38 @@ async function runMasterAgentTurn(args: {
 
     // Agent fills canvas fields from what the operator says (outreach: name/kind).
     if (canvasIntent.canvasId === "outreach") {
-      const extracted = await extractOutreachFieldsLlm(
-        openai as unknown as ClassifyClient,
-        model,
-        message,
-      );
+      // Canonical field extraction: the SAME deterministic, regex-only function
+      // the degraded autostart route uses (deriveOutreachValuesFromObjective), so
+      // the live stream and the fallback compose from ONE source of truth and can
+      // never diverge (Fix C). It only returns a name when the operator EXPLICITLY
+      // named the campaign ("nommée …") and a kind when stated (cold | newsletter);
+      // it never invents a name from a generic objective — the old LLM extractor
+      // did, surfacing "distributeurs institutionnels" as a campaign name.
+      const extracted = deriveOutreachValuesFromObjective(message);
       const v: Record<string, string> = {};
-      if (extracted.name) v.name = extracted.name;
-      if (extracted.kind) v.kind = extracted.kind;
+      if (extracted?.name) v.name = extracted.name;
+      if (extracted?.kind) v.kind = extracted.kind;
       if (Object.keys(v).length > 0) canvasValues = v;
+
+      // Canonical-state sync (ROUTE-2 / WIRE-3): when a FOLLOW-UP message on an
+      // already-open canvas supplies the required fields (e.g. the 2nd turn
+      // "nommée Q3, type cold"), re-publish the nav with THIS message as the new
+      // objective. Without this the canvas URL keeps the FIRST message's
+      // objective, so a remount re-composes from stale text and loses the name.
+      // We do NOT re-navigate the page (no destinationKey change of surface — the
+      // canvas is already on screen); we only refresh the objective the degraded
+      // autostart fallback derives name/kind from. Skipped when the canvas was
+      // opened THIS turn (the fresh publish above already carries this message).
+      if (!freshCanvasThisTurn && canvasObjective) {
+        await publishNav(userId, {
+          destinationKey: getCanvasDefinition(canvasIntent.canvasId).destinationKey,
+          canvasId: canvasIntent.canvasId,
+          objective: canvasObjective,
+          autostart: true,
+        }).catch(() => {
+          /* best-effort nav publish */
+        });
+      }
     }
   }
 
