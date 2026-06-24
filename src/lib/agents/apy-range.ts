@@ -90,6 +90,41 @@ const ENTRE_RANGE_RE = /\bentre\b[^.!?\n]*?\d[^.!?\n]*?\bet\b[^\d.!?\n]*?\d[\d.,
 /** Explicit range vocabulary that always denotes a fourchette. */
 const RANGE_WORD_RE = /\b(?:fourchette|range)\b/i;
 
+/**
+ * Yield-SOURCE attribution exemption (non-négociable #1 scope guard).
+ *
+ * Rule #1 forbids quoting the vault's HEADLINE / expected APY as a single point
+ * ("11 %" instead of "8 à 15 %"). It does NOT forbid explaining WHERE the yield
+ * comes from: a component breakdown legitimately quotes each source's point
+ * contribution — the methodology itself states "mining ~6,2 %, USDC base ~4,8 %,
+ * réserve stable ~4,5 %". Those per-source figures are not a headline claim, they
+ * sum INTO the 8–15 % range.
+ *
+ * Without this exemption the guard blocked the educational answer to "explique
+ * comment fonctionne le yield" (the model faithfully reproduces the source
+ * figures). We exempt a sentence ONLY when it carries BOTH:
+ *   1. a contribution/attribution cue (provient, contribue, via, généré par…), AND
+ *   2. a named yield COMPONENT (mining, T-bills, USDC base, lending, réserve…).
+ *
+ * Requiring BOTH signals keeps the headline rule intact: "le rendement annualisé
+ * du vault est de 11 %" has neither a component noun nor a contribution cue, so it
+ * is still blocked — as is any forbidden-words claim (handled separately).
+ */
+const CONTRIBUTION_CUE_RE =
+  /\b(?:provient|proviennent|provenance|contribue|contribuent|contribution|via|issus?|issue|généré|genere|génère|genère|apporte|apportent|représente|representente|representent|composé|compose|composée|réparti|repartie|répartie|décompos|decompos|rev[-\s]?share|revenue\s+share|part\s+de)\b/i;
+
+const YIELD_COMPONENT_RE =
+  /\b(?:mining|t[-\s]?bills?|usdc|lending|aave|compound|staking|réserve|reserve|basis|funding|trésorerie|treasury|obligations|rev[-\s]?share)\b/i;
+
+/**
+ * True when the sentence attributes a percentage to a specific yield SOURCE /
+ * component (a breakdown), rather than stating the headline APY. Requires both a
+ * contribution cue AND a component noun so it cannot launder a headline claim.
+ */
+export function hasSourceAttribution(sentence: string): boolean {
+  return CONTRIBUTION_CUE_RE.test(sentence) && YIELD_COMPONENT_RE.test(sentence);
+}
+
 /** True when the sentence contains a genuine PERCENTAGE range construct (a range
  *  that itself carries a `%`), or explicit fourchette/range vocabulary. A bare
  *  numeric range with no `%` in it (farms, years, multiples) does NOT count. */
@@ -132,12 +167,15 @@ export function completedSentences(text: string, final: boolean): string[] {
  *   1. Claim gate (YIELD_CLAIM_RE) — skip sentences with no yield-amount
  *      pattern (verb-sense uses and unrelated % are excluded here).
  *   2. Range exemption (hasNumericRange) — pass compliant fourchettes through.
- *   3. Fire — the sentence is a single-point yield claim.
+ *   3. Source attribution (hasSourceAttribution) — a per-source component
+ *      contribution ("mining contribue ~6,2 %") is not the headline APY.
+ *   4. Fire — the sentence is a single-point yield claim.
  */
 export function hasSinglePointApy(text: string, final: boolean): boolean {
   for (const sentence of completedSentences(text, final)) {
     if (!YIELD_CLAIM_RE.test(sentence)) continue; // no yield-amount pattern → skip
     if (hasNumericRange(sentence)) continue;       // genuine fourchette → compliant
+    if (hasSourceAttribution(sentence)) continue;  // yield-source breakdown → compliant
     return true;
   }
   return false;
