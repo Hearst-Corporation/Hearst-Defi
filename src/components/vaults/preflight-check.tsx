@@ -157,11 +157,11 @@ export function PreFlightCheck({
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
   const panelBody = !ready ? (
-    <p className="body-xs ct-text-muted animate-pulse py-[var(--ct-space-4)] text-center">
+    <p className="body-xs ct-text-muted animate-pulse py-(--ct-space-4) text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="product-doc-stack--tight py-[var(--ct-space-4)]">
+    <div className="product-doc-stack--tight py-(--ct-space-4)">
       <Badge variant="warning" className="self-start">
         Configuration pending
       </Badge>
@@ -180,7 +180,7 @@ export function PreFlightCheck({
       </p>
 
       {vaultStale ? (
-        <div className="product-doc-stack--dense py-[var(--ct-space-3)]">
+        <div className="product-doc-stack--dense py-(--ct-space-3)">
           <Badge variant="warning" className="self-start">
             Testnet contract
           </Badge>

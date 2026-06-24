@@ -522,7 +522,7 @@
   background: transparent;
   box-shadow: none;
   border-radius: 0;
-  padding: var(--ct-space-4) var(--ct-space-6);
+  padding: var(--ct-space-4); /* Aligned with hero-grid padding */
   gap: var(--ct-space-3);
 }
 
@@ -924,9 +924,40 @@
   opacity: var(--ct-opacity-50);
 }
 
-/* =============================================================================
-   6. PORTFOLIO STATUS PANEL (hero sidebar)
-   ============================================================================= */
+/* Corner metrics hover states */
+.chart-provenance-corner,
+.pf-value-chart__apy-corner {
+  transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: help;
+  opacity: var(--ct-opacity-80);
+}
+
+.chart-provenance-corner:hover,
+.pf-value-chart__apy-corner:hover {
+  opacity: 1;
+  transform: scale(1.02);
+  color: var(--ct-accent-light);
+}
+
+/* Rail metrics hover states */
+.pf-status-row {
+  transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: default;
+}
+
+.pf-status-row:hover {
+  background: color-mix(in srgb, var(--ct-accent) 5%, transparent);
+  transform: translateX(var(--ct-space-1));
+}
+
+.pf-status-row:hover .pf-status-row__label {
+  color: var(--ct-text-primary);
+}
+
+.pf-status-row:hover .pf-status-row__value {
+  color: var(--ct-accent-light);
+}
+
 
 /* Welded into the hero-grid right slot — flat graphite, 5 icon rows. */
 .pf-status-panel {

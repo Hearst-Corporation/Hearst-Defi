@@ -79,7 +79,7 @@ export function InvestFlowLoadingShell({
 
       <div className="invest-flow-shell__body">
         {showOverview ? (
-          <section className="vault-detail-overview" aria-hidden>
+          <section className="vault-detail-overview mt-(--ct-space-2)" aria-hidden>
             <dl className="vault-detail-overview__kpis">
               {Array.from({ length: 3 }).map((_, index) => (
                 <div key={index} className="vault-detail-overview__kpi">
@@ -95,18 +95,18 @@ export function InvestFlowLoadingShell({
         ) : null}
 
         {bodySections > 0 ? (
-          <div className="vault-invest-grid">
-            <div className="vault-invest-form-main product-doc-stack">
+          <div className={cn(showOverview ? "invest-flow-detail__grid mt-(--ct-space-10)" : "vault-invest-grid")}>
+            <div className={cn(showOverview ? "invest-flow-detail__primary" : "vault-invest-form-main", "product-doc-stack")}>
               {Array.from({ length: bodySections }).map((_, index) => (
                 <FlatSectionSkeleton key={index} />
               ))}
             </div>
-            <div className="vault-invest-grid__rail product-doc-stack">
-              <div className="vault-flow-flat-section">
+            <div className={cn(showOverview ? "invest-flow-detail__secondary" : "vault-invest-grid__rail", "product-doc-stack")}>
+              <div className="vault-detail-block">
                 <Skeleton className="h-6 w-32 mb-4" variant="text" />
                 <Skeleton className="h-48 w-full" />
               </div>
-              <div className="vault-flow-flat-section">
+              <div className="vault-detail-block">
                 <Skeleton className="h-6 w-32 mb-4" variant="text" />
                 <Skeleton className="h-64 w-full" />
               </div>

@@ -6,7 +6,7 @@ export default function VaultDetailLoading() {
       showLead
       showActions
       showOverview
-      bodySections={3}
+      bodySections={2}
     />
   );
 }
