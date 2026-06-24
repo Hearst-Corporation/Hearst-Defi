@@ -1,50 +1,83 @@
 # Agent File Locks
 
-Multi-agent coordination ledger. Every active agent reserves the files/directories it
-edits here BEFORE touching them. No agent may edit files owned by another active agent.
+This file tracks active file ownership for multi-agent work.
 
-See the worktree/lock protocol in the repo root and CLAUDE.md.
+Agents must reserve files here before editing.
 
-## Sensitive Single-Owner Files
+## Rules
 
-Only one agent at a time:
+- If a path is locked by another active agent, do not edit it.
+- If a task needs a locked path, stop and ask for arbitration.
+- Release or move the lock to `RELEASED LOCKS` after merge.
+- Do not remove another agent’s lock without explicit user approval.
+- Sensitive files require explicit ownership.
 
-```
-prisma/schema.prisma
-package.json
-pnpm-lock.yaml
-next.config.*
-tailwind.config.*
-src/app/api/cockpit-chat/route.ts
-src/lib/llm/tools/registry.ts
-src/lib/canvas/compose.ts
-src/lib/canvas/emit.ts
-src/app/globals.css
-src/app/doc-flow.css
-src/app/admin/admin-proof.css
-docs/agent-file-locks.md
-CLAUDE.md
-```
+---
 
 ## ACTIVE LOCKS
+
+_No active locks yet._
+
+---
+
+## RELEASED LOCKS
 
 ### agent/console-debug
 Owner: Console Debug Owner
 Branch: agent/console-debug
-Worktree: ../connect-console-debug
-Started: 2026-06-25
+Merged PR: #22
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/app/api/cockpit-chats/[id]/route.ts
+- src/app/api/cockpit-chats/[id]/__tests__/route.display-marker.test.ts
+
+Result:
+- Full console/browser/API debug pass on bd6ba923 (prod train).
+- Fixed P1: stripped the hidden `[[canvas-open:<id>]]` control marker from the
+  chat history display endpoint so it never leaks into the rendered transcript;
+  persisted row keeps the marker (cross-turn memory intact). Regression test added.
+- Did NOT touch the sensitive single-owner chat files (cockpit-chat/route.ts,
+  emit.ts, compose.ts).
+
+---
+
+## LOCK TEMPLATE
+
+```md
+### agent/<scope>-<task>
+Owner: <agent name>
+Branch: agent/<scope>-<task>
+Worktree: ../connect-agent-<scope>
+Started: YYYY-MM-DD HH:mm
 Status: active
 
 Scope:
-- src/app/api/cockpit-chats/[id]/route.ts   (P1 fix: strip canvas-open marker at chat history display)
-- src/app/api/cockpit-chats/__tests__/**    (regression test)
+- path/**
+- path/file.ts
 
 Notes:
-- Full console/browser/API/server debug pass on bd6ba923 (current origin/main).
-- Does NOT touch the sensitive single-owner files (cockpit-chat/route.ts, emit.ts, compose.ts left untouched).
-- Prior worktree (branch agent/console-debug @ 5caf922e) was destroyed by a concurrent
-  actor mid-pass; main advanced 5caf922e → bd6ba923; reconciled onto new origin/main.
+- short description of the task
+- sensitive files if any
+```
 
-## RELEASED LOCKS
+---
 
-_(none yet)_
+## RELEASED TEMPLATE
+
+```md
+### agent/<scope>-<task>
+Owner: <agent name>
+Branch: agent/<scope>-<task>
+Merged PR: #__
+Released: YYYY-MM-DD HH:mm
+Status: merged
+
+Scope:
+- path/**
+- path/file.ts
+
+Result:
+- short summary
+```
