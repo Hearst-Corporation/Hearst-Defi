@@ -232,7 +232,7 @@
   border-top: 1px solid var(--ct-border-ghost);
   padding-top: var(--ct-space-4);
   width: 100%;
-  opacity: 0.6;
+  opacity: var(--ct-opacity-60);
 }
 
 /* Ensure MetricGrid stacks on mobile within the wizard */

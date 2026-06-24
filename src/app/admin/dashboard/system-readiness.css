@@ -63,7 +63,7 @@
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
   color: var(--ct-text-faint);
-  opacity: 0.6;
+  opacity: var(--ct-opacity-60);
 }
 
 .dashboard-readiness__scan-badge {
@@ -83,7 +83,7 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-faint);
-  opacity: 0.5;
+  opacity: var(--ct-opacity-50);
 }
 
 .dashboard-readiness__scan-value {
@@ -214,7 +214,7 @@
 }
 
 .dashboard-readiness__factor-dot:hover {
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
   transform: translateX(2px);
 }
 

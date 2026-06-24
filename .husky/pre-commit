@@ -9,3 +9,12 @@
 # prints the value. Blocks the commit on a positive match. Bypass once (e.g.
 # confirmed false positive) with `git commit --no-verify`.
 bash scripts/secrets-scan.sh --staged || exit 1
+
+# CSS cross-file dup guard — the "doublon" root cause: UNE classe de base stylée
+# dans 2 feuilles (générations qui se superposent et se contredisent). Ratchet
+# vs scripts/css-dupe-baseline.json : ne bloque QUE les NOUVEAUX doublons, jamais
+# la dette existante. Ne tourne que si un .css est stagé. Bypass: --no-verify ;
+# accepter un nouveau doublon volontaire: `pnpm quality:css:update`.
+if git diff --cached --name-only --diff-filter=ACM | grep -q '\.css$'; then
+  node scripts/css-dupe-check.mjs || exit 1
+fi

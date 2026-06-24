@@ -83,7 +83,7 @@
 
 .pf-container :where(.ct-text-muted) {
   color: var(--ct-text-tertiary);
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
 }
 
 .pf-container :where(.ct-text-secondary) {
@@ -204,7 +204,7 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
-  opacity: 0.9;
+  opacity: var(--ct-opacity-90);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -921,7 +921,7 @@
   flex: 0 0 auto;
   font-size: var(--ct-text-micro);
   line-height: var(--ct-leading-snug);
-  opacity: 0.5;
+  opacity: var(--ct-opacity-50);
 }
 
 /* =============================================================================
@@ -1067,7 +1067,7 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
   border-bottom: 1px solid var(--ct-graphite-border-nested);
   background: var(--ct-graphite-nested-bg);
   padding-top: var(--ct-space-3);
@@ -1290,7 +1290,7 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
 }
 
 .cy-ledger-rule {

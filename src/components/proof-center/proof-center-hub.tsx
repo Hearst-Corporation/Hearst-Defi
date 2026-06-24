@@ -108,7 +108,7 @@ export function ProofCenterHub({
   return (
     <div
       className={cn(
-        "proof-center-shell",
+        variant === "product" ? "proof-center-shell" : "admin-doc-shell--roomy",
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >
@@ -121,25 +121,25 @@ export function ProofCenterHub({
         />
       ) : (
         <AdminPageHeader
-          titleLead="Proof"
-          titleAccent="Operations"
+          titleLead="Proof Operations"
           contextLabel="Operator Proof Hub"
           className="mb-(--ct-space-8)"
         />
       )}
 
       {coldEmpty ? (
-        <div className="product-doc-stack product-doc-stack--roomy">
+        <div className={cn(variant === "admin" ? "admin-doc-stack admin-doc-stack--roomy" : "product-doc-stack product-doc-stack--roomy")}>
           <ProofCenterColdShell chainConfigured={chainConfigured} variant={variant} />
           <ProofCenterSection
             id="contracts-heading"
             title="Contracts & review trail"
+            variant={variant}
           >
-            <ContractsAuditTrail platformAddresses={platformAddresses} />
+            <ContractsAuditTrail platformAddresses={platformAddresses} variant={variant} />
           </ProofCenterSection>
         </div>
       ) : (
-        <div className="product-doc-stack product-doc-stack--roomy">
+        <div className={cn(variant === "admin" ? "admin-doc-stack admin-doc-stack--roomy" : "product-doc-stack product-doc-stack--roomy")}>
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
             <div className="dashboard-cockpit-cell">
               <div className="dashboard-cockpit-panel">

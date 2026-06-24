@@ -419,7 +419,7 @@ export function ProjectionStudio() {
           <span className="eyebrow ct-text-muted">Presets</span>
           <span className="body-xs ct-text-faint">Load assumptions, then tune inputs below.</span>
         </div>
-        <div className="projection-studio-preset-rail__items">
+        <div className="projection-studio-preset-strip__items">
           {PRESETS.map((p) => (
             <button
               key={p.id}

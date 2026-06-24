@@ -379,13 +379,13 @@
   color: var(--ct-text-faint);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
-  opacity: 0.6;
+  opacity: var(--ct-opacity-60);
 }
 
 .dashboard-overview-ledger__sublabel {
   font-size: 8px;
   color: var(--ct-text-faint);
-  opacity: 0.4;
+  opacity: var(--ct-opacity-40);
   margin-top: 1px;
 }
 
@@ -404,7 +404,7 @@
   font-size: 11px;
   line-height: 1.6;
   color: var(--ct-text-muted);
-  opacity: 0.8;
+  opacity: var(--ct-opacity-80);
 }
 
 .dashboard-merged-card {
@@ -698,7 +698,7 @@
 }
 
 .dashboard-metric-tooltip-trigger:hover::after {
-  opacity: 0.6;
+  opacity: var(--ct-opacity-60);
 }
 
 /* Enhanced tooltip styling for technical metrics */
