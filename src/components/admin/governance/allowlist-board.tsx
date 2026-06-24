@@ -56,7 +56,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
   return (
     <>
       <Card>
-        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" className="mb-[var(--ct-space-3)]" />
+        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" className="gov-section-header" />
         <p className="body-sm ct-text-muted">
           Addresses on this list use the <span className="font-semibold ct-text-primary">fast path</span> (2/3 sigs · 0h timelock · no board notification).
           Unknown addresses route through the <span className="font-semibold ct-text-primary">medium path</span> (&lt;$100k → 3/5 · 12h) or{" "}
@@ -70,7 +70,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
           <h2 id="allowlist-add-heading" className="sr-only">
             Add entry
           </h2>
-          <DashboardPanelHeader title="Add entry" tone="quiet" className="mb-[var(--ct-space-4)]" />
+          <DashboardPanelHeader title="Add entry" tone="quiet" className="gov-section-header" />
           <form action={addAllowlistEntryAction} className="admin-doc-stack admin-doc-stack--relaxed">
             <div className="admin-doc-form-grid-2">
               <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
@@ -163,16 +163,16 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
             <h2 id="allowlist-table-heading" className="sr-only">
               Allowlist entries
             </h2>
-            <DashboardPanelHeader
-              title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
-              tone="quiet"
-              className="mb-[var(--ct-space-4)]"
-            />
-            <Card className="overflow-hidden p-0" hoverOverlay={false}>
-              <div className="overflow-x-auto">
+            <Card className="overflow-hidden" hoverOverlay={false}>
+              <DashboardPanelHeader
+                title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
+                tone="quiet"
+                className="gov-section-header"
+              />
+              <div className="gov-allowlist-table-scroll overflow-x-auto">
                 <table className="min-w-184 w-full table-fixed body-sm" aria-label="Address allowlist">
                   <thead>
-                    <tr className="border-b border-[var(--ct-border)]">
+                    <tr className="gov-allowlist-thead-row">
                       <th scope="col" className="w-[38%] stat-label ct-table-header text-left">Label / Address</th>
                       <th scope="col" className="hidden w-[18%] stat-label ct-table-header text-left md:table-cell">Category</th>
                       <th scope="col" className="hidden w-[14%] stat-label ct-table-header text-left lg:table-cell">Risk score</th>
@@ -180,21 +180,19 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                       <th scope="col" className="w-[40%] stat-label ct-table-header text-left md:w-[22%] lg:w-[8%]">Edit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--ct-border)]">
+                  <tbody className="gov-allowlist-tbody">
                     {entries.map((entry) => (
                       <tr
                         key={entry.id}
                         className={cn(
-                          entry.active
-                            ? "ct-text-body"
-                            : "opacity-[var(--ct-opacity-55)]",
+                          entry.active ? "ct-text-body" : "gov-allowlist-row--inactive",
                         )}
                       >
                         <td className="ct-table-cell">
                           <p className="body-sm ct-text-strong">{entry.label}</p>
-                          <p className="mono mt-[var(--ct-space-0_5)] break-all body-xs ct-text-muted">{entry.address}</p>
+                          <p className="gov-allowlist-address mono break-all body-xs ct-text-muted">{entry.address}</p>
                           {entry.notes ? (
-                            <p className="mt-[var(--ct-space-1)] body-xs italic ct-text-muted">{entry.notes}</p>
+                            <p className="gov-allowlist-notes body-xs italic ct-text-muted">{entry.notes}</p>
                           ) : null}
                         </td>
                         <td className="hidden ct-table-cell md:table-cell">
@@ -218,10 +216,10 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                                   : `Reactivate ${entry.label}`
                               }
                               className={cn(
-                                "ct-pill cursor-pointer body-xs font-semibold transition-colors ease-[var(--ct-ease)]",
+                                "ct-pill gov-allowlist-toggle cursor-pointer body-xs font-semibold transition-colors",
                                 entry.active
-                                  ? "hover:border-[var(--ct-status-danger-border)] hover:text-[var(--ct-status-danger)]"
-                                  : "hover:border-[var(--ct-status-success-border)] hover:text-[var(--ct-status-success)]",
+                                  ? "gov-allowlist-toggle--active"
+                                  : "gov-allowlist-toggle--inactive",
                               )}
                             >
                               {entry.active ? "Active" : "Inactive"}
@@ -230,11 +228,11 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         </td>
                         <td className="ct-table-cell">
                           <details className="group">
-                            <summary className="cursor-pointer list-none body-xs ct-text-muted select-none hover:text-[var(--ct-text-primary)]">
+                            <summary className="gov-allowlist-edit-summary cursor-pointer list-none body-xs ct-text-muted select-none">
                               <span className="group-open:hidden">Edit ▾</span>
                               <span className="hidden group-open:inline">Close ▴</span>
                             </summary>
-                            <form action={updateAllowlistEntryAction} className="mt-[var(--ct-space-3)] admin-doc-stack admin-doc-stack--tight">
+                            <form action={updateAllowlistEntryAction} className="gov-allowlist-edit-form admin-doc-stack admin-doc-stack--tight">
                               <input type="hidden" name="id" value={entry.id} />
                               <div className="admin-doc-stack admin-doc-stack--compact">
                                 <label htmlFor={`edit-label-${entry.id}`} className="stat-label block">

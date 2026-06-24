@@ -851,12 +851,17 @@
 
 .pf-value-chart__month-labels {
   position: relative;
-  height: var(--ct-space-5);
-  margin-top: var(--ct-space-1);
+  /* Controlled label band. Was space-5 height + space-1 margin-top + space-2
+     padding-top (~32px) for a 9px nano label pinned at top:0 — a dead zone under
+     the plot that inflated the hero. Tightened so the chart fills its box and
+     May/Jun sit just under the plot. Hero height is grid-fixed (16rem): the
+     flex:1 chart-wrapper absorbs the reclaimed space, nothing grows. */
+  height: var(--ct-space-4);
+  margin-top: 0;
   flex: 0 0 auto;
   font-variant-numeric: tabular-nums;
   border-top: 1px solid var(--ct-border-soft);
-  padding-top: var(--ct-space-2);
+  padding-top: var(--ct-space-1);
 }
 
 .pf-value-chart__month-labels span {

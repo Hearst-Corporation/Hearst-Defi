@@ -9,6 +9,8 @@ import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
 import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
 
+import "../admin-proof.css";
+
 export const dynamic = "force-dynamic";
 
 const TABS = [

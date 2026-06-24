@@ -4,6 +4,8 @@ import { AllowlistBoard } from "@/components/admin/governance/allowlist-board";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { getAllAllowlistEntries } from "@/lib/governance/allowlist";
 
+import "../../admin-proof.css";
+
 export const dynamic = "force-dynamic";
 
 export default async function AllowlistPage() {

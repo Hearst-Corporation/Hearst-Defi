@@ -72,6 +72,78 @@
   margin-top: var(--ct-space-3);
 }
 
+/* ── Proposal queue (/admin/governance) — semantic rhythm (no JSX styling). */
+
+/* Ticker + action-type row above the proposer meta line. */
+.admin-doc .gov-queue-title-row {
+  margin-bottom: var(--ct-space-1);
+}
+
+/* Inline "N rejected" counter, sits after the approved count. */
+.admin-doc .gov-queue-rejected {
+  margin-left: var(--ct-space-2);
+}
+
+/* Timelock ETA footer band — divider + rhythm. */
+.admin-doc .gov-queue-timelock {
+  margin-top: var(--ct-space-3);
+  padding-top: var(--ct-space-3);
+  border-top: 1px solid var(--ct-border-soft);
+}
+
+/* ── Allowlist board (/admin/governance/allowlist) — semantic rhythm. */
+
+/* Inactive entry rows read back, not hidden. */
+.admin-doc .gov-allowlist-row--inactive {
+  opacity: var(--ct-opacity-55);
+}
+
+/* Table sits edge-to-edge inside its padded Card (.ct-card =
+   padding: var(--ct-space-5) var(--ct-space-6)). */
+.admin-doc .gov-allowlist-table-scroll {
+  margin-inline: calc(-1 * var(--ct-space-6));
+  margin-bottom: calc(-1 * var(--ct-space-5));
+  border-bottom-left-radius: var(--ct-radius-xl);
+  border-bottom-right-radius: var(--ct-radius-xl);
+}
+
+/* Table head separator + body row dividers. */
+.admin-doc .gov-allowlist-thead-row {
+  border-bottom: 1px solid var(--ct-border);
+}
+.admin-doc .gov-allowlist-tbody > tr + tr {
+  border-top: 1px solid var(--ct-border);
+}
+
+/* Address + notes lines under the entry label. */
+.admin-doc .gov-allowlist-address {
+  margin-top: var(--ct-space-0_5);
+}
+.admin-doc .gov-allowlist-notes {
+  margin-top: var(--ct-space-1);
+}
+
+/* Active/Inactive status pill — hover restate by state. */
+.admin-doc .gov-allowlist-toggle {
+  transition-timing-function: var(--ct-ease);
+}
+.admin-doc .gov-allowlist-toggle--active:hover {
+  border-color: var(--ct-status-danger-border);
+  color: var(--ct-status-danger);
+}
+.admin-doc .gov-allowlist-toggle--inactive:hover {
+  border-color: var(--ct-status-success-border);
+  color: var(--ct-status-success);
+}
+
+/* Inline edit disclosure summary + revealed form. */
+.admin-doc .gov-allowlist-edit-summary:hover {
+  color: var(--ct-text-primary);
+}
+.admin-doc .gov-allowlist-edit-form {
+  margin-top: var(--ct-space-3);
+}
+
 /* =============================================================================
    2. AUDIT LOG (/admin/audit)
    ============================================================================= */

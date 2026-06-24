@@ -24,6 +24,60 @@ value.
 4. **`docs/DESIGN_SYSTEM.md`** — written canon (colours, type, surfaces, ADR-013).
 5. **`docs/CSS_INDEX.md`** — map of the big CSS files.
 
+## Phase 0 — Surface Inventory (run BEFORE any conformance grading)
+
+The audit must never grade only a handful of global scopes and assume the rest is
+covered. It starts by **inventorying every real UI surface** so that no page, layout,
+module, modal, drawer, popover, toast, loading/error/empty state, or shared component
+escapes the audit. The inventory answers, exactly:
+
+> How many real UI surfaces inherit the design system? Which ones? Which were **not**
+> audited, and **why**?
+
+### What to inventory
+
+- **A. App routes** — `find src/app` for `page.tsx` / `layout.tsx` / `loading.tsx` /
+  `error.tsx` / `not-found.tsx` / `template.tsx`, across route groups (`(product)`,
+  admin, auth, legal, apply, onboarding) and dynamic segments (`[id]`, `[canvasId]`, …).
+  Per route: path · file · type (page/layout/loading/error) · scope · audit target (y/n) · reason if n.
+- **B. Product surfaces** — portfolio, vaults, vault detail, invest flow, proof center,
+  profile, apply/onboarding, login/auth, legal, product shell, product nav, chat rail.
+- **C. Admin surfaces** — dashboard, customers, CRM, agents, feedback, strategy, product
+  workspace, scenario lab, projection/studio, vaults, distributions, signals, proof-center,
+  proofs, monitoring, security, governance, roadmap, spec, investor-memo, audit, outreach,
+  agent-canvas, admin root, design-system page.
+- **D. Visible modules** (not just pages) — scan `src/components/**` (admin, portfolio,
+  proof-center, scenario, nav, ui). Classify: page section · card/panel · chart · table/list ·
+  form · empty state · loading/skeleton · modal/dialog · drawer/sheet · popover/tooltip ·
+  command/search overlay · toast · nav/shell · action bar · confirmation surface.
+- **E. Overlays** — grep explicitly for `Dialog|Modal|Popover|Tooltip|Dropdown|Command|Sheet|Drawer|Toast|Confirm|AlertDialog|Menu|Overlay|Portal`.
+  Include ConfirmModal, ToastProvider/toasts, GlobalSearch/command palette, ShortcutsOverlay,
+  nav/search overlays, agent-canvas confirmation surfaces, any popover/dropdown menu.
+  Per overlay: component · file · trigger route/component if detectable · audit target (y/n) · DS risk.
+- **F. States** — empty · loading · skeleton · error · disabled · pending · active · verified ·
+  stale · estimated · manual · success/warning/danger. Scan for `EmptySurface` / `Skeleton` /
+  `PanelStatus` / `loading.tsx` / `error.tsx` + hand-rolled empties/skeletons.
+- **G. Primitives** — list `src/components/ui/*`. Per primitive: name · role · used-by families ·
+  which hand-rolled pattern it should replace.
+- **H. Exclusions** (intentionally not audited / read-only) — `/portfolio` (canon seed,
+  read-only, never-fix), `/admin/design-system` Section F (intentional anti-pattern demos,
+  never-fix), `src/lib/cockpit-tokens.ts` (raw-hex PDF/Privy), debug/dev pages, tests,
+  generated files, `node_modules`, docs, screenshots/logs/temp. Each: scope/file · reason ·
+  read-only (y/n) · never-fix (y/n).
+
+### Inventory output
+
+Write `docs/audit/ds-surface-inventory-<date>.md` using the template in
+`docs/audit/ds-surface-inventory-template.md`. It must include the chiffred **summary**,
+the route / module / overlay / state / primitive / exclusion tables, the **coverage gaps**
+(every UI-looking file not mapped to a scope), and the **recommended scope map** the audit
+will run. A **coverage gap** is the single most important output — it is what would
+otherwise silently escape the audit.
+
+The per-scope conformance audit then **consumes this inventory**: every audited scope must
+report which routes / modules / overlays / states it covered, and what (if anything) it
+could not cover.
+
 ## The 9 conformance dimensions
 
 For each page, grade every dimension. Cite `file:line` + the **token-only** fix.
