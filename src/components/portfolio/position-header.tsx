@@ -34,7 +34,7 @@ export function PositionHeader({ position }: PositionHeaderProps) {
       <div className="position-detail-header__title-row">
         <Link
           href="/portfolio"
-          className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-colors duration-(--ct-dur-base) ease-(--ct-ease) hover:text-(--ct-accent) mb-2"
+          className="body-sm ct-text-muted product-doc-inline-row product-doc-inline-row--tight no-underline transition-colors duration-[var(--ct-dur-base)] ease-[var(--ct-ease)] hover:text-[var(--ct-accent)] mb-2"
         >
           ← Portfolio
         </Link>

@@ -131,7 +131,7 @@ export function SimulationPanel({
 
 function Divider() {
   return (
-    <hr className="border-t border-(--ct-border-soft)" aria-hidden="true" />
+    <hr className="border-t border-[var(--ct-border-soft)]" aria-hidden="true" />
   );
 }
 
@@ -140,7 +140,7 @@ function LoadingState() {
     <div className="flex flex-col items-center gap-[var(--ct-space-3)] py-[var(--ct-space-10)]">
       {/* Spinner */}
       <span
-        className="block h-8 w-8 rounded-full border-2 border-(--ct-border-soft) border-t-(--ct-accent) animate-spin"
+        className="block h-8 w-8 rounded-full border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)] animate-spin"
         aria-hidden="true"
       />
       <p className="body-sm ct-text-muted">
@@ -152,7 +152,7 @@ function LoadingState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div role="alert" className="ct-nested-callout flex flex-col gap-[var(--ct-space-1)] border border-(--ct-border-soft)">
+    <div role="alert" className="ct-nested-callout flex flex-col gap-[var(--ct-space-1)] border border-[var(--ct-border-soft)]">
       <p className="body-sm font-medium ct-status-danger">
         Simulation failed
       </p>
@@ -290,7 +290,7 @@ function RevertsSection({ entries }: { entries: RevertEntry[] }) {
         {entries.map((entry, i) => (
           <li
             key={i}
-            className="ct-nested-callout flex flex-col gap-[var(--ct-space-0_5)] border border-(--ct-border-soft)"
+            className="ct-nested-callout flex flex-col gap-[var(--ct-space-0_5)] border border-[var(--ct-border-soft)]"
           >
             <p className="body-xs font-medium ct-status-danger">
               {entry.reason}

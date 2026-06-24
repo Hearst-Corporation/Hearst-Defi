@@ -57,7 +57,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
           </thead>
           <tbody>
             {regimes.map((row) => (
-              <tr key={row.id} className="group/row transition-colors duration-200 hover:bg-(--ct-accent)/5">
+              <tr key={row.id} className="group/row transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--ct-accent)_5%,transparent)]">
                 <td className="ct-table-cell align-top">
                   <div className="flex flex-col gap-(--ct-space-0_5)">
                     <span className={cn("body-sm font-bold uppercase tracking-wide", TONE_TEXT[row.tone])}>

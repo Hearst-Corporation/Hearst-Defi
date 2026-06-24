@@ -238,9 +238,9 @@ function SimParams({
             if (!isNaN(v) && v >= 0) onSeedChange(v);
           }}
           className={cn(
-            "w-24 rounded-base border border-(--ct-border-soft)",
+            "w-24 rounded-base border border-[var(--ct-border-soft)]",
             "ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs mono ct-text-strong",
-            "focus:border-(--ct-accent) focus:outline-none",
+            "focus:border-[var(--ct-accent)] focus:outline-none",
             "disabled:opacity-[var(--ct-opacity-40)]",
           )}
           aria-label="PRNG seed for Monte Carlo simulation"
@@ -260,9 +260,9 @@ function SimParams({
             if (!isNaN(v) && v >= 100) onRunsChange(v);
           }}
           className={cn(
-            "w-28 rounded-base border border-(--ct-border-soft)",
+            "w-28 rounded-base border border-[var(--ct-border-soft)]",
             "ct-surface-1 px-[var(--ct-space-2)] py-[var(--ct-space-1)] body-xs mono ct-text-strong",
-            "focus:border-(--ct-accent) focus:outline-none",
+            "focus:border-[var(--ct-accent)] focus:outline-none",
             "disabled:opacity-[var(--ct-opacity-40)]",
           )}
           aria-label="Number of Monte Carlo simulation paths"
@@ -350,11 +350,11 @@ export function MonteCarloPanel() {
           {/* Legend */}
           <div className="admin-doc-inline-row admin-doc-inline-row--relaxed body-xs ct-text-muted">
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-0.5 w-4 rounded-full bg-(--ct-status-success)" />
+              <span className="inline-block h-0.5 w-4 rounded-full bg-[var(--ct-status-success)]" />
               Median (p50)
             </span>
             <span className="admin-doc-inline-row admin-doc-inline-row--dense">
-              <span className="inline-block h-2 w-4 rounded-sm bg-(--ct-status-success-soft) opacity-[var(--ct-opacity-22)]" />
+              <span className="inline-block h-2 w-4 rounded-sm bg-[var(--ct-status-success-soft)] opacity-[var(--ct-opacity-22)]" />
               p5–p95
             </span>
           </div>
@@ -369,7 +369,7 @@ export function MonteCarloPanel() {
           </div>
 
           {/* Prob below floor */}
-          <div className="rounded-base border border-(--ct-border-soft) px-[var(--ct-space-4)] py-[var(--ct-space-3)] body-sm">
+          <div className="rounded-base border border-[var(--ct-border-soft)] px-[var(--ct-space-4)] py-[var(--ct-space-3)] body-sm">
             <span className="stat-label">P(APY &lt; 8% floor): </span>
             <span className="mono body-sm ct-text-body">
               {(output.probBelowFloor * 100).toFixed(1)}%
@@ -385,7 +385,7 @@ export function MonteCarloPanel() {
       )}
 
       {/* Disclaimer */}
-      <p className="mt-[var(--ct-space-8)] border-t border-(--ct-border-soft) pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
+      <p className="mt-[var(--ct-space-8)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-4)] body-xs italic ct-text-muted">
         <span className="not-italic ct-text-body">
           Monte Carlo — methodology v2.0. Not guaranteed.
         </span>{" "}
