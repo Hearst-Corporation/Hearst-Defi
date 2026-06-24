@@ -23,6 +23,7 @@ import {
   isAdminReadToolAllowed,
   isAdminWriteToolAllowed,
 } from "@/lib/llm/tools/policy";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import {
   runSourcing,
   draftEmailForProspect,
@@ -1446,7 +1447,19 @@ async function runCreateCampaignDraft(
   form.set("kind", payload.kind);
   if (payload.bodyTemplate) form.set("bodyTemplate", payload.bodyTemplate);
   if (payload.includeTypeform) form.set("includeTypeform", "on");
-  await createCampaign(form);
+  // WIRE-2: `createCampaign` is the admin FORM action — it persists the draft
+  // THEN calls `redirect()` to send the operator to the new campaign page.
+  // `redirect()` works by THROWING a NEXT_REDIRECT control-flow signal. When we
+  // call the action from this tool (an API-route context, not a navigation), the
+  // draft is already written when that signal fires, but there is no router to
+  // catch it — so it surfaced as a raw 500 ("Write tool execution failed") even
+  // though the campaign WAS created. Swallow ONLY the redirect signal (success);
+  // re-throw any real error (validation, forbidden words, DB) untouched.
+  try {
+    await createCampaign(form);
+  } catch (err) {
+    if (!isRedirectError(err)) throw err;
+  }
   return {
     title: "OUTREACH CAMPAIGN DRAFT CREATED",
     lines: [

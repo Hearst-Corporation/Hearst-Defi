@@ -31,6 +31,45 @@ import { chatOutputViolation } from "@/lib/llm/output-guard";
 const NOT_GUARANTEED =
   "Projections only — not guaranteed. Past performance does not predict future results. Assumptions are shown alongside every figure.";
 
+/**
+ * Deterministic (no-LLM) extraction of the outreach campaign `name`/`kind` from
+ * a free-text objective.
+ *
+ * WHY (WIRE-1): the live chat path passes agent-extracted `values` into
+ * `composeCanvasState`, so the action proposal carries the real name/kind. But
+ * the degraded `<CanvasLive>` autostart fallback re-composes from the URL
+ * `objective` ALONE — without values, the recomposed proposal had an empty name
+ * and the canvas looked "blank" after a remount. Deriving name/kind from the
+ * objective here lets the fallback rebuild the SAME proposal, so the
+ * "Create campaign draft" button survives a remount with the right input.
+ *
+ * Pure + regex-only (no network, no LLM): matches the quoted name after
+ * "nommée/named/nommé/appelée/called" and the kind keyword (cold/newsletter).
+ * Returns only the keys it can confidently extract; the compose default
+ * (kind → "cold", name → "") still applies for anything absent.
+ */
+const OUTREACH_NAME_RE =
+  /(?:nomm[ée]e?|appel[ée]e?|named|called|nom\s*[:=])\s*["“«]?\s*([^"”»\n,]{2,160})/i;
+const OUTREACH_KIND_RE = /\b(newsletter|cold)\b/i;
+
+export function deriveOutreachValuesFromObjective(
+  objective: string | undefined,
+): { name?: string; kind?: "cold" | "newsletter" } | undefined {
+  if (!objective) return undefined;
+  const out: { name?: string; kind?: "cold" | "newsletter" } = {};
+  const nameMatch = OUTREACH_NAME_RE.exec(objective);
+  if (nameMatch?.[1]) {
+    const name = nameMatch[1].trim().replace(/["”»]+$/, "").trim();
+    if (name.length >= 2) out.name = name.slice(0, 160);
+  }
+  const kindMatch = OUTREACH_KIND_RE.exec(objective);
+  const kindWord = kindMatch?.[1]?.toLowerCase();
+  if (kindWord) {
+    out.kind = kindWord === "newsletter" ? "newsletter" : "cold";
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 /** Replace any non-compliant agent string with a safe fallback (defense in depth). */
 function guarded(text: string, fallback: string): string {
   return chatOutputViolation(text, true) === null ? text : fallback;
@@ -206,10 +245,11 @@ function composeOutreach(
   _agentLive: boolean,
   values?: Record<string, string>,
 ): CanvasSection[] {
+  const baseIntro = objective?.trim()
+    ? `Setting up distributor outreach: ${objective.trim()}`
+    : "Set up a distributor outreach campaign — every step is human-in-the-loop. Nothing auto-sends.";
   const intro = guarded(
-    objective?.trim()
-      ? `Setting up distributor outreach: ${objective.trim()}`
-      : "Set up a distributor outreach campaign — every step is human-in-the-loop. Nothing auto-sends.",
+    baseIntro,
     "Set up a distributor outreach campaign — every step is human-in-the-loop. Nothing auto-sends.",
   );
 
@@ -217,11 +257,35 @@ function composeOutreach(
   // proposal input, so "Create campaign draft" pre-fills with what the operator
   // dictated in chat (still HITL — the button must be confirmed).
   const campaignName = values?.name?.trim() ?? "";
-  const campaignKind = values?.kind === "newsletter" ? "newsletter" : "cold";
+  // The kind must be EXPLICITLY supplied to satisfy the HITL gate. A silent
+  // "cold" default must NEVER make the draft button appear (Fix D — the gating
+  // hole): track the provided kind separately from the display value.
+  const providedKind: "cold" | "newsletter" | undefined =
+    values?.kind === "newsletter"
+      ? "newsletter"
+      : values?.kind === "cold"
+        ? "cold"
+        : undefined;
+  // Field display: show "—" until the operator picks a kind, so the canvas never
+  // fabricates a choice the operator did not make.
+  const campaignKindDisplay = providedKind ?? "—";
+  // Action input kind — guaranteed defined whenever a proposal is surfaced (the
+  // gate below requires providedKind); the ?? "cold" only satisfies the type and
+  // never actually defaults a surfaced proposal.
+  const campaignKind: "cold" | "newsletter" = providedKind ?? "cold";
 
-  const campaignProposal: PendingActionProposal | null = canvasAllowsWriteTool(
-    "outreach",
-    "create_campaign_draft",
+  // Gating (ROUTE-2 / Fix D): the create_campaign_draft proposal is only surfaced
+  // once BOTH required fields are present — a non-empty name AND an EXPLICIT kind.
+  // Without the explicit-kind check the button rendered the moment a name was
+  // extracted, kind silently defaulted to "cold" — a HITL gating hole. When a
+  // field is missing we emit NO proposal; the section intro tells the operator
+  // what is still needed.
+  const hasRequiredCampaignFields =
+    campaignName.length > 0 && providedKind !== undefined;
+
+  const campaignProposal: PendingActionProposal | null = (
+    hasRequiredCampaignFields &&
+    canvasAllowsWriteTool("outreach", "create_campaign_draft")
   )
     ? {
         proposalId: "outreach-campaign-draft",
@@ -243,9 +307,13 @@ function composeOutreach(
       }
     : null;
 
-  const sourceProposal: PendingActionProposal | null = canvasAllowsWriteTool(
-    "outreach",
-    "outreach_source_leads",
+  // Pipeline write proposals (source / send) are LATER steps — gated behind the
+  // SAME required-fields check so the opening turn surfaces nothing actionable
+  // (no premature "Source leads" / "Trigger send run" before the campaign is even
+  // named + typed). They stay strictly HITL once shown.
+  const sourceProposal: PendingActionProposal | null = (
+    hasRequiredCampaignFields &&
+    canvasAllowsWriteTool("outreach", "outreach_source_leads")
   )
     ? {
         proposalId: "outreach-source-leads",
@@ -266,9 +334,9 @@ function composeOutreach(
       }
     : null;
 
-  const sendProposal: PendingActionProposal | null = canvasAllowsWriteTool(
-    "outreach",
-    "outreach_trigger_send_run",
+  const sendProposal: PendingActionProposal | null = (
+    hasRequiredCampaignFields &&
+    canvasAllowsWriteTool("outreach", "outreach_trigger_send_run")
   )
     ? {
         proposalId: "outreach-send-run",
@@ -291,12 +359,19 @@ function composeOutreach(
       }
     : null;
 
+  // Section intro restates what is still required when the draft cannot yet be
+  // proposed, so the operator (and the chat) know the next concrete step instead
+  // of seeing an inert panel.
+  const campaignIntro = hasRequiredCampaignFields
+    ? intro
+    : `${intro} — Name and kind (cold | newsletter) are required before the draft can be created.`;
+
   return [
     {
       id: "outreach-campaign",
       title: "Campaign",
-      status: "ready",
-      intro,
+      status: hasRequiredCampaignFields ? "ready" : "building",
+      intro: campaignIntro,
       fields: [
         {
           key: "name",
@@ -310,7 +385,7 @@ function composeOutreach(
         {
           key: "kind",
           label: "Kind",
-          value: campaignKind,
+          value: campaignKindDisplay,
           provenance: "Manual",
           editable: true,
           inputBinding: { toolInputKey: "kind" },

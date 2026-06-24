@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { isCanvasId } from "@/lib/canvas/contract";
-import { composeCanvasState } from "@/lib/canvas/compose";
+import {
+  composeCanvasState,
+  deriveOutreachValuesFromObjective,
+} from "@/lib/canvas/compose";
 import { isAdminCanvas } from "@/lib/canvas/registry";
 import { getSession } from "@/lib/auth/session";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
@@ -59,12 +62,25 @@ export async function POST(
     objective = undefined;
   }
 
+  // WIRE-1: on the degraded autostart fallback we only have the URL `objective`,
+  // not the agent-extracted values the live stream path passes. Derive the
+  // outreach campaign name/kind from the objective (regex, no LLM) so the
+  // recomposed `create_campaign_draft` proposal keeps the operator's name/kind
+  // across a remount — otherwise the action button rebuilt here would carry an
+  // empty name and the canvas would look blank. Outreach-only; other canvases
+  // get no values (their proposals don't depend on free-text fields).
+  const values =
+    canvasId === "outreach"
+      ? deriveOutreachValuesFromObjective(objective)
+      : undefined;
+
   try {
     const state = composeCanvasState({
       canvasId,
       ...(objective ? { objective } : {}),
       revision: 1,
       agentLive: FEATURE_FLAGS.CHAT_MASTER_AGENT,
+      ...(values ? { values } : {}),
     });
     return NextResponse.json(state);
   } catch (err) {

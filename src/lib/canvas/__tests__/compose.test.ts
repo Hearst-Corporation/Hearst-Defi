@@ -10,7 +10,10 @@
 
 import { describe, expect, it } from "vitest";
 
-import { composeCanvasState } from "@/lib/canvas/compose";
+import {
+  composeCanvasState,
+  deriveOutreachValuesFromObjective,
+} from "@/lib/canvas/compose";
 import { canvasAllowsWriteTool } from "@/lib/canvas/registry";
 
 describe("composeCanvasState — create-vault", () => {
@@ -61,11 +64,13 @@ describe("composeCanvasState — create-vault", () => {
 });
 
 describe("composeCanvasState — outreach", () => {
+  // With required fields supplied, the create-campaign-draft proposal is present.
   const state = composeCanvasState({
     canvasId: "outreach",
     objective: "distributor campaign",
     revision: 1,
     agentLive: true,
+    values: { name: "Distributor Q3", kind: "cold" },
   });
 
   it("proposes only allowlisted outreach write tools", () => {
@@ -97,6 +102,83 @@ describe("composeCanvasState — outreach", () => {
       expect(f.provenance).toBeTruthy();
     }
   });
+
+  // ROUTE-2 gating: the create_campaign_draft proposal must NOT be surfaced
+  // until BOTH required fields (name + valid kind) are present.
+  it("does NOT propose create_campaign_draft when no values are supplied", () => {
+    const empty = composeCanvasState({
+      canvasId: "outreach",
+      objective: "lance une campagne outreach distributeurs institutionnels",
+      revision: 1,
+      agentLive: true,
+    });
+    const toolIds = empty.sections.flatMap((s) => s.actions).map((a) => a.toolId);
+    expect(toolIds).not.toContain("create_campaign_draft");
+    // The campaign section signals that fields are still required.
+    const campaignSection = empty.sections.find((s) => s.id === "outreach-campaign");
+    expect(campaignSection?.status).toBe("building");
+    expect(campaignSection?.intro?.toLowerCase()).toContain("required");
+  });
+
+  it("does NOT propose create_campaign_draft when only the kind is present (name missing path)", () => {
+    const kindOnly = composeCanvasState({
+      canvasId: "outreach",
+      objective: "x",
+      revision: 1,
+      agentLive: true,
+      values: { kind: "cold" }, // no name → still gated
+    });
+    const toolIds = kindOnly.sections.flatMap((s) => s.actions).map((a) => a.toolId);
+    expect(toolIds).not.toContain("create_campaign_draft");
+  });
+
+  // Fix D — the gating hole: a name with NO explicit kind must stay gated. The
+  // old code defaulted kind to "cold", so the button appeared the moment a name
+  // was extracted (or hallucinated), with a kind the operator never chose.
+  it("does NOT propose create_campaign_draft when the name is present but kind was never chosen", () => {
+    const kindless = composeCanvasState({
+      canvasId: "outreach",
+      objective: "x",
+      revision: 1,
+      agentLive: true,
+      values: { name: "Distributeurs Institutionnels" }, // explicit name, NO kind
+    });
+    const toolIds = kindless.sections.flatMap((s) => s.actions).map((a) => a.toolId);
+    expect(toolIds).not.toContain("create_campaign_draft");
+    // The kind field must not fabricate a "cold" choice the operator never made.
+    const kindField = kindless.sections
+      .flatMap((s) => s.fields)
+      .find((f) => f.key === "kind");
+    expect(kindField?.value).toBe("—");
+    // Still "building" — awaiting the kind.
+    expect(
+      kindless.sections.find((s) => s.id === "outreach-campaign")?.status,
+    ).toBe("building");
+  });
+
+  // Opening turn (no name, no kind): the WHOLE canvas must be inert — no campaign
+  // draft, no source-leads, no send-run. Nothing actionable before the campaign is
+  // named + typed (addresses "progression UX trop agressive").
+  it("surfaces ZERO write actions on the opening turn", () => {
+    const opening = composeCanvasState({
+      canvasId: "outreach",
+      objective:
+        "lance une campagne outreach distributeurs institutionnels pour Hearst Yield",
+      revision: 1,
+      agentLive: true,
+    });
+    const actions = opening.sections.flatMap((s) => s.actions);
+    expect(actions).toHaveLength(0);
+  });
+
+  it("proposes create_campaign_draft with the exact name once both fields are present", () => {
+    const action = state.sections
+      .flatMap((s) => s.actions)
+      .find((a) => a.toolId === "create_campaign_draft");
+    expect(action).toBeTruthy();
+    expect(action?.input).toMatchObject({ name: "Distributor Q3", kind: "cold" });
+    expect(state.sections.find((s) => s.id === "outreach-campaign")?.status).toBe("ready");
+  });
 });
 
 describe("composeCanvasState — lp-yield-explainer", () => {
@@ -117,5 +199,57 @@ describe("composeCanvasState — lp-yield-explainer", () => {
     for (const f of state.sections.flatMap((s) => s.fields)) {
       expect(f.provenance).toBeTruthy();
     }
+  });
+});
+
+describe("deriveOutreachValuesFromObjective — WIRE-1 remount survival", () => {
+  it("extracts name + kind from a French quoted objective", () => {
+    const v = deriveOutreachValuesFromObjective(
+      'crée un draft de campagne nommée "Distributeurs Institutionnels Q3", type cold',
+    );
+    expect(v).toEqual({ name: "Distributeurs Institutionnels Q3", kind: "cold" });
+  });
+
+  it("extracts newsletter kind and an English 'named' objective", () => {
+    const v = deriveOutreachValuesFromObjective('campaign named "Family Offices EMEA" newsletter');
+    expect(v).toEqual({ name: "Family Offices EMEA", kind: "newsletter" });
+  });
+
+  it("returns undefined when nothing is extractable (e.g. a bare label)", () => {
+    expect(deriveOutreachValuesFromObjective("Create campaign draft")).toBeUndefined();
+    expect(deriveOutreachValuesFromObjective(undefined)).toBeUndefined();
+  });
+
+  // Fix C — the opening message names no campaign and chooses no kind, so the
+  // canonical extractor must return undefined: it never invents a name from a
+  // generic objective (the retired LLM extractor surfaced "distributeurs
+  // institutionnels" as the campaign name).
+  it("returns undefined for the opening outreach message (never invents a name)", () => {
+    expect(
+      deriveOutreachValuesFromObjective(
+        "lance une campagne outreach distributeurs institutionnels pour Hearst Yield",
+      ),
+    ).toBeUndefined();
+  });
+
+  it("rebuilds the create_campaign_draft proposal with the real name/kind on remount", () => {
+    // The degraded autostart path composes from the objective alone. With the
+    // derived values, the recomposed proposal must carry the operator's name/kind
+    // (not an empty name) so the 'Create campaign draft' button survives a remount.
+    const values = deriveOutreachValuesFromObjective(
+      'crée un draft de campagne nommée "Distributeurs Institutionnels Q3", type cold',
+    );
+    const state = composeCanvasState({
+      canvasId: "outreach",
+      objective: 'crée un draft de campagne nommée "Distributeurs Institutionnels Q3", type cold',
+      revision: 1,
+      agentLive: true,
+      ...(values ? { values } : {}),
+    });
+    const action = state.sections
+      .flatMap((s) => s.actions)
+      .find((a) => a.toolId === "create_campaign_draft");
+    expect(action).toBeTruthy();
+    expect(action?.input).toMatchObject({ name: "Distributeurs Institutionnels Q3", kind: "cold" });
   });
 });
