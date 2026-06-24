@@ -260,9 +260,9 @@
   gap: var(--ct-space-5);   /* modules resserrés (était space-8 / 32px) */
   min-width: 0;
   margin-top: 0;
-  /* Box plus petites : les modules ne s'étirent pas sur toute la colonne. */
+  /* Body libéré : remplit toute la largeur du centre, plus de void à droite. */
   width: 100%;
-  max-width: 60rem;
+  max-width: none;
 }
 
 /* Rows are BOTH flex items (height in fr) AND grids (their own columns). */

@@ -1,3 +1,5 @@
+import { Layers, Wallet, TrendingUp, ArrowDownToLine, ShieldCheck } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import {
   PfCockpitPanel,
@@ -52,9 +54,17 @@ export function PortfolioStatusPanel({
   const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
   const asOf = updatedAt ? `As of ${dateFmt.format(updatedAt)}` : "Awaiting first confirmed on-chain position";
 
-const rows = [
+const rows: ReadonlyArray<{
+    key: string;
+    Icon: LucideIcon;
+    label: string;
+    value: string;
+    valueAccent: boolean;
+    meta: string;
+  }> = [
     {
       key: "deployment",
+      Icon: Layers,
       label: "Deployment",
       value: hasPositions ? `${deploymentPct.toFixed(1)}%` : DASH,
       valueAccent: false,
@@ -64,6 +74,7 @@ const rows = [
     },
     {
       key: "positions",
+      Icon: Wallet,
       label: "Positions",
       value: hasPositions ? String(positionsCount) : DASH,
       valueAccent: false,
@@ -71,6 +82,7 @@ const rows = [
     },
     {
       key: "yield",
+      Icon: TrendingUp,
       label: "Accrued yield",
       value: hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH,
       valueAccent: hasPositions,
@@ -78,6 +90,7 @@ const rows = [
     },
     {
       key: "deposits",
+      Icon: ArrowDownToLine,
       label: "Net deposits",
       value: hasPositions ? formatUsdCompact(deployedUsdc) : DASH,
       valueAccent: false,
@@ -85,6 +98,7 @@ const rows = [
     },
     {
       key: "proof",
+      Icon: ShieldCheck,
       label: "Underlying proof",
       value: hasPositions ? (source === "live" ? "Current" : "Pending") : DASH,
       valueAccent: false,
@@ -110,26 +124,32 @@ const rows = [
           )}
         </div>
       </header>
-      <dl className="flex flex-col flex-1 overflow-y-auto px-4 py-4 gap-3">
-        {rows.map((r, i) => (
-          <div key={r.key} className={cn("group flex flex-col p-4 rounded-xl bg-[color-mix(in_srgb,var(--ct-surface-1)_40%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_10%,transparent)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--ct-surface-0)_20%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-surface-2)_40%,transparent)] hover:border-[color-mix(in_srgb,var(--ct-border-soft)_25%,transparent)]")}>
-            <div className="flex items-center justify-between mb-2">
+      <dl className="flex flex-col flex-1 overflow-y-auto px-5">
+        {rows.map((r) => (
+          <div
+            key={r.key}
+            className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3.5 py-3.5 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_55%,transparent)] last:border-b-0"
+          >
+            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[color-mix(in_srgb,var(--ct-accent)_9%,transparent)] text-accent transition-colors group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]">
+              <r.Icon size={14} strokeWidth={2} aria-hidden="true" />
+            </span>
+            <div className="flex flex-col min-w-0">
               <dt className="text-[10px] uppercase tracking-[0.15em] text-secondary font-medium group-hover:text-primary transition-colors">
                 {r.label}
               </dt>
-              <dd className="text-right">
-                {r.value !== DASH ? (
-                  <span className={cn("tabular text-[16px] font-semibold tracking-tight", r.valueAccent ? "text-accent drop-shadow-[0_0_8px_color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" : "text-strong")}>
-                    {r.value}
-                  </span>
-                ) : (
-                  <span className="text-tertiary opacity-30 text-lg font-light leading-none">{DASH}</span>
-                )}
-              </dd>
+              <span className="text-[11px] text-tertiary opacity-60 truncate group-hover:opacity-100 transition-opacity">
+                {r.meta}
+              </span>
             </div>
-            <span className="text-[11px] text-tertiary opacity-60 truncate group-hover:opacity-100 transition-opacity">
-              {r.meta}
-            </span>
+            <dd className="text-right">
+              {r.value !== DASH ? (
+                <span className={cn("tabular text-[16px] font-semibold tracking-tight", r.valueAccent ? "text-accent" : "text-strong")}>
+                  {r.value}
+                </span>
+              ) : (
+                <span className="text-tertiary opacity-30 text-lg font-light leading-none">{DASH}</span>
+              )}
+            </dd>
           </div>
         ))}
       </dl>
