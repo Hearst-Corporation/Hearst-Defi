@@ -602,7 +602,7 @@
 .pf-container .pf-cockpit-panel__title--primary,
 .pf-container .pf-panel-title {
   margin: 0 0 var(--ct-space-3);
-  font-size: var(--ct-text-xs);  /* raised from 2xs (12px) → xs (13px) for cross-zone consistency */
+  font-size: var(--ct-text-sm);  /* raised from 2xs (12px) → sm (15px) — align with doc-flow h3 tier */
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-snug);
   letter-spacing: var(--ct-tracking-wider);
