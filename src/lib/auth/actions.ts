@@ -182,8 +182,9 @@ export async function login(
   logger.info("login success", { userId: user.id });
 
   // Outside try/catch: redirect throws NEXT_REDIRECT which must propagate.
-  // Route an un-onboarded investor into the funnel when there is no explicit
-  // deep link; otherwise honour `from` / default to /portfolio.
+  // Everyone lands on the platform (/portfolio) or their explicit deep link —
+  // onboarding is no longer a post-login gate (it lives inside the platform and
+  // only gates investing).
   redirect(await resolvePostLoginRedirect(user.id, from));
 }
 
