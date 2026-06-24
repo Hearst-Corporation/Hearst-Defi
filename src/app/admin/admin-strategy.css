@@ -66,7 +66,7 @@
 
 /* Subscribers row separator hairline */
 .admin-strategy-subs-row {
-  border-bottom: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-graphite-border-nested);
 }
 .admin-strategy-subs-row:last-child {
   border-bottom: 0;
@@ -115,8 +115,8 @@
   width: var(--ct-space-6);
   height: var(--ct-space-6);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-bg-deep);
-  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-graphite-border-nested);
   color: var(--ct-text-faint);
   font-family: var(--ct-font-mono);
   font-size: var(--ct-text-xs);
@@ -130,7 +130,7 @@
 
 .admin-strategy-wizard__step-item.completed:hover .step-number {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-accent), transparent 80%);
+  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
 }
 
 .admin-strategy-wizard__step-item .step-label {
@@ -143,7 +143,7 @@
 .admin-strategy-wizard__step-item.active .step-number {
   border-color: var(--ct-accent);
   color: var(--ct-accent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--ct-accent), transparent 80%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ct-accent) 15%, transparent);
 }
 
 .admin-strategy-wizard__step-item.active .step-label {
@@ -195,11 +195,11 @@
 /* Summary panel adaptation when in the sidebar */
 .admin-strategy-wizard__aside .ct-projection-footer {
   position: static;
-  background: var(--ct-bg-card);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-lg);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-6);
-  box-shadow: var(--ct-shadow-sm);
+  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
 }
 
 .admin-strategy-wizard__aside .ct-projection-footer-inner {
@@ -223,7 +223,7 @@
   display: block;
   font-size: var(--ct-text-xs);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--ct-tracking-wide);
   margin-bottom: var(--ct-space-1);
 }
 
@@ -309,7 +309,7 @@
 .admin-strategy-heatmap-cell {
   position: relative;
   padding: var(--ct-space-2_5);
-  border-radius: var(--ct-radius-md);
+  border-radius: var(--ct-radius-xl);
   text-align: left;
   transition:
     background-color var(--ct-dur-base) var(--ct-ease),
