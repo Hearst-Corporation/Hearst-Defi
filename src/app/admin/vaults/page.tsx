@@ -123,11 +123,11 @@ export default async function VaultsPage({ searchParams }: PageProps) {
         <section aria-label="Vault deployments" className="admin-vaults-list">
           {/* Column headers */}
           <div className="admin-vaults-list__header" aria-hidden>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Vault</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Status</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Principal vs Capacity</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider">Target APY</span>
-            <span className="body-xs ct-text-muted font-bold uppercase tracking-wider sr-only">Actions</span>
+            <span className="eyebrow">Vault</span>
+            <span className="eyebrow">Status</span>
+            <span className="eyebrow">Principal vs Capacity</span>
+            <span className="eyebrow">Target APY</span>
+            <span className="eyebrow sr-only">Actions</span>
           </div>
 
           {vaults.map((vault) => {

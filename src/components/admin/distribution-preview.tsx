@@ -37,7 +37,7 @@ export function DistributionPreview({
       {/* Summary */}
       <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <div>
-          <p className="stat-label">Distribution preview</p>
+          <h3 className="h3">Distribution preview</h3>
           <p className="stat-value tabular">{formatUsdDetailed(totalUsdc)} USDC</p>
         </div>
         <div className="text-right">

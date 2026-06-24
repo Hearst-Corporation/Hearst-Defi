@@ -5,7 +5,8 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { MetricGrid } from "@/components/ui/nested-panel";
 import { Progress } from "@/components/ui/progress";
@@ -354,7 +355,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 1 — Identity & Strategy */}
         {step === "identity" && (
           <div className="admin-doc-stack">
-            <CardTitle>Identity &amp; Strategy</CardTitle>
+            <DashboardPanelHeader title="Identity & Strategy" />
 
             <MetricGrid columns={2}>
               <label className="admin-doc-field block">
@@ -433,7 +434,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 2 — Economics */}
         {step === "economics" && (
           <div className="admin-doc-stack">
-            <CardTitle>Economics</CardTitle>
+            <DashboardPanelHeader title="Economics" />
 
             <MetricGrid columns={2}>
               <label className="admin-doc-field block">
@@ -567,7 +568,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 3 — Allocation targets */}
         {step === "allocations" && (
           <div className="admin-doc-stack">
-            <CardTitle>Allocation Targets</CardTitle>
+            <DashboardPanelHeader title="Allocation Targets" />
             <p className="body-sm ct-text-muted">
               Must sum to exactly 10 000 bps (100%). Currently:{" "}
               <span
@@ -617,7 +618,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 4 — Legal & SPV */}
         {step === "legal" && (
           <div className="admin-doc-stack">
-            <CardTitle>Legal &amp; SPV</CardTitle>
+            <DashboardPanelHeader title="Legal & SPV" />
 
             <MetricGrid columns={3}>
               <label className="admin-doc-field block">
@@ -689,7 +690,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 5 — Governance */}
         {step === "governance" && (
           <div className="admin-doc-stack">
-            <CardTitle>Governance</CardTitle>
+            <DashboardPanelHeader title="Governance" />
 
             <div className="admin-doc-stack admin-doc-stack--relaxed">
               <div className="admin-doc-stack admin-doc-stack--tight">
@@ -834,7 +835,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 6 — Review & Simulate (read-only recap) */}
         {step === "review_simulate" && (
           <div className="admin-doc-stack">
-            <CardTitle>Review &amp; Simulate</CardTitle>
+            <DashboardPanelHeader title="Review & Simulate" />
 
             <div className="admin-doc-inset admin-confirm-panel divide-y divide-[var(--ct-border-soft)]">
               <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--head">
@@ -982,7 +983,7 @@ export function VaultForm(props: VaultFormProps) {
         {/* Step 7 — Sign & Deploy */}
         {step === "sign_deploy" && (
           <div className="admin-doc-stack">
-            <CardTitle>Sign &amp; Deploy</CardTitle>
+            <DashboardPanelHeader title="Sign & Deploy" />
 
             <div className="admin-doc-inset admin-doc-stack admin-doc-stack--actions">
               <p className="body-sm ct-text-muted">

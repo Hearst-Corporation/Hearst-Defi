@@ -21,7 +21,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
   return (
     <div className="admin-doc-stack">
       <section>
-        <DashboardPanelHeader title="Run volume by agent" tone="quiet" className="mb-[var(--ct-space-4)]" />
+        <DashboardPanelHeader title="Run volume by agent" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
         <MonitoringTable
           colSpan={3}
           isEmpty={stats.runsByAgent.length === 0}
@@ -51,7 +51,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </section>
 
       <section>
-        <DashboardPanelHeader title="Recent agent runs" tone="quiet" className="mb-[var(--ct-space-4)]" />
+        <DashboardPanelHeader title="Recent agent runs" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
         <MonitoringTable
           colSpan={7}
           isEmpty={stats.recentRuns.length === 0}
@@ -108,7 +108,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </section>
 
       <section>
-        <DashboardPanelHeader title="Navigation traces" tone="quiet" className="mb-[var(--ct-space-4)]" />
+        <DashboardPanelHeader title="Navigation traces" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
         <MonitoringTable
           colSpan={6}
           isEmpty={stats.recentNavTraces.length === 0}
@@ -151,7 +151,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       </section>
 
       <section>
-        <DashboardPanelHeader title="Admin tool activity" tone="quiet" className="mb-[var(--ct-space-4)]" />
+        <DashboardPanelHeader title="Admin tool activity" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
         <MonitoringTable
           colSpan={5}
           isEmpty={stats.recentToolRuns.length === 0}
