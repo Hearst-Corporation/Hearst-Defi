@@ -11,7 +11,6 @@
 
 import { useId, useState } from "react";
 
-import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/explorer";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
@@ -382,7 +381,6 @@ export function DistribCalendar({
 }: DistribCalendarProps) {
   // id unique par instance — évite la collision de gradient <defs> si plusieurs
   // calendriers en zero-state coexistent (duplicate id = HTML invalide).
-  const uid = useId();
   const now = asOf ?? new Date();
   const refYear = now.getUTCFullYear();
 

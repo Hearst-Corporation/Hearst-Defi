@@ -1,4 +1,3 @@
-import { cn } from "@/lib/cn";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";

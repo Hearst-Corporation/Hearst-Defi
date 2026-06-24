@@ -242,7 +242,7 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-8);
   min-width: 0;
   margin-top: 0;
 }
@@ -257,7 +257,7 @@
 
 /* Default (below the gate): each row is a single column, content-sized. */
 .pf-cockpit-row--chart  { grid-template-columns: 1fr; }
-.pf-cockpit-row--mid   { grid-template-columns: 1fr; }
+.pf-cockpit-row--yield  { grid-template-columns: 1fr; }
 .pf-cockpit-row--deck  { grid-template-columns: 1fr; }
 .pf-cockpit-row--positions { grid-template-columns: 1fr; }
 
@@ -317,7 +317,7 @@
 }
 
 .pf-fused-surface--deck {
-  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.95fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(15rem, 0.8fr);
   min-height: 22rem; /* Stabilize deck height */
 }
 
@@ -345,10 +345,6 @@
 @container pf (max-width: 58rem) {
   .pf-hero-grid {
     grid-template-columns: 1fr;
-  }
-  .pf-fused-surface__pane--rail {
-    border-right: 0;
-    border-bottom: 1px solid var(--ct-graphite-border-nested);
   }
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
@@ -546,6 +542,12 @@
   padding: var(--ct-space-4);
 }
 
+.pf-hero-grid .pf-cockpit-panel__header {
+  min-height: var(--ct-space-12);
+  display: flex;
+  align-items: flex-start;
+}
+
 .pf-hero-grid .pf-main-chart-wrapper {
   background: transparent;
 }
@@ -568,7 +570,6 @@
   position: relative;
 }
 
-.pf-fused-surface--mid .pf-cockpit-panel,
 .pf-fused-surface--deck .pf-cockpit-panel {
   height: 100%;
 }
@@ -999,11 +1000,12 @@
   flex: 1 1 auto;
   min-height: 0;
   margin: 0;
-  padding: 0 var(--ct-space-4) var(--ct-space-3);
+  padding: 0 var(--ct-space-4) var(--ct-space-4);
   /* Last-resort ghost-scroll inside the panel if a short slot can't hold all 5
      rows — never clips a row out of view (Underlying proof was getting cut). */
   overflow-y: auto;
   scrollbar-width: none;
+  justify-content: space-between;
 }
 .pf-status-list::-webkit-scrollbar { width: 0; height: 0; }
 
@@ -1014,8 +1016,8 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ct-space-3);
-  flex: 1 1 0;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: var(--ct-space-10);
   padding: var(--ct-space-2) var(--ct-space-3);
   border-radius: var(--ct-radius-md);
 }
@@ -1228,10 +1230,11 @@
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
   align-items: stretch;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-8);
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  max-width: 64rem;
 }
 
 /* ---- Donut ---- */
@@ -1652,8 +1655,8 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ct-space-3); /* Reduced gap for better narrow fit */
-  padding: var(--ct-space-2_5) var(--ct-space-4); /* Slightly tighter padding */
+  gap: var(--ct-space-4); /* Balanced gap */
+  padding: var(--ct-space-3) var(--ct-space-4); /* Increased vertical air */
   border-radius: var(--ct-radius-sm);
   border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
   transition: all var(--ct-dur-base) var(--ct-ease);
@@ -2152,9 +2155,9 @@
         its own internal 2-column split). No @container override needed here. ---- */
 
 @container pf (min-width: 58rem) {
-  /* Hero welded grid split — 3 columns: Rail (Donut+APY) | Chart | Sidebar */
+  /* Hero welded grid split — 2 columns: Chart | Sidebar */
   .pf-hero-grid {
-    grid-template-columns: minmax(14rem, 0.8fr) 1.6fr minmax(16rem, 1fr);
+    grid-template-columns: 1.6fr minmax(16rem, 22rem);
   }
   /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
@@ -2162,7 +2165,7 @@
     border-left: 1px solid var(--ct-graphite-border-nested);
   }
   .pf-hero-grid .pf-main-chart-wrapper {
-    border-left: 1px solid var(--ct-graphite-border-nested);
+    border-left: 0;
   }
 }
 
@@ -2416,7 +2419,7 @@
 .pf-positions-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-5); /* Increased gap for breathing room */
   padding: var(--ct-space-2) 0;
   min-width: 0;
   width: 100%;

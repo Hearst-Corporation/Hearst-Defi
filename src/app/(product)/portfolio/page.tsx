@@ -62,15 +62,6 @@ export default async function PortfolioPage() {
       <div className="pf-cockpit">
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
           <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-fused-surface__pane pf-fused-surface__pane--rail">
-              <CapitalYield
-                {...yieldStackProps}
-                buckets={allocationDonutProps.buckets}
-                totalValueUsdc={data.totalValueUsdc}
-                leafHref="/portfolio/yield"
-                embedded={true}
-              />
-            </div>
             <div className="pf-main-chart-wrapper">
               <ValueChart
                 positions={positions}
@@ -92,6 +83,18 @@ export default async function PortfolioPage() {
               source={source}
               embedded={true}
               updatedAt={updatedAt ?? undefined}
+            />
+          </div>
+        </section>
+
+        <section className="pf-cockpit-row pf-cockpit-row--yield" aria-label="Capital and yield allocation">
+          <div className="pf-cockpit-cell">
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              leafHref="/portfolio/yield"
+              embedded={false}
             />
           </div>
         </section>
