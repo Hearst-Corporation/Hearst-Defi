@@ -132,6 +132,15 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       onChatId: (id) => setActiveChat(id),
     });
 
+  // The chat is "empty" when there is no real exchange yet — i.e. zero messages
+  // OR only the seeded `welcome` greeting from useChat. We treat the lone welcome
+  // as empty so the empty-state (context card + ChatPresets quick-action chips)
+  // renders instead; otherwise the welcome message would permanently satisfy
+  // `messages.length > 0` and the preset chips would never appear.
+  const isConversationEmpty =
+    messages.length === 0 ||
+    (messages.length === 1 && messages[0]?.id === "welcome");
+
   // Keep scrolling local to the chat list. `scrollIntoView()` can bubble up to a
   // larger ancestor and visually yank the whole center panel when a message lands.
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on messages update
@@ -287,7 +296,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
 
       {/* Messages */}
       <div ref={chatListRef} className="ct-chat-list">
-        {messages.length === 0 && !streaming && (
+        {isConversationEmpty && !streaming && (
           <div className="ct-chat-empty">
             <p className="ct-placeholder">
               Hearst Assistant
@@ -310,7 +319,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           </div>
         )}
 
-        {messages.map((msg) => {
+        {!isConversationEmpty && messages.map((msg) => {
           // Cache la bulle assistant vide en attente de stream — on affiche
           // uniquement le logo H (ct-chat-thinking) à la place.
           if (
