@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { requireAuth } from "@/lib/auth/require-auth";
+import { stripCanvasOpenMarker } from "@/lib/canvas/intent";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { assertRateLimit } from "@/lib/rate-limit";
@@ -56,7 +57,14 @@ export async function GET(
       .map((r) => ({
         id: r.id,
         role: r.role,
-        content: r.content,
+        // Strip the hidden canvas open-marker before display. It is appended to
+        // the PERSISTED assistant turn (cockpit-chat/route.ts) purely so the next
+        // turn's cross-turn detection (detectActiveCanvasFromHistory, which reads
+        // its own DB load) knows the workshop is still on screen — it must never
+        // reach the chat bubble. Without this strip the literal "[[canvas-open:…]]"
+        // leaked into the rendered transcript on reload/reconciliation.
+        content:
+          r.role === "assistant" ? stripCanvasOpenMarker(r.content) : r.content,
         created_at: r.createdAt.toISOString(),
       })),
   });

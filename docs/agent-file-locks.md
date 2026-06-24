@@ -22,7 +22,24 @@ _No active locks yet._
 
 ## RELEASED LOCKS
 
-_No released locks yet._
+### agent/console-debug
+Owner: Console Debug Owner
+Branch: agent/console-debug
+Merged PR: #22
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/app/api/cockpit-chats/[id]/route.ts
+- src/app/api/cockpit-chats/[id]/__tests__/route.display-marker.test.ts
+
+Result:
+- Full console/browser/API debug pass on bd6ba923 (prod train).
+- Fixed P1: stripped the hidden `[[canvas-open:<id>]]` control marker from the
+  chat history display endpoint so it never leaks into the rendered transcript;
+  persisted row keeps the marker (cross-turn memory intact). Regression test added.
+- Did NOT touch the sensitive single-owner chat files (cockpit-chat/route.ts,
+  emit.ts, compose.ts).
 
 ---
 
