@@ -179,8 +179,6 @@ function Plot({
   // Skeleton: pin the flat line to the bottom axis (not the mid-band that
   // project() uses for flat series) so it reads as an empty baseline.
   const values = series.map((d) => d.value);
-  const lo = Math.min(...values);
-  const hi = Math.max(...values);
   const pts = skeleton
     ? series.map((_, i) => ({
         x: series.length === 1 ? VB_W / 2 : PAD_X + (i / (series.length - 1)) * (VB_W - PAD_X * 2),
@@ -248,30 +246,20 @@ function Plot({
       </defs>
 
       <g className="pf-vc-grid" aria-hidden="true">
-        {/* Horizontal grid lines — 0, 25, 50, 75, 100% of plot area */}
+        {/* Horizontal grid lines — labels omitted: preserveAspectRatio="none" distorts
+            SVG text in the height axis; values are available via hover tooltip instead. */}
         {[0, 0.25, 0.5, 0.75, 1].map((f) => {
           const y = PAD_Y + (VB_H - PAD_Y * 2) * f;
           return (
-            <g key={`h-g-${f}`}>
-              <line
-                x1="0"
-                x2={VB_W}
-                y1={y.toFixed(1)}
-                y2={y.toFixed(1)}
-                strokeDasharray={f === 0 || f === 1 ? "none" : "1 4"}
-                strokeOpacity={f === 0 || f === 1 ? 0.4 : 0.2}
-              />
-              {!skeleton && (
-                <text
-                  x="2"
-                  y={y - 2}
-                  className="pf-vc-y-label"
-                  style={{ fontSize: '2.5px', fill: 'var(--ct-text-tertiary)', opacity: 0.4, letterSpacing: '0.1em' }}
-                >
-                  {formatUsdCompact(hi - (f * (hi - lo)))}
-                </text>
-              )}
-            </g>
+            <line
+              key={`h-g-${f}`}
+              x1="0"
+              x2={VB_W}
+              y1={y.toFixed(1)}
+              y2={y.toFixed(1)}
+              strokeDasharray={f === 0 || f === 1 ? "none" : "1 4"}
+              strokeOpacity={f === 0 || f === 1 ? 0.4 : 0.2}
+            />
           );
         })}
         {/* Vertical grid lines — matching month label anchors */}
@@ -452,20 +440,17 @@ export function ValueChart({
       )}
     >
       {embedded ? (
-        <header className="pf-cockpit-panel__header mb-6">
+        <header className="pf-cockpit-panel__header mb-[var(--ct-space-2)]">
           <div className="pf-cockpit-panel__header-main min-w-0 flex-1">
-            <div className="flex items-center justify-between w-full mb-4">
-              <div className="flex flex-col gap-1.5">
-                <h2 className="pf-cockpit-panel__title--primary tracking-wider opacity-90">Portfolio Value</h2>
-                {provenance && (
-                  <div className="flex items-center gap-2">
-                    <ProvenanceBadge kind={provenance} compact />
-                      {updatedAt && (
-                        <span className="text-[var(--ct-text-deci)] tracking-widest text-tertiary uppercase font-medium opacity-60">
-                          As of {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(updatedAt)}
-                        </span>
-                      )}
-                  </div>
+            {/* Row 1: title + provenance + time selector */}
+            <div className="flex items-center justify-between w-full mb-[var(--ct-space-1_5)]">
+              <div className="flex items-center gap-[var(--ct-space-3)]">
+                <h2 className="pf-cockpit-panel__title--primary tracking-wider opacity-[var(--ct-opacity-90)]">Portfolio Value</h2>
+                {provenance && <ProvenanceBadge kind={provenance} compact />}
+                {updatedAt && (
+                  <span className="text-[length:var(--ct-text-nano)] tracking-widest text-tertiary uppercase font-medium opacity-[var(--ct-opacity-50)] hidden sm:inline">
+                    {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(updatedAt)}
+                  </span>
                 )}
               </div>
               {!isEmpty && (
@@ -476,16 +461,23 @@ export function ValueChart({
                 />
               )}
             </div>
-            {isEmpty ? null : (
-              <div className="pf-hero-kpi-block m-0 flex flex-col gap-1 mt-2">
-                <span className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium">Current Balance</span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-secondary text-[var(--ct-text-hero-sym)] font-medium leading-none tracking-tight -translate-y-1 opacity-80">$</span>
-                  <span className="pf-hero-kpi-value text-[var(--ct-text-hero-num)] tracking-tight font-semibold text-strong leading-none">
+            {/* Row 2: balance + APY inline — compact cockpit instrument row */}
+            {!isEmpty && (
+              <div className="flex items-baseline gap-[var(--ct-space-4)]">
+                <div className="flex items-baseline gap-[var(--ct-space-1)]">
+                  <span className="text-tertiary text-[length:var(--ct-text-base)] font-medium leading-none opacity-[var(--ct-opacity-60)]">$</span>
+                  <span className="pf-hero-kpi-value text-[length:var(--ct-text-3xl-fixed)] tracking-tight font-bold text-strong leading-none">
                     {formatUsdDetailed(chartValue).replace('$', '')}
                   </span>
-                  <span className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-accent font-bold ml-1 px-1.5 py-0.5 rounded-sm bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]">USDC</span>
+                  <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-semibold ml-[var(--ct-space-0_5)] px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] rounded-sm bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_40%,transparent)]">USDC</span>
                 </div>
+                {apyLow !== undefined && apyHigh !== undefined && (
+                  <div className="flex items-center gap-[var(--ct-space-1_5)]">
+                    <span className="w-[5px] h-[5px] rounded-full bg-[color-mix(in_srgb,var(--ct-accent)_70%,transparent)] flex-shrink-0" aria-hidden="true" />
+                    <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] font-medium text-tertiary opacity-[var(--ct-opacity-70)]">APY</span>
+                    <ApyRange low={apyLow} high={apyHigh} className="text-[length:var(--ct-text-sm)] font-semibold text-secondary tracking-tight" />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -503,7 +495,7 @@ export function ValueChart({
           titleVariant="primary"
           provenance={provenance}
           trailing={
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end gap-[var(--ct-space-2)]">
               {!isEmpty && (
                 <ChartTimeSelector
                   value={range}
@@ -535,15 +527,6 @@ export function ValueChart({
                   position="top-right" 
                 />
               )}
-              {!isEmpty && apyLow !== undefined && apyHigh !== undefined && (
-                <div className="pf-value-chart__apy-corner absolute bottom-5 left-5 z-10 flex items-center gap-3 px-3 py-2 rounded-lg bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] border border-[color-mix(in_srgb,var(--ct-border-soft)_30%,transparent)] backdrop-blur-xl shadow-[var(--ct-shadow-depth)]">
-                  <div className="flex flex-col border-r border-[color-mix(in_srgb,var(--ct-border-soft)_30%,transparent)] pr-3">
-                    <span className="stat-label text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] font-semibold text-secondary flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)] text-accent shadow-[var(--ct-glow-dot)]" />Target APY</span>
-                  </div>
-                  <ApyRange low={apyLow} high={apyHigh} className="text-[var(--ct-text-14)] font-bold text-strong tracking-tight" />
-                </div>
-              )}
-
               {/* Grid lines inside plot */}
               {!isEmpty && (
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="none">
@@ -577,15 +560,15 @@ export function ValueChart({
                   }}
                 >
                   <div className="pf-vc-tooltip__content border border-[color-mix(in_srgb,var(--ct-border-soft)_60%,transparent)] shadow-[var(--ct-shadow-depth)] backdrop-blur-xl">
-                    <span className="pf-vc-tooltip__value tabular-nums text-lg tracking-tight">
+                    <span className="pf-vc-tooltip__value tabular-nums text-[length:var(--ct-text-lg)] tracking-tight">
                       {formatUsdDetailed(series[hoverIndex]!.value)}
                     </span>
-                    <div className="flex items-center justify-between gap-3 mt-1.5 pt-1.5 border-t border-[color-mix(in_srgb,var(--ct-border-soft)_40%,transparent)]">
-                      <span className="pf-vc-tooltip__date opacity-60">
+                    <div className="flex items-center justify-between gap-[var(--ct-space-3)] mt-[var(--ct-space-1_5)] pt-[var(--ct-space-1_5)] border-t border-[color-mix(in_srgb,var(--ct-border-soft)_40%,transparent)]">
+                      <span className="pf-vc-tooltip__date opacity-[var(--ct-opacity-60)]">
                         {series[hoverIndex]!.label}
                       </span>
                       {series[hoverIndex]!.isDistribution && (
-                        <span className="text-[var(--ct-text-nano)] text-accent font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]">Payout</span>
+                        <span className="text-[length:var(--ct-text-nano)] text-accent font-bold uppercase tracking-widest px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] rounded-sm bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]">Payout</span>
                       )}
                     </div>
                   </div>

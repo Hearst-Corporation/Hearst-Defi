@@ -113,41 +113,41 @@ const rows: ReadonlyArray<{
       aria-label="Portfolio status"
       className="pf-status-panel !p-0"
     >
-      <header className="pf-cockpit-panel__header px-6 py-5 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
-        <div className="flex flex-col gap-1.5">
-          <h2 className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] font-semibold text-secondary">Portfolio Status</h2>
+      <header className="pf-cockpit-panel__header px-[var(--ct-space-4)] py-[var(--ct-space-2)] border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
+        <div className="flex flex-col gap-[var(--ct-space-1_5)]">
+          <h2 className="text-[length:var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] font-semibold text-secondary">Portfolio Status</h2>
           {provenance && (
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-[var(--ct-space-2)] mt-[var(--ct-space-1)]">
               <ProvenanceBadge kind={provenance} compact />
-              <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-60">Verified Proof</span>
+              <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-[var(--ct-opacity-60)]">Verified Proof</span>
             </div>
           )}
         </div>
       </header>
-      <dl className="flex flex-col flex-1 px-5">
+      <dl className="flex flex-col flex-1 px-[var(--ct-space-4)]">
         {rows.map((r) => (
           <div
             key={r.key}
-            className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3.5 py-3.5 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_55%,transparent)] last:border-b-0"
+            className="pf-status-line group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[var(--ct-space-2_5)] py-[var(--ct-space-2)] border-b border-[color-mix(in_srgb,var(--ct-border-soft)_55%,transparent)] last:border-b-0"
           >
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[color-mix(in_srgb,var(--ct-accent)_9%,transparent)] text-accent transition-colors group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]">
-              <r.Icon size={14} strokeWidth={2} aria-hidden="true" />
+            <span className="pf-status-line__icon flex items-center justify-center w-[var(--ct-space-7)] h-[var(--ct-space-7)] rounded-md bg-[color-mix(in_srgb,var(--ct-accent)_9%,transparent)] text-accent transition-colors group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]">
+              <r.Icon strokeWidth={2} aria-hidden="true" />
             </span>
             <div className="flex flex-col min-w-0">
-              <dt className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium group-hover:text-primary transition-colors">
+              <dt className="text-[length:var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium group-hover:text-primary transition-colors">
                 {r.label}
               </dt>
-              <span className="text-[var(--ct-text-micro)] text-tertiary opacity-60 truncate group-hover:opacity-100 transition-opacity">
+              <span className="text-[length:var(--ct-text-micro)] text-tertiary opacity-[var(--ct-opacity-60)] truncate group-hover:opacity-100 transition-opacity">
                 {r.meta}
               </span>
             </div>
             <dd className="text-right">
               {r.value !== DASH ? (
-                <span className={cn("tabular text-[var(--ct-text-base)] font-semibold tracking-tight", r.valueAccent ? "text-accent" : "text-strong")}>
+                <span className={cn("tabular text-[length:var(--ct-text-base)] font-semibold tracking-tight", r.valueAccent ? "text-accent" : "text-strong")}>
                   {r.value}
                 </span>
               ) : (
-                <span className="text-tertiary opacity-30 text-lg font-light leading-none">{DASH}</span>
+                <span className="text-tertiary opacity-[var(--ct-opacity-35)] text-[length:var(--ct-text-lg)] font-light leading-none">{DASH}</span>
               )}
             </dd>
           </div>

@@ -44,14 +44,6 @@
   color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
-  /* responsive breakpoint vars (consumed by @container tiers below) */
-  --pf-bp-phone: 48rem;
-  --pf-bp-mid-2col: 52rem;
-  --pf-bp-mid-split: 58rem;
-  --pf-bp-deck-2col: 36rem;
-  --pf-bp-deck-3col: 58rem;
-  --pf-bp-hero-split: 58rem;
-  --pf-bp-hero-stack: 64rem;
   position: relative;
   background: transparent;
 
@@ -74,6 +66,7 @@
   --ct-text-secondary: #C3D2CA;   /* était #9EB3A8 (4.2:1) → ~9:1 */
   --ct-text-tertiary:  #93A39B;   /* était #7E8F86 (2.8:1) → ~5:1 */
   --ct-text-muted:     rgba(245, 245, 245, 0.66);  /* était 0.55 */
+
 }
 
 /* All financial body text in portfolio scope inherits strong white. */
@@ -349,10 +342,6 @@
   pointer-events: none;
 }
 
-.pf-fused-surface--mid {
-  grid-template-columns: minmax(0, 1.8fr) minmax(21rem, 0.95fr);
-}
-
 .pf-fused-surface--deck {
   grid-template-columns: minmax(0, 1.15fr) minmax(15rem, 0.8fr);
   min-height: 22rem; /* Stabilize deck height */
@@ -386,99 +375,12 @@
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
   }
+  .pf-hero-grid .pf-status-panel {
+    border-left: none;
+    border-top: 1px solid var(--ct-graphite-border-nested);
+  }
 }
 
-
-.pf-fused-surface--mid .pf-cockpit-panel__header {
-  padding-bottom: var(--ct-space-1);
-}
-
-.pf-fused-surface--mid .pf-positions {
-  padding-top: var(--ct-space-1);
-}
-
-.pf-fused-surface--mid .pf-positions__row--head {
-  background: var(--ct-graphite-nested-bg);
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.pf-fused-surface--mid .pf-positions__row--body {
-  padding-inline: 0;
-}
-
-.pf-fused-surface--mid .pf-positions-empty {
-  flex: 1 1 auto;
-  min-height: 0;
-  align-items: flex-start;
-  justify-content: flex-start;
-  text-align: left;
-  padding: var(--ct-space-3) 0 0;
-  gap: var(--ct-space-2);
-}
-
-.pf-positions-empty--embedded {
-  gap: var(--ct-space-2);
-}
-
-.pf-positions-empty--embedded .pf-positions-empty__hint {
-  max-width: 36ch;
-  line-height: var(--ct-leading-snug);
-}
-
-.pf-fused-surface--mid .pf-capital-yield--embedded,
-.pf-fused-surface--mid .pf-capital-yield--embedded-empty {
-  padding-inline: 0;
-  justify-content: flex-start;
-}
-
-.pf-fused-surface--mid .cy-panel {
-  padding-inline: 0;
-  justify-content: flex-start;
-}
-
-.pf-fused-surface--mid .cy-body {
-  grid-template-columns: 1fr;
-  justify-items: stretch;
-  gap: var(--ct-space-4);
-  align-content: start;
-}
-
-.pf-fused-surface--mid .cy-spine {
-  display: none;
-}
-
-.pf-fused-surface--mid .cy-donut,
-.pf-fused-surface--mid .dash-chart-container {
-  width: 100%;
-  max-width: 10rem;
-  height: auto;
-  aspect-ratio: 1;
-  margin-inline: auto;
-}
-
-.pf-fused-surface--mid .cy-ledger {
-  gap: var(--ct-space-2_5);
-}
-
-.pf-fused-surface--mid .cy-panel--onboarding-empty {
-  align-items: flex-start;
-  justify-content: center;
-  gap: var(--ct-space-4);
-}
-
-.pf-fused-surface--mid .cy-panel--onboarding-empty .cy-body {
-  align-items: flex-start;
-  justify-content: flex-start;
-  width: 100%;
-}
-
-.pf-fused-surface--mid .cy-panel__empty-copy {
-  align-items: flex-start;
-  text-align: left;
-  margin: 0;
-  max-width: 22ch;
-}
 
 .pf-capital-yield--embedded-empty {
   justify-content: center;
@@ -528,8 +430,7 @@
 }
 .pf-container--fit .pf-positions,
 .pf-container--fit .cy-ledger,
-.pf-container--fit .pf-activity,
-.pf-container--fit .pf-status-list {
+.pf-container--fit .pf-activity {
   overflow: visible;
 }
 
@@ -559,8 +460,7 @@
   gap: var(--ct-space-2_5);
 }
 
-/* Mid/deck panels share the same flat graphite plate as the hero weld. */
-.pf-cockpit-row--mid .pf-cockpit-panel,
+/* Deck panels share the same flat graphite plate as the hero weld. */
 .pf-cockpit-row--deck .pf-cockpit-panel {
   border-color: var(--ct-graphite-border-nested);
   background: var(--ct-graphite-subtle-bg);
@@ -696,9 +596,10 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  grid-template-columns: 1fr;
-  min-height: 210px; /* chart-geometry — compacté (était 290px), hero moins envahissant */
-  height: 100%;
+  /* chart-geometry — 2 cols: chart (flex) + status rail (fixed 19rem max) */
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
+  /* chart-geometry — fixed hero height: header ~52px + chart 10rem + month-labels 28px ≈ 260px */
+  height: 16rem;
   overflow: clip;
 }
 
@@ -732,11 +633,11 @@
 .pf-value-chart {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-2);
   min-width: 0;
   min-height: 0;
   height: 100%;
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-4);
 }
 
 .pf-value-chart > header {
@@ -748,11 +649,13 @@
 }
 
 .pf-hero-kpi-value {
-  font-size: var(--ct-text-display-fixed);
-  font-weight: var(--ct-font-extrabold);
+  /* chart-geometry — intentionally fixed at 3xl (24px), not display (32px).
+     Cockpit metric, not a marketing headline. */
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
-  letter-spacing: var(--ct-tracking-tighter);
-  color: var(--ct-accent);
+  letter-spacing: var(--ct-tracking-tight);
+  color: var(--ct-text-strong);
 }
 
 .pf-value-chart--hero-embedded .pf-cockpit-panel__header {
@@ -776,10 +679,17 @@
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
-  /* aspect-ratio is the collapse backstop once min-height:0 fires */
-  aspect-ratio: 200 / 80; /* chart-geometry */
+  /* chart-geometry — aspect backstop for non-hero usage; hero height is controlled by pf-hero-grid */
+  aspect-ratio: 200 / 72; /* chart-geometry */
   overflow: hidden;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+}
+
+/* Hero context: aspect-ratio would force height based on ~1000px width → 360px,
+   blowing the 16rem fixed grid. Override to pure flex fill. */
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper {
+  aspect-ratio: auto;
+  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
 }
 
 .pf-value-chart__chart-wrapper {
@@ -898,14 +808,6 @@
   margin-bottom: var(--ct-space-1);
 }
 
-.pf-vc-y-label {
-  pointer-events: none;
-  user-select: none;
-  font-family: var(--font-mono);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-}
 
 .pf-vc-tooltip {
   position: absolute;
@@ -969,18 +871,25 @@
 }
 
 /* Corner metrics hover states */
-.chart-provenance-corner,
-.pf-value-chart__apy-corner {
+.chart-provenance-corner {
   transition: all var(--ct-dur-base) var(--ct-ease);
   cursor: help;
   opacity: var(--ct-opacity-80);
 }
 
-.chart-provenance-corner:hover,
-.pf-value-chart__apy-corner:hover {
+.chart-provenance-corner:hover {
   opacity: 1;
   transform: scale(1.02);
   color: var(--ct-accent-light);
+}
+
+/* Badge LIVE (provenance corner) dans le plot : décollé du bord droit ET du
+   haut pour ne plus toucher l'endpoint de courbe ni le coin. Override des
+   utilitaires top-2/right-2 du composant (hors scope) via un sélecteur scopé
+   plus spécifique. Pilule sombre discrète — pas de glow. */
+.pf-value-chart__plot .chart-provenance-corner {
+  top: var(--ct-space-3);
+  right: var(--ct-space-4);
 }
 
 /* Rail metrics hover states */
@@ -1019,24 +928,10 @@
 }
 
 .pf-status-panel .pf-cockpit-panel__header {
-  padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-1_5);
-  margin-bottom: var(--ct-space-0_5);
+  padding: var(--ct-space-2_5) var(--ct-space-4) var(--ct-space-1);
+  margin-bottom: 0;
 }
 
-.pf-status-list {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  margin: 0;
-  padding: 0 var(--ct-space-4) var(--ct-space-4);
-  /* Last-resort ghost-scroll inside the panel if a short slot can't hold all 5
-     rows — never clips a row out of view (Underlying proof was getting cut). */
-  overflow-y: auto;
-  scrollbar-width: none;
-  justify-content: space-between;
-}
-.pf-status-list::-webkit-scrollbar { width: 0; height: 0; }
 
 /* icon · label · (value / meta) — value+meta right-aligned. FLAT rows: no
    mini-box (no radius, no per-row plate). Items are separated by a single
@@ -1047,8 +942,8 @@
   align-items: center;
   gap: var(--ct-space-3);
   flex: 0 0 auto;
-  min-height: var(--ct-space-9);
-  padding: var(--ct-space-2) 0;
+  min-height: 0; /* let content determine row height */
+  padding: var(--ct-space-1_5) 0;
   border-radius: 0;
 }
 
@@ -1117,9 +1012,17 @@
   white-space: nowrap;
 }
 
-/* The status panel is the hero-grid right slot: same welded seam as the cluster. */
+/* Status-row leading icon — lucide default is 24px ; clamp it to the dense
+   row scale (size prop removed in the component to stay token-driven). */
+.pf-status-line__icon svg {
+  width: var(--ct-space-3_5);
+  height: var(--ct-space-3_5);
+}
+
+/* Status panel is the hero-grid right slot: left-border separates it from the chart. */
 .pf-hero-grid .pf-status-panel {
-  border-top: 1px solid var(--ct-graphite-border-nested);
+  border-top: none;
+  border-left: 1px solid var(--ct-graphite-border-nested);
 }
 
 /* =============================================================================
@@ -1337,12 +1240,6 @@
   font-feature-settings: "tnum", "ss01";
 }
 
-.donut-lbl {
-  font-size: var(--ct-text-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-secondary);
-}
 
 /* ---- Spine (vertical hairline between donut and ledger) ---- */
 .cy-spine {
@@ -1469,19 +1366,6 @@
   min-width: 0;
 }
 
-.cy-ticks {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    to right,
-    transparent,
-    transparent calc(25% - 1px),
-    color-mix(in srgb, var(--ct-border-soft) 60%, transparent) calc(25% - 1px),
-    color-mix(in srgb, var(--ct-border-soft) 60%, transparent) 25%
-  );
-  opacity: 1;
-  pointer-events: none;
-}
 
 .cy-fill {
   position: absolute;
@@ -1512,21 +1396,6 @@
   animation: pf-shimmer 3s var(--ct-ease-in-out) infinite;
 }
 
-.cy-fill--neg {
-  background: linear-gradient(
-    to right,
-    var(--ct-status-danger-soft),
-    var(--ct-status-danger)
-  );
-}
-
-.cy-fill--volatile {
-  background: linear-gradient(
-    to right,
-    var(--ct-status-warning-soft),
-    var(--ct-status-warning)
-  );
-}
 
 .cy-bucket {
   display: flex;
@@ -2220,13 +2089,6 @@
   flex: 1 1 auto;
 }
 
-.pf-container--zero .pf-fused-surface--mid .cy-donut,
-.pf-container--zero .pf-fused-surface--mid .dash-chart-container {
-  width: 100%;
-  max-width: 8rem;
-  height: auto;
-  aspect-ratio: 1;
-}
 
 .pf-container--zero .cy-body {
   gap: var(--ct-space-2);
@@ -2305,7 +2167,6 @@
 }
 
 @container pf (max-width: 60rem) {
-  .pf-fused-surface--mid,
   .pf-fused-surface--deck {
     grid-template-columns: 1fr;
   }
@@ -2339,17 +2200,7 @@
   .pf-trust-compact-kpis { grid-template-columns: 1fr; }
 }
 
-/* ---- Row layout: 1-col for mid (fused surface handles the split) ---- */
-@container pf (min-width: 48rem) {
-  .pf-cockpit-row--mid {
-    grid-template-columns: 1fr;
-  }
-}
-
 @container pf (max-width: 48rem) {
-  .pf-cockpit-row--mid {
-    grid-template-columns: 1fr;
-  }
   .pf-ticker-inline {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2610,16 +2461,6 @@
   pointer-events: none;
 }
 
-.pf-position-card--cta {
-  background: transparent;
-  border-style: dashed;
-  border-color: color-mix(in srgb, var(--ct-accent) 20%, transparent);
-}
-
-.pf-position-card--cta:hover {
-  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 50%, transparent);
-}
 
 .pf-position-card__content {
   flex: 1 1 auto;
