@@ -1551,10 +1551,14 @@
 
 /* Admin surfaces — same graphite tier as product-doc (portfolio canon). */
 .admin-doc {
-  --ct-graphite-subtle-bg: var(--ct-surface-1);
-  --ct-graphite-nested-bg: var(--ct-surface-2);
+  --ct-graphite-subtle-bg: #1A1C1F;
+  --ct-graphite-nested-bg: #232529;
   --ct-graphite-border: var(--ct-figma-border-20);
   --ct-graphite-border-nested: rgba(255, 255, 255, 0.14);
+  --ct-border-soft: rgba(255, 255, 255, 0.09);
+  --ct-text-secondary: #C3D2CA;
+  --ct-text-tertiary: #93A39B;
+  --ct-text-muted: rgba(245, 245, 245, 0.66);
 }
 
 /* Admin cards — same padding tier as LP (.ct-card global rule). */
