@@ -3427,32 +3427,30 @@ pre.ct-surface-1.rounded-md {
 
 /* Échelle typo (DESIGN_SYSTEM §13.2) — H2 = strong white · H1/H3 blanc fort (brand green reserved for chrome). */
 
-/* .h1 → titre de page (Level 1). 3xl (24→28), aligné sur la version doc-flow
-   pour une seule taille de H1 dans toute l'app. */
+/* .h1/.h2/.h3 — canon unique aligné sur doc-flow-typography.css.
+   Les overrides :is(.product-doc,.admin-doc) restent identiques → zéro divergence. */
 .h1 {
-  font-size: var(--ct-text-3xl);
-  font-weight: var(--ct-font-extrabold);
+  font-size: var(--ct-text-3xl-fixed);      /* 24px fixe — même que doc-flow */
+  font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-title-1);
+  color: var(--ct-text-strong);
 }
 
-/* .h2 → titres de sections (Level 2) — canon doc-flow 20→22 (aligné doc-flow-typography.css). */
 .h2 {
-  font-size: clamp(1.25rem, 1.206rem + 0.188vw, 1.375rem);  /* 20 → 22 */
-  font-weight: var(--ct-font-bold);
+  font-size: var(--ct-text-2xl);            /* 18 → 22 — même que doc-flow */
+  font-weight: var(--ct-font-semibold);
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-title-2);
+  color: var(--ct-text-strong);
 }
 
-/* .h3 → titres de modules / cards (Level 3) — vert accent, tier 3. */
 .h3 {
-  font-size: var(--ct-text-lg);             /* 16 → 18 */
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-title-3);
+  font-size: var(--ct-text-lg);             /* 15 → 17 — même que doc-flow */
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-normal);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-accent);
 }
 
 /* .h4 → card heading */
