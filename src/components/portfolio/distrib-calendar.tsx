@@ -12,7 +12,7 @@
 import { useId, useState } from "react";
 
 import { cn } from "@/lib/cn";
-import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
+import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/explorer";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { formatUsdFull, formatUsdDetailed } from "@/lib/vaults/product-display";
