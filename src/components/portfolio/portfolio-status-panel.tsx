@@ -124,7 +124,7 @@ const rows: ReadonlyArray<{
           )}
         </div>
       </header>
-      <dl className="flex flex-col flex-1 overflow-y-auto px-5">
+      <dl className="flex flex-col flex-1 px-5">
         {rows.map((r) => (
           <div
             key={r.key}

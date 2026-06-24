@@ -2720,3 +2720,64 @@
 .pf-cockpit-row--positions {
   grid-template-columns: 1fr;
 }
+
+/* =============================================================================
+   17. FIT-TO-VIEWPORT — distribution de la hauteur
+   -----------------------------------------------------------------------------
+   Réponse à « aucun bloc n'est responsive sur la hauteur ». Les 4 rows sont
+   dimensionnées selon leur CONTENU (flex-basis auto → zéro clip interne) puis
+   GRANDISSENT (flex-grow) pour remplir l'espace restant :
+     · grand écran  → les rows s'étirent et REMPLISSENT (zéro void mort) ;
+     · écran court  → elles gardent leur taille contenu et la PAGE scrolle
+                      sur le body (autorisé) — zéro clip, zéro cram.
+   Scope strict .pf-container → aucune autre page (vaults/proof/admin) touchée.
+   ============================================================================= */
+
+/* Le layout wrapper remplit AU MOINS la hauteur dispo et grandit si besoin. */
+.product-doc:has(> .pf-container) {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* pf-container = colonne flex pleine hauteur : greeting + hairline (auto) +
+   cockpit (flex:1 qui prend tout le reste). */
+.product-doc:has(> .pf-container) > .pf-container {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.pf-container > .pf-cockpit {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Rows : partage proportionnel de la hauteur restante + plancher de sécurité.
+   (override le legacy `.pf-cockpit-row { flex: 0 0 auto }` par l'ordre.) */
+.pf-cockpit-row--chart     { flex: 1.4 1 auto; min-height: 24rem; }
+.pf-cockpit-row--yield     { flex: 1 1 auto; min-height: 12rem; }
+.pf-cockpit-row--deck      { flex: 1 1 auto; min-height: 15rem; }
+.pf-cockpit-row--positions { flex: 0.6 1 auto; min-height: 7rem; }
+
+/* Les plates suivent la hauteur de leur row : on neutralise les min-height
+   fixes et les aspect-ratios qui empêcheraient le shrink ou ballonneraient. */
+.pf-cockpit-row .pf-hero-grid,
+.pf-cockpit-row .pf-fused-surface,
+.pf-cockpit-row .pf-fused-surface--deck,
+.pf-cockpit-row .pf-cockpit-cell,
+.pf-cockpit-row .pf-cockpit-panel,
+.pf-cockpit-row .pf-embedded-pane {
+  min-height: 0;
+  height: 100%;
+}
+
+.pf-cockpit-row .pf-value-chart__chart-wrapper {
+  aspect-ratio: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.pf-cockpit-row .pf-distrib-chart-shell {
+  aspect-ratio: auto;
+  min-height: 0;
+}
