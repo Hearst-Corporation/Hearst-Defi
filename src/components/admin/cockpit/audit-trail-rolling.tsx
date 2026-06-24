@@ -44,10 +44,10 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
               <th className="cockpit-col-action text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)]">
                 Action
               </th>
-              <th className="hidden cockpit-col-entity text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-(--ct-border-ghost) md:table-cell">
+              <th className="hidden cockpit-col-entity text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)] md:table-cell">
                 Entity
               </th>
-              <th className="hidden cockpit-col-entity-id text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-(--ct-border-ghost) lg:table-cell">
+              <th className="hidden cockpit-col-entity-id text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)] lg:table-cell">
                 Entity ID
               </th>
             </tr>

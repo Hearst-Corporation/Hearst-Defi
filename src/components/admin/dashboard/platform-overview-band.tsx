@@ -48,12 +48,12 @@ export function PlatformOverviewBand({ view, allocations }: { view: OverviewClus
             ))}
           </div>
           {cluster.label === "Capital" && (
-            <div className="mt-5 pt-4 border-t border-(--ct-border-ghost)">
+            <div className="mt-5 pt-4 border-t border-[var(--ct-border-ghost)]">
               <div className="flex items-center justify-between mb-2">
                 <span className="dashboard-overview-ledger__label">Capacity usage</span>
                 <span className="cockpit-value-xs opacity-80">{cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "—"}</span>
               </div>
-              <div className="h-1 w-full bg-(--ct-border-ghost) rounded-full overflow-hidden">
+              <div className="h-1 w-full bg-[var(--ct-border-ghost)] rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-ct-accent transition-all duration-500" 
                   style={{ width: cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "0%" }}
@@ -62,7 +62,7 @@ export function PlatformOverviewBand({ view, allocations }: { view: OverviewClus
             </div>
           )}
           {cluster.label === "Exposure" && allocations.length > 0 && (
-            <div className="mt-5 pt-4 border-t border-(--ct-border-ghost)">
+            <div className="mt-5 pt-4 border-t border-[var(--ct-border-ghost)]">
               <div className="flex items-center justify-between mb-2">
                 <span className="dashboard-overview-ledger__label">Distribution</span>
                 <span className="cockpit-value-xs opacity-80">{allocations.filter(a => a.pct > 0).length} buckets</span>
