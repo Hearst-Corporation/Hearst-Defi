@@ -16,36 +16,21 @@ interface Props {
  */
 export function ResetPasswordForm({ token }: Props) {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function onSubmit(formData: FormData) {
     setError(null);
     formData.set("token", token);
     startTransition(async () => {
+      // On success the server action signs the user in and redirects straight
+      // into onboarding (NEXT_REDIRECT) — it never returns `{ ok: true }`, so
+      // there is no success screen and no "go to sign in" step. We only get a
+      // returned value on failure.
       const result = await resetPassword(formData);
-      if (result.ok) {
-        setSuccess(true);
-      } else {
+      if (!result.ok) {
         setError(result.error);
       }
     });
-  }
-
-  if (success) {
-    return (
-      <div className="auth-form-success">
-        <p className="body-xs ct-text-accent">
-          Your password has been updated. You can now sign in with your new password.
-        </p>
-        <Link
-          href="/login"
-          className="body-xs ct-link-accent inline-block"
-        >
-          Go to sign in
-        </Link>
-      </div>
-    );
   }
 
   return (
