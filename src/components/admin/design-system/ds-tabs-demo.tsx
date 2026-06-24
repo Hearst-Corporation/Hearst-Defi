@@ -40,14 +40,19 @@ export function DsTabsDemo() {
         onChange={setTab}
         ariaLabel="Design system tabs demo"
       />
-      <div
-        role="tabpanel"
-        id={`${baseId}-${tab}-panel`}
-        aria-labelledby={`${baseId}-${tab}-tab`}
-        className="body-sm ct-text-body"
-      >
-        {PANELS[tab]}
-      </div>
+      {ITEMS.map((it) => (
+        <div
+          key={it.value}
+          role="tabpanel"
+          id={`${baseId}-${it.value}-panel`}
+          aria-labelledby={`${baseId}-${it.value}-tab`}
+          hidden={it.value !== tab}
+          tabIndex={0}
+          className="body-sm ct-text-body"
+        >
+          {PANELS[it.value]}
+        </div>
+      ))}
     </div>
   );
 }

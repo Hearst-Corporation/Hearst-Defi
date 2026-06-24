@@ -90,7 +90,7 @@ export function SectionComponents() {
 
       <DsBlock title="Cards & panels" hint="Card (glass) · Card flat · NestedPanel">
         <div className="ds-grid--two ds-grid">
-          <DsSpecimen caption="Glass card with header" classHint="<Card>">
+          <DsSpecimen caption="Glass card with header" example stack>
             <Card hoverOverlay={false} className="w-full">
               <DashboardPanelHeader
                 title="Reserve coverage"
@@ -103,14 +103,17 @@ export function SectionComponents() {
               </p>
             </Card>
           </DsSpecimen>
-          <DsSpecimen caption="Nested evidence panel" classHint="<NestedPanel>">
-            <Card hoverOverlay={false} material="flat" className="w-full">
+          <DsSpecimen caption="Nested evidence panel" example stack>
+            <Card hoverOverlay={false} material="flat" density="compact" className="w-full">
               <NestedPanel>
-                <p className="body-sm ct-text-body m-0">
-                  A box inside an active card — for proof rows, summaries and
-                  detail blocks. Never glass-on-glass.
-                </p>
+                <DataRow label="Coverage ratio">104.2%</DataRow>
+                <DataRow label="Attested at">2026-06-01 UTC</DataRow>
+                <ProofRow label="Evidence">0x7c…12f</ProofRow>
               </NestedPanel>
+              <p className="body-xs ct-text-muted m-0 mt-[var(--ct-space-2)]">
+                A box inside an active card — for proof rows, summaries and detail
+                blocks. Never glass-on-glass.
+              </p>
             </Card>
           </DsSpecimen>
         </div>
@@ -140,14 +143,16 @@ export function SectionComponents() {
       </DsBlock>
 
       <DsBlock title="Rows & list items" hint="DataRow · ProofRow — zero visual difference, semantic intent">
-        <Card hoverOverlay={false} material="flat">
-          <NestedPanel>
-            <DataRow label="Min ticket">$250,000</DataRow>
-            <DataRow label="Soft lock-up">60 days</DataRow>
-            <ProofRow label="Attestor">Hearst SPV</ProofRow>
-            <ProofRow label="Block">0x1f…a90</ProofRow>
-          </NestedPanel>
-        </Card>
+        <DsSpecimen caption="Data & proof rows" example stack>
+          <Card hoverOverlay={false} material="flat" className="w-full">
+            <NestedPanel>
+              <DataRow label="Min ticket">$250,000</DataRow>
+              <DataRow label="Soft lock-up">60 days</DataRow>
+              <ProofRow label="Attestor">Hearst SPV</ProofRow>
+              <ProofRow label="Block">0x1f…a90</ProofRow>
+            </NestedPanel>
+          </Card>
+        </DsSpecimen>
       </DsBlock>
 
       <DsBlock title="Form fields" hint=".ct-input · .ct-select · .ct-textarea">

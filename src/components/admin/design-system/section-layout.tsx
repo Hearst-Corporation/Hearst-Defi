@@ -3,7 +3,7 @@ import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { Metric } from "@/components/ui/metric";
 import { MetricGrid } from "@/components/ui/nested-panel";
 
-import { DsBlock, DsSection, DsSpecimen } from "./ds-kit";
+import { DsBlock, DsExampleTag, DsSection, DsSpecimen } from "./ds-kit";
 
 export function SectionLayout() {
   return (
@@ -13,6 +13,10 @@ export function SectionLayout() {
       title="Layout primitives"
       lead="How a page breathes. The 3-column shell is fixed chrome with a fluid centre; inside the centre, panels sit on a token-based grid. Let pages reflow — never force widths or heights."
     >
+      <div className="admin-doc-inline-row--start admin-doc-inline-row">
+        <DsExampleTag label="All values are illustrative — not real product data" />
+      </div>
+
       <DsBlock title="3-column shell" hint="Fixed rail · fluid centre · preset chat">
         <div className="ds-schema" role="img" aria-label="Three column cockpit shell: 104px left rail, fluid centre, 352px chat rail">
           <div className="ds-schema__zone">

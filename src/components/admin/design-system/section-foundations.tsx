@@ -39,14 +39,14 @@ const SPACING = [
 ] as const;
 
 const TYPE_ROLES = [
-  { cls: "h1", label: "Page title", size: "~24px / extrabold" },
-  { cls: "h2", label: "Section", size: "20–22px / bold" },
-  { cls: "h3", label: "Module / card", size: "16–18px / bold · accent" },
-  { cls: "h4", label: "Card heading", size: "16px / semibold" },
-  { cls: "body-lg", label: "Body large", size: "16–18px" },
-  { cls: "body-md", label: "Body medium", size: "14px" },
-  { cls: "body-sm", label: "Body small", size: "14px" },
-  { cls: "body-xs", label: "Body extra-small", size: "10px" },
+  { cls: "h1", label: "Page title", size: "24px / semibold" },
+  { cls: "h2", label: "Section", size: "18–22px / semibold" },
+  { cls: "h3", label: "Module / card", size: "15–17px / medium · accent" },
+  { cls: "h4", label: "Card heading", size: "13px / medium" },
+  { cls: "body-lg", label: "Body large", size: "15–17px" },
+  { cls: "body-md", label: "Body medium", size: "15px" },
+  { cls: "body-sm", label: "Body small", size: "15px" },
+  { cls: "body-xs", label: "Body extra-small", size: "13px" },
 ] as const;
 
 const RADII = [
@@ -126,7 +126,7 @@ export function SectionFoundations() {
               <span className={`${t.cls} ct-text-strong`}>{t.label}</span>
               <span className="ds-type-row__meta">
                 <span className="ds-type-row__class">.{t.cls}</span>
-                <span className="body-xs ct-text-faint">{t.size}</span>
+                <span className="body-xs ct-text-muted">{t.size}</span>
               </span>
             </div>
           ))}
@@ -166,7 +166,7 @@ export function SectionFoundations() {
             </Card>
           </DsSpecimen>
           <DsSpecimen caption="Dense surface — flat" classHint='material="flat"'>
-            <Card hoverOverlay={false} material="flat" className="w-full">
+            <Card hoverOverlay={false} material="flat" density="compact" className="w-full">
               <NestedPanel className="p-[var(--ct-space-3)]">
                 <p className="body-sm ct-text-body m-0">
                   Opaque, no frost — for dense lists / tables where glass-on-glass

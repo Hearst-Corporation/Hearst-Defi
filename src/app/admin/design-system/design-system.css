@@ -45,7 +45,7 @@
 .admin-doc .ds-index__key {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-bold);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-muted);
 }
 
 /* -----------------------------------------------------------------------------
@@ -99,16 +99,12 @@
   grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
 }
 
-.admin-doc .ds-grid--wide {
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-}
-
 .admin-doc .ds-grid--narrow {
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
 }
 
 .admin-doc .ds-grid--two {
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 }
 
 /* -----------------------------------------------------------------------------
@@ -185,7 +181,7 @@
 .admin-doc .ds-swatch__token {
   font-family: var(--font-mono);
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-muted);
   word-break: break-all;
 }
 
@@ -275,7 +271,7 @@
 .admin-doc .ds-type-row__class {
   font-family: var(--font-mono);
   font-size: var(--ct-text-micro);
-  color: var(--ct-text-faint);
+  color: var(--ct-text-muted);
 }
 
 /* -----------------------------------------------------------------------------
@@ -313,6 +309,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ct-space-3);
+  min-width: 0;
+}
+
+/* Stacked specimens let a single full-width card/panel size to the column. */
+.admin-doc .ds-specimen__stage--stack > * {
+  min-width: 0;
 }
 
 .admin-doc .ds-specimen__stage--stack {
@@ -336,16 +338,20 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1_5);
+  max-width: 100%;
   padding: var(--ct-space-0_5) var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   border: 1px dashed var(--ct-border);
   background: transparent;
-  color: var(--ct-text-faint);
+  color: var(--ct-text-muted);
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
-  white-space: nowrap;
+  /* Wrap instead of forcing one line: the long illustrative label would
+     otherwise overflow the narrow content column (<400px). Short tags stay
+     on one line because they fit; only the long one breaks when it must. */
+  white-space: normal;
 }
 
 .admin-doc .ds-example-tag__dot {
@@ -500,14 +506,8 @@
 }
 
 /* -----------------------------------------------------------------------------
-   13. UTIL — small inline meta row + token grid for component specimens
+   13. UTIL — token chip for component specimens
    --------------------------------------------------------------------------- */
-
-.admin-doc .ds-token-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-1_5);
-}
 
 .admin-doc .ds-token {
   font-family: var(--font-mono);

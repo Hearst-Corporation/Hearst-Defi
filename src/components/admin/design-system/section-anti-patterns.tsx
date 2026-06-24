@@ -38,7 +38,7 @@ const ANTI_PATTERNS = [
   {
     title: "Illegible microtext",
     why: "Sub-9px or low-contrast faint text on faint surface can't be read.",
-    fix: "floor at .body-xs (10px) on a legible text token (muted, not faint).",
+    fix: "floor at .body-xs (13px) on a legible text token (muted, not faint).",
   },
   {
     title: "Double badges",

@@ -53,7 +53,7 @@ export function DsBlock({
     <div className="ds-block">
       <div className="ds-block__head">
         <h3 className="h4 ct-text-body">{title}</h3>
-        {hint ? <span className="body-xs ct-text-faint">{hint}</span> : null}
+        {hint ? <span className="body-xs ct-text-muted">{hint}</span> : null}
       </div>
       <div className="ds-block__body">{children}</div>
     </div>
