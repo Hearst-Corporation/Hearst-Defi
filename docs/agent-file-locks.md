@@ -16,33 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/crew-simulation-readonly-v0
-Owner: Agent C — Crew Simulation Read-Only
-Branch: feat/crew-simulation-readonly-v0
-Worktree: /tmp/connect-crew-sim-wt
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/crew-simulation/**
-- docs/agentic/CREW_SIMULATION_READONLY_V0.md
-- src/lib/agentic/crew-simulation/__tests__/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend/read-only module only.
-- No UI integration in this lot.
-- No CrewAI.
-- No autonomous runtime.
-- No tool execution.
-- No write tools.
-- No router/guard/HITL/chat behavior change.
-- No DB migration.
-- No Prisma/schema.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/crew-simulation-readonly-v0
+Owner: Agent C — Crew Simulation Read-Only
+Branch: feat/crew-simulation-readonly-v0
+Merged PR: #69 (merge d6aa5b1e)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Crew Simulation Read-Only v0: pure static module src/lib/agentic/crew-simulation/*
+  (types, scenarios, simulate-crew-flow, safety, index) — deterministic read-only
+  representation of 6 crew flows (reporting_crew_briefing / outreach_draft_flow /
+  product_review_flow / risk_explanation_flow / vault_readiness_flow / memory_distill_flow).
+  Every scenario and step carries executable:false as a TypeScript structural invariant.
+  simulateCrewFlow(id) returns a full CrewSimulationResult with blockedActions +
+  requiredGates, or a typed CrewSimulationError for unknown ids — no fallback execution.
+  Safety module asserts zero violations across all built-in scenarios. Outreach send
+  hard-blocked (HITL gate + Tier A never auto-send); mainnet deploy hard-blocked (ADR-006).
+  NO UI integration, NO CrewAI, NO autonomous runtime, NO tool execution, NO write tools,
+  NO router/guard/HITL/chat change, NO Prisma/schema change, NO migration. 46/46 tests
+  passing, typecheck PASS, build PASS (postgresql), empty Prisma diff. Vercel PENDING at
+  merge time. Next integration point: visual flow console in /admin/agentic (out of scope v0).
 
 ### feat/agentic-visual-console
 Owner: Opus Orchestrateur Continu — Agentic Visual Control Center Implementation
