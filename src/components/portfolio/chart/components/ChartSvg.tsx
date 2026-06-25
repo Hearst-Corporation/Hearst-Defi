@@ -1,6 +1,5 @@
 import type { ChartPoint } from "@/lib/portfolio/geometry/value-series-projection";
 import { VB_W, VB_H } from "@/lib/portfolio/geometry/svgConstants";
-import { useMemo } from "react";
 
 interface ChartSvgProps {
   areaPath: string;
@@ -31,8 +30,8 @@ export function ChartSvg({
     >
       <defs>
         <linearGradient id={`${uid}-area-gradient`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0.01" />
+          <stop offset="0%" stopColor="var(--ct-chart-area-top)" />
+          <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" />
         </linearGradient>
       </defs>
 
@@ -62,7 +61,7 @@ export function ChartSvg({
       <path
         d={linePath}
         fill="none"
-        stroke="var(--ct-accent)"
+        stroke="var(--ct-chart-curve-color)"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -77,7 +76,7 @@ export function ChartSvg({
           cy={p.y}
           r="3"
           fill="var(--ct-bg-deep)"
-          stroke="var(--ct-accent)"
+          stroke="var(--ct-chart-curve-color)"
           strokeWidth="1.5"
         />
       ))}
@@ -90,7 +89,7 @@ export function ChartSvg({
             y1="0"
             x2={hoverPoint.x}
             y2={VB_H}
-            stroke="var(--ct-accent)"
+            stroke="var(--ct-chart-curve-color)"
             strokeWidth="1"
             strokeDasharray="4 4"
             opacity="0.5"
@@ -99,7 +98,7 @@ export function ChartSvg({
             cx={hoverPoint.x}
             cy={hoverPoint.y}
             r="4"
-            fill="var(--ct-accent)"
+            fill="var(--ct-chart-curve-color)"
             stroke="var(--ct-bg-deep)"
             strokeWidth="2"
           />
