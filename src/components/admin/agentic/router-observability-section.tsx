@@ -8,6 +8,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { RouterObservabilityTrends } from "@/components/admin/agentic/router-observability-trends";
 import type {
   RouterDecisionTrace,
   RouterObservabilitySummary,
@@ -96,7 +97,11 @@ function DecisionRow({ trace }: { trace: RouterDecisionTrace }) {
 
 function SectionShell({ children }: { children: React.ReactNode }) {
   return (
-    <section className="admin-doc-stack" aria-label="Router Observability">
+    <section
+      id="router-observability"
+      className="admin-doc-stack"
+      aria-label="Router Observability"
+    >
       <h2 className="h2">Router Observability</h2>
       <p className="body-xs ct-text-muted">
         Live, read-only metadata about what the deterministic router actually did
@@ -174,6 +179,19 @@ export function RouterObservabilitySection({
           }
         />
       </div>
+
+      {/* Trends (v0.1) — derived from the same buffer; only when there is data */}
+      {state === "enabled" && summary.trendBuckets && summary.trendWindow && (
+        <RouterObservabilityTrends
+          window={summary.trendWindow}
+          buckets={summary.trendBuckets}
+          topMatchedRules={summary.topMatchedRules ?? []}
+          bufferLimitNote={
+            summary.bufferLimitNote ??
+            "Trends are computed from the capped v0 router trace buffer: max 200 traces, TTL 7 days."
+          }
+        />
+      )}
 
       {/* Recent decisions table OR empty state */}
       {state === "empty" || recent.length === 0 ? (

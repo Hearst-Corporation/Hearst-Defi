@@ -16,7 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-observability-trends-v01
+Owner: Opus Orchestrateur — Router Observability Trends Delivery
+Branch: feat/router-observability-trends-v01
+Worktree: ../connect-opus-router-observability-trends
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/observability/trends.ts (new)
+- src/lib/agentic/observability/types.ts (additive trend types only)
+- src/lib/agentic/observability/read-router-decisions.ts (additive window param + trend fields)
+- src/lib/agentic/observability/index.ts (additive exports)
+- src/components/admin/agentic/router-observability-trends.tsx (new)
+- src/components/admin/agentic/router-observability-section.tsx (additive trends render)
+- src/app/admin/agentic/page.tsx (searchParams.routerWindow)
+- docs/agentic/** + tests
+- docs/agent-file-locks.md
+
+Notes:
+- Read-only trends/sparklines from the EXISTING capped v0 buffer. Additive only — no
+  rewrite of shared files, to coexist with feat/router-observability-durable-v1.
+- No router/guard/HITL behavior change. No tool execution. No DB migration. No Prisma.
+- No user text/prompt/tool payload storage. No secrets/env.
 
 ---
 

@@ -71,14 +71,23 @@ function SystemStatusChip({
   );
 }
 
-export default async function AgenticControlCenterPage() {
+export default async function AgenticControlCenterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ routerWindow?: string }>;
+}) {
   const data = getAgenticControlCenterData();
   const { router, inventory, gates, tools, prompts, safetySummary, nextSteps } =
     data;
   // Read-only: recent router-decision metadata. Best-effort — getRouterObservability
   // Summary never throws; a backend hiccup degrades to an honest empty/unavailable
-  // state rather than breaking the page.
-  const observability = await getRouterObservabilitySummary().catch(() => null);
+  // state rather than breaking the page. The optional `routerWindow` query param
+  // (1h | 24h | 7d) only re-buckets the SAME buffer — no new read, no write.
+  const { routerWindow } = await searchParams;
+  const observability = await getRouterObservabilitySummary(
+    undefined,
+    routerWindow,
+  ).catch(() => null);
 
   return (
     <>

@@ -78,6 +78,37 @@ export type RouterObservabilityState = "enabled" | "empty" | "unavailable";
 /** Which backend currently holds the capped decisions buffer. */
 export type RouterObservabilityStorage = "redis" | "memory" | "none";
 
+// ---------------------------------------------------------------------------
+// Trends (v0.1) — purely additive, computed from the SAME recent trace buffer.
+// No new storage, no new fields stored. These are derived views only.
+// ---------------------------------------------------------------------------
+
+/** Time window the trend view aggregates over. */
+export type RouterTrendWindow = "1h" | "24h" | "7d";
+
+/** One time bucket of decision outcomes. */
+export interface RouterDecisionTrendBucket {
+  /** Short axis label, e.g. "14:05" or "Mon". */
+  label: string;
+  /** ISO start of the bucket (inclusive). */
+  start: string;
+  /** ISO end of the bucket (exclusive). */
+  end: string;
+  total: number;
+  navigationFastPaths: number;
+  dangerousRefusals: number;
+  educationalTurns: number;
+  negatedNoNav: number;
+  /** normal_llm + unknown + anything not in a named category. */
+  normalOrUnknown: number;
+}
+
+/** A matched-rule frequency entry. */
+export interface RouterMatchedRuleStat {
+  ruleId: string;
+  count: number;
+}
+
 /** The read-only payload the Control Center renders. */
 export interface RouterObservabilitySummary {
   state: RouterObservabilityState;
@@ -91,4 +122,12 @@ export interface RouterObservabilitySummary {
   safetyNote: string;
   /** Constant privacy mode label. */
   privacyMode: string;
+  /** Selected trend window (v0.1). Optional for backward compatibility. */
+  trendWindow?: RouterTrendWindow;
+  /** Time buckets over the selected window (v0.1). */
+  trendBuckets?: RouterDecisionTrendBucket[];
+  /** Most frequent matched rules across the recent buffer (v0.1). */
+  topMatchedRules?: RouterMatchedRuleStat[];
+  /** Honest note about the capped v0 buffer (v0.1). */
+  bufferLimitNote?: string;
 }
