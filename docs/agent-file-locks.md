@@ -16,36 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-quality-review-v0
-Owner: Opus Orchestrateur Continu — Router Quality Review Dashboard Delivery
-Branch: feat/router-quality-review-v0
-Worktree: ../connect-opus-router-quality-review
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/observability/quality-review.ts (new, pure)
-- src/lib/agentic/observability/__tests__/quality-review.test.ts (new)
-- src/lib/agentic/observability/types.ts (additive types only)
-- src/lib/agentic/observability/index.ts (additive export only)
-- src/lib/agentic/observability/read-router-decisions.ts (attach quality review to summary)
-- src/components/admin/agentic/router-quality-review.tsx (new)
-- src/components/admin/agentic/__tests__/router-quality-review.test.tsx (new)
-- src/components/admin/agentic/router-observability-section.tsx (render the new section)
-- docs/agentic/ROUTER_QUALITY_REVIEW_V0.md (new) + AGENTIC_CONTROL_CENTER_V0.md (additive note)
-- docs/agent-file-locks.md
-
-Notes:
-- Read-only interpretation of EXISTING observability data (rates + watchlist). No new query.
-- No router behavior change. No guard behavior change. No HITL change.
-- No rule editor, no prompt editor, no auto-fix, no replay, no export.
-- No tool execution. No autonomous writes. No CrewAI / external swarms.
-- No DB migration. No Prisma/schema change. No new table.
-- No user text/prompt/tool payload storage.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/router-quality-review-v0
+Owner: Opus Orchestrateur Continu — Router Quality Review Dashboard Delivery
+Branch: feat/router-quality-review-v0
+Merged PR: #59 (merge b8efe89a)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Router Quality Review Dashboard v0: read-only INTERPRETATION of the existing router
+  observability data in /admin/agentic. Pure computeRouterQualityReview(summary)
+  (quality-review.ts) → health rates (unknown / dangerous-refusal / educational / nav /
+  legacy-fallback), a negated-no-nav count, top matched rules, and a read-only watchlist
+  (high_unknown / high_dangerous_refusal[alert] / high_fallback[degraded source or high
+  legacy rate] / no_recent_data) with explicit conservative thresholds + a
+  MIN_SAMPLE_FOR_RATES floor. Attached as optional summary.qualityReview (additive,
+  backward-compatible); new RouterQualityReview component after the trends, rate cards +
+  watchlist, NO actions. NO router/guard/HITL change, NO rule/prompt editor, NO auto-fix /
+  replay / export, NO tool execution / autonomous writes / CrewAI, NO Prisma/schema change,
+  NO migration, NO new table, NO user text/prompt/tool payload. typecheck PASS, lint 0,
+  full suite 3261/3261, build PASS (postgresql), empty Prisma diff. Merged b8efe89a, PR #59.
+  Vercel prod READY; prod /admin/agentic?routerWindow=1h|24h|7d|30d all 307→/login.
 
 ### feat/router-observability-sql-aggregates-v12
 Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery
