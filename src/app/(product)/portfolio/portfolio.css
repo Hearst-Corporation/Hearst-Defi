@@ -599,13 +599,15 @@
 }
 
 .pf-hero-kpi-value {
-  /* chart-geometry — intentionally fixed at 3xl (24px), not display (32px).
-     Cockpit metric, not a marketing headline. */
-  font-size: var(--ct-text-3xl-fixed);
-  font-weight: var(--ct-font-bold);
+  /* DS hero tier — the single dominant number on the Portfolio surface (NAV value).
+     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / accent. */
+  font-size: var(--ct-text-hero);
+  font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
-  letter-spacing: var(--ct-tracking-tight);
-  color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tighter);
+  color: var(--ct-accent);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "ss01" 1;
 }
 
 .pf-value-chart--hero-embedded .pf-cockpit-panel__header {
@@ -2019,7 +2021,7 @@
     align-items: flex-start;
     gap: var(--ct-space-1);
   }
-  .pf-hero-kpi-value { font-size: var(--ct-text-2xl); }
+  .pf-hero-kpi-value { font-size: var(--ct-text-display-fixed); }
   .pf-positions__row {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
   }
