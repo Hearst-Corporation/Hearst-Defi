@@ -16,7 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### fix/prisma-worktree-isolation
+Owner: Opus Orchestrateur — Prisma Worktree Isolation
+Branch: fix/prisma-worktree-isolation
+Worktree: ../connect-opus-prisma-worktree-isolation
+Started: 2026-06-26
+Status: active
+
+Scope:
+- package.json scripts related to prisma/dev/test
+- scripts/prisma-provider.mjs
+- scripts/assert-prisma-provider-safe.mjs (new guard)
+- scripts/__tests__ for the guard
+- vitest.config.ts (additive include for scripts/**/*.test.mjs)
+- docs/dev/PRISMA_WORKTREE_ISOLATION.md
+- docs/agent-file-locks.md
+
+Notes:
+- Prevent one worktree from regenerating a shared Prisma client with the wrong provider.
+- Infra only.
+- No UI/UX changes.
+- No DS changes.
+- No app behavior changes.
+- No Prisma model/migration changes.
 
 ---
 
