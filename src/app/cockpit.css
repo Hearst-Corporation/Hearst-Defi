@@ -3265,27 +3265,27 @@ pre.ct-surface-1.rounded-md {
 /* .h1/.h2/.h3 — canon unique aligné sur doc-flow-typography.css.
    Les overrides :is(.product-doc,.admin-doc) restent identiques → zéro divergence. */
 .h1 {
-  font-size: var(--ct-text-3xl-fixed);      /* 24px fixe — même que doc-flow */
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-tight);
+  font-size: var(--ct-text-5xl);            /* 24 → 30px fluid */
+  font-weight: var(--ct-font-extrabold);    /* 600 → 800 — plus tranchant */
+  letter-spacing: var(--ct-tracking-tighter);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-strong);
 }
 
 .h2 {
-  font-size: var(--ct-text-2xl);            /* 18 → 22 — même que doc-flow */
-  font-weight: var(--ct-font-semibold);
+  font-size: var(--ct-text-2xl);            /* 18 → 22px fluid */
+  font-weight: var(--ct-font-bold);         /* 600 → 700 */
   letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
-  color: var(--ct-text-strong);
+  color: var(--ct-accent);                  /* vert structurel — sections portent la couleur */
 }
 
 .h3 {
-  font-size: var(--ct-text-lg);             /* 15 → 17 — même que doc-flow */
-  font-weight: var(--ct-font-medium);
-  letter-spacing: var(--ct-tracking-normal);
+  font-size: var(--ct-text-lg);             /* 15 → 17px fluid */
+  font-weight: var(--ct-font-semibold);     /* medium → semibold */
+  letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-snug);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);             /* blanc — card titles restent neutres */
 }
 
 /* .h4 → card heading */
@@ -3300,20 +3300,18 @@ pre.ct-surface-1.rounded-md {
 .eyebrow {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: var(--ct-tracking-widest); /* wider → widest pour plus d'air */
   text-transform: uppercase;
   color: var(--ct-text-muted);
 }
 
-/* .stat-value → ct-kpi-value style. Valeurs clés en vert accent (Figma Flow). */
+/* .stat-value → chiffres KPI premium — 32px fixe, extrabold, vert */
 .stat-value {
-  font-size: var(--ct-text-2xl);
+  font-size: var(--ct-text-display-fixed);  /* 22 → 32px */
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tighter);
-  line-height: var(--ct-leading-tight);
+  line-height: var(--ct-leading-none);      /* tight → none pour les blocs numériques */
   font-variant-numeric: tabular-nums;
-  /* Expressive numerals (V4 absorption, SSOT §3): tabular figures + Satoshi
-     stylistic set ss01 — the designed alternates the data tier was meant to use. */
   font-feature-settings: "tnum", "ss01";
   color: var(--ct-accent);
 }
@@ -3322,7 +3320,7 @@ pre.ct-surface-1.rounded-md {
 .stat-label {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wider);
+  letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
   color: var(--ct-text-muted);
 }
@@ -3336,7 +3334,7 @@ pre.ct-surface-1.rounded-md {
 .body-md {
   font-size: var(--ct-text-sm);
   line-height: var(--ct-leading-relaxed);
-  color: var(--ct-text-body);
+  color: var(--ct-text-primary);            /* body → primary (plus lisible) */
 }
 .body-sm {
   font-size: var(--ct-text-sm);
