@@ -27,6 +27,7 @@ import {
   type AgentCapabilityDefinition,
 } from "@/lib/llm/agent-capabilities";
 import type { ChatMode } from "@/lib/llm/chat-modes";
+import { probeReviewMode } from "@/lib/admin/review-mode-probe";
 import type { AdminWriteToolId } from "@/lib/llm/tools/types";
 
 type Mode = ChatMode;
@@ -399,24 +400,17 @@ export function AdminChatControls() {
   useEffect(() => {
     if (!target || mode !== null) return;
     let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/admin/review-mode");
-        if (!res.ok) return;
-        const data = (await res.json().catch(() => null)) as
-          | { mode?: Mode }
-          | null;
-        if (!cancelled) {
-          setMode(
-            data?.mode === "review" || data?.mode === "admin"
-              ? data.mode
-              : "normal",
-          );
-        }
-      } catch {
-        // Network error → leave null (hidden). Non-fatal.
-      }
-    })();
+    // Routed through the shared, session-cached probe: if the chat presets (or a
+    // previous "open settings") already probed, this resolves from cache with zero
+    // network. A non-admin / logged-out probe leaves mode null (control hidden).
+    void probeReviewMode().then((result) => {
+      if (cancelled || !result.isAdmin) return;
+      setMode(
+        result.mode === "review" || result.mode === "admin"
+          ? result.mode
+          : "normal",
+      );
+    });
     return () => {
       cancelled = true;
     };
