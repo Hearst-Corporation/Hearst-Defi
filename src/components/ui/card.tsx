@@ -14,8 +14,8 @@ export function Card({
    *  CardTitle + body — flex/grid on the outer `.ct-card` does not reach children. */
   contentClassName?: string;
   density?: "default" | "compact";
-  /** `glass` (default) = graphite module surface; `flat` = opaque, no frost —
-   *  for dense lists/tables where glass-on-glass would cage-in-cage. */
+  /** `glass` (default) = opaque graphite module surface (legacy class `.ct-glass-panel`);
+   *  `flat` = same opaque fill, for dense lists/tables (anti cage-in-cage). */
   material?: "glass" | "flat";
 }) {
   return (
@@ -56,7 +56,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "h3 ct-text-strong ct-drop-glow-subtle",
+        "h3 ct-text-strong",
         className,
       )}
       {...props}

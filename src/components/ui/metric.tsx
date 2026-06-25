@@ -87,12 +87,7 @@ export function Metric({
       </div>
 
       <div className="flex items-baseline gap-(--ct-space-1) relative z-10">
-        <span
-          className={cn(
-            "stat-value ct-text-strong",
-            premium && "ct-drop-glow-subtle",
-          )}
-        >
+        <span className="stat-value ct-text-strong">
           {value}
         </span>
       </div>
