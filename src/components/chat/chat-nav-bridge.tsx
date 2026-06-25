@@ -83,6 +83,26 @@ export function nextPollSchedule(
   };
 }
 
+/**
+ * Pure helper — exported for unit-testing the idle-load gate.
+ *
+ * Decides whether a *backoff* follow-up poll should actually be scheduled. A
+ * directive is only ever published after the user sends a chat message, so on a
+ * fresh page load with nothing sent the backoff chain is pure waste. The single
+ * mount poll always runs; a follow-up backoff poll is only scheduled once the
+ * loop is `armed` by a real signal (chat-sent / visibility / a consumed
+ * directive). An `immediate` re-poll (a coalesced mid-flight re-arm) always runs.
+ *
+ *  - kind "immediate" → always poll now (a re-arm was already coalesced).
+ *  - kind "backoff"   → schedule only when armed; otherwise stop (≤1 idle poll).
+ */
+export function shouldScheduleNextPoll(
+  kind: "immediate" | "backoff",
+  armed: boolean,
+): boolean {
+  return kind === "immediate" || armed;
+}
+
 interface PendingNav {
   route: string;
   label: string;
@@ -121,6 +141,17 @@ export function ChatNavBridge() {
     // (reset to base + poll immediately) so re-arm latency is preserved.
     let inFlight = false;
     let reArmRequested = false;
+    // Idle-load guard: a nav directive is only ever published AFTER the user
+    // sends a chat message (the server publishes it as the answer streams). On a
+    // fresh page load with no message sent, the backoff poll chain (900 → 1800 →
+    // 3600 ms …) was pure waste — it fired several /api/chat-nav requests in the
+    // first seconds for a channel that cannot yet hold anything. We now do EXACTLY
+    // ONE poll on mount (defensive: catches a directive published just before this
+    // tab mounted), then stop scheduling. Backoff polling only (re)arms on a real
+    // signal — a chat message sent (`cockpit:chat-sent`), the tab regaining focus
+    // (`visibilitychange`), or a directive just consumed (to catch follow-ups).
+    // Once armed it stays armed for the session, so post-message nav is unchanged.
+    let armed = false;
 
     const poll = async (): Promise<void> => {
       if (cancelled) return;
@@ -212,6 +243,10 @@ export function ChatNavBridge() {
 
       if (cancelled) return;
 
+      // A consumed directive means a follow-up may come — arm the backoff so we
+      // keep polling for it (this is the post-message active window).
+      if (gotDirective) armed = true;
+
       // Decide the next action — a mid-flight re-arm is coalesced here (immediate
       // re-poll) instead of having opened a duplicate request; otherwise back off.
       const next = nextPollSchedule(
@@ -222,6 +257,12 @@ export function ChatNavBridge() {
       reArmRequested = false;
       delay = next.delay;
       if (timer) clearTimeout(timer);
+      // Only keep the idle backoff chain alive once armed by a real signal
+      // (chat-sent / visibility / a consumed directive). Before that — i.e. the
+      // initial page load with no message sent — the single mount poll above is
+      // the ONLY request; we do not schedule a follow-up, so a quiet /portfolio
+      // load makes at most one /api/chat-nav call.
+      if (!shouldScheduleNextPoll(next.kind, armed)) return;
       if (next.kind === "immediate") {
         void poll();
       } else {
@@ -234,6 +275,7 @@ export function ChatNavBridge() {
     // is in flight, poll() coalesces the request via reArmRequested (no duplicate).
     const reArm = (): void => {
       if (cancelled) return;
+      armed = true;
       delay = POLL_MS;
       if (timer) clearTimeout(timer);
       void poll();
