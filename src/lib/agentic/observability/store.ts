@@ -1,77 +1,81 @@
 import "server-only";
 
-// Router Observability v0 — capped store (Redis with in-memory fallback).
+// Router Observability — store orchestrator (durable DB → Redis → memory).
 //
-// A GLOBAL, admin-only capped buffer of recent router-decision traces. NO user
-// text is ever stored (see decision-summary.ts), so a single global key is
-// privacy-safe and lets the admin page show a cross-turn recent view without a
-// userId. Mirrors the nav-channel.ts pattern: Upstash Redis when configured,
-// else a process-local globalThis buffer (dev / single instance).
-//
-// NO Prisma, NO migration, NO schema change. Recording is best-effort and never
-// throws into the caller. Reading is admin-only (callers gate auth upstream).
+// v1 prefers the durable Prisma table; on failure it falls back to the v0 Redis
+// capped buffer, then a process-local globalThis buffer. NO user text is ever
+// stored (see decision-summary.ts allowlist) so a single global key/table is
+// privacy-safe. Every function is best-effort: it never throws into the chat flow.
 
 import { getRedis } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
+import {
+  durableAppendTrace,
+  durableReadTraces,
+} from "./db-store";
 import type {
   RouterDecisionTrace,
   RouterObservabilityStorage,
+  RouterObservabilityWindow,
 } from "./types";
 
-/** Global capped list key. No user text inside → a single global key is safe. */
+/** Global Redis capped list key. No user text inside → a single key is safe. */
 export const ROUTER_DECISIONS_KEY = "agentic:router:decisions";
-/** Max traces retained (newest-first). Bounds memory + Redis size. */
+/** Max traces the Redis/memory fallback retains. */
 export const ROUTER_DECISIONS_CAP = 200;
-/** TTL on the Redis key (observability, not regulatory retention) — 7 days. */
+/** TTL on the Redis fallback key — 7 days. */
 const ROUTER_DECISIONS_TTL_SECONDS = 7 * 24 * 60 * 60;
+/** Best-effort prune cadence on durable writes (~1 in N). */
+const PRUNE_EVERY = 50;
 
 // Process-local fallback buffer (shared across route module instances in one
-// runtime). Used only when Redis is not configured. Lost on cold start — that is
-// acceptable for v0 and surfaced honestly as the "memory" storage mode.
+// runtime). Lost on cold start — surfaced honestly as "memory_fallback".
 const globalForObs = globalThis as unknown as {
   __routerDecisions?: RouterDecisionTrace[];
+  __routerWriteTick?: number;
 };
 const memBuffer: RouterDecisionTrace[] =
   globalForObs.__routerDecisions ?? (globalForObs.__routerDecisions = []);
 
-/** Which backend is active right now. */
-export function getObservabilityStorage(): RouterObservabilityStorage {
-  return getRedis() ? "redis" : "memory";
+function nextWriteTick(): number {
+  const n = (globalForObs.__routerWriteTick ?? 0) + 1;
+  globalForObs.__routerWriteTick = n;
+  return n;
 }
 
-/**
- * Append a trace to the capped buffer. Best-effort: never throws, never blocks
- * the caller's response. On Redis: LPUSH + LTRIM + EXPIRE. Else: in-memory unshift
- * + slice. A failure is logged at warn and swallowed.
- */
-export async function appendRouterDecisionTrace(
-  trace: RouterDecisionTrace,
-): Promise<void> {
-  // Always mirror into the in-memory buffer so a single-instance runtime (and
-  // tests) can read back even when Redis is configured but unreachable.
+// ---------------------------------------------------------------------------
+// Redis + memory primitives (v0 fallback layer)
+// ---------------------------------------------------------------------------
+
+function memAppend(trace: RouterDecisionTrace): void {
   memBuffer.unshift(trace);
   if (memBuffer.length > ROUTER_DECISIONS_CAP) {
     memBuffer.length = ROUTER_DECISIONS_CAP;
   }
+}
 
+/** Append to Redis. Returns true on success. */
+async function redisAppend(trace: RouterDecisionTrace): Promise<boolean> {
   const redis = getRedis();
-  if (!redis) return;
+  if (!redis) return false;
   try {
     await redis.lpush(ROUTER_DECISIONS_KEY, JSON.stringify(trace));
     await redis.ltrim(ROUTER_DECISIONS_KEY, 0, ROUTER_DECISIONS_CAP - 1);
     await redis.expire(ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_TTL_SECONDS);
+    return true;
   } catch (err) {
     logger.warn(
-      "router-observability: trace append to Redis failed (non-blocking)",
+      "router-observability: Redis append failed (will fall back to memory)",
       {},
       err instanceof Error ? err : undefined,
     );
+    return false;
   }
 }
 
 /**
- * Read recent traces, newest first. Redis is authoritative when configured;
- * otherwise the in-memory buffer. Never throws — on a read error returns [].
+ * Read recent traces from the v0 Redis/memory layer, newest first. Never throws.
+ * (Kept as the fallback reader; the durable reader lives in db-store.ts.)
  */
 export async function readRecentRouterDecisionTraces(
   limit = ROUTER_DECISIONS_CAP,
@@ -84,7 +88,6 @@ export async function readRecentRouterDecisionTraces(
     const raw = await redis.lrange(ROUTER_DECISIONS_KEY, 0, limit - 1);
     return raw
       .map((entry): RouterDecisionTrace | null => {
-        // @upstash/redis may auto-deserialize JSON; handle both shapes.
         if (typeof entry === "object" && entry !== null) {
           return entry as RouterDecisionTrace;
         }
@@ -97,16 +100,77 @@ export async function readRecentRouterDecisionTraces(
       .filter((t): t is RouterDecisionTrace => t !== null);
   } catch (err) {
     logger.warn(
-      "router-observability: trace read from Redis failed",
+      "router-observability: Redis read failed (falling back to memory)",
       {},
       err instanceof Error ? err : undefined,
     );
-    // Fall back to whatever the in-memory buffer holds rather than crashing.
     return memBuffer.slice(0, limit);
   }
 }
 
-/** TEST-ONLY: clear the in-memory buffer. No effect on Redis. */
+// ---------------------------------------------------------------------------
+// Orchestrated write/read (v1)
+// ---------------------------------------------------------------------------
+
+/**
+ * Append a trace: durable DB first, then Redis, always mirrored to memory.
+ * Best-effort — never throws, never blocks the response. The memory mirror is
+ * unconditional so tests + single-instance runtimes can always read back.
+ */
+export async function appendRouterDecisionTrace(
+  trace: RouterDecisionTrace,
+): Promise<void> {
+  // Always mirror to memory first (last-resort fallback + test read-back).
+  memAppend(trace);
+
+  // Durable first — prune occasionally to bound the table.
+  const pruneTick = nextWriteTick() % PRUNE_EVERY === 0;
+  const durableOk = await durableAppendTrace(trace, { pruneTick });
+  if (durableOk) return;
+
+  // Durable failed → Redis fallback (memory already holds it).
+  await redisAppend(trace);
+}
+
+export interface FallbackReadResult {
+  traces: RouterDecisionTrace[];
+  storage: RouterObservabilityStorage;
+}
+
+/**
+ * Read traces for a window: durable DB first, then Redis, then memory. Returns
+ * the traces + which backend served them. The Redis/memory fallbacks do not
+ * support a time window (they are small + short-TTL), so the window is applied
+ * best-effort in-memory after the fallback read. Never throws.
+ */
+export async function readTracesWithFallback(args: {
+  window: RouterObservabilityWindow;
+  limit: number;
+  cutoffMs: number;
+}): Promise<FallbackReadResult> {
+  // 1) Durable
+  const durable = await durableReadTraces({
+    window: args.window,
+    limit: args.limit,
+  });
+  if (durable.ok) {
+    return { traces: durable.traces, storage: "durable" };
+  }
+
+  // 2) Redis (or memory if Redis absent) — apply the window best-effort.
+  const redisAvailable = getRedis() !== null;
+  const fallbackTraces = await readRecentRouterDecisionTraces(args.limit);
+  const windowed = fallbackTraces.filter(
+    (t) => Date.parse(t.createdAt) >= args.cutoffMs,
+  );
+  return {
+    traces: windowed,
+    storage: redisAvailable ? "redis_fallback" : "memory_fallback",
+  };
+}
+
+/** TEST-ONLY: clear the in-memory buffer. No effect on Redis/DB. */
 export function __resetRouterDecisionMemBuffer(): void {
   memBuffer.length = 0;
+  globalForObs.__routerWriteTick = 0;
 }

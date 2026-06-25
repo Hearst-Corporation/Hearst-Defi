@@ -71,22 +71,47 @@ export interface RouterDecisionStats {
  * Storage state surfaced to the admin UI:
  *  - "enabled"     → a store is available AND at least one trace exists
  *  - "empty"       → a store is available but no trace recorded yet
- *  - "unavailable" → no safe store available in this environment (v0)
+ *  - "unavailable" → no safe store available in this environment
  */
 export type RouterObservabilityState = "enabled" | "empty" | "unavailable";
 
-/** Which backend currently holds the capped decisions buffer. */
-export type RouterObservabilityStorage = "redis" | "memory" | "none";
+/**
+ * Which backend served the read, in preference order:
+ *  - "durable"         → the Prisma table (v1, authoritative)
+ *  - "redis_fallback"  → DB unavailable; the v0 Redis capped buffer
+ *  - "memory_fallback" → DB + Redis unavailable; the process-local buffer
+ *  - "unavailable"     → nothing reachable
+ */
+export type RouterObservabilityStorage =
+  | "durable"
+  | "redis_fallback"
+  | "memory_fallback"
+  | "unavailable";
+
+/** Time window for durable stats/queries. */
+export type RouterObservabilityWindow = "1h" | "24h" | "7d";
+
+/** A matched-rule frequency entry (top-rules list). */
+export interface RouterMatchedRuleCount {
+  ruleId: string;
+  count: number;
+}
 
 /** The read-only payload the Control Center renders. */
 export interface RouterObservabilitySummary {
   state: RouterObservabilityState;
   storage: RouterObservabilityStorage;
-  /** Most recent traces, newest first (already capped). */
+  /** The time window the summary was computed for. */
+  window: RouterObservabilityWindow;
+  /** Most recent traces in the window, newest first (already capped). */
   recent: RouterDecisionTrace[];
   stats: RouterDecisionStats;
-  /** Max traces the buffer retains. */
+  /** Most frequently matched rule ids in the window, descending. */
+  topMatchedRules: RouterMatchedRuleCount[];
+  /** Max traces the read returns. */
   capacity: number;
+  /** Human-readable retention note. */
+  retentionNote: string;
   /** Constant safety note rendered verbatim. */
   safetyNote: string;
   /** Constant privacy mode label. */

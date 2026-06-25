@@ -16,7 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-observability-durable-v1
+Owner: Opus Orchestrateur — Durable Router Observability v1 Delivery
+Branch: feat/router-observability-durable-v1
+Worktree: ../connect-opus-router-observability-durable
+Started: 2026-06-25
+Status: active
+
+Scope:
+- prisma/schema.prisma (ADD AgenticRouterDecisionTrace model ONLY)
+- prisma/migrations/** (new router-trace migration ONLY)
+- src/lib/agentic/observability/**
+- src/lib/agentic/control-center/**
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- src/app/api/cockpit-chat/route.ts (storage handoff only, NO behavior change)
+- docs/agentic/**
+- tests related to durable router observability
+- docs/agent-file-locks.md
+
+Notes:
+- Deliver durable read-only Router Observability v1.
+- ONE targeted Prisma migration: AgenticRouterDecisionTrace table/indexes only.
+- No router/guard/HITL behavior change. No tool execution. No business writes.
+- No prompts/user text/tool payload storage. No secrets/env. No other model changed.
 
 ---
 
