@@ -10,12 +10,16 @@ import "server-only";
 // type, and a Date in the DB.
 
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import type {
   RouterDecisionTrace,
+  RouterLongTermDay,
   RouterMatchedRuleCount,
   RouterObservabilityWindow,
+  RouterRetentionConfig,
 } from "./types";
+import { categorizeOutcome } from "./stats";
 
 /** Window → milliseconds. */
 const WINDOW_MS: Record<RouterObservabilityWindow, number> = {
@@ -24,9 +28,22 @@ const WINDOW_MS: Record<RouterObservabilityWindow, number> = {
   "7d": 7 * 24 * 60 * 60 * 1000,
 };
 
-/** Retention horizon (best-effort prune on write). Reads are window-bounded. */
+/** Built-in default retention horizon (days) when OBS_RETENTION_DAYS is unset. */
 export const DURABLE_RETENTION_DAYS = 90;
-const RETENTION_MS = DURABLE_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+/**
+ * Effective retention config: OBS_RETENTION_DAYS when set (bounded [1,365] by the
+ * env schema), else the built-in default. Pure read of validated env.
+ */
+export function getRetentionConfig(): RouterRetentionConfig {
+  const fromEnv = typeof env.OBS_RETENTION_DAYS === "number";
+  return {
+    retentionDays: fromEnv ? env.OBS_RETENTION_DAYS! : DURABLE_RETENTION_DAYS,
+    fromEnv,
+  };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Cutoff Date for a window, relative to `now` (injected for testability). */
 export function windowCutoff(window: RouterObservabilityWindow, now: number): Date {
@@ -128,9 +145,10 @@ export async function durableAppendTrace(
   }
 }
 
-/** Best-effort delete of rows older than the retention horizon. */
+/** Best-effort delete of rows older than the effective retention horizon. */
 export async function pruneOldTraces(now: number = Date.now()): Promise<void> {
-  const cutoff = new Date(now - RETENTION_MS);
+  const { retentionDays } = getRetentionConfig();
+  const cutoff = new Date(now - retentionDays * DAY_MS);
   await prisma.agenticRouterDecisionTrace.deleteMany({
     where: { createdAt: { lt: cutoff } },
   });
@@ -189,4 +207,72 @@ export function topMatchedRules(
     .map(([ruleId, count]) => ({ ruleId, count }))
     .sort((a, b) => b.count - a.count || a.ruleId.localeCompare(b.ruleId))
     .slice(0, limit);
+}
+
+/** "YYYY-MM-DD" for an instant, in UTC. */
+function utcDayKey(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** Result of a durable long-term aggregate. `ok=false` ⇒ DB unavailable. */
+export interface DurableAggregateResult {
+  ok: boolean;
+  days: RouterLongTermDay[];
+}
+
+/**
+ * Per-UTC-day outcome counts over the last `horizonDays`, oldest first. Reads ONLY
+ * createdAt + outcome (a narrow, indexed projection) within the horizon, then
+ * buckets by day in JS — bounded by retention, no full-row load, no user text.
+ * Returns `{ ok: false, days: [] }` on any DB failure. NEVER throws.
+ */
+export async function durableAggregateByDay(args: {
+  horizonDays: number;
+  now?: number;
+}): Promise<DurableAggregateResult> {
+  const now = args.now ?? Date.now();
+  // Clamp the horizon to [1, retention] so we never claim more history than kept.
+  const { retentionDays } = getRetentionConfig();
+  const horizon = Math.max(1, Math.min(args.horizonDays, retentionDays));
+  const cutoff = new Date(now - horizon * DAY_MS);
+
+  try {
+    const rows = await prisma.agenticRouterDecisionTrace.findMany({
+      where: { createdAt: { gte: cutoff } },
+      select: { createdAt: true, outcome: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    // Pre-seed every day in the horizon so gaps render as zero rows.
+    const byDay = new Map<string, RouterLongTermDay>();
+    for (let i = horizon - 1; i >= 0; i--) {
+      const key = utcDayKey(new Date(now - i * DAY_MS));
+      byDay.set(key, {
+        date: key,
+        total: 0,
+        navigationFastPaths: 0,
+        dangerousRefusals: 0,
+        educationalTurns: 0,
+        negatedNoNav: 0,
+        normalOrUnknown: 0,
+      });
+    }
+
+    for (const row of rows) {
+      const key = utcDayKey(row.createdAt);
+      const day = byDay.get(key);
+      if (!day) continue; // outside the seeded horizon — ignore defensively
+      day.total += 1;
+      day[categorizeOutcome(row.outcome)] += 1;
+    }
+
+    return { ok: true, days: [...byDay.values()] };
+  } catch (err) {
+    logger.warn(
+      "router-observability: durable aggregate failed (long-term view unavailable)",
+      {},
+      err instanceof Error ? err : undefined,
+    );
+    return { ok: false, days: [] };
+  }
 }

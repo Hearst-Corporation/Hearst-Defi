@@ -112,9 +112,35 @@ No write controls, no action buttons, no fake data.
 No CrewAI / external swarms, no prompt editing, no tool execution UI, no replay,
 no live write controls, no changes to any product/vault/outreach/auth model.
 
+## v1.1 — Configurable retention + long-term aggregate (read-only)
+
+Adds, over the EXISTING `AgenticRouterDecisionTrace` table (no new model, no new
+migration):
+
+- **Configurable retention.** `OBS_RETENTION_DAYS` (env, optional, bounded `[1,365]`)
+  overrides the built-in `DURABLE_RETENTION_DAYS` (90). `getRetentionConfig()` reports
+  the effective horizon + whether it came from env. The best-effort prune on write
+  (`pruneOldTraces`) now uses this value. No behaviour change when unset.
+- **Long-term per-day aggregate.** `durableAggregateByDay({ horizonDays })` reads a
+  NARROW projection (`createdAt` + `outcome` only, indexed) within the horizon
+  (clamped to retention), then buckets by UTC day in JS — bounded by retention, no
+  full-row load, no user text. Gap days are seeded to zero. Returns `ok:false`
+  (no throw) when the durable store is unreachable.
+- **Summary + UI.** `getRouterObservabilitySummary` now carries an optional
+  `longTerm: RouterLongTermSummary` (per-day rows, horizon totals, retention config,
+  honest availability). A new read-only `RouterObservabilityLongTerm` component renders
+  a per-day stacked-bar history + horizon totals below the windowed trends, with honest
+  `unavailable` / `empty` states. Default horizon: `DEFAULT_LONG_TERM_HORIZON_DAYS` (30),
+  always clamped to the retention horizon.
+- Outcome categorization is shared (`categorizeOutcome` in `stats.ts`) so the day rows,
+  the trend bars and the stat cards never disagree.
+
+Read-only only: no new migration, no schema change, no user text, no router/guard/HITL
+change, no write controls.
+
 ## Next lot recommendation
 
-Add lightweight **time-bucketed trend aggregates** (per-hour/day counts by outcome)
-computed in SQL for fast long-range charts, and an admin CSV export of the windowed
-metadata — only if a longer analytics horizon is actually needed. Still no router/
-guard change, no CrewAI, no tool execution.
+If a longer analytics horizon is genuinely needed, push the per-day aggregate INTO SQL
+(`groupBy` on a date-truncated `createdAt`) so the read never loads rows, and add an
+admin CSV export of the windowed metadata. Still no router/guard change, no CrewAI, no
+tool execution.

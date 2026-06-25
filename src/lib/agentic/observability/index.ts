@@ -8,7 +8,10 @@ export {
   buildRouterDecisionTrace,
   buildUnknownDecisionTrace,
 } from "./decision-summary";
-export { computeRouterDecisionStats } from "./stats";
+export {
+  computeRouterDecisionStats,
+  categorizeOutcome,
+} from "./stats";
 export {
   normalizeRouterTrendWindow,
   getRouterTrendWindowStart,
@@ -20,13 +23,17 @@ export { redactSnippet, MAX_SNIPPET_LEN } from "./redact";
 export { recordRouterDecisionSafe } from "./record-router-decision";
 export {
   getRouterObservabilitySummary,
+  buildLongTermSummary,
   resolveWindow,
   isDurableObservabilityAvailable,
   ROUTER_OBSERVABILITY_SAFETY_NOTE,
+  DEFAULT_LONG_TERM_HORIZON_DAYS,
 } from "./read-router-decisions";
 export {
   durableAppendTrace,
   durableReadTraces,
+  durableAggregateByDay,
+  getRetentionConfig,
   topMatchedRules,
   pruneOldTraces,
   windowCutoff,
