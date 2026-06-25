@@ -16,34 +16,28 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-observability-durable-v1
-Owner: Opus Orchestrateur — Durable Router Observability v1 Delivery
-Branch: feat/router-observability-durable-v1
-Worktree: ../connect-opus-router-observability-durable
-Started: 2026-06-25
-Status: active
-
-Scope:
-- prisma/schema.prisma (ADD AgenticRouterDecisionTrace model ONLY)
-- prisma/migrations/** (new router-trace migration ONLY)
-- src/lib/agentic/observability/**
-- src/lib/agentic/control-center/**
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- src/app/api/cockpit-chat/route.ts (storage handoff only, NO behavior change)
-- docs/agentic/**
-- tests related to durable router observability
-- docs/agent-file-locks.md
-
-Notes:
-- Deliver durable read-only Router Observability v1.
-- ONE targeted Prisma migration: AgenticRouterDecisionTrace table/indexes only.
-- No router/guard/HITL behavior change. No tool execution. No business writes.
-- No prompts/user text/tool payload storage. No secrets/env. No other model changed.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/router-observability-durable-v1
+Owner: Opus Orchestrateur — Durable Router Observability v1 Delivery
+Branch: feat/router-observability-durable-v1
+Merged PR: #47
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Durable Router Observability v1: new additive Prisma table AgenticRouterDecisionTrace
+  (+ indexes, migration) — applied to prod via db push (5432). Durable store (db-store.ts)
+  DB-first -> Redis -> memory fallback, time-window queries, top rules, best-effort prune
+  > 90 days; never throws into chat. /admin/agentic v1: window selector (1h/24h/7d),
+  storage-mode badge, outcome distribution, top matched rules, recent table. Reconciled
+  by merge with the concurrent trends lot (PR #46) — durable now feeds the trends.
+  No router/guard/HITL behavior change, no user text stored. typecheck PASS, lint 0,
+  full suite 3182/3182, build PASS. Merged 9eb5d439, PR #47.
 
 ### feat/router-observability-trends-v01
 Owner: Opus Orchestrateur — Router Observability Trends Delivery
