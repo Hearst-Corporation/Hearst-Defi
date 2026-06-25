@@ -13,10 +13,10 @@ export const metadata = {
 };
 
 /**
- * /admin/design-system — internal visual reference for the Cockpit design
- * system. The source of truth agents and future UI passes validate against:
- * approved foundations, layout primitives, core components, financial patterns,
- * states and anti-patterns — each rendered live from the real primitives.
+ * /admin/design-system — **living visual reference** for the Hearst Connect design
+ * system. Open this page before building or calibrating any surface. Written canon
+ * (`docs/DESIGN_SYSTEM.md`) is the checklist; **this rendered page wins** on surface
+ * terminology and appearance (opaque graphite panels, not frosted glass).
  *
  * Pure static reference. No product data, no API/DB, no behaviour change. The
  * admin layout already gates the route (`session.role === "admin"`).
@@ -38,7 +38,7 @@ export default function AdminDesignSystemPage() {
         titleLead="Design"
         titleAccent="System"
         contextLabel="Internal reference"
-        description="The canonical visual reference for Hearst Connect. Open it before building or calibrating any surface: see the approved foundations, copy the right patterns, and check pages against the anti-patterns. Every example is rendered from the real primitives — not a mockup."
+        description="Living reference for Hearst Connect — open before any UI work. Opaque graphite panels (not frosted glass), real primitives from src/components/ui, anti-patterns in section F. When this page and markdown disagree, this page wins."
       />
 
       <nav aria-label="Design system sections" className="ds-index">

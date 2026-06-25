@@ -113,6 +113,6 @@ Fix autorisé uniquement par scope explicite, après revue humaine.
   (on review le diff consolidé).
 
 ### Exceptions "Do NOT flag" (respectées par l'audit ET la vérification)
-Démo Section F de `/admin/design-system`, ombres internes aux primitives, `cockpit-tokens.ts`
-(raw hex PDF/Privy), lumière ambiante dashboard, composants buildés-non-câblés, et tout le
+Démo Section F de `/admin/design-system`, ombres internes aux primitives, `pdf-palette.ts` /
+`brand-constants.ts` (raw hex PDF/Privy/email), lumière ambiante dashboard, composants buildés-non-câblés, et tout le
 vocabulaire `.pf-*` / portfolio-local (canon seed). Liste complète : `docs/DS_CONFORMANCE_PROMPT.md`.

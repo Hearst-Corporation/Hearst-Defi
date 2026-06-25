@@ -112,7 +112,7 @@ export function SectionComponents() {
               </NestedPanel>
               <p className="body-xs ct-text-muted m-0 mt-[var(--ct-space-2)]">
                 A box inside an active card — for proof rows, summaries and detail
-                blocks. Never glass-on-glass.
+                blocks. Never panel-inside-panel (cage-in-cage).
               </p>
             </Card>
           </DsSpecimen>

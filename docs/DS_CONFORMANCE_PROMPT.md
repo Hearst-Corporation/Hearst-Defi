@@ -61,7 +61,7 @@ escapes the audit. The inventory answers, exactly:
   which hand-rolled pattern it should replace.
 - **H. Exclusions** (intentionally not audited / read-only) — `/portfolio` (canon seed,
   read-only, never-fix), `/admin/design-system` Section F (intentional anti-pattern demos,
-  never-fix), `src/lib/cockpit-tokens.ts` (raw-hex PDF/Privy), debug/dev pages, tests,
+  never-fix), `src/lib/pdf/pdf-palette.ts` + `src/lib/brand-constants.ts` (raw-hex PDF/Privy/email), debug/dev pages, tests,
   generated files, `node_modules`, docs, screenshots/logs/temp. Each: scope/file · reason ·
   read-only (y/n) · never-fix (y/n).
 
@@ -83,11 +83,11 @@ could not cover.
 For each page, grade every dimension. Cite `file:line` + the **token-only** fix.
 
 ### D1 — Tokens only (P0 on colour)
-- **No** raw `#hex`, `rgb()`, `rgba()`, `hsl()` in `src/**`. Only exception:
-  `src/lib/cockpit-tokens.ts` (PDF print + Privy theme — can't read CSS vars).
+- **No** raw `#hex`, `rgb()`, `rgba()`, `hsl()` in `src/**`. Exceptions (can't read CSS vars):
+  `src/lib/pdf/pdf-palette.ts` (PDF print), `src/lib/brand-constants.ts` (Privy/email accent).
 - **No** Tailwind colour utilities: `green-*`, `red-*`, `emerald-*`, `text-white`,
   `bg-black`, etc. Colours come from `--ct-*` (via `.ct-*` utilities or `var()`).
-- Check: `rg -n '#[0-9a-fA-F]{3,8}\b|rgba?\(|hsl\(' <files> | grep -v cockpit-tokens`
+- Check: `rg -n '#[0-9a-fA-F]{3,8}\b|rgba?\(|hsl\(' <files> | grep -v pdf-palette | grep -v brand-constants`
   and `rg -n '\b(bg|text|border)-(red|green|emerald|blue|amber|yellow|slate|gray|zinc)-[0-9]' <files>`.
 
 ### D2 — One green (P0)
@@ -109,11 +109,12 @@ For each page, grade every dimension. Cite `file:line` + the **token-only** fix.
   skeleton instead of `<Skeleton>`, a bespoke pill instead of `<Badge>`/`.ct-pill`.
 
 ### D5 — Surfaces & nesting (P1; cage/glow = P1, glow on a panel = P1)
-- Default surface = `Card` (`.ct-glass-panel`). Dense lists/tables = `material="flat"`.
+- Default surface = `Card` (`.ct-glass-panel` = **opaque graphite**, not frosted glass).
+  Dense lists/tables = `material="flat"` (same opaque fill; anti cage-in-cage).
 - Evidence box = `NestedPanel`. **Max two levels**: Card (active) → NestedPanel.
-- **No** glass-inside-glass (cage-in-cage). **No** glow / halo / radial-gradient
-  highlight / box-shadow bloom decorating a panel (the primary `<Button>` ships its
-  own canonical accent treatment — allowed). No forced chart `min-height`.
+- **No** panel-inside-panel double borders (cage-in-cage). **No** glow / halo /
+  radial-gradient highlight / box-shadow bloom decorating a panel (the primary `<Button>`
+  ships its own canonical accent treatment — allowed). No forced chart `min-height`.
 
 ### D6 — Typography roles (P2)
 - Use role classes: `.h1` `.h2` `.h3` `.h4` `.body-lg/-md/-sm/-xs` `.eyebrow`
@@ -191,7 +192,7 @@ deviation**:
   product-pattern examples are labelled "Design System example" — not real data.
 - **Primitive-internal** chrome: `ct-shadow-soft` on `Badge`/`ProvenanceBadge`, the
   primary `Button` accent glow — they live in the primitive, are canon, out of scope.
-- **`src/lib/cockpit-tokens.ts`** raw hex (PDF/Privy/registry — can't read CSS vars).
+- **`src/lib/pdf/pdf-palette.ts`** + **`src/lib/brand-constants.ts`** raw hex (PDF/Privy/email — can't read CSS vars).
 - **Dashboard ambient light**: the green PNG/nappes behind `/admin/dashboard` is a
   deliberate product direction (see `cockpit.css` signed comment) — not a "green wash".
 - **Unwired-but-built** components (GlobalSearch ⌘K, ShortcutsOverlay, etc.) are not

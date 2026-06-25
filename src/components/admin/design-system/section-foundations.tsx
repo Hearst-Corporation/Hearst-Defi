@@ -69,7 +69,7 @@ export function SectionFoundations() {
       title="Foundations"
       lead="Tokens are the source of truth. Every surface, colour, space and type role below is a CSS variable — never a raw hex, px or Tailwind colour. One green only: --ct-accent."
     >
-      <DsBlock title="Surfaces" hint="Frosted-glass elevation, lightest at the back">
+      <DsBlock title="Surfaces" hint="Opaque charcoal tiers — darkest at the back">
         <div className="ds-grid">
           {SURFACES.map((s) => (
             <DsSwatch key={s.token} {...s} />
@@ -155,13 +155,14 @@ export function SectionFoundations() {
         </div>
       </DsBlock>
 
-      <DsBlock title="Elevation" hint="Glass bevel vs flat — no external drop shadow (ADR-013)">
+      <DsBlock title="Elevation" hint="Graphite opaque vs flat — no external drop shadow (ADR-013)">
         <div className="ds-grid--two ds-grid">
-          <DsSpecimen caption="Default surface — glass premium" classHint=".ct-glass-panel">
+          <DsSpecimen caption="Default module surface" classHint=".ct-glass-panel">
             <Card hoverOverlay={false} className="w-full">
               <p className="body-sm ct-text-body m-0">
-                Inner bevel (inset highlight), 1px graphite border. The canonical
-                module surface for every page.
+                Opaque charcoal fill, 1px graphite border, no backdrop blur. The
+                canonical module surface for every page (.ct-glass-panel is a legacy
+                class name — not frosted glass).
               </p>
             </Card>
           </DsSpecimen>
@@ -169,7 +170,7 @@ export function SectionFoundations() {
             <Card hoverOverlay={false} material="flat" density="compact" className="w-full">
               <NestedPanel className="p-[var(--ct-space-3)]">
                 <p className="body-sm ct-text-body m-0">
-                  Opaque, no frost — for dense lists / tables where glass-on-glass
+                  Same opaque fill — for dense lists / tables where a nested panel
                   would cage-in-cage.
                 </p>
               </NestedPanel>

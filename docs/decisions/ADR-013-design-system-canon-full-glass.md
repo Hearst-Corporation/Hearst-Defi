@@ -54,8 +54,9 @@ No surface tier is "flat by default" for admin pages.
   inside compare panels, and `EmptySurface` which stands alone with no surrounding
   box. These exceptions MUST be annotated with an inline comment referencing this ADR.
 - Token constraints (non-negotiable, CI-enforced): accent = `--ct-accent` (#A7FB90)
-  only; no raw hex in `.tsx`/`.ts` files (exception: `src/lib/cockpit-tokens.ts` for
-  PDF/Privy); all surface values via `--ct-*` tokens from `cockpit.css`.
+  only; no raw hex in `.tsx`/`.ts` files (exceptions: `src/lib/pdf/pdf-palette.ts`,
+  `src/lib/brand-constants.ts` for PDF/Privy/email); all surface values via `--ct-*`
+  tokens from `cockpit.css`.
 
 ### 2. One canonical glass recipe — `.ct-glass-panel`
 
@@ -138,3 +139,22 @@ MUST be consolidated into a single file: `src/app/doc-flow.css`.
 - Doc-flow destination: `src/app/doc-flow.css`.
 - Typography companion: `src/app/doc-flow-typography.css`.
 - Design system reference: `docs/DESIGN_SYSTEM.md`.
+- **Living rendered reference**: `/admin/design-system` (wins over markdown wording).
+
+## Terminology clarification (2026-06-25 — does not change the decision)
+
+The ADR title and body use **« glass »** as a migration label for the unified container
+class `.ct-glass-panel`. That name is **legacy**. The **live visual** (see
+`src/app/cockpit.css` `.ct-glass-panel` rule and `/admin/design-system` §A Elevation)
+is **opaque graphite / flat charcoal**:
+
+- Fill: `--ct-graphite-subtle-bg` (solid, not translucent)
+- `backdrop-filter: none` · no external drop shadow
+- Depth from surface tiers + 1px border — not from frosted blur
+
+When this ADR says « full glass everywhere », read: **one canonical opaque panel recipe
+everywhere** (product + admin), replacing the deprecated admin-only flat tier
+(`.ct-system-panel`). It does **not** mean smoked-glass, glassmorphism, or semi-translucent cards.
+
+Raw-hex exceptions for non-CSS runtimes: `src/lib/pdf/pdf-palette.ts`,
+`src/lib/brand-constants.ts` (not `cockpit-tokens.ts`, removed).

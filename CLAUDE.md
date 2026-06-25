@@ -166,7 +166,7 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 - **Initiative visuelle encouragée :** Les améliorations proactives (glassmorphism, lueurs/glows, dégradés radiaux premium) sont appréciées pour renforcer l'aspect institutionnel, tant qu'elles respectent globalement l'ambiance sombre et les couleurs de base.
 - **Réversibilité.** Toute modif doit pouvoir être annulée vite. Pas de `git add/commit/push/reset` sans demande explicite.
 - **Après chaque modif CSS/Turbopack** : `browser_close` puis re-`navigate` (sinon CSS servi en cache, Playwright garde l'ancien chunk).
-- **Accent = vert `#A7FB90` principalement** (fond noir `--ct-bg-deep`). Le Glassmorphism = surfaces translucides, les lueurs ambiantes sont autorisées pour la profondeur.
+- **Accent = vert `#A7FB90` principalement** (fond noir `--ct-bg-deep`). Panneaux modules = **graphite opaque plat** (`.ct-glass-panel`, nom legacy — pas de verre dépoli). Lueurs ambiantes autorisées **sur le shell / fond**, pas comme fill de card.
 - **Portfolio empty state** — Sans position active : l'interface affiche naturellement son layout vide (le contrat ghost a été supprimé). Pas de faux badge `Live`/`Verified` ni de mockup chart fictif.
 - **Phase chantier UI :** spacing, marges, hiérarchie de page, wording, nav et
   layout shell/doc-flow peuvent être itérés directement dans `cockpit.css`,

@@ -1,9 +1,14 @@
 # Hearst Connect — Design System (base de vérité)
 
+> **Référence rendue (prioritaire)** : [`/admin/design-system`](/admin/design-system) —
+> primitives live depuis `src/components/ui/*`. Ce markdown = checklist ; en cas de
+> divergence, **la page rendue gagne** (cf. `docs/DS_CONFORMANCE_PROMPT.md`).
+>
 > Dérivé du dashboard corrigé + `@hearst/cockpit-shell/tokens.css` (source amont :
 > `~/.claude/assets/cockpit/SPEC.md`). **Ne jamais réinventer ces valeurs.**
 > Toute nouvelle page produit (scenario-lab, proof-center, investor-memo) se
-> construit contre ce document. Dernière révision : 2026-06-12 (ADR-013).
+> construit contre `/admin/design-system` + ce document. Dernière révision : 2026-06-25
+> (terminologie surfaces graphite ; ADR-013 inchangé sur le fond).
 >
 > Guidelines tokens/primitives : [`README.md`](../README.md) § Design system.
 > **Source runtime** : Cockpit (`--ct-*`) — pas de second design system (`@ds/core` retiré).
@@ -15,9 +20,16 @@
 
 ## 1. Principe
 
-Dark-mode unique au MVP. Shell vert (#A7FB90) verre dépoli. Le token `--ct-accent`
-porte la couleur du produit actif ; **tous les autres accents en dérivent** via
-`color-mix` → re-coloration globale d'un seul point.
+Dark-mode unique au MVP. Fond global noir (`--ct-bg-deep`), accent vert `#A7FB90`
+(`--ct-accent`). Le token `--ct-accent` porte la couleur du produit actif ;
+**tous les autres accents en dérivent** via `color-mix` → re-coloration globale
+d'un seul point.
+
+**Surfaces modules (canon visuel)** : la classe `.ct-glass-panel` est un **nom legacy**
+— le rendu n'est **pas** du verre dépoli. C'est un **panneau graphite opaque plat** :
+fond `--ct-graphite-subtle-bg`, bordure 1px, `backdrop-filter: none`, pas de drop
+shadow externe. Voir §10 et `/admin/design-system` §A (Elevation). L'ADR-013 « full
+glass » signifie **une seule recette de conteneur partout**, pas du frosted glass.
 
 Cascade CSS : `@hearst/cockpit-shell/tokens.css` → `cockpit.css` (extensions
 projet : status, radius, z-index, overrides shell) → `globals.css` (`@theme`
@@ -32,7 +44,7 @@ dans `cockpit.css` (pattern établi : Sonner, rails).
 | `--ct-accent` | `#A7FB90` | **Seul vert de l'UI** (piloté ThemeAccent) |
 | `--ct-accent-soft` | `accent 18% + transparent` | Halo ambiant, charts soft tone |
 | `--ct-accent-strong` | `accent 82% + #fff` | Arc actif jauges/charts |
-| `--ct-surface-0..3` | `rgba(255,255,255,.02→.09)` | Verre dépoli (élévation croissante) |
+| `--ct-surface-0..3` | charcoal opaque (`#0E0F0F` → `#242428`) | Élévation croissante (tiers graphite pleins) |
 | `--ct-text-strong` | `#ffffff` | Chiffres clés, titres |
 | `--ct-text-primary` | `rgba(245,245,245,.92)` | Texte courant |
 | `--ct-text-body` | `rgba(245,245,245,.72)` | Texte secondaire |
@@ -46,8 +58,9 @@ dans `cockpit.css` (pattern établi : Sonner, rails).
 
 **Guidelines** (CI/audit) :
 - Tout hex/rgba en dehors de ces tokens dans `src/**` = **interdit**.
-  Exception unique documentée : `src/lib/cockpit-tokens.ts` (palette PDF print
-  + Privy theme — ne peuvent pas lire de CSS vars runtime).
+  Exceptions documentées (hors CSS runtime) : `src/lib/pdf/pdf-palette.ts` (PDF print),
+  `src/lib/brand-constants.ts` (`CONNECT_ACCENT_HEX` — Privy/email — ne peuvent pas
+  lire de CSS vars runtime).
 - **Un seul vert dans l'UI web** = `--ct-accent`. Pas de Tailwind green-*, pas
   de `#4ade80`, pas d'`accent-soft` comme « couleur de catégorie alternative ».
   Pour différencier visuellement, prendre `--ct-status-info` (bleu),
@@ -242,8 +255,7 @@ Trois niveaux — hiérarchie cockpit, pas de verrou empty-vs-active :
 
 `ModuleChrome` / `Card` (→ `.ct-glass-panel`) — données réelles ou **preview cockpit**
 (valeurs à zéro avec `PreviewModeChip`, pas de badge `Live`/`Verified` faux).
-**Canonical material: `.ct-glass-panel`** (ADR-013). `.glass-panel` et `.ct-card` sont
-des aliases en cours de migration vers `.ct-glass-panel`.
+**Canonical material: `.ct-glass-panel`** (ADR-013 — opaque graphite, legacy class name).
 
 ### 9.2 Nested evidence surface
 
@@ -273,16 +285,22 @@ ou seuls sur les surfaces admin/proof qui n'ont pas de preview structurale.
 
 Source de vérité : [`docs/decisions/ADR-013-design-system-canon-full-glass.md`](decisions/ADR-013-design-system-canon-full-glass.md).
 
-### 10.1 Tier par défaut — Glass premium
+### 10.1 Tier par défaut — Graphite opaque (`.ct-glass-panel`)
 
 **`.ct-glass-panel`** est la surface par défaut pour TOUTES les pages (produit ET admin).
 `Card` (`src/components/ui/card.tsx`) est le JSX canonical qui l'applique.
 
 Recette définie **une seule fois** dans `src/app/cockpit.css` (`--ct-graphite-*` +
-`--ct-surface-*` + `--ct-glass-bevel`). Bordure `1px` graphite + **bevel interne**
-(`inset 0 1px 0`, tokens `--ct-glass-bevel` / `--ct-glass-bevel-hover`) — pas de
-drop shadow externe. `.ct-glass-panel--flat` et `.ct-nested-panel--borderless`
-restent sans bevel. Aucun fichier de page ne peut redéfinir une recette graphite localement.
+`--ct-surface-*`). Rendu live :
+
+- `background: var(--ct-graphite-subtle-bg)` — charcoal **opaque plein**
+- `border: 1px solid var(--ct-graphite-border-nested)`
+- `backdrop-filter: none` · `box-shadow: none`
+- Hover : bordure légèrement renforcée (pas de lift, pas de wash radial)
+
+`material="flat"` sur `Card` = **même fond opaque** ; variante pour listes denses
+(anti cage-in-cage), pas « moins noir ». Aucun fichier de page ne peut redéfinir
+une recette graphite localement.
 
 ### 10.2 Tier DEPRECATED — Flat / SystemPanel
 
@@ -293,9 +311,10 @@ Les usages existants sont des cibles de migration (voir ADR-013 §Lots de migrat
 Les recettes legacy `.glass-panel` et `.glass-panel-subtle` sont également
 DEPRECATED et seront retirées de `cockpit.css` une fois tous les call-sites migrés.
 
-### 10.3 Exceptions documentées (non-glass autorisé)
+### 10.3 Exceptions documentées (sans panneau graphite)
 
-Les exceptions suivantes sont les **seules** departures autorisées de glass-as-default.
+Les exceptions suivantes sont les **seules** departures autorisées du conteneur
+`.ct-glass-panel` par défaut.
 Chaque usage doit être annoté d'un commentaire inline `/* ADR-013 exception */` :
 
 | Surface | Exception | Raison |

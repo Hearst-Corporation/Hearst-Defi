@@ -85,7 +85,7 @@ Use Bash + Grep/Glob (NO browser, NO source edits, NO git mutations). Suggested 
 Classify every surface and decide audit-target yes/no. Mark as EXCLUSIONS (audit target = no):
   - /portfolio (canon seed, read-only, never-fix)
   - /admin/design-system Section F (intentional anti-pattern demos, never-fix)
-  - src/lib/cockpit-tokens.ts (raw-hex exception: PDF/Privy)
+  - src/lib/pdf/pdf-palette.ts + src/lib/brand-constants.ts (raw-hex exception: PDF/Privy/email)
   - tests, generated files, node_modules, docs, screenshots/logs/temp, debug/dev pages
 For each exclusion give: scope/file · reason · read-only(yes/no) · never-fix(yes/no).
 
@@ -253,7 +253,7 @@ Static code audit only (token/primitive/honesty/surface drift). Live responsive
 overflow is out of scope here — that is /visual-review's job; do NOT spin up a browser.
 
 Respect the "Do NOT flag" list in the checklist exactly (the /admin/design-system
-Section F cage demo, primitive-internal shadows, cockpit-tokens.ts, dashboard
+Section F cage demo, primitive-internal shadows, pdf-palette.ts / brand-constants.ts, dashboard
 ambient light, unwired-but-built components). Do NOT invent findings to fill a quota
 — a clean scope returns an empty findings array and a high score.
 `
@@ -281,7 +281,7 @@ const flagged = results.flatMap((r) =>
 const verdicts = (await parallel(
   flagged.map((f) => () =>
     agent(
-      `You adversarially VERIFY one design-system finding. Read docs/DS_CONFORMANCE_PROMPT.md (esp. the "Do NOT flag" exceptions), open the cited file, and decide if this is a REAL drift from the DS canon or a false positive (intentional exception, primitive-internal chrome, portfolio/.pf-* canon, Section F demo, cockpit-tokens.ts, ambient dashboard light, unwired-but-built). Default to refuted=true if uncertain.\n\nFINDING:\n${JSON.stringify(f, null, 1)}`,
+      `You adversarially VERIFY one design-system finding. Read docs/DS_CONFORMANCE_PROMPT.md (esp. the "Do NOT flag" exceptions), open the cited file, and decide if this is a REAL drift from the DS canon or a false positive (intentional exception, primitive-internal chrome, portfolio/.pf-* canon, Section F demo, pdf-palette.ts / brand-constants.ts, ambient dashboard light, unwired-but-built). Default to refuted=true if uncertain.\n\nFINDING:\n${JSON.stringify(f, null, 1)}`,
       {
         label: `verify:${f.file}`,
         phase: 'Verify',

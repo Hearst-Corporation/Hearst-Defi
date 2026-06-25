@@ -8,7 +8,7 @@ const ANTI_PATTERNS = [
   {
     title: "Glow / halo",
     why: "Box-shadow blooms or accent halos on panels read as a toy, not an institution.",
-    fix: "use the glass bevel + 1px border; depth comes from surface tiers.",
+    fix: "use 1px graphite border + surface tiers; depth comes from elevation tokens, not blur.",
   },
   {
     title: "Radial highlight",
@@ -22,7 +22,7 @@ const ANTI_PATTERNS = [
   },
   {
     title: "Cage-in-cage",
-    why: "Glass panel nested in glass panel doubles borders into a visual cage.",
+    why: "Panel nested in panel doubles borders into a visual cage.",
     fix: 'switch the parent to material="flat", then nest a single NestedPanel.',
   },
   {

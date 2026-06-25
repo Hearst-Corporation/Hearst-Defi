@@ -1,5 +1,5 @@
 ---
-description: Design system -- token cascade, glass/ambient surfaces, --ct-* discipline. The hottest surface (cockpit.css 71 touches).
+description: Design system -- token cascade, graphite opaque surfaces, --ct-* discipline. The hottest surface (cockpit.css 71 touches).
 globs: src/app/cockpit.css,src/app/globals.css,src/app/doc-flow.css,src/app/doc-flow-typography.css,src/app/tokens-layer.css,cockpit-shell/tokens.css,cockpit-shell/src/**/*.tsx,src/app/(product)/**/*.css
 alwaysApply: false
 ---
@@ -10,7 +10,7 @@ alwaysApply: false
 
 ## Read first
 - `docs/CSS_INDEX.md` — file map + which surface owns which token.
-- `docs/DESIGN_SYSTEM.md` — cascade, tokens `--ct-*`, glass/ambient canon, §9 cockpit preview.
+- `docs/DESIGN_SYSTEM.md` — cascade, tokens `--ct-*`, surfaces graphite + ambient shell, §9 cockpit preview.
 
 ## Must avoid
 - Business logic, data loaders, server actions inside any CSS / DS file.
@@ -27,5 +27,5 @@ alwaysApply: false
 - Editing one of the 11 tokens in `cockpit-shell/tokens.css` that `cockpit.css` `:root` supersedes — base edit has **no visible effect**; edit the live value in `cockpit.css`.
 - Removing `layer()` from `tokens-layer.css` — it pulls shell tokens into the `cockpit` layer.
 - Re-splitting brand/success accent or adding a 2nd green (one vert: `--ct-accent` #A7FB90).
-- Flat-black dashboard bg — reverted, signed comment in `cockpit.css`; keep the light + dark glass.
-- Glassing a dense list/table panel — `.ct-glass-panel--flat` is mandated (anti cage-in-cage).
+- Flat-black dashboard bg — reverted, signed comment in `cockpit.css`; keep the ambient light behind opaque panels.
+- Dense list/table panel — `material="flat"` on `Card` (same opaque graphite; anti cage-in-cage).

@@ -202,13 +202,15 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 
 **Interactivité & Animations (Agent 3)** :
 - **Hover states** : Bento (`.dash-cell`) et surfaces graphite (`.ct-glass-panel`,
-  `.pf-cockpit-panel`) — bordure renforcée + bevel interne (`--ct-glass-bevel-hover`) ;
-  focus garde bevel + `--ct-shadow-focus-ring`. Pas de lift ni wash radial.
+  `.pf-cockpit-panel`) — bordure renforcée au hover ; focus → `--ct-shadow-focus-ring`.
+  Pas de lift ni wash radial.
 - **Sharpening typo** : `.stat-value` → `--ct-tracking-tighter` ; `.stat-label` /
   `.eyebrow` → `--ct-tracking-wider`. Padding LP `.ct-card` = `--ct-space-5/6` ;
   admin override dense via `.admin-doc .ct-card`.
-- **Glass calmer** : `--ct-graphite-blur` 16px, fond spatial lumineux (image + blooms),
-  cartes graphite semi-translucides — pas de blur 28px « aquarium ».
+- **Surfaces modules** : panneaux **graphite opaques pleins** (`--ct-graphite-subtle-bg`,
+  `backdrop-filter: none`) — pas de blur « aquarium », pas de cartes semi-translucides.
+  Lumière ambiante verte = **shell / dashboard** derrière les panneaux, pas dans le fill
+  des cards. Référence rendue : `/admin/design-system`.
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : animations CSS/Tailwind locales, sans wrapper global inutilisé.
 - **Portfolio** : Hub `/portfolio` = cockpit bento no-scroll (≥1440px wide + tall :
@@ -224,6 +226,7 @@ PDF react-pdf : palette hex locale [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pd
 `cockpit-shell/tokens.css`).
 
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
+**Référence visuelle live** (prioritaire) : [`/admin/design-system`](/admin/design-system).
 
 **Typographie (échelle canonique)** : `cockpit.css` (`--ct-text-*`) → miroir
 `globals.css` `@theme` (`text-micro` = 11px, `text-xs` = 13px). Rôles sémantiques :
@@ -384,7 +387,7 @@ Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
 
 ## Méthode de travail visuel (RÈGLES ASSOUPLIES)
 
-- Initiative visuelle encouragée (Glassmorphism, lueurs, gradients) pour l'aspect premium.
+- Initiative visuelle encouragée (lueurs ambiantes shell, gradients de fond) pour l'aspect premium — **pas** de glassmorphism sur les panneaux modules (graphite opaque plat).
 - Réversibilité : pas de `git add/commit/push/reset` sans demande explicite.
 - Accent brand = vert `#A7FB90` (`--ct-accent`). Success/live = **même vert** via `--ct-status-success` → `var(--ct-accent)` (un seul vert runtime ; PDF garde son `#16a34a` print). Fond noir `--ct-bg-deep`. Les textures et effets de profondeur sont autorisés.
 - Phase chantier UI : spacing, marges, hiérarchie, nav, doc-flow et shell peuvent

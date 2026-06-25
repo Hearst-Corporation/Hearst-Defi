@@ -6,7 +6,7 @@ section CSS ciblés.
 ## Layout shell (vocabulaire)
 - **Section 1** = rail gauche (icônes nav verticale, `.ct-rail-left`).
 - **Section 2** = centre (contenu page).
-- **Section 3** = chat droit (rail verre translucide).
+- **Section 3** = chat droit (rail Cockpit — chrome shell, distinct des panneaux graphite).
 - **Section menu** = barre flottante en bas (Portfolio / Vaults).
 CSS du shell, rails, fond spatial, nav, login → `cockpit.css` (voir `docs/CSS_INDEX.md` — rails ~L3736, breakpoints ~L4615).
 
