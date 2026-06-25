@@ -15,6 +15,7 @@ import {
   executeRebalance,
 } from "@/app/admin/signals/actions";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
+import { statusVariant } from "@/components/proof-center/formatters";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -60,23 +61,6 @@ function parseSigners(raw: string): string[] {
     return Array.isArray(parsed) ? (parsed as string[]) : [];
   } catch {
     return [];
-  }
-}
-
-function statusVariant(
-  status: string,
-): "default" | "success" | "warning" | "danger" | "brand" {
-  switch (status) {
-    case "pending":
-      return "warning";
-    case "approved":
-      return "brand";
-    case "executed":
-      return "success";
-    case "cancelled":
-      return "danger";
-    default:
-      return "default";
   }
 }
 

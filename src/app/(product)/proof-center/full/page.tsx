@@ -5,11 +5,7 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
-import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { ProofCenterFullSections } from "@/components/proof-center/proof-center-full-sections";
+import { ProofCenterFullLogLayout } from "@/components/proof-center/proof-center-full-log-layout";
 import { parseFilter } from "@/components/proof/proof-filter-types";
 import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";
 
@@ -33,30 +29,14 @@ export default async function ProofCenterFullPage({
     await loadProofCenterFullLog();
 
   return (
-    <div className="product-doc-stack">
-      <ProductPageHeader
-        titleLead="Full"
-        titleAccent="Log"
-        contextLabel="Proof · Full Log"
-        lead={
-          <Link
-            href="/proof-center"
-            className="proof-back-link body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base"
-            aria-label="Back to Proof Center"
-          >
-            <ArrowLeft className="ct-icon-sm" aria-hidden />
-            Proof Center
-          </Link>
-        }
-      />
-
-      <ProofCenterFullSections
-        onChainEvents={onChainEvents}
-        proofs={proofs}
-        platformAddresses={platformAddresses}
-        filter={filter}
-        timelockProposals={timelockProposals}
-      />
-    </div>
+    <ProofCenterFullLogLayout
+      variant="product"
+      backHref="/proof-center"
+      onChainEvents={onChainEvents}
+      proofs={proofs}
+      platformAddresses={platformAddresses}
+      filter={filter}
+      timelockProposals={timelockProposals}
+    />
   );
 }

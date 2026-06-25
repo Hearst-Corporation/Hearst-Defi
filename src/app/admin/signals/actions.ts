@@ -9,7 +9,7 @@ import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
 import { writeRebalanceEvent } from "@/lib/chain/event-logger";
 import { logger } from "@/lib/logger";
-import { assertRateLimit } from "@/lib/rate-limit";
+import { assertAdminRateLimit } from "@/lib/admin/rate-limit";
 
 /** Admin signal actions rate limit: 20 requests / 60s / admin. */
 const SIGNAL_RATE_MAX = 20;
@@ -68,28 +68,19 @@ const REQUIRED_SIGNERS = 2;
  */
 const MAX_ATTEMPTS = 4;
 
+async function assertSignalRateLimit(userId: string) {
+  await assertAdminRateLimit(userId, "signals", SIGNAL_RATE_MAX, SIGNAL_RATE_WINDOW_MS);
+}
+
 // ---------------------------------------------------------------------------
 // approveRebalance
 // ---------------------------------------------------------------------------
 
 export async function approveRebalance(eventId: string): Promise<void> {
   const admin = await requireAdmin();
+  await assertSignalRateLimit(admin.userId);
 
   // Signer identity is derived server-side from the authenticated admin — NEVER
-  // a client-supplied value. walletAddress is null for admins (no Investor row),
-  // so this collapses to admin.userId. The quorum counts DISTINCT AUTHENTICATED
-  // ADMINS, mirroring signApproval() in src/app/admin/vaults/actions.ts.
-  const signerKey = admin.walletAddress ?? admin.userId;
-
-  try {
-    await assertRateLimit(
-      `admin:signals:${admin.userId}`,
-      SIGNAL_RATE_MAX,
-      SIGNAL_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
 
   const parsed = ApproveSchema.safeParse({ eventId });
   if (!parsed.success) {
@@ -237,16 +228,7 @@ export async function rejectRebalance(
   reason: string,
 ): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:signals:${admin.userId}`,
-      SIGNAL_RATE_MAX,
-      SIGNAL_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertSignalRateLimit(admin.userId);
 
   const parsed = RejectSchema.safeParse({ eventId, reason });
   if (!parsed.success) {
@@ -300,16 +282,7 @@ export async function rejectRebalance(
 
 export async function executeRebalance(eventId: string): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:signals:${admin.userId}`,
-      SIGNAL_RATE_MAX,
-      SIGNAL_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertSignalRateLimit(admin.userId);
 
   const parsed = ExecuteSchema.safeParse({ eventId });
   if (!parsed.success) {
@@ -383,20 +356,9 @@ export async function requestManualSignal(
   vaultId?: string,
 ): Promise<string> {
   const admin = await requireAdmin();
+  await assertSignalRateLimit(admin.userId);
 
   if (process.env.NODE_ENV !== "development") {
-    throw new Error("Manual signal trigger is only available in development.");
-  }
-
-  try {
-    await assertRateLimit(
-      `admin:signals:${admin.userId}`,
-      SIGNAL_RATE_MAX,
-      SIGNAL_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
 
   const parsed = ManualSignalSchema.safeParse({ ruleId, vaultId });
   if (!parsed.success) {

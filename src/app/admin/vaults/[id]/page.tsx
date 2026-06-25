@@ -12,6 +12,12 @@ import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import {
+  AdminDetailSection,
+  AdminDetailGrid,
+  AdminDetailItem,
+} from "@/components/admin/admin-detail-layout";
+import { AdminTable } from "@/components/admin/admin-table-layout";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { cn } from "@/lib/cn";
 import { prisma } from "@/lib/db";
@@ -341,14 +347,17 @@ export default async function VaultDetailPage({ params }: PageProps) {
       </div>
 
       {/* Approvals — table shell only (no Card double frame; cf. audit/customers). */}
-      <section className="admin-doc-stack admin-doc-stack--compact" aria-label="Approvals">
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
-          <DashboardPanelHeader title="Approvals" className="mb-0" />
-          <span className="mono tabular body-sm ct-text-muted">
-            {approveCount} / {vault.requiredSigners} required
-          </span>
-        </div>
-
+      <AdminDetailSection
+        label="Approvals"
+        title="Approvals"
+        description={
+          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
+            <span className="mono tabular body-sm ct-text-muted">
+              {approveCount} / {vault.requiredSigners} required
+            </span>
+          </div>
+        }
+      >
         {vault.status === "review" && (
           <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
             <span className="body-xs ct-text-muted">
@@ -374,112 +383,105 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {vault.approvals.length === 0 ? (
           <PanelStatus message="No signatures yet." />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <table className="w-full table-fixed text-left body-sm">
-              <thead>
-                <tr>
-                  <th className="admin-strategy-approvals-col--signer ct-table-header stat-label text-left">Signer</th>
-                  <th className="admin-strategy-approvals-col--decision ct-table-header stat-label text-left">Decision</th>
-                  <th className="hidden admin-strategy-approvals-col--reason ct-table-header stat-label text-left md:table-cell">Reason</th>
-                  <th className="admin-strategy-approvals-col--date ct-table-header stat-label text-left">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vault.approvals.map((approval) => (
-                  <tr key={approval.id}>
-                    <td className="ct-table-cell mono tabular body-xs ct-text-muted truncate align-top">
-                      {approval.signerWallet}
-                    </td>
-                    <td className="ct-table-cell align-top">
-                      <span
-                        className={cn(
-                          "body-xs font-semibold",
-                          approval.decision === "approve"
-                            ? "ct-status-success"
-                            : "ct-status-danger",
-                        )}
-                      >
-                        {approval.decision}
-                      </span>
-                    </td>
-                    <td className="hidden ct-table-cell body-xs ct-text-muted wrap-break-word align-top md:table-cell">
-                      {approval.reason ?? "—"}
-                    </td>
-                    <td className="ct-table-cell body-xs ct-text-faint tabular mono whitespace-nowrap align-top">
-                      {approval.signedAt.toISOString().slice(0, 10)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+          <AdminTable
+            data={vault.approvals}
+            headers={["Signer", "Decision", <span key="reason" className="hidden md:inline">Reason</span>, "Date"]}
+            colWidths={[
+              "admin-strategy-approvals-col--signer",
+              "admin-strategy-approvals-col--decision",
+              "hidden admin-strategy-approvals-col--reason md:table-cell",
+              "admin-strategy-approvals-col--date",
+            ]}
+            renderRow={(approval) => (
+              <>
+                <td className="ct-table-cell mono tabular body-xs ct-text-muted truncate align-top">
+                  {approval.signerWallet}
+                </td>
+                <td className="ct-table-cell align-top">
+                  <span
+                    className={cn(
+                      "body-xs font-semibold",
+                      approval.decision === "approve"
+                        ? "ct-status-success"
+                        : "ct-status-danger",
+                    )}
+                  >
+                    {approval.decision}
+                  </span>
+                </td>
+                <td className="hidden ct-table-cell body-xs ct-text-muted wrap-break-word align-top md:table-cell">
+                  {approval.reason ?? "—"}
+                </td>
+                <td className="ct-table-cell body-xs ct-text-faint tabular mono whitespace-nowrap align-top">
+                  {approval.signedAt.toISOString().slice(0, 10)}
+                </td>
+              </>
+            )}
+          />
         )}
-      </section>
+      </AdminDetailSection>
 
       {/* Subscribers — visible once vault has at least one active position */}
-      <section className="admin-doc-stack admin-doc-stack--compact" aria-label="Subscribers">
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
-          <DashboardPanelHeader title="Subscribers" className="mb-0" />
-          <span className="mono tabular body-sm ct-text-muted">
-            {vault.positions.length} active · {formatUsdFull(aumUsdc)}
-          </span>
-        </div>
-
+      <AdminDetailSection
+        label="Subscribers"
+        title="Subscribers"
+        description={
+          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--relaxed">
+            <span className="mono tabular body-sm ct-text-muted">
+              {vault.positions.length} active · {formatUsdFull(aumUsdc)}
+            </span>
+          </div>
+        }
+      >
         {vault.positions.length === 0 ? (
           <PanelStatus message="No active subscriptions yet." />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <table className="w-full table-fixed text-left body-sm">
-              <thead>
-                <tr>
-                  <th className="admin-strategy-subs-col--investor ct-table-header stat-label text-left">Investor</th>
-                  <th className="admin-strategy-subs-col--class ct-table-header stat-label text-left">Class</th>
-                  <th className="admin-strategy-subs-col--principal ct-table-header stat-label text-right">Principal</th>
-                  <th className="admin-strategy-subs-col--subscribed ct-table-header stat-label text-left">Subscribed</th>
-                  <th className="admin-strategy-subs-col--lockup ct-table-header stat-label text-left">Lock-up ends</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vault.positions.map((pos) => {
-                  const classCode = classFromVaultKey(pos.vaultKey);
-                  const lockupEnd = new Date(
-                    pos.subscribedAt.getTime() +
-                      lockupDaysForClass(classCode) * 86_400_000,
-                  );
-                  return (
-                    <tr
-                      key={pos.id}
-                      className="admin-strategy-subs-row"
-                    >
-                      <td className="ct-table-cell truncate ct-text-body">
-                        {pos.investor.user.email}
-                      </td>
-                      <td className="ct-table-cell mono ct-text-muted">
-                        {classCode}
-                      </td>
-                      <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                        {formatUsdFull(Number(pos.principalUsdc))}
-                      </td>
-                      <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
-                        {pos.subscribedAt.toISOString().slice(0, 10)}
-                      </td>
-                      <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
-                        {lockupEnd.toISOString().slice(0, 10)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </Card>
+          <AdminTable
+            data={vault.positions}
+            headers={["Investor", "Class", <span key="principal" className="text-right">Principal</span>, "Subscribed", "Lock-up ends"]}
+            colWidths={[
+              "admin-strategy-subs-col--investor",
+              "admin-strategy-subs-col--class",
+              "admin-strategy-subs-col--principal text-right",
+              "admin-strategy-subs-col--subscribed",
+              "admin-strategy-subs-col--lockup",
+            ]}
+            renderRow={(pos) => {
+              const classCode = classFromVaultKey(pos.vaultKey);
+              const lockupEnd = new Date(
+                pos.subscribedAt.getTime() +
+                  lockupDaysForClass(classCode) * 86_400_000,
+              );
+              return (
+                <>
+                  <td className="ct-table-cell truncate ct-text-body">
+                    {pos.investor.user.email}
+                  </td>
+                  <td className="ct-table-cell mono ct-text-muted">
+                    {classCode}
+                  </td>
+                  <td className="ct-table-cell text-right tabular-nums ct-text-strong">
+                    {formatUsdFull(Number(pos.principalUsdc))}
+                  </td>
+                  <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
+                    {pos.subscribedAt.toISOString().slice(0, 10)}
+                  </td>
+                  <td className="ct-table-cell body-xs ct-text-muted whitespace-nowrap">
+                    {lockupEnd.toISOString().slice(0, 10)}
+                  </td>
+                </>
+              );
+            }}
+          />
         )}
-      </section>
+      </AdminDetailSection>
 
       {/* Disclaimers */}
-      <Card hoverOverlay={false}>
-        <DashboardPanelHeader title="Disclaimers" />
-        <p className="body-sm ct-text-muted whitespace-pre-wrap mt-[var(--ct-space-4)]">{vault.disclaimers}</p>
-      </Card>
+      <AdminDetailSection label="Disclaimers" title="Disclaimers">
+        <Card hoverOverlay={false}>
+          <p className="body-sm ct-text-muted whitespace-pre-wrap mt-[var(--ct-space-4)]">{vault.disclaimers}</p>
+        </Card>
+      </AdminDetailSection>
     </>
   );
 }

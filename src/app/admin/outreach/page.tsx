@@ -19,6 +19,9 @@ import { IcpForm } from "@/components/admin/outreach/icp-form";
 import { IcpList } from "@/components/admin/outreach/icp-list";
 import { TierBadge } from "@/components/admin/outreach/tier-badge";
 import {
+  AdminTable,
+} from "@/components/admin/admin-table-layout";
+import {
   computeOutreachStats,
   loadProspects,
   loadCampaigns,
@@ -88,73 +91,59 @@ export default async function OutreachPage() {
             className="min-h-32"
           />
         ) : (
-          <Card className="p-0 overflow-hidden border-[var(--ct-border-soft)]" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr className="bg-[var(--ct-graphite-subtle-bg)]/30">
-                    <th className="w-[30%] stat-label ct-table-header whitespace-nowrap py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Email
-                    </th>
-                    <th className="hidden w-[22%] stat-label ct-table-header whitespace-nowrap md:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Company
-                    </th>
-                    <th className="hidden w-[18%] stat-label ct-table-header whitespace-nowrap lg:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Name
-                    </th>
-                    <th className="w-[14%] stat-label ct-table-header whitespace-nowrap py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Tier
-                    </th>
-                    <th className="w-[14%] stat-label ct-table-header whitespace-nowrap py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Status
-                    </th>
-                    <th className="hidden w-[12%] stat-label ct-table-header whitespace-nowrap lg:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Added
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--ct-border-soft)]">
-                  {prospects.rows.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="hover:bg-[var(--ct-graphite-subtle-bg)]/10 transition-colors"
-                    >
-                      <td className="ct-table-cell truncate ct-text-strong py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        <Link
-                          href={`/admin/outreach/prospects/${p.id}`}
-                          className="hover:underline decoration-[var(--ct-accent)]/30 underline-offset-4"
-                        >
-                          {p.email}
-                        </Link>
-                      </td>
-                      <td className="hidden ct-table-cell truncate ct-text-body md:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        {p.company ?? "—"}
-                      </td>
-                      <td className="hidden ct-table-cell truncate ct-text-muted lg:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        <Link
-                          href={`/admin/outreach/prospects/${p.id}`}
-                          className="hover:underline decoration-[var(--ct-accent)]/30 underline-offset-4"
-                        >
-                          {[p.firstName, p.lastName].filter(Boolean).join(" ") || "View"}
-                        </Link>
-                      </td>
-                      <td className="ct-table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        <TierBadge prospectId={p.id} tier={p.tier} />
-                      </td>
-                      <td className="ct-table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"} className="font-medium">
-                          {p.status}
-                        </Badge>
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-faint tabular-nums lg:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        {formatAdminDate(p.createdAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={prospects.rows}
+            headers={[
+              "Email",
+              <span key="company" className="hidden md:inline">Company</span>,
+              <span key="name" className="hidden lg:inline">Name</span>,
+              "Tier",
+              "Status",
+              <span key="added" className="hidden lg:inline">Added</span>,
+            ]}
+            colWidths={[
+              "w-[30%]",
+              "hidden w-[22%] md:table-cell",
+              "hidden w-[18%] lg:table-cell",
+              "w-[14%]",
+              "w-[14%]",
+              "hidden w-[12%] lg:table-cell",
+            ]}
+            renderRow={(p) => (
+              <>
+                <td className="ct-table-cell truncate ct-text-strong">
+                  <Link
+                    href={`/admin/outreach/prospects/${p.id}`}
+                    className="hover:underline decoration-[var(--ct-accent)]/30 underline-offset-4"
+                  >
+                    {p.email}
+                  </Link>
+                </td>
+                <td className="hidden ct-table-cell truncate ct-text-body md:table-cell">
+                  {p.company ?? "—"}
+                </td>
+                <td className="hidden ct-table-cell truncate ct-text-muted lg:table-cell">
+                  <Link
+                    href={`/admin/outreach/prospects/${p.id}`}
+                    className="hover:underline decoration-[var(--ct-accent)]/30 underline-offset-4"
+                  >
+                    {[p.firstName, p.lastName].filter(Boolean).join(" ") || "View"}
+                  </Link>
+                </td>
+                <td className="ct-table-cell">
+                  <TierBadge prospectId={p.id} tier={p.tier} />
+                </td>
+                <td className="ct-table-cell">
+                  <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"} className="font-medium">
+                    {p.status}
+                  </Badge>
+                </td>
+                <td className="hidden ct-table-cell ct-text-faint tabular-nums lg:table-cell">
+                  {formatAdminDate(p.createdAt)}
+                </td>
+              </>
+            )}
+          />
         )}
       </section>
 
@@ -178,60 +167,47 @@ export default async function OutreachPage() {
             className="min-h-32"
           />
         ) : (
-          <Card className="p-0 overflow-hidden border-[var(--ct-border-soft)]" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr className="bg-[var(--ct-graphite-subtle-bg)]/30">
-                    <th className="w-[34%] stat-label ct-table-header whitespace-nowrap py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Name
-                    </th>
-                    <th className="w-[16%] stat-label ct-table-header whitespace-nowrap py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Kind
-                    </th>
-                    <th className="w-[16%] stat-label ct-table-header whitespace-nowrap py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Status
-                    </th>
-                    <th className="hidden w-[12%] stat-label ct-table-header whitespace-nowrap text-right md:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Emails
-                    </th>
-                    <th className="hidden w-[16%] stat-label ct-table-header whitespace-nowrap lg:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                      Created
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--ct-border-soft)]">
-                  {campaigns.map((c) => (
-                    <tr
-                      key={c.id}
-                      className="hover:bg-[var(--ct-graphite-subtle-bg)]/10 transition-colors"
-                    >
-                      <td className="ct-table-cell truncate ct-text-strong py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        <Link
-                          href={`/admin/outreach/${c.id}`}
-                          className="hover:underline decoration-[var(--ct-accent)]/30 underline-offset-4"
-                        >
-                          {c.name}
-                        </Link>
-                      </td>
-                      <td className="ct-table-cell ct-text-muted py-[var(--ct-space-3)] px-[var(--ct-space-4)]">{c.kind}</td>
-                      <td className="ct-table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        <Badge variant={CAMPAIGN_VARIANT[c.status] ?? "default"} className="font-medium">
-                          {c.status}
-                        </Badge>
-                      </td>
-                      <td className="hidden ct-table-cell text-right tabular-nums ct-text-body md:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        {c.total}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-faint tabular-nums lg:table-cell py-[var(--ct-space-3)] px-[var(--ct-space-4)]">
-                        {formatAdminDate(c.createdAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={campaigns}
+            headers={[
+              "Name",
+              "Kind",
+              "Status",
+              <span key="emails" className="hidden md:inline text-right">Emails</span>,
+              <span key="created" className="hidden lg:inline">Created</span>,
+            ]}
+            colWidths={[
+              "w-[34%]",
+              "w-[16%]",
+              "w-[16%]",
+              "hidden w-[12%] text-right md:table-cell",
+              "hidden w-[16%] lg:table-cell",
+            ]}
+            renderRow={(c) => (
+              <>
+                <td className="ct-table-cell truncate ct-text-strong">
+                  <Link
+                    href={`/admin/outreach/${c.id}`}
+                    className="hover:underline decoration-[var(--ct-accent)]/30 underline-offset-4"
+                  >
+                    {c.name}
+                  </Link>
+                </td>
+                <td className="ct-table-cell ct-text-muted">{c.kind}</td>
+                <td className="ct-table-cell">
+                  <Badge variant={CAMPAIGN_VARIANT[c.status] ?? "default"} className="font-medium">
+                    {c.status}
+                  </Badge>
+                </td>
+                <td className="hidden ct-table-cell text-right tabular-nums ct-text-body md:table-cell">
+                  {c.total}
+                </td>
+                <td className="hidden ct-table-cell ct-text-faint tabular-nums lg:table-cell">
+                  {formatAdminDate(c.createdAt)}
+                </td>
+              </>
+            )}
+          />
         )}
           </section>
         </div>

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import {
   upsertQualification,
   applyCalibrationToUser,
@@ -158,16 +159,13 @@ export async function generateActivationLink(
     appUrl,
   });
 
-  await prisma.adminAudit.create({
-    data: {
-      actorWallet: admin.walletAddress ?? admin.userId,
-      action: "investor.generateActivationLink",
-      entityType: "Investor",
-      entityId: investorId,
-      diff: JSON.stringify({ before: null, after: { activationTokenMinted: true } }),
-      ip: null,
-      userAgent: null,
-    },
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "investor.generateActivationLink",
+    entityType: "Investor",
+    entityId: investorId,
+    before: null,
+    after: { activationTokenMinted: true },
   });
 
   return { ok: true, activationUrl };

@@ -3,6 +3,7 @@ import "server-only";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { env } from "@/lib/env";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { resolveCtaUrl } from "@/lib/outreach/cta-url";
@@ -219,21 +220,17 @@ export async function outreachAutoSendHandler({
             where: { id: item.prospectId! },
             data: { status: "contacted", lastContactedAt: now, sequenceStep: 1 },
           }),
-          prisma.adminAudit.create({
-            data: {
-              actorWallet: "system:outreach-auto-send",
-              action: "outreach.autoSend",
-              entityType: "OutreachEmail",
-              entityId: item.emailId,
-              diff: JSON.stringify({
-                tier: item.tier,
-                autonomy,
-                to: item.toEmail,
-              }),
-              ip: null,
-              userAgent: null,
+          recordAdminAudit({
+            actorWallet: "system:outreach-auto-send",
+            action: "outreach.autoSend",
+            entityType: "OutreachEmail",
+            entityId: item.emailId,
+            after: {
+              tier: item.tier,
+              autonomy,
+              to: item.toEmail,
             },
-          }),
+          }, prisma),
         ]);
 
         // Best-effort HubSpot activity — never blocks the send.

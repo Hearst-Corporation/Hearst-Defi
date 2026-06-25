@@ -13,30 +13,13 @@ import { cn } from "@/lib/cn";
 
 import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
-import { cleanRebalanceTriggerText } from "./formatters";
+import { cleanRebalanceTriggerText, statusVariant } from "./formatters";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeStyle: "short",
   timeZone: "UTC",
 });
-
-function statusVariant(
-  status: string,
-): "default" | "success" | "warning" | "danger" | "brand" {
-  switch (status) {
-    case "pending":
-      return "warning";
-    case "approved":
-      return "brand";
-    case "executed":
-      return "success";
-    case "cancelled":
-      return "danger";
-    default:
-      return "default";
-  }
-}
 
 type RebalanceProvenance = "live" | "manual" | "stale";
 

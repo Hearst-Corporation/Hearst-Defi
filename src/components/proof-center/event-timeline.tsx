@@ -16,6 +16,7 @@ import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 interface EventTimelineProps extends ProofCenterSectionLedProps {
   events: ReadonlyArray<OnChainEvent>;
+  variant?: "product" | "admin";
 }
 
 const KIND_LABEL: Record<EventKind, string> = {
@@ -150,6 +151,7 @@ function EventTimelineItem({
 export function EventTimeline({
   events,
   sectionLed = false,
+  variant = "product",
 }: EventTimelineProps) {
   if (events.length === 0) {
     return (
@@ -166,6 +168,7 @@ export function EventTimeline({
   }
 
   const eventsProvenance = "live" as const;
+  const stackClass = variant === "admin" ? "admin-doc-stack admin-doc-stack--flat" : "product-doc-stack--flat";
 
   return (
     <Card material="flat">
@@ -177,7 +180,7 @@ export function EventTimeline({
         tone="primary"
       />
 
-      <ol className="relative product-doc-stack--flat" aria-label="On-chain event timeline">
+      <ol className={cn("relative", stackClass)} aria-label="On-chain event timeline">
         {events.map((event, idx) => (
           <EventTimelineItem
             key={`${event.eventId.toString()}-${event.txHash}`}

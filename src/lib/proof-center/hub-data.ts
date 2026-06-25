@@ -38,6 +38,7 @@ export interface ProofCenterHubData {
 /** Shared loader for investor + admin Proof Center hub pages. */
 export async function loadProofCenterHubData(
   demo = false,
+  vaultRef: string = PROOF_CENTER_VAULT_REF,
 ): Promise<ProofCenterHubData> {
   const coveragePeriod = new Date().toISOString().slice(0, 7);
 
@@ -53,9 +54,9 @@ export async function loadProofCenterHubData(
     fetchOnChainEvents({ limit: 20 }),
     fetchOnChainAttestations({ limit: 12 }),
     loadCustody(),
-    loadCoverageForVault(PROOF_CENTER_VAULT_REF, coveragePeriod),
-    loadRecentDistributions(PROOF_CENTER_VAULT_REF, 6),
-    loadRecentRebalances(PROOF_CENTER_VAULT_REF, 5),
+    loadCoverageForVault(vaultRef, coveragePeriod),
+    loadRecentDistributions(vaultRef, 6),
+    loadRecentRebalances(vaultRef, 5),
     loadProofHubColdCounts(),
   ]);
 
@@ -69,7 +70,7 @@ export async function loadProofCenterHubData(
     coverage,
     recentDistributions,
     recentRebalances,
-    platformAddresses: buildPlatformAddresses(custody),
+    platformAddresses: buildPlatformAddresses(custody, vaultRef),
     coldEmpty: isProofCenterColdEmpty({
       demo,
       hasAttestation: latestAttestation !== null,

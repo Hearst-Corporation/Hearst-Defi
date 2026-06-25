@@ -57,3 +57,20 @@ export function cleanRebalanceTriggerText(text: string): string {
   return text.replace(/\s*\[REJECTED:.*\]$/, "");
 }
 
+export function statusVariant(
+  status: string,
+): "default" | "success" | "warning" | "danger" | "brand" {
+  switch (status) {
+    case "pending":
+      return "warning";
+    case "approved":
+      return "brand";
+    case "executed":
+      return "success";
+    case "cancelled":
+      return "danger";
+    default:
+      return "default";
+  }
+}
+

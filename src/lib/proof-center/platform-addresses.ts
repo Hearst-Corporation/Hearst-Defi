@@ -5,10 +5,12 @@ import { getDeployment } from "@/lib/chain/deployments";
 import { EXPLORER_ADDRESS_BASE, getHearstPublisherAddress } from "@/lib/chain/client";
 import type { CustodySnapshot } from "@/lib/data/custody";
 import { resolveVaultAddress } from "@/lib/onchain/vault";
+import { getVaultFullLabel } from "@/lib/vaults/dashboard-scope";
 
 /** Vault / manager / custody rows for the Proof Center address panel. */
 export function buildPlatformAddresses(
   custody: CustodySnapshot | null,
+  vaultRef?: string,
 ): PlatformAddressEntry[] {
   const vaultFromEnv = resolveVaultAddress();
   const vaultFromRegistry = getDeployment("vault").address;
@@ -20,9 +22,11 @@ export function buildPlatformAddresses(
       ? `${custody.accountsCount} Fireblocks vault account${custody.accountsCount === 1 ? "" : "s"}`
       : null;
 
+  const vaultLabel = getVaultFullLabel(vaultRef ?? "yield");
+
   return [
     {
-      label: "Hearst Yield Vault (ERC-4626)",
+      label: `${vaultLabel} (ERC-4626)`,
       address: vaultAddr,
       description:
         "ERC-4626 share vault on Base Sepolia. USDC deposits mint vault shares representing pro-rata NAV.",

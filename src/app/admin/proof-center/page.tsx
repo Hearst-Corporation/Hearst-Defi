@@ -5,11 +5,18 @@
 
 export const dynamic = "force-dynamic";
 
-import { ProofCenterHub } from "@/components/proof-center/proof-center-hub";
+import { ProofCenterHubLayout } from "@/components/proof-center/proof-center-hub-layout";
 import { loadProofCenterHubData } from "@/lib/proof-center/hub-data";
+import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 
-export default async function AdminProofCenterPage() {
-  const hubData = await loadProofCenterHubData(false);
+export default async function AdminProofCenterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ vault?: string }>;
+}) {
+  const { vault: rawVault } = await searchParams;
+  const vaultId = resolveFixtureVaultId(rawVault);
+  const hubData = await loadProofCenterHubData(false, vaultId);
 
-  return <ProofCenterHub variant="admin" demo={false} {...hubData} />;
+  return <ProofCenterHubLayout variant="admin" vaultId={vaultId} {...hubData} />;
 }

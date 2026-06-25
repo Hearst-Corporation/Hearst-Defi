@@ -218,6 +218,33 @@ export class ChainError extends Error {
   }
 }
 
+/** Shared helper for write-and-wait-receipt flow. */
+async function writeContractAndAwaitReceipt(
+  walletClient: WalletClient,
+  params: {
+    address: Address;
+    abi: any;
+    functionName: string;
+    args: any[];
+  },
+): Promise<Hex> {
+  const account = walletClient.account;
+  if (!account) {
+    throw new ConfigError("WalletClient has no account. Reconnect your wallet.");
+  }
+
+  const txHash = await walletClient.writeContract({
+    ...params,
+    account,
+    chain: baseSepolia,
+  });
+
+  const publicClient = getBrowserPublicClient();
+  await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+  return txHash;
+}
+
 // ---------------------------------------------------------------------------
 // Public client factory (client-side) — not server-only; used in "use client"
 // components. Separate from src/lib/chain/client.ts which is server-only.
@@ -309,22 +336,12 @@ export async function approveUsdc(opts: ApproveUsdcOpts): Promise<ApproveUsdcRes
 
   const amount = parseUnits(String(opts.amountUsdc), USDC_DECIMALS);
 
-  const account = opts.walletClient.account;
-  if (!account) {
-    throw new ConfigError("WalletClient has no account. Reconnect your wallet.");
-  }
-
-  const txHash = await opts.walletClient.writeContract({
+  const txHash = await writeContractAndAwaitReceipt(opts.walletClient, {
     address: USDC_ADDRESS,
     abi: ERC20_ABI,
     functionName: "approve",
     args: [VAULT_ADDRESS, amount],
-    account,
-    chain: baseSepolia,
   });
-
-  const publicClient = getBrowserPublicClient();
-  await publicClient.waitForTransactionReceipt({ hash: txHash });
 
   return { txHash };
 }
@@ -369,22 +386,12 @@ export async function depositToVault(
 
   const assets = parseUnits(String(opts.amountUsdc), USDC_DECIMALS);
 
-  const account = opts.walletClient.account;
-  if (!account) {
-    throw new ConfigError("WalletClient has no account. Reconnect your wallet.");
-  }
-
-  const txHash = await opts.walletClient.writeContract({
+  const txHash = await writeContractAndAwaitReceipt(opts.walletClient, {
     address: VAULT_ADDRESS,
     abi: ERC4626_ABI,
     functionName: "deposit",
     args: [assets, opts.receiver],
-    account,
-    chain: baseSepolia,
   });
-
-  const publicClient = getBrowserPublicClient();
-  await publicClient.waitForTransactionReceipt({ hash: txHash });
 
   return { txHash, amountUsdc: opts.amountUsdc };
 }
@@ -471,17 +478,12 @@ export async function redeemFromVault(
   // Quote the USDC out before redeeming so the confirmation can show a figure.
   const assetsUsdc = await previewRedeemUsdc(opts.shares);
 
-  const txHash = await opts.walletClient.writeContract({
+  const txHash = await writeContractAndAwaitReceipt(opts.walletClient, {
     address: VAULT_ADDRESS,
     abi: ERC4626_ABI,
     functionName: "redeem",
     args: [opts.shares, opts.receiver, opts.owner],
-    account,
-    chain: baseSepolia,
   });
-
-  const publicClient = getBrowserPublicClient();
-  await publicClient.waitForTransactionReceipt({ hash: txHash });
 
   return { txHash, assetsUsdc };
 }

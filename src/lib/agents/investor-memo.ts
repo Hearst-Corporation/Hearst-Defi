@@ -24,6 +24,7 @@ import {
   assertCitesAssumption,
 } from "@/lib/agents/validators";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
+import { runAgent, type SystemBlock } from "@/lib/agents/run-agent";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -275,10 +276,6 @@ export async function runInvestorMemo(
   // Build system blocks: first block is the cached methodology (always present).
   // If a userId is provided, load per-user persona and inject a second block
   // WITHOUT cache_control (user-specific data must not pollute the shared cache).
-  type SystemBlock =
-    | { type: "text"; text: string; cache_control: { type: "ephemeral" } }
-    | { type: "text"; text: string };
-
   const systemBlocks: SystemBlock[] = [
     {
       type: "text",
@@ -309,35 +306,15 @@ export async function runInvestorMemo(
     }
   }
 
-  const { response } = await callLlm(
-    "investor-memo",
-    {
-      model,
-      max_tokens: 4096,
-      system: systemBlocks,
-      messages: [
-        {
-          role: "user",
-          content: buildUserPrompt(input, methodologyVersion),
-        },
-      ],
-    },
-    { client: opts.client, timeoutMs: opts.timeoutMs ?? 180_000 },
-  );
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Investor Memo agent returned no text block.");
-  }
-
-  const parsed = parseLlmJsonObject(textBlock.text, "Investor Memo agent");
-  const result = InvestorMemoOutputSchema.safeParse(parsed);
-  if (!result.success) {
-    throw new Error(
-      `Investor Memo agent returned invalid output: ${JSON.stringify(result.error.issues)}`,
-    );
-  }
-  const validated = result.data;
+  const validated = await runAgent("investor-memo", {
+    model,
+    system: systemBlocks,
+    prompt: buildUserPrompt(input, methodologyVersion),
+    client: opts.client,
+    schema: InvestorMemoOutputSchema,
+    maxTokens: 4096,
+    timeoutMs: opts.timeoutMs ?? 180_000,
+  });
 
   assertNoForbiddenWords(validated.executive_summary);
   assertNoForbiddenWords(validated.vault_structure);

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { upsertProspectContact } from "@/lib/hubspot/sync-prospect";
 import {
   draftColdEmail,
@@ -45,27 +46,7 @@ import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 
 const REVALIDATE_PATH = "/admin/outreach";
 
-/** Records an admin audit row using the canonical field shape. */
-async function recordAudit(
-  actorWallet: string,
-  action: string,
-  entityType: string,
-  entityId: string,
-  before: unknown,
-  after: unknown,
-): Promise<void> {
-  await prisma.adminAudit.create({
-    data: {
-      actorWallet,
-      action,
-      entityType,
-      entityId,
-      diff: JSON.stringify({ before, after }),
-      ip: null,
-      userAgent: null,
-    },
-  });
-}
+// recordAudit removed — now using shared recordAdminAudit from @/lib/admin/audit
 
 // ---------------------------------------------------------------------------
 // addProspect — create a single prospect
@@ -118,14 +99,14 @@ export async function addProspect(formData: FormData): Promise<void> {
     },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.addProspect",
-    "OutreachProspect",
-    prospect.id,
-    null,
-    { email },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.addProspect",
+    entityType: "OutreachProspect",
+    entityId: prospect.id,
+    before: null,
+    after: { email },
+  });
 
   // Best-effort HubSpot upsert — never blocks prospect creation.
   try {
@@ -201,14 +182,14 @@ export async function importProspects(
     })),
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.importProspects",
-    "OutreachProspect",
-    "bulk",
-    null,
-    { imported: fresh.length, skipped },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.importProspects",
+    entityType: "OutreachProspect",
+    entityId: "bulk",
+    before: null,
+    after: { imported: fresh.length, skipped },
+  });
 
   // Best-effort HubSpot upsert for each freshly created prospect.
   const created = await prisma.outreachProspect.findMany({
@@ -273,14 +254,14 @@ export async function createCampaign(formData: FormData): Promise<void> {
     },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.createCampaign",
-    "OutreachCampaign",
-    campaign.id,
-    null,
-    { name: campaign.name, kind: campaign.kind },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.createCampaign",
+    entityType: "OutreachCampaign",
+    entityId: campaign.id,
+    before: null,
+    after: { name: campaign.name, kind: campaign.kind },
+  });
 
   revalidatePath(REVALIDATE_PATH);
   redirect(`${REVALIDATE_PATH}/${campaign.id}`);
@@ -309,14 +290,14 @@ export async function approveEmail(formData: FormData): Promise<void> {
     data: { status: "approved", approvedAt: new Date() },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.approveEmail",
-    "OutreachEmail",
-    emailId,
-    { status: existing.status },
-    { status: "approved" },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.approveEmail",
+    entityType: "OutreachEmail",
+    entityId: emailId,
+    before: { status: existing.status },
+    after: { status: "approved" },
+  });
 
   revalidatePath(`${REVALIDATE_PATH}/${existing.campaignId}`);
 }
@@ -355,14 +336,14 @@ export async function updateEmail(formData: FormData): Promise<void> {
     data: { subject: parsed.data.subject, body: parsed.data.body },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.updateEmail",
-    "OutreachEmail",
-    parsed.data.emailId,
-    { subject: existing.subject },
-    { subject: parsed.data.subject },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.updateEmail",
+    entityType: "OutreachEmail",
+    entityId: parsed.data.emailId,
+    before: { subject: existing.subject },
+    after: { subject: parsed.data.subject },
+  });
 
   revalidatePath(`${REVALIDATE_PATH}/${existing.campaignId}`);
 }
@@ -406,14 +387,14 @@ export async function sendCampaign(formData: FormData): Promise<void> {
     data: { status: "sending" },
   });
 
-  await recordAudit(
-    requestedBy,
-    "outreach.sendCampaign",
-    "OutreachCampaign",
-    campaignId,
-    { status: existing.status },
-    { status: "sending" },
-  );
+  await recordAdminAudit({
+    actorWallet: requestedBy,
+    action: "outreach.sendCampaign",
+    entityType: "OutreachCampaign",
+    entityId: campaignId,
+    before: { status: existing.status },
+    after: { status: "sending" },
+  });
 
   // Hand the actual per-recipient delivery to Inngest (the function fans out
   // over the campaign's approved emails).
@@ -548,14 +529,14 @@ export async function draftAllCampaignEmails(
     }
   }
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.draftAllCampaignEmails",
-    "OutreachCampaign",
-    campaign.id,
-    null,
-    { drafted, kind: campaign.kind },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.draftAllCampaignEmails",
+    entityType: "OutreachCampaign",
+    entityId: campaign.id,
+    before: null,
+    after: { drafted, kind: campaign.kind },
+  });
 
   revalidatePath(`${REVALIDATE_PATH}/${campaign.id}`);
   return { drafted };
@@ -688,14 +669,14 @@ export async function draftEmailForProspect(
     select: { id: true },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.draftEmailForProspect",
-    "OutreachEmail",
-    email.id,
-    null,
-    { prospectId: prospect.id, toEmail: prospect.email },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.draftEmailForProspect",
+    entityType: "OutreachEmail",
+    entityId: email.id,
+    before: null,
+    after: { prospectId: prospect.id, toEmail: prospect.email },
+  });
 
   revalidatePath(REVALIDATE_PATH);
   return { emailId: email.id, toEmail: prospect.email, subject };
@@ -801,14 +782,14 @@ export async function sendDirectEmail(
     };
   }
 
-  await recordAudit(
-    createdBy,
-    "outreach.sendDirectEmail",
-    "OutreachEmail",
-    email.id,
-    null,
-    { to: toEmail, subject: parsed.data.subject },
-  );
+  await recordAdminAudit({
+    actorWallet: createdBy,
+    action: "outreach.sendDirectEmail",
+    entityType: "OutreachEmail",
+    entityId: email.id,
+    before: null,
+    after: { to: toEmail, subject: parsed.data.subject },
+  });
 
   revalidatePath(REVALIDATE_PATH);
   return { ok: true, resendEmailId };
@@ -873,14 +854,14 @@ export async function createIcp(formData: FormData): Promise<{ id: string }> {
     select: { id: true },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.createIcp",
-    "OutreachICP",
-    icp.id,
-    null,
-    { name: parsed.data.name, persona: parsed.data.persona },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.createIcp",
+    entityType: "OutreachICP",
+    entityId: icp.id,
+    before: null,
+    after: { name: parsed.data.name, persona: parsed.data.persona },
+  });
 
   revalidatePath(REVALIDATE_PATH);
   return { id: icp.id };
@@ -988,20 +969,20 @@ export async function runSourcing(
     if (c.tier) byTier[c.tier] += 1;
   }
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.runSourcing",
-    "OutreachICP",
-    icp.id,
-    null,
-    {
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.runSourcing",
+    entityType: "OutreachICP",
+    entityId: icp.id,
+    before: null,
+    after: {
       sourced: fresh.length,
       isMock,
       byTier,
       enrichFailed: stats.enrichFailed,
       dedupSkipped: stats.dedupSkipped,
     },
-  );
+  });
 
   revalidatePath(REVALIDATE_PATH);
   return {
@@ -1037,14 +1018,14 @@ export async function overrideTier(
     data: { tier },
   });
 
-  await recordAudit(
-    admin.walletAddress ?? admin.userId,
-    "outreach.overrideTier",
-    "OutreachProspect",
-    prospectId,
-    { tier: existing.tier },
-    { tier },
-  );
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "outreach.overrideTier",
+    entityType: "OutreachProspect",
+    entityId: prospectId,
+    before: { tier: existing.tier },
+    after: { tier },
+  });
 
   revalidatePath(REVALIDATE_PATH);
 }

@@ -16,6 +16,12 @@ import { QualificationForm } from "@/components/admin/customer/qualification-for
 import { AgentAssignForm } from "@/components/admin/customer/agent-assign-form";
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
 import { loadCustomerDetail } from "@/lib/data/customer-detail";
+import {
+  AdminDetailSection,
+  AdminDetailGrid,
+  AdminDetailItem,
+} from "@/components/admin/admin-detail-layout";
+import { AdminTable } from "@/components/admin/admin-table-layout";
 import { loadActiveTemplates } from "@/lib/data/agent-templates";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -74,38 +80,29 @@ export default async function CustomerDetailPage({
       />
 
       {/* Identity + positions */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Identity">
-        <h2 className="h2">Investor profile</h2>
-        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
-          <dl className="admin-doc-form-grid-2 body-sm">
-            <div>
-              <dt className="ct-form-label">Email</dt>
-              <dd className="ct-text-strong">{detail.email}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Role</dt>
-              <dd className="ct-text-body">{detail.role}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Wallet</dt>
-              <dd className="mono ct-text-muted">{detail.walletAddress ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Joined</dt>
-              <dd className="ct-text-body">{formatAdminDate(detail.joinedAt)}</dd>
-            </div>
-          </dl>
-          <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) pt-(--ct-space-4) mt-(--ct-space-4)">
-            <p className="body-xs ct-text-muted m-0">
-              Account sign-in. Auto-created and admin-provisioned investors start
-              with no usable password — they log in via a one-time activation
-              link. Generate a fresh link here if the welcome email never reached
-              them.
-            </p>
-            <ActivationLinkButton investorId={detail.investorId} />
-          </div>
-        </Card>
+      <AdminDetailSection label="Identity" title="Investor profile">
+        <AdminDetailGrid>
+          <AdminDetailItem label="Email">
+            <span className="ct-text-strong">{detail.email}</span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Role">{detail.role}</AdminDetailItem>
+          <AdminDetailItem label="Wallet">
+            <span className="mono ct-text-muted">{detail.walletAddress ?? "—"}</span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Joined">{formatAdminDate(detail.joinedAt)}</AdminDetailItem>
+        </AdminDetailGrid>
+        <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) pt-(--ct-space-4) mt-(--ct-space-4)">
+          <p className="body-xs ct-text-muted m-0">
+            Account sign-in. Auto-created and admin-provisioned investors start
+            with no usable password — they log in via a one-time activation
+            link. Generate a fresh link here if the welcome email never reached
+            them.
+          </p>
+          <ActivationLinkButton investorId={detail.investorId} />
+        </div>
+      </AdminDetailSection>
 
+      <AdminDetailSection label="Positions">
         <h3 className="h3">Vault positions ({detail.positions.length})</h3>
         {detail.positions.length === 0 ? (
           <EmptySurface
@@ -115,62 +112,52 @@ export default async function CustomerDetailPage({
             className="min-h-20"
           />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="w-[40%] stat-label ct-table-header">Vault</th>
-                    <th className="w-[25%] stat-label ct-table-header">Status</th>
-                    <th className="w-[20%] stat-label ct-table-header text-right">Principal</th>
-                    <th className="w-[15%] stat-label ct-table-header text-right">Subscribed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detail.positions.map((p) => (
-                    <tr key={p.id} className="border-b border-(--ct-border-soft) last:border-0">
-                      <td className="ct-table-cell mono ct-text-body">{p.vaultKey}</td>
-                      <td className="ct-table-cell ct-text-muted">
-                        {POSITION_STATUS_LABEL[p.status] ?? p.status}
-                      </td>
-                      <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                        {formatUsdFull(p.principalUsdc)}
-                      </td>
-                      <td className="ct-table-cell text-right ct-text-muted">
-                        {formatAdminDate(p.subscribedAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={detail.positions}
+            headers={["Vault", "Status", <span key="principal" className="text-right">Principal</span>, <span key="subscribed" className="text-right">Subscribed</span>]}
+            colWidths={["40%", "25%", "20%", "15%"]}
+            renderRow={(p) => (
+              <>
+                <td className="ct-table-cell mono ct-text-body">{p.vaultKey}</td>
+                <td className="ct-table-cell ct-text-muted">
+                  {POSITION_STATUS_LABEL[p.status] ?? p.status}
+                </td>
+                <td className="ct-table-cell text-right tabular-nums ct-text-strong">
+                  {formatUsdFull(p.principalUsdc)}
+                </td>
+                <td className="ct-table-cell text-right ct-text-muted">
+                  {formatAdminDate(p.subscribedAt)}
+                </td>
+              </>
+            )}
+          />
         )}
-      </section>
+      </AdminDetailSection>
 
       {/* Deploy position */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Deploy position">
+      <AdminDetailSection
+        label="Deploy position"
+        description="Open an off-chain position for this investor — fills the cockpit for demo or pilot use without requiring a real on-chain deposit. KYC must be approved first."
+      >
         <h3 className="h3">Deploy position</h3>
-        <p className="body-xs ct-text-muted">
-          Open an off-chain position for this investor — fills the cockpit for demo or
-          pilot use without requiring a real on-chain deposit. KYC must be approved first.
-        </p>
         <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <DeployPositionForm
             investorId={detail.investorId}
             kycStatus={detail.kycStatus as "pending" | "approved" | "rejected"}
           />
         </Card>
-      </section>
+      </AdminDetailSection>
 
       {/* Qualification (Typeform) */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Qualification">
-        <h2 className="h2">Investor qualification</h2>
-        <p className="body-xs ct-text-muted">
-          {detail.qualification
+      <AdminDetailSection
+        label="Qualification"
+        title="Investor qualification"
+        description={
+          detail.qualification
             ? `Source: ${QUAL_SOURCE_LABEL[detail.qualification.source] ?? detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
-            : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."}
-        </p>
+            : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."
+        }
+      >
         <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <QualificationForm
             investorId={detail.investorId}
@@ -178,12 +165,10 @@ export default async function CustomerDetailPage({
             profile={detail.qualification}
           />
         </Card>
-      </section>
+      </AdminDetailSection>
 
       {/* Agent calibration */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Agent">
-        <h2 className="h2">Assistant settings</h2>
-
+      <AdminDetailSection label="Agent" title="Assistant settings">
         {persona && (
           <Card className="p-(--ct-space-6)" hoverOverlay={false}>
             <div className="admin-doc-stack admin-doc-stack--compact">
@@ -230,14 +215,14 @@ export default async function CustomerDetailPage({
             />
           </div>
         </Card>
-      </section>
+      </AdminDetailSection>
 
       {/* Memory */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Memory">
-        <h2 className="h2">Saved notes</h2>
-        <p className="body-xs ct-text-muted">
-          Persistent context and notes for this investor.
-        </p>
+      <AdminDetailSection
+        label="Memory"
+        title="Saved notes"
+        description="Persistent context and notes for this investor."
+      >
         <Card className="p-(--ct-space-6)" hoverOverlay={false}>
           <MemoryManager
             investorId={detail.investorId}
@@ -245,11 +230,13 @@ export default async function CustomerDetailPage({
             memory={detail.memory}
           />
         </Card>
-      </section>
+      </AdminDetailSection>
 
       {/* Recent conversations */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Conversations">
-        <h2 className="h2">Recent chat activity ({detail.chats.length})</h2>
+      <AdminDetailSection
+        label="Conversations"
+        title={`Recent chat activity (${detail.chats.length})`}
+      >
         {detail.chats.length === 0 ? (
           <EmptySurface
             variant="widget"
@@ -258,30 +245,20 @@ export default async function CustomerDetailPage({
             className="min-h-20"
           />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="w-[50%] stat-label ct-table-header">Title</th>
-                    <th className="w-[25%] stat-label ct-table-header text-right">Messages</th>
-                    <th className="w-[25%] stat-label ct-table-header text-right">Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detail.chats.map((c) => (
-                    <tr key={c.id} className="border-b border-(--ct-border-soft) last:border-0">
-                      <td className="ct-table-cell ct-text-body truncate">{c.title ?? "(untitled)"}</td>
-                      <td className="ct-table-cell text-right tabular-nums ct-text-muted">{c.messageCount}</td>
-                      <td className="ct-table-cell text-right ct-text-muted">{formatAdminDate(c.updatedAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={detail.chats}
+            headers={["Title", <span key="messages" className="text-right">Messages</span>, <span key="updated" className="text-right">Updated</span>]}
+            colWidths={["50%", "25%", "25%"]}
+            renderRow={(c) => (
+              <>
+                <td className="ct-table-cell ct-text-body truncate">{c.title ?? "(untitled)"}</td>
+                <td className="ct-table-cell text-right tabular-nums ct-text-muted">{c.messageCount}</td>
+                <td className="ct-table-cell text-right ct-text-muted">{formatAdminDate(c.updatedAt)}</td>
+              </>
+            )}
+          />
         )}
-      </section>
+      </AdminDetailSection>
     </>
   );
 }

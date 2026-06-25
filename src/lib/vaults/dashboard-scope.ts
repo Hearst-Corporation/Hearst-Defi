@@ -48,6 +48,34 @@ export function resolveFixtureVaultId(raw: string | undefined): VaultId {
   return "yield";
 }
 
+/** Short label for a fixture vault (e.g. "Yield", "Defensive"). */
+export function getVaultShortLabel(vaultId: string): string {
+  switch (vaultId) {
+    case "defensive":
+      return "Defensive";
+    case "btc-plus":
+      return "BTC Plus";
+    case "yield":
+      return "Yield";
+    default:
+      return "Vault";
+  }
+}
+
+/** Full label for a fixture vault (e.g. "Hearst Yield Vault"). */
+export function getVaultFullLabel(vaultId: string): string {
+  switch (vaultId) {
+    case "defensive":
+      return "Hearst Defensive Vault";
+    case "btc-plus":
+      return "Hearst BTC Plus Vault";
+    case "yield":
+      return "Hearst Yield Vault";
+    default:
+      return "Hearst Vault";
+  }
+}
+
 /**
  * Append `?vault=` (and optional extra params) to an admin path.
  * Used by section sub-nav and in-page filters so scope is not lost on navigation.

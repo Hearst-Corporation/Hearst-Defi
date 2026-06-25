@@ -24,6 +24,7 @@ import {
   assertNoForbiddenWords,
 } from "@/lib/agents/validators";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
+import { runAgent, type SystemBlock } from "@/lib/agents/run-agent";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -200,10 +201,6 @@ export async function runScenarioNarrative(
   // Build system blocks: first block is the cached methodology (always present).
   // If a userId is provided, load per-user persona and inject a second block
   // WITHOUT cache_control (user-specific data must not pollute the shared cache).
-  type SystemBlock =
-    | { type: "text"; text: string; cache_control: { type: "ephemeral" } }
-    | { type: "text"; text: string };
-
   const systemBlocks: SystemBlock[] = [
     {
       type: "text",
@@ -233,37 +230,13 @@ export async function runScenarioNarrative(
     }
   }
 
-  const { response } = await callLlm(
-    "scenario-narrative",
-    {
-      model,
-      max_tokens: 1024,
-      system: systemBlocks,
-      messages: [
-        {
-          role: "user",
-          content: buildUserPrompt(input),
-        },
-      ],
-    },
-    { client: opts.client },
-  );
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Scenario Narrative agent returned no text block.");
-  }
-
-  const parsed = parseLlmJsonObject(textBlock.text, "Scenario narrative agent");
-  const result = ScenarioNarrativeOutputSchema.safeParse(parsed);
-  if (!result.success) {
-    throw new Error(
-      `Scenario Narrative agent output failed schema validation: ${JSON.stringify(
-        result.error.issues,
-      )}`,
-    );
-  }
-  const validated = result.data;
+  const validated = await runAgent("scenario-narrative", {
+    model,
+    system: systemBlocks,
+    prompt: buildUserPrompt(input),
+    client: opts.client,
+    schema: ScenarioNarrativeOutputSchema,
+  });
 
   assertNoForbiddenWords(validated.narrative_md);
   assertNoForbiddenWords(validated.risk_warning);

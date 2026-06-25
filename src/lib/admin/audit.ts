@@ -1,16 +1,24 @@
 import "server-only";
-import { prisma } from "@/lib/db";
+import { prisma as defaultPrisma } from "@/lib/db";
 
-export async function recordAdminAudit(params: {
-  actorWallet: string;
-  action: string; // "vault.submitForReview", "rebalance.approve", etc.
-  entityType: string; // "VaultDeployment" | "RebalanceEvent" | "Distribution" | "ProjectionStudyRun"
-  entityId: string;
-  before?: unknown;
-  after?: unknown;
-  ip?: string;
-  userAgent?: string;
-}): Promise<void> {
+/**
+ * Shared audit helper for admin actions.
+ * Records a row in the AdminAudit table with a JSON diff.
+ * Supports optional transaction client.
+ */
+export async function recordAdminAudit(
+  params: {
+    actorWallet: string;
+    action: string; // "vault.submitForReview", "rebalance.approve", etc.
+    entityType: string; // "VaultDeployment" | "RebalanceEvent" | "Distribution" | "ProjectionStudyRun"
+    entityId: string;
+    before?: unknown;
+    after?: unknown;
+    ip?: string;
+    userAgent?: string;
+  },
+  prisma = defaultPrisma,
+): Promise<void> {
   await prisma.adminAudit.create({
     data: {
       actorWallet: params.actorWallet,

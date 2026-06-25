@@ -4,14 +4,11 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
-import { ProofCenterFullSections } from "@/components/proof-center/proof-center-full-sections";
+import { ProofCenterFullLogLayout } from "@/components/proof-center/proof-center-full-log-layout";
 import { parseFilter } from "@/components/proof/proof-filter-types";
 import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";
+import { resolveFixtureVaultId, getVaultShortLabel } from "@/lib/vaults/dashboard-scope";
 
 import "../../admin-proof.css";
 
@@ -22,7 +19,7 @@ export const metadata = {
 };
 
 interface AdminProofCenterFullPageProps {
-  searchParams: Promise<{ type?: string | string[] }>;
+  searchParams: Promise<{ type?: string | string[]; vault?: string }>;
 }
 
 export default async function AdminProofCenterFullPage({
@@ -32,37 +29,26 @@ export default async function AdminProofCenterFullPage({
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
 
+  const vaultId = resolveFixtureVaultId(params.vault);
+
   const { onChainEvents, proofs, platformAddresses, timelockProposals } =
-    await loadProofCenterFullLog();
+    await loadProofCenterFullLog(vaultId);
+
+  const vaultSuffix = getVaultShortLabel(vaultId);
 
   return (
-    <div className="admin-doc-stack">
-      <AdminPageHeader
-        titleLead="Full"
-        titleAccent="Log"
-        contextLabel="Proof · Full Log"
-        lead={
-          <Link
-            href="/admin/proof-center"
-            className="proof-back-link body-sm ct-text-muted no-underline hover:ct-text-primary ct-transition-base"
-            aria-label="Back to Proof Center hub"
-          >
-            <ArrowLeft className="ct-icon-sm" aria-hidden />
-            Proof Center
-          </Link>
-        }
-        actions={
-          <AdminLeafLink href="/admin/proofs" label="Manage publications" />
-        }
-      />
-
-      <ProofCenterFullSections
-        onChainEvents={onChainEvents}
-        proofs={proofs}
-        platformAddresses={platformAddresses}
-        filter={filter}
-        timelockProposals={timelockProposals}
-      />
-    </div>
+    <ProofCenterFullLogLayout
+      variant="admin"
+      vaultSuffix={vaultSuffix}
+      backHref={`/admin/proof-center?vault=${vaultId}`}
+      onChainEvents={onChainEvents}
+      proofs={proofs}
+      platformAddresses={platformAddresses}
+      filter={filter}
+      timelockProposals={timelockProposals}
+      actions={
+        <AdminLeafLink href="/admin/proofs" label="Manage publications" />
+      }
+    />
   );
 }

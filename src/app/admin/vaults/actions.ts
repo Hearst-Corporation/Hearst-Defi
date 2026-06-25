@@ -8,7 +8,7 @@ import { recordAdminAudit } from "@/lib/admin/audit";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import { assertRateLimit } from "@/lib/rate-limit";
+import { assertAdminRateLimit } from "@/lib/admin/rate-limit";
 import {
   deploymentToBlueprint,
   evaluateDeploymentLiveGate,
@@ -24,6 +24,10 @@ import {
 /** Admin vault actions rate limit: 30 requests / 60s / admin. */
 const VAULT_RATE_MAX = 30;
 const VAULT_RATE_WINDOW_MS = 60_000;
+
+async function assertVaultRateLimit(userId: string) {
+  await assertAdminRateLimit(userId, "vaults", VAULT_RATE_MAX, VAULT_RATE_WINDOW_MS);
+}
 
 // Schema, enums, and the inferred input type now live in
 // `@/app/admin/vaults/schema` (a non-"use server" module). The block that used
@@ -68,16 +72,7 @@ export async function createDraftVault(
   input: CreateDraftInput,
 ): Promise<VaultActionResult> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    return { ok: false, issues: "Too many requests" };
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const parsed = CreateDraftSchema.safeParse(input);
   if (!parsed.success) {
@@ -153,16 +148,7 @@ export async function updateDraftVault(
   input: CreateDraftInput,
 ): Promise<VaultActionResult> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    return { ok: false, issues: "Too many requests" };
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const parsed = CreateDraftSchema.safeParse(input);
   if (!parsed.success) {
@@ -259,16 +245,7 @@ export async function updateDraftVault(
 
 export async function submitForReview(id: string): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
   if (!vault) throw new Error("Not found");
@@ -308,16 +285,8 @@ export async function signApproval(
   reason?: string,
 ): Promise<void> {
   const admin = await requireAdmin();
+  await assertVaultRateLimit(admin.userId);
 
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
   const actorWallet = admin.walletAddress ?? admin.userId;
 
   const vault = await prisma.vaultDeployment.findUnique({
@@ -404,16 +373,8 @@ export async function signApproval(
 
 export async function reconcileDeployment(id: string): Promise<void> {
   const admin = await requireAdmin();
+  await assertVaultRateLimit(admin.userId);
 
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
   const actorWallet = admin.walletAddress ?? admin.userId;
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
@@ -469,16 +430,8 @@ export async function reconcileDeployment(id: string): Promise<void> {
 
 export async function rejectDeployment(id: string, reason: string): Promise<void> {
   const admin = await requireAdmin();
+  await assertVaultRateLimit(admin.userId);
 
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
   const actorWallet = admin.walletAddress ?? admin.userId;
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
@@ -536,16 +489,7 @@ export async function rejectDeployment(id: string, reason: string): Promise<void
 
 export async function markAsLive(id: string): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
   if (!vault) throw new Error("Not found");
@@ -631,16 +575,7 @@ export async function markAsLive(id: string): Promise<void> {
 
 export async function pauseVault(id: string): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
   if (!vault) throw new Error("Not found");
@@ -676,16 +611,7 @@ export async function pauseVault(id: string): Promise<void> {
 
 export async function resumeVault(id: string): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
   if (!vault) throw new Error("Not found");
@@ -721,16 +647,7 @@ export async function resumeVault(id: string): Promise<void> {
 
 export async function closeVault(id: string): Promise<void> {
   const admin = await requireAdmin();
-
-  try {
-    await assertRateLimit(
-      `admin:vaults:${admin.userId}`,
-      VAULT_RATE_MAX,
-      VAULT_RATE_WINDOW_MS,
-    );
-  } catch {
-    throw new Error("Too many requests");
-  }
+  await assertVaultRateLimit(admin.userId);
 
   const vault = await prisma.vaultDeployment.findUnique({ where: { id } });
   if (!vault) throw new Error("Not found");

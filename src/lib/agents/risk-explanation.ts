@@ -25,6 +25,7 @@ import {
   assertNoForbiddenWords,
 } from "@/lib/agents/validators";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
+import { runAgent } from "@/lib/agents/run-agent";
 
 /**
  * Default model id for the Risk Explanation Agent.
@@ -164,43 +165,13 @@ export async function runRiskExplanation(
   const model = opts.model ?? RISK_EXPLANATION_MODEL;
   const methodologyVersion: MethodologyVersion = opts.methodologyVersion ?? METHODOLOGY_VERSION;
 
-  const { response } = await callLlm(
-    "risk-explanation",
-    {
-      model,
-      max_tokens: 1024,
-      system: [
-        {
-          type: "text",
-          text: buildSystemInstructions(methodologyVersion),
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages: [
-        {
-          role: "user",
-          content: buildUserPrompt(input),
-        },
-      ],
-    },
-    { client: opts.client },
-  );
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Risk Explanation agent returned no text block.");
-  }
-
-  const parsed = parseLlmJsonObject(textBlock.text, "Risk Explanation agent");
-  const result = RiskExplanationOutputSchema.safeParse(parsed);
-  if (!result.success) {
-    throw new Error(
-      `Risk Explanation agent output failed schema validation: ${JSON.stringify(
-        result.error.issues,
-      )}`,
-    );
-  }
-  const validated = result.data;
+  const validated = await runAgent("risk-explanation", {
+    model,
+    system: buildSystemInstructions(methodologyVersion),
+    prompt: buildUserPrompt(input),
+    client: opts.client,
+    schema: RiskExplanationOutputSchema,
+  });
 
   // Post-validation: forbidden-words linter on all text fields.
   // Each risk explanation must also cite >=1 assumption (spec/09-agents.mdx:

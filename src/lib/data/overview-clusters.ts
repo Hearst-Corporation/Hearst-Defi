@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 
 import { prisma } from "@/lib/db";
+import { getValidInvestorWhere } from "@/lib/data/investors";
 
 // ---------------------------------------------------------------------------
 // Platform-wide aggregates for the admin dashboard executive overview band.
@@ -57,14 +58,7 @@ export const loadOverviewClusters = cache(
       // Valid investor population = investors whose linked User still exists
       // (same gate as loadPlatformTotals / loadCustomers) so KYC counts match
       // the customers table and never include orphaned Investor rows.
-      const validUserIds = (
-        await prisma.user.findMany({
-          where: { investor: { isNot: null } },
-          select: { id: true },
-        })
-      ).map((u) => u.id);
-
-      const whereInvestors = { userId: { in: validUserIds } };
+      const whereInvestors = await getValidInvestorWhere();
 
       const [
         capacityAgg,

@@ -75,29 +75,57 @@ const BTC_END_USD = 100_000;
 const DIFFICULTY_START = 4.5e13;
 const DIFFICULTY_END = 1.32e14;
 
-/** Plausible deterministic BTC price path across [start, end]. */
-export function syntheticBtcSeries(start: Date, end: Date): DailyValue[] {
-  const days = eachUtcDay(start, end);
-  const n = Math.max(1, days.length - 1);
-  return days.map((date, i) => {
-    const t = i / n;
-    const trend = BTC_START_USD + (BTC_END_USD - BTC_START_USD) * smoothstep(t);
-    const cycle = 1 + 0.14 * Math.sin(t * Math.PI * 2 * 1.5);
-    const noise = 1 + (det(Math.floor(date.getTime() / DAY_MS)) - 0.5) * 0.06;
-    return { date, value: Math.max(1, Math.round(trend * cycle * noise)) };
-  });
-}
-
-/** Plausible deterministic, broadly-increasing difficulty path. */
-export function syntheticDifficultySeries(start: Date, end: Date): DailyValue[] {
+/** Shared builder for deterministic synthetic series. */
+function buildSyntheticSeries(
+  start: Date,
+  end: Date,
+  params: {
+    startVal: number;
+    endVal: number;
+    noiseScale: number;
+    noiseSeed?: number;
+    cycle?: (t: number) => number;
+    round?: boolean;
+  },
+): DailyValue[] {
   const days = eachUtcDay(start, end);
   const n = Math.max(1, days.length - 1);
   return days.map((date, i) => {
     const t = i / n;
     const trend =
-      DIFFICULTY_START + (DIFFICULTY_END - DIFFICULTY_START) * smoothstep(t);
-    const noise = 1 + (det(Math.floor(date.getTime() / DAY_MS) ^ 0x1234) - 0.5) * 0.03;
-    return { date, value: trend * noise };
+      params.startVal + (params.endVal - params.startVal) * smoothstep(t);
+    const cycle = params.cycle ? params.cycle(t) : 1;
+    const seed = params.noiseSeed
+      ? Math.floor(date.getTime() / DAY_MS) ^ params.noiseSeed
+      : Math.floor(date.getTime() / DAY_MS);
+    const noise = 1 + (det(seed) - 0.5) * params.noiseScale;
+    const val = trend * cycle * noise;
+    return {
+      date,
+      value: params.round ? Math.max(1, Math.round(val)) : val,
+    };
+  });
+}
+
+/** Plausible deterministic BTC price path across [start, end]. */
+export function syntheticBtcSeries(start: Date, end: Date): DailyValue[] {
+  return buildSyntheticSeries(start, end, {
+    startVal: BTC_START_USD,
+    endVal: BTC_END_USD,
+    noiseScale: 0.06,
+    cycle: (t) => 1 + 0.14 * Math.sin(t * Math.PI * 2 * 1.5),
+    round: true,
+  });
+}
+
+/** Plausible deterministic, broadly-increasing difficulty path. */
+export function syntheticDifficultySeries(start: Date, end: Date): DailyValue[] {
+  return buildSyntheticSeries(start, end, {
+    startVal: DIFFICULTY_START,
+    endVal: DIFFICULTY_END,
+    noiseScale: 0.03,
+    noiseSeed: 0x1234,
+    round: false,
   });
 }
 

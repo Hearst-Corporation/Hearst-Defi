@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 
 import { prisma } from "@/lib/db";
+import { getValidInvestorWhere } from "@/lib/data/investors";
 
 // ---------------------------------------------------------------------------
 // Platform-wide aggregates for the admin dashboard KPI strip.
@@ -26,14 +27,7 @@ export interface PlatformTotals {
 export const loadPlatformTotals = cache(async (): Promise<PlatformTotals> => {
   // Valid population = investors whose linked User still exists (same gate as
   // loadCustomers), so counts/sums never include orphaned Investor rows.
-  const validUserIds = (
-    await prisma.user.findMany({
-      where: { investor: { isNot: null } },
-      select: { id: true },
-    })
-  ).map((u) => u.id);
-
-  const whereInvestors = { userId: { in: validUserIds } };
+  const whereInvestors = await getValidInvestorWhere();
 
   const [investorCount, principalAgg] = await Promise.all([
     prisma.investor.count({ where: whereInvestors }),

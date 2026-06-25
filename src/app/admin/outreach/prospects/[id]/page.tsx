@@ -13,6 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { loadProspectDetail } from "@/lib/data/outreach";
+import {
+  AdminDetailSection,
+  AdminDetailGrid,
+  AdminDetailItem,
+} from "@/components/admin/admin-detail-layout";
+import { AdminTable } from "@/components/admin/admin-table-layout";
 import { lifecycleFor, type LifecycleKind } from "@/lib/outreach/lifecycle";
 import { getMailboxReadiness } from "@/lib/outreach/mailbox-readiness";
 import {
@@ -152,119 +158,83 @@ export default async function ProspectDetailPage({
       />
 
       {/* Identity */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Identity">
-        <h2 className="h2">Identity</h2>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-          <dl className="admin-doc-form-grid-2 body-sm">
-            <div>
-              <dt className="ct-form-label">Email</dt>
-              <dd className="mono ct-text-strong">
-                <a href={`mailto:${p.email}`} className="hover:underline">
-                  {p.email}
-                </a>
-              </dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Name</dt>
-              <dd className="ct-text-body">{fullName || "—"}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Title</dt>
-              <dd className="ct-text-body">{p.title ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Company</dt>
-              <dd className="ct-text-body">{p.company ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Source</dt>
-              <dd className="ct-text-body">{p.source}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Email status</dt>
-              <dd>
-                {p.emailStatus ? (
-                  <Badge variant={EMAIL_STATUS_VARIANT[p.emailStatus] ?? "default"}>
-                    {p.emailStatus}
-                  </Badge>
-                ) : (
-                  <span className="ct-text-muted">—</span>
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Added</dt>
-              <dd className="ct-text-body">{formatAdminDate(p.createdAt)}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Last contacted</dt>
-              <dd className="ct-text-body">
-                {p.lastContactedAt ? formatAdminDate(p.lastContactedAt) : "—"}
-              </dd>
-            </div>
-          </dl>
-        </Card>
-      </section>
+      <AdminDetailSection label="Identity" title="Identity">
+        <AdminDetailGrid>
+          <AdminDetailItem label="Email">
+            <span className="mono ct-text-strong">
+              <a href={`mailto:${p.email}`} className="hover:underline">
+                {p.email}
+              </a>
+            </span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Name">{fullName || "—"}</AdminDetailItem>
+          <AdminDetailItem label="Title">{p.title ?? "—"}</AdminDetailItem>
+          <AdminDetailItem label="Company">{p.company ?? "—"}</AdminDetailItem>
+          <AdminDetailItem label="Source">{p.source}</AdminDetailItem>
+          <AdminDetailItem label="Email status">
+            {p.emailStatus ? (
+              <Badge variant={EMAIL_STATUS_VARIANT[p.emailStatus] ?? "default"}>
+                {p.emailStatus}
+              </Badge>
+            ) : (
+              <span className="ct-text-muted">—</span>
+            )}
+          </AdminDetailItem>
+          <AdminDetailItem label="Added">{formatAdminDate(p.createdAt)}</AdminDetailItem>
+          <AdminDetailItem label="Last contacted">
+            {p.lastContactedAt ? formatAdminDate(p.lastContactedAt) : "—"}
+          </AdminDetailItem>
+        </AdminDetailGrid>
+      </AdminDetailSection>
 
       {/* Apollo enrichment */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Apollo enrichment">
-        <h2 className="h2">Apollo enrichment</h2>
-        <p className="body-xs ct-text-muted">
-          The person/org detail captured from Apollo at source time.
-        </p>
+      <AdminDetailSection
+        label="Apollo enrichment"
+        title="Apollo enrichment"
+        description="The person/org detail captured from Apollo at source time."
+      >
         {isApolloSourced || p.linkedinUrl || p.companyDomain || p.industry ? (
-          <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-            <dl className="admin-doc-form-grid-2 body-sm">
-              <div>
-                <dt className="ct-form-label">LinkedIn</dt>
-                <dd className="ct-text-body">
-                  {p.linkedinUrl ? (
-                    <a
-                      href={p.linkedinUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="ct-text-accent hover:underline break-all"
-                    >
-                      View profile ↗
-                    </a>
-                  ) : (
-                    "—"
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt className="ct-form-label">Company domain</dt>
-                <dd className="mono ct-text-body">
-                  {p.companyDomain ? (
-                    <a
-                      href={`https://${p.companyDomain}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:underline break-all"
-                    >
-                      {p.companyDomain}
-                    </a>
-                  ) : (
-                    "—"
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt className="ct-form-label">Industry</dt>
-                <dd className="ct-text-body">{p.industry ?? "—"}</dd>
-              </div>
-              <div>
-                <dt className="ct-form-label">Apollo ID</dt>
-                <dd className="mono ct-text-muted break-all">{p.apolloId ?? "—"}</dd>
-              </div>
-              {extraRows.map((r) => (
-                <div key={r.key}>
-                  <dt className="ct-form-label">{r.key}</dt>
-                  <dd className="ct-text-body break-words">{r.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Card>
+          <AdminDetailGrid>
+            <AdminDetailItem label="LinkedIn">
+              {p.linkedinUrl ? (
+                <a
+                  href={p.linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ct-text-accent hover:underline break-all"
+                >
+                  View profile ↗
+                </a>
+              ) : (
+                "—"
+              )}
+            </AdminDetailItem>
+            <AdminDetailItem label="Company domain">
+              <span className="mono">
+                {p.companyDomain ? (
+                  <a
+                    href={`https://${p.companyDomain}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline break-all"
+                  >
+                    {p.companyDomain}
+                  </a>
+                ) : (
+                  "—"
+                )}
+              </span>
+            </AdminDetailItem>
+            <AdminDetailItem label="Industry">{p.industry ?? "—"}</AdminDetailItem>
+            <AdminDetailItem label="Apollo ID">
+              <span className="mono ct-text-muted break-all">{p.apolloId ?? "—"}</span>
+            </AdminDetailItem>
+            {extraRows.map((r) => (
+              <AdminDetailItem key={r.key} label={r.key}>
+                <span className="break-words">{r.value}</span>
+              </AdminDetailItem>
+            ))}
+          </AdminDetailGrid>
         ) : (
           <EmptySurface
             variant="widget"
@@ -273,47 +243,33 @@ export default async function ProspectDetailPage({
             className="min-h-24"
           />
         )}
-      </section>
+      </AdminDetailSection>
 
       {/* Qualification */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Qualification">
-        <h2 className="h2">Qualification</h2>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-          <dl className="admin-doc-form-grid-2 body-sm">
-            <div className="md:col-span-2">
-              <dt className="ct-form-label">Lifecycle stage</dt>
-              <dd className="admin-doc-inline-row">
-                <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
-                <span className="body-xs ct-text-muted">{stage.description}</span>
-              </dd>
+      <AdminDetailSection label="Qualification" title="Qualification">
+        <AdminDetailGrid>
+          <AdminDetailItem label="Lifecycle stage" fullWidth>
+            <div className="admin-doc-inline-row">
+              <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
+              <span className="body-xs ct-text-muted">{stage.description}</span>
             </div>
-            <div>
-              <dt className="ct-form-label">Tier</dt>
-              <dd>
-                {p.tier ? (
-                  <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
-                ) : (
-                  <span className="ct-text-muted">— (not scored)</span>
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Qualification score</dt>
-              <dd className="tabular-nums ct-text-body">
-                {p.qualScore != null ? `${p.qualScore} / 100` : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Sourced for ICP</dt>
-              <dd className="ct-text-body">{p.icpName ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Sequence step</dt>
-              <dd className="tabular-nums ct-text-body">{p.sequenceStep}</dd>
-            </div>
-          </dl>
-        </Card>
-      </section>
+          </AdminDetailItem>
+          <AdminDetailItem label="Tier">
+            {p.tier ? (
+              <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
+            ) : (
+              <span className="ct-text-muted">— (not scored)</span>
+            )}
+          </AdminDetailItem>
+          <AdminDetailItem label="Qualification score">
+            <span className="tabular-nums">{p.qualScore != null ? `${p.qualScore} / 100` : "—"}</span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Sourced for ICP">{p.icpName ?? "—"}</AdminDetailItem>
+          <AdminDetailItem label="Sequence step">
+            <span className="tabular-nums">{p.sequenceStep}</span>
+          </AdminDetailItem>
+        </AdminDetailGrid>
+      </AdminDetailSection>
 
       {/* Engagement — emails */}
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Emails">
@@ -329,63 +285,38 @@ export default async function ProspectDetailPage({
             className="min-h-24"
           />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="w-[36%] stat-label ct-table-header whitespace-nowrap">
-                      Subject
-                    </th>
-                    <th className="hidden w-[22%] stat-label ct-table-header whitespace-nowrap md:table-cell">
-                      Campaign
-                    </th>
-                    <th className="w-[16%] stat-label ct-table-header whitespace-nowrap">
-                      Status
-                    </th>
-                    <th className="hidden w-[14%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
-                      Last event
-                    </th>
-                    <th className="hidden w-[12%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
-                      Sent
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {p.emails.map((e) => (
-                    <tr
-                      key={e.id}
-                      className="border-b border-(--ct-border-soft) last:border-0"
-                    >
-                      <td className="ct-table-cell truncate ct-text-strong">
-                        <Link
-                          href={`/admin/outreach/${e.campaignId}`}
-                          className="hover:underline"
-                        >
-                          {e.subject}
-                        </Link>
-                      </td>
-                      <td className="hidden ct-table-cell truncate ct-text-muted md:table-cell">
-                        {e.campaignName ?? "—"}
-                      </td>
-                      <td className="ct-table-cell ct-text-body">
-                        {e.status}
-                        {e.draftedByAgent ? (
-                          <span className="body-xs ct-text-muted"> · agent</span>
-                        ) : null}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
-                        {e.latestEventType ?? "—"}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
-                        {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={p.emails}
+            headers={["Subject", "Campaign", "Status", "Last event", "Sent"]}
+            colWidths={["36%", "22%", "16%", "14%", "12%"]}
+            renderRow={(e) => (
+              <>
+                <td className="ct-table-cell truncate ct-text-strong">
+                  <Link
+                    href={`/admin/outreach/${e.campaignId}`}
+                    className="hover:underline"
+                  >
+                    {e.subject}
+                  </Link>
+                </td>
+                <td className="hidden ct-table-cell truncate ct-text-muted md:table-cell">
+                  {e.campaignName ?? "—"}
+                </td>
+                <td className="ct-table-cell ct-text-body">
+                  {e.status}
+                  {e.draftedByAgent ? (
+                    <span className="body-xs ct-text-muted"> · agent</span>
+                  ) : null}
+                </td>
+                <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
+                  {e.latestEventType ?? "—"}
+                </td>
+                <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
+                  {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
+                </td>
+              </>
+            )}
+          />
         )}
       </section>
 

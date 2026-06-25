@@ -13,6 +13,11 @@ import { EmailReviewCard } from "@/components/admin/outreach/email-review-card";
 import { DraftCampaignButton } from "@/components/admin/outreach/draft-campaign-button";
 import { SendCampaignButton } from "@/components/admin/outreach/send-campaign-button";
 import { loadCampaignDetail } from "@/lib/data/outreach";
+import {
+  AdminDetailSection,
+  AdminDetailGrid,
+  AdminDetailItem,
+} from "@/components/admin/admin-detail-layout";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 import { CAMPAIGN_VARIANT } from "@/lib/outreach/status-variants";
 
@@ -73,77 +78,64 @@ export default async function CampaignDetailPage({
       />
 
       {/* Meta */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Campaign">
-        <h2 className="h2">Campaign brief</h2>
-        <p className="body-xs ct-text-muted">
-          Approved campaign inputs and sender context used across the drafting run.
-        </p>
-        <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-          <dl className="admin-doc-form-grid-2 body-sm">
-            <div>
-              <dt className="ct-form-label">Kind</dt>
-              <dd className="ct-text-body">{detail.kind}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Status</dt>
-              <dd className="ct-text-body">{detail.status}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">From</dt>
-              <dd className="mono ct-text-muted">{detail.fromEmail ?? "default"}</dd>
-            </div>
-            <div>
-              <dt className="ct-form-label">Created</dt>
-              <dd className="ct-text-body">{formatAdminDate(detail.createdAt)}</dd>
-            </div>
-            <div className="md:col-span-2">
-              <dt className="ct-form-label">Subject template</dt>
-              <dd className="ct-text-body">{detail.subjectTemplate ?? "—"}</dd>
-            </div>
-            <div className="md:col-span-2">
-              <dt className="ct-form-label">Base brief</dt>
-              <dd className="ct-text-muted whitespace-pre-wrap">
-                {detail.bodyTemplate ?? "—"}
-              </dd>
-            </div>
-          </dl>
-        </Card>
-      </section>
+      <AdminDetailSection
+        label="Campaign"
+        title="Campaign brief"
+        description="Approved campaign inputs and sender context used across the drafting run."
+      >
+        <AdminDetailGrid>
+          <AdminDetailItem label="Kind">{detail.kind}</AdminDetailItem>
+          <AdminDetailItem label="Status">{detail.status}</AdminDetailItem>
+          <AdminDetailItem label="From">
+            <span className="mono ct-text-muted">{detail.fromEmail ?? "default"}</span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Created">{formatAdminDate(detail.createdAt)}</AdminDetailItem>
+          <AdminDetailItem label="Subject template" fullWidth>
+            {detail.subjectTemplate ?? "—"}
+          </AdminDetailItem>
+          <AdminDetailItem label="Base brief" fullWidth>
+            <span className="ct-text-muted whitespace-pre-wrap">
+              {detail.bodyTemplate ?? "—"}
+            </span>
+          </AdminDetailItem>
+        </AdminDetailGrid>
+      </AdminDetailSection>
 
       {/* Draft via agent */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Draft">
-        <h2 className="h2">Draft generation</h2>
-        <p className="body-xs ct-text-muted">
-          Generate one tailored draft per recipient from the approved brief and,
-          when enabled, prospect qualification context. Output lands below in the
-          review queue and remains unsent until an operator approves each email.
-        </p>
+      <AdminDetailSection
+        label="Draft"
+        title="Draft generation"
+        description="Generate one tailored draft per recipient from the approved brief and, when enabled, prospect qualification context. Output lands below in the review queue and remains unsent until an operator approves each email."
+      >
         <div className="admin-doc-toolbar">
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             <DraftCampaignButton campaignId={detail.id} />
           </div>
         </div>
-      </section>
+      </AdminDetailSection>
 
       {/* Delivery summary — visible once emails start being dispatched */}
       {deliverySummary && (
-        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Delivery summary">
-          <h2 className="h2">Delivery</h2>
+        <AdminDetailSection label="Delivery summary" title="Delivery">
           <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
             <p className="body-sm ct-text-muted mono">{deliverySummary}</p>
           </Card>
-        </section>
+        </AdminDetailSection>
       )}
 
       {/* Release — shown only when campaign is sendable (draft|review + ≥1 approved email) */}
       {canRelease && (
-        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Release">
-          <h2 className="h2">Release</h2>
-          <p className="body-xs ct-text-muted">
-            Dispatch all approved emails. The campaign switches to{" "}
-            <span className="mono">sending</span> and Inngest fans out delivery
-            over each approved recipient.
-          </p>
+        <AdminDetailSection
+          label="Release"
+          title="Release"
+          description={
+            <>
+              Dispatch all approved emails. The campaign switches to{" "}
+              <span className="mono">sending</span> and Inngest fans out delivery
+              over each approved recipient.
+            </>
+          }
+        >
           <div className="admin-doc-toolbar">
             <div className="admin-doc-inline-row admin-doc-inline-row--actions">
               <SendCampaignButton
@@ -152,7 +144,7 @@ export default async function CampaignDetailPage({
               />
             </div>
           </div>
-        </section>
+        </AdminDetailSection>
       )}
 
       {/* Emails */}

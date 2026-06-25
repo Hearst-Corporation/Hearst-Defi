@@ -305,7 +305,7 @@ export async function confirmDistribution(
           signersCount,
           vaultRef: computed.vaultRef,
         },
-      });
+      }, tx);
 
       // Clear the pending approvals for this period
       await tx.distributionApproval.deleteMany({ where: { period } });

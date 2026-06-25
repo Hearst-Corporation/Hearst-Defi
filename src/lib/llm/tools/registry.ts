@@ -64,6 +64,31 @@ const SCENARIO_LAB_ROUTE = "/admin/scenario-lab";
 const COINGECKO_BTC_SIMPLE_PRICE_URL =
   "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_last_updated_at=true";
 
+/** Helper to define low-risk admin read tools with a standard multiline text result. */
+function defineAdminReadTool(params: {
+  id: AdminReadToolDefinition["id"];
+  description: string;
+  parameters?: AdminReadToolDefinition["parameters"];
+  run: AdminReadToolDefinition["run"];
+}): AdminReadToolDefinition {
+  return {
+    id: params.id,
+    kind: "read",
+    description: params.description,
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "multiline_text_block",
+    parameters: params.parameters ?? {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+    run: params.run,
+  };
+}
+
 const ChartSpecInputSchema = z.object({
   intent: z.string().trim().min(1).max(120),
   chartType: z.enum(["line", "bar", "area", "stacked_bar", "pie"]),
@@ -910,20 +935,9 @@ async function runOutreachTriggerSendRun(): Promise<{
 }
 
 export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
-  {
+  defineAdminReadTool({
     id: "read_allocations_canonical",
-    kind: "read",
     description: "Canonical allocations for all vaults",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
-    parameters: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
     run: async () => {
       const rows = [
         { key: "HYV", vault: VAULT_YIELD },
@@ -935,21 +949,10 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
       });
       return { title: "ALLOCATIONS CANONIQUES", lines: rows };
     },
-  },
-  {
+  }),
+  defineAdminReadTool({
     id: "read_market_snapshot",
-    kind: "read",
     description: "Latest mining and vault snapshots",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
-    parameters: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
     run: async () => {
       const [latestMiningMetric, latestVaultSnapshot, btcLive] = await Promise.all([
         prisma.miningMetric.findFirst({
@@ -1024,21 +1027,10 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
         lines: [...miningLines, ...snapshotLines],
       };
     },
-  },
-  {
+  }),
+  defineAdminReadTool({
     id: "read_routes_index",
-    kind: "read",
     description: "Product routes index sample",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
-    parameters: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
     run: async () => {
       const routes = await getProductRoutes();
       const lines = routes.slice(0, MAX_ROUTES).map((route) => `- ${route}`);
@@ -1047,21 +1039,10 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
         lines: lines.length > 0 ? lines : ["- unavailable: no routes indexed"],
       };
     },
-  },
-  {
+  }),
+  defineAdminReadTool({
     id: "read_specs_index",
-    kind: "read",
     description: "Spec documents index sample",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
-    parameters: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
     run: async () => {
       const specs = await getSpecIndex();
       const lines = specs
@@ -1072,21 +1053,10 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
         lines: lines.length > 0 ? lines : ["- unavailable: no specs indexed"],
       };
     },
-  },
-  {
+  }),
+  defineAdminReadTool({
     id: "read_runtime_capabilities",
-    kind: "read",
     description: "Runtime capabilities matrix",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
-    parameters: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
     run: async () => ({
       title: "CAPACITES OUTILLEES (RUNTIME APP)",
       lines: [
@@ -1099,7 +1069,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
         "- demo_runner_outille: no",
       ],
     }),
-  },
+  }),
   {
     id: "generate_chart_spec",
     kind: "read",
@@ -1189,16 +1159,10 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     },
     run: async (_context, input) => runExportBriefingPack(input),
   },
-  {
+  defineAdminReadTool({
     id: "outreach_list_prospects",
-    kind: "read",
     description:
       "List outreach prospects, optionally filtered by tier (A/B/C) or status, ordered by qualification score.",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
     parameters: {
       type: "object",
       properties: {
@@ -1209,24 +1173,13 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
       additionalProperties: false,
     },
     run: async (_context, input) => runOutreachListProspects(input),
-  },
-  {
+  }),
+  defineAdminReadTool({
     id: "outreach_stats",
-    kind: "read",
     description:
       "Outreach pipeline overview: prospect counts by tier and by status.",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "multiline_text_block",
-    parameters: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
     run: async () => runOutreachStats(),
-  },
+  }),
 ] as const;
 
 export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [

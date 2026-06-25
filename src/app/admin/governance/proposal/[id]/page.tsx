@@ -11,6 +11,11 @@ import { Ptai } from "@/components/ui/ptai";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
 import {
+  AdminDetailSection,
+  AdminDetailGrid,
+  AdminDetailItem,
+} from "@/components/admin/admin-detail-layout";
+import {
   extractPtaiFromCalldata,
   formatProposalCalldata,
 } from "@/lib/governance/proposal-calldata";
@@ -95,7 +100,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         }
       />
 
-      <Card hoverOverlay={false}>
+      <AdminDetailSection label="Proposal meta">
         <div className="gov-proposal-badges admin-doc-inline-row admin-doc-inline-row--actions">
           <Badge variant="accent" className="mono body-xs">{proposal.vaultTicker}</Badge>
           <Badge variant={proposalStateVariant(proposal.state)}>
@@ -103,44 +108,38 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           </Badge>
         </div>
 
-        <dl className="admin-doc-dl-grid body-sm">
-          <div>
-            <dt className="stat-label">Proposed by</dt>
-            <dd className="mono gov-meta-value ct-text-primary">{proposal.proposedBy}</dd>
-          </div>
-          <div>
-            <dt className="stat-label">Required signers</dt>
-            <dd className="gov-meta-value ct-text-primary">{proposal.requiredSigners}</dd>
-          </div>
-          <div>
-            <dt className="stat-label">Created</dt>
-            <dd className="gov-meta-value tabular-nums ct-text-primary">
+        <AdminDetailGrid cols={2} className="admin-doc-dl-grid">
+          <AdminDetailItem label="Proposed by">
+            <span className="mono gov-meta-value ct-text-primary">{proposal.proposedBy}</span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Required signers">
+            <span className="gov-meta-value ct-text-primary">{proposal.requiredSigners}</span>
+          </AdminDetailItem>
+          <AdminDetailItem label="Created">
+            <span className="gov-meta-value tabular-nums ct-text-primary">
               {formatGovernanceTimestamp(proposal.createdAt)}
-            </dd>
-          </div>
-          <div>
-            <dt className="stat-label">ETA (timelock)</dt>
-            <dd className="gov-meta-value tabular-nums ct-text-primary">
+            </span>
+          </AdminDetailItem>
+          <AdminDetailItem label="ETA (timelock)">
+            <span className="gov-meta-value tabular-nums ct-text-primary">
               {formatGovernanceTimestamp(proposal.etaAt)}
-            </dd>
-          </div>
+            </span>
+          </AdminDetailItem>
           {proposal.executedAt ? (
-            <div>
-              <dt className="stat-label">Executed at</dt>
-              <dd className="gov-meta-value tabular-nums ct-text-primary">
+            <AdminDetailItem label="Executed at">
+              <span className="gov-meta-value tabular-nums ct-text-primary">
                 {formatGovernanceTimestamp(proposal.executedAt)}
-              </dd>
-            </div>
+              </span>
+            </AdminDetailItem>
           ) : null}
           {proposal.cancelledAt ? (
-            <div>
-              <dt className="stat-label">Cancelled at</dt>
-              <dd className="gov-meta-value tabular-nums ct-text-primary">
+            <AdminDetailItem label="Cancelled at">
+              <span className="gov-meta-value tabular-nums ct-text-primary">
                 {formatGovernanceTimestamp(proposal.cancelledAt)}
-              </dd>
-            </div>
+              </span>
+            </AdminDetailItem>
           ) : null}
-        </dl>
+        </AdminDetailGrid>
 
         {proposal.state === "TIMELOCK" && proposal.etaAt ? (
           <div className="gov-proposal-timelock gov-timelock-stack ct-nested-callout flex flex-col">
@@ -148,157 +147,154 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             <p className="mono body-sm ct-text-strong">{timelockCountdown(proposal.etaAt)}</p>
           </div>
         ) : null}
-      </Card>
+      </AdminDetailSection>
 
       {ptai ? (
-        <Card density="compact" hoverOverlay={false}>
-          <DashboardPanelHeader
-            title="Projection · Trigger · Action · Impact"
-            tone="quiet"
-            titleLevel="section"
-            className="gov-section-header"
-          />
-          <Ptai
-            projection={ptai.projection}
-            trigger={ptai.trigger}
-            action={ptai.action}
-            impact={ptai.impact}
-          />
-          <p className="body-xs gov-ptai-disclaimer italic ct-text-faint">
-            Conditional projection — not guaranteed. Methodology v1.0.
-          </p>
-        </Card>
+        <AdminDetailSection label="PTAI" title="Projection · Trigger · Action · Impact">
+          <Card density="compact" hoverOverlay={false}>
+            <Ptai
+              projection={ptai.projection}
+              trigger={ptai.trigger}
+              action={ptai.action}
+              impact={ptai.impact}
+            />
+            <p className="body-xs gov-ptai-disclaimer italic ct-text-faint">
+              Conditional projection — not guaranteed. Methodology v1.0.
+            </p>
+          </Card>
+        </AdminDetailSection>
       ) : null}
 
-      <Card density="compact" hoverOverlay={false}>
-        <DashboardPanelHeader title="Justification" tone="quiet" titleLevel="section" className="gov-section-header" />
-        <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
-      </Card>
+      <AdminDetailSection label="Justification" title="Justification">
+        <Card density="compact" hoverOverlay={false}>
+          <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
+        </Card>
+      </AdminDetailSection>
 
       {proposal.calldata ? (
-        <Card density="compact" hoverOverlay={false}>
-          <DashboardPanelHeader title="Calldata" tone="quiet" titleLevel="section" className="gov-section-header" />
-          <pre className="gov-calldata-block mono overflow-x-auto whitespace-pre-wrap rounded-md border body-xs ct-text-muted">
-            {formatProposalCalldata(proposal.calldata)}
-          </pre>
-        </Card>
+        <AdminDetailSection label="Calldata" title="Calldata">
+          <Card density="compact" hoverOverlay={false}>
+            <pre className="gov-calldata-block mono overflow-x-auto whitespace-pre-wrap rounded-md border body-xs ct-text-muted">
+              {formatProposalCalldata(proposal.calldata)}
+            </pre>
+          </Card>
+        </AdminDetailSection>
       ) : null}
 
-      <Card density="compact" hoverOverlay={false}>
-        <DashboardPanelHeader
-          title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
-            proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
-          }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
-          tone="quiet"
-          titleLevel="section"
-          className="gov-section-header"
-        />
-
-        {proposal.signatures.length === 0 ? (
-          <PanelStatus message="No signatures yet." />
-        ) : (
-          <div className="admin-doc-stack admin-doc-stack--tight">
-            {proposal.signatures.map((sig) => (
-              <div
-                key={sig.id}
-                className="gov-signature-row admin-doc-inline-row admin-doc-inline-row--actions"
-              >
+      <AdminDetailSection
+        label="Signatures"
+        title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
+          proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
+        }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
+      >
+        <Card density="compact" hoverOverlay={false}>
+          {proposal.signatures.length === 0 ? (
+            <PanelStatus message="No signatures yet." />
+          ) : (
+            <div className="admin-doc-stack admin-doc-stack--tight">
+              {proposal.signatures.map((sig) => (
                 <div
-                  className={cn(
-                    "ct-sig-avatar",
-                    sig.decision === "approve"
-                      ? "ct-sig-avatar--approve"
-                      : sig.decision === "reject"
-                        ? "ct-sig-avatar--reject"
-                        : "ct-sig-avatar--neutral",
-                  )}
+                  key={sig.id}
+                  className="gov-signature-row admin-doc-inline-row admin-doc-inline-row--actions"
                 >
-                  {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
+                  <div
+                    className={cn(
+                      "ct-sig-avatar",
+                      sig.decision === "approve"
+                        ? "ct-sig-avatar--approve"
+                        : sig.decision === "reject"
+                          ? "ct-sig-avatar--reject"
+                          : "ct-sig-avatar--neutral",
+                    )}
+                  >
+                    {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="mono body-xs ct-text-primary">{sig.signerAddress}</span>
+                    {sig.reason ? (
+                      <p className="gov-signature-reason truncate body-xs ct-text-muted">{sig.reason}</p>
+                    ) : null}
+                  </div>
+                  <span className="shrink-0 body-xs tabular-nums ct-text-muted">
+                    {formatGovernanceTimestamp(sig.signedAt)}
+                  </span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="mono body-xs ct-text-primary">{sig.signerAddress}</span>
-                  {sig.reason ? (
-                    <p className="gov-signature-reason truncate body-xs ct-text-muted">{sig.reason}</p>
-                  ) : null}
-                </div>
-                <span className="shrink-0 body-xs tabular-nums ct-text-muted">
-                  {formatGovernanceTimestamp(sig.signedAt)}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+              ))}
+            </div>
+          )}
+        </Card>
+      </AdminDetailSection>
 
       {!isTerminal ? (
-        <Card hoverOverlay={false}>
-          <DashboardPanelHeader title="Actions" tone="quiet" titleLevel="section" className="gov-section-header" />
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
-            {canSign ? (
-              <>
+        <AdminDetailSection label="Actions" title="Actions">
+          <Card hoverOverlay={false}>
+            <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+              {canSign ? (
+                <>
+                  <VaultActionButton
+                    label="Approve"
+                    variant="primary"
+                    size="lg"
+                    confirm={{
+                      title: "Approve this proposal?",
+                      description:
+                        "This records your approval for this governance proposal.",
+                      confirmLabel: "Approve",
+                      confirmVariant: "primary",
+                    }}
+                    action={approveAction}
+                  />
+                  <VaultActionButton
+                    label="Reject"
+                    variant="danger"
+                    size="lg"
+                    confirm={{
+                      title: "Reject this proposal?",
+                      description:
+                        "This records a rejection for this governance proposal.",
+                      confirmLabel: "Reject",
+                      confirmVariant: "danger",
+                    }}
+                    action={rejectAction}
+                  />
+                </>
+              ) : null}
+              {canCancel ? (
                 <VaultActionButton
-                  label="Approve"
-                  variant="primary"
-                  size="lg"
-                  confirm={{
-                    title: "Approve this proposal?",
-                    description:
-                      "This records your approval for this governance proposal.",
-                    confirmLabel: "Approve",
-                    confirmVariant: "primary",
-                  }}
-                  action={approveAction}
-                />
-                <VaultActionButton
-                  label="Reject"
+                  label="Cancel (quorum)"
                   variant="danger"
                   size="lg"
                   confirm={{
-                    title: "Reject this proposal?",
+                    title: "Cancel this proposal?",
                     description:
-                      "This records a rejection for this governance proposal.",
-                    confirmLabel: "Reject",
+                      "This will cancel the proposal and prevent further progress.",
+                    confirmLabel: "Cancel proposal",
                     confirmVariant: "danger",
                   }}
-                  action={rejectAction}
+                  action={cancelAction}
                 />
-              </>
-            ) : null}
-            {canCancel ? (
-              <VaultActionButton
-                label="Cancel (quorum)"
-                variant="danger"
-                size="lg"
-                confirm={{
-                  title: "Cancel this proposal?",
-                  description:
-                    "This will cancel the proposal and prevent further progress.",
-                  confirmLabel: "Cancel proposal",
-                  confirmVariant: "danger",
-                }}
-                action={cancelAction}
-              />
-            ) : null}
-            {canExecute ? (
-              <VaultActionButton
-                label="Execute"
-                variant="primary"
-                size="lg"
-                confirm={{
-                  title: "Execute this proposal?",
-                  description:
-                    "This will execute the approved governance action. Confirm that all review requirements are complete.",
-                  confirmLabel: "Execute",
-                  confirmVariant: "primary",
-                }}
-                action={executeAction}
-              />
-            ) : null}
-          </div>
-          <p className="body-xs gov-actions-note ct-text-muted">
-            Actions are recorded on-chain mock only — no Solidity calls at this stage.
-          </p>
-        </Card>
+              ) : null}
+              {canExecute ? (
+                <VaultActionButton
+                  label="Execute"
+                  variant="primary"
+                  size="lg"
+                  confirm={{
+                    title: "Execute this proposal?",
+                    description:
+                      "This will execute the approved governance action. Confirm that all review requirements are complete.",
+                    confirmLabel: "Execute",
+                    confirmVariant: "primary",
+                  }}
+                  action={executeAction}
+                />
+              ) : null}
+            </div>
+            <p className="body-xs gov-actions-note ct-text-muted">
+              Actions are recorded on-chain mock only — no Solidity calls at this stage.
+            </p>
+          </Card>
+        </AdminDetailSection>
       ) : null}
     </>
   );

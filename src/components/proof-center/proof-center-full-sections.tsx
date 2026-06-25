@@ -30,6 +30,7 @@ interface ProofCenterFullSectionsProps {
   platformAddresses: ReadonlyArray<PlatformAddressEntry>;
   filter: FilterValue;
   timelockProposals: ReadonlyArray<ProofCenterTimelockProposal>;
+  variant?: "product" | "admin";
 }
 
 /** Layer-2 drill-down sections shared by product + admin /proof-center/full routes. */
@@ -39,20 +40,23 @@ export function ProofCenterFullSections({
   platformAddresses,
   filter,
   timelockProposals,
+  variant = "product",
 }: ProofCenterFullSectionsProps) {
   return (
     <>
       <ProofCenterSection
         id="event-timeline-heading"
         title="On-chain event log"
+        variant={variant}
       >
-        <EventTimeline events={onChainEvents} sectionLed />
+        <EventTimeline events={onChainEvents} sectionLed variant={variant} />
       </ProofCenterSection>
 
       <ProofCenterSection
         id="proof-grid-heading"
         title="Off-chain proofs & documents"
         actions={proofs.length > 0 ? <ProofFilter /> : null}
+        variant={variant}
       >
         {proofs.length === 0 ? (
           <EmptySurface live variant="inline" {...PLATFORM_PROOFS_EMPTY} />
@@ -64,16 +68,18 @@ export function ProofCenterFullSections({
       <ProofCenterSection
         id="contracts-heading"
         title="Contracts & review trail"
+        variant={variant}
       >
-        <ContractsAuditTrail platformAddresses={platformAddresses} />
+        <ContractsAuditTrail platformAddresses={platformAddresses} variant={variant} />
       </ProofCenterSection>
 
       <ProofCenterSection
         id="timelock-heading"
         title="Pending governance timelocks"
+        variant={variant}
       >
         {timelockProposals.length > 0 ? (
-          <div className="product-doc-stack--relaxed">
+          <div className={variant === "admin" ? "admin-doc-stack admin-doc-stack--relaxed" : "product-doc-stack--relaxed"}>
             {timelockProposals.map((proposal) => (
               <TimelockCountdown
                 key={proposal.id}

@@ -21,6 +21,31 @@ function SkeletonDataRoomItem() {
   );
 }
 
+function SkeletonPanel({
+  eyebrowWidth = 24,
+  titleWidth = 40,
+  hasTrailing = true,
+  children,
+}: {
+  eyebrowWidth?: number;
+  titleWidth?: number;
+  hasTrailing?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="dashboard-cockpit-panel">
+      <div className="dashboard-card-header items-center">
+        <div className="flex flex-col gap-1">
+          <Skeleton className={`h-3 w-${eyebrowWidth}`} variant="text" />
+          <Skeleton className={`h-6 w-${titleWidth}`} />
+        </div>
+        {hasTrailing && <Skeleton className="h-5 w-16 rounded-full" />}
+      </div>
+      <div className="proof-panel-scroll">{children}</div>
+    </div>
+  );
+}
+
 export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
   return (
     <div
@@ -46,90 +71,54 @@ export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
 
       <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
         <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <div className="dashboard-card-header items-center">
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="h-6 w-40" />
+          <SkeletonPanel>
+            <div className="flex flex-col gap-4 p-4">
+              <Skeleton className="h-10 w-full" />
+              <div className="grid grid-cols-4 gap-4">
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
               </div>
-              <Skeleton className="h-5 w-16 rounded-full" />
-            </div>
-            <div className="proof-panel-scroll">
-              <div className="flex flex-col gap-4 p-4">
-                <Skeleton className="h-10 w-full" />
-                <div className="grid grid-cols-4 gap-4">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Skeleton className="h-4 w-full" variant="text" />
-                  <Skeleton className="h-4 w-2/3" variant="text" />
-                </div>
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-4 w-full" variant="text" />
+                <Skeleton className="h-4 w-2/3" variant="text" />
               </div>
             </div>
-          </div>
+          </SkeletonPanel>
         </div>
         <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <div className="dashboard-card-header items-center">
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="h-6 w-40" />
-              </div>
-              <Skeleton className="h-5 w-16 rounded-full" />
-            </div>
-            <div className="proof-panel-scroll">
-              <div className="flex flex-col gap-4 p-4">
-                <Skeleton className="h-6 w-1/2" />
-                <Skeleton className="h-4 w-full" variant="text" />
-                <div className="grid grid-cols-4 gap-4">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
+          <SkeletonPanel>
+            <div className="flex flex-col gap-4 p-4">
+              <Skeleton className="h-6 w-1/2" />
+              <Skeleton className="h-4 w-full" variant="text" />
+              <div className="grid grid-cols-4 gap-4">
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
               </div>
             </div>
-          </div>
+          </SkeletonPanel>
         </div>
       </div>
 
       <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
         <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <div className="dashboard-card-header items-center">
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="h-6 w-40" />
-              </div>
-              <Skeleton className="h-5 w-16 rounded-full" />
+          <SkeletonPanel>
+            <div className="divide-y divide-(--ct-border-soft) px-4">
+              <SkeletonDataRoomItem />
+              <SkeletonDataRoomItem />
             </div>
-            <div className="proof-panel-scroll">
-              <div className="divide-y divide-(--ct-border-soft) px-4">
-                <SkeletonDataRoomItem />
-                <SkeletonDataRoomItem />
-              </div>
-            </div>
-          </div>
+          </SkeletonPanel>
         </div>
         <div className="dashboard-cockpit-cell">
-          <div className="dashboard-cockpit-panel">
-            <div className="dashboard-card-header items-center">
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-3 w-24" variant="text" />
-                <Skeleton className="h-6 w-40" />
-              </div>
-              <Skeleton className="h-5 w-16 rounded-full" />
+          <SkeletonPanel>
+            <div className="divide-y divide-(--ct-border-soft) px-4">
+              <SkeletonDataRoomItem />
+              <SkeletonDataRoomItem />
             </div>
-            <div className="proof-panel-scroll">
-              <div className="divide-y divide-(--ct-border-soft) px-4">
-                <SkeletonDataRoomItem />
-                <SkeletonDataRoomItem />
-              </div>
-            </div>
-          </div>
+          </SkeletonPanel>
         </div>
       </div>
     </div>

@@ -11,6 +11,10 @@ import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
+import {
+  AdminTable,
+  AdminPagination,
+} from "@/components/admin/admin-table-layout";
 import { loadCustomers, loadOrphanSubmissions, type KycStatus } from "@/lib/data/customers";
 import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
@@ -82,110 +86,78 @@ export default async function CustomersPage({
             </div>
           </EmptySurface>
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="w-[30%] stat-label ct-table-header whitespace-nowrap">
-                      Email
-                    </th>
-                    <th className="hidden w-[18%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
-                      Wallet
-                    </th>
-                    <th className="w-[24%] stat-label ct-table-header whitespace-nowrap md:w-[18%]">
-                      KYC
-                    </th>
-                    <th className="hidden w-[14%] stat-label ct-table-header whitespace-nowrap text-right md:table-cell">
-                      Active positions
-                    </th>
-                    <th className="w-[24%] stat-label ct-table-header whitespace-nowrap text-right">
-                      Total principal
-                    </th>
-                    <th className="hidden w-[14%] stat-label ct-table-header whitespace-nowrap lg:table-cell">
-                      Joined
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {customers.map((c) => (
-                    <tr
-                      key={c.id}
-                      className="border-b border-(--ct-border-soft) last:border-0"
-                    >
-                      <td className="ct-table-cell truncate ct-text-strong">
-                        <Link href={`/admin/customers/${c.id}`} className="hover:underline">
-                          {c.email}
-                        </Link>
-                      </td>
-                      <td className="hidden ct-table-cell mono ct-text-muted lg:table-cell">
-                        {truncateWallet(c.walletAddress)}
-                      </td>
-                      <td className="ct-table-cell">
-                        <div className="admin-doc-stack admin-doc-stack--micro">
-                          <span className="inline-flex items-center gap-(--ct-space-1_5) body-sm">
-                            <span
-                              aria-hidden
-                              className={cn("ct-dot", KYC_DOT[c.kycStatus])}
-                            />
-                            <span
-                              className={cn(
-                                "ct-text-muted",
-                                c.kycStatus === "rejected" && "ct-status-danger",
-                              )}
-                            >
-                              {KYC_LABEL[c.kycStatus]}
-                            </span>
-                          </span>
-                          <div className="admin-doc-inline-row admin-doc-inline-row--tight">
-                            <KycAction investorId={c.id} status={c.kycStatus} />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="hidden ct-table-cell text-right tabular-nums ct-text-body md:table-cell">
-                        {c.activePositions}
-                      </td>
-                      <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                        {formatUsdFull(c.totalPrincipalUsdc)}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
-                        {formatAdminDate(c.joinedAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={customers}
+            headers={[
+              "Email",
+              <span key="wallet" className="hidden lg:inline">Wallet</span>,
+              "KYC",
+              <span key="positions" className="hidden md:inline">Active positions</span>,
+              <span key="principal" className="text-right">Total principal</span>,
+              <span key="joined" className="hidden lg:inline">Joined</span>,
+            ]}
+            colWidths={[
+              "w-[30%]",
+              "hidden w-[18%] lg:table-cell",
+              "w-[24%] md:w-[18%]",
+              "hidden w-[14%] text-right md:table-cell",
+              "w-[24%] text-right",
+              "hidden w-[14%] lg:table-cell",
+            ]}
+            renderRow={(c) => (
+              <>
+                <td className="ct-table-cell truncate ct-text-strong">
+                  <Link href={`/admin/customers/${c.id}`} className="hover:underline">
+                    {c.email}
+                  </Link>
+                </td>
+                <td className="hidden ct-table-cell mono ct-text-muted lg:table-cell">
+                  {truncateWallet(c.walletAddress)}
+                </td>
+                <td className="ct-table-cell">
+                  <div className="admin-doc-stack admin-doc-stack--micro">
+                    <span className="inline-flex items-center gap-(--ct-space-1_5) body-sm">
+                      <span
+                        aria-hidden
+                        className={cn("ct-dot", KYC_DOT[c.kycStatus])}
+                      />
+                      <span
+                        className={cn(
+                          "ct-text-muted",
+                          c.kycStatus === "rejected" && "ct-status-danger",
+                        )}
+                      >
+                        {KYC_LABEL[c.kycStatus]}
+                      </span>
+                    </span>
+                    <div className="admin-doc-inline-row admin-doc-inline-row--tight">
+                      <KycAction investorId={c.id} status={c.kycStatus} />
+                    </div>
+                  </div>
+                </td>
+                <td className="hidden ct-table-cell text-right tabular-nums ct-text-body md:table-cell">
+                  {c.activePositions}
+                </td>
+                <td className="ct-table-cell text-right tabular-nums ct-text-strong">
+                  {formatUsdFull(c.totalPrincipalUsdc)}
+                </td>
+                <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
+                  {formatAdminDate(c.joinedAt)}
+                </td>
+              </>
+            )}
+          />
         )}
 
         {/* Pagination controls */}
         {total > 0 && (
-          <div className="admin-doc-stack admin-doc-stack--compact border-t border-(--ct-border-soft) py-(--ct-space-4)">
-            <div className="admin-doc-row-spread">
-              <p className="body-xs ct-text-muted">
-                Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
-              </p>
-              <div className="admin-doc-inline-row">
-                {page > 1 && (
-                  <Link
-                    href={`/admin/customers?page=${page - 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1_5) body-xs ct-text-muted hover:ct-text-strong transition-colors ease-(--ct-ease)"
-                  >
-                    Previous
-                  </Link>
-                )}
-                {hasMore && (
-                  <Link
-                    href={`/admin/customers?page=${page + 1}&pageSize=${pageSize}`}
-                    className="rounded-md border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1_5) body-xs ct-text-muted hover:ct-text-strong transition-colors ease-(--ct-ease)"
-                  >
-                    Next
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
+          <AdminPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            hasMore={hasMore}
+            basePath="/admin/customers"
+          />
         )}
       </section>
 
@@ -201,49 +173,37 @@ export default async function CustomersPage({
             Provision an account with the matching email to link the submission
             and calibrate the assistant.
           </p>
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="w-[34%] stat-label ct-table-header whitespace-nowrap">
-                      Email
-                    </th>
-                    <th className="w-[26%] stat-label ct-table-header whitespace-nowrap">
-                      Name
-                    </th>
-                    <th className="hidden w-[20%] stat-label ct-table-header whitespace-nowrap md:table-cell">
-                      Source
-                    </th>
-                    <th className="w-[20%] stat-label ct-table-header whitespace-nowrap text-right">
-                      Submitted
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orphanSubmissions.map((s) => (
-                    <tr
-                      key={s.id}
-                      className="border-b border-(--ct-border-soft) last:border-0"
-                    >
-                      <td className="ct-table-cell truncate ct-text-strong">
-                        {s.email ?? "—"}
-                      </td>
-                      <td className="ct-table-cell truncate ct-text-muted">
-                        {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-muted md:table-cell">
-                        {s.source}
-                      </td>
-                      <td className="ct-table-cell text-right ct-text-muted">
-                        {formatAdminDate(s.submittedAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={orphanSubmissions}
+            headers={[
+              "Email",
+              "Name",
+              <span key="source" className="hidden md:inline">Source</span>,
+              <span key="submitted" className="text-right">Submitted</span>,
+            ]}
+            colWidths={[
+              "w-[34%]",
+              "w-[26%]",
+              "hidden w-[20%] md:table-cell",
+              "w-[20%] text-right",
+            ]}
+            renderRow={(s) => (
+              <>
+                <td className="ct-table-cell truncate ct-text-strong">
+                  {s.email ?? "—"}
+                </td>
+                <td className="ct-table-cell truncate ct-text-muted">
+                  {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
+                </td>
+                <td className="hidden ct-table-cell ct-text-muted md:table-cell">
+                  {s.source}
+                </td>
+                <td className="ct-table-cell text-right ct-text-muted">
+                  {formatAdminDate(s.submittedAt)}
+                </td>
+              </>
+            )}
+          />
         </section>
       )}
     </>

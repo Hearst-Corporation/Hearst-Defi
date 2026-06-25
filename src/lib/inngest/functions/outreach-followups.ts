@@ -3,6 +3,7 @@ import "server-only";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { env } from "@/lib/env";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { isSuppressed } from "@/lib/outreach/suppression";
@@ -219,17 +220,13 @@ export async function outreachFollowupsHandler({
             where: { id: p.id },
             data: { sequenceStep: nextStep, lastContactedAt: now },
           }),
-          prisma.adminAudit.create({
-            data: {
-              actorWallet: "system:outreach-followups",
-              action: "outreach.followup",
-              entityType: "OutreachProspect",
-              entityId: p.id,
-              diff: JSON.stringify({ step: nextStep, tier, autonomy }),
-              ip: null,
-              userAgent: null,
-            },
-          }),
+          recordAdminAudit({
+            actorWallet: "system:outreach-followups",
+            action: "outreach.followup",
+            entityType: "OutreachProspect",
+            entityId: p.id,
+            after: { step: nextStep, tier, autonomy },
+          }, prisma),
         ]);
         return "sent" as const;
       } catch (err) {

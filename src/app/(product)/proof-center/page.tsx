@@ -5,11 +5,11 @@
 
 export const dynamic = "force-dynamic";
 
-import { ProofCenterHub } from "@/components/proof-center/proof-center-hub";
+import { ProofCenterHubLayout } from "@/components/proof-center/proof-center-hub-layout";
 import { loadProofCenterHubData } from "@/lib/proof-center/hub-data";
 
 export default async function ProductProofCenterPage() {
   const hubData = await loadProofCenterHubData(false);
 
-  return <ProofCenterHub variant="product" demo={false} {...hubData} />;
+  return <ProofCenterHubLayout variant="product" {...hubData} />;
 }

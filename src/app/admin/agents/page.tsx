@@ -14,6 +14,7 @@ import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip
 import { loadAgentGraphViews } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
+import { AdminTable } from "@/components/admin/admin-table-layout";
 import { groupCatalogByScope, AGENT_CATALOG } from "@/lib/agents/agent-catalog";
 import { AGENT_ICONS } from "@/lib/agents/agent-icons";
 import {
@@ -172,53 +173,53 @@ export default async function AgentsPage() {
             className="min-h-32"
           />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="w-[28%] stat-label ct-table-header whitespace-nowrap">Label</th>
-                    <th className="hidden w-[20%] stat-label ct-table-header whitespace-nowrap md:table-cell">Base agent</th>
-                    <th className="hidden w-[22%] stat-label ct-table-header whitespace-nowrap lg:table-cell">Register</th>
-                    <th className="w-[12%] stat-label ct-table-header whitespace-nowrap text-right">Used by</th>
-                    <th className="w-[18%] stat-label ct-table-header whitespace-nowrap text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {templates.map((t) => (
-                    <tr key={t.id} className="border-b border-(--ct-border-soft) last:border-0">
-                      <td className="ct-table-cell ct-text-strong">
-                        <div className="admin-doc-inline-row">
-                          <Link href={`/admin/agents/${t.id}`} className="hover:underline">
-                            {t.label}
-                          </Link>
-                          {t.archived && <Badge variant="warning">Archived</Badge>}
-                        </div>
-                        {t.description && (
-                          <p className="body-xs ct-text-muted truncate">{t.description}</p>
-                        )}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-muted md:table-cell">
-                        {BASE_AGENT_LABELS[t.baseAgent as BaseAgent] ?? t.baseAgent}
-                      </td>
-                      <td className="hidden ct-table-cell ct-text-body lg:table-cell">
-                        {[t.tone, t.language, t.verbosity].filter(Boolean).join(" · ") || "—"}
-                      </td>
-                      <td className="ct-table-cell text-right tabular-nums ct-text-body">{t.usageCount}</td>
-                      <td className="ct-table-cell text-right">
-                        <div className="admin-doc-inline-row justify-end">
-                          <Button asChild size="sm" variant="ghost">
-                            <Link href={`/admin/agents/${t.id}`}>Edit</Link>
-                          </Button>
-                          <ArchiveTemplateButton id={t.id} archived={t.archived} />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <AdminTable
+            data={templates}
+            headers={[
+              "Label",
+              <span key="base" className="hidden md:inline">Base agent</span>,
+              <span key="register" className="hidden lg:inline">Register</span>,
+              <span key="used" className="text-right">Used by</span>,
+              <span key="actions" className="text-right">Actions</span>,
+            ]}
+            colWidths={[
+              "w-[28%]",
+              "hidden w-[20%] md:table-cell",
+              "hidden w-[22%] lg:table-cell",
+              "w-[12%] text-right",
+              "w-[18%] text-right",
+            ]}
+            renderRow={(t) => (
+              <>
+                <td className="ct-table-cell ct-text-strong">
+                  <div className="admin-doc-inline-row">
+                    <Link href={`/admin/agents/${t.id}`} className="hover:underline">
+                      {t.label}
+                    </Link>
+                    {t.archived && <Badge variant="warning">Archived</Badge>}
+                  </div>
+                  {t.description && (
+                    <p className="body-xs ct-text-muted truncate">{t.description}</p>
+                  )}
+                </td>
+                <td className="hidden ct-table-cell ct-text-muted md:table-cell">
+                  {BASE_AGENT_LABELS[t.baseAgent as BaseAgent] ?? t.baseAgent}
+                </td>
+                <td className="hidden ct-table-cell ct-text-body lg:table-cell">
+                  {[t.tone, t.language, t.verbosity].filter(Boolean).join(" · ") || "—"}
+                </td>
+                <td className="ct-table-cell text-right tabular-nums ct-text-body">{t.usageCount}</td>
+                <td className="ct-table-cell text-right">
+                  <div className="admin-doc-inline-row justify-end">
+                    <Button asChild size="sm" variant="ghost">
+                      <Link href={`/admin/agents/${t.id}`}>Edit</Link>
+                    </Button>
+                    <ArchiveTemplateButton id={t.id} archived={t.archived} />
+                  </div>
+                </td>
+              </>
+            )}
+          />
         )}
       </section>
     </>

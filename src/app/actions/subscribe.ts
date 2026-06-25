@@ -9,18 +9,14 @@ export type EligibilityResult =
 import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
 import { getVault } from "@/lib/data/vaults";
-import { SHARE_CLASS_A, SHARE_CLASS_B, type ShareClassTerms } from "@/lib/engine/share-class";
-import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
-
-/** Sentinel thrown inside the subscribe transaction when capacity is exceeded. */
-class CapacityError extends Error {}
-
-/** True when err is a Prisma P2002 unique violation (txHash/txHashOpen collision). */
-function isUniqueViolation(err: unknown): boolean {
-  return (
-    err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"
-  );
-}
+import {
+  CapacityError,
+  isUniqueViolation,
+  MAX_SUBSCRIBE_USDC,
+  type ShareClassCode,
+  validateMinTicket,
+  createPositionInTransaction,
+} from "@/lib/positions/subscribe-logic";
 
 /**
  * Subscribe to a vault — creates a real DB position for the current investor.
@@ -62,20 +58,9 @@ export async function checkSubscribeEligibility(
   return { ok: true };
 }
 
-/** Hard ceiling on a single subscription amount (1 billion USDC). */
-const MAX_SUBSCRIBE_USDC = 1_000_000_000;
-
-/** Supported share class codes. */
-export type ShareClassCode = "A" | "B";
-
 export type SubscribeResult =
   | { ok: true; positionId: string }
   | { ok: false; error: string };
-
-/** Resolve the canonical terms for a given share class code. */
-function resolveClassTerms(classCode: ShareClassCode): ShareClassTerms {
-  return classCode === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
-}
 
 export async function subscribe(
   vaultId: string,
@@ -115,24 +100,13 @@ export async function subscribe(
   }
 
   // Validate against the selected share class minimum ticket.
-  // DEMO override: DEMO_MIN_TICKET_USDC lowers the floor so a small real on-chain
-  // deposit (e.g. a few faucet USDC) can open a position on the Base Sepolia pilot.
-  // Honored in ANY env when the var is set — the gate is the var's PRESENCE, which
-  // is configured ONLY for the testnet pilot. Unset it to restore $250k/$1M.
-  const classTerms = resolveClassTerms(classCode);
-  const demoMinRaw = process.env.DEMO_MIN_TICKET_USDC;
-  // Tests never set DEMO_MIN_TICKET_USDC, so the suite keeps asserting the real
-  // $250k/$1M gates; prod honors it only because it is set for the Sepolia pilot.
-  const demoMin = demoMinRaw ? Number(demoMinRaw) : null;
-  const effectiveMin =
-    demoMin !== null && Number.isFinite(demoMin) && demoMin > 0
-      ? demoMin
-      : classTerms.minTicketUsdc;
-  if (amountUsdc < effectiveMin) {
-    return {
-      ok: false,
-      error: `Below minimum ticket of ${formatMinTicketUsdc(effectiveMin)} for Class ${classCode}.`,
-    };
+  const minTicketCheck = validateMinTicket(
+    amountUsdc,
+    classCode,
+    process.env.NODE_ENV === "development",
+  );
+  if (!minTicketCheck.ok) {
+    return minTicketCheck;
   }
 
   // Ledger integrity: a subscription must be backed by a confirmed on-chain
@@ -178,44 +152,14 @@ export async function subscribe(
   // both pass a stale `remaining` and over-subscribe the vault cap.
   try {
     const position = await prisma.$transaction(async (tx) => {
-      const agg = await tx.position.aggregate({
-        where: {
-          status: "active",
-          ...(deployment
-            ? { vaultDeploymentId: deployment.id }
-            : { vaultKey: { startsWith: `${vaultId}:` } }),
-        },
-        _sum: { principalUsdc: true },
-      });
-      const consumed = agg._sum.principalUsdc?.toNumber() ?? 0;
-      const remaining = vault.capacityUsdc - consumed;
-      if (amountUsdc > remaining) {
-        throw new CapacityError();
-      }
-
-      // Atomic: position + deposit transaction via Prisma nested write.
-      return tx.position.create({
-        data: {
-          investorId: investor.id,
-          vaultDeploymentId: deployment?.id ?? null,
-          // Store the share class code in the vaultKey field as a suffix so that
-          // downstream loaders can distinguish A vs B positions without a schema
-          // migration (additive, non-breaking to E1 Class A positions).
-          vaultKey: `${vaultId}:class-${classCode}`,
-          principalUsdc: amountUsdc,
-          status: "active",
-          // On-chain deposit tx hash (Base Sepolia). Null only for the audited
-          // off-chain pilot path (`allowOffChain`); the public flow requires it.
-          txHashOpen: txHashClean ?? null,
-          transactions: {
-            create: {
-              investorId: investor.id,
-              type: "deposit",
-              amountUsdc,
-              txHash: txHashClean ?? null,
-            },
-          },
-        },
+      return createPositionInTransaction(tx, {
+        investorId: investor.id,
+        vaultId,
+        amountUsdc,
+        classCode,
+        capacityUsdc: vault.capacityUsdc,
+        deploymentId: deployment?.id ?? null,
+        txHash: txHashClean,
       });
     });
 

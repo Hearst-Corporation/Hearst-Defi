@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { getAdminAuditLog } from "@/lib/admin/audit";
+import { AdminTable } from "@/components/admin/admin-table-layout";
 import { buildAuditKpiStrip } from "@/lib/admin/audit-kpi-strip";
 import { cn } from "@/lib/cn";
 import { truncateWallet } from "@/lib/wallet-display";
@@ -54,6 +55,23 @@ function AuditActionLabel({ action }: { action: string }) {
         {action}
       </span>
     </span>
+  );
+}
+
+function DiffBlock({ label, value, muted }: { label: string; value: unknown; muted?: boolean }) {
+  return (
+    <div className="admin-doc-stack admin-doc-stack--micro">
+      <p className="stat-label ct-text-muted">{label}</p>
+      <pre
+        className={cn(
+          "audit-diff-block mono body-xs max-h-40 overflow-auto rounded border leading-relaxed whitespace-pre-wrap break-all",
+          "ct-bc-soft ct-surface-0",
+          muted ? "ct-text-muted" : "ct-text-body",
+        )}
+      >
+        {value === null ? "null" : JSON.stringify(value, null, 2)}
+      </pre>
+    </div>
   );
 }
 
@@ -174,112 +192,83 @@ export default async function AuditLogPage({
             className="min-h-32"
           />
         ) : (
-          <Card className="p-0 overflow-hidden" hoverOverlay={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-left body-sm">
-                <thead>
-                  <tr>
-                    <th className="audit-col-when ct-table-header stat-label">When</th>
-                    <th className="audit-col-actor ct-table-header stat-label">Actor</th>
-                    <th className="audit-col-action ct-table-header stat-label">Action</th>
-                    <th className="hidden audit-col-entity ct-table-header stat-label lg:table-cell">
-                      Entity
-                    </th>
-                    <th className="audit-col-details ct-table-header stat-label">
-                      Details
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entries.map((entry) => (
-                    <tr
-                      key={entry.id}
-                      className="border-b border-[var(--ct-border-soft)] last:border-0 align-top"
+          <AdminTable
+            data={entries}
+            headers={[
+              "When",
+              "Actor",
+              "Action",
+              <span key="entity" className="hidden lg:inline">Entity</span>,
+              "Details",
+            ]}
+            colWidths={[
+              "audit-col-when",
+              "audit-col-actor",
+              "audit-col-action",
+              "hidden audit-col-entity lg:table-cell",
+              "audit-col-details",
+            ]}
+            renderRow={(entry) => (
+              <>
+                {/* When */}
+                <td className="ct-table-cell mono body-xs ct-text-muted align-top">
+                  {formatAdminAuditTimestamp(entry.occurredAt)}
+                </td>
+
+                {/* Actor */}
+                <td className="ct-table-cell align-top">
+                  <div className="admin-doc-stack admin-doc-stack--micro">
+                    <span
+                      className="mono body-xs ct-text-body"
+                      title={entry.actorWallet}
                     >
-                      {/* When */}
-                      <td className="ct-table-cell mono body-xs ct-text-muted align-top">
-                        {formatAdminAuditTimestamp(entry.occurredAt)}
-                      </td>
+                      {truncateWallet(entry.actorWallet)}
+                    </span>
+                    {entry.ip ? (
+                      <span className="body-xs ct-text-muted">{entry.ip}</span>
+                    ) : null}
+                  </div>
+                </td>
 
-                      {/* Actor */}
-                      <td className="ct-table-cell align-top">
-                        <div className="admin-doc-stack admin-doc-stack--micro">
-                          <span
-                            className="mono body-xs ct-text-body"
-                            title={entry.actorWallet}
-                          >
-                            {truncateWallet(entry.actorWallet)}
-                          </span>
-                          {entry.ip ? (
-                            <span className="body-xs ct-text-muted">{entry.ip}</span>
-                          ) : null}
-                        </div>
-                      </td>
+                {/* Action */}
+                <td className="ct-table-cell align-top">
+                  <AuditActionLabel action={entry.action} />
+                </td>
 
-                      {/* Action */}
-                      <td className="ct-table-cell align-top">
-                        <AuditActionLabel action={entry.action} />
-                      </td>
+                {/* Entity */}
+                <td className="hidden ct-table-cell lg:table-cell align-top">
+                  <div className="admin-doc-stack admin-doc-stack--micro">
+                    <span className="body-xs ct-text-strong">
+                      {entry.entityType}
+                    </span>
+                    <span className="mono body-xs ct-text-muted">
+                      {entry.entityId}
+                    </span>
+                  </div>
+                </td>
 
-                      {/* Entity */}
-                      <td className="hidden ct-table-cell lg:table-cell align-top">
-                        <div className="admin-doc-stack admin-doc-stack--micro">
-                          <span className="body-xs ct-text-strong">
-                            {entry.entityType}
-                          </span>
-                          <span className="mono body-xs ct-text-muted">
-                            {entry.entityId}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Details — before/after diff in a native <details> */}
-                      <td className="ct-table-cell align-top">
-                        <details className="group admin-doc-stack admin-doc-stack--tight">
-                          <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
-                            <span className="group-open:hidden">Show diff</span>
-                            <span className="hidden group-open:inline">
-                              Hide diff
-                            </span>
-                          </summary>
-                          <div className="admin-doc-stack admin-doc-stack--micro">
-                            <p className="stat-label ct-text-muted">Before</p>
-                            <pre
-                              className={cn(
-                                "audit-diff-block mono body-xs max-h-40 overflow-auto rounded border leading-relaxed whitespace-pre-wrap break-all",
-                                "ct-bc-soft ct-surface-0 ct-text-muted",
-                              )}
-                            >
-                              {entry.before === null
-                                ? "null"
-                                : JSON.stringify(entry.before, null, 2)}
-                            </pre>
-                          </div>
-                          <div className="admin-doc-stack admin-doc-stack--micro">
-                            <p className="stat-label ct-text-muted">After</p>
-                            <pre
-                              className={cn(
-                                "audit-diff-block mono body-xs max-h-40 overflow-auto rounded border leading-relaxed whitespace-pre-wrap break-all",
-                                "ct-bc-soft ct-surface-0 ct-text-body",
-                              )}
-                            >
-                              {entry.after === null
-                                ? "null"
-                                : JSON.stringify(entry.after, null, 2)}
-                            </pre>
-                          </div>
-                          {entry.userAgent ? (
-                            <p className="body-xs truncate ct-text-muted">
-                              UA: {entry.userAgent}
-                            </p>
-                          ) : null}
-                        </details>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                {/* Details — before/after diff in a native <details> */}
+                <td className="ct-table-cell align-top">
+                  <details className="group admin-doc-stack admin-doc-stack--tight">
+                    <summary className="cursor-pointer list-none body-xs ct-text-muted hover:ct-text-body select-none">
+                      <span className="group-open:hidden">Show diff</span>
+                      <span className="hidden group-open:inline">
+                        Hide diff
+                      </span>
+                    </summary>
+                    <DiffBlock label="Before" value={entry.before} muted />
+                    <DiffBlock label="After" value={entry.after} />
+                    {entry.userAgent ? (
+                      <p className="body-xs truncate ct-text-muted">
+                        UA: {entry.userAgent}
+                      </p>
+                    ) : null}
+                  </details>
+                </td>
+              </>
+            )}
+          />
+        )}
             <div className="audit-retention-footer admin-doc-stack admin-doc-stack--micro border-t border-[var(--ct-border-soft)]">
               <p className="stat-label">Audit retention</p>
               <p className="body-xs ct-text-muted">

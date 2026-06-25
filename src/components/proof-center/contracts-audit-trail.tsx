@@ -101,6 +101,55 @@ function auditBadgeLabel(entry: AuditEntry): string {
   return "Pending";
 }
 
+interface ProofArticleProps {
+  title: string;
+  description?: string;
+  icon: React.ElementType;
+  separated: boolean;
+  variant: "product" | "admin";
+  children: React.ReactNode;
+}
+
+function ProofArticle({
+  title,
+  description,
+  icon: Icon,
+  separated,
+  variant,
+  children,
+}: ProofArticleProps) {
+  const admin = variant === "admin";
+  return (
+    <article
+      className={cn(
+        admin ? "proof-list-row" : "proof-dataroom-item",
+        separated && cn(sectionDividerClass, "proof-article-separated"),
+      )}
+    >
+      <div className="flex items-start gap-(--ct-space-3)">
+        {!admin && (
+          <div className="proof-dataroom-icon-box" aria-hidden="true">
+            <Icon className="w-4 h-4 ct-text-muted" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          {admin ? (
+            <h4 className="h4 m-0">{title}</h4>
+          ) : (
+            <>
+              <h4 className="h4 proof-article-title">{title}</h4>
+              {description && (
+                <p className="body-sm proof-article-lede">{description}</p>
+              )}
+            </>
+          )}
+          {children}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function PlatformAddressRow({
   entry,
   separated,
@@ -110,52 +159,40 @@ function PlatformAddressRow({
   separated: boolean;
   variant?: "product" | "admin";
 }) {
-  const admin = variant === "admin";
   return (
-    <article className={cn(admin ? "proof-list-row" : "proof-dataroom-item", separated && cn(sectionDividerClass, "proof-article-separated"))}>
-      <div className="flex items-start gap-(--ct-space-3)">
-        {admin ? null : (
-          <div className="proof-dataroom-icon-box" aria-hidden="true">
-            <LinkIcon className="w-4 h-4 ct-text-muted" />
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          {admin ? (
-            <h4 className="h4 m-0">{entry.label}</h4>
+    <ProofArticle
+      title={entry.label}
+      description={entry.description}
+      icon={LinkIcon}
+      separated={separated}
+      variant={variant}
+    >
+      <ProofRow label={entry.rowLabel ?? "Address"}>
+        {entry.address ? (
+          entry.href ? (
+            <a
+              href={entry.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+              title={entry.address}
+              aria-label={`View address ${entry.address} on explorer`}
+            >
+              <span className="ct-proof-row__truncate">
+                {abbreviateAddress(entry.address)}
+              </span>
+              <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+            </a>
           ) : (
-            <>
-              <h4 className="h4 proof-article-title">{entry.label}</h4>
-              <p className="body-sm proof-article-lede">{entry.description}</p>
-            </>
-          )}
-          <ProofRow label={entry.rowLabel ?? "Address"}>
-            {entry.address ? (
-              entry.href ? (
-                <a
-                  href={entry.href}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-                  title={entry.address}
-                  aria-label={`View address ${entry.address} on explorer`}
-                >
-                  <span className="ct-proof-row__truncate">
-                    {abbreviateAddress(entry.address)}
-                  </span>
-                  <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
-                </a>
-              ) : (
-                <span title={entry.address} className="ct-proof-row__truncate">
-                  {abbreviateAddress(entry.address)}
-                </span>
-              )
-            ) : (
-              <span className="ct-text-muted">Not available</span>
-            )}
-          </ProofRow>
-        </div>
-      </div>
-    </article>
+            <span title={entry.address} className="ct-proof-row__truncate">
+              {abbreviateAddress(entry.address)}
+            </span>
+          )
+        ) : (
+          <span className="ct-text-muted">Not available</span>
+        )}
+      </ProofRow>
+    </ProofArticle>
   );
 }
 
@@ -170,84 +207,77 @@ function DeployedContractCard({
 }) {
   const admin = variant === "admin";
   return (
-    <article className={cn(admin ? "proof-list-row" : "proof-dataroom-item", separated && cn(sectionDividerClass, "proof-article-separated"))}>
-      <div className="flex items-start gap-(--ct-space-3)">
-        {admin ? null : (
-          <div className="proof-dataroom-icon-box" aria-hidden="true">
-            <ShieldCheck className="w-4 h-4 ct-text-muted" />
-          </div>
+    <ProofArticle
+      title={contract.name}
+      description={contract.description}
+      icon={ShieldCheck}
+      separated={separated}
+      variant={variant}
+    >
+      <ProofRow label="Contract address">
+        <a
+          href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+          title={contract.address}
+          aria-label={`View contract ${contract.name} at ${contract.address} on explorer`}
+        >
+          <span className="ct-proof-row__truncate">
+            {abbreviateAddress(contract.address)}
+          </span>
+          <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+        </a>
+      </ProofRow>
+      <ProofRow label="Deploy tx">
+        {contract.deployTxHash ? (
+          <a
+            href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
+            target="_blank"
+            rel="noreferrer noopener"
+            className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+            title={contract.deployTxHash}
+            aria-label={`View deployment transaction ${contract.deployTxHash} on explorer`}
+          >
+            <span className="ct-proof-row__truncate">
+              {abbreviateAddress(contract.deployTxHash)}
+            </span>
+            <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+          </a>
+        ) : (
+          <span className="ct-text-muted">Pending</span>
         )}
-        <div className="min-w-0 flex-1">
-          {admin ? (
-            <h4 className="h4 m-0">{contract.name}</h4>
-          ) : (
-            <>
-              <h4 className="h4 proof-article-title">{contract.name}</h4>
-              <p className="body-sm proof-article-lede">{contract.description}</p>
-            </>
-          )}
+      </ProofRow>
+      <ProofRow label="Deploy block">{contract.deployBlock || "Pending"}</ProofRow>
+      <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
 
-          <ProofRow label="Contract address">
+      <div
+        className={cn(
+          "proof-actions-row",
+          admin ? "flex items-center" : "product-doc-inline-row",
+        )}
+      >
+        <Badge variant={contract.sourceVerified ? "success" : "warning"}>
+          {contract.sourceVerified
+            ? "Source-verified @ commit"
+            : "Deployment provenance unverified"}
+        </Badge>
+        {!admin && (
+          <Button asChild variant="secondary" size="md">
             <a
               href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
               target="_blank"
               rel="noreferrer noopener"
-              className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-              title={contract.address}
-              aria-label={`View contract ${contract.name} at ${contract.address} on explorer`}
+              className="inline-flex items-center gap-2"
+              aria-label={`View ${contract.name} on Basescan`}
             >
-              <span className="ct-proof-row__truncate">
-                {abbreviateAddress(contract.address)}
-              </span>
-              <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+              View on Basescan
+              <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
-          </ProofRow>
-          <ProofRow label="Deploy tx">
-            {contract.deployTxHash ? (
-              <a
-                href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
-                target="_blank"
-                rel="noreferrer noopener"
-                className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-                title={contract.deployTxHash}
-                aria-label={`View deployment transaction ${contract.deployTxHash} on explorer`}
-              >
-                <span className="ct-proof-row__truncate">
-                  {abbreviateAddress(contract.deployTxHash)}
-                </span>
-                <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
-              </a>
-            ) : (
-              <span className="ct-text-muted">Pending</span>
-            )}
-          </ProofRow>
-          <ProofRow label="Deploy block">{contract.deployBlock || "Pending"}</ProofRow>
-          <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
-
-          <div className={cn("proof-actions-row", admin ? "flex items-center" : "product-doc-inline-row")}>
-            <Badge variant={contract.sourceVerified ? "success" : "warning"}>
-              {contract.sourceVerified
-                ? "Source-verified @ commit"
-                : "Deployment provenance unverified"}
-            </Badge>
-            {admin ? null : (
-              <Button asChild variant="secondary" size="md">
-                <a
-                  href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="inline-flex items-center gap-2"
-                  aria-label={`View ${contract.name} on Basescan`}
-                >
-                  View on Basescan
-                  <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-                </a>
-              </Button>
-            )}
-          </div>
-        </div>
+          </Button>
+        )}
       </div>
-    </article>
+    </ProofArticle>
   );
 }
 

@@ -1,4 +1,4 @@
-import { AgentCanvasPageBody } from "@/components/admin/agent-canvas/agent-canvas-page";
+import { AgentCanvasPageImpl, type AgentCanvasPageProps } from "@/app/admin/agent-canvas/[canvasId]/page";
 
 export const dynamic = "force-dynamic";
 
@@ -7,14 +7,6 @@ export const dynamic = "force-dynamic";
  * reach the read-only canvas). The shared body enforces the audience gate: an
  * admin-only canvas requested here by a non-admin 404s.
  */
-export default async function AgentCanvasPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ canvasId: string }>;
-  searchParams: Promise<{ autostart?: string; objective?: string }>;
-}) {
-  const { canvasId } = await params;
-  const sp = await searchParams;
-  return <AgentCanvasPageBody canvasId={canvasId} searchParams={sp} />;
+export default async function AgentCanvasPage(props: AgentCanvasPageProps) {
+  return <AgentCanvasPageImpl {...props} />;
 }

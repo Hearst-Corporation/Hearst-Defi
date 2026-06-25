@@ -24,6 +24,7 @@ import {
   assertNoForbiddenWords,
 } from "@/lib/agents/validators";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
+import { runAgent } from "@/lib/agents/run-agent";
 
 /**
  * Default model id for the Mining Health Agent.
@@ -160,43 +161,13 @@ export async function runMiningHealth(
   const model = opts.model ?? MINING_HEALTH_MODEL;
   const methodologyVersion: MethodologyVersion = opts.methodologyVersion ?? METHODOLOGY_VERSION;
 
-  const { response } = await callLlm(
-    "mining-health",
-    {
-      model,
-      max_tokens: 1024,
-      system: [
-        {
-          type: "text",
-          text: buildSystemInstructions(methodologyVersion),
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages: [
-        {
-          role: "user",
-          content: buildUserPrompt(input),
-        },
-      ],
-    },
-    { client: opts.client },
-  );
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Mining Health agent returned no text block.");
-  }
-
-  const parsed = parseLlmJsonObject(textBlock.text, "Mining Health agent");
-  const result = MiningHealthOutputSchema.safeParse(parsed);
-  if (!result.success) {
-    throw new Error(
-      `Mining Health agent output failed schema validation: ${JSON.stringify(
-        result.error.issues,
-      )}`,
-    );
-  }
-  const validated = result.data;
+  const validated = await runAgent("mining-health", {
+    model,
+    system: buildSystemInstructions(methodologyVersion),
+    prompt: buildUserPrompt(input),
+    client: opts.client,
+    schema: MiningHealthOutputSchema,
+  });
 
   assertNoForbiddenWords(validated.summary);
   assertNoForbiddenWords(validated.recommendation);

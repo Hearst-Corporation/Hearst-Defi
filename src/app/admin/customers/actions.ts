@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { hashPassword } from "@/lib/auth/password";
 import {
   linkQualificationByEmail,
@@ -12,9 +13,13 @@ import {
 } from "@/lib/agents/qualification";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { SHARE_CLASS_A, SHARE_CLASS_B } from "@/lib/engine/share-class";
 import { getVault } from "@/lib/data/vaults";
-import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
+import {
+  MAX_SUBSCRIBE_USDC as MAX_DEPLOY_USDC,
+  validateMinTicket,
+  createPositionInTransaction,
+  CapacityError,
+} from "@/lib/positions/subscribe-logic";
 
 /**
  * Admin KYC override. Lets a compliance officer (admin) set an investor's
@@ -60,20 +65,14 @@ export async function setInvestorKyc(formData: FormData): Promise<void> {
       data: { kycStatus: parsed.data.status },
     });
 
-    await tx.adminAudit.create({
-      data: {
-        actorWallet: admin.walletAddress ?? admin.userId,
-        action: "investor.setKyc",
-        entityType: "Investor",
-        entityId: parsed.data.investorId,
-        diff: JSON.stringify({
-          before: { kycStatus: existing.kycStatus },
-          after: { kycStatus: parsed.data.status },
-        }),
-        ip: null,
-        userAgent: null,
-      },
-    });
+    await recordAdminAudit({
+      actorWallet: admin.walletAddress ?? admin.userId,
+      action: "investor.setKyc",
+      entityType: "Investor",
+      entityId: parsed.data.investorId,
+      before: { kycStatus: existing.kycStatus },
+      after: { kycStatus: parsed.data.status },
+    }, tx);
   });
 
   revalidatePath("/admin/customers");
@@ -140,19 +139,13 @@ export async function createInvestor(formData: FormData): Promise<void> {
     /* best-effort — account creation must not fail */
   }
 
-  await prisma.adminAudit.create({
-    data: {
-      actorWallet: admin.walletAddress ?? admin.userId,
-      action: "investor.create",
-      entityType: "Investor",
-      entityId: user.investor?.id ?? user.id,
-      diff: JSON.stringify({
-        before: null,
-        after: { email: parsed.data.email, role: parsed.data.role, kycStatus: parsed.data.kycStatus },
-      }),
-      ip: null,
-      userAgent: null,
-    },
+  await recordAdminAudit({
+    actorWallet: admin.walletAddress ?? admin.userId,
+    action: "investor.create",
+    entityType: "Investor",
+    entityId: user.investor?.id ?? user.id,
+    before: null,
+    after: { email: parsed.data.email, role: parsed.data.role, kycStatus: parsed.data.kycStatus },
   });
 
   revalidatePath("/admin/customers");
@@ -165,9 +158,6 @@ export async function createInvestor(formData: FormData): Promise<void> {
 // ---------------------------------------------------------------------------
 // Deploy position (admin-created off-chain position for a target investor)
 // ---------------------------------------------------------------------------
-
-/** Hard ceiling on a single admin-deployed position (mirrors subscribe's MAX_SUBSCRIBE_USDC). */
-const MAX_DEPLOY_USDC = 1_000_000_000;
 
 const DeployPositionInput = z.object({
   investorId: z.string().min(1),
@@ -252,24 +242,13 @@ export async function deployPosition(
   }
 
   // Share-class minimum ticket check.
-  // In development only with DEMO_MIN_TICKET_USDC set, override to that value so
-  // a small demo amount clears the gate (mirrors subscribe()'s demo override path).
-  // Never prod (canonical minimums) and never test (suite asserts the real gates).
-  const classTerms = classCode === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
-  const demoOverride =
-    process.env.NODE_ENV === "development" &&
-    process.env.DEMO_MIN_TICKET_USDC !== undefined
-      ? Number(process.env.DEMO_MIN_TICKET_USDC)
-      : null;
-  const effectiveMin =
-    demoOverride !== null && Number.isFinite(demoOverride) && demoOverride > 0
-      ? demoOverride
-      : classTerms.minTicketUsdc;
-  if (amountUsdc < effectiveMin) {
-    return {
-      ok: false,
-      error: `Below minimum ticket of ${formatMinTicketUsdc(effectiveMin)} for Class ${classCode}.`,
-    };
+  const minTicketCheck = validateMinTicket(
+    amountUsdc,
+    classCode,
+    process.env.NODE_ENV === "development",
+  );
+  if (!minTicketCheck.ok) {
+    return minTicketCheck;
   }
 
   // Gap 2 — vault-status gate (mirrors subscribe lines 88-94).
@@ -298,61 +277,30 @@ export async function deployPosition(
       deployment?.capacityUsdc?.toNumber() ?? 1_000_000_000;
 
     const position = await prisma.$transaction(async (tx) => {
-      // Re-check capacity inside the transaction.
-      const agg = await tx.position.aggregate({
-        where: {
-          status: "active",
-          ...(deployment
-            ? { vaultDeploymentId: deployment.id }
-            : { vaultKey: { startsWith: `${VAULT_ID}:` } }),
-        },
-        _sum: { principalUsdc: true },
+      const created = await createPositionInTransaction(tx, {
+        investorId,
+        vaultId: VAULT_ID,
+        amountUsdc,
+        classCode,
+        capacityUsdc,
+        deploymentId: deployment?.id ?? null,
+        txHash: null,
       });
-      const consumed = agg._sum.principalUsdc?.toNumber() ?? 0;
-      const remaining = capacityUsdc - consumed;
-      if (amountUsdc > remaining) {
-        throw new Error("CAPACITY_EXCEEDED");
-      }
 
-      const created = await tx.position.create({
-        data: {
-          investorId,
-          vaultDeploymentId: deployment?.id ?? null,
+      await recordAdminAudit({
+        actorWallet: admin.walletAddress ?? admin.userId,
+        action: "investor.deployPosition",
+        entityType: "Investor",
+        entityId: investorId,
+        before: null,
+        after: {
+          positionId: created.id,
           vaultKey: `${VAULT_ID}:class-${classCode}`,
-          principalUsdc: amountUsdc,
-          status: "active",
-          txHashOpen: null, // off-chain pilot path — null is valid per schema comment
-          transactions: {
-            create: {
-              investorId,
-              type: "deposit",
-              amountUsdc,
-              txHash: null,
-            },
-          },
+          amountUsdc,
+          classCode,
+          offChain: true,
         },
-      });
-
-      await tx.adminAudit.create({
-        data: {
-          actorWallet: admin.walletAddress ?? admin.userId,
-          action: "investor.deployPosition",
-          entityType: "Investor",
-          entityId: investorId,
-          diff: JSON.stringify({
-            before: null,
-            after: {
-              positionId: created.id,
-              vaultKey: `${VAULT_ID}:class-${classCode}`,
-              amountUsdc,
-              classCode,
-              offChain: true,
-            },
-          }),
-          ip: null,
-          userAgent: null,
-        },
-      });
+      }, tx);
 
       return created;
     });
@@ -362,7 +310,7 @@ export async function deployPosition(
     revalidatePath(`/admin/customers/${investorId}`);
     return { ok: true, positionId: position.id };
   } catch (err) {
-    if (err instanceof Error && err.message === "CAPACITY_EXCEEDED") {
+    if (err instanceof CapacityError) {
       return { ok: false, error: "Amount exceeds remaining vault capacity." };
     }
     throw err;
