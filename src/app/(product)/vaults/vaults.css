@@ -78,7 +78,7 @@
   padding: var(--ct-space-10) var(--ct-space-8);
   background: var(--ct-surface-1);
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-2xl);
+  border-radius: var(--ct-radius-xl);
   margin-bottom: var(--ct-space-16);
   box-shadow: 0 8px 32px -16px rgba(0, 0, 0, 0.5);
 }
@@ -175,7 +175,7 @@
   gap: var(--ct-space-3); /* Increased gap */
   padding: var(--ct-space-8) var(--ct-space-10); /* More air */
   border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-2xl); /* Rounder for product sheet feel */
+  border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
   transition: all var(--ct-dur-base) var(--ct-ease);
   box-shadow: 
@@ -184,22 +184,22 @@
 }
 
 .vault-amount-ledger:focus-within {
-  border-color: var(--ct-border-accent-soft);
+  border-color: var(--ct-border-accent);
   background: var(--ct-surface-2);
-  box-shadow: 
+  box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
-    0 0 0 2px var(--ct-accent-soft-20),
+    0 0 0 2px color-mix(in srgb, var(--ct-accent) 20%, transparent),
     0 8px 24px -12px var(--ct-bg-deep);
   transform: translateY(-1px);
 }
 
 .vault-amount-ledger--invalid {
-  border-color: var(--ct-border-warning-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-status-warning) 40%, transparent) !important;
   background: color-mix(in srgb, var(--ct-status-warning) 4%, var(--ct-graphite-subtle-bg)) !important;
 }
 
 .vault-amount-ledger--calculating {
-  border-color: var(--ct-border-accent-soft);
+  border-color: var(--ct-border-accent);
   background: var(--ct-surface-2);
 }
 
@@ -225,7 +225,7 @@
   margin: 0;
   padding: var(--ct-space-8) var(--ct-space-10); /* More air */
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-2xl);
+  border-radius: var(--ct-radius-xl);
   background: transparent;
 }
 
@@ -310,7 +310,7 @@
 }
 
 .vault-preflight-check__dot.ct-status-dot-success {
-  box-shadow: 0 0 8px var(--ct-accent-soft);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 40%, transparent);
 }
 
 .vault-preflight-check__dot.ct-status-dot-info {
