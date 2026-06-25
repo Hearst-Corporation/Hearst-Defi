@@ -16,7 +16,27 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### fix/client-network-perf
+Owner: Opus Orchestrateur — Client Network Performance Fix
+Branch: fix/client-network-perf
+Worktree: ../connect-opus-client-network-perf-fix
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/components/chat/chat-nav-bridge.tsx (chat-nav poll dedup)
+- src/components/chat/chat-presets.tsx (review-mode probe route-gate)
+- their __tests__
+- docs/agent-file-locks.md
+
+Notes:
+- Fix duplicate client-side network calls only.
+- No UI/UX changes.
+- No design-system changes.
+- No /admin/agentic changes.
+- No portfolio visual changes.
+- No router/guard/HITL behavior changes.
+- No Prisma/schema/migrations.
 
 ---
 

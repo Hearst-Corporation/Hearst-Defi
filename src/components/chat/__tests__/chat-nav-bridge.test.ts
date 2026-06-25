@@ -12,7 +12,11 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { nextPollDelay, nextPollSchedule } from "../chat-nav-bridge";
+import {
+  nextPollDelay,
+  nextPollSchedule,
+  shouldScheduleNextPoll,
+} from "../chat-nav-bridge";
 
 const BASE = 900;
 const MAX = 7_200;
@@ -106,5 +110,22 @@ describe("nextPollSchedule (dedup / coalescing contract)", () => {
         MAX,
       ),
     ).toEqual({ kind: "backoff", delay: BASE });
+  });
+});
+
+describe("shouldScheduleNextPoll (idle-load gate)", () => {
+  it("does NOT schedule a backoff follow-up before the loop is armed", () => {
+    // The decisive case: fresh /portfolio load, no message sent → after the
+    // single mount poll returns empty (backoff, not armed) we stop. ≤1 request.
+    expect(shouldScheduleNextPoll("backoff", false)).toBe(false);
+  });
+
+  it("schedules the backoff chain once armed by a real signal", () => {
+    expect(shouldScheduleNextPoll("backoff", true)).toBe(true);
+  });
+
+  it("always runs an immediate (coalesced) re-poll, armed or not", () => {
+    expect(shouldScheduleNextPoll("immediate", false)).toBe(true);
+    expect(shouldScheduleNextPoll("immediate", true)).toBe(true);
   });
 });
