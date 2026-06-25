@@ -147,6 +147,20 @@
    the dominant operator views above it.
    ============================================================================= */
 
+/* Autonomy + Readiness Ledger — passe en 2 cols dès 56rem de container
+   (plus conservateur que lg:, tient compte du shell cockpit qui réduit le centre) */
+.admin-doc .outreach-autonomy-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-4);
+}
+
+@container admin-doc (min-width: 56rem) {
+  .admin-doc .outreach-autonomy-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .admin-doc .outreach-engine-aside {
   margin-top: var(--ct-space-2);
   padding: var(--ct-space-5);

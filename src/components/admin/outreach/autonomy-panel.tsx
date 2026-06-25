@@ -50,9 +50,9 @@ function ReadinessRow({ rule }: { rule: ReadinessRule }) {
       >
         {rule.ok ? "OK" : "CHECK"}
       </Badge>
-      <div className="min-w-0 flex-1 flex items-baseline justify-between gap-(--ct-space-2)">
-        <span className="body-xs ct-text-strong font-medium whitespace-nowrap">{rule.label}</span>
-        <span className="body-xs ct-text-faint truncate text-right tabular-nums">{rule.detail}</span>
+      <div className="min-w-0 flex-1 flex flex-col gap-0">
+        <span className="body-xs ct-text-strong font-medium">{rule.label}</span>
+        <span className="body-xs ct-text-faint tabular-nums leading-relaxed">{rule.detail}</span>
       </div>
     </li>
   );
@@ -64,7 +64,7 @@ export function OutreachAutonomyPanel({
   status: OutreachAutonomyStatus;
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-(--ct-space-4)">
+    <div className="outreach-autonomy-grid">
       {/* Left: Status & Mode Summary */}
       <Card className="admin-card--tight bg-(--ct-graphite-subtle-bg)" hoverOverlay={false}>
         <div className="flex flex-col gap-(--ct-space-3)">
