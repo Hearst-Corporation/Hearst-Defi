@@ -155,6 +155,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           <DashboardPanelHeader
             title="Projection · Trigger · Action · Impact"
             tone="quiet"
+            titleLevel="section"
             className="gov-section-header"
           />
           <Ptai
@@ -170,13 +171,13 @@ export default async function ProposalDetailPage({ params }: PageProps) {
       ) : null}
 
       <Card density="compact" hoverOverlay={false}>
-        <DashboardPanelHeader title="Justification" tone="quiet" className="gov-section-header" />
+        <DashboardPanelHeader title="Justification" tone="quiet" titleLevel="section" className="gov-section-header" />
         <p className="body-md whitespace-pre-wrap ct-text-primary">{proposal.justification}</p>
       </Card>
 
       {proposal.calldata ? (
         <Card density="compact" hoverOverlay={false}>
-          <DashboardPanelHeader title="Calldata" tone="quiet" className="gov-section-header" />
+          <DashboardPanelHeader title="Calldata" tone="quiet" titleLevel="section" className="gov-section-header" />
           <pre className="gov-calldata-block mono overflow-x-auto whitespace-pre-wrap rounded-md border body-xs ct-text-muted">
             {formatProposalCalldata(proposal.calldata)}
           </pre>
@@ -189,6 +190,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
           }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
           tone="quiet"
+          titleLevel="section"
           className="gov-section-header"
         />
 
@@ -230,7 +232,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
       {!isTerminal ? (
         <Card hoverOverlay={false}>
-          <DashboardPanelHeader title="Actions" tone="quiet" className="gov-section-header" />
+          <DashboardPanelHeader title="Actions" tone="quiet" titleLevel="section" className="gov-section-header" />
           <div className="admin-doc-inline-row admin-doc-inline-row--actions">
             {canSign ? (
               <>

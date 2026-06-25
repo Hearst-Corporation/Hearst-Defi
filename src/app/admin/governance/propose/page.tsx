@@ -65,7 +65,7 @@ export default async function ProposePage() {
 
       <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Proposal form">
         <Card hoverOverlay={false}>
-          <DashboardPanelHeader title="Proposal details" tone="quiet" />
+          <DashboardPanelHeader title="Proposal details" tone="quiet" titleLevel="section" />
           <form action={handlePropose} className="admin-doc-stack">
             <div className="admin-doc-stack admin-doc-stack--dense">
               <label htmlFor="vaultId" className="stat-label block">

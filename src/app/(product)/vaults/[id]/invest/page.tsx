@@ -50,7 +50,8 @@ export default async function InvestDepositPage({ params }: PageProps) {
     <InvestFlowShell
       step="deposit"
       width="full"
-      title="Allocate capital"
+      titleLead="Allocate"
+      titleAccent="capital"
       description={
         <span className="body-sm ct-text-muted">
           {vault.name} · {vault.ticker} · institutional subscription checkout on Base Sepolia testnet

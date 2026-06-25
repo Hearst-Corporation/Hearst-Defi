@@ -28,14 +28,14 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       <div className="invest-flow-detail__primary">
         <section className="vault-detail-block" aria-label="Target allocation">
           <header className="vault-detail-block__header">
-            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Target allocation</h3>
+            <h2 className="h2">Target allocation</h2>
           </header>
           <VaultAllocationInvestorList facts={allocationFacts} />
         </section>
 
         <section className="vault-detail-block" aria-label="Regime scenarios">
           <header className="vault-detail-block__header">
-            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Regime scenarios</h3>
+            <h2 className="h2">Regime scenarios</h2>
           </header>
           <RegimeScenarioTable vault={vault} />
           <p className="body-xs ct-text-faint vault-regime-note">
@@ -47,7 +47,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       <div className="invest-flow-detail__secondary">
         <section className="vault-detail-block" aria-label="Vault metrics">
           <header className="vault-detail-block__header vault-detail-block__header--split">
-            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Vault metrics</h3>
+            <h2 className="h2">Vault metrics</h2>
             <div className="flex shrink-0 items-center gap-(--ct-space-2)">
               <ProvenanceBadge kind="estimated" variant="compact" />
               {vault.currentAumUsdc > 0 ? (
@@ -68,7 +68,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
         <section className="vault-detail-block" aria-label="Legal and structure">
           <header className="vault-detail-block__header">
-            <h3 className="h3 ct-text-strong ct-drop-glow-subtle">Legal &amp; structure</h3>
+            <h2 className="h2">Legal &amp; structure</h2>
           </header>
           <div className="ct-panel-fields">
             <VaultLegalProofRows facts={legalFacts} variant="investor" />

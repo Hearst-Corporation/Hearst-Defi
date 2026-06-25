@@ -82,6 +82,8 @@ export default async function GovernancePage({ searchParams }: PageProps) {
           }))}
         />
 
+        <h2 className="h2">Governance proposals</h2>
+
         <ProposalQueue proposals={filtered} />
       </section>
 
