@@ -16,30 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-control-tower-v2
-Owner: Opus Orchestrateur — Agentic Control Tower Redesign V2
-Branch: feat/agentic-control-tower-v2
-Worktree: ../connect-opus-agentic-control-tower-v2
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- src/lib/agentic/system-map/**
-- docs/agentic/**
-- src/app/admin/admin-docs.css
-- docs/agent-file-locks.md
-
-Notes:
-- Full UX/UI redesign of /admin/agentic into a navigable Agentic Control Tower.
-- Preserve read-only modules.
-- No CrewAI. No autonomous runtime. No tool execution. No write controls.
-- No router/guard/HITL/chat behavior change. No DB migration. No Prisma/schema.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-control-tower-v2
+Owner: Opus Orchestrateur — Agentic Control Tower Redesign V2
+Branch: feat/agentic-control-tower-v2
+Merged PR: #72 (merge c752d59e)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Agentic Control Tower V2: full UX/UI redesign of /admin/agentic from a 552-line
+  documentation wall of 32 equivalent cards into a navigable, hierarchical control tower.
+  New components: agentic-control-tower.tsx (orchestrator), agentic-command-summary.tsx
+  (hero: health + 5 headline metrics + attention + "nothing executes"), agentic-section-nav.tsx
+  (sticky 7-anchor internal nav), agentic-topology-map.tsx (8 CSS-grid blocks: router centre,
+  guards/HITL/tool-boundary around, observability above, agents+actions outward, forbidden zone),
+  agentic-capabilities-board.tsx (4-lane: autonomous/draft/confirmed/never in product language),
+  agentic-agents-overview.tsx (22 agents grouped by domain), agentic-safety-boundary.tsx (4-pillar
+  safety grid). tower-summary.ts (pure buildTowerSummary for hero numbers + health). Removed old
+  agentic-system-map.tsx + agentic-detail-inspector.tsx (replaced by topology). admin-docs.css
+  gained a full token-only V2 tower grammar. page.tsx reduced from 552 to 75 lines. 3484/3484
+  tests, typecheck PASS, lint 0, build PASS (postgresql), empty Prisma diff, hardcode scan clean.
+  Playwright E2E fail = pre-existing login-flow:91 (non-blocking). Vercel READY.
 
 ### feat/agentic-visual-integration-v1
 Owner: Opus Orchestrateur Continu — Agentic Visual Console Integration V1
