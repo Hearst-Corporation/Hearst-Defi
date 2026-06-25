@@ -58,6 +58,7 @@ describe("visibleSubNavTabs", () => {
       "dashboard-overview",
       "customers",
       "agents",
+      "agentic",
       "outreach",
       "feedback",
     ]);

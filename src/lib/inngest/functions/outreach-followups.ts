@@ -211,23 +211,23 @@ export async function outreachFollowupsHandler({
           tags: { emailId: email.id, followup: String(nextStep) },
         });
 
-        await prisma.$transaction([
-          prisma.outreachEmail.update({
+        await prisma.$transaction(async (tx) => {
+          await tx.outreachEmail.update({
             where: { id: email.id },
             data: { resendEmailId: result.id },
-          }),
-          prisma.outreachProspect.update({
+          });
+          await tx.outreachProspect.update({
             where: { id: p.id },
             data: { sequenceStep: nextStep, lastContactedAt: now },
-          }),
-          recordAdminAudit({
+          });
+          await recordAdminAudit({
             actorWallet: "system:outreach-followups",
             action: "outreach.followup",
             entityType: "OutreachProspect",
             entityId: p.id,
             after: { step: nextStep, tier, autonomy },
-          }, prisma),
-        ]);
+          }, tx);
+        });
         return "sent" as const;
       } catch (err) {
         logger.error("[outreach-followups] send failed", {

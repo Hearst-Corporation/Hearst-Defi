@@ -81,6 +81,8 @@ export async function approveRebalance(eventId: string): Promise<void> {
   await assertSignalRateLimit(admin.userId);
 
   // Signer identity is derived server-side from the authenticated admin — NEVER
+  // taken from client input, so an admin can only ever sign as themselves.
+  const signerKey = admin.walletAddress ?? admin.userId;
 
   const parsed = ApproveSchema.safeParse({ eventId });
   if (!parsed.success) {
@@ -359,6 +361,8 @@ export async function requestManualSignal(
   await assertSignalRateLimit(admin.userId);
 
   if (process.env.NODE_ENV !== "development") {
+    throw new Error("requestManualSignal is disabled outside development.");
+  }
 
   const parsed = ManualSignalSchema.safeParse({ ruleId, vaultId });
   if (!parsed.success) {

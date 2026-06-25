@@ -16,7 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/agentic-control-center-v0
+Owner: Agentic Control Center Owner
+Branch: feat/agentic-control-center-v0
+Worktree: ../connect-agentic-control-center
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/app/admin/agentic/**
+- src/app/admin/agentic/page.tsx
+- src/components/admin/agentic/**
+- src/lib/agentic/control-center/**
+- docs/agentic/AGENTIC_CONTROL_CENTER_V0.md
+- tests for read-only agentic inventory
+
+Notes:
+- Build read-only Agentic Control Center v0.
+- No chat route changes.
+- No router/guard behavior changes.
+- No tool execution.
+- No DB migration.
+- No prod writes.
+- Read-only imports of src/lib/agentic/* only (intent-router owned by Kimi agent; not edited).
 
 ---
 

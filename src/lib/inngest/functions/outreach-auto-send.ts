@@ -205,8 +205,8 @@ export async function outreachAutoSendHandler({
           tags: { emailId: item.emailId, auto: "1" },
         });
 
-        await prisma.$transaction([
-          prisma.outreachEmail.update({
+        await prisma.$transaction(async (tx) => {
+          await tx.outreachEmail.update({
             where: { id: item.emailId },
             data: {
               status: "sent",
@@ -215,12 +215,12 @@ export async function outreachAutoSendHandler({
               tierAtSend: item.tier,
               autonomyAtSend: autonomy,
             },
-          }),
-          prisma.outreachProspect.update({
+          });
+          await tx.outreachProspect.update({
             where: { id: item.prospectId! },
             data: { status: "contacted", lastContactedAt: now, sequenceStep: 1 },
-          }),
-          recordAdminAudit({
+          });
+          await recordAdminAudit({
             actorWallet: "system:outreach-auto-send",
             action: "outreach.autoSend",
             entityType: "OutreachEmail",
@@ -230,8 +230,8 @@ export async function outreachAutoSendHandler({
               autonomy,
               to: item.toEmail,
             },
-          }, prisma),
-        ]);
+          }, tx);
+        });
 
         // Best-effort HubSpot activity — never blocks the send.
         if (item.prospectId) {

@@ -1,4 +1,5 @@
 import "server-only";
+import { Prisma } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/db";
 
 /**
@@ -17,7 +18,7 @@ export async function recordAdminAudit(
     ip?: string;
     userAgent?: string;
   },
-  prisma = defaultPrisma,
+  prisma: Prisma.TransactionClient = defaultPrisma,
 ): Promise<void> {
   await prisma.adminAudit.create({
     data: {
@@ -104,7 +105,7 @@ export async function getAdminAuditLog(
     where.action = { contains: filter.action };
   }
 
-  const rows = await prisma.adminAudit.findMany({
+  const rows = await defaultPrisma.adminAudit.findMany({
     where,
     orderBy: { occurredAt: "desc" },
     take: filter.limit ?? 200,

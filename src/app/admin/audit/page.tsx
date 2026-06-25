@@ -269,17 +269,16 @@ export default async function AuditLogPage({
             )}
           />
         )}
-            <div className="audit-retention-footer admin-doc-stack admin-doc-stack--micro border-t border-[var(--ct-border-soft)]">
-              <p className="stat-label">Audit retention</p>
-              <p className="body-xs ct-text-muted">
-                Showing up to 200 entries per query. Entries written by{" "}
-                <code className="mono ct-text-body">recordAdminAudit()</code>{" "}
-                are append-only; export directly from the database for formal
-                compliance reporting.
-              </p>
-            </div>
-          </Card>
-        )}
+
+        <div className="audit-retention-footer admin-doc-stack admin-doc-stack--micro border-t border-[var(--ct-border-soft)]">
+          <p className="stat-label">Audit retention</p>
+          <p className="body-xs ct-text-muted">
+            Showing up to 200 entries per query. Entries written by{" "}
+            <code className="mono ct-text-body">recordAdminAudit()</code>{" "}
+            are append-only; export directly from the database for formal
+            compliance reporting.
+          </p>
+        </div>
       </section>
     </>
   );
