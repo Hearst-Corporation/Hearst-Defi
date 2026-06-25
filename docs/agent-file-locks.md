@@ -16,7 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/perf-network-guardrails
+Owner: Opus Orchestrateur — Performance Guardrails
+Branch: feat/perf-network-guardrails
+Worktree: ../connect-opus-perf-guardrails
+Started: 2026-06-26
+Status: active
+
+Scope:
+- scripts/perf/**
+- scripts/qa/**
+- tests/performance/**
+- playwright/performance/**
+- docs/performance/**
+- package.json only if adding a script command is necessary
+- docs/agent-file-locks.md
+
+Notes:
+- Add non-UI performance guardrails for duplicate network calls.
+- No UI/UX changes.
+- No design-system changes.
+- No /admin/agentic changes.
+- No portfolio visual changes.
+- No router/guard/HITL behavior changes.
+- No Prisma/schema/migrations.
 
 ---
 

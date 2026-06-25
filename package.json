@@ -28,6 +28,7 @@
     "ds:layout": "node scripts/ds-layout-audit.mjs",
     "ds:classes": "bash scripts/ds-classes-audit.sh",
     "ds:token-drift": "node scripts/ds-token-drift.mjs",
+    "qa:perf-network": "node scripts/perf/qa-network-guardrails.mjs",
     "typecheck": "tsc --noEmit",
     "pretest": "PRISMA_PROVIDER=sqlite node scripts/prisma-provider.mjs && PRISMA_PROVIDER=sqlite prisma generate",
     "posttest": "node scripts/prisma-provider.mjs && prisma generate",
