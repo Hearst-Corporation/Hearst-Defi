@@ -62,10 +62,13 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
     );
   });
 
-  it("uses CardTitle module headers, not quiet panel labels", () => {
-    expect(html).toContain('class="h3 ct-text-strong ct-drop-glow-subtle"');
+  it("uses doc-flow h2 section headers, not quiet panel labels", () => {
+    expect(html).toContain('class="h2"');
     expect(html).toContain("Target allocation");
+    expect(html).toContain("Regime scenarios");
+    expect(html).toContain("Vault metrics");
     expect(html).not.toContain("invest-flow-detail__panel-label");
+    expect(html).not.toContain('class="h3 ct-text-strong ct-drop-glow-subtle"');
   });
 
   it("does not repeat step index in eyebrow or a redundant Metrics label", () => {
