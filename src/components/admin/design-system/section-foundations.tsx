@@ -57,6 +57,30 @@ const RADII = [
   { cls: "ds-radius-chip--full", name: "full", token: "9999px" },
 ] as const;
 
+/* V4 foundation tokens absorbed in Lot A (commit b43a0a30) — referenced here so
+   the showcase is their canonical home, not the archived HTML mockup. */
+const V4_TOKENS = [
+  {
+    chipClass: "ds-token-ref__chip--hero",
+    chipLabel: "40",
+    name: "Hero data tier",
+    token: "--ct-text-hero",
+    role: "40px headline KPI — the single dominant figure of a hero surface",
+  },
+  {
+    chipClass: "ds-token-ref__chip--curve",
+    name: "Chart curve stroke",
+    token: "--ct-chart-curve-color",
+    role: "Line stroke for curves — aliases the accent, never a second green",
+  },
+  {
+    chipClass: "ds-token-ref__chip--area",
+    name: "Chart area wash",
+    token: "--ct-chart-area-top / -bottom",
+    role: "Under-curve gradient fill — accent at the top, fading to transparent",
+  },
+] as const;
+
 function spacingLabel(key: string): string {
   return key.replace("_", ".");
 }
@@ -141,6 +165,32 @@ export function SectionFoundations() {
         </div>
       </DsBlock>
 
+      <DsBlock
+        title="Hero data typography"
+        hint="--ct-text-hero (40px) — the dominant figure of a hero surface, never in cascade"
+      >
+        <div className="ds-grid--two ds-grid">
+          <DsSpecimen caption="Headline value" classHint=".stat-value · --ct-text-hero" example stack>
+            <div className="ds-hero-figure">
+              <span className="stat-label ct-text-muted">Net asset value</span>
+              <span className="ds-hero-figure__row">
+                <span className="ds-hero-figure__affix">$</span>
+                <span className="stat-value ds-hero-figure__value">12.40</span>
+                <span className="ds-hero-figure__affix">M</span>
+              </span>
+              <span className="body-xs ct-status-success font-medium">↑ +4.2% this month</span>
+            </div>
+          </DsSpecimen>
+          <DsSpecimen caption="Headline range" classHint="range, never a single point" example stack>
+            <div className="ds-hero-figure">
+              <span className="stat-label ct-text-muted">Target APY</span>
+              <span className="stat-value ds-hero-figure__value">9.4–12.8%</span>
+              <span className="body-xs ct-text-muted">A range — not a single point · not guaranteed</span>
+            </div>
+          </DsSpecimen>
+        </div>
+      </DsBlock>
+
       <DsBlock title="Radius" hint="--ct-radius-* · no arbitrary corner values">
         <div className="ds-grid--narrow ds-grid">
           {RADII.map((r) => (
@@ -176,6 +226,26 @@ export function SectionFoundations() {
               </NestedPanel>
             </Card>
           </DsSpecimen>
+        </div>
+      </DsBlock>
+
+      <DsBlock
+        title="V4 foundation tokens"
+        hint="Absorbed into the canon — the visual direction lives here, not in a mockup"
+      >
+        <div className="ds-token-ref">
+          {V4_TOKENS.map((t) => (
+            <div key={t.token} className="ds-token-ref__row">
+              <span className={`ds-token-ref__chip ${t.chipClass}`} aria-hidden="true">
+                {"chipLabel" in t ? t.chipLabel : null}
+              </span>
+              <div className="ds-token-ref__meta">
+                <span className="body-sm ct-text-strong">{t.name}</span>
+                <span className="body-xs ct-text-muted">{t.role}</span>
+              </div>
+              <span className="ds-swatch__token">{t.token}</span>
+            </div>
+          ))}
         </div>
       </DsBlock>
     </DsSection>

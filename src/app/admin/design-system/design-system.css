@@ -518,3 +518,93 @@
   background: var(--ct-surface-1);
   border: 1px solid var(--ct-border-soft);
 }
+
+/* -----------------------------------------------------------------------------
+   14. V4 FOUNDATION SHOWCASE — hero number, chart language, new-token reference
+   (Lot B — consumes only Lot A tokens; no new colour, no v4-* namespace)
+   --------------------------------------------------------------------------- */
+
+/* Hero KPI number — the DS-level data tier. Reuses .stat-value (accent +
+   extrabold + tracking-tighter + tnum/ss01) and lifts it to --ct-text-hero (40px).
+   No utility class exists for the hero tier, so the size lives here, in the DS. */
+.admin-doc .ds-hero-figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+
+.admin-doc .ds-hero-figure__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1);
+}
+
+.admin-doc .ds-hero-figure__value {
+  font-size: var(--ct-text-hero); /* 40px — the hero data tier */
+  line-height: var(--ct-leading-none);
+}
+
+/* The $ / unit affixes ride smaller than the number — symbol small, figure dominant. */
+.admin-doc .ds-hero-figure__affix {
+  font-size: var(--ct-text-hero-sym); /* 20px */
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-muted);
+}
+
+/* Chart language specimen — a static SVG curve + area wash. Bounded height so it
+   never behaves like a runtime hero chart. Tokens only on the SVG itself. */
+.admin-doc .ds-chart-specimen {
+  width: 100%;
+  height: var(--ct-space-24);
+  display: block;
+}
+
+/* New-token reference rows — name + role + resolved swatch, premium not cold. */
+.admin-doc .ds-token-ref {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.admin-doc .ds-token-ref__row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+}
+
+.admin-doc .ds-token-ref__chip {
+  width: var(--ct-space-8);
+  height: var(--ct-space-5);
+  flex-shrink: 0;
+  border-radius: var(--ct-radius-sm);
+  border: 1px solid var(--ct-border-soft);
+}
+
+.admin-doc .ds-token-ref__chip--curve { background: var(--ct-chart-curve-color); }
+.admin-doc .ds-token-ref__chip--area {
+  background: linear-gradient(
+    to bottom,
+    var(--ct-chart-area-top),
+    var(--ct-chart-area-bottom)
+  );
+}
+.admin-doc .ds-token-ref__chip--hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ct-accent);
+  font-weight: var(--ct-font-extrabold);
+  font-size: var(--ct-text-sm);
+}
+
+.admin-doc .ds-token-ref__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+}

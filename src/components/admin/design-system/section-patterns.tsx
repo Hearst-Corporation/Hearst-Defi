@@ -50,6 +50,33 @@ export function SectionPatterns() {
         </div>
       </DsBlock>
 
+      <DsBlock
+        title="Metric — premium composition"
+        hint="Accent green, but controlled: the figure + a real-data signal, nothing else green"
+      >
+        <div className="ds-grid--two ds-grid">
+          <DsSpecimen caption="Live NAV — accent earned by real data" example>
+            <Metric
+              label="Net asset value"
+              value={<span className="stat-value">$12.40M</span>}
+              provenance="live"
+              trend={{ direction: "up", text: "+4.2% MTD" }}
+              sublabel="updated continuously"
+              className="w-full"
+            />
+          </DsSpecimen>
+          <DsSpecimen caption="Projected APY — neutral provenance" example>
+            <Metric
+              label="Target APY"
+              value={<ApyRange low={8.0} high={15.0} className="stat-value" />}
+              provenance="estimated"
+              sublabel="range, not guaranteed"
+              className="w-full"
+            />
+          </DsSpecimen>
+        </div>
+      </DsBlock>
+
       <DsBlock title="Compact portfolio metrics" hint="MetricGrid + nested metrics inside one panel">
         <DsSpecimen caption="Vault summary strip" example stack>
           <Card hoverOverlay={false} material="flat" className="w-full">
@@ -162,6 +189,50 @@ export function SectionPatterns() {
             </div>
             <p className="body-xs ct-text-faint m-0 mt-[var(--ct-space-2)]">
               Projection — not guaranteed. Assumptions shown on the source widget.
+            </p>
+          </Card>
+        </DsSpecimen>
+      </DsBlock>
+
+      <DsBlock
+        title="Chart language"
+        hint="--ct-chart-curve-color stroke + --ct-chart-area-top/bottom wash · static DS specimen"
+      >
+        <DsSpecimen caption="Curve + area fill" example stack>
+          <Card hoverOverlay={false} className="w-full">
+            <DashboardPanelHeader title="Trend shape" tone="quiet" />
+            <svg
+              className="ds-chart-specimen"
+              viewBox="0 0 320 120"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Illustrative upward trend curve — design system specimen, not real data"
+            >
+              <defs>
+                <linearGradient id="ds-curve-area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--ct-chart-area-top)" />
+                  <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M 0 92 C 24 90, 40 82, 64 84 S 104 70, 128 64 S 168 58, 192 44 S 232 40, 256 28 S 296 18, 320 12 L 320 120 L 0 120 Z"
+                fill="url(#ds-curve-area)"
+                stroke="none"
+              />
+              <path
+                d="M 0 92 C 24 90, 40 82, 64 84 S 104 70, 128 64 S 168 58, 192 44 S 232 40, 256 28 S 296 18, 320 12"
+                fill="none"
+                stroke="var(--ct-chart-curve-color)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+              <circle cx="320" cy="12" r="3.5" fill="var(--ct-accent)" />
+            </svg>
+            <p className="body-xs ct-text-faint m-0 mt-[var(--ct-space-2)]">
+              Static specimen — no axes, no data. Real charts consume the same three
+              tokens so a curve restyle stays a one-token change.
             </p>
           </Card>
         </DsSpecimen>

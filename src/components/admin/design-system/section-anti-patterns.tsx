@@ -111,6 +111,27 @@ export function SectionAntiPatterns() {
           </DsDoDont>
         </div>
       </DsBlock>
+
+      <DsBlock title="Ambient glow — shell only" hint="V4 energy = accent + data typography + chart language, not a glow on every card">
+        <div className="ds-dodont">
+          <DsDoDont tone="do" title="Light on the shell, flat opaque cards">
+            <Card hoverOverlay={false} className="w-full">
+              <Metric variant="nested" label="NAV" value="$12.40M" sublabel="USDC" />
+            </Card>
+            <p className="body-xs ct-text-muted m-0">
+              The one ambient halo lives on the shell behind the modules. Cards stay
+              flat opaque charcoal — the figures read clean, the green stays an accent.
+            </p>
+          </DsDoDont>
+          <DsDoDont tone="dont" title="Glow / box-shadow as a card fill">
+            <p className="body-xs ct-text-muted m-0">
+              An accent box-shadow or radial bloom poured into a content card turns it
+              into a glowing cage and drowns the data. Reserve --ct-glow-* for brief
+              focus / hover states — never to dress a dense surface.
+            </p>
+          </DsDoDont>
+        </div>
+      </DsBlock>
     </DsSection>
   );
 }
