@@ -16,35 +16,37 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-visual-integration-v1
-Owner: Opus Orchestrateur Continu — Agentic Visual Console Integration V1
-Branch: feat/agentic-visual-integration-v1
-Worktree: ../connect-opus-agentic-visual-integration
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/system-map/** (wire readiness + simulation nodes/edges)
-- src/components/admin/agentic/** (new readiness + simulation sections; inspector)
-- src/app/admin/agentic/** (recompose page)
-- src/app/admin/admin-docs.css (lanes/flows CSS, token-only)
-- docs/agentic/**
-- tests related to agentic visual integration
-- docs/agent-file-locks.md
-
-Reads (read-only, no edit): src/lib/agentic/action-readiness/**, src/lib/agentic/crew-simulation/**.
-
-Notes:
-- Integrate Action Readiness Matrix + Crew Simulation into the visual /admin/agentic.
-- First layer stays the visual system map; details stay in the second layer.
-- NO CrewAI, NO autonomous runtime, NO tool execution, NO write tools.
-- No router/guard/HITL/chat behavior change. No registry runtime change.
-- No DB migration. No Prisma/schema. No user text/prompt/tool payload storage.
-- No replay/export, no prompt editing, no Run/Execute/Launch/Send/Deploy controls.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-visual-integration-v1
+Owner: Opus Orchestrateur Continu — Agentic Visual Console Integration V1
+Branch: feat/agentic-visual-integration-v1
+Merged PR: #70 (merge 6b941d18)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Agentic Visual Console Integration V1: wired the Action Readiness Matrix + Crew
+  Simulation Read-Only modules into the visual /admin/agentic. System map gained two
+  layer groups (Action Readiness + Crew Simulation): action nodes (action-readiness +
+  read-only/draft/confirmed-write/forbidden-actions, live counts 7/5/1/8) and crew-sim
+  nodes (crew-simulation + 6 flow nodes, executable:false), plus the required edges
+  (tool-boundary→readiness→tiers, hitl/guard gates, sim→flows, flow→observability/
+  quality/tool-boundary/forbidden). system-map/index.ts getActionReadinessMatrix() +
+  getCrewSimulations() (pure) feed the map. New UI: action-readiness-matrix-section.tsx
+  (#action-readiness, tier count cards + 4 visual tier lanes) + crew-simulation-section.tsx
+  (#crew-simulation, 6 flow cards with numbered step rails, gates, blocked actions,
+  prominent executable:false — NO Run/Execute/Launch/Send/Deploy control). Detail inspector
+  gained a Readiness & simulation rollup + jump-links. admin-docs.css token-only lane/flow
+  styles (no hex). action-readiness/crew-simulation modules consumed READ-ONLY (not edited).
+  NO CrewAI, NO autonomous runtime, NO tool execution, NO write tools, NO router/guard/HITL/
+  chat change, NO Prisma/schema change, NO migration, NO user text/prompt/tool payload.
+  typecheck PASS, lint 0, full suite 3498/3498, build PASS (postgresql), empty Prisma diff.
+  Merged 6b941d18, PR #70. Vercel prod READY; prod /admin/agentic 307→/login.
 
 ### feat/crew-simulation-readonly-v0
 Owner: Agent C — Crew Simulation Read-Only
