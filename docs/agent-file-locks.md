@@ -37,7 +37,9 @@ Notes:
 - P1 found live: on the FIRST turn of a new conversation, the server's
   mid-stream x-chat-id triggers a hydration re-fetch that clobbers the
   streaming assistant placeholder → reply persisted in DB but never rendered.
-  Fix is a self-assigned-chatId guard in the hydration effect (PR #30).
+  Fix is a self-assigned-chatId guard in the hydration effect (PR #30). Not a
+  deploy-safety hole (refusal worked, zero writes); pure client display
+  reliability. useChat.ts is NOT a sensitive single-owner file, no active lock.
 
 ---
 
