@@ -100,9 +100,9 @@
   --ct-graphite-border: var(--ct-figma-border-20);
   --ct-graphite-border-nested: var(--ct-figma-border-10);
   --ct-graphite-blur: none;
-  /* Bevel retired — solid fill only, no machined-glass rim. */
-  --ct-glass-bevel: none;
-  --ct-glass-bevel-hover: none;
+  /* Bevel — rim light en haut des cards (1px blanc semi-transparent). */
+  --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --ct-glass-bevel-hover: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success/live/positive = the single brand green. The semantic token NAME
@@ -152,25 +152,25 @@
   --ct-z-rail-tooltip: 100;
 
   /* Shadows */
-  --ct-shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-  --ct-shadow-elevated: 0 12px 48px -12px rgba(0, 0, 0, 0.60), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  --ct-shadow-depth: 0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-  --ct-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.30);
-  --ct-glow-subtle: 0 0 18px color-mix(in srgb, var(--ct-accent) 16%, transparent);
-  --ct-glow-soft:   0 0 24px color-mix(in srgb, var(--ct-accent) 22%, transparent);
-  --ct-glow-strong: 0 0 18px color-mix(in srgb, var(--ct-accent) 28%, transparent);
-  --ct-glow-dot: 0 0 8px currentColor;
+  --ct-shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.70), var(--ct-glass-bevel);
+  --ct-shadow-elevated: 0 16px 56px -12px rgba(0, 0, 0, 0.80), 0 4px 16px -4px rgba(0,0,0,0.50), var(--ct-glass-bevel-hover);
+  --ct-shadow-depth: 0 8px 40px -8px rgba(0, 0, 0, 0.75), 0 2px 8px -2px rgba(0,0,0,0.40), var(--ct-glass-bevel);
+  --ct-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.50);
+  --ct-glow-subtle: 0 0 24px color-mix(in srgb, var(--ct-accent) 18%, transparent);
+  --ct-glow-soft:   0 0 32px color-mix(in srgb, var(--ct-accent) 26%, transparent);
+  --ct-glow-strong: 0 0 24px color-mix(in srgb, var(--ct-accent) 36%, transparent);
+  --ct-glow-dot: 0 0 10px currentColor;
   --ct-shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-scrollbar-size: 6px;
 
   /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
-  --ct-ambient-glow-opacity: 0.62;
-  --ct-ambient-glow-mix-primary: 9%;
-  --ct-ambient-glow-mix-secondary: 7%;
-  --ct-ambient-glow-mix-fade-a: 3%;
-  --ct-ambient-glow-mix-fade-b: 2%;
-  --ct-ambient-glow-bg-top: 10%;
-  --ct-ambient-glow-bg-bottom: 24%;
+  --ct-ambient-glow-opacity: 0.80;
+  --ct-ambient-glow-mix-primary: 14%;
+  --ct-ambient-glow-mix-secondary: 10%;
+  --ct-ambient-glow-mix-fade-a: 5%;
+  --ct-ambient-glow-mix-fade-b: 3%;
+  --ct-ambient-glow-bg-top: 16%;
+  --ct-ambient-glow-bg-bottom: 36%;
   /* Spatial background gradient stops — semantic aliases (V4 absorption, SSOT §3).
      The shell radial/ambient light reads stop-1 (near, brighter) → stop-2 (far,
      fade). Alias the existing calibrated bg-top/bottom mix ratios; no new value,
