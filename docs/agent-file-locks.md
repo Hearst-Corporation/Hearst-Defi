@@ -16,34 +16,32 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-router-stabilization
-Owner: Opus Orchestrateur — Agentic Platform Stabilization
-Branch: feat/agentic-router-stabilization
-Worktree: ../connect-opus-agentic-router-stabilization
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/**
-- src/app/api/cockpit-chat/**
-- src/lib/agents/**
-- src/lib/llm/**
-- tests related to router/chat/compliance
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Stabilize active deterministic router paths.
-- Wire educational intent hint safely if possible.
-- No autonomous write.
-- No DB migration.
-- No Prisma schema change.
-- No deploy/send/source execution.
-- No HITL bypass.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-router-stabilization
+Owner: Opus Orchestrateur — Agentic Platform Stabilization
+Branch: feat/agentic-router-stabilization
+Merged PR: #36
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/app/api/cockpit-chat/route.ts (router v2 active-path wiring)
+- src/lib/llm/prompts.ts (buildEducationalReadOnlyDirective)
+- docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md (new) + V1 superseded note
+- router/chat/guard/prompts tests
+
+Result:
+- Deterministic Intent Router v2 stabilized: educational read-only hint CONSUMED
+  (prompt-only steering via isEducationalReadOnly, never a guard relaxation —
+  forbidden words + single-point APY stay hard-blocked) and a negation
+  defence-in-depth hole closed (legacy nav fallback gated on !decision.negated,
+  so "ne montre pas les vaults" never publishes nav). +35 tests. typecheck PASS,
+  lint 0 errors, full suite 3055/3055, build PASS. Merged bcb55f2c, PR #36.
 
 ### feat/deterministic-intent-router-v1
 Owner: Deterministic Intent Router Builder
