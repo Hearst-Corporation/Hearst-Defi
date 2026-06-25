@@ -16,32 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-observability-long-window-v11
-Owner: Opus Orchestrateur — Long-Window Router Observability Delivery
-Branch: feat/router-observability-long-window-v11
-Worktree: ../connect-opus-router-observability-long-window
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/observability/**
-- src/lib/agentic/control-center/**
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- docs/agentic/**
-- tests related to router observability long-window/pruning
-- docs/agent-file-locks.md
-
-Notes:
-- Add 30d durable Router Observability window + dry-run pruning helper (built on
-  the retention config merged in PR #51).
-- No router/guard/HITL behavior change. No tool execution.
-- No new DB table. No destructive migration. No Prisma/schema change.
-- No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/router-observability-long-window-v11
+Owner: Opus Orchestrateur — Long-Window Router Observability Delivery
+Branch: feat/router-observability-long-window-v11
+Merged PR: #52
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Long-Window Router Observability v1.1: added a 30d window (30 daily buckets) to
+  the selector + trends + durable read (1h/24h/7d intact); recent table sliced to
+  50 from a single createdAt-indexed windowed read (aggregate cap 5000); fallback
+  surfaces a windowLimitationNote for 30d. Added a dry-run-default pruning helper
+  (pruneRouterDecisionTraces) on top of PR #51's retention config (OBS_RETENTION_DAYS,
+  default 90) + a read-only retention-policy note in /admin/agentic. NO Prisma/
+  schema change, no new table, no migration; no router/guard/HITL change; no user
+  text stored. Reconciled by merge with the concurrent retention/long-term lot
+  (PR #51) — durable feeds both the 30d window and the per-day long-term aggregate.
+  typecheck PASS, lint 0, full suite 3216/3216, build PASS. Merged 1cf26a39, PR #52.
 
 ### feat/router-observability-durable-v1
 Owner: Opus Orchestrateur — Durable Router Observability v1 Delivery
