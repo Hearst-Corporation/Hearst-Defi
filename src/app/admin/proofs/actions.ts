@@ -124,14 +124,20 @@ export async function ingestProof(
         },
       });
 
-      await recordAdminAudit({
-        actorWallet: admin.walletAddress ?? admin.userId,
-        action: "proof.ingest",
-        entityType: "Proof",
-        entityId: created.id,
-        before: null,
-        after: { proofType, period: period ?? null, hash },
-      }, tx);
+      await tx.adminAudit.create({
+        data: {
+          actorWallet: admin.walletAddress ?? admin.userId,
+          action: "proof.ingest",
+          entityType: "Proof",
+          entityId: created.id,
+          diff: JSON.stringify({
+            before: null,
+            after: { proofType, period: period ?? null, hash },
+          }),
+          ip: null,
+          userAgent: null,
+        },
+      });
 
       return created;
     });
@@ -284,16 +290,22 @@ export async function deleteProof(id: string): Promise<{ ok: true }> {
     await prisma.$transaction(async (tx) => {
       await tx.proof.delete({ where: { id } });
 
-      await recordAdminAudit({
-        actorWallet: admin.walletAddress ?? admin.userId,
-        action: "proof.delete",
-        entityType: "Proof",
-        entityId: id,
-        before: existing
-          ? { proofType: existing.proofType, period: existing.period, hash: existing.hash }
-          : null,
-        after: null,
-      }, tx);
+      await tx.adminAudit.create({
+        data: {
+          actorWallet: admin.walletAddress ?? admin.userId,
+          action: "proof.delete",
+          entityType: "Proof",
+          entityId: id,
+          diff: JSON.stringify({
+            before: existing
+              ? { proofType: existing.proofType, period: existing.period, hash: existing.hash }
+              : null,
+            after: null,
+          }),
+          ip: null,
+          userAgent: null,
+        },
+      });
     });
 
     revalidatePath("/admin/proofs");

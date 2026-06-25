@@ -65,14 +65,20 @@ export async function setInvestorKyc(formData: FormData): Promise<void> {
       data: { kycStatus: parsed.data.status },
     });
 
-    await recordAdminAudit({
-      actorWallet: admin.walletAddress ?? admin.userId,
-      action: "investor.setKyc",
-      entityType: "Investor",
-      entityId: parsed.data.investorId,
-      before: { kycStatus: existing.kycStatus },
-      after: { kycStatus: parsed.data.status },
-    }, tx);
+    await tx.adminAudit.create({
+      data: {
+        actorWallet: admin.walletAddress ?? admin.userId,
+        action: "investor.setKyc",
+        entityType: "Investor",
+        entityId: parsed.data.investorId,
+        diff: JSON.stringify({
+          before: { kycStatus: existing.kycStatus },
+          after: { kycStatus: parsed.data.status },
+        }),
+        ip: null,
+        userAgent: null,
+      },
+    });
   });
 
   revalidatePath("/admin/customers");
@@ -287,20 +293,26 @@ export async function deployPosition(
         txHash: null,
       });
 
-      await recordAdminAudit({
-        actorWallet: admin.walletAddress ?? admin.userId,
-        action: "investor.deployPosition",
-        entityType: "Investor",
-        entityId: investorId,
-        before: null,
-        after: {
-          positionId: created.id,
-          vaultKey: `${VAULT_ID}:class-${classCode}`,
-          amountUsdc,
-          classCode,
-          offChain: true,
+      await tx.adminAudit.create({
+        data: {
+          actorWallet: admin.walletAddress ?? admin.userId,
+          action: "investor.deployPosition",
+          entityType: "Investor",
+          entityId: investorId,
+          diff: JSON.stringify({
+            before: null,
+            after: {
+              positionId: created.id,
+              vaultKey: `${VAULT_ID}:class-${classCode}`,
+              amountUsdc,
+              classCode,
+              offChain: true,
+            },
+          }),
+          ip: null,
+          userAgent: null,
         },
-      }, tx);
+      });
 
       return created;
     });
