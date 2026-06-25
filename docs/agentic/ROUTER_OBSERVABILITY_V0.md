@@ -110,9 +110,38 @@ controls, no action buttons, no fake data.
 - In-memory fallback is per-instance and lost on cold start (honest `memory` mode).
 - One emitter (`cockpit_chat`); no per-user drill-down, no charts, no export.
 
+## v0.1 — Trends (read-only, same buffer)
+
+Added time-window **trend visualizations** in the same `/admin/agentic` Router
+Observability section, derived from the SAME capped buffer — **no new storage, no
+new recorded fields, no migration**.
+
+- **Module:** `src/lib/agentic/observability/trends.ts` (pure functions).
+- **Windows:** `1h` (12 × 5 min), `24h` (24 × 1 h), `7d` (7 × 1 day). Selected via the
+  optional `?routerWindow=1h|24h|7d` query param (plain `<Link>` navigation — no form,
+  no write). Invalid/missing → defaults to `24h`.
+- **Bucket categorization mirrors `stats.ts` exactly** so the stat cards and the trend
+  bars never disagree: `nav_fast_path`→navigationFastPaths, `dangerous_refusal`→
+  dangerousRefusals, `educational_llm`→educationalTurns, `negated_no_nav`→negatedNoNav;
+  `normal_llm` / `unknown` / `legacy_fallback_nav` / anything else → normalOrUnknown.
+- **Views:** stacked outcome-trend bars over time, an outcome distribution (horizontal
+  bars), and a top-matched-rules frequency list. All dependency-free, DS tokens only
+  (no hardcoded hex). Honest empty states when a window has no decisions.
+- **Buffer note** rendered verbatim: *"Trends are computed from the capped v0 router
+  trace buffer: max 200 traces, TTL 7 days."*
+- **Robustness:** traces with invalid/missing timestamps or outside the window are
+  ignored cleanly; never throws. Recording flow + storage are unchanged.
+
+### How to read the trends
+
+- A rising `dangerous_refusal` share over time = more deploy/send/source attempts,
+  all correctly refused before the LLM.
+- A high `normalOrUnknown` share with low `nav_fast_path` = most turns are plain LLM.
+- Top matched rules surface which router rules fire most (e.g. `deploy.go_live`).
+
 ## Next lot recommendation
 
 Promote the capped buffer to a **durable, queryable trace** (a dedicated Prisma
-model behind an explicit migration) with time-window filters and simple charts in
-`/admin/agentic` — only once durable retention is actually needed. Still no router/
-guard change, no CrewAI, no tool execution.
+model behind an explicit migration) with longer retention and per-user drill-down —
+only once durable retention is actually needed (tracked separately as the durable
+observability lot). Still no router/guard change, no CrewAI, no tool execution.

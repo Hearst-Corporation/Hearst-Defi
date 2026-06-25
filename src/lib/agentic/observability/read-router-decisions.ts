@@ -11,9 +11,16 @@ import {
   readRecentRouterDecisionTraces,
 } from "./store";
 import { computeRouterDecisionStats } from "./stats";
+import {
+  buildRouterDecisionTrendBuckets,
+  getTopMatchedRules,
+  normalizeRouterTrendWindow,
+  ROUTER_TREND_BUFFER_NOTE,
+} from "./trends";
 import type {
   RouterObservabilityState,
   RouterObservabilitySummary,
+  RouterTrendWindow,
 } from "./types";
 
 export const ROUTER_OBSERVABILITY_SAFETY_NOTE =
@@ -37,6 +44,7 @@ const DEFAULT_READ_LIMIT = 100;
  */
 export async function getRouterObservabilitySummary(
   limit = DEFAULT_READ_LIMIT,
+  trendWindowInput?: string,
 ): Promise<RouterObservabilitySummary> {
   const storage = getObservabilityStorage();
   const recent =
@@ -52,6 +60,12 @@ export async function getRouterObservabilitySummary(
     state = "enabled";
   }
 
+  // Trends (v0.1) — derived from the SAME recent buffer, no new storage.
+  const trendWindow: RouterTrendWindow =
+    normalizeRouterTrendWindow(trendWindowInput);
+  const trendBuckets = buildRouterDecisionTrendBuckets(recent, trendWindow);
+  const topMatchedRules = getTopMatchedRules(recent);
+
   return {
     state,
     storage,
@@ -60,5 +74,9 @@ export async function getRouterObservabilitySummary(
     capacity: limit,
     safetyNote: ROUTER_OBSERVABILITY_SAFETY_NOTE,
     privacyMode: ROUTER_OBSERVABILITY_PRIVACY_MODE,
+    trendWindow,
+    trendBuckets,
+    topMatchedRules,
+    bufferLimitNote: ROUTER_TREND_BUFFER_NOTE,
   };
 }

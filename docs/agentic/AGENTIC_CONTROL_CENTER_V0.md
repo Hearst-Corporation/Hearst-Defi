@@ -101,6 +101,12 @@ Full contract: [`ROUTER_OBSERVABILITY_V0.md`](./ROUTER_OBSERVABILITY_V0.md). The
 is now dynamically rendered so the section can read live data; the registry sections
 stay pure.
 
+**v0.1 trends:** the section also shows read-only **trends** over a selectable window
+(`?routerWindow=1h|24h|7d`) — stacked outcome bars over time, an outcome distribution,
+and top matched rules — all computed from the SAME capped buffer (no new storage, no
+migration). DS tokens only, honest empty states. See the v0.1 section of
+[`ROUTER_OBSERVABILITY_V0.md`](./ROUTER_OBSERVABILITY_V0.md).
+
 ## What it does NOT do (non-goals)
 
 - No crew runtime. No CrewAI / external swarms connected.
