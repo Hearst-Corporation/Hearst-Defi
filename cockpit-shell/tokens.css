@@ -80,7 +80,9 @@
   --ct-opacity-85: 0.85;
   --ct-opacity-90: 0.9;
 
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  /* Single source of truth = app design-lock (--font-sans, Satoshi Variable in globals.css).
+     Previously hard-coded "Inter" here, silently overriding the design-lock at runtime. */
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
