@@ -491,6 +491,29 @@ describe("router — v2 negation edge cases", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Negated nav-verb messages — must flip to cancellation (never navigation), so
+// the chat route's legacy nav fallback (gated on !negated) can never open a page
+// the user explicitly refused. These are the phrasings where the LEGACY regex
+// resolver still returns a destination key (it ignores negation); the router is
+// the source of truth that stops the publish.
+// ---------------------------------------------------------------------------
+describe("router — negated nav-verb never navigates", () => {
+  it.each([
+    "ne montre pas les vaults",
+    "n'ouvre pas le portefeuille",
+    "ne pas ouvrir le portefeuille",
+    "ne va pas dans les vaults",
+    "ne me montre pas le portefeuille",
+  ])("%s → not navigation, negated", (msg) => {
+    const d = r(msg, { navProfile: "lp", isAdmin: false });
+    expect(d.kind).not.toBe("navigation");
+    expect(d.routeKey).toBeUndefined();
+    expect(d.negated).toBe(true);
+    expect(d.actionPolicy.startsWith("allow_")).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // v2-specific: isEducationalReadOnly helper
 // ---------------------------------------------------------------------------
 

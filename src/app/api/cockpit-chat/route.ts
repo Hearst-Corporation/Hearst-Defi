@@ -10,7 +10,11 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 // Deterministic Intent Router v2 — wired NON-SHADOW (active by default).
 // See docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md.
-import { classifyAgenticIntent } from "@/lib/agentic/intent-router";
+import {
+  classifyAgenticIntent,
+  isEducationalReadOnly,
+} from "@/lib/agentic/intent-router";
+import { buildEducationalReadOnlyDirective } from "@/lib/llm/prompts";
 import type { AgenticIntentDecision } from "@/lib/agentic/intent-router-types";
 import {
   loadUserAgentProfile,
@@ -742,22 +746,32 @@ async function runMasterAgentTurn(args: {
     );
   }
 
-  // ── 3. HINT ÉDUCATIF — PREPARED ONLY (pas encore branché) ──────────────
-  // Le router détecte les intents éducatifs (kind === "education"). Ce hint
-  // pourrait être utilisé pour enrichir le system prompt ("l'utilisateur pose une
-  // question éducative — reste factuel, pas de jargon commercial") ou pour relaxer
-  // le compliance guard. Il n'est PAS consommé aujourd'hui ; le guard reste
-  // text-only et uniforme. Cette variable est un placeholder pour un futur
-  // branchement sans risque (nécessiterait d'ajouter un paramètre  à
-  // runChatAgent ou d'injecter dans messages[0].content avant l'appel LLM).
-  const _educationalHint = agenticDecision?.kind === "education";
-  void _educationalHint; // prepared only — not behavior-changing yet
+  // ── 3. HINT ÉDUCATIF — CONSOMMÉ (enrichit le system prompt, JAMAIS le guard) ──
+  // Le router classe les intents éducatifs read-only (product/yield/risk/education
+  // + reporting/readiness lecture-seule). On en fait un HINT DE PROMPT, pas une
+  // relaxation du guard : on AJOUTE une directive au system prompt pour cadrer le
+  // registre (factuel, qualitatif, APY toujours en fourchette, mots interdits
+  // toujours interdits). C'est strictement plus sûr — la directive rend le modèle
+  // PLUS conforme, jamais moins. Le compliance guard (output-guard / forbidden
+  // words / single-point APY) reste text-only, uniforme et inchangé : une dérive
+  // du modèle pendant un tour « éducatif » est toujours bloquée par le guard.
+  // On utilise isEducationalReadOnly (couvre les 4 kinds + reporting/readiness),
+  // pas seulement `kind === "education"` qui ratait yield/product/risk.
+  const educationalReadOnly = agenticDecision
+    ? isEducationalReadOnly(agenticDecision)
+    : false;
 
   // ── 4. Fallback legacy nav (router n'a pas capté ou manque de confiance) ──
-  // Le regex legacy reste la sécurité en cas de miss du router.
+  // Le regex legacy reste la sécurité en cas de miss du router. GARDE-FOU
+  // NÉGATION : si le router a détecté une négation ("ne montre pas les vaults",
+  // "n'ouvre pas le portefeuille"), le regex legacy (qui ignore la négation)
+  // résout quand même une destination — on NE publie PAS la nav dans ce cas.
+  // Le router est la source de vérité pour la négation ; le fallback ne doit
+  // jamais ouvrir une page que l'utilisateur vient explicitement de refuser.
   if (
     !isReview &&
     !canvasIntent &&
+    !agenticDecision?.negated &&
     navShortcutKey &&
     resolveNavDestinationForProfile(navShortcutKey, navShortcutProfile)
   ) {
@@ -1020,6 +1034,26 @@ async function runMasterAgentTurn(args: {
         });
       }
     }
+  }
+
+  // EDUCATIONAL READ-ONLY STEERING (router hint → prompt, never the guard).
+  // When the deterministic router classified this turn as a read-only educational
+  // question, append a short directive to the system message so the model answers
+  // in the right register: factual, qualitative, APY ALWAYS a range, forbidden
+  // words still forbidden, no personalized investment advice. This is purely
+  // additive prompt text — it cannot relax the output-side compliance guard
+  // (forbidden words / single-point APY remain hard blocks downstream). Skipped
+  // in review mode (its facilitator prompt is self-contained). Applied AFTER the
+  // canvas-guidance splice above so both directives coexist, then re-clamped.
+  if (educationalReadOnly && !isReview && messages[0]?.role === "system") {
+    const eduDirective = buildEducationalReadOnlyDirective(agenticDecision?.kind);
+    messages[0] = {
+      role: "system",
+      content: (messages[0].content + "\n\n" + eduDirective).slice(
+        0,
+        MAX_ENRICHED_SYSTEM_LEN,
+      ),
+    };
   }
 
   const { stream, final } = runChatAgent(

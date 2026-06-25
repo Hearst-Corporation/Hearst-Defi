@@ -16,7 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/agentic-router-stabilization
+Owner: Opus Orchestrateur — Agentic Platform Stabilization
+Branch: feat/agentic-router-stabilization
+Worktree: ../connect-opus-agentic-router-stabilization
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/**
+- src/app/api/cockpit-chat/**
+- src/lib/agents/**
+- src/lib/llm/**
+- tests related to router/chat/compliance
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Stabilize active deterministic router paths.
+- Wire educational intent hint safely if possible.
+- No autonomous write.
+- No DB migration.
+- No Prisma schema change.
+- No deploy/send/source execution.
+- No HITL bypass.
 
 ---
 
