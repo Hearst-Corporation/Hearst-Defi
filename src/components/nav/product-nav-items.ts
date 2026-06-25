@@ -95,6 +95,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "dashboard-overview", label: "Overview", href: "/admin/dashboard", icon: "LayoutDashboard" },
       { id: "customers", label: "Investors", href: "/admin/customers", icon: "Users" },
       { id: "agents", label: "Agents", href: "/admin/agents", icon: "Bot" },
+      { id: "agentic", label: "Agentic", href: "/admin/agentic", icon: "Bot" },
       { id: "outreach", label: "Outreach", href: "/admin/outreach", icon: "Send" },
       { id: "onboarding-test", label: "Onboarding test", href: "/admin/onboarding-test", icon: "ClipboardCheck", hideFromSubNav: true },
       { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
