@@ -10,6 +10,14 @@ import type { RouterStatusSummary } from "./types";
 const ROUTER_STATUS: RouterStatusSummary = {
   deterministicRouterExists: true,
   version: "Deterministic Intent Router v2",
+  status: "active",
+  mode: "non-shadow",
+  shadowFlag: {
+    name: "AGENTIC_ROUTER_SHADOW",
+    alive: false,
+    notes:
+      "Confirmed dead — zero references in src/. The router drives control flow directly; no shadow-only path remains.",
+  },
   routerPaths: [
     {
       id: "navigation",
@@ -68,6 +76,81 @@ const ROUTER_STATUS: RouterStatusSummary = {
         "Readiness intents classified; promote/markAsLive/deploy are separate admin server actions, never chat tools.",
     },
   ],
+  guardAssertions: [
+    {
+      id: "guard-not-bypassed",
+      label: "Compliance guard not bypassed",
+      holds: true,
+      evidence:
+        "The educational hint is PROMPT-only steering (system prompt). It never reaches the output guard.",
+    },
+    {
+      id: "guard-no-intent-param",
+      label: "No intent param in the guard → no structural bypass",
+      holds: true,
+      evidence:
+        "chatOutputViolation(text, final?) takes no intent/context arg, so an \"educational\" turn cannot relax it.",
+    },
+    {
+      id: "forbidden-words-blocked",
+      label: "Forbidden words still blocked",
+      holds: true,
+      evidence: "containsForbiddenChat fires regardless of intent (output-guard.ts).",
+    },
+    {
+      id: "guaranteed-yield-blocked",
+      label: "Guaranteed yield still blocked",
+      holds: true,
+      evidence: "\"garanti\" / guaranteed-return phrasing is a forbidden-words violation, always.",
+    },
+    {
+      id: "single-point-apy-blocked",
+      label: "Single-point APY headline still blocked",
+      holds: true,
+      evidence:
+        "hasSinglePointApy blocks a headline single point; only fourchettes + per-source breakdowns pass (apy-range.ts).",
+    },
+    {
+      id: "no-hitl-token-on-refusal",
+      label: "No HITL token minted on dangerous refusal",
+      holds: true,
+      evidence:
+        "The dangerous-refusal path returns a fixed ack before the LLM — no tool, no write, no confirmation token.",
+    },
+  ],
+  statusBlock: [
+    "Status: active",
+    "Mode: non-shadow",
+    "Active paths:",
+    "- navigation fast-path before LLM",
+    "- negation protection",
+    "- dangerous intent refusal before LLM/tool/write",
+    "- educational read-only steering",
+    "",
+    "Legacy fallback:",
+    "- retained",
+    "- gated by negation",
+    "",
+    "Guard:",
+    "- not bypassed",
+    "- prompt steering only",
+    "- forbidden/guaranteed/single-point APY still blocked",
+  ],
+  release: {
+    lotStatus: "closed",
+    mergeCommit: "bcb55f2c",
+    mergePr: "#36",
+    lockReleaseCommit: "49ce60cc",
+    lockReleasePr: "#37",
+    vercel: "ready",
+    validations: [
+      { id: "tests", label: "Full test suite", result: "3055/3055", pass: true },
+      { id: "typecheck", label: "Typecheck", result: "PASS", pass: true },
+      { id: "lint", label: "Lint", result: "0 errors", pass: true },
+      { id: "build", label: "Production build", result: "PASS", pass: true },
+      { id: "vercel", label: "Vercel", result: "READY", pass: true },
+    ],
+  },
   paths: [
     "src/lib/agentic/intent-router.ts",
     "src/lib/agentic/intent-router-types.ts",

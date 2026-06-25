@@ -85,10 +85,18 @@ export default function AgenticControlCenterPage() {
 
       {/* Router --------------------------------------------------------- */}
       <section className="admin-doc-stack" aria-label="Router status">
-        <div className="admin-doc-inline-row admin-doc-inline-row--start">
+        <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
           <h2 className="h2 m-0">Router</h2>
           <Badge variant={router.deterministicRouterExists ? "success" : "default"}>
             {router.version}
+          </Badge>
+          <Badge variant={router.status === "active" ? "success" : "warning"}>
+            {router.status}
+          </Badge>
+          <Badge variant="accent">{router.mode}</Badge>
+          <span className="flex-1" />
+          <Badge variant={router.release.lotStatus === "closed" ? "success" : "warning"}>
+            lot {router.release.lotStatus}
           </Badge>
         </div>
         <p className="body-xs ct-text-muted">
@@ -96,6 +104,64 @@ export default function AgenticControlCenterPage() {
           act on control flow; shadow paths are classified for visibility but
           stay behind HITL.
         </p>
+
+        {/* Verbatim Router Status block (lot close) -------------------- */}
+        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+          <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
+            <span className="stat-label ct-text-muted">Router status</span>
+            <span className="flex-1" />
+            <Badge variant={router.shadowFlag.alive ? "danger" : "success"}>
+              {router.shadowFlag.name} {router.shadowFlag.alive ? "alive" : "dead"}
+            </Badge>
+          </div>
+          <pre className="body-xs ct-text-body font-mono whitespace-pre-wrap m-0">
+            {router.statusBlock.join("\n")}
+          </pre>
+          <p className="body-xs ct-text-faint">{router.shadowFlag.notes}</p>
+        </Card>
+
+        {/* Release / validation strip --------------------------------- */}
+        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+          <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
+            <span className="stat-label ct-text-muted">Router stabilization — release</span>
+            <span className="flex-1" />
+            <Badge variant="default">merge {router.release.mergeCommit} ({router.release.mergePr})</Badge>
+            <Badge variant="default">
+              lock {router.release.lockReleaseCommit} ({router.release.lockReleasePr})
+            </Badge>
+            <Badge variant={router.release.vercel === "ready" ? "success" : "warning"}>
+              Vercel {router.release.vercel}
+            </Badge>
+          </div>
+          <div className="flex flex-wrap gap-[var(--ct-space-2)]">
+            {router.release.validations.map((v) => (
+              <Badge key={v.id} variant={v.pass ? "success" : "danger"}>
+                {v.label}: {v.result}
+              </Badge>
+            ))}
+          </div>
+        </Card>
+
+        {/* Guard handoff assertions ----------------------------------- */}
+        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+          <span className="stat-label ct-text-muted">
+            Guard handoff — not relaxed by the router
+          </span>
+          <ul className="flex flex-col gap-[var(--ct-space-1)]">
+            {router.guardAssertions.map((a) => (
+              <li key={a.id} className="admin-doc-inline-row admin-doc-inline-row--start">
+                <Badge variant={a.holds ? "success" : "danger"}>
+                  {a.holds ? "PASS" : "REVIEW"}
+                </Badge>
+                <span className="body-xs ct-text-body flex-1">
+                  <span className="ct-text-strong">{a.label}</span>
+                  <span className="ct-text-muted"> — {a.evidence}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
         <div className="admin-doc-card-grid-3">
           {router.routerPaths.map((p) => (
             <Card
@@ -287,8 +353,10 @@ export default function AgenticControlCenterPage() {
               wiring.
             </li>
             <li>
-              · Surface the active vs shadow router decision per recent turn
-              (read-only trace), once the router/guard stabilization lands.
+              · Router/guard stabilization is landed (PR #36, merge bcb55f2c,
+              Vercel READY). Next: surface the AgenticIntentDecision per recent
+              turn (kind / policy / negated, read-only trace) from a new telemetry
+              sink — no router/guard change.
             </li>
             <li>
               · Add a per-gate &quot;last invoked / last confirmed&quot; read-only

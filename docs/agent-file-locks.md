@@ -16,7 +16,25 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/agentic-control-center-router-final
+Owner: Opus Orchestrateur — Agentic Control Center v0 (router-final)
+Branch: feat/agentic-control-center-router-final
+Worktree: ../connect-opus-agentic-cc
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/control-center/router-status.ts
+- src/lib/agentic/control-center/types.ts
+- src/lib/agentic/control-center/safety-summary.ts
+- src/lib/agentic/control-center/__tests__/control-center.test.ts
+- src/app/admin/agentic/page.tsx
+- docs/agent-file-locks.md
+
+Notes:
+- READ-ONLY visibility only. Integrate the CLOSED Router Stabilization final state.
+- Do NOT touch: router, guard, cockpit-chat/route.ts, HITL, tool execution, Prisma/schema.
+- No Crew Runtime, no CrewAI. No writes, no DB, no LLM.
 
 ---
 

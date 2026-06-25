@@ -57,11 +57,46 @@ export interface RouterPath {
   notes: string;
 }
 
+/** One asserted guard property in the Router-stabilization final state. */
+export interface RouterGuardAssertion {
+  id: string;
+  label: string;
+  /** true = the property holds (verified from repo / lot close). */
+  holds: boolean;
+  evidence: string;
+}
+
+/** Release / validation metadata for the closed Router-stabilization lot.
+ *  Static facts captured at lot close — NOT a live build status. */
+export interface RouterReleaseSummary {
+  /** "closed" once the lot merged + Vercel READY. */
+  lotStatus: "closed" | "open";
+  mergeCommit: string;
+  mergePr: string;
+  lockReleaseCommit: string;
+  lockReleasePr: string;
+  vercel: "ready" | "pending" | "failed";
+  /** Validation line items captured at lot close. */
+  validations: { id: string; label: string; result: string; pass: boolean }[];
+}
+
 export interface RouterStatusSummary {
   deterministicRouterExists: boolean;
   /** Which router version is wired into the chat route. */
   version: string;
+  /** active = wired non-shadow into the chat control flow. */
+  status: "active" | "shadow" | "legacy";
+  /** "non-shadow" once the router drives control flow (not just logs). */
+  mode: "non-shadow" | "shadow";
+  /** The AGENTIC_ROUTER_SHADOW flag: dead once the router is non-shadow. */
+  shadowFlag: { name: string; alive: boolean; notes: string };
   routerPaths: RouterPath[];
+  /** Guard-handoff assertions (guard never relaxed by the router). */
+  guardAssertions: RouterGuardAssertion[];
+  /** Verbatim Router Status block rendered as-is in /admin/agentic. */
+  statusBlock: string[];
+  /** Closed-lot release / validation metadata. */
+  release: RouterReleaseSummary;
   paths: string[];
   legacyFallback: {
     status: AgenticStatus;
