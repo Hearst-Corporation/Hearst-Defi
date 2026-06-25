@@ -18,6 +18,7 @@ import {
   custom,
   http,
   parseUnits,
+  type Abi,
   type Hex,
   type WalletClient,
   type PublicClient,
@@ -223,9 +224,9 @@ async function writeContractAndAwaitReceipt(
   walletClient: WalletClient,
   params: {
     address: Address;
-    abi: any;
+    abi: Abi;
     functionName: string;
-    args: any[];
+    args: readonly unknown[];
   },
 ): Promise<Hex> {
   const account = walletClient.account;
@@ -498,9 +499,21 @@ export async function redeemFromVault(
 // older viem alongside ours. Both createPublicClient instances satisfy this shape.
 // ---------------------------------------------------------------------------
 
-/** Minimal structural type for a viem client that can call readContract. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ReadContractClient = { readContract: (params: any) => Promise<any> };
+/**
+ * Minimal structural type for a viem client that can call readContract.
+ * Params/result stay deliberately loose (not viem's generic ReadContractParameters)
+ * to dodge the dual-viem-version collision documented above — call sites cast the
+ * awaited result to the concrete return type (e.g. `as Promise<bigint>`).
+ */
+type ReadContractArgs = {
+  address: Address;
+  abi: Abi;
+  functionName: string;
+  args: readonly unknown[];
+};
+type ReadContractClient = {
+  readContract: (params: ReadContractArgs) => Promise<unknown>;
+};
 
 /** 1e18 share units — ERC-4626 shares use 18 decimals. */
 const ONE_SHARE = BigInt(10 ** 18);

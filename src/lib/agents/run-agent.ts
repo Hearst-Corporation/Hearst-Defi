@@ -18,7 +18,13 @@ export async function runAgent<T>(
     system: string | SystemBlock[];
     prompt: string;
     client?: LlmClientLike;
-    schema: { safeParse: (data: unknown) => { success: boolean; data?: T; error?: any } };
+    schema: {
+      safeParse: (
+        data: unknown,
+      ) =>
+        | { success: true; data: T }
+        | { success: false; error: { issues: readonly unknown[] } };
+    };
     maxTokens?: number;
     timeoutMs?: number;
   },
