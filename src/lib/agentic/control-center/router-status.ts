@@ -1,6 +1,6 @@
-// Agentic Control Center v0 — router status (static, read-only).
+// Agentic Control Center — router status (static, read-only).
 //
-// Reflects the Deterministic Intent Router v2 (ADR / docs:
+// Reflects the Deterministic Intent Router v2 (docs:
 // docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md, PR #36) as wired into the
 // chat route. This module DOES NOT import or run the router — it is a static
 // description for visibility. If the router behavior changes, update this file.
@@ -9,9 +9,9 @@ import type { RouterStatusSummary } from "./types";
 
 const ROUTER_STATUS: RouterStatusSummary = {
   deterministicRouterExists: true,
-  version: "Deterministic Intent Router v2",
   status: "active",
   mode: "non-shadow",
+  version: "Deterministic Intent Router v2",
   shadowFlag: {
     name: "AGENTIC_ROUTER_SHADOW",
     alive: false,
@@ -21,59 +21,44 @@ const ROUTER_STATUS: RouterStatusSummary = {
   routerPaths: [
     {
       id: "navigation",
-      label: "Navigation (read-only, route whitelist)",
+      label: "Navigation fast-path (read-only, route whitelist)",
       mode: "active",
       notes:
-        "Publishes a nav event to a closed route whitelist; gated on !decision.negated so negated phrasing never publishes nav.",
+        "kind==='navigation' + confidence>=0.7 + whitelisted routeKey → publishes nav and returns before the LLM. Gated on !decision.negated.",
     },
     {
       id: "negation",
       label: "Negation defence-in-depth",
       mode: "active",
       notes:
-        "intent-router-negation.ts strips negated commands so \"ne montre pas les vaults\" is not treated as a nav/action request.",
+        "intent-router-negation.ts flips negated commands to cancellation/unknown; the legacy nav fallback is gated on !agenticDecision.negated, so \"ne montre pas les vaults\" never publishes nav.",
     },
     {
       id: "dangerous-refusal",
-      label: "Dangerous-action refusal",
+      label: "Dangerous-intent refusal before LLM/tool/write",
       mode: "active",
       notes:
-        "DANGEROUS_RULES classify financial/custodial/deploy asks as prohibited; the model is steered to refuse, never to execute.",
+        "actionPolicy==='refuse_autonomous' || prohibitedAutonomousAction → fixed refusal ack, no LLM call, no nav, no tool, no HITL token (deploy / sign / governance / migrate / send / source).",
     },
     {
       id: "education-hint",
-      label: "Educational read-only hint",
+      label: "Educational read-only steering",
       mode: "active",
       notes:
-        "EDUCATION_RULES set isEducationalReadOnly; prompt-only steering (buildEducationalReadOnlyDirective). Never relaxes the output guard.",
+        "isEducationalReadOnly(decision) → buildEducationalReadOnlyDirective appended to the system prompt. Prompt-only steering; never relaxes the output guard.",
     },
     {
-      id: "outreach",
-      label: "Outreach (source / draft / send)",
+      id: "crew-runtime",
+      label: "Full crew runtime / tool-execution orchestration",
       mode: "shadow",
       notes:
-        "OUTREACH_RULES + SEND_SOURCE_RULES classified; execution stays behind HITL write tools, not auto-acted from the router.",
+        "Not built. The console shows the surface only — there is no crew runtime, no autonomous tool orchestration.",
     },
     {
-      id: "product-vault-draft",
-      label: "Product / vault draft",
+      id: "external-swarms",
+      label: "External swarms / CrewAI",
       mode: "shadow",
-      notes:
-        "PRODUCT_VAULT_RULES classified; create_vault_draft is draft-only and confirmation-gated, never auto-executed.",
-    },
-    {
-      id: "reporting",
-      label: "Reporting / memo",
-      mode: "shadow",
-      notes:
-        "REPORTING_RULES classified for visibility; no autonomous report write from the chat.",
-    },
-    {
-      id: "readiness",
-      label: "Vault readiness / deploy safety",
-      mode: "shadow",
-      notes:
-        "Readiness intents classified; promote/markAsLive/deploy are separate admin server actions, never chat tools.",
+      notes: "Not connected. No external agent framework is integrated.",
     },
   ],
   guardAssertions: [
@@ -151,6 +136,23 @@ const ROUTER_STATUS: RouterStatusSummary = {
       { id: "vercel", label: "Vercel", result: "READY", pass: true },
     ],
   },
+  activePaths: [
+    "Navigation fast-path before LLM",
+    "Negation protection",
+    "Dangerous intent refusal before LLM/tool/write",
+    "Educational read-only steering",
+  ],
+  shadowOnlyPaths: [
+    "Full Crew Runtime",
+    "External swarms / CrewAI",
+    "Tool execution orchestration",
+  ],
+  educationalSteering:
+    "Active, prompt-only (buildEducationalReadOnlyDirective). Reinforces APY-range + no forbidden words + no personalized advice; never a guard relaxation.",
+  dangerousIntentPolicy:
+    "Refused BEFORE the LLM/tool/write. AGENTIC_ROUTER_SHADOW is removed (no refs) — the router is fully non-shadow.",
+  guardPolicy:
+    "Output guard is NOT bypassed: forbidden words + single-point APY headline stay hard-blocked on every human-facing surface, independent of intent.",
   paths: [
     "src/lib/agentic/intent-router.ts",
     "src/lib/agentic/intent-router-types.ts",

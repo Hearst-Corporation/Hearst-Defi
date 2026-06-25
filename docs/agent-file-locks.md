@@ -16,7 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/agentic-control-center-v01
+Owner: Opus Orchestrateur — Agentic Control Center Delivery
+Branch: feat/agentic-control-center-v01
+Worktree: ../connect-opus-agentic-control-center
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- src/lib/agentic/control-center/**
+- docs/agentic/AGENTIC_CONTROL_CENTER_V0.md
+- tests related to agentic control center
+- docs/agent-file-locks.md
+
+Notes:
+- Upgrade read-only Agentic Control Center v0 -> v0.1 (next-steps module + data aggregator +
+  expanded types/inventory/gates + Compliance section).
+- No chat route changes. No router/guard behavior changes. No tool execution.
+- No HITL changes. No DB migration. No Prisma/schema. No prod writes.
+- Read-only imports of src/lib/agentic/intent-router* (owned by Kimi agent; not edited).
+- Rebased onto PR #40 (router-final) + PR #42 (its lock release): merged its
+  RouterStatusSummary additions with this lot.
 
 ---
 

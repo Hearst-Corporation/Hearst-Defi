@@ -7,16 +7,22 @@ import {
   getPromptMap,
   getRouterStatusSummary,
   getSafetySummary,
+  getNextSteps,
+  getAgenticControlCenterData,
 } from "../index";
 
 describe("agentic control center — inventory", () => {
   const inventory = getAgenticInventory();
   const names = inventory.map((i) => i.name.toLowerCase());
 
+  // Spec-mandated minimum core items.
   const expectedCore = [
-    "master agent",
-    "outreach scorer",
+    "master agent / cockpit chat",
+    "deterministic intent router",
+    "tool registry",
+    "hitl confirmations",
     "outreach writer",
+    "outreach scorer",
     "outreach reply handler",
     "scenario narrative",
     "investor memo",
@@ -24,12 +30,17 @@ describe("agentic control center — inventory", () => {
     "risk explanation",
     "memory distill",
     "product review",
-    "compliance guards",
-    "deterministic intent router",
+    "vault admin state machine",
   ];
 
   it.each(expectedCore)("contains %s", (needle) => {
     expect(names.some((n) => n.includes(needle))).toBe(true);
+  });
+
+  it("contains the three compliance guards", () => {
+    expect(names.some((n) => n.includes("forbidden words"))).toBe(true);
+    expect(names.some((n) => n.includes("apy range"))).toBe(true);
+    expect(names.some((n) => n.includes("output guard"))).toBe(true);
   });
 
   it("every item has at least one source path", () => {
@@ -51,22 +62,43 @@ describe("agentic control center — human gates", () => {
 
   const expectedGates = [
     "deploy",
-    "mark-live",
-    "send-email",
-    "source-leads",
-    "db-migration",
-    "formula-model-change",
+    "mark_live",
+    "send_email",
+    "source_leads",
+    "create_campaign",
+    "create_vault_draft",
+    "db_migration",
+    "formula_change",
+    "model_change",
+    "governance_execute",
+    "safe_signature",
   ];
 
   it.each(expectedGates)("contains gate %s", (gate) => {
     expect(ids).toContain(gate);
   });
 
-  it("all critical gates are non-autonomous", () => {
+  it("all critical gates are non-autonomous, admin + confirmation bound", () => {
     for (const g of gates) {
       expect(g.autonomousAllowed).toBe(false);
+      expect(g.requiresHuman).toBe(true);
       expect(g.requiresAdmin).toBe(true);
       expect(g.requiresConfirmation).toBe(true);
+    }
+  });
+
+  it("deploy / safe_signature / governance / db / formula / model are critical risk", () => {
+    const critical = [
+      "deploy",
+      "safe_signature",
+      "governance_execute",
+      "db_migration",
+      "formula_change",
+      "model_change",
+    ];
+    for (const id of critical) {
+      const g = gates.find((x) => x.id === id);
+      expect(g?.riskLevel).toBe("critical");
     }
   });
 });
@@ -96,6 +128,17 @@ describe("agentic control center — tool boundary", () => {
     }
   });
 
+  it("read-only tier lists the real read tools", () => {
+    const readOnly = boundary.find((b) => b.category === "read-only");
+    expect(readOnly?.items).toContain("outreach_list_prospects");
+    expect(readOnly?.items).toContain("read_market_snapshot");
+  });
+
+  it("confirmed-write tier is only outreach_trigger_send_run", () => {
+    const confirmed = boundary.find((b) => b.category === "confirmed-write");
+    expect(confirmed?.items).toEqual(["outreach_trigger_send_run"]);
+  });
+
   it("forbidden tier lists deploy + db migration + safe signature", () => {
     const forbidden = boundary.find((b) => b.category === "forbidden-autonomous");
     const blob = forbidden?.items.join(" ").toLowerCase() ?? "";
@@ -120,10 +163,17 @@ describe("agentic control center — prompt map", () => {
     expect(allPaths).toContain(p);
   });
 
-  it("every entry has a kind and a summary", () => {
+  it("every entry has a kind + summary and is not editable in the UI", () => {
     for (const m of map) {
-      expect(["system", "agent", "canvas", "guard"]).toContain(m.kind);
+      expect([
+        "system",
+        "agent",
+        "canvas",
+        "guard",
+        "methodology",
+      ]).toContain(m.kind);
       expect(m.summary.length).toBeGreaterThan(0);
+      expect(m.editableInUi).toBe(false);
     }
   });
 });
@@ -131,31 +181,30 @@ describe("agentic control center — prompt map", () => {
 describe("agentic control center — router status", () => {
   const router = getRouterStatusSummary();
 
-  it("reports the deterministic router exists (v2)", () => {
+  it("is active + non-shadow (v2)", () => {
     expect(router.deterministicRouterExists).toBe(true);
+    expect(router.status).toBe("active");
+    expect(router.mode).toBe("non-shadow");
     expect(router.version).toMatch(/v2/i);
   });
 
-  it("has navigation / negation / dangerous-refusal as active paths", () => {
+  it("has navigation / negation / dangerous-refusal / education as active paths", () => {
     const active = router.routerPaths
       .filter((p) => p.mode === "active")
       .map((p) => p.id);
     expect(active).toContain("navigation");
     expect(active).toContain("negation");
     expect(active).toContain("dangerous-refusal");
+    expect(active).toContain("education-hint");
   });
 
-  it("has outreach / product-vault / reporting / readiness as shadow paths", () => {
+  it("lists dangerous refusal in the policy + crew/swarms as shadow", () => {
+    expect(router.dangerousIntentPolicy.toLowerCase()).toContain("refused");
     const shadow = router.routerPaths
       .filter((p) => p.mode === "shadow")
       .map((p) => p.id);
     expect(shadow).toEqual(
-      expect.arrayContaining([
-        "outreach",
-        "product-vault-draft",
-        "reporting",
-        "readiness",
-      ]),
+      expect.arrayContaining(["crew-runtime", "external-swarms"]),
     );
   });
 
@@ -229,19 +278,50 @@ describe("agentic control center — safety summary", () => {
     for (const s of safety) expect(s.holds).toBe(true);
   });
 
-  it("asserts no autonomous deploy / send / mark-live / db migration", () => {
+  it("asserts no autonomous deploy / send / source / mark-live / db migration", () => {
     const claims = safety.map((s) => s.id);
     expect(claims).toEqual(
       expect.arrayContaining([
         "no-autonomous-deploy",
         "no-autonomous-send",
+        "no-autonomous-source",
         "no-autonomous-mark-live",
         "no-autonomous-db-migration",
+        "no-autonomous-safe-governance",
         "hitl-enabled",
+        "compliance-guard-active",
         "router-v2-active",
         "product-education-passes",
         "yield-education-passes",
       ]),
     );
+  });
+});
+
+describe("agentic control center — next steps", () => {
+  const steps = getNextSteps();
+
+  it("returns planned-only roadmap items", () => {
+    expect(steps.length).toBeGreaterThan(0);
+    for (const s of steps) expect(s.status).toBe("planned");
+  });
+});
+
+describe("agentic control center — data aggregator", () => {
+  const data = getAgenticControlCenterData();
+
+  it("returns all sections", () => {
+    expect(data.router).toBeDefined();
+    expect(data.inventory.length).toBeGreaterThan(0);
+    expect(data.gates.length).toBeGreaterThan(0);
+    expect(data.tools.length).toBe(4);
+    expect(data.prompts.length).toBeGreaterThan(0);
+    expect(data.safetySummary.length).toBeGreaterThan(0);
+    expect(data.nextSteps.length).toBeGreaterThan(0);
+  });
+
+  it("is a static registry marker, not a live timestamp", () => {
+    expect(data.version).toBe("v0.1");
+    expect(data.generatedAt.toLowerCase()).toContain("static");
   });
 });

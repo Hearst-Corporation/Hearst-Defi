@@ -19,16 +19,51 @@ const SAFETY: SafetySummaryItem[] = [
       "outreach_trigger_send_run is HITL; default OUTREACH_AUTONOMY=SUGGEST sends nothing. Tier A never auto-sent (ADR-016).",
   },
   {
+    id: "no-autonomous-source",
+    claim: "No autonomous source",
+    holds: true,
+    evidence:
+      "outreach_source_leads is a draft-only HITL write tool; creates scored prospects, nothing sent.",
+  },
+  {
     id: "no-autonomous-mark-live",
     claim: "No autonomous mark-live",
     holds: true,
     evidence: "markAsLive is a requireAdmin server action with approval quorum — not a chat tool.",
   },
   {
+    id: "no-autonomous-safe-governance",
+    claim: "No autonomous Safe / governance execution",
+    holds: true,
+    evidence:
+      "Multisig signature + executeProposal are server actions behind a state machine — never chat tools; create_governance_proposal_draft stays DRAFT.",
+  },
+  {
     id: "no-autonomous-db-migration",
     claim: "No autonomous DB migration",
     holds: true,
     evidence: "No agent runs migrations; prisma/schema.prisma is a sensitive single-owner file.",
+  },
+  {
+    id: "dangerous-refused-before-llm",
+    claim: "Dangerous intents refused before LLM/tool/write",
+    holds: true,
+    evidence:
+      "Router DANGEROUS_RULES → fixed refusal ack before any LLM call, nav, tool, or HITL token (intent-router-rules.ts + cockpit-chat/route.ts).",
+  },
+  {
+    id: "router-active-before-llm",
+    claim: "Router active before LLM for safe paths",
+    holds: true,
+    evidence:
+      "Navigation fast-path + negation + education steering run before the LLM; AGENTIC_ROUTER_SHADOW removed (non-shadow).",
+  },
+  {
+    id: "compliance-guard-active",
+    claim: "Compliance guard remains active",
+    holds: true,
+    evidence:
+      "chatOutputViolation blocks forbidden words + single-point APY on every surface; educational steering is prompt-only, no relaxation.",
   },
   {
     id: "hitl-enabled",
