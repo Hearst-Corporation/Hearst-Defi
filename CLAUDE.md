@@ -7,14 +7,16 @@ These rules are mandatory for every agent, every task, and every code change.
 Core rules:
 1. One agent = one isolated git worktree.
 2. One task = one short-lived branch.
-3. One coherent step = commit, push, PR, merge.
+3. One integration step (when user asks) = commit, push branch, PR, merge into `main`.
 4. Every agent must reserve files before editing.
 5. No agent may edit files owned by another active agent.
 6. No broad staging.
 7. No hidden unrelated cleanup.
 8. No destructive reset, rebase, stash pop, or checkout in another agent’s worktree.
 9. Production is currently treated as internal/dev, so frequent merges are allowed when validations pass.
-10. If the user says `merge`, `push`, `ship`, `deploy`, `mets en ligne`, or equivalent, the agent must stop coding and run the checkpoint/merge protocol.
+10. If the user says `merge`, `push`, `ship`, `deploy`, `mets en ligne`, `commit`, or equivalent,
+    run the matching level from `commit-discipline.mdc` (B = commit/push branch, C = full checkpoint).
+    Stop coding before level C.
 
 Required worktree protocol:
 - Agents must never develop directly in a shared, dirty, or active worktree.
@@ -47,17 +49,17 @@ Sensitive single-owner files:
 
 `.mcp.json` is security-sensitive. Supabase MCP must remain read-only unless the user explicitly approves a write-capable session. Never commit a change that removes `--read-only` from Supabase MCP without explicit approval.
 
-Checkpoint / merge protocol:
+Checkpoint / merge protocol (level C — prod integration only):
 - fetch origin;
 - reconcile with latest origin/main;
 - verify locks;
 - run validations relevant to the task;
 - stage explicit files only;
-- commit;
-- push;
+- commit (if uncommitted work remains);
+- push branch (`git push -u origin HEAD`) — never push `main` directly from an agent worktree;
 - create PR into main;
 - merge if PR is mergeable and checks are acceptable;
-- wait for Vercel READY if production-facing.
+- wait for Vercel READY if production-facing (`push main` triggers Vercel prod — cf. `docs/DEPLOYMENT.md`).
 
 Never use:
 - git add -A

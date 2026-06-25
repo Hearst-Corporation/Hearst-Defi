@@ -55,7 +55,18 @@ d'un autre scope dans le mauvais commit (incident 2026-06-17 : `docs/DEPLOYMENT.
   doute → rapport avant commit, pas de commit.
 - Jamais `reset`/`amend`/`rebase`/force-push sans GO explicite.
 - **Isolation** : un agent = un worktree/branche (jamais deux agents sur le même tree). Commit
-  libre dans sa branche, **jamais de push `main`**. `main` = intégration gatée (CI branch protection).
+  libre dans sa branche sur **demande utilisateur** ; push **branche uniquement** (`origin HEAD`).
+  **`main` = intégration gatée** (PR + CI + merge checkpoint). Push `main` = prod Vercel.
+
+### Fin de passe vs intégration prod (3 niveaux)
+
+| Niveau | Déclencheur | Action agent |
+|--------|-------------|--------------|
+| **A — Fin de passe** | Lot terminé | Rapport + validations + kill/restart dev (`dev-server-protocol.mdc`). Pas de commit auto. |
+| **B — Commit / push** | « commit », « push » (sans merge) | Staging chirurgical → commit → `git push -u origin HEAD`. Jamais `push origin main`. |
+| **C — Prod** | « merge », « ship », « deploy », « mets en ligne » | Checkpoint `CLAUDE.md` : PR → merge `main` → Vercel READY. |
+
+Détail staging : voir ci-dessous et `.cursor/rules/commit-discipline.mdc`.
 
 ## STOP conditions (s'arrêter et demander)
 - Il faut toucher `next.config.ts`, auth/wallet/CSP, `src/proxy.ts`, l'engine, ou data/provenance.

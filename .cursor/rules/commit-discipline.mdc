@@ -15,6 +15,14 @@ alwaysApply: true
 - **Permission refusée** (commit/push/outil) → STOP immédiat. Pas de retry, pas de `--no-verify` de contournement.
 - **Jamais** reset/amend/rebase/force-push sans GO explicite.
 
+## 3 niveaux git (alignés — pas de contradiction)
+
+| Niveau | Quand | Actions |
+|--------|--------|---------|
+| **A — Fin de passe** | Lot code terminé | Rapport + validations. **Pas** de commit/push sauf demande utilisateur. |
+| **B — Commit / push branche** | Utilisateur demande commit ou push | Staging chirurgical → `git commit` → `git push -u origin HEAD` (branche de travail). **Jamais push `main`.** |
+| **C — Intégration prod** | `merge` / `ship` / `deploy` / `mets en ligne` / push explicite vers prod | Protocole checkpoint `CLAUDE.md` : fetch, reconcile, validations, PR → merge `main`, Vercel READY. |
+
 ## Isolation multi-agents (un agent = un worktree)
 
 - **Un agent = un worktree git + sa branche.** Jamais deux agents sur le même working tree.
