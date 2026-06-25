@@ -136,6 +136,59 @@ export function buildRouterDecisionTrendBuckets(
 }
 
 /**
+ * Bucket geometry for a window — exposed so the SQL-aggregate path can compute
+ * the EXACT same slots (start, span, count) the in-memory path uses, and project
+ * SQL-grouped counts into them by index. Keeps the two paths byte-identical.
+ */
+export function getRouterTrendWindowGeometry(window: RouterTrendWindow): {
+  bucketCount: number;
+  bucketMs: number;
+  startMs: number;
+  nowMs: number;
+} {
+  const { buckets: bucketCount, bucketMs } = WINDOW_GEOMETRY[window];
+  const nowMs = Date.now();
+  return { bucketCount, bucketMs, startMs: nowMs - bucketCount * bucketMs, nowMs };
+}
+
+/**
+ * Build the empty, oldest-first bucket slots for a window (same labels/start/end
+ * as buildRouterDecisionTrendBuckets, with zero counts). The SQL-aggregate path
+ * fills these by index so the rendered bars are identical to the in-memory path.
+ */
+export function buildEmptyTrendBuckets(
+  window: RouterTrendWindow,
+  now: Date = new Date(),
+): RouterDecisionTrendBucket[] {
+  return buildRouterDecisionTrendBuckets([], window, now);
+}
+
+/** The category key for an outcome (SQL projection reuses the SAME mapping). */
+export function trendCategoryKeyForOutcome(
+  outcome: string,
+): keyof Pick<
+  RouterDecisionTrendBucket,
+  | "navigationFastPaths"
+  | "dangerousRefusals"
+  | "educationalTurns"
+  | "negatedNoNav"
+  | "normalOrUnknown"
+> {
+  switch (outcome) {
+    case "nav_fast_path":
+      return "navigationFastPaths";
+    case "dangerous_refusal":
+      return "dangerousRefusals";
+    case "educational_llm":
+      return "educationalTurns";
+    case "negated_no_nav":
+      return "negatedNoNav";
+    default:
+      return "normalOrUnknown";
+  }
+}
+
+/**
  * Frequency of matched rule ids across the recent buffer, descending by count
  * then ruleId for stable ordering. Capped to `limit`.
  */

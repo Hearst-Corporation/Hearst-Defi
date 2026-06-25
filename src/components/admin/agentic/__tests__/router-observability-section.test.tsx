@@ -50,6 +50,7 @@ function summary(
     retentionPolicyNote:
       "Retention policy: router decision metadata only, default 90 days. No user messages, prompts, secrets, or tool payloads are stored.",
     windowLimitationNote: null,
+    aggregationMode: "sql",
     ...over,
   };
 }
@@ -145,6 +146,33 @@ describe("RouterObservabilitySection v1", () => {
   it("durable storage badge is shown when storage is durable", () => {
     const html = render(summary({ state: "empty", storage: "durable" }));
     expect(html).toContain("durable");
+  });
+
+  it("shows the SQL durable aggregates badge when aggregationMode is sql", () => {
+    const html = render(summary({ state: "empty", aggregationMode: "sql" }));
+    expect(html).toContain("aggregation: SQL durable aggregates");
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("shows the fallback in-memory badge when aggregationMode is in_memory", () => {
+    const html = render(
+      summary({ state: "empty", aggregationMode: "in_memory" }),
+    );
+    expect(html).toContain("aggregation: fallback in-memory");
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("shows the fallback in-memory badge when aggregationMode is fallback", () => {
+    const html = render(
+      summary({ state: "empty", storage: "redis_fallback", aggregationMode: "fallback" }),
+    );
+    expect(html).toContain("aggregation: fallback in-memory");
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("omits the aggregation badge when aggregationMode is undefined (back-compat)", () => {
+    const html = render(summary({ state: "empty", aggregationMode: undefined }));
+    expect(html).not.toContain("aggregation:");
   });
 
   it("redis_fallback storage badge is shown honestly", () => {

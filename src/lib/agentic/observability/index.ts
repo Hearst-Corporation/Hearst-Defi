@@ -44,4 +44,5 @@ export {
   DURABLE_RETENTION_DAYS,
 } from "./db-store";
 export { pruneRouterDecisionTraces } from "./retention";
+export { readDurableRouterDecisionAggregates } from "./db-aggregates";
 export { ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_CAP } from "./store";
