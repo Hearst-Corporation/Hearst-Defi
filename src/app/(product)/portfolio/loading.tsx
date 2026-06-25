@@ -63,7 +63,9 @@ function FusedSkeleton({ variant }: { variant: "mid" | "deck" }) {
 /** Mirrors the live cockpit bento (hero + mid + deck). */
 export default function PortfolioLoading() {
   return (
-    <div className="pf-container pf-container--fit animate-in fade-in duration-(--ct-dur-slower) bg-(--ct-bg-deep)">
+    <div className="pf-container pf-container--fit animate-in fade-in duration-(--ct-dur-slower)" style={{ 
+      background: "radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--ct-accent) 3%, transparent), var(--ct-surface-2) 60%)" 
+    }}>
       <div className="pf-greeting">
         <Skeleton className="pf-skeleton-greeting-title" />
         <Skeleton className="pf-skeleton-greeting-ticker" />
@@ -72,7 +74,7 @@ export default function PortfolioLoading() {
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--chart">
           <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper min-h-[18rem]">
+            <div className="pf-main-chart-wrapper min-h-[280px]">
               <div className="pf-value-chart p-6 h-full flex flex-col gap-6">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col gap-2">
@@ -120,27 +122,29 @@ export default function PortfolioLoading() {
                 <Skeleton className="h-6 w-48 opacity-40" />
                 <Skeleton className="h-6 w-24 opacity-20" />
               </div>
-              <div className="cy-body mt-4">
-                <div className="cy-donut dash-chart-container">
-                  <Skeleton className="h-full w-full rounded-full opacity-20" />
-                  <div className="absolute inset-0 flex items-center justify-center flex-col gap-1">
-                    <Skeleton className="h-6 w-16 opacity-30" />
-                    <Skeleton className="h-4 w-12 opacity-10" />
+              <div className="cy-v4-body mt-4">
+                <div className="cy-v4-metrics">
+                  <div className="cy-v4-metric">
+                    <Skeleton className="h-2 w-20 opacity-20 mb-1" />
+                    <Skeleton className="h-6 w-28 opacity-40" />
+                  </div>
+                  <div className="cy-v4-metric">
+                    <Skeleton className="h-2 w-20 opacity-20 mb-1" />
+                    <Skeleton className="h-8 w-32 opacity-50" />
                   </div>
                 </div>
-                <div className="cy-spine" />
-                <div className="cy-ledger flex-1">
-                  <Skeleton className="h-3 w-40 mb-6 opacity-20" />
-                  {[0, 1, 2, 3].map((i) => (
-                    <div key={i} className="flex flex-col gap-2 mb-4">
-                      <div className="flex items-center gap-3">
-                        <Skeleton className="h-2 w-2 rounded-full opacity-30" />
-                        <Skeleton className="h-3 flex-1 opacity-20" />
-                        <Skeleton className="h-3 w-12 opacity-30" />
+                <div className="cy-v4-alloc">
+                  <Skeleton className="h-2 w-24 opacity-20" />
+                  <Skeleton className="h-2 w-full max-w-[40rem] rounded-full opacity-15" />
+                  <div className="flex gap-6 flex-wrap">
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <Skeleton className="h-1.5 w-1.5 rounded-full opacity-30" />
+                        <Skeleton className="h-3 w-24 opacity-20" />
+                        <Skeleton className="h-3 w-8 opacity-30" />
                       </div>
-                      <Skeleton className="h-1.5 w-full rounded-full opacity-10" />
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

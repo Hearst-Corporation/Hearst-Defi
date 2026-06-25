@@ -2,45 +2,30 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import {
-  barWidthPct,
-  formatContribution,
-  type YieldSource,
-} from "@/components/portfolio/yield-stack";
+import type { YieldSource } from "@/components/portfolio/yield-stack";
 import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import { formatApyRange } from "@/lib/format/apy";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { Progress } from "@/components/ui/progress";
+import { ApyRange } from "@/components/ui/apy-range";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
 
 /**
- * Capital & Yield — "Living Precision" instrument panel.
+ * Capital & Yield — Premium V4 instrument panel.
  *
- * Merges the former Yield Source Stack + Allocation donut into ONE full-width
- * showpiece: a haloed allocation gauge (left) reading across a hairline spine
- * into a precision yield ledger (right) whose rows ARE the donut legend.
+ * Data-driven, no fake elements, no invented numbers.
+ * Three honest states: live (data + position), awaiting-data (position active
+ * but vault snapshot not yet available), empty (no position yet).
  *
- * Pure Server Component. No client JS, no Date.now()/Math.random(); all motion
- * is CSS-only (@keyframes, behind prefers-reduced-motion).
+ * Pure Server Component. No "use client". No Date.now() / Math.random().
  *
- * CLAUDE.md non-negotiables: APY always a range (#1), provenance badge (#2),
- * forbidden words absent (#5), "not guaranteed" disclaimer (#10).
+ * CLAUDE.md non-negotiables:
+ *   #1  — APY always a range (via <ApyRange>)
+ *   #2  — Provenance badge when data is real
+ *   #5  — Forbidden words absent
+ *   #10 — "not guaranteed" disclaimer when showing projection
  */
-
-/**
- * Monochrome-green bucket palette — LOCAL to the portfolio "Living Precision"
- * panel (Adrien's premium direction: green + derivations only, no other hue).
- */
-const CY_BUCKET_GREEN: Record<YieldSource["bucket"], string> = {
-  mining: "var(--ct-accent)",
-  usdc_base: "color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-neutral))",
-  btc_tactical: "color-mix(in srgb, var(--ct-accent) 50%, var(--ct-text-neutral))",
-  stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-neutral))",
-};
 
 export interface CapitalYieldProps {
   sources: YieldSource[];
@@ -52,24 +37,32 @@ export interface CapitalYieldProps {
   methodologyVersion?: string;
   source?: "live" | "estimated" | "stale";
   updatedAt?: Date;
-  /** Hub-only link to the focused leaf page. */
   leafHref?: string;
   embedded?: boolean;
   /**
-   * True when the investor holds at least one active position. Distinguishes
-   * two empty states that must NOT share copy: (a) no position yet → "subscribe
-   * first" pending; (b) position active but the vault allocation/yield snapshot
-   * is not yet available → "being computed", NOT "awaiting first position".
-   * Showing (a)'s copy while a position is live is the reported incoherence.
+   * True when the investor holds at least one confirmed active position.
+   * Distinguishes two empty states that must NOT share copy:
+   *   (a) no position → "subscribe first" / "confirmed on-chain" pending
+   *   (b) position active but vault allocation/yield snapshot not yet available
    */
   hasActivePosition?: boolean;
 }
+
+/**
+ * Monochrome-green bucket palette for allocation bars.
+ * Derivations via color-mix — no raw hex/rgb in TSX.
+ */
+const BUCKET_BAR_COLOR: Record<YieldSource["bucket"], string> = {
+  mining: "var(--ct-accent)",
+  usdc_base: "color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-neutral))",
+  btc_tactical: "color-mix(in srgb, var(--ct-accent) 50%, var(--ct-text-neutral))",
+  stable_reserve: "color-mix(in srgb, var(--ct-accent) 32%, var(--ct-text-neutral))",
+};
 
 export function CapitalYield({
   sources,
   blendedLow,
   blendedHigh,
-  stressedBearRange,
   buckets,
   totalValueUsdc,
   methodologyVersion = METHODOLOGY_VERSION,
@@ -79,43 +72,31 @@ export function CapitalYield({
   embedded = false,
   hasActivePosition = false,
 }: CapitalYieldProps) {
-  // Zero-state = the graphic SKELETON renders (empty ring + zeroed ledger rows),
-  // NO invented data. As soon as real vault data arrives, the donut/ledger fill in.
+  const maxAbsContribution = sources.reduce(
+    (acc, s) => Math.max(acc, Math.abs(s.contributionPct)),
+    0,
+  );
+
+  // LIVE: we have vault allocation + real data + investor position
   const hasData =
     sources.length > 0 &&
     buckets.length > 0 &&
-    sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0) > 0;
+    totalValueUsdc > 0 &&
+    maxAbsContribution > 0;
 
-  // Two distinct empty states — must NOT share copy (the reported incoherence):
-  //  • no active position → genuine "awaiting first position" pending;
-  //  • active position but vault allocation/yield snapshot not yet available →
-  //    data is being computed, the position IS live. Never tell a live holder
-  //    their first position isn't confirmed.
+  // Two distinct empty states — never same copy (historical incoherence):
+  //   awaiting-data: position confirmed on-chain, vault snapshot not yet cached
+  //   no-position:   investor has not subscribed yet
   const emptyReason: "no-position" | "awaiting-data" =
     hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
 
-  const maxAbsPct = hasData
-    ? sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0)
-    : 0;
-
-  // Badge/disclaimer only when there is real data AND a confirmed position.
-  const isFilled = hasData && totalValueUsdc > 0;
-  const provenance = isFilled
-    ? resolveProvenance(source, updatedAt ?? new Date(), "estimated")
-    : undefined;
+  const provenance =
+    hasData
+      ? resolveProvenance(source, updatedAt ?? new Date(), "estimated")
+      : undefined;
 
   const [rLow, rHigh] =
     blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
-  const [sLow, sHigh] =
-    stressedBearRange.low <= stressedBearRange.high
-      ? [stressedBearRange.low, stressedBearRange.high]
-      : [stressedBearRange.high, stressedBearRange.low];
-
-  // Only real buckets become coloured arcs. Empty → the background ring shows alone.
-  const segments = buckets.map((slice, i) => ({
-    ...slice,
-    dashOffset: -buckets.slice(0, i).reduce((sum, b) => sum + b.pct, 0),
-  }));
 
   return (
     <PfCockpitPanel
@@ -126,202 +107,141 @@ export function CapitalYield({
     >
       <PfCockpitPanelHeader
         title="Capital & Yield"
-        subtitle={isFilled ? "Allocation · 12m forward yield" : undefined}
+        subtitle={hasData ? "Active capital · 12m forward yield" : undefined}
         provenance={provenance}
         titleVariant="primary"
         trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
       />
 
-      <div className="cy-body">
-        {/* ── Zone 1 — allocation gauge ── */}
-        <div className="cy-donut dash-chart-container">
-          {/* svg-geometry: cx/cy/r/strokeDasharray/viewBox are raw numbers by SVG spec */}
-          <svg
-            className={cn("dash-chart-svg", !hasData && "dash-chart-svg--skeleton")}
-            viewBox="0 0 42 42"
-            role="img"
-            aria-label={hasData ? "Allocation by yield source" : "Allocation — awaiting first confirmed on-chain position"}
-          >
-            {/* Background track ring (always present). */}
-            <circle
-              className="dash-chart-circle"
-              cx="21"
-              cy="21"
-              r="15.9155"
-              stroke="var(--ct-surface-1)"
-              strokeDasharray="100 0"
-            />
-            {hasData ? (
-              <>
-                {segments.map((s) => (
-                  <circle
-                    key={s.bucket}
-                    className={cn(
-                      "dash-chart-circle cy-donut-arc",
-                      s.bucket === "mining" && "cy-arc-mining",
-                    )}
-                    cx="21"
-                    cy="21"
-                    r="15.9155"
-                    stroke={CY_BUCKET_GREEN[s.bucket]}
-                    strokeDasharray={`${(s.pct - 0.6).toFixed(2)} ${(100 - s.pct + 0.6).toFixed(2)}`}
-                    strokeDashoffset={s.dashOffset.toFixed(2)}
-                    style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
-                  />
-                ))}
-              </>
-            ) : (
-              <g className="opacity-60">
-                <circle
-                  className="dash-chart-circle"
-                  cx="21"
-                  cy="21"
-                  r="15.9155"
-                  stroke="var(--ct-border-soft)"
-                  strokeWidth="0.5"
-                  strokeDasharray="1 3"
+      {hasData ? (
+        <div className="cy-v4-body">
+          {/* ── Hero metrics row ── */}
+          <div className="cy-v4-metrics">
+            {/* Capital deployed */}
+            <div className="cy-v4-metric">
+              <span className="cy-v4-metric__label">Capital active</span>
+              <span className="cy-v4-metric__value tabular">
+                {formatUsdCompact(totalValueUsdc)}
+              </span>
+            </div>
+
+            {/* APY range — NON-NEGOTIABLE: always a range (#1) */}
+            <div className="cy-v4-metric cy-v4-metric--accent">
+              <span className="cy-v4-metric__label">Target APY</span>
+              <span className="cy-v4-metric__value">
+                <ApyRange
+                  low={rLow}
+                  high={rHigh}
+                  className="font-bold ct-text-accent tabular"
                 />
-                <circle
-                  cx="21"
-                  cy="21"
-                  r="14"
-                  stroke="var(--ct-border-soft)"
-                  strokeWidth="0.2"
-                  fill="none"
-                />
-                <circle
-                  cx="21"
-                  cy="21"
-                  r="17.5"
-                  stroke="var(--ct-border-soft)"
-                  strokeWidth="0.2"
-                  fill="none"
-                />
-                <path d="M 21 2 L 21 6 M 21 36 L 21 40 M 2 21 L 6 21 M 36 21 L 40 21" stroke="var(--ct-border-soft)" strokeWidth="0.5" opacity="0.5" />
-              </g>
-            )}
-          </svg>
-          <div className="donut-center">
-            {isFilled ? (
-              <div className="flex flex-col items-center">
-                <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-semibold mb-0.5">Total</span>
-                <span className="donut-val text-[var(--ct-text-hero-sym)] font-medium tracking-tight text-strong tabular">{formatUsdCompact(totalValueUsdc)}</span>
-              </div>
-            ) : emptyReason === "awaiting-data" ? (
-              <div className="flex flex-col items-center">
-                <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-50">Computing</span>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center">
-                <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-50">Pending</span>
-              </div>
-            )}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* ── Zone 2 — hairline spine ── */}
-        <div className="cy-spine" aria-hidden />
+          {/* ── Allocation bars (replaces donut) ── */}
+          <div className="cy-v4-alloc" aria-label="Allocation by bucket">
+            <p
+              className="cy-v4-alloc__head"
+              aria-hidden="true"
+            >
+              Allocation
+            </p>
 
-        {/* ── Zone 3 — yield ledger (doubles as the donut legend) ── */}
-        <div className="cy-ledger px-2">
-          <p className="cy-ledger-head text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] ct-text-tertiary font-medium mb-3 pb-2 border-b border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]">
-            Yield source · 12m fwd
-          </p>
-
-          {hasData
-            ? <div className="flex flex-col gap-3 mt-2">
-                {sources.map((s) => {
-                  const w = barWidthPct(s.contributionPct, maxAbsPct);
-                  const isNeg = s.contributionPct < 0;
-                  const val = formatContribution(s.contributionPct, s.isVolatile ?? false);
+            {/* Segmented allocation bar */}
+            <div className="cy-v4-bar-track" role="img" aria-label="Allocation segments">
+              {(() => {
+                // Defensive normalisation: if imperfect data pushes sum > 100 the last
+                // segments would be clipped by overflow:hidden + flex-shrink:0.
+                // When total > 100 we scale widths proportionally so they always fit.
+                // The displayed pct values in the legend are left untouched (real data).
+                const totalPct = buckets.reduce((sum, b) => sum + b.pct, 0);
+                return buckets.map((b) => {
+                  const segWidth = totalPct > 100 ? (b.pct / totalPct) * 100 : b.pct;
                   return (
                     <div
-                      key={s.bucket}
-                      className={cn(
-                        "cy-row group flex items-center justify-between",
-                        s.bucket === "mining" && "cy-row-mining",
-                      )}
-                      style={{ "--cy-bucket": CY_BUCKET_GREEN[s.bucket] } as React.CSSProperties}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--cy-bucket)]" aria-hidden />
-                        <span className="cy-label text-[var(--ct-text-2xs)] min-w-0 truncate ct-text-secondary group-hover:ct-text-primary transition-colors font-medium">
-                          {s.label}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Progress
-                          value={w}
-                          variant="plain"
-                          className="cy-track w-16 h-1"
-                          fillClassName={cn(
-                            isNeg ? "ct-status-danger-bg" : "bg-[var(--cy-bucket)]",
-                            s.isVolatile && "opacity-80",
-                          )}
-                        />
-                        <span className="cy-val tabular text-[var(--ct-text-xs)] font-semibold ct-text-strong min-w-[3.5rem] text-right" aria-label={`${s.label} ${val}`}>
-                          {val}
-                        </span>
-                      </div>
-                    </div>
+                      key={b.bucket}
+                      className="cy-v4-bar-seg"
+                      style={{
+                        width: `${segWidth}%`,
+                        background: BUCKET_BAR_COLOR[b.bucket],
+                      }}
+                      aria-label={`${b.bucket} ${b.pct}%`}
+                    />
                   );
-                })}
-              </div>
-            : /* Premium empty state — structured placeholder, not a blank gap */
-              <div className="cy-ledger-empty">
-                <div className="cy-ledger-empty__lines" aria-hidden="true">
-                  {["Mining yield", "USDC base rate", "Tactical exposure"].map((label, i) => (
-                    <div key={i} className="cy-ledger-empty__line">
-                      <span className="cy-ledger-empty__dot" style={{ opacity: 0.18 - i * 0.04 }} />
-                      <span className="cy-ledger-empty__bar" style={{ width: `${72 - i * 14}%`, opacity: 0.10 - i * 0.02 }}>{label}</span>
-                      <span className="cy-ledger-empty__val" style={{ opacity: 0.08 }}>—</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="cy-ledger-empty__caption">
-                  {emptyReason === "awaiting-data"
-                    ? "Your position is active. Allocation and projected yield will display as soon as the latest vault breakdown is published."
-                    : "Allocation and projected yield appear once your first position is confirmed on-chain."}
-                </p>
-              </div>
-          }
-          <hr className="cy-ledger-rule mt-5 mb-4 border-[color-mix(in_srgb,var(--ct-border-soft)_20%,transparent)]" aria-hidden />
+                });
+              })()}
+            </div>
 
-          <dl className="pf-stack--dense group/footer bg-[color-mix(in_srgb,var(--ct-surface-1)_30%,transparent)] p-3 rounded-lg border border-[color-mix(in_srgb,var(--ct-border-soft)_15%,transparent)] shadow-[var(--ct-shadow-inset)]">
-            <div className="flex items-center justify-between cy-footer-row transition-all duration-200 cursor-default mb-1.5">
-              <dt className="text-[var(--ct-text-micro)] uppercase tracking-widest min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
-                Blended forward
-              </dt>
-              <dd
-                className={cn("tabular text-[var(--ct-text-14)] font-bold transition-colors duration-200", isFilled ? "ct-text-strong group-hover/footer:ct-text-accent" : "ct-text-tertiary")}
-                aria-label={isFilled ? `Blended forward range ${rLow.toFixed(1)} to ${rHigh.toFixed(1)} percent` : "Blended forward range pending"}
-              >
-                {isFilled ? formatApyRange({ low: rLow, high: rHigh }) : "—"}
-              </dd>
-            </div>
-            <div className="flex items-center justify-between cy-footer-row transition-all duration-200 cursor-default">
-              <dt className="text-[var(--ct-text-micro)] uppercase tracking-widest min-w-0 truncate ct-text-tertiary transition-colors duration-200 group-hover/footer:ct-text-secondary font-medium">
-                Stressed bear
-              </dt>
-              <dd
-                className={cn("tabular text-[var(--ct-text-2xs)] font-semibold transition-colors duration-200", isFilled ? "ct-text-secondary group-hover/footer:ct-text-accent opacity-80" : "ct-text-tertiary")}
-                aria-label={isFilled ? `Stressed bear scenario ${sLow.toFixed(1)} to ${sHigh.toFixed(1)} percent` : "Stressed bear scenario pending"}
-              >
-                {isFilled ? formatApyRange({ low: sLow, high: sHigh }) : "—"}
-              </dd>
-            </div>
-          </dl>
+            {/* Per-bucket legend with contribution */}
+            <ul className="cy-v4-bucket-list" aria-label="Bucket breakdown">
+              {buckets.map((b) => {
+                const src = sources.find((s) => s.bucket === b.bucket);
+                const contribution = src?.contributionPct ?? null;
+                const contrib =
+                  contribution !== null
+                    ? contribution < 0
+                      ? `−${Math.abs(contribution).toFixed(1)}%`
+                      : `+${contribution.toFixed(1)}%`
+                    : null;
+
+                return (
+                  <li key={b.bucket} className="cy-v4-bucket-row">
+                    <span
+                      className="cy-v4-bucket-dot"
+                      style={{ background: BUCKET_BAR_COLOR[b.bucket] }}
+                      aria-hidden="true"
+                    />
+                    <span className="cy-v4-bucket-label">
+                      {src?.label ?? b.bucket}
+                    </span>
+                    <span className="cy-v4-bucket-pct tabular">{b.pct}%</span>
+                    {contrib !== null ? (
+                      <span
+                        className={cn(
+                          "cy-v4-bucket-contrib tabular",
+                          src?.isVolatile && "cy-v4-bucket-contrib--volatile",
+                        )}
+                      >
+                        {src?.isVolatile
+                          ? `±${Math.abs(src.contributionPct).toFixed(1)}%`
+                          : contrib}
+                      </span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* ── Disclaimer — non-negotiable #10 ── */}
+          <p className="cy-v4-disclaimer" role="note">
+            Conditional projection — not guaranteed ·{" "}
+            {methodologyVersion.startsWith("v")
+              ? methodologyVersion
+              : `v${methodologyVersion}`}
+          </p>
         </div>
-      </div>
-
-      {isFilled ? (
-        <p className="pf-panel-footnote body-xs ct-text-tertiary" role="note">
-          Conditional projection — not guaranteed ·{" "}
-          {methodologyVersion.startsWith("v")
-            ? methodologyVersion
-            : `v${methodologyVersion}`}
-        </p>
-      ) : null}
+      ) : (
+        <div className="cy-v4-empty">
+          {emptyReason === "awaiting-data" ? (
+            <>
+              <p className="cy-v4-empty__lead">Your position is active.</p>
+              <p className="cy-v4-empty__sub">
+                Allocation and projected yield will display as soon as the latest
+                vault breakdown is published.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="cy-v4-empty__lead">Position not yet confirmed.</p>
+              <p className="cy-v4-empty__sub">
+                Allocation and projected yield appear once your first position is
+                confirmed on-chain.
+              </p>
+            </>
+          )}
+        </div>
+      )}
     </PfCockpitPanel>
   );
 }

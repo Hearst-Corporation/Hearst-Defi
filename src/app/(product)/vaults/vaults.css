@@ -42,7 +42,7 @@
 .vault-alloc-donut__svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 4px 12px color-mix(in srgb, var(--ct-bg-deep) 20%, transparent));
 }
 
 .vault-alloc-donut__center {
@@ -80,7 +80,7 @@
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-xl);
   margin-bottom: var(--ct-space-16);
-  box-shadow: 0 8px 32px -16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px -16px color-mix(in srgb, var(--ct-bg-deep) 50%, transparent);
 }
 
 @container product-doc (min-width: 48rem) {

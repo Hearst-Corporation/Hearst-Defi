@@ -24,74 +24,196 @@ const VAULT_REFERENCE_PROPS: CapitalYieldProps = {
     { bucket: "mining", pct: 62, valueUsdc: 1_550_000 },
     { bucket: "usdc_base", pct: 38, valueUsdc: 950_000 },
   ],
-  totalValueUsdc: 0, // no investor position yet
-  source: "stale",
+  totalValueUsdc: 500_000,
+  source: "live",
 };
 
-describe("CapitalYield zero-state (no data) — always renders the donut graphic, unlabelled", () => {
-  it("renders the donut SVG even with empty props (illustrative fallback)", () => {
+/* ─── Panel identity ───────────────────────────────────────────────────────── */
+describe("CapitalYield — panel identity", () => {
+  it("always renders the 'Capital & Yield' title", () => {
     const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} embedded leafHref="/portfolio/yield" />,
+      <CapitalYield {...EMPTY_PROPS} />,
     );
-
-    // The graphic form is always present
-    expect(html).toContain("<svg");
-    expect(html).toContain("dash-chart-svg");
-  });
-
-  it("shows NO indicative/estimated label in zero-state", () => {
-    const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} embedded leafHref="/portfolio/yield" />,
-    );
-
-    expect(html).not.toContain("Estimated");
-    expect(html).not.toContain("Vault mix");
-    expect(html).not.toContain("Vault target allocation");
-    expect(html).not.toContain("Indicative target APY band");
-    expect(html).not.toContain("not guaranteed");
-  });
-
-  it("never shows $0 Capital in the donut centre when there is no position", () => {
-    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
-    expect(html).not.toContain("$0");
+    expect(html).toContain("Capital &amp; Yield");
   });
 });
 
-describe("CapitalYield active-position-but-no-vault-data — honest 'computing' copy", () => {
-  // Reported incoherence: investor has 1 active position ($11 deployed) but the
-  // vault allocation/yield snapshot is cold, so the donut/ledger are empty. The
-  // empty copy must NOT claim the first position is unconfirmed.
-  it("does NOT show 'first position is confirmed on-chain' when a position is active", () => {
-    const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
-    );
-    expect(html).not.toContain("first position is confirmed on-chain");
+/* ─── Empty: no position ─────────────────────────────────────────────────── */
+describe("CapitalYield — no-position empty state", () => {
+  it("shows the 'confirmed on-chain' copy when no position exists", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    expect(html).toContain("confirmed on-chain");
   });
 
-  it("shows the 'position is active' computing copy instead", () => {
+  it("shows the 'Position not yet confirmed' lead copy", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    expect(html).toContain("Position not yet confirmed");
+  });
+
+  it("never shows $0 in the no-position state", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    expect(html).not.toContain("$0");
+  });
+
+  it("does NOT show the 'Your position is active' copy", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    expect(html).not.toContain("Your position is active");
+  });
+
+  it("does NOT show the not-guaranteed disclaimer in empty state", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    expect(html).not.toContain("not guaranteed");
+  });
+});
+
+/* ─── Empty: awaiting-data (position active, vault snapshot not ready) ────── */
+describe("CapitalYield — awaiting-data state (position active, no vault snapshot)", () => {
+  it("shows 'Your position is active' copy", () => {
     const html = renderToStaticMarkup(
       <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
     );
     expect(html).toContain("Your position is active");
-    expect(html).toContain("Computing");
   });
 
-  it("still shows the genuine 'awaiting first position' copy when no position exists", () => {
-    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
-    expect(html).toContain("first position is confirmed on-chain");
-    expect(html).toContain("Pending");
+  it("does NOT show 'confirmed on-chain' (wrong empty state copy)", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
+    );
+    expect(html).not.toContain("confirmed on-chain");
+  });
+
+  it("does NOT show $0", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
+    );
+    expect(html).not.toContain("$0");
+  });
+
+  it("does NOT show the not-guaranteed disclaimer", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
+    );
+    expect(html).not.toContain("not guaranteed");
   });
 });
 
-describe("CapitalYield live state (real data + investor position)", () => {
-  it("renders the donut, the live subtitle, the provenance badge and the disclaimer", () => {
+/* ─── Live state ─────────────────────────────────────────────────────────── */
+describe("CapitalYield — live state (real data + investor position)", () => {
+  it("renders the panel title", () => {
     const html = renderToStaticMarkup(
-      <CapitalYield {...VAULT_REFERENCE_PROPS} totalValueUsdc={500_000} source="live" />,
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
     );
+    expect(html).toContain("Capital &amp; Yield");
+  });
 
-    expect(html).toContain("<svg");
-    expect(html).toContain("Allocation · 12m forward yield");
-    expect(html).toContain("Capital");
+  it("renders the APY range (9.4–12.8%) — non-negotiable #1", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    // ApyRange outputs the numbers with en-dash separator
+    expect(html).toContain("9.4");
+    expect(html).toContain("12.8");
+  });
+
+  it("shows the 'not guaranteed' disclaimer — non-negotiable #10", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
     expect(html).toContain("not guaranteed");
+  });
+
+  it("shows the formatted capital amount", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    // totalValueUsdc=500_000 → "$500K"
+    expect(html).toContain("$500K");
+  });
+
+  it("shows allocation bucket labels", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).toContain("Mining cashflow");
+    expect(html).toContain("USDC base yield");
+  });
+
+  it("shows bucket percentages", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).toContain("62%");
+    expect(html).toContain("38%");
+  });
+
+  it("shows a provenance badge when data is real — non-negotiable #2", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} source="live" updatedAt={new Date()} />,
+    );
+    // ProvenanceBadge is rendered (resolves to "estimated" by default preferred)
+    // The badge element has role="status" and an aria-label containing "provenance"
+    expect(html).toContain('role="status"');
+    expect(html).toContain("Data provenance");
+  });
+
+  it("does NOT show donut SVG elements (legacy removed)", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).not.toContain("dash-chart-svg");
+    expect(html).not.toContain("dash-chart-circle");
+    expect(html).not.toContain("cy-donut");
+  });
+
+  it("does NOT show 'Blended forward' (legacy removed)", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).not.toContain("Blended forward");
+  });
+
+  it("does NOT show 'Stressed bear' (legacy removed)", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).not.toContain("Stressed bear");
+  });
+
+  it("does NOT show 'Yield source · 12m fwd' (legacy ledger header removed)", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).not.toContain("Yield source");
+  });
+
+  it("does NOT show 'Computing' or 'Pending' (legacy donut centre removed)", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} />,
+    );
+    expect(html).not.toContain("Computing");
+    expect(html).not.toContain("Pending");
+  });
+
+  it("shows the methodology version in the disclaimer", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...VAULT_REFERENCE_PROPS} methodologyVersion="v1.0" />,
+    );
+    expect(html).toContain("v1.0");
+  });
+});
+
+/* ─── Guard: no forbidden words ─────────────────────────────────────────── */
+describe("CapitalYield — forbidden words (#5)", () => {
+  it("does not contain the word 'guarantee' in any state", () => {
+    const htmlEmpty = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    const htmlLive = renderToStaticMarkup(<CapitalYield {...VAULT_REFERENCE_PROPS} />);
+    expect(htmlEmpty).not.toMatch(/\bguarantee\b/i);
+    expect(htmlLive).not.toMatch(/\bguarantee\b/i);
+  });
+
+  it("does not contain 'promise' or 'risk-free' in any state", () => {
+    const htmlLive = renderToStaticMarkup(<CapitalYield {...VAULT_REFERENCE_PROPS} />);
+    expect(htmlLive).not.toContain("promise");
+    expect(htmlLive).not.toContain("risk-free");
   });
 });

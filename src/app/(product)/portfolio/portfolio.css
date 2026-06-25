@@ -159,6 +159,67 @@
   border-radius: 0;
 }
 
+/* Ticker — 4 KPI cells, graphite plate (ADR-013), no hover lift. */
+.pf-ticker-inline {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0 var(--ct-space-6);
+  margin: 0;
+  padding: var(--ct-space-3) var(--ct-space-5);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  box-shadow: var(--ct-glass-bevel);
+  transition: box-shadow var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-ticker-inline:hover {
+  box-shadow: var(--ct-glass-bevel);
+}
+
+.pf-ticker-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+.pf-ticker-label {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-90);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-ticker-value {
+  margin: var(--ct-space-0_5) 0 0;
+  font-size: var(--ct-text-xl-fixed);
+  font-weight: var(--ct-font-bold);
+  line-height: var(--ct-leading-none);
+  color: var(--ct-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-ticker-note {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-normal);
+  letter-spacing: var(--ct-tracking-normal);
+  text-transform: none;
+  color: var(--ct-text-tertiary);
+  line-height: var(--ct-leading-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* =============================================================================
    3. COCKPIT LAYOUT + THE NO-SCROLL CONTRACT
    -----------------------------------------------------------------------------
@@ -209,8 +270,7 @@
   backdrop-filter: blur(var(--ct-blur-xl));
 }
 
-.pf-fused-surface,
-.pf-hero-grid {
+.pf-fused-surface {
   display: grid;
   position: relative;
   min-width: 0;
@@ -224,6 +284,18 @@
   overflow: hidden;
 }
 
+.pf-hero-grid {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  overflow: hidden;
+}
 
 /* Pseudo element gradient masks removed to align with surface contract */
 .pf-fused-surface::before {
@@ -270,21 +342,6 @@
 }
 
 
-.pf-capital-yield--embedded-empty {
-  justify-content: center;
-}
-
-.cy-embedded-empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  min-width: 0;
-}
-
-.pf-capital-yield--embedded-empty .pf-stack--dense {
-  gap: var(--ct-space-2);
-}
-
 /* ---- SCROLL NATURALLY: all viewports, no viewport-lock ---- */
 .pf-container--fit { height: auto; overflow: visible; }
 .pf-container--fit .pf-cockpit { overflow: visible; }
@@ -295,7 +352,12 @@
    drives the panel to expand — leaving the plot as a thin strip. */
 .pf-hero-grid { min-height: 0; }
 .pf-container--fit .pf-hero-grid {
-  height: auto;
+  height: 18rem;
+}
+.pf-container--fit .pf-value-chart__chart-wrapper {
+  aspect-ratio: auto;
+  min-height: 0;
+  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
 }
 
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
@@ -315,7 +377,6 @@
   overflow: visible;
 }
 .pf-container--fit .pf-positions,
-.pf-container--fit .cy-ledger,
 .pf-container--fit .pf-activity {
   overflow: visible;
 }
@@ -441,8 +502,10 @@
   margin: 0;
 }
 
+.pf-value-chart--hero-embedded .pf-cockpit-panel__header-main {
+  gap: var(--ct-space-3);
+}
 
-/* ---- Leaf link ("view more →") ---- */
 .pf-cockpit-panel__subtitle {
   margin: 0;
   font-size: var(--ct-text-xs);
@@ -480,9 +543,10 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  /* 2 cols: Technical chart slot (flex) + status rail (fixed 19rem max) */
+  /* chart-geometry — 2 cols: chart (flex) + status rail (fixed 19rem max) */
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
-  height: auto;
+  /* chart-geometry — fixed hero height: header ~52px + chart 10rem + month-labels 28px ≈ 260px */
+  height: 16rem;
   overflow: clip;
 }
 
@@ -493,6 +557,23 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-surface-2) 28%, transparent),
+    transparent
+  );
+}
+
+.pf-main-chart-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
+    transparent 22%
+  );
+  pointer-events: none;
 }
 
 /* ---- ValueChart ---- */
@@ -518,7 +599,7 @@
 }
 
 .pf-hero-kpi-value {
-  /* Intentionally fixed at 3xl (24px), not display (32px).
+  /* chart-geometry — intentionally fixed at 3xl (24px), not display (32px).
      Cockpit metric, not a marketing headline. */
   font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-bold);
@@ -527,18 +608,154 @@
   color: var(--ct-text-strong);
 }
 
+.pf-value-chart--hero-embedded .pf-cockpit-panel__header {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+}
 
-.pf-value-chart__chart-slot {
+.pf-value-chart--hero-embedded .pf-cockpit-panel__header-trail {
+  display: flex;
+}
+
+.pf-value-chart--hero-embedded .pf-hero-kpi-block {
+  margin: 0 0 var(--ct-space-1);
+}
+
+.pf-value-chart__chart-wrapper,
+.pf-skeleton-chart {
   position: relative;
   flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  min-height: 8rem;
-  /* Technical slot: Reconstructed with Area + Distribution Dots pattern. */
+  /* chart-geometry — aspect backstop for non-hero usage; hero height is controlled by pf-hero-grid */
+  aspect-ratio: 200 / 72; /* chart-geometry */
+  overflow: hidden;
+  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+}
+
+/* Hero context: aspect-ratio would force height based on ~1000px width → 360px,
+   blowing the 16rem fixed grid. Override to pure flex fill. */
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper {
+  aspect-ratio: auto;
+  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
+}
+
+.pf-value-chart__chart-wrapper {
+  background: var(--ct-surface-1);
+  box-shadow: none;
+  animation: pf-chart-entry 1s var(--ct-ease) forwards;
+}
+
+@keyframes pf-chart-entry {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pf-value-chart__chart-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 18%, transparent)
+  );
+  pointer-events: none;
+}
+
+.pf-value-chart__chart-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 18%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 28%, transparent)
+  );
+  pointer-events: none;
+}
+
+.pf-value-chart__plot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  animation: pf-plot-fade-in var(--ct-dur-base) var(--ct-ease) forwards;
+}
+
+@keyframes pf-plot-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pf-value-chart__plot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Chart line + area — flat stroke, no glow animation. */
+.pf-value-chart__plot svg path[data-role="line"],
+.pf-value-chart__plot svg .vc-line,
+.pf-value-chart__plot svg path[stroke="var(--ct-accent)"] {
+  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
+  opacity: 1;
+  transition: stroke var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-value-chart__plot svg .vc-area {
+  fill: none;
+  opacity: 0;
+  filter: none;
+}
+
+.pf-vc-grid {
+  stroke: var(--ct-border-soft);
+  stroke-width: 0.5; /* chart-geometry */
+  opacity: var(--ct-opacity-80);
+}
+
+.pf-vc-axis {
+  stroke: var(--ct-border-strong);
+  stroke-width: 1;
+  opacity: 1;
+}
+
+/* Endpoint dots overlaid on the plot. */
+.pf-vc-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pf-vc-dot {
+  position: absolute;
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-text-muted);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  transition: left var(--ct-dur-base) var(--ct-ease), top var(--ct-dur-base) var(--ct-ease), opacity var(--ct-dur-base) var(--ct-ease);
+}
+
+.pf-vc-dot--endcap {
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  background: var(--ct-accent);
+  border: 1.5px solid var(--ct-surface-0);
 }
 
 .pf-positions-empty__hint,
 .pf-activity__empty-hint {
   color: var(--ct-text-tertiary);
+}
+
+.pf-value-chart__range-selector {
+  margin-bottom: var(--ct-space-1);
 }
 
 
@@ -580,6 +797,54 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   opacity: 0.8;
+}
+
+.pf-value-chart__month-labels {
+  position: relative;
+  /* Controlled label band. Was space-5 height + space-1 margin-top + space-2
+     padding-top (~32px) for a 9px nano label pinned at top:0 — a dead zone under
+     the plot that inflated the hero. Tightened so the chart fills its box and
+     May/Jun sit just under the plot. Hero height is grid-fixed (16rem): the
+     flex:1 chart-wrapper absorbs the reclaimed space, nothing grows. */
+  height: var(--ct-space-4);
+  margin-top: 0;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-1);
+}
+
+.pf-value-chart__month-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-tertiary);
+  white-space: nowrap;
+  letter-spacing: var(--ct-tracking-wider);
+  text-transform: uppercase;
+}
+
+/* Corner metrics hover states */
+.chart-provenance-corner {
+  transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: help;
+  opacity: var(--ct-opacity-80);
+}
+
+.chart-provenance-corner:hover {
+  opacity: 1;
+  transform: scale(1.02);
+  color: var(--ct-accent-light);
+}
+
+/* Badge LIVE (provenance corner) dans le plot : décollé du bord droit ET du
+   haut pour ne plus toucher l'endpoint de courbe ni le coin. Override des
+   utilitaires top-2/right-2 du composant (hors scope) via un sélecteur scopé
+   plus spécifique. Pilule sombre discrète — pas de glow. */
+.pf-value-chart__plot .chart-provenance-corner {
+  top: var(--ct-space-3);
+  right: var(--ct-space-4);
 }
 
 /* Rail metrics hover states */
@@ -680,8 +945,7 @@
   min-width: 0;
 }
 
-.pf-status-row__value,
-.cy-val {
+.pf-status-row__value {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
@@ -847,7 +1111,7 @@
 .pf-positions-empty-link:hover { color: var(--ct-accent-strong); }
 
 /* =============================================================================
-   8. CAPITAL & YIELD (.cy-* full instrument)
+   8. CAPITAL & YIELD (.cy-panel + .cy-v4-* — V4 premium rebuild)
    ============================================================================= */
 
 .cy-panel {
@@ -855,107 +1119,66 @@
   min-width: 0;
 }
 
-.cy-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 2fr);
-  align-items: stretch;
-  gap: var(--ct-space-8);
+/* ---- V4 body: vertical stack, full-width ---- */
+.cy-v4-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  max-width: 64rem;
 }
 
-/* ---- Donut ---- */
-.cy-donut,
-.dash-chart-container {
-  position: relative;
+/* ---- Hero metrics row ---- */
+.cy-v4-metrics {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 100%;
-  max-width: 12rem;
-  aspect-ratio: 1;
-  height: auto;
+  gap: var(--ct-space-8);
+  flex-wrap: wrap;
+  align-items: flex-end;
   min-width: 0;
-  margin: 0 auto;
 }
 
-.dash-chart-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg); /* chart-geometry — 0% slice starts at 12 o'clock */
-}
-
-.dash-chart-circle {
-  fill: none;
-  stroke-width: 3.4; /* chart-geometry */
-  transition: stroke-dashoffset 1.5s var(--ct-ease);
-}
-
-.cy-donut-arc {
-  stroke: var(--ct-accent);
-  transition: stroke-width var(--ct-dur-fast) var(--ct-ease), stroke var(--ct-dur-fast) var(--ct-ease);
-}
-
-.cy-donut-arc:hover {
-  stroke-width: 4.8;
-  stroke: var(--ct-accent-light);
-}
-
-.cy-arc-mining {
-  stroke-width: 4.2;
-}
-
-.donut-center {
-  position: absolute;
-  inset: 0;
+.cy-v4-metric {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ct-space-1);
-  text-align: center;
-  z-index: 1;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
 }
 
-.donut-val {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-extrabold);
+.cy-v4-metric__label {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-80);
+  white-space: nowrap;
+}
+
+.cy-v4-metric__value {
+  font-size: var(--ct-text-xl-fixed);
+  font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
 }
 
-
-/* ---- Spine (vertical hairline between donut and ledger) ---- */
-.cy-spine {
-  width: 1px;
-  align-self: stretch;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    color-mix(in srgb, var(--ct-border-soft) 40%, transparent) 15%,
-    color-mix(in srgb, var(--ct-border-soft) 40%, transparent) 85%,
-    transparent
-  );
-  flex: 0 0 auto;
+.cy-v4-metric--accent .cy-v4-metric__value {
+  font-size: var(--ct-text-2xl-fixed);
+  color: var(--ct-accent);
 }
 
-/* ---- Ledger ---- */
-.cy-ledger {
+/* ---- Allocation section ---- */
+.cy-v4-alloc {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-2);
   min-width: 0;
-  min-height: 0;
-  flex: 1 1 auto;
 }
 
-.cy-ledger-head {
+.cy-v4-alloc__head {
+  margin: 0;
   font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
@@ -964,134 +1187,123 @@
   opacity: var(--ct-opacity-80);
 }
 
-.cy-ledger-rule {
-  height: 1px;
-  background: color-mix(in srgb, var(--ct-border-soft) 45%, transparent);
-  margin: var(--ct-space-1) 0;
-}
-
-.cy-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: var(--ct-space-3);
-  row-gap: var(--ct-space-1);
-  min-width: 0;
-  padding: var(--ct-space-1_5) var(--ct-space-2);
-  margin-inline: calc(var(--ct-space-2) * -1);
-  border-radius: var(--ct-radius-md);
-  transition: all var(--ct-dur-base) var(--ct-ease);
-  cursor: default;
-  animation: cy-row-entry 0.6s var(--ct-ease) both;
-}
-
-@keyframes cy-row-entry {
-  from { opacity: 0; transform: translateX(-4px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.cy-row:nth-child(1) { animation-delay: 0.1s; }
-.cy-row:nth-child(2) { animation-delay: 0.15s; }
-.cy-row:nth-child(3) { animation-delay: 0.2s; }
-.cy-row:nth-child(4) { animation-delay: 0.25s; }
-.cy-row:nth-child(5) { animation-delay: 0.3s; }
-
-.cy-row:hover {
-  background: color-mix(in srgb, var(--cy-bucket, var(--ct-accent)) 6%, transparent);
-  transform: translateX(var(--ct-space-1));
-}
-
-.cy-row .cy-track {
-  grid-column: 1 / -1;
-}
-
-.cy-row-mining .cy-label {
-  color: var(--ct-accent);
-}
-
-.cy-dot {
-  width: var(--ct-space-2);
+/* Segmented bar showing bucket percentages as horizontal colour bands */
+.cy-v4-bar-track {
+  display: flex;
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
-  background: var(--cy-bucket, var(--ct-accent));
-  flex: 0 0 auto;
-  transition: transform var(--ct-dur-fast) var(--ct-ease), box-shadow var(--ct-dur-fast) var(--ct-ease);
-}
-
-.cy-row:hover .cy-dot {
-  transform: scale(1.2);
-}
-
-.cy-row:hover .cy-val {
-  color: var(--ct-accent-light);
-}
-
-.cy-row:hover .cy-label {
-  color: var(--cy-bucket, var(--ct-accent));
-}
-
-
-.cy-label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-secondary);
-  min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cy-val {
-  text-align: right;
-}
-
-/* ---- Track / fill / ticks (mini progress bar inside a ledger row) ---- */
-.cy-track {
-  position: relative;
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
+  gap: 1px; /* chart-geometry — inter-segment hairline */
+  width: 100%;
+  max-width: 40rem;
   background: color-mix(in srgb, var(--ct-surface-1) 80%, var(--ct-surface-2));
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 30%, transparent);
-  overflow: hidden;
+}
+
+.cy-v4-bar-seg {
+  height: 100%;
+  flex-shrink: 0;
+  transition: opacity var(--ct-dur-base) var(--ct-ease);
+}
+
+.cy-v4-bar-seg:hover {
+  opacity: var(--ct-opacity-80);
+}
+
+/* Bucket legend list (label · pct · contribution) */
+.cy-v4-bucket-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-3) var(--ct-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
   min-width: 0;
 }
 
-
-.cy-fill {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  height: 100%;
-  border-radius: var(--ct-radius-full);
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--cy-bucket, var(--ct-accent)) 40%, transparent),
-    var(--cy-bucket, var(--ct-accent))
-  );
-  transition: width var(--ct-dur-slower) var(--ct-ease-in-out);
-}
-
-/* shimmer sweep on the fill — subtle institutional movement */
-.cy-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 20%,
-    color-mix(in srgb, var(--ct-text-strong) 12%, transparent) 50%,
-    transparent 80%
-  );
-  transform: translateX(-100%);
-  animation: pf-shimmer 3s var(--ct-ease-in-out) infinite;
-}
-
-
-.cy-bucket {
+.cy-v4-bucket-row {
   display: flex;
   align-items: center;
   gap: var(--ct-space-2);
   min-width: 0;
+  flex-shrink: 0;
+}
+
+.cy-v4-bucket-dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  flex: 0 0 auto;
+  transition: transform var(--ct-dur-fast) var(--ct-ease);
+}
+
+.cy-v4-bucket-row:hover .cy-v4-bucket-dot {
+  transform: scale(1.25);
+}
+
+.cy-v4-bucket-label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.cy-v4-bucket-pct {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-strong);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "ss01";
+  white-space: nowrap;
+}
+
+.cy-v4-bucket-contrib {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-accent);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "ss01";
+  white-space: nowrap;
+}
+
+.cy-v4-bucket-contrib--volatile {
+  color: var(--ct-text-secondary);
+  opacity: var(--ct-opacity-80);
+}
+
+/* ---- Disclaimer footnote ---- */
+.cy-v4-disclaimer {
+  margin: 0;
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-60);
+  line-height: var(--ct-leading-snug);
+}
+
+/* ---- Empty states ---- */
+.cy-v4-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--ct-space-4) 0 var(--ct-space-2);
+}
+
+.cy-v4-empty__lead {
+  margin: 0;
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  line-height: var(--ct-leading-snug);
+}
+
+.cy-v4-empty__sub {
+  margin: 0;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-tertiary);
+  line-height: var(--ct-leading-snug);
+  max-width: 40ch;
 }
 
 /* =============================================================================
@@ -1709,68 +1921,6 @@
    Le panneau devient une colonne flex et RÉPARTIT verticalement le donut et le
    texte "Live allocation unlocks…" — fini le chevauchement (texte par-dessus le
    donut) causé par le double margin:auto + place-items:center sur la même bande. */
-/* ── Capital & Yield ZERO (onboarding-empty) — pile centrée SANS chevauchement ──
-   Le panneau = colonne flex qui centre verticalement le GROUPE {donut, copy}.
-   body et copy sont content-sized (flex:0 0 auto) → ils s'empilent naturellement,
-   donut PUIS copy, jamais l'un par-dessus l'autre. (Bug : avant, body flex:1 +
-   double centrage faisaient se rencontrer le donut et le texte au milieu.) */
-.cy-panel--onboarding-empty {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: var(--ct-space-3);
-}
-
-.cy-panel--onboarding-empty .cy-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  min-height: 0;
-}
-
-.cy-panel--onboarding-empty .cy-spine,
-.cy-panel--onboarding-empty .cy-ledger,
-.cy-panel--onboarding-empty .cy-row,
-.cy-panel--onboarding-empty .cy-track,
-.cy-panel--onboarding-empty .cy-ledger-head,
-.cy-panel--onboarding-empty .cy-ledger-rule {
-  display: none;
-}
-
-/* Donut placeholder zero : carré FIXE (largeur ET hauteur) + flex-shrink:0 pour
-   qu'il ne s'étire pas et n'empiète pas sur la copy en dessous. */
-.cy-panel--onboarding-empty .cy-donut,
-.cy-panel--onboarding-empty .dash-chart-container {
-  width: 100%;
-  max-width: 8rem;
-  aspect-ratio: 1;
-  height: auto;
-  flex: 0 0 auto;
-  opacity: var(--ct-opacity-70);
-}
-
-.cy-panel--onboarding-empty .cy-donut .dash-chart-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.cy-panel__empty-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-1);
-  text-align: center;
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  line-height: var(--ct-leading-snug);
-  max-width: 30ch;
-  /* Toujours SOUS le donut, jamais par-dessus : bloc autonome avec air au-dessus. */
-  flex: 0 0 auto;
-  margin: var(--ct-space-3) auto 0;
-}
 
 .pf-payout-calendar-panel--zero .pf-distrib-chart-shell {
   width: 100%;
@@ -1780,9 +1930,6 @@
 }
 
 
-.pf-container--zero .cy-body {
-  gap: var(--ct-space-2);
-}
 
 /* =============================================================================
    14. RESPONSIVE @container TIERS
@@ -1846,15 +1993,6 @@
   }
 }
 
-/* ---- Capital & Yield body: drop the spine + stack donut over ledger when tight ---- */
-@container pf (max-width: 30rem) {
-  .cy-body {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
-  .cy-spine { display: none; }
-  .cy-ledger { width: 100%; }
-}
 
 @container pf (max-width: 60rem) {
   .pf-fused-surface--deck {
@@ -1890,6 +2028,24 @@
   .pf-trust-compact-kpis { grid-template-columns: 1fr; }
 }
 
+@container pf (max-width: 48rem) {
+  .pf-ticker-inline {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: var(--ct-space-3) var(--ct-space-4);
+  }
+  .pf-ticker-cell {
+    flex: 1 1 auto;
+  }
+}
+
+@container pf (max-width: 32rem) {
+  .pf-ticker-inline {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 48rem) {
   .pf-greeting {
     flex-direction: column;
@@ -1906,6 +2062,19 @@
   100% { background-position: -200% 0; transform: translateX(100%); }
 }
 
+/* Line-draw animation for ValueChart — strokeDashoffset from full-length to 0. */
+@keyframes pf-line-draw {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* SVG path class — owns the draw animation (moved from inline style). */
+.pf-vc-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: pf-line-draw 1.6s var(--ct-ease) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pf-container *,
   .pf-container *::before,
@@ -1914,7 +2083,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .cy-fill::after { display: none; }
 }
 
 /* =============================================================================
@@ -1974,9 +2142,7 @@
    real rows fill in. No invented values, no "no data yet" phrase. ── */
 .pf-skeleton-bar,
 .pf-skeleton-glyph,
-.pf-skeleton-dot,
-.cy-dot--skeleton,
-.cy-fill--skeleton {
+.pf-skeleton-dot {
   display: inline-block;
   border-radius: var(--ct-radius-sm);
   background: color-mix(in srgb, var(--ct-graphite-subtle-bg) 90%, var(--ct-text-strong) 10%);
@@ -1990,8 +2156,7 @@
   flex-shrink: 0;
 }
 
-.pf-skeleton-dot,
-.cy-dot--skeleton {
+.pf-skeleton-dot {
   width: var(--ct-space-2);
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
@@ -2014,26 +2179,11 @@
   opacity: var(--ct-opacity-45);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
 }
-
-/* ── Capital & Yield zero-state polish — segmented muted donut + structured
-   ledger skeleton, so the empty widget reads as a calm pre-filled instrument
-   rather than a flat grey ring with dashes. ── */
-.dash-chart-svg--skeleton {
-  opacity: var(--ct-opacity-80);
-}
-.cy-donut-arc--skeleton {
-  fill: none;
-  stroke-width: 3.4; /* chart-geometry — matches .dash-chart-circle */
+.pf-vc-line--skeleton {
   opacity: 1;
+  animation: none;
+  stroke-dasharray: none;
 }
-
-.pf-skeleton-bar--cy-label { width: 58%; height: var(--ct-space-2); }
-.pf-skeleton-bar--cy-val { width: var(--ct-space-6); height: var(--ct-space-2); justify-self: end; }
-
-.cy-fill--skeleton {
-  opacity: var(--ct-opacity-60);
-}
-.cy-fill--skeleton::after { display: none; }
 
 /* =============================================================================
    16. POSITION CARDS — Strong Ledger style full-width cards
@@ -2086,7 +2236,7 @@
     color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
     transparent 60%
   );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(var(--ct-text-strong) 0 0) content-box, linear-gradient(var(--ct-text-strong) 0 0);
   mask-composite: exclude;
   pointer-events: none;
 }
@@ -2249,7 +2399,7 @@
 /* Rows : hauteur NATURELLE (scroll relâché). Le min-height reste un plancher
    de stabilité visuelle, mais plus de partage proportionnel qui plafonne le
    contenu au viewport et clippe les empty-states (ex. "confirmed on-chain"). */
-.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 18rem; }
+.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 24rem; }
 .pf-cockpit-row--yield     { flex: 0 0 auto; min-height: 12rem; }
 .pf-cockpit-row--deck      { flex: 0 0 auto; min-height: 15rem; }
 .pf-cockpit-row--positions { flex: 0 0 auto; min-height: 7rem; }
@@ -2266,7 +2416,7 @@
   height: auto;
 }
 
-.pf-cockpit-row .pf-value-chart__chart-slot {
+.pf-cockpit-row .pf-value-chart__chart-wrapper {
   aspect-ratio: auto;
   min-height: 0;
   max-height: none;
@@ -2281,6 +2431,16 @@
    PREMIUM PUSH 2 — new component classes + visual upgrades
    All tokens only. No raw hex/rgb. No glow. No halo.
    ============================================================================= */
+
+/* ── Y-axis value labels (SVG text via .pf-vc-ylabel) ─────────────────────── */
+.pf-vc-ylabel {
+  font-size: 4.5px; /* chart-geometry — SVG coordinate units, not CSS px */
+  font-weight: 600;
+  fill: var(--ct-text-tertiary);
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
 
 /* ── Portfolio Status Panel (pf-sp-*) ─────────────────────────────────────── */
 
@@ -2428,63 +2588,6 @@
   max-width: 10rem;
 }
 
-/* ── Capital & Yield — premium empty state ledger ──────────────────────────── */
-
-.cy-ledger-empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-2) 0 var(--ct-space-3);
-  min-height: 0;
-}
-
-.cy-ledger-empty__lines {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2_5);
-  pointer-events: none;
-}
-
-.cy-ledger-empty__line {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-
-.cy-ledger-empty__dot {
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  flex: 0 0 auto;
-}
-
-.cy-ledger-empty__bar {
-  height: var(--ct-space-5);
-  background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
-  border-radius: var(--ct-radius-sm);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
-  font-size: 0; /* hide the text label — purely visual */
-  flex: 0 0 auto;
-}
-
-.cy-ledger-empty__val {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-tertiary);
-  margin-left: auto;
-  flex: 0 0 auto;
-}
-
-.cy-ledger-empty__caption {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-60);
-  line-height: var(--ct-leading-snug);
-  max-width: 32ch;
-  margin: 0;
-}
 
 /* ── Recent Activity — premium zero-state ──────────────────────────────────── */
 
@@ -2804,3 +2907,51 @@
   opacity: var(--ct-opacity-70);
 }
 
+/* Y-axis HTML overlay labels */
+.pf-vc-ylabels {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--ct-space-8);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pf-vc-ylabel {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-tertiary);
+  opacity: 0.45;
+  white-space: nowrap;
+  letter-spacing: var(--ct-tracking-normal);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  padding-right: var(--ct-space-1_5);
+  line-height: 1;
+}
+
+/* Tooltip badge */
+.pf-vc-tooltip__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  margin-top: var(--ct-space-1_5);
+  padding-top: var(--ct-space-1_5);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
+}
+
+.pf-vc-tooltip__badge {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-accent);
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
+  border-radius: var(--ct-radius-sm);
+  background: color-mix(in srgb, var(--ct-accent) 15%, transparent);
+}

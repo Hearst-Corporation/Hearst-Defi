@@ -68,16 +68,24 @@ export function projectValueSeries(
   // Add start point
   points.push({ date: startTime, value: currentValue });
 
-  // 4. Sort points forwards and project to SVG
-  const sortedPoints = points.sort((a, b) => a.date.getTime() - b.date.getTime());
-  
+  // 4. Sort points forwards and project to SVG.
+  // Tie-breaker on insertion index: two points can share the same date (distribution
+  // emits a value-AFTER point then a value-BEFORE point at occurredAt). Preserving
+  // insertion order keeps the visual segment direction deterministic across JS engines.
+  const sortedPoints = points
+    .map((p, _i) => ({ ...p, _i }))
+    .sort((a, b) => (a.date.getTime() - b.date.getTime()) || (a._i - b._i));
+
   const minVal = Math.min(...sortedPoints.map(p => p.value));
   const maxVal = Math.max(...sortedPoints.map(p => p.value), 1); // Avoid div by 0
   const valSpan = maxVal - minVal || 1;
+  // P2: flat series (all values equal) → centre the line vertically instead of
+  // collapsing it to the chart floor (valFrac would be 0 for every point otherwise).
+  const isFlat = maxVal === minVal;
 
   return sortedPoints.map(p => {
     const timeFrac = (p.date.getTime() - startTime.getTime()) / totalDuration;
-    const valFrac = (p.value - minVal) / valSpan;
+    const valFrac = isFlat ? 0.5 : (p.value - minVal) / valSpan;
 
     return {
       x: PAD_X + timeFrac * DRAW_W,

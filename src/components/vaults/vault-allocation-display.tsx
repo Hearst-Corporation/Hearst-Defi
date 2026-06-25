@@ -27,7 +27,7 @@ function AllocationBar({
         <div className="flex items-center gap-(--ct-space-2_5) min-width-0 flex-1">
           <span
             aria-hidden
-            className="vault-alloc-bar__swatch border border-white/10 shadow-sm transition-transform duration-300 group-hover/bar:scale-110"
+            className="vault-alloc-bar__swatch border border-(--ct-border) shadow-[var(--ct-shadow-soft)] transition-transform duration-300 group-hover/bar:scale-110"
             style={{ background: color }}
           />
           <span className="vault-alloc-bar__label body-sm font-semibold ct-text-strong truncate group-hover/bar:ct-text-primary">

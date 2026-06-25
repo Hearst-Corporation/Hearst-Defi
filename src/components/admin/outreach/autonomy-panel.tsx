@@ -31,7 +31,7 @@ function CapabilityChip({ label, on }: { label: string; on: boolean }) {
     <span className="inline-flex items-center gap-(--ct-space-1_5)">
       <Badge 
         variant={on ? "success" : "default"} 
-        className="px-[var(--ct-space-1)] py-0 h-3.5 text-[length:var(--ct-text-nano)] uppercase tracking-wider min-w-[32px] justify-center"
+        className="px-[var(--ct-space-1)] py-0 h-3.5 text-[length:var(--ct-text-nano)] uppercase tracking-wider min-w-[var(--ct-space-10)] justify-center"
       >
         {on ? "On" : "Off"}
       </Badge>
