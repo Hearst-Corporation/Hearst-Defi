@@ -3878,24 +3878,16 @@ button.ct-choice-card {
   position: relative;
 }
 
-/* Fondu bas — voile fixe sur le bord inférieur du centre uniquement.
-   Posé en fixed, borné à la largeur du centre (hors rails).
-   pointer-events:none = pas d'interférence avec le contenu dessous. */
+/* Fondu bas — dégradé transparent vers bg-deep sur le bas du centre.
+   Pas de backdrop-filter (crée une couche opaque). Juste un fade propre. */
 .ct-center-panel > .ct-page-area::after {
   content: "";
   position: fixed;
   bottom: 0;
   left: var(--ct-rail-left);
   right: var(--ct-rail-right);
-  height: 5rem;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 70%, transparent) 50%,
-    var(--ct-bg-deep) 100%
-  );
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  height: 4rem;
+  background: linear-gradient(to bottom, transparent 0%, var(--ct-bg-deep) 100%);
   pointer-events: none;
   z-index: 10;
 }
