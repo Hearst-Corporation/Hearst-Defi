@@ -54,13 +54,26 @@ describe("visibleSubNavTabs", () => {
 
     const visible = visibleSubNavTabs(dashboard!.tabs).map((t) => t.id);
     expect(visible).not.toContain("onboarding-test");
+    // Agentic Console (the visual control center) leads, then the Agent Library.
     expect(visible).toEqual([
       "dashboard-overview",
       "customers",
-      "agents",
       "agentic",
+      "agents",
       "outreach",
       "feedback",
     ]);
+  });
+
+  it("labels Agentic Console + Agent Library distinctly (no two 'Bot' duplicates)", () => {
+    const dashboard = ADMIN_SECTIONS.find((s) => s.id === "dashboard");
+    const agentic = dashboard!.tabs.find((t) => t.id === "agentic");
+    const agents = dashboard!.tabs.find((t) => t.id === "agents");
+    expect(agentic?.label).toBe("Agentic Console");
+    expect(agentic?.href).toBe("/admin/agentic");
+    expect(agents?.label).toBe("Agent Library");
+    expect(agents?.href).toBe("/admin/agents");
+    // Distinct icons so the two are not confusing.
+    expect(agentic?.icon).not.toBe(agents?.icon);
   });
 });

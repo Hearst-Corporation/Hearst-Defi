@@ -18,7 +18,10 @@ import {
 import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
 import { ToolBoundarySection } from "@/components/admin/agentic/tool-boundary-section";
 import { ReportingCrewSection } from "@/components/admin/agentic/reporting-crew-section";
+import { AgenticSystemMap } from "@/components/admin/agentic/agentic-system-map";
+import { AgenticDetailInspector } from "@/components/admin/agentic/agentic-detail-inspector";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
+import { getAgenticSystemMap } from "@/lib/agentic/system-map";
 import { getReportingCrewBriefing } from "@/lib/agentic/reporting";
 import {
   getRouterObservabilitySummary,
@@ -109,6 +112,15 @@ export default async function AgenticControlCenterPage({
     () => null,
   );
 
+  // Agentic System Map (Layer 1) — a pure, read-only graph composed from the data
+  // already fetched above (control center + observability + reporting). No new
+  // read, no tool execution.
+  const systemMap = getAgenticSystemMap({
+    controlCenter: data,
+    observability,
+    reporting: reportingCrew,
+  });
+
   return (
     <>
       <AdminPageHeader
@@ -116,6 +128,12 @@ export default async function AgenticControlCenterPage({
         titleAccent="Control Center"
         contextLabel={`Agentic Control Center · static registry ${data.version} / read-only`}
       />
+
+      {/* Layer 1 — Live visual system map (first thing the admin sees). */}
+      <AgenticSystemMap map={systemMap} />
+
+      {/* Layer 2 — Detail inspector: per-layer rollup + jump-links into panels. */}
+      <AgenticDetailInspector map={systemMap} />
 
       {/* 1. System status ---------------------------------------------- */}
       <section className="admin-doc-stack" aria-label="System status">
@@ -141,7 +159,7 @@ export default async function AgenticControlCenterPage({
       </section>
 
       {/* 2. Router ------------------------------------------------------ */}
-      <section className="admin-doc-stack" aria-label="Router status">
+      <section id="router" className="admin-doc-stack" aria-label="Router status">
         <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
           <h2 className="h2 m-0">Router</h2>
           <Badge variant={router.status === "active" ? "success" : "default"}>
@@ -253,7 +271,7 @@ export default async function AgenticControlCenterPage({
       </section>
 
       {/* 3. Agents & logic inventory ----------------------------------- */}
-      <section className="admin-doc-stack" aria-label="Agents and logic inventory">
+      <section id="agents-inventory" className="admin-doc-stack" aria-label="Agents and logic inventory">
         <h2 className="h2">Agents &amp; logic inventory ({inventory.length})</h2>
         <p className="body-xs ct-text-muted">
           Every agent / logic that exists in code, with its source-of-truth path,
@@ -343,7 +361,7 @@ export default async function AgenticControlCenterPage({
       </section>
 
       {/* 5. Human gates ------------------------------------------------ */}
-      <section className="admin-doc-stack" aria-label="Human gates">
+      <section id="human-gates" className="admin-doc-stack" aria-label="Human gates">
         <h2 className="h2">Human gates ({gates.length})</h2>
         <p className="body-xs ct-text-muted">
           Critical actions that must never be autonomous. Every one is{" "}
@@ -377,7 +395,7 @@ export default async function AgenticControlCenterPage({
       </section>
 
       {/* 6. Prompt map ------------------------------------------------- */}
-      <section className="admin-doc-stack" aria-label="Prompt map">
+      <section id="prompt-map" className="admin-doc-stack" aria-label="Prompt map">
         <h2 className="h2">Prompt map</h2>
         <p className="body-xs ct-text-muted">
           Where the system prompts, agent prompts, canvas guidance, and textual
@@ -405,7 +423,7 @@ export default async function AgenticControlCenterPage({
       </section>
 
       {/* 7. Compliance / Guards ---------------------------------------- */}
-      <section className="admin-doc-stack" aria-label="Compliance and guards">
+      <section id="compliance-guards" className="admin-doc-stack" aria-label="Compliance and guards">
         <h2 className="h2">Compliance / Guards</h2>
         <p className="body-xs ct-text-muted">
           The output-side guards that run on every human-facing surface. The
