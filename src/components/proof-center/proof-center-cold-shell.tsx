@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PORTFOLIO_ONBOARDING_INVEST_HREF } from "@/lib/portfolio/layout-preview";
 import { ShieldCheck, Zap, BarChart3, FileText, Lock } from "lucide-react";
@@ -63,12 +64,9 @@ export function ProofCenterColdShell({
           </div>
         </div>
         {variant === "product" ? (
-          <Link
-            href={PORTFOLIO_ONBOARDING_INVEST_HREF}
-            className="proof-cold-cta ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover ct-transition-base ct-focus-ring ct-press no-underline mt-(--ct-space-2)"
-          >
-            Explore products
-          </Link>
+          <Button asChild variant="primary" className="proof-cold-cta no-underline mt-(--ct-space-2)">
+            <Link href={PORTFOLIO_ONBOARDING_INVEST_HREF}>Explore products</Link>
+          </Button>
         ) : null}
       </Container>
 

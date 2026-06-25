@@ -56,7 +56,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
   return (
     <>
       <Card>
-        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" className="gov-section-header" />
+        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" titleLevel="section" className="gov-section-header" />
         <p className="body-sm ct-text-muted">
           Addresses on this list use the <span className="font-semibold ct-text-primary">fast path</span> (2/3 sigs · 0h timelock · no board notification).
           Unknown addresses route through the <span className="font-semibold ct-text-primary">medium path</span> (&lt;$100k → 3/5 · 12h) or{" "}
@@ -70,7 +70,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
           <h2 id="allowlist-add-heading" className="sr-only">
             Add entry
           </h2>
-          <DashboardPanelHeader title="Add entry" tone="quiet" className="gov-section-header" />
+          <DashboardPanelHeader title="Add entry" tone="quiet" titleLevel="section" className="gov-section-header" />
           <form action={addAllowlistEntryAction} className="admin-doc-stack admin-doc-stack--relaxed">
             <div className="admin-doc-form-grid-2">
               <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
@@ -167,6 +167,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
               <DashboardPanelHeader
                 title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
                 tone="quiet"
+                titleLevel="section"
                 className="gov-section-header"
               />
               <div className="gov-allowlist-table-scroll overflow-x-auto">

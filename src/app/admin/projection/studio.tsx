@@ -13,6 +13,7 @@ import { Ptai } from "@/components/ui/ptai";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { PanelStatus, PanelStatusAccent, PanelStatusSection } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   allocationStrokeFor,
   allocationLabelFor,
@@ -514,30 +515,17 @@ export function ProjectionStudio() {
         {/* Execution Mode */}
         <div className="admin-doc-stack admin-doc-stack--actions">
           <p className="eyebrow ct-text-muted">Execution Mode</p>
-          <div className="admin-doc-inline-row">
-            {(
-              [
-                { id: "none", label: "Single" },
-                { id: "1d", label: "1D Sweep" },
-                { id: "2d", label: "2D Matrix" },
-              ] as { id: BatchMode; label: string }[]
-            ).map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setBatchMode(m.id)}
-                aria-pressed={batchMode === m.id}
-                className={cn(
-                  "ct-pill body-xs select-none transition-all",
-                  batchMode === m.id
-                    ? "bg-[var(--ct-surface-1)] border-[var(--ct-border-accent)] ct-text-accent"
-                    : "ct-text-muted hover:ct-text-body"
-                )}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<BatchMode>
+            variant="radiogroup"
+            ariaLabel="Execution mode"
+            value={batchMode}
+            onChange={setBatchMode}
+            items={[
+              { value: "none", label: "Single" },
+              { value: "1d", label: "1D Sweep" },
+              { value: "2d", label: "2D Matrix" },
+            ]}
+          />
           {batchMode === "1d" && (
             <p className="body-xs ct-text-faint italic">
               BTC sweep: <span className="mono ct-text-muted">{DEFAULT_1D_VALUES.join(", ")}%</span>
