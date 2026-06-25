@@ -16,33 +16,39 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-control-center-v0
-Owner: Agentic Control Center Owner
-Branch: feat/agentic-control-center-v0
-Worktree: ../connect-agentic-control-center
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/app/admin/agentic/**
-- src/app/admin/agentic/page.tsx
-- src/components/admin/agentic/**
-- src/lib/agentic/control-center/**
-- docs/agentic/AGENTIC_CONTROL_CENTER_V0.md
-- tests for read-only agentic inventory
-
-Notes:
-- Build read-only Agentic Control Center v0.
-- No chat route changes.
-- No router/guard behavior changes.
-- No tool execution.
-- No DB migration.
-- No prod writes.
-- Read-only imports of src/lib/agentic/* only (intent-router owned by Kimi agent; not edited).
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-control-center-v0
+Owner: Agentic Control Center Owner
+Branch: feat/agentic-control-center-v0
+Merged PR: #38
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/app/admin/agentic/** + page.tsx
+- src/components/admin/agentic/**
+- src/lib/agentic/control-center/**
+- docs/agentic/AGENTIC_CONTROL_CENTER_V0.md
+- src/components/nav/product-nav-items.ts (additive "Agentic" sub-nav tab) + nav/route snapshot tests
+- Base repair (out-of-band, user-authorized): admin/audit/page.tsx, admin/signals/actions.ts,
+  admin/customers/actions.ts, admin/proofs/actions.ts, lib/admin/audit.ts,
+  inngest outreach-auto-send.ts + outreach-followups.ts
+
+Result:
+- Read-only Agentic Control Center v0 shipped at /admin/agentic: static typed inventory
+  (agents, router status, human gates, tool boundary, prompt map, safety summary). No DB,
+  no LLM, no tool execution, no writes. +34 inventory tests.
+- Repaired a pre-existing broken origin/main base (43aefa84) that blocked typecheck + the
+  Vercel prod build (mismatched JSX, missing signerKey, prisma import drift, $transaction
+  overload misuse). typecheck PASS, build PASS, 3089/3089 tests, Vercel prod READY.
+  Did NOT touch sensitive single-owner files (schema, chat route, output-guard, .mcp.json).
+- Merged 212235eb, PR #38. The only red check is the documented pre-existing Playwright
+  login-flow:91 E2E (out of scope, non-blocking).
 
 ### feat/agentic-router-stabilization
 Owner: Opus Orchestrateur — Agentic Platform Stabilization
