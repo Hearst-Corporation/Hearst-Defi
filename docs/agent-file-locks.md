@@ -16,31 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-observability-sql-aggregates-v12
-Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery
-Branch: feat/router-observability-sql-aggregates-v12
-Worktree: ../connect-opus-router-observability-sql-aggregates
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/observability/**
-- src/lib/agentic/control-center/**
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- docs/agentic/**
-- tests related to router observability SQL aggregates
-- docs/agent-file-locks.md
-
-Notes:
-- Add SQL aggregate read path for durable router observability (O(buckets), not O(rows)).
-- No router/guard/HITL behavior change. No tool execution.
-- No DB migration. No Prisma/schema change. No new table.
-- No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/router-observability-sql-aggregates-v12
+Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery
+Branch: feat/router-observability-sql-aggregates-v12
+Merged PR: #55 (merge 4c916a38)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- SQL Router Observability Aggregates v1.2: the durable window views (stats, trend
+  buckets, top rules) are computed DB-side in src/lib/agentic/observability/db-aggregates.ts
+  (readDurableRouterDecisionAggregates) instead of loading up to 5000 rows. Stats via
+  prisma.groupBy (outcome + kind); trend buckets via ONE parameterized $queryRaw that bins
+  by index and GROUPs by (idx, outcome), projected into the SAME prebuilt slots so bars are
+  byte-identical; top rules stay a bounded in-memory scan (matchedRuleIds is JSON, capped
+  2000). Provider-gated to Postgres; declines (ok:false) → in-memory v1.1 path on SQLite or
+  ANY failure → Redis/memory fallback when durable is down. New summary.aggregationMode
+  (sql / in_memory / fallback) surfaced as a read-only badge in /admin/agentic. NO router /
+  guard / HITL change, NO tool execution, NO autonomous writes, NO Prisma/schema change, NO
+  migration, NO new table, NO user text/prompt/tool-payload storage. typecheck PASS, lint 0
+  errors, full suite 3235/3235, build PASS (postgresql), empty Prisma diff. Merged 4c916a38,
+  PR #55. Follow-up cleanup: drop 2 unused imports in db-aggregates.ts.
 
 ### feat/router-observability-long-window-v11
 Owner: Opus Orchestrateur — Long-Window Router Observability Delivery

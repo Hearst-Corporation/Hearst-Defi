@@ -22,10 +22,8 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { resolvePrismaProvider } from "@/lib/prisma-provider-resolve";
-import { categorizeOutcome } from "./stats";
 import {
   buildEmptyTrendBuckets,
-  getRouterTrendWindowGeometry,
   getTopMatchedRules,
   trendCategoryKeyForOutcome,
 } from "./trends";
