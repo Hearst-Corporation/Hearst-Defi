@@ -41,6 +41,30 @@ Result:
   (PR #51) — durable feeds both the 30d window and the per-day long-term aggregate.
   typecheck PASS, lint 0, full suite 3216/3216, build PASS. Merged 1cf26a39, PR #52.
 
+### feat/router-observability-retention-v1
+Owner: Opus Orchestrateur — Router Observability Retention Delivery
+Branch: feat/router-observability-retention-v1
+Merged PR: #51
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agentic/observability/** (retention config + durableAggregateByDay + long-term summary)
+- src/lib/env.ts (OBS_RETENTION_DAYS, optional additive)
+- src/components/admin/agentic/router-observability-longterm.tsx (new) + section render
+- docs/agentic/ROUTER_OBSERVABILITY_V1.md (v1.1) + tests
+
+Result:
+- Read-only configurable retention (OBS_RETENTION_DAYS, default 90, [1,365]) + long-term
+  per-day aggregate over the EXISTING AgenticRouterDecisionTrace table. NO new model, NO
+  migration, NO schema change. durableAggregateByDay reads a narrow createdAt+outcome
+  projection (indexed), buckets by UTC day, clamped to retention, ok:false on DB failure.
+  New RouterObservabilityLongTerm component (per-day bars + horizon totals, honest
+  unavailable/empty). categorizeOutcome shared from stats.ts. No router/guard/HITL change,
+  no user text stored. typecheck PASS, lint 0, full suite 3198/3198, build PASS, Vercel
+  prod READY (deploy 5193211024). Merged adc25a06, PR #51. Only red check = pre-existing
+  Playwright login-flow:91 (out of scope).
+
 ### feat/router-observability-durable-v1
 Owner: Opus Orchestrateur — Durable Router Observability v1 Delivery
 Branch: feat/router-observability-durable-v1
