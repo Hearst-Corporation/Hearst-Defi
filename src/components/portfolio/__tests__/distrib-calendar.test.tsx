@@ -100,11 +100,9 @@ describe("DistribCalendar — empty entries", () => {
       <DistribCalendar entries={[]} shareClass={null} cadence={null} asOf={new Date("2026-06-01T00:00:00Z")} />,
     );
 
-    // Skeleton frame is present
-    expect(html).toContain("pf-distrib-chart--skeleton");
-    expect(html).toContain("<svg");
+    // Skeleton frame is no longer present in the updated zero-state design
     // Premium empty-state badge (intentional design from passe 2)
-    expect(html).toContain("No distributions yet");
+    expect(html).toContain("Monthly USDC distributions begin");
     // No invented amounts/labels — the badge is honest zero-state, not fake data
     expect(html).not.toContain("[Estimate]");
   });
@@ -129,7 +127,7 @@ describe("DistribCalendar — single entry", () => {
 
   it("barHeight for single entry == BAR_AREA_H (max bar, clamped at 100%)", () => {
     // When amount === maxAmount → ratio = 1 → full height
-    const BAR_AREA_H = 140 - 8; // matches constants in component
+    const BAR_AREA_H = 140 - 32; // matches constants in component (BAR_AREA_BOT - BAR_AREA_TOP)
     const h = barHeight(2310, 2310);
     expect(h).toBe(BAR_AREA_H);
   });
