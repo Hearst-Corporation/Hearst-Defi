@@ -16,34 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/perf-network-guardrails
-Owner: Opus Orchestrateur — Performance Guardrails
-Branch: feat/perf-network-guardrails
-Worktree: ../connect-opus-perf-guardrails
-Started: 2026-06-26
-Status: active
-
-Scope:
-- scripts/perf/**
-- scripts/qa/**
-- tests/performance/**
-- playwright/performance/**
-- docs/performance/**
-- package.json only if adding a script command is necessary
-- docs/agent-file-locks.md
-
-Notes:
-- Add non-UI performance guardrails for duplicate network calls.
-- No UI/UX changes.
-- No design-system changes.
-- No /admin/agentic changes.
-- No portfolio visual changes.
-- No router/guard/HITL behavior changes.
-- No Prisma/schema/migrations.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/perf-network-guardrails
+Owner: Opus Orchestrateur — Performance Guardrails
+Branch: feat/perf-network-guardrails
+Merged PR: #75 (merge d7fbb0e6)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Network request guardrails (non-UI): new scripts/perf/qa-network-guardrails.mjs loads
+  /portfolio in headless chromium, counts API calls per endpoint, and fails (exit 1) when
+  /api/chat-nav exceeds 1 call on initial load OR /api/admin/review-mode fires on a non-admin
+  route. Reports TTFB/FCP/DOMContentLoaded/long-tasks/DOM-nodes as INFO. Never fabricates a
+  pass: server-down / login-blocked / chromium-missing → exit 2 (could-not-run). package.json
+  gained `qa:perf-network`. docs/performance/NETWORK_GUARDRAILS.md documents problem, thresholds,
+  run steps, fail interpretation, and non-scope. Verified live against dev: guardrail correctly
+  FAILED current main (chat-nav 3>1, review-mode 1>0) — the app fix is owned by another agent.
+  typecheck PASS, lint 0 errors, build PASS (postgresql), empty Prisma diff, all forbidden paths
+  (/admin/agentic, portfolio components, chat-nav/review-mode routes, schema, migrations) untouched.
 
 ### feat/agentic-control-tower-v2
 Owner: Opus Orchestrateur — Agentic Control Tower Redesign V2
