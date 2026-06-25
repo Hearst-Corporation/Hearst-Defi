@@ -28,23 +28,23 @@ export function projectValueSeries(
     .filter(tx => tx.occurredAt >= startTime && tx.occurredAt <= endTime)
     .sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime());
 
-  // 3. Work backwards from current value to find historical values
-  // We want a point for each transaction + start/end points.
-  const points: { date: Date; value: number; isDistribution?: boolean }[] = [];
-  
-  // Current state
+  // 3. Work backwards from current value to find historical values.
+  // Each event emits two points at the SAME instant: the value just BEFORE it and
+  // the value just AFTER it. `phase` orders them in forward time (before = 0 then
+  // after = 1) so the step renders in the correct direction — a deposit steps UP,
+  // a withdrawal/distribution steps DOWN — never a spurious up-then-down zigzag.
+  const points: { date: Date; value: number; isDistribution?: boolean; phase: number }[] = [];
+
+  // Current state (held from the most recent event until now).
   let currentValue = totalValueUsdc;
-  points.push({ date: endTime, value: currentValue });
+  points.push({ date: endTime, value: currentValue, phase: 0 });
 
   // Iterate backwards through transactions
   for (let i = sortedTxs.length - 1; i >= 0; i--) {
     const tx = sortedTxs[i]!;
-    
-    // Add point at the transaction time (with the value AFTER the transaction)
-    points.push({ 
-      date: tx.occurredAt, 
-      value: currentValue
-    });
+
+    // Value AFTER the transaction (holds from this event forward) — later phase.
+    points.push({ date: tx.occurredAt, value: currentValue, phase: 1 });
 
     // Adjust value based on transaction type (working backwards)
     if (tx.type === "deposit") {
@@ -52,29 +52,28 @@ export function projectValueSeries(
     } else if (tx.type === "withdraw") {
       currentValue += tx.amountUsdc;
     } else if (tx.type === "distribution" || tx.type === "claim") {
-      // Distributions/claims are paid out of accrued yield. 
+      // Distributions/claims are paid out of accrued yield.
       // Working backwards, we add them back to see the value before payout.
       currentValue += tx.amountUsdc;
     }
 
-    // Add point at the transaction time (with the value BEFORE the transaction)
-    points.push({ 
-      date: tx.occurredAt, 
+    // Value BEFORE the transaction — earlier phase at this same instant.
+    points.push({
+      date: tx.occurredAt,
       value: currentValue,
-      isDistribution: tx.type === "distribution" 
+      isDistribution: tx.type === "distribution",
+      phase: 0,
     });
   }
 
   // Add start point
-  points.push({ date: startTime, value: currentValue });
+  points.push({ date: startTime, value: currentValue, phase: 0 });
 
-  // 4. Sort points forwards and project to SVG.
-  // Tie-breaker on insertion index: two points can share the same date (distribution
-  // emits a value-AFTER point then a value-BEFORE point at occurredAt). Preserving
-  // insertion order keeps the visual segment direction deterministic across JS engines.
+  // 4. Sort points forwards (by date, then phase) and project to SVG. Sorting by
+  // phase at an equal timestamp guarantees the before-state precedes the after-state,
+  // i.e. a clean vertical step in the correct direction (deterministic across engines).
   const sortedPoints = points
-    .map((p, _i) => ({ ...p, _i }))
-    .sort((a, b) => (a.date.getTime() - b.date.getTime()) || (a._i - b._i));
+    .sort((a, b) => (a.date.getTime() - b.date.getTime()) || (a.phase - b.phase));
 
   const minVal = Math.min(...sortedPoints.map(p => p.value));
   const maxVal = Math.max(...sortedPoints.map(p => p.value), 1); // Avoid div by 0
