@@ -20,8 +20,14 @@ import { ToolBoundarySection } from "@/components/admin/agentic/tool-boundary-se
 import { ReportingCrewSection } from "@/components/admin/agentic/reporting-crew-section";
 import { AgenticSystemMap } from "@/components/admin/agentic/agentic-system-map";
 import { AgenticDetailInspector } from "@/components/admin/agentic/agentic-detail-inspector";
+import { ActionReadinessMatrixSection } from "@/components/admin/agentic/action-readiness-matrix-section";
+import { CrewSimulationSection } from "@/components/admin/agentic/crew-simulation-section";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
-import { getAgenticSystemMap } from "@/lib/agentic/system-map";
+import {
+  getAgenticSystemMap,
+  getActionReadinessMatrix,
+  getCrewSimulations,
+} from "@/lib/agentic/system-map";
 import { getReportingCrewBriefing } from "@/lib/agentic/reporting";
 import {
   getRouterObservabilitySummary,
@@ -112,9 +118,14 @@ export default async function AgenticControlCenterPage({
     () => null,
   );
 
+  // Action Readiness Matrix + Crew Simulations (v1 integration) — both PURE, no
+  // I/O, no tool execution. Computed once here and shared by the map + sections.
+  const actionReadiness = getActionReadinessMatrix();
+  const crewSimulations = getCrewSimulations();
+
   // Agentic System Map (Layer 1) — a pure, read-only graph composed from the data
-  // already fetched above (control center + observability + reporting). No new
-  // read, no tool execution.
+  // already fetched above (control center + observability + reporting) plus the
+  // action-readiness + crew-simulation modules. No new read, no tool execution.
   const systemMap = getAgenticSystemMap({
     controlCenter: data,
     observability,
@@ -133,7 +144,11 @@ export default async function AgenticControlCenterPage({
       <AgenticSystemMap map={systemMap} />
 
       {/* Layer 2 — Detail inspector: per-layer rollup + jump-links into panels. */}
-      <AgenticDetailInspector map={systemMap} />
+      <AgenticDetailInspector
+        map={systemMap}
+        actionReadiness={actionReadiness}
+        crewSimulations={crewSimulations}
+      />
 
       {/* 1. System status ---------------------------------------------- */}
       <section className="admin-doc-stack" aria-label="System status">
@@ -496,6 +511,12 @@ export default async function AgenticControlCenterPage({
 
       {/* 9b. Reporting Crew — read-only briefing (first read-only crew) -- */}
       <ReportingCrewSection briefing={reportingCrew} />
+
+      {/* 9c. Action Readiness Matrix (read-only tier lanes) ------------- */}
+      <ActionReadinessMatrixSection matrix={actionReadiness} />
+
+      {/* 9d. Crew Simulation (read-only flows, executable: false) ------- */}
+      <CrewSimulationSection simulations={crewSimulations} />
 
       {/* 10. Next architecture steps ----------------------------------- */}
       <section className="admin-doc-stack" aria-label="Next architecture steps">

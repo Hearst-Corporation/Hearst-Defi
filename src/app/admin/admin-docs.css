@@ -341,3 +341,114 @@ a.agentic-map-node:hover {
 .agentic-map-legend[data-kind="forbids"] {
   border-color: color-mix(in srgb, var(--ct-status-danger) 40%, var(--ct-border-soft));
 }
+
+/* =============================================================================
+   Action Readiness lanes + Crew Simulation flows (Visual Integration V1).
+   Token-only, no hardcoded hex (color-mix from --ct-*). Responsive, no h-scroll.
+   ============================================================================= */
+
+.agentic-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--ct-space-3);
+  align-items: start;
+}
+
+.agentic-action-lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  border-top-width: 3px;
+  background: color-mix(in srgb, var(--ct-surface-1) 88%, transparent);
+  min-width: 0;
+}
+.agentic-action-lane[data-tier="read_only"] {
+  border-top-color: var(--ct-status-success);
+}
+.agentic-action-lane[data-tier="draft_or_proposal"],
+.agentic-action-lane[data-tier="confirmed_write"] {
+  border-top-color: var(--ct-status-warning);
+}
+.agentic-action-lane[data-tier="forbidden_autonomous"] {
+  border-top-color: var(--ct-status-danger);
+}
+
+.agentic-action-lane-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.agentic-action-chip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-2);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-2);
+  min-width: 0;
+}
+
+/* Crew simulation flow rails */
+.agentic-flow-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.agentic-flow-step {
+  display: flex;
+  gap: var(--ct-space-2);
+  align-items: flex-start;
+  padding: var(--ct-space-2);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  border-left-width: 3px;
+  background: color-mix(in srgb, var(--ct-surface-1) 75%, transparent);
+  min-width: 0;
+}
+.agentic-flow-step[data-mode="read_only"] {
+  border-left-color: var(--ct-status-success);
+}
+.agentic-flow-step[data-mode="draft_only"],
+.agentic-flow-step[data-mode="confirmed_write_blocked"] {
+  border-left-color: var(--ct-status-warning);
+}
+.agentic-flow-step[data-mode="forbidden"] {
+  border-left-color: var(--ct-status-danger);
+}
+
+.agentic-flow-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 32%, var(--ct-border-soft));
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-strong);
+}
+
+.agentic-flow-blocked {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ct-space-0_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid color-mix(in srgb, var(--ct-status-danger) 40%, var(--ct-border-soft));
+  background: color-mix(in srgb, var(--ct-status-danger) 8%, transparent);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+  overflow-wrap: anywhere;
+}

@@ -12,6 +12,8 @@ import type {
   AgenticSystemMap,
   AgenticSystemNodeStatus,
 } from "@/lib/agentic/system-map/types";
+import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
+import type { CrewSimulationResult } from "@/lib/agentic/crew-simulation/types";
 
 type Tone = "success" | "warning" | "danger" | "default" | "accent";
 
@@ -31,6 +33,8 @@ function statusTone(status: AgenticSystemNodeStatus): Tone {
 /** Read-only jump-links into the preserved detail sections below the map. */
 const DETAIL_LINKS: { href: string; label: string }[] = [
   { href: "#reporting-crew", label: "Reporting Crew" },
+  { href: "#action-readiness", label: "Action Readiness" },
+  { href: "#crew-simulation", label: "Crew Simulation" },
   { href: "#router-observability", label: "Router Observability" },
   { href: "#router-quality-review", label: "Quality Review" },
   { href: "#tool-boundary-v1", label: "Tool Boundary" },
@@ -42,8 +46,12 @@ const DETAIL_LINKS: { href: string; label: string }[] = [
 
 export function AgenticDetailInspector({
   map,
+  actionReadiness,
+  crewSimulations,
 }: {
   map: AgenticSystemMap | null | undefined;
+  actionReadiness?: ActionReadinessMatrix | null;
+  crewSimulations?: CrewSimulationResult[] | null;
 }) {
   if (!map) return null;
 
@@ -125,6 +133,65 @@ export function AgenticDetailInspector({
           ))}
         </ul>
       </Card>
+
+      {/* Action readiness + crew simulation rollup (v1 integration). */}
+      {(actionReadiness || (crewSimulations && crewSimulations.length > 0)) && (
+        <Card
+          hoverOverlay={false}
+          contentClassName="flex flex-col gap-[var(--ct-space-2)]"
+        >
+          <span className="stat-label ct-text-muted">Readiness &amp; simulation</span>
+          <div className="admin-doc-card-grid-3">
+            {actionReadiness && (
+              <>
+                <div className="flex flex-col gap-[var(--ct-space-1)]">
+                  <span className="stat-label ct-text-muted">Actions</span>
+                  <span className="body-sm ct-text-strong tabular-nums">
+                    {actionReadiness.items.length}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-[var(--ct-space-1)]">
+                  <span className="stat-label ct-text-muted">Autonomous (read-only)</span>
+                  <span className="body-sm ct-text-strong tabular-nums">
+                    {actionReadiness.counts.read_only}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-[var(--ct-space-1)]">
+                  <span className="stat-label ct-text-muted">Gated</span>
+                  <span className="body-sm ct-text-strong tabular-nums">
+                    {actionReadiness.counts.draft_or_proposal +
+                      actionReadiness.counts.confirmed_write}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-[var(--ct-space-1)]">
+                  <span className="stat-label ct-text-muted">Forbidden</span>
+                  <span className="body-sm ct-text-strong tabular-nums">
+                    {actionReadiness.counts.forbidden_autonomous}
+                  </span>
+                </div>
+              </>
+            )}
+            {crewSimulations && crewSimulations.length > 0 && (
+              <>
+                <div className="flex flex-col gap-[var(--ct-space-1)]">
+                  <span className="stat-label ct-text-muted">Scenarios</span>
+                  <span className="body-sm ct-text-strong tabular-nums">
+                    {crewSimulations.length}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-[var(--ct-space-1)]">
+                  <span className="stat-label ct-text-muted">Executable</span>
+                  <span className="body-sm ct-text-strong tabular-nums">0</span>
+                </div>
+              </>
+            )}
+          </div>
+          <p className="body-xs ct-text-faint">
+            Read-only — actions are classified, not invoked; crew flows are
+            simulated, never executed (executable: false everywhere).
+          </p>
+        </Card>
+      )}
 
       {/* Read-only jump-links into the preserved detail panels */}
       <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">

@@ -13,6 +13,8 @@ import type {
 import type { RouterObservabilitySummary } from "@/lib/agentic/observability/types";
 import type { ToolBoundaryV1Summary } from "@/lib/agentic/tool-boundary/types";
 import type { ReportingCrewBriefing } from "@/lib/agentic/reporting/types";
+import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
+import type { CrewSimulationResult } from "@/lib/agentic/crew-simulation/types";
 import type {
   AgenticSystemEdge,
   AgenticSystemGroup,
@@ -43,6 +45,8 @@ export const GROUP = {
   crews: "crews",
   observability: "observability",
   tools: "tools",
+  actions: "actions",
+  simulation: "simulation",
 } as const;
 
 const GROUPS: AgenticSystemGroup[] = [
@@ -66,6 +70,16 @@ const GROUPS: AgenticSystemGroup[] = [
     label: "Tool Layer",
     summary: "Read tools, draft/proposal tools, the single confirmed-write tool, and the forbidden-autonomous actions.",
   },
+  {
+    id: GROUP.actions,
+    label: "Action Readiness",
+    summary: "Every platform action classified by tier: which may run autonomously (read-only), which are HITL-gated (draft / confirmed-write), and which are forbidden-autonomous.",
+  },
+  {
+    id: GROUP.simulation,
+    label: "Crew Simulation",
+    summary: "Read-only simulated crew flows — what each crew WOULD do, step by step, with its gates and blocked actions. Nothing is executable.",
+  },
 ];
 
 /** Map a control-center RiskLevel-ish to the map risk scale. */
@@ -86,6 +100,10 @@ interface BuildInputs {
   controlCenter: AgenticControlCenterData;
   observability: RouterObservabilitySummary | null;
   reporting: ReportingCrewBriefing | null;
+  /** Action Readiness matrix (v1 integration). Optional/best-effort — null degrades nodes. */
+  actionReadiness?: ActionReadinessMatrix | null;
+  /** Crew Simulation results (v1 integration). Optional/best-effort — null degrades nodes. */
+  crewSimulations?: CrewSimulationResult[] | null;
 }
 
 function routerSummary(router: RouterStatusSummary): string {
@@ -98,6 +116,8 @@ function routerSummary(router: RouterStatusSummary): string {
  */
 export function buildAgenticSystemMap(inputs: BuildInputs): AgenticSystemMap {
   const { controlCenter, observability, reporting } = inputs;
+  const actionReadiness = inputs.actionReadiness ?? null;
+  const crewSimulations = inputs.crewSimulations ?? null;
   const tb: ToolBoundaryV1Summary | undefined = controlCenter.toolBoundaryV1;
   const review = observability?.qualityReview;
 
@@ -435,6 +455,152 @@ export function buildAgenticSystemMap(inputs: BuildInputs): AgenticSystemMap {
     if (match) node.risk = asRisk(match.riskLevel);
   }
 
+  // ---- Action Readiness Layer (v1 integration) -----------------------------
+  // Reflects the action-readiness matrix: which actions may run autonomously
+  // (read-only), which are HITL-gated, and which are forbidden-autonomous.
+  const ar = actionReadiness;
+  const arCounts = ar?.counts;
+  nodes.push({
+    id: "action-readiness",
+    label: "Action Readiness",
+    type: "tool",
+    status: ar ? "healthy" : "no_data",
+    mode: "control",
+    risk: "medium",
+    group: GROUP.actions,
+    summary: ar
+      ? `${ar.items.length} platform actions classified — read-only run autonomously, draft/confirmed-write stay gated, forbidden are never callable.`
+      : "Read-only classification of every platform action by tier.",
+    source: "src/lib/agentic/action-readiness",
+    detailHref: "#action-readiness",
+    metrics: arCounts
+      ? [
+          { label: "actions", value: String(ar!.items.length) },
+          { label: "forbidden", value: String(arCounts.forbidden_autonomous) },
+        ]
+      : undefined,
+  });
+
+  nodes.push({
+    id: "read-only-actions",
+    label: "Read-only Actions",
+    type: "tool",
+    status: "healthy",
+    mode: "read_only",
+    risk: "low",
+    group: GROUP.actions,
+    summary: "Actions that may run autonomously because they only read — navigate, explain, compose briefing, inspect.",
+    source: "action-readiness · tier read_only",
+    detailHref: "#action-readiness",
+    metrics: arCounts ? [{ label: "count", value: String(arCounts.read_only) }] : undefined,
+  });
+
+  nodes.push({
+    id: "draft-actions",
+    label: "Draft / Proposal Actions",
+    type: "tool",
+    status: "healthy",
+    mode: "draft",
+    risk: "medium",
+    group: GROUP.actions,
+    summary: "Actions that persist a draft / proposal only — HITL-gated, non-autonomous (review notes, governance/vault/campaign drafts, outreach email draft).",
+    source: "action-readiness · tier draft_or_proposal",
+    detailHref: "#action-readiness",
+    metrics: arCounts ? [{ label: "count", value: String(arCounts.draft_or_proposal) }] : undefined,
+  });
+
+  nodes.push({
+    id: "confirmed-write-actions",
+    label: "Confirmed-write Actions",
+    type: "tool",
+    status: "healthy",
+    mode: "confirmed_write",
+    risk: "high",
+    group: GROUP.actions,
+    summary: "The single confirmed-write action (outreach send run) — multi-gated: env autonomy + HITL token + daily cap + suppression + forbidden-words; Tier A never auto-sent.",
+    source: "action-readiness · tier confirmed_write",
+    detailHref: "#action-readiness",
+    metrics: arCounts ? [{ label: "count", value: String(arCounts.confirmed_write) }] : undefined,
+  });
+
+  nodes.push({
+    id: "forbidden-actions",
+    label: "Forbidden Actions",
+    type: "tool",
+    status: "healthy",
+    mode: "forbidden",
+    risk: "critical",
+    group: GROUP.actions,
+    summary: "Actions that must never be autonomous — deploy, mark-live, Safe signature, governance execution, DB migration, formula change, lead sourcing, Tier A auto-send. Represented, never callable.",
+    source: "action-readiness · tier forbidden_autonomous",
+    detailHref: "#action-readiness",
+    metrics: arCounts ? [{ label: "count", value: String(arCounts.forbidden_autonomous) }] : undefined,
+  });
+
+  // ---- Crew Simulation Layer (v1 integration) ------------------------------
+  // Reflects the read-only crew-simulation scenarios as visual flows. Every
+  // scenario + step is executable:false; nothing here can run.
+  const sims = crewSimulations ?? [];
+  const simById = new Map(sims.map((s) => [s.scenario.id, s]));
+  nodes.push({
+    id: "crew-simulation",
+    label: "Crew Simulation",
+    type: "crew",
+    status: sims.length > 0 ? "healthy" : "no_data",
+    mode: "read_only",
+    risk: "none",
+    group: GROUP.simulation,
+    summary: sims.length > 0
+      ? `${sims.length} read-only crew flows simulated — what each crew WOULD do, with its gates and blocked actions. Nothing is executable.`
+      : "Read-only simulation of crew flows. Nothing is executable.",
+    source: "src/lib/agentic/crew-simulation",
+    detailHref: "#crew-simulation",
+    metrics: [{ label: "scenarios", value: String(sims.length) }, { label: "executable", value: "0" }],
+  });
+
+  // One node per scenario flow.
+  const FLOW_NODES: { nodeId: string; scenarioId: string; label: string }[] = [
+    { nodeId: "reporting-crew-flow", scenarioId: "reporting_crew_briefing", label: "Reporting Crew Flow" },
+    { nodeId: "outreach-draft-flow", scenarioId: "outreach_draft_flow", label: "Outreach Draft Flow" },
+    { nodeId: "product-review-flow", scenarioId: "product_review_flow", label: "Product Review Flow" },
+    { nodeId: "risk-explanation-flow", scenarioId: "risk_explanation_flow", label: "Risk Explanation Flow" },
+    { nodeId: "vault-readiness-flow", scenarioId: "vault_readiness_flow", label: "Vault Readiness Flow" },
+    { nodeId: "memory-distill-flow", scenarioId: "memory_distill_flow", label: "Memory Distill Flow" },
+  ];
+  for (const f of FLOW_NODES) {
+    const sim = simById.get(f.scenarioId);
+    const scenario = sim?.scenario;
+    const mode =
+      scenario?.mode === "draft_only"
+        ? ("draft" as const)
+        : scenario?.mode === "confirmed_write_blocked"
+          ? ("confirmed_write" as const)
+          : scenario?.mode === "forbidden"
+            ? ("forbidden" as const)
+            : ("read_only" as const);
+    nodes.push({
+      id: f.nodeId,
+      label: f.label,
+      type: "crew",
+      status: scenario ? "healthy" : "no_data",
+      mode,
+      risk: scenario ? asRisk(scenario.risk) : "none",
+      group: GROUP.simulation,
+      summary: scenario
+        ? `${scenario.trigger} — ${scenario.steps.length} steps, ${sim!.requiredGates.length} gate(s), ${sim!.blockedActions.length} blocked action(s). executable: false.`
+        : "Simulated crew flow (executable: false).",
+      source: `crew-simulation · ${f.scenarioId}`,
+      detailHref: "#crew-simulation",
+      metrics: scenario
+        ? [
+            { label: "steps", value: String(scenario.steps.length) },
+            { label: "gates", value: String(sim!.requiredGates.length) },
+            { label: "executable", value: "false" },
+          ]
+        : undefined,
+    });
+  }
+
   // ---- Edges (how the system is wired) -------------------------------------
   const edge = (
     from: string,
@@ -477,6 +643,34 @@ export function buildAgenticSystemMap(inputs: BuildInputs): AgenticSystemMap {
     edge("outreach-logic", "read-tools", "reads", "reads"),
     edge("outreach-logic", "draft-tools", "drafts", "gates"),
     edge("outreach-logic", "confirmed-write-tools", "send run", "gates"),
+    // Tool boundary feeds the action-readiness classification.
+    edge("tool-boundary", "action-readiness", "classifies", "reads"),
+    // Action readiness fans out to the action tiers.
+    edge("action-readiness", "read-only-actions", "read-only", "reads"),
+    edge("action-readiness", "draft-actions", "draft", "gates"),
+    edge("action-readiness", "confirmed-write-actions", "confirmed-write", "gates"),
+    edge("action-readiness", "forbidden-actions", "forbidden", "forbids"),
+    // HITL gates the draft + confirmed-write actions; guard forbids the rest.
+    edge("hitl-gates", "draft-actions", "confirms", "gates"),
+    edge("hitl-gates", "confirmed-write-actions", "confirms", "gates"),
+    edge("guard", "forbidden-actions", "forbids", "forbids"),
+    // Crew simulation fans out to the six flows.
+    edge("crew-simulation", "reporting-crew-flow", "simulates", "composes"),
+    edge("crew-simulation", "outreach-draft-flow", "simulates", "composes"),
+    edge("crew-simulation", "product-review-flow", "simulates", "composes"),
+    edge("crew-simulation", "risk-explanation-flow", "simulates", "composes"),
+    edge("crew-simulation", "vault-readiness-flow", "simulates", "composes"),
+    edge("crew-simulation", "memory-distill-flow", "simulates", "composes"),
+    // Flow wiring — what each simulated flow reads / gates / is blocked by.
+    edge("reporting-crew-flow", "router-observability", "reads", "reads"),
+    edge("reporting-crew-flow", "quality-review", "reads", "reads"),
+    edge("reporting-crew-flow", "tool-boundary", "reads", "reads"),
+    edge("outreach-draft-flow", "draft-actions", "drafts", "gates"),
+    edge("outreach-draft-flow", "hitl-gates", "awaits gate", "gates"),
+    edge("risk-explanation-flow", "guard", "guarded by", "guards"),
+    edge("vault-readiness-flow", "forbidden-actions", "mark-live blocked", "forbids"),
+    edge("memory-distill-flow", "read-only-actions", "read-derived", "reads"),
+    edge("product-review-flow", "read-only-actions", "review read-only", "reads"),
   );
 
   const map: AgenticSystemMap = {

@@ -91,9 +91,72 @@ a connection legend.
 - Edges are rendered as labeled wire chips + a legend (not an SVG flow diagram) to
   stay responsive with no horizontal scroll and no external graph library.
 
+## Visual Integration V1 — Action Readiness + Crew Simulation
+
+The map and the page now integrate two previously-standalone pure modules into the
+visual console — still 100% read-only, nothing executes.
+
+### Action Readiness (`src/lib/agentic/action-readiness`)
+
+- `getActionReadinessMatrix()` (in `system-map/index.ts`) builds the matrix
+  (`buildActionReadinessMatrix(staticMarker)`, pure) and feeds it to the map.
+- New map group **Action Readiness** with nodes: `action-readiness`,
+  `read-only-actions`, `draft-actions`, `confirmed-write-actions`,
+  `forbidden-actions` — each carries the live tier count (7 / 5 / 1 / 8).
+- New edges: `tool-boundary → action-readiness` (classifies);
+  `action-readiness → {read-only|draft|confirmed-write}-actions` (reads/gates);
+  `action-readiness → forbidden-actions` (forbids); `hitl-gates → draft/confirmed-write
+  actions` (confirms); `guard → forbidden-actions` (forbids).
+- New section `action-readiness-matrix-section.tsx` (`#action-readiness`): tier count
+  cards + four visual **tier lanes**, each action a chip with
+  autonomous / HITL / risk badges + reason. No write controls.
+
+### Crew Simulation (`src/lib/agentic/crew-simulation`)
+
+- `getCrewSimulations()` (in `system-map/index.ts`) runs `simulateCrewFlow(id)` for
+  every scenario in `CREW_SIMULATION_SCENARIOS` (pure, `executable: false` throughout).
+- New map group **Crew Simulation** with nodes: `crew-simulation` + 6 flow nodes
+  (`reporting-crew-flow`, `outreach-draft-flow`, `product-review-flow`,
+  `risk-explanation-flow`, `vault-readiness-flow`, `memory-distill-flow`) — each
+  carries steps / gates / `executable: false`.
+- New edges: `crew-simulation → {flow}` (simulates/composes); plus flow wiring —
+  `reporting-crew-flow → observability/quality/tool-boundary` (reads),
+  `outreach-draft-flow → draft-actions/hitl-gates` (gates),
+  `risk-explanation-flow → guard` (guards),
+  `vault-readiness-flow → forbidden-actions` (mark-live blocked, forbids),
+  `memory-distill-flow / product-review-flow → read-only-actions` (reads).
+- New section `crew-simulation-section.tsx` (`#crew-simulation`): each scenario is a
+  flow card with a numbered **step rail**, mode/gate badges, blocked actions, and a
+  prominent `executable: false` marker. There is no Run / Execute / Launch / Send /
+  Deploy / Mark-live control anywhere — a test asserts this.
+
+### Detail inspector
+
+The inspector gained a **Readiness & simulation** rollup (total actions, autonomous
+read-only, gated, forbidden, scenarios, executable count = 0) and jump-links to both
+new sections.
+
+### No-execution guarantee
+
+Both modules are pure: the matrix is a static classification, the simulations are
+deterministic descriptions with `executable: false` at the scenario AND step level.
+No tool handler is referenced, no write is performed, no router/guard/HITL/chat
+behaviour changes, no Prisma/schema change.
+
+### How to add an action / scenario / node-edge
+
+- **Action**: add it to `src/lib/agentic/action-readiness/actions.ts` (its tier +
+  flags); the matrix counts + the tier lane update automatically; the build-time
+  `validateItem` guard enforces the tier invariants.
+- **Scenario**: add it to `src/lib/agentic/crew-simulation/scenarios.ts` (steps +
+  gates + `executable: false`); add a matching `{nodeId, scenarioId, label}` to
+  `FLOW_NODES` in `build-system-map.ts` to surface it on the map.
+- **Node/edge**: add to `build-system-map.ts` (a `nodes.push(...)` / `edge(...)`);
+  tests fail on duplicate ids or dangling edges.
+
 ## Next lot recommendation
 
 `Agentic Map — interactive inspector v0.1` (read-only): a client-side selected-node
-inspector that filters the detail panels to the chosen node, still with no tool
-execution and no autonomy. Only after v0 is stable. Do NOT add a crew runtime /
-CrewAI / any write tool / autonomous loop.
+inspector that filters the detail panels (and the readiness lanes / simulation flows)
+to the chosen node, still with no tool execution and no autonomy. Only after V1 is
+stable. Do NOT add a crew runtime / CrewAI / any write tool / autonomous loop.
