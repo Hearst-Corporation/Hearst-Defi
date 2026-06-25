@@ -5,6 +5,7 @@
 // statement that nothing executes here, and any attention items. No card wall,
 // no jargon. Pure component; all data passed in, unit-testable via SSR.
 
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import type { TowerSummary } from "@/lib/agentic/system-map/tower-summary";
 
 const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
@@ -12,6 +13,13 @@ const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
   watch: "Watch",
   alert: "Needs attention",
   no_data: "Limited data",
+};
+
+const HEALTH_BADGE_VARIANT: Record<TowerSummary["health"], BadgeVariant> = {
+  healthy: "success",
+  watch: "warning",
+  alert: "danger",
+  no_data: "default",
 };
 
 const TONE_CLASS: Record<string, string> = {
@@ -36,10 +44,7 @@ export function AgenticCommandSummary({
         <span className="eyebrow ct-text-muted">Agentic Control Tower</span>
         <div className="agentic-hero-title-row">
           <h1 className="agentic-hero-title m-0">Agentic platform</h1>
-          <span className="agentic-hero-health" data-health={health}>
-            <span className="agentic-hero-health-dot" data-health={health} aria-hidden />
-            {HEALTH_LABEL[health]}
-          </span>
+          <Badge variant={HEALTH_BADGE_VARIANT[health]}>{HEALTH_LABEL[health]}</Badge>
         </div>
         <p className="body-md ct-text-muted agentic-hero-lede">{headline}</p>
       </div>
@@ -49,7 +54,7 @@ export function AgenticCommandSummary({
           <div key={m.id} className={`agentic-metric ${TONE_CLASS[m.tone] ?? ""}`}>
             <span className="agentic-metric-value tabular-nums">{m.value}</span>
             <span className="agentic-metric-label">{m.label}</span>
-            <span className="agentic-metric-hint ct-text-faint">{m.hint}</span>
+            <span className="agentic-metric-hint ct-text-muted">{m.hint}</span>
           </div>
         ))}
       </div>

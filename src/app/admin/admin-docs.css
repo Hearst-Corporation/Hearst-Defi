@@ -379,49 +379,17 @@
   max-width: 64ch;
 }
 
-.agentic-hero-health {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-1) var(--ct-space-3);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-}
-.agentic-hero-health[data-health="healthy"],
-.agentic-hero-health[data-health="no_data"] {
-  border-color: var(--ct-status-success-border);
-}
-.agentic-hero-health[data-health="watch"] {
-  border-color: var(--ct-status-warning-border);
-}
-.agentic-hero-health[data-health="alert"] {
-  border-color: var(--ct-status-danger-border);
-}
-.agentic-hero-health-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-text-faint);
-}
-.agentic-hero-health-dot[data-health="healthy"] {
-  background: var(--ct-status-success);
-  box-shadow: 0 0 0 3px var(--ct-status-success-soft);
-}
-.agentic-hero-health-dot[data-health="watch"] {
-  background: var(--ct-status-warning);
-  box-shadow: 0 0 0 3px var(--ct-status-warning-soft);
-}
-.agentic-hero-health-dot[data-health="alert"] {
-  background: var(--ct-status-danger);
-  box-shadow: 0 0 0 3px var(--ct-status-danger-soft);
-}
 
 .agentic-hero-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   gap: var(--ct-space-4);
+}
+/* Desktop : toujours 5 colonnes pour les 5 métriques — évite le wrap mobile */
+@media (min-width: 900px) {
+  .agentic-hero-metrics {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 .agentic-metric {
   display: flex;
@@ -479,7 +447,7 @@
   background: var(--ct-status-warning);
 }
 
-/* Sticky section nav */
+/* Sticky section nav — opaque graphite, no backdrop-filter (DS rule) */
 .agentic-nav {
   position: sticky;
   top: var(--ct-space-2);
@@ -487,8 +455,7 @@
   padding: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 92%, transparent);
-  backdrop-filter: blur(8px);
+  background: var(--ct-surface-1);
   overflow-x: auto;
 }
 .agentic-nav-list {
