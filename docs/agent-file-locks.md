@@ -185,3 +185,27 @@ Scope:
 Result:
 - short summary
 ```
+
+### feat/kimi-deterministic-intent-router-v2
+Owner: Kimi Code — Deterministic Intent Router Owner
+Branch: feat/kimi-deterministic-intent-router-v2
+Worktree: ../connect-kimi-intent-router
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/intent-router.ts
+- src/lib/agentic/intent-router-*.ts
+- src/lib/agentic/__tests__/intent-router.test.ts
+- src/app/api/cockpit-chat/route.ts (non-shadow wiring, safe paths only)
+- docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md
+
+Notes:
+- Build deterministic intent router v2 (non-shadow).
+- Centralize regex/rule routing.
+- Fix negation handling gaps.
+- Wire navigation + dangerous refusal + education hint into chat.
+- No autonomous write.
+- No DB migration.
+- No deploy/send/source execution.
+- No HITL bypass.

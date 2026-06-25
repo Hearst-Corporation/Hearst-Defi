@@ -1,8 +1,15 @@
 /**
- * Deterministic Intent Router v1 — orchestrator.
+ * Deterministic Intent Router v2 — orchestrator.
  *
  * `classifyAgenticIntent(message, ctx)` returns a typed AgenticIntentDecision the
  * chat layer can act on BEFORE any LLM call. It NEVER executes anything.
+ *
+ * v2 changes over v1:
+ * - Uses context-aware negation (intent-router-negation.ts v2) that understands
+ *   "ne … pas", "n' … pas", "don't", "do not", "sans + verb" vs "sans + noun".
+ * - Adds `isEducationalReadOnly` hint for the compliance layer.
+ * - Navigation can be driven by the router (not just shadow-logged).
+ * - Dangerous intents are refused before any LLM call.
  *
  * Priority (first match wins):
  *   0. empty                         → unknown / needs_clarification
@@ -345,4 +352,23 @@ export function classifyAgenticIntent(
 
   // 11. Unknown → let the LLM handle, no action.
   return unknown(normalized, "Aucune règle déterministe — délégué au LLM.");
+}
+
+/**
+ * Convenience: true when the decision is a read-only educational intent that
+ * should never trigger a compliance false-positive. The caller (compliance
+ * guard or chat layer) can use this as a hint.
+ */
+export function isEducationalReadOnly(
+  decision: AgenticIntentDecision,
+): boolean {
+  return (
+    decision.actionPolicy === "allow_readonly" &&
+    (decision.kind === "education" ||
+      decision.kind === "yield_explanation" ||
+      decision.kind === "product_explanation" ||
+      decision.kind === "risk_explanation" ||
+      decision.kind === "reporting_request" ||
+      decision.kind === "vault_readiness")
+  );
 }

@@ -8,9 +8,10 @@ import { getSession } from "@/lib/auth/session";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
-// Deterministic Intent Router v1 — wired in SHADOW MODE only (flag-gated, no
-// control-flow change). See docs/agentic/DETERMINISTIC_INTENT_ROUTER_V1.md.
+// Deterministic Intent Router v2 — wired NON-SHADOW (active by default).
+// See docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md.
 import { classifyAgenticIntent } from "@/lib/agentic/intent-router";
+import type { AgenticIntentDecision } from "@/lib/agentic/intent-router-types";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -663,33 +664,97 @@ async function runMasterAgentTurn(args: {
   const navShortcutProfile: "lp" | "admin" =
     navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
 
-  // Deterministic Intent Router v1 — SHADOW MODE (AGENTIC_ROUTER_SHADOW=1, OFF by
-  // default). Computes the typed decision and logs it WITHOUT changing control
-  // flow, so the router can be validated against live traffic before it ever
-  // drives navigation/refusals. Never throws into the request path.
-  if (process.env.AGENTIC_ROUTER_SHADOW === "1") {
-    try {
-      const agenticDecision = classifyAgenticIntent(message, {
-        navProfile,
-        isAdmin,
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Deterministic Intent Router v2 — NON-SHADOW (active par défaut)
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Le router produit une décision typée (jamais d'exécution directe).
+  // Les écritures restent derrière la barrière HITL existante.
+  // ───────────────────────────────────────────────────────────────────────────
+  let agenticDecision: AgenticIntentDecision | undefined;
+  try {
+    agenticDecision = classifyAgenticIntent(message, {
+      navProfile,
+      isAdmin,
+    });
+  } catch {
+    // Router indisponible → on continue en mode dégradé (legacy nav)
+    agenticDecision = undefined;
+  }
+
+  // ── 1. Fast-path navigation (router high-confidence) ──────────────────────
+  if (
+    agenticDecision?.kind === "navigation" &&
+    agenticDecision.routeKey &&
+    agenticDecision.confidence >= 0.7 &&
+    !isReview &&
+    !canvasIntent
+  ) {
+    const routeKey = agenticDecision.routeKey;
+    const profile: "lp" | "admin" = routeKey.startsWith("admin-")
+      ? "admin"
+      : "lp";
+    if (resolveNavDestinationForProfile(routeKey, profile)) {
+      await publishNav(userId, { destinationKey: routeKey }).catch(() => {
+        /* best-effort nav publish */
       });
-      logger.info("cockpit-chat: agentic router shadow decision", {
-        userId,
-        kind: agenticDecision.kind,
-        actionPolicy: agenticDecision.actionPolicy,
-        riskLevel: agenticDecision.riskLevel,
-        routeKey: agenticDecision.routeKey,
-        prohibited: agenticDecision.prohibitedAutonomousAction,
-        agreesWithNavShortcut:
-          agenticDecision.kind === "navigation"
-            ? agenticDecision.routeKey === navShortcutKey
-            : navShortcutKey === null,
-        matchedRuleIds: agenticDecision.matchedRuleIds,
-      });
-    } catch {
-      /* shadow logging must never affect the request */
+      prisma.navTrace
+        .create({
+          data: {
+            id: buildNavTraceId(turnId),
+            userId,
+            chatId,
+            profile,
+            mode: chatMode,
+            destinationKey: routeKey,
+            status: "published",
+            reason: "deterministic_router_v2",
+          },
+        })
+        .catch(() => {
+          /* best-effort trace */
+        });
+      return new Response(
+        JSON.stringify({
+          role: "assistant",
+          content: "",
+          navIntent: routeKey,
+          metadata: { intent: "navigate", destinationKey: routeKey },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
     }
   }
+
+  // ── 2. Refus immédiat des intents dangereux ─────────────────────────────
+  if (
+    agenticDecision?.actionPolicy === "refuse_autonomous" ||
+    agenticDecision?.prohibitedAutonomousAction
+  ) {
+    const refusalAck =
+      "Je ne peux pas exécuter cette demande. Si vous souhaitez effectuer une action, merci de la réaliser manuellement depuis l'interface.";
+    return new Response(
+      JSON.stringify({
+        role: "assistant",
+        content: refusalAck,
+        metadata: { intent: "refusal", reason: agenticDecision.actionPolicy },
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  // ── 3. HINT ÉDUCATIF — PREPARED ONLY (pas encore branché) ──────────────
+  // Le router détecte les intents éducatifs (kind === "education"). Ce hint
+  // pourrait être utilisé pour enrichir le system prompt ("l'utilisateur pose une
+  // question éducative — reste factuel, pas de jargon commercial") ou pour relaxer
+  // le compliance guard. Il n'est PAS consommé aujourd'hui ; le guard reste
+  // text-only et uniforme. Cette variable est un placeholder pour un futur
+  // branchement sans risque (nécessiterait d'ajouter un paramètre  à
+  // runChatAgent ou d'injecter dans messages[0].content avant l'appel LLM).
+  const _educationalHint = agenticDecision?.kind === "education";
+  void _educationalHint; // prepared only — not behavior-changing yet
+
+  // ── 4. Fallback legacy nav (router n'a pas capté ou manque de confiance) ──
+  // Le regex legacy reste la sécurité en cas de miss du router.
   if (
     !isReview &&
     !canvasIntent &&
