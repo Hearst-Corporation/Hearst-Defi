@@ -16,7 +16,32 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/agentic-visual-console
+Owner: Opus Orchestrateur Continu — Agentic Visual Control Center Implementation
+Branch: feat/agentic-visual-console
+Worktree: ../connect-opus-agentic-visual-console
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/system-map/** (new module, pure)
+- src/lib/agentic/control-center/index.ts (additive export only, if needed)
+- src/app/admin/agentic/** (recompose page; map-first)
+- src/components/admin/agentic/** (new visual map + detail inspector)
+- admin navigation entries for Agent/Agentic only (consolidation)
+- docs/agentic/**
+- tests related to agentic visual console
+- docs/agent-file-locks.md
+
+Reads (read-only, no behavior edit): observability, tool-boundary, reporting, gates summaries.
+
+Notes:
+- Refactor Agent + Agentic into one visual Agentic Control Center (map-first).
+- Layer 1 = dynamic visual system map; Layer 2 = detail inspectors.
+- Preserve existing observability / quality review / tool boundary / reporting crew.
+- NO CrewAI, NO autonomous runtime, NO tool execution, NO write tools.
+- No router/guard/HITL/chat behavior change. No registry runtime change.
+- No DB migration. No Prisma/schema. No user text/prompt/tool payload storage.
 
 ---
 

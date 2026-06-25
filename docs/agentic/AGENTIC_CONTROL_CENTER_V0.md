@@ -157,6 +157,15 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
   loop, no stored user text/prompt/payload. Rendered after the Observability section
   via `getReportingCrewBriefing()` (reuses the page's observability read).
   See [`REPORTING_CREW_READONLY_V0.md`](./REPORTING_CREW_READONLY_V0.md).
+- **Agentic Visual Control Center v0** turns `/admin/agentic` into a visual console:
+  Layer 1 is a live read-only **system map** (`src/lib/agentic/system-map`) — layered
+  clusters of connected nodes (router / guards / HITL gates / tool boundary / crews /
+  agents / observability / tool tiers) with live status/mode/risk badges + wiring
+  edges; Layer 2 is a detail inspector + the existing panels reorganized below. The
+  map is the first thing on the page. NOT CrewAI, no tool execution, no write, no
+  router/guard/HITL change. The nav clarifies **Agentic Console** (`/admin/agentic`,
+  this map) vs **Agent Library** (`/admin/agents`, the persona-template CRUD).
+  See [`AGENTIC_VISUAL_CONTROL_CENTER_V0.md`](./AGENTIC_VISUAL_CONTROL_CENTER_V0.md).
 
 ## Next steps
 

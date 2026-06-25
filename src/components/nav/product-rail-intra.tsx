@@ -22,6 +22,7 @@ import {
   Settings2,
   ShieldCheck,
   Users,
+  Workflow,
   Zap,
 } from "lucide-react";
 
@@ -96,6 +97,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Bot,
   ClipboardCheck,
   Send,
+  Workflow,
   ArrowLeft,
 };
 

@@ -185,3 +185,159 @@
   font-weight: var(--ct-font-medium);
   text-decoration: none;
 }
+
+/* =============================================================================
+   Agentic System Map (Visual Control Center, Layer 1) — token-only, premium.
+   Read-only clusters of connected nodes. No hardcoded hex (color-mix from --ct-*).
+   ============================================================================= */
+
+.agentic-map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--ct-space-4);
+  align-items: start;
+}
+
+.agentic-map-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 88%, transparent);
+  min-width: 0;
+}
+
+.agentic-map-cluster-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding-bottom: var(--ct-space-2);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+.agentic-map-cluster-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  min-width: 0;
+}
+
+.agentic-map-node {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  border-left-width: 3px;
+  background: var(--ct-surface-2);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease, transform 160ms ease;
+  min-width: 0;
+}
+
+a.agentic-map-node:hover {
+  border-color: var(--ct-border-strong);
+  transform: translateY(-1px);
+}
+
+.agentic-map-node[data-status="healthy"] {
+  border-left-color: var(--ct-status-success);
+}
+.agentic-map-node[data-status="watch"] {
+  border-left-color: var(--ct-status-warning);
+}
+.agentic-map-node[data-status="alert"] {
+  border-left-color: var(--ct-status-danger);
+}
+.agentic-map-node[data-status="planned"],
+.agentic-map-node[data-status="disabled"],
+.agentic-map-node[data-status="no_data"] {
+  border-left-color: var(--ct-border-strong);
+}
+
+.agentic-map-status-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-border-strong);
+  flex: 0 0 auto;
+}
+.agentic-map-status-dot[data-status="healthy"] {
+  background: var(--ct-status-success);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-status-success) 22%, transparent);
+}
+.agentic-map-status-dot[data-status="watch"] {
+  background: var(--ct-status-warning);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-status-warning) 22%, transparent);
+}
+.agentic-map-status-dot[data-status="alert"] {
+  background: var(--ct-status-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-status-danger) 22%, transparent);
+  animation: agentic-map-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes agentic-map-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agentic-map-status-dot[data-status="alert"] { animation: none; }
+}
+
+.agentic-map-metric {
+  display: inline-flex;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-0_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-surface-1) 70%, transparent);
+  font-size: var(--ct-text-2xs);
+}
+
+.agentic-map-wires {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1);
+  padding-top: var(--ct-space-2);
+  border-top: 1px dashed var(--ct-border-soft);
+  min-width: 0;
+}
+
+.agentic-map-wire,
+.agentic-map-legend {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ct-space-0_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* Edge-kind accents (left border tint only — token-only). */
+.agentic-map-wire[data-kind="routes"],
+.agentic-map-legend[data-kind="routes"] {
+  border-color: color-mix(in srgb, var(--ct-accent) 40%, var(--ct-border-soft));
+}
+.agentic-map-wire[data-kind="reads"],
+.agentic-map-legend[data-kind="reads"],
+.agentic-map-wire[data-kind="observes"],
+.agentic-map-legend[data-kind="observes"] {
+  border-color: color-mix(in srgb, var(--ct-status-success) 35%, var(--ct-border-soft));
+}
+.agentic-map-wire[data-kind="guards"],
+.agentic-map-legend[data-kind="guards"],
+.agentic-map-wire[data-kind="gates"],
+.agentic-map-legend[data-kind="gates"] {
+  border-color: color-mix(in srgb, var(--ct-status-warning) 38%, var(--ct-border-soft));
+}
+.agentic-map-wire[data-kind="forbids"],
+.agentic-map-legend[data-kind="forbids"] {
+  border-color: color-mix(in srgb, var(--ct-status-danger) 40%, var(--ct-border-soft));
+}
