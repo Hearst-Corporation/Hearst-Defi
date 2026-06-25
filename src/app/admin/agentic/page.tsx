@@ -17,7 +17,10 @@ import {
 } from "@/components/admin/agentic/status-badge";
 import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
-import { getRouterObservabilitySummary } from "@/lib/agentic/observability/read-router-decisions";
+import {
+  getRouterObservabilitySummary,
+  resolveWindow,
+} from "@/lib/agentic/observability/read-router-decisions";
 
 // Dynamic: the Router Observability section reads live (read-only) recent router
 // decisions at request time. The static registry sections are still pure.
@@ -79,15 +82,14 @@ export default async function AgenticControlCenterPage({
   const data = getAgenticControlCenterData();
   const { router, inventory, gates, tools, prompts, safetySummary, nextSteps } =
     data;
-  // Read-only: recent router-decision metadata. Best-effort — getRouterObservability
-  // Summary never throws; a backend hiccup degrades to an honest empty/unavailable
-  // state rather than breaking the page. The optional `routerWindow` query param
-  // (1h | 24h | 7d) only re-buckets the SAME buffer — no new read, no write.
-  const { routerWindow } = await searchParams;
-  const observability = await getRouterObservabilitySummary(
-    undefined,
-    routerWindow,
-  ).catch(() => null);
+  // Read-only: durable router-decision metadata for the selected time window.
+  // Best-effort — getRouterObservabilitySummary never throws; a backend hiccup
+  // degrades to an honest empty/unavailable state rather than breaking the page.
+  const sp = await searchParams;
+  const routerWindow = resolveWindow(sp.routerWindow);
+  const observability = await getRouterObservabilitySummary({
+    window: routerWindow,
+  }).catch(() => null);
 
   return (
     <>

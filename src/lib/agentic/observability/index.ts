@@ -20,10 +20,16 @@ export { redactSnippet, MAX_SNIPPET_LEN } from "./redact";
 export { recordRouterDecisionSafe } from "./record-router-decision";
 export {
   getRouterObservabilitySummary,
+  resolveWindow,
+  isDurableObservabilityAvailable,
   ROUTER_OBSERVABILITY_SAFETY_NOTE,
 } from "./read-router-decisions";
 export {
-  ROUTER_DECISIONS_KEY,
-  ROUTER_DECISIONS_CAP,
-  getObservabilityStorage,
-} from "./store";
+  durableAppendTrace,
+  durableReadTraces,
+  topMatchedRules,
+  pruneOldTraces,
+  windowCutoff,
+  DURABLE_RETENTION_DAYS,
+} from "./db-store";
+export { ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_CAP } from "./store";

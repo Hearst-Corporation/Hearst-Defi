@@ -1,26 +1,29 @@
 import "server-only";
 
-// Router Observability v0 — admin-only read path.
+// Router Observability v1 — admin-only read path (durable + trends, unified).
 //
-// Builds the RouterObservabilitySummary the Control Center renders: recent traces
-// (newest first), aggregate stats, and an honest state (enabled / empty /
-// unavailable). Read-only: no mutation, no LLM, no tool execution.
+// Builds the RouterObservabilitySummary the Control Center renders: traces within
+// a time window (durable DB first, Redis/memory fallback), aggregate stats, top
+// matched rules, time-bucketed TRENDS over the SAME durable traces, the backend
+// that served the read, and an honest state. Read-only: no mutation, no LLM, no
+// tool execution.
 
+import { readTracesWithFallback } from "./store";
 import {
-  getObservabilityStorage,
-  readRecentRouterDecisionTraces,
-} from "./store";
+  durableReadTraces,
+  topMatchedRules,
+  windowCutoff,
+  DURABLE_RETENTION_DAYS,
+} from "./db-store";
 import { computeRouterDecisionStats } from "./stats";
 import {
   buildRouterDecisionTrendBuckets,
-  getTopMatchedRules,
   normalizeRouterTrendWindow,
-  ROUTER_TREND_BUFFER_NOTE,
 } from "./trends";
 import type {
   RouterObservabilityState,
   RouterObservabilitySummary,
-  RouterTrendWindow,
+  RouterObservabilityWindow,
 } from "./types";
 
 export const ROUTER_OBSERVABILITY_SAFETY_NOTE =
@@ -29,54 +32,98 @@ export const ROUTER_OBSERVABILITY_SAFETY_NOTE =
 const ROUTER_OBSERVABILITY_PRIVACY_MODE =
   "metadata-only (ids + enums + flags); user message text never stored";
 
-const DEFAULT_READ_LIMIT = 100;
+const DEFAULT_READ_LIMIT = 200;
+const TOP_RULES_LIMIT = 8;
+
+function isWindow(value: string | undefined): value is RouterObservabilityWindow {
+  return value === "1h" || value === "24h" || value === "7d";
+}
+
+/** Coerce an arbitrary query value to a valid window (default 24h). */
+export function resolveWindow(
+  value: string | undefined,
+): RouterObservabilityWindow {
+  return isWindow(value) ? value : "24h";
+}
 
 /**
- * Build the read-only observability summary.
+ * Build the read-only observability summary for a window.
  *
- * State logic:
- *  - storage "none"  → "unavailable" (no safe store in this environment)
- *  - storage present + 0 traces → "empty"
- *  - storage present + ≥1 trace → "enabled"
- *
- * Note: in v0 a store is ALWAYS present (Redis or the in-memory fallback), so
- * "unavailable" is reserved for a future mode that finds no safe store at all.
+ * Storage logic: durable DB is authoritative; on failure the read falls back to
+ * Redis, then memory. The window drives BOTH the recent-traces view and the trend
+ * buckets (computed from the SAME durable traces). State: unavailable / empty /
+ * enabled.
  */
-export async function getRouterObservabilitySummary(
-  limit = DEFAULT_READ_LIMIT,
-  trendWindowInput?: string,
-): Promise<RouterObservabilitySummary> {
-  const storage = getObservabilityStorage();
-  const recent =
-    storage === "none" ? [] : await readRecentRouterDecisionTraces(limit);
-  const stats = computeRouterDecisionStats(recent);
+export async function getRouterObservabilitySummary(args?: {
+  window?: RouterObservabilityWindow;
+  limit?: number;
+  now?: number;
+}): Promise<RouterObservabilitySummary> {
+  const window = args?.window ?? "24h";
+  const limit = args?.limit ?? DEFAULT_READ_LIMIT;
+  const now = args?.now ?? Date.now();
+  const cutoffMs = windowCutoff(window, now).getTime();
+
+  const { traces, storage } = await readTracesWithFallback({
+    window,
+    limit,
+    cutoffMs,
+  });
+
+  const stats = computeRouterDecisionStats(traces);
+  const topRules = topMatchedRules(traces, TOP_RULES_LIMIT);
 
   let state: RouterObservabilityState;
-  if (storage === "none") {
+  if (storage === "unavailable") {
     state = "unavailable";
-  } else if (recent.length === 0) {
+  } else if (traces.length === 0) {
     state = "empty";
   } else {
     state = "enabled";
   }
 
-  // Trends (v0.1) — derived from the SAME recent buffer, no new storage.
-  const trendWindow: RouterTrendWindow =
-    normalizeRouterTrendWindow(trendWindowInput);
-  const trendBuckets = buildRouterDecisionTrendBuckets(recent, trendWindow);
-  const topMatchedRules = getTopMatchedRules(recent);
+  const retentionNote =
+    storage === "durable"
+      ? `Durable storage. Rows older than ${DURABLE_RETENTION_DAYS} days are pruned best-effort; this view shows the selected window.`
+      : storage === "redis_fallback"
+        ? "Durable storage unavailable — showing the volatile Redis buffer (cap 200, 7-day TTL)."
+        : storage === "memory_fallback"
+          ? "Durable + Redis storage unavailable — showing the in-memory buffer (lost on restart)."
+          : "No trace storage reachable.";
+
+  // Trends — bucketed over the SAME durable traces + the SAME window.
+  const trendWindow = normalizeRouterTrendWindow(window);
+  const trendBuckets = buildRouterDecisionTrendBuckets(
+    traces,
+    trendWindow,
+    new Date(now),
+  );
+  const bufferLimitNote =
+    storage === "durable"
+      ? `Trends computed from durable router traces (window ${window}; rows pruned > ${DURABLE_RETENTION_DAYS} days).`
+      : "Trends computed from the volatile fallback buffer (durable storage unavailable).";
 
   return {
     state,
     storage,
-    recent,
+    window,
+    recent: traces,
     stats,
+    topMatchedRules: topRules,
     capacity: limit,
+    retentionNote,
     safetyNote: ROUTER_OBSERVABILITY_SAFETY_NOTE,
     privacyMode: ROUTER_OBSERVABILITY_PRIVACY_MODE,
     trendWindow,
     trendBuckets,
-    topMatchedRules,
-    bufferLimitNote: ROUTER_TREND_BUFFER_NOTE,
+    bufferLimitNote,
   };
+}
+
+/** Convenience for diagnostics: did the durable store serve the read? */
+export async function isDurableObservabilityAvailable(
+  window: RouterObservabilityWindow = "24h",
+): Promise<boolean> {
+  const res = await durableReadTraces({ window, limit: 1 });
+  return res.ok;
 }

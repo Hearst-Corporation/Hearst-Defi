@@ -1,5 +1,10 @@
 # Router Observability v0
 
+> **Superseded by v1 (durable).** Storage is now a durable Prisma table with
+> time-window queries — see [`ROUTER_OBSERVABILITY_V1.md`](./ROUTER_OBSERVABILITY_V1.md).
+> This v0 doc describes the original volatile Redis/memory buffer, which remains
+> the **fallback** layer when the durable store is unavailable.
+
 Read-only observability of the **Deterministic Intent Router v2**. The router is
 active and non-shadow (see [`DETERMINISTIC_INTENT_ROUTER_V2.md`](./DETERMINISTIC_INTENT_ROUTER_V2.md)).
 The Agentic Control Center (`/admin/agentic`) already shows what *exists*; this lot

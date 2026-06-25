@@ -837,6 +837,39 @@ model NavTrace {
   @@index([status, createdAt])
 }
 
+// Durable read-only observability of the deterministic intent router (v1).
+// METADATA ONLY — never user text, prompts, tool payloads or secrets. The write
+// path goes through src/lib/agentic/observability/decision-summary.ts (allowlist),
+// so normalizedInput / reason / message content can never reach this table.
+// See docs/agentic/ROUTER_OBSERVABILITY_V1.md.
+model AgenticRouterDecisionTrace {
+  id                         String   @id @default(cuid())
+  createdAt                  DateTime @default(now())
+  chatId                     String? // existing CockpitChat id (cuid) — not user text
+  messageId                  String? // existing turn id — not user text
+  source                     String // "cockpit_chat"
+  kind                       String // router intent kind (enum)
+  actionPolicy               String // router action policy (enum)
+  confidence                 Float? // rule-based confidence 0..1
+  negated                    Boolean
+  matchedRuleIds             Json // string[] of matched rule ids (system values)
+  routeKey                   String? // whitelisted nav destination key (enum)
+  educationalKind            String? // educational sub-kind, when applicable
+  prohibitedAutonomousAction Boolean
+  outcome                    String // derived outcome (enum)
+  usedLegacyFallback         Boolean
+  tookFastPath               Boolean
+  metadata                   Json? // RESERVED for future safe metadata — NEVER user text
+
+  @@index([createdAt])
+  @@index([kind])
+  @@index([outcome])
+  @@index([actionPolicy])
+  @@index([negated])
+  @@index([routeKey])
+  @@index([chatId])
+}
+
 // =============================================================================
 // SAVED VIEWS — Linear-style per-user filter/sort/column presets per table
 // =============================================================================

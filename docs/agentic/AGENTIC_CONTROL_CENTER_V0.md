@@ -90,16 +90,18 @@ It describes the agentic chain; it never drives it.
   avoid exposing the steering surface in the UI.
 - Every entry carries `editableInUi: false` — prompts are not editable from here.
 
-## Router Observability (live, read-only) — added in the observability lot
+## Router Observability (live, read-only) — durable in v1
 
-The page now also renders a **Router Observability** section: live, read-only
-metadata about what the deterministic router actually did on recent chat turns
-(status strip, stat cards, recent-decisions table, safety note). It records NO user
-text, NO prompts, NO secrets, NO tool payloads, and performs NO write. Storage is a
-capped Redis (or in-memory fallback) buffer — **no Prisma model, no migration**.
-Full contract: [`ROUTER_OBSERVABILITY_V0.md`](./ROUTER_OBSERVABILITY_V0.md). The page
-is now dynamically rendered so the section can read live data; the registry sections
-stay pure.
+The page also renders a **Router Observability** section: live, read-only metadata
+about what the deterministic router actually did on recent chat turns. In **v1** this
+is **durable** — a dedicated Prisma table (`AgenticRouterDecisionTrace`) with
+time-window queries (1h / 24h / 7d), an outcome distribution, top matched rules, and
+a recent-decisions table; with a Redis → memory **fallback** when the durable store
+is unavailable. It records NO user text, NO prompts, NO secrets, NO tool payloads,
+and performs NO write. Full contract:
+[`ROUTER_OBSERVABILITY_V1.md`](./ROUTER_OBSERVABILITY_V1.md) (v0 buffer:
+[`ROUTER_OBSERVABILITY_V0.md`](./ROUTER_OBSERVABILITY_V0.md)). The page is
+dynamically rendered so the section can read live data; the registry sections stay pure.
 
 **v0.1 trends:** the section also shows read-only **trends** over a selectable window
 (`?routerWindow=1h|24h|7d`) — stacked outcome bars over time, an outcome distribution,
@@ -111,21 +113,21 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
 
 - No crew runtime. No CrewAI / external swarms connected.
 - No tool execution, no write, no confirmation token.
-- No live **DB** traces (router observability uses a capped Redis/in-memory buffer,
-  not a DB table); no run counters on the static registry (status reflects code
-  wiring, not activity).
+- No run counters on the static registry (status reflects code wiring, not activity).
 - No prompt editing. No deploy console.
 - No chat-route / router / guard / HITL / tool-registry runtime changes (the
   observability hook only OBSERVES — it never changes a router/guard condition).
-- No DB migration, no Prisma/schema change.
+- The ONLY schema change is the additive, read-only `AgenticRouterDecisionTrace`
+  table (router observability v1). No business model is touched.
 
 ## Limits of v0.1
 
 - Registry sections are static, not live: a future lot can wire `LlmRun` +
   `AdminToolRun` counts in.
 - Manual registry: adding an agent in code does not auto-register it here.
-- Router Observability buffer is capped (200) + TTL; the in-memory fallback is
-  per-instance and lost on cold start (shown honestly as `storage: memory`).
+- Router Observability v1 durable rows are pruned best-effort > 90 days; reads are
+  window-bounded. When the durable store is unavailable it falls back to the volatile
+  Redis/memory buffer (shown honestly as `storage: redis_fallback` / `memory_fallback`).
 
 ## Next steps
 
