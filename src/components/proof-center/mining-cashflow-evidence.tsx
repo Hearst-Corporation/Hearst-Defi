@@ -22,6 +22,7 @@ const HEADER = {
 export function MiningCashFlowEvidence({
   coverage,
   sectionLed = false,
+  bare = false,
 }: {
   coverage?: CoverageView | null;
 } & ProofCenterSectionLedProps) {
@@ -32,18 +33,27 @@ export function MiningCashFlowEvidence({
   // the panel reads as an instrument awaiting attestation, never broken-empty.
   // No fake Live/Verified: badge is Manual (pending) / Stale (invalid), values "—".
   if (provenance === "pending" || provenance === "invalid") {
-    return (
-      <Card material="flat" aria-label="Mining cash-flow evidence — awaiting attestation">
-        <ProofCenterCardHeader
-          sectionLed={sectionLed}
-          eyebrow={sectionLed ? HEADER.eyebrow : "Awaiting attestation"}
-          title={sectionLed ? HEADER.title : "Mining Revenue"}
-          provenance={BADGE[provenance]}
-          tone="quiet"
-        />
+    const pending = (
+      <>
+        {!bare && (
+          <ProofCenterCardHeader
+            sectionLed={sectionLed}
+            eyebrow={sectionLed ? HEADER.eyebrow : "Awaiting attestation"}
+            title={sectionLed ? HEADER.title : "Mining Revenue"}
+            provenance={BADGE[provenance]}
+            tone="quiet"
+          />
+        )}
         <p className="body-sm ct-text-muted m-0" role="status">
           {MINING_CASHFLOW_COPY[provenance]}
         </p>
+      </>
+    );
+    return bare ? (
+      pending
+    ) : (
+      <Card material="flat" aria-label="Mining cash-flow evidence — awaiting attestation">
+        {pending}
       </Card>
     );
   }
@@ -53,15 +63,17 @@ export function MiningCashFlowEvidence({
       ? `${coverage.ratio.toFixed(2)}×`
       : "Pending";
 
-  return (
-    <Card material="flat">
-      <ProofCenterCardHeader
-        sectionLed={sectionLed}
-        eyebrow={sectionLed ? HEADER.eyebrow : "Yield Evidence"}
-        title={sectionLed ? HEADER.title : "Mining Revenue"}
-        provenance={BADGE[provenance]}
-        tone={sectionLed ? "primary" : "quiet"}
-      />
+  const inner = (
+    <>
+      {!bare && (
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
+          eyebrow={sectionLed ? HEADER.eyebrow : "Yield Evidence"}
+          title={sectionLed ? HEADER.title : "Mining Revenue"}
+          provenance={BADGE[provenance]}
+          tone={sectionLed ? "primary" : "quiet"}
+        />
+      )}
 
       <p className="body-sm proof-article-lede">{MINING_CASHFLOW_COPY[provenance]}</p>
 
@@ -91,6 +103,7 @@ export function MiningCashFlowEvidence({
           sublabel="mining partner + pool"
         />
       </MetricGrid>
-    </Card>
+    </>
   );
+  return bare ? inner : <Card material="flat">{inner}</Card>;
 }

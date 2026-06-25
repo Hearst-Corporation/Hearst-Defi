@@ -42,12 +42,13 @@ export function PorSummary({
   verified = false,
   demo = false,
   sectionLed = false,
+  bare = false,
 }: PorSummaryProps & ProofCenterSectionLedProps) {
   if (attestation === null) {
     return (
       <div className="product-doc-stack">
         <EmptySurface live {...POR_ATTESTATION_EMPTY} />
-        {custody ? <CustodySection custody={custody} /> : null}
+        {custody ? <CustodySection custody={custody} nested={bare} /> : null}
       </div>
     );
   }
@@ -56,9 +57,9 @@ export function PorSummary({
   const provenance = resolveAttestationProvenance(attestation.timestamp, verified, demo);
   const attestedAt = formatNestedTimestamp(attestation.timestamp);
 
-  return (
-    <Card material="flat">
-      {!sectionLed && (
+  const inner = (
+    <>
+      {!bare && !sectionLed && (
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="PoR Attestation"
@@ -67,7 +68,7 @@ export function PorSummary({
           tone="quiet"
         />
       )}
-      {sectionLed && (
+      {!bare && sectionLed && (
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="Proof of Reserves"
@@ -157,6 +158,8 @@ export function PorSummary({
       ) : null}
 
       {custody ? <CustodySection custody={custody} nested /> : null}
-    </Card>
+    </>
   );
+
+  return bare ? inner : <Card material="flat">{inner}</Card>;
 }

@@ -69,17 +69,27 @@ interface RebalancingEventsPanelProps extends ProofCenterSectionLedProps {
 export function RebalancingEventsPanel({
   events,
   sectionLed = false,
+  bare = false,
 }: RebalancingEventsPanelProps) {
   if (events.length === 0) {
-    return (
-      <Card material="flat" hoverOverlay={false}>
-        <ProofCenterCardHeader
-          sectionLed={sectionLed}
-          eyebrow="Rebalancing events"
-          title="Awaiting first rebalance"
-          tone="quiet"
-        />
+    const empty = (
+      <>
+        {!bare && (
+          <ProofCenterCardHeader
+            sectionLed={sectionLed}
+            eyebrow="Rebalancing events"
+            title="Awaiting first rebalance"
+            tone="quiet"
+          />
+        )}
         <EmptySurface live {...REBALANCING_EVENTS_EMPTY} />
+      </>
+    );
+    return bare ? (
+      empty
+    ) : (
+      <Card material="flat" hoverOverlay={false}>
+        {empty}
       </Card>
     );
   }
@@ -88,15 +98,17 @@ export function RebalancingEventsPanel({
     events.map((event) => rebalanceProvenance(event.status)),
   );
 
-  return (
-    <Card material="flat">
-      <ProofCenterCardHeader
-        sectionLed={sectionLed}
-        eyebrow={sectionLed ? "Rebalancing events" : "Vault operations"}
-        title={sectionLed ? `Last ${events.length} rule-triggered events (PTAI)` : "Rule-triggered events"}
-        provenance={panelProvenance}
-        tone={sectionLed ? "primary" : "quiet"}
-      />
+  const inner = (
+    <>
+      {!bare && (
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
+          eyebrow={sectionLed ? "Rebalancing events" : "Vault operations"}
+          title={sectionLed ? `Last ${events.length} rule-triggered events (PTAI)` : "Rule-triggered events"}
+          provenance={panelProvenance}
+          tone={sectionLed ? "primary" : "quiet"}
+        />
+      )}
 
       <ul className="divide-y divide-(--ct-border-soft)" aria-label="Recent rebalancing events">
         {events.map((event) => (
@@ -163,6 +175,7 @@ export function RebalancingEventsPanel({
           </li>
         ))}
       </ul>
-    </Card>
+    </>
   );
+  return bare ? inner : <Card material="flat">{inner}</Card>;
 }

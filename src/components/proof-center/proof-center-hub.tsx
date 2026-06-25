@@ -157,7 +157,7 @@ export function ProofCenterHub({
                     custody={custody}
                     verified={attestationVerified}
                     demo={demo}
-                    sectionLed={false}
+                    bare
                   />
                 </div>
               </div>
@@ -171,7 +171,7 @@ export function ProofCenterHub({
                   provenance={coverageProvenance === "pending" ? "manual" : coverageProvenance === "invalid" ? "stale" : coverageProvenance}
                 />
                 <div className="proof-panel-scroll">
-                  <MiningCashFlowEvidence coverage={coverage} sectionLed={false} />
+                  <MiningCashFlowEvidence coverage={coverage} bare />
                 </div>
               </div>
             </div>
@@ -197,7 +197,7 @@ export function ProofCenterHub({
                   ) : (
                     <RecentDistributions
                       distributions={recentDistributions}
-                      sectionLed={false}
+                      bare
                     />
                   )}
                 </div>
@@ -223,7 +223,7 @@ export function ProofCenterHub({
                   ) : (
                     <RebalancingEventsPanel
                       events={recentRebalances}
-                      sectionLed={false}
+                      bare
                     />
                   )}
                 </div>

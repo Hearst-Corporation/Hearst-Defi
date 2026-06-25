@@ -45,17 +45,27 @@ interface RecentDistributionsProps extends ProofCenterSectionLedProps {
 export function RecentDistributions({
   distributions,
   sectionLed = false,
+  bare = false,
 }: RecentDistributionsProps) {
   if (distributions.length === 0) {
-    return (
-      <Card material="flat" hoverOverlay={false}>
-        <ProofCenterCardHeader
-          sectionLed={sectionLed}
-          eyebrow="Latest distributions"
-          title="Awaiting first distribution"
-          tone="quiet"
-        />
+    const empty = (
+      <>
+        {!bare && (
+          <ProofCenterCardHeader
+            sectionLed={sectionLed}
+            eyebrow="Latest distributions"
+            title="Awaiting first distribution"
+            tone="quiet"
+          />
+        )}
         <EmptySurface live {...RECENT_DISTRIBUTIONS_EMPTY} />
+      </>
+    );
+    return bare ? (
+      empty
+    ) : (
+      <Card material="flat" hoverOverlay={false}>
+        {empty}
       </Card>
     );
   }
@@ -64,15 +74,17 @@ export function RecentDistributions({
     distributions.map((d) => distributionProvenance(d.txHash)),
   );
 
-  return (
-    <Card material="flat">
-      <ProofCenterCardHeader
-        sectionLed={sectionLed}
-        eyebrow={sectionLed ? "Latest distributions" : "Payout history"}
-        title={sectionLed ? `Last ${distributions.length} USDC distributions` : "USDC Distributions"}
-        provenance={panelProvenance}
-        tone={sectionLed ? "primary" : "quiet"}
-      />
+  const inner = (
+    <>
+      {!bare && (
+        <ProofCenterCardHeader
+          sectionLed={sectionLed}
+          eyebrow={sectionLed ? "Latest distributions" : "Payout history"}
+          title={sectionLed ? `Last ${distributions.length} USDC distributions` : "USDC Distributions"}
+          provenance={panelProvenance}
+          tone={sectionLed ? "primary" : "quiet"}
+        />
+      )}
 
       <ul className="divide-y divide-(--ct-border-soft)" aria-label="Recent distributions">
         {distributions.map((d) => {
@@ -121,6 +133,7 @@ export function RecentDistributions({
           );
         })}
       </ul>
-    </Card>
+    </>
   );
+  return bare ? inner : <Card material="flat">{inner}</Card>;
 }
