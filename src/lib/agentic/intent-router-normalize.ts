@@ -39,9 +39,3 @@ export function normalizeIntentInput(raw: string): NormalizedIntentInput {
     .trim();
   return { normalized, original };
 }
-
-/** Token count of the normalized string (0 for empty). */
-export function tokenCount(normalized: string): number {
-  if (!normalized) return 0;
-  return normalized.split(" ").filter(Boolean).length;
-}

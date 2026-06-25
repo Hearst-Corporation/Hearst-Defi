@@ -13,7 +13,7 @@ import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
 // Dashboard Risk Framework loader.
 //
 // Surfaces the 5-dimension breakdown defined in /docs/spec/08-risk-framework.mdx
-// for the dashboard `<RiskFrameworkSection>` card.
+// for the dashboard risk summary card.
 //
 // Strategy: build a `ScenarioInputs` from the latest VaultSnapshot, latest
 // MiningMetric and the live BTC price, then delegate the numeric decomposition

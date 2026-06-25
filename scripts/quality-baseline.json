@@ -4,11 +4,11 @@
     "percentage": 1.784345532005918
   },
   "dead": {
-    "total": 5,
+    "total": 0,
     "breakdown": {
       "files": 0,
-      "exports": 5
+      "exports": 0
     }
   },
-  "updatedAt": "2026-06-23T13:27:41.363Z"
+  "updatedAt": "2026-06-25T00:00:00.000Z"
 }

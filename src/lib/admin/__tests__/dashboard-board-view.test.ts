@@ -67,7 +67,7 @@ describe("dashboard-board-view", () => {
     expect(resolveVaultSignalProvenance(false, false, false, true)).toBe("simulated");
   });
 
-  describe("vault-scope provenance (FixtureVaultPills / livePreview)", () => {
+  describe("vault-scope provenance (livePreview)", () => {
     it("preview fixture: vault signals estimated, risk/charts manual", () => {
       const livePreview = true;
       const hasLiveKpis = false;

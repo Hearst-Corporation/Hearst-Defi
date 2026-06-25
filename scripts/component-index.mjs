@@ -25,10 +25,7 @@ const OUT = join(ROOT, "docs", "COMPONENT_INDEX.md");
 // Intentionally built-but-unwired components (Adrien decision 2026-06-10) —
 // flagged "unwired", NOT "orphan", and never to be deleted by a cleanup pass.
 const UNWIRED = new Set([
-  "global-search",
-  "shortcuts-overlay",
   "notifications-bell",
-  "saved-views-picker",
   "chart-time-selector",
 ]);
 

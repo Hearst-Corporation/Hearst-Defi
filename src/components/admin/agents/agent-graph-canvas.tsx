@@ -472,7 +472,7 @@ function RuntimePanel({
                       {s.status}
                     </span>
                     {s.turnId && (
-                      <div className="mt-[var(--ct-space-0_5)] truncate font-mono text-micro ct-text-faint">
+                      <div className="mt-[var(--ct-space-0_5)] truncate mono text-micro ct-text-faint">
                         {s.turnId}
                       </div>
                     )}

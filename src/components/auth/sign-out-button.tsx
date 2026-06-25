@@ -9,7 +9,7 @@ import { logout } from "@/lib/auth/actions";
  * Sign out button for email/password sessions. Posts to the `logout` server
  * action which destroys the DB-backed session and redirects to /login.
  *
- * Distinct from the wallet "Disconnect" in HeaderConnect — that one is Privy
+ * Distinct from the wallet "Disconnect" on profile/onboarding — that one is Privy
  * only and does not touch the session cookie.
  */
 function SubmitButton() {
