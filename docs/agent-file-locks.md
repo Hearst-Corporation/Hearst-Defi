@@ -16,31 +16,31 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-observability-sql-aggregates-v12
-Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery
-Branch: feat/router-observability-sql-aggregates-v12
-Worktree: ../connect-opus-router-observability-sql-aggregates
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/observability/**
-- src/lib/agentic/control-center/**
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- docs/agentic/**
-- tests related to router observability SQL aggregates
-- docs/agent-file-locks.md
-
-Notes:
-- Add SQL aggregate read path for durable router observability (O(buckets), not O(rows)).
-- No router/guard/HITL behavior change. No tool execution.
-- No DB migration. No Prisma/schema change. No new table.
-- No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/router-observability-sql-aggregates-v12
+Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery
+Branch: feat/router-observability-sql-aggregates-v12
+Merged PR: #55
+Released: 2026-06-25
+Status: merged
+
+Result:
+- SQL Router Observability Aggregates v1.2: durable window stats/trends/top-rules
+  computed DB-side (O(buckets), not O(rows)) — stats via prisma.groupBy(outcome+kind),
+  trend buckets via a Postgres-only parameterized $queryRaw projected into the SAME
+  bucket slots (byte-identical to in-memory; parity test asserts toEqual for all 4
+  windows), top rules in-memory from a bounded matchedRuleIds read. Recent table is a
+  separate take:50; the 5000-row aggregate read is eliminated on the durable path.
+  Fallback: SQL declined/failed (sqlite/local) → in_memory; DB down → fallback.
+  Read-only "aggregation: SQL durable aggregates | fallback in-memory" badge. NO
+  schema change, NO migration, NO new table; no router/guard/HITL change; reads only
+  createdAt/outcome/kind/matchedRuleIds (no user text). typecheck PASS, lint 0, full
+  suite 3235/3235, build PASS, empty Prisma diff. Merged 4c916a38, PR #55.
 
 ### feat/router-observability-long-window-v11
 Owner: Opus Orchestrateur — Long-Window Router Observability Delivery
