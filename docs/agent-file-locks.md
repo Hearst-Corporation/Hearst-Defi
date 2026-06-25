@@ -16,32 +16,37 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-observability-traces-v0
-Owner: Opus Orchestrateur — Router Observability Traces Delivery
-Branch: feat/router-observability-traces-v0
-Worktree: ../connect-opus-router-observability
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/observability/**
-- src/lib/agentic/control-center/**
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- src/app/api/cockpit-chat/route.ts (trace emission only, NO behavior change)
-- docs/agentic/**
-- tests related to router observability
-- docs/agent-file-locks.md
-
-Notes:
-- Deliver read-only Router Observability Traces v0.
-- No router behavior change. No guard behavior change. No HITL change.
-- No tool execution. No DB migration (STOP+report first if needed).
-- No autonomous writes. No secrets/env. No prompts/tool payloads stored.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/router-observability-traces-v0
+Owner: Opus Orchestrateur — Router Observability Traces Delivery
+Branch: feat/router-observability-traces-v0
+Merged PR: #44
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agentic/observability/** (new module)
+- src/lib/trace-ids.ts (+buildRouterDecisionId)
+- src/app/api/cockpit-chat/route.ts (trace emission only — NO behavior change)
+- src/app/admin/agentic/page.tsx + src/components/admin/agentic/router-observability-section.tsx
+- docs/agentic/ROUTER_OBSERVABILITY_V0.md + AGENTIC_CONTROL_CENTER_V0.md
+
+Result:
+- Read-only Router Observability v0: per-turn SAFE metadata trace (no user text —
+  drops normalizedInput + reason) recorded best-effort into a capped global Redis
+  list (`agentic:router:decisions`) with in-memory fallback; NO Prisma model, NO
+  migration. Route hook is fire-and-forget per branch (nav_fast_path /
+  dangerous_refusal / legacy_fallback_nav / educational_llm / negated_no_nav /
+  normal_llm / unknown) — never blocks the response, never changes a router/guard
+  condition. /admin/agentic gains a Router Observability section (status / stats /
+  recent table / safety note / honest empty+unavailable), page made dynamic. +35
+  tests. typecheck PASS, lint 0, full suite 3144/3144, build PASS. Merged c9663274,
+  PR #44.
 
 ### feat/agentic-control-center-v01
 Owner: Opus Orchestrateur — Agentic Control Center Delivery
