@@ -16,7 +16,31 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/reporting-crew-readonly-v0
+Owner: Opus Orchestrateur Continu — Reporting Crew Read-Only v0 Implementation
+Branch: feat/reporting-crew-readonly-v0
+Worktree: ../connect-opus-reporting-crew-readonly
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/reporting/** (new module, pure)
+- src/lib/agentic/control-center/reporting-crew.ts (new) + index.ts (additive export)
+- src/components/admin/agentic/reporting-crew-section.tsx (new)
+- src/app/admin/agentic/page.tsx (render the new section)
+- docs/agentic/REPORTING_CREW_READONLY_V0.md (new) + AGENTIC_CONTROL_CENTER_V0.md (additive note)
+- tests related to reporting crew read-only
+- docs/agent-file-locks.md
+
+Reads (read-only, no edit): control-center, observability, tool-boundary summaries.
+
+Notes:
+- Read-only composition of EXISTING agentic data into a deterministic briefing.
+- NO CrewAI, NO autonomous runtime, NO autonomous loop.
+- NO tool execution, NO write tools, NO send/source/deploy/mark-live.
+- No router/guard/HITL/chat behavior change. No registry runtime change.
+- No DB migration. No Prisma/schema. No user text/prompt/tool payload storage.
+- No replay, no export, no prompt editing, no tool-execution UI.
 
 ---
 

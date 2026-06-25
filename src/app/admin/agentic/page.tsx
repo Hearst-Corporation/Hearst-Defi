@@ -17,7 +17,9 @@ import {
 } from "@/components/admin/agentic/status-badge";
 import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
 import { ToolBoundarySection } from "@/components/admin/agentic/tool-boundary-section";
+import { ReportingCrewSection } from "@/components/admin/agentic/reporting-crew-section";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
+import { getReportingCrewBriefing } from "@/lib/agentic/reporting";
 import {
   getRouterObservabilitySummary,
   resolveWindow,
@@ -99,6 +101,13 @@ export default async function AgenticControlCenterPage({
   const observability = await getRouterObservabilitySummary({
     window: routerWindow,
   }).catch(() => null);
+
+  // Reporting Crew Read-Only v0 — deterministic briefing composed from the data
+  // above (control-center registry + the SAME observability summary, reused so we
+  // don't issue a second read). Best-effort: getReportingCrewBriefing never throws.
+  const reportingCrew = await getReportingCrewBriefing({ observability }).catch(
+    () => null,
+  );
 
   return (
     <>
@@ -466,6 +475,9 @@ export default async function AgenticControlCenterPage({
 
       {/* 9. Router Observability (live, read-only) ---------------------- */}
       <RouterObservabilitySection summary={observability} />
+
+      {/* 9b. Reporting Crew — read-only briefing (first read-only crew) -- */}
+      <ReportingCrewSection briefing={reportingCrew} />
 
       {/* 10. Next architecture steps ----------------------------------- */}
       <section className="admin-doc-stack" aria-label="Next architecture steps">
