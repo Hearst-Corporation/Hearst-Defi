@@ -44,6 +44,16 @@ Uniquement pour les grilles de type tableau de bord (ex: `/admin/dashboard`, `/p
 *   **Glow Persistant :** L'utilisation de `ct-glow-accent` sur des éléments persistants (déjà neutralisé globalement, ne pas le réintroduire).
 *   **Micro-Badges sur Desktop :** Utiliser des variantes `compact` de badges (ex: `ProvenanceBadge`) dans des contextes desktop spacieux.
 
+## 5. Glow / Ambient
+
+**Règle d'or : la lumière vit au niveau du shell, jamais dans la carte.**
+
+*   **Glow / ambient autorisé uniquement au niveau shell ou specimen DS.** La lumière verte ambiante derrière le dashboard (radial/gradient porté par `.ct-page-area` / la couche shell) est la *seule* source de lueur persistante. Les tokens de calibration vivent dans `cockpit.css` : `--ct-ambient-glow-*` (opacité + ratios de mix) et les stops sémantiques `--ct-ambient-stop-1/2` (proche/lointain). Une page consomme ces tokens, elle n'en réinvente pas.
+*   **Pas de glow local arbitraire dans chaque card.** Un panneau de contenu ne porte ni `box-shadow` lumineux, ni halo accent persistant (cf. §4 « Glow Persistant », et `docs/DESIGN_SYSTEM.md` §10). `--ct-glow-*` est réservé à un signal d'état rare et bref, pas à un fill de surface.
+*   **Les pages consomment les tokens** ambient/curve/area (`--ct-ambient-stop-*`, `--ct-chart-curve-color`, `--ct-chart-area-top/bottom`) — elles ne dupliquent pas l'effet en inline ni en hex.
+*   **Pas de cage-in-cage, pas de duplication d'effets** : un seul niveau de matériau lumineux par axe visuel (cf. §2).
+*   **V4 energy = accent + typographie data + langage chart + hiérarchie contrôlée**, PAS une explosion d'effets. Le « peps » premium vient du vert d'accent rare, des grands chiffres expressifs (`--ct-text-hero`, `.stat-value` ss01) et des courbes — jamais d'une surcharge de glows.
+
 ## Exemples
 
 *   **Proof Center :** Le `ProofCenterHub` utilise le prop `bare` lorsqu'il est rendu dans des cellules de cockpit pour éviter la double surface.

@@ -56,6 +56,13 @@
   /* Chart area wash — Figma accent gradient (charts only, not shell ambient). */
   --ct-figma-accent-area-top: color-mix(in srgb, var(--ct-accent) 60%, transparent);
   --ct-figma-accent-area-bottom: color-mix(in srgb, var(--ct-accent) 0%, transparent);
+  /* Chart curve language — semantic aliases (V4 absorption, DS SSOT §3). Charts
+     stroke/fill against these names, never --ct-accent / --ct-figma-* directly,
+     so a future curve restyle stays a one-token change and the accent stays the
+     accent. curve-color = line stroke ; area-top/bottom = under-curve wash stops. */
+  --ct-chart-curve-color: var(--ct-accent);
+  --ct-chart-area-top: var(--ct-figma-accent-area-top);
+  --ct-chart-area-bottom: var(--ct-figma-accent-area-bottom);
   /* Chrome sombre — overlays blancs Figma (remplace les color-mix approximatifs). */
   --ct-border-soft: var(--ct-figma-border-5);
   --ct-border: var(--ct-figma-border-10);
@@ -164,6 +171,12 @@
   --ct-ambient-glow-mix-fade-b: 2%;
   --ct-ambient-glow-bg-top: 10%;
   --ct-ambient-glow-bg-bottom: 24%;
+  /* Spatial background gradient stops — semantic aliases (V4 absorption, SSOT §3).
+     The shell radial/ambient light reads stop-1 (near, brighter) → stop-2 (far,
+     fade). Alias the existing calibrated bg-top/bottom mix ratios; no new value,
+     and the glow stays SHELL-ONLY (see docs/DS_SHELL_CONTRACT.md §Glow / Ambient). */
+  --ct-ambient-stop-1: var(--ct-ambient-glow-bg-top);
+  --ct-ambient-stop-2: var(--ct-ambient-glow-bg-bottom);
 
   /* Left rail — active item accent bar. */
   --ct-rail-active-inset-y: 18%;
@@ -317,6 +330,10 @@
   --ct-text-28-fixed: 1.75rem;        /* 28px — fixed hero number (risk summary value) */
   --ct-text-3xl-fixed: 1.5rem;        /* 24px — fixed heading (greeting lead) */
   --ct-text-display-fixed: 2rem;      /* 32px — fixed hero KPI number */
+  --ct-text-hero: 2.5rem;             /* 40px — DS-level hero KPI tier (V4 absorption,
+                                         SSOT §3). Above display-fixed(32) for the
+                                         single dominant figure of a hero surface;
+                                         value-chart keeps its own --ct-text-hero-num(48). */
 
   /* Font weight scale (mirrors Tailwind). */
   --ct-font-light: 300;
@@ -3295,6 +3312,9 @@ pre.ct-surface-1.rounded-md {
   letter-spacing: var(--ct-tracking-tighter);
   line-height: var(--ct-leading-tight);
   font-variant-numeric: tabular-nums;
+  /* Expressive numerals (V4 absorption, SSOT §3): tabular figures + Satoshi
+     stylistic set ss01 — the designed alternates the data tier was meant to use. */
+  font-feature-settings: "tnum", "ss01";
   color: var(--ct-accent);
 }
 

@@ -55,17 +55,39 @@ Reference: `hearst-ds-premium-v4-visual-upgrade.html` (visual direction, not yet
 
 | V4 concept | Final source in repo | Action required | Priority |
 |---|---|---|---|
-| **More accent green — peps, energy** | `--ct-accent` `#A7FB90` already canonical. More green usage in titles via `--ct-title-1/2/3` | Increase `.h2` / `.h3` colour weight in `doc-flow-typography.css`; confirm `--ct-title-*` coverage | Lot A |
-| **Huge expressive numbers** | `.stat-value` class + `--ct-text-display-fixed` (32px) / `--ct-text-3xl-fixed` (24px). Scale exists; expressiveness = weight 800 + `--ct-tracking-tighter` | Add `--ct-text-hero` token (≥ 40px for hero KPI contexts) if needed. Confirm `tabular-nums` + `ss01` applied | Lot A |
+| **More accent green — peps, energy** | `--ct-accent` `#A7FB90` already canonical. More green usage in titles via `--ct-title-1/2/3` | ✅ **Lot A done** — `.h3` + kicker + hairline + `.stat-value` already accent (portfolio canon). H1/H2 stay white by design (cockpit instruments, not bloating titles). No code change needed; confirmed. | Lot A |
+| **Huge expressive numbers** | `.stat-value` class + `--ct-text-display-fixed` (32px) / `--ct-text-3xl-fixed` (24px). Scale exists; expressiveness = weight 800 + `--ct-tracking-tighter` | ✅ **Lot A done** — added `--ct-text-hero` (40px) tier + Tailwind mirror `text-hero`; added `font-feature-settings:"tnum","ss01"` to `.stat-value` (tabular-nums was already present) | Lot A |
 | **Typography data — expressive** | `--ct-text-display` clamp (28→34px) exists. `.stat-value` in `cockpit.css`. `--ct-tracking-tighter` on KPI values | Document display-tier usage in DS page Section A (typography sub-section) | Lot B |
-| **Chart curves / SVG assets** | `--ct-figma-accent-area-top/bottom` tokens exist (chart area wash). `chart-disclaimer-underlay.tsx`. `ChartTimeSelector` primitive | Add `--ct-chart-curve-color` alias token; document canonical chart area-fill recipe in DS page Section D (Patterns) | Lot A |
+| **Chart curves / SVG assets** | `--ct-figma-accent-area-top/bottom` tokens exist (chart area wash). `chart-disclaimer-underlay.tsx`. `ChartTimeSelector` primitive | ✅ **Lot A done** — added `--ct-chart-curve-color` (→ accent), `--ct-chart-area-top/bottom` (→ figma area wash) semantic aliases; canonical curve+area recipe documented in `docs/DESIGN_SYSTEM.md §5.1`. Existing charts migrate to the aliases in Lot B. | Lot A |
 | **Fintech premium desirable feel** | Surface model already graphite + ambient green glow on shell (signed in `cockpit.css`). Premium = density + contrast | Increase surface contrast where needed via `--ct-surface-*` tier; not a new system | Lot B |
-| **Accent glow on shell / hero** | Ambient light behind dashboard already exists (`cockpit.css` signed comment). NOT on panels | Confirm the glow stays shell-only; document in `docs/DS_SHELL_CONTRACT.md` §Glow rules | Lot A (doc only) |
-| **Radial gradient / spatial background** | `.ct-spatial-root` + `cockpit.css` ambient gradient already exists | Confirm token for ambient gradient colour stop: `--ct-ambient-stop-1/2` | Lot A |
+| **Accent glow on shell / hero** | Ambient light behind dashboard already exists (`cockpit.css` signed comment). NOT on panels | ✅ **Lot A done (doc)** — glow-stays-shell-only rule added as `docs/DS_SHELL_CONTRACT.md §5 Glow / Ambient`. No render change. | Lot A (doc only) |
+| **Radial gradient / spatial background** | `.ct-spatial-root` + `cockpit.css` ambient gradient already exists | ✅ **Lot A done** — added `--ct-ambient-stop-1/2` semantic aliases over existing `--ct-ambient-glow-bg-top/bottom` (no new value, no render change). | Lot A |
 | **Component constellation view** | `/admin/design-system` Section C (Components). Already exists with live primitives | Enhance Section C to show Metric + ProvenanceBadge + ApyRange composed together | Lot B |
 | **Agent board visual** | `/admin/design-system` doc + DS conformance doc. Existing Section E (States) | Add agent-board pattern to Section D (Patterns) | Lot B |
 | **Final poster / reference specimen** | `/admin/design-system` Section A (Foundations) — already shows colour swatches, type scale, spacing | Add a "hero specimen" block to Section A showing the full fintech premium language | Lot B |
-| **V4 surface layers** | `--ct-surface-0/1/2/3` already canonical opaque charcoal tiers | No token change. Confirm Section A (Surfaces) shows contrast step correctly | Lot A (doc only) |
+| **V4 surface layers** | `--ct-surface-0/1/2/3` already canonical opaque charcoal tiers | ✅ **Lot A done (confirm)** — `--ct-surface-0..3` charcoal tiers unchanged, allowlisted, contrast step intact. No token change. | Lot A (doc only) |
+
+---
+
+### 3.1 Lot A — tokens added (token + primitive bridge, 2026-06-25)
+
+These tokens were added to `src/app/cockpit.css` `:root` (runtime source) to bridge
+the V4 direction. All are **new** (no drift vs `tokens.css`), all alias an existing
+canonical value or extend the scale — none duplicates a value or introduces a 2nd green.
+
+| Token | File | Value / alias | V4 concept | Mirror |
+|---|---|---|---|---|
+| `--ct-text-hero` | `cockpit.css` | `2.5rem` (40px) | Huge expressive hero number | `--text-hero` in `globals.css @theme` (byte-identical) |
+| `--ct-chart-curve-color` | `cockpit.css` | `var(--ct-accent)` | Chart curve stroke | — |
+| `--ct-chart-area-top` | `cockpit.css` | `var(--ct-figma-accent-area-top)` | Chart under-curve wash (top) | — |
+| `--ct-chart-area-bottom` | `cockpit.css` | `var(--ct-figma-accent-area-bottom)` | Chart under-curve wash (bottom) | — |
+| `--ct-ambient-stop-1` | `cockpit.css` | `var(--ct-ambient-glow-bg-top)` | Spatial radial near stop | — |
+| `--ct-ambient-stop-2` | `cockpit.css` | `var(--ct-ambient-glow-bg-bottom)` | Spatial radial far stop | — |
+
+Primitive change: `.stat-value` gained `font-feature-settings:"tnum","ss01"`
+(expressive numerals; `tabular-nums` was already present). No page/product surface
+was touched in Lot A — wiring consumers (charts → curve aliases, hero KPI → `--ct-text-hero`)
+is **Lot B**.
 
 ---
 

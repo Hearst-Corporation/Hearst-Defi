@@ -86,7 +86,13 @@ Sans/mono = **Satoshi** (`--font-sans`/`--font-mono`). Échelle cockpit
 `--ct-text-base` 16px · `--ct-text-lg`…`--ct-text-display` (clamp responsive).
 Poids `400/500/600/700/800`. Chiffres : `tabular-nums` obligatoire (`.mono`/`.tabular`).
 Tracking titres : `--ct-tracking-tight` (`-0.03em`). KPI values :
-`.stat-value` → `--ct-tracking-tighter` (`-0.05em`) pour les grands chiffres.
+`.stat-value` → `--ct-tracking-tighter` (`-0.05em`) pour les grands chiffres,
+`font-feature-settings: "tnum","ss01"` (chiffres tabulaires + set stylistique Satoshi
+— numéraux expressifs, absorption V4 / SSOT §3).
+**Tier hero** : `--ct-text-hero` (40px, fixe) = le chiffre unique dominant d'une
+surface hero/KPI, au-dessus de `--ct-text-display-fixed` (32px). Mirroir Tailwind
+`text-hero`. La value-chart garde son `--ct-text-hero-num` (48px) propre. N'utiliser
+le tier hero que pour LA figure dominante, jamais en cascade.
 Labels KPI : `.stat-label` / `.eyebrow` → `uppercase` + `--ct-tracking-wider`
 (`0.08em`) + `--ct-text-muted`. Micro utilitaire Tailwind : `text-micro` = `ct-text-micro-size`
 (9px) — préférer la classe cockpit ou les rôles `.body-xs`/`.stat-label`.
@@ -159,6 +165,35 @@ strokeDasharray = `${arc} ${C - arc}`     // arc = (valeur/100) * C
 pleine) → motif qui se répète → **arcs fantômes**. Toujours `gap = C − arc`.
 Dimensions SVG **carrées** (width = height) ; un viewBox carré dans un cadre
 non-carré déforme le cercle en ellipse.
+
+### 5.1 Courbe + area fill — langage chart canonique (V4 / SSOT §3)
+
+Une courbe premium (line chart NAV/valeur, time-to-target…) consomme des tokens
+**sémantiques**, jamais `--ct-accent` ni `--ct-figma-*` en direct :
+
+| Rôle | Token | Résout vers |
+|------|-------|-------------|
+| Stroke de la courbe | `--ct-chart-curve-color` | `--ct-accent` (`#A7FB90`) |
+| Wash sous la courbe (haut) | `--ct-chart-area-top` | `--ct-figma-accent-area-top` (accent 60%) |
+| Wash sous la courbe (bas) | `--ct-chart-area-bottom` | `--ct-figma-accent-area-bottom` (accent 0% = fondu) |
+
+Recette minimale (SVG) :
+
+```jsx
+<defs>
+  <linearGradient id="curveArea" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stopColor="var(--ct-chart-area-top)" />
+    <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" />
+  </linearGradient>
+</defs>
+<path d={areaPath} fill="url(#curveArea)" />               {/* wash sous-courbe */}
+<path d={linePath} fill="none"
+      stroke="var(--ct-chart-curve-color)" strokeWidth="2" /> {/* courbe */}
+```
+
+Pourquoi des alias : un futur restyle de courbe = **un seul token** à bouger, et
+l'accent reste l'accent. Pas de hex en JSX, pas de stroke `--ct-accent` direct dans
+de nouveaux charts (les usages existants migrent en Lot B / reconstruction Portfolio).
 
 ## 6. Primitives (`src/components/ui/`) — réutiliser, ne pas dupliquer
 
