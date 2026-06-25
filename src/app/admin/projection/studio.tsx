@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { Ptai } from "@/components/ui/ptai";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { PanelStatus, PanelStatusAccent, PanelStatusSection } from "@/components/ui/panel-status";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/lib/allocation-colors";
 import { cn } from "@/lib/cn";
 import { getPresetMetas } from "@/lib/engine/preset-meta";
+import type { ScenarioInputs } from "@/lib/engine/types";
 import {
   runProjectionStudy,
   promoteStudyToDraft,
@@ -63,8 +64,6 @@ const DEFAULT_1D_VALUES = [-30, -15, 0, 15, 30];
 // Default BTC chg × hashprice 3×3 grid for 2D batch
 const DEFAULT_2D_X_VALUES = [-30, 0, 30];
 const DEFAULT_2D_Y_VALUES = [0.05, 0.085, 0.12];
-
-const METHODOLOGY_VERSIONS = [{ id: "v1.0", label: "v1.0 (current)" }];
 
 // ─── Risk color helper (uses status tokens, no hardcoded hex) ─────────────────
 
@@ -186,7 +185,7 @@ function AllocationBreakdown({ allocations }: { allocations: MatrixCell["allocat
 
 // ─── Assumptions Strip ───────────────────────────────────────────────────────
 
-function AssumptionsStrip({ inputs }: { inputs: any }) {
+function AssumptionsStrip({ inputs }: { inputs: ScenarioInputs }) {
   const items = [
     { label: "BTC", value: `${inputs.btc_price_change_pct > 0 ? "+" : ""}${inputs.btc_price_change_pct}%` },
     { label: "Hashprice", value: `$${inputs.hashprice_usd_th_day.toFixed(3)}` },
@@ -301,7 +300,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
 
 export function ProjectionStudio() {
   const router = useRouter();
-  const outputRef = useRef<HTMLDivElement | null>(null);
+  const outputRef = useRef<HTMLElement | null>(null);
   const hasRunRef = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [isPromoting, startPromote] = useTransition();
@@ -414,7 +413,13 @@ export function ProjectionStudio() {
   }, [result]);
 
   return (
-    <div className="projection-studio-shell">
+    <Card material="flat" hoverOverlay={false} className="scenario-lab-box p-(--ct-space-6)">
+      {/* projection-studio-shell provides the container context (container-name: projection-shell)
+          needed for the @container projection-shell queries. The admin-doc-stack provides gap. */}
+      <div className="projection-studio-shell">
+      <div className="admin-doc-stack admin-doc-stack--roomy">
+
+      {/* ── PRESET STRIP — same hairline-bordered pattern as Scenario Lab toolbar ── */}
       <div className="projection-studio-preset-strip">
         <div className="projection-studio-preset-strip__head">
           <span className="eyebrow ct-text-muted">Presets</span>
@@ -437,20 +442,19 @@ export function ProjectionStudio() {
         </div>
       </div>
 
-      <div className={cn("projection-studio-workspace", result ? "projection-studio-workspace--filled" : "projection-studio-workspace--empty")}>
-      {/* ── LEFT: INPUTS ── */}
-      <Card material="flat" hoverOverlay={false} className="projection-studio-input-card">
-        <DashboardPanelHeader
-          title="Projection inputs"
-          eyebrow="Control panel"
-          tone="primary"
-          subtitle={`Methodology ${methodologyVersion}`}
-          className="px-[var(--ct-space-5)] pt-[var(--ct-space-5)] pb-[var(--ct-space-2)]"
-        />
+      {/* ── INPUTS — full-width config, sliders + execution mode + Run.
+          Same model as Scenario Lab: config block on top, result continuum below. ── */}
+      <div className="projection-studio-config admin-doc-stack admin-doc-stack--relaxed">
+        <div className="min-w-0">
+          <h3 className="h4 ct-text-strong">Projection inputs</h3>
+          <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
+            Adjust sliders or load a preset · Methodology {methodologyVersion}
+          </p>
+        </div>
 
-        <div className="projection-studio-input-scroll px-[var(--ct-space-5)]">
+        <div className="projection-studio-input-cols">
         {/* Market Environment */}
-        <div className="projection-studio-input-group mt-[var(--ct-space-4)]">
+        <div className="projection-studio-input-group">
           <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">Market Environment</p>
           <div className="admin-doc-stack admin-doc-stack--actions">
             <SliderField
@@ -483,8 +487,6 @@ export function ProjectionStudio() {
           </div>
         </div>
 
-        <div className="projection-studio-input-divider" />
-
         {/* Network & Yield */}
         <div className="projection-studio-input-group">
           <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">Network & Yield</p>
@@ -508,37 +510,34 @@ export function ProjectionStudio() {
               format={(v) => `${v.toFixed(1)}%`}
             />
           </div>
+
+          {/* Execution Mode */}
+          <div className="admin-doc-stack admin-doc-stack--actions mt-[var(--ct-space-5)]">
+            <p className="eyebrow ct-text-muted">Execution Mode</p>
+            <SegmentedControl<BatchMode>
+              variant="radiogroup"
+              ariaLabel="Execution mode"
+              value={batchMode}
+              onChange={setBatchMode}
+              items={[
+                { value: "none", label: "Single" },
+                { value: "1d", label: "1D Sweep" },
+                { value: "2d", label: "2D Matrix" },
+              ]}
+            />
+            {batchMode === "1d" && (
+              <p className="body-xs ct-text-faint italic">
+                BTC sweep: <span className="mono ct-text-muted">{DEFAULT_1D_VALUES.join(", ")}%</span>
+              </p>
+            )}
+            {batchMode === "2d" && (
+              <p className="body-xs ct-text-faint italic">
+                BTC sweep × Hashprice (3×3 matrix)
+              </p>
+            )}
+          </div>
         </div>
-
-        <div className="projection-studio-input-divider" />
-
-        {/* Execution Mode */}
-        <div className="admin-doc-stack admin-doc-stack--actions">
-          <p className="eyebrow ct-text-muted">Execution Mode</p>
-          <SegmentedControl<BatchMode>
-            variant="radiogroup"
-            ariaLabel="Execution mode"
-            value={batchMode}
-            onChange={setBatchMode}
-            items={[
-              { value: "none", label: "Single" },
-              { value: "1d", label: "1D Sweep" },
-              { value: "2d", label: "2D Matrix" },
-            ]}
-          />
-          {batchMode === "1d" && (
-            <p className="body-xs ct-text-faint italic">
-              BTC sweep: <span className="mono ct-text-muted">{DEFAULT_1D_VALUES.join(", ")}%</span>
-            </p>
-          )}
-          {batchMode === "2d" && (
-            <p className="body-xs ct-text-faint italic">
-              BTC sweep × Hashprice (3×3 matrix)
-            </p>
-          )}
         </div>
-
-        <div className="projection-studio-input-divider" />
 
         {/* Allocation Context */}
         <div className="admin-inset-panel admin-inset-panel--md">
@@ -548,39 +547,45 @@ export function ProjectionStudio() {
             Run projection to see derived targets.
           </p>
         </div>
-        </div>
-
-        <div className="projection-studio-input-footer">
-        {/* Run button */}
-        <Button
-          variant="primary"
-          className="ml-auto"
-          onClick={handleRun}
-          disabled={isPending}
-          aria-busy={isPending}
-        >
-          {isPending
-            ? batchMode === "none"
-              ? "Running…"
-              : "Running batch…"
-            : batchMode === "none"
-              ? "Run projection"
-              : batchMode === "1d"
-                ? "Run 1D Batch (5 runs)"
-                : "Run 2D Batch (9 runs)"}
-        </Button>
 
         {error && (
           <p className="body-xs admin-doc-callout">
             {error}
           </p>
         )}
-        </div>
-      </Card>
 
-      {/* ── RIGHT: OUTPUTS ── */}
-      <div ref={outputRef} className="projection-studio-output">
-        <Card material="flat" hoverOverlay={false} className={cn("projection-studio-output-stage", result && "projection-studio-output-stage--filled")}>
+        {/* Run button — right-aligned at the end of the config block (Scenario Lab model) */}
+        <div className="flex justify-end">
+          <Button
+            variant="primary"
+            className="font-semibold"
+            onClick={handleRun}
+            disabled={isPending}
+            aria-busy={isPending}
+          >
+            {isPending
+              ? batchMode === "none"
+                ? "Running…"
+                : "Running batch…"
+              : batchMode === "none"
+                ? "Run projection"
+                : batchMode === "1d"
+                  ? "Run 1D Batch (5 runs)"
+                  : "Run 2D Batch (9 runs)"}
+          </Button>
+        </div>
+      </div>
+
+      {/* ── RESULT — full-width continuum directly BELOW the inputs (Scenario Lab model).
+          Separated from the config above by a top hairline. ── */}
+      <section
+        ref={outputRef}
+        className="projection-studio-result"
+        aria-labelledby="projection-result-title"
+      >
+        <h3 id="projection-result-title" className="sr-only">
+          Projection result
+        </h3>
           <AnimatePresence mode="wait">
           {!result ? (
             <motion.div
@@ -827,9 +832,10 @@ export function ProjectionStudio() {
             </motion.div>
           )}
           </AnimatePresence>
-        </Card>
+      </section>
+
       </div>
       </div>
-    </div>
+    </Card>
   );
 }

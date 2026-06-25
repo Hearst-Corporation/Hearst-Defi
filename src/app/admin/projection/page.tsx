@@ -11,14 +11,16 @@ export const metadata = {
 
 export default async function ProjectionPage() {
   return (
-    <>
+    <div className="admin-doc-stack admin-doc-stack--roomy scenario-lab-page scenario-lab-page--fit">
       <AdminPageHeader
         titleLead="Engine"
         titleAccent="Projection"
         contextLabel="Strategy"
       />
 
-      <ProjectionStudio />
-    </>
+      <div className="admin-doc-stack admin-doc-stack--roomy">
+        <ProjectionStudio />
+      </div>
+    </div>
   );
 }
