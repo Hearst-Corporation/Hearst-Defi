@@ -3875,6 +3875,31 @@ button.ct-choice-card {
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
+  position: relative;
+}
+
+/* Fondu bas — voile dégradé flou sur le bas du centre.
+   Recouvre le contenu sans l'enlever : pointer-events none.
+   Position fixed verticalement sur les derniers 6rem. */
+.ct-center-panel > .ct-page-area::after {
+  content: "";
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6rem;
+  display: block;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--ct-bg-deep) 60%, transparent) 40%,
+    var(--ct-bg-deep) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+  z-index: 10;
+  margin-top: -6rem;
 }
 
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──
