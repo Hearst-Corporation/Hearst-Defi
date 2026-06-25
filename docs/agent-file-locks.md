@@ -47,6 +47,32 @@ Notes:
 
 ## RELEASED LOCKS
 
+### feat/action-readiness-matrix-v0
+Owner: Agent B — Action Readiness Matrix
+Branch: feat/action-readiness-matrix-v0
+Merged PR: #66 (merge 7980690f)
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agentic/action-readiness/**
+- docs/agentic/ACTION_READINESS_MATRIX_V0.md
+- src/lib/agentic/action-readiness/__tests__/**
+- docs/agent-file-locks.md
+
+Result:
+- Action Readiness Matrix v0: pure read-only module classifying 21 platform actions
+  across 4 tiers (read_only / draft_or_proposal / confirmed_write / forbidden_autonomous).
+  7 read-only (autonomous), 5 draft/proposal (HITL-gated), 1 confirmed-write
+  (outreach_trigger_send_run, multi-gate), 8 forbidden-autonomous (deploy/markAsLive/
+  Safe sig/governance exec/DB migration/formula change/lead sourcing/Tier A auto-send).
+  classifyUnknownAction() fail-safe: write-like unknowns → forbidden_autonomous.
+  validateItem() consistency guard at build time. 35 tests, 8 safety notes.
+  docs/agentic/ACTION_READINESS_MATRIX_V0.md. NO I/O, NO DB, NO tool execution,
+  NO UI change, NO Prisma/schema diff, NO migration, NO router/guard/HITL/chat change.
+  35/35 tests PASS, zero typecheck errors in module, gitleaks clean.
+  Merged 7980690f, PR #66.
+
 ### feat/reporting-crew-readonly-v0
 Owner: Opus Orchestrateur Continu — Reporting Crew Read-Only v0 Implementation
 Branch: feat/reporting-crew-readonly-v0
