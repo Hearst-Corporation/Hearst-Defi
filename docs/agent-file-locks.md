@@ -16,7 +16,26 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### fix/compliance-product-education
+Owner: Master Agent Compliance Guard Follow-up Owner
+Branch: fix/compliance-product-education
+Worktree: ../connect-agent-compliance-products
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/llm/prompts.ts
+- src/lib/llm/__tests__/output-guard.test.ts
+- src/lib/llm/__tests__/prompts.test.ts
+
+Notes:
+- False FAIL on "Explique-moi comment marchent les produits": the model states a
+  single-point target for the secondary vaults (Defensive ~6 %, BTC Plus ~20 %)
+  because the prompt only gives a range for HYV → single_point_apy fires CORRECTLY.
+  Fix = PROMPT (not the guard): rule #1 applies to every vault + secondary vaults
+  have no published figure → qualitative, never a single number. Guard unchanged.
+- Does NOT touch the guard logic, write/HITL routes, Outreach, Prisma, .mcp.json.
+  prompts.ts is NOT a sensitive single-owner file.
 
 ---
 
