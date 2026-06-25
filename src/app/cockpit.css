@@ -3691,10 +3691,9 @@ button.ct-choice-card {
      ci-dessous est best-effort : le package neutralise backdrop-filter sur ses
      propres éléments via @layer en dev ; il s'appliquera là où la cascade le
      permet). */
-  /* Dark shell : rail = presque noir, un cran SOUS le fond global (--ct-bg-deep)
-     pour asseoir la hiérarchie (rail < shell < centre < panels). Liseré clair.
-     #000 = endpoint de mélange color-mix (ratio d'assombrissement) — idiome OK. */
-  background: color-mix(in srgb, var(--ct-bg-deep) 55%, #000) !important;
+  /* Rail = surface-1 — gris graphite, une note au-dessus du fond noir pour
+     qu'il soit identifiable comme surface distincte. */
+  background: var(--ct-surface-1) !important;
   border-right: 1px solid var(--ct-border-on-dark);
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: var(--ct-rail-left) !important;
