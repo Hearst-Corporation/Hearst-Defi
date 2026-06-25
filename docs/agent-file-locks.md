@@ -16,33 +16,38 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-control-center-v01
-Owner: Opus Orchestrateur — Agentic Control Center Delivery
-Branch: feat/agentic-control-center-v01
-Worktree: ../connect-opus-agentic-control-center
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/app/admin/agentic/**
-- src/components/admin/agentic/**
-- src/lib/agentic/control-center/**
-- docs/agentic/AGENTIC_CONTROL_CENTER_V0.md
-- tests related to agentic control center
-- docs/agent-file-locks.md
-
-Notes:
-- Upgrade read-only Agentic Control Center v0 -> v0.1 (next-steps module + data aggregator +
-  expanded types/inventory/gates + Compliance section).
-- No chat route changes. No router/guard behavior changes. No tool execution.
-- No HITL changes. No DB migration. No Prisma/schema. No prod writes.
-- Read-only imports of src/lib/agentic/intent-router* (owned by Kimi agent; not edited).
-- Rebased onto PR #40 (router-final) + PR #42 (its lock release): merged its
-  RouterStatusSummary additions with this lot.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-control-center-v01
+Owner: Opus Orchestrateur — Agentic Control Center Delivery
+Branch: feat/agentic-control-center-v01
+Merged PR: #41
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/app/admin/agentic/page.tsx
+- src/components/admin/agentic/status-badge.tsx
+- src/lib/agentic/control-center/** (types, inventory, gates, tool-boundary-summary,
+  prompt-map, router-status, safety-summary, next-steps, index, tests)
+- docs/agentic/AGENTIC_CONTROL_CENTER_V0.md
+
+Result:
+- Agentic Control Center v0 -> v0.1: added next-steps.ts + getAgenticControlCenterData()
+  aggregator; widened types (server-action/registry/prompt/observability, planned,
+  none/critical); inventory expanded to 22 verified items; tool boundary uses the real
+  11 read + 6 write tool ids; gates add governance_execute/formula_change/model_change
+  (critical); page gained a System Status banner + dedicated Compliance/Guards section +
+  data-driven Next Steps. Rebased onto PR #40 (router-final) — merged its
+  RouterStatusSummary additions (status/mode/shadowFlag/guardAssertions/statusBlock/
+  release) rather than clobbering. Read-only only; no chat/router/guard/HITL/tool/Prisma
+  change. typecheck PASS, lint 0, full suite 3109/3109, build PASS, Vercel prod READY.
+  Merged 67ca8967, PR #41. Only red check = pre-existing Playwright login-flow:91 (out of
+  scope, non-blocking).
 
 ### feat/agentic-control-center-router-final
 Owner: Opus Orchestrateur — Agentic Control Center v0 (router-final)
