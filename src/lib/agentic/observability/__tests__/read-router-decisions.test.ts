@@ -193,6 +193,37 @@ describe("getRouterObservabilitySummary — aggregation mode (v1.2)", () => {
   });
 });
 
+describe("getRouterObservabilitySummary — quality review (v0)", () => {
+  it("attaches a read-only quality review derived from the summary", async () => {
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(s.qualityReview).toBeDefined();
+    expect(s.qualityReview!.window).toBe("24h");
+    expect(s.qualityReview!.total).toBe(s.stats.total);
+    // Every known watchlist signal is present (active or not).
+    expect(s.qualityReview!.watchlist.map((x) => x.key).sort()).toEqual([
+      "high_dangerous_refusal",
+      "high_fallback",
+      "high_unknown",
+      "no_recent_data",
+    ]);
+    expect(s.qualityReview!.note).toMatch(/no rule, prompt, guard, or HITL change/i);
+  });
+
+  it("quality review reports no-data honestly on an empty window", async () => {
+    const s = await getRouterObservabilitySummary({ window: "1h" });
+    expect(s.qualityReview!.total).toBe(0);
+    const noRecent = s.qualityReview!.watchlist.find(
+      (x) => x.key === "no_recent_data",
+    )!;
+    expect(noRecent.active).toBe(true);
+  });
+});
+
 describe("getRouterObservabilitySummary — trends (v0.1)", () => {
   it("includes trendWindow / trendBuckets / topMatchedRules / bufferLimitNote", async () => {
     await recordRouterDecisionSafe({

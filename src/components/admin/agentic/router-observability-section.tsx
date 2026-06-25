@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { RouterObservabilityTrends } from "@/components/admin/agentic/router-observability-trends";
 import { RouterObservabilityLongTerm } from "@/components/admin/agentic/router-observability-longterm";
+import { RouterQualityReview } from "@/components/admin/agentic/router-quality-review";
 import type {
   RouterDecisionTrace,
   RouterObservabilityAggregationMode,
@@ -302,6 +303,10 @@ export function RouterObservabilitySection({
           bufferLimitNote={summary.bufferLimitNote}
         />
       )}
+
+      {/* Router Quality Review (v0) — read-only interpretation of the data above
+          (rates + watchlist). Renders its own no-data state, no actions. */}
+      <RouterQualityReview review={summary.qualityReview} />
 
       {/* Empty state OR distribution + top rules + recent table */}
       {state === "empty" || recent.length === 0 ? (

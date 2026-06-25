@@ -134,6 +134,12 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
   It declines to the in-memory path on SQLite or any failure (badge
   `aggregation: fallback in-memory`). No new table, no migration, no schema change.
   See the v1.2 section of [`ROUTER_OBSERVABILITY_V1.md`](./ROUTER_OBSERVABILITY_V1.md).
+- **Router Quality Review v0** interprets the observability data (read-only): health
+  rates (unknown / dangerous-refusal / educational / nav / fallback), a negated-no-nav
+  count, top matched rules, and a watchlist of degraded patterns (high unknown / high
+  dangerous-refusal / high-fallback / no-recent-data). Pure derivation from the summary
+  (`quality-review.ts`), no query, no rule/prompt/guard/HITL change, no action.
+  See [`ROUTER_QUALITY_REVIEW_V0.md`](./ROUTER_QUALITY_REVIEW_V0.md).
 
 ## Next steps
 
