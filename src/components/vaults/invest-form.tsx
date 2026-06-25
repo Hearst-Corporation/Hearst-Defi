@@ -245,7 +245,7 @@ function InvestFormProjections({
   ptai: { projection: string; trigger: string; action: string; impact: string };
 }) {
   return (
-    <>
+    <section aria-label="Analytics & Projections">
       <div className="vault-invest-section-divider">
         <span className="body-xs ct-text-faint uppercase tracking-widest font-bold">
           Analytics & Projections
@@ -270,7 +270,7 @@ function InvestFormProjections({
           />
         </div>
       </div>
-    </>
+    </section>
   );
 }
 

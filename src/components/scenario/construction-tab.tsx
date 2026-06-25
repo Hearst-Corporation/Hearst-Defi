@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { computeConstructionROI } from "@/lib/engine/construction";
 import type { ConstructionInputs } from "@/lib/engine/types";
 
@@ -152,6 +153,7 @@ export function ConstructionTab() {
                 CAPEX, OPEX and ROI estimates.
               </p>
             </div>
+            <ProvenanceBadge kind="estimated" />
           </CardHeader>
 
           <div className="admin-doc-stack--roomy">

@@ -13,6 +13,7 @@ import { formatApyRange } from "@/lib/format/apy";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
+import { Progress } from "@/components/ui/progress";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
 
@@ -228,16 +229,15 @@ export function CapitalYield({
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="cy-track w-16 h-1 bg-[color-mix(in_srgb,var(--ct-surface-1)_60%,transparent)] rounded-full overflow-hidden" aria-hidden>
-                          <span
-                            className={cn(
-                              "cy-fill block h-full bg-[var(--cy-bucket)] transition-all duration-500",
-                              isNeg && "bg-destructive",
-                              s.isVolatile && "opacity-80",
-                            )}
-                            style={{ width: `${w.toFixed(1)}%` }}
-                          />
-                        </div>
+                        <Progress
+                          value={w}
+                          variant="plain"
+                          className="cy-track w-16 h-1"
+                          fillClassName={cn(
+                            isNeg ? "ct-status-danger-bg" : "bg-[var(--cy-bucket)]",
+                            s.isVolatile && "opacity-80",
+                          )}
+                        />
                         <span className="cy-val tabular text-[var(--ct-text-xs)] font-semibold ct-text-strong min-w-[3.5rem] text-right" aria-label={`${s.label} ${val}`}>
                           {val}
                         </span>

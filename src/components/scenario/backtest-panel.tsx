@@ -5,7 +5,7 @@ import { BacktestChart } from "@/components/scenario/backtest-chart";
 import { ScenarioPendingOverlay } from "@/components/scenario/scenario-feedback";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Metric } from "@/components/ui/metric";
 import { cn } from "@/lib/cn";
 import type { BacktestOutput } from "@/lib/engine/types";
 
@@ -32,66 +32,39 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
       {isPending ? <ScenarioPendingOverlay message="Computing backtest…" /> : null}
 
       {/* ── Section 1: KPIs 2×2 grid ────────────────────────────────────── */}
+      {/* NOTE: Total Return / Max Drawdown / Worst Month previously carried
+          success/danger/warning value coloring. `Metric` renders values neutral
+          (ct-text-strong) and can't express per-value status color, so the
+          semantic +/- sign is kept in the value but the color cue is dropped. */}
       <MetricGrid columns={2} className="mb-[var(--ct-space-4)]">
-        {/* Total Return */}
-        <Card>
-          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
-            <p className="stat-label">Total Return</p>
-            <ProvenanceBadge kind="estimated" />
-          </div>
-          <p
-            className={cn(
-              "stat-value",
-              isPositive ? "ct-status-success" : "ct-status-danger",
-            )}
-          >
-            {isPositive ? "+" : ""}
-            {output.totalReturnPct.toFixed(1)}%
-          </p>
-          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
-            {output.startDate} — {output.endDate}
-          </p>
-        </Card>
-
-        {/* Max Drawdown */}
-        <Card>
-          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
-            <p className="stat-label">Max Drawdown</p>
-            <ProvenanceBadge kind="estimated" />
-          </div>
-          <p className="stat-value ct-status-danger">
-            -{output.maxDrawdownPct.toFixed(1)}%
-          </p>
-          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">peak-to-trough</p>
-        </Card>
-
-        {/* Worst Month */}
-        <Card>
-          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
-            <p className="stat-label">Worst Month</p>
-            <ProvenanceBadge kind="estimated" />
-          </div>
-          <p className="stat-value ct-status-warning">
-            {output.worstMonthPct.toFixed(1)}%
-          </p>
-          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
-            single-month floor
-          </p>
-        </Card>
-
-        {/* Rebalances */}
-        <Card>
-          <div className="mb-[var(--ct-space-2)] admin-doc-inline-row admin-doc-inline-row--between">
-            <p className="stat-label">Rebalances</p>
-            <ProvenanceBadge kind="estimated" />
-          </div>
-          <p className="stat-value ct-text-primary">
-            {output.numRebalances}
-          </p>
-          <p className="mt-[var(--ct-space-1)] body-xs ct-text-muted">
-            mode triggers
-          </p>
-        </Card>
+        <Metric
+          variant="plain"
+          label="Total Return"
+          value={`${isPositive ? "+" : ""}${output.totalReturnPct.toFixed(1)}%`}
+          provenance="estimated"
+          sublabel={`${output.startDate} — ${output.endDate}`}
+        />
+        <Metric
+          variant="plain"
+          label="Max Drawdown"
+          value={`-${output.maxDrawdownPct.toFixed(1)}%`}
+          provenance="estimated"
+          sublabel="peak-to-trough"
+        />
+        <Metric
+          variant="plain"
+          label="Worst Month"
+          value={`${output.worstMonthPct.toFixed(1)}%`}
+          provenance="estimated"
+          sublabel="single-month floor"
+        />
+        <Metric
+          variant="plain"
+          label="Rebalances"
+          value={output.numRebalances}
+          provenance="estimated"
+          sublabel="mode triggers"
+        />
       </MetricGrid>
 
       {/* ── Section 2: Monthly chart ─────────────────────────────────────── */}
