@@ -52,11 +52,10 @@ export default async function OutreachPage() {
       <AdminPageHeader
         titleLead="Outreach"
         titleAccent="Console"
-        contextLabel="Outreach Console"
         actions={
-          <div className="flex items-center gap-[var(--ct-space-4)]">
+          <div className="flex items-center gap-(--ct-space-4)">
             <OutreachStatsCards stats={stats} />
-            <div className="w-px h-8 bg-[var(--ct-border-soft)] mx-[var(--ct-space-1)]" />
+            <div className="w-px h-8 bg-(--ct-border-soft) mx-(--ct-space-1)" />
             <Button asChild variant="primary" size="md" className="shadow-sm">
               <Link href="/admin/outreach/compose">Compose email</Link>
             </Button>
@@ -65,16 +64,16 @@ export default async function OutreachPage() {
       />
 
       {/* Primary Control: Autonomy & Readiness Strip */}
-      <section className="admin-doc-stack admin-doc-stack--compact px-[var(--ct-space-4)] lg:px-0" aria-label="Outreach status">
+      <section className="admin-doc-stack admin-doc-stack--compact px-(--ct-space-4) lg:px-0" aria-label="Outreach status">
         <OutreachAutonomyPanel status={autonomy} />
       </section>
 
       {/* Main Cockpit: Two-column layout for Prospects and Lead Engine */}
-      <div className="admin-doc-split-grid admin-doc-split-grid--brief mt-[var(--ct-space-8)] px-[var(--ct-space-4)] lg:px-0">
+      <div className="admin-doc-split-grid admin-doc-split-grid--brief mt-(--ct-space-8) px-(--ct-space-4) lg:px-0">
         {/* Left: Primary Operator Content */}
-        <div className="admin-doc-stack gap-[var(--ct-space-8)]">
+        <div className="admin-doc-stack gap-(--ct-space-8)">
           {/* Prospect directory */}
-          <section className="admin-doc-stack gap-[var(--ct-space-4)]" aria-label="Prospects">
+          <section className="admin-doc-stack gap-(--ct-space-4)" aria-label="Prospects">
             <div className="admin-doc-inline-row--between">
               <h2 className="h2">Prospect directory <span className="ct-text-faint font-normal tabular-nums ml-1">({prospects.total})</span></h2>
               <div className="admin-doc-inline-row--actions gap-[var(--ct-space-2)]">
@@ -148,7 +147,7 @@ export default async function OutreachPage() {
       </section>
 
           {/* Campaigns */}
-          <section className="admin-doc-stack gap-[var(--ct-space-4)]" aria-label="Campaigns">
+          <section className="admin-doc-stack gap-(--ct-space-4)" aria-label="Campaigns">
             <div className="admin-doc-inline-row--between">
               <div className="admin-doc-stack gap-0">
                 <h2 className="h2">Campaign queue <span className="ct-text-faint font-normal tabular-nums ml-1">({campaigns.length})</span></h2>
@@ -217,15 +216,14 @@ export default async function OutreachPage() {
           <section
             className="admin-doc-stack outreach-engine-aside"
             aria-label="Lead engine"
-            style={{ marginTop: 0 }}
           >
-            <div className="outreach-engine-aside__head mb-[var(--ct-space-2)]">
+            <div className="outreach-engine-aside__head mb-(--ct-space-2)">
               <h2 className="h2">Lead engine</h2>
               <span className="body-xs ct-text-faint">
                 Source &amp; tier leads from ICP.
               </span>
             </div>
-            <div className="admin-doc-stack gap-[var(--ct-space-4)]">
+            <div className="admin-doc-stack gap-(--ct-space-4)">
               <div className="admin-doc-toolbar">
                 <div className="admin-doc-inline-row admin-doc-inline-row--actions">
                   <IcpForm />
