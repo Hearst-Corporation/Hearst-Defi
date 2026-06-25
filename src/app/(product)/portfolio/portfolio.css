@@ -159,67 +159,6 @@
   border-radius: 0;
 }
 
-/* Ticker — 4 KPI cells, graphite plate (ADR-013), no hover lift. */
-.pf-ticker-inline {
-  display: flex;
-  align-items: stretch;
-  flex-wrap: wrap;
-  gap: 0 var(--ct-space-6);
-  margin: 0;
-  padding: var(--ct-space-3) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: var(--ct-glass-bevel);
-  transition: box-shadow var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-ticker-inline:hover {
-  box-shadow: var(--ct-glass-bevel);
-}
-
-.pf-ticker-cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  flex: 1 1 9rem;
-  min-width: 0;
-}
-
-.pf-ticker-label {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-90);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pf-ticker-value {
-  margin: var(--ct-space-0_5) 0 0;
-  font-size: var(--ct-text-xl-fixed);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-none);
-  color: var(--ct-text-strong);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pf-ticker-note {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-normal);
-  letter-spacing: var(--ct-tracking-normal);
-  text-transform: none;
-  color: var(--ct-text-tertiary);
-  line-height: var(--ct-leading-tight);
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* =============================================================================
    3. COCKPIT LAYOUT + THE NO-SCROLL CONTRACT
    -----------------------------------------------------------------------------
@@ -270,7 +209,8 @@
   backdrop-filter: blur(var(--ct-blur-xl));
 }
 
-.pf-fused-surface {
+.pf-fused-surface,
+.pf-hero-grid {
   display: grid;
   position: relative;
   min-width: 0;
@@ -284,18 +224,6 @@
   overflow: hidden;
 }
 
-.pf-hero-grid {
-  display: grid;
-  min-width: 0;
-  min-height: 0;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-  overflow: hidden;
-}
 
 /* Pseudo element gradient masks removed to align with surface contract */
 .pf-fused-surface::before {
@@ -367,12 +295,7 @@
    drives the panel to expand — leaving the plot as a thin strip. */
 .pf-hero-grid { min-height: 0; }
 .pf-container--fit .pf-hero-grid {
-  height: 18rem;
-}
-.pf-container--fit .pf-value-chart__chart-wrapper {
-  aspect-ratio: auto;
-  min-height: 0;
-  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
+  height: auto;
 }
 
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
@@ -518,10 +441,8 @@
   margin: 0;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header-main {
-  gap: var(--ct-space-3);
-}
 
+/* ---- Leaf link ("view more →") ---- */
 .pf-cockpit-panel__subtitle {
   margin: 0;
   font-size: var(--ct-text-xs);
@@ -559,10 +480,9 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  /* chart-geometry — 2 cols: chart (flex) + status rail (fixed 19rem max) */
+  /* 2 cols: Technical chart slot (flex) + status rail (fixed 19rem max) */
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
-  /* chart-geometry — fixed hero height: header ~52px + chart 10rem + month-labels 28px ≈ 260px */
-  height: 16rem;
+  height: auto;
   overflow: clip;
 }
 
@@ -573,23 +493,6 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 28%, transparent),
-    transparent
-  );
-}
-
-.pf-main-chart-wrapper::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
-    transparent 22%
-  );
-  pointer-events: none;
 }
 
 /* ---- ValueChart ---- */
@@ -615,7 +518,7 @@
 }
 
 .pf-hero-kpi-value {
-  /* chart-geometry — intentionally fixed at 3xl (24px), not display (32px).
+  /* Intentionally fixed at 3xl (24px), not display (32px).
      Cockpit metric, not a marketing headline. */
   font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-bold);
@@ -624,154 +527,18 @@
   color: var(--ct-text-strong);
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header {
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header-trail {
-  display: flex;
-}
-
-.pf-value-chart--hero-embedded .pf-hero-kpi-block {
-  margin: 0 0 var(--ct-space-1);
-}
-
-.pf-value-chart__chart-wrapper,
-.pf-skeleton-chart {
+.pf-value-chart__chart-slot {
   position: relative;
   flex: 1 1 auto;
-  min-height: 0;
   width: 100%;
-  /* chart-geometry — aspect backstop for non-hero usage; hero height is controlled by pf-hero-grid */
-  aspect-ratio: 200 / 72; /* chart-geometry */
-  overflow: hidden;
-  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
-}
-
-/* Hero context: aspect-ratio would force height based on ~1000px width → 360px,
-   blowing the 16rem fixed grid. Override to pure flex fill. */
-.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper {
-  aspect-ratio: auto;
-  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
-}
-
-.pf-value-chart__chart-wrapper {
-  background: var(--ct-surface-1);
-  box-shadow: none;
-  animation: pf-chart-entry 1s var(--ct-ease) forwards;
-}
-
-@keyframes pf-chart-entry {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.pf-value-chart__chart-wrapper::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, var(--ct-surface-0) 18%, transparent)
-  );
-  pointer-events: none;
-}
-
-.pf-value-chart__chart-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 18%;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, var(--ct-surface-0) 28%, transparent)
-  );
-  pointer-events: none;
-}
-
-.pf-value-chart__plot {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  animation: pf-plot-fade-in var(--ct-dur-base) var(--ct-ease) forwards;
-}
-
-@keyframes pf-plot-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.pf-value-chart__plot svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* Chart line + area — flat stroke, no glow animation. */
-.pf-value-chart__plot svg path[data-role="line"],
-.pf-value-chart__plot svg .vc-line,
-.pf-value-chart__plot svg path[stroke="var(--ct-accent)"] {
-  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
-  opacity: 1;
-  transition: stroke var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-value-chart__plot svg .vc-area {
-  fill: none;
-  opacity: 0;
-  filter: none;
-}
-
-.pf-vc-grid {
-  stroke: var(--ct-border-soft);
-  stroke-width: 0.5; /* chart-geometry */
-  opacity: var(--ct-opacity-80);
-}
-
-.pf-vc-axis {
-  stroke: var(--ct-border-strong);
-  stroke-width: 1;
-  opacity: 1;
-}
-
-/* Endpoint dots overlaid on the plot. */
-.pf-vc-dots {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.pf-vc-dot {
-  position: absolute;
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-text-muted);
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  transition: left var(--ct-dur-base) var(--ct-ease), top var(--ct-dur-base) var(--ct-ease), opacity var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-vc-dot--endcap {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  background: var(--ct-accent);
-  border: 1.5px solid var(--ct-surface-0);
+  min-height: 8rem;
+  /* Technical slot: Reconstructed with Area + Distribution Dots pattern. */
 }
 
 .pf-positions-empty__hint,
 .pf-activity__empty-hint {
   color: var(--ct-text-tertiary);
-}
-
-.pf-value-chart__range-selector {
-  margin-bottom: var(--ct-space-1);
 }
 
 
@@ -813,54 +580,6 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   opacity: 0.8;
-}
-
-.pf-value-chart__month-labels {
-  position: relative;
-  /* Controlled label band. Was space-5 height + space-1 margin-top + space-2
-     padding-top (~32px) for a 9px nano label pinned at top:0 — a dead zone under
-     the plot that inflated the hero. Tightened so the chart fills its box and
-     May/Jun sit just under the plot. Hero height is grid-fixed (16rem): the
-     flex:1 chart-wrapper absorbs the reclaimed space, nothing grows. */
-  height: var(--ct-space-4);
-  margin-top: 0;
-  flex: 0 0 auto;
-  font-variant-numeric: tabular-nums;
-  border-top: 1px solid var(--ct-border-soft);
-  padding-top: var(--ct-space-1);
-}
-
-.pf-value-chart__month-labels span {
-  position: absolute;
-  transform: translateX(-50%);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-  letter-spacing: var(--ct-tracking-wider);
-  text-transform: uppercase;
-}
-
-/* Corner metrics hover states */
-.chart-provenance-corner {
-  transition: all var(--ct-dur-base) var(--ct-ease);
-  cursor: help;
-  opacity: var(--ct-opacity-80);
-}
-
-.chart-provenance-corner:hover {
-  opacity: 1;
-  transform: scale(1.02);
-  color: var(--ct-accent-light);
-}
-
-/* Badge LIVE (provenance corner) dans le plot : décollé du bord droit ET du
-   haut pour ne plus toucher l'endpoint de courbe ni le coin. Override des
-   utilitaires top-2/right-2 du composant (hors scope) via un sélecteur scopé
-   plus spécifique. Pilule sombre discrète — pas de glow. */
-.pf-value-chart__plot .chart-provenance-corner {
-  top: var(--ct-space-3);
-  right: var(--ct-space-4);
 }
 
 /* Rail metrics hover states */
@@ -2171,24 +1890,6 @@
   .pf-trust-compact-kpis { grid-template-columns: 1fr; }
 }
 
-@container pf (max-width: 48rem) {
-  .pf-ticker-inline {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: stretch;
-    gap: var(--ct-space-3) var(--ct-space-4);
-  }
-  .pf-ticker-cell {
-    flex: 1 1 auto;
-  }
-}
-
-@container pf (max-width: 32rem) {
-  .pf-ticker-inline {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 48rem) {
   .pf-greeting {
     flex-direction: column;
@@ -2203,19 +1904,6 @@
 @keyframes pf-shimmer {
   0% { background-position: 200% 0; transform: translateX(-100%); }
   100% { background-position: -200% 0; transform: translateX(100%); }
-}
-
-/* Line-draw animation for ValueChart — strokeDashoffset from full-length to 0. */
-@keyframes pf-line-draw {
-  from { stroke-dashoffset: 1000; }
-  to   { stroke-dashoffset: 0; }
-}
-
-/* SVG path class — owns the draw animation (moved from inline style). */
-.pf-vc-line {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: pf-line-draw 1.6s var(--ct-ease) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2325,11 +2013,6 @@
 .pf-distrib-chart--skeleton rect {
   opacity: var(--ct-opacity-45);
   animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-.pf-vc-line--skeleton {
-  opacity: 1;
-  animation: none;
-  stroke-dasharray: none;
 }
 
 /* ── Capital & Yield zero-state polish — segmented muted donut + structured
@@ -2566,7 +2249,7 @@
 /* Rows : hauteur NATURELLE (scroll relâché). Le min-height reste un plancher
    de stabilité visuelle, mais plus de partage proportionnel qui plafonne le
    contenu au viewport et clippe les empty-states (ex. "confirmed on-chain"). */
-.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 24rem; }
+.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 18rem; }
 .pf-cockpit-row--yield     { flex: 0 0 auto; min-height: 12rem; }
 .pf-cockpit-row--deck      { flex: 0 0 auto; min-height: 15rem; }
 .pf-cockpit-row--positions { flex: 0 0 auto; min-height: 7rem; }
@@ -2583,7 +2266,7 @@
   height: auto;
 }
 
-.pf-cockpit-row .pf-value-chart__chart-wrapper {
+.pf-cockpit-row .pf-value-chart__chart-slot {
   aspect-ratio: auto;
   min-height: 0;
   max-height: none;
@@ -2598,16 +2281,6 @@
    PREMIUM PUSH 2 — new component classes + visual upgrades
    All tokens only. No raw hex/rgb. No glow. No halo.
    ============================================================================= */
-
-/* ── Y-axis value labels (SVG text via .pf-vc-ylabel) ─────────────────────── */
-.pf-vc-ylabel {
-  font-size: 4.5px; /* chart-geometry — SVG coordinate units, not CSS px */
-  font-weight: 600;
-  fill: var(--ct-text-tertiary);
-  opacity: 0.55;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-}
 
 /* ── Portfolio Status Panel (pf-sp-*) ─────────────────────────────────────── */
 
@@ -3131,51 +2804,3 @@
   opacity: var(--ct-opacity-70);
 }
 
-/* Y-axis HTML overlay labels */
-.pf-vc-ylabels {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: var(--ct-space-8);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.pf-vc-ylabel {
-  position: absolute;
-  right: 0;
-  transform: translateY(-50%);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-tertiary);
-  opacity: 0.45;
-  white-space: nowrap;
-  letter-spacing: var(--ct-tracking-normal);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-  padding-right: var(--ct-space-1_5);
-  line-height: 1;
-}
-
-/* Tooltip badge */
-.pf-vc-tooltip__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-  margin-top: var(--ct-space-1_5);
-  padding-top: var(--ct-space-1_5);
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
-}
-
-.pf-vc-tooltip__badge {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-accent);
-  padding: var(--ct-space-0_5) var(--ct-space-1_5);
-  border-radius: var(--ct-radius-sm);
-  background: color-mix(in srgb, var(--ct-accent) 15%, transparent);
-}

@@ -63,9 +63,7 @@ function FusedSkeleton({ variant }: { variant: "mid" | "deck" }) {
 /** Mirrors the live cockpit bento (hero + mid + deck). */
 export default function PortfolioLoading() {
   return (
-    <div className="pf-container pf-container--fit animate-in fade-in duration-(--ct-dur-slower)" style={{ 
-      background: "radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--ct-accent) 3%, transparent), var(--ct-surface-2) 60%)" 
-    }}>
+    <div className="pf-container pf-container--fit animate-in fade-in duration-(--ct-dur-slower) bg-(--ct-bg-deep)">
       <div className="pf-greeting">
         <Skeleton className="pf-skeleton-greeting-title" />
         <Skeleton className="pf-skeleton-greeting-ticker" />
@@ -74,7 +72,7 @@ export default function PortfolioLoading() {
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--chart">
           <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper min-h-[280px]">
+            <div className="pf-main-chart-wrapper min-h-[18rem]">
               <div className="pf-value-chart p-6 h-full flex flex-col gap-6">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col gap-2">

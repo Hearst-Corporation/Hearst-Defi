@@ -109,7 +109,7 @@
 }
 
 .vault-detail-overview__value {
-  font-size: var(--ct-text-3xl); /* Larger for hero feel */
+  font-size: var(--ct-text-3xl-fixed); /* Fixed cockpit instrument canon */
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tighter);
@@ -473,7 +473,7 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  font-size: var(--ct-text-3xl);
+  font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-muted);
   user-select: none;
@@ -488,7 +488,7 @@
   box-shadow: none !important;
   padding: 0;
   padding-left: var(--ct-space-6);
-  font-size: var(--ct-text-3xl); /* Reduced from 4xl for better mobile fit */
+  font-size: var(--ct-text-3xl-fixed); /* Fixed cockpit instrument canon */
   font-weight: var(--ct-font-extrabold);
   letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
@@ -507,7 +507,7 @@
 
 @container product-doc (min-width: 40rem) {
   .vault-amount-input {
-    font-size: var(--ct-text-4xl);
+    font-size: var(--ct-text-3xl-fixed);
   }
 }
 

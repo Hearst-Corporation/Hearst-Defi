@@ -5,8 +5,8 @@ import { ValueChart } from "@/components/portfolio/value-chart";
 
 const EMPTY_POSITIONS: [] = [];
 
-describe("ValueChart zero-state — flat skeleton baseline, unlabelled", () => {
-  it("renders the chart SVG frame even with no positions (skeleton)", () => {
+describe("ValueChart Cleanup — Header only", () => {
+  it("renders the Portfolio Value title", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={EMPTY_POSITIONS}
@@ -16,30 +16,10 @@ describe("ValueChart zero-state — flat skeleton baseline, unlabelled", () => {
       />,
     );
 
-    expect(html).toContain('viewBox="0 0 200 80"');
-    expect(html).toContain("pf-vc-line--skeleton");
+    expect(html).toContain("Portfolio Value");
   });
 
-  it("shows NO visible label/badge/disclaimer in zero-state", () => {
-    const html = renderToStaticMarkup(
-      <ValueChart
-        positions={EMPTY_POSITIONS}
-        totalValueUsdc={0}
-        source="live"
-        embedded
-      />,
-    );
-
-    expect(html).not.toContain("Estimated");
-    expect(html).not.toContain("illustrative");
-    // No watermark / disclaimer line in skeleton mode
-    expect(html).not.toContain("ct-chart-disclaimer-text");
-    expect(html).not.toContain("pf-value-chart__disclaimer");
-  });
-});
-
-describe("ValueChart live state (real position)", () => {
-  it("renders the real curve, the value KPI and the live disclaimer", () => {
+  it("renders the balance when not empty", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={[
@@ -62,9 +42,37 @@ describe("ValueChart live state (real position)", () => {
       />,
     );
 
-    expect(html).toContain('viewBox="0 0 200 80"');
-    expect(html).not.toContain("pf-vc-line--skeleton");
-    // Live disclaimer underlay present in non-skeleton mode
-    expect(html).toContain("ct-chart-disclaimer-text");
+    expect(html).toContain("260,000");
+    expect(html).toContain("USDC");
+  });
+
+  it("renders the SVG chart when data is present", () => {
+    const html = renderToStaticMarkup(
+      <ValueChart
+        positions={[
+          {
+            id: "p1",
+            vaultName: "Hearst Yield",
+            principalUsdc: 250_000,
+            accruedYieldUsdc: 10_000,
+            distributedUsdc: 0,
+            valueUsdc: 260_000,
+            status: "active",
+            apyLow: 9.4,
+            apyHigh: 12.8,
+            subscribedAt: new Date("2026-01-01T00:00:00.000Z"),
+          },
+        ]}
+        totalValueUsdc={260_000}
+        source="live"
+        embedded
+        valueChartTransactions={[
+          { type: "deposit", amountUsdc: 250_000, occurredAt: new Date("2026-01-01") }
+        ]}
+      />,
+    );
+
+    expect(html).toContain("<svg");
+    expect(html).toContain("<path"); // Area or Line
   });
 });

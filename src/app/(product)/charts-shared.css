@@ -44,7 +44,7 @@
 }
 
 .donut-val {
-  font-size: var(--ct-text-3xl);
+  font-size: var(--ct-text-3xl-fixed);
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tight);
