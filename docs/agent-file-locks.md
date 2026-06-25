@@ -16,29 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-control-center-router-final
-Owner: Opus Orchestrateur — Agentic Control Center v0 (router-final)
-Branch: feat/agentic-control-center-router-final
-Worktree: ../connect-opus-agentic-cc
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/control-center/router-status.ts
-- src/lib/agentic/control-center/types.ts
-- src/lib/agentic/control-center/safety-summary.ts
-- src/lib/agentic/control-center/__tests__/control-center.test.ts
-- src/app/admin/agentic/page.tsx
-- docs/agent-file-locks.md
-
-Notes:
-- READ-ONLY visibility only. Integrate the CLOSED Router Stabilization final state.
-- Do NOT touch: router, guard, cockpit-chat/route.ts, HITL, tool execution, Prisma/schema.
-- No Crew Runtime, no CrewAI. No writes, no DB, no LLM.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-control-center-router-final
+Owner: Opus Orchestrateur — Agentic Control Center v0 (router-final)
+Branch: feat/agentic-control-center-router-final
+Merged PR: #40
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agentic/control-center/router-status.ts + types.ts + safety-summary.ts
+- src/lib/agentic/control-center/__tests__/control-center.test.ts
+- src/app/admin/agentic/page.tsx
+
+Result:
+- /admin/agentic now surfaces the CLOSED Router Stabilization final state
+  (read-only): status active / non-shadow, AGENTIC_ROUTER_SHADOW dead, verbatim
+  Router Status block, guard-handoff assertions (guard never relaxed — no intent
+  param; forbidden/guaranteed/single-point APY still blocked; no HITL token on
+  refusal), release metadata (merge bcb55f2c #36 / lock 49ce60cc #37 / Vercel
+  READY / 3055-test suite). +8 tests (control-center 40). No router/guard/route/
+  HITL/tool/Prisma change. typecheck PASS, lint 0, full suite 3095/3095, build
+  PASS. Merged a4b53754, PR #40.
 
 ### feat/agentic-control-center-v0
 Owner: Agentic Control Center Owner
