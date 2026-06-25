@@ -26,6 +26,7 @@ const WINDOW_MS: Record<RouterObservabilityWindow, number> = {
   "1h": 60 * 60 * 1000,
   "24h": 24 * 60 * 60 * 1000,
   "7d": 7 * 24 * 60 * 60 * 1000,
+  "30d": 30 * 24 * 60 * 60 * 1000,
 };
 
 /** Built-in default retention horizon (days) when OBS_RETENTION_DAYS is unset. */
@@ -43,7 +44,17 @@ export function getRetentionConfig(): RouterRetentionConfig {
   };
 }
 
+/** Effective retention horizon (days). */
+export function getRouterTraceRetentionDays(): number {
+  return getRetentionConfig().retentionDays;
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The cutoff Date: rows strictly older than this are eligible for pruning. */
+export function getRouterTraceRetentionCutoff(now: Date = new Date()): Date {
+  return new Date(now.getTime() - getRouterTraceRetentionDays() * DAY_MS);
+}
 
 /** Cutoff Date for a window, relative to `now` (injected for testability). */
 export function windowCutoff(window: RouterObservabilityWindow, now: number): Date {
@@ -147,11 +158,31 @@ export async function durableAppendTrace(
 
 /** Best-effort delete of rows older than the effective retention horizon. */
 export async function pruneOldTraces(now: number = Date.now()): Promise<void> {
-  const { retentionDays } = getRetentionConfig();
-  const cutoff = new Date(now - retentionDays * DAY_MS);
+  const cutoff = getRouterTraceRetentionCutoff(new Date(now));
   await prisma.agenticRouterDecisionTrace.deleteMany({
     where: { createdAt: { lt: cutoff } },
   });
+}
+
+/** Count rows older than the retention horizon (used by the dry-run prune). */
+export async function countTracesOlderThanRetention(
+  now: number = Date.now(),
+): Promise<number> {
+  const cutoff = getRouterTraceRetentionCutoff(new Date(now));
+  return prisma.agenticRouterDecisionTrace.count({
+    where: { createdAt: { lt: cutoff } },
+  });
+}
+
+/** Delete rows older than the retention horizon; returns the deleted count. */
+export async function deleteTracesOlderThanRetention(
+  now: number = Date.now(),
+): Promise<number> {
+  const cutoff = getRouterTraceRetentionCutoff(new Date(now));
+  const res = await prisma.agenticRouterDecisionTrace.deleteMany({
+    where: { createdAt: { lt: cutoff } },
+  });
+  return res.count;
 }
 
 /** Result of a durable read attempt. `ok=false` ⇒ caller should fall back. */

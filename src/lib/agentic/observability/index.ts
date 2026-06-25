@@ -34,9 +34,14 @@ export {
   durableReadTraces,
   durableAggregateByDay,
   getRetentionConfig,
+  getRouterTraceRetentionDays,
+  getRouterTraceRetentionCutoff,
   topMatchedRules,
   pruneOldTraces,
+  countTracesOlderThanRetention,
+  deleteTracesOlderThanRetention,
   windowCutoff,
   DURABLE_RETENTION_DAYS,
 } from "./db-store";
+export { pruneRouterDecisionTraces } from "./retention";
 export { ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_CAP } from "./store";

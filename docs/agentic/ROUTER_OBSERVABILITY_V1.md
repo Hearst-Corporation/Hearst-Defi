@@ -5,6 +5,29 @@ capped Redis buffer to a **durable, queryable** store with time-window filters,
 surfaced read-only in `/admin/agentic`. It changes NO router/guard/HITL behaviour
 and stores NO user text. One targeted Prisma table is added; no other model changes.
 
+## v1.1 — long-window (30d) + retention policy
+
+v1.1 adds a **30-day** window (30 daily buckets) alongside 1h/24h/7d, an
+env-overridable **retention policy**, and a tested (dry-run-default) pruning helper:
+
+- **30d window**: `?routerWindow=30d`. Stats, trends, top-rules and outcome
+  distribution are computed over the full 30-day windowed read (durable DB, single
+  `createdAt`-indexed query capped at 5000 rows); the recent-decisions table is
+  sliced to the newest 50 from the same read (no second query). When the durable
+  store is unavailable, the UI shows a `limited` note (the Redis/memory fallback
+  only holds the capped 7-day recent buffer, so 30d may be incomplete).
+- **Retention**: `src/lib/agentic/observability/retention.ts`. Default **90 days**,
+  overridable via the non-secret env var `ROUTER_TRACE_RETENTION_DAYS`
+  (`z.coerce.number().int().positive().optional()` in `env.ts`; clamped to 7–730,
+  boot-safe). 30d ≤ 90d so the window never shows pruned-away data. The retention
+  policy is rendered read-only in `/admin/agentic` — there is **no prune/delete
+  control in the UI**.
+- **Pruning helper**: `pruneRouterDecisionTraces({dryRun?, now?})` — **dry-run by
+  default** (counts only, deletes nothing); a real delete needs explicit
+  `dryRun:false`. Never called from the admin data loader or the chat runtime;
+  the only automatic prune is the best-effort write-time tick in `db-store`
+  (`~1 in 50` durable writes). No cron added. Best-effort: never throws.
+
 ## What changed vs v0
 
 | | v0 | v1 |
@@ -140,7 +163,10 @@ change, no write controls.
 
 ## Next lot recommendation
 
-If a longer analytics horizon is genuinely needed, push the per-day aggregate INTO SQL
-(`groupBy` on a date-truncated `createdAt`) so the read never loads rows, and add an
-admin CSV export of the windowed metadata. Still no router/guard change, no CrewAI, no
-tool execution.
+The 30d window reads up to 5000 rows and buckets in memory; the long-term per-day
+aggregate (`durableAggregateByDay`) already loads only `{createdAt, outcome}`. If
+trace volume grows large, push BOTH into SQL — a `GROUP BY date_trunc('day',
+createdAt), outcome` aggregate — so the 30d window and the long-term view stay
+O(buckets) instead of O(rows). Only worth it once a 30d window actually approaches
+the 5000-row cap. Still no router/guard change, no CrewAI, no tool execution, no
+new table.

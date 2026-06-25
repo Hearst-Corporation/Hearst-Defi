@@ -16,12 +16,13 @@ import type {
   RouterTrendWindow,
 } from "@/lib/agentic/observability/types";
 
-const WINDOWS: RouterTrendWindow[] = ["1h", "24h", "7d"];
+const WINDOWS: RouterTrendWindow[] = ["1h", "24h", "7d", "30d"];
 
 const WINDOW_LABEL: Record<RouterTrendWindow, string> = {
   "1h": "1h",
   "24h": "24h",
   "7d": "7d",
+  "30d": "30d",
 };
 
 // Outcome categories shown in the stacked bars + distribution, in render order.

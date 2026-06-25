@@ -81,9 +81,10 @@ beforeEach(() => {
 afterEach(() => __resetRouterDecisionMemBuffer());
 
 describe("resolveWindow", () => {
-  it("accepts 1h/24h/7d, defaults to 24h otherwise", () => {
+  it("accepts 1h/24h/7d/30d, defaults to 24h otherwise", () => {
     expect(resolveWindow("1h")).toBe("1h");
     expect(resolveWindow("7d")).toBe("7d");
+    expect(resolveWindow("30d")).toBe("30d");
     expect(resolveWindow("bogus")).toBe("24h");
     expect(resolveWindow(undefined)).toBe("24h");
   });
@@ -191,6 +192,64 @@ describe("getRouterObservabilitySummary — trends (v0.1)", () => {
   it("falls back to 24h for an invalid window", async () => {
     const s = await getRouterObservabilitySummary({ window: "24h" });
     expect(s.trendWindow).toBe("24h");
+  });
+});
+
+describe("getRouterObservabilitySummary — 30d long window (v1.1)", () => {
+  function mkRow(daysAgo: number, outcome = "nav_fast_path"): Row {
+    return {
+      id: `r-${daysAgo}`,
+      createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+      chatId: null,
+      messageId: null,
+      source: "cockpit_chat",
+      kind: "navigation",
+      actionPolicy: "allow_navigation",
+      confidence: 0.9,
+      negated: false,
+      matchedRuleIds: ["nav.resolver"],
+      routeKey: "vaults",
+      educationalKind: null,
+      prohibitedAutonomousAction: false,
+      outcome,
+      usedLegacyFallback: false,
+      tookFastPath: true,
+    };
+  }
+
+  it("durable 30d window includes rows within 30 days, excludes older", () => {
+    rows.push(mkRow(2), mkRow(20), mkRow(40)); // 40d is outside the 30d window
+    return getRouterObservabilitySummary({ window: "30d" }).then((s) => {
+      expect(s.storage).toBe("durable");
+      expect(s.window).toBe("30d");
+      expect(s.stats.total).toBe(2); // 2d + 20d
+      expect(s.trendBuckets).toHaveLength(30);
+      expect(s.retentionDays).toBe(90);
+      expect(s.retentionPolicyNote).toMatch(/default 90 days/i);
+      // durable serves the full window → no limitation note
+      expect(s.windowLimitationNote).toBeNull();
+    });
+  });
+
+  it("recent table is sliced (<=50) even when the window has many rows", async () => {
+    for (let i = 0; i < 120; i++) rows.push(mkRow(i % 25)); // 120 rows within 30d
+    const s = await getRouterObservabilitySummary({ window: "30d" });
+    expect(s.stats.total).toBe(120); // stats over full window
+    expect(s.recent.length).toBeLessThanOrEqual(50); // table sliced
+  });
+
+  it("on fallback storage, 30d surfaces a limitation note", async () => {
+    rows.push(mkRow(2));
+    dbThrows = true; // durable read fails → Redis/memory fallback
+    const s = await getRouterObservabilitySummary({ window: "30d" });
+    expect(["redis_fallback", "memory_fallback"]).toContain(s.storage);
+    expect(s.windowLimitationNote).toMatch(/durable router traces when available/i);
+  });
+
+  it("shorter windows never carry a limitation note", async () => {
+    rows.push(mkRow(0));
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(s.windowLimitationNote).toBeNull();
   });
 });
 

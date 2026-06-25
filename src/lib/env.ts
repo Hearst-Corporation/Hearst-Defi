@@ -245,6 +245,11 @@ const serverEnvSchema = z.object({
   CREWAI_ENGINE_URL: z.string().url().optional(),
   CREWAI_ENGINE_AUTH_TOKEN: z.string().min(32).optional(),
   CREWAI_ENGINE_TIMEOUT_MS: z.coerce.number().int().positive().default(30000),
+
+  // Router observability trace retention horizon (days). Non-secret. Optional —
+  // defaults to 90 in the retention helper when unset; clamped to a sane range
+  // there. Controls best-effort pruning of AgenticRouterDecisionTrace rows.
+  ROUTER_TRACE_RETENTION_DAYS: z.coerce.number().int().positive().optional(),
 });
 
 type ServerEnv = z.infer<typeof serverEnvSchema>;

@@ -16,25 +16,28 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/router-observability-retention-v1
-Owner: Opus Orchestrateur — Router Observability Retention Delivery
-Branch: feat/router-observability-retention-v1
-Worktree: ../connect-opus-obs-retention
+### feat/router-observability-long-window-v11
+Owner: Opus Orchestrateur — Long-Window Router Observability Delivery
+Branch: feat/router-observability-long-window-v11
+Worktree: ../connect-opus-router-observability-long-window
 Started: 2026-06-25
 Status: active
 
 Scope:
-- src/lib/agentic/observability/** (additive: retention config + long-term aggregate)
-- src/components/admin/agentic/** (additive: long-term summary view)
-- src/app/admin/agentic/page.tsx (pass long-term data)
-- docs/agentic/** + tests
+- src/lib/agentic/observability/**
+- src/lib/agentic/control-center/**
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- docs/agentic/**
+- tests related to router observability long-window/pruning
 - docs/agent-file-locks.md
 
 Notes:
-- Read-only retention/pruning config + long-term aggregate over the EXISTING
-  AgenticRouterDecisionTrace durable table. NO new model, NO new migration.
-- No router/guard/HITL behavior change. No tool execution. No prod business writes.
-- No user text/prompt/tool payload storage. No secrets/env.
+- Add 30d durable Router Observability window + dry-run pruning helper (built on
+  the retention config merged in PR #51).
+- No router/guard/HITL behavior change. No tool execution.
+- No new DB table. No destructive migration. No Prisma/schema change.
+- No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.
 
 ---
 

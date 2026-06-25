@@ -33,6 +33,7 @@ describe("normalizeRouterTrendWindow", () => {
     expect(normalizeRouterTrendWindow("1h")).toBe("1h");
     expect(normalizeRouterTrendWindow("24h")).toBe("24h");
     expect(normalizeRouterTrendWindow("7d")).toBe("7d");
+    expect(normalizeRouterTrendWindow("30d")).toBe("30d");
   });
 
   it("defaults invalid/missing input to 24h", () => {
@@ -181,5 +182,58 @@ describe("getTopMatchedRules", () => {
       trace({ createdAt: NOW.toISOString(), matchedRuleIds: ["", "x"] }),
     ]);
     expect(top).toEqual([{ ruleId: "x", count: 1 }]);
+  });
+});
+
+describe("buildRouterDecisionTrendBuckets — 30d window (long window)", () => {
+  it("30d creates 30 daily buckets", () => {
+    expect(buildRouterDecisionTrendBuckets([], "30d", NOW)).toHaveLength(30);
+  });
+
+  it("getRouterTrendWindowStart for 30d is 30 days before now", () => {
+    const start = getRouterTrendWindowStart("30d", NOW);
+    expect(NOW.getTime() - start.getTime()).toBe(30 * 24 * 60 * 60 * 1000);
+  });
+
+  it("places a trace 15 days ago into a middle bucket", () => {
+    const fifteenDaysAgo = new Date(
+      NOW.getTime() - 15 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const buckets = buildRouterDecisionTrendBuckets(
+      [trace({ createdAt: fifteenDaysAgo, outcome: "nav_fast_path" })],
+      "30d",
+      NOW,
+    );
+    const total = buckets.reduce((s, b) => s + b.total, 0);
+    expect(total).toBe(1);
+    // bucket index 15 (oldest-first; 0 = 30d ago)
+    expect(buckets[15]?.total).toBe(1);
+    expect(buckets[15]?.navigationFastPaths).toBe(1);
+  });
+
+  it("ignores traces older than 30 days", () => {
+    const thirtyOneDaysAgo = new Date(
+      NOW.getTime() - 31 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const buckets = buildRouterDecisionTrendBuckets(
+      [trace({ createdAt: thirtyOneDaysAgo })],
+      "30d",
+      NOW,
+    );
+    expect(buckets.reduce((s, b) => s + b.total, 0)).toBe(0);
+  });
+
+  it("uses MM-DD daily labels for 30d", () => {
+    const buckets = buildRouterDecisionTrendBuckets([], "30d", NOW);
+    // label like "05-26" (5 chars, no colon)
+    for (const b of buckets) {
+      expect(b.label).toMatch(/^\d{2}-\d{2}$/);
+    }
+  });
+
+  it("does not affect 1h/24h/7d bucket counts (regression)", () => {
+    expect(buildRouterDecisionTrendBuckets([], "1h", NOW)).toHaveLength(12);
+    expect(buildRouterDecisionTrendBuckets([], "24h", NOW)).toHaveLength(24);
+    expect(buildRouterDecisionTrendBuckets([], "7d", NOW)).toHaveLength(7);
   });
 });
