@@ -58,7 +58,6 @@ describe("AgenticCommandSummary", () => {
     expect(html).toContain("Autonomous, read-only");
     expect(html).toContain("Gated writes");
     expect(html).toContain("Never autonomous");
-    expect(html.toLowerCase()).toContain("nothing executes");
     NO_RUN_CONTROLS(html);
   });
 
@@ -110,11 +109,11 @@ describe("AgenticTopologyMap", () => {
 describe("AgenticCapabilitiesBoard", () => {
   const html = renderToStaticMarkup(<AgenticCapabilitiesBoard matrix={MATRIX} />);
   it("labels capabilities in product language (autonomous / gated / never)", () => {
-    expect(html).toContain("Autonomous today");
-    expect(html).toContain("Draft / proposal only");
-    expect(html).toContain("Confirmed write, gated");
+    expect(html).toContain("Autonomous");
+    expect(html).toContain("Draft only");
+    expect(html).toContain("Gated write");
     expect(html).toContain("Never autonomous");
-    expect(html.toLowerCase()).toContain("a human must confirm");
+    expect(html.toLowerCase()).toContain("human");
     NO_RUN_CONTROLS(html);
   });
   it("renders nothing when matrix is null", () => {

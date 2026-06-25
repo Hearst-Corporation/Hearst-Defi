@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// Control Tower V2 — page + composition contract. The page renders a single
+// Control Tower — page + composition contract. The page renders a single
 // <AgenticControlTower> orchestrator; the tower composes the sections in the
 // map-first / details-progressive order. These string-level checks guard the
 // information architecture without rendering the async server component.
@@ -30,7 +30,6 @@ describe("agentic page — control tower composition", () => {
   it("the page no longer renders the old card-wall map + inspector", () => {
     expect(PAGE).not.toContain("AgenticSystemMap");
     expect(PAGE).not.toContain("AgenticDetailInspector");
-    // No 22-card inventory / inline status-chip sections left on the page.
     expect(PAGE).not.toContain('aria-label="Agents and logic inventory"');
     expect(PAGE).not.toContain("SystemStatusChip");
   });
@@ -73,16 +72,15 @@ describe("control tower — section order (overview first, details progressive)"
   it("renders the topology before the detail sections", () => {
     const topologyIdx = TOWER.indexOf("<AgenticTopologyMap");
     const obsIdx = TOWER.indexOf("<RouterObservabilitySection");
-    const reportingIdx = TOWER.indexOf("<ReportingCrewSection");
     expect(topologyIdx).toBeGreaterThan(-1);
     expect(obsIdx).toBeGreaterThan(topologyIdx);
-    expect(reportingIdx).toBeGreaterThan(topologyIdx);
   });
 
-  it("preserves the read-only data sections (no data lost)", () => {
+  it("preserves the core read-only data sections", () => {
     expect(TOWER).toContain("<ActionReadinessMatrixSection");
     expect(TOWER).toContain("<CrewSimulationSection");
     expect(TOWER).toContain("<RouterObservabilitySection");
-    expect(TOWER).toContain("<ReportingCrewSection");
+    // ReportingCrewSection was merged into Observability — data not lost, section removed.
+    expect(TOWER).not.toContain("<ReportingCrewSection");
   });
 });

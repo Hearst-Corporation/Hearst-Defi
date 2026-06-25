@@ -191,100 +191,180 @@
    Token-only, no hardcoded hex (color-mix from --ct-*). Responsive, no h-scroll.
    ============================================================================= */
 
+/* =============================================================================
+   Action Readiness lanes — compact row design (no per-chip badge wall).
+   ============================================================================= */
+
 .agentic-action-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--ct-space-3);
   align-items: start;
+}
+@media (min-width: 780px) {
+  .agentic-action-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .agentic-action-lane {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
+  gap: 0;
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   border-top-width: 3px;
-  background: color-mix(in srgb, var(--ct-surface-1) 88%, transparent);
+  background: var(--ct-surface-1);
+  overflow: hidden;
   min-width: 0;
 }
-.agentic-action-lane[data-tier="read_only"] {
-  border-top-color: var(--ct-status-success);
-}
+.agentic-action-lane[data-tier="read_only"] { border-top-color: var(--ct-status-success); }
 .agentic-action-lane[data-tier="draft_or_proposal"],
-.agentic-action-lane[data-tier="confirmed_write"] {
-  border-top-color: var(--ct-status-warning);
-}
-.agentic-action-lane[data-tier="forbidden_autonomous"] {
-  border-top-color: var(--ct-status-danger);
-}
+.agentic-action-lane[data-tier="confirmed_write"] { border-top-color: var(--ct-status-warning); }
+.agentic-action-lane[data-tier="forbidden_autonomous"] { border-top-color: var(--ct-status-danger); }
 
-.agentic-action-lane-body {
+.agentic-action-lane-head {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--ct-space-2);
-  min-width: 0;
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+.agentic-action-lane-title {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold, 600);
+  color: var(--ct-text-body);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.agentic-action-chip {
+.agentic-action-lane-list {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-2);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-2);
-  min-width: 0;
-}
-
-/* Crew simulation flow rails */
-.agentic-flow-rail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
-  min-width: 0;
 }
 
-.agentic-flow-step {
+.agentic-action-row {
   display: flex;
+  align-items: center;
   gap: var(--ct-space-2);
-  align-items: flex-start;
-  padding: var(--ct-space-2);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  border-left-width: 3px;
-  background: color-mix(in srgb, var(--ct-surface-1) 75%, transparent);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
   min-width: 0;
 }
-.agentic-flow-step[data-mode="read_only"] {
-  border-left-color: var(--ct-status-success);
-}
-.agentic-flow-step[data-mode="draft_only"],
-.agentic-flow-step[data-mode="confirmed_write_blocked"] {
-  border-left-color: var(--ct-status-warning);
-}
-.agentic-flow-step[data-mode="forbidden"] {
-  border-left-color: var(--ct-status-danger);
+.agentic-action-row:last-child { border-bottom: none; }
+.agentic-action-row-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
-.agentic-flow-step-index {
+/* =============================================================================
+   Crew Simulation — compact cards + step rail.
+   ============================================================================= */
+
+.agentic-sim-head-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  flex-wrap: wrap;
+}
+
+.agentic-sim-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--ct-space-4);
+  align-items: start;
+}
+@media (min-width: 720px) {
+  .agentic-sim-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1100px) {
+  .agentic-sim-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.agentic-sim-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  min-width: 0;
+}
+
+.agentic-sim-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+
+.agentic-sim-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1_5);
+}
+
+.agentic-sim-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agentic-sim-step {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-1_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-md);
+  border-left: 2px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+  min-width: 0;
+}
+.agentic-sim-step[data-mode="read_only"] { border-left-color: var(--ct-status-success); }
+.agentic-sim-step[data-mode="draft_only"],
+.agentic-sim-step[data-mode="confirmed_write_blocked"] { border-left-color: var(--ct-status-warning); }
+.agentic-sim-step[data-mode="forbidden"] { border-left-color: var(--ct-status-danger); }
+
+.agentic-sim-step-index {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
   border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-accent) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 32%, var(--ct-border-soft));
+  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
   font-size: var(--ct-text-2xs);
-  color: var(--ct-text-strong);
+  color: var(--ct-text-faint);
 }
 
+.agentic-sim-gate-dot {
+  flex: 0 0 auto;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-status-warning);
+}
+
+.agentic-sim-blocked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1);
+}
+
+/* Blocked action pills (shared by both old flow-blocked and new sim-blocked) */
 .agentic-flow-blocked {
   display: inline-flex;
   align-items: center;
@@ -295,6 +375,71 @@
   font-size: var(--ct-text-2xs);
   color: var(--ct-text-muted);
   overflow-wrap: anywhere;
+}
+
+/* =============================================================================
+   Observability — compact stat strip + inline status.
+   ============================================================================= */
+
+.agentic-obs-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  flex-wrap: wrap;
+}
+
+.agentic-obs-windows {
+  display: flex;
+  gap: var(--ct-space-1);
+  flex-wrap: wrap;
+}
+
+.agentic-obs-status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+}
+
+.agentic-obs-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2);
+}
+
+.agentic-obs-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ct-space-3);
+}
+@media (min-width: 780px) {
+  .agentic-obs-stats {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.agentic-obs-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  min-width: 0;
+}
+
+.agentic-obs-stat-value {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-bold, 700);
+  color: var(--ct-text-strong);
+  letter-spacing: -0.02em;
 }
 
 /* =============================================================================

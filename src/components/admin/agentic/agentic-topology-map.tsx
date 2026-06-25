@@ -130,9 +130,7 @@ export function AgenticTopologyMap({
       <div className="agentic-section-head">
         <h2 className="agentic-section-title m-0">Topology</h2>
         <p className="body-sm ct-text-muted m-0">
-          How the platform is wired. The router sits at the centre; guards, gates,
-          and the tool boundary surround it; observability watches it; agents and
-          actions flow outward; forbidden actions stay outside the boundary.
+          How the platform is wired — router at centre, guards and gates around it, forbidden zone at the edge.
         </p>
       </div>
 
@@ -167,10 +165,6 @@ export function AgenticTopologyMap({
         })}
       </div>
 
-      <p className="body-xs ct-text-faint">
-        Read-only schema — selecting a block opens its detail section. Nothing here
-        executes a tool or performs a write.
-      </p>
     </section>
   );
 }
