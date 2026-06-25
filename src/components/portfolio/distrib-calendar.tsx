@@ -55,6 +55,10 @@ export interface DistribCalendarProps {
   secondaryLeafHref?: string;
   secondaryLeafLabel?: string;
   embedded?: boolean;
+  /** Next expected distribution date (estimated from schedule). Used in zero-state only. */
+  nextDistributionAt?: Date;
+  /** Whether the investor has an active position — used to decide zero-state copy. */
+  hasActivePosition?: boolean;
 }
 
 // ── Formatting helpers (exported for tests) ───────────────────────────────────
@@ -396,6 +400,19 @@ function calendarHeaderTrail(
   );
 }
 
+const distribDateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+const distribMonthFmt = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 export function DistribCalendar({
   entries,
   shareClass,
@@ -407,6 +424,8 @@ export function DistribCalendar({
   secondaryLeafHref,
   secondaryLeafLabel,
   embedded = false,
+  nextDistributionAt,
+  hasActivePosition = false,
 }: DistribCalendarProps) {
   // id unique par instance — évite la collision de gradient <defs> si plusieurs
   // calendriers en zero-state coexistent (duplicate id = HTML invalide).
@@ -418,9 +437,12 @@ export function DistribCalendar({
   const hasEntries = entries.length > 0;
   const hasForecast = entries.some((e) => e.paidAt === null);
 
-  // Zero-state: render the histogram SKELETON (empty muted bars), no phrase.
-  // The frame fills in with real bars as soon as the first distribution lands.
+  // Zero-state: show "Distribution coming" box if position active,
+  // or plain skeleton if no position yet.
   if (!hasEntries) {
+    const showComingBox = hasActivePosition && nextDistributionAt != null;
+    const nextDate = nextDistributionAt;
+
     return (
       <PfCockpitPanel
         variant="wide"
@@ -434,8 +456,48 @@ export function DistribCalendar({
           titleVariant="primary"
           trailing={calendarHeaderTrail(leafHref)}
         />
-        <div className="pf-distrib-chart-shell">
-          <BarChart entries={[]} refYear={refYear} currentPeriod={currentPeriod} skeleton />
+        <div className="pf-distrib-zero-body">
+          {/* Background skeleton bars — very faint, behind the coming box */}
+          <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost" aria-hidden="true">
+            <BarChart entries={[]} refYear={refYear} currentPeriod={currentPeriod} skeleton />
+          </div>
+
+          {showComingBox && nextDate ? (
+            /* "Distribution coming" premium box */
+            <div className="pf-dc-coming" role="status" aria-label="Next distribution window">
+              <div className="pf-dc-coming__header">
+                <span className="pf-dc-coming__eyebrow">Distribution coming</span>
+                <span className="pf-dc-coming__badge">Estimated</span>
+              </div>
+              <div className="pf-dc-coming__date-row">
+                <span className="pf-dc-coming__date-main">
+                  {distribMonthFmt.format(nextDate)}
+                </span>
+                <span className="pf-dc-coming__date-exact">
+                  ~{distribDateFmt.format(nextDate)}
+                </span>
+              </div>
+              <div className="pf-dc-coming__context">
+                <span className="pf-dc-coming__rule">Monthly · USDC · T+5 settlement</span>
+                <span className="pf-dc-coming__caveat">
+                  Estimated window — date confirmed at cycle close
+                </span>
+              </div>
+            </div>
+          ) : (
+            /* No position yet — plain informational state */
+            <div className="pf-dc-coming pf-dc-coming--inactive">
+              <div className="pf-dc-coming__header">
+                <span className="pf-dc-coming__eyebrow">Payout schedule</span>
+              </div>
+              <p className="pf-dc-coming__inactive-text">
+                Monthly USDC distributions begin after your first qualifying cycle.
+              </p>
+              <p className="pf-dc-coming__caveat">
+                Distributions appear here once posted.
+              </p>
+            </div>
+          )}
         </div>
       </PfCockpitPanel>
     );

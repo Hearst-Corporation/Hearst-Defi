@@ -112,6 +112,8 @@ export default async function PortfolioPage() {
                 secondaryLeafHref="/portfolio/tax"
                 secondaryLeafLabel="Tax preview"
                 embedded={true}
+                nextDistributionAt={data.nextDistributionAt}
+                hasActivePosition={hasPositions}
               />
             </div>
             <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">

@@ -142,6 +142,21 @@ export function CapitalYield({
                 />
               </span>
             </div>
+
+            {/* APY band visual — range strip with low/high anchors */}
+            <div className="cy-v4-apy-band" aria-hidden="true">
+              <span className="cy-v4-apy-band__anchor">{rLow.toFixed(1)}%</span>
+              <div className="cy-v4-apy-band__track">
+                <div
+                  className="cy-v4-apy-band__fill"
+                  style={{
+                    left: "0%",
+                    right: `${Math.max(0, 100 - ((rHigh / 20) * 100)).toFixed(1)}%`,
+                  }}
+                />
+              </div>
+              <span className="cy-v4-apy-band__anchor cy-v4-apy-band__anchor--high">{rHigh.toFixed(1)}%</span>
+            </div>
           </div>
 
           {/* ── Allocation bars (replaces donut) ── */}
@@ -240,10 +255,26 @@ export function CapitalYield({
                 <ApyRange low={rLow} high={rHigh} className="font-bold ct-text-accent tabular" />
               </span>
             </div>
+            <div className="cy-v4-apy-band" aria-hidden="true">
+              <span className="cy-v4-apy-band__anchor">{rLow.toFixed(1)}%</span>
+              <div className="cy-v4-apy-band__track">
+                <div
+                  className="cy-v4-apy-band__fill"
+                  style={{
+                    left: "0%",
+                    right: `${Math.max(0, 100 - ((rHigh / 20) * 100)).toFixed(1)}%`,
+                  }}
+                />
+              </div>
+              <span className="cy-v4-apy-band__anchor cy-v4-apy-band__anchor--high">{rHigh.toFixed(1)}%</span>
+            </div>
           </div>
-          <p className="cy-v4-empty__sub">
-            Allocation breakdown will display as soon as the latest vault snapshot is published.
-          </p>
+          <div className="cy-v4-partial-notice">
+            <span className="cy-v4-partial-notice__dot" aria-hidden="true" />
+            <span className="cy-v4-partial-notice__text">
+              Allocation breakdown pending — vault snapshot not yet published
+            </span>
+          </div>
           <p className="cy-v4-disclaimer" role="note">
             Conditional projection — not guaranteed ·{" "}
             {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`}

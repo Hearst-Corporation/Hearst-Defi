@@ -616,10 +616,43 @@ not a global flip, until every site is classified.)
   (`admin-vaults-list`). Every flex/grid child carries `min-width:0`; widths use
   `minmax(0, …fr)`. **No horizontal overflow.**
 
-## 11. Working log / audit summary
+## 12. Token cascade — intentional overrides (cockpit.css runtime)
+
+`cockpit.css` is a **non-layered runtime stylesheet** that takes precedence over
+`cockpit-shell/tokens.css` (which is @import'd first). The following tokens are
+intentionally divergent — **do not "fix" them without a DS decision**:
+
+| Token | `cockpit-shell/tokens.css` | `cockpit.css` (wins) | Reason |
+|---|---|---|---|
+| `--ct-border` | thin border value | overridden | project calibration |
+| `--ct-border-soft` | soft border | overridden | project calibration |
+| `--ct-border-strong` | strong border | overridden | project calibration |
+| `--ct-shadow-depth` | base shadow | overridden | heavier ambient depth for dark surfaces |
+| `--ct-text-muted` | muted text | overridden at higher contrast | **accessibility** — cockpit.css value is more readable on `--ct-bg-deep` |
+
+`--ct-text-muted` in particular: cockpit.css sets a slightly lighter value than
+the shell token. This is intentional for accessibility on the deep black background.
+Do not revert to the shell value without checking WCAG contrast on `--ct-bg-deep`.
+
+### 12.1 Overlay & dialog tokens (added 2026-06-26)
+
+Two new tokens added to consolidate raw rgba values (P1 DS cleanup):
+
+```css
+--ct-overlay-backdrop: rgba(0, 0, 0, 0.6);   /* .cp-backdrop background */
+--ct-dialog-shadow:    0 24px 80px rgba(0, 0, 0, 0.6);  /* .cp-dialog depth shadow */
+--ct-dialog-ring:      0 0 0 1px rgba(255, 255, 255, 0.04); /* .cp-dialog inner ring */
+```
+
+Usage: `.cp-backdrop { background: var(--ct-overlay-backdrop); }` and
+`.cp-dialog { box-shadow: var(--ct-dialog-shadow), var(--ct-dialog-ring); }`.
+No raw rgba remains in either rule.
+
+## 13. Working log / audit summary
 
 | Date | Commit | Note |
 |------|--------|------|
+| 2026-06-26 | portfolio-premium | **Portfolio Home Premium Redesign + DS P1**: Portfolio Status → KPI tile 2×2 panel; Capital & Yield → APY band visual + partial state notice; Payout Calendar → "Distribution coming" box; Positions → premium card with status chip + correct accent logic; DS P1: overlay/dialog tokens + intentional overrides documented. |
 | 2026-06-13 | `66b528f` (pushed `main`) | **Mixed checkpoint — accepted as-is.** DS row taxonomy (`DataRow` / `LegalMetadataRow` / `ProofRow`) and `MetricGrid` / `NestedKpiGrid` aliases shipped in `nested-panel.tsx` + §6/§9 doc updates. Same commit also contains scenario task-flow polish (`cockpit.css`, `central-task-runner.tsx`, `single-mode.tsx`). **No history rewrite** — commit already on `origin/main`; do not reopen or split `66b528f`. Next DS family: **fresh branch + isolated commit only.**
 | 2026-06-13 | Batch A | **UI hierarchy contract (§13)** + `/vaults` thesis de-duplicated (removed redundant section h2 under the shell h1). `Card` default kept `true`; `hoverOverlay` cleanup is **per-call-site** (static cards opt out, clickable cards keep it) — no global default flip yet. |
 | 2026-06-13 | Typo scale | **Typo hierarchy reworked (§13.2)** in `doc-flow-typography.css` (+ base in `cockpit.css`): modéré size steps (H1 24→28 white, H2 20→22 **green**, H3 16→18 white) so the hierarchy reads at a glance. Green is now the structural accent reserved for section titles. Was: flat doc scale (H1 20→24, H2 16→18 grey, H3 16 grey) → "tout jeté, pas de titre, pas d'accent vert". Applies to every `.product-doc`/`.admin-doc` page. |

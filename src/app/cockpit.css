@@ -156,6 +156,10 @@
   --ct-shadow-elevated: 0 16px 56px -12px rgba(0, 0, 0, 0.80), 0 4px 16px -4px rgba(0,0,0,0.50), var(--ct-glass-bevel-hover);
   --ct-shadow-depth: 0 8px 40px -8px rgba(0, 0, 0, 0.75), 0 2px 8px -2px rgba(0,0,0,0.40), var(--ct-glass-bevel);
   --ct-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.50);
+  /* Overlay & dialog tokens (P1 — replaces raw rgba in .cp-backdrop / .cp-dialog) */
+  --ct-overlay-backdrop: rgba(0, 0, 0, 0.6);
+  --ct-dialog-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  --ct-dialog-ring: 0 0 0 1px rgba(255, 255, 255, 0.04);
   --ct-glow-subtle: 0 0 24px color-mix(in srgb, var(--ct-accent) 18%, transparent);
   --ct-glow-soft:   0 0 32px color-mix(in srgb, var(--ct-accent) 26%, transparent);
   --ct-glow-strong: 0 0 24px color-mix(in srgb, var(--ct-accent) 36%, transparent);
@@ -6279,7 +6283,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 .cp-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--ct-overlay-backdrop);
   z-index: calc(var(--ct-z-modal-overlay) - 1);
 }
 
@@ -6296,7 +6300,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   background: var(--ct-surface-1);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  box-shadow: var(--ct-dialog-shadow), var(--ct-dialog-ring);
   z-index: var(--ct-z-modal-overlay);
   overflow: hidden;
 }
