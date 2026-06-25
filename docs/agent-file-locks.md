@@ -16,36 +16,35 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-visual-console
-Owner: Opus Orchestrateur Continu — Agentic Visual Control Center Implementation
-Branch: feat/agentic-visual-console
-Worktree: ../connect-opus-agentic-visual-console
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/system-map/** (new module, pure)
-- src/lib/agentic/control-center/index.ts (additive export only, if needed)
-- src/app/admin/agentic/** (recompose page; map-first)
-- src/components/admin/agentic/** (new visual map + detail inspector)
-- admin navigation entries for Agent/Agentic only (consolidation)
-- docs/agentic/**
-- tests related to agentic visual console
-- docs/agent-file-locks.md
-
-Reads (read-only, no behavior edit): observability, tool-boundary, reporting, gates summaries.
-
-Notes:
-- Refactor Agent + Agentic into one visual Agentic Control Center (map-first).
-- Layer 1 = dynamic visual system map; Layer 2 = detail inspectors.
-- Preserve existing observability / quality review / tool boundary / reporting crew.
-- NO CrewAI, NO autonomous runtime, NO tool execution, NO write tools.
-- No router/guard/HITL/chat behavior change. No registry runtime change.
-- No DB migration. No Prisma/schema. No user text/prompt/tool payload storage.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-visual-console
+Owner: Opus Orchestrateur Continu — Agentic Visual Control Center Implementation
+Branch: feat/agentic-visual-console
+Merged PR: #65 (merge 6c24b3c5)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Agentic Visual Control Center v0: /admin/agentic is now a visual console — Layer 1 is a
+  live read-only system map (new pure module src/lib/agentic/system-map: types,
+  build-system-map, derive-system-map-status, index) rendering layered clusters of connected
+  nodes (router / guards / HITL gates / tool boundary / crews / agents / observability / tool
+  tiers) with live status/mode/risk badges, metrics, and wiring edges (routes/reads/guards/
+  gates/observes/composes/forbids); Layer 2 is a detail inspector + the existing panels
+  reorganized below (each given an anchor id the map/inspector link to). New components
+  agentic-system-map.tsx + agentic-detail-inspector.tsx; token-only premium CSS in
+  admin-docs.css (no hardcoded hex). Nav consolidated: "Agentic Console" (/admin/agentic,
+  Workflow icon) vs "Agent Library" (/admin/agents, Bot icon) — both routes kept (distinct
+  functions). NOT CrewAI, NO autonomous runtime, NO tool execution, NO write tools, NO
+  router/guard/HITL/chat change, NO Prisma/schema change, NO migration, NO user text/prompt/
+  tool payload. typecheck PASS, lint 0, full suite 3367/3367, build PASS (postgresql), empty
+  Prisma diff. Merged 6c24b3c5, PR #65 (committed + merged by the auto-managed worktree
+  pipeline). Worktree torn down post-merge.
 
 ### feat/action-readiness-matrix-v0
 Owner: Agent B — Action Readiness Matrix
