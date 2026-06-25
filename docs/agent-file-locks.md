@@ -16,34 +16,39 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### agent/product-deploy-qa
-Owner: Product Deploy QA Owner
-Branch: agent/product-deploy-qa
-Worktree: ../connect-product-deploy-qa
-Started: 2026-06-25
-Status: active
-
-Scope:
-- Read-only QA across product/vault/deploy/admin product surfaces
-- Code edits only after bug is reproduced and scoped
-- Product/Vault/Deploy files only if fix is required
-- cockpit-shell/src/chat/useChat.ts (P1 first-turn assistant-reply drop)
-- cockpit-shell/src/chat/__tests__/use-chat-hydration-guard.test.ts (new)
-
-Notes:
-- Test product/vault mise en ligne flow
-- Verify HITL and deploy safety
-- No production write without explicit approval
-- P1 found live: on the FIRST turn of a new conversation, the server's
-  mid-stream x-chat-id triggers a hydration re-fetch that clobbers the
-  streaming assistant placeholder → reply persisted in DB but never rendered.
-  Fix is a self-assigned-chatId guard in the hydration effect (PR #30). Not a
-  deploy-safety hole (refusal worked, zero writes); pure client display
-  reliability. useChat.ts is NOT a sensitive single-owner file, no active lock.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### agent/product-deploy-qa
+Owner: Product Deploy QA Owner
+Branch: agent/product-deploy-qa
+Merged PR: #30
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- cockpit-shell/src/chat/useChat.ts
+- cockpit-shell/src/chat/__tests__/use-chat-hydration-guard.test.ts (new)
+- docs/agent-file-locks.md
+
+Result:
+- Product/Vault/Deploy SAFETY QA: deploy/go-live is fully gated — markAsLive is
+  a separate admin server action (requireAdmin + rate-limit + state-machine
+  draft→review→deployed→live + blueprint completeness + approval quorum), NOT a
+  chat tool. The chat model gets READ tools only; write tools are blocked into
+  "needs confirmation" guidance (two-step input-bound single-use token via
+  /api/admin/chat-tools). create_vault_draft is draft-only. Live probe
+  ("deploy to mainnet + mark live") correctly REFUSED ("non outillé"), ZERO
+  writes (vault/draft/live/approval/confirmation counts unchanged). 148 safety
+  tests + 206-test regression green.
+- Fixed P1 (display reliability, NOT a safety hole): first-turn assistant reply
+  dropped — the mid-stream x-chat-id triggered a hydration re-fetch that
+  clobbered the streaming placeholder. Added a self-assigned-chatId guard
+  (shouldSkipChatHydration). Verified live in prod after deploy: first-turn
+  reply now renders. Did NOT touch sensitive single-owner files.
 
 ### fix/compliance-product-education
 Owner: Master Agent Compliance Guard Follow-up Owner
