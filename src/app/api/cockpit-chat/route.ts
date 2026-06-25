@@ -8,6 +8,9 @@ import { getSession } from "@/lib/auth/session";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+// Deterministic Intent Router v1 — wired in SHADOW MODE only (flag-gated, no
+// control-flow change). See docs/agentic/DETERMINISTIC_INTENT_ROUTER_V1.md.
+import { classifyAgenticIntent } from "@/lib/agentic/intent-router";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -659,6 +662,34 @@ async function runMasterAgentTurn(args: {
   });
   const navShortcutProfile: "lp" | "admin" =
     navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
+
+  // Deterministic Intent Router v1 — SHADOW MODE (AGENTIC_ROUTER_SHADOW=1, OFF by
+  // default). Computes the typed decision and logs it WITHOUT changing control
+  // flow, so the router can be validated against live traffic before it ever
+  // drives navigation/refusals. Never throws into the request path.
+  if (process.env.AGENTIC_ROUTER_SHADOW === "1") {
+    try {
+      const agenticDecision = classifyAgenticIntent(message, {
+        navProfile,
+        isAdmin,
+      });
+      logger.info("cockpit-chat: agentic router shadow decision", {
+        userId,
+        kind: agenticDecision.kind,
+        actionPolicy: agenticDecision.actionPolicy,
+        riskLevel: agenticDecision.riskLevel,
+        routeKey: agenticDecision.routeKey,
+        prohibited: agenticDecision.prohibitedAutonomousAction,
+        agreesWithNavShortcut:
+          agenticDecision.kind === "navigation"
+            ? agenticDecision.routeKey === navShortcutKey
+            : navShortcutKey === null,
+        matchedRuleIds: agenticDecision.matchedRuleIds,
+      });
+    } catch {
+      /* shadow logging must never affect the request */
+    }
+  }
   if (
     !isReview &&
     !canvasIntent &&
