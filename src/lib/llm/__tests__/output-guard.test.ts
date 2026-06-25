@@ -218,3 +218,57 @@ describe("guardChatStream", () => {
     expect(out).toContain(BLOCK_SENTINEL);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Educational-context invariance (Agentic Router Stabilization lot).
+//
+// The educational read-only steering added in the chat route is PROMPT-ONLY:
+// it appends a directive to the system message. The output guard has NO intent
+// parameter — its signature is `chatOutputViolation(text, final?)` — so an
+// "educational" turn CANNOT relax it. These tests pin that invariant: the same
+// forbidden / single-point claims stay blocked, and the same compliant
+// educational answers (ranges, source breakdowns) stay allowed, with no third
+// argument available to change the verdict.
+// ---------------------------------------------------------------------------
+describe("chatOutputViolation — uniform regardless of educational context", () => {
+  it("the classifier exposes no intent/context parameter (cannot be relaxed)", () => {
+    // arity is (text, final?) — exactly 1 required param, 1 optional.
+    expect(chatOutputViolation.length).toBe(1);
+  });
+
+  it("STILL blocks a guaranteed-return claim", () => {
+    expect(chatOutputViolation("Le vault rend un rendement garanti.", true)).toBe(
+      "forbidden_words",
+    );
+  });
+
+  it("STILL blocks a 'sans risque' claim", () => {
+    expect(chatOutputViolation("Ce produit est sans risque.", true)).toBe(
+      "forbidden_words",
+    );
+  });
+
+  it("STILL blocks a single-point headline APY", () => {
+    expect(chatOutputViolation("L'APY du vault est de 11 %.", true)).toBe(
+      "single_point_apy",
+    );
+  });
+
+  it("ALLOWS a compliant range in an educational answer", () => {
+    expect(
+      chatOutputViolation(
+        "Le rendement cible se situe dans une fourchette de 8 à 15 %.",
+        true,
+      ),
+    ).toBeNull();
+  });
+
+  it("ALLOWS an honest per-source breakdown in an educational answer", () => {
+    expect(
+      chatOutputViolation(
+        "Le yield provient du mining (~6,2 %), de la base USDC (~4,8 %) et de la réserve (~4,5 %).",
+        true,
+      ),
+    ).toBeNull();
+  });
+});

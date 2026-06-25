@@ -1,5 +1,11 @@
 # Deterministic Intent Router v1
 
+> **Superseded by v2 (active).** The router is now wired NON-SHADOW in the
+> cockpit-chat route — see [`DETERMINISTIC_INTENT_ROUTER_V2.md`](./DETERMINISTIC_INTENT_ROUTER_V2.md)
+> for the live active paths (nav fast-path, dangerous refusal, educational
+> prompt steering, negation-gated legacy fallback). This v1 doc is kept for the
+> classifier/pipeline reference; the "Next step" below has been delivered in v2.
+
 The first real brick of the agentic core: **a rule/regex classifier that decides
 what a user message wants BEFORE the LLM**, so simple, critical, and repeatable
 intents are handled deterministically instead of by a model.

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   COCKPIT_ADMIN_SYSTEM_PROMPT,
   buildRoleDirective,
+  buildEducationalReadOnlyDirective,
   COCKPIT_DEFAULT_SYSTEM_PROMPT,
 } from "@/lib/llm/prompts";
 
@@ -54,6 +55,51 @@ describe("COCKPIT_DEFAULT_SYSTEM_PROMPT — product education compliance (every 
 
   it("still pins HYV's published range (8 à 15 %) — the rule is range-only, not figure-free", () => {
     expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("8 à 15 %");
+  });
+});
+
+describe("buildEducationalReadOnlyDirective", () => {
+  it("frames an educational read-only intent and reinforces the range rule", () => {
+    const d = buildEducationalReadOnlyDirective("yield_explanation");
+    expect(d).toContain("INTENT : question ÉDUCATIVE read-only");
+    expect(d).toContain("rendement / yield");
+    expect(d).toContain("fourchette");
+    expect(d).toMatch(/JAMAIS un point unique/i);
+  });
+
+  it("names the topic per kind", () => {
+    expect(buildEducationalReadOnlyDirective("risk_explanation")).toContain(
+      "les risques du produit",
+    );
+    expect(buildEducationalReadOnlyDirective("product_explanation")).toContain(
+      "le fonctionnement des produits",
+    );
+    expect(buildEducationalReadOnlyDirective("reporting_request")).toContain(
+      "brief / rapport",
+    );
+    expect(buildEducationalReadOnlyDirective("vault_readiness")).toContain(
+      "readiness",
+    );
+    // Unknown / generic education falls back to the neutral topic.
+    expect(buildEducationalReadOnlyDirective("education")).toContain("le produit");
+    expect(buildEducationalReadOnlyDirective(undefined)).toContain("le produit");
+  });
+
+  it("REINFORCES compliance — it never grants an exemption", () => {
+    const d = buildEducationalReadOnlyDirective("product_explanation");
+    // Forbidden words stay forbidden even in educational context.
+    expect(d).toMatch(/AUCUN mot interdit/i);
+    expect(d).toMatch(/garanti/i);
+    // No personalized advice.
+    expect(d).toMatch(/AUCUN conseil d'investissement personnalisé/i);
+    // It must NOT contain any language relaxing/exempting the guard.
+    expect(d).not.toMatch(/exempt|relax|désactiv|bypass|ignore (le )?guard/i);
+  });
+
+  it("permits an honest source breakdown (mirrors the guard exemption, not a relaxation)", () => {
+    const d = buildEducationalReadOnlyDirective("yield_explanation");
+    expect(d).toMatch(/décomposition par source|composants/i);
+    expect(d).toMatch(/mining/i);
   });
 });
 
