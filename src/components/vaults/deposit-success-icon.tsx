@@ -1,18 +1,16 @@
+import { Check } from "lucide-react";
+import { cn } from "@/lib/cn";
+
 export function DepositSuccessIcon() {
   return (
-    <span
+    <div
       aria-hidden="true"
-      className="inline-flex h-14 w-14 items-center justify-center rounded-full border ct-bc-success ct-status-success-bg"
+      className={cn(
+        "inline-flex h-14 w-14 items-center justify-center rounded-full",
+        "ct-status-success-bg"
+      )}
     >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M5 12l5 5L19 7"
-          stroke="var(--ct-status-success)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
+      <Check className="w-6 h-6" strokeWidth={3} />
+    </div>
   );
 }

@@ -24,6 +24,7 @@ export default async function VaultsPage() {
         {vaults.length === 0 ? (
           <EmptySurface
             live
+            variant="inline"
             message="No vault is currently deployed with a verified on-chain contract."
             detail="Products appear here once a vault is live on Base Sepolia with a confirmed deployment address."
           />

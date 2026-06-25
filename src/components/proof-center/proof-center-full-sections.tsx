@@ -55,7 +55,7 @@ export function ProofCenterFullSections({
         actions={proofs.length > 0 ? <ProofFilter /> : null}
       >
         {proofs.length === 0 ? (
-          <EmptySurface live {...PLATFORM_PROOFS_EMPTY} />
+          <EmptySurface live variant="inline" {...PLATFORM_PROOFS_EMPTY} />
         ) : (
           <ProofGrid proofs={proofs} filter={filter} demo={false} />
         )}
