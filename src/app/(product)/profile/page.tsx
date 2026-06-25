@@ -98,6 +98,7 @@ export default async function ProfilePage() {
           <DashboardPanelHeader
             id="prof-account-label"
             title="Identity"
+            titleLevel="section"
             tone="quiet"
           />
 
@@ -142,6 +143,7 @@ export default async function ProfilePage() {
               <DashboardPanelHeader
                 id="prof-summary-label"
                 title="Investment summary"
+                titleLevel="section"
                 provenance="live"
                 tone="primary"
               />
@@ -167,6 +169,7 @@ export default async function ProfilePage() {
               <DashboardPanelHeader
                 id="prof-summary-label"
                 title="Investment summary"
+                titleLevel="section"
                 tone="quiet"
               />
               <EmptySurface
@@ -189,6 +192,7 @@ export default async function ProfilePage() {
           <DashboardPanelHeader
             id="prof-security-label"
             title="Security"
+            titleLevel="section"
             tone="quiet"
           />
 

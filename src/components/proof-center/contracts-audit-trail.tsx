@@ -121,7 +121,7 @@ function PlatformAddressRow({
         )}
         <div className="min-w-0 flex-1">
           {admin ? (
-            <p className="stat-label m-0">{entry.label}</p>
+            <h4 className="h4 m-0">{entry.label}</h4>
           ) : (
             <>
               <h4 className="h4 proof-article-title">{entry.label}</h4>
@@ -179,7 +179,7 @@ function DeployedContractCard({
         )}
         <div className="min-w-0 flex-1">
           {admin ? (
-            <p className="stat-label m-0">{contract.name}</p>
+            <h4 className="h4 m-0">{contract.name}</h4>
           ) : (
             <>
               <h4 className="h4 proof-article-title">{contract.name}</h4>

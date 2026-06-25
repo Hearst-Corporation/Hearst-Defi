@@ -153,7 +153,7 @@ export function EventTimeline({
 }: EventTimelineProps) {
   if (events.length === 0) {
     return (
-      <Card hoverOverlay={false}>
+      <Card material="flat" hoverOverlay={false}>
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="On-chain event log"
@@ -168,7 +168,7 @@ export function EventTimeline({
   const eventsProvenance = "live" as const;
 
   return (
-    <Card>
+    <Card material="flat">
       <ProofCenterCardHeader
         sectionLed={sectionLed}
         eyebrow="On-chain event log"
