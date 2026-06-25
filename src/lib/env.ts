@@ -220,6 +220,11 @@ const serverEnvSchema = z.object({
   // this in a day. The warm-up curve ramps the effective cap above this floor
   // over the first weeks; this is the day-1 value. Coerced from string env.
   OUTREACH_DAILY_SEND_CAP: z.coerce.number().int().positive().default(30),
+  // Router-observability durable retention horizon, in days (best-effort prune on
+  // write). Optional: when unset the built-in default (DURABLE_RETENTION_DAYS) is
+  // used. Bounded [1, 365] to keep the read-only long-term view sane. Read in
+  // src/lib/agentic/observability/db-store.ts — no behavior change when absent.
+  OBS_RETENTION_DAYS: z.coerce.number().int().min(1).max(365).optional(),
   // On-chain publisher private key — 0x-prefixed 64-hex (32 bytes, secp256k1).
   // Used server-side to sign attestations / publish on-chain events.
   // Never expose in NEXT_PUBLIC_* vars or the client bundle.

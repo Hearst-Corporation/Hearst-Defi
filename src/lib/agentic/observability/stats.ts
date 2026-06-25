@@ -1,6 +1,39 @@
 // Router Observability v0 — aggregate stats (pure).
 
-import type { RouterDecisionStats, RouterDecisionTrace } from "./types";
+import type {
+  RouterDecisionOutcome,
+  RouterDecisionStats,
+  RouterDecisionTrace,
+} from "./types";
+
+/**
+ * The five named trend categories. Shared by trends.ts (time buckets) and the
+ * long-term day aggregate so bars, day rows and stat cards never disagree.
+ * `legacy_fallback_nav`, `normal_llm`, `unknown` and any future value → normalOrUnknown.
+ */
+export type RouterOutcomeCategory =
+  | "navigationFastPaths"
+  | "dangerousRefusals"
+  | "educationalTurns"
+  | "negatedNoNav"
+  | "normalOrUnknown";
+
+export function categorizeOutcome(
+  outcome: RouterDecisionOutcome | string,
+): RouterOutcomeCategory {
+  switch (outcome) {
+    case "nav_fast_path":
+      return "navigationFastPaths";
+    case "dangerous_refusal":
+      return "dangerousRefusals";
+    case "educational_llm":
+      return "educationalTurns";
+    case "negated_no_nav":
+      return "negatedNoNav";
+    default:
+      return "normalOrUnknown";
+  }
+}
 
 /** Compute aggregate counts over a set of traces. Pure, no I/O. */
 export function computeRouterDecisionStats(

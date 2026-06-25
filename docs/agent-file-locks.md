@@ -16,7 +16,25 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-observability-retention-v1
+Owner: Opus Orchestrateur — Router Observability Retention Delivery
+Branch: feat/router-observability-retention-v1
+Worktree: ../connect-opus-obs-retention
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/observability/** (additive: retention config + long-term aggregate)
+- src/components/admin/agentic/** (additive: long-term summary view)
+- src/app/admin/agentic/page.tsx (pass long-term data)
+- docs/agentic/** + tests
+- docs/agent-file-locks.md
+
+Notes:
+- Read-only retention/pruning config + long-term aggregate over the EXISTING
+  AgenticRouterDecisionTrace durable table. NO new model, NO new migration.
+- No router/guard/HITL behavior change. No tool execution. No prod business writes.
+- No user text/prompt/tool payload storage. No secrets/env.
 
 ---
 
