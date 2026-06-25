@@ -37,15 +37,15 @@
   --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
-  --ct-figma-cover-bg: #1E1E1E;
+  --ct-figma-cover-bg: #1A1B1F;
   --ct-figma-secondary-lighter: #9eb3a8;
   --ct-figma-secondary-darker: #7e8f86;
   --ct-figma-neutral: #747575;
   --ct-figma-negative: #ffffff;
   --ct-figma-accent-light: #cffdc2;
-  --ct-figma-border-5: #ffffff0d;
-  --ct-figma-border-10: #ffffff1a;
-  --ct-figma-border-20: #ffffff33;
+  --ct-figma-border-5: #ffffff12;
+  --ct-figma-border-10: #ffffff20;
+  --ct-figma-border-20: #ffffff38;
   --ct-figma-status-warning: #f9a03f;
   --ct-figma-status-danger: #ba3f1d;
   /* WCAG AA pass: #9eb3a8 (4.2:1) → #C3D2CA (~9:1), #7e8f86 (2.8:1) → #93A39B (~5:1) */
@@ -86,11 +86,11 @@
   /* ── FONDS DE SURFACES — charcoal étagé, opaque (palette Figma Hearst Flow) ──
      Fond global = #0E0F0F. Les surfaces montent du fond vers le clair pour la
      profondeur. surface-0 = niveau du fond (rails/chat), cards au-dessus. */
-  --ct-surface-0: #0E0F0F;
-  --ct-surface-1: #141416;
-  --ct-surface-1-hi: #161719; /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
-  --ct-surface-2: var(--ct-figma-cover-bg);
-  --ct-surface-3: #242428;
+  --ct-surface-0: #080909;
+  --ct-surface-1: #0F1011;
+  --ct-surface-1-hi: #131416; /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
+  --ct-surface-2: #1A1B1F;
+  --ct-surface-3: #22232A;
 
   /* Graphite module surfaces — solid black plates (no gradient, no glass).
      L1 box = surface-1 (pour détacher du fond bg-deep); nested inset = surface-2. */
