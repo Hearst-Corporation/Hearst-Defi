@@ -99,86 +99,10 @@ function StatChip({ label, value }: { label: string; value: number }) {
   );
 }
 
-function OutcomeDistribution({
-  summary,
-}: {
-  summary: RouterObservabilitySummary;
-}) {
-  const total = summary.stats.total || 1;
-  const rows = Object.entries(summary.stats.byOutcome)
-    .map(([outcome, count]) => ({ outcome, count }))
-    .filter((r) => r.count > 0)
-    .sort((a, b) => b.count - a.count);
-
-  if (rows.length === 0) return null;
-
-  return (
-    <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
-      <span className="stat-label ct-text-muted">Outcome distribution</span>
-      <div className="flex flex-col gap-[var(--ct-space-2)]">
-        {rows.map((r) => {
-          const pct = Math.round((r.count / total) * 100);
-          const tone = outcomeTone(r.outcome);
-          return (
-            <div key={r.outcome} className="flex flex-col gap-[var(--ct-space-1)]">
-              <div className="admin-doc-inline-row admin-doc-inline-row--start">
-                <span className="body-xs ct-text-body">
-                  {OUTCOME_LABEL[r.outcome] ?? r.outcome}
-                </span>
-                <span className="flex-1" />
-                <span className="body-xs ct-text-muted tabular-nums">
-                  {r.count} · {pct}%
-                </span>
-              </div>
-              <div
-                className="h-[6px] w-full rounded-full ct-surface-1 overflow-hidden"
-                role="presentation"
-              >
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    tone === "success" && "ct-status-success-bg",
-                    tone === "danger" && "ct-status-danger-bg",
-                    tone === "warning" && "ct-status-warning-bg",
-                    tone === "default" && "ct-surface-3",
-                  )}
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </Card>
-  );
-}
-
-function TopMatchedRules({
-  summary,
-}: {
-  summary: RouterObservabilitySummary;
-}) {
-  if (summary.topMatchedRules.length === 0) return null;
-  return (
-    <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
-      <span className="stat-label ct-text-muted">Top matched rules</span>
-      <ol className="flex flex-col gap-[var(--ct-space-1)]">
-        {summary.topMatchedRules.map((r, i) => (
-          <li
-            key={r.ruleId}
-            className="admin-doc-inline-row admin-doc-inline-row--start"
-          >
-            <span className="body-xs ct-text-faint tabular-nums">#{i + 1}</span>
-            <span className="body-xs ct-text-body font-mono flex-1 break-all">
-              {r.ruleId}
-            </span>
-            <span className="body-xs ct-text-muted tabular-nums">{r.count}</span>
-          </li>
-        ))}
-      </ol>
-    </Card>
-  );
-}
+// NOTE: the outcome distribution and top-matched-rules views are rendered by
+// <RouterObservabilityTrends> (single source of truth, alongside the time-bucketed
+// bars). The earlier inline versions here were dead code (defined, never rendered)
+// after the durable+trends merge, so they were removed.
 
 function shortTime(iso: string): string {
   const t = iso.includes("T") ? iso.split("T")[1] : iso;
