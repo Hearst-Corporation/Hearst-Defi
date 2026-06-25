@@ -34,6 +34,29 @@ describe("COCKPIT_DEFAULT_SYSTEM_PROMPT", () => {
   });
 });
 
+describe("COCKPIT_DEFAULT_SYSTEM_PROMPT — product education compliance (every vault is a range)", () => {
+  it("rule #1 extends the range rule to EVERY product/vault, not just HYV", () => {
+    // Without this, the model gave a single-point target for the secondary vaults
+    // (Defensive ~6 %, BTC Plus ~20 %) because the prompt only published HYV's
+    // range → the output guard CORRECTLY flagged single_point_apy, blocking the
+    // educational answer to "Explique-moi comment marchent les produits".
+    expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("CHAQUE produit/vault");
+    expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toMatch(/qualitatif/i);
+  });
+
+  it("the multi-vault block tells the model NOT to cite a single figure for secondary vaults", () => {
+    expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("Defensive");
+    expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("BTC Plus");
+    expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toMatch(
+      /sans inventer ni citer de rendement chiffré unique/i,
+    );
+  });
+
+  it("still pins HYV's published range (8 à 15 %) — the rule is range-only, not figure-free", () => {
+    expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toContain("8 à 15 %");
+  });
+});
+
 describe("COCKPIT_ADMIN_SYSTEM_PROMPT", () => {
   it("declares canonical allocations and admin limits", () => {
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("HYV = mining 60 %");

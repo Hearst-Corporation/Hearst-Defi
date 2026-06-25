@@ -34,6 +34,34 @@ describe("chatOutputViolation — forbidden vocabulary", () => {
   });
 });
 
+describe("chatOutputViolation — product education is allowed (compliant phrasing)", () => {
+  it("does NOT block a generic 'how do the products work' answer", () => {
+    const answer =
+      "Les produits Hearst sont des structures d’investissement qui organisent une stratégie, ses paramètres, ses risques, son statut et ses documents. Un produit peut rester en draft, être préparé pour revue, puis passer par des garde-fous avant toute mise en ligne. Je peux expliquer le fonctionnement général et les risques, mais pas recommander un investissement personnalisé.";
+    expect(chatOutputViolation(answer, true)).toBeNull();
+  });
+
+  it("does NOT block a product lineup that keeps every target as a range / qualitative", () => {
+    const answer =
+      "Hearst propose plusieurs vaults : le Yield Vault vise une fourchette de 8 à 15 % cible, le Defensive a un profil plus prudent, et le BTC Plus offre une exposition BTC plus offensive. Les rendements ne sont pas garantis.";
+    expect(chatOutputViolation(answer, true)).toBeNull();
+  });
+
+  it("does NOT block an allocation breakdown for a product", () => {
+    const answer =
+      "Le Yield Vault répartit son allocation cible : mining 60 %, BTC tactique 25 %, USDC base 10 %, réserve stable 5 %.";
+    expect(chatOutputViolation(answer, true)).toBeNull();
+  });
+
+  it("STILL blocks a single-point target for a secondary vault (the model must not phrase it this way)", () => {
+    // The guard is correct here — this is why the PROMPT was fixed to keep every
+    // vault target a range / qualitative rather than weakening the guard.
+    expect(
+      chatOutputViolation("Le Defensive vise un rendement annualisé d’environ 6 %.", true),
+    ).toBe("single_point_apy");
+  });
+});
+
 describe("chatOutputViolation — yield education (BUG 1) is allowed", () => {
   it("does NOT block a generic 'how does yield work' answer", () => {
     const answer =
