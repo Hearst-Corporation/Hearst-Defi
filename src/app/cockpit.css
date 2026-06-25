@@ -3691,9 +3691,14 @@ button.ct-choice-card {
      ci-dessous est best-effort : le package neutralise backdrop-filter sur ses
      propres éléments via @layer en dev ; il s'appliquera là où la cascade le
      permet). */
-  /* Rail = surface-1 — gris graphite, une note au-dessus du fond noir pour
-     qu'il soit identifiable comme surface distincte. */
-  background: var(--ct-surface-1) !important;
+  /* Rail = surface-1 + dot grid identique au rail droit. */
+  background-color: var(--ct-surface-1) !important;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
+    transparent 1.5px
+  ) !important;
+  background-size: 24px 24px !important;
   border-right: 1px solid var(--ct-border-on-dark);
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: var(--ct-rail-left) !important;
