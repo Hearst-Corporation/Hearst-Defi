@@ -24,7 +24,7 @@ export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   if (items.length === 0) {
     return (
       <EmptySurface
-        variant="widget"
+        variant="inline"
         message="No feedback logged yet."
         detail="Submit the first note using the form above."
         className="min-h-32"
@@ -33,11 +33,13 @@ export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   }
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
-      {items.map((item) => (
-        <FeedbackRow key={item.id} item={item} />
-      ))}
-    </div>
+    <Card material="flat" hoverOverlay={false} contentClassName="p-0">
+      <div className="divide-y divide-[var(--ct-border-soft)]">
+        {items.map((item) => (
+          <FeedbackRow key={item.id} item={item} />
+        ))}
+      </div>
+    </Card>
   );
 }
 
@@ -58,10 +60,10 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
   }
 
   return (
-    <Card className={cn(item.resolved && "admin-card--resolved")} hoverOverlay={false}>
+    <div className={cn("p-[var(--ct-space-4)]", item.resolved && "opacity-50")}>
       <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions">
         <div className="min-w-0 flex-1">
-          <div className="admin-meta-spaced admin-doc-inline-row body-xs ct-text-muted">
+          <div className="admin-meta-spaced admin-doc-inline-row body-xs ct-text-muted mb-[var(--ct-space-2)]">
             <time>{item.createdAt.toISOString().slice(0, 16).replace("T", " ")}</time>
             {item.author ? <span>· {item.author}</span> : null}
             {item.itemId ? (
@@ -85,6 +87,6 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
           {item.resolved ? "Reopen" : "Resolve"}
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

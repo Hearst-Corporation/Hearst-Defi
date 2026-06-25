@@ -195,7 +195,7 @@
 | `src/components/ui/apy-range.tsx` | ApyRange | 19 |
 | `src/components/ui/badge.tsx` | Badge | 52 |
 | `src/components/ui/button.tsx` | Button | 87 |
-| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 77 |
+| `src/components/ui/card.tsx` | Card, CardHeader, CardTitle | 78 |
 | `src/components/ui/chart-disclaimer-underlay.tsx` | ChartDisclaimerUnderlay | 4 |
 | `src/components/ui/chart-provenance-corner.tsx` | ChartProvenanceCorner | 4 |
 | `src/components/ui/chart-time-selector.tsx` 🔌 | ChartTimeSelector | 1 |

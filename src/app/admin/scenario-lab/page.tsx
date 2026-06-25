@@ -50,7 +50,7 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="admin-doc-shell--roomy scenario-lab-page scenario-lab-page--fit">
+    <div className="admin-doc-stack admin-doc-stack--roomy scenario-lab-page scenario-lab-page--fit">
       <AdminPageHeader
         titleLead="Scenario"
         titleAccent="Lab"

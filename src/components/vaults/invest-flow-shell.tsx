@@ -48,7 +48,7 @@ export function InvestFlowShell({
   return (
     <div
       className={cn(
-        "invest-flow-shell",
+        "product-doc-stack",
         width === "cap" && "product-doc-shell--cap",
         width === "narrow" && "product-doc-shell--narrow",
         workspace && "invest-flow-shell--workspace",
@@ -64,7 +64,7 @@ export function InvestFlowShell({
         description={description}
         actions={actions}
         align={align}
-        className={headerClassName}
+        className={cn(headerClassName, "mb-0")}
         beforeRule={
           <div className="invest-flow-shell__stepper">
             <div className="invest-flow-shell__stepper-row">

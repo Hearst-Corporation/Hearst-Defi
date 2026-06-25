@@ -62,7 +62,7 @@ export default async function OutreachPage() {
       />
 
       {/* Primary Control: Autonomy & Readiness Strip */}
-      <section className="admin-doc-shell--compact px-[var(--ct-space-4)] lg:px-0" aria-label="Outreach status">
+      <section className="admin-doc-stack admin-doc-stack--compact px-[var(--ct-space-4)] lg:px-0" aria-label="Outreach status">
         <OutreachAutonomyPanel status={autonomy} />
       </section>
 

@@ -25,7 +25,7 @@ export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
   return (
     <div
       className={cn(
-        "proof-center-shell proof-cockpit animate-in fade-in duration-(--ct-dur-slower)",
+        "product-doc-stack proof-cockpit animate-in fade-in duration-(--ct-dur-slower)",
         className,
       )}
       aria-busy="true"

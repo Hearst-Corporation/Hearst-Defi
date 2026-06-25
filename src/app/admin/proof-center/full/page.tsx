@@ -36,7 +36,7 @@ export default async function AdminProofCenterFullPage({
     await loadProofCenterFullLog();
 
   return (
-    <div className="proof-center-shell admin-doc-shell">
+    <div className="admin-doc-stack">
       <AdminPageHeader
         titleLead="Full"
         titleAccent="Log"

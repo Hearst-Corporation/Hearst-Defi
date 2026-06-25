@@ -66,7 +66,7 @@ export default async function ProfilePage() {
   });
 
   return (
-    <div className="prof-shell" data-testid="profile-page">
+    <div className="product-doc-stack" data-testid="profile-page">
       <ProductPageHeader
         titleLead="Welcome back,"
         titleAccent={profileDisplayName(session.email)}

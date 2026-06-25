@@ -28,7 +28,7 @@ export default async function FeedbackPage() {
 
       <section className="admin-doc-stack admin-doc-stack--actions">
         <h2 className="h2">Submit feedback</h2>
-        <Card hoverOverlay={false}>
+        <Card hoverOverlay={false} material="flat">
           <FeedbackForm />
         </Card>
       </section>

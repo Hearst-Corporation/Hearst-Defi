@@ -31,7 +31,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
     vault.currentAumUsdc > 0 ? formatUsdCompact(vault.currentAumUsdc) : "Pending";
 
   return (
-    <Card density="compact" aria-label={`${vault.name} — ${strategyLabel}`} hoverOverlay={false}>
+    <Card aria-label={`${vault.name} — ${strategyLabel}`} hoverOverlay={false}>
       <div className="vault-select-card">
         <div className="vault-select-card__main">
           <div className="min-w-0 product-doc-stack product-doc-stack--tight">
@@ -41,7 +41,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
                 <span className="mono ct-text-faint font-normal">{vault.ticker}</span>
               </h3>
               <div className="flex shrink-0 items-center gap-[var(--ct-space-1_5)]">
-                {demo && isLive ? <ProvenanceBadge kind="simulated" compact /> : null}
+                {demo && isLive ? <ProvenanceBadge kind="simulated" /> : null}
                 <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
                   {vaultStatusLabel(vault.status)}
                 </Badge>
@@ -53,7 +53,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
           <div className="product-doc-stack product-doc-stack--compact">
             <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--start">
               <span className="stat-label">APY range</span>
-              <ProvenanceBadge kind="estimated" compact />
+              <ProvenanceBadge kind="estimated" />
             </div>
             <ApyRange
               low={vault.apyLow}

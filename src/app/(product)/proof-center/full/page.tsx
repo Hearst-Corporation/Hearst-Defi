@@ -33,7 +33,7 @@ export default async function ProofCenterFullPage({
     await loadProofCenterFullLog();
 
   return (
-    <div className="proof-center-shell">
+    <div className="product-doc-stack">
       <ProductPageHeader
         titleLead="Full"
         titleAccent="Log"

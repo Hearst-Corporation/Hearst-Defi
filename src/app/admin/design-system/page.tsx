@@ -33,7 +33,7 @@ const INDEX = [
 
 export default function AdminDesignSystemPage() {
   return (
-    <div className="admin-doc-shell--roomy">
+    <div className="admin-doc-stack admin-doc-stack--roomy">
       <AdminPageHeader
         titleLead="Design"
         titleAccent="System"

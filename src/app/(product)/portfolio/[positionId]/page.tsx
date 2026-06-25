@@ -35,7 +35,7 @@ export default async function PositionDetailPage({ params }: PageProps) {
   if (!position) notFound();
 
   return (
-    <div className="position-detail-shell product-doc-shell--cap">
+    <div className="product-doc-stack product-doc-shell--cap">
       <PositionHeader position={position} />
 
       <div className="position-detail-grid">

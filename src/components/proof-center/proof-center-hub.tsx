@@ -109,7 +109,7 @@ export function ProofCenterHub({
   return (
     <div
       className={cn(
-        variant === "product" ? "proof-center-shell" : "admin-doc-shell--roomy",
+        variant === "product" ? "product-doc-stack" : "admin-doc-stack admin-doc-stack--roomy",
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >

@@ -50,7 +50,7 @@ export function InvestFlowLoadingShell({
   return (
     <div
       className={cn(
-        "invest-flow-shell animate-in fade-in vault-flow-loading-fade",
+        "product-doc-stack animate-in fade-in vault-flow-loading-fade",
         width === "cap" && "product-doc-shell--cap",
         width === "narrow" && "product-doc-shell--narrow",
         workspace && "invest-flow-shell--workspace",
@@ -58,7 +58,7 @@ export function InvestFlowLoadingShell({
       aria-busy="true"
       aria-label="Loading invest flow"
     >
-      <header className="product-page-header">
+      <header className="product-page-header mb-0">
         <div className="product-page-header__row">
           <div className="product-page-header__main">
             <div className="product-page-header__title-stack">
