@@ -127,7 +127,6 @@ function BarChart({
   // ids uniques par instance — évite les collisions <defs>/aria-labelledby si
   // plusieurs DistribCalendar coexistent sur le document (HTML invalide sinon).
   const uid = useId();
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const n = entries.length;
   if (n === 0) return null;
 
@@ -140,7 +139,7 @@ function BarChart({
   const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
 
   return (
-    <div className="relative w-full h-full group/chart">
+    <div className="relative w-full h-full">
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         preserveAspectRatio="xMidYMax meet"
@@ -205,7 +204,6 @@ function BarChart({
                 strokeDasharray="4 2"
                 style={{ opacity: "var(--ct-opacity-75)" }}
                 rx="1"
-                className="transition-all duration-300"
               />
               {/* [Estimate] badge text above bar */}
               <text
@@ -241,7 +239,6 @@ function BarChart({
                 strokeWidth={isCurrent ? "1.5" : "0.75"}
                 style={{ opacity: 1 }}
                 rx="2"
-                className="transition-all duration-300"
               />
             </a>
           ) : (
@@ -257,7 +254,7 @@ function BarChart({
               strokeWidth={isCurrent ? "1.5" : "0.75"}
               rx="2"
               aria-label={`${periodLabel} distribution ${amountLabel}`}
-              className="pf-distrib-chart__bar-group transition-all duration-300"
+              className="pf-distrib-chart__bar-group"
               style={{ opacity: 1, "--index": i } as React.CSSProperties}
             />
           );
@@ -266,8 +263,6 @@ function BarChart({
             <g 
               key={i} 
               className="pf-distrib-chart__group"
-              onMouseEnter={() => setHoverIndex(i)}
-              onMouseLeave={() => setHoverIndex(null)}
             >
               {barEl}
 
@@ -298,39 +293,6 @@ function BarChart({
           );
         })}
       </svg>
-
-      {/* Tooltip calibrated with ValueChart */}
-      {hoverIndex !== null && entries[hoverIndex] && (() => {
-        const entry = entries[hoverIndex];
-        if (!entry) return null;
-        return (
-          <div 
-            className="pf-vc-tooltip"
-            style={{
-              left: `${((barX(hoverIndex, n, BAR_W, GAP) + BAR_W / 2) / VB_W * 100).toFixed(3)}%`,
-              top: `${((BAR_AREA_BOT - barHeight(entry.amountUsdc, maxAmount)) / VB_H * 100).toFixed(3)}%`,
-              // Adjust transform to keep tooltip within bounds (match ValueChart)
-              transform: `translate(${
-                hoverIndex < 2 ? '0%' : 
-                hoverIndex > entries.length - 3 ? '-100%' : 
-                '-50%'
-              }, calc(-100% - var(--ct-space-4)))`
-            }}
-          >
-            <div className="pf-vc-tooltip__content">
-              <span className="pf-vc-tooltip__value tabular-nums">
-                {formatUsdDetailed(entry.amountUsdc)}
-              </span>
-              <div className="flex items-center justify-between gap-2 mt-1">
-                <span className="pf-vc-tooltip__date">
-                  {formatPeriod(entry.period, refYear)}
-                </span>
-                <span className="text-[var(--ct-text-nano)] text-accent font-bold uppercase tracking-widest">Yield</span>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }
@@ -404,7 +366,7 @@ export function DistribCalendar({
         variant="wide"
         chrome={embedded ? "embedded" : "panel"}
         aria-label="Payout calendar — awaiting first distribution"
-        className="pf-payout-calendar-panel pf-payout-calendar-panel--zero h-full"
+        className="pf-payout-calendar-panel pf-payout-calendar-panel--zero"
       >
         <PfCockpitPanelHeader
           title="Payout Calendar"
@@ -415,13 +377,13 @@ export function DistribCalendar({
           <div className="pf-distrib-zero-body">
           {showComingBox && nextDate ? (
             /* "Distribution coming" premium box */
-            <div className="pf-dc-coming group/coming" role="status" aria-label="Next distribution window">
+            <div className="pf-dc-coming" role="status" aria-label="Next distribution window">
               <div className="pf-dc-coming__header">
                 <span className="pf-dc-coming__eyebrow">Distribution coming</span>
-                <span className="pf-dc-coming__badge transition-colors group-hover/coming:bg-[var(--ct-accent)] group-hover/coming:text-[var(--ct-bg-deep)]">Estimated</span>
+                <span className="pf-dc-coming__badge">Estimated</span>
               </div>
               <div className="pf-dc-coming__date-row">
-                <span className="pf-dc-coming__date-main transition-colors group-hover/coming:ct-text-accent">
+                <span className="pf-dc-coming__date-main">
                   {distribMonthFmt.format(nextDate)}
                 </span>
                 <span className="pf-dc-coming__date-exact">
@@ -495,7 +457,7 @@ export function DistribCalendar({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Payout calendar"
-      className="pf-payout-calendar-panel h-full"
+      className="pf-payout-calendar-panel"
     >
       {header}
       <div className="pf-distrib-chart-shell">

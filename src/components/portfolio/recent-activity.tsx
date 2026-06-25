@@ -65,7 +65,6 @@ export function RecentActivity({
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
       aria-label="Recent account activity"
-      className="h-full"
     >
       <PfCockpitPanelHeader
         title="Recent Activity"
@@ -81,14 +80,14 @@ export function RecentActivity({
             return (
               <div
                 key={tx.id}
-                className="pf-activity__row group/row"
+                className="pf-activity__row"
                 style={{ animationDelay: `${idx * 0.06}s` }}
               >
                 <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>
                 <span className="pf-activity__main min-w-0">
-                  <span className="text-[var(--ct-text-xs)] ct-text-primary font-medium tracking-tight truncate transition-colors group-hover/row:ct-text-accent">
+                  <span className="text-[var(--ct-text-xs)] ct-text-primary font-medium tracking-tight truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
                       <span className="ct-text-tertiary font-normal ml-1 text-[length:var(--ct-text-xs)]">· {tx.positionVaultName}</span>
@@ -98,7 +97,7 @@ export function RecentActivity({
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className={`pf-activity__amt tabular text-[var(--ct-text-xs)] font-semibold transition-colors group-hover/row:ct-text-accent${dir === "in" ? " ct-text-accent" : ""}`}>
+                <span className={`pf-activity__amt tabular text-[var(--ct-text-xs)] font-semibold${dir === "in" ? " ct-text-accent" : ""}`}>
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
