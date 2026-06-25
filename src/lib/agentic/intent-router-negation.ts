@@ -183,10 +183,3 @@ export function isNegated(normalized: string): boolean {
 
   return false;
 }
-
-/**
- * Backward-compatible alias.
- */
-export function detectNegation(normalized: string): boolean {
-  return isNegated(normalized);
-}
