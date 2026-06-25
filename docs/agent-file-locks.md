@@ -16,29 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/deterministic-intent-router-v1
-Owner: Deterministic Intent Router Builder
-Branch: feat/deterministic-intent-router-v1
-Worktree: ../connect-intent-router-v1
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/**
-- src/lib/agentic/__tests__/**
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Build deterministic regex/rule-based Intent Router v1 (new central module).
-- Reuses the existing nav resolver (nav-fallback-intent.ts) for routeKey; does NOT
-  rewrite cockpit-chat. Pure functions, no I/O, no DB, no autonomous writes.
-- No deploy/send/source/mark-live execution; dangerous intents → refuse_autonomous.
-- Does NOT touch Prisma, .mcp.json, .continue, env, write/HITL routes.
+_No active locks yet._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/deterministic-intent-router-v1
+Owner: Deterministic Intent Router Builder
+Branch: feat/deterministic-intent-router-v1
+Merged PR: #33
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agentic/** (intent router v1)
+- docs/agentic/DETERMINISTIC_INTENT_ROUTER_V1.md
+- src/app/api/cockpit-chat/route.ts (shadow-mode wiring only)
+
+Result:
+- Deterministic Intent Router v1 (pure classifier, 65 tests). Shadow-mode in
+  cockpit-chat (AGENTIC_ROUTER_SHADOW=1, OFF by default), zero control-flow change.
+  Dangerous intents refused/prohibited; writes stay behind HITL. Merged 8701ba02.
+
 
 ### agent/product-deploy-qa
 Owner: Product Deploy QA Owner
