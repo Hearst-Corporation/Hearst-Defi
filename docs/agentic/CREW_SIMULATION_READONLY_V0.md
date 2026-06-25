@@ -210,3 +210,12 @@ The UI integration is out of scope for this lot (v0). When it is built, it will 
 7. Every `step.executable` is `false` (TypeScript structural + test-asserted).
 8. Unknown scenario IDs return a typed `CrewSimulationError` — no fallback execution.
 9. The module is pure: no side effects, no I/O, no server-only imports.
+
+## Visual integration (V1)
+
+Surfaced read-only in `/admin/agentic`: each scenario feeds a **Crew Simulation**
+flow node on the visual system map and a dedicated **Crew Simulation** section that
+renders the 6 flows as step rails with gates, blocked actions, and a prominent
+`executable: false` marker. There is no run/launch/execute control. See
+[`AGENTIC_VISUAL_CONTROL_CENTER_V0.md`](./AGENTIC_VISUAL_CONTROL_CENTER_V0.md)
+(Visual Integration V1).

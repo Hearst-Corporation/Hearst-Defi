@@ -151,3 +151,13 @@ The integration is **not in this lot** (v0 = backend/read-only module only).
 - ADR-012 — no autonomous write from chat
 - ADR-016 — outreach autonomy levels + Tier A hard block
 - ADR-017 — single chat engine (CHAT_MASTER_AGENT)
+
+## Visual integration (V1)
+
+Surfaced read-only in `/admin/agentic`: the matrix feeds the **Action Readiness**
+layer of the visual system map (nodes `read-only-actions` / `draft-actions` /
+`confirmed-write-actions` / `forbidden-actions` with live tier counts) and a
+dedicated **Action Readiness** section with four visual tier lanes. No action is
+invoked — the matrix only classifies. See
+[`AGENTIC_VISUAL_CONTROL_CENTER_V0.md`](./AGENTIC_VISUAL_CONTROL_CENTER_V0.md)
+(Visual Integration V1).

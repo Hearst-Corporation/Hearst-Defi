@@ -16,13 +16,14 @@ const PAGE = readFileSync(
 
 function pageHasAnchor(id: string): boolean {
   // Anchors live either as id="..." on the page OR as a component-rendered id
-  // (router-observability, router-quality-review, tool-boundary-v1, reporting-crew
-  // are rendered by their own components with those ids).
+  // (these sections render their own id=... in their component, not in page.tsx).
   const componentAnchors = new Set([
     "router-observability",
     "router-quality-review",
     "tool-boundary-v1",
     "reporting-crew",
+    "action-readiness",
+    "crew-simulation",
   ]);
   if (componentAnchors.has(id)) return true;
   return PAGE.includes(`id="${id}"`);
@@ -45,11 +46,13 @@ describe("system map — page anchor contract", () => {
 
   it("the page renders the visual map and detail inspector first", () => {
     expect(PAGE).toContain("<AgenticSystemMap map={systemMap} />");
-    expect(PAGE).toContain("<AgenticDetailInspector map={systemMap} />");
+    expect(PAGE).toContain("<AgenticDetailInspector");
     // Map appears before the legacy "System status" section.
     const mapIdx = PAGE.indexOf("<AgenticSystemMap");
+    const inspectorIdx = PAGE.indexOf("<AgenticDetailInspector");
     const statusIdx = PAGE.indexOf('aria-label="System status"');
     expect(mapIdx).toBeGreaterThan(-1);
+    expect(inspectorIdx).toBeGreaterThan(mapIdx); // inspector after map
     expect(statusIdx).toBeGreaterThan(-1);
     expect(mapIdx).toBeLessThan(statusIdx);
   });
@@ -62,5 +65,13 @@ describe("system map — page anchor contract", () => {
     expect(PAGE).toContain('id="agents-inventory"');
     expect(PAGE).toContain('id="prompt-map"');
     expect(PAGE).toContain('id="compliance-guards"');
+  });
+
+  it("the page renders the integrated Action Readiness + Crew Simulation sections", () => {
+    expect(PAGE).toContain("<ActionReadinessMatrixSection");
+    expect(PAGE).toContain("<CrewSimulationSection");
+    // The inspector receives the readiness + simulation rollup props.
+    expect(PAGE).toContain("actionReadiness={actionReadiness}");
+    expect(PAGE).toContain("crewSimulations={crewSimulations}");
   });
 });

@@ -16,7 +16,31 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/agentic-visual-integration-v1
+Owner: Opus Orchestrateur Continu — Agentic Visual Console Integration V1
+Branch: feat/agentic-visual-integration-v1
+Worktree: ../connect-opus-agentic-visual-integration
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/system-map/** (wire readiness + simulation nodes/edges)
+- src/components/admin/agentic/** (new readiness + simulation sections; inspector)
+- src/app/admin/agentic/** (recompose page)
+- src/app/admin/admin-docs.css (lanes/flows CSS, token-only)
+- docs/agentic/**
+- tests related to agentic visual integration
+- docs/agent-file-locks.md
+
+Reads (read-only, no edit): src/lib/agentic/action-readiness/**, src/lib/agentic/crew-simulation/**.
+
+Notes:
+- Integrate Action Readiness Matrix + Crew Simulation into the visual /admin/agentic.
+- First layer stays the visual system map; details stay in the second layer.
+- NO CrewAI, NO autonomous runtime, NO tool execution, NO write tools.
+- No router/guard/HITL/chat behavior change. No registry runtime change.
+- No DB migration. No Prisma/schema. No user text/prompt/tool payload storage.
+- No replay/export, no prompt editing, no Run/Execute/Launch/Send/Deploy controls.
 
 ---
 
