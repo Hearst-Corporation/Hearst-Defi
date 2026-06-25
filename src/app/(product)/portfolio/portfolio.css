@@ -47,19 +47,6 @@
   position: relative;
   background: transparent;
 
-  /* ───────────────────────────────────────────────────────────────────────
-     REFONTE PREMIUM — calibration scopée portfolio (réversible).
-     Éclaircit les surfaces, creuse l'écart figure/fond, remonte le contraste
-     des textes "sage" (illisibles à 2.8–4.2:1) sans toucher aux tokens
-     globaux. Toutes les classes pf-* consommant ces vars en héritent.
-     ─────────────────────────────────────────────────────────────────────── */
-  /* Surfaces : cards alignées sur le contrat global (#141416) */
-  /* Bordures : alignées sur le contrat global */
-  /* Texte : le sage trop sombre passe à des valeurs lisibles (WCAG AA). */
-  --ct-text-secondary: #C3D2CA;   /* était #9EB3A8 (4.2:1) → ~9:1 */
-  --ct-text-tertiary:  #93A39B;   /* était #7E8F86 (2.8:1) → ~5:1 */
-  --ct-text-muted:     rgba(245, 245, 245, 0.66);  /* était 0.55 */
-
 }
 
 /* All financial body text in portfolio scope inherits strong white. */

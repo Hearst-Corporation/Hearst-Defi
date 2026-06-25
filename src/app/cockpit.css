@@ -34,7 +34,7 @@
      (valeurs strictement identiques — ex-doublons miroir retirés pour tuer le
      faux positif ds-token-drift, ils cascadent du shell). */
   --ct-text-strong:  #ffffff;
-  --ct-text-muted:   rgba(245, 245, 245, 0.55);
+  --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
   --ct-figma-cover-bg: #1E1E1E;
@@ -48,8 +48,9 @@
   --ct-figma-border-20: #ffffff33;
   --ct-figma-status-warning: #f9a03f;
   --ct-figma-status-danger: #ba3f1d;
-  --ct-text-secondary: var(--ct-figma-secondary-lighter);
-  --ct-text-tertiary: var(--ct-figma-secondary-darker);
+  /* WCAG AA pass: #9eb3a8 (4.2:1) → #C3D2CA (~9:1), #7e8f86 (2.8:1) → #93A39B (~5:1) */
+  --ct-text-secondary: #C3D2CA;
+  --ct-text-tertiary: #93A39B;
   --ct-text-neutral: var(--ct-figma-neutral);
   --ct-accent-light: var(--ct-figma-accent-light);
   /* Chart area wash — Figma accent gradient (charts only, not shell ambient). */
@@ -1554,13 +1555,6 @@
 
 .dashboard-page-header .admin-page-header__main {
   max-width: 42rem;
-}
-
-/* Admin surfaces — text contrast overrides (surface/borders use global defaults). */
-.admin-doc {
-  --ct-text-secondary: #C3D2CA;
-  --ct-text-tertiary: #93A39B;
-  --ct-text-muted: rgba(245, 245, 245, 0.66);
 }
 
 /* Admin cards — same padding tier as LP (.ct-card global rule). */
