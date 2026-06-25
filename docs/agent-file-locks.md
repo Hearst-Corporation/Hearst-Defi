@@ -16,35 +16,35 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/reporting-crew-readonly-v0
-Owner: Opus Orchestrateur Continu — Reporting Crew Read-Only v0 Implementation
-Branch: feat/reporting-crew-readonly-v0
-Worktree: ../connect-opus-reporting-crew-readonly
-Started: 2026-06-25
-Status: active
-
-Scope:
-- src/lib/agentic/reporting/** (new module, pure)
-- src/lib/agentic/control-center/reporting-crew.ts (new) + index.ts (additive export)
-- src/components/admin/agentic/reporting-crew-section.tsx (new)
-- src/app/admin/agentic/page.tsx (render the new section)
-- docs/agentic/REPORTING_CREW_READONLY_V0.md (new) + AGENTIC_CONTROL_CENTER_V0.md (additive note)
-- tests related to reporting crew read-only
-- docs/agent-file-locks.md
-
-Reads (read-only, no edit): control-center, observability, tool-boundary summaries.
-
-Notes:
-- Read-only composition of EXISTING agentic data into a deterministic briefing.
-- NO CrewAI, NO autonomous runtime, NO autonomous loop.
-- NO tool execution, NO write tools, NO send/source/deploy/mark-live.
-- No router/guard/HITL/chat behavior change. No registry runtime change.
-- No DB migration. No Prisma/schema. No user text/prompt/tool payload storage.
-- No replay, no export, no prompt editing, no tool-execution UI.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/reporting-crew-readonly-v0
+Owner: Opus Orchestrateur Continu — Reporting Crew Read-Only v0 Implementation
+Branch: feat/reporting-crew-readonly-v0
+Merged PR: #63 (merge 0f357584)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Reporting Crew Read-Only v0: the first applicative "crew" — a deterministic, read-only
+  briefing in /admin/agentic composed from existing data (control-center registry +
+  observability summary + quality review + tool boundary + gates + safety). Module
+  src/lib/agentic/reporting/* : pure composeReportingCrewBriefing(inputs) → executive
+  summary, router health, tool boundary health, safety & gates, observability signals,
+  watchlist, recommended read-only checks; status derived alert>watch>no_data>healthy.
+  collect-inputs (server-only, best-effort) reuses the page's observability read.
+  New ReportingCrewSection UI after the Observability section, NO write controls; a test
+  asserts no recommendation contains a forbidden write verb (send/source/deploy/mark-live/
+  execute/approve/mutate). NOT CrewAI, NOT an autonomous runtime/loop. NO tool execution,
+  NO write tools, NO router/guard/HITL/chat change, NO registry runtime change, NO Prisma/
+  schema change, NO migration, NO user text/prompt/tool payload. Integrated at page level so
+  getAgenticControlCenterData stays pure (all existing control-center tests unchanged).
+  typecheck PASS, lint 0, full suite 3317/3317, build PASS (postgresql), empty Prisma diff.
+  Merged 0f357584, PR #63. Vercel prod READY; prod /admin/agentic 307→/login.
 
 ### feat/tool-boundary-v1
 Owner: Opus Orchestrateur Continu — Tool Boundary v1 Delivery
