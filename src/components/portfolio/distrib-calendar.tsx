@@ -117,63 +117,19 @@ interface BarChartProps {
   entries: DistribEntry[];
   refYear: number;
   currentPeriod: string;
-  /** Zero-state skeleton: 12 muted empty bars, no amounts/labels. */
-  skeleton?: boolean;
-}
-
-/** 12 flat low-height grey bars for the empty-state histogram frame. */
-function SkeletonBars() {
-  const n = 12;
-  const GAP = 4;
-  const BAR_W = Math.floor((VB_W - (n - 1) * GAP) / n);
-  // Subtle uneven baseline so the frame reads as a chart, not a flat block.
-  const HEIGHTS = [6, 9, 7, 11, 8, 12, 9, 13, 10, 12, 9, 11];
-  return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center">
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        preserveAspectRatio="xMidYMax meet"
-        className="pf-distrib-chart pf-distrib-chart--skeleton absolute inset-0 block h-full w-full opacity-20"
-        role="img"
-        aria-label="Payout calendar — awaiting first distribution"
-      >
-        {Array.from({ length: n }, (_, i) => {
-          const bh = HEIGHTS[i] ?? 8;
-          const bx = barX(i, n, BAR_W, GAP);
-          return (
-            <rect
-              key={i}
-              x={bx}
-              y={BAR_AREA_BOT - bh}
-              width={BAR_W}
-              height={bh}
-              fill="var(--ct-surface-3)"
-              rx="1"
-              aria-hidden="true"
-            />
-          );
-        })}
-      </svg>
-      <div className="z-10 flex flex-col items-center gap-1.5">
-        <span className="text-[var(--ct-text-deci)] uppercase tracking-[var(--ct-tracking-widest)] text-secondary font-medium">No distributions yet</span>
-        <span className="text-[var(--ct-text-micro)] text-tertiary opacity-60">Future payouts will appear here</span>
-      </div>
-    </div>
-  );
 }
 
 function BarChart({
   entries,
   refYear,
   currentPeriod,
-  skeleton = false,
 }: BarChartProps) {
   // ids uniques par instance — évite les collisions <defs>/aria-labelledby si
   // plusieurs DistribCalendar coexistent sur le document (HTML invalide sinon).
   const uid = useId();
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const n = entries.length;
-  if (skeleton || n === 0) return <SkeletonBars />;
+  if (n === 0) return null;
 
   const GAP = 4;
   const totalGaps = (n - 1) * GAP;
@@ -355,8 +311,8 @@ function BarChart({
               top: `${((BAR_AREA_BOT - barHeight(entry.amountUsdc, maxAmount)) / VB_H * 100).toFixed(3)}%`,
               // Adjust transform to keep tooltip within bounds (match ValueChart)
               transform: `translate(${
-                hoverIndex === 0 ? '0%' : 
-                hoverIndex === entries.length - 1 ? '-100%' : 
+                hoverIndex < 2 ? '0%' : 
+                hoverIndex > entries.length - 3 ? '-100%' : 
                 '-50%'
               }, calc(-100% - var(--ct-space-4)))`
             }}
@@ -457,11 +413,6 @@ export function DistribCalendar({
           trailing={calendarHeaderTrail(leafHref)}
         />
         <div className="pf-distrib-zero-body">
-          {/* Background skeleton bars — very faint, behind the coming box */}
-          <div className="pf-distrib-chart-shell pf-distrib-chart-shell--ghost" aria-hidden="true">
-            <BarChart entries={[]} refYear={refYear} currentPeriod={currentPeriod} skeleton />
-          </div>
-
           {showComingBox && nextDate ? (
             /* "Distribution coming" premium box */
             <div className="pf-dc-coming" role="status" aria-label="Next distribution window">
