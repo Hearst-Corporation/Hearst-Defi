@@ -16,7 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### agent/product-deploy-qa
+Owner: Product Deploy QA Owner
+Branch: agent/product-deploy-qa
+Worktree: ../connect-product-deploy-qa
+Started: 2026-06-25
+Status: active
+
+Scope:
+- Read-only QA across product/vault/deploy/admin product surfaces
+- Code edits only after bug is reproduced and scoped
+- Product/Vault/Deploy files only if fix is required
+- cockpit-shell/src/chat/useChat.ts (P1 first-turn assistant-reply drop)
+- cockpit-shell/src/chat/__tests__/use-chat-hydration-guard.test.ts (new)
+
+Notes:
+- Test product/vault mise en ligne flow
+- Verify HITL and deploy safety
+- No production write without explicit approval
+- P1 found live: on the FIRST turn of a new conversation, the server's
+  mid-stream x-chat-id triggers a hydration re-fetch that clobbers the
+  streaming assistant placeholder → reply persisted in DB but never rendered.
+  Fix is a self-assigned-chatId guard in the hydration effect (PR #30). Not a
+  deploy-safety hole (refusal worked, zero writes); pure client display
+  reliability. useChat.ts is NOT a sensitive single-owner file, no active lock.
 
 ---
 

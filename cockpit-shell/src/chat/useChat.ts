@@ -208,6 +208,26 @@ const WELCOME_MSG: DisplayMessage = {
   createdAt: 0,
 };
 
+/**
+ * Should the hydration effect SKIP its server re-fetch for this `chatId`?
+ *
+ * True only when `chatId` is the id the in-flight stream itself just assigned to
+ * the current turn — i.e. the server created the chat mid-stream and we mirrored
+ * its `x-chat-id` into local state. In that single case the live transcript
+ * (user turn + the assistant bubble being streamed right now) is the source of
+ * truth: re-fetching `/api/cockpit-chats/{id}` would race the server-side
+ * persistence and overwrite the streaming assistant placeholder with a snapshot
+ * that has not committed the reply yet — so the first-turn reply vanished even
+ * though it was generated and saved. A history-pick assigns a DIFFERENT id (not
+ * self-assigned), so it still hydrates normally.
+ */
+export function shouldSkipChatHydration(
+  chatId: string | null,
+  selfAssignedChatId: string | null,
+): boolean {
+  return chatId != null && chatId === selfAssignedChatId;
+}
+
 export function useChat(opts?: UseChatOptions): UseChatReturn {
   const {
     apiEndpoint = "/api/cockpit-chat",
@@ -226,6 +246,12 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
   const [queued, setQueued] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
+  /** chatId que le stream EN COURS vient d'auto-assigner (le serveur a créé le
+   *  chat en plein tour et renvoyé `x-chat-id`). L'effet d'hydratation doit
+   *  ignorer CE id une fois : re-fetch maintenant écraserait la bulle assistant
+   *  en cours de stream par un snapshot serveur qui ne l'a pas encore persistée
+   *  → la réponse du 1er tour disparaissait. Voir `shouldSkipChatHydration`. */
+  const selfAssignedChatIdRef = useRef<string | null>(null);
   /** Guard anti-race-condition : empêche un double-envoi concurrent. */
   const pendingRef = useRef<boolean>(false);
   /** Timestamp du dernier submit — détecte le double-submit (< 500ms → FORCE). */
@@ -255,6 +281,16 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
 
     if (!chatId) {
       setMessages([WELCOME_MSG]);
+      return;
+    }
+
+    // The current stream just created this chat server-side and we mirrored its
+    // id locally. The in-memory transcript is authoritative for this turn — a
+    // re-fetch here would clobber the streaming assistant bubble with a snapshot
+    // that has not persisted the reply yet (first-turn reply dropped). Consume
+    // the marker once; a later history-pick of the same id will hydrate.
+    if (shouldSkipChatHydration(chatId, selfAssignedChatIdRef.current)) {
+      selfAssignedChatIdRef.current = null;
       return;
     }
 
@@ -477,6 +513,11 @@ export function useChat(opts?: UseChatOptions): UseChatReturn {
         // Récupère le chatId depuis le header si le serveur en a créé un.
         const headerChatId = resp.headers.get("x-chat-id");
         if (headerChatId && headerChatId !== chatId) {
+          // Marque l'id AVANT setChatId : l'effet d'hydratation (déclenché par ce
+          // changement de chatId) doit voir le marqueur et NE PAS re-fetch, sinon
+          // il écrase la bulle assistant en cours de stream (réponse 1er tour
+          // perdue). cf. shouldSkipChatHydration.
+          selfAssignedChatIdRef.current = headerChatId;
           setChatId(headerChatId);
           onChatId?.(headerChatId);
         }
