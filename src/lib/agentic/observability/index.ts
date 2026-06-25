@@ -9,6 +9,13 @@ export {
   buildUnknownDecisionTrace,
 } from "./decision-summary";
 export { computeRouterDecisionStats } from "./stats";
+export {
+  normalizeRouterTrendWindow,
+  getRouterTrendWindowStart,
+  buildRouterDecisionTrendBuckets,
+  getTopMatchedRules,
+  ROUTER_TREND_BUFFER_NOTE,
+} from "./trends";
 export { redactSnippet, MAX_SNIPPET_LEN } from "./redact";
 export { recordRouterDecisionSafe } from "./record-router-decision";
 export {

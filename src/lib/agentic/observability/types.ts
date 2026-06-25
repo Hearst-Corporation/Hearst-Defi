@@ -97,6 +97,34 @@ export interface RouterMatchedRuleCount {
   count: number;
 }
 
+// ---------------------------------------------------------------------------
+// Trends (v0.1) — purely additive, computed from the SAME recent trace buffer.
+// No new storage, no new fields stored. These are derived views only.
+// ---------------------------------------------------------------------------
+
+/** Time window the trend view aggregates over (unified with the durable window). */
+export type RouterTrendWindow = RouterObservabilityWindow;
+
+/** One time bucket of decision outcomes. */
+export interface RouterDecisionTrendBucket {
+  /** Short axis label, e.g. "14:05" or "Mon". */
+  label: string;
+  /** ISO start of the bucket (inclusive). */
+  start: string;
+  /** ISO end of the bucket (exclusive). */
+  end: string;
+  total: number;
+  navigationFastPaths: number;
+  dangerousRefusals: number;
+  educationalTurns: number;
+  negatedNoNav: number;
+  /** normal_llm + unknown + anything not in a named category. */
+  normalOrUnknown: number;
+}
+
+/** A matched-rule frequency entry. Alias of RouterMatchedRuleCount (same shape). */
+export type RouterMatchedRuleStat = RouterMatchedRuleCount;
+
 /** The read-only payload the Control Center renders. */
 export interface RouterObservabilitySummary {
   state: RouterObservabilityState;
@@ -116,4 +144,10 @@ export interface RouterObservabilitySummary {
   safetyNote: string;
   /** Constant privacy mode label. */
   privacyMode: string;
+  /** Selected trend window — same as `window` (durable, unified). */
+  trendWindow: RouterTrendWindow;
+  /** Time buckets over the selected window, computed from the durable traces. */
+  trendBuckets: RouterDecisionTrendBucket[];
+  /** Honest note about the trend source. */
+  bufferLimitNote: string;
 }

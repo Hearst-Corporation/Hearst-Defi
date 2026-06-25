@@ -43,6 +43,9 @@ function summary(
     safetyNote: SAFETY,
     privacyMode:
       "metadata-only (ids + enums + flags); user message text never stored",
+    trendWindow: "24h",
+    trendBuckets: [],
+    bufferLimitNote: "Trends computed from durable router traces (window 24h).",
     ...over,
   };
 }

@@ -161,3 +161,35 @@ describe("getRouterObservabilitySummary — durable v1", () => {
     expect(["redis_fallback", "memory_fallback"]).toContain(s.storage);
   });
 });
+
+describe("getRouterObservabilitySummary — trends (v0.1)", () => {
+  it("includes trendWindow / trendBuckets / topMatchedRules / bufferLimitNote", async () => {
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    const s = await getRouterObservabilitySummary();
+    expect(s.trendWindow).toBe("24h"); // default
+    expect(Array.isArray(s.trendBuckets)).toBe(true);
+    expect(s.trendBuckets).toHaveLength(24);
+    expect(Array.isArray(s.topMatchedRules)).toBe(true);
+    expect(s.bufferLimitNote).toMatch(/durable router traces/i);
+  });
+
+  it("honours the requested window (1h → 12 buckets)", async () => {
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    const s = await getRouterObservabilitySummary({ window: "1h" });
+    expect(s.trendWindow).toBe("1h");
+    expect(s.trendBuckets).toHaveLength(12);
+  });
+
+  it("falls back to 24h for an invalid window", async () => {
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(s.trendWindow).toBe("24h");
+  });
+});

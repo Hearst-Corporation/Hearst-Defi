@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { RouterObservabilityTrends } from "@/components/admin/agentic/router-observability-trends";
 import type {
   RouterDecisionTrace,
   RouterObservabilitySummary,
@@ -227,7 +228,11 @@ function SectionShell({
   current: RouterObservabilityWindow;
 }) {
   return (
-    <section className="admin-doc-stack" aria-label="Router Observability">
+    <section
+      id="router-observability"
+      className="admin-doc-stack"
+      aria-label="Router Observability"
+    >
       <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
         <h2 className="h2 m-0">Router Observability</h2>
         <span className="flex-1" />
@@ -315,7 +320,17 @@ export function RouterObservabilitySection({
         />
       </div>
 
-      {/* Empty state OR distribution + top rules + table */}
+      {/* Trends over time (durable, same traces) — only when there is data */}
+      {state === "enabled" && recent.length > 0 && (
+        <RouterObservabilityTrends
+          window={summary.trendWindow}
+          buckets={summary.trendBuckets}
+          topMatchedRules={summary.topMatchedRules}
+          bufferLimitNote={summary.bufferLimitNote}
+        />
+      )}
+
+      {/* Empty state OR distribution + top rules + recent table */}
       {state === "empty" || recent.length === 0 ? (
         <Card
           hoverOverlay={false}
@@ -329,11 +344,8 @@ export function RouterObservabilitySection({
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ct-space-4)]">
-            <OutcomeDistribution summary={summary} />
-            <TopMatchedRules summary={summary} />
-          </div>
-
+          {/* Distribution + top rules are rendered by RouterObservabilityTrends
+              above (single source of truth); here we show the recent table. */}
           <Card
             hoverOverlay={false}
             material="flat"

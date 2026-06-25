@@ -45,6 +45,31 @@ Notes:
 
 ## RELEASED LOCKS
 
+### feat/router-observability-trends-v01
+Owner: Opus Orchestrateur — Router Observability Trends Delivery
+Branch: feat/router-observability-trends-v01
+Merged PR: #46
+Released: 2026-06-25
+Status: merged
+
+Scope:
+- src/lib/agentic/observability/trends.ts (new) + types.ts/read-router-decisions.ts/index.ts (additive)
+- src/components/admin/agentic/router-observability-trends.tsx (new) + section.tsx (additive)
+- src/app/admin/agentic/page.tsx (searchParams.routerWindow)
+- docs/agentic/ROUTER_OBSERVABILITY_V0.md + AGENTIC_CONTROL_CENTER_V0.md + tests
+
+Result:
+- Read-only Router Observability TRENDS v0.1 in /admin/agentic: time-bucketed outcome
+  trends (1h/24h/7d via ?routerWindow=), outcome distribution, top matched rules, buffer
+  note — all computed from the EXISTING capped v0 buffer (NO new storage, NO migration,
+  NO Prisma, NO recorded fields added). Categorization mirrors stats.ts. Dependency-free
+  DS-token bars, honest empty states, window selector = plain <Link> (no form/write).
+  Additive-only so it coexists with the parallel durable-observability lot. No router/
+  guard/HITL behavior change. typecheck PASS, lint 0, full suite 3171/3171, build PASS,
+  Vercel prod READY. Merged 9f0dd9de, PR #46. Prod /admin/agentic + ?routerWindow=
+  variants all 307→/login (correct gate). Foundry CI red = transient foundryup toolchain
+  download (infra, not code); Playwright login-flow:91 pre-existing.
+
 ### feat/router-observability-traces-v0
 Owner: Opus Orchestrateur — Router Observability Traces Delivery
 Branch: feat/router-observability-traces-v0
