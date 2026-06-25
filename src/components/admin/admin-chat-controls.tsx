@@ -1489,7 +1489,7 @@ function AgentCapabilityRow({
 
         <div className="grid gap-[var(--ct-space-3)] xl:grid-cols-2">
           <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
-            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+            <div className="text-[length:var(--ct-text-deci)] uppercase tracking-wide ct-text-faint">
               Test prompt
             </div>
             <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-[var(--ct-space-3)] py-[var(--ct-space-2)] body-xs ct-text-primary whitespace-pre-wrap wrap-break-word">
@@ -1497,7 +1497,7 @@ function AgentCapabilityRow({
             </div>
           </div>
           <div className="admin-doc-stack admin-doc-stack--tight min-w-0">
-            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+            <div className="text-[length:var(--ct-text-deci)] uppercase tracking-wide ct-text-faint">
               Success criterion
             </div>
             <div className="rounded-lg border border-(--ct-border-soft) ct-surface-1 px-[var(--ct-space-3)] py-[var(--ct-space-2)] body-xs ct-text-muted">
@@ -1508,7 +1508,7 @@ function AgentCapabilityRow({
 
         <div className="grid gap-[var(--ct-space-3)] xl:grid-cols-[minmax(14rem,auto)_minmax(0,1fr)]">
           <div className="admin-doc-stack admin-doc-stack--tight">
-            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+            <div className="text-[length:var(--ct-text-deci)] uppercase tracking-wide ct-text-faint">
               Status
             </div>
             <div className="flex min-w-48 flex-wrap gap-[var(--ct-space-2)]">
@@ -1531,7 +1531,7 @@ function AgentCapabilityRow({
             </div>
           </div>
           <div className="admin-doc-stack admin-doc-stack--tight">
-            <div className="body-[10px] uppercase tracking-wide ct-text-faint">
+            <div className="text-[length:var(--ct-text-deci)] uppercase tracking-wide ct-text-faint">
               Notes
             </div>
           <textarea
