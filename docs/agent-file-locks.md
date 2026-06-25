@@ -16,7 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/crew-simulation-readonly-v0
+Owner: Agent C — Crew Simulation Read-Only
+Branch: feat/crew-simulation-readonly-v0
+Worktree: /tmp/connect-crew-sim-wt
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/crew-simulation/**
+- docs/agentic/CREW_SIMULATION_READONLY_V0.md
+- src/lib/agentic/crew-simulation/__tests__/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend/read-only module only.
+- No UI integration in this lot.
+- No CrewAI.
+- No autonomous runtime.
+- No tool execution.
+- No write tools.
+- No router/guard/HITL/chat behavior change.
+- No DB migration.
+- No Prisma/schema.
 
 ---
 
