@@ -16,7 +16,25 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/deterministic-intent-router-v1
+Owner: Deterministic Intent Router Builder
+Branch: feat/deterministic-intent-router-v1
+Worktree: ../connect-intent-router-v1
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/**
+- src/lib/agentic/__tests__/**
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Build deterministic regex/rule-based Intent Router v1 (new central module).
+- Reuses the existing nav resolver (nav-fallback-intent.ts) for routeKey; does NOT
+  rewrite cockpit-chat. Pure functions, no I/O, no DB, no autonomous writes.
+- No deploy/send/source/mark-live execution; dangerous intents → refuse_autonomous.
+- Does NOT touch Prisma, .mcp.json, .continue, env, write/HITL routes.
 
 ---
 
