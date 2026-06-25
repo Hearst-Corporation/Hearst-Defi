@@ -90,8 +90,14 @@ export function CapitalYield({
   const emptyReason: "no-position" | "awaiting-data" =
     hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
 
+  // Rich partial: a confirmed position with real capital, but the vault
+  // allocation breakdown is not yet published. We still surface the REAL figures
+  // the account already has (capital + target APY) instead of an empty text block.
+  // No invented data — only totalValueUsdc and the blended APY range.
+  const showRichPartial = !hasData && emptyReason === "awaiting-data" && totalValueUsdc > 0;
+
   const provenance =
-    hasData
+    hasData || showRichPartial
       ? resolveProvenance(source, updatedAt ?? new Date(), "estimated")
       : undefined;
 
@@ -107,7 +113,7 @@ export function CapitalYield({
     >
       <PfCockpitPanelHeader
         title="Capital & Yield"
-        subtitle={hasData ? "Active capital · 12m forward yield" : undefined}
+        subtitle={hasData ? "Active capital · 12m forward yield" : showRichPartial ? "Active capital · allocation pending" : undefined}
         provenance={provenance}
         titleVariant="primary"
         trailing={leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined}
@@ -221,25 +227,35 @@ export function CapitalYield({
               : `v${methodologyVersion}`}
           </p>
         </div>
+      ) : showRichPartial ? (
+        <div className="cy-v4-body">
+          <div className="cy-v4-metrics">
+            <div className="cy-v4-metric">
+              <span className="cy-v4-metric__label">Capital active</span>
+              <span className="cy-v4-metric__value tabular">{formatUsdCompact(totalValueUsdc)}</span>
+            </div>
+            <div className="cy-v4-metric cy-v4-metric--accent">
+              <span className="cy-v4-metric__label">Target APY</span>
+              <span className="cy-v4-metric__value">
+                <ApyRange low={rLow} high={rHigh} className="font-bold ct-text-accent tabular" />
+              </span>
+            </div>
+          </div>
+          <p className="cy-v4-empty__sub">
+            Allocation breakdown will display as soon as the latest vault snapshot is published.
+          </p>
+          <p className="cy-v4-disclaimer" role="note">
+            Conditional projection — not guaranteed ·{" "}
+            {methodologyVersion.startsWith("v") ? methodologyVersion : `v${methodologyVersion}`}
+          </p>
+        </div>
       ) : (
         <div className="cy-v4-empty">
-          {emptyReason === "awaiting-data" ? (
-            <>
-              <p className="cy-v4-empty__lead">Your position is active.</p>
-              <p className="cy-v4-empty__sub">
-                Allocation and projected yield will display as soon as the latest
-                vault breakdown is published.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="cy-v4-empty__lead">Position not yet confirmed.</p>
-              <p className="cy-v4-empty__sub">
-                Allocation and projected yield appear once your first position is
-                confirmed on-chain.
-              </p>
-            </>
-          )}
+          <p className="cy-v4-empty__lead">Position not yet confirmed.</p>
+          <p className="cy-v4-empty__sub">
+            Allocation and projected yield appear once your first position is
+            confirmed on-chain.
+          </p>
         </div>
       )}
     </PfCockpitPanel>

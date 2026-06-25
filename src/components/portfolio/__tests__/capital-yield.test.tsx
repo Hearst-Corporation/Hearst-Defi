@@ -68,32 +68,47 @@ describe("CapitalYield — no-position empty state", () => {
 
 /* ─── Empty: awaiting-data (position active, vault snapshot not ready) ────── */
 describe("CapitalYield — awaiting-data state (position active, no vault snapshot)", () => {
-  it("shows 'Your position is active' copy", () => {
-    const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
-    );
-    expect(html).toContain("Your position is active");
-  });
+  // Rich partial state: capital + APY range surfaced immediately, no fake data.
+  // totalValueUsdc=250_000 → formatUsdCompact → "$250K"
+  const AWAITING_PROPS: CapitalYieldProps = {
+    ...EMPTY_PROPS,
+    blendedLow: 9.4,
+    blendedHigh: 12.8,
+    totalValueUsdc: 250_000,
+    hasActivePosition: true,
+  };
 
-  it("does NOT show 'confirmed on-chain' (wrong empty state copy)", () => {
-    const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
-    );
-    expect(html).not.toContain("confirmed on-chain");
-  });
-
-  it("does NOT show $0", () => {
-    const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
-    );
+  it("shows the formatted capital amount (no $0)", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
+    expect(html).toContain("$250K");
     expect(html).not.toContain("$0");
   });
 
-  it("does NOT show the not-guaranteed disclaimer", () => {
-    const html = renderToStaticMarkup(
-      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
-    );
-    expect(html).not.toContain("not guaranteed");
+  it("shows the APY range (blendedLow / blendedHigh) — non-negotiable #1", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
+    expect(html).toContain("9.4");
+    expect(html).toContain("12.8");
+  });
+
+  it("shows 'Allocation breakdown' and 'vault snapshot is published' copy", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
+    expect(html).toContain("Allocation breakdown");
+    expect(html).toContain("vault snapshot is published");
+  });
+
+  it("shows the 'not guaranteed' disclaimer — non-negotiable #10", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
+    expect(html).toContain("not guaranteed");
+  });
+
+  it("does NOT show 'Your position is active' (removed copy)", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
+    expect(html).not.toContain("Your position is active");
+  });
+
+  it("does NOT show 'confirmed on-chain' (wrong empty state copy)", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
+    expect(html).not.toContain("confirmed on-chain");
   });
 });
 
