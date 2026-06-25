@@ -140,6 +140,15 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
   dangerous-refusal / high-fallback / no-recent-data). Pure derivation from the summary
   (`quality-review.ts`), no query, no rule/prompt/guard/HITL change, no action.
   See [`ROUTER_QUALITY_REVIEW_V0.md`](./ROUTER_QUALITY_REVIEW_V0.md).
+- **Tool Boundary v1** reflects the REAL tool registry (read-only): the 11 read +
+  7 write tool ids are reflected from the side-effect-free id arrays
+  (`src/lib/agentic/tool-boundary`), classified into tiers
+  (read_only / draft_or_proposal / confirmed_write / forbidden_autonomous / unknown)
+  with per-tool gate / risk / runtime / source, plus static-vs-code consistency
+  warnings and a completeness test that fails if any real tool id is unclassified.
+  Attached as `AgenticControlCenterData.toolBoundaryV1` (additive; the legacy static
+  `tools` tier list is unchanged). No tool execution, no registry change, no write UI.
+  See [`TOOL_BOUNDARY_V1.md`](./TOOL_BOUNDARY_V1.md).
 
 ## Next steps
 
