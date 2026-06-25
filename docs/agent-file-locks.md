@@ -16,7 +16,26 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/agentic-control-tower-v2
+Owner: Opus Orchestrateur — Agentic Control Tower Redesign V2
+Branch: feat/agentic-control-tower-v2
+Worktree: ../connect-opus-agentic-control-tower-v2
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- src/lib/agentic/system-map/**
+- docs/agentic/**
+- src/app/admin/admin-docs.css
+- docs/agent-file-locks.md
+
+Notes:
+- Full UX/UI redesign of /admin/agentic into a navigable Agentic Control Tower.
+- Preserve read-only modules.
+- No CrewAI. No autonomous runtime. No tool execution. No write controls.
+- No router/guard/HITL/chat behavior change. No DB migration. No Prisma/schema.
 
 ---
 

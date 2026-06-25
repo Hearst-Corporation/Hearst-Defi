@@ -187,162 +187,6 @@
 }
 
 /* =============================================================================
-   Agentic System Map (Visual Control Center, Layer 1) — token-only, premium.
-   Read-only clusters of connected nodes. No hardcoded hex (color-mix from --ct-*).
-   ============================================================================= */
-
-.agentic-map-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-  gap: var(--ct-space-4);
-  align-items: start;
-}
-
-.agentic-map-cluster {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-4);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 88%, transparent);
-  min-width: 0;
-}
-
-.agentic-map-cluster-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  padding-bottom: var(--ct-space-2);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.agentic-map-cluster-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  min-width: 0;
-}
-
-.agentic-map-node {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  border-left-width: 3px;
-  background: var(--ct-surface-2);
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 160ms ease, transform 160ms ease;
-  min-width: 0;
-}
-
-a.agentic-map-node:hover {
-  border-color: var(--ct-border-strong);
-  transform: translateY(-1px);
-}
-
-.agentic-map-node[data-status="healthy"] {
-  border-left-color: var(--ct-status-success);
-}
-.agentic-map-node[data-status="watch"] {
-  border-left-color: var(--ct-status-warning);
-}
-.agentic-map-node[data-status="alert"] {
-  border-left-color: var(--ct-status-danger);
-}
-.agentic-map-node[data-status="planned"],
-.agentic-map-node[data-status="disabled"],
-.agentic-map-node[data-status="no_data"] {
-  border-left-color: var(--ct-border-strong);
-}
-
-.agentic-map-status-dot {
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-border-strong);
-  flex: 0 0 auto;
-}
-.agentic-map-status-dot[data-status="healthy"] {
-  background: var(--ct-status-success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-status-success) 22%, transparent);
-}
-.agentic-map-status-dot[data-status="watch"] {
-  background: var(--ct-status-warning);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-status-warning) 22%, transparent);
-}
-.agentic-map-status-dot[data-status="alert"] {
-  background: var(--ct-status-danger);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-status-danger) 22%, transparent);
-  animation: agentic-map-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes agentic-map-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.45; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .agentic-map-status-dot[data-status="alert"] { animation: none; }
-}
-
-.agentic-map-metric {
-  display: inline-flex;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-surface-1) 70%, transparent);
-  font-size: var(--ct-text-2xs);
-}
-
-.agentic-map-wires {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-1);
-  padding-top: var(--ct-space-2);
-  border-top: 1px dashed var(--ct-border-soft);
-  min-width: 0;
-}
-
-.agentic-map-wire,
-.agentic-map-legend {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-muted);
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-/* Edge-kind accents (left border tint only — token-only). */
-.agentic-map-wire[data-kind="routes"],
-.agentic-map-legend[data-kind="routes"] {
-  border-color: color-mix(in srgb, var(--ct-accent) 40%, var(--ct-border-soft));
-}
-.agentic-map-wire[data-kind="reads"],
-.agentic-map-legend[data-kind="reads"],
-.agentic-map-wire[data-kind="observes"],
-.agentic-map-legend[data-kind="observes"] {
-  border-color: color-mix(in srgb, var(--ct-status-success) 35%, var(--ct-border-soft));
-}
-.agentic-map-wire[data-kind="guards"],
-.agentic-map-legend[data-kind="guards"],
-.agentic-map-wire[data-kind="gates"],
-.agentic-map-legend[data-kind="gates"] {
-  border-color: color-mix(in srgb, var(--ct-status-warning) 38%, var(--ct-border-soft));
-}
-.agentic-map-wire[data-kind="forbids"],
-.agentic-map-legend[data-kind="forbids"] {
-  border-color: color-mix(in srgb, var(--ct-status-danger) 40%, var(--ct-border-soft));
-}
-
-/* =============================================================================
    Action Readiness lanes + Crew Simulation flows (Visual Integration V1).
    Token-only, no hardcoded hex (color-mix from --ct-*). Responsive, no h-scroll.
    ============================================================================= */
@@ -451,4 +295,475 @@ a.agentic-map-node:hover {
   font-size: var(--ct-text-2xs);
   color: var(--ct-text-muted);
   overflow-wrap: anywhere;
+}
+
+/* =============================================================================
+   Agentic Control Tower V2 — navigable command console grammar.
+   Token-only (--ct-*), zero hardcoded hex/rgb/rgba. Premium fintech, hierarchy
+   first, progressive disclosure. Accent green is a SIGNAL, not a fill.
+   ============================================================================= */
+
+.agentic-tower {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-10);
+  min-width: 0;
+}
+
+/* Shared section scaffolding */
+.agentic-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  min-width: 0;
+  scroll-margin-top: var(--ct-space-16);
+}
+.agentic-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  max-width: 60ch;
+}
+.agentic-section-title {
+  font-size: var(--ct-text-xl);
+  font-weight: var(--ct-font-semibold, 600);
+  color: var(--ct-title-1);
+  letter-spacing: -0.01em;
+}
+
+/* ---- Overview: hero + nav --------------------------------------------------*/
+.agentic-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  scroll-margin-top: var(--ct-space-16);
+}
+
+.agentic-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-6);
+  padding: var(--ct-space-8);
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-border-soft);
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 55%),
+    var(--ct-surface-1);
+  min-width: 0;
+}
+.agentic-hero[data-health="alert"] {
+  border-color: var(--ct-status-danger-border);
+}
+.agentic-hero[data-health="watch"] {
+  border-color: var(--ct-status-warning-border);
+}
+
+.agentic-hero-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+}
+.agentic-hero-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  flex-wrap: wrap;
+}
+.agentic-hero-title {
+  font-size: var(--ct-text-3xl);
+  font-weight: var(--ct-font-bold, 700);
+  color: var(--ct-text-strong);
+  letter-spacing: -0.02em;
+}
+.agentic-hero-lede {
+  max-width: 64ch;
+}
+
+.agentic-hero-health {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-1) var(--ct-space-3);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+}
+.agentic-hero-health[data-health="healthy"],
+.agentic-hero-health[data-health="no_data"] {
+  border-color: var(--ct-status-success-border);
+}
+.agentic-hero-health[data-health="watch"] {
+  border-color: var(--ct-status-warning-border);
+}
+.agentic-hero-health[data-health="alert"] {
+  border-color: var(--ct-status-danger-border);
+}
+.agentic-hero-health-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-text-faint);
+}
+.agentic-hero-health-dot[data-health="healthy"] {
+  background: var(--ct-status-success);
+  box-shadow: 0 0 0 3px var(--ct-status-success-soft);
+}
+.agentic-hero-health-dot[data-health="watch"] {
+  background: var(--ct-status-warning);
+  box-shadow: 0 0 0 3px var(--ct-status-warning-soft);
+}
+.agentic-hero-health-dot[data-health="alert"] {
+  background: var(--ct-status-danger);
+  box-shadow: 0 0 0 3px var(--ct-status-danger-soft);
+}
+
+.agentic-hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--ct-space-4);
+}
+.agentic-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  border-top-width: 2px;
+  background: var(--ct-surface-2);
+  min-width: 0;
+}
+.agentic-metric--success { border-top-color: var(--ct-status-success); }
+.agentic-metric--warning { border-top-color: var(--ct-status-warning); }
+.agentic-metric--danger { border-top-color: var(--ct-status-danger); }
+.agentic-metric--accent { border-top-color: var(--ct-accent); }
+.agentic-metric--neutral { border-top-color: var(--ct-border-strong); }
+.agentic-metric-value {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-bold, 700);
+  color: var(--ct-text-strong);
+  letter-spacing: -0.02em;
+}
+.agentic-metric-label {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-body);
+  font-weight: var(--ct-font-medium, 500);
+}
+.agentic-metric-hint {
+  font-size: var(--ct-text-xs);
+}
+
+.agentic-hero-attention {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  margin: 0;
+  padding: var(--ct-space-4);
+  list-style: none;
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-status-warning-border);
+  background: var(--ct-status-warning-soft);
+}
+.agentic-hero-attention-item {
+  display: flex;
+  gap: var(--ct-space-2);
+  align-items: flex-start;
+}
+.agentic-hero-attention-dot {
+  margin-top: 0.4em;
+  width: 0.375rem;
+  height: 0.375rem;
+  flex: 0 0 auto;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-status-warning);
+}
+
+/* Sticky section nav */
+.agentic-nav {
+  position: sticky;
+  top: var(--ct-space-2);
+  z-index: 1;
+  padding: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  background: color-mix(in srgb, var(--ct-surface-1) 92%, transparent);
+  backdrop-filter: blur(8px);
+  overflow-x: auto;
+}
+.agentic-nav-list {
+  display: flex;
+  gap: var(--ct-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: max-content;
+}
+.agentic-nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ct-space-1_5) var(--ct-space-3);
+  border-radius: var(--ct-radius-full);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 140ms ease, background 140ms ease;
+}
+.agentic-nav-link:hover {
+  color: var(--ct-text-strong);
+  background: var(--ct-surface-2);
+}
+
+/* ---- Topology schema -------------------------------------------------------*/
+.agentic-topology {
+  display: grid;
+  gap: var(--ct-space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas:
+    ".      obs    obs    ."
+    "guard  router router agents"
+    "hitl   tools  actions agents"
+    "forbidden forbidden actions agents";
+}
+.agentic-topology-node {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  transition: border-color 140ms ease, transform 140ms ease;
+}
+a.agentic-topology-node:hover {
+  border-color: var(--ct-border-strong);
+  transform: translateY(-1px);
+}
+.agentic-topology-node--obs { grid-area: obs; }
+.agentic-topology-node--guard { grid-area: guard; }
+.agentic-topology-node--router {
+  grid-area: router;
+  background:
+    radial-gradient(140% 160% at 50% 0%, color-mix(in srgb, var(--ct-accent) 10%, transparent), transparent 60%),
+    var(--ct-surface-2);
+  border-color: var(--ct-border-accent);
+}
+.agentic-topology-node--agents { grid-area: agents; }
+.agentic-topology-node--hitl { grid-area: hitl; }
+.agentic-topology-node--tools { grid-area: tools; }
+.agentic-topology-node--actions { grid-area: actions; }
+.agentic-topology-node--forbidden {
+  grid-area: forbidden;
+  border-color: var(--ct-status-danger-border);
+  background: var(--ct-status-danger-soft);
+}
+.agentic-topology-node[data-tone="guard"] { border-left: 3px solid var(--ct-status-warning); }
+.agentic-topology-node[data-tone="observe"] { border-left: 3px solid var(--ct-status-info); }
+.agentic-topology-value {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-bold, 700);
+  color: var(--ct-text-strong);
+  letter-spacing: -0.02em;
+}
+.agentic-topology-label {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-body);
+  font-weight: var(--ct-font-medium, 500);
+}
+.agentic-topology-hint {
+  font-size: var(--ct-text-xs);
+}
+
+/* ---- Capabilities board ----------------------------------------------------*/
+.agentic-capability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--ct-space-4);
+}
+.agentic-capability {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-5);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  border-top-width: 3px;
+  background: var(--ct-surface-1);
+  min-width: 0;
+}
+.agentic-capability[data-tone="success"] { border-top-color: var(--ct-status-success); }
+.agentic-capability[data-tone="warning"] { border-top-color: var(--ct-status-warning); }
+.agentic-capability[data-tone="danger"] { border-top-color: var(--ct-status-danger); }
+.agentic-capability-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-2);
+}
+.agentic-capability-count {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-bold, 700);
+  color: var(--ct-text-strong);
+}
+.agentic-capability-title {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-body);
+  font-weight: var(--ct-font-semibold, 600);
+}
+.agentic-capability-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  margin: var(--ct-space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.agentic-capability-item {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  padding-left: var(--ct-space-3);
+  position: relative;
+}
+.agentic-capability-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-border-strong);
+}
+
+/* ---- Agents overview (grouped lanes) ---------------------------------------*/
+.agentic-agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--ct-space-3);
+  align-items: start;
+}
+.agentic-agents-lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  min-width: 0;
+}
+.agentic-agents-lane-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  padding-bottom: var(--ct-space-2);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+.agentic-agents-lane-title {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold, 600);
+  color: var(--ct-title-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.agentic-agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.agentic-agents-row {
+  display: flex;
+  gap: var(--ct-space-2);
+  align-items: center;
+  min-width: 0;
+}
+.agentic-agents-cap {
+  flex: 0 0 auto;
+  font-size: var(--ct-text-2xs);
+  padding: var(--ct-space-0_5) var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-muted);
+  white-space: nowrap;
+}
+.agentic-agents-cap[data-tone="success"] { border-color: var(--ct-status-success-border); }
+.agentic-agents-cap[data-tone="warning"] { border-color: var(--ct-status-warning-border); }
+.agentic-agents-cap[data-tone="danger"] { border-color: var(--ct-status-danger-border); }
+
+/* ---- Safety boundary -------------------------------------------------------*/
+.agentic-safety-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--ct-space-4);
+}
+.agentic-safety-pillar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-5);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  min-width: 0;
+}
+.agentic-safety-pillar[data-tone="success"] { border-color: var(--ct-status-success-border); }
+.agentic-safety-pillar[data-tone="warning"] { border-color: var(--ct-status-warning-border); }
+.agentic-safety-pillar[data-tone="danger"] { border-color: var(--ct-status-danger-border); }
+.agentic-safety-eyebrow {
+  font-size: var(--ct-text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ct-text-faint);
+}
+.agentic-safety-headline {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold, 600);
+  color: var(--ct-text-strong);
+}
+.agentic-safety-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.agentic-safety-item {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  padding-left: var(--ct-space-3);
+  position: relative;
+}
+.agentic-safety-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-border-strong);
+}
+
+/* Responsive: collapse the topology schema to a single readable column. */
+@media (max-width: 60rem) {
+  .agentic-topology {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "router"
+      "obs"
+      "guard"
+      "hitl"
+      "tools"
+      "agents"
+      "actions"
+      "forbidden";
+  }
 }
