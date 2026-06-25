@@ -16,31 +16,33 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### fix/client-network-perf
-Owner: Opus Orchestrateur — Client Network Performance Fix
-Branch: fix/client-network-perf
-Worktree: ../connect-opus-client-network-perf-fix
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/components/chat/chat-nav-bridge.tsx (chat-nav poll dedup)
-- src/components/chat/chat-presets.tsx (review-mode probe route-gate)
-- their __tests__
-- docs/agent-file-locks.md
-
-Notes:
-- Fix duplicate client-side network calls only.
-- No UI/UX changes.
-- No design-system changes.
-- No /admin/agentic changes.
-- No portfolio visual changes.
-- No router/guard/HITL behavior changes.
-- No Prisma/schema/migrations.
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### fix/client-network-perf
+Owner: Opus Orchestrateur — Client Network Performance Fix
+Branch: fix/client-network-perf
+Merged PR: #79 (merge fcb247f3)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Closed the two client-network regressions the qa:perf-network guardrail had been
+  failing on (the #74 dedup only collapsed concurrent in-flight requests; idle polling
+  + an unconditional probe still breached the targets). chat-nav-bridge.tsx: `armed`
+  gate → exactly ONE /api/chat-nav poll on mount, backoff chain only (re)arms on a real
+  signal (cockpit:chat-sent / visibilitychange / consumed directive); post-message nav
+  unchanged; new pure shouldScheduleNextPoll(kind, armed). chat-presets.tsx:
+  GET /api/admin/review-mode probe route-gated via usePathname → runs only under /admin,
+  defaults to the LP set on the LP cockpit (zero requireAdmin round-trip on /portfolio);
+  new pure shouldProbeAdminRole(pathname). Verified live (postgres, full 450-node render,
+  twice): chat-nav 3→1 PASS, review-mode 1→0 PASS, qa:perf-network green. typecheck PASS,
+  lint 0 errors, build PASS (postgresql), targeted pure-helper tests PASS (chat-nav-bridge +
+  new chat-presets). All forbidden paths untouched. NO UI/UX, DS, /admin/agentic, portfolio
+  visual, router/guard/HITL, API-contract, or Prisma/schema change.
 
 ### feat/perf-network-guardrails
 Owner: Opus Orchestrateur — Performance Guardrails
