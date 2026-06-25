@@ -16,7 +16,27 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-observability-long-window-v11
+Owner: Opus Orchestrateur — Long-Window Router Observability Delivery
+Branch: feat/router-observability-long-window-v11
+Worktree: ../connect-opus-router-observability-long-window
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/observability/**
+- src/lib/agentic/control-center/**
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- docs/agentic/**
+- tests related to router observability long-window/pruning
+- docs/agent-file-locks.md
+
+Notes:
+- Add 30d durable Router Observability window + retention/pruning policy.
+- No router/guard/HITL behavior change. No tool execution.
+- No new DB table. No destructive migration. No Prisma/schema change.
+- No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.
 
 ---
 

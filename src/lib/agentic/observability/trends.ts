@@ -22,11 +22,14 @@ const WINDOW_GEOMETRY: Record<
   "1h": { buckets: 12, bucketMs: 5 * 60 * 1000 }, // 12 × 5 min
   "24h": { buckets: 24, bucketMs: 60 * 60 * 1000 }, // 24 × 1 h
   "7d": { buckets: 7, bucketMs: 24 * 60 * 60 * 1000 }, // 7 × 1 day
+  "30d": { buckets: 30, bucketMs: 24 * 60 * 60 * 1000 }, // 30 × 1 day
 };
 
 /** Coerce arbitrary input to a valid window; defaults to "24h". */
 export function normalizeRouterTrendWindow(input?: string): RouterTrendWindow {
-  return input === "1h" || input === "24h" || input === "7d" ? input : "24h";
+  return input === "1h" || input === "24h" || input === "7d" || input === "30d"
+    ? input
+    : "24h";
 }
 
 /** The inclusive start instant of the whole window. */
@@ -41,8 +44,8 @@ export function getRouterTrendWindowStart(
 /** Short axis label for a bucket start, window-aware. */
 function bucketLabel(start: Date, window: RouterTrendWindow): string {
   const iso = start.toISOString();
-  if (window === "7d") {
-    // "MM-DD"
+  if (window === "7d" || window === "30d") {
+    // "MM-DD" — daily buckets
     return iso.slice(5, 10);
   }
   // "HH:MM"

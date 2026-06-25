@@ -50,6 +50,7 @@ const WINDOWS: { value: RouterObservabilityWindow; label: string }[] = [
   { value: "1h", label: "1h" },
   { value: "24h", label: "24h" },
   { value: "7d", label: "7d" },
+  { value: "30d", label: "30d" },
 ];
 
 const STORAGE_LABEL: Record<RouterObservabilityStorage, string> = {
@@ -204,8 +205,18 @@ export function RouterObservabilitySection({
     );
   }
 
-  const { state, storage, recent, stats, safetyNote, privacyMode, retentionNote } =
-    summary;
+  const {
+    state,
+    storage,
+    recent,
+    stats,
+    safetyNote,
+    privacyMode,
+    retentionNote,
+    window: activeWindow,
+    retentionPolicyNote,
+    windowLimitationNote,
+  } = summary;
 
   return (
     <SectionShell current={current}>
@@ -220,13 +231,31 @@ export function RouterObservabilitySection({
             {state}
           </Badge>
           <Badge variant={storageTone(storage)}>
-            storage: {STORAGE_LABEL[storage]}
+            storage:{" "}
+            {storage === "durable" && activeWindow === "30d"
+              ? "durable 30d"
+              : STORAGE_LABEL[storage]}
           </Badge>
           <Badge variant="accent">source: cockpit_chat</Badge>
           <span className="flex-1" />
         </div>
         <p className="body-xs ct-text-faint">Privacy mode: {privacyMode}</p>
         <p className="body-xs ct-text-faint">{retentionNote}</p>
+        {windowLimitationNote && (
+          <div className="admin-doc-inline-row admin-doc-inline-row--start">
+            <Badge variant="warning">limited</Badge>
+            <p className="body-xs ct-text-muted flex-1">{windowLimitationNote}</p>
+          </div>
+        )}
+      </Card>
+
+      {/* Retention policy (read-only — no prune/delete controls) */}
+      <Card
+        hoverOverlay={false}
+        contentClassName="flex flex-col gap-[var(--ct-space-1)]"
+      >
+        <span className="stat-label ct-text-muted">Retention policy</span>
+        <p className="body-xs ct-text-muted">{retentionPolicyNote}</p>
       </Card>
 
       {/* Stat cards */}

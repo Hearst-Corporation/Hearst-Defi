@@ -9,12 +9,11 @@ import "server-only";
 // tool execution.
 
 import { readTracesWithFallback } from "./store";
+import { durableReadTraces, topMatchedRules, windowCutoff } from "./db-store";
 import {
-  durableReadTraces,
-  topMatchedRules,
-  windowCutoff,
-  DURABLE_RETENTION_DAYS,
-} from "./db-store";
+  getRouterTraceRetentionDays,
+  ROUTER_TRACE_RETENTION_POLICY_NOTE,
+} from "./retention";
 import { computeRouterDecisionStats } from "./stats";
 import {
   buildRouterDecisionTrendBuckets,
@@ -32,11 +31,20 @@ export const ROUTER_OBSERVABILITY_SAFETY_NOTE =
 const ROUTER_OBSERVABILITY_PRIVACY_MODE =
   "metadata-only (ids + enums + flags); user message text never stored";
 
-const DEFAULT_READ_LIMIT = 200;
+// Aggregate cap: the windowed read fetches up to this many rows (newest-first)
+// for stats + trends + top-rules over the whole window. The createdAt index keeps
+// this a single bounded query even for 30d.
+const AGGREGATE_READ_LIMIT = 5000;
+// The recent-decisions TABLE only shows the newest few — sliced in-memory from
+// the same windowed read (no second query).
+const RECENT_TABLE_LIMIT = 50;
 const TOP_RULES_LIMIT = 8;
 
+/** Windows whose horizon exceeds the volatile fallback buffer (7-day TTL). */
+const LONG_WINDOWS: ReadonlySet<RouterObservabilityWindow> = new Set(["30d"]);
+
 function isWindow(value: string | undefined): value is RouterObservabilityWindow {
-  return value === "1h" || value === "24h" || value === "7d";
+  return value === "1h" || value === "24h" || value === "7d" || value === "30d";
 }
 
 /** Coerce an arbitrary query value to a valid window (default 24h). */
@@ -60,9 +68,12 @@ export async function getRouterObservabilitySummary(args?: {
   now?: number;
 }): Promise<RouterObservabilitySummary> {
   const window = args?.window ?? "24h";
-  const limit = args?.limit ?? DEFAULT_READ_LIMIT;
+  // The windowed read is bounded by the aggregate cap (stats/trends see the full
+  // window); the recent TABLE is sliced from the same result below.
+  const limit = args?.limit ?? AGGREGATE_READ_LIMIT;
   const now = args?.now ?? Date.now();
   const cutoffMs = windowCutoff(window, now).getTime();
+  const retentionDays = getRouterTraceRetentionDays();
 
   const { traces, storage } = await readTracesWithFallback({
     window,
@@ -70,8 +81,10 @@ export async function getRouterObservabilitySummary(args?: {
     cutoffMs,
   });
 
+  // Stats + trends + top-rules over the FULL windowed set; recent table sliced.
   const stats = computeRouterDecisionStats(traces);
   const topRules = topMatchedRules(traces, TOP_RULES_LIMIT);
+  const recent = traces.slice(0, RECENT_TABLE_LIMIT);
 
   let state: RouterObservabilityState;
   if (storage === "unavailable") {
@@ -84,14 +97,14 @@ export async function getRouterObservabilitySummary(args?: {
 
   const retentionNote =
     storage === "durable"
-      ? `Durable storage. Rows older than ${DURABLE_RETENTION_DAYS} days are pruned best-effort; this view shows the selected window.`
+      ? `Durable storage. Rows older than ${retentionDays} days are pruned best-effort; this view shows the selected window.`
       : storage === "redis_fallback"
         ? "Durable storage unavailable — showing the volatile Redis buffer (cap 200, 7-day TTL)."
         : storage === "memory_fallback"
           ? "Durable + Redis storage unavailable — showing the in-memory buffer (lost on restart)."
           : "No trace storage reachable.";
 
-  // Trends — bucketed over the SAME durable traces + the SAME window.
+  // Trends — bucketed over the SAME windowed traces + the SAME window.
   const trendWindow = normalizeRouterTrendWindow(window);
   const trendBuckets = buildRouterDecisionTrendBuckets(
     traces,
@@ -100,14 +113,21 @@ export async function getRouterObservabilitySummary(args?: {
   );
   const bufferLimitNote =
     storage === "durable"
-      ? `Trends computed from durable router traces (window ${window}; rows pruned > ${DURABLE_RETENTION_DAYS} days).`
+      ? `Trends computed from durable router traces (window ${window}; rows pruned > ${retentionDays} days).`
       : "Trends computed from the volatile fallback buffer (durable storage unavailable).";
+
+  // Window-limitation note: a long window (e.g. 30d) cannot be fully served by
+  // the volatile fallback (which holds only the capped 7-day recent buffer).
+  const windowLimitationNote =
+    storage !== "durable" && LONG_WINDOWS.has(window)
+      ? "30d is powered by durable router traces when available. The current Redis/memory fallback only contains the capped recent buffer (max 200 traces, 7-day TTL), so this long window may be incomplete."
+      : null;
 
   return {
     state,
     storage,
     window,
-    recent: traces,
+    recent,
     stats,
     topMatchedRules: topRules,
     capacity: limit,
@@ -117,6 +137,9 @@ export async function getRouterObservabilitySummary(args?: {
     trendWindow,
     trendBuckets,
     bufferLimitNote,
+    retentionDays,
+    retentionPolicyNote: ROUTER_TRACE_RETENTION_POLICY_NOTE,
+    windowLimitationNote,
   };
 }
 

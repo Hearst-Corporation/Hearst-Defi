@@ -89,7 +89,7 @@ export type RouterObservabilityStorage =
   | "unavailable";
 
 /** Time window for durable stats/queries. */
-export type RouterObservabilityWindow = "1h" | "24h" | "7d";
+export type RouterObservabilityWindow = "1h" | "24h" | "7d" | "30d";
 
 /** A matched-rule frequency entry (top-rules list). */
 export interface RouterMatchedRuleCount {
@@ -150,4 +150,13 @@ export interface RouterObservabilitySummary {
   trendBuckets: RouterDecisionTrendBucket[];
   /** Honest note about the trend source. */
   bufferLimitNote: string;
+  /** Effective retention horizon in days (default 90, env-overridable). */
+  retentionDays: number;
+  /** Constant retention/privacy policy line rendered verbatim. */
+  retentionPolicyNote: string;
+  /**
+   * Set when the selected window cannot be fully served by the active storage —
+   * e.g. a 30d window while on the Redis/memory fallback (which only holds the
+   * capped recent buffer). Null when the window is fully covered. */
+  windowLimitationNote: string | null;
 }

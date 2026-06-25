@@ -46,6 +46,10 @@ function summary(
     trendWindow: "24h",
     trendBuckets: [],
     bufferLimitNote: "Trends computed from durable router traces (window 24h).",
+    retentionDays: 90,
+    retentionPolicyNote:
+      "Retention policy: router decision metadata only, default 90 days. No user messages, prompts, secrets, or tool payloads are stored.",
+    windowLimitationNote: null,
     ...over,
   };
 }
@@ -86,7 +90,43 @@ describe("RouterObservabilitySection v1", () => {
     expect(html).toContain("routerWindow=1h");
     expect(html).toContain("routerWindow=24h");
     expect(html).toContain("routerWindow=7d");
+    expect(html).toContain("routerWindow=30d");
     NO_WRITE_CONTROLS(html);
+  });
+
+  it("renders the retention policy note (read-only, no prune control)", () => {
+    const html = render(summary({ state: "empty" }));
+    expect(html).toContain("Retention policy");
+    expect(html).toContain("default 90 days");
+    expect(html).toContain("No user messages, prompts, secrets, or tool payloads");
+    // The note may MENTION pruning, but there must be no prune/delete CONTROL.
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("shows 'durable 30d' badge on the durable 30d window", () => {
+    const html = render(summary({ state: "enabled", storage: "durable", window: "30d" }));
+    expect(html).toContain("durable 30d");
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("renders the window-limitation note when 30d is on a fallback store", () => {
+    const html = render(
+      summary({
+        state: "enabled",
+        storage: "redis_fallback",
+        window: "30d",
+        windowLimitationNote:
+          "30d is powered by durable router traces when available. The current Redis/memory fallback only contains the capped recent buffer (max 200 traces, 7-day TTL), so this long window may be incomplete.",
+      }),
+    );
+    expect(html).toContain("limited");
+    expect(html).toContain("30d is powered by durable router traces");
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("does NOT render a limitation note when not provided", () => {
+    const html = render(summary({ state: "enabled", windowLimitationNote: null }));
+    expect(html).not.toContain("may be incomplete");
   });
 
   it("null summary → unavailable card, no fake data, no write controls", () => {

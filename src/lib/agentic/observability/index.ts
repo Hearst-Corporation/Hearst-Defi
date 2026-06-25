@@ -29,7 +29,15 @@ export {
   durableReadTraces,
   topMatchedRules,
   pruneOldTraces,
+  countTracesOlderThanRetention,
+  deleteTracesOlderThanRetention,
   windowCutoff,
   DURABLE_RETENTION_DAYS,
 } from "./db-store";
+export {
+  getRouterTraceRetentionDays,
+  getRouterTraceRetentionCutoff,
+  pruneRouterDecisionTraces,
+  ROUTER_TRACE_RETENTION_POLICY_NOTE,
+} from "./retention";
 export { ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_CAP } from "./store";
