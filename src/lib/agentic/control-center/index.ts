@@ -8,7 +8,10 @@ import type { AgenticControlCenterData } from "./types";
 import { getRouterStatusSummary } from "./router-status";
 import { getAgenticInventory } from "./inventory";
 import { getHumanGateInventory } from "./gates";
-import { getToolBoundarySummary } from "./tool-boundary-summary";
+import {
+  getToolBoundarySummary,
+  getToolBoundaryV1Summary,
+} from "./tool-boundary-summary";
 import { getPromptMap } from "./prompt-map";
 import { getSafetySummary } from "./safety-summary";
 import { getNextSteps } from "./next-steps";
@@ -17,7 +20,10 @@ export * from "./types";
 export { getRouterStatusSummary } from "./router-status";
 export { getAgenticInventory } from "./inventory";
 export { getHumanGateInventory } from "./gates";
-export { getToolBoundarySummary } from "./tool-boundary-summary";
+export {
+  getToolBoundarySummary,
+  getToolBoundaryV1Summary,
+} from "./tool-boundary-summary";
 export { getPromptMap } from "./prompt-map";
 export { getSafetySummary } from "./safety-summary";
 export { getNextSteps } from "./next-steps";
@@ -38,6 +44,7 @@ export function getAgenticControlCenterData(): AgenticControlCenterData {
     inventory: getAgenticInventory(),
     gates: getHumanGateInventory(),
     tools: getToolBoundarySummary(),
+    toolBoundaryV1: getToolBoundaryV1Summary(),
     prompts: getPromptMap(),
     safetySummary: getSafetySummary(),
     nextSteps: getNextSteps(),

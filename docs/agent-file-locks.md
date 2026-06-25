@@ -16,7 +16,32 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/tool-boundary-v1
+Owner: Opus Orchestrateur Continu — Tool Boundary v1 Delivery
+Branch: feat/tool-boundary-v1
+Worktree: ../connect-opus-tool-boundary-v1
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/tool-boundary/** (new module, pure)
+- src/lib/agentic/control-center/tool-boundary-summary.ts (reflect v1)
+- src/lib/agentic/control-center/types.ts (additive types only)
+- src/lib/agentic/control-center/index.ts (additive export only)
+- src/components/admin/agentic/tool-boundary-section.tsx (new)
+- src/app/admin/agentic/page.tsx (render the new section)
+- docs/agentic/TOOL_BOUNDARY_V1.md (new) + AGENTIC_CONTROL_CENTER_V0.md (additive note)
+- tests related to tool boundary
+- docs/agent-file-locks.md
+
+Reads (read-only, no edit): src/lib/llm/tools/types.ts (pure id arrays), policy.ts.
+
+Notes:
+- Read-only Tool Boundary v1 reflected from the real tool id arrays (pure, client-safe).
+- NO tool execution, NO registry runtime change, NO tool added/removed/changed.
+- No HITL change. No router/guard/chat behavior change.
+- No DB migration. No Prisma/schema. No autonomous writes. No secrets/env.
+- No CrewAI / external swarms / tool execution UI / replay / export / prompt editing.
 
 ---
 

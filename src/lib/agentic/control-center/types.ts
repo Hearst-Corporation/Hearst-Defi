@@ -9,6 +9,8 @@
 // types, planned status, none/critical risk) and adds a top-level aggregate
 // (AgenticControlCenterData) without breaking the v0 surface.
 
+import type { ToolBoundaryV1Summary } from "@/lib/agentic/tool-boundary";
+
 // ---------------------------------------------------------------------------
 // Inventory
 // ---------------------------------------------------------------------------
@@ -219,7 +221,11 @@ export interface AgenticControlCenterData {
   router: RouterStatusSummary;
   inventory: AgenticInventoryItem[];
   gates: HumanGate[];
+  /** Legacy static tier description (v0), kept for backward compatibility. */
   tools: ToolBoundaryEntry[];
+  /** Tool Boundary v1 — read-only reflection of the real registry (tiers, gates,
+   *  risks, consistency warnings). Optional so the type stays backward-compatible. */
+  toolBoundaryV1?: ToolBoundaryV1Summary;
   prompts: PromptMapEntry[];
   safetySummary: SafetySummaryItem[];
   nextSteps: NextStepItem[];
