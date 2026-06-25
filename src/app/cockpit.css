@@ -3711,10 +3711,14 @@ button.ct-choice-card {
      nettement derrière. Voile léger = glass, pas un bloc noir. Plus translucide
      que le rail gauche. L'effet repose sur ce background translucide (le blur
      est best-effort, cf. note rail gauche). */
-  /* Dark shell : chat = presque noir, cohérent avec le rail gauche (un cran
-     sous le fond global). Liseré clair pour le relief.
-     #000 = endpoint de mélange color-mix (ratio d'assombrissement) — idiome OK. */
-  background: color-mix(in srgb, var(--ct-bg-deep) 55%, #000) !important;
+  /* Rail droit = surface-1 + dot grid (pattern login-split réutilisé). */
+  background-color: var(--ct-surface-1) !important;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 4%, transparent) 1px,
+    transparent 1px
+  ) !important;
+  background-size: 28px 28px !important;
   border-left: 1px solid var(--ct-border-on-dark);
   flex-shrink: 0;
   /* Open (default) chat = largeur FLUIDE (le package posait 22rem fixe). Le clamp
