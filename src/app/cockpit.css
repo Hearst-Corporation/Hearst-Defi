@@ -3715,10 +3715,10 @@ button.ct-choice-card {
   background-color: var(--ct-surface-1) !important;
   background-image: radial-gradient(
     circle,
-    color-mix(in srgb, var(--ct-accent) 4%, transparent) 1px,
-    transparent 1px
+    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
+    transparent 1.5px
   ) !important;
-  background-size: 28px 28px !important;
+  background-size: 24px 24px !important;
   border-left: 1px solid var(--ct-border-on-dark);
   flex-shrink: 0;
   /* Open (default) chat = largeur FLUIDE (le package posait 22rem fixe). Le clamp
