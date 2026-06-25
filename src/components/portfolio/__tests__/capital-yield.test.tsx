@@ -57,6 +57,32 @@ describe("CapitalYield zero-state (no data) — always renders the donut graphic
   });
 });
 
+describe("CapitalYield active-position-but-no-vault-data — honest 'computing' copy", () => {
+  // Reported incoherence: investor has 1 active position ($11 deployed) but the
+  // vault allocation/yield snapshot is cold, so the donut/ledger are empty. The
+  // empty copy must NOT claim the first position is unconfirmed.
+  it("does NOT show 'first position is confirmed on-chain' when a position is active", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
+    );
+    expect(html).not.toContain("first position is confirmed on-chain");
+  });
+
+  it("shows the 'position is active' computing copy instead", () => {
+    const html = renderToStaticMarkup(
+      <CapitalYield {...EMPTY_PROPS} totalValueUsdc={11} hasActivePosition />,
+    );
+    expect(html).toContain("Your position is active");
+    expect(html).toContain("Computing");
+  });
+
+  it("still shows the genuine 'awaiting first position' copy when no position exists", () => {
+    const html = renderToStaticMarkup(<CapitalYield {...EMPTY_PROPS} />);
+    expect(html).toContain("first position is confirmed on-chain");
+    expect(html).toContain("Pending");
+  });
+});
+
 describe("CapitalYield live state (real data + investor position)", () => {
   it("renders the donut, the live subtitle, the provenance badge and the disclaimer", () => {
     const html = renderToStaticMarkup(

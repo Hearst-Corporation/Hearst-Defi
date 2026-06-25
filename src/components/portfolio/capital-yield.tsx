@@ -55,6 +55,14 @@ export interface CapitalYieldProps {
   /** Hub-only link to the focused leaf page. */
   leafHref?: string;
   embedded?: boolean;
+  /**
+   * True when the investor holds at least one active position. Distinguishes
+   * two empty states that must NOT share copy: (a) no position yet → "subscribe
+   * first" pending; (b) position active but the vault allocation/yield snapshot
+   * is not yet available → "being computed", NOT "awaiting first position".
+   * Showing (a)'s copy while a position is live is the reported incoherence.
+   */
+  hasActivePosition?: boolean;
 }
 
 export function CapitalYield({
@@ -69,6 +77,7 @@ export function CapitalYield({
   updatedAt,
   leafHref,
   embedded = false,
+  hasActivePosition = false,
 }: CapitalYieldProps) {
   // Zero-state = the graphic SKELETON renders (empty ring + zeroed ledger rows),
   // NO invented data. As soon as real vault data arrives, the donut/ledger fill in.
@@ -76,6 +85,14 @@ export function CapitalYield({
     sources.length > 0 &&
     buckets.length > 0 &&
     sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0) > 0;
+
+  // Two distinct empty states — must NOT share copy (the reported incoherence):
+  //  • no active position → genuine "awaiting first position" pending;
+  //  • active position but vault allocation/yield snapshot not yet available →
+  //    data is being computed, the position IS live. Never tell a live holder
+  //    their first position isn't confirmed.
+  const emptyReason: "no-position" | "awaiting-data" =
+    hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
 
   const maxAbsPct = hasData
     ? sources.reduce((acc, s) => Math.max(acc, Math.abs(s.contributionPct)), 0)
@@ -190,6 +207,10 @@ export function CapitalYield({
                 <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-semibold mb-0.5">Total</span>
                 <span className="donut-val text-[var(--ct-text-hero-sym)] font-medium tracking-tight text-strong tabular">{formatUsdCompact(totalValueUsdc)}</span>
               </div>
+            ) : emptyReason === "awaiting-data" ? (
+              <div className="flex flex-col items-center">
+                <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-50">Computing</span>
+              </div>
             ) : (
               <div className="flex flex-col items-center">
                 <span className="text-[var(--ct-text-nano)] uppercase tracking-[var(--ct-tracking-widest)] text-tertiary font-medium opacity-50">Pending</span>
@@ -258,7 +279,9 @@ export function CapitalYield({
                   ))}
                 </div>
                 <p className="cy-ledger-empty__caption">
-                  Allocation and projected yield appear once your first position is confirmed on-chain.
+                  {emptyReason === "awaiting-data"
+                    ? "Your position is active. Allocation and projected yield will display as soon as the latest vault breakdown is published."
+                    : "Allocation and projected yield appear once your first position is confirmed on-chain."}
                 </p>
               </div>
           }

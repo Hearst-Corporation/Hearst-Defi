@@ -599,6 +599,12 @@
   gap: var(--ct-space-2);
   min-width: 0;
   min-height: 0;
+  /* In the hero weld the chart sits inside a flex-column wrapper; height:100%
+     does NOT fill a flex-column parent (percentage height is indefinite there),
+     which collapsed .pf-value-chart to its header height and crushed the plot
+     to 0px. flex:1 1 auto makes it grow to fill the wrapper. height:100% stays
+     as the fallback for any non-flex parent (leaf pages). */
+  flex: 1 1 auto;
   height: 100%;
   padding: var(--ct-space-3) var(--ct-space-4);
 }

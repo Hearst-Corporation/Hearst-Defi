@@ -93,6 +93,7 @@ export default async function PortfolioPage() {
               {...yieldStackProps}
               buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
+              hasActivePosition={hasPositions}
               leafHref="/portfolio/yield"
               embedded={false}
             />
