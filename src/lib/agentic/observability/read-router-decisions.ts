@@ -9,27 +9,38 @@ import "server-only";
 // tool execution.
 
 import { readTracesWithFallback } from "./store";
-import { durableReadTraces, topMatchedRules, windowCutoff } from "./db-store";
 import {
+  durableReadTraces,
+  durableAggregateByDay,
+  getRetentionConfig,
   getRouterTraceRetentionDays,
-  ROUTER_TRACE_RETENTION_POLICY_NOTE,
-} from "./retention";
+  topMatchedRules,
+  windowCutoff,
+} from "./db-store";
 import { computeRouterDecisionStats } from "./stats";
 import {
   buildRouterDecisionTrendBuckets,
   normalizeRouterTrendWindow,
 } from "./trends";
 import type {
+  RouterLongTermSummary,
   RouterObservabilityState,
   RouterObservabilitySummary,
   RouterObservabilityWindow,
 } from "./types";
+
+/** Default long-term horizon (days) for the per-day aggregate view. */
+export const DEFAULT_LONG_TERM_HORIZON_DAYS = 30;
 
 export const ROUTER_OBSERVABILITY_SAFETY_NOTE =
   "Read-only router metadata. No prompts, no message text, no secrets, no tool payloads, no autonomous writes.";
 
 const ROUTER_OBSERVABILITY_PRIVACY_MODE =
   "metadata-only (ids + enums + flags); user message text never stored";
+
+/** Constant, verbatim retention/privacy policy line for the admin UI. */
+const ROUTER_TRACE_RETENTION_POLICY_NOTE =
+  "Retention policy: router decision metadata only, default 90 days. No user messages, prompts, secrets, or tool payloads are stored.";
 
 // Aggregate cap: the windowed read fetches up to this many rows (newest-first)
 // for stats + trends + top-rules over the whole window. The createdAt index keeps
@@ -62,10 +73,62 @@ export function resolveWindow(
  * buckets (computed from the SAME durable traces). State: unavailable / empty /
  * enabled.
  */
+/**
+ * Build the long-term per-day aggregate over the durable table. Read-only and
+ * best-effort: if the durable DB is unavailable it returns an honest
+ * `available: false` summary (the window views still work via fallback).
+ */
+export async function buildLongTermSummary(args?: {
+  horizonDays?: number;
+  now?: number;
+}): Promise<RouterLongTermSummary> {
+  const retention = getRetentionConfig();
+  const horizonDays = Math.max(
+    1,
+    Math.min(args?.horizonDays ?? DEFAULT_LONG_TERM_HORIZON_DAYS, retention.retentionDays),
+  );
+  const { ok, days } = await durableAggregateByDay({
+    horizonDays,
+    now: args?.now,
+  });
+
+  const totals = {
+    navigationFastPaths: 0,
+    dangerousRefusals: 0,
+    educationalTurns: 0,
+    negatedNoNav: 0,
+    normalOrUnknown: 0,
+  };
+  let total = 0;
+  for (const d of days) {
+    total += d.total;
+    totals.navigationFastPaths += d.navigationFastPaths;
+    totals.dangerousRefusals += d.dangerousRefusals;
+    totals.educationalTurns += d.educationalTurns;
+    totals.negatedNoNav += d.negatedNoNav;
+    totals.normalOrUnknown += d.normalOrUnknown;
+  }
+
+  const note = ok
+    ? `Durable per-day aggregate over the last ${horizonDays} days (retention ${retention.retentionDays}d${retention.fromEnv ? ", from OBS_RETENTION_DAYS" : ", default"}).`
+    : "Long-term aggregate unavailable — the durable store could not be read. Window views fall back to the volatile buffer.";
+
+  return {
+    available: ok,
+    horizonDays,
+    retention,
+    days: ok ? days : [],
+    total,
+    totals,
+    note,
+  };
+}
+
 export async function getRouterObservabilitySummary(args?: {
   window?: RouterObservabilityWindow;
   limit?: number;
   now?: number;
+  longTermHorizonDays?: number;
 }): Promise<RouterObservabilitySummary> {
   const window = args?.window ?? "24h";
   // The windowed read is bounded by the aggregate cap (stats/trends see the full
@@ -123,6 +186,13 @@ export async function getRouterObservabilitySummary(args?: {
       ? "30d is powered by durable router traces when available. The current Redis/memory fallback only contains the capped recent buffer (max 200 traces, 7-day TTL), so this long window may be incomplete."
       : null;
 
+  // Long-term per-day aggregate over the durable table (v1.1). Independent of the
+  // selected window; honest `available: false` when the durable store is down.
+  const longTerm = await buildLongTermSummary({
+    horizonDays: args?.longTermHorizonDays,
+    now,
+  });
+
   return {
     state,
     storage,
@@ -140,6 +210,7 @@ export async function getRouterObservabilitySummary(args?: {
     retentionDays,
     retentionPolicyNote: ROUTER_TRACE_RETENTION_POLICY_NOTE,
     windowLimitationNote,
+    longTerm,
   };
 }
 

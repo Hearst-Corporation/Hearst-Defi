@@ -252,3 +252,35 @@ describe("getRouterObservabilitySummary — 30d long window (v1.1)", () => {
     expect(s.windowLimitationNote).toBeNull();
   });
 });
+
+describe("getRouterObservabilitySummary — long-term aggregate (v1.1)", () => {
+  it("includes a durable long-term summary with retention config", async () => {
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    const s = await getRouterObservabilitySummary({
+      window: "24h",
+      longTermHorizonDays: 7,
+    });
+    expect(s.longTerm).toBeDefined();
+    expect(s.longTerm!.available).toBe(true);
+    expect(s.longTerm!.horizonDays).toBe(7);
+    expect(s.longTerm!.days).toHaveLength(7);
+    expect(s.longTerm!.retention.retentionDays).toBe(90); // default
+    expect(s.longTerm!.retention.fromEnv).toBe(false);
+    expect(s.longTerm!.total).toBe(1);
+    expect(s.longTerm!.totals.navigationFastPaths).toBe(1);
+  });
+
+  it("long-term is unavailable (no throw) when the durable read fails", async () => {
+    dbThrows = true;
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    // window read falls back to redis/memory; the long-term aggregate is honest
+    expect(s.longTerm).toBeDefined();
+    expect(s.longTerm!.available).toBe(false);
+    expect(s.longTerm!.days).toEqual([]);
+    expect(s.longTerm!.note).toMatch(/unavailable/i);
+  });
+});

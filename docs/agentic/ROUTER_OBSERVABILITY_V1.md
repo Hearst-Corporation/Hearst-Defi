@@ -135,11 +135,38 @@ No write controls, no action buttons, no fake data.
 No CrewAI / external swarms, no prompt editing, no tool execution UI, no replay,
 no live write controls, no changes to any product/vault/outreach/auth model.
 
+## v1.1 — Configurable retention + long-term aggregate (read-only)
+
+Adds, over the EXISTING `AgenticRouterDecisionTrace` table (no new model, no new
+migration):
+
+- **Configurable retention.** `OBS_RETENTION_DAYS` (env, optional, bounded `[1,365]`)
+  overrides the built-in `DURABLE_RETENTION_DAYS` (90). `getRetentionConfig()` reports
+  the effective horizon + whether it came from env. The best-effort prune on write
+  (`pruneOldTraces`) now uses this value. No behaviour change when unset.
+- **Long-term per-day aggregate.** `durableAggregateByDay({ horizonDays })` reads a
+  NARROW projection (`createdAt` + `outcome` only, indexed) within the horizon
+  (clamped to retention), then buckets by UTC day in JS — bounded by retention, no
+  full-row load, no user text. Gap days are seeded to zero. Returns `ok:false`
+  (no throw) when the durable store is unreachable.
+- **Summary + UI.** `getRouterObservabilitySummary` now carries an optional
+  `longTerm: RouterLongTermSummary` (per-day rows, horizon totals, retention config,
+  honest availability). A new read-only `RouterObservabilityLongTerm` component renders
+  a per-day stacked-bar history + horizon totals below the windowed trends, with honest
+  `unavailable` / `empty` states. Default horizon: `DEFAULT_LONG_TERM_HORIZON_DAYS` (30),
+  always clamped to the retention horizon.
+- Outcome categorization is shared (`categorizeOutcome` in `stats.ts`) so the day rows,
+  the trend bars and the stat cards never disagree.
+
+Read-only only: no new migration, no schema change, no user text, no router/guard/HITL
+change, no write controls.
+
 ## Next lot recommendation
 
-The 30d window currently reads up to 5000 rows and buckets in memory. If trace
-volume grows past that, push the **trend bucketing into SQL** (a single
-`date_trunc('day', createdAt)` + `GROUP BY day, outcome` aggregate query) so the
-30d view stays O(buckets) instead of O(rows). Only worth it once a 30d window
-actually approaches the 5000-row cap. Still no router/guard change, no CrewAI, no
-tool execution, no new table.
+The 30d window reads up to 5000 rows and buckets in memory; the long-term per-day
+aggregate (`durableAggregateByDay`) already loads only `{createdAt, outcome}`. If
+trace volume grows large, push BOTH into SQL — a `GROUP BY date_trunc('day',
+createdAt), outcome` aggregate — so the 30d window and the long-term view stay
+O(buckets) instead of O(rows). Only worth it once a 30d window actually approaches
+the 5000-row cap. Still no router/guard change, no CrewAI, no tool execution, no
+new table.

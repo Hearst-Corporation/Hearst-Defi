@@ -33,7 +33,8 @@ Scope:
 - docs/agent-file-locks.md
 
 Notes:
-- Add 30d durable Router Observability window + retention/pruning policy.
+- Add 30d durable Router Observability window + dry-run pruning helper (built on
+  the retention config merged in PR #51).
 - No router/guard/HITL behavior change. No tool execution.
 - No new DB table. No destructive migration. No Prisma/schema change.
 - No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.

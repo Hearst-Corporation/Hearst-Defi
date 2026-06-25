@@ -125,6 +125,56 @@ export interface RouterDecisionTrendBucket {
 /** A matched-rule frequency entry. Alias of RouterMatchedRuleCount (same shape). */
 export type RouterMatchedRuleStat = RouterMatchedRuleCount;
 
+// ---------------------------------------------------------------------------
+// Retention + long-term aggregate (v1.1) — read-only, over the EXISTING durable
+// table. No new model, no new migration, no user text. Long-term counts come
+// from a SQL groupBy (createdAt-day × outcome), not a full row load.
+// ---------------------------------------------------------------------------
+
+/** The durable retention horizon in effect (env-configurable, best-effort prune). */
+export interface RouterRetentionConfig {
+  /** Days of history retained before best-effort pruning. */
+  retentionDays: number;
+  /** True when the value came from OBS_RETENTION_DAYS (else the built-in default). */
+  fromEnv: boolean;
+}
+
+/** One calendar day of outcome counts (UTC), for the long-term view. */
+export interface RouterLongTermDay {
+  /** "YYYY-MM-DD" (UTC). */
+  date: string;
+  total: number;
+  navigationFastPaths: number;
+  dangerousRefusals: number;
+  educationalTurns: number;
+  negatedNoNav: number;
+  normalOrUnknown: number;
+}
+
+/** Long-term aggregate over the durable table (beyond the capped recent window). */
+export interface RouterLongTermSummary {
+  /** True only when the durable DB served the aggregate (else not available). */
+  available: boolean;
+  /** Days of history requested for the aggregate. */
+  horizonDays: number;
+  /** The retention config in effect. */
+  retention: RouterRetentionConfig;
+  /** Per-day outcome counts, oldest first. Empty when unavailable. */
+  days: RouterLongTermDay[];
+  /** Total decisions across the horizon. */
+  total: number;
+  /** Outcome totals across the horizon (by named category). */
+  totals: {
+    navigationFastPaths: number;
+    dangerousRefusals: number;
+    educationalTurns: number;
+    negatedNoNav: number;
+    normalOrUnknown: number;
+  };
+  /** Honest note about the long-term source / availability. */
+  note: string;
+}
+
 /** The read-only payload the Control Center renders. */
 export interface RouterObservabilitySummary {
   state: RouterObservabilityState;
@@ -159,4 +209,7 @@ export interface RouterObservabilitySummary {
    * e.g. a 30d window while on the Redis/memory fallback (which only holds the
    * capped recent buffer). Null when the window is fully covered. */
   windowLimitationNote: string | null;
+  /** Long-term per-day aggregate over the durable table (v1.1). Optional so the
+   *  summary stays backward-compatible when the durable store is unavailable. */
+  longTerm?: RouterLongTermSummary;
 }

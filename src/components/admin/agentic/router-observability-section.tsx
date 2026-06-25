@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { RouterObservabilityTrends } from "@/components/admin/agentic/router-observability-trends";
+import { RouterObservabilityLongTerm } from "@/components/admin/agentic/router-observability-longterm";
 import type {
   RouterDecisionTrace,
   RouterObservabilitySummary,
@@ -334,6 +335,12 @@ export function RouterObservabilitySection({
             </table>
           </Card>
         </>
+      )}
+
+      {/* Long-term per-day aggregate over the durable table (v1.1). Independent
+          of the selected window; renders its own honest unavailable/empty state. */}
+      {summary.longTerm && (
+        <RouterObservabilityLongTerm longTerm={summary.longTerm} />
       )}
 
       {/* Safety note */}
