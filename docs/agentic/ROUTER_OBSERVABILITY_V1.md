@@ -28,6 +28,40 @@ env-overridable **retention policy**, and a tested (dry-run-default) pruning hel
   the only automatic prune is the best-effort write-time tick in `db-store`
   (`~1 in 50` durable writes). No cron added. Best-effort: never throws.
 
+## v1.2 — SQL aggregates (O(buckets), not O(rows))
+
+v1.2 replaces the "load up to 5000 rows then aggregate in memory" path with
+**DB-side aggregation** when the durable store is available — same UI, less memory.
+NO schema change, NO migration, NO new table.
+
+- **Module**: `src/lib/agentic/observability/db-aggregates.ts`
+  (`readDurableRouterDecisionAggregates`). On the durable read path:
+  - **stats**: `prisma.agenticRouterDecisionTrace.groupBy({ by:["outcome"] })` +
+    `by:["kind"]` (cross-provider Prisma `groupBy`, O(distinct values)).
+  - **trend buckets**: a **Postgres-only** parameterized `$queryRaw` that buckets
+    by index — `floor((extract(epoch from "createdAt") - startEpoch) / bucketSec)` —
+    `GROUP BY idx, outcome`. The index math mirrors the in-memory builder exactly,
+    and the grouped counts are projected into the SAME prebuilt bucket slots
+    (`buildEmptyTrendBuckets`), so the rendered bars are **byte-identical**
+    (a parity test asserts `toEqual` for all 4 windows). `count(*)::int` avoids the
+    Postgres bigint. The raw query is fully parameterized; identifiers are
+    hardcoded constants, never user input.
+  - **top matched rules**: `matchedRuleIds` is a JSON array (not groupable), so it
+    is derived in-memory from a bounded `select: { matchedRuleIds }` read (cap 2000
+    most-recent in window). Documented limitation; provider-portable; no raw JSON SQL.
+- **The recent-decisions TABLE** is a SEPARATE small read (`take: 50`) — the
+  5000-row aggregate read is **eliminated** on the durable path.
+- **Fallback chain** (best-effort, never throws into chat):
+  - durable + Postgres + SQL ok → `aggregationMode: "sql"`
+  - durable but SQL declined/failed (e.g. sqlite/local, or a raw-query error) →
+    in-memory over a windowed row read → `aggregationMode: "in_memory"`
+  - durable store down → Redis/memory buffer aggregated in memory →
+    `aggregationMode: "fallback"`
+- **UI**: a small read-only badge shows the mode —
+  *"aggregation: SQL durable aggregates"* or *"fallback in-memory"*. No redesign,
+  no controls. Privacy unchanged: the aggregates read only `createdAt` / `outcome`
+  / `kind` / `matchedRuleIds` — never user text.
+
 ## What changed vs v0
 
 | | v0 | v1 |
@@ -161,12 +195,79 @@ migration):
 Read-only only: no new migration, no schema change, no user text, no router/guard/HITL
 change, no write controls.
 
+## v1.2 — SQL aggregates for the window views (read-only)
+
+Replaces the v1.1 "load up to 5000 rows, aggregate in memory" path for the
+windowed stats / trends / top-rules with **DB-side aggregation** when the durable
+store is available. No new table, no migration, no schema change — same
+`AgenticRouterDecisionTrace` columns and indexes.
+
+**Where it lives:** `src/lib/agentic/observability/db-aggregates.ts`
+(`readDurableRouterDecisionAggregates`).
+
+**How the aggregate is computed (durable + Postgres):**
+
+- **Stats** — two `prisma.groupBy` calls (`by: ["outcome"]` and `by: ["kind"]`,
+  `_count: { _all }`) over the window cutoff. Provider-agnostic Prisma query
+  builder (no raw SQL); projected into the SAME `RouterDecisionStats` shape, using
+  the SAME `categorizeOutcome` mapping, so the stat cards are byte-identical to the
+  in-memory path.
+- **Trend buckets** — a single parameterized `$queryRaw` (`Prisma.sql`) that bins
+  rows by index — `floor((epoch(createdAt) − startEpoch) / bucketSeconds)` — and
+  `GROUP BY (idx, outcome)`. The bucket geometry is pinned to the SAME prebuilt
+  slots `buildEmptyTrendBuckets` produces (1h = 12×5min, 24h = 24×1h, 7d = 7×1d,
+  30d = 30×1d), and the rows are projected into those slots by index — so the bars
+  match the in-memory builder exactly. The query is **fully parameterized**
+  (start-epoch, bucket-seconds, cutoff/upper timestamps are bound params; the only
+  literals are hardcoded column/table identifiers — never user input).
+- **Top matched rules** — `matchedRuleIds` is a JSON array column, not groupable in
+  portable SQL, so it stays a **bounded in-memory derivation**: read ONLY
+  `{ matchedRuleIds }` for the newest `TOP_RULES_SCAN_LIMIT` (2000) rows in the
+  window and tally via the shared `getTopMatchedRules`. Honest limitation: at very
+  high volume the top-rules reflect the most recent 2000 decisions in the window,
+  not the entire window.
+- **Recent decisions table** — a SEPARATE, capped read (50, newest-first),
+  independent of the aggregate path, so the table stays small while stats/trends
+  come from `GROUP BY`.
+
+**Why it's safe:** read-only. The aggregate SELECTs touch only
+`createdAt` / `outcome` / `kind` / `matchedRuleIds` — never user text, prompts, or
+tool payloads. Every function is best-effort: on ANY failure it returns `ok:false`
+and the caller falls back to the v1.1 in-memory path (byte-identical output, just
+heavier). Partial SQL results are never mixed with fallback results.
+
+**Provider gate / fallback:** the bucket query uses Postgres epoch arithmetic, so
+on any non-Postgres provider (SQLite local/dev/tests) `readDurableRouterDecisionAggregates`
+declines (`ok:false`) and the read path uses the in-memory aggregation — correct
+everywhere. The chat flow is never touched: this module is admin-read-only and the
+chat route does not import it.
+
+**Aggregation mode indicator.** `getRouterObservabilitySummary` now reports
+`aggregationMode`:
+
+- `"sql"` — durable DB served the aggregate via `GROUP BY` (O(buckets), no 5000-row load)
+- `"in_memory"` — durable rows aggregated in memory (SQL aggregate declined/failed)
+- `"fallback"` — aggregated from the Redis/memory buffer (durable store down)
+
+The Router Observability section renders a small read-only badge for this mode
+("aggregation: SQL durable aggregates" / "aggregation: fallback in-memory"). No new
+controls, no actions.
+
+**Performance.** On Postgres the window stats + buckets are O(buckets) GROUP BY
+reads instead of O(rows); only the top-rules scan stays row-bounded (capped 2000).
+This removes the artificial 5000-row cap as a scaling ceiling for 30d/90d windows.
+
+Read-only only: no new migration, no schema change, no user text, no router / guard
+/ HITL change, no tool execution, no write controls, no CrewAI / external swarms.
+
 ## Next lot recommendation
 
-The 30d window reads up to 5000 rows and buckets in memory; the long-term per-day
-aggregate (`durableAggregateByDay`) already loads only `{createdAt, outcome}`. If
-trace volume grows large, push BOTH into SQL — a `GROUP BY date_trunc('day',
-createdAt), outcome` aggregate — so the 30d window and the long-term view stay
-O(buckets) instead of O(rows). Only worth it once a 30d window actually approaches
-the 5000-row cap. Still no router/guard change, no CrewAI, no tool execution, no
-new table.
+The only remaining row-bounded read is the **top-matched-rules** scan (newest 2000
+rows of `matchedRuleIds`, a JSON column). If/when that approximation matters,
+either (a) add a normalized `AgenticRouterDecisionRule` join table to make rule
+counts a true `GROUP BY` — which WOULD need a migration, so gate it on real
+need — or (b) use a Postgres-only JSONB lateral-unnest aggregate behind the same
+provider gate (no migration, Postgres-only, fallback to the current scan on
+SQLite). Prefer (b) first. Only worth it once a window's matched-rule volume
+actually exceeds the 2000-row scan. Still no router/guard change, no CrewAI, no
+tool execution, no new table.

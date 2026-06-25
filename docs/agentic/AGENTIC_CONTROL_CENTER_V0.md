@@ -128,6 +128,12 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
 - Router Observability v1 durable rows are pruned best-effort > 90 days; reads are
   window-bounded. When the durable store is unavailable it falls back to the volatile
   Redis/memory buffer (shown honestly as `storage: redis_fallback` / `memory_fallback`).
+- Router Observability **v1.2** computes the windowed stats / trends / top-rules via
+  SQL `GROUP BY` aggregates (`db-aggregates.ts`) on Postgres instead of loading up to
+  5000 rows — surfaced read-only as an `aggregation: SQL durable aggregates` badge.
+  It declines to the in-memory path on SQLite or any failure (badge
+  `aggregation: fallback in-memory`). No new table, no migration, no schema change.
+  See the v1.2 section of [`ROUTER_OBSERVABILITY_V1.md`](./ROUTER_OBSERVABILITY_V1.md).
 
 ## Next steps
 

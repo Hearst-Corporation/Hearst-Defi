@@ -163,6 +163,36 @@ describe("getRouterObservabilitySummary — durable v1", () => {
   });
 });
 
+describe("getRouterObservabilitySummary — aggregation mode (v1.2)", () => {
+  it("uses 'in_memory' on sqlite (durable reachable, SQL path declines)", async () => {
+    // The test runner's provider is sqlite, so the SQL aggregate declines and the
+    // read path computes in-memory over the windowed durable rows.
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(s.storage).toBe("durable");
+    expect(s.aggregationMode).toBe("in_memory");
+    // Output is identical regardless of aggregation path.
+    expect(s.stats.total).toBe(1);
+    expect(s.stats.navigationFastPaths).toBe(1);
+  });
+
+  it("uses 'fallback' when the durable store is unavailable", async () => {
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    dbThrows = true;
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(["redis_fallback", "memory_fallback"]).toContain(s.storage);
+    expect(s.aggregationMode).toBe("fallback");
+  });
+});
+
 describe("getRouterObservabilitySummary — trends (v0.1)", () => {
   it("includes trendWindow / trendBuckets / topMatchedRules / bufferLimitNote", async () => {
     await recordRouterDecisionSafe({
@@ -282,5 +312,33 @@ describe("getRouterObservabilitySummary — long-term aggregate (v1.1)", () => {
     expect(s.longTerm!.available).toBe(false);
     expect(s.longTerm!.days).toEqual([]);
     expect(s.longTerm!.note).toMatch(/unavailable/i);
+  });
+});
+
+describe("getRouterObservabilitySummary — aggregationMode (v1.2)", () => {
+  it("uses in_memory mode when durable is reachable but provider is sqlite", async () => {
+    // The test env is PRISMA_PROVIDER=sqlite, so the SQL aggregate path declines
+    // and the read falls back to in-memory over the durable rows.
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(s.storage).toBe("durable");
+    expect(s.aggregationMode).toBe("in_memory");
+    expect(s.stats.total).toBe(1);
+  });
+
+  it("uses fallback mode when the durable store is down", async () => {
+    await recordRouterDecisionSafe({
+      decision: classify("va dans les vaults"),
+      outcome: "nav_fast_path",
+      turnId: "t1",
+    });
+    dbThrows = true; // durable read + aggregate fail → Redis/memory fallback
+    const s = await getRouterObservabilitySummary({ window: "24h" });
+    expect(["redis_fallback", "memory_fallback"]).toContain(s.storage);
+    expect(s.aggregationMode).toBe("fallback");
   });
 });

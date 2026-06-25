@@ -15,6 +15,7 @@ import { RouterObservabilityTrends } from "@/components/admin/agentic/router-obs
 import { RouterObservabilityLongTerm } from "@/components/admin/agentic/router-observability-longterm";
 import type {
   RouterDecisionTrace,
+  RouterObservabilityAggregationMode,
   RouterObservabilitySummary,
   RouterObservabilityStorage,
   RouterObservabilityWindow,
@@ -65,6 +66,18 @@ function storageTone(storage: RouterObservabilityStorage): Tone {
   if (storage === "durable") return "success";
   if (storage === "unavailable") return "danger";
   return "warning";
+}
+
+// Read-only label for how the window aggregate was computed (v1.2). SQL durable
+// aggregates are the optimized path; in-memory / fallback are honest degradations.
+const AGGREGATION_LABEL: Record<RouterObservabilityAggregationMode, string> = {
+  sql: "SQL durable aggregates",
+  in_memory: "fallback in-memory",
+  fallback: "fallback in-memory",
+};
+
+function aggregationTone(mode: RouterObservabilityAggregationMode): Tone {
+  return mode === "sql" ? "success" : "warning";
 }
 
 function WindowSelector({ current }: { current: RouterObservabilityWindow }) {
@@ -217,6 +230,7 @@ export function RouterObservabilitySection({
     window: activeWindow,
     retentionPolicyNote,
     windowLimitationNote,
+    aggregationMode,
   } = summary;
 
   return (
@@ -238,6 +252,11 @@ export function RouterObservabilitySection({
               : STORAGE_LABEL[storage]}
           </Badge>
           <Badge variant="accent">source: cockpit_chat</Badge>
+          {aggregationMode && (
+            <Badge variant={aggregationTone(aggregationMode)}>
+              aggregation: {AGGREGATION_LABEL[aggregationMode]}
+            </Badge>
+          )}
           <span className="flex-1" />
         </div>
         <p className="body-xs ct-text-faint">Privacy mode: {privacyMode}</p>

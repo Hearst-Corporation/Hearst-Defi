@@ -16,7 +16,27 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-observability-sql-aggregates-v12
+Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery
+Branch: feat/router-observability-sql-aggregates-v12
+Worktree: ../connect-opus-router-observability-sql-aggregates
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/observability/**
+- src/lib/agentic/control-center/**
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- docs/agentic/**
+- tests related to router observability SQL aggregates
+- docs/agent-file-locks.md
+
+Notes:
+- Add SQL aggregate read path for durable router observability (O(buckets), not O(rows)).
+- No router/guard/HITL behavior change. No tool execution.
+- No DB migration. No Prisma/schema change. No new table.
+- No autonomous writes. No user text/prompt/tool payload storage. No secrets/env.
 
 ---
 

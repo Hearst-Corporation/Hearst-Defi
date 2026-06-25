@@ -17,13 +17,19 @@ import {
   topMatchedRules,
   windowCutoff,
 } from "./db-store";
+import { readDurableRouterDecisionAggregates } from "./db-aggregates";
 import { computeRouterDecisionStats } from "./stats";
 import {
   buildRouterDecisionTrendBuckets,
   normalizeRouterTrendWindow,
 } from "./trends";
 import type {
+  RouterDecisionStats,
+  RouterDecisionTrace,
+  RouterDecisionTrendBucket,
   RouterLongTermSummary,
+  RouterMatchedRuleStat,
+  RouterObservabilityAggregationMode,
   RouterObservabilityState,
   RouterObservabilitySummary,
   RouterObservabilityWindow,
@@ -138,21 +144,66 @@ export async function getRouterObservabilitySummary(args?: {
   const cutoffMs = windowCutoff(window, now).getTime();
   const retentionDays = getRouterTraceRetentionDays();
 
-  const { traces, storage } = await readTracesWithFallback({
+  // v1.2 — SQL aggregate fast-path. When the durable store is available we try
+  // DB-side aggregation (groupBy + a bucket query) instead of loading up to 5000
+  // rows. The recent-decisions TABLE is a SEPARATE small read (50). On any SQL
+  // failure (or a non-Postgres provider) we fall back to the in-memory path over
+  // the windowed rows — byte-identical output, just heavier. If the durable store
+  // is down entirely, the Redis/memory fallback path runs as before.
+  let stats: RouterDecisionStats;
+  let trendBuckets: RouterDecisionTrendBucket[];
+  let topRules: RouterMatchedRuleStat[];
+  let recent: RouterDecisionTrace[];
+  let storage: RouterObservabilitySummary["storage"];
+  let aggregationMode: RouterObservabilityAggregationMode;
+  const trendWindow = normalizeRouterTrendWindow(window);
+
+  const recentRead = await durableReadTraces({
     window,
-    limit,
-    cutoffMs,
+    limit: RECENT_TABLE_LIMIT,
+    now,
   });
 
-  // Stats + trends + top-rules over the FULL windowed set; recent table sliced.
-  const stats = computeRouterDecisionStats(traces);
-  const topRules = topMatchedRules(traces, TOP_RULES_LIMIT);
-  const recent = traces.slice(0, RECENT_TABLE_LIMIT);
+  if (recentRead.ok) {
+    // Durable store reachable. Try SQL aggregates for the window.
+    storage = "durable";
+    recent = recentRead.traces.slice(0, RECENT_TABLE_LIMIT);
+    const agg = await readDurableRouterDecisionAggregates({
+      window,
+      now: new Date(now),
+      topRulesLimit: TOP_RULES_LIMIT,
+    });
+    if (agg.ok) {
+      stats = agg.stats;
+      trendBuckets = agg.trendBuckets;
+      topRules = agg.topMatchedRules;
+      aggregationMode = "sql";
+    } else {
+      // SQL aggregate unavailable (e.g. sqlite/local) → in-memory over a windowed
+      // row read (the v1.1 behaviour), bounded by AGGREGATE_READ_LIMIT.
+      const windowed = await durableReadTraces({ window, limit, now });
+      const rows = windowed.ok ? windowed.traces : recent;
+      stats = computeRouterDecisionStats(rows);
+      trendBuckets = buildRouterDecisionTrendBuckets(rows, trendWindow, new Date(now));
+      topRules = topMatchedRules(rows, TOP_RULES_LIMIT);
+      aggregationMode = "in_memory";
+    }
+  } else {
+    // Durable store down → Redis/memory fallback (existing behaviour).
+    const fallback = await readTracesWithFallback({ window, limit, cutoffMs });
+    storage = fallback.storage;
+    const rows = fallback.traces;
+    stats = computeRouterDecisionStats(rows);
+    trendBuckets = buildRouterDecisionTrendBuckets(rows, trendWindow, new Date(now));
+    topRules = topMatchedRules(rows, TOP_RULES_LIMIT);
+    recent = rows.slice(0, RECENT_TABLE_LIMIT);
+    aggregationMode = "fallback";
+  }
 
   let state: RouterObservabilityState;
   if (storage === "unavailable") {
     state = "unavailable";
-  } else if (traces.length === 0) {
+  } else if (stats.total === 0) {
     state = "empty";
   } else {
     state = "enabled";
@@ -167,16 +218,9 @@ export async function getRouterObservabilitySummary(args?: {
           ? "Durable + Redis storage unavailable — showing the in-memory buffer (lost on restart)."
           : "No trace storage reachable.";
 
-  // Trends — bucketed over the SAME windowed traces + the SAME window.
-  const trendWindow = normalizeRouterTrendWindow(window);
-  const trendBuckets = buildRouterDecisionTrendBuckets(
-    traces,
-    trendWindow,
-    new Date(now),
-  );
   const bufferLimitNote =
     storage === "durable"
-      ? `Trends computed from durable router traces (window ${window}; rows pruned > ${retentionDays} days).`
+      ? `Trends computed from durable router traces (window ${window}; rows pruned > ${retentionDays} days; ${aggregationMode === "sql" ? "SQL aggregates" : "in-memory aggregation"}).`
       : "Trends computed from the volatile fallback buffer (durable storage unavailable).";
 
   // Window-limitation note: a long window (e.g. 30d) cannot be fully served by
@@ -211,6 +255,7 @@ export async function getRouterObservabilitySummary(args?: {
     retentionPolicyNote: ROUTER_TRACE_RETENTION_POLICY_NOTE,
     windowLimitationNote,
     longTerm,
+    aggregationMode,
   };
 }
 

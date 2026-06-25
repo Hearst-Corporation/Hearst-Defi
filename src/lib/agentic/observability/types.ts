@@ -98,6 +98,48 @@ export interface RouterMatchedRuleCount {
 }
 
 // ---------------------------------------------------------------------------
+// SQL aggregates (v1.2) — read-only. The durable read path computes window
+// stats + trend buckets + top rules by SQL GROUP BY (Prisma `groupBy`, NOT raw
+// SQL) instead of loading up to 5000 rows and aggregating in memory. The shapes
+// below are the narrow projections returned by those grouped queries. Pure
+// types — no I/O, client-safe.
+// ---------------------------------------------------------------------------
+
+/**
+ * Which path computed the window aggregate, surfaced read-only in the admin UI:
+ *  - "sql"       → durable DB served the aggregate via SQL GROUP BY (O(buckets))
+ *  - "in_memory" → durable rows read, but aggregated in memory (legacy path)
+ *  - "fallback"  → durable unavailable; aggregated from the Redis/memory buffer
+ */
+export type RouterObservabilityAggregationMode = "sql" | "in_memory" | "fallback";
+
+/** One `GROUP BY outcome` row over a window (count of traces per outcome). */
+export interface RouterOutcomeAggregateRow {
+  outcome: string;
+  count: number;
+}
+
+/** One `GROUP BY kind` row over a window (count of traces per kind). */
+export interface RouterKindAggregateRow {
+  kind: string;
+  count: number;
+}
+
+/**
+ * One `GROUP BY (bucketStart, outcome)` row. `bucketStart` is the ISO start of
+ * the trend bucket the count belongs to; the read path projects these into the
+ * prebuilt bucket slots by index so the rendered bars match the in-memory path.
+ */
+export interface RouterBucketAggregateRow {
+  bucketStart: string;
+  outcome: string;
+  count: number;
+}
+
+/** One matched-rule aggregate row (ruleId → count). Alias of the top-rule shape. */
+export type RouterMatchedRuleAggregateRow = RouterMatchedRuleCount;
+
+// ---------------------------------------------------------------------------
 // Trends (v0.1) — purely additive, computed from the SAME recent trace buffer.
 // No new storage, no new fields stored. These are derived views only.
 // ---------------------------------------------------------------------------
@@ -212,4 +254,11 @@ export interface RouterObservabilitySummary {
   /** Long-term per-day aggregate over the durable table (v1.1). Optional so the
    *  summary stays backward-compatible when the durable store is unavailable. */
   longTerm?: RouterLongTermSummary;
+  /**
+   * How the windowed stats/trends/top-rules were computed (v1.2):
+   *  - "sql"       → durable DB SQL GROUP BY (O(buckets), no 5000-row load)
+   *  - "in_memory" → durable rows aggregated in memory (SQL aggregate failed)
+   *  - "fallback"  → aggregated from the Redis/memory buffer (durable down)
+   * Optional so older summaries / fallback callers stay backward-compatible. */
+  aggregationMode?: RouterObservabilityAggregationMode;
 }
