@@ -83,16 +83,15 @@
    ============================================================================= */
 
 .admin-strategy-wizard {
-  /* Owns its own flex/width fully (no admin-doc-stack / admin-doc-narrow on the
-     wrapper) so the wide 2-col override below wins on `display` + `max-width`
-     without a specificity fight. Default = single narrow readable column. */
+  /* Full-width by default — the container query below handles the 2-col layout
+     on wide screens. No max-width/centering in base: the narrow prose cap was
+     preventing the grid from ever being perceived as "desktop" even when the
+     container query fired (the form stayed narrow regardless). */
   display: flex;
   flex-direction: column;
   gap: var(--ct-doc-flow-stack-gap);
   padding-bottom: var(--ct-space-10);
   width: 100%;
-  max-width: var(--ct-prose-md);
-  margin-inline: auto;
 }
 
 .admin-strategy-wizard__stepper {
