@@ -114,7 +114,7 @@ export async function sendWelcomeEmail(opts: {
 
   const { activationUrl } = await mintActivationToken({ userId, appUrl });
 
-  void sendEmail(email, firstName ?? null, activationUrl).catch((err) => {
-    console.error("[welcome-email] Resend failed", { userId, err });
+  await sendEmail(email, firstName ?? null, activationUrl).catch((err) => {
+    console.error("[welcome-email] Resend failed — token still valid in DB, use admin generateActivationLink to recover", { userId, email, err });
   });
 }
