@@ -2,76 +2,87 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { buildAgenticSystemMap } from "@/lib/agentic/system-map";
-import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
-
-// Page-integration contract: every node detailHref anchor the map emits must map
-// to a real section anchor (id=...) in the admin page, so jump-links resolve.
-// This guards the map↔page wiring without rendering the async server component.
+// Control Tower V2 — page + composition contract. The page renders a single
+// <AgenticControlTower> orchestrator; the tower composes the sections in the
+// map-first / details-progressive order. These string-level checks guard the
+// information architecture without rendering the async server component.
 
 const PAGE = readFileSync(
   join(process.cwd(), "src/app/admin/agentic/page.tsx"),
   "utf8",
 );
+const TOWER = readFileSync(
+  join(
+    process.cwd(),
+    "src/components/admin/agentic/agentic-control-tower.tsx",
+  ),
+  "utf8",
+);
 
-function pageHasAnchor(id: string): boolean {
-  // Anchors live either as id="..." on the page OR as a component-rendered id
-  // (these sections render their own id=... in their component, not in page.tsx).
-  const componentAnchors = new Set([
-    "router-observability",
-    "router-quality-review",
-    "tool-boundary-v1",
-    "reporting-crew",
-    "action-readiness",
-    "crew-simulation",
-  ]);
-  if (componentAnchors.has(id)) return true;
-  return PAGE.includes(`id="${id}"`);
-}
-
-describe("system map — page anchor contract", () => {
-  const map = buildAgenticSystemMap({
-    controlCenter: getAgenticControlCenterData(),
-    observability: null,
-    reporting: null,
+describe("agentic page — control tower composition", () => {
+  it("the page renders a single AgenticControlTower orchestrator", () => {
+    expect(PAGE).toContain("<AgenticControlTower");
+    expect(PAGE).toContain("controlCenter={controlCenter}");
+    expect(PAGE).toContain("actionReadiness={actionReadiness}");
+    expect(PAGE).toContain("crewSimulations={crewSimulations}");
   });
 
-  it("every node detailHref resolves to a real page/component anchor", () => {
-    for (const node of map.nodes) {
-      if (!node.detailHref) continue;
-      const id = node.detailHref.replace(/^#/, "");
-      expect(pageHasAnchor(id), `node ${node.id} → #${id} has no anchor`).toBe(true);
+  it("the page no longer renders the old card-wall map + inspector", () => {
+    expect(PAGE).not.toContain("AgenticSystemMap");
+    expect(PAGE).not.toContain("AgenticDetailInspector");
+    // No 22-card inventory / inline status-chip sections left on the page.
+    expect(PAGE).not.toContain('aria-label="Agents and logic inventory"');
+    expect(PAGE).not.toContain("SystemStatusChip");
+  });
+
+  it("the page stays read-only (no execution controls)", () => {
+    expect(PAGE).not.toContain("<form");
+    expect(PAGE).not.toContain("<input");
+    expect(PAGE).not.toContain("<button");
+  });
+});
+
+describe("control tower — section order (overview first, details progressive)", () => {
+  const order = [
+    "AgenticCommandSummary",
+    "AgenticSectionNav",
+    "AgenticTopologyMap",
+    "AgenticCapabilitiesBoard",
+    "AgenticAgentsOverview",
+    "ActionReadinessMatrixSection",
+    "CrewSimulationSection",
+    "RouterObservabilitySection",
+    "AgenticSafetyBoundary",
+  ];
+
+  it("composes every required section", () => {
+    for (const s of order) {
+      expect(TOWER, `tower missing <${s}>`).toContain(`<${s}`);
     }
   });
 
-  it("the page renders the visual map and detail inspector first", () => {
-    expect(PAGE).toContain("<AgenticSystemMap map={systemMap} />");
-    expect(PAGE).toContain("<AgenticDetailInspector");
-    // Map appears before the legacy "System status" section.
-    const mapIdx = PAGE.indexOf("<AgenticSystemMap");
-    const inspectorIdx = PAGE.indexOf("<AgenticDetailInspector");
-    const statusIdx = PAGE.indexOf('aria-label="System status"');
-    expect(mapIdx).toBeGreaterThan(-1);
-    expect(inspectorIdx).toBeGreaterThan(mapIdx); // inspector after map
-    expect(statusIdx).toBeGreaterThan(-1);
-    expect(mapIdx).toBeLessThan(statusIdx);
+  it("renders the command summary + nav before the topology", () => {
+    const summaryIdx = TOWER.indexOf("<AgenticCommandSummary");
+    const navIdx = TOWER.indexOf("<AgenticSectionNav");
+    const topologyIdx = TOWER.indexOf("<AgenticTopologyMap");
+    expect(summaryIdx).toBeGreaterThan(-1);
+    expect(navIdx).toBeGreaterThan(summaryIdx);
+    expect(topologyIdx).toBeGreaterThan(navIdx);
   });
 
-  it("the page preserves the existing detail sections", () => {
-    expect(PAGE).toContain("<RouterObservabilitySection");
-    expect(PAGE).toContain("<ReportingCrewSection");
-    expect(PAGE).toContain("<ToolBoundarySection");
-    expect(PAGE).toContain('id="human-gates"');
-    expect(PAGE).toContain('id="agents-inventory"');
-    expect(PAGE).toContain('id="prompt-map"');
-    expect(PAGE).toContain('id="compliance-guards"');
+  it("renders the topology before the detail sections", () => {
+    const topologyIdx = TOWER.indexOf("<AgenticTopologyMap");
+    const obsIdx = TOWER.indexOf("<RouterObservabilitySection");
+    const reportingIdx = TOWER.indexOf("<ReportingCrewSection");
+    expect(topologyIdx).toBeGreaterThan(-1);
+    expect(obsIdx).toBeGreaterThan(topologyIdx);
+    expect(reportingIdx).toBeGreaterThan(topologyIdx);
   });
 
-  it("the page renders the integrated Action Readiness + Crew Simulation sections", () => {
-    expect(PAGE).toContain("<ActionReadinessMatrixSection");
-    expect(PAGE).toContain("<CrewSimulationSection");
-    // The inspector receives the readiness + simulation rollup props.
-    expect(PAGE).toContain("actionReadiness={actionReadiness}");
-    expect(PAGE).toContain("crewSimulations={crewSimulations}");
+  it("preserves the read-only data sections (no data lost)", () => {
+    expect(TOWER).toContain("<ActionReadinessMatrixSection");
+    expect(TOWER).toContain("<CrewSimulationSection");
+    expect(TOWER).toContain("<RouterObservabilitySection");
+    expect(TOWER).toContain("<ReportingCrewSection");
   });
 });

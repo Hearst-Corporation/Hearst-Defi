@@ -160,3 +160,38 @@ behaviour changes, no Prisma/schema change.
 inspector that filters the detail panels (and the readiness lanes / simulation flows)
 to the chosen node, still with no tool execution and no autonomy. Only after V1 is
 stable. Do NOT add a crew runtime / CrewAI / any write tool / autonomous loop.
+
+## Control Tower V2 (full redesign)
+
+`/admin/agentic` was fully redesigned into a navigable **Agentic Control Tower**.
+The previous version exposed too many equivalent cards and repeated edge-pills,
+making the page a documentation wall. V2 restores hierarchy + product meaning
+while preserving every read-only data source.
+
+**Structure (`agentic-control-tower.tsx`):**
+1. **Command summary** (`agentic-command-summary.tsx`) — overall health, headline
+   numbers (autonomous / gated / never-autonomous / agents / crews), the statement
+   "nothing executes from this console", and attention items.
+2. **Section nav** (`agentic-section-nav.tsx`) — sticky in-page anchor links.
+3. **Topology** (`agentic-topology-map.tsx`) — a readable schema of ~8 major blocks
+   (Router centre, Guards / HITL / Tool Boundary around, Observability above,
+   Agents & Actions outward, Forbidden zone at the edge) — NOT a 32-card grid.
+4. **Capabilities** (`agentic-capabilities-board.tsx`) — Autonomous today / Draft only
+   / Confirmed-write gated / Never autonomous, in product language.
+5. **Agents & Crews** (`agentic-agents-overview.tsx`) — the inventory grouped BY
+   DOMAIN into compact lanes (not 22 equal cards).
+6. **Actions & Gates** — the action-readiness matrix (tier lanes, unchanged module).
+7. **Simulations** — the crew-simulation flows (executable: false, unchanged module).
+8. **Observability & Quality** + **Reporting Crew** — the existing read-only sections.
+9. **Safety Boundary** (`agentic-safety-boundary.tsx`) — the hard limits in plain
+   language: nothing executes here, forbidden-autonomous, human gates, always-on guards.
+
+The headline numbers + health come from a pure `buildTowerSummary()`
+(`src/lib/agentic/system-map/tower-summary.ts`). The old `agentic-system-map.tsx`
+and `agentic-detail-inspector.tsx` (the card-grid map + inspector) were removed and
+replaced by the topology + safety boundary.
+
+**Safety:** no CrewAI, no autonomous runtime, no tool execution, no write controls,
+no Run/Execute/Launch/Send/Deploy/Source/Mark-live. No router/guard/HITL/chat change,
+no Prisma/schema change, no migration. CSS is token-only (`--ct-*`) with zero
+hardcoded hex/rgb/rgba.

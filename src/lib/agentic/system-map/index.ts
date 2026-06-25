@@ -21,6 +21,12 @@ import type { AgenticSystemMap } from "./types";
 
 export * from "./types";
 export { buildAgenticSystemMap, GROUP } from "./build-system-map";
+export { buildTowerSummary } from "./tower-summary";
+export type {
+  TowerSummary,
+  TowerMetric,
+  TowerHealth,
+} from "./tower-summary";
 export {
   deriveRouterStatus,
   deriveObservabilityStatus,
