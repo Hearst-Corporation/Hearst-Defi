@@ -80,7 +80,7 @@ export function formatPeriod(period: string, refYear: number): string {
 
 const VB_W = 560;
 const VB_H = 180;
-const BAR_AREA_TOP = 8;
+const BAR_AREA_TOP = 32;
 const BAR_AREA_BOT = 140;  // bottom of bars (label zone below)
 const BAR_AREA_H = BAR_AREA_BOT - BAR_AREA_TOP;
 const LABEL_Y = BAR_AREA_BOT + 14;
@@ -412,16 +412,16 @@ export function DistribCalendar({
           titleVariant="primary"
           trailing={calendarHeaderTrail(leafHref)}
         />
-        <div className="pf-distrib-zero-body">
+          <div className="pf-distrib-zero-body">
           {showComingBox && nextDate ? (
             /* "Distribution coming" premium box */
-            <div className="pf-dc-coming" role="status" aria-label="Next distribution window">
+            <div className="pf-dc-coming group/coming" role="status" aria-label="Next distribution window">
               <div className="pf-dc-coming__header">
                 <span className="pf-dc-coming__eyebrow">Distribution coming</span>
-                <span className="pf-dc-coming__badge">Estimated</span>
+                <span className="pf-dc-coming__badge transition-colors group-hover/coming:bg-[var(--ct-accent)] group-hover/coming:text-[var(--ct-bg-deep)]">Estimated</span>
               </div>
               <div className="pf-dc-coming__date-row">
-                <span className="pf-dc-coming__date-main">
+                <span className="pf-dc-coming__date-main transition-colors group-hover/coming:ct-text-accent">
                   {distribMonthFmt.format(nextDate)}
                 </span>
                 <span className="pf-dc-coming__date-exact">

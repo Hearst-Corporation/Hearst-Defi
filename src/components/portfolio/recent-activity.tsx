@@ -91,10 +91,10 @@ export function RecentActivity({
                   <span className="text-[var(--ct-text-xs)] ct-text-primary font-medium tracking-tight truncate transition-colors group-hover/row:ct-text-accent">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
-                      <span className="ct-text-muted font-normal ml-1 text-[length:var(--ct-text-xs)]">· {tx.positionVaultName}</span>
+                      <span className="ct-text-tertiary font-normal ml-1 text-[length:var(--ct-text-xs)]">· {tx.positionVaultName}</span>
                     ) : null}
                   </span>
-                  <span className="stat-label ct-text-muted mono truncate opacity-70">
+                  <span className="stat-label ct-text-tertiary mono truncate opacity-70">
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
