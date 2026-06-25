@@ -16,6 +16,7 @@ import {
   FlagBadge,
 } from "@/components/admin/agentic/status-badge";
 import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
+import { ToolBoundarySection } from "@/components/admin/agentic/tool-boundary-section";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
 import {
   getRouterObservabilitySummary,
@@ -80,8 +81,16 @@ export default async function AgenticControlCenterPage({
   searchParams: Promise<{ routerWindow?: string }>;
 }) {
   const data = getAgenticControlCenterData();
-  const { router, inventory, gates, tools, prompts, safetySummary, nextSteps } =
-    data;
+  const {
+    router,
+    inventory,
+    gates,
+    tools,
+    toolBoundaryV1,
+    prompts,
+    safetySummary,
+    nextSteps,
+  } = data;
   // Read-only: durable router-decision metadata for the selected time window.
   // Best-effort — getRouterObservabilitySummary never throws; a backend hiccup
   // degrades to an honest empty/unavailable state rather than breaking the page.
@@ -318,6 +327,10 @@ export default async function AgenticControlCenterPage({
             </Card>
           ))}
         </div>
+
+        {/* Tool Boundary v1 — read-only reflection of the real registry ids,
+            with per-tool tier/gate/risk + static-vs-code consistency warnings. */}
+        <ToolBoundarySection summary={toolBoundaryV1} />
       </section>
 
       {/* 5. Human gates ------------------------------------------------ */}

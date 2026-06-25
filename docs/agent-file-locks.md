@@ -16,11 +16,57 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+_No active locks._
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/tool-boundary-v1
+Owner: Opus Orchestrateur Continu — Tool Boundary v1 Delivery
+Branch: feat/tool-boundary-v1
+Merged PR: #61 (merge c1ac9beb)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Tool Boundary v1: read-only reflection of the REAL tool registry in /admin/agentic.
+  New pure module src/lib/agentic/tool-boundary/* reflects the 11 read + 7 write tool
+  ids from the side-effect-free ADMIN_READ_TOOL_IDS / ADMIN_WRITE_TOOL_IDS arrays (NOT
+  the server-only registry.ts), joined with a curated metadata map whose completeness is
+  asserted by tests (fail if any real id is unclassified). classify-tool.ts → tiers
+  read_only / draft_or_proposal / confirmed_write / forbidden_autonomous / unknown
+  (writes always gated + non-autonomous; unclassified fails safe high-risk). consistency.ts
+  → write-without-gate (critical), confirmed-write-autonomous (critical), unknown tool
+  (warning), static-vs-code drift (warning). Wired as AgenticControlCenterData.toolBoundaryV1
+  (additive; legacy static `tools` unchanged) + new ToolBoundarySection UI (counts, table,
+  warnings, forbidden actions, safety notes, NO write controls). NO tool execution, NO
+  registry/runtime change, NO tool added/removed/changed, NO router/guard/HITL/chat change,
+  NO Prisma/schema change, NO migration, NO user text/prompt/tool payload. typecheck PASS,
+  lint 0, full suite 3292/3292, build PASS (postgresql), empty Prisma diff. Merged c1ac9beb,
+  PR #61. Vercel prod READY; prod /admin/agentic 307→/login.
+
+### feat/router-quality-review-v0
+Owner: Opus Orchestrateur Continu — Router Quality Review Dashboard Delivery
+Branch: feat/router-quality-review-v0
+Merged PR: #59 (merge b8efe89a)
+Released: 2026-06-25
+Status: merged
+
+Result:
+- Router Quality Review Dashboard v0: read-only INTERPRETATION of the existing router
+  observability data in /admin/agentic. Pure computeRouterQualityReview(summary)
+  (quality-review.ts) → health rates (unknown / dangerous-refusal / educational / nav /
+  legacy-fallback), a negated-no-nav count, top matched rules, and a read-only watchlist
+  (high_unknown / high_dangerous_refusal[alert] / high_fallback[degraded source or high
+  legacy rate] / no_recent_data) with explicit conservative thresholds + a
+  MIN_SAMPLE_FOR_RATES floor. Attached as optional summary.qualityReview (additive,
+  backward-compatible); new RouterQualityReview component after the trends, rate cards +
+  watchlist, NO actions. NO router/guard/HITL change, NO rule/prompt editor, NO auto-fix /
+  replay / export, NO tool execution / autonomous writes / CrewAI, NO Prisma/schema change,
+  NO migration, NO new table, NO user text/prompt/tool payload. typecheck PASS, lint 0,
+  full suite 3261/3261, build PASS (postgresql), empty Prisma diff. Merged b8efe89a, PR #59.
+  Vercel prod READY; prod /admin/agentic?routerWindow=1h|24h|7d|30d all 307→/login.
 
 ### feat/router-observability-sql-aggregates-v12
 Owner: Opus Orchestrateur — SQL Router Observability Aggregates Delivery

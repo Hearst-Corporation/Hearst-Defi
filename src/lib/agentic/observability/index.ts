@@ -45,4 +45,11 @@ export {
 } from "./db-store";
 export { pruneRouterDecisionTraces } from "./retention";
 export { readDurableRouterDecisionAggregates } from "./db-aggregates";
+export {
+  computeRouterQualityReview,
+  UNKNOWN_RATE_WATCH,
+  DANGEROUS_REFUSAL_RATE_WATCH,
+  FALLBACK_RATE_WATCH,
+  MIN_SAMPLE_FOR_RATES,
+} from "./quality-review";
 export { ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_CAP } from "./store";

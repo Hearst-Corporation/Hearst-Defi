@@ -1,10 +1,20 @@
-// Agentic Control Center — tool boundary summary (static, read-only).
+// Agentic Control Center — tool boundary summary (read-only).
 //
 // Describes the four tool tiers WITHOUT executing any tool, creating any token,
-// or performing any write. Pure description for visibility. Tool ids mirror
-// src/lib/llm/tools/registry.ts (11 read tools, 6 write tools).
+// or performing any write. Two views, both pure and read-only:
+//   - getToolBoundarySummary(): the legacy STATIC tier description (v0), kept for
+//     backward compatibility with existing consumers/tests.
+//   - getToolBoundaryV1Summary(): the v1 reflection of the REAL registry ids
+//     (src/lib/agentic/tool-boundary), with per-tool tier/gate/risk + consistency
+//     warnings comparing the static list against the real registry.
+// Tool ids mirror src/lib/llm/tools/registry.ts (11 read tools, 7 write tools).
 
 import type { ToolBoundaryEntry } from "./types";
+import {
+  buildToolBoundaryV1Summary,
+  type StaticBoundaryView,
+  type ToolBoundaryV1Summary,
+} from "@/lib/agentic/tool-boundary";
 
 const BOUNDARY: ToolBoundaryEntry[] = [
   {
@@ -71,4 +81,26 @@ const BOUNDARY: ToolBoundaryEntry[] = [
 
 export function getToolBoundarySummary(): ToolBoundaryEntry[] {
   return BOUNDARY;
+}
+
+/**
+ * The tool ids the STATIC boundary displays in its tool tiers (read-only,
+ * draft-proposal, confirmed-write). The forbidden-autonomous tier lists ACTION
+ * labels, not tool ids, so it is excluded from the drift comparison.
+ */
+function getStaticBoundaryView(): StaticBoundaryView {
+  const toolIds = BOUNDARY.filter(
+    (e) => e.category !== "forbidden-autonomous",
+  ).flatMap((e) => e.items);
+  return { toolIds };
+}
+
+/**
+ * Tool Boundary v1 — read-only reflection of the REAL tool registry ids, with
+ * per-tool tier/gate/risk, per-tier counts, and consistency warnings that
+ * compare the static display above against the real registry. Pure: no tool is
+ * executed, no token created, no write performed.
+ */
+export function getToolBoundaryV1Summary(): ToolBoundaryV1Summary {
+  return buildToolBoundaryV1Summary(getStaticBoundaryView());
 }

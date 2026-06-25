@@ -134,6 +134,21 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
   It declines to the in-memory path on SQLite or any failure (badge
   `aggregation: fallback in-memory`). No new table, no migration, no schema change.
   See the v1.2 section of [`ROUTER_OBSERVABILITY_V1.md`](./ROUTER_OBSERVABILITY_V1.md).
+- **Router Quality Review v0** interprets the observability data (read-only): health
+  rates (unknown / dangerous-refusal / educational / nav / fallback), a negated-no-nav
+  count, top matched rules, and a watchlist of degraded patterns (high unknown / high
+  dangerous-refusal / high-fallback / no-recent-data). Pure derivation from the summary
+  (`quality-review.ts`), no query, no rule/prompt/guard/HITL change, no action.
+  See [`ROUTER_QUALITY_REVIEW_V0.md`](./ROUTER_QUALITY_REVIEW_V0.md).
+- **Tool Boundary v1** reflects the REAL tool registry (read-only): the 11 read +
+  7 write tool ids are reflected from the side-effect-free id arrays
+  (`src/lib/agentic/tool-boundary`), classified into tiers
+  (read_only / draft_or_proposal / confirmed_write / forbidden_autonomous / unknown)
+  with per-tool gate / risk / runtime / source, plus static-vs-code consistency
+  warnings and a completeness test that fails if any real tool id is unclassified.
+  Attached as `AgenticControlCenterData.toolBoundaryV1` (additive; the legacy static
+  `tools` tier list is unchanged). No tool execution, no registry change, no write UI.
+  See [`TOOL_BOUNDARY_V1.md`](./TOOL_BOUNDARY_V1.md).
 
 ## Next steps
 

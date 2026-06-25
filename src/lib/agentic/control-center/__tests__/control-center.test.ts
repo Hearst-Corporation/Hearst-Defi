@@ -4,6 +4,7 @@ import {
   getAgenticInventory,
   getHumanGateInventory,
   getToolBoundarySummary,
+  getToolBoundaryV1Summary,
   getPromptMap,
   getRouterStatusSummary,
   getSafetySummary,
@@ -145,6 +146,47 @@ describe("agentic control center — tool boundary", () => {
     expect(blob).toContain("deploy");
     expect(blob).toContain("migration");
     expect(blob).toContain("signature");
+  });
+});
+
+describe("agentic control center — tool boundary v1 (reflection)", () => {
+  const v1 = getToolBoundaryV1Summary();
+
+  it("is a code reflection with per-tier counts + tools + safety notes", () => {
+    expect(v1.source).toBe("code_reflection");
+    expect(v1.tools.length).toBeGreaterThan(0);
+    expect(v1.safetyNotes.length).toBeGreaterThan(0);
+    expect(v1.counts.read_only).toBe(11);
+    expect(v1.counts.confirmed_write).toBe(1);
+    expect(v1.counts.draft_or_proposal).toBe(6);
+    expect(v1.counts.unknown).toBe(0);
+  });
+
+  it("the static Control Center boundary is in sync with the real registry (no drift)", () => {
+    // The static BOUNDARY lists exactly the real 11 read + 7 write ids, so there
+    // should be no missing-in-static / stale-static warnings.
+    const drift = v1.consistencyIssues.filter(
+      (i) =>
+        i.id.startsWith("missing-in-static:") || i.id.startsWith("stale-static:"),
+    );
+    expect(drift).toEqual([]);
+  });
+
+  it("has zero critical consistency issues (every write is gated + non-autonomous)", () => {
+    expect(v1.consistencyIssues.filter((i) => i.severity === "critical")).toEqual(
+      [],
+    );
+  });
+
+  it("every reflected write tool requires a gate and is non-autonomous", () => {
+    const writes = v1.tools.filter(
+      (t) => t.tier === "draft_or_proposal" || t.tier === "confirmed_write",
+    );
+    expect(writes.length).toBe(7);
+    for (const t of writes) {
+      expect(t.humanGateRequired).toBe(true);
+      expect(t.autonomousAllowed).toBe(false);
+    }
   });
 });
 
@@ -318,6 +360,14 @@ describe("agentic control center — data aggregator", () => {
     expect(data.prompts.length).toBeGreaterThan(0);
     expect(data.safetySummary.length).toBeGreaterThan(0);
     expect(data.nextSteps.length).toBeGreaterThan(0);
+  });
+
+  it("includes the Tool Boundary v1 reflection (additive, backward-compatible)", () => {
+    expect(data.toolBoundaryV1).toBeDefined();
+    expect(data.toolBoundaryV1!.source).toBe("code_reflection");
+    expect(data.toolBoundaryV1!.tools.length).toBeGreaterThan(0);
+    // legacy static tier list is still present and unchanged
+    expect(data.tools.length).toBe(4);
   });
 
   it("is a static registry marker, not a live timestamp", () => {

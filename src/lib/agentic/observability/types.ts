@@ -140,6 +140,71 @@ export interface RouterBucketAggregateRow {
 export type RouterMatchedRuleAggregateRow = RouterMatchedRuleCount;
 
 // ---------------------------------------------------------------------------
+// Router Quality Review (v0) — read-only INTERPRETATION of the EXISTING
+// observability data. No new query, no new field stored, no rule/guard change.
+// Turns the window stats (+ top rules + storage mode) into health rates and a
+// read-only watchlist so an admin can SEE degraded patterns. Pure types.
+// ---------------------------------------------------------------------------
+
+/** One health rate (0..1) over the window, with its numerator/denominator. */
+export interface RouterQualityRate {
+  /** Stable key, e.g. "unknown" / "dangerous_refusal". */
+  key: string;
+  /** Human label, e.g. "Unknown rate". */
+  label: string;
+  /** Count of decisions in this category over the window. */
+  count: number;
+  /** Total decisions over the window (the rate denominator). */
+  total: number;
+  /** count / total, or 0 when total is 0. Rounded to 4 dp. */
+  rate: number;
+}
+
+/** Severity of a watchlist signal — drives the badge tone only. */
+export type RouterQualitySeverity = "info" | "watch" | "alert";
+
+/** One read-only watchlist signal: a named pattern worth an admin's attention. */
+export interface RouterQualitySignal {
+  /** Stable key, e.g. "high_unknown" / "no_recent_data". */
+  key:
+    | "high_unknown"
+    | "high_dangerous_refusal"
+    | "high_fallback"
+    | "no_recent_data";
+  /** Short label rendered on the watchlist row. */
+  label: string;
+  /** Whether the signal is currently active (threshold crossed). */
+  active: boolean;
+  severity: RouterQualitySeverity;
+  /** One-line, read-only explanation of what the signal means + the evidence. */
+  detail: string;
+}
+
+/**
+ * The read-only Router Quality Review payload: interpreted rates + a watchlist,
+ * derived purely from a RouterObservabilitySummary. NEVER an action, NEVER a
+ * rule/prompt change — visibility only.
+ */
+export interface RouterQualityReview {
+  /** The window the review interprets (same as the summary window). */
+  window: RouterObservabilityWindow;
+  /** Total decisions over the window. */
+  total: number;
+  /** Health rates over the window (unknown / dangerous / educational / nav / fallback). */
+  rates: RouterQualityRate[];
+  /** Count of negated-no-nav decisions (a raw count, not a rate). */
+  negatedNoNav: number;
+  /** Top matched rules over the window (echoed from the summary, read-only). */
+  topMatchedRules: RouterMatchedRuleCount[];
+  /** The read-only watchlist — every known signal, active or not. */
+  watchlist: RouterQualitySignal[];
+  /** Number of currently-active watchlist signals. */
+  activeSignalCount: number;
+  /** Honest note: this is interpretation of existing data, no behaviour change. */
+  note: string;
+}
+
+// ---------------------------------------------------------------------------
 // Trends (v0.1) — purely additive, computed from the SAME recent trace buffer.
 // No new storage, no new fields stored. These are derived views only.
 // ---------------------------------------------------------------------------
@@ -261,4 +326,9 @@ export interface RouterObservabilitySummary {
    *  - "fallback"  → aggregated from the Redis/memory buffer (durable down)
    * Optional so older summaries / fallback callers stay backward-compatible. */
   aggregationMode?: RouterObservabilityAggregationMode;
+  /**
+   * Read-only Router Quality Review (v0): interpreted health rates + a watchlist
+   * derived from this summary. Optional so the summary stays backward-compatible
+   * and so callers that don't need the interpretation can omit it. */
+  qualityReview?: RouterQualityReview;
 }
