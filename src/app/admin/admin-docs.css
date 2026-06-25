@@ -758,3 +758,25 @@ a.agentic-topology-node:hover {
       "forbidden";
   }
 }
+
+/* =============================================================================
+   NOTIFICATIONS DRAWER — admin shell overlay (wired, no backend yet)
+   ============================================================================= */
+
+.notifications-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: transparent;
+}
+
+.notifications-drawer__panel {
+  position: absolute;
+  top: var(--ct-space-10);
+  right: var(--ct-space-4);
+  width: 20rem;
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-surface-2);
+  border: 1px solid var(--ct-border-subtle);
+  box-shadow: var(--ct-shadow-lg);
+}
