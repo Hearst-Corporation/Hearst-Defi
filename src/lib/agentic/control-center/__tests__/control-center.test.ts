@@ -158,6 +158,68 @@ describe("agentic control center — router status", () => {
       ]),
     );
   });
+
+  // --- Router stabilization final state (lot close) ----------------------
+
+  it("is active and non-shadow", () => {
+    expect(router.status).toBe("active");
+    expect(router.mode).toBe("non-shadow");
+  });
+
+  it("reports AGENTIC_ROUTER_SHADOW as dead (zero references)", () => {
+    expect(router.shadowFlag.name).toBe("AGENTIC_ROUTER_SHADOW");
+    expect(router.shadowFlag.alive).toBe(false);
+  });
+
+  it("renders the verbatim Router Status block as specified", () => {
+    const text = router.statusBlock.join("\n");
+    expect(text).toContain("Status: active");
+    expect(text).toContain("Mode: non-shadow");
+    expect(text).toContain("navigation fast-path before LLM");
+    expect(text).toContain("negation protection");
+    expect(text).toContain("dangerous intent refusal before LLM/tool/write");
+    expect(text).toContain("educational read-only steering");
+    expect(text).toContain("Legacy fallback:");
+    expect(text).toContain("- retained");
+    expect(text).toContain("- gated by negation");
+    expect(text).toContain("Guard:");
+    expect(text).toContain("- not bypassed");
+    expect(text).toContain("- prompt steering only");
+    expect(text).toContain(
+      "- forbidden/guaranteed/single-point APY still blocked",
+    );
+  });
+
+  it("asserts the guard is never relaxed by the router (all hold)", () => {
+    for (const a of router.guardAssertions) expect(a.holds).toBe(true);
+    const ids = router.guardAssertions.map((a) => a.id);
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        "guard-not-bypassed",
+        "guard-no-intent-param",
+        "forbidden-words-blocked",
+        "guaranteed-yield-blocked",
+        "single-point-apy-blocked",
+        "no-hitl-token-on-refusal",
+      ]),
+    );
+  });
+
+  it("records the closed-lot release metadata", () => {
+    expect(router.release.lotStatus).toBe("closed");
+    expect(router.release.mergeCommit).toBe("bcb55f2c");
+    expect(router.release.mergePr).toBe("#36");
+    expect(router.release.lockReleaseCommit).toBe("49ce60cc");
+    expect(router.release.lockReleasePr).toBe("#37");
+    expect(router.release.vercel).toBe("ready");
+  });
+
+  it("every router-stabilization validation passed", () => {
+    expect(router.release.validations.length).toBeGreaterThan(0);
+    for (const v of router.release.validations) expect(v.pass).toBe(true);
+    const labels = router.release.validations.map((v) => v.result);
+    expect(labels).toContain("3055/3055");
+  });
 });
 
 describe("agentic control center — safety summary", () => {
@@ -177,6 +239,8 @@ describe("agentic control center — safety summary", () => {
         "no-autonomous-db-migration",
         "hitl-enabled",
         "router-v2-active",
+        "product-education-passes",
+        "yield-education-passes",
       ]),
     );
   });

@@ -49,7 +49,21 @@ const SAFETY: SafetySummaryItem[] = [
     claim: "Deterministic Intent Router v2 active",
     holds: true,
     evidence:
-      "PR #36 — educational read-only hint CONSUMED, negation hole closed; docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md.",
+      "PR #36 (merge bcb55f2c) — educational read-only hint CONSUMED, negation hole closed; docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md.",
+  },
+  {
+    id: "product-education-passes",
+    claim: "Product education passes via prompt steering",
+    holds: true,
+    evidence:
+      "\"explique-moi comment marchent les produits\" → product_explanation → educational steering; the guard is not relaxed.",
+  },
+  {
+    id: "yield-education-passes",
+    claim: "Yield education stays PASS",
+    holds: true,
+    evidence:
+      "\"explique comment fonctionne le yield\" answers compliantly; per-source breakdowns allowed, single-point APY still blocked.",
   },
 ];
 
