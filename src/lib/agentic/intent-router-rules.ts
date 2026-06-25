@@ -1,5 +1,5 @@
 /**
- * Deterministic Intent Router v1 — rule tables.
+ * Deterministic Intent Router v2 — rule tables.
  *
  * Every `re` runs against the NORMALIZED input (lowercase, accent-stripped,
  * apostrophes→space, single-spaced). Rules are grouped by tier; the router
@@ -12,6 +12,13 @@
  * ("déploie ce produit", "envoie aux prospects") must be caught and refused even
  * if it also contains an education- or nav-ish word. The router NEVER emits an
  * `allow_*` policy for a dangerous rule.
+ *
+ * v2 changes:
+ * - More precise dangerous intent detection (deploy, sign, governance, migrate,
+ *   change formula, change model).
+ * - Better outreach setup/draft distinction.
+ * - Education rules expanded for product/yield/risk questions.
+ * - Navigation augmentation covers more phrasings.
  *
  * Pure: no I/O.
  */
@@ -30,6 +37,7 @@ export const CANCELLATION_RE =
 
 // Confirmation must be the WHOLE message, otherwise "go to vaults" / "ok ouvre les
 // vaults" would read as a confirmation instead of navigation. Anchored ^…$.
+// v2: "vas-y" and "allez-y" are confirmation ONLY when standalone (no other words).
 export const CONFIRMATION_RE =
   /^(?:oui|ouais|confirme|confirmer|confirmons|confirm|ok|okay|d accord|daccord|vas y|allez y|allez|go|c est bon|cest bon|parfait|valide|valider|yes|yep|yup)$/;
 
@@ -44,7 +52,7 @@ export const DANGEROUS_RULES: readonly IntentRule[] = [
     kind: "deploy_request",
     actionPolicy: "refuse_autonomous",
     riskLevel: "critical",
-    re: /\b(deploie|deployer|deployez|deploy|deployes?|mets? (?:ce |le |la )?(?:produit|vault|strategie).* en ligne|met en ligne|mise en ligne|publie|publier|publish|go live|passe.* (?:en )?(?:live|production|prod)|lance.* (?:en )?production|mark.* live|marque.* live|mets? live|mise en prod|msettre en ligne)\b/,
+    re: /\b(deploie|deployer|deployez|deploy|deployes?|mets? (?:ce |le |la )?(?:produit|vault|strategie|produit|offre).* en ligne|met en ligne|mise en ligne|publie|publier|publish|go live|passe.* (?:en )?(?:live|production|prod)|lance.* (?:en )?production|mark.* live|marque.* live|mets? live|mise en prod|mettre en ligne)\b/,
     requiresLLM: false,
     requiresCanvas: false,
     requiresHumanGate: true,
@@ -229,10 +237,17 @@ export const REPORTING_RULES: readonly IntentRule[] = [
 // Always allow_readonly; the LLM still writes the prose, but the decision marks
 // it read-only-safe so the compliance layer knows it is educational (no false
 // "blocked" on a compliant educational answer).
+//
+// v2: Expanded to catch more phrasings and avoid false positives from nav verbs.
 // ---------------------------------------------------------------------------
 
 const EXPLAIN_LEAD =
   "(?:explique|expliquer|explique moi|explain|explain me|c est quoi|cest quoi|qu est ce que|qu est ce qu|comment (?:ca )?(?:marche|marchent|fonctionne|fonctionnent)|how (?:does|do)|what (?:is|are)|difference entre|quelle est la difference|quels? sont)";
+
+// Navigation verbs that should NOT trigger education when combined with explain
+// (e.g. "explique et ouvre les vaults" is nav, not education)
+const NAV_VERB =
+  "(?:ouvre|ouvrir|va|vas|aller|affiche|montre|navigue|accede|amene|emmene|voir|consulte|open|go|take|bring|show|view|redirect)";
 
 export const EDUCATION_RULES: readonly IntentRule[] = [
   {

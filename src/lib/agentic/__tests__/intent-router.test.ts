@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyAgenticIntent } from "@/lib/agentic/intent-router";
+import { classifyAgenticIntent, isEducationalReadOnly } from "@/lib/agentic/intent-router";
 import type { AgenticIntentDecision } from "@/lib/agentic/intent-router-types";
 
 const r = (msg: string, ctx = {}) => classifyAgenticIntent(msg, ctx);
@@ -25,6 +25,7 @@ describe("router — navigation positive", () => {
     ["affiche les vaults", "vaults"],
     ["va dans le portefeuille", "portfolio"],
     ["ouvre le portefeuille", "portfolio"],
+    ["va sur le portefeuille", "portfolio"],
   ])("%s → navigation %s", (msg, routeKey) => {
     const d = r(msg);
     expect(d.kind).toBe("navigation");
@@ -33,6 +34,7 @@ describe("router — navigation positive", () => {
     expect(d.requiresLLM).toBe(false);
     expect(d.prohibitedAutonomousAction).toBe(false);
     expect(d.requiresHumanGate).toBe(false);
+    expect(d.negated).toBe(false);
   });
 
   it("open outreach → navigation admin-outreach", () => {
@@ -43,7 +45,13 @@ describe("router — navigation positive", () => {
 
   it("dashboard → navigation (admin-dashboard for admin)", () => {
     expect(r("dashboard", { isAdmin: true }).routeKey).toBe("admin-dashboard");
-    expect(r("dashboard").kind).toBe("navigation");
+    expect(r("dashboard").routeKey).toBe("portfolio");
+  });
+
+  it("product workspace → navigation admin-product-workspace", () => {
+    const d = r("product workspace");
+    expect(d.kind).toBe("navigation");
+    expect(d.routeKey).toBe("admin-product-workspace");
   });
 });
 
@@ -55,15 +63,37 @@ describe("router — navigation negated → cancellation, never navigate", () =>
   it.each([
     "je ne veux pas ouvrir le portefeuille",
     "ne va pas dans vaults",
+    "n'ouvre pas les vaults",
     "n ouvre pas les vaults",
     "don't go to portfolio",
     "do not open outreach",
+    "ne va pas dans le portefeuille",
+    "je ne veux pas aller dans les vaults",
   ])("%s → cancellation, no route", (msg) => {
     const d = r(msg);
     expect(d.kind).toBe("cancellation");
     expect(d.negated).toBe(true);
     expect(d.routeKey).toBeUndefined();
     expect(d.actionPolicy.startsWith("allow_")).toBe(false);
+    expect(d.prohibitedAutonomousAction).toBe(false);
+  });
+
+  it("n'ouvre pas (with apostrophe) → cancellation", () => {
+    const d = r("n'ouvre pas les vaults");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
+
+  it("sans ouvrir → cancellation (negation of action)", () => {
+    const d = r("sans ouvrir les vaults");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
+
+  it("ni ouvrir ni envoyer → cancellation", () => {
+    const d = r("ni ouvrir ni envoyer");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
   });
 });
 
@@ -90,6 +120,8 @@ describe("router — education read-only", () => {
     ["explique les risques", "risk_explanation"],
     ["quels sont les risques d'un produit", "risk_explanation"],
     ["explique les risques d'un produit", "risk_explanation"],
+    ["how does the yield work", "yield_explanation"],
+    ["explain how yield works", "yield_explanation"],
   ])("%s → %s (read-only)", (msg, kind) => {
     const d = r(msg);
     expect(d.kind).toBe(kind);
@@ -97,6 +129,21 @@ describe("router — education read-only", () => {
     expect(d.requiresHumanGate).toBe(false);
     expect(d.prohibitedAutonomousAction).toBe(false);
     expect(d.requiresCanvas).toBe(false);
+    expect(isEducationalReadOnly(d)).toBe(true);
+  });
+
+  it("negated education → unknown, not read-only", () => {
+    const d = r("ne m'explique pas comment fonctionne le yield");
+    expect(d.kind).toBe("unknown");
+    expect(d.negated).toBe(true);
+    expect(d.actionPolicy).toBe("needs_clarification");
+    expect(isEducationalReadOnly(d)).toBe(false);
+  });
+
+  it("generic education → education", () => {
+    const d = r("explique-moi quelque chose");
+    expect(d.kind).toBe("education");
+    expect(d.actionPolicy).toBe("allow_readonly");
   });
 });
 
@@ -144,6 +191,18 @@ describe("router — outreach", () => {
   it("send the campaign (EN) → send_request", () => {
     expect(r("send the campaign").kind).toBe("send_request");
   });
+
+  it("negated outreach setup → cancellation", () => {
+    const d = r("ne lance pas une campagne outreach");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
+
+  it("negated send → cancellation", () => {
+    const d = r("n'envoie pas aux prospects");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -172,6 +231,12 @@ describe("router — product / vault", () => {
 
   it("analyse la complétude du vault → vault_readiness", () => {
     expect(r("analyse la complétude du vault").kind).toBe("vault_readiness");
+  });
+
+  it("negated product draft → cancellation", () => {
+    const d = r("ne crée pas un draft de vault");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
   });
 });
 
@@ -207,6 +272,33 @@ describe("router — dangerous intents refused autonomous", () => {
     expect(d.kind).toBe("cancellation");
     expect(d.prohibitedAutonomousAction).toBe(false);
     expect(d.actionPolicy.startsWith("allow_")).toBe(false);
+    expect(d.negated).toBe(true);
+  });
+
+  it("don't deploy → cancellation", () => {
+    const d = r("don't deploy this vault");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
+
+  it("do not sign → cancellation", () => {
+    const d = r("do not sign the transaction");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
+
+  it("sans déployer → cancellation (negation of action)", () => {
+    const d = r("sans déployer ce vault");
+    expect(d.kind).toBe("cancellation");
+    expect(d.negated).toBe(true);
+  });
+
+  it("sans risque → NOT cancellation (forbidden claim, not negation)", () => {
+    const d = r("sans risque");
+    // "sans risque" is not a negation of an action, so it should fall through
+    // to unknown (or potentially be caught by compliance guard, but not router)
+    expect(d.kind).toBe("unknown");
+    expect(d.negated).toBe(false);
   });
 });
 
@@ -236,6 +328,13 @@ describe("router — confirmation / cancellation", () => {
   it("go is confirmation, but 'go to vaults' is navigation (not confirm)", () => {
     expect(r("go").kind).toBe("confirmation");
     expect(r("go to vaults").kind).toBe("navigation");
+  });
+
+  it("vas-y is confirmation, but 'vas-y dans les vaults' is not confirmation", () => {
+    expect(r("vas-y").kind).toBe("confirmation");
+    // "vas y dans les vaults" after normalization becomes "vas y dans les vaults"
+    // which does NOT match the ^...$ confirmation pattern
+    expect(r("vas-y dans les vaults").kind).not.toBe("confirmation");
   });
 });
 
@@ -280,8 +379,137 @@ describe("router — global safety invariants", () => {
     "crée un draft de vault",
     "oui",
     "annule",
+    "n'envoie pas",
+    "ne déploie pas",
+    "sans risque",
+    "explique les risques",
   ];
   it("no decision ever pairs a prohibited flag with an allow_* policy or a route", () => {
     for (const msg of corpus) assertNeverPositiveAction(r(msg));
+  });
+
+  it("no negated message ever produces a positive action", () => {
+    const negatedMessages = [
+      "ne va pas dans vaults",
+      "n'ouvre pas les vaults",
+      "don't go to portfolio",
+      "ne déploie pas ce vault",
+      "n'envoie pas",
+      "ne crée pas un draft",
+      "sans ouvrir",
+      "ni ouvrir ni envoyer",
+    ];
+    for (const msg of negatedMessages) {
+      const d = r(msg);
+      expect(d.actionPolicy.startsWith("allow_")).toBe(false);
+      expect(d.negated).toBe(true);
+    }
+  });
+
+  it("educational messages are always read-only and safe", () => {
+    const educationalMessages = [
+      "explique comment fonctionne le yield",
+      "comment marche le rendement",
+      "explique les produits",
+      "comment fonctionne un vault",
+      "explique les risques",
+      "how does yield work",
+      "what is a vault",
+    ];
+    for (const msg of educationalMessages) {
+      const d = r(msg);
+      expect(isEducationalReadOnly(d)).toBe(true);
+      expect(d.prohibitedAutonomousAction).toBe(false);
+      expect(d.requiresHumanGate).toBe(false);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v2-specific: negation edge cases
+// ---------------------------------------------------------------------------
+
+describe("router — v2 negation edge cases", () => {
+  it("ne … pas construction → negated", () => {
+    const d = r("ne va pas dans les vaults");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("n' … pas construction → negated", () => {
+    const d = r("n'ouvre pas le portefeuille");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("don't → negated", () => {
+    const d = r("don't open outreach");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("do not → negated", () => {
+    const d = r("do not send the campaign");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("never → negated", () => {
+    const d = r("never go to vaults");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("sans + verb → negated", () => {
+    const d = r("sans ouvrir les vaults");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("sans + noun (risque) → NOT negated", () => {
+    const d = r("sans risque");
+    expect(d.negated).toBe(false);
+    // This is a forbidden claim, not a negation — handled by compliance guard
+  });
+
+  it("sans + noun (problème) → NOT negated", () => {
+    const d = r("sans problème");
+    expect(d.negated).toBe(false);
+  });
+
+  it("ni … ni → negated", () => {
+    const d = r("ni ouvrir ni envoyer");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+
+  it("no longer → negated", () => {
+    const d = r("no longer go to vaults");
+    expect(d.negated).toBe(true);
+    expect(d.kind).toBe("cancellation");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v2-specific: isEducationalReadOnly helper
+// ---------------------------------------------------------------------------
+
+describe("router — isEducationalReadOnly helper", () => {
+  it("returns true for education kinds", () => {
+    expect(isEducationalReadOnly(r("explique le yield"))).toBe(true);
+    expect(isEducationalReadOnly(r("explique les produits"))).toBe(true);
+    expect(isEducationalReadOnly(r("explique les risques"))).toBe(true);
+    expect(isEducationalReadOnly(r("génère un brief"))).toBe(true);
+    expect(isEducationalReadOnly(r("vérifie si ce vault est prêt"))).toBe(true);
+  });
+
+  it("returns false for non-education kinds", () => {
+    expect(isEducationalReadOnly(r("go to vaults"))).toBe(false);
+    expect(isEducationalReadOnly(r("déploie ce produit"))).toBe(false);
+    expect(isEducationalReadOnly(r("envoie aux prospects"))).toBe(false);
+    expect(isEducationalReadOnly(r("crée un draft de vault"))).toBe(false);
+    expect(isEducationalReadOnly(r("lance une campagne"))).toBe(false);
+    expect(isEducationalReadOnly(r("oui"))).toBe(false);
+    expect(isEducationalReadOnly(r(""))).toBe(false);
   });
 });
