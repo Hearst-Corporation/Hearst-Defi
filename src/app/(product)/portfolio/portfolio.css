@@ -53,15 +53,8 @@
      des textes "sage" (illisibles à 2.8–4.2:1) sans toucher aux tokens
      globaux. Toutes les classes pf-* consommant ces vars en héritent.
      ─────────────────────────────────────────────────────────────────────── */
-  /* Surfaces : cards remontées d'un cran, écart au fond doublé (9→~20 pts). */
-  --ct-graphite-subtle-bg: #1A1C1F;        /* L1 plate — était #141416 */
-  --ct-graphite-active-bg: #1A1C1F;
-  --ct-graphite-nested-bg: #232529;        /* L2 inset — était #1E1E1E */
-  --ct-surface-1: #1A1C1F;
-  --ct-surface-2: #232529;
-  /* Bordures : hairlines plus présentes pour dessiner les plaques. */
-  --ct-graphite-border-nested: rgba(255, 255, 255, 0.14);  /* était 10% */
-  --ct-border-soft: rgba(255, 255, 255, 0.09);             /* était 5% */
+  /* Surfaces : cards alignées sur le contrat global (#141416) */
+  /* Bordures : alignées sur le contrat global */
   /* Texte : le sage trop sombre passe à des valeurs lisibles (WCAG AA). */
   --ct-text-secondary: #C3D2CA;   /* était #9EB3A8 (4.2:1) → ~9:1 */
   --ct-text-tertiary:  #93A39B;   /* était #7E8F86 (2.8:1) → ~5:1 */
@@ -297,13 +290,10 @@
   min-height: 0;
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 25%, var(--ct-graphite-border-nested));
   border-radius: var(--ct-radius-xl);
-  backdrop-filter: blur(var(--ct-blur-md));
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 8px 32px -4px color-mix(in srgb, var(--ct-surface-0) 40%, transparent),
-    inset 0 0 40px color-mix(in srgb, var(--ct-surface-0) 20%, transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -312,34 +302,17 @@
   min-width: 0;
   min-height: 0;
   background: var(--ct-graphite-subtle-bg);
-  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
-  border-top: 1px solid color-mix(in srgb, var(--ct-accent) 20%, transparent);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 16px 48px -12px color-mix(in srgb, var(--ct-surface-0) 60%, transparent),
-    inset 0 0 60px color-mix(in srgb, var(--ct-surface-0) 20%, transparent);
-  backdrop-filter: blur(var(--ct-blur-2xl));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   overflow: hidden;
 }
 
+/* Pseudo element gradient masks removed to align with surface contract */
 .pf-fused-surface::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ct-text-strong) 8%, transparent),
-    transparent 40%,
-    color-mix(in srgb, var(--ct-text-strong) 4%, transparent)
-  );
-  mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
+  display: none;
 }
 
 .pf-fused-surface--deck {

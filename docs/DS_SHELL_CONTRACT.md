@@ -12,14 +12,16 @@ Ce contrat définit l'utilisation stricte des "shells" et des "surfaces" dans l'
 ### Qui a le droit d'utiliser `product-doc-shell` / `admin-doc-shell` ?
 Uniquement les fichiers `layout.tsx` ou les pages de niveau racine qui ne sont pas déjà enveloppées par un layout fournissant ce shell.
 
-## 2. Surfaces et Matériaux
+## 2. Surfaces et Matériaux (Surface Contract)
 
 **Règle d'or : Une seule surface visuelle par bloc logique.**
 
-*   **`Card` (Surface par défaut) :** Le composant `<Card>` est la surface de module par défaut. Il utilise le matériau graphite opaque (`.ct-glass-panel` en héritage legacy, mais qui est visuellement plat et opaque).
+*   **Page shell owns background :** Le fond de la page est défini globalement par `.ct-page-area` (`--ct-bg-deep`). Aucune page ne doit redéfinir son propre fond (pas de page bleutée vs noire).
+*   **Primary Card Surface :** Le composant `<Card>` est la surface de module par défaut (graphite uniforme, `--ct-surface-1` via `--ct-graphite-subtle-bg`). Les composants métiers ou flows ne doivent *jamais* inventer un nouveau matériau de carte spécifique à leur page.
+*   **Flat dense surface :** `material="flat"` sur les `Card` (via `--ct-surface-0`) sert aux blocs très denses pour rester proches du fond sans effet lourd.
+*   **Nested evidence :** Pour afficher des preuves à l'intérieur d'une carte, utiliser `<NestedPanel>` (`--ct-surface-2`), subtilement séparé, pas une deuxième cage.
+*   **Accent green is not a surface :** L'accent vert ne s'utilise jamais comme grande surface de fond, uniquement comme signal rare.
 *   **Interdiction du Glass sur Glass :** Ne jamais imbriquer une `Card` dans une autre `Card` ou un `dashboard-cockpit-panel` sans utiliser le mode `bare` ou `nested`.
-*   **`NestedPanel` :** Pour afficher des preuves ou des données secondaires à l'intérieur d'une `Card`, utilisez `NestedPanel` (qui est visuellement distinct et plat).
-*   **Dense Panel = Flat :** Les composants denses ou les listes de données doivent utiliser `material="flat"` sur la `Card` pour éviter la lourdeur visuelle.
 
 ### Quand utiliser `dashboard-cockpit-panel` ?
 Uniquement pour les grilles de type tableau de bord (ex: `/admin/dashboard`, `/portfolio`). Les composants qui s'y insèrent doivent être `bare` (sans leur propre `Card`) pour éviter la double surface.
