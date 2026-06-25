@@ -1,7 +1,8 @@
-// Agentic Control Center v0 — tool boundary summary (static, read-only).
+// Agentic Control Center — tool boundary summary (static, read-only).
 //
 // Describes the four tool tiers WITHOUT executing any tool, creating any token,
-// or performing any write. Pure description for visibility.
+// or performing any write. Pure description for visibility. Tool ids mirror
+// src/lib/llm/tools/registry.ts (11 read tools, 6 write tools).
 
 import type { ToolBoundaryEntry } from "./types";
 
@@ -10,31 +11,36 @@ const BOUNDARY: ToolBoundaryEntry[] = [
     category: "read-only",
     label: "Read-only tools",
     items: [
-      "list_products",
-      "list_routes",
-      "list_specs",
-      "get_live_price",
-      "chart_from_ai",
+      "read_allocations_canonical",
+      "read_market_snapshot",
+      "read_routes_index",
+      "read_specs_index",
+      "read_runtime_capabilities",
+      "generate_chart_spec",
+      "generate_demo_plan",
+      "export_demo_pack",
+      "export_briefing_pack",
       "outreach_list_prospects",
       "outreach_stats",
     ],
     requiresConfirmation: false,
     notes:
-      "Low risk, no confirmation. Bounded reads only; allowed in normal + admin chat modes per policy.ts.",
+      "Low risk, no confirmation. Bounded reads + read-only generation (chart spec, demo/briefing packs). admin chat mode + admin profile per policy.ts.",
   },
   {
     category: "draft-proposal",
     label: "Draft / proposal tools",
     items: [
-      "outreach_source_leads (draft prospects)",
-      "outreach_draft_email (draft message)",
-      "create_vault_draft (draft scenario)",
-      "admin review-note draft",
-      "governance-proposal draft",
+      "create_review_note_draft",
+      "create_governance_proposal_draft",
+      "outreach_source_leads",
+      "outreach_draft_email",
+      "create_campaign_draft",
+      "create_vault_draft",
     ],
     requiresConfirmation: true,
     notes:
-      "Produce a DRAFT only. Every one is gated by a two-step input-bound single-use confirmation token before it touches the DB.",
+      "Persist a DRAFT / proposal state ONLY (status=draft, governance state=DRAFT) — never live/executed/sent. Each is gated by a two-step input-bound single-use confirmation token before it touches the DB.",
   },
   {
     category: "confirmed-write",
@@ -42,7 +48,7 @@ const BOUNDARY: ToolBoundaryEntry[] = [
     items: ["outreach_trigger_send_run"],
     requiresConfirmation: true,
     notes:
-      "The only tool with an external effect. Admin-only chat mode; dispatches solely for Tier B/C when OUTREACH_AUTONOMY ≥ SEND, daily cap + warm-up + suppression re-check + forbidden-words guard + unsubscribe link + audit. Tier A never auto-sent.",
+      "The only tool with an external effect. admin-only; runs the SAME governed cron — dispatches solely for Tier B/C when OUTREACH_AUTONOMY ≥ SEND, daily warm-up cap + suppression re-check + forbidden-words guard + unsubscribe link + audit. Tier A never auto-sent.",
   },
   {
     category: "forbidden-autonomous",
@@ -59,7 +65,7 @@ const BOUNDARY: ToolBoundaryEntry[] = [
     ],
     requiresConfirmation: true,
     notes:
-      "Never reachable from the chat or an agent. These are human-gated admin server actions or out of the agentic surface entirely (ADR-012 / ADR-016 / ADR-017).",
+      "Zero tools in this tier — none reachable from the chat or an agent. These are human-gated admin server actions or out of the agentic surface entirely (ADR-012 / ADR-016 / ADR-017).",
   },
 ];
 

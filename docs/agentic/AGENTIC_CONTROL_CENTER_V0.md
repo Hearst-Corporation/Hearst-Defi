@@ -1,42 +1,46 @@
-# Agentic Control Center — v0 (read-only visibility)
+# Agentic Control Center — v0.1 (read-only visibility)
 
-**Route:** `/admin/agentic` · **Status:** read-only · **Owner module:** `src/lib/agentic/control-center/`
+**Route:** `/admin/agentic` · **Status:** read-only static registry · **Owner module:** `src/lib/agentic/control-center/`
 
 ## Why this exists
 
-The agentic chain — agents, swarms, prompts, tools, guards, human gates — already
+The agentic chain — agents, prompts, tools, guards, human gates, router — already
 lives in code, but it was invisible from the product. There was no single place
 where an admin could answer:
 
 - which agents / logics exist;
 - where their prompts live;
-- which tools they can call;
-- which actions are forbidden;
+- which tools they can call (read / draft / confirmed-write / forbidden);
+- which actions can **never** be autonomous;
 - what is active vs shadow;
-- which guards apply;
-- which human gates protect every write.
+- what guards protect the system;
+- what the real router state is.
 
 The Agentic Control Center makes that chain **visible**, in one read-only page.
+It is a **control / visibility surface, not an orchestration runtime**: it shows
+the system; it never executes it.
 
 ## What it shows
 
-The page (`src/app/admin/agentic/page.tsx`) renders seven sections, each backed
-by a static, typed module:
+The page (`src/app/admin/agentic/page.tsx`) renders nine sections, all fed by one
+aggregator over static, typed modules:
 
 | Section | Module | Accessor |
 | --- | --- | --- |
-| System status (safety) | `safety-summary.ts` | `getSafetySummary()` |
-| Router | `router-status.ts` | `getRouterStatusSummary()` |
-| Agents & logic inventory | `inventory.ts` | `getAgenticInventory()` |
-| Tool boundary | `tool-boundary-summary.ts` | `getToolBoundarySummary()` |
-| Human gates | `gates.ts` | `getHumanGateInventory()` |
-| Prompt map | `prompt-map.ts` | `getPromptMap()` |
-| Next steps | inline | — |
+| 1. System status | (page) | composed |
+| 2. Router | `router-status.ts` | `getRouterStatusSummary()` |
+| 3. Agents & logic inventory | `inventory.ts` | `getAgenticInventory()` |
+| 4. Tool boundary | `tool-boundary-summary.ts` | `getToolBoundarySummary()` |
+| 5. Human gates | `gates.ts` | `getHumanGateInventory()` |
+| 6. Prompt map | `prompt-map.ts` | `getPromptMap()` |
+| 7. Compliance / Guards | (page + router policy) | composed |
+| 8. Safety summary | `safety-summary.ts` | `getSafetySummary()` |
+| 9. Next architecture steps | `next-steps.ts` | `getNextSteps()` |
 
-Each inventory item points at its **real source-of-truth path(s)**, and carries
-its `type`, `status`, `writesAllowed`, `humanGateRequired`, `riskLevel`, and notes.
+`index.ts` exposes `getAgenticControlCenterData()` which composes all of the
+above into one `AgenticControlCenterData` object (the page calls only this).
 
-## What it does NOT do — read-only guarantee
+## Read-only guarantee
 
 This feature is **read-only by construction**:
 
@@ -44,57 +48,65 @@ This feature is **read-only by construction**:
 - No LLM call.
 - No tool execution, no confirmation token creation, no write.
 - No filesystem scan at runtime — the inventory is a static, client-safe constant.
+- `generatedAt` is the literal string `"static registry v0.1 / read-only"`, **not**
+  a live timestamp (pure code: no `Date.now()`).
 - The page is `export const dynamic = "force-static"`.
 
 It describes the agentic chain; it never drives it.
 
-## How to add an agent to the registry
+## What it shows about the router (real state, post PR #36)
+
+- **Active, non-shadow** — `AGENTIC_ROUTER_SHADOW` is removed (no refs).
+- Active paths (before the LLM): navigation fast-path, negation protection,
+  dangerous-intent refusal, educational read-only steering.
+- Shadow / not built: full crew runtime, external swarms / CrewAI, tool-execution
+  orchestration.
+- Legacy nav fallback retained, gated on `!decision.negated`.
+- Guard policy: output guard is **not** bypassed — forbidden words + single-point
+  APY headline stay hard-blocked; educational steering is prompt-only.
+
+## How inventory is maintained
 
 1. Open `src/lib/agentic/control-center/inventory.ts`.
-2. Append an `AgenticInventoryItem` with accurate `paths` and flags:
-   ```ts
-   {
-     id: "my-agent",
-     name: "My Agent",
-     domain: "scenario",
-     paths: ["src/lib/agents/my-agent.ts"],
-     type: "batch-agent",
-     status: "active",
-     writesAllowed: false,
-     humanGateRequired: false,
-     riskLevel: "low",
-     notes: "What it does, structured-output only, compliance posture.",
-   }
-   ```
-3. If the agent can write, add a matching **human gate** (see below) and a prompt
-   map entry pointing at its prompt.
-4. The inventory test (`__tests__/control-center.test.ts`) asserts core agents
-   are present and ids are unique — keep it green.
+2. Append an `AgenticInventoryItem` with accurate `paths` + `promptLocations` and
+   flags (`type`, `status`, `writesAllowed`, `humanGateRequired`, `riskLevel`).
+3. `writesAllowed` means "the underlying logic touches a persisted row" — it does
+   **not** mean the chat can trigger it autonomously. `humanGateRequired` + the
+   Human Gates section are the authoritative "never autonomous" record.
+4. The inventory test asserts core items are present + ids unique — keep it green.
 
-## How to add a gate
+## How gates are represented
 
-1. Open `src/lib/agentic/control-center/gates.ts`.
-2. Append a `HumanGate`. **Every critical gate must be**
-   `autonomousAllowed: false`, `requiresAdmin: true`, `requiresConfirmation: true`
-   — the test enforces this invariant.
-3. Point `paths` at the server action / policy that enforces the gate.
+- `src/lib/agentic/control-center/gates.ts` lists every critical action.
+- **Every** gate is `autonomousAllowed: false`, `requiresHuman: true`,
+  `requiresAdmin: true`, `requiresConfirmation: true` — the test enforces this
+  invariant. deploy / safe_signature / governance_execute / db_migration /
+  formula_change / model_change are `riskLevel: "critical"`.
+- `protectedActions` names the concrete tool ids / server actions behind the gate.
 
-## Limits of v0
+## How prompts are mapped
 
-- Static, not live: status reflects code wiring, not real-time run activity.
-- No per-turn router trace, no audit timeline, no run counts.
-- Prompt **bodies** are not rendered (paths + summaries only), to avoid exposing
-  the steering surface in the UI.
+- `prompt-map.ts` surfaces **paths + summaries only**, never full prompt bodies, to
+  avoid exposing the steering surface in the UI.
+- Every entry carries `editableInUi: false` — prompts are not editable from here.
+
+## What it does NOT do (non-goals)
+
+- No crew runtime. No CrewAI / external swarms connected.
+- No tool execution, no write, no confirmation token.
+- No live DB traces, no run counters (status reflects code wiring, not activity).
+- No prompt editing. No deploy console.
+- No chat-route / router / guard / HITL / tool-registry runtime changes.
+- No DB migration, no Prisma/schema change.
+
+## Limits of v0.1
+
+- Static, not live: a future lot can wire `LlmRun` + `AdminToolRun` counts in.
 - Manual registry: adding an agent in code does not auto-register it here.
 
 ## Next steps
 
-- Wire live run signals (`LlmRun` + `AdminToolRun` counts) into each card.
-- Surface the active vs shadow router decision per recent turn (read-only trace),
-  after the router/guard stabilization lands.
-- Add a per-gate "last invoked / last confirmed" timeline from the audit log.
-
-## Non-goals
-
-No crew runtime, no CrewAI, no tool execution, no write, no live DB traces, no
-prompt editing, no deploy console.
+See the in-page "Next architecture steps" (and `next-steps.ts`):
+router observability traces · Chat Engine / Context Composer extraction · Tool
+Boundary split · Reporting Crew (read-only) · Product Workspace Crew · Investor
+Pipeline Crew. All are `planned`, none built.

@@ -1,9 +1,17 @@
-// Agentic Control Center v0 — shared types.
+// Agentic Control Center — shared types (v0.1).
 //
 // READ-ONLY visibility layer. These types describe a STATIC inventory of the
 // agentic chain (agents, routers, tools, gates, prompts) so admins can see what
 // exists in code without executing anything. No DB, no LLM, no I/O — this module
 // is client-safe and pure.
+//
+// v0.1 widens the vocabulary (server_action / registry / prompt / observability
+// types, planned status, none/critical risk) and adds a top-level aggregate
+// (AgenticControlCenterData) without breaking the v0 surface.
+
+// ---------------------------------------------------------------------------
+// Inventory
+// ---------------------------------------------------------------------------
 
 /** Where a piece of logic sits in the agentic chain. */
 export type AgenticItemType =
@@ -14,7 +22,11 @@ export type AgenticItemType =
   | "validator"
   | "canvas"
   | "guard"
-  | "worker";
+  | "worker"
+  | "server-action"
+  | "registry"
+  | "prompt"
+  | "observability";
 
 /** Operational status of a piece of logic. */
 export type AgenticStatus =
@@ -23,10 +35,11 @@ export type AgenticStatus =
   | "read-only"
   | "gated"
   | "legacy"
+  | "planned"
   | "unknown";
 
 /** Coarse risk classification for visibility (not a runtime control). */
-export type RiskLevel = "low" | "medium" | "high";
+export type RiskLevel = "none" | "low" | "medium" | "high" | "critical";
 
 /** One entry in the agent / logic inventory. */
 export interface AgenticInventoryItem {
@@ -38,6 +51,8 @@ export interface AgenticInventoryItem {
   domain: string;
   /** Source-of-truth file path(s), relative to repo root. */
   paths: string[];
+  /** Where this item's prompt(s) live, if any. */
+  promptLocations?: string[];
   type: AgenticItemType;
   status: AgenticStatus;
   /** Can this logic, by itself, produce a persisted write? */
@@ -47,6 +62,10 @@ export interface AgenticInventoryItem {
   riskLevel: RiskLevel;
   notes: string;
 }
+
+// ---------------------------------------------------------------------------
+// Router
+// ---------------------------------------------------------------------------
 
 /** Router active/shadow/legacy path visibility. */
 export interface RouterPath {
@@ -82,27 +101,38 @@ export interface RouterReleaseSummary {
 
 export interface RouterStatusSummary {
   deterministicRouterExists: boolean;
-  /** Which router version is wired into the chat route. */
-  version: string;
   /** active = wired non-shadow into the chat control flow. */
   status: "active" | "shadow" | "legacy";
   /** "non-shadow" once the router drives control flow (not just logs). */
   mode: "non-shadow" | "shadow";
+  /** Which router version is wired into the chat route. */
+  version: string;
   /** The AGENTIC_ROUTER_SHADOW flag: dead once the router is non-shadow. */
   shadowFlag: { name: string; alive: boolean; notes: string };
   routerPaths: RouterPath[];
+  /** Convenience string lists for the summary panel. */
+  activePaths: string[];
+  shadowOnlyPaths: string[];
+  educationalSteering: string;
+  dangerousIntentPolicy: string;
+  guardPolicy: string;
   /** Guard-handoff assertions (guard never relaxed by the router). */
   guardAssertions: RouterGuardAssertion[];
   /** Verbatim Router Status block rendered as-is in /admin/agentic. */
   statusBlock: string[];
   /** Closed-lot release / validation metadata. */
   release: RouterReleaseSummary;
+  /** Source files. */
   paths: string[];
   legacyFallback: {
     status: AgenticStatus;
     notes: string;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Tool boundary
+// ---------------------------------------------------------------------------
 
 /** Tool boundary categories — what the model may call, and what it may never do. */
 export type ToolBoundaryCategory =
@@ -121,26 +151,46 @@ export interface ToolBoundaryEntry {
   notes: string;
 }
 
+// ---------------------------------------------------------------------------
+// Human gates
+// ---------------------------------------------------------------------------
+
 /** A critical human gate protecting a sensitive action. */
 export interface HumanGate {
   id: string;
   action: string;
+  domain: string;
   /** Can the chat / an agent ever perform this autonomously? */
   autonomousAllowed: boolean;
+  requiresHuman: boolean;
   requiresAdmin: boolean;
   requiresConfirmation: boolean;
+  riskLevel: RiskLevel;
+  /** Specific actions this gate protects. */
+  protectedActions: string[];
   paths: string[];
   notes: string;
 }
 
+// ---------------------------------------------------------------------------
+// Prompt map
+// ---------------------------------------------------------------------------
+
 /** Pointer to where a class of prompt / guard text lives. */
 export interface PromptMapEntry {
   id: string;
-  kind: "system" | "agent" | "canvas" | "guard";
+  kind: "system" | "agent" | "canvas" | "guard" | "methodology";
   label: string;
+  domain: string;
   paths: string[];
+  /** Always false in v0.1 — prompts are not editable from the UI. */
+  editableInUi: false;
   summary: string;
 }
+
+// ---------------------------------------------------------------------------
+// Safety + next steps
+// ---------------------------------------------------------------------------
 
 export interface SafetySummaryItem {
   id: string;
@@ -148,4 +198,29 @@ export interface SafetySummaryItem {
   /** true = the safety property holds (verified from repo/docs). */
   holds: boolean;
   evidence: string;
+}
+
+export interface NextStepItem {
+  id: string;
+  title: string;
+  why: string;
+  /** Honest scope marker: this is planned, not built. */
+  status: "planned";
+}
+
+// ---------------------------------------------------------------------------
+// Aggregate
+// ---------------------------------------------------------------------------
+
+export interface AgenticControlCenterData {
+  /** Static-registry marker — NOT a live timestamp (no Date.now in pure code). */
+  generatedAt: string;
+  version: string;
+  router: RouterStatusSummary;
+  inventory: AgenticInventoryItem[];
+  gates: HumanGate[];
+  tools: ToolBoundaryEntry[];
+  prompts: PromptMapEntry[];
+  safetySummary: SafetySummaryItem[];
+  nextSteps: NextStepItem[];
 }

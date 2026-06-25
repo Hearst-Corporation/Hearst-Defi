@@ -1,8 +1,9 @@
-// Admin · Agentic Control Center v0 — read-only visibility into the agentic chain.
+// Admin · Agentic Control Center v0.1 — read-only visibility into the agentic chain.
 // Server Component — gated by the admin layout (session.role === "admin").
 //
-// READ-ONLY: this page renders a static inventory only. It executes no tool,
+// READ-ONLY: this page renders a STATIC registry only. It executes no tool,
 // creates no confirmation token, performs no write, and touches no DB or LLM.
+// All data comes from getAgenticControlCenterData() (pure, client-safe).
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
@@ -12,14 +13,7 @@ import {
   RiskBadge,
   FlagBadge,
 } from "@/components/admin/agentic/status-badge";
-import {
-  getRouterStatusSummary,
-  getAgenticInventory,
-  getHumanGateInventory,
-  getToolBoundarySummary,
-  getPromptMap,
-  getSafetySummary,
-} from "@/lib/agentic/control-center";
+import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
 
 export const dynamic = "force-static";
 export const metadata = { title: "Agentic Control Center — Hearst Connect" };
@@ -39,61 +33,81 @@ function PathList({ paths }: { paths: string[] }) {
   );
 }
 
+/** One small status pill in the System Status banner. */
+function SystemStatusChip({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "ok" | "warn" | "muted";
+}) {
+  return (
+    <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-1)]">
+      <span className="stat-label ct-text-muted">{label}</span>
+      <div className="admin-doc-inline-row admin-doc-inline-row--start">
+        <span
+          aria-hidden
+          className="h-2 w-2 rounded-full"
+          style={{
+            background:
+              tone === "ok"
+                ? "var(--ct-accent)"
+                : tone === "warn"
+                  ? "var(--ct-status-warning)"
+                  : "var(--ct-text-faint)",
+          }}
+        />
+        <span className="body-xs ct-text-strong">{value}</span>
+      </div>
+    </Card>
+  );
+}
+
 export default function AgenticControlCenterPage() {
-  const router = getRouterStatusSummary();
-  const inventory = getAgenticInventory();
-  const gates = getHumanGateInventory();
-  const boundary = getToolBoundarySummary();
-  const promptMap = getPromptMap();
-  const safety = getSafetySummary();
+  const data = getAgenticControlCenterData();
+  const { router, inventory, gates, tools, prompts, safetySummary, nextSteps } =
+    data;
 
   return (
     <>
       <AdminPageHeader
         titleLead="Agentic"
         titleAccent="Control Center"
-        contextLabel="Agentic Control Center · read-only v0"
+        contextLabel={`Agentic Control Center · static registry ${data.version} / read-only`}
       />
 
-      {/* System status -------------------------------------------------- */}
+      {/* 1. System status ---------------------------------------------- */}
       <section className="admin-doc-stack" aria-label="System status">
         <h2 className="h2">System status</h2>
         <p className="body-xs ct-text-muted">
           A read-only map of every agent, router, tool, guard, and human gate in
           the platform — what exists, where its prompt lives, what it may write,
-          and what can never be autonomous. This page runs nothing.
+          and what can never be autonomous. This page runs nothing: static
+          registry {data.version}, no live telemetry.
         </p>
         <div className="admin-doc-card-grid-3">
-          {safety.map((s) => (
-            <Card
-              key={s.id}
-              hoverOverlay={false}
-              contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-            >
-              <div className="admin-doc-inline-row admin-doc-inline-row--start">
-                <Badge variant={s.holds ? "success" : "danger"}>
-                  {s.holds ? "PASS" : "REVIEW"}
-                </Badge>
-                <span className="flex-1" />
-              </div>
-              <h3 className="h3 m-0">{s.claim}</h3>
-              <p className="body-xs ct-text-muted">{s.evidence}</p>
-            </Card>
-          ))}
+          <SystemStatusChip label="Router" value="Active · non-shadow" tone="ok" />
+          <SystemStatusChip label="HITL" value="Enabled on every write" tone="ok" />
+          <SystemStatusChip label="Compliance guard" value="Active" tone="ok" />
+          <SystemStatusChip label="Writes" value="Gated (draft + HITL)" tone="ok" />
+          <SystemStatusChip label="Autonomous criticals" value="None reachable" tone="ok" />
+          <SystemStatusChip
+            label="External swarms"
+            value="Not connected"
+            tone="muted"
+          />
         </div>
       </section>
 
-      {/* Router --------------------------------------------------------- */}
+      {/* 2. Router ------------------------------------------------------ */}
       <section className="admin-doc-stack" aria-label="Router status">
         <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
           <h2 className="h2 m-0">Router</h2>
-          <Badge variant={router.deterministicRouterExists ? "success" : "default"}>
-            {router.version}
+          <Badge variant={router.status === "active" ? "success" : "default"}>
+            {router.version} · {router.mode}
           </Badge>
-          <Badge variant={router.status === "active" ? "success" : "warning"}>
-            {router.status}
-          </Badge>
-          <Badge variant="accent">{router.mode}</Badge>
           <span className="flex-1" />
           <Badge variant={router.release.lotStatus === "closed" ? "success" : "warning"}>
             lot {router.release.lotStatus}
@@ -101,8 +115,7 @@ export default function AgenticControlCenterPage() {
         </div>
         <p className="body-xs ct-text-muted">
           Deterministic classification runs <em>before</em> the LLM. Active paths
-          act on control flow; shadow paths are classified for visibility but
-          stay behind HITL.
+          act on control flow; shadow paths are not built / not connected.
         </p>
 
         {/* Verbatim Router Status block (lot close) -------------------- */}
@@ -189,6 +202,10 @@ export default function AgenticControlCenterPage() {
           ))}
         </div>
         <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+          <span className="stat-label ct-text-muted">Educational steering</span>
+          <p className="body-xs ct-text-muted">{router.educationalSteering}</p>
+          <span className="stat-label ct-text-muted">Dangerous-intent policy</span>
+          <p className="body-xs ct-text-muted">{router.dangerousIntentPolicy}</p>
           <span className="stat-label ct-text-muted">Legacy fallback</span>
           <p className="body-xs ct-text-muted">{router.legacyFallback.notes}</p>
           <span className="stat-label ct-text-faint">Source files</span>
@@ -196,7 +213,7 @@ export default function AgenticControlCenterPage() {
         </Card>
       </section>
 
-      {/* Agents & logic inventory --------------------------------------- */}
+      {/* 3. Agents & logic inventory ----------------------------------- */}
       <section className="admin-doc-stack" aria-label="Agents and logic inventory">
         <h2 className="h2">Agents &amp; logic inventory ({inventory.length})</h2>
         <p className="body-xs ct-text-muted">
@@ -239,7 +256,7 @@ export default function AgenticControlCenterPage() {
         </div>
       </section>
 
-      {/* Tool boundary -------------------------------------------------- */}
+      {/* 4. Tool boundary ---------------------------------------------- */}
       <section className="admin-doc-stack" aria-label="Tool boundary">
         <h2 className="h2">Tool boundary</h2>
         <p className="body-xs ct-text-muted">
@@ -248,7 +265,7 @@ export default function AgenticControlCenterPage() {
           token; the bottom tier is unreachable from the chat.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ct-space-4)]">
-          {boundary.map((b) => (
+          {tools.map((b) => (
             <Card
               key={b.category}
               hoverOverlay={false}
@@ -271,7 +288,7 @@ export default function AgenticControlCenterPage() {
               </div>
               <ul className="flex flex-col gap-[var(--ct-space-1)]">
                 {b.items.map((it) => (
-                  <li key={it} className="body-xs ct-text-body">
+                  <li key={it} className="body-xs ct-text-body font-mono break-all">
                     · {it}
                   </li>
                 ))}
@@ -282,12 +299,12 @@ export default function AgenticControlCenterPage() {
         </div>
       </section>
 
-      {/* Human gates ---------------------------------------------------- */}
+      {/* 5. Human gates ------------------------------------------------ */}
       <section className="admin-doc-stack" aria-label="Human gates">
         <h2 className="h2">Human gates ({gates.length})</h2>
         <p className="body-xs ct-text-muted">
-          Critical actions that must never be autonomous. Every one is
-          <span className="ct-text-strong"> autonomousAllowed = false</span>,
+          Critical actions that must never be autonomous. Every one is{" "}
+          <span className="ct-text-strong">autonomousAllowed = false</span>,
           admin-gated, and confirmation-bound.
         </p>
         <div className="admin-doc-card-grid-3">
@@ -305,6 +322,7 @@ export default function AgenticControlCenterPage() {
                 </Badge>
               </div>
               <div className="flex flex-wrap gap-[var(--ct-space-2)]">
+                <RiskBadge risk={g.riskLevel} />
                 {g.requiresAdmin && <Badge variant="accent">admin</Badge>}
                 {g.requiresConfirmation && <Badge variant="warning">confirm</Badge>}
               </div>
@@ -315,16 +333,16 @@ export default function AgenticControlCenterPage() {
         </div>
       </section>
 
-      {/* Prompt map ----------------------------------------------------- */}
+      {/* 6. Prompt map ------------------------------------------------- */}
       <section className="admin-doc-stack" aria-label="Prompt map">
         <h2 className="h2">Prompt map</h2>
         <p className="body-xs ct-text-muted">
           Where the system prompts, agent prompts, canvas guidance, and textual
           guards live. Paths + summaries only — full prompt bodies stay out of
-          the UI.
+          the UI and are <span className="ct-text-strong">not editable here</span>.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ct-space-4)]">
-          {promptMap.map((pm) => (
+          {prompts.map((pm) => (
             <Card
               key={pm.id}
               hoverOverlay={false}
@@ -337,37 +355,109 @@ export default function AgenticControlCenterPage() {
               </div>
               <p className="body-xs ct-text-muted grow">{pm.summary}</p>
               <PathList paths={pm.paths} />
+              <span className="stat-label ct-text-faint">read-only · not editable</span>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* Next architecture steps ---------------------------------------- */}
+      {/* 7. Compliance / Guards ---------------------------------------- */}
+      <section className="admin-doc-stack" aria-label="Compliance and guards">
+        <h2 className="h2">Compliance / Guards</h2>
+        <p className="body-xs ct-text-muted">
+          The output-side guards that run on every human-facing surface. The
+          router&apos;s educational steering is prompt-only and never relaxes any
+          of these.
+        </p>
+        <div className="admin-doc-card-grid-3">
+          <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+            <Badge variant="success">active</Badge>
+            <h3 className="h3 m-0">Forbidden words</h3>
+            <p className="body-xs ct-text-muted">
+              guarantee / promise / certain / will deliver / risk-free hard-blocked
+              (FR∪EN). No intent exemption.
+            </p>
+            <PathList paths={["src/lib/agents/forbidden-words.ts"]} />
+          </Card>
+          <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+            <Badge variant="success">active</Badge>
+            <h3 className="h3 m-0">APY range</h3>
+            <p className="body-xs ct-text-muted">
+              Single-point headline APY blocked; only genuine ranges + per-source
+              attribution pass. Universal, not intent-based.
+            </p>
+            <PathList paths={["src/lib/agents/apy-range.ts"]} />
+          </Card>
+          <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
+            <Badge variant="success">active</Badge>
+            <h3 className="h3 m-0">Output guard</h3>
+            <p className="body-xs ct-text-muted">
+              chatOutputViolation streams compliance before token emission;
+              look-back buffer + sentinel abort. No intent parameter.
+            </p>
+            <PathList paths={["src/lib/llm/output-guard.ts"]} />
+          </Card>
+        </div>
+        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-1)]">
+          <span className="stat-label ct-text-muted">Educational steering</span>
+          <p className="body-xs ct-text-muted">{router.guardPolicy}</p>
+        </Card>
+      </section>
+
+      {/* 8. Safety summary --------------------------------------------- */}
+      <section className="admin-doc-stack" aria-label="Safety summary">
+        <h2 className="h2">Safety summary</h2>
+        <p className="body-xs ct-text-muted">
+          The headline guarantees, each with the repo / ADR evidence behind it.
+        </p>
+        <div className="admin-doc-card-grid-3">
+          {safetySummary.map((s) => (
+            <Card
+              key={s.id}
+              hoverOverlay={false}
+              contentClassName="flex flex-col gap-[var(--ct-space-2)]"
+            >
+              <div className="admin-doc-inline-row admin-doc-inline-row--start">
+                <Badge variant={s.holds ? "success" : "danger"}>
+                  {s.holds ? "PASS" : "REVIEW"}
+                </Badge>
+                <span className="flex-1" />
+              </div>
+              <h3 className="h3 m-0">{s.claim}</h3>
+              <p className="body-xs ct-text-muted">{s.evidence}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* 9. Next architecture steps ------------------------------------ */}
       <section className="admin-doc-stack" aria-label="Next architecture steps">
         <h2 className="h2">Next architecture steps</h2>
-        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
-          <ul className="flex flex-col gap-[var(--ct-space-2)] body-xs ct-text-muted">
-            <li>
-              · Wire live run signals (LlmRun + AdminToolRun counts) into each
-              inventory card so status reflects real activity, not just static
-              wiring.
-            </li>
-            <li>
-              · Router/guard stabilization is landed (PR #36, merge bcb55f2c,
-              Vercel READY). Next: surface the AgenticIntentDecision per recent
-              turn (kind / policy / negated, read-only trace) from a new telemetry
-              sink — no router/guard change.
-            </li>
-            <li>
-              · Add a per-gate &quot;last invoked / last confirmed&quot; read-only
-              timeline from the audit log.
-            </li>
-          </ul>
-          <p className="body-xs ct-text-faint">
-            Out of scope for v0: no crew runtime, no tool execution, no write, no
-            live DB traces, no prompt editing, no deploy console.
-          </p>
-        </Card>
+        <p className="body-xs ct-text-muted">
+          Planned agentic surfaces — none of this is built. Visibility, not a
+          promise.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ct-space-4)]">
+          {nextSteps.map((n) => (
+            <Card
+              key={n.id}
+              hoverOverlay={false}
+              contentClassName="flex flex-col gap-[var(--ct-space-2)]"
+            >
+              <div className="admin-doc-inline-row admin-doc-inline-row--start">
+                <h3 className="h3 m-0">{n.title}</h3>
+                <span className="flex-1" />
+                <Badge variant="default">{n.status}</Badge>
+              </div>
+              <p className="body-xs ct-text-muted">{n.why}</p>
+            </Card>
+          ))}
+        </div>
+        <p className="body-xs ct-text-faint">
+          Out of scope for {data.version}: no crew runtime, no CrewAI / external
+          swarms, no tool execution, no write, no live DB traces, no prompt
+          editing, no deploy console.
+        </p>
       </section>
     </>
   );

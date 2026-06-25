@@ -13,6 +13,7 @@ const STATUS_VARIANT: Record<AgenticStatus, BadgeVariant> = {
   "read-only": "accent",
   gated: "warning",
   legacy: "default",
+  planned: "default",
   unknown: "default",
 };
 
@@ -21,9 +22,11 @@ export function StatusBadge({ status }: { status: AgenticStatus }) {
 }
 
 const RISK_VARIANT: Record<RiskLevel, BadgeVariant> = {
+  none: "default",
   low: "default",
   medium: "warning",
   high: "danger",
+  critical: "danger",
 };
 
 export function RiskBadge({ risk }: { risk: RiskLevel }) {
