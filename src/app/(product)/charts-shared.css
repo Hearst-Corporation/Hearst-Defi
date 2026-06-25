@@ -44,7 +44,7 @@
 }
 
 .donut-val {
-  font-size: var(--ct-text-3xl-fixed);
+  font-size: var(--ct-text-display-fixed); /* 24 → 32px hero tier */
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tight);

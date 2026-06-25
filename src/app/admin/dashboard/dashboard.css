@@ -220,7 +220,7 @@
 }
 
 .dashboard-risk-summary__value {
-  font-size: var(--ct-text-28-fixed);
+  font-size: var(--ct-text-display-fixed); /* 28 → 32px hero tier */
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.04em;

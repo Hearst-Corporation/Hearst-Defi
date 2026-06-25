@@ -109,7 +109,7 @@
 }
 
 .vault-detail-overview__value {
-  font-size: var(--ct-text-3xl-fixed); /* Fixed cockpit instrument canon */
+  font-size: var(--ct-text-display-fixed); /* 24 → 32px hero tier */
   font-weight: var(--ct-font-extrabold);
   color: var(--ct-text-strong);
   letter-spacing: var(--ct-tracking-tighter);
