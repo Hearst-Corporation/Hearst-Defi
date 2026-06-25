@@ -29,7 +29,6 @@ export async function resolvePostLoginRedirect(
   }
 
   // Everyone enters the platform directly. Onboarding lives inside the platform
-  // and only gates investing, not entry. `safeFrom` with no `from` resolves to
-  // the platform default (/portfolio).
-  return safeFrom(from);
+  // and only gates investing, not entry.
+  return "/portfolio";
 }

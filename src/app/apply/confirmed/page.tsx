@@ -5,7 +5,6 @@ import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
-import { Button } from "@/components/ui/button";
 import { getIrContact } from "@/lib/ir-contact";
 
 export const metadata: Metadata = {
@@ -54,13 +53,14 @@ export default function ConfirmedPage() {
           irContact={irContact}
           actions={
             <div className="product-doc-stack--actions">
-              <Button variant="primary" size="lg" asChild className="w-full">
-                <Link href="/login">Go to sign in</Link>
-              </Button>
+              <p className="body-sm ct-text-muted m-0 text-center text-pretty">
+                Your activation link is on its way. Once you set your password
+                you&apos;ll be signed in automatically — no need to come back here.
+              </p>
               <p className="body-xs ct-text-faint m-0 text-center">
-                Didn&apos;t get the activation email?{" "}
+                Didn&apos;t receive the email?{" "}
                 <Link href="/forgot-password" className="ct-link-accent">
-                  Request a new link
+                  Request a new activation link
                 </Link>
                 .
               </p>
