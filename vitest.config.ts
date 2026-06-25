@@ -33,7 +33,13 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "cockpit-shell/**/*.test.ts"],
+    include: [
+      "src/**/*.test.ts",
+      "src/**/*.test.tsx",
+      "cockpit-shell/**/*.test.ts",
+      // Infra/tooling guards (pure logic) colocated with their scripts.
+      "scripts/**/*.test.mjs",
+    ],
     exclude: ["**/*.live.test.ts"],
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
