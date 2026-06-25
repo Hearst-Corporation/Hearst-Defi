@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { probeReviewMode } from "@/lib/admin/review-mode-probe";
 
 /**
  * Empty-state quick-action chips for the cockpit chat.
@@ -78,14 +79,13 @@ export function ChatPresets({
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/admin/review-mode");
-        if (!cancelled) setRole(res.ok ? "admin" : "lp");
-      } catch {
-        if (!cancelled) setRole("lp"); // fail closed → LP read starters only
-      }
-    })();
+    // Deduped, session-cached admin probe: the GET /api/admin/review-mode round
+    // trip happens at most once per session and is shared with the admin chat
+    // controls — re-mounts (and the LP majority's repeat visits) resolve from
+    // cache with zero network. Fails closed → LP read starters only.
+    void probeReviewMode().then((result) => {
+      if (!cancelled) setRole(result.isAdmin ? "admin" : "lp");
+    });
     return () => {
       cancelled = true;
     };

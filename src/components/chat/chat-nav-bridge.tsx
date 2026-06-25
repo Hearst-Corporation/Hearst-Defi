@@ -60,6 +60,29 @@ export function nextPollDelay(
   return Math.min(current * 2, max);
 }
 
+/**
+ * Pure helper — exported for unit-testing the dedup/coalescing contract.
+ *
+ * After a poll completes, decide the next action. There is at most ONE poll in
+ * flight at a time, so a re-arm requested mid-flight (visibilitychange or
+ * cockpit:chat-sent) is coalesced here instead of having opened a second request:
+ *  - `kind: "immediate"` → a re-arm was requested while the request was in flight;
+ *    reset to base and poll NOW (preserves the low re-arm latency, no duplicate).
+ *  - `kind: "backoff"`   → schedule the next poll after `nextPollDelay` (reset to
+ *    base on a directive, else doubled toward max).
+ */
+export function nextPollSchedule(
+  args: { reArmRequested: boolean; gotDirective: boolean; currentDelay: number },
+  base: number,
+  max: number,
+): { kind: "immediate"; delay: number } | { kind: "backoff"; delay: number } {
+  if (args.reArmRequested) return { kind: "immediate", delay: base };
+  return {
+    kind: "backoff",
+    delay: nextPollDelay(args.gotDirective, args.currentDelay, base, max),
+  };
+}
+
 interface PendingNav {
   route: string;
   label: string;
@@ -90,12 +113,26 @@ export function ChatNavBridge() {
     let cancelled = false;
     let delay = POLL_MS;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    // Dedup guard: at most ONE /api/chat-nav request in flight at any time. The
+    // re-arm triggers (visibilitychange, cockpit:chat-sent) fire bursts that used
+    // to each start their own poll chain → concurrent duplicate requests for the
+    // SAME directive. While a poll is in flight we record `reArmRequested` instead
+    // of opening a second request; the in-flight poll honours it on completion
+    // (reset to base + poll immediately) so re-arm latency is preserved.
+    let inFlight = false;
+    let reArmRequested = false;
 
     const poll = async (): Promise<void> => {
       if (cancelled) return;
       if (typeof document !== "undefined" && document.hidden) return;
+      // A request is already open — coalesce instead of duplicating it.
+      if (inFlight) {
+        reArmRequested = true;
+        return;
+      }
 
       let gotDirective = false;
+      inFlight = true;
 
       try {
         const res = await fetch("/api/chat-nav", { cache: "no-store" });
@@ -169,18 +206,32 @@ export function ChatNavBridge() {
         }
       } catch {
         // network hiccup — ignore, back off and try again next tick
+      } finally {
+        inFlight = false;
       }
 
       if (cancelled) return;
 
-      // Advance the backoff delay before scheduling the next poll.
-      delay = nextPollDelay(gotDirective, delay, POLL_MS, POLL_MAX_MS);
+      // Decide the next action — a mid-flight re-arm is coalesced here (immediate
+      // re-poll) instead of having opened a duplicate request; otherwise back off.
+      const next = nextPollSchedule(
+        { reArmRequested, gotDirective, currentDelay: delay },
+        POLL_MS,
+        POLL_MAX_MS,
+      );
+      reArmRequested = false;
+      delay = next.delay;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => { void poll(); }, delay);
+      if (next.kind === "immediate") {
+        void poll();
+      } else {
+        timer = setTimeout(() => { void poll(); }, delay);
+      }
     };
 
-    // Re-arm helper: reset delay to POLL_MS, cancel any pending timer, fire immediately.
-    // Used by both the visibilitychange handler and the cockpit:chat-sent listener.
+    // Re-arm helper: reset delay to POLL_MS, cancel any pending timer, fire
+    // immediately. Used by both visibilitychange and cockpit:chat-sent. If a poll
+    // is in flight, poll() coalesces the request via reArmRequested (no duplicate).
     const reArm = (): void => {
       if (cancelled) return;
       delay = POLL_MS;

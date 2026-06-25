@@ -12,7 +12,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { nextPollDelay } from "../chat-nav-bridge";
+import { nextPollDelay, nextPollSchedule } from "../chat-nav-bridge";
 
 const BASE = 900;
 const MAX = 7_200;
@@ -54,5 +54,57 @@ describe("nextPollDelay", () => {
     expect(nextPollDelay(false, 400, 100, 800)).toBe(800);
     expect(nextPollDelay(false, 800, 100, 800)).toBe(800);
     expect(nextPollDelay(true, 800, 100, 800)).toBe(100);
+  });
+});
+
+describe("nextPollSchedule (dedup / coalescing contract)", () => {
+  const BASE = 900;
+  const MAX = 7_200;
+
+  it("coalesces a mid-flight re-arm into an immediate base re-poll (no duplicate)", () => {
+    // A re-arm requested while the single poll was in flight → poll now at base,
+    // instead of having opened a second concurrent /api/chat-nav request.
+    expect(
+      nextPollSchedule(
+        { reArmRequested: true, gotDirective: false, currentDelay: MAX },
+        BASE,
+        MAX,
+      ),
+    ).toEqual({ kind: "immediate", delay: BASE });
+    // re-arm wins even when a directive also landed.
+    expect(
+      nextPollSchedule(
+        { reArmRequested: true, gotDirective: true, currentDelay: 3_600 },
+        BASE,
+        MAX,
+      ),
+    ).toEqual({ kind: "immediate", delay: BASE });
+  });
+
+  it("backs off when no re-arm was requested (doubling toward max)", () => {
+    expect(
+      nextPollSchedule(
+        { reArmRequested: false, gotDirective: false, currentDelay: BASE },
+        BASE,
+        MAX,
+      ),
+    ).toEqual({ kind: "backoff", delay: 1_800 });
+    expect(
+      nextPollSchedule(
+        { reArmRequested: false, gotDirective: false, currentDelay: 3_600 },
+        BASE,
+        MAX,
+      ),
+    ).toEqual({ kind: "backoff", delay: MAX });
+  });
+
+  it("resets to base (still backoff) when a directive landed without a re-arm", () => {
+    expect(
+      nextPollSchedule(
+        { reArmRequested: false, gotDirective: true, currentDelay: MAX },
+        BASE,
+        MAX,
+      ),
+    ).toEqual({ kind: "backoff", delay: BASE });
   });
 });
