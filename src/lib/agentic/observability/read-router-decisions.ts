@@ -19,6 +19,7 @@ import {
 } from "./db-store";
 import { readDurableRouterDecisionAggregates } from "./db-aggregates";
 import { computeRouterDecisionStats } from "./stats";
+import { computeRouterQualityReview } from "./quality-review";
 import {
   buildRouterDecisionTrendBuckets,
   normalizeRouterTrendWindow,
@@ -237,7 +238,7 @@ export async function getRouterObservabilitySummary(args?: {
     now,
   });
 
-  return {
+  const summary: RouterObservabilitySummary = {
     state,
     storage,
     window,
@@ -257,6 +258,13 @@ export async function getRouterObservabilitySummary(args?: {
     longTerm,
     aggregationMode,
   };
+
+  // Router Quality Review (v0) — pure, read-only interpretation of the summary
+  // above (rates + watchlist). No query, no behaviour change. Attached so the
+  // admin page can render it without recomputing.
+  summary.qualityReview = computeRouterQualityReview(summary);
+
+  return summary;
 }
 
 /** Convenience for diagnostics: did the durable store serve the read? */

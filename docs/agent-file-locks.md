@@ -16,7 +16,32 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-quality-review-v0
+Owner: Opus Orchestrateur Continu — Router Quality Review Dashboard Delivery
+Branch: feat/router-quality-review-v0
+Worktree: ../connect-opus-router-quality-review
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/observability/quality-review.ts (new, pure)
+- src/lib/agentic/observability/__tests__/quality-review.test.ts (new)
+- src/lib/agentic/observability/types.ts (additive types only)
+- src/lib/agentic/observability/index.ts (additive export only)
+- src/lib/agentic/observability/read-router-decisions.ts (attach quality review to summary)
+- src/components/admin/agentic/router-quality-review.tsx (new)
+- src/components/admin/agentic/__tests__/router-quality-review.test.tsx (new)
+- src/components/admin/agentic/router-observability-section.tsx (render the new section)
+- docs/agentic/ROUTER_QUALITY_REVIEW_V0.md (new) + AGENTIC_CONTROL_CENTER_V0.md (additive note)
+- docs/agent-file-locks.md
+
+Notes:
+- Read-only interpretation of EXISTING observability data (rates + watchlist). No new query.
+- No router behavior change. No guard behavior change. No HITL change.
+- No rule editor, no prompt editor, no auto-fix, no replay, no export.
+- No tool execution. No autonomous writes. No CrewAI / external swarms.
+- No DB migration. No Prisma/schema change. No new table.
+- No user text/prompt/tool payload storage.
 
 ---
 
