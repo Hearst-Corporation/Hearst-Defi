@@ -16,30 +16,31 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+_No active locks yet._
+
+---
+
+## RELEASED LOCKS
+
 ### fix/compliance-product-education
 Owner: Master Agent Compliance Guard Follow-up Owner
 Branch: fix/compliance-product-education
-Worktree: ../connect-agent-compliance-products
-Started: 2026-06-25
-Status: active
+Merged PR: #29
+Released: 2026-06-25
+Status: merged
 
 Scope:
 - src/lib/llm/prompts.ts
 - src/lib/llm/__tests__/output-guard.test.ts
 - src/lib/llm/__tests__/prompts.test.ts
 
-Notes:
-- False FAIL on "Explique-moi comment marchent les produits": the model states a
-  single-point target for the secondary vaults (Defensive ~6 %, BTC Plus ~20 %)
-  because the prompt only gives a range for HYV → single_point_apy fires CORRECTLY.
-  Fix = PROMPT (not the guard): rule #1 applies to every vault + secondary vaults
-  have no published figure → qualitative, never a single number. Guard unchanged.
-- Does NOT touch the guard logic, write/HITL routes, Outreach, Prisma, .mcp.json.
-  prompts.ts is NOT a sensitive single-owner file.
-
----
-
-## RELEASED LOCKS
+Result:
+- "Explique-moi comment marchent les produits" was blocked because the model gave a
+  single-point target for the secondary vaults (Defensive ~6 %, BTC Plus ~20 %) —
+  the guard fired CORRECTLY. Fixed the PROMPT (not the guard): rule #1 applies to
+  EVERY vault + secondary vaults have no published figure → qualitative, never a
+  single number. Guard logic unchanged; single-point + forbidden words still block.
+- Merged (f9782c53), Vercel READY.
 
 ### fix/chat-yield-compliance-scroll
 Owner: Master Agent Chat Reliability Bug Owner
