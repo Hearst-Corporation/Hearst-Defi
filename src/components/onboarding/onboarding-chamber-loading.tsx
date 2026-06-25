@@ -9,12 +9,12 @@ export function OnboardingChamberLoading() {
       aria-label="Loading onboarding step"
     >
       <div className="onboarding-chamber__crown">
-        <Skeleton className="onb-skel-title w-full max-w-sm" />
-        <div className="product-doc-stack--tight">
+        <Skeleton className="onb-skel-title w-full max-w-[var(--ct-prose-sm)]" />
+        <div className="product-doc-stack--relaxed">
           <Skeleton className="onb-skel-eyebrow" variant="text" />
           <Skeleton className="onb-skel-heading" />
-          <Skeleton className="onb-skel-line w-full max-w-xl" variant="text" />
-          <Skeleton className="onb-skel-line w-full max-w-lg" variant="text" />
+          <Skeleton className="onb-skel-line w-full max-w-[var(--ct-invest-flow-narrow)]" variant="text" />
+          <Skeleton className="onb-skel-line w-full max-w-[var(--ct-invest-flow-narrow)]" variant="text" />
         </div>
       </div>
 

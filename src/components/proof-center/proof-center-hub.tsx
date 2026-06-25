@@ -8,6 +8,7 @@ import {
   AdminLeafLink,
 } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
+import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import type { PlatformAddressEntry } from "@/components/proof-center/contracts-audit-trail";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
@@ -142,7 +143,7 @@ export function ProofCenterHub({
         <div className={cn(variant === "admin" ? "admin-doc-stack admin-doc-stack--roomy" : "product-doc-stack product-doc-stack--roomy")}>
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
             <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
+              <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
                 <HubPanelHeader
                   eyebrow="On-chain reserves"
                   title="Proof of Reserves"
@@ -160,11 +161,11 @@ export function ProofCenterHub({
                     bare
                   />
                 </div>
-              </div>
+              </Card>
             </div>
 
             <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
+              <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
                 <HubPanelHeader
                   eyebrow="Yield source"
                   title="Mining cash-flow"
@@ -173,13 +174,13 @@ export function ProofCenterHub({
                 <div className="proof-panel-scroll">
                   <MiningCashFlowEvidence coverage={coverage} bare />
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
 
           <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
             <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
+              <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
                 <HubPanelHeader
                   eyebrow="Payout history"
                   title="Latest distributions"
@@ -201,11 +202,11 @@ export function ProofCenterHub({
                     />
                   )}
                 </div>
-              </div>
+              </Card>
             </div>
 
             <div className="dashboard-cockpit-cell">
-              <div className="dashboard-cockpit-panel">
+              <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
                 <HubPanelHeader
                   eyebrow="Vault operations"
                   title="Rebalancing events"
@@ -227,7 +228,7 @@ export function ProofCenterHub({
                     />
                   )}
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </div>

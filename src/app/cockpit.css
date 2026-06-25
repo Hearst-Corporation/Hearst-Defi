@@ -2974,7 +2974,7 @@
 .dashboard-cockpit-row--proof-top,
 .dashboard-cockpit-row--proof-bot {
   display: grid;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-4);
   min-height: 0;
   min-width: 0;
   grid-template-columns: 1fr;
