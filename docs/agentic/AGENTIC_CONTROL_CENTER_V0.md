@@ -149,6 +149,14 @@ migration). DS tokens only, honest empty states. See the v0.1 section of
   Attached as `AgenticControlCenterData.toolBoundaryV1` (additive; the legacy static
   `tools` tier list is unchanged). No tool execution, no registry change, no write UI.
   See [`TOOL_BOUNDARY_V1.md`](./TOOL_BOUNDARY_V1.md).
+- **Reporting Crew Read-Only v0** is the first applicative "crew": a deterministic,
+  read-only briefing (`src/lib/agentic/reporting`) that composes the control-center
+  registry + observability + quality review + tool boundary + gates + safety into an
+  executive summary, section metrics/signals, a watchlist, and recommended read-only
+  checks. NOT CrewAI and NOT an autonomous runtime — no tool execution, no write, no
+  loop, no stored user text/prompt/payload. Rendered after the Observability section
+  via `getReportingCrewBriefing()` (reuses the page's observability read).
+  See [`REPORTING_CREW_READONLY_V0.md`](./REPORTING_CREW_READONLY_V0.md).
 
 ## Next steps
 
