@@ -15,7 +15,7 @@
      modèle. Éditer ces valeurs ICI n'a AUCUN effet au runtime : la valeur canonique
      vit dans cockpit.css, ne PAS re-diverger. (bg-deep / accent / accent-soft / ease
      restent la source unique côté tokens.css — cockpit.css ne les redéfinit pas.) */
-  --ct-bg-deep: #060707;
+  --ct-bg-deep: #060708;
   /* Plinth black — a hair darker than --ct-bg-deep, used by the footer base
      to extinguish ambient glow at the bottom edge. Intentionally below any surface. */
   --ct-bg-black: #080808;
@@ -36,10 +36,10 @@
      l'ancien modèle « film translucide » (rgba blanc) qui était mort/superseded et
      créait une double définition translucide↔opaque. Une seule vérité maintenant :
      surface-0 = niveau du fond, montée vers le clair pour la profondeur. */
-  --ct-surface-0: #080909;
-  --ct-surface-1: #0F1011;
-  --ct-surface-2: #1A1B1F;
-  --ct-surface-3: #22232A;
+  --ct-surface-0: #060708;
+  --ct-surface-1: #1C1D21;
+  --ct-surface-2: #26272D;
+  --ct-surface-3: #2E3038;
 
   --ct-text-strong: #ffffff;
   --ct-text-primary: rgba(245,245,245,0.92);
