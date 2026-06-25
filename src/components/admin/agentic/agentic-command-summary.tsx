@@ -1,9 +1,7 @@
 // Admin · Agentic Control Tower — Command Summary (hero, presentational).
 //
-// READ-ONLY. The first thing an admin sees: overall health, the platform's
-// headline numbers (autonomous / gated / forbidden / agents / crews), a plain
-// statement that nothing executes here, and any attention items. No card wall,
-// no jargon. Pure component; all data passed in, unit-testable via SSR.
+// READ-ONLY. First thing visible: platform health status, 5 key metrics, and
+// any attention items. Tight and premium — no prose, no jargon. Pure component.
 
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import type { TowerSummary } from "@/lib/agentic/system-map/tower-summary";
@@ -36,7 +34,7 @@ export function AgenticCommandSummary({
   summary: TowerSummary | null | undefined;
 }) {
   if (!summary) return null;
-  const { health, headline, metrics, attention } = summary;
+  const { health, metrics, attention } = summary;
 
   return (
     <header className="agentic-hero" data-health={health} aria-label="Agentic command summary">
@@ -46,7 +44,6 @@ export function AgenticCommandSummary({
           <h1 className="agentic-hero-title m-0">Agentic platform</h1>
           <Badge variant={HEALTH_BADGE_VARIANT[health]}>{HEALTH_LABEL[health]}</Badge>
         </div>
-        <p className="body-md ct-text-muted agentic-hero-lede">{headline}</p>
       </div>
 
       <div className="agentic-hero-metrics">
@@ -54,7 +51,7 @@ export function AgenticCommandSummary({
           <div key={m.id} className={`agentic-metric ${TONE_CLASS[m.tone] ?? ""}`}>
             <span className="agentic-metric-value tabular-nums">{m.value}</span>
             <span className="agentic-metric-label">{m.label}</span>
-            <span className="agentic-metric-hint ct-text-muted">{m.hint}</span>
+            {m.hint && <span className="agentic-metric-hint ct-text-muted">{m.hint}</span>}
           </div>
         ))}
       </div>

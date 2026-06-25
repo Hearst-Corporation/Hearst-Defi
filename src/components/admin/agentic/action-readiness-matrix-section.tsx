@@ -1,13 +1,10 @@
-// Admin · Agentic Control Center — Action Readiness Matrix (presentational).
+// Admin · Agentic Control Tower — Action Readiness Matrix (presentational).
 //
-// READ-ONLY. Renders the action-readiness matrix as visual TIER LANES (read-only
-// / draft / confirmed-write / forbidden), each action a chip with its
-// autonomous / gate / risk badges. NO write controls, NO action buttons, NO
-// run/send/deploy/source — nothing here executes. Pure component; all data
-// passed in, unit-testable via SSR.
+// READ-ONLY. Renders the action-readiness matrix as compact TIER LANES. Each
+// action is a single row: name + risk badge. Tier colour communicates autonomy.
+// No write controls, no action buttons, nothing executes. Pure component.
 
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import type {
   ActionReadinessItem,
   ActionReadinessMatrix,
@@ -15,13 +12,13 @@ import type {
   ActionRiskLevel,
 } from "@/lib/agentic/action-readiness/types";
 
-type Tone = "success" | "warning" | "danger" | "default" | "accent";
+type Tone = "success" | "warning" | "danger" | "default";
 
 const TIER_LABEL: Record<ActionReadinessTier, string> = {
   read_only: "Read-only",
   draft_or_proposal: "Draft / Proposal",
   confirmed_write: "Confirmed-write",
-  forbidden_autonomous: "Forbidden-autonomous",
+  forbidden_autonomous: "Forbidden",
 };
 
 const TIER_ORDER: ActionReadinessTier[] = [
@@ -33,43 +30,30 @@ const TIER_ORDER: ActionReadinessTier[] = [
 
 function tierTone(tier: ActionReadinessTier): Tone {
   switch (tier) {
-    case "read_only":
-      return "success";
+    case "read_only": return "success";
     case "draft_or_proposal":
-    case "confirmed_write":
-      return "warning";
-    case "forbidden_autonomous":
-      return "danger";
+    case "confirmed_write": return "warning";
+    case "forbidden_autonomous": return "danger";
   }
 }
 
 function riskTone(risk: ActionRiskLevel): Tone {
   switch (risk) {
     case "critical":
-    case "high":
-      return "danger";
-    case "medium":
-      return "warning";
-    default:
-      return "default";
+    case "high": return "danger";
+    case "medium": return "warning";
+    default: return "default";
   }
 }
 
-function ActionChip({ item }: { item: ActionReadinessItem }) {
+function ActionRow({ item }: { item: ActionReadinessItem }) {
   return (
-    <div className="agentic-action-chip" data-tier={item.tier}>
-      <div className="admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--tight">
-        <span className="body-xs ct-text-strong flex-1 break-words">{item.label}</span>
+    <li className="agentic-action-row">
+      <span className="agentic-action-row-name body-xs ct-text-body">{item.label}</span>
+      {item.riskLevel !== "low" && (
         <Badge variant={riskTone(item.riskLevel)}>{item.riskLevel}</Badge>
-      </div>
-      <div className="admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--tight flex-wrap">
-        <Badge variant={item.autonomousAllowed ? "success" : "default"}>
-          {item.autonomousAllowed ? "autonomous" : "non-autonomous"}
-        </Badge>
-        {item.humanGateRequired && <Badge variant="warning">HITL</Badge>}
-      </div>
-      <p className="body-xs ct-text-faint break-words">{item.reason}</p>
-    </div>
+      )}
+    </li>
   );
 }
 
@@ -81,17 +65,16 @@ function TierLane({
   items: ActionReadinessItem[];
 }) {
   return (
-    <div className="agentic-action-lane" data-tier={tier} aria-label={TIER_LABEL[tier]}>
-      <div className="admin-doc-inline-row admin-doc-inline-row--start">
-        <Badge variant={tierTone(tier)}>{TIER_LABEL[tier]}</Badge>
-        <span className="flex-1" />
+    <div className="agentic-action-lane" data-tier={tier}>
+      <div className="agentic-action-lane-head">
+        <span className="agentic-action-lane-title">{TIER_LABEL[tier]}</span>
         <span className="body-xs ct-text-faint tabular-nums">{items.length}</span>
       </div>
-      <div className="agentic-action-lane-body">
+      <ul className="agentic-action-lane-list">
         {items.map((item) => (
-          <ActionChip key={item.id} item={item} />
+          <ActionRow key={item.id} item={item} />
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -103,61 +86,28 @@ export function ActionReadinessMatrixSection({
 }) {
   if (!matrix) return null;
 
-  const { items, counts, safetyNotes } = matrix;
+  const { items } = matrix;
   const itemsByTier = (tier: ActionReadinessTier) =>
     items.filter((i) => i.tier === tier);
 
   return (
     <section
       id="action-readiness"
-      className="admin-doc-stack"
+      className="agentic-stack"
       aria-label="Action Readiness Matrix"
     >
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
-        <h2 className="h2 m-0">Action Readiness</h2>
-        <span className="flex-1" />
-        <Badge variant="accent">read-only</Badge>
-        <Badge variant="default">{items.length} actions</Badge>
-      </div>
-      <p className="body-xs ct-text-muted">
-        Every platform action classified by tier. Read-only actions may run
-        autonomously because they do not write. Draft and confirmed-write actions
-        remain gated. Forbidden actions are represented for safety but are never
-        callable.
-      </p>
-
-      {/* Tier count cards */}
-      <div className="admin-doc-card-grid-3">
-        {TIER_ORDER.map((tier) => (
-          <Card
-            key={tier}
-            hoverOverlay={false}
-            contentClassName="flex flex-col gap-[var(--ct-space-1)]"
-          >
-            <span className="stat-label ct-text-muted">{TIER_LABEL[tier]}</span>
-            <span className="h3 m-0 tabular-nums">{counts[tier]}</span>
-          </Card>
-        ))}
+      <div className="agentic-section-head">
+        <h2 className="agentic-section-title m-0">Actions &amp; Gates</h2>
+        <p className="body-sm ct-text-muted m-0">
+          Every platform action classified by autonomy tier. Green runs on its own; amber needs human confirmation; red never runs autonomously.
+        </p>
       </div>
 
-      {/* Visual tier lanes */}
       <div className="agentic-action-grid">
         {TIER_ORDER.map((tier) => (
           <TierLane key={tier} tier={tier} items={itemsByTier(tier)} />
         ))}
       </div>
-
-      {/* Safety notes */}
-      <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-1)]">
-        <span className="stat-label ct-text-muted">Safety</span>
-        <ul className="flex flex-col gap-[var(--ct-space-1)]">
-          {safetyNotes.map((n) => (
-            <li key={n} className="body-xs ct-text-muted">
-              · {n}
-            </li>
-          ))}
-        </ul>
-      </Card>
     </section>
   );
 }

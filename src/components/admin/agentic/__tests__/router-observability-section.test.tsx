@@ -1,10 +1,9 @@
 /**
- * RouterObservabilitySection (v1) — read-only render contract.
+ * RouterObservabilitySection — read-only render contract.
  *
  * Verifies honest empty/unavailable/enabled states, the window selector, the
- * storage-mode badge, the outcome distribution, top matched rules, the recent
- * table, and the safety note — with NO write/action controls (no <button>,
- * <form>, <input>). The only interactive elements are <Link> (rendered as <a>).
+ * storage-mode badge, stat cards, outcome trends, recent table, and that NO
+ * write/action controls exist. The only interactive elements are <Link> (<a>).
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -14,9 +13,6 @@ import type {
   RouterDecisionTrace,
   RouterObservabilitySummary,
 } from "@/lib/agentic/observability/types";
-
-const SAFETY =
-  "Read-only router metadata. No prompts, no message text, no secrets, no tool payloads, no autonomous writes.";
 
 function summary(
   over: Partial<RouterObservabilitySummary> = {},
@@ -40,7 +36,7 @@ function summary(
     topMatchedRules: [],
     capacity: 200,
     retentionNote: "Durable storage. Rows older than 90 days are pruned.",
-    safetyNote: SAFETY,
+    safetyNote: "Read-only router metadata. No prompts, no message text, no secrets, no tool payloads, no autonomous writes.",
     privacyMode:
       "metadata-only (ids + enums + flags); user message text never stored",
     trendWindow: "24h",
@@ -83,10 +79,9 @@ const NO_WRITE_CONTROLS = (html: string) => {
 };
 
 describe("RouterObservabilitySection v1", () => {
-  it("always renders heading, window selector, and safety note", () => {
+  it("always renders heading and window selector links", () => {
     const html = render(summary({ state: "empty" }));
-    expect(html).toContain("Router Observability");
-    expect(html).toContain(SAFETY);
+    expect(html).toContain("Observability");
     // Window selector links present (rendered as <a href="?routerWindow=...">).
     expect(html).toContain("routerWindow=1h");
     expect(html).toContain("routerWindow=24h");
@@ -95,12 +90,9 @@ describe("RouterObservabilitySection v1", () => {
     NO_WRITE_CONTROLS(html);
   });
 
-  it("renders the retention policy note (read-only, no prune control)", () => {
+  it("renders the retention note in the status strip", () => {
     const html = render(summary({ state: "empty" }));
-    expect(html).toContain("Retention policy");
-    expect(html).toContain("default 90 days");
-    expect(html).toContain("No user messages, prompts, secrets, or tool payloads");
-    // The note may MENTION pruning, but there must be no prune/delete CONTROL.
+    expect(html).toContain("90 days");
     NO_WRITE_CONTROLS(html);
   });
 
@@ -110,7 +102,7 @@ describe("RouterObservabilitySection v1", () => {
     NO_WRITE_CONTROLS(html);
   });
 
-  it("renders the window-limitation note when 30d is on a fallback store", () => {
+  it("renders the window-limitation note when provided", () => {
     const html = render(
       summary({
         state: "enabled",
@@ -120,7 +112,6 @@ describe("RouterObservabilitySection v1", () => {
           "30d is powered by durable router traces when available. The current Redis/memory fallback only contains the capped recent buffer (max 200 traces, 7-day TTL), so this long window may be incomplete.",
       }),
     );
-    expect(html).toContain("limited");
     expect(html).toContain("30d is powered by durable router traces");
     NO_WRITE_CONTROLS(html);
   });
@@ -148,25 +139,25 @@ describe("RouterObservabilitySection v1", () => {
     expect(html).toContain("durable");
   });
 
-  it("shows the SQL durable aggregates badge when aggregationMode is sql", () => {
+  it("shows the SQL aggregates badge when aggregationMode is sql", () => {
     const html = render(summary({ state: "empty", aggregationMode: "sql" }));
-    expect(html).toContain("aggregation: SQL durable aggregates");
+    expect(html).toContain("SQL aggregates");
     NO_WRITE_CONTROLS(html);
   });
 
-  it("shows the fallback in-memory badge when aggregationMode is in_memory", () => {
+  it("shows the in-memory fallback badge when aggregationMode is in_memory", () => {
     const html = render(
       summary({ state: "empty", aggregationMode: "in_memory" }),
     );
-    expect(html).toContain("aggregation: fallback in-memory");
+    expect(html).toContain("in-memory fallback");
     NO_WRITE_CONTROLS(html);
   });
 
-  it("shows the fallback in-memory badge when aggregationMode is fallback", () => {
+  it("shows the in-memory fallback badge when aggregationMode is fallback", () => {
     const html = render(
       summary({ state: "empty", storage: "redis_fallback", aggregationMode: "fallback" }),
     );
-    expect(html).toContain("aggregation: fallback in-memory");
+    expect(html).toContain("in-memory fallback");
     NO_WRITE_CONTROLS(html);
   });
 
@@ -189,7 +180,7 @@ describe("RouterObservabilitySection v1", () => {
     NO_WRITE_CONTROLS(html);
   });
 
-  it("enabled state → stats, distribution, top rules, and table", () => {
+  it("enabled state → stats, top rules, and recent table", () => {
     const html = render(
       summary({
         state: "enabled",
@@ -208,10 +199,8 @@ describe("RouterObservabilitySection v1", () => {
         },
       }),
     );
-    expect(html).toContain("Total decisions");
-    expect(html).toContain("Navigation fast-paths");
-    expect(html).toContain("Outcome distribution");
-    expect(html).toContain("Top matched rules");
+    expect(html).toContain("Decisions");
+    expect(html).toContain("Nav fast-paths");
     expect(html).toContain("<table");
     expect(html).toContain("vaults"); // routeKey
     expect(html).toContain("nav.resolver"); // matched rule

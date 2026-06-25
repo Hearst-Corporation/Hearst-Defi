@@ -28,19 +28,16 @@ export function AgenticSafetyBoundary({
       <div className="agentic-section-head">
         <h2 className="agentic-section-title m-0">Safety Boundary</h2>
         <p className="body-sm ct-text-muted m-0">
-          The hard limits. This console only observes — it cannot run a tool or
-          perform a write. Every write an agent could prepare is gated, and the
-          most dangerous actions can never be autonomous.
+          The hard limits. Nothing executes here. Every write is gated; the most dangerous actions can never be autonomous.
         </p>
       </div>
 
       <div className="agentic-safety-grid">
         <div className="agentic-safety-pillar" data-tone="success">
           <span className="agentic-safety-eyebrow">Console</span>
-          <span className="agentic-safety-headline">Nothing executes here</span>
+          <span className="agentic-safety-headline">Read-only</span>
           <p className="body-xs ct-text-muted m-0">
-            Read-only views only. No run, send, deploy, source, or mark-live control
-            exists on this page.
+            No run, send, deploy, or mark-live control exists on this page.
           </p>
         </div>
 
@@ -51,9 +48,7 @@ export function AgenticSafetyBoundary({
           </span>
           <ul className="agentic-safety-list">
             {forbidden.slice(0, 8).map((f) => (
-              <li key={f.id} className="agentic-safety-item">
-                {f.label}
-              </li>
+              <li key={f.id} className="agentic-safety-item">{f.label}</li>
             ))}
           </ul>
         </div>
@@ -64,25 +59,22 @@ export function AgenticSafetyBoundary({
             {gates.length} gated actions
           </span>
           <p className="body-xs ct-text-muted m-0">
-            Critical actions require a human: admin role, a two-step confirmation
-            token, and never autonomous execution.
+            Admin role + two-step confirmation token required.
           </p>
         </div>
 
         <div className="agentic-safety-pillar" data-tone="success">
           <span className="agentic-safety-eyebrow">Guards</span>
           <span className="agentic-safety-headline tabular-nums">
-            {guards.length} always-on guards
+            {guards.length} always-on
           </span>
           <ul className="agentic-safety-list">
             {guards.map((g) => (
-              <li key={g.id} className="agentic-safety-item">
-                {g.name}
-              </li>
+              <li key={g.id} className="agentic-safety-item">{g.name}</li>
             ))}
           </ul>
           <p className="body-xs ct-text-faint m-0">
-            {safetyHolds}/{safetyTotal} safety guarantees verified.
+            {safetyHolds}/{safetyTotal} guarantees verified.
           </p>
         </div>
       </div>

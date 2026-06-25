@@ -18,26 +18,26 @@ interface Capability {
 const CAPABILITIES: Capability[] = [
   {
     tier: "read_only",
-    title: "Autonomous today",
-    meaning: "Reads and explanations an agent may run on its own. They never write, so they are safe to be autonomous.",
+    title: "Autonomous",
+    meaning: "Reads only — safe to run without human review.",
     tone: "success",
   },
   {
     tier: "draft_or_proposal",
-    title: "Draft / proposal only",
-    meaning: "An agent can prepare a draft, but it is stored unsent. A human must confirm before anything happens.",
+    title: "Draft only",
+    meaning: "Agent prepares; human must confirm before anything sends.",
     tone: "warning",
   },
   {
     tier: "confirmed_write",
-    title: "Confirmed write, gated",
-    meaning: "The one action that can have an external effect. It needs an explicit human confirmation plus extra safeguards.",
+    title: "Gated write",
+    meaning: "Explicit 2-step human confirmation required.",
     tone: "warning",
   },
   {
     tier: "forbidden_autonomous",
     title: "Never autonomous",
-    meaning: "Action types an agent can never run — deploy, mark-live, signatures, migrations. Represented here for clarity only.",
+    meaning: "Deploy, mark-live, signatures, migrations — always blocked.",
     tone: "danger",
   },
 ];
@@ -54,9 +54,7 @@ export function AgenticCapabilitiesBoard({
       <div className="agentic-section-head">
         <h2 className="agentic-section-title m-0">Capabilities</h2>
         <p className="body-sm ct-text-muted m-0">
-          What the platform can do today, by how much human oversight each action
-          needs. Reads run on their own; everything that writes is gated; some
-          actions can never be autonomous.
+          What the platform can do, by how much human oversight it needs.
         </p>
       </div>
 

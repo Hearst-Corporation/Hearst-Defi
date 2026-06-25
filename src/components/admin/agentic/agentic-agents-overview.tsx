@@ -82,9 +82,7 @@ export function AgenticAgentsOverview({
       <div className="agentic-section-head">
         <h2 className="agentic-section-title m-0">Agents &amp; Crews</h2>
         <p className="body-sm ct-text-muted m-0">
-          {inventory.length} logic units across {domains.length} domains.{" "}
-          {inventory.length - writeCount} read-only; {gatedCount} of the {writeCount} that can
-          write are human-gated. Grouped by area, not as one long list.
+          {inventory.length} units · {domains.length} domains · {inventory.length - writeCount} read-only · {gatedCount} gated write{gatedCount !== 1 ? "s" : ""}
         </p>
       </div>
 
