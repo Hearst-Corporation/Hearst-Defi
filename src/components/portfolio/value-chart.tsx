@@ -28,7 +28,7 @@ import { ValueTooltip } from "./chart/components/ValueTooltip";
 interface ValueChartProps {
   positions: PortfolioPosition[];
   totalValueUsdc: number;
-  valueChartTransactions?: ValueSeriesTx[]; // Kept for prop compatibility, but unused
+  valueChartTransactions?: ValueSeriesTx[];
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
