@@ -4,6 +4,8 @@
 > primitives live depuis `src/components/ui/*`. Ce markdown = checklist ; en cas de
 > divergence, **la page rendue gagne** (cf. `docs/DS_CONFORMANCE_PROMPT.md`).
 >
+> **Résolution de conflits + absorption de directions visuelles** → [`docs/DS_SINGLE_SOURCE_OF_TRUTH.md`](DS_SINGLE_SOURCE_OF_TRUTH.md).
+>
 > Dérivé du dashboard corrigé + `@hearst/cockpit-shell/tokens.css` (source amont :
 > `~/.claude/assets/cockpit/SPEC.md`). **Ne jamais réinventer ces valeurs.**
 > Toute nouvelle page produit (scenario-lab, proof-center, investor-memo) se

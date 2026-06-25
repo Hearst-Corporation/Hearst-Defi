@@ -9,6 +9,7 @@ alwaysApply: false
 > `do-not-touch.mdc` (`alwaysApply`) is the floor. It wins over this rule on any overlap.
 
 ## Read first
+- `docs/DS_SINGLE_SOURCE_OF_TRUTH.md` — **conflict resolution hierarchy** + V4 absorption map + agent checklist before creating any new class/token.
 - `docs/CSS_INDEX.md` — file map + which surface owns which token.
 - `docs/DESIGN_SYSTEM.md` — cascade, tokens `--ct-*`, surfaces graphite + ambient shell, §9 cockpit preview.
 
