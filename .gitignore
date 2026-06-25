@@ -104,3 +104,12 @@ tri-audit-*.html
 .env*
 *.env.bak*
 .env.local.bak*
+
+# design-sync (claude.ai/design) — staged scripts + regenerated build output
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/compiled-foundation.css
+.design-sync/ds-entry.tsx

@@ -1,0 +1,12 @@
+/* design-sync Tailwind v4 compile entry — mirrors src/app/layout.tsx load order
+   so the emitted foundation carries: the Cockpit --ct-* tokens, the Tailwind
+   @theme aliases + generated utilities, and the live .ct-* semantic classes.
+   Compiled to .design-sync/compiled-foundation.css and wired via cfg.cssEntry. */
+@import "../src/app/tokens-layer.css"; /* -> cockpit-shell/tokens.css layer(cockpit) */
+@import "../src/app/globals.css";      /* @import "tailwindcss" + @theme + custom layers */
+@import "../src/app/cockpit.css";      /* live :root --ct-* tokens + .ct-* classes (unlayered, wins) */
+
+/* Scan the real component + preview sources so every utility the primitives and
+   authored previews use is generated into the foundation. */
+@source "../src/components/**/*.tsx";
+@source "../.design-sync/previews/*.tsx";
