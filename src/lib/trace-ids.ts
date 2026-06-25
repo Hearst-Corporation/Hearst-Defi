@@ -23,6 +23,10 @@ export function buildNavTraceId(turnId: string): string {
   return joinTraceId("nav", turnId);
 }
 
+export function buildRouterDecisionId(turnId: string): string {
+  return joinTraceId("rdec", turnId);
+}
+
 export function buildCockpitMessageId(
   turnId: string,
   role: CockpitMessageTraceRole,

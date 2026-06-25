@@ -14,6 +14,10 @@ import {
   classifyAgenticIntent,
   isEducationalReadOnly,
 } from "@/lib/agentic/intent-router";
+// Router Observability v0 — read-only, best-effort trace recorder. NEVER changes
+// router/guard behaviour and NEVER blocks the response (fire-and-forget + internal
+// try/catch). See docs/agentic/ROUTER_OBSERVABILITY_V0.md.
+import { recordRouterDecisionSafe } from "@/lib/agentic/observability";
 import { buildEducationalReadOnlyDirective } from "@/lib/llm/prompts";
 import type { AgenticIntentDecision } from "@/lib/agentic/intent-router-types";
 import {
@@ -717,6 +721,13 @@ async function runMasterAgentTurn(args: {
         .catch(() => {
           /* best-effort trace */
         });
+      // Router Observability (read-only, fire-and-forget): record the outcome.
+      void recordRouterDecisionSafe({
+        decision: agenticDecision,
+        outcome: "nav_fast_path",
+        turnId,
+        chatId,
+      });
       return new Response(
         JSON.stringify({
           role: "assistant",
@@ -736,6 +747,14 @@ async function runMasterAgentTurn(args: {
   ) {
     const refusalAck =
       "Je ne peux pas exécuter cette demande. Si vous souhaitez effectuer une action, merci de la réaliser manuellement depuis l'interface.";
+    // Router Observability: dangerous refusal is recorded AFTER the refusal is
+    // decided and BEFORE returning — still no LLM, no tool, no write, no HITL.
+    void recordRouterDecisionSafe({
+      decision: agenticDecision,
+      outcome: "dangerous_refusal",
+      turnId,
+      chatId,
+    });
     return new Response(
       JSON.stringify({
         role: "assistant",
@@ -800,6 +819,13 @@ async function runMasterAgentTurn(args: {
       turnId,
       variant: "nav-shortcut",
       text: NAV_SHORTCUT_ACK,
+    });
+    // Router Observability: legacy regex nav fallback published the navigation.
+    void recordRouterDecisionSafe({
+      decision: agenticDecision,
+      outcome: "legacy_fallback_nav",
+      turnId,
+      chatId,
     });
     return ackResponse(NAV_SHORTCUT_ACK, chatId);
   }
@@ -1055,6 +1081,24 @@ async function runMasterAgentTurn(args: {
       ),
     };
   }
+
+  // Router Observability: this is the LLM-bound fall-through (the router did not
+  // navigate or refuse). Derive the outcome from the same flags the route already
+  // computed — no new condition, no behaviour change. Recorded once, before the
+  // model turn, fire-and-forget.
+  const fallThroughOutcome = !agenticDecision
+    ? "unknown"
+    : educationalReadOnly
+      ? "educational_llm"
+      : agenticDecision.negated
+        ? "negated_no_nav"
+        : "normal_llm";
+  void recordRouterDecisionSafe({
+    decision: agenticDecision,
+    outcome: fallThroughOutcome,
+    turnId,
+    chatId,
+  });
 
   const { stream, final } = runChatAgent(
     openai as unknown as StreamingChatClient,

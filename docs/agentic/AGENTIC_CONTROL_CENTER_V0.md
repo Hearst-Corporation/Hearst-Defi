@@ -90,23 +90,40 @@ It describes the agentic chain; it never drives it.
   avoid exposing the steering surface in the UI.
 - Every entry carries `editableInUi: false` — prompts are not editable from here.
 
+## Router Observability (live, read-only) — added in the observability lot
+
+The page now also renders a **Router Observability** section: live, read-only
+metadata about what the deterministic router actually did on recent chat turns
+(status strip, stat cards, recent-decisions table, safety note). It records NO user
+text, NO prompts, NO secrets, NO tool payloads, and performs NO write. Storage is a
+capped Redis (or in-memory fallback) buffer — **no Prisma model, no migration**.
+Full contract: [`ROUTER_OBSERVABILITY_V0.md`](./ROUTER_OBSERVABILITY_V0.md). The page
+is now dynamically rendered so the section can read live data; the registry sections
+stay pure.
+
 ## What it does NOT do (non-goals)
 
 - No crew runtime. No CrewAI / external swarms connected.
 - No tool execution, no write, no confirmation token.
-- No live DB traces, no run counters (status reflects code wiring, not activity).
+- No live **DB** traces (router observability uses a capped Redis/in-memory buffer,
+  not a DB table); no run counters on the static registry (status reflects code
+  wiring, not activity).
 - No prompt editing. No deploy console.
-- No chat-route / router / guard / HITL / tool-registry runtime changes.
+- No chat-route / router / guard / HITL / tool-registry runtime changes (the
+  observability hook only OBSERVES — it never changes a router/guard condition).
 - No DB migration, no Prisma/schema change.
 
 ## Limits of v0.1
 
-- Static, not live: a future lot can wire `LlmRun` + `AdminToolRun` counts in.
+- Registry sections are static, not live: a future lot can wire `LlmRun` +
+  `AdminToolRun` counts in.
 - Manual registry: adding an agent in code does not auto-register it here.
+- Router Observability buffer is capped (200) + TTL; the in-memory fallback is
+  per-instance and lost on cold start (shown honestly as `storage: memory`).
 
 ## Next steps
 
-See the in-page "Next architecture steps" (and `next-steps.ts`):
-router observability traces · Chat Engine / Context Composer extraction · Tool
-Boundary split · Reporting Crew (read-only) · Product Workspace Crew · Investor
-Pipeline Crew. All are `planned`, none built.
+See the in-page "Next architecture steps" (and `next-steps.ts`): durable/queryable
+router traces · Chat Engine / Context Composer extraction · Tool Boundary split ·
+Reporting Crew (read-only) · Product Workspace Crew · Investor Pipeline Crew. All are
+`planned`, none built.

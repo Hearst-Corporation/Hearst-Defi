@@ -16,7 +16,28 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks yet._
+### feat/router-observability-traces-v0
+Owner: Opus Orchestrateur — Router Observability Traces Delivery
+Branch: feat/router-observability-traces-v0
+Worktree: ../connect-opus-router-observability
+Started: 2026-06-25
+Status: active
+
+Scope:
+- src/lib/agentic/observability/**
+- src/lib/agentic/control-center/**
+- src/app/admin/agentic/**
+- src/components/admin/agentic/**
+- src/app/api/cockpit-chat/route.ts (trace emission only, NO behavior change)
+- docs/agentic/**
+- tests related to router observability
+- docs/agent-file-locks.md
+
+Notes:
+- Deliver read-only Router Observability Traces v0.
+- No router behavior change. No guard behavior change. No HITL change.
+- No tool execution. No DB migration (STOP+report first if needed).
+- No autonomous writes. No secrets/env. No prompts/tool payloads stored.
 
 ---
 

@@ -1,9 +1,11 @@
 // Admin · Agentic Control Center v0.1 — read-only visibility into the agentic chain.
 // Server Component — gated by the admin layout (session.role === "admin").
 //
-// READ-ONLY: this page renders a STATIC registry only. It executes no tool,
-// creates no confirmation token, performs no write, and touches no DB or LLM.
-// All data comes from getAgenticControlCenterData() (pure, client-safe).
+// READ-ONLY: this page renders the STATIC registry plus a LIVE, read-only Router
+// Observability section. It executes no tool, creates no confirmation token,
+// performs no write, and runs no LLM. The registry comes from
+// getAgenticControlCenterData() (pure); the observability summary is a read-only
+// fetch of recent router-decision metadata (no user text — see ROUTER_OBSERVABILITY_V0.md).
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +15,13 @@ import {
   RiskBadge,
   FlagBadge,
 } from "@/components/admin/agentic/status-badge";
+import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
+import { getRouterObservabilitySummary } from "@/lib/agentic/observability/read-router-decisions";
 
-export const dynamic = "force-static";
+// Dynamic: the Router Observability section reads live (read-only) recent router
+// decisions at request time. The static registry sections are still pure.
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Agentic Control Center — Hearst Connect" };
 
 function PathList({ paths }: { paths: string[] }) {
@@ -65,10 +71,14 @@ function SystemStatusChip({
   );
 }
 
-export default function AgenticControlCenterPage() {
+export default async function AgenticControlCenterPage() {
   const data = getAgenticControlCenterData();
   const { router, inventory, gates, tools, prompts, safetySummary, nextSteps } =
     data;
+  // Read-only: recent router-decision metadata. Best-effort — getRouterObservability
+  // Summary never throws; a backend hiccup degrades to an honest empty/unavailable
+  // state rather than breaking the page.
+  const observability = await getRouterObservabilitySummary().catch(() => null);
 
   return (
     <>
@@ -430,7 +440,10 @@ export default function AgenticControlCenterPage() {
         </div>
       </section>
 
-      {/* 9. Next architecture steps ------------------------------------ */}
+      {/* 9. Router Observability (live, read-only) ---------------------- */}
+      <RouterObservabilitySection summary={observability} />
+
+      {/* 10. Next architecture steps ----------------------------------- */}
       <section className="admin-doc-stack" aria-label="Next architecture steps">
         <h2 className="h2">Next architecture steps</h2>
         <p className="body-xs ct-text-muted">
