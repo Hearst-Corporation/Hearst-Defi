@@ -1,4 +1,5 @@
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/cn";
 import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
@@ -54,12 +55,11 @@ export function PlatformOverviewBand({ view, allocations }: { view: OverviewClus
                 <span className="dashboard-overview-ledger__label">Capacity usage</span>
                 <span className="cockpit-value-xs opacity-80">{cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "—"}</span>
               </div>
-              <div className="h-1 w-full bg-[var(--ct-border-ghost)] rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-(--ct-accent) transition-all duration-500"
-                  style={{ width: cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "0%" }}
-                />
-              </div>
+              <Progress
+                value={parseFloat(cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "0") || 0}
+                variant="plain"
+                label="Capacity usage"
+              />
             </div>
           )}
           {cluster.label === "Exposure" && allocations.length > 0 && (
