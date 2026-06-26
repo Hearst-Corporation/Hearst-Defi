@@ -67,10 +67,6 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
             </span>
           ))}
         </nav>
-        <span className="app-footer__status body-xs ct-text-faint">
-          <ProvenanceBadge kind="live" variant="strip" />
-          Service live · {APY_RANGE} · © 2026
-        </span>
       </footer>
     );
   }
