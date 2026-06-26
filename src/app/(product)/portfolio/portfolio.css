@@ -1043,11 +1043,8 @@
   color: var(--ct-text-tertiary);
   opacity: var(--ct-opacity-80);
   border-bottom: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-nested-bg);
   padding-top: var(--ct-space-3);
   padding-bottom: var(--ct-space-3);
-  border-top-left-radius: var(--ct-radius-xl);
-  border-top-right-radius: var(--ct-radius-xl);
 }
 
 .pf-positions__row--body {
@@ -3082,7 +3079,6 @@
 .pf-positions-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
   padding: var(--ct-space-2) var(--ct-space-4) var(--ct-space-4);
   min-width: 0;
   width: 100%;
@@ -3304,17 +3300,16 @@
   align-items: center;
   justify-content: center;
   gap: var(--ct-space-2);
-  padding: var(--ct-space-2_5);
-  margin-top: var(--ct-space-1);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 12%, transparent);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  margin-top: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
+  border-radius: 0;
   background: transparent;
   transition: all var(--ct-dur-base) var(--ct-ease);
   text-decoration: none;
 }
 
 .pf-positions-view-all:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 15%, transparent);
   background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
 }
 
