@@ -16,6 +16,16 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### fix/portfolio-qa-hardcode
+Owner: Agent — Portfolio QA Hardcode Removal
+Branch: fix/portfolio-qa-hardcode
+Reserved: 2026-06-26
+Status: active
+Files:
+- src/app/(product)/portfolio/page.tsx
+
+---
+
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
