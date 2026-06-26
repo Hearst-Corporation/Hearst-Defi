@@ -116,7 +116,7 @@ export function ProvenanceBadge({
         className={
           resolved === "compact"
             ? cn(
-                "dashboard-provenance-badge--compact",
+                "provenance-badge--compact",
                 compactDotTone[kind],
                 muted && "opacity-[var(--ct-opacity-60)]",
               )

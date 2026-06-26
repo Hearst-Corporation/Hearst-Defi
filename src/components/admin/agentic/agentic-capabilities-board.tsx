@@ -58,23 +58,18 @@ export function AgenticCapabilitiesBoard({
         </p>
       </div>
 
+      {/* Summary only — counts + plain-language meaning. The per-action detail
+          lives once in the Actions & Gates matrix below (no duplicated lists). */}
       <div className="agentic-capability-grid">
         {CAPABILITIES.map((c) => {
-          const items = matrix.items.filter((i) => i.tier === c.tier);
+          const count = matrix.items.filter((i) => i.tier === c.tier).length;
           return (
             <div key={c.tier} className="agentic-capability" data-tone={c.tone}>
               <div className="agentic-capability-head">
-                <span className="agentic-capability-count tabular-nums">{items.length}</span>
+                <span className="agentic-capability-count tabular-nums">{count}</span>
                 <span className="agentic-capability-title">{c.title}</span>
               </div>
               <p className="body-xs ct-text-muted m-0">{c.meaning}</p>
-              <ul className="agentic-capability-items">
-                {items.map((i) => (
-                  <li key={i.id} className="agentic-capability-item">
-                    {i.label}
-                  </li>
-                ))}
-              </ul>
             </div>
           );
         })}

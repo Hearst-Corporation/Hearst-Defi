@@ -139,9 +139,9 @@ describe("RouterObservabilitySection v1", () => {
     expect(html).toContain("durable");
   });
 
-  it("shows the SQL aggregates badge when aggregationMode is sql", () => {
+  it("omits the SQL aggregates badge when aggregationMode is sql (healthy default)", () => {
     const html = render(summary({ state: "empty", aggregationMode: "sql" }));
-    expect(html).toContain("SQL aggregates");
+    expect(html).not.toContain("SQL aggregates");
     NO_WRITE_CONTROLS(html);
   });
 

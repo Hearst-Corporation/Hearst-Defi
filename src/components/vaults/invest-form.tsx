@@ -114,7 +114,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
   return (
     <dl className="vault-invest-terms-strip">
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label ct-text-faint">Target APY</dt>
+        <dt className="stat-label">Target APY</dt>
         <dd>
           <ApyRange
             low={vault.apyLow}
@@ -125,19 +125,19 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         </dd>
       </div>
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label ct-text-faint">Lock-up</dt>
+        <dt className="stat-label">Lock-up</dt>
         <dd className="body-sm tabular mono ct-text-strong">
           {vault.softLockupDays}d soft
         </dd>
       </div>
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label ct-text-faint">Min ticket</dt>
+        <dt className="stat-label">Min ticket</dt>
         <dd className="body-sm tabular mono ct-text-strong">
           {formatUsdAmount(vault.minTicketUsdc, true)}
         </dd>
       </div>
       <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label ct-text-faint">Fees (gross)</dt>
+        <dt className="stat-label">Fees (gross)</dt>
         <dd className="body-sm mono ct-text-strong">
           {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%
         </dd>
@@ -247,7 +247,7 @@ function InvestFormProjections({
   return (
     <section aria-label="Analytics & Projections">
       <div className="vault-invest-section-divider">
-        <span className="body-xs ct-text-faint uppercase tracking-widest font-bold">
+        <span className="body-xs ct-text-muted uppercase tracking-widest font-bold">
           Analytics & Projections
         </span>
       </div>

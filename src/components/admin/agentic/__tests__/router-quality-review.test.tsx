@@ -138,11 +138,9 @@ describe("RouterQualityReview v0", () => {
     expect(html).toContain("healthy");
   });
 
-  it("renders the top matched rules read-only", () => {
+  it("does NOT duplicate the Top matched rules block (deduped — it lives once in the Observability trends module above)", () => {
     const html = render(review());
-    expect(html).toContain("Top matched rules");
-    expect(html).toContain("nav.resolver");
-    expect(html).toContain("12");
+    expect(html).not.toContain("Top matched rules");
     NO_WRITE_CONTROLS(html);
   });
 

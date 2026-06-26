@@ -379,8 +379,23 @@ model Investor {
 
   positions    Position[]
   transactions InvestorTransaction[]
+  navSnapshots InvestorNavSnapshot[]
 
   @@index([walletAddress])
+}
+
+/// Hourly investor NAV print — sum of position principal + accrued at `takenAt`.
+/// Written by investor-nav-snapshot-hourly Inngest cron; never interpolated.
+model InvestorNavSnapshot {
+  id         String   @id @default(cuid())
+  investorId String
+  investor   Investor @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  takenAt    DateTime // UTC hour bucket start
+  valueUsdc  Decimal
+  source     String   @default("computed") // computed | dev_seed
+
+  @@unique([investorId, takenAt])
+  @@index([investorId, takenAt])
 }
 
 model Position {

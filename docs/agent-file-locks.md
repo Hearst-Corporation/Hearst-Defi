@@ -16,7 +16,58 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-_No active locks._
+### feat/vault-detail-grammar-convergence
+Owner: Agent — Vault Detail Root Grammar Convergence
+Branch: main (worktree shared — vault detail scope only)
+Reserved: 2026-06-26
+Files:
+- src/app/(product)/vaults/[id]/page.tsx
+- src/app/(product)/vaults/[id]/loading.tsx
+- src/components/vaults/invest-flow-shell.tsx
+- src/components/vaults/vault-legal-proof-rows.tsx
+- src/components/ui/provenance-badge.tsx
+- src/app/cockpit.css (provenance-badge--compact rename only)
+- src/components/vaults/__tests__/invest-flow-shell.test.tsx
+
+---
+
+### squad/capital-yield-dimension-cleanup
+Owner: Agent 1/4 — Capital & Yield Dimension Cleanup Squad
+Branch: main (worktree shared — Capital & Yield scope only)
+Reserved: 2026-06-26
+Files:
+- src/components/portfolio/capital-yield.tsx
+- src/components/portfolio/__tests__/capital-yield.test.tsx
+- src/app/(product)/portfolio/portfolio.css (cy-panel / cy-v5-* blocks only)
+- src/app/(product)/portfolio/loading.tsx (cy-v5 skeleton only)
+- src/app/(product)/portfolio/page.tsx (CapitalYield props / pf-cockpit-row--yield only — no other rows)
+
+---
+
+### squad/portfolio-value-chart-rebuild
+Owner: Agent 3/4 — Portfolio Value Chart Rebuild Squad
+Branch: main (worktree shared — chart scope only)
+Reserved: 2026-06-26
+Files:
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/chart/**
+- src/lib/portfolio/value-series.ts
+- src/lib/portfolio/investor-nav-snapshot.ts
+- src/lib/portfolio/geometry/value-series-projection.ts
+- src/lib/portfolio/geometry/svgConstants.ts
+- src/lib/data/portfolio.ts (hourlyValueSnapshots feed)
+- src/lib/inngest/functions/investor-nav-snapshot-hourly.ts
+- prisma/schema.prisma (InvestorNavSnapshot model)
+- prisma/migrations/20260626120000_add_investor_nav_snapshot/**
+- src/app/api/inngest/route.ts (register investor-nav-snapshot-hourly)
+- src/app/(product)/portfolio/page.tsx (ValueChart prop wiring only)
+- src/app/(product)/portfolio/portfolio.css (pf-value-chart / pf-vc-* blocks only)
+- scripts/seed-dev-position.ts (hourly NAV dev_seed backfill)
+- related tests under src/components/portfolio/__tests__/value-chart.test.tsx
+- src/lib/portfolio/__tests__/value-series.test.ts
+- src/lib/portfolio/__tests__/investor-nav-snapshot.test.ts
+- src/lib/inngest/functions/__tests__/investor-nav-snapshot-hourly.test.ts
+- src/lib/portfolio/geometry/__tests__/value-series-projection.test.ts
 
 ---
 

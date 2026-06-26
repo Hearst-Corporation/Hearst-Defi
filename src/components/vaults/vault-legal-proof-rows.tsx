@@ -1,4 +1,5 @@
 import { LegalMetadataRow } from "@/components/ui/nested-panel";
+import { VaultDetailRow } from "@/components/vaults/vault-flow-primitives";
 import {
   REG_LABELS,
   REG_LABELS_LONG,
@@ -40,16 +41,18 @@ export function VaultLegalProofRows({ facts, variant }: VaultLegalProofRowsProps
 
   return (
     <>
-      <LegalMetadataRow label="SPV structure">
-        {SPV_LABELS_LONG[facts.spvJurisdiction] ?? facts.spvJurisdiction}
-      </LegalMetadataRow>
-      <LegalMetadataRow label="Share class">{`Class ${facts.shareClass}`}</LegalMetadataRow>
-      <LegalMetadataRow label="Regulatory exemption">
-        {REG_LABELS_LONG[facts.regExemption] ?? facts.regExemption}
-      </LegalMetadataRow>
-      <LegalMetadataRow label="Custodian">{VAULT_CUSTODY_LABEL}</LegalMetadataRow>
-      <LegalMetadataRow label="Multisig threshold">{VAULT_MULTISIG_LABEL}</LegalMetadataRow>
-      <LegalMetadataRow label="Audit">{VAULT_AUDIT_LABEL}</LegalMetadataRow>
+      <VaultDetailRow
+        label="SPV structure"
+        value={SPV_LABELS_LONG[facts.spvJurisdiction] ?? facts.spvJurisdiction}
+      />
+      <VaultDetailRow label="Share class" value={`Class ${facts.shareClass}`} />
+      <VaultDetailRow
+        label="Regulatory exemption"
+        value={REG_LABELS_LONG[facts.regExemption] ?? facts.regExemption}
+      />
+      <VaultDetailRow label="Custodian" value={VAULT_CUSTODY_LABEL} />
+      <VaultDetailRow label="Multisig threshold" value={VAULT_MULTISIG_LABEL} />
+      <VaultDetailRow label="Audit" value={VAULT_AUDIT_LABEL} />
     </>
   );
 }

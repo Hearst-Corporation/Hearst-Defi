@@ -1,11 +1,12 @@
-// Admin · Agentic Control Center — Router Quality Review (presentational).
+// Admin · Agentic Control Tower — Router Quality Review (presentational).
 //
-// READ-ONLY. Interprets the existing router observability data: health rates
-// (unknown / dangerous-refusal / educational / nav / fallback), a negated-no-nav
-// count, the top matched rules, and a read-only WATCHLIST of degraded patterns.
+// READ-ONLY. Interprets the existing router observability data as a COMPACT
+// strip: health rates (unknown / dangerous-refusal / educational / nav /
+// fallback) + the negated-no-nav count rendered as dense table rows, and a
+// compact read-only WATCHLIST of degraded patterns. Top matched rules are NOT
+// repeated here — they live once in the Observability trends module above.
 // NO write controls, NO action buttons, NO rule/prompt editor, NO fake data.
-// Pure component — all data passed in, unit-testable via SSR. The only thing it
-// can do is render flags for a human to look at.
+// Pure component — all data passed in, unit-testable via SSR.
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -30,48 +31,36 @@ function severityTone(severity: RouterQualitySeverity): Tone {
   }
 }
 
-/** A single read-only rate card with a token-only proportion bar. */
-function RateCard({ rate }: { rate: RouterQualityRate }) {
+/** One dense health-rate row: label · proportion bar · % · count/total. */
+function RateRow({ rate }: { rate: RouterQualityRate }) {
   const pct = Math.round(rate.rate * 1000) / 10; // one decimal %
   return (
-    <Card
-      hoverOverlay={false}
-      contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-    >
-      <span className="stat-label ct-text-muted">{rate.label}</span>
-      <div className="admin-doc-inline-row admin-doc-inline-row--start">
-        <span className="h3 m-0 tabular-nums">{pct}%</span>
-        <span className="flex-1" />
-        <span className="body-xs ct-text-faint tabular-nums">
-          {rate.count}/{rate.total}
+    <tr className="agentic-qr-row">
+      <td className="agentic-qr-rate-label body-xs ct-text-body">{rate.label}</td>
+      <td className="agentic-qr-bar-cell">
+        <span className="agentic-qr-bar" aria-hidden>
+          <span
+            className="agentic-qr-bar-fill"
+            style={{ width: `${Math.min(100, Math.max(0, rate.rate * 100))}%` }}
+          />
         </span>
-      </div>
-      {/* Token-only proportion bar — no hardcoded hex. */}
-      <div
-        className="h-1 w-full rounded-full overflow-hidden"
-        style={{ background: "var(--ct-surface-2)" }}
-        aria-hidden
-      >
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${Math.min(100, Math.max(0, rate.rate * 100))}%`,
-            background: "var(--ct-accent)",
-          }}
-        />
-      </div>
-    </Card>
+      </td>
+      <td className="agentic-qr-pct body-xs ct-text-strong tabular-nums">{pct}%</td>
+      <td className="agentic-qr-frac body-xs ct-text-faint tabular-nums">
+        {rate.count}/{rate.total}
+      </td>
+    </tr>
   );
 }
 
 /** One read-only watchlist row. Active rows are toned by severity; inactive are muted. */
 function WatchRow({ signal }: { signal: RouterQualitySignal }) {
   return (
-    <li className="admin-doc-inline-row admin-doc-inline-row--start align-top">
+    <li className="agentic-qr-watch-row">
       <Badge variant={signal.active ? severityTone(signal.severity) : "default"}>
         {signal.active ? signal.severity : "ok"}
       </Badge>
-      <span className="body-xs flex-1">
+      <span className="body-xs flex-1 min-w-0">
         <span className="ct-text-strong">{signal.label}</span>
         <span className="ct-text-muted"> — {signal.detail}</span>
       </span>
@@ -86,13 +75,12 @@ export function RouterQualityReview({
 }) {
   if (!review) return null;
 
-  const { total, rates, negatedNoNav, topMatchedRules, watchlist, activeSignalCount, note } =
-    review;
+  const { total, rates, negatedNoNav, watchlist, activeSignalCount, note } = review;
 
   return (
     <section
       id="router-quality-review"
-      className="admin-doc-stack"
+      className="admin-doc-stack admin-doc-stack--tight"
       aria-label="Router Quality Review"
     >
       <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
@@ -104,10 +92,10 @@ export function RouterQualityReview({
             : "healthy"}
         </Badge>
       </div>
-      <p className="body-xs ct-text-muted">
-        Read-only interpretation of the router observability data above — health
-        rates and a watchlist of degraded patterns. No rule, prompt, guard, or
-        HITL change; no action — visibility only.
+      <p className="body-xs ct-text-muted m-0">
+        Read-only interpretation of the observability data above — health rates and
+        a watchlist of degraded patterns. No rule, prompt, guard, or HITL change; no
+        action — visibility only.
       </p>
 
       {total === 0 ? (
@@ -122,60 +110,40 @@ export function RouterQualityReview({
           </p>
         </Card>
       ) : (
-        <div className="admin-doc-card-grid-3">
-          {rates.map((r) => (
-            <RateCard key={r.key} rate={r} />
-          ))}
-          <Card
-            hoverOverlay={false}
-            contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-          >
-            <span className="stat-label ct-text-muted">Negated · no nav</span>
-            <span className="h3 m-0 tabular-nums">{negatedNoNav}</span>
-            <span className="body-xs ct-text-faint">
-              negations that blocked a would-be navigation
-            </span>
-          </Card>
-        </div>
-      )}
+        <Card hoverOverlay={false} material="flat" contentClassName="agentic-qr-grid">
+          <div className="agentic-qr-block">
+            <span className="stat-label ct-text-muted">Health rates</span>
+            <table className="agentic-qr-table w-full">
+              <tbody>
+                {rates.map((r) => (
+                  <RateRow key={r.key} rate={r} />
+                ))}
+                <tr className="agentic-qr-row">
+                  <td className="agentic-qr-rate-label body-xs ct-text-body">
+                    Negated · no nav
+                  </td>
+                  <td className="agentic-qr-bar-cell" aria-hidden />
+                  <td className="agentic-qr-pct body-xs ct-text-strong tabular-nums">
+                    {negatedNoNav}
+                  </td>
+                  <td className="agentic-qr-frac body-xs ct-text-faint">blocked</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-      {/* Watchlist — read-only flags (every signal shown, active or not). */}
-      <Card
-        hoverOverlay={false}
-        contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-      >
-        <span className="stat-label ct-text-muted">Watchlist</span>
-        <ul className="flex flex-col gap-[var(--ct-space-2)]">
-          {watchlist.map((s) => (
-            <WatchRow key={s.key} signal={s} />
-          ))}
-        </ul>
-      </Card>
-
-      {/* Top matched rules (echoed read-only from the summary). */}
-      {topMatchedRules.length > 0 && (
-        <Card
-          hoverOverlay={false}
-          contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-        >
-          <span className="stat-label ct-text-muted">Top matched rules</span>
-          <ul className="flex flex-col gap-[var(--ct-space-1)]">
-            {topMatchedRules.map((r) => (
-              <li
-                key={r.ruleId}
-                className="admin-doc-inline-row admin-doc-inline-row--start"
-              >
-                <span className="body-xs ct-text-body font-mono flex-1 break-all">
-                  {r.ruleId}
-                </span>
-                <span className="body-xs ct-text-muted tabular-nums">{r.count}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="agentic-qr-block">
+            <span className="stat-label ct-text-muted">Watchlist</span>
+            <ul className="agentic-qr-watchlist">
+              {watchlist.map((s) => (
+                <WatchRow key={s.key} signal={s} />
+              ))}
+            </ul>
+          </div>
         </Card>
       )}
 
-      <p className="body-xs ct-text-faint">{note}</p>
+      <p className="body-xs ct-text-faint m-0">{note}</p>
     </section>
   );
 }

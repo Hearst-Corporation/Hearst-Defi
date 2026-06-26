@@ -82,6 +82,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   return (
     <InvestFlowShell
       step="product"
+      workspace
       titleLead={titleLead}
       titleAccent={titleAccent}
       contextLabel="Vault Detail"

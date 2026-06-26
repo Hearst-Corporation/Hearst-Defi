@@ -3,6 +3,7 @@ import { InvestFlowLoadingShell } from "@/components/vaults/invest-flow-loading-
 export default function VaultDetailLoading() {
   return (
     <InvestFlowLoadingShell
+      workspace
       showLead
       showActions
       showOverview

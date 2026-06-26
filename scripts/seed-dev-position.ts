@@ -115,12 +115,42 @@ async function main() {
     }
 
     const value = PRINCIPAL + ACCRUED;
+
+    // 6. Hourly NAV prints for chart QA (flat at current NAV — honest dev fixture).
+    const HOUR_MS = 60 * 60 * 1000;
+    const hoursBack = 168;
+    await prisma.investorNavSnapshot.deleteMany({ where: { investorId } });
+    for (let h = hoursBack; h >= 0; h--) {
+      const at = new Date(
+        Date.UTC(
+          new Date(Date.now() - h * HOUR_MS).getUTCFullYear(),
+          new Date(Date.now() - h * HOUR_MS).getUTCMonth(),
+          new Date(Date.now() - h * HOUR_MS).getUTCDate(),
+          new Date(Date.now() - h * HOUR_MS).getUTCHours(),
+          0,
+          0,
+          0,
+        ),
+      );
+      await prisma.investorNavSnapshot.upsert({
+        where: { investorId_takenAt: { investorId, takenAt: at } },
+        create: {
+          investorId,
+          takenAt: at,
+          valueUsdc: value,
+          source: "dev_seed",
+        },
+        update: { valueUsdc: value, source: "dev_seed" },
+      });
+    }
+
     console.log("✓ Dev position seeded for", DEV_EMAIL);
     console.log(`  position ${position.id}`);
     console.log(
       `  principal $${PRINCIPAL.toLocaleString()} · accrued $${ACCRUED.toLocaleString()} · distributed $${distributed.toLocaleString()}`,
     );
     console.log(`  value $${value.toLocaleString()} · ${MONTHS_OF_HISTORY} monthly distributions`);
+    console.log(`  hourly NAV prints: ${hoursBack + 1} rows (dev_seed)`);
   } finally {
     await prisma.$disconnect();
   }

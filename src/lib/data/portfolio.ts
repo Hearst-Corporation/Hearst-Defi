@@ -22,7 +22,8 @@ import {
   resolveProvenance,
 } from "@/lib/portfolio/provenance";
 import { computeYtdYieldUsdc } from "@/lib/portfolio/yield-ytd";
-import type { ValueSeriesTx } from "@/lib/portfolio/value-series";
+import type { HourlyValueSnapshot, ValueSeriesTx } from "@/lib/portfolio/value-series";
+import { loadHourlyValueSnapshots } from "@/lib/portfolio/investor-nav-snapshot";
 
 export { resolveProvenance };
 
@@ -122,6 +123,12 @@ export interface PortfolioData {
   recentTransactions: PortfolioTransaction[];
   /** Ledger rows for the 12-month value chart (deposit / payout anchors). */
   valueChartTransactions: ValueSeriesTx[];
+  /**
+   * Hourly (or finer) investor NAV prints for the value chart.
+   * Sourced from InvestorNavSnapshot rows (investor-nav-snapshot-hourly cron).
+   * Empty when no prints exist yet — chart falls back to ledger_sparse.
+   */
+  hourlyValueSnapshots: HourlyValueSnapshot[];
   /** Aggregate P&L across positions. Optional — consumers render when present. */
   pnl?: LpPnl;
   /** "live" = real DB data, "fallback" = unauthenticated / empty state */
@@ -275,6 +282,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       nextDistributionAt: nextEndOfMonth(),
       recentTransactions: [],
       valueChartTransactions: [],
+      hourlyValueSnapshots: [],
       source: "fallback",
     };
   }
@@ -284,7 +292,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
   const chartStart = new Date(
     Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() - 11, 1),
   );
-  const [rawPositions, ytdTxs, rawTxs, chartTxs, latestSnapshot] = await Promise.all([
+  const [rawPositions, ytdTxs, rawTxs, chartTxs, latestSnapshot, navSnapshots] = await Promise.all([
     prisma.position.findMany({
       where: { investorId: investor.id },
       include: { vaultDeployment: true },
@@ -318,6 +326,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       orderBy: { takenAt: "desc" },
       select: { takenAt: true },
     }),
+    loadHourlyValueSnapshots(investor.id, chartStart),
   ]);
 
   const positions: PortfolioPosition[] = rawPositions.map((p) => {
@@ -395,6 +404,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     nextDistributionAt: nextEndOfMonth(),
     recentTransactions,
     valueChartTransactions,
+    hourlyValueSnapshots: navSnapshots,
     pnl,
     source: "live",
     // Snapshot freshness when available; otherwise positions were just read live.

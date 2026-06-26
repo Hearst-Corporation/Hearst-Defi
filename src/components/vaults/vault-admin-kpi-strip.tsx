@@ -37,7 +37,7 @@ export function VaultAdminKpiStrip({
         <span className="stat-value mono tabular">
           {bpsToPercent(facts.mgmtFeeBps)}% / {bpsToPercent(facts.perfFeeBps)}%
         </span>
-        <p className="body-xs ct-text-faint mt-[var(--ct-space-1)]">Mgmt / Perf</p>
+        <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">Mgmt / Perf</p>
       </Card>
 
       <Card>
@@ -45,7 +45,7 @@ export function VaultAdminKpiStrip({
         <span className="stat-value mono tabular">
           {facts.softLockupDays}d
         </span>
-        <p className="body-xs ct-text-faint mt-[var(--ct-space-1)]">Soft lock-up</p>
+        <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">Soft lock-up</p>
       </Card>
 
       {showAumCard ? (

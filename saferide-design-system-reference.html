@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeRide | Mobility Trust Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Palette - Premium & Trust */
+            --bg-page: #FCFCFD;
+            --bg-surface: #FFFFFF;
+            --bg-surface-elevated: #F4F4F5;
+            --bg-dark: #09090B;
+            --bg-dark-surface: #18181B;
+            
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-tertiary: #94A3B8;
+            --text-inverse: #FFFFFF;
+            --text-inverse-sec: #A1A1AA;
+
+            --accent-emerald: #059669; /* Safety, Go, Revenue */
+            --accent-emerald-soft: #D1FAE5;
+            --accent-amber: #D97706; /* Human, Warning, Warmth */
+            --accent-amber-soft: #FEF3C7;
+            --accent-blue: #2563EB; /* Guardian AI, Tech */
+            --accent-blue-soft: #DBEAFE;
+            
+            --border-light: rgba(15, 23, 42, 0.06);
+            --border-dark: rgba(255, 255, 255, 0.1);
+
+            /* Typography */
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            
+            /* Shadows (Layered for depth) */
+            --shadow-float: 0 4px 6px -1px rgba(0,0,0,0.02), 0 10px 15px -3px rgba(0,0,0,0.04);
+            --shadow-hover: 0 10px 25px -5px rgba(0,0,0,0.05), 0 20px 40px -10px rgba(0,0,0,0.06);
+            --shadow-glow: 0 0 40px rgba(37, 99, 235, 0.15);
+
+            /* Radii */
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --radius-pill: 999px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+        h1 { font-size: 5rem; letter-spacing: -0.04em; }
+        h2 { font-size: 3rem; margin-bottom: 1.5rem; }
+        h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        p { font-size: 1.125rem; color: var(--text-secondary); }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+
+        /* Layout */
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+        section { padding: 120px 0; position: relative; }
+        .grid { display: grid; gap: 2rem; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .flex { display: flex; align-items: center; }
+        .flex-col { display: flex; flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-8 { gap: 2rem; }
+
+        /* Buttons & Badges */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 16px 32px; border-radius: var(--radius-pill);
+            font-weight: 600; font-size: 1rem; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none; border: none;
+        }
+        .btn-primary { background: var(--text-primary); color: var(--text-inverse); }
+        .btn-primary:hover { background: #000; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-light); color: var(--text-primary); }
+        .btn-outline:hover { background: var(--bg-surface-elevated); }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: var(--radius-pill);
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+        }
+        .badge-ai { background: var(--accent-blue-soft); color: var(--accent-blue); }
+        .badge-ai::before { content:''; display:block; width:6px; height:6px; background:currentColor; border-radius:50%; box-shadow: 0 0 8px currentColor; }
+        .badge-trust { background: var(--accent-emerald-soft); color: var(--accent-emerald); }
+        .badge-human { background: var(--accent-amber-soft); color: var(--accent-amber); }
+        .badge-dark { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Cards */
+        .card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-float);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+        /* Header */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(252, 252, 253, 0.8);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 20px 0;
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.05em; display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 32px; height: 32px; }
+
+        /* Abstract UI Elements & Decorations */
+        .ambient-glow {
+            position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, rgba(255,255,255,0) 70%);
+            top: -100px; right: -100px; border-radius: 50%; z-index: -1; pointer-events: none;
+        }
+
+        /* Hero */
+        .hero { min-height: 90vh; display: flex; align-items: center; padding-top: 160px; overflow: hidden; }
+        .hero-visual { position: relative; width: 100%; height: 500px; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-xl);
+            padding: 24px; box-shadow: var(--shadow-hover);
+        }
+
+        /* Agents Section */
+        .agent-card { border-top: 4px solid transparent; }
+        .agent-card.guardian { border-top-color: var(--accent-blue); }
+        .agent-card.driver { border-top-color: var(--accent-emerald); }
+        .agent-card.human { border-top-color: var(--accent-amber); }
+        
+        .agent-status-box {
+            margin-top: 24px; padding: 16px;
+            background: var(--bg-page); border-radius: var(--radius-sm);
+            border: 1px dashed var(--border-light);
+        }
+
+        /* Timeline */
+        .timeline { position: relative; margin-left: 20px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 0; top: 10px; bottom: 10px;
+            width: 2px; background: repeating-linear-gradient(to bottom, var(--border-light) 0, var(--border-light) 4px, transparent 4px, transparent 8px);
+        }
+        .timeline-step { position: relative; padding-left: 32px; padding-bottom: 40px; }
+        .timeline-step::before {
+            content: ''; position: absolute; left: -5px; top: 6px;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--bg-surface); border: 2px solid var(--text-tertiary);
+            transition: all 0.3s;
+        }
+        .timeline-step.active::before { border-color: var(--accent-blue); background: var(--accent-blue); box-shadow: 0 0 0 4px var(--accent-blue-soft); }
+
+        /* Phone Mockups */
+        .phone-mockup {
+            width: 320px; height: 680px; background: #000;
+            border-radius: 48px; padding: 12px; position: relative;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.25), inset 0 0 0 2px #333;
+            margin: 0 auto;
+        }
+        .phone-notch {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            width: 100px; height: 28px; background: #000;
+            border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; z-index: 10;
+        }
+        .phone-screen {
+            background: var(--bg-page); width: 100%; height: 100%;
+            border-radius: 36px; overflow: hidden; position: relative;
+            display: flex; flex-direction: column;
+        }
+
+        /* Control Center (Dark Mode) */
+        .dark-section { background: var(--bg-dark); color: var(--text-inverse); }
+        .dark-section p { color: var(--text-inverse-sec); }
+        .dark-card {
+            background: var(--bg-dark-surface);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-lg); padding: 24px;
+        }
+        .live-indicator { width: 8px; height: 8px; background: #10B981; border-radius: 50%; box-shadow: 0 0 10px #10B981; }
+
+        /* Utilities */
+        .mt-8 { margin-top: 2rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .text-emerald { color: var(--accent-emerald); }
+        .text-amber { color: var(--accent-amber); }
+        .text-blue { color: var(--accent-blue); }
+
+        @media (max-width: 1024px) {
+            h1 { font-size: 3.5rem; }
+            .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .hero .grid-2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            section { padding: 80px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <header>
+        <div class="container flex justify-between">
+            <div class="logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="#0F172A"/>
+                    <path d="M16 8L24 11.5V17.5C24 22.5 16 26 16 26C16 26 8 22.5 8 17.5V11.5L16 8Z" stroke="#10B981" stroke-width="2" stroke-linejoin="round"/>
+                    <circle cx="16" cy="15" r="2" fill="#3B82F6"/>
+                </svg>
+                SafeRide
+            </div>
+            <nav class="flex gap-8" style="display: none; @media(min-width: 768px){display:flex;}">
+                <a href="#os" style="text-decoration:none; color:var(--text-primary); font-weight:600;">The OS</a>
+                <a href="#agents" style="text-decoration:none; color:var(--text-primary); font-weight:600;">Intelligence</a>
+                <a href="#drivers" style="text-decoration:none; color:var(--text-primary); font-weight:600;">Drivers</a>
+            </nav>
+            <a href="#system" class="btn btn-primary" style="padding: 10px 24px;">Design System</a>
+        </div>
+    </header>
+
+    <!-- 1. HERO -->
+    <section class="hero">
+        <div class="container grid grid-2" style="align-items: center;">
+            <div>
+                <span class="badge badge-ai mb-4">AI-Assisted, Human-Governed</span>
+                <h1>Every sensitive ride is watched by a Guardian.</h1>
+                <p class="mt-8" style="font-size: 1.25rem; max-width: 500px;">
+                    SafeRide is not just a ride-hailing app. It is an AI-powered mobility trust platform designed for families, executives, and high-stakes journeys.
+                </p>
+                <div class="flex gap-4 mt-8">
+                    <a href="#os" class="btn btn-primary">Discover the OS</a>
+                    <a href="#" class="btn btn-outline">Read Methodology</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <!-- Abstract Premium Visual -->
+                <div class="glass-panel" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width: 100%; max-width: 400px; z-index: 2;">
+                    <div class="flex justify-between mb-4">
+                        <div class="flex gap-2">
+                            <div style="width:40px; height:40px; border-radius:50%; background:#F1F5F9; overflow:hidden;">
+                                <img src="https://i.pravatar.cc/100?img=68" alt="Driver" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:14px;">David K.</div>
+                                <div class="text-xs text-emerald">Certified Premium</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-ai" style="height: fit-content;">Guardian Active</span>
+                    </div>
+                    
+                    <div style="height: 120px; background: var(--bg-page); border-radius: 12px; position:relative; overflow:hidden; border: 1px solid var(--border-light);">
+                        <svg width="100%" height="100%" preserveAspectRatio="none">
+                            <path d="M-10,60 Q100,10 200,80 T400,60" fill="none" stroke="#E2E8F0" stroke-width="4" stroke-dasharray="8 8"/>
+                            <path d="M-10,60 Q100,10 200,80" fill="none" stroke="#2563EB" stroke-width="4"/>
+                            <circle cx="200" cy="80" r="6" fill="#2563EB">
+                                <animate attributeName="r" values="6;12;6" dur="2s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                        </svg>
+                    </div>
+
+                    <div class="flex justify-between mt-4" style="padding-top: 16px; border-top: 1px solid var(--border-light);">
+                        <div class="text-sm text-secondary">Est. Arrival</div>
+                        <div style="font-weight: 700;">14 mins</div>
+                    </div>
+                </div>
+                
+                <!-- Decorative background elements -->
+                <div style="position:absolute; width: 300px; height: 300px; background: #DBEAFE; filter: blur(80px); top: 10%; right: 10%; border-radius: 50%;"></div>
+                <div style="position:absolute; width: 200px; height: 200px; background: #D1FAE5; filter: blur(60px); bottom: 10%; left: 10%; border-radius: 50%;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. DARK STATEMENT -->
+    <section class="dark-section" style="padding: 160px 0; text-align: center;">
+        <div class="container">
+            <h2 style="font-size: 3.5rem; max-width: 800px; margin: 0 auto; color: white;">We reject the price war. Quality requires dignity.</h2>
+            <p class="mt-8" style="font-size: 1.5rem; max-width: 600px; margin: 0 auto;">
+                SafeRide proposes trust, transparency, and better paid drivers. Cheap rides compromise safety. We build for reliability.
+            </p>
+        </div>
+    </section>
+
+    <!-- 3. SAFERIDE OS -->
+    <section id="os" style="background: var(--bg-surface-elevated);">
+        <div class="container">
+            <div style="max-width: 600px; margin-bottom: 64px;">
+                <span class="text-xs text-secondary">The Architecture</span>
+                <h2>SafeRide OS</h2>
+                <p>Four distinct layers working in harmony to deliver an unprecedented level of transport security.</p>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <span class="badge badge-trust mb-4">Core</span>
+                    <h3>Mobility Core</h3>
+                    <p>The foundation: cash-first wallet, transparent dispatch, real-time pricing without extreme surge, and instant driver payouts.</p>
+                </div>
+                <div class="card">
+                    <span class="badge badge-ai mb-4">Layer 2</span>
+                    <h3>Intelligence Swarm</h3>
+                    <p>Specialized AI agents monitor every metric: route deviation, vehicle speed, driver fatigue, and pricing fairness.</p>
+                </div>
+                <div class="card">
+                    <span class="badge badge-dark mb-4" style="background:#0F172A; color:white;">Layer 3</span>
+                    <h3>Trust & Compliance</h3>
+                    <p>Encrypted PINs, biometric driver certification, live family sharing, and immutable audit logs for every journey.</p>
+                </div>
+                <div class="card">
+                    <span class="badge badge-human mb-4">Top Layer</span>
+                    <h3>Human Control Center</h3>
+                    <p>AI assists, humans govern. If an agent detects a critical anomaly, a human safety officer takes control within seconds.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. AI AGENTS -->
+    <section id="agents">
+        <div class="container">
+            <div class="flex justify-between" style="align-items: flex-end; margin-bottom: 64px;">
+                <div style="max-width: 500px;">
+                    <h2>The Intelligence Layer</h2>
+                    <p>Not a generic chatbot. A swarm of specialized agents executing discrete, deterministic tasks.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-3">
+                <div class="card agent-card guardian">
+                    <div class="flex justify-between mb-4">
+                        <h4>Guardian Agent</h4>
+                        <span class="badge badge-ai">Active</span>
+                    </div>
+                    <p class="text-sm">Supervises the physical journey, comparing real-time GPS with expected routing.</p>
+                    <div class="agent-status-box">
+                        <div class="text-xs text-tertiary mb-2">OBSERVED SIGNAL</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">Unplanned stop > 3 mins</div>
+                        <div class="text-xs text-tertiary mb-2 mt-4">RECOMMENDED ACTION</div>
+                        <div style="font-weight: 600; color: var(--accent-blue);">Trigger in-app welfare check</div>
+                    </div>
+                </div>
+
+                <div class="card agent-card human">
+                    <div class="flex justify-between mb-4">
+                        <h4>Compliance Agent</h4>
+                        <span class="badge badge-human">Auditing</span>
+                    </div>
+                    <p class="text-sm">Verifies vehicle insurance, driver documents, and regulatory status daily.</p>
+                    <div class="agent-status-box">
+                        <div class="text-xs text-tertiary mb-2">OBSERVED SIGNAL</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">Insurance expires in 5 days</div>
+                        <div class="text-xs text-tertiary mb-2 mt-4">RECOMMENDED ACTION</div>
+                        <div style="font-weight: 600; color: var(--accent-amber);">Suspend dispatch scheduling</div>
+                    </div>
+                </div>
+
+                <div class="card agent-card driver">
+                    <div class="flex justify-between mb-4">
+                        <h4>Fairness Agent</h4>
+                        <span class="badge badge-trust">Live</span>
+                    </div>
+                    <p class="text-sm">Calculates optimal driver payout vs passenger cost to prevent predatory pricing.</p>
+                    <div class="agent-status-box">
+                        <div class="text-xs text-tertiary mb-2">OBSERVED SIGNAL</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">High demand (Rain)</div>
+                        <div class="text-xs text-tertiary mb-2 mt-4">RECOMMENDED ACTION</div>
+                        <div style="font-weight: 600; color: var(--accent-emerald);">Cap platform fee at 10%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. APPS PREVIEW (Passenger & Driver) + Flow -->
+    <section style="background: var(--bg-page); border-top: 1px solid var(--border-light);">
+        <div class="container grid grid-2" style="align-items: center; gap: 80px;">
+            
+            <!-- Flow text -->
+            <div>
+                <h2>The Safety Timeline</h2>
+                <p class="mb-8">How a sensitive ride (SafeRide Junior or Executive) unfolds securely.</p>
+                
+                <div class="timeline">
+                    <div class="timeline-step active">
+                        <h4>Driver Certification</h4>
+                        <p class="text-sm">Driver undergoes face ID check before accepting the ride.</p>
+                    </div>
+                    <div class="timeline-step active">
+                        <h4>Encrypted Pickup PIN</h4>
+                        <p class="text-sm">Ride cannot begin until passenger provides the unique 4-digit code.</p>
+                    </div>
+                    <div class="timeline-step active" style="--accent-blue: #2563EB;">
+                        <h4 class="text-blue">Guardian Overwatch</h4>
+                        <p class="text-sm">Route is live-shared to family. AI detects any 200m deviation.</p>
+                    </div>
+                    <div class="timeline-step">
+                        <h4>Human Escalation</h4>
+                        <p class="text-sm">If AI alerts, the Control Center calls the car directly.</p>
+                    </div>
+                    <div class="timeline-step" style="padding-bottom: 0;">
+                        <h4>Arrival Attested</h4>
+                        <p class="text-sm">Immutable log stored in the Trust Ledger.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSS Phones -->
+            <div class="flex" style="gap: 2rem; justify-content: center;">
+                
+                <!-- Passenger App -->
+                <div class="phone-mockup" style="transform: translateY(-20px);">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <!-- Map bg -->
+                        <div style="background:#E2E8F0; height: 50%; position:relative;">
+                            <svg width="100%" height="100%">
+                                <path d="M20,20 L150,150 L100,300" stroke="white" stroke-width="6" fill="none"/>
+                                <path d="M20,20 L150,150 L100,300" stroke="#2563EB" stroke-width="3" fill="none"/>
+                                <circle cx="100" cy="300" r="8" fill="#10B981" stroke="white" stroke-width="3"/>
+                            </svg>
+                            <!-- Overlay UI -->
+                            <div style="position:absolute; top:40px; left:16px; right:16px; background:white; padding:12px; border-radius:16px; box-shadow:var(--shadow-float); display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:700; font-size:14px;">SafeRide Junior</span>
+                                <span class="badge badge-ai" style="font-size:10px; padding:2px 8px;">Guarded</span>
+                            </div>
+                        </div>
+                        <!-- Bottom Sheet -->
+                        <div style="background:white; height: 50%; border-radius:24px 24px 0 0; padding:24px; margin-top:-24px; position:relative; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); z-index:2;">
+                            <div class="text-xs text-tertiary mb-2">YOUR DRIVER</div>
+                            <div class="flex gap-4 mb-4">
+                                <div style="width:48px; height:48px; background:#F1F5F9; border-radius:50%;"></div>
+                                <div>
+                                    <div style="font-weight:700;">Sarah M.</div>
+                                    <div class="text-sm text-secondary">White Toyota • 4.9★</div>
+                                </div>
+                            </div>
+                            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:16px; text-align:center; margin-bottom:16px;">
+                                <div class="text-xs text-tertiary mb-1">GIVE THIS PIN TO DRIVER</div>
+                                <div style="font-size:24px; font-weight:800; letter-spacing:8px;">8492</div>
+                            </div>
+                            <div style="background:var(--text-primary); color:white; text-align:center; padding:12px; border-radius:12px; font-weight:600; font-size:14px;">
+                                Call Safety Desk
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Driver App -->
+                <div class="phone-mockup" style="transform: translateY(20px);">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen" style="background:#0F172A; color:white;">
+                        <div style="padding:48px 24px 24px;">
+                            <div class="flex justify-between items-center mb-8">
+                                <div class="text-xs text-tertiary">ONLINE</div>
+                                <div class="live-indicator"></div>
+                            </div>
+                            
+                            <div class="text-xs text-tertiary mb-1">TODAY's EARNINGS</div>
+                            <div style="font-size:36px; font-weight:800; margin-bottom:32px;">$142.50</div>
+                            
+                            <!-- Request Card -->
+                            <div style="background:#1E293B; border:1px solid #334155; border-radius:20px; padding:20px;">
+                                <div class="flex justify-between mb-4">
+                                    <span class="badge badge-trust" style="background:rgba(16, 185, 129, 0.1); color:#10B981; border:none;">High Yield</span>
+                                    <span style="font-weight:700;">$28.00</span>
+                                </div>
+                                <div class="flex gap-4 mb-4 items-center">
+                                    <div style="width:8px; height:8px; border-radius:50%; background:white;"></div>
+                                    <div class="text-sm">Airport Terminal 2</div>
+                                </div>
+                                <div class="flex gap-4 mb-6 items-center">
+                                    <div style="width:8px; height:8px; background:#10B981;"></div>
+                                    <div class="text-sm">Downtown Hotel</div>
+                                </div>
+                                <div style="background:#10B981; color:#000; text-align:center; padding:14px; border-radius:12px; font-weight:700; font-size:14px;">
+                                    Tap to Accept
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. CONTROL CENTER -->
+    <section class="dark-section" style="padding-top: 100px; padding-bottom: 140px;">
+        <div class="container">
+            <div class="flex justify-between mb-8" style="align-items: flex-end;">
+                <div>
+                    <h2 style="color:white;">Human Control Center</h2>
+                    <p>Global operations dashboard. Built for resolution speed.</p>
+                </div>
+                <div class="flex gap-4">
+                    <span class="badge badge-dark">12 Officers</span>
+                    <span class="badge badge-dark" style="color:var(--accent-emerald);">All Systems Nominal</span>
+                </div>
+            </div>
+
+            <div class="grid grid-4 mb-8">
+                <div class="dark-card">
+                    <div class="text-xs text-tertiary mb-2">ACTIVE RIDES</div>
+                    <div style="font-size:2.5rem; font-weight:800; line-height:1;">1,492</div>
+                </div>
+                <div class="dark-card">
+                    <div class="text-xs text-tertiary mb-2">GUARDIAN ALERTS</div>
+                    <div style="font-size:2.5rem; font-weight:800; line-height:1; color:var(--accent-amber);">3</div>
+                </div>
+                <div class="dark-card">
+                    <div class="text-xs text-tertiary mb-2">DRIVER WALLET HEALTH</div>
+                    <div style="font-size:2.5rem; font-weight:800; line-height:1; color:var(--accent-emerald);">98%</div>
+                </div>
+                <div class="dark-card" style="display:flex; align-items:center; justify-content:center; background:var(--accent-blue); border-color:var(--accent-blue);">
+                    <div style="font-weight:700; font-size:1.25rem;">Generate Report</div>
+                </div>
+            </div>
+
+            <!-- Incident Feed Mockup -->
+            <div class="dark-card">
+                <h4 class="mb-4">Live Anomaly Feed</h4>
+                <div style="border-top:1px solid var(--border-dark);">
+                    <div class="flex justify-between" style="padding: 16px 0; border-bottom:1px solid var(--border-dark);">
+                        <div class="flex gap-4">
+                            <div class="badge badge-human">Review Req.</div>
+                            <div>
+                                <div style="font-weight:600;">Ride #8492 - Route Deviation</div>
+                                <div class="text-sm text-tertiary">Vehicle stopped on highway for 4 mins. Passenger: Executive account.</div>
+                            </div>
+                        </div>
+                        <button class="btn" style="background:white; color:black; padding:8px 16px; font-size:12px;">Take Control</button>
+                    </div>
+                    <div class="flex justify-between" style="padding: 16px 0; border-bottom:1px solid var(--border-dark);">
+                        <div class="flex gap-4">
+                            <div class="badge badge-dark" style="color:var(--accent-blue);">Resolved</div>
+                            <div>
+                                <div style="font-weight:600;">Ride #8112 - PIN Failed</div>
+                                <div class="text-sm text-tertiary">Passenger entered wrong PIN twice. Auto-resolved on 3rd attempt.</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-tertiary">Resolved by AI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. DESIGN SYSTEM TOKENS -->
+    <section id="system">
+        <div class="container">
+            <h2 class="mb-8">Design System Reference</h2>
+            
+            <div class="grid grid-2">
+                <!-- Colors -->
+                <div class="card">
+                    <h4 class="mb-4">Token Colors</h4>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 1rem;">
+                        <div class="flex-col gap-2">
+                            <div style="height:60px; border-radius:12px; background:var(--bg-dark); border:1px solid var(--border-light);"></div>
+                            <span class="text-xs">Dark</span>
+                        </div>
+                        <div class="flex-col gap-2">
+                            <div style="height:60px; border-radius:12px; background:var(--bg-surface); border:1px solid var(--border-light);"></div>
+                            <span class="text-xs">Surface</span>
+                        </div>
+                        <div class="flex-col gap-2">
+                            <div style="height:60px; border-radius:12px; background:var(--accent-emerald);"></div>
+                            <span class="text-xs">Safety</span>
+                        </div>
+                        <div class="flex-col gap-2">
+                            <div style="height:60px; border-radius:12px; background:var(--accent-blue);"></div>
+                            <span class="text-xs">Agent</span>
+                        </div>
+                        <div class="flex-col gap-2">
+                            <div style="height:60px; border-radius:12px; background:var(--accent-amber);"></div>
+                            <span class="text-xs">Human</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography -->
+                <div class="card">
+                    <h4 class="mb-4">Typography (Plus Jakarta Sans)</h4>
+                    <div class="flex-col gap-4">
+                        <div style="font-size:2.5rem; font-weight:800; line-height:1; letter-spacing:-0.04em;">Display Huge</div>
+                        <div style="font-size:1.5rem; font-weight:700; letter-spacing:-0.02em;">Section Header</div>
+                        <div style="font-size:1.125rem; font-weight:400; color:var(--text-secondary);">Premium body copy with excellent legibility for long reading.</div>
+                        <div class="text-xs text-tertiary">UPPERCASE METADATA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background: var(--bg-surface); border-top: 1px solid var(--border-light); padding: 80px 0 40px;">
+        <div class="container flex justify-between" style="align-items: flex-start;">
+            <div>
+                <div class="logo mb-4">
+                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;">
+                        <rect width="32" height="32" rx="8" fill="#0F172A"/>
+                        <path d="M16 8L24 11.5V17.5C24 22.5 16 26 16 26C16 26 8 22.5 8 17.5V11.5L16 8Z" stroke="#10B981" stroke-width="2"/>
+                    </svg>
+                    SafeRide
+                </div>
+                <p class="text-sm" style="max-width:300px;">An AI-powered mobility trust platform. Movement with protection.</p>
+            </div>
+            <div class="flex gap-8 text-sm font-weight:600;">
+                <div class="flex-col gap-4">
+                    <div style="font-weight:700;">Platform</div>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:none;">Passenger</a>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:none;">Driver</a>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:none;">Business</a>
+                </div>
+                <div class="flex-col gap-4">
+                    <div style="font-weight:700;">Trust</div>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:none;">Methodology</a>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:none;">Control Center</a>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:none;">Compliance</a>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-8" style="border-top:1px solid var(--border-light); padding-top:24px; text-align:center; font-size:12px; color:var(--text-tertiary);">
+            © 2026 SafeRide Mobility. All rights reserved.
+        </div>
+    </footer>
+
+</body>
+</html>

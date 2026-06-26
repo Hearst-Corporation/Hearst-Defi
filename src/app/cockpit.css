@@ -1547,7 +1547,7 @@
 }
 
 /* Dot-only provenance in dense admin surfaces — label in tooltip + aria-label. */
-.dashboard-provenance-badge--compact {
+.provenance-badge--compact {
   min-width: 0;
   flex-shrink: 1;
   padding: var(--ct-space-0_5) var(--ct-space-1_5);
@@ -1743,7 +1743,7 @@
   height: 0;
 }
 
-.dashboard-command-board .dashboard-provenance-badge--compact {
+.dashboard-command-board .provenance-badge--compact {
   padding: 0;
   border: none;
   background: transparent;
@@ -1754,7 +1754,7 @@
 
 /* Dense panels — quiet provenance compact (dot + sr-only label, no glass pill). */
 :is(.pf-cockpit-panel, .ct-card)
-  .dashboard-provenance-badge--compact {
+  .provenance-badge--compact {
   padding: 0;
   border: none;
   background: transparent;

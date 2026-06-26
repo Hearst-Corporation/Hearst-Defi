@@ -122,25 +122,22 @@ export default function PortfolioLoading() {
                 <Skeleton className="h-6 w-48 opacity-40" />
                 <Skeleton className="h-6 w-24 opacity-20" />
               </div>
-              <div className="cy-v4-body mt-4">
-                <div className="cy-v4-metrics">
-                  <div className="cy-v4-metric">
-                    <Skeleton className="h-2 w-20 opacity-20 mb-1" />
-                    <Skeleton className="h-6 w-28 opacity-40" />
-                  </div>
-                  <div className="cy-v4-metric">
-                    <Skeleton className="h-2 w-20 opacity-20 mb-1" />
-                    <Skeleton className="h-8 w-32 opacity-50" />
-                  </div>
+              <div className="cy-v5-body">
+                <div className="cy-v5-headline">
+                  {[0, 1].map((i) => (
+                    <div key={i} className="cy-v5-metric">
+                      <Skeleton className="h-2 w-20 opacity-20 mb-1" />
+                      <Skeleton className="h-6 w-24 opacity-40" />
+                    </div>
+                  ))}
                 </div>
-                <div className="cy-v4-alloc">
-                  <Skeleton className="h-2 w-24 opacity-20" />
-                  <Skeleton className="h-2 w-full max-w-[40rem] rounded-full opacity-15" />
-                  <div className="flex gap-6 flex-wrap">
+                <div className="cy-v5-visual">
+                  <Skeleton className="h-[92px] w-[92px] rounded-full opacity-20 shrink-0" />
+                  <div className="flex flex-col gap-3 flex-1">
                     {[0, 1, 2].map((i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <Skeleton className="h-1.5 w-1.5 rounded-full opacity-30" />
-                        <Skeleton className="h-3 w-24 opacity-20" />
+                      <div key={i} className="flex items-center gap-3">
+                        <Skeleton className="h-2.5 w-2.5 rounded-sm opacity-30" />
+                        <Skeleton className="h-3 w-32 flex-1 opacity-20" />
                         <Skeleton className="h-3 w-8 opacity-30" />
                       </div>
                     ))}

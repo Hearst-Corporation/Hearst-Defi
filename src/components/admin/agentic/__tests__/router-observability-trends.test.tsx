@@ -50,18 +50,12 @@ describe("RouterObservabilityTrends", () => {
     }),
   ];
 
-  it("renders the window selector links for 1h / 24h / 7d", () => {
-    const html = render(filled, []);
-    expect(html).toContain("routerWindow=1h");
-    expect(html).toContain("routerWindow=24h");
-    expect(html).toContain("routerWindow=7d");
-  });
-
-  it("renders trend, distribution, and section labels", () => {
+  it("renders trend, distribution, and section labels in a unified module", () => {
     const html = render(filled, []);
     expect(html).toContain("Outcome trend");
     expect(html).toContain("Outcome distribution");
     expect(html).toContain("Top matched rules");
+    expect(html).toContain("agentic-obs-trends-module");
   });
 
   it("renders top matched rules with counts", () => {

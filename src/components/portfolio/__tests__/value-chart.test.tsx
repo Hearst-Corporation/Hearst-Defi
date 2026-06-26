@@ -5,7 +5,7 @@ import { ValueChart } from "@/components/portfolio/value-chart";
 
 const EMPTY_POSITIONS: [] = [];
 
-describe("ValueChart Cleanup — Header only", () => {
+describe("ValueChart", () => {
   it("renders the Portfolio Value title", () => {
     const html = renderToStaticMarkup(
       <ValueChart
@@ -39,40 +39,118 @@ describe("ValueChart Cleanup — Header only", () => {
         totalValueUsdc={260_000}
         source="live"
         embedded
+        apyLow={9.4}
+        apyHigh={12.8}
       />,
     );
 
     expect(html).toContain("260,000");
     expect(html).toContain("USDC");
+    expect(html).toContain("24H");
+    expect(html).toContain("ALL");
   });
 
-  it("renders the SVG chart when data is present", () => {
+  it("renders the SVG chart when ledger data is present", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={[
           {
             id: "p1",
             vaultName: "Hearst Yield",
-            principalUsdc: 250_000,
-            accruedYieldUsdc: 10_000,
+            principalUsdc: 11,
+            accruedYieldUsdc: 0,
             distributedUsdc: 0,
-            valueUsdc: 260_000,
+            valueUsdc: 11,
             status: "active",
-            apyLow: 9.4,
-            apyHigh: 12.8,
+            apyLow: 8,
+            apyHigh: 15,
             subscribedAt: new Date("2026-01-01T00:00:00.000Z"),
           },
         ]}
-        totalValueUsdc={260_000}
+        totalValueUsdc={11}
         source="live"
         embedded
+        updatedAt={new Date("2026-06-25T12:00:00Z")}
         valueChartTransactions={[
-          { type: "deposit", amountUsdc: 250_000, occurredAt: new Date("2026-01-01") }
+          { type: "deposit", amountUsdc: 11, occurredAt: new Date("2026-06-01") },
         ]}
       />,
     );
 
     expect(html).toContain("<svg");
-    expect(html).toContain("<path"); // Area or Line
+    expect(html).toContain("Ledger-based");
+  });
+
+  it("renders hourly mode note when snapshots supplied", () => {
+    const now = new Date("2026-06-25T12:00:00Z");
+    const hourly = Array.from({ length: 12 }, (_, i) => ({
+      at: new Date(now.getTime() - (11 - i) * 60 * 60 * 1000),
+      valueUsdc: 11 + i * 0.01,
+    }));
+
+    const html = renderToStaticMarkup(
+      <ValueChart
+        positions={[
+          {
+            id: "p1",
+            vaultName: "Hearst Yield",
+            principalUsdc: 11,
+            accruedYieldUsdc: 0.12,
+            distributedUsdc: 0,
+            valueUsdc: 11.12,
+            status: "active",
+            apyLow: 8,
+            apyHigh: 15,
+            subscribedAt: new Date("2026-06-01T00:00:00.000Z"),
+          },
+        ]}
+        totalValueUsdc={11.12}
+        source="live"
+        embedded
+        updatedAt={now}
+        hourlySnapshots={hourly}
+      />,
+    );
+
+    expect(html).toContain("Hourly NAV prints");
+    expect(html).toContain("<path");
+    expect(html).not.toContain("Ledger-based");
+  });
+
+  it("passes hourlySnapshots prop into series builder wiring", () => {
+    const now = new Date("2026-06-25T12:00:00Z");
+    const hourly = [
+      { at: new Date(now.getTime() - 2 * 60 * 60 * 1000), valueUsdc: 11 },
+      { at: new Date(now.getTime() - 1 * 60 * 60 * 1000), valueUsdc: 11.01 },
+    ];
+
+    const html = renderToStaticMarkup(
+      <ValueChart
+        positions={[
+          {
+            id: "p1",
+            vaultName: "Hearst Yield",
+            principalUsdc: 11,
+            accruedYieldUsdc: 0,
+            distributedUsdc: 0,
+            valueUsdc: 11,
+            status: "active",
+            apyLow: 8,
+            apyHigh: 15,
+            subscribedAt: new Date("2026-06-01T00:00:00.000Z"),
+          },
+        ]}
+        totalValueUsdc={11}
+        source="live"
+        embedded
+        updatedAt={now}
+        hourlySnapshots={hourly}
+        valueChartTransactions={[
+          { type: "deposit", amountUsdc: 11, occurredAt: new Date("2026-06-01") },
+        ]}
+      />,
+    );
+
+    expect(html).toContain("Hourly NAV prints");
   });
 });

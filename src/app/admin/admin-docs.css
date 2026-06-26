@@ -192,75 +192,72 @@
    ============================================================================= */
 
 /* =============================================================================
-   Action Readiness lanes — compact row design (no per-chip badge wall).
+   Action Readiness — dense matrix table, grouped by autonomy tier.
+   One row per action (Action · Risk · Gate · Autonomy · Status). Tier group
+   header rows carry the label + count; the row's left border colours the tier.
    ============================================================================= */
 
-.agentic-action-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ct-space-3);
-  align-items: start;
-}
-@media (min-width: 780px) {
-  .agentic-action-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+.agentic-matrix-table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
 }
 
-.agentic-action-lane {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  border-top-width: 3px;
-  background: var(--ct-surface-1);
-  overflow: hidden;
-  min-width: 0;
-}
-.agentic-action-lane[data-tier="read_only"] { border-top-color: var(--ct-status-success); }
-.agentic-action-lane[data-tier="draft_or_proposal"],
-.agentic-action-lane[data-tier="confirmed_write"] { border-top-color: var(--ct-status-warning); }
-.agentic-action-lane[data-tier="forbidden_autonomous"] { border-top-color: var(--ct-status-danger); }
-
-.agentic-action-lane-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-2) var(--ct-space-3);
+/* Tier group header row */
+.agentic-matrix-group-cell {
+  padding: var(--ct-space-3) var(--ct-space-3) var(--ct-space-1);
   border-bottom: 1px solid var(--ct-border-soft);
+  text-align: left;
 }
-.agentic-action-lane-title {
-  font-size: var(--ct-text-xs);
+.agentic-matrix-group-title {
+  font-size: var(--ct-text-2xs);
   font-weight: var(--ct-font-semibold, 600);
-  color: var(--ct-text-body);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  color: var(--ct-text-body);
+}
+.agentic-matrix-group[data-tier="read_only"] .agentic-matrix-group-title { color: var(--ct-status-success); }
+.agentic-matrix-group[data-tier="draft_or_proposal"] .agentic-matrix-group-title,
+.agentic-matrix-group[data-tier="confirmed_write"] .agentic-matrix-group-title { color: var(--ct-status-warning); }
+.agentic-matrix-group[data-tier="forbidden_autonomous"] .agentic-matrix-group-title { color: var(--ct-status-danger); }
+.agentic-matrix-group-count {
+  margin-left: var(--ct-space-2);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-faint);
 }
 
-.agentic-action-lane-list {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+/* Action rows */
+.agentic-matrix-row {
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 45%, transparent);
 }
-
-.agentic-action-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-2) var(--ct-space-3);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
-  min-width: 0;
+.agentic-matrix-row > td {
+  padding: var(--ct-space-1) var(--ct-space-3) var(--ct-space-1) 0;
+  vertical-align: middle;
 }
-.agentic-action-row:last-child { border-bottom: none; }
-.agentic-action-row-name {
-  flex: 1;
-  min-width: 0;
+.agentic-matrix-row > td.agentic-matrix-action {
+  padding-left: var(--ct-space-3);
+  border-left: 2px solid transparent;
   overflow-wrap: anywhere;
 }
+.agentic-matrix-row[data-tier="read_only"] > td.agentic-matrix-action { border-left-color: var(--ct-status-success); }
+.agentic-matrix-row[data-tier="draft_or_proposal"] > td.agentic-matrix-action,
+.agentic-matrix-row[data-tier="confirmed_write"] > td.agentic-matrix-action { border-left-color: var(--ct-status-warning); }
+.agentic-matrix-row[data-tier="forbidden_autonomous"] > td.agentic-matrix-action { border-left-color: var(--ct-status-danger); }
+.agentic-matrix-cell { white-space: nowrap; }
+.agentic-matrix-risk {
+  font-size: var(--ct-text-2xs);
+  font-weight: var(--ct-font-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ct-text-muted);
+}
+.agentic-matrix-risk[data-risk="medium"] { color: var(--ct-status-warning); }
+.agentic-matrix-risk[data-risk="high"],
+.agentic-matrix-risk[data-risk="critical"] { color: var(--ct-status-danger); }
+.agentic-matrix-status { font-size: var(--ct-text-2xs); color: var(--ct-text-muted); }
+.agentic-matrix-status[data-status="available"] { color: var(--ct-status-success); }
+.agentic-matrix-status[data-status="gated"] { color: var(--ct-status-warning); }
+.agentic-matrix-status[data-status="blocked"] { color: var(--ct-status-danger); }
+.agentic-matrix-status[data-status="planned"] { color: var(--ct-text-faint); }
 
 /* =============================================================================
    Crew Simulation — compact cards + step rail.
@@ -276,7 +273,7 @@
 .agentic-sim-grid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-3);
   align-items: start;
 }
 @media (min-width: 720px) {
@@ -293,8 +290,8 @@
 .agentic-sim-card {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-4);
+  gap: var(--ct-space-1_5);
+  padding: var(--ct-space-3);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-1);
@@ -316,7 +313,7 @@
 .agentic-sim-rail {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-1);
+  gap: var(--ct-space-0_5);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -325,8 +322,8 @@
 .agentic-sim-step {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-1_5) var(--ct-space-2);
+  gap: var(--ct-space-1_5);
+  padding: var(--ct-space-0_5) var(--ct-space-2);
   border-radius: var(--ct-radius-md);
   border-left: 2px solid var(--ct-border-soft);
   background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
@@ -427,8 +424,8 @@
 .agentic-obs-stat {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-3);
+  gap: var(--ct-space-0_5);
+  padding: var(--ct-space-2);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-1);
@@ -436,7 +433,7 @@
 }
 
 .agentic-obs-stat-value {
-  font-size: var(--ct-text-xl);
+  font-size: var(--ct-text-lg);
   font-weight: var(--ct-font-bold, 700);
   color: var(--ct-text-strong);
   letter-spacing: -0.02em;
@@ -451,15 +448,20 @@
 .agentic-tower {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-10);
+  gap: var(--ct-space-6);
   min-width: 0;
+}
+
+/* Nested doc stacks inside the tower — tighter than global doc-flow default */
+.agentic-tower :is(.admin-doc-stack, .product-doc-stack) {
+  gap: var(--ct-space-3);
 }
 
 /* Shared section scaffolding */
 .agentic-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-3);
   min-width: 0;
   scroll-margin-top: var(--ct-space-16);
 }
@@ -480,15 +482,15 @@
 .agentic-overview {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-3);
   scroll-margin-top: var(--ct-space-16);
 }
 
 .agentic-hero {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
-  padding: var(--ct-space-8);
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-5);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
   background:
@@ -528,7 +530,7 @@
 .agentic-hero-metrics {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--ct-space-4);
+  gap: var(--ct-space-2);
 }
 @media (min-width: 680px) {
   .agentic-hero-metrics {
@@ -544,7 +546,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-3);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   border-top-width: 2px;
@@ -557,7 +559,7 @@
 .agentic-metric--accent { border-top-color: var(--ct-accent); }
 .agentic-metric--neutral { border-top-color: var(--ct-border-strong); }
 .agentic-metric-value {
-  font-size: var(--ct-text-2xl);
+  font-size: var(--ct-text-xl);
   font-weight: var(--ct-font-bold, 700);
   color: var(--ct-text-strong);
   letter-spacing: -0.02em;
@@ -709,7 +711,7 @@ a.agentic-topology-node:hover {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-2);
-  padding: var(--ct-space-5);
+  padding: var(--ct-space-3);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   border-top-width: 3px;
@@ -734,31 +736,6 @@ a.agentic-topology-node:hover {
   color: var(--ct-text-body);
   font-weight: var(--ct-font-semibold, 600);
 }
-.agentic-capability-items {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  margin: var(--ct-space-1) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.agentic-capability-item {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  padding-left: var(--ct-space-3);
-  position: relative;
-}
-.agentic-capability-item::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.5em;
-  width: 0.25rem;
-  height: 0.25rem;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-border-strong);
-}
-
 /* ---- Agents overview (grouped lanes) ---------------------------------------*/
 .agentic-agents-grid {
   display: grid;
@@ -843,7 +820,7 @@ a.agentic-topology-node:hover {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-2);
-  padding: var(--ct-space-5);
+  padding: var(--ct-space-3);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
   background: var(--ct-surface-1);
@@ -886,6 +863,236 @@ a.agentic-topology-node:hover {
   height: 0.25rem;
   border-radius: var(--ct-radius-full);
   background: var(--ct-border-strong);
+}
+
+/* ---- Observability trends — compact unified module -------------------------*/
+.agentic-obs-trends-module {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  min-width: 0;
+}
+
+.agentic-obs-trends-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  flex-wrap: wrap;
+}
+
+.agentic-obs-trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 0;
+  width: 100%;
+}
+
+.agentic-obs-trend-bar {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-0_5);
+}
+
+.agentic-obs-trend-bar-track {
+  display: flex;
+  width: 100%;
+  flex-direction: column-reverse;
+  overflow: hidden;
+  border-radius: var(--ct-radius-xs);
+  height: 2.75rem;
+}
+
+.agentic-obs-trend-label {
+  font-size: var(--ct-text-micro-size);
+  color: var(--ct-text-faint);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 0.875rem;
+  line-height: 1;
+}
+
+.agentic-obs-trend-label--spacer {
+  visibility: hidden;
+}
+
+.agentic-obs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ct-space-2) var(--ct-space-3);
+}
+
+.agentic-obs-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-muted);
+}
+
+.agentic-obs-legend-swatch {
+  flex: 0 0 auto;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--ct-radius-full);
+}
+
+.agentic-obs-side-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ct-space-3);
+  align-items: start;
+}
+@media (min-width: 56rem) {
+  .agentic-obs-side-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+}
+
+.agentic-obs-subpanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.agentic-obs-dist-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+}
+
+.agentic-obs-dist-track {
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--ct-radius-xs);
+  background: var(--ct-surface-2);
+}
+
+.agentic-obs-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agentic-obs-rules-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.agentic-obs-status-meta {
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-faint);
+}
+
+.agentic-sim-step-mode {
+  flex: 0 0 auto;
+  font-size: var(--ct-text-2xs);
+  color: var(--ct-text-faint);
+  white-space: nowrap;
+}
+
+/* ---- Recent decisions table — dense rows -----------------------------------*/
+.agentic-obs-decisions {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Router Quality Review — compact rates + watchlist strip ---------------*/
+.agentic-qr-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ct-space-4);
+  align-items: start;
+}
+@media (min-width: 56rem) {
+  .agentic-qr-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.agentic-qr-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+.agentic-qr-table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.agentic-qr-row > td {
+  padding: var(--ct-space-1) var(--ct-space-2) var(--ct-space-1) 0;
+  vertical-align: middle;
+}
+.agentic-qr-rate-label { overflow-wrap: anywhere; }
+.agentic-qr-bar-cell { width: 38%; }
+.agentic-qr-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--ct-radius-xs);
+  background: var(--ct-surface-2);
+  overflow: hidden;
+}
+.agentic-qr-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--ct-radius-xs);
+  background: var(--ct-accent);
+}
+.agentic-qr-pct { text-align: right; white-space: nowrap; }
+.agentic-qr-frac { text-align: right; white-space: nowrap; }
+.agentic-qr-watchlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.agentic-qr-watch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+/* ---- Long-term — single compact card, per-day strip beside totals ----------*/
+.agentic-lt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+.agentic-lt-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ct-space-4);
+  align-items: start;
+}
+@media (min-width: 56rem) {
+  .agentic-lt-body {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  }
+}
+.agentic-lt-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-2);
+  min-width: 0;
 }
 
 /* Responsive: collapse the topology schema below tablet. */

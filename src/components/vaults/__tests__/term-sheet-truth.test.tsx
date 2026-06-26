@@ -76,9 +76,13 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
     expect(html).not.toMatch(/Invest · Step [0-9] of 4/);
   });
 
-  it("shows vault allocation in target list only (no duplicate base regime row)", () => {
-    expect(html).toContain("BTC Tactical Delta");
-    expect(html).toContain(">15%<");
-    expect(html).not.toContain("Vault target allocation");
+  it("uses vault product primitives in legal section (not proof-center rows)", () => {
+    expect(html).toContain("vault-panel-row");
+    expect(html).not.toContain("ct-proof-row");
+  });
+
+  it("uses product provenance compact class, not dashboard grammar", () => {
+    expect(html).toContain("provenance-badge--compact");
+    expect(html).not.toContain("dashboard-provenance-badge--compact");
   });
 });

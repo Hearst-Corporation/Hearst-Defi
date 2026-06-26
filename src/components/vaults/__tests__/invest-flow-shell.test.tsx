@@ -46,4 +46,24 @@ describe("InvestFlowShell width", () => {
     expect(html).toContain("invest-flow-shell");
     expect(html).toContain("invest-flow-shell__body");
   });
+
+  it("applies workspace class when workspace prop is set", () => {
+    const html = renderToStaticMarkup(
+      <InvestFlowShell step="product" title="Test" workspace>
+        <p>body</p>
+      </InvestFlowShell>,
+    );
+
+    expect(html).toContain("invest-flow-shell--workspace");
+  });
+
+  it("does not apply workspace class by default", () => {
+    const html = renderToStaticMarkup(
+      <InvestFlowShell step="product" title="Test">
+        <p>body</p>
+      </InvestFlowShell>,
+    );
+
+    expect(html).not.toContain("invest-flow-shell--workspace");
+  });
 });

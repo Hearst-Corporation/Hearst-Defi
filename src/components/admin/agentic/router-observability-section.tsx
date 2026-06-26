@@ -115,22 +115,19 @@ function DecisionRow({ trace }: { trace: RouterDecisionTrace }) {
       <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted">
         {trace.actionPolicy}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)]">
+      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] whitespace-nowrap">
         <Badge variant={outcomeTone(trace.outcome)}>
           {OUTCOME_LABEL[trace.outcome] ?? trace.outcome}
         </Badge>
-      </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted tabular-nums">
-        {trace.negated ? "yes" : "—"}
+        {trace.negated && (
+          <span className="body-xs ct-text-faint"> · negated</span>
+        )}
       </td>
       <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted tabular-nums">
         {typeof trace.confidence === "number" ? trace.confidence.toFixed(2) : "—"}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted font-mono break-words">
+      <td className="py-[var(--ct-space-2)] body-xs ct-text-muted font-mono break-words">
         {trace.routeKey ?? "—"}
-      </td>
-      <td className="py-[var(--ct-space-2)] body-xs ct-text-faint break-words">
-        {trace.matchedRuleIds.length > 0 ? trace.matchedRuleIds.join(", ") : "—"}
       </td>
     </tr>
   );
@@ -200,25 +197,21 @@ export function RouterObservabilitySection({
 
   return (
     <SectionShell current={current}>
-      {/* Compact status strip */}
+      {/* Compact status strip — section-level badges only */}
       <div className="agentic-obs-status-strip">
         <Badge variant={state === "enabled" ? "success" : "default"}>{state}</Badge>
         <Badge variant={storageTone(storage)}>
           {storage === "durable" && activeWindow === "30d" ? "durable 30d" : STORAGE_LABEL[storage]}
         </Badge>
-        {aggregationMode && (
-          <Badge variant={aggregationMode === "sql" ? "success" : "warning"}>
-            {AGGREGATION_LABEL[aggregationMode]}
-          </Badge>
+        {aggregationMode && aggregationMode !== "sql" && (
+          <Badge variant="warning">{AGGREGATION_LABEL[aggregationMode]}</Badge>
         )}
-        <span className="body-xs ct-text-faint">{privacyMode}</span>
-        <span className="body-xs ct-text-faint">{retentionNote}</span>
-        {windowLimitationNote && (
-          <span className="body-xs ct-text-muted">{windowLimitationNote}</span>
-        )}
-        {retentionPolicyNote && (
-          <span className="body-xs ct-text-faint">{retentionPolicyNote}</span>
-        )}
+        <span className="agentic-obs-status-meta">
+          {privacyMode}
+          {retentionNote ? ` · ${retentionNote}` : ""}
+          {windowLimitationNote ? ` · ${windowLimitationNote}` : ""}
+          {retentionPolicyNote ? ` · ${retentionPolicyNote}` : ""}
+        </span>
       </div>
 
       {/* Stat summary */}
@@ -231,17 +224,7 @@ export function RouterObservabilitySection({
         <StatCard label="Normal / unknown" value={(stats.byOutcome.normal_llm ?? 0) + (stats.byOutcome.unknown ?? 0)} />
       </div>
 
-      {state === "enabled" && recent.length > 0 && (
-        <RouterObservabilityTrends
-          window={summary.trendWindow}
-          buckets={summary.trendBuckets}
-          topMatchedRules={summary.topMatchedRules}
-          bufferLimitNote={summary.bufferLimitNote}
-        />
-      )}
-
-      <RouterQualityReview review={summary.qualityReview} />
-
+      {/* Recent decisions table — table-first: the operational record leads. */}
       {state === "empty" || recent.length === 0 ? (
         <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
           <Badge variant="default">empty</Badge>
@@ -250,11 +233,11 @@ export function RouterObservabilitySection({
           </p>
         </Card>
       ) : (
-        <Card hoverOverlay={false} material="flat" contentClassName="overflow-x-auto">
-          <table className="w-full text-left">
+        <Card hoverOverlay={false} material="flat" density="compact" contentClassName="overflow-x-auto">
+          <table className="agentic-obs-decisions w-full text-left">
             <thead>
               <tr className="border-b border-(--ct-border-strong)">
-                {["Time", "Kind", "Action policy", "Outcome", "Negated", "Confidence", "Route key", "Matched rules"].map((h) => (
+                {["Time", "Kind", "Policy", "Outcome", "Conf.", "Route"].map((h) => (
                   <th key={h} className="stat-label ct-text-muted whitespace-nowrap pb-[var(--ct-space-2)] pr-[var(--ct-space-3)]">
                     {h}
                   </th>
@@ -269,6 +252,19 @@ export function RouterObservabilitySection({
           </table>
         </Card>
       )}
+
+      {/* Outcome distribution + top matched rules (+ a trend chart only when the
+          sample is large enough to read). Single home for top matched rules. */}
+      {state === "enabled" && recent.length > 0 && (
+        <RouterObservabilityTrends
+          window={summary.trendWindow}
+          buckets={summary.trendBuckets}
+          topMatchedRules={summary.topMatchedRules}
+          bufferLimitNote={summary.bufferLimitNote}
+        />
+      )}
+
+      <RouterQualityReview review={summary.qualityReview} />
 
       {summary.longTerm && <RouterObservabilityLongTerm longTerm={summary.longTerm} />}
     </SectionShell>

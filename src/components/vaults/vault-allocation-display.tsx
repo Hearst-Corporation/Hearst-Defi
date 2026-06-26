@@ -139,7 +139,7 @@ export function VaultAllocationInvestorList({
           ))}
         </svg>
         <div className="vault-alloc-donut__center">
-          <span className="body-xs ct-text-faint uppercase tracking-widest">Target</span>
+          <span className="body-xs ct-text-muted uppercase tracking-widest">Target</span>
           <span className="body-lg font-bold ct-text-strong">100%</span>
         </div>
       </div>
