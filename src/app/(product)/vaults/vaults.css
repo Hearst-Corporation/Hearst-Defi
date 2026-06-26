@@ -14,7 +14,7 @@
   animation: vault-fade-in var(--ct-dur-slow) var(--ct-ease-out);
 }
 
-/* 9. CIRCULAR ALLOCATION CHART */
+/* 9. CIRCULAR ALLOCATION CHART — donut + legend (circular variant) */
 
 .vault-alloc-chart-circular {
   display: flex;
@@ -59,7 +59,7 @@
 .vault-alloc-legend {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6); /* Increased from space-5 */
+  gap: var(--ct-space-6);
   flex: 1;
 }
 
@@ -71,82 +71,6 @@
   transform: translateX(4px);
 }
 
-.vault-detail-overview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-12);
-  padding: var(--ct-space-10) var(--ct-space-8);
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl);
-  margin-bottom: var(--ct-space-16);
-  box-shadow: 0 8px 32px -16px color-mix(in srgb, var(--ct-bg-deep) 50%, transparent);
-}
-
-@container product-doc (min-width: 48rem) {
-  .vault-detail-overview {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--ct-space-12) var(--ct-space-14);
-  }
-}
-
-.vault-detail-overview__main {
-  flex: 1;
-}
-
-.vault-detail-overview__kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--ct-space-12);
-}
-
-.vault-detail-overview__kpi {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-}
-
-.vault-detail-overview__value {
-  font-size: var(--ct-text-display-fixed); /* 24 → 32px hero tier */
-  font-weight: var(--ct-font-extrabold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tighter);
-}
-
-.vault-detail-overview__cta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-2);
-}
-
-@container product-doc (min-width: 48rem) {
-  .vault-detail-overview__cta {
-    align-items: flex-end;
-    border-left: 1px solid var(--ct-border-soft);
-    padding-left: var(--ct-space-12);
-  }
-}
-
-/* 11. RE-ALIGNING THE GRID FOR PRODUCT SHEET FEEL */
-
-.vault-invest-form-main {
-  gap: var(--ct-space-20); /* Even more breathing room */
-}
-
-/* 12. BLOCK HEADERS */
-
-.vault-detail-block__header {
-  margin-bottom: var(--ct-space-8);
-}
-
-.vault-detail-block__header .h3 {
-  font-size: var(--ct-text-xl);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
 @keyframes vault-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -156,11 +80,10 @@
   .product-doc .vault-invest-grid {
     display: grid;
     grid-template-columns: 1fr 24rem;
-    gap: var(--ct-space-12); /* Increased gap for more air */
+    gap: var(--ct-space-12);
     align-items: start;
   }
 
-  /* Single scroll: removed sticky rail */
   .product-doc .vault-invest-grid__rail {
     position: relative;
     top: 0;

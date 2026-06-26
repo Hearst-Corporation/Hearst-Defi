@@ -2142,6 +2142,71 @@
   }
 }
 
+/* ── vault-panel-* — shared primitives for term-sheet panels ────────────────
+   Used by VaultPanelHeader, VaultDetailRow, VaultKpiCell, VaultPanelInsetBlock
+   across all vault pages (/vaults/[id], /vaults/[id]/invest, /admin/vaults/*). */
+
+.product-doc .vault-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  margin-bottom: var(--ct-space-4);
+}
+
+.product-doc .vault-panel-header__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+
+.product-doc .vault-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+}
+
+.product-doc .vault-panel-body--stack {
+  gap: var(--ct-space-6);
+}
+
+.product-doc .vault-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  padding-block: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-ghost);
+}
+
+.product-doc .vault-panel-row:last-child {
+  border-bottom: none;
+}
+
+.product-doc .vault-panel-row__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+}
+
+.product-doc .vault-panel-inset-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-4) var(--ct-space-5);
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
+}
+
+.product-doc .vault-panel-inset-block__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+
 /* Vault selector — override global ct-card--compact crush inside product-doc */
 .product-doc .ct-card--compact:has(.vault-select-card) {
   padding: var(--ct-space-5) var(--ct-space-6);
