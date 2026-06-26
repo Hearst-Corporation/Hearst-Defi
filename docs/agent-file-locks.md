@@ -16,28 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### chore/agentic-backend-audit
-Owner: Opus Orchestrateur — Agentic Backend Audit
-Branch: chore/agentic-backend-audit
-Worktree: ../connect-opus-agentic-audit
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/swarm/** (audit + hardening only)
-- src/lib/agentic/observability/simulation-*.ts (audit + hardening only)
-- src/app/api/admin/agentic/** (audit + hardening only)
-- tests for the above
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend audit + minimal hardening only. No UI/UX, no DS, no admin/agentic visual.
-- No proof-center / vault / portfolio changes. No Prisma migration, no DB write.
-- Does NOT touch src/components/admin/agentic/** (another agent's active UI work).
-
----
-
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
@@ -94,6 +72,24 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### chore/agentic-backend-audit
+Owner: Opus Orchestrateur — Agentic Backend Audit
+Branch: chore/agentic-backend-audit
+Merged PR: #92 (merge 92ceafff)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Audited the agentic backend surface (registry/simulate/simulations/aggregates routes + swarm/
+  observability libs): clean on auth gating, fail-safe input validation, error-leak (generic
+  responses, no stack/secret), purity/determinism, no `any`/as-unknown, no-store, guarded Redis
+  parse. One finding: the 3 GET read endpoints were admin-gated but not rate-limited (POST simulate
+  is; repo review-mode GET rate-limits reads). Fix: per-admin read rate limiting (60/min → 429) on
+  registry/simulations/aggregates GET; captures userId from requireAdmin + assertRateLimit. Tests
+  mock @/lib/rate-limit + new registry 429 case (84/84). Doc note added. No business/contract/
+  response-shape change. Did NOT touch src/components/admin/agentic/** (another agent's active UI
+  work). typecheck PASS, build PASS (postgresql). No UI/DS/proof-center/portfolio/vault/Prisma change.
 
 ### feat/agentic-simulation-aggregates
 Owner: Opus Orchestrateur — Agentic Simulation Aggregates API
