@@ -78,12 +78,22 @@ Readiness: `run_projection` / `explain_*` → allow; outreach/vault drafts →
 `action_out_of_swarm_scope`; deploy/mark-live → `forbidden_autonomous` (floor);
 the send-run / sourcing → `forbidden_by_swarm`.
 
+## Methodology v2 (seeded p5 / p50 / p95)
+
+An additive, opt-in `methodology: { version: "v2", seed, iterations }` input adds a
+**seeded** p5/p50/p95 distribution + per-horizon bands + a `percentile_band` chart on
+top of the v0 range — pure, deterministic (reuses `src/lib/engine/prng.ts`, no
+`Math.random`/`Date.now`), APY sampled only within the provided range, no invented
+number, no promise. Omitting `methodology` (or `version:"v1"`) keeps the v0 behaviour
+unchanged. Full contract + guards: [PROJECTION_METHODOLOGY_V2.md](./PROJECTION_METHODOLOGY_V2.md).
+
 ## Relation to future UI / Scenario Lab
 
 The artifact is a **backend contract** — a future UI lot (Scenario Lab / a Projection
-panel) can render `metrics`/`scenarios`/`charts` read-only. The Scenario Engine
-(`src/lib/engine/*`, pure, seed-injected, Monte-Carlo allowed under Methodology v2) is the
-natural deeper input source; v0 takes the inputs directly and stays a pure transform.
+panel) can render `metrics`/`scenarios`/`charts`/`distribution.bands` read-only. The
+Scenario Engine (`src/lib/engine/*`, pure, seed-injected, Monte-Carlo) is the natural
+deeper input source for a market-calibrated v2 distribution; v0/v2 here take the inputs
+directly and stay a pure transform.
 
 ## What this is NOT (out of scope here)
 

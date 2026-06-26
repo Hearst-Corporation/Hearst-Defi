@@ -16,6 +16,31 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/projection-methodology-v2
+Owner: Opus Orchestrateur — Projection Methodology v2
+Branch: feat/projection-methodology-v2
+Worktree: ../connect-opus-proj-v2
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/product-projection/** (additive v2 methodology)
+- src/lib/engine/prng.ts (REUSE only — read, no edit)
+- src/app/api/admin/agentic/projection/route.ts (additive input field)
+- src/lib/agentic/**/__tests__/**
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend only. Add seeded p5/p50/p95 methodology v2 to the projection artifact.
+- Reuses the existing pure seeded PRNG (src/lib/engine/prng.ts) — no new dependency.
+- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
+- No Prisma migration, no DB write, no write action, no external tool, no execution.
+- Seed injected; no Date.now/Math.random unseeded; APY range/distribution only;
+  no invented numbers; no guaranteed return; no prompt/user text.
+- Does NOT touch src/components/** (another agent's UI).
+
+---
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence

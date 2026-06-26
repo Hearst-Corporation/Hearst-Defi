@@ -15,12 +15,23 @@ export type {
   ProjectionRisk,
   ProvenanceSource,
   Confidence,
+  ProjectionMethodologyInput,
+  ProjectionMethodology,
+  ProjectionPercentile,
+  ProjectionDistribution,
 } from "./types";
 
 export { validateProjectionInput } from "./validate-projection-input";
 export type { ValidationResult } from "./validate-projection-input";
 
 export { buildProjectionArtifact } from "./build-projection-artifact";
+
+export {
+  buildProjectionDistribution,
+  resolveSeed,
+  clampIterations,
+} from "./projection-methodology-v2";
+export type { MethodologyV2Options } from "./projection-methodology-v2";
 
 export {
   assertProjectionArtifactSafe,

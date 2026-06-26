@@ -39,9 +39,17 @@ export type ProjectionGuardViolation = {
     | "single_point_apy"
     | "missing_disclaimer"
     | "missing_provenance"
-    | "invalid_mode";
+    | "invalid_mode"
+    | "v2_missing_seed"
+    | "v2_bad_iterations"
+    | "v2_percentile_order"
+    | "v2_non_finite"
+    | "v2_missing_limitations";
   detail: string;
 };
+
+const MIN_ITER = 100;
+const MAX_ITER = 10_000;
 
 /** Collect all human-facing strings from the artifact (no numbers/structure). */
 function humanText(a: ProjectionReportArtifact): string {
@@ -116,6 +124,50 @@ export function assertProjectionArtifactSafe(
       violations.push({
         kind: "missing_provenance",
         detail: `metric "${m.id}" has a value but no provenance`,
+      });
+    }
+  }
+
+  // ── Methodology v2 distribution guards ────────────────────────────────────
+  if (a.distribution) {
+    const d = a.distribution;
+    if (!d.methodology.seed || d.methodology.seed.length === 0) {
+      violations.push({ kind: "v2_missing_seed", detail: "v2 distribution has no seed" });
+    }
+    if (
+      !Number.isInteger(d.methodology.iterations) ||
+      d.methodology.iterations < MIN_ITER ||
+      d.methodology.iterations > MAX_ITER
+    ) {
+      violations.push({
+        kind: "v2_bad_iterations",
+        detail: `iterations ${d.methodology.iterations} outside [${MIN_ITER}, ${MAX_ITER}]`,
+      });
+    }
+    if (d.methodology.limitations.length === 0) {
+      violations.push({
+        kind: "v2_missing_limitations",
+        detail: "v2 methodology must state limitations",
+      });
+    }
+    const p5 = d.percentiles.p5.apyPct;
+    const p50 = d.percentiles.p50.apyPct;
+    const p95 = d.percentiles.p95.apyPct;
+    if (!(p5 <= p50 && p50 <= p95)) {
+      violations.push({
+        kind: "v2_percentile_order",
+        detail: `expected p5 ≤ p50 ≤ p95, got ${p5}/${p50}/${p95}`,
+      });
+    }
+    const nums: number[] = [p5, p50, p95];
+    for (const b of d.bands) nums.push(b.p5, b.p50, b.p95, b.horizonMonth);
+    for (const p of Object.values(d.percentiles)) {
+      if (p.projectedYield) nums.push(p.projectedYield.value);
+    }
+    if (nums.some((n) => !Number.isFinite(n))) {
+      violations.push({
+        kind: "v2_non_finite",
+        detail: "v2 distribution contains a non-finite (NaN/Infinity) value",
       });
     }
   }
