@@ -48,17 +48,48 @@ const RANGE_MS: Record<Exclude<ChartTimeRange, "all">, number> = {
   "30d": 30 * 24 * HOUR_MS,
 };
 
-/** UTC start of the chart window for a given range. */
+/** "All" tuning: floor so a same-day position still draws a line; bounded fallback
+   lookback when no inception is known (never an empty year of flat zero). */
+const ALL_MIN_SPAN_MS = 24 * HOUR_MS;
+const ALL_FALLBACK_MS = 365 * 24 * HOUR_MS;
+
+/**
+ * Window bounds for a range. For "all", anchor the start at `inception` (the first
+ * event) so the chart never shows a long flat-zero prefix from before the position
+ * existed — "all" means the investor's whole history, not a fixed 12-month box.
+ */
 export function chartWindowBounds(
   now: Date,
   range: ChartTimeRange,
+  inception?: Date | null,
 ): { start: Date; end: Date } {
   const end = now;
   if (range === "all") {
-    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
-    return { start, end };
+    if (inception && inception.getTime() < end.getTime()) {
+      const span = Math.max(end.getTime() - inception.getTime(), ALL_MIN_SPAN_MS);
+      const pad = span * 0.06; // small breathing room left of the first step
+      return { start: new Date(end.getTime() - span - pad), end };
+    }
+    return { start: new Date(end.getTime() - ALL_FALLBACK_MS), end };
   }
   return { start: new Date(end.getTime() - RANGE_MS[range]), end };
+}
+
+/** Earliest event timestamp across ledger txs + hourly snapshots (inception anchor). */
+function earliestEventDate(
+  transactions: ValueSeriesTx[],
+  hourlySnapshots?: HourlyValueSnapshot[],
+): Date | null {
+  let min: number | null = null;
+  for (const tx of transactions) {
+    const t = tx.occurredAt.getTime();
+    if (min === null || t < min) min = t;
+  }
+  for (const s of hourlySnapshots ?? []) {
+    const t = s.at.getTime();
+    if (min === null || t < min) min = t;
+  }
+  return min === null ? null : new Date(min);
 }
 
 function sortPoints(points: ValueSeriesPoint[]): ValueSeriesPoint[] {
@@ -192,7 +223,12 @@ export function buildPortfolioValueSeries(args: {
   hourlySnapshots?: HourlyValueSnapshot[];
 }): BuiltPortfolioValueSeries {
   const now = args.now ?? new Date();
-  const { start: windowStart, end: windowEnd } = chartWindowBounds(now, args.range);
+  const inception = earliestEventDate(args.transactions, args.hourlySnapshots);
+  const { start: windowStart, end: windowEnd } = chartWindowBounds(
+    now,
+    args.range,
+    inception,
+  );
 
   const hasHourly =
     args.hourlySnapshots != null && args.hourlySnapshots.length > 0;

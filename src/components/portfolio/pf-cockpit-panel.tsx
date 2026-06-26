@@ -76,23 +76,34 @@ export function PfCockpitPanelHeader({
   subtitle,
   provenance,
   trailing,
+  titleEnd,
   titleVariant = "rail",
 }: {
   title: ReactNode;
   subtitle?: string;
   provenance?: Provenance;
   trailing?: ReactNode;
+  titleEnd?: ReactNode;
   titleVariant?: PfCockpitTitleVariant;
 }) {
   const titleClass = panelTitleClass(titleVariant);
+  const titleNode =
+    typeof title === "string" ? (
+      <h2 className={titleClass}>{title}</h2>
+    ) : (
+      title
+    );
 
   return (
     <header className="pf-cockpit-panel__header">
       <div className="pf-cockpit-panel__header-main min-w-0">
-        {typeof title === "string" ? (
-          <h2 className={titleClass}>{title}</h2>
+        {titleEnd ? (
+          <div className="pf-cockpit-panel__title-row">
+            {titleNode}
+            <span className="pf-cockpit-panel__title-end">{titleEnd}</span>
+          </div>
         ) : (
-          title
+          titleNode
         )}
         {subtitle ? (
           <p className="pf-cockpit-panel__subtitle body-xs ct-text-tertiary m-0 mono">

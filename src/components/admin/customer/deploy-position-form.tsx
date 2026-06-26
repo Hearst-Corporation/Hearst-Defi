@@ -39,7 +39,7 @@ export function DeployPositionForm({
   return (
     <div className="admin-doc-stack" style={{ gap: "var(--ct-space-3)" }}>
       {blocked && (
-        <p className="body-xs ct-text-warning">
+        <p className="body-xs ct-status-warning">
           KYC must be approved before deploying a position. Use the Approve button
           above first.
         </p>

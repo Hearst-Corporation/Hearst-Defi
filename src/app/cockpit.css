@@ -25,6 +25,7 @@
 
   /* Dérivés d'accent — dérivés du vert canonique. */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
+  --ct-accent-muted:  color-mix(in oklab, var(--ct-accent) 40%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
 
   /* Texte DANS les cards noires → corps blanc, lisible.
@@ -33,7 +34,7 @@
      --ct-text-primary / --ct-text-body : source unique cockpit-shell/tokens.css
      (valeurs strictement identiques — ex-doublons miroir retirés pour tuer le
      faux positif ds-token-drift, ils cascadent du shell). */
-  --ct-text-strong:  #ffffff;
+  --ct-text-strong:  rgba(255, 255, 255, 0.94);
   --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
@@ -83,19 +84,29 @@
   --ct-title-2: color-mix(in srgb, var(--ct-accent) 80%, transparent);
   --ct-title-3: color-mix(in srgb, var(--ct-accent) 65%, transparent);
 
-  /* ── FONDS DE SURFACES — charcoal étagé, opaque (palette Figma Hearst Flow) ──
-     Fond global = #0E0F0F. Les surfaces montent du fond vers le clair pour la
-     profondeur. surface-0 = niveau du fond (rails/chat), cards au-dessus. */
-  --ct-surface-0: #060708;
-  --ct-surface-1: #1C1D21;
-  --ct-surface-1-hi: #202228; /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
-  --ct-surface-2: #26272D;
-  --ct-surface-3: #2E3038;
+  /* ── FONDS DE SURFACES — TOUT EN NOIR (direction Adrien) ──────────────────────
+     Le shell (fond du centre + rails menu/chat) ET les boxes partagent le MÊME
+     noir profond, porté par le token --ct-bg-deep (défini #060708 dans tokens.css).
+     Aucun hex hardcodé dans les usages : les rails + --ct-graphite-subtle-bg
+     pointent sur var(--ct-bg-deep). surface-1 reste le gris réservé aux chips,
+     hovers, insets nichés et états actifs (relief subtil sur le noir). */
+  --ct-surface-0: color-mix(in oklch, #060708, var(--ct-accent) 0%);
+  --ct-surface-1: color-mix(in oklch, #1C1D21, var(--ct-accent) 0%);
+  --ct-surface-1-hi: color-mix(in oklch, #202228, var(--ct-accent) 0%); /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
+  --ct-surface-2: color-mix(in oklch, #26272D, var(--ct-accent) 0%);
+  --ct-surface-3: color-mix(in oklch, #2E3038, var(--ct-accent) 0%);
+
+  /* Canvas central (body) — un cran PLUS CLAIR que le noir des boxes/rails, pour
+     que les boxes noires se détachent comme des dalles. Porte aussi le dot-grid
+     (déplacé des rails). Token DS — aucun hex hardcodé dans les usages. */
+  --ct-bg-center: #191B22;
 
   /* Graphite module surfaces — solid black plates (no gradient, no glass).
-     L1 box = surface-1 (pour détacher du fond bg-deep); nested inset = surface-2. */
+     L1 box = var(--ct-bg-deep) : MÊME noir que le shell (tout en noir), la
+     séparation vient des liserés (--ct-graphite-border-nested) ; état actif =
+     surface-1 (gris) en relief ; nested inset = surface-2. */
   --ct-graphite-active-bg: var(--ct-surface-1);
-  --ct-graphite-subtle-bg: var(--ct-surface-1);
+  --ct-graphite-subtle-bg: var(--ct-bg-deep);
   --ct-graphite-nested-bg: var(--ct-surface-2);
   --ct-graphite-border: var(--ct-figma-border-20);
   --ct-graphite-border-nested: var(--ct-figma-border-10);
@@ -168,13 +179,13 @@
   --ct-scrollbar-size: 6px;
 
   /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
-  --ct-ambient-glow-opacity: 0.80;
-  --ct-ambient-glow-mix-primary: 14%;
-  --ct-ambient-glow-mix-secondary: 10%;
-  --ct-ambient-glow-mix-fade-a: 5%;
-  --ct-ambient-glow-mix-fade-b: 3%;
-  --ct-ambient-glow-bg-top: 16%;
-  --ct-ambient-glow-bg-bottom: 36%;
+  --ct-ambient-glow-opacity: 0.15;
+  --ct-ambient-glow-mix-primary: 0%;
+  --ct-ambient-glow-mix-secondary: 0%;
+  --ct-ambient-glow-mix-fade-a: 0%;
+  --ct-ambient-glow-mix-fade-b: 0%;
+  --ct-ambient-glow-bg-top: 0%;
+  --ct-ambient-glow-bg-bottom: 0%;
   /* Spatial background gradient stops — semantic aliases (V4 absorption, SSOT §3).
      The shell radial/ambient light reads stop-1 (near, brighter) → stop-2 (far,
      fade). Alias the existing calibrated bg-top/bottom mix ratios; no new value,
@@ -298,45 +309,49 @@
   --ct-doc-flow-stack-gap: var(--ct-space-8);  /* 24px — sibling cards in a stack */
   --ct-doc-flow-inner-gap: var(--ct-space-6);  /* 20px — intra-section / card body */
 
-  /* Text scale — RESPONSIVE via clamp(min, fluid, max).
-     - Small (base/sm/xs/micro) restent fixes pour la lisibilité du body sur mobile.
-     - Big (lg → display) interpolent linéairement du mobile (375px) au desktop
-       (1440px). Au-delà de 1440px, plafonnés à la valeur max. En dessous de
-       375px, plancher à la valeur min.
-     Formule : fluid = (max_px − min_px) / (1440 − 375) × (100vw − 375px) + min_px,
-     converti en `Xrem + Yvw`. */
-  --ct-text-octa: 0.5rem;      /* 8px — densest uppercase micro-label (dashboard value/label tier) */
-  --ct-text-nano: 0.5625rem;   /* 9px — sub-micro kicker / SVG chart label */
-  --ct-text-micro: 0.6875rem;  /* 11px — reading-tier bump */
-  --ct-text-2xs: 0.75rem;      /* 12px — between micro(11) and xs(13), panel labels */
-  --ct-text-2xs-plus: 0.78125rem; /* 12.5px — chat error body (base-shell) */
-  --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
-  --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
-  --ct-text-base: 1rem;       /* 16px — fix */
+  /* Text scale — fluidity is driven by a FLUID ROOT font-size (see `html` rule
+     below): `html { font-size: clamp(15px, … + vw, 20px) }`. Because every token
+     here is expressed in `rem`, the WHOLE scale — corps, micro-labels, KPI,
+     headlines — grows with the viewport through the root, no per-token `vw` needed
+     and no double-counting. These are clean rem multiples (the original ratios);
+     the single source of motion is the root clamp, verified with node
+     (scratchpad/root.mjs) at 768/1280/1920/2450/2880px. */
+  --ct-text-octa: 0.5rem;      /* 8px @16 root — densest uppercase micro-label (dashboard value/label tier) */
+  --ct-text-nano: 0.5625rem;   /* 9px @16 root — sub-micro kicker / SVG chart label */
+  --ct-text-micro: 0.6875rem;  /* 11px @16 root — reading-tier bump */
+  --ct-text-2xs: 0.75rem;      /* 12px @16 root — between micro(11) and xs(13), panel labels */
+  --ct-text-2xs-plus: 0.78125rem; /* 12.5px @16 root — chat error body (base-shell) */
+  --ct-text-xs: 0.8125rem;    /* 13px @16 root — reading-tier bump (table/body) */
+  --ct-text-sm: 0.9375rem;    /* 15px @16 root — reading-tier bump */
+  --ct-text-base: 1rem;       /* 16px @16 root — body */
   /* portfolio scale fill — slots between existing steps + hero */
-  --ct-text-deci: 0.625rem;       /* 10px — between nano(9) and micro(11) */
-  --ct-text-deca: 0.875rem;       /* 14px — between xs(13) and sm(15), delta/metric */
-  --ct-text-14: 0.875rem;         /* 14px — between xs(13) and sm(15) */
-  --ct-text-hero-sym: 1.25rem;    /* 20px — hero value-chart symbol ($) */
-  --ct-text-hero-num: 3rem;       /* 48px — hero value-chart large number */
-  /* Typography big scale — density calibration (headlines −1 step desktop max). */
-  --ct-text-lg:      clamp(0.9375rem, 0.912rem + 0.141vw, 1.0625rem); /* 15 → 17 */
-  --ct-text-xl:      clamp(1.0625rem, 1.024rem + 0.188vw, 1.1875rem); /* 17 → 19 */
-  --ct-text-2xl:     clamp(1.125rem,  1.074rem + 0.263vw, 1.375rem);  /* 18 → 22 */
-  --ct-text-3xl:     clamp(1.375rem,  1.324rem + 0.329vw, 1.625rem);  /* 22 → 26 */
-  --ct-text-5xl:     clamp(1.5rem,    1.412rem + 0.376vw, 1.875rem);  /* 24 → 30 */
-  --ct-text-display: clamp(1.75rem,   1.636rem + 0.470vw, 2.125rem);  /* 28 → 34 */
-  /* Fixed headline tier — seeded from the portfolio page (new DS reference).
-     Non-fluid: stable KPI/heading numbers that must not resize per viewport. */
+  --ct-text-deci: 0.625rem;       /* 10px @16 root — between nano(9) and micro(11) */
+  --ct-text-deca: 0.875rem;       /* 14px @16 root — between xs(13) and sm(15), delta/metric */
+  --ct-text-14: 0.875rem;         /* 14px @16 root — between xs(13) and sm(15) */
+  --ct-text-hero-sym: 1.25rem;    /* 20px @16 root — hero value-chart symbol ($) */
+  --ct-text-hero-num: 3rem;       /* 48px @16 root — hero value-chart large number */
+  /* Typography big scale — clean rem multiples; grow via the fluid root. */
+  --ct-text-lg:      1.0625rem; /* 17px @16 root */
+  --ct-text-xl:      1.1875rem; /* 19px @16 root */
+  --ct-text-2xl:     1.375rem;  /* 22px @16 root */
+  --ct-text-3xl:     1.625rem;  /* 26px @16 root */
+  --ct-text-5xl:     1.875rem;  /* 30px @16 root */
+  --ct-text-display: 2.125rem;  /* 34px @16 root */
+  /* Headline / fixed-value tier — DELIBERATELY NON-FLUID cockpit instruments
+     (greeting H1, NAV, ticker, hero KPI). They must NOT balloon: inside the
+     3-column cockpit they sit next to a 13px menu + 17px chat title, so the
+     canon caps the H1 at 24px. (Restored 2026-06-26 — commit 75ba7dfa had
+     migrated these to a fluid root and inflated the whole tier ~1.6×, which
+     made every body title read 'démesuré' vs chat/menu. The `-fixed` suffix
+     means fixed; these are intentional flat px, NOT clamp() targets.) */
   --ct-text-xl-fixed: 1.125rem;       /* 18px — fixed value display (ticker) */
   --ct-text-2xl-fixed: 1.25rem;       /* 20px — fixed hero value (NAV) */
-  --ct-text-28-fixed: 1.75rem;        /* 28px — fixed hero number (risk summary value) */
-  --ct-text-3xl-fixed: 1.5rem;        /* 24px — fixed heading (greeting lead) */
+  --ct-text-28-fixed: 1.75rem;        /* 28px — fixed hero number (risk summary) */
+  --ct-text-3xl-fixed: 1.5rem;        /* 24px — fixed heading canon (greeting / page H1) */
   --ct-text-display-fixed: 2rem;      /* 32px — fixed hero KPI number */
   --ct-text-hero: 2.5rem;             /* 40px — DS-level hero KPI tier (V4 absorption,
-                                         SSOT §3). Above display-fixed(32) for the
-                                         single dominant figure of a hero surface;
-                                         value-chart keeps its own --ct-text-hero-num(48). */
+                                         SSOT §3). Single dominant figure of a hero surface;
+                                         value-chart keeps its own --ct-text-hero-num. */
 
   /* Font weight scale (mirrors Tailwind). */
   --ct-font-light: 300;
@@ -393,6 +408,24 @@
   --ct-scenario-central-dur-base: var(--ct-dur-base);
   --ct-scenario-central-ease: var(--ct-ease);
 }
+
+/* ── FLUID ROOT — the single engine that makes ALL type responsive ──────────
+   The whole site sizes text in `rem` (the --ct-text-* tokens, Tailwind text-*,
+   .ct-form-label, body copy, headlines…). Making the ROOT font-size fluid scales
+   every one of them at once, with no per-call-site edits and no double-counting
+   (tokens above are clean rem multiples — zero `vw` inside them). Expressed in
+   px+vw (NEVER rem on `html` — that would be recursive). Floor 15px at ≤768px,
+   ceiling 20px at ≥2880px, so a 2450px screen sits mid-track and keeps growing.
+   Loaded after globals.css (layout.tsx import order) → this wins over
+   `html,body { font-size: var(--text-md) }`. Computed with node, verified
+   (scratchpad/root.mjs): 1280→16.21px · 1920→17.73px · 2450→18.98px · 2880→20px.
+   Chosen unit `vw` follows the browser window (not the centre column — opening the
+   chat does not reflow type). 2026-06-26. */
+html,
+body {
+  font-size: clamp(15px, 13.1818px + 0.2367vw, 20px);
+}
+
 .dashboard-merged-card {
   /* Radius + bevel alignés sur les surfaces fusionnées (ops/lower) et la
      readiness → une seule famille de surfaces, bords moins durs. */
@@ -2899,6 +2932,16 @@
 .ct-surface-3    { background: var(--ct-surface-3); }
 .ct-hover-surface:hover { background: var(--ct-surface-2); }
 
+/* Donut/ring segment hover affordance — token-based stroke wash (replaces the
+   `hover:stroke-white/20` Tailwind arbitrary in vault-allocation-display). */
+.ct-donut-seg {
+  cursor: help;
+  transition: stroke var(--ct-dur-base) var(--ct-ease);
+}
+.ct-donut-seg:hover {
+  stroke: color-mix(in srgb, var(--ct-text-strong) 20%, transparent);
+}
+
 .ct-border-soft   { border: 1px solid var(--ct-border-soft); }
 .ct-border-base   { border: 1px solid var(--ct-border); }
 .ct-border-strong { border: 1px solid var(--ct-border-strong); }
@@ -3239,9 +3282,14 @@ pre.ct-surface-1.rounded-md {
   box-shadow: var(--ct-shadow-focus-ring);
 }
 
-/* material="flat" — same solid black; for dense lists/tables (anti cage-in-cage). */
+/* DESIGN_SYSTEM §10.1 — `material="flat"` = MÊME fond graphite opaque que le tier
+   par défaut (variante anti cage-in-cage pour listes denses), PAS « moins noir ».
+   La seule différence légitime du flat = pas de hover border-lift (géré ci-dessus
+   via :not(.ct-glass-panel--flat)). Le fond reste --ct-graphite-subtle-bg pour ne
+   PAS créer deux surfaces divergentes (flat #060708 vs graphite #1C1D21) sur une
+   même page — c'était la cause du conflit de surface Proof Center. */
 .ct-glass-panel--flat {
-  background: var(--ct-surface-0);
+  background: var(--ct-graphite-subtle-bg);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
@@ -3696,13 +3744,8 @@ button.ct-choice-card {
      propres éléments via @layer en dev ; il s'appliquera là où la cascade le
      permet). */
   /* Rail = surface-1 + dot grid identique au rail droit. */
-  background-color: var(--ct-surface-1) !important;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
-    transparent 1.5px
-  ) !important;
-  background-size: 24px 24px !important;
+  background-color: var(--ct-bg-deep) !important;
+  background-image: none !important;
   border-right: 1px solid var(--ct-border-on-dark);
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: var(--ct-rail-left) !important;
@@ -3721,13 +3764,8 @@ button.ct-choice-card {
      que le rail gauche. L'effet repose sur ce background translucide (le blur
      est best-effort, cf. note rail gauche). */
   /* Rail droit = surface-1 + dot grid (pattern login-split réutilisé). */
-  background-color: var(--ct-surface-1) !important;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
-    transparent 1.5px
-  ) !important;
-  background-size: 24px 24px !important;
+  background-color: var(--ct-bg-deep) !important;
+  background-image: none !important;
   border-left: 1px solid var(--ct-border-on-dark);
   flex-shrink: 0;
   /* Open (default) chat = largeur FLUIDE (le package posait 22rem fixe). Le clamp
@@ -3835,7 +3873,16 @@ button.ct-choice-card {
    (noir) < nested --ct-graphite-nested-bg (gris). Wrappers transparents ;
    couleur portée par .ct-page-area (une seule plaque). */
 .ct-center-panel { background: transparent !important; }
-.ct-page-area    { background: var(--ct-bg-deep); }
+.ct-page-area {
+  background-color: var(--ct-bg-center);
+  /* Dot-grid déplacé depuis les rails — texture subtile sur le canvas central. */
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 24px 24px;
+}
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
    .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
@@ -3863,6 +3910,55 @@ button.ct-choice-card {
   /* Au-dessus du fond d'ambiance, sous la pastille bottom-bar flottante. */
   position: relative;
   z-index: 11;
+  overflow: visible;
+}
+
+/* Dissolve unique — voile blur porté par le footer (pas de surcouche sur main).
+   Bande courte mais très diffuse en haut : blur fort + masque long transparent,
+   teinte noire seulement sur le dernier tiers (évite le bloc plein haut→bas). */
+.ct-root > .app-footer--compact::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: clamp(var(--ct-space-12), 16vh, var(--ct-space-20));
+  pointer-events: none;
+  backdrop-filter: var(--ct-blur-3xl);
+  -webkit-backdrop-filter: var(--ct-blur-3xl);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgb(0 0 0 / 0.25) 72%,
+    rgb(0 0 0 / 0.65) 88%,
+    #000 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgb(0 0 0 / 0.25) 72%,
+    rgb(0 0 0 / 0.65) 88%,
+    #000 100%
+  );
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 60%,
+    color-mix(in srgb, var(--ct-bg-black) 8%, transparent) 82%,
+    color-mix(in srgb, var(--ct-bg-black) 28%, transparent) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-root > .app-footer--compact::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    mask-image: none;
+    -webkit-mask-image: none;
+    background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  }
 }
 
 /* La pastille menu flottante (.ct-bottom-bar, absolute bottom:1.5rem) s'ancre
@@ -3882,9 +3978,8 @@ button.ct-choice-card {
   position: relative;
 }
 
-/* Fondu bas — dégradé transparent vers bg-deep sur le bas du centre.
-   Pas de backdrop-filter (crée une couche opaque). Juste un fade propre. */
-.ct-center-panel > .ct-page-area::after {
+/* Fondu bas — dégradé transparent vers bg-deep (surfaces sans footer shell). */
+.ct-root:not(:has(> .app-footer)) .ct-center-panel > .ct-page-area::after {
   content: "";
   position: fixed;
   bottom: 0;
@@ -4397,9 +4492,10 @@ button.ct-choice-card {
   padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-3);
 }
 
-/* Shell Black Fade — smooth transition to footer plinth.
-   Fades content as it reaches the bottom of the scroll viewport. */
-.ct-page-area::after {
+/* Shell Black Fade — smooth transition when no external legal footer.
+   With .ct-root > .app-footer the plinth owns the bottom edge; a black fade here
+   stacks visually as a phantom footer band inside the centre column. */
+.ct-root:not(:has(> .app-footer)) .ct-page-area::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -4407,7 +4503,7 @@ button.ct-choice-card {
   right: 0;
   /* Responsive fade height: smaller on mobile, generous on desktop. */
   height: clamp(var(--ct-space-8), 8vh, var(--ct-space-16));
-  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  background: linear-gradient(to bottom, transparent, var(--ct-bg-deep));
   pointer-events: none;
   z-index: 10;
 }
@@ -4494,12 +4590,17 @@ button.ct-choice-card {
 }
 
 /* Admin + LP doc-flow — single centre plaque (portfolio canon), transparent
-   inner shells; black boxes + gray nested insets above this layer. */
+   inner shells; black boxes + gray nested insets above this layer.
+   Bottom inset léger : le footer compact vit en .ct-root > .app-footer (pleine
+   largeur), pas dans la colonne — space-16 créait ~128px de bande noire empilée. */
 .ct-page-area:has(:is(.admin-doc, .product-doc)) {
-  background: var(--ct-bg-deep);
+  /* Le canvas central (couleur + dot-grid) est la SEULE source DS sur .ct-page-area
+     (var(--ct-bg-center)). On ne repeint PAS ici : un `background` shorthand
+     resetterait le dot-grid (pattern invisible) et recréerait un fond par-contexte.
+     Padding doc-flow uniquement. */
   padding-top: var(--ct-space-12); /* Increased from space-9 */
   padding-inline: var(--ct-space-8); /* Increased from space-5 */
-  padding-bottom: var(--ct-space-16); /* Increased from space-8 */
+  padding-bottom: var(--ct-space-6);
 }
 /* Admin layout fills main scroll column (mirrors product-doc-shell chain). */
 main#main-content>.admin-doc.admin-doc-shell {
@@ -5842,6 +5943,135 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .wizard-step-progress__label--pending {
   color: var(--ct-text-muted);
+}
+
+/* ── Rail variant — premium product stepper (invest flow) ────────────────────
+   Continuous track behind the dots, accent-filled progress segment up to the
+   current step, larger numbered dots, two-tier copy (state caption + label).
+   Opt-in via variant="rail"; the default dotted row above is untouched. */
+.wizard-step-progress--rail {
+  --ct-rail-dot: 1.625rem; /* 26px — refined, not chunky */
+  position: relative;
+  /* The rail's intrinsic height = the dots row only (labels are absolutely
+     positioned below). So the stepper's vertical centre IS the dots' centre —
+     letting the parent `align-items: center` align the dots onto the title line. */
+  align-items: center;
+  height: var(--ct-rail-dot);
+  gap: var(--ct-space-2);
+}
+
+/* Track: spans from the first dot centre to the last dot centre. */
+.wizard-step-progress--rail .wizard-step-progress__track {
+  position: absolute;
+  top: calc(var(--ct-rail-dot) / 2);
+  left: calc(100% / var(--ct-rail-steps, 4) / 2);
+  right: calc(100% / var(--ct-rail-steps, 4) / 2);
+  height: 2px;
+  transform: translateY(-1px);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-border-soft);
+  overflow: hidden;
+}
+
+.wizard-step-progress--rail .wizard-step-progress__track-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ct-accent) 55%, transparent),
+    var(--ct-accent)
+  );
+  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--ct-accent) 45%, transparent);
+  transition: width var(--ct-dur-slow) var(--ct-ease);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__item {
+  position: relative;
+  z-index: var(--ct-z-base);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: var(--ct-rail-dot); /* dots row only — copy is absolute below */
+  gap: var(--ct-space-2);
+  padding-inline: var(--ct-space-1);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__dot {
+  width: var(--ct-rail-dot);
+  height: var(--ct-rail-dot);
+  font-size: var(--ct-text-2xs);
+}
+
+/* Active dot — ringed + soft accent halo, the visual "you are here". */
+.wizard-step-progress--rail .wizard-step-progress__dot--active {
+  border-color: color-mix(in srgb, var(--ct-accent) 70%, var(--ct-border));
+  background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-1));
+  color: var(--ct-text-strong);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 40%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--ct-accent) 14%, transparent),
+    0 0 18px -4px color-mix(in srgb, var(--ct-accent) 50%, transparent);
+}
+
+/* Done dot — solid accent, dark glyph (a cleared milestone). */
+.wizard-step-progress--rail .wizard-step-progress__dot--done {
+  border-color: transparent;
+  background: var(--ct-accent);
+  color: var(--ct-bg-deep);
+  box-shadow: 0 0 14px -4px color-mix(in srgb, var(--ct-accent) 55%, transparent);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__dot--pending {
+  border-color: var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  color: var(--ct-text-muted);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__copy {
+  /* Captions + labels hang BELOW the dots row, aligned to a common top edge so
+     every column's caption/label baselines line up regardless of dot state. */
+  position: absolute;
+  top: calc(100% + var(--ct-space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-0_5);
+  min-width: max-content;
+  text-align: center;
+}
+
+.wizard-step-progress__caption {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.wizard-step-progress__caption--active {
+  color: var(--ct-accent);
+}
+
+.wizard-step-progress__caption--done {
+  color: var(--ct-text-secondary);
+}
+
+.wizard-step-progress__caption--pending {
+  color: var(--ct-text-faint);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__label {
+  font-size: var(--ct-text-2xs);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: normal;
+  line-height: var(--ct-leading-snug);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__label--active {
+  font-weight: var(--ct-font-semibold);
 }
 
 /* Checklist dot — onboarding requirements (mirrors wizard-step done/pending) */

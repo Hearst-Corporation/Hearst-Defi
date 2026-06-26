@@ -221,6 +221,7 @@ export default async function ProfilePage() {
                   <PrivyWalletConnect
                     appId={PRIVY_APP_ID}
                     boundAddress={null}
+                    surface="bare"
                   />
                 )
               }

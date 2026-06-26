@@ -3,7 +3,14 @@ import type {
   ChartPoint,
   ChartValueTick,
 } from "@/lib/portfolio/geometry/value-series-projection";
-import { VB_W, VB_H, PAD_Y_TOP, CHART_BASELINE_Y } from "@/lib/portfolio/geometry/svgConstants";
+import {
+  VB_W,
+  VB_H,
+  PAD_X,
+  DRAW_W,
+  PAD_Y_TOP,
+  CHART_BASELINE_Y,
+} from "@/lib/portfolio/geometry/svgConstants";
 
 interface ChartSvgProps {
   areaPath: string;
@@ -16,6 +23,12 @@ interface ChartSvgProps {
   uid: string;
   onMouseMove: (e: React.MouseEvent<SVGSVGElement>) => void;
   onMouseLeave: () => void;
+}
+
+function xTickAnchor(index: number, count: number): "start" | "middle" | "end" {
+  if (index === 0) return "start";
+  if (index === count - 1) return "end";
+  return "middle";
 }
 
 export function ChartSvg({
@@ -47,25 +60,18 @@ export function ChartSvg({
     >
       <defs>
         <linearGradient id={`${uid}-area-gradient`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-chart-area-top)" stopOpacity="0.85" />
-          <stop offset="45%" stopColor="var(--ct-chart-area-bottom)" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="var(--ct-chart-area-top)" stopOpacity="0.4" />
           <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" stopOpacity="0" />
         </linearGradient>
         <clipPath id={`${uid}-plot-clip`}>
-          <rect x={0} y={PAD_Y_TOP - 2} width={VB_W} height={CHART_BASELINE_Y - PAD_Y_TOP + 4} />
+          <rect
+            x={PAD_X - 2}
+            y={PAD_Y_TOP - 2}
+            width={DRAW_W + 4}
+            height={CHART_BASELINE_Y - PAD_Y_TOP + 4}
+          />
         </clipPath>
       </defs>
-
-      {yTicks.map((tick) => (
-        <line
-          key={tick.y}
-          x1={0}
-          y1={tick.y}
-          x2={VB_W}
-          y2={tick.y}
-          className="pf-vc-grid"
-        />
-      ))}
 
       <g clipPath={`url(#${uid}-plot-clip)`}>
         {areaPath && (
@@ -137,12 +143,12 @@ export function ChartSvg({
         </g>
       )}
 
-      {xTicks.map((tick) => (
+      {xTicks.map((tick, index) => (
         <text
           key={`x-${tick.x}`}
           x={tick.x}
           y={VB_H - 4}
-          textAnchor="middle"
+          textAnchor={xTickAnchor(index, xTicks.length)}
           className="pf-vc-axis-label pf-vc-axis-label--x"
         >
           {tick.label}
@@ -152,7 +158,7 @@ export function ChartSvg({
       {yTicks.map((tick) => (
         <text
           key={`y-${tick.y}`}
-          x={6}
+          x={PAD_X + 2}
           y={tick.y + 3.5}
           textAnchor="start"
           className="pf-vc-axis-label pf-vc-axis-label--y"

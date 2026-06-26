@@ -1,6 +1,5 @@
 import { Progress } from "@/components/ui/progress";
 import { allocationStrokeFor } from "@/lib/allocation-colors";
-import type { AllocationBucket } from "@/lib/engine/types";
 import {
   ALLOCATION_ADMIN_LABELS,
   ALLOCATION_BUCKETS,
@@ -10,50 +9,6 @@ import {
   bpsToPercent,
   type VaultAllocationFacts,
 } from "@/lib/vaults/vault-detail-facts";
-
-function AllocationBar({
-  bucket,
-  bps,
-}: {
-  bucket: AllocationBucket;
-  bps: number;
-}) {
-  const color = allocationStrokeFor(bucket);
-  const pct = bps / 100;
-
-  return (
-    <div className="vault-alloc-bar group/bar transition-all duration-300 hover:translate-x-1">
-      <div className="vault-alloc-bar__head">
-        <div className="flex items-center gap-(--ct-space-2_5) min-width-0 flex-1">
-          <span
-            aria-hidden
-            className="vault-alloc-bar__swatch border border-(--ct-border) shadow-[var(--ct-shadow-soft)] transition-transform duration-300 group-hover/bar:scale-110"
-            style={{ background: color }}
-          />
-          <span className="vault-alloc-bar__label body-sm font-semibold ct-text-strong truncate group-hover/bar:ct-text-primary">
-            {ALLOCATION_INVESTOR_LABELS[bucket]}
-          </span>
-        </div>
-        <span className="vault-alloc-bar__pct body-sm font-bold tabular mono ct-text-strong group-hover/bar:ct-text-accent">
-          {bpsToPercent(bps, 0)}%
-        </span>
-      </div>
-      <div
-        className="vault-alloc-bar__track bg-(--ct-surface-2) border border-(--ct-border-ghost) transition-colors group-hover/bar:border-(--ct-border-soft)"
-        role="img"
-        aria-label={`${ALLOCATION_INVESTOR_LABELS[bucket]} ${bpsToPercent(bps, 0)}%`}
-      >
-        <span
-          className="vault-alloc-bar__fill transition-all duration-500 ease-out group-hover/bar:brightness-110"
-          style={{ width: `${pct}%`, background: color }}
-        />
-      </div>
-      <p className="vault-alloc-bar__desc body-xs ct-text-faint leading-relaxed transition-colors group-hover/bar:ct-text-muted">
-        {ALLOCATION_DESCRIPTIONS[bucket]}
-      </p>
-    </div>
-  );
-}
 
 export function VaultAllocationAdminRows({
   facts,
@@ -105,11 +60,15 @@ export function VaultAllocationInvestorList({
   >((acc, s) => {
     const precedingBps = acc.reduce((sum, prev) => sum + prev.bps, 0);
     const pct = s.bps / 10000;
+    // Canonical donut dasharray (DESIGN_SYSTEM §5): `${arc} ${C - arc}` — the gap
+    // must be the *remaining* circumference, never the full C (that repeats the
+    // dash pattern → phantom arcs). Each segment is its own rotated <circle>.
+    const arc = pct * circumference;
     acc.push({
       bucket: s.bucket,
       color: s.color,
       bps: s.bps,
-      strokeDasharray: `${pct * circumference} ${circumference}`,
+      strokeDasharray: `${arc} ${circumference - arc}`,
       rotation: (precedingBps / 10000) * 360,
     });
     return acc;
@@ -134,7 +93,7 @@ export function VaultAllocationInvestorList({
               strokeDasharray={s.strokeDasharray}
               strokeDashoffset={0}
               transform={`rotate(${s.rotation - 90} ${radius} ${radius})`}
-              className="transition-all duration-700 ease-in-out hover:stroke-white/20 cursor-help"
+              className="ct-donut-seg"
             />
           ))}
         </svg>

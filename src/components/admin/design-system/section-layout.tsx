@@ -43,7 +43,7 @@ export function SectionLayout() {
         <DsSpecimen caption="Page header → rule → content stack" classHint=".admin-page-header">
           <div className="w-full admin-doc-stack--tight">
             <p className="eyebrow">Strategy</p>
-            <p className="h2 ct-text-strong m-0">
+            <p className="h2 m-0">
               Product <span className="h1-accent">Workspace</span>
             </p>
             <div className="page-canon-rule" aria-hidden="true" />

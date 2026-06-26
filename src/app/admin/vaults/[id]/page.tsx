@@ -14,8 +14,6 @@ import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
   AdminDetailSection,
-  AdminDetailGrid,
-  AdminDetailItem,
 } from "@/components/admin/admin-detail-layout";
 import { AdminTable } from "@/components/admin/admin-table-layout";
 import { parseStringArray } from "@/lib/admin/parse-string-array";

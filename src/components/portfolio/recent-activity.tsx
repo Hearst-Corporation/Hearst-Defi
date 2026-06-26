@@ -57,7 +57,7 @@ export function RecentActivity({
   const displayed = transactions.slice(0, 5);
   const hasTransactions = displayed.length > 0;
   const provenance = hasTransactions ? resolveProvenance(source, updatedAt) : undefined;
-  const asOf = new Date();
+  const asOf = updatedAt ?? new Date();
   const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
 
   return (
@@ -68,7 +68,7 @@ export function RecentActivity({
     >
       <PfCockpitPanelHeader
         title="Recent Activity"
-        subtitle="Last 5 transactions"
+        subtitle={hasTransactions ? "Last 5 transactions" : "Deposits, payouts, and withdrawals"}
         titleVariant="primary"
         provenance={hasTransactions ? provenance : undefined}
         trailing={trailing}
@@ -87,17 +87,17 @@ export function RecentActivity({
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>
                 <span className="pf-activity__main min-w-0">
-                  <span className="text-[var(--ct-text-xs)] ct-text-primary font-medium tracking-tight truncate">
+                  <span className="text-(--ct-text-xs) ct-text-primary font-medium tracking-tight truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
-                      <span className="ct-text-tertiary font-normal ml-1 text-[length:var(--ct-text-xs)]">· {tx.positionVaultName}</span>
+                      <span className="ct-text-tertiary font-normal ml-1 text-(length:--ct-text-xs)">· {tx.positionVaultName}</span>
                     ) : null}
                   </span>
                   <span className="stat-label ct-text-tertiary mono truncate opacity-70">
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className={`pf-activity__amt tabular text-[var(--ct-text-xs)] font-semibold${dir === "in" ? " ct-text-accent" : ""}`}>
+                <span className={`pf-activity__amt tabular text-(--ct-text-xs) font-semibold${dir === "in" ? " ct-text-accent" : ""}`}>
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
@@ -119,7 +119,9 @@ export function RecentActivity({
           </div>
           <div className="pf-activity-zero__label">
             <span className="pf-activity-zero__title">No transactions yet</span>
-            <span className="pf-activity-zero__hint">Deposits, payouts and withdrawals appear here</span>
+            <span className="pf-activity-zero__hint">
+              Deposits, payouts, and withdrawals appear here once activity is posted.
+            </span>
           </div>
         </div>
       )}

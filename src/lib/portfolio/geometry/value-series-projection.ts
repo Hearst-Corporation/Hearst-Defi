@@ -71,11 +71,12 @@ export function projectChartSeries(
   if (isFlat) {
     const centre = minVal;
     const pad = Math.max(centre * 0.02, 0.5);
-    minVal = centre - pad;
+    minVal = Math.max(0, centre - pad);
     maxVal = centre + pad;
   } else {
     const pad = (maxVal - minVal) * 0.05;
-    minVal -= pad;
+    // Financial values: never show negative Y axis when all data is ≥ 0
+    minVal = Math.max(0, minVal - pad);
     maxVal += pad;
   }
 

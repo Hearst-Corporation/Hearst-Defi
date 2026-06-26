@@ -27,12 +27,13 @@ function displayName(
       return normalizedLocal.charAt(0).toUpperCase() + normalizedLocal.slice(1);
     }
   }
-  const w = investor?.walletAddress;
-  if (w) {
-    const wallet = w.trim();
+
+  const wallet = investor?.walletAddress?.trim();
+  if (wallet) {
     if (wallet.length > 10) return `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
-    if (wallet.length > 0) return wallet;
+    return wallet;
   }
+
   return "Investor";
 }
 
@@ -57,8 +58,6 @@ export default async function PortfolioPage() {
     <div className={containerClassName} data-testid="portfolio-page" data-portfolio-hub="true">
       <PortfolioGreeting name={displayName(investor)} />
 
-      <div className="pf-hairline" aria-hidden="true" />
-
       <div className="pf-cockpit">
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
           <div className="pf-hero-grid pf-cockpit-cell">
@@ -71,8 +70,6 @@ export default async function PortfolioPage() {
                 source={source}
                 updatedAt={updatedAt}
                 embedded={true}
-                apyLow={yieldStackProps.blendedLow}
-                apyHigh={yieldStackProps.blendedHigh}
               />
             </div>
             <PortfolioStatusPanel
@@ -88,7 +85,10 @@ export default async function PortfolioPage() {
           </div>
         </section>
 
-        <section className="pf-cockpit-row pf-cockpit-row--yield" aria-label="Capital and yield allocation">
+        <section
+          className="pf-cockpit-row pf-cockpit-row--yield"
+          aria-label="Capital and yield allocation"
+        >
           <div className="pf-cockpit-cell">
             <CapitalYield
               {...yieldStackProps}
@@ -107,27 +107,23 @@ export default async function PortfolioPage() {
           className="pf-cockpit-row pf-cockpit-row--deck"
           aria-label="Portfolio distributions and activity"
         >
-          <div className="pf-fused-surface pf-fused-surface--deck">
-            <div className="pf-fused-surface__pane">
-              <DistribCalendar
-                {...distribCalendarProps}
-                leafHref="/portfolio/distributions"
-                secondaryLeafHref="/portfolio/tax"
-                secondaryLeafLabel="Tax preview"
-                embedded={true}
-                nextDistributionAt={data.nextDistributionAt}
-                hasActivePosition={hasPositions}
-              />
-            </div>
-            <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">
-              <RecentActivity
-                transactions={data.recentTransactions}
-                source={source}
-                updatedAt={updatedAt}
-                leafHref="/portfolio/activity"
-                embedded={true}
-              />
-            </div>
+          <div className="pf-deck-grid">
+            <DistribCalendar
+              {...distribCalendarProps}
+              leafHref="/portfolio/distributions"
+              secondaryLeafHref="/portfolio/tax"
+              secondaryLeafLabel="Tax preview"
+              embedded={false}
+              nextDistributionAt={data.nextDistributionAt}
+              hasActivePosition={hasPositions}
+            />
+            <RecentActivity
+              transactions={data.recentTransactions}
+              source={source}
+              updatedAt={updatedAt}
+              leafHref="/portfolio/activity"
+              embedded={false}
+            />
           </div>
         </section>
 

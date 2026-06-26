@@ -13,13 +13,6 @@ export type { UserAgentProfile };
 // module decoupled from the agent implementations).
 // ---------------------------------------------------------------------------
 
-type AgentName =
-  | "scenario-narrative"
-  | "investor-memo"
-  | "mining-health"
-  | "risk-explanation"
-  | "cockpit-chat";
-
 // ---------------------------------------------------------------------------
 // Safety bound for user-supplied free text
 // ---------------------------------------------------------------------------

@@ -25,9 +25,29 @@ import { bindWallet } from "@/lib/onboarding/actions";
 interface PrivyWalletConnectProps {
   appId: string;
   boundAddress?: string | null;
+  surface?: "card" | "bare";
 }
 
-function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
+function WalletSurface({
+  surface,
+  ...props
+}: {
+  surface: "card" | "bare";
+} & React.HTMLAttributes<HTMLDivElement>) {
+  if (surface === "bare") {
+    return <div {...props} />;
+  }
+
+  return <Card hoverOverlay={false} {...props} />;
+}
+
+function PrivyConnectInner({
+  boundAddress,
+  surface,
+}: {
+  boundAddress: string | null;
+  surface: "card" | "bare";
+}) {
   const router = useRouter();
   const { ready, authenticated } = usePrivy();
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +67,7 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
 
   const connectedWallet = wallets[0];
   const address = connectedWallet?.address ?? boundAddress;
+  const shellClass = "product-doc-stack--relaxed items-center text-center";
 
   useEffect(() => {
     const next = connectedWallet?.address;
@@ -71,21 +92,21 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
 
   if (!ready) {
     return (
-      <Card
-        hoverOverlay={false}
+      <WalletSurface
+        surface={surface}
         aria-busy="true"
         aria-label="Loading wallet connection"
       >
         <EmptySurface live variant="inline" message="Loading wallet connection…" />
-      </Card>
+      </WalletSurface>
     );
   }
 
   if (authenticated && address) {
     return (
-      <Card
-        hoverOverlay={false}
-        className="product-doc-stack--relaxed items-center text-center"
+      <WalletSurface
+        surface={surface}
+        className={shellClass}
         role="region"
         aria-label="Wallet connected"
       >
@@ -105,15 +126,12 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
           This wallet will receive your monthly USDC distributions and act as
           the signing key for on-chain position management.
         </p>
-      </Card>
+      </WalletSurface>
     );
   }
 
   return (
-    <Card
-      hoverOverlay={false}
-      className="product-doc-stack--relaxed items-center text-center"
-    >
+    <WalletSurface surface={surface} className={shellClass}>
       <p className="body-sm ct-text-muted m-0 ct-prose-narrow">
         Link the wallet address that will receive your USDC distributions.
         Compatible with major wallets including MetaMask, Ledger, and Coinbase Wallet.
@@ -145,11 +163,15 @@ function PrivyConnectInner({ boundAddress }: { boundAddress: string | null }) {
         Wallet binding is used solely for on-chain distribution delivery.
         No private keys are stored or transmitted.
       </p>
-    </Card>
+    </WalletSurface>
   );
 }
 
-export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletConnectProps) {
+export function PrivyWalletConnect({
+  appId,
+  boundAddress = null,
+  surface = "card",
+}: PrivyWalletConnectProps) {
   if (!appId) {
     return (
       <EmptySurface
@@ -160,7 +182,7 @@ export function PrivyWalletConnect({ appId, boundAddress = null }: PrivyWalletCo
     );
   }
 
-  return <PrivyConnectInner boundAddress={boundAddress} />;
+  return <PrivyConnectInner boundAddress={boundAddress} surface={surface} />;
 }
 
 interface WalletChamberProps {

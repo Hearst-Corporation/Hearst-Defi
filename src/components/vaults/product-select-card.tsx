@@ -40,7 +40,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
                 {vault.name}{" "}
                 <span className="mono ct-text-faint font-normal">{vault.ticker}</span>
               </h3>
-              <div className="flex shrink-0 items-center gap-[var(--ct-space-1_5)]">
+              <div className="flex shrink-0 items-center gap-(--ct-space-1_5)">
                 {demo && isLive ? <ProvenanceBadge kind="simulated" /> : null}
                 <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
                   {vaultStatusLabel(vault.status)}

@@ -8,6 +8,7 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { ApyRange } from "@/components/ui/apy-range";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
 
@@ -65,8 +66,8 @@ const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
 };
 
 /* ── Donut geometry — canonical convention (radius − stroke/2, rotate −90) ── */
-const DONUT_RADIUS = 42;
-const DONUT_STROKE = 11;
+const DONUT_RADIUS = 80;
+const DONUT_STROKE = 18;
 const DONUT_NORM_R = DONUT_RADIUS - DONUT_STROKE / 2;
 const DONUT_CIRC = DONUT_NORM_R * 2 * Math.PI;
 
@@ -139,7 +140,7 @@ function AllocationDonut({
       </svg>
       <div className="cy-v5-donut__center">
         <span className="cy-v5-donut__center-top">{centerTop}</span>
-        <span className="cy-v5-donut__center-main tabular">{centerMain}</span>
+        <span className="cy-v5-donut__center-main">{centerMain}</span>
       </div>
     </div>
   );
@@ -169,8 +170,6 @@ function PendingDonut() {
           cy={DONUT_RADIUS}
           r={DONUT_NORM_R}
           fill="transparent"
-          stroke="color-mix(in srgb, var(--ct-accent) 38%, transparent)"
-          strokeWidth={1.5}
           strokeDasharray="2 5"
           strokeLinecap="round"
           className="cy-v5-donut__pending-ring"
@@ -185,22 +184,43 @@ function PendingDonut() {
 }
 
 /* ── Compact APY range track — visual band only (values live in Target APY) ── */
-function ApyRangeTrack({ low, high }: { low: number; high: number }) {
+function ApyRangeInstrument({ low, high }: { low: number; high: number }) {
+  const scaleMax = Math.max(high + 4, 20);
+  const leftPct = (low / scaleMax) * 100;
+  const widthPct = ((high - low) / scaleMax) * 100;
+
   return (
     <div
-      className="cy-v5-apy cy-v5-apy--inline"
+      className="cy-v5-apy-instrument"
       aria-hidden="true"
       title={`Target APY range ${low.toFixed(1)}–${high.toFixed(1)}%`}
     >
-      <div className="cy-v5-apy__track">
-        <span className="cy-v5-apy__band" />
-        <span className="cy-v5-apy__tick cy-v5-apy__tick--low" />
-        <span className="cy-v5-apy__tick cy-v5-apy__tick--high" />
+      <div className="cy-v5-apy-instrument__rail">
+        <div
+          className="cy-v5-apy-instrument__zone"
+          style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+        />
+        <div
+          className="cy-v5-apy-instrument__tick cy-v5-apy-instrument__tick--low"
+          style={{ left: `${leftPct}%` }}
+        />
+        <div
+          className="cy-v5-apy-instrument__tick cy-v5-apy-instrument__tick--high"
+          style={{ left: `${leftPct + widthPct}%` }}
+        />
       </div>
-      <div className="cy-v5-apy__anchors">
-        <span className="cy-v5-apy__anchor tabular">{low.toFixed(1)}%</span>
-        <span className="cy-v5-apy__anchor cy-v5-apy__anchor--high tabular">
-          {high.toFixed(1)}%
+      <div className="cy-v5-apy-instrument__labels">
+        <span
+          className="cy-v5-apy-instrument__label"
+          style={{ left: `${leftPct}%` }}
+        >
+          {low.toFixed(1)}
+        </span>
+        <span
+          className="cy-v5-apy-instrument__label cy-v5-apy-instrument__label--accent"
+          style={{ left: `${leftPct + widthPct}%` }}
+        >
+          {high.toFixed(1)}
         </span>
       </div>
     </div>
@@ -221,13 +241,19 @@ function MetricsHeadline({
     <div className="cy-v5-headline">
       <div className="cy-v5-metric cy-v5-metric--primary">
         <span className="cy-v5-metric__label">Capital active</span>
-        <span className="cy-v5-metric__value tabular">
+        <span className="cy-v5-metric__value">
           {formatUsdCompact(totalValueUsdc)}
         </span>
       </div>
+
+      <div className="cy-v5-headline__divider" aria-hidden="true" />
+
       <div className="cy-v5-metric cy-v5-metric--accent">
-        <span className="cy-v5-metric__label">Target APY</span>
-        <div className="cy-v5-metric__apy-row">
+        <div className="cy-v5-metric__header">
+          <span className="cy-v5-metric__label">Target APY</span>
+          <span className="cy-v5-horizon-meta">12m fwd</span>
+        </div>
+        <div className="cy-v5-metric__apy-block">
           <span className="cy-v5-metric__value">
             <ApyRange
               low={rLow}
@@ -235,15 +261,40 @@ function MetricsHeadline({
               className="font-bold ct-text-accent tabular"
             />
           </span>
-          <ApyRangeTrack low={rLow} high={rHigh} />
+          <ApyRangeInstrument low={rLow} high={rHigh} />
         </div>
       </div>
     </div>
   );
 }
 
-function HorizonChip() {
-  return <span className="cy-v5-horizon-chip tabular">12m fwd</span>;
+function PendingAllocationHeadline({
+  totalValueUsdc,
+  rLow,
+  rHigh,
+}: {
+  totalValueUsdc: number;
+  rLow: number;
+  rHigh: number;
+}) {
+  return (
+    <div className="cy-v5-pending-headline">
+      <div className="cy-v5-pending-headline__eyebrow">
+        Capital confirmed
+      </div>
+      <div className="cy-v5-pending-headline__value tabular">
+        {formatUsdCompact(totalValueUsdc)}
+      </div>
+      <div className="cy-v5-pending-headline__apy">
+        <span className="cy-v5-pending-headline__apy-label">Target APY</span>
+        <ApyRange
+          low={rLow}
+          high={rHigh}
+          className="font-bold ct-text-accent tabular"
+        />
+      </div>
+    </div>
+  );
 }
 
 export function CapitalYield({
@@ -264,7 +315,7 @@ export function CapitalYield({
     sources.length > 0 && totalValueUsdc > 0 && buckets.length > 0;
 
   // Two distinct empty states — never same copy (historical incoherence):
-  //   awaiting-data: position confirmed on-chain, vault snapshot not yet cached
+  //   awaiting-data: position active, vault snapshot not yet cached
   //   no-position:   investor has not subscribed yet
   const emptyReason: "no-position" | "awaiting-data" =
     hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
@@ -299,12 +350,13 @@ export function CapitalYield({
               ? "Active capital · allocation pending"
               : undefined
         }
-        provenance={provenance}
         titleVariant="primary"
         trailing={
           hasData || showRichPartial ? (
             <div className="cy-v5-header-trail">
-              <HorizonChip />
+              {/* Readable provenance label (not the dot-only compact pill) so
+                  "Estimated" is legible — non-negotiable #2. */}
+              {provenance ? <ProvenanceBadge kind={provenance} /> : null}
               {leafHref ? <PortfolioLeafLink href={leafHref} /> : null}
             </div>
           ) : leafHref ? (
@@ -349,20 +401,33 @@ export function CapitalYield({
                       style={{ background: BUCKET_COLOR[b.bucket] }}
                       aria-hidden="true"
                     />
-                    <span className="cy-v5-legend__label">
-                      {src?.label ?? b.bucket}
-                    </span>
-                    <span className="cy-v5-legend__pct tabular">{b.pct}%</span>
-                    {contribLabel !== null ? (
-                      <span
-                        className={cn(
-                          "cy-v5-legend__contrib tabular",
-                          src?.isVolatile && "cy-v5-legend__contrib--volatile",
-                        )}
-                      >
-                        {contribLabel}
+                    <div className="cy-v5-legend__info">
+                      <span className="cy-v5-legend__label">
+                        {src?.label ?? b.bucket}
                       </span>
-                    ) : null}
+                      <div className="cy-v5-legend__rail" aria-hidden="true">
+                        <div
+                          className="cy-v5-legend__fill"
+                          style={{
+                            width: `${b.pct}%`,
+                            background: BUCKET_COLOR[b.bucket],
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="cy-v5-legend__values">
+                      <span className="cy-v5-legend__pct">{b.pct}%</span>
+                      {contribLabel !== null ? (
+                        <span
+                          className={cn(
+                            "cy-v5-legend__contrib",
+                            src?.isVolatile && "cy-v5-legend__contrib--volatile",
+                          )}
+                        >
+                          {contribLabel}
+                        </span>
+                      ) : null}
+                    </div>
                   </li>
                 );
               })}
@@ -370,16 +435,20 @@ export function CapitalYield({
           </div>
 
           {/* ── Disclaimer — non-negotiable #10 ── */}
-          <p className="cy-v5-disclaimer" role="note">
-            Conditional projection — not guaranteed ·{" "}
-            {methodologyVersion.startsWith("v")
-              ? methodologyVersion
-              : `v${methodologyVersion}`}
-          </p>
+          <div className="cy-v5-disclaimer" role="note">
+            <span className="cy-v5-disclaimer__badge">Projection</span>
+            <span className="cy-v5-disclaimer__text">Returns not guaranteed</span>
+            <span className="cy-v5-disclaimer__meta">
+              Model{" "}
+              {methodologyVersion.startsWith("v")
+                ? methodologyVersion
+                : `v${methodologyVersion}`}
+            </span>
+          </div>
         </div>
       ) : showRichPartial ? (
         <div className="cy-v5-body">
-          <MetricsHeadline
+          <PendingAllocationHeadline
             totalValueUsdc={totalValueUsdc}
             rLow={rLow}
             rHigh={rHigh}
@@ -393,25 +462,29 @@ export function CapitalYield({
                 Allocation breakdown pending
               </span>
               <span className="cy-v5-pending-copy__desc">
-                vault snapshot not yet published — your capital and target yield
-                are confirmed; the bucket split appears on the next snapshot.
+                Vault snapshot not yet published; capital and target yield are
+                confirmed, and the bucket split appears on the next snapshot.
               </span>
             </div>
           </div>
 
-          <p className="cy-v5-disclaimer" role="note">
-            Conditional projection — not guaranteed ·{" "}
-            {methodologyVersion.startsWith("v")
-              ? methodologyVersion
-              : `v${methodologyVersion}`}
-          </p>
+          <div className="cy-v5-disclaimer" role="note">
+            <span className="cy-v5-disclaimer__badge">Projection</span>
+            <span className="cy-v5-disclaimer__text">Returns not guaranteed</span>
+            <span className="cy-v5-disclaimer__meta">
+              Model{" "}
+              {methodologyVersion.startsWith("v")
+                ? methodologyVersion
+                : `v${methodologyVersion}`}
+            </span>
+          </div>
         </div>
       ) : (
         <div className="cy-v5-empty">
-          <p className="cy-v5-empty__lead">Position not yet confirmed.</p>
+          <p className="cy-v5-empty__lead">No position yet.</p>
           <p className="cy-v5-empty__sub">
             Allocation and projected yield appear once your first position is
-            confirmed on-chain.
+            active.
           </p>
         </div>
       )}

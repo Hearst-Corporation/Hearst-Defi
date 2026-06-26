@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
+import { PortfolioStatusPanel } from "@/components/portfolio/portfolio-status-panel";
 import { PositionHeader } from "@/components/portfolio/position-header";
 import type { PositionDetail } from "@/lib/data/portfolio";
 
@@ -25,12 +26,13 @@ const position: PositionDetail = {
 
 describe("portfolio headers", () => {
   it("renders the portfolio greeting", () => {
-    const html = renderToStaticMarkup(<PortfolioGreeting name="Alice" />);
+    const html = renderToStaticMarkup(<PortfolioGreeting name="Adrienne" />);
 
     expect(html).toContain("pf-greeting");
+    expect(html).toContain("product-page-header");
     expect(html).toContain("Welcome back,");
-    expect(html).toContain("Alice");
-    expect(html).not.toContain("product-page-header");
+    expect(html).toContain("Adrienne");
+    expect(html).toContain("Portfolio overview");
   });
 
   it("renders the position header on its own chrome", () => {
@@ -42,5 +44,26 @@ describe("portfolio headers", () => {
     expect(html).toContain("Total value");
     expect(html).toContain("Active");
     expect(html).not.toContain("product-page-header");
+  });
+
+  it("renders portfolio status through the shared cockpit header contract", () => {
+    const html = renderToStaticMarkup(
+      <PortfolioStatusPanel
+        hasPositions={true}
+        positionsCount={2}
+        deployedUsdc={250000}
+        totalValueUsdc={275000}
+        accruedYieldUsdc={25000}
+        source="live"
+        updatedAt={new Date("2026-06-25T12:00:00.000Z")}
+        embedded
+      />,
+    );
+
+    expect(html).toContain("Portfolio Status");
+    expect(html).toContain("pf-cockpit-panel__title-row");
+    expect(html).toContain("pf-cockpit-panel__title-pill");
+    expect(html).toContain("Live");
+    expect(html).toContain("pf-cockpit-panel__title-pill");
   });
 });

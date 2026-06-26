@@ -28,11 +28,10 @@
    1. CONTAINER BASE
    ============================================================================= */
 
-/* Centre LP : fond sombre plat, aucune nappe, aucun glow. */
-.ct-page-area:has(.pf-container) {
-  background: var(--ct-bg-deep);
-  padding-bottom: var(--ct-space-16);
-}
+/* Centre LP : le fond du canvas central (couleur + dot-grid) est piloté UNIQUEMENT
+   par le design system, sur .ct-page-area (var(--ct-bg-center) dans cockpit.css).
+   AUCUN override de fond spécifique au portfolio ici — une seule source DS pour
+   tous les fonds : changer le token les change partout, sans hardcode par-page. */
 
 .pf-container {
   display: flex;
@@ -82,6 +81,11 @@
 
 .pf-container :where(.ct-text-secondary) {
   color: var(--ct-text-secondary);
+}
+
+.pf-container {
+  --pf-panel-pad-x: var(--ct-space-5);
+  --pf-panel-pad-y: var(--ct-space-4);
 }
 
 /* =============================================================================
@@ -170,10 +174,9 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);   /* modules resserrés (était space-8 / 32px) */
+  gap: var(--ct-space-5);
   min-width: 0;
   margin-top: 0;
-  padding-bottom: var(--ct-space-16);
   /* Body libéré : remplit toute la largeur du centre, plus de void à droite. */
   width: 100%;
   max-width: none;
@@ -188,10 +191,15 @@
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
-.pf-cockpit-row--chart  { grid-template-columns: 1fr; }
-.pf-cockpit-row--yield  { grid-template-columns: 1fr; }
+.pf-cockpit-row--chart { grid-template-columns: 1fr; }
+.pf-cockpit-row--pair  { grid-template-columns: 1fr; }
 .pf-cockpit-row--deck  { grid-template-columns: 1fr; }
-.pf-cockpit-row--positions { grid-template-columns: 1fr; }
+
+/* Positions content (embedded) — the master PfCockpitPanel owns the surface;
+   the embedded pane stays transparent (see .pf-cockpit-panel / .pf-embedded-pane). */
+.pf-positions-badges {
+  padding: 0;
+}
 
 .pf-cockpit-cell {
   min-width: 0;
@@ -200,134 +208,71 @@
   flex-direction: column;
 }
 
-.pf-cockpit-panel {
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 12px 40px -8px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(var(--ct-blur-xl));
-}
-
-.pf-fused-surface {
-  display: grid;
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: none;
-  overflow: hidden;
-}
-
 .pf-hero-grid {
   display: grid;
   min-width: 0;
   min-height: 0;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: none;
-  overflow: hidden;
 }
 
-/* Pseudo element gradient masks removed to align with surface contract */
-.pf-fused-surface::before {
-  display: none;
-}
-
-.pf-fused-surface--deck {
-  grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
-  min-height: 24rem; /* Slightly taller for better breathing */
-}
-
-.pf-fused-surface__pane {
+/* =============================================================================
+   DECK GRID — internal 2-cell split (calendar | activity) inside ONE master
+   PfCockpitPanel. Mirrors .pf-hero-grid: ONE grammar = one master surface per row.
+   MOBILE-FIRST: 1 column by default (base), so the stacked state is the default and
+   never gets overridden by source order. The 2-column split is applied ONLY inside
+   @container pf (min-width: 58rem) — same rule as the hero (see section 14). Both
+   children render as flat .pf-embedded-pane (no surface of their own); a single
+   1px hairline separates them — TOP edge when stacked, LEFT edge when 2-col.
+   ============================================================================= */
+.pf-deck-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   min-width: 0;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  background: transparent;
-  position: relative;
 }
 
-.pf-fused-surface__pane::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom right, var(--ct-surface-0), transparent);
-  opacity: 0;
-  transition: opacity var(--ct-dur-base) var(--ct-ease), background-color var(--ct-dur-base) var(--ct-ease);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.pf-fused-surface__pane:hover::after {
-  opacity: 0.4; /* Softened to avoid washing out content hovers */
-  background-color: color-mix(in srgb, var(--ct-accent) 2%, transparent);
-}
-
-.pf-fused-surface__pane > .pf-embedded-pane {
+.pf-deck-grid > .pf-embedded-pane {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
 }
 
-.pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-left: 1px solid var(--ct-graphite-border-nested);
-  position: relative;
+/* Stacked default — second cell separated by a TOP hairline. */
+.pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
+  border-top: 1px solid var(--ct-graphite-border-nested);
 }
 
-.pf-fused-surface__pane + .pf-fused-surface__pane::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 -1px;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    color-mix(in srgb, var(--ct-accent) 15%, transparent) 20%,
-    color-mix(in srgb, var(--ct-accent) 15%, transparent) 80%,
-    transparent
-  );
-  pointer-events: none;
-}
+/* =============================================================================
+   RESPONSIVE HELPERS — hero mobile reflow
+   ============================================================================= */
 
-.pf-fused-surface__pane--rail {
-  background: transparent;
-  border-right: 1px solid var(--ct-graphite-border-nested);
-}
-
-@container pf (max-width: 58rem) {
-  .pf-hero-grid {
-    grid-template-columns: 1fr;
-  }
+@container pf (max-width: 799.98px) {
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
   }
   .pf-hero-grid .pf-status-panel {
-    border-left: none;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+    border-left: none !important;
+    border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }
 }
 
 
 /* ---- SCROLL NATURALLY: all viewports, no viewport-lock ---- */
-.pf-container--fit { height: auto; overflow: visible; }
-.pf-container--fit .pf-cockpit { overflow: visible; }
+.pf-container--fit,
+.pf-container--zero { height: auto; overflow: visible; }
+.pf-container--fit .pf-cockpit,
+.pf-container--zero .pf-cockpit { overflow: visible; }
 .pf-cockpit-row { flex: 0 0 auto; }
 
 /* Hero in natural-scroll mode: give the hero a fixed height so the chart fills
    it properly. Without this the chart-wrapper's min-height wins and nothing
    drives the panel to expand — leaving the plot as a thin strip. */
 .pf-hero-grid { min-height: 0; }
-.pf-container--fit .pf-hero-grid {
+.pf-container--fit .pf-hero-grid,
+.pf-container--zero .pf-hero-grid {
   height: 18rem;
 }
-.pf-container--fit .pf-value-chart__chart-wrapper {
+.pf-container--fit .pf-value-chart__chart-wrapper,
+.pf-container--zero .pf-value-chart__chart-wrapper {
   aspect-ratio: auto;
   min-height: 0;
   height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
@@ -341,16 +286,23 @@
 /* Natural scroll: panels take their NATURAL height and never clip */
 .pf-container--fit .pf-cockpit-panel,
 .pf-container--fit .pf-embedded-pane,
-.pf-container--fit .pf-hero-grid,
-.pf-container--fit .pf-fused-surface,
+.pf-container--fit .pf-deck-grid,
 .pf-container--fit .pf-status-panel,
 .pf-container--fit .pf-trust-compact,
-.pf-container--fit .pf-payout-calendar-panel {
+.pf-container--fit .pf-payout-calendar-panel,
+.pf-container--zero .pf-cockpit-panel,
+.pf-container--zero .pf-embedded-pane,
+.pf-container--zero .pf-deck-grid,
+.pf-container--zero .pf-status-panel,
+.pf-container--zero .pf-trust-compact,
+.pf-container--zero .pf-payout-calendar-panel {
   height: auto;
   overflow: visible;
 }
 .pf-container--fit .pf-positions,
-.pf-container--fit .pf-activity {
+.pf-container--fit .pf-activity,
+.pf-container--zero .pf-positions,
+.pf-container--zero .pf-activity {
   overflow: visible;
 }
 
@@ -372,6 +324,19 @@
 .pf-cockpit-panel {
   position: relative;
   overflow: hidden;
+  min-width: 0;
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
+  box-shadow: none;
+}
+
+/* Fused rows host ONE master plate spanning edge-to-edge; the grid panes inside
+   own their own padding. Replaces the per-call `!p-0` utility on the panels. */
+.pf-cockpit-row--chart > .pf-cockpit-panel,
+.pf-cockpit-row--pair > .pf-cockpit-panel,
+.pf-cockpit-row--deck > .pf-cockpit-panel {
+  padding: 0;
 }
 
 .pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
@@ -380,13 +345,9 @@
   gap: var(--ct-space-2_5);
 }
 
-/* Deck panels share the same flat graphite plate as the hero weld. */
-.pf-cockpit-row--deck .pf-cockpit-panel {
-  border-color: var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-}
-
-.pf-fused-surface .pf-embedded-pane {
+/* Deck embedded panes (calendar | activity) — flat, no surface of their own;
+   the master PfCockpitPanel of the deck row owns the single graphite surface. */
+.pf-deck-grid > .pf-embedded-pane {
   border-color: transparent;
   background: transparent;
   box-shadow: none;
@@ -397,13 +358,14 @@
   z-index: 1;
 }
 
-/* Hero weld — chart + status share one plate; inner wrappers stay flat. */
+/* Hero weld — chart + status share one plate; inner wrappers stay flat.
+   Zero padding on the weld layer: each child owns its own internal rhythm
+   (.pf-value-chart has its own padding; .pf-status-panel uses !p-0 + internal p-6). */
 .pf-hero-grid .pf-embedded-pane {
-  padding: var(--ct-space-4) var(--ct-space-5);
+  padding: 0;
 }
 
 .pf-hero-grid .pf-cockpit-panel__header {
-  min-height: var(--ct-space-12);
   display: flex;
   align-items: flex-start;
 }
@@ -416,22 +378,12 @@
   display: none;
 }
 
-.pf-cockpit-cell[data-section="activity-payouts"] .pf-cockpit-panel,
-.pf-cockpit-cell[data-section="yield-trust"] .pf-cockpit-panel,
-.pf-fused-surface__pane[data-section="activity-payouts"] .pf-cockpit-panel,
-.pf-fused-surface__pane[data-section="yield-trust"] .pf-cockpit-panel {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-
-.pf-cockpit-cell[data-section="activity-payouts"],
-.pf-cockpit-cell[data-section="yield-trust"] {
-  position: relative;
-}
-
-.pf-fused-surface--deck .pf-cockpit-panel {
-  height: 100%;
+.pf-hero-grid > .pf-status-panel {
+  /* De-boxed: no panel surface of its own (welded inside the single hero panel).
+     Only the internal separator hairline remains — its side (left vs top) is set
+     by the responsive rules below, so we must NOT blanket-reset `border` here. */
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* ---- Panel header ---- */
@@ -451,6 +403,24 @@
   min-width: 0;
   min-height: var(--ct-space-8); /* Stabilize header height for alignment */
   justify-content: center;
+}
+
+.pf-cockpit-panel__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.pf-cockpit-panel__title-row > :first-child {
+  min-width: 0;
+}
+
+.pf-cockpit-panel__title-end {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
 }
 
 .pf-cockpit-panel__header-trail {
@@ -477,7 +447,7 @@
   margin: 0;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header-main {
+.pf-value-chart--hero-embedded .pf-vc-header__left {
   gap: var(--ct-space-3);
 }
 
@@ -518,10 +488,14 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  /* chart-geometry — 2 cols: chart (flex) + status rail (fixed 19rem max) */
-  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
-  /* chart-geometry — hero: header + plot + axis labels */
-  height: 18rem;
+  /* MOBILE-FIRST: 1 column by default. The 2-column split is applied ONLY inside
+     @container pf (min-width: 58rem) — see section 14 (terminal cascade). */
+  grid-template-columns: 1fr;
+  height: auto;
+  min-height: 18rem;
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
   overflow: clip;
 }
 
@@ -532,11 +506,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-surface-2) 28%, transparent),
-    transparent
-  );
+  background: transparent;
 }
 
 .pf-main-chart-wrapper::before {
@@ -568,31 +538,39 @@
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
+/* Hero context: reduce chart padding so the plot gets more vertical real estate
+   inside the fixed 18rem grid. The weld layer is now padding:0 so this is the
+   only padding the chart carries. */
+.pf-value-chart--hero-embedded {
+  gap: var(--ct-space-4);
+  padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x);
+}
+
 .pf-hero-kpi-value {
   /* DS hero tier — the single dominant number on the Portfolio surface (NAV value).
-     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / accent. */
+     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / strong text. */
   font-size: var(--ct-text-hero);
   font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
   letter-spacing: var(--ct-tracking-tighter);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "ss01" 1;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header {
+/* Hero header — now uses .pf-vc-header (not .pf-cockpit-panel__header which is
+   not in the DOM for this component). These rules are the live selectors. */
+.pf-value-chart--hero-embedded .pf-vc-header {
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
+  flex-shrink: 0;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header-trail {
+.pf-value-chart--hero-embedded .pf-vc-header__trail {
   display: flex;
-}
-
-.pf-value-chart--hero-embedded .pf-hero-kpi-block {
-  margin: 0 0 var(--ct-space-1);
+  align-self: flex-start;
 }
 
 .pf-value-chart__chart-wrapper,
@@ -614,6 +592,15 @@
 .pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
   aspect-ratio: auto;
   height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
+  background: transparent;
+  animation: none;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::before,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::after,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::before,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::after {
+  display: none;
 }
 
 .pf-value-chart__chart-wrapper,
@@ -621,6 +608,51 @@
   background: var(--ct-surface-1);
   box-shadow: none;
   animation: pf-chart-entry 1s var(--ct-ease) forwards;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
+  background: var(--ct-surface-0);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
+    inset 0 -24px 40px color-mix(in srgb, var(--ct-bg-deep) 36%, transparent);
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__plot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 70% at 50% 100%,
+      color-mix(in srgb, var(--ct-accent) 12%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--ct-surface-0) 18%, transparent) 100%
+    );
+  pointer-events: none;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__plot::after {
+  content: "";
+  position: absolute;
+  left: var(--ct-space-2);
+  right: var(--ct-space-2);
+  bottom: var(--ct-space-3);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent) 12%,
+    color-mix(in srgb, var(--ct-accent) 20%, transparent) 50%,
+    color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent) 88%,
+    transparent
+  );
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 .pf-value-chart__chart-wrapper::before,
@@ -718,15 +750,19 @@
   color: var(--ct-accent);
 }
 
-.pf-vc-density-note {
+.pf-vc-density-note,
+.pf-vc-inline-note {
   margin: 0;
-  padding: 0 var(--ct-space-0_5);
   font-size: var(--ct-text-nano);
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
   color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-55);
+  opacity: var(--ct-opacity-62);
   line-height: 1.2;
+}
+
+.pf-vc-inline-note {
+  padding: 0;
 }
 
 .pf-vc-header__trail {
@@ -737,8 +773,8 @@
 .pf-value-chart__range-selector {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
+  gap: var(--ct-space-0_5);
+  padding: var(--ct-space-0_5);
   border-radius: var(--ct-radius-full);
   background: color-mix(in srgb, var(--ct-surface-1) 55%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
@@ -765,6 +801,22 @@
   background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-2));
 }
 
+.pf-vc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1_5);
+  align-items: center;
+  margin-top: var(--ct-space-2);
+}
+
+.pf-vc-header__provenance {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-text-tertiary);
+}
+
 .pf-vc-grid {
   stroke: var(--ct-graphite-border-nested);
   stroke-width: 0.5;
@@ -778,6 +830,15 @@
 }
 
 .pf-vc-area {
+  opacity: 1;
+}
+
+.pf-value-chart--hero-embedded .pf-vc-line {
+  stroke-width: 1.8;
+  opacity: 0.98;
+}
+
+.pf-value-chart--hero-embedded .pf-vc-area {
   opacity: 1;
 }
 
@@ -799,7 +860,7 @@
 
 .pf-vc-axis-label {
   fill: var(--ct-text-tertiary);
-  font-size: 9px;
+  font-size: var(--ct-text-nano);
   font-weight: 500;
   letter-spacing: 0.03em;
   font-family: var(--ct-font-sans, system-ui, sans-serif);
@@ -958,15 +1019,17 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  /* Background and border come from PfCockpitPanel wrapper */
+  /* Background/shadow come from the PfCockpitPanel wrapper; the internal
+     separator hairline (left on desktop, top when stacked) is owned by the
+     `.pf-hero-grid .pf-status-panel` responsive rules — do NOT force a border
+     here or it overrides the responsive side and the split looks wrong. */
   background: transparent !important;
-  border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
 
 .pf-status-panel .pf-cockpit-panel__header {
-  padding: var(--ct-space-2_5) var(--ct-space-4) var(--ct-space-1);
+  padding: 0;
   margin-bottom: 0;
 }
 
@@ -1056,10 +1119,14 @@
   height: var(--ct-space-3_5);
 }
 
-/* Status panel is the hero-grid right slot: left-border separates it from the chart. */
+/* Status panel is the hero-grid right slot. MOBILE-FIRST default (1-col stacked):
+   a thin TOP hairline separates it from the chart above, no left border. The
+   2-col desktop state (@container pf min-width: 58rem) flips this to a LEFT
+   hairline + no top border. Keeping the base aligned with the 1-col grid default
+   prevents a stray separator showing on the wrong edge. */
 .pf-hero-grid .pf-status-panel {
-  border-top: none;
-  border-left: 1px solid var(--ct-graphite-border-nested);
+  border-left: 0;
+  border-top: 1px solid var(--ct-graphite-border-nested);
 }
 
 /* =============================================================================
@@ -1143,6 +1210,19 @@
   white-space: nowrap;
 }
 
+.pf-positions__opened,
+.pf-positions__status-cell {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-secondary);
+  white-space: nowrap;
+}
+
+.pf-positions__status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+}
+
 .pf-positions__num {
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -1200,80 +1280,156 @@
 .cy-panel {
   /* inherits the plate from .pf-cockpit-panel; only layout specifics here */
   min-width: 0;
+  background: var(--ct-graphite-subtle-bg) !important;
+  border: 1px solid var(--ct-graphite-border-nested) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 .cy-panel.pf-cockpit-panel {
   gap: var(--ct-space-2_5);
-  padding: var(--ct-space-3) var(--ct-space-4);
+  padding: 0;
 }
 
-/* ---- V5 body: vertical stack, two clear tiers ---- */
+.cy-panel.pf-cockpit-panel > .pf-cockpit-panel__header {
+  padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x) 0;
+}
+
+.cy-panel.pf-cockpit-panel > .cy-v5-body,
+.cy-panel.pf-cockpit-panel > .cy-v5-empty {
+  padding: var(--ct-space-4) var(--pf-panel-pad-x) var(--pf-panel-pad-y);
+}
+
+/* ---- V5 body: premium horizontal layout for wide screens ---- */
 .cy-v5-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 2fr;
+  grid-template-rows: auto auto;
+  grid-template-areas: 
+    "headline visual"
+    "disclaimer visual";
+  column-gap: var(--ct-space-10);
+  row-gap: var(--ct-space-5);
+  align-items: center;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
 }
 
-/* ── Header trail: horizon chip + leaf link ── */
+/* ── Header trail: leaf link ── */
 .cy-v5-header-trail {
   display: flex;
   align-items: center;
   gap: var(--ct-space-3);
-    flex-shrink: 0;
+  flex-shrink: 0;
 }
 
-.cy-v5-horizon-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-    border-radius: var(--ct-radius-full);
-    font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-wide);
-    text-transform: uppercase;
-  color: var(--ct-text-tertiary);
-  background: color-mix(in srgb, var(--ct-surface-1) 48%, transparent);
-    border: 1px solid color-mix(in srgb, var(--ct-border-soft) 36%, transparent);
-    white-space: nowrap;
-}
-
-/* ── Tier 1 — editorial headline metrics (flat, no nested box) ── */
+/* ── Tier 1 — editorial headline metrics (Fintech premium style) ── */
 .cy-v5-headline {
+  grid-area: headline;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--ct-space-6);
   width: 100%;
   min-width: 0;
-  padding-bottom: var(--ct-space-0_5);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 22%, transparent);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cy-v5-pending-headline {
+  grid-area: headline;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ct-space-2);
+  min-width: 0;
+}
+
+.cy-v5-pending-headline__eyebrow {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-text-tertiary);
+}
+
+.cy-v5-pending-headline__value {
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-bold);
+  line-height: var(--ct-leading-none);
+  color: var(--ct-text-strong);
+}
+
+.cy-v5-pending-headline__apy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  align-items: flex-start;
+}
+
+.cy-v5-pending-headline__apy-label {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ct-text-tertiary);
+}
+
+.cy-v5-headline__divider {
+  height: 1px;
+  width: 100%;
+  background: color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
+  margin: 0;
 }
 
 .cy-v5-metric {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
+  align-items: flex-start;
+  gap: var(--ct-space-1);
+  width: 100%;
   min-width: 0;
 }
 
-.cy-v5-metric--primary {
-  flex: 1 1 auto;
+.cy-v5-metric--accent {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.cy-v5-metric__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--ct-space-3);
 }
 
 .cy-v5-metric__label {
-  font-size: var(--ct-text-nano);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
+  letter-spacing: var(--ct-tracking-wide);
   color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-80);
   white-space: nowrap;
 }
 
+.cy-v5-horizon-meta {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ct-text-tertiary);
+  background: var(--ct-surface-2);
+  padding: 0 var(--ct-space-1_5);
+  border-radius: var(--ct-radius-sm);
+}
+
 .cy-v5-metric__value {
-  font-size: var(--ct-text-lg-fixed);
+  font-size: var(--ct-text-2xl-fixed);
   font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
@@ -1283,56 +1439,125 @@
 }
 
 .cy-v5-metric--primary .cy-v5-metric__value {
-  font-size: var(--ct-text-xl-fixed);
+  font-size: var(--ct-text-3xl-fixed);
+  margin-top: var(--ct-space-1);
 }
 
 .cy-v5-metric--accent .cy-v5-metric__value {
-  font-size: var(--ct-text-xl-fixed);
+  font-size: var(--ct-text-3xl-fixed);
   color: var(--ct-accent);
 }
 
-.cy-v5-metric__apy-row {
+.cy-v5-metric__apy-block {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   gap: var(--ct-space-3);
-  min-width: 0;
+  margin-top: var(--ct-space-1);
 }
 
-.cy-v5-metric--accent .cy-v5-apy--inline {
-  margin-top: 0;
-  flex: 0 1 8.5rem;
+/* ── Compact APY instrument band ── */
+.cy-v5-apy-instrument {
+  width: 100%;
+  max-width: 14rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+}
+
+.cy-v5-apy-instrument__rail {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-surface-2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.cy-v5-apy-instrument__zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--ct-radius-full);
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--ct-accent) 40%, transparent),
+      var(--ct-accent));
+}
+
+.cy-v5-apy-instrument__tick {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-bg-deep);
+  border: 1.5px solid var(--ct-accent);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 2px var(--ct-surface-1);
+}
+
+.cy-v5-apy-instrument__tick--low {
+  border-color: color-mix(in srgb, var(--ct-accent) 60%, var(--ct-text-neutral));
+}
+
+.cy-v5-apy-instrument__tick--high {
+  box-shadow: 0 0 0 2px var(--ct-surface-1), 0 0 8px color-mix(in srgb, var(--ct-accent) 20%, transparent);
+}
+
+.cy-v5-apy-instrument__labels {
+  position: relative;
+  width: 100%;
+  height: 12px;
+}
+
+.cy-v5-apy-instrument__label {
+  position: absolute;
+  top: 0;
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
+}
+
+.cy-v5-apy-instrument__label--accent {
+  color: color-mix(in srgb, var(--ct-accent) 90%, var(--ct-text-tertiary));
 }
 
 /* ── Tier 2 — visual zone: donut + legend ── */
 .cy-v5-visual {
+  grid-area: visual;
   display: flex;
-  align-items: flex-start;
-  gap: var(--ct-space-4);
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ct-space-10);
   width: 100%;
   min-width: 0;
-  padding: 0;
 }
 
 .cy-v5-visual--pending {
-  align-items: center;
+  justify-content: flex-start;
+  padding-left: var(--ct-space-8);
 }
 
 /* ── Donut ── */
 .cy-v5-donut {
   position: relative;
-  width: 92px;
-  height: 92px;
+  width: 160px;
+  height: 160px;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: var(--ct-space-0_5);
 }
 
 .cy-v5-donut__svg {
   width: 100%;
   height: 100%;
   transform: rotate(0deg);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
 .cy-v5-donut__track {
@@ -1344,6 +1569,8 @@
 }
 
 .cy-v5-donut__pending-ring {
+  stroke: color-mix(in srgb, var(--ct-accent) 38%, transparent);
+  stroke-width: 1.5;
   transform-origin: center;
   animation: cy-v5-pending-rotate 24s linear infinite;
 }
@@ -1358,15 +1585,15 @@
   position: absolute;
   inset: 0;
   display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    pointer-events: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-1);
+  pointer-events: none;
 }
 
 .cy-v5-donut__center-top {
-  font-size: var(--ct-text-nano);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -1375,7 +1602,7 @@
 }
 
 .cy-v5-donut__center-main {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-2xl-fixed);
   font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
@@ -1389,26 +1616,25 @@
   color: var(--ct-text-secondary);
 }
 
-/* ── Legend — grid-aligned rows ── */
+/* ── Legend — Premium grid with rails ── */
 .cy-v5-legend {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
   margin: 0;
-  padding: var(--ct-space-0_5) 0 0;
+  padding: 0;
   list-style: none;
   flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
+  max-width: 28rem;
 }
 
 .cy-v5-legend__row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  display: flex;
   align-items: center;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-4);
   min-width: 0;
-  padding: var(--ct-space-0_5) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 14%, transparent);
+  padding: var(--ct-space-3) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
 }
 
 .cy-v5-legend__row:last-child {
@@ -1416,54 +1642,79 @@
 }
 
 .cy-v5-legend__dot {
-  width: var(--ct-space-2_5);
-  height: var(--ct-space-2_5);
-  border-radius: var(--ct-radius-sm);
+  width: var(--ct-space-2);
+  height: var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
   flex: 0 0 auto;
+  box-shadow: 0 0 4px color-mix(in srgb, var(--ct-accent) 20%, transparent);
+}
+
+.cy-v5-legend__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .cy-v5-legend__label {
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
   color: var(--ct-text-secondary);
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.cy-v5-legend__rail {
+  width: 100%;
+  height: 3px;
+  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
+  border-radius: var(--ct-radius-full);
+  overflow: hidden;
+}
+
+.cy-v5-legend__fill {
+  height: 100%;
+  border-radius: var(--ct-radius-full);
+}
+
+.cy-v5-legend__values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ct-space-1);
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+}
+
 .cy-v5-legend__pct {
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-bold);
   color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
-  white-space: nowrap;
-  min-width: 3.5ch;
-    text-align: right;
 }
 
 .cy-v5-legend__contrib {
   font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-semibold);
+  font-weight: var(--ct-font-medium);
   color: var(--ct-accent);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
-  white-space: nowrap;
-  min-width: 4.5ch;
-    text-align: right;
 }
 
 .cy-v5-legend__contrib--volatile {
-  color: var(--ct-text-secondary);
-  opacity: var(--ct-opacity-80);
+  color: var(--ct-text-tertiary);
 }
 
 /* ── Pending copy (no vault snapshot) ── */
 .cy-v5-pending-copy {
   display: flex;
   flex-direction: column;
-    gap: var(--ct-space-1_5);
+  align-items: flex-start;
+  text-align: left;
+  gap: var(--ct-space-2);
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -1471,106 +1722,65 @@
 .cy-v5-pending-copy__title {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-primary);
+  color: var(--ct-text-strong);
 }
 
 .cy-v5-pending-copy__desc {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-tertiary);
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-secondary);
   line-height: var(--ct-leading-relaxed);
-    max-width: 44ch;
-}
-
-/* ── Compact inline APY range (beside headline metrics) ── */
-.cy-v5-apy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-    min-width: 0;
-}
-
-.cy-v5-apy--inline {
-  flex: 0 0 auto;
-  width: min(8.5rem, 100%);
-  padding-top: 0;
-  border-top: none;
-}
-
-.cy-v5-apy__track {
-  position: relative;
-  width: 100%;
-  height: 3px;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-1);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-
-.cy-v5-apy__tick {
-  position: absolute;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-bg-deep);
-  border: 1.5px solid var(--ct-accent);
-  transform: translate(-50%, -50%);
-}
-
-.cy-v5-apy__tick--low {
-  left: 0;
-  border-color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-text-neutral));
-}
-
-.cy-v5-apy__tick--high {
-  left: 100%;
-  box-shadow: none;
-}
-
-.cy-v5-apy__anchors {
-  display: flex;
-  align-items: baseline;
-    justify-content: space-between;
-    gap: var(--ct-space-2);
-}
-
-.cy-v5-apy__anchor {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-
-.cy-v5-apy__anchor--high {
-  color: color-mix(in srgb, var(--ct-accent) 78%, var(--ct-text-tertiary));
-}
-
-.cy-v5-apy__band {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--ct-radius-full);
-  background: linear-gradient(90deg,
-      color-mix(in srgb, var(--ct-accent) 28%, transparent),
-      color-mix(in srgb, var(--ct-accent) 88%, transparent));
+  max-width: 32ch;
 }
 
 /* ── Disclaimer footnote ── */
 .cy-v5-disclaimer {
+  grid-area: disclaimer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--ct-space-3);
   margin: 0;
-  padding-top: var(--ct-space-0_5);
-  font-size: var(--ct-text-micro);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  background: color-mix(in srgb, var(--ct-surface-1) 20%, transparent);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+}
+
+.cy-v5-disclaimer__badge {
+  font-size: 10px;
+  font-weight: var(--ct-font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  background: var(--ct-surface-2);
+  padding: 2px 6px;
+  border-radius: var(--ct-radius-sm);
+}
+
+.cy-v5-disclaimer__text {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-secondary);
+}
+
+.cy-v5-disclaimer__meta {
+  font-size: var(--ct-text-xs);
   color: var(--ct-text-tertiary);
   opacity: var(--ct-opacity-60);
-  line-height: var(--ct-leading-snug);
+  border-left: 1px solid var(--ct-border-soft);
+  padding-left: var(--ct-space-3);
 }
 
 /* ── Empty state (no position) ── */
 .cy-v5-empty {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: var(--ct-space-2);
   flex: 1 1 auto;
   min-width: 0;
-  padding: var(--ct-space-4) 0 var(--ct-space-2);
+  padding: var(--ct-space-8) 0 var(--ct-space-4);
 }
 
 .cy-v5-empty__lead {
@@ -1590,11 +1800,31 @@
 }
 
 /* ── Responsive: stack headline + visual on narrow containers ── */
-@container pf (max-width: 34rem) {
+@container pf (max-width: 55rem) {
+  .cy-v5-body {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "headline"
+      "visual"
+      "disclaimer";
+    justify-items: center;
+  }
+  
+  .cy-v5-visual {
+    justify-content: center;
+  }
+  
+  .cy-v5-disclaimer {
+    justify-self: center;
+  }
+}
+
+@container pf (max-width: 40rem) {
   .cy-v5-headline {
     flex-wrap: wrap;
-    align-items: flex-end;
-    gap: var(--ct-space-3) var(--ct-space-5);
+    align-items: center;
+    justify-content: center;
+    gap: var(--ct-space-6);
   }
 
   .cy-v5-metric--primary {
@@ -1607,22 +1837,54 @@
   }
 
   .cy-v5-apy--inline {
-    width: min(8.5rem, 100%);
+    width: 8.5rem;
   }
 
   .cy-v5-visual {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--ct-space-3);
+    align-items: center;
+    gap: var(--ct-space-6);
+    padding: var(--ct-space-4) 0 0;
   }
 
   .cy-v5-donut {
-    align-self: flex-start;
+    align-self: center;
     margin-top: 0;
   }
 
   .cy-v5-legend {
     width: 100%;
+  }
+
+  .cy-v5-pending-copy {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* Pane-scoped reflow — Capital & Yield in a narrow niveau-2 pane (pfpane) stacks
+   headline → donut+legend → disclaimer, keyed to the PANE width so the 2-column
+   row split never crushes the donut/legend. */
+@container pfpane (max-width: 46rem) {
+  .cy-v5-body {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "headline"
+      "visual"
+      "disclaimer";
+    column-gap: 0;
+    justify-items: start;
+  }
+  .cy-v5-visual {
+    justify-content: flex-start;
+  }
+}
+
+@container pfpane (max-width: 22rem) {
+  .cy-v5-visual {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ct-space-6);
   }
 }
 /* =============================================================================
@@ -1975,11 +2237,11 @@
   align-items: center;
 }
 
-.pf-fused-surface--deck .pf-activity {
+.pf-deck-grid .pf-activity {
   justify-content: flex-start;
 }
 
-.pf-fused-surface--deck .pf-activity--empty {
+.pf-deck-grid .pf-activity--empty {
   flex: 1 1 auto;
   align-items: center;
   justify-content: center;
@@ -1987,11 +2249,11 @@
   padding: var(--ct-space-4) var(--ct-space-3);
 }
 
-.pf-fused-surface--deck .pf-activity__empty-hint {
+.pf-deck-grid .pf-activity__empty-hint {
   max-width: 32ch;
 }
 
-.pf-fused-surface--deck .pf-trust-compact--embedded .pf-trust-compact-kpis {
+.pf-deck-grid .pf-trust-compact--embedded .pf-trust-compact-kpis {
   /* Two KPIs side-by-side in the deck pane: halves the block height so the
      Proof-status KPI no longer clips under the no-scroll gate (was stacked). */
   grid-template-columns: 1fr 1fr;
@@ -2063,6 +2325,10 @@
 .pf-inline-row--dense {
   gap: var(--ct-space-2);
   font-size: var(--ct-text-xs);
+}
+
+.pf-inline-row--tight {
+  gap: var(--ct-space-2);
 }
 
 /* ---- Footnote ---- */
@@ -2265,21 +2531,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-3);
-  padding: var(--ct-space-5) var(--ct-space-6);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-graphite-border-nested);
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.4),
-    var(--ct-glass-bevel);
+  padding: var(--ct-space-4) 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-border-soft);
+  box-shadow: none;
   width: 100%;
   max-width: 26rem;
   align-self: center;
 }
 
 .pf-dc-coming--inactive {
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
-  border-color: color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+  background: transparent;
+  border-color: var(--ct-border-soft);
   box-shadow: none;
   transform: none !important;
 }
@@ -2309,11 +2575,11 @@
 .pf-dc-coming__badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: var(--ct-space-0_5) var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-accent) 20%, transparent);
-  font-size: 10px;
+  font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-bold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
@@ -2343,7 +2609,7 @@
   color: var(--ct-text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  padding: 4px 10px;
+  padding: var(--ct-space-1) var(--ct-space-2_5);
   background: var(--ct-surface-2);
   border-radius: var(--ct-radius-md);
   border: 1px solid var(--ct-border-soft);
@@ -2395,42 +2661,40 @@
    scales down so nothing clips in tight slots.
    ============================================================================= */
 
-/* ---- DECK: 1-col (fused surface handles the split) ---- */
+/* ---- DECK: outer row stays 1fr; the .pf-deck-grid handles the internal split ---- */
 @container pf (min-width: 36rem) {
   .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 }
 
-/* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
-        its own internal 2-column split). No @container override needed here. ---- */
-
-@container pf (min-width: 58rem) {
-  /* Hero welded grid split — 2 columns: Chart | Sidebar */
+@container pf (min-width: 800px) {
+  /* Hero welded grid split — 2 columns: Chart | Sidebar.
+     Use px so this layout gate stays tied to the actual content width rather
+     than drifting with the global root font-size. 800px keeps the 1280px
+     portfolio hero side-by-side while preserving a readable chart lane. */
   .pf-hero-grid {
-    grid-template-columns: 1.6fr minmax(16rem, 22rem);
+    grid-template-columns: 1.6fr minmax(16rem, 22rem) !important;
+    height: 18rem;
+    min-height: 18rem;
   }
-  /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
-    border-top: 0;
-    border-left: 1px solid var(--ct-graphite-border-nested);
+    border-left: 1px solid var(--ct-graphite-border-nested) !important;
+    border-top: none !important;
     position: relative;
   }
-  
-  .pf-hero-grid .pf-status-panel::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 -1px;
-    width: 1px;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      color-mix(in srgb, var(--ct-accent) 15%, transparent) 20%,
-      color-mix(in srgb, var(--ct-accent) 15%, transparent) 80%,
-      transparent
-    );
-    pointer-events: none;
-  }
+
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
+  }
+}
+
+@container pf (min-width: 60rem) {
+  /* Deck welded grid split — 2 columns: Calendar | Activity (doc gate 60rem). */
+  .pf-deck-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+  }
+  .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
   }
 }
 
@@ -2439,34 +2703,40 @@
    tight slot (≤44rem) — below that the chart needs the full width. Stacking too
    early (was 64rem) squeezed the 5-row status panel to ~44px and clipped rows. */
 @container pf (max-width: 44rem) {
-  .pf-container--fit .pf-hero-grid {
+  .pf-container--fit .pf-hero-grid,
+  .pf-container--zero .pf-hero-grid {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 18rem;
   }
 
-  .pf-container--fit .pf-hero-grid .pf-status-panel {
-    border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+  .pf-container--fit .pf-hero-grid .pf-status-panel,
+  .pf-container--zero .pf-hero-grid .pf-status-panel {
+    border-left: none !important;
+    border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }
 }
 
+/* Niveau 3 — support deck. DOM order = Payout (1) · Recent Activity (2).
+   Stacked (mobile): Recent surfaces ABOVE Payout (live ledger over forward
+   calendar) — prompt mobile order 4→5. Desktop ≥60rem: Payout left | Recent
+   right with a single vertical hairline left of Recent. */
+.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
+  order: -1;
+  border-top: none;
+}
+.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
 
-@container pf (max-width: 60rem) {
-  .pf-fused-surface--deck {
-    grid-template-columns: 1fr;
-    min-height: auto; /* Allow natural height on stack */
+@container pf (min-width: 60rem) {
+  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
+    order: 0;
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
   }
-
-  .pf-fused-surface__pane + .pf-fused-surface__pane {
-    border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
-  }
-
-  .pf-fused-surface__pane + .pf-fused-surface__pane::before {
-    display: none; /* Hide vertical halo on stack */
-  }
-
-  .pf-fused-surface__pane::after {
-    display: none; /* Hide hover halo on stack to avoid double borders */
+  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
+    border-top: none;
   }
 }
 
@@ -2497,6 +2767,308 @@
   .pf-greeting {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* =============================================================================
+   CLEANUP PASS — live portfolio alignment
+   Shared header contract + stacked yield/positions rows + fused deck surface.
+   ============================================================================= */
+
+.pf-greeting.product-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  margin-bottom: var(--ct-space-6);
+}
+
+.pf-greeting.product-page-header .product-page-header__row {
+  align-items: flex-end;
+}
+
+.pf-greeting.product-page-header .product-page-header__main {
+  min-width: 0;
+}
+
+.pf-greeting.product-page-header .product-page-header__title-stack {
+  gap: var(--ct-space-1);
+}
+
+.pf-greeting.product-page-header .h1 {
+  font-size: var(--ct-text-3xl-fixed);
+}
+
+.pf-greeting.product-page-header .page-canon-kicker {
+  margin-top: var(--ct-space-1);
+}
+
+.pf-greeting.product-page-header .page-canon-rule {
+  margin-top: 0;
+}
+
+.pf-cockpit-row--yield,
+.pf-cockpit-row--positions {
+  grid-template-columns: 1fr;
+}
+
+.pf-cockpit-row--chart {
+  min-height: 18rem;
+}
+
+.pf-cockpit-row--deck {
+  min-height: 12rem;
+}
+
+.pf-fused-surface {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
+  overflow: hidden;
+}
+
+.pf-fused-surface--deck {
+  min-height: 12rem;
+}
+
+.pf-fused-surface__pane {
+  min-width: 0;
+  min-height: 0;
+}
+
+.pf-fused-surface__pane + .pf-fused-surface__pane {
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
+
+.pf-fused-surface__pane > .pf-embedded-pane {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: var(--ct-space-4) var(--ct-space-5);
+  gap: var(--ct-space-3);
+  height: 100%;
+}
+
+.pf-sp2-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+  padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x) var(--ct-space-4);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
+}
+
+.pf-sp2-title {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.pf-cockpit-panel__title-pill,
+.pf-sp2-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-graphite-border-nested));
+  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
+  color: var(--ct-text-strong);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+}
+
+.pf-cockpit-panel__title-pill-dot,
+.pf-sp2-live-dot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--ct-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ct-accent) 55%, transparent);
+}
+
+.pf-sp2-deploy-track {
+  position: relative;
+  height: 1.2rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ct-graphite-border-nested) 35%, transparent);
+}
+
+.pf-sp2-deploy-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ct-accent) 70%, transparent), color-mix(in srgb, var(--ct-accent) 30%, transparent));
+}
+
+.pf-sp2-deploy-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 var(--ct-space-3);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pf-sp2-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-4) var(--pf-panel-pad-x) var(--pf-panel-pad-y);
+}
+
+.pf-sp2-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ct-space-3);
+}
+
+.pf-sp2-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+  min-width: 0;
+  padding: var(--ct-space-4);
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 70%, transparent);
+  background: color-mix(in srgb, var(--ct-graphite-border-nested) 10%, transparent);
+}
+
+.pf-sp2-tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  color: var(--ct-text-secondary);
+  background: color-mix(in srgb, var(--ct-graphite-border-nested) 22%, transparent);
+}
+
+.pf-sp2-tile__icon--accent {
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 14%, transparent);
+}
+
+.pf-sp2-tile__label,
+.pf-sp2-tile__sub {
+  font-size: var(--ct-text-micro);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pf-sp2-tile__label {
+  color: var(--ct-text-tertiary);
+}
+
+.pf-sp2-tile__sub {
+  color: var(--ct-text-secondary);
+}
+
+.pf-sp2-tile__value {
+  font-size: var(--ct-text-xl-fixed);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+  line-height: 1.1;
+}
+
+.pf-sp2-tile__value--accent {
+  color: var(--ct-accent);
+}
+
+.pf-sp2-tile__value--dim {
+  color: var(--ct-text-secondary);
+}
+
+.pf-sp2-proof {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding-top: var(--ct-space-3);
+  border-top: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
+}
+
+.pf-sp2-proof__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  color: var(--ct-text-secondary);
+  background: color-mix(in srgb, var(--ct-graphite-border-nested) 22%, transparent);
+}
+
+.pf-sp2-proof__icon--live {
+  color: var(--ct-accent);
+  background: color-mix(in srgb, var(--ct-accent) 14%, transparent);
+}
+
+.pf-sp2-proof__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.pf-sp2-proof__name {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-secondary);
+}
+
+.pf-sp2-proof__status {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-strong);
+}
+
+.pf-sp2-proof__status--live {
+  color: var(--ct-accent);
+}
+
+.pf-sp2-proof__date {
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  text-align: right;
+}
+
+@container pf (min-width: 60rem) {
+  .pf-fused-surface--deck {
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+  }
+
+  .pf-fused-surface__pane + .pf-fused-surface__pane {
+    border-top: 0;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+}
+
+@container pf-panel (max-width: 24rem) {
+  .pf-sp2-tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-sp2-proof {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .pf-sp2-proof__date {
+    grid-column: 1 / -1;
+    text-align: left;
+    padding-left: calc(1.9rem + var(--ct-space-3));
   }
 }
 
@@ -2646,13 +3218,8 @@
   align-items: stretch;
   width: 100%;
   min-height: 5.5rem;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ct-surface-1) 80%, transparent),
-    color-mix(in srgb, var(--ct-surface-2) 60%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 30%, transparent);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   text-decoration: none;
   transition: 
@@ -2661,10 +3228,13 @@
     transform var(--ct-dur-base) var(--ct-ease),
     box-shadow var(--ct-dur-base) var(--ct-ease);
   overflow: hidden;
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 8px 24px -4px color-mix(in srgb, var(--ct-surface-0) 40%, transparent);
-  backdrop-filter: blur(var(--ct-blur-xl));
+  box-shadow: none;
+  animation: pf-card-entry 0.5s var(--ct-ease) both;
+}
+
+@keyframes pf-card-entry {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .pf-position-card::before {
@@ -2684,12 +3254,9 @@
 }
 
 .pf-position-card:hover {
-  background: color-mix(in srgb, var(--ct-surface-2) 92%, var(--ct-accent) 3%);
-  border-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-graphite-border-nested));
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
   transform: translateY(-2px);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
+  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
 }
 
 .pf-position-card--active {
@@ -2713,8 +3280,8 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr auto;
   align-items: center;
-  padding: var(--ct-space-4) var(--ct-space-6);
-  gap: var(--ct-space-6);
+  padding: var(--ct-space-4) var(--ct-space-5);
+  gap: var(--ct-space-5);
   min-width: 0;
 }
 
@@ -2917,9 +3484,26 @@
   }
 }
 
-/* Row for positions — full width at bottom */
-.pf-cockpit-row--positions {
-  grid-template-columns: 1fr;
+/* Pane-scoped compaction — position cards in a narrow niveau-2 pane (pfpane)
+   drop to a 2-row layout (name over metrics, chevron hidden), keyed to the pane
+   width so the row split never crushes the 4-column grid. */
+@container pfpane (max-width: 34rem) {
+  .pf-position-card__content {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ct-space-4);
+  }
+  .pf-position-card__main {
+    grid-column: 1 / -1;
+  }
+  .pf-position-card__action {
+    display: none;
+  }
+}
+
+@container pfpane (max-width: 22rem) {
+  .pf-position-card__content {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =============================================================================
@@ -2954,18 +3538,14 @@
 }
 
 /* Rows : hauteur NATURELLE (scroll relâché). Le min-height reste un plancher
-   de stabilité visuelle, mais plus de partage proportionnel qui plafonne le
-   contenu au viewport et clippe les empty-states (ex. "confirmed on-chain"). */
-.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 24rem; }
-.pf-cockpit-row--yield     { flex: 0 0 auto; min-height: 12rem; }
-.pf-cockpit-row--deck      { flex: 0 0 auto; min-height: 15rem; }
-.pf-cockpit-row--positions { flex: 0 0 auto; min-height: 7rem; }
+   de stabilité visuelle, mais considérablement réduit pour densifier l'UI. */
+.pf-cockpit-row--chart { flex: 0 0 auto; min-height: 18rem; }
+.pf-cockpit-row--pair  { flex: 0 0 auto; min-height: auto; }
+.pf-cockpit-row--deck  { flex: 0 0 auto; min-height: 12rem; }
 
 /* Les plates prennent leur hauteur naturelle : on neutralise les aspect-ratios
-   et min-height fixes, sans forcer height:100% (qui écrasait/clippait). */
-.pf-cockpit-row .pf-hero-grid,
-.pf-cockpit-row .pf-fused-surface,
-.pf-cockpit-row .pf-fused-surface--deck,
+   et min-height fixes, sans forcer height:100% (qui écrasait/clippait).
+   Hero/deck grids keep their own height + column rules (section 5 / 14). */
 .pf-cockpit-row .pf-cockpit-cell,
 .pf-cockpit-row .pf-cockpit-panel,
 .pf-cockpit-row .pf-embedded-pane {
@@ -2988,274 +3568,6 @@
    PREMIUM PUSH 2 — new component classes + visual upgrades
    All tokens only. No raw hex/rgb. No glow. No halo.
    ============================================================================= */
-
-/* ── Portfolio Status Panel V2 (pf-sp2-*) — premium KPI tile grid ─────────── */
-
-.pf-sp2-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2_5);
-  padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-3);
-  border-bottom: 1px solid var(--ct-border-soft);
-  flex: 0 0 auto;
-}
-
-.pf-sp2-header__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-  min-width: 0;
-}
-
-.pf-sp2-header__title-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2_5);
-  min-width: 0;
-}
-
-.pf-sp2-title {
-  font-size: var(--ct-text-deci);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
-  color: var(--ct-text-secondary);
-}
-
-/* Live pill — green only when data is confirmed live */
-.pf-sp2-live-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-2));
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-border-soft));
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  color: var(--ct-accent);
-  flex-shrink: 0;
-}
-
-.pf-sp2-live-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  animation: pf-sp2-pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes pf-sp2-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(0.85); }
-}
-
-/* Deployment progress bar with label */
-.pf-sp2-deploy-track {
-  position: relative;
-  height: var(--ct-space-1);
-  width: 100%;
-  background: var(--ct-border-soft);
-  border-radius: var(--ct-radius-full);
-  overflow: visible;
-  margin-top: var(--ct-space-1);
-}
-
-.pf-sp2-deploy-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--ct-accent), color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-strong)));
-  border-radius: var(--ct-radius-full);
-  transition: width var(--ct-dur-slower) var(--ct-ease-in-out);
-  max-width: 100%;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 35%, transparent);
-}
-
-.pf-sp2-deploy-label {
-  position: absolute;
-  right: 0;
-  top: calc(100% + var(--ct-space-1));
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-}
-
-/* Body — tile grid + proof strip */
-.pf-sp2-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 0;
-  padding-top: var(--ct-space-2);
-}
-
-/* 2×2 tile grid */
-.pf-sp2-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--ct-border-soft);
-  flex: 1 1 auto;
-}
-
-.pf-sp2-tile {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-3_5) var(--ct-space-5);
-  background: var(--ct-graphite-nested-bg);
-  transition: all var(--ct-dur-fast) var(--ct-ease);
-  min-width: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.pf-sp2-tile:hover {
-  background: var(--ct-surface-3);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 25%, transparent);
-  z-index: 2;
-}
-
-/* Yield tile — subtle accent tint: green = verified positive signal only */
-.pf-sp2-tile--yield {
-  /* Background tint removed to avoid "green veil" — signal carried by icon/value */
-}
-
-.pf-sp2-tile--yield:hover {
-  background: var(--ct-surface-3);
-}
-
-.pf-sp2-tile__icon,
-.pf-sp2-proof__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-6);
-  height: var(--ct-space-6);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-tertiary);
-  flex-shrink: 0;
-}
-
-.pf-sp2-tile__icon {
-  background: var(--ct-surface-3);
-  margin-bottom: var(--ct-space-0_5);
-}
-
-.pf-sp2-tile__icon--accent {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 9%, var(--ct-surface-3));
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
-}
-
-.pf-sp2-tile__label,
-.pf-sp2-proof__name {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-}
-
-.pf-sp2-tile__label {
-  line-height: var(--ct-leading-none);
-}
-
-.pf-sp2-tile__value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-  white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pf-sp2-tile__value--accent {
-  color: var(--ct-accent);
-}
-
-.pf-sp2-tile__value--dim {
-  color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-40);
-  font-weight: var(--ct-font-light);
-}
-
-.pf-sp2-tile__sub {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  line-height: var(--ct-leading-tight);
-  white-space: nowrap;
-  opacity: var(--ct-opacity-70);
-}
-
-/* Proof strip — full width, bottom */
-.pf-sp2-proof {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2_5);
-  padding: var(--ct-space-2_5) var(--ct-space-5);
-  border-top: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  flex: 0 0 auto;
-  min-width: 0;
-}
-
-.pf-sp2-proof--live {
-  /* Background tint removed to avoid "green veil" — signal carried by icon/status */
-  border-top-color: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-border-soft));
-}
-
-.pf-sp2-proof__icon {
-  background: var(--ct-surface-2);
-}
-
-.pf-sp2-proof__icon--live {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-2));
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
-}
-
-.pf-sp2-proof__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-px);
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.pf-sp2-proof__name {
-  /* Inherits from common rule above */
-}
-
-.pf-sp2-proof__status {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-tight);
-}
-
-.pf-sp2-proof__status--live {
-  color: var(--ct-accent);
-}
-
-.pf-sp2-proof__date {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-  flex-shrink: 0;
-  opacity: var(--ct-opacity-70);
-}
 
 /* ── Recent Activity — premium zero-state ──────────────────────────────────── */
 .pf-activity-zero {
@@ -3312,7 +3624,7 @@
   gap: var(--ct-space-3);
   width: 100%;
   margin-bottom: var(--ct-space-6);
-  opacity: 0.15; /* Reduced opacity for more subtlety */
+  opacity: 0.35;
 }
 
 .pf-activity-zero__ghost-row {
@@ -3340,51 +3652,6 @@
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-2);
-}
-
-/* ── Position cards — premium rewrite ─────────────────────────────────────── */
-
-.pf-position-card {
-  display: block;
-  border-radius: var(--ct-radius-lg);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 18%, transparent);
-  transition: background var(--ct-dur-base) var(--ct-ease),
-              border-color var(--ct-dur-base) var(--ct-ease),
-              transform var(--ct-dur-base) var(--ct-ease);
-  text-decoration: none;
-  animation: pf-card-entry 0.5s var(--ct-ease) both;
-}
-
-@keyframes pf-card-entry {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.pf-position-card:hover {
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  border-color: color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
-  transform: translateY(-1px);
-}
-
-.pf-position-card--active {
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-}
-
-.pf-position-card--active:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 28%, transparent);
-}
-
-.pf-position-card__chevron {
-  background: color-mix(in srgb, var(--ct-surface-2) 30%, transparent);
-  color: var(--ct-text-tertiary);
-  transition: background var(--ct-dur-fast) var(--ct-ease),
-              color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.pf-position-card:hover .pf-position-card__chevron {
-  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
-  color: var(--ct-text-secondary);
 }
 
 /* Empty state for positions */
@@ -3466,7 +3733,7 @@
   background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
   border-radius: var(--ct-radius-sm);
-  padding: 2px var(--ct-space-1_5);
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -3499,7 +3766,7 @@
 .pf-vc-header__row1 {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-2_5);
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -3516,7 +3783,7 @@
 .pf-vc-header__row2 {
   display: flex;
   align-items: baseline;
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-4);
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -3527,6 +3794,7 @@
   align-items: baseline;
   gap: var(--ct-space-1);
   min-width: 0;
+  flex: 0 0 auto;
 }
 
 .pf-vc-balance__sym {
@@ -3546,6 +3814,29 @@
   opacity: var(--ct-opacity-70);
   margin-left: var(--ct-space-0_5);
   align-self: baseline;
+}
+
+.pf-vc-header__row2 {
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.pf-vc-inline-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  min-width: 0;
+  margin-left: auto;
+  text-align: right;
+}
+
+.pf-vc-inline-note::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--ct-accent) 70%, transparent);
 }
 
 /* APY badge inline — sits on the same baseline as the balance. */
@@ -3573,6 +3864,11 @@
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
   opacity: var(--ct-opacity-70);
+}
+
+.pf-vc-apy__value {
+  color: var(--ct-accent);
+  font-weight: var(--ct-font-semibold);
 }
 
 /* Tooltip badge */
@@ -3782,9 +4078,9 @@
 }
 
 .pf-leaf-section-title {
-  font-size: var(--ct-text-base);
+  font-size: var(--ct-text-2xl);            /* canon .h2 — 18→22px (était base 16px) */
   font-weight: var(--ct-font-semibold);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);             /* canon .h2 — blanc (était accent vert) */
   margin: 0;
   letter-spacing: var(--ct-tracking-tight);
 }
@@ -3884,7 +4180,7 @@
   height: var(--ct-space-2_5);
   border-radius: 99px;
   overflow: hidden;
-  gap: 2px;
+  gap: var(--ct-space-0_5);
 }
 
 .pf-leaf-alloc-bar-seg {
@@ -4394,3 +4690,4 @@
   .pf-leaf-bucket-row .pf-leaf-bucket-num:last-child { display: none; }
   .pf-leaf-bucket-row--head .pf-leaf-bucket-num:last-child { display: none; }
 }
+

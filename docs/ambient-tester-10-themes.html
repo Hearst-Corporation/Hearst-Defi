@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hearst Corp - 10 Ambient Themes (Solid / No Transparency)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #FFFFFF;
+            background-color: #000000;
+            min-height: 100vh;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+
+        .header-title span {
+            color: #A7FB90;
+            font-weight: 500;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .theme-wrapper {
+            border-radius: 16px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 24px #000000;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .theme-name {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #FFFFFF;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .theme-desc {
+            font-size: 0.75rem;
+            margin-bottom: 24px;
+            text-align: center;
+            max-width: 240px;
+            z-index: 1;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 280px;
+            padding: 24px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            font-size: 0.9rem;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+        }
+
+        .card-stat {
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid;
+        }
+
+        .accent-text {
+            color: #A7FB90;
+            font-weight: 500;
+        }
+
+        .button {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            color: #FFFFFF;
+            transition: background-color 0.2s ease;
+        }
+
+        /* =========================================================
+           10 THEMES - STRICTLY SOLID HEX COLORS (NO RGBA, NO TRANSPARENCY)
+           NO GREEN SURFACES - GREEN ONLY ON THE ACCENT TEXT
+           ========================================================= */
+
+        /* 1. Corporate Obsidian (Deep tech, default institutional) */
+        .theme-1 { background-color: #0A0B0E; border: 1px solid #1A1C23; }
+        .theme-1 .theme-desc { color: #7A7C85; }
+        .theme-1 .card { background-color: #14151A; border: 1px solid #23252E; }
+        .theme-1 .card-header { color: #8A8D98; }
+        .theme-1 .card-stat { border-top-color: #23252E; }
+        .theme-1 .stat-label { color: #8A8D98; }
+        .theme-1 .button { background-color: #21232B; border: 1px solid #2E313D; }
+        .theme-1 .button:hover { background-color: #2E313D; }
+
+        /* 2. Deep Space (Cool, dark blue-grey, strictly neutral/cool, no green) */
+        .theme-2 { background-color: #040608; border: 1px solid #0B1017; }
+        .theme-2 .theme-desc { color: #667280; }
+        .theme-2 .card { background-color: #0B1017; border: 1px solid #141D29; }
+        .theme-2 .card-header { color: #828C99; }
+        .theme-2 .card-stat { border-top-color: #141D29; }
+        .theme-2 .stat-label { color: #828C99; }
+        .theme-2 .button { background-color: #1A2433; border: 1px solid #243247; }
+        .theme-2 .button:hover { background-color: #243247; }
+
+        /* 3. Sunset Glass (Warm bronze/orange undertones, opaque) */
+        .theme-3 { background-color: #0F0906; border: 1px solid #1A110A; }
+        .theme-3 .theme-desc { color: #806A59; }
+        .theme-3 .card { background-color: #1A110A; border: 1px solid #2B1D12; }
+        .theme-3 .card-header { color: #998A80; }
+        .theme-3 .card-stat { border-top-color: #2B1D12; }
+        .theme-3 .stat-label { color: #998A80; }
+        .theme-3 .button { background-color: #332316; border: 1px solid #45301E; }
+        .theme-3 .button:hover { background-color: #45301E; }
+
+        /* 4. Warm Wealth (Subtle warm taupe/sand, opaque) */
+        .theme-4 { background-color: #12100E; border: 1px solid #1F1C19; }
+        .theme-4 .theme-desc { color: #807B75; }
+        .theme-4 .card { background-color: #1C1916; border: 1px solid #2B2723; }
+        .theme-4 .card-header { color: #99938C; }
+        .theme-4 .card-stat { border-top-color: #2B2723; }
+        .theme-4 .stat-label { color: #99938C; }
+        .theme-4 .button { background-color: #36312C; border: 1px solid #4A433D; }
+        .theme-4 .button:hover { background-color: #4A433D; }
+
+        /* 5. AI Compute Void (High contrast purple-black) */
+        .theme-5 { background-color: #07040D; border: 1px solid #110A1F; }
+        .theme-5 .theme-desc { color: #706380; }
+        .theme-5 .card { background-color: #0F0A1A; border: 1px solid #1D1433; }
+        .theme-5 .card-header { color: #8C8299; }
+        .theme-5 .card-stat { border-top-color: #1D1433; }
+        .theme-5 .stat-label { color: #8C8299; }
+        .theme-5 .button { background-color: #261A42; border: 1px solid #36255C; }
+        .theme-5 .button:hover { background-color: #36255C; }
+
+        /* 6. Institutional Navy (Classic enterprise deep blue) */
+        .theme-6 { background-color: #060D1A; border: 1px solid #0B172E; }
+        .theme-6 .theme-desc { color: #6B7A99; }
+        .theme-6 .card { background-color: #0D1930; border: 1px solid #172D57; }
+        .theme-6 .card-header { color: #8294B2; }
+        .theme-6 .card-stat { border-top-color: #172D57; }
+        .theme-6 .stat-label { color: #8294B2; }
+        .theme-6 .button { background-color: #1E3661; border: 1px solid #294A85; }
+        .theme-6 .button:hover { background-color: #294A85; }
+
+        /* 7. Midnight Blue (Modern Fintech blue) */
+        .theme-7 { background-color: #03060D; border: 1px solid #080E1A; }
+        .theme-7 .theme-desc { color: #66748C; }
+        .theme-7 .card { background-color: #0A111F; border: 1px solid #121E36; }
+        .theme-7 .card-header { color: #7D8FA6; }
+        .theme-7 .card-stat { border-top-color: #121E36; }
+        .theme-7 .stat-label { color: #7D8FA6; }
+        .theme-7 .button { background-color: #1B2D4F; border: 1px solid #253D6B; }
+        .theme-7 .button:hover { background-color: #253D6B; }
+
+        /* 8. Pure OLED (Absolute zero black, white borders) */
+        .theme-8 { background-color: #000000; border: 1px solid #141414; }
+        .theme-8 .theme-desc { color: #666666; }
+        .theme-8 .card { background-color: #080808; border: 1px solid #212121; }
+        .theme-8 .card-header { color: #808080; }
+        .theme-8 .card-stat { border-top-color: #212121; }
+        .theme-8 .stat-label { color: #808080; }
+        .theme-8 .button { background-color: #262626; border: 1px solid #383838; }
+        .theme-8 .button:hover { background-color: #383838; }
+
+        /* 9. Matte Graphite (Flat dark gray) */
+        .theme-9 { background-color: #121212; border: 1px solid #1F1F1F; }
+        .theme-9 .theme-desc { color: #7A7A7A; }
+        .theme-9 .card { background-color: #1C1C1C; border: 1px solid #333333; }
+        .theme-9 .card-header { color: #999999; }
+        .theme-9 .card-stat { border-top-color: #333333; }
+        .theme-9 .stat-label { color: #999999; }
+        .theme-9 .button { background-color: #3D3D3D; border: 1px solid #525252; }
+        .theme-9 .button:hover { background-color: #525252; }
+
+        /* 10. Sovereign Silver (Metallic/Industrial undertones) */
+        .theme-10 { background-color: #0E0F11; border: 1px solid #1A1C1F; }
+        .theme-10 .theme-desc { color: #747780; }
+        .theme-10 .card { background-color: #16181A; border: 1px solid #282B30; }
+        .theme-10 .card-header { color: #8C9099; }
+        .theme-10 .card-stat { border-top-color: #282B30; }
+        .theme-10 .stat-label { color: #8C9099; }
+        .theme-10 .button { background-color: #31353B; border: 1px solid #434850; }
+        .theme-10 .button:hover { background-color: #434850; }
+
+    </style>
+</head>
+<body>
+
+    <h1 class="header-title">Hearst Connect <span>Solid Ambient Themes</span></h1>
+
+    <div class="grid-container">
+
+        <!-- Theme 1 -->
+        <div class="theme-wrapper theme-1">
+            <div class="theme-name">1. Corporate Obsidian</div>
+            <div class="theme-desc">Deep gray-blue. Standard institutional baseline.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 2 -->
+        <div class="theme-wrapper theme-2">
+            <div class="theme-name">2. Deep Space</div>
+            <div class="theme-desc">Neutral/cool dark slate. Completely free of green tints.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 3 -->
+        <div class="theme-wrapper theme-3">
+            <div class="theme-name">3. Sunset Glass</div>
+            <div class="theme-desc">Warm bronze/orange undertones for building reflections.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 4 -->
+        <div class="theme-wrapper theme-4">
+            <div class="theme-name">4. Warm Wealth</div>
+            <div class="theme-desc">Subtle warm taupe/sand. Classic private banking.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 5 -->
+        <div class="theme-wrapper theme-5">
+            <div class="theme-name">5. AI Compute Void</div>
+            <div class="theme-desc">High contrast purple-black for AI focus. Makes accent pop.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 6 -->
+        <div class="theme-wrapper theme-6">
+            <div class="theme-name">6. Institutional Navy</div>
+            <div class="theme-desc">Classic enterprise trust, deep banking navy blue.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 7 -->
+        <div class="theme-wrapper theme-7">
+            <div class="theme-name">7. Midnight Blue</div>
+            <div class="theme-desc">Modern Fintech blue. High contrast, very readable.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 8 -->
+        <div class="theme-wrapper theme-8">
+            <div class="theme-name">8. Pure OLED</div>
+            <div class="theme-desc">Absolute zero black background, pure greyscale UI.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 9 -->
+        <div class="theme-wrapper theme-9">
+            <div class="theme-name">9. Matte Graphite</div>
+            <div class="theme-desc">Classic flat fintech gray. Low contrast, high readability.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+        <!-- Theme 10 -->
+        <div class="theme-wrapper theme-10">
+            <div class="theme-name">10. Sovereign Silver</div>
+            <div class="theme-desc">Metallic/industrial undertones for infrastructure vibes.</div>
+            <div class="card">
+                <div class="card-header">Yield Vault</div>
+                <div class="card-value">$11.00</div>
+                <div class="card-stat">
+                    <span class="stat-label">Target APY</span>
+                    <span class="accent-text">8.0 - 15.0%</span>
+                </div>
+                <div class="button">View Details</div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

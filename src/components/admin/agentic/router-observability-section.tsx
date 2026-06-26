@@ -1,14 +1,13 @@
-// Admin · Agentic Control Tower — Router Observability section (presentational).
+// Admin · Agentic Control Tower — Router Observability (presentational).
 //
-// READ-ONLY. Compact view of the RouterObservabilitySummary: a one-line status
-// strip, stat cards, outcome trends, quality review, recent decisions table,
-// and long-term view. No write controls, no fake data, honest empty states.
-// Pure component — all data passed in, unit-testable.
+// READ-ONLY. Rewritten 2026-06-26 to fit the line/table console: a collapsible
+// group with an inline status + window selector, the stat counters as a facts
+// line, and the recent decisions as the shared dense table. No box grids, no
+// hardcoded values, honest empty/unavailable lines. Pure component.
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import { RouterObservabilityTrends } from "@/components/admin/agentic/router-observability-trends";
 import { RouterObservabilityLongTerm } from "@/components/admin/agentic/router-observability-longterm";
 import { RouterQualityReview } from "@/components/admin/agentic/router-quality-review";
@@ -30,16 +29,18 @@ const OUTCOME_LABEL: Record<string, string> = {
   unknown: "unknown",
 };
 
-type Tone = "success" | "warning" | "danger" | "default";
-
-function outcomeTone(outcome: string): Tone {
+function outcomeTone(outcome: string): AgenticTone {
   switch (outcome) {
     case "nav_fast_path":
-    case "educational_llm": return "success";
-    case "dangerous_refusal": return "danger";
+    case "educational_llm":
+      return "success";
+    case "dangerous_refusal":
+      return "danger";
     case "negated_no_nav":
-    case "legacy_fallback_nav": return "warning";
-    default: return "default";
+    case "legacy_fallback_nav":
+      return "warning";
+    default:
+      return "neutral";
   }
 }
 
@@ -57,7 +58,7 @@ const STORAGE_LABEL: Record<RouterObservabilityStorage, string> = {
   unavailable: "unavailable",
 };
 
-function storageTone(storage: RouterObservabilityStorage): Tone {
+function storageTone(storage: RouterObservabilityStorage): AgenticTone {
   if (storage === "durable") return "success";
   if (storage === "unavailable") return "danger";
   return "warning";
@@ -71,30 +72,18 @@ const AGGREGATION_LABEL: Record<RouterObservabilityAggregationMode, string> = {
 
 function WindowSelector({ current }: { current: RouterObservabilityWindow }) {
   return (
-    <div className="agentic-obs-windows" role="group" aria-label="Time window">
+    <span className="agentic-windowbar" role="group" aria-label="Time window">
       {WINDOWS.map((w) => (
         <Link
           key={w.value}
           href={`?routerWindow=${w.value}`}
           aria-current={w.value === current ? "true" : undefined}
-          className={cn(
-            "ct-pill body-xs",
-            w.value === current ? "accent" : "ct-text-muted",
-          )}
+          className={cn("ct-pill body-xs", w.value === current ? "accent" : "ct-text-muted")}
         >
           {w.label}
         </Link>
       ))}
-    </div>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="agentic-obs-stat">
-      <span className="agentic-obs-stat-value tabular-nums">{value}</span>
-      <span className="body-xs ct-text-muted">{label}</span>
-    </div>
+    </span>
   );
 }
 
@@ -105,58 +94,23 @@ function shortTime(iso: string): string {
 
 function DecisionRow({ trace }: { trace: RouterDecisionTrace }) {
   return (
-    <tr className="border-b border-(--ct-border-soft) last:border-0 align-top">
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-faint tabular-nums whitespace-nowrap">
+    <tr>
+      <td className="agentic-cell-faint tabular-nums whitespace-nowrap">
         {shortTime(trace.createdAt)}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-body">
-        {trace.kind}
-      </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted">
-        {trace.actionPolicy}
-      </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] whitespace-nowrap">
-        <Badge variant={outcomeTone(trace.outcome)}>
+      <td className="agentic-cell-strong">{trace.kind}</td>
+      <td className="agentic-cell-muted">{trace.actionPolicy}</td>
+      <td className="whitespace-nowrap">
+        <AgenticTag tone={outcomeTone(trace.outcome)}>
           {OUTCOME_LABEL[trace.outcome] ?? trace.outcome}
-        </Badge>
-        {trace.negated && (
-          <span className="body-xs ct-text-faint"> · negated</span>
-        )}
+        </AgenticTag>
+        {trace.negated && <span className="agentic-cell-faint"> · negated</span>}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted tabular-nums">
+      <td className="agentic-cell-muted tabular-nums">
         {typeof trace.confidence === "number" ? trace.confidence.toFixed(2) : "—"}
       </td>
-      <td className="py-[var(--ct-space-2)] body-xs ct-text-muted font-mono break-words">
-        {trace.routeKey ?? "—"}
-      </td>
+      <td className="agentic-cell-muted agentic-cell-mono">{trace.routeKey ?? "—"}</td>
     </tr>
-  );
-}
-
-function SectionShell({
-  children,
-  current,
-}: {
-  children: React.ReactNode;
-  current: RouterObservabilityWindow;
-}) {
-  return (
-    <section
-      id="router-observability"
-      className="agentic-stack"
-      aria-label="Router Observability"
-    >
-      <div className="agentic-section-head">
-        <div className="agentic-obs-title-row">
-          <h2 className="agentic-section-title m-0">Observability</h2>
-          <WindowSelector current={current} />
-        </div>
-        <p className="body-sm ct-text-muted m-0">
-          Read-only metadata about what the router did on recent chat turns. No message text, no secrets.
-        </p>
-      </div>
-      {children}
-    </section>
   );
 }
 
@@ -169,16 +123,16 @@ export function RouterObservabilitySection({
 
   if (!summary || summary.state === "unavailable") {
     return (
-      <SectionShell current={current}>
-        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
-          <div className="agentic-obs-status-row">
-            <Badge variant="danger">unavailable</Badge>
-            <span className="body-xs ct-text-muted">
-              Router trace storage is unavailable. Router behaviour is unaffected.
-            </span>
-          </div>
-        </Card>
-      </SectionShell>
+      <AgenticGroup
+        id="router-observability"
+        title="Observability"
+        meta={<AgenticTag tone="danger">unavailable</AgenticTag>}
+        note="Read-only metadata about what the router did on recent chat turns. No message text, no secrets."
+      >
+        <p className="agentic-empty-line m-0">
+          Router trace storage is unavailable. Router behaviour is unaffected.
+        </p>
+      </AgenticGroup>
     );
   }
 
@@ -195,66 +149,78 @@ export function RouterObservabilitySection({
     aggregationMode,
   } = summary;
 
+  const facts: { id: string; label: string; value: number; tone?: AgenticTone }[] = [
+    { id: "total", label: "Decisions", value: stats.total },
+    { id: "nav", label: "Nav fast-paths", value: stats.navigationFastPaths, tone: "success" },
+    { id: "refusal", label: "Dangerous refusals", value: stats.dangerousRefusals, tone: "danger" },
+    { id: "edu", label: "Educational", value: stats.educationalTurns, tone: "success" },
+    { id: "negated", label: "Negated", value: stats.negatedNoNav, tone: "warning" },
+    {
+      id: "normal",
+      label: "Normal / unknown",
+      value: (stats.byOutcome.normal_llm ?? 0) + (stats.byOutcome.unknown ?? 0),
+    },
+  ];
+
   return (
-    <SectionShell current={current}>
-      {/* Compact status strip — section-level badges only */}
-      <div className="agentic-obs-status-strip">
-        <Badge variant={state === "enabled" ? "success" : "default"}>{state}</Badge>
-        <Badge variant={storageTone(storage)}>
+    <AgenticGroup
+      id="router-observability"
+      title="Observability"
+      count={stats.total}
+      meta={<WindowSelector current={current} />}
+      note="Read-only metadata about what the router did on recent chat turns. No message text, no secrets."
+    >
+      {/* Status strip — inline tags, one line. */}
+      <p className="agentic-section-caption">
+        <AgenticTag tone={state === "enabled" ? "success" : "neutral"}>{state}</AgenticTag>{" "}
+        <AgenticTag tone={storageTone(storage)}>
           {storage === "durable" && activeWindow === "30d" ? "durable 30d" : STORAGE_LABEL[storage]}
-        </Badge>
+        </AgenticTag>{" "}
         {aggregationMode && aggregationMode !== "sql" && (
-          <Badge variant="warning">{AGGREGATION_LABEL[aggregationMode]}</Badge>
-        )}
-        <span className="agentic-obs-status-meta">
+          <AgenticTag tone="warning">{AGGREGATION_LABEL[aggregationMode]}</AgenticTag>
+        )}{" "}
+        <span className="agentic-cell-faint">
           {privacyMode}
           {retentionNote ? ` · ${retentionNote}` : ""}
           {windowLimitationNote ? ` · ${windowLimitationNote}` : ""}
           {retentionPolicyNote ? ` · ${retentionPolicyNote}` : ""}
         </span>
-      </div>
+      </p>
 
-      {/* Stat summary */}
-      <div className="agentic-obs-stats">
-        <StatCard label="Decisions" value={stats.total} />
-        <StatCard label="Nav fast-paths" value={stats.navigationFastPaths} />
-        <StatCard label="Dangerous refusals" value={stats.dangerousRefusals} />
-        <StatCard label="Educational" value={stats.educationalTurns} />
-        <StatCard label="Negated" value={stats.negatedNoNav} />
-        <StatCard label="Normal / unknown" value={(stats.byOutcome.normal_llm ?? 0) + (stats.byOutcome.unknown ?? 0)} />
-      </div>
+      {/* Counters as a facts line. */}
+      <header className="agentic-statusline" aria-label="Observability counters">
+        {facts.map((f) => (
+          <span key={f.id} className="agentic-statusline-fact">
+            <span className="agentic-statusline-fact-value" data-tone={f.tone}>
+              {f.value}
+            </span>
+            <span className="agentic-statusline-fact-label">{f.label}</span>
+          </span>
+        ))}
+      </header>
 
-      {/* Recent decisions table — table-first: the operational record leads. */}
+      {/* Recent decisions — shared dense table. */}
       {state === "empty" || recent.length === 0 ? (
-        <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-2)]">
-          <Badge variant="default">empty</Badge>
-          <p className="body-xs ct-text-muted">
-            No router traces in this window. Send chat traffic or widen the window.
-          </p>
-        </Card>
+        <p className="agentic-empty-line m-0">
+          No router traces in this window. Send chat traffic or widen the window.
+        </p>
       ) : (
-        <Card hoverOverlay={false} material="flat" density="compact" contentClassName="overflow-x-auto">
-          <table className="agentic-obs-decisions w-full text-left">
-            <thead>
-              <tr className="border-b border-(--ct-border-strong)">
-                {["Time", "Kind", "Policy", "Outcome", "Conf.", "Route"].map((h) => (
-                  <th key={h} className="stat-label ct-text-muted whitespace-nowrap pb-[var(--ct-space-2)] pr-[var(--ct-space-3)]">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {recent.map((t) => (
-                <DecisionRow key={t.id} trace={t} />
+        <table className="agentic-table">
+          <thead>
+            <tr>
+              {["Time", "Kind", "Policy", "Outcome", "Conf.", "Route"].map((h) => (
+                <th key={h}>{h}</th>
               ))}
-            </tbody>
-          </table>
-        </Card>
+            </tr>
+          </thead>
+          <tbody>
+            {recent.map((t) => (
+              <DecisionRow key={t.id} trace={t} />
+            ))}
+          </tbody>
+        </table>
       )}
 
-      {/* Outcome distribution + top matched rules (+ a trend chart only when the
-          sample is large enough to read). Single home for top matched rules. */}
       {state === "enabled" && recent.length > 0 && (
         <RouterObservabilityTrends
           window={summary.trendWindow}
@@ -267,6 +233,6 @@ export function RouterObservabilitySection({
       <RouterQualityReview review={summary.qualityReview} />
 
       {summary.longTerm && <RouterObservabilityLongTerm longTerm={summary.longTerm} />}
-    </SectionShell>
+    </AgenticGroup>
   );
 }

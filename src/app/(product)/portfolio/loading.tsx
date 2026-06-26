@@ -1,11 +1,10 @@
 import "./portfolio.css";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/cn";
 
-function FusedSkeleton({ variant }: { variant: "mid" | "deck" }) {
+function FusedSkeleton() {
   return (
-    <div className={cn("pf-fused-surface", `pf-fused-surface--${variant}`)}>
+    <div className="pf-fused-surface pf-fused-surface--deck">
       <div className="pf-fused-surface__pane">
         <div className="pf-embedded-pane">
           <div className="pf-cockpit-panel__header">
@@ -60,15 +59,20 @@ function FusedSkeleton({ variant }: { variant: "mid" | "deck" }) {
   );
 }
 
-/** Mirrors the live cockpit bento (hero + mid + deck). */
+/** Mirrors the live cockpit structure (hero + yield + deck + positions). */
 export default function PortfolioLoading() {
   return (
-    <div className="pf-container pf-container--fit animate-in fade-in duration-(--ct-dur-slower)" style={{ 
-      background: "radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--ct-accent) 3%, transparent), var(--ct-surface-2) 60%)" 
-    }}>
-      <div className="pf-greeting">
-        <Skeleton className="pf-skeleton-greeting-title" />
-        <Skeleton className="pf-skeleton-greeting-ticker" />
+    <div className="pf-container animate-in fade-in duration-(--ct-dur-slower)">
+      <div className="product-page-header pf-greeting" aria-hidden="true">
+        <div className="product-page-header__row">
+          <div className="product-page-header__main">
+            <div className="product-page-header__title-stack">
+              <Skeleton className="pf-skeleton-greeting-title" />
+              <Skeleton className="pf-skeleton-greeting-ticker" />
+            </div>
+          </div>
+        </div>
+        <div className="page-canon-rule" />
       </div>
 
       <div className="pf-cockpit">
@@ -149,7 +153,7 @@ export default function PortfolioLoading() {
         </div>
 
         <div className="pf-cockpit-row pf-cockpit-row--deck">
-          <FusedSkeleton variant="deck" />
+          <FusedSkeleton />
         </div>
 
         <div className="pf-cockpit-row pf-cockpit-row--positions">

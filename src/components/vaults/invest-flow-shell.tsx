@@ -28,10 +28,11 @@ interface InvestFlowShellProps {
 
 export function InvestFlowShell({
   step,
+  // `contextLabel` stays on the interface (call-sites still pass it) but is no
+  // longer rendered — the context kicker sub-title was removed.
   title,
   titleLead,
   titleAccent,
-  contextLabel = "Investment Flow",
   description,
   lead,
   media,
@@ -53,26 +54,6 @@ export function InvestFlowShell({
     className,
   );
 
-  // #region agent log
-  fetch("http://127.0.0.1:7746/ingest/5c5b4e5a-0fc3-4328-87e5-3f1273cb02d8", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "7fd9dc" },
-    body: JSON.stringify({
-      sessionId: "7fd9dc",
-      location: "invest-flow-shell.tsx:render",
-      message: "InvestFlowShell grammar",
-      data: {
-        step,
-        workspace,
-        hasWorkspaceClass: shellClasses.includes("invest-flow-shell--workspace"),
-        contextLabel,
-      },
-      timestamp: Date.now(),
-      hypothesisId: "A",
-    }),
-  }).catch(() => {});
-  // #endregion
-
   return (
     <div className={shellClasses}>
       <ProductPageHeader
@@ -85,17 +66,12 @@ export function InvestFlowShell({
         actions={actions}
         align={align}
         className={cn(headerClassName, "mb-0")}
-        beforeRule={
-          <div className="invest-flow-shell__stepper">
-            <div className="invest-flow-shell__stepper-row">
-              {contextLabel ? (
-                <p className="page-canon-kicker">{contextLabel}</p>
-              ) : null}
-              <StepProgress active={step} />
-            </div>
-            {headerBelowStepper}
+        titleRowEnd={
+          <div className="invest-flow-shell__stepper invest-flow-shell__stepper--inline">
+            <StepProgress active={step} />
           </div>
         }
+        beforeRule={headerBelowStepper}
       />
 
       <div className="invest-flow-shell__body">

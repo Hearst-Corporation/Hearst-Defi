@@ -1,11 +1,11 @@
 // Admin · Agentic Control Center — Router Observability TRENDS (presentational).
 //
-// READ-ONLY. Renders time-bucketed outcome trends, an outcome distribution, and
-// the top matched rules, all derived from the existing capped trace buffer. NO
-// write controls, NO forms, NO inputs — window selection lives in the parent
-// Observability section header. Dependency-free bars built from DS tokens only.
+// READ-ONLY. Renders the time-bucketed outcome trend, the outcome distribution,
+// and the top matched rules — all derived from the existing capped trace buffer
+// — as dense token-only tables. NO write controls, NO forms, NO inputs: window
+// selection lives in the parent Observability section header.
 
-import { Card } from "@/components/ui/card";
+import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type {
   RouterDecisionTrendBucket,
   RouterMatchedRuleStat,
@@ -19,7 +19,7 @@ const WINDOW_LABEL: Record<RouterTrendWindow, string> = {
   "30d": "30d",
 };
 
-// Outcome categories shown in the stacked bars + distribution, in render order.
+// Outcome categories shown in the distribution + trend, in render order.
 const CATEGORIES: {
   key: keyof Pick<
     RouterDecisionTrendBucket,
@@ -30,16 +30,16 @@ const CATEGORIES: {
     | "normalOrUnknown"
   >;
   label: string;
-  token: string;
+  tone: AgenticTone;
 }[] = [
-  { key: "navigationFastPaths", label: "Nav fast-path", token: "var(--ct-accent)" },
-  { key: "dangerousRefusals", label: "Refusal", token: "var(--ct-status-danger)" },
-  { key: "educationalTurns", label: "Educational", token: "var(--ct-status-success)" },
-  { key: "negatedNoNav", label: "Negated", token: "var(--ct-status-warning)" },
-  { key: "normalOrUnknown", label: "Normal", token: "var(--ct-text-faint)" },
+  { key: "navigationFastPaths", label: "Nav fast-path", tone: "accent" },
+  { key: "dangerousRefusals", label: "Refusal", tone: "danger" },
+  { key: "educationalTurns", label: "Educational", tone: "success" },
+  { key: "negatedNoNav", label: "Negated", tone: "warning" },
+  { key: "normalOrUnknown", label: "Normal", tone: "neutral" },
 ];
 
-/** Show sparse x-axis ticks so hourly/daily labels do not overlap. */
+/** Show sparse trend rows so hourly/daily buckets do not overwhelm the table. */
 function shouldShowBucketLabel(index: number, total: number): boolean {
   if (total <= 8) return true;
   if (total <= 12) return index % 2 === 0 || index === total - 1;
@@ -47,99 +47,19 @@ function shouldShowBucketLabel(index: number, total: number): boolean {
   return index % 6 === 0 || index === total - 1;
 }
 
-function TrendBar({
-  bucket,
-  max,
-  showLabel,
-}: {
-  bucket: RouterDecisionTrendBucket;
-  max: number;
-  showLabel: boolean;
-}) {
-  const heightPct = max > 0 ? Math.round((bucket.total / max) * 100) : 0;
+/** A token-only magnitude/share bar for a table cell. Width via CSS var, no hex. */
+function CellBar({ pct, tone }: { pct: number; tone?: AgenticTone }) {
   return (
-    <div className="agentic-obs-trend-bar" title={`${bucket.label}: ${bucket.total} decisions`}>
-      <div className="agentic-obs-trend-bar-track">
-        {bucket.total === 0 ? (
-          <div
-            className="w-full"
-            style={{ height: "2px", background: "var(--ct-border-soft)" }}
-            aria-hidden
-          />
-        ) : (
-          CATEGORIES.map((c) => {
-            const v = bucket[c.key];
-            if (v <= 0) return null;
-            const segPct = (v / bucket.total) * heightPct;
-            return (
-              <div
-                key={c.key}
-                className="w-full"
-                style={{ height: `${segPct}%`, background: c.token }}
-              />
-            );
-          })
-        )}
-      </div>
+    <span
+      className="agentic-bar"
+      style={{ ["--agentic-bar-pct" as string]: `${pct}%` }}
+      aria-hidden
+    >
       <span
-        className={
-          showLabel
-            ? "agentic-obs-trend-label tabular-nums"
-            : "agentic-obs-trend-label agentic-obs-trend-label--spacer tabular-nums"
-        }
-        aria-hidden={!showLabel}
-      >
-        {bucket.label}
-      </span>
-    </div>
-  );
-}
-
-function Legend() {
-  return (
-    <div className="agentic-obs-legend" aria-label="Outcome categories">
-      {CATEGORIES.map((c) => (
-        <span key={c.key} className="agentic-obs-legend-item">
-          <span
-            aria-hidden
-            className="agentic-obs-legend-swatch"
-            style={{ background: c.token }}
-          />
-          {c.label}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function DistributionRow({
-  label,
-  token,
-  value,
-  total,
-}: {
-  label: string;
-  token: string;
-  value: number;
-  total: number;
-}) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-  return (
-    <div className="agentic-obs-dist-row">
-      <div className="admin-doc-inline-row admin-doc-inline-row--start">
-        <span className="body-xs ct-text-body flex-1 min-w-0">{label}</span>
-        <span className="body-xs ct-text-muted tabular-nums whitespace-nowrap">
-          {value} · {pct}%
-        </span>
-      </div>
-      <div className="agentic-obs-dist-track">
-        <div
-          className="h-full"
-          style={{ width: `${pct}%`, background: token }}
-          aria-hidden
-        />
-      </div>
-    </div>
+        className="agentic-bar-fill"
+        data-tone={tone && tone !== "neutral" ? tone : undefined}
+      />
+    </span>
   );
 }
 
@@ -158,11 +78,11 @@ export function RouterObservabilityTrends({
   const maxBucket = buckets.reduce((m, b) => Math.max(m, b.total), 0);
   const filledBuckets = buckets.reduce((n, b) => n + (b.total > 0 ? 1 : 0), 0);
 
-  // Only render the time-bucketed bar chart when the sample is large enough to
-  // read. With a handful of decisions spread over 24 buckets the chart is a row
-  // of empty slots with overlapping axis labels — show a "low sample" line and
-  // let the distribution rows below carry the signal instead.
-  const showBars = windowTotal >= 12 && filledBuckets >= 3;
+  // Only render the time-bucketed trend rows when the sample is large enough to
+  // read. With a handful of decisions spread over 24 buckets the trend is a wall
+  // of empty rows — show a "low sample" line and let the distribution carry it.
+  const showTrend = windowTotal >= 12 && filledBuckets >= 3;
+  const trendRows = buckets.filter((_, i) => shouldShowBucketLabel(i, buckets.length));
 
   const dist = CATEGORIES.map((c) => ({
     ...c,
@@ -170,86 +90,119 @@ export function RouterObservabilityTrends({
   }));
 
   return (
-    <Card
-      hoverOverlay={false}
-      density="compact"
-      aria-label="Router Observability trends"
-      contentClassName="agentic-obs-trends-module"
-    >
-      <div className="agentic-obs-trends-head">
-        <span className="stat-label ct-text-muted m-0">Outcome trend</span>
-        <span className="body-xs ct-text-faint tabular-nums">
-          {windowTotal} decision{windowTotal === 1 ? "" : "s"} · {WINDOW_LABEL[window]}
-        </span>
-      </div>
+    <div className="agentic-trends" aria-label="Router Observability trends">
+      {/* Outcome trend — compact time-bucketed table. */}
+      <details className="agentic-rowdetail" open>
+        <summary className="agentic-rowdetail-summary">
+          Outcome trend
+          <span className="agentic-cell-faint tabular-nums">
+            {" · "}
+            {windowTotal} decision{windowTotal === 1 ? "" : "s"} · {WINDOW_LABEL[window]}
+          </span>
+        </summary>
+        <div className="agentic-rowdetail-body">
+          {windowTotal === 0 ? (
+            <p className="agentic-empty-line m-0">
+              No router decisions in this window yet. Pick a wider window or send
+              chat traffic to populate the trend.
+            </p>
+          ) : showTrend ? (
+            <table className="agentic-table">
+              <thead>
+                <tr>
+                  <th>Bucket</th>
+                  <th>Decisions</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trendRows.map((b) => {
+                  const pct = maxBucket > 0 ? Math.round((b.total / maxBucket) * 100) : 0;
+                  return (
+                    <tr key={b.start}>
+                      <td className="agentic-cell-mono">{b.label}</td>
+                      <td className="agentic-cell-num">{b.total}</td>
+                      <td>
+                        <CellBar pct={pct} tone="accent" />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p className="agentic-empty-line m-0">
+              Low sample ({windowTotal} decision{windowTotal === 1 ? "" : "s"} over{" "}
+              {WINDOW_LABEL[window]}) — a time trend needs more traffic to read.
+              The distribution below summarises the outcomes.
+            </p>
+          )}
+        </div>
+      </details>
 
+      {/* Outcome distribution — one row per category. */}
+      <p className="agentic-section-caption">Outcome distribution</p>
       {windowTotal === 0 ? (
-        <p className="body-xs ct-text-muted m-0">
-          No router decisions in this window yet. Pick a wider window or send chat
-          traffic to populate the trend.
-        </p>
-      ) : showBars ? (
-        <>
-          <div className="agentic-obs-trend-bars">
-            {buckets.map((b, i) => (
-              <TrendBar
-                key={b.start}
-                bucket={b}
-                max={maxBucket}
-                showLabel={shouldShowBucketLabel(i, buckets.length)}
-              />
-            ))}
-          </div>
-          <Legend />
-        </>
+        <p className="agentic-empty-line m-0">No decisions to distribute.</p>
       ) : (
-        <p className="body-xs ct-text-faint m-0">
-          Low sample ({windowTotal} decision{windowTotal === 1 ? "" : "s"} over{" "}
-          {WINDOW_LABEL[window]}) — a time trend needs more traffic to read. The
-          distribution below summarises the outcomes.
-        </p>
+        <table className="agentic-table">
+          <thead>
+            <tr>
+              <th>Outcome</th>
+              <th>Count</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dist.map((d) => {
+              const pct = windowTotal > 0 ? Math.round((d.value / windowTotal) * 100) : 0;
+              return (
+                <tr key={d.key} data-tone={d.tone === "neutral" ? undefined : d.tone}>
+                  <td className="agentic-cell-strong">
+                    <AgenticTag tone={d.tone}>{d.label}</AgenticTag>
+                  </td>
+                  <td className="agentic-cell-num">{d.value}</td>
+                  <td>
+                    <div className="admin-doc-inline-row admin-doc-inline-row--start">
+                      <CellBar pct={pct} tone={d.tone} />
+                      <span className="agentic-cell-muted tabular-nums whitespace-nowrap">
+                        {pct}%
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       )}
 
-      <div className="agentic-obs-side-grid">
-        <div className="agentic-obs-subpanel">
-          <span className="stat-label ct-text-muted">Outcome distribution</span>
-          {windowTotal === 0 ? (
-            <p className="body-xs ct-text-faint m-0">No decisions to distribute.</p>
-          ) : (
-            dist.map((d) => (
-              <DistributionRow
-                key={d.key}
-                label={d.label}
-                token={d.token}
-                value={d.value}
-                total={windowTotal}
-              />
-            ))
-          )}
-        </div>
+      {/* Top matched rules — one row per rule. */}
+      <p className="agentic-section-caption">Top matched rules</p>
+      {topMatchedRules.length === 0 ? (
+        <p className="agentic-empty-line m-0">
+          No matched rules recorded in the buffer yet.
+        </p>
+      ) : (
+        <table className="agentic-table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topMatchedRules.map((r) => (
+              <tr key={r.ruleId}>
+                <td className="agentic-cell-mono">{r.ruleId}</td>
+                <td className="agentic-cell-num">{r.count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-        <div className="agentic-obs-subpanel">
-          <span className="stat-label ct-text-muted">Top matched rules</span>
-          {topMatchedRules.length === 0 ? (
-            <p className="body-xs ct-text-faint m-0">
-              No matched rules recorded in the buffer yet.
-            </p>
-          ) : (
-            <ul className="agentic-obs-rules-list">
-              {topMatchedRules.map((r) => (
-                <li key={r.ruleId} className="agentic-obs-rules-row">
-                  <span className="body-xs ct-text-body font-mono break-all flex-1 min-w-0">
-                    {r.ruleId}
-                  </span>
-                  <span className="body-xs ct-text-muted tabular-nums">{r.count}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-
-      <p className="body-xs ct-text-faint m-0">{bufferLimitNote}</p>
-    </Card>
+      <p className="agentic-section-caption agentic-cell-faint">{bufferLimitNote}</p>
+    </div>
   );
 }

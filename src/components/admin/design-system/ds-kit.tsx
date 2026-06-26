@@ -29,7 +29,7 @@ export function DsSection({
     <section id={id} className="ds-section" aria-labelledby={`${id}-title`}>
       <header className="ds-section__head">
         <p className="eyebrow">Section {index}</p>
-        <h2 id={`${id}-title`} className="h2 ct-text-strong">
+        <h2 id={`${id}-title`} className="h2">
           {title}
         </h2>
         {lead ? <p className="body-sm ct-text-muted max-w-prose">{lead}</p> : null}

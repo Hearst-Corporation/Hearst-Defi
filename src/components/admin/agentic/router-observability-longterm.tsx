@@ -1,19 +1,21 @@
-// Admin · Agentic Control Center — Router Observability LONG-TERM (presentational).
+// Admin · Agentic Control Tower — Router Observability LONG-TERM (presentational).
 //
-// READ-ONLY. Renders a RouterLongTermSummary as ONE compact module: header badges
-// + (when data) a short per-UTC-day bar strip beside the horizon-total rows. NO
-// write controls, NO forms, NO inputs. Honest "unavailable" state when the durable
-// store could not be read. Dependency-free bars, DS tokens only (no hardcoded hex).
-// Pure component — unit-testable via SSR.
+// READ-ONLY. Renders a RouterLongTermSummary as a nested disclosure inside the
+// Observability group: a per-UTC-day outcome table + a horizon-totals table with
+// token-only proportional bars. NO write controls, NO forms, NO inputs. Honest
+// "unavailable" / "empty" lines when the durable store has nothing to show.
+// Dense line/table vocabulary only, DS tokens only (no hardcoded hex). Pure
+// component — unit-testable via SSR.
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type {
   RouterLongTermDay,
   RouterLongTermSummary,
 } from "@/lib/agentic/observability/types";
 
-// Token-only category colors, render order top→bottom in the stacked bar.
+// Outcome categories, render order top→bottom. Each carries a tone that drives
+// the tag colour, the row rail, and the proportional bar fill — all token-only
+// via the shared .agentic-bar grammar (no literal hex, no inline colour).
 const CATEGORIES: {
   key: keyof Pick<
     RouterLongTermDay,
@@ -24,59 +26,14 @@ const CATEGORIES: {
     | "normalOrUnknown"
   >;
   label: string;
-  token: string;
+  tone: AgenticTone;
 }[] = [
-  { key: "navigationFastPaths", label: "Navigation fast-path", token: "var(--ct-accent)" },
-  { key: "dangerousRefusals", label: "Dangerous refusal", token: "var(--ct-status-danger)" },
-  { key: "educationalTurns", label: "Educational", token: "var(--ct-status-success)" },
-  { key: "negatedNoNav", label: "Negated · no nav", token: "var(--ct-status-warning)" },
-  { key: "normalOrUnknown", label: "Normal / unknown", token: "var(--ct-text-faint)" },
+  { key: "navigationFastPaths", label: "Navigation fast-path", tone: "accent" },
+  { key: "dangerousRefusals", label: "Dangerous refusal", tone: "danger" },
+  { key: "educationalTurns", label: "Educational", tone: "success" },
+  { key: "negatedNoNav", label: "Negated · no nav", tone: "warning" },
+  { key: "normalOrUnknown", label: "Normal / unknown", tone: "neutral" },
 ];
-
-/** A short per-day stacked bar — reuses the observability trend-bar grammar. */
-function DayBar({ day, max }: { day: RouterLongTermDay; max: number }) {
-  const heightPct = max > 0 ? Math.round((day.total / max) * 100) : 0;
-  return (
-    <div className="agentic-obs-trend-bar" title={`${day.date}: ${day.total} decisions`}>
-      <div className="agentic-obs-trend-bar-track">
-        {day.total === 0 ? (
-          <div
-            className="w-full"
-            style={{ height: "2px", background: "var(--ct-border-soft)" }}
-            aria-hidden
-          />
-        ) : (
-          CATEGORIES.map((c) => {
-            const v = day[c.key];
-            if (v <= 0) return null;
-            const segPct = (v / day.total) * heightPct;
-            return (
-              <div
-                key={c.key}
-                className="w-full"
-                style={{ height: `${segPct}%`, background: c.token }}
-              />
-            );
-          })
-        )}
-      </div>
-      <span className="agentic-obs-trend-label tabular-nums">{day.date.slice(5)}</span>
-    </div>
-  );
-}
-
-function Legend() {
-  return (
-    <div className="agentic-obs-legend" aria-label="Outcome categories">
-      {CATEGORIES.map((c) => (
-        <span key={c.key} className="agentic-obs-legend-item">
-          <span aria-hidden className="agentic-obs-legend-swatch" style={{ background: c.token }} />
-          {c.label}
-        </span>
-      ))}
-    </div>
-  );
-}
 
 export function RouterObservabilityLongTerm({
   longTerm,
@@ -85,76 +42,102 @@ export function RouterObservabilityLongTerm({
 }) {
   const { available, horizonDays, retention, days, total, totals, note } =
     longTerm;
-  const maxDay = days.reduce((m, d) => Math.max(m, d.total), 0);
 
   return (
-    <Card hoverOverlay={false} material="flat" density="compact" contentClassName="agentic-lt">
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
-        <span className="h3 m-0">Long-term</span>
-        <Badge variant={available ? "success" : "warning"}>
+    <details className="agentic-rowdetail">
+      <summary className="agentic-rowdetail-summary">
+        Long-term{" "}
+        <AgenticTag tone={available ? "success" : "danger"}>
           {available ? "durable" : "unavailable"}
-        </Badge>
-        <Badge variant="default">last {horizonDays}d</Badge>
-        <Badge variant="default">
+        </AgenticTag>{" "}
+        <AgenticTag tone="neutral">last {horizonDays}d</AgenticTag>{" "}
+        <AgenticTag tone="neutral">
           retention {retention.retentionDays}d
           {retention.fromEnv ? " · env" : " · default"}
-        </Badge>
-      </div>
-      <p className="body-xs ct-text-muted m-0">{note}</p>
+        </AgenticTag>
+      </summary>
 
-      {!available ? null : total === 0 ? (
-        <p className="body-xs ct-text-muted m-0">
-          No durable router traces in the last {horizonDays} days yet. Send chat
-          traffic to build long-term history.
-        </p>
-      ) : (
-        <div className="agentic-lt-body">
-          <div className="agentic-lt-block">
-            <span className="stat-label ct-text-muted">
+      <div className="agentic-rowdetail-body">
+        <p className="agentic-section-caption m-0">{note}</p>
+
+        {!available ? null : total === 0 ? (
+          <p className="agentic-empty-line m-0">
+            No durable router traces in the last {horizonDays} days yet. Send chat
+            traffic to build long-term history.
+          </p>
+        ) : (
+          <>
+            {/* Per-day outcomes — one dense row per UTC day. */}
+            <p className="agentic-section-caption m-0">
               Per-day outcomes ({total} total)
-            </span>
-            <div className="agentic-obs-trend-bars">
-              {days.map((d) => (
-                <DayBar key={d.date} day={d} max={maxDay} />
-              ))}
-            </div>
-            <Legend />
-          </div>
+            </p>
+            <table className="agentic-table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Total</th>
+                  {CATEGORIES.map((c) => (
+                    <th key={c.key}>{c.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {days.map((d) => (
+                  <tr key={d.date}>
+                    <td className="agentic-cell-strong agentic-cell-mono">{d.date}</td>
+                    <td className="agentic-cell-num agentic-cell-strong">{d.total}</td>
+                    {CATEGORIES.map((c) => (
+                      <td key={c.key} className="agentic-cell-num agentic-cell-muted">
+                        {d[c.key] > 0 ? d[c.key] : "—"}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          <div className="agentic-lt-block">
-            <span className="stat-label ct-text-muted">Horizon totals</span>
-            <table className="agentic-qr-table w-full">
+            {/* Horizon totals — share-of-decisions with a token-only bar. */}
+            <p className="agentic-section-caption m-0">Horizon totals</p>
+            <table className="agentic-table">
+              <thead>
+                <tr>
+                  <th>Outcome</th>
+                  <th>Share</th>
+                  <th>%</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
               <tbody>
                 {CATEGORIES.map((c) => {
                   const value = totals[c.key];
                   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
                   return (
-                    <tr key={c.key} className="agentic-qr-row">
-                      <td className="agentic-qr-rate-label body-xs ct-text-body">
-                        {c.label}
+                    <tr key={c.key} data-tone={c.tone === "neutral" ? undefined : c.tone}>
+                      <td className="agentic-cell-strong">
+                        <AgenticTag tone={c.tone}>{c.label}</AgenticTag>
                       </td>
-                      <td className="agentic-qr-bar-cell">
-                        <span className="agentic-qr-bar" aria-hidden>
+                      <td>
+                        <span
+                          className="agentic-bar"
+                          aria-hidden
+                          style={{ ["--agentic-bar-pct" as string]: `${pct}%` }}
+                        >
                           <span
-                            className="agentic-qr-bar-fill"
-                            style={{ width: `${pct}%`, background: c.token }}
+                            className="agentic-bar-fill"
+                            data-tone={c.tone === "neutral" ? undefined : c.tone}
                           />
                         </span>
                       </td>
-                      <td className="agentic-qr-pct body-xs ct-text-strong tabular-nums">
-                        {pct}%
-                      </td>
-                      <td className="agentic-qr-frac body-xs ct-text-faint tabular-nums">
-                        {value}
-                      </td>
+                      <td className="agentic-cell-num agentic-cell-strong">{pct}%</td>
+                      <td className="agentic-cell-num agentic-cell-faint">{value}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          </div>
-        </div>
-      )}
-    </Card>
+          </>
+        )}
+      </div>
+    </details>
   );
 }

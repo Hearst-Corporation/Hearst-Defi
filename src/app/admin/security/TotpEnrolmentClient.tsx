@@ -88,7 +88,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               width={200}
               height={200}
               unoptimized
-              className="security-totp-qr rounded-sm ct-surface-1"
+              className="security-totp-qr rounded-(--ct-radius-sm) ct-surface-1"
             />
           </div>
 
@@ -98,7 +98,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               Can&apos;t scan? Enter the key manually
             </summary>
             <p
-              className="security-totp-manual mono break-all rounded ct-surface-1 select-all"
+              className="security-totp-manual mono break-all rounded-(--ct-radius-sm) ct-surface-1 select-all"
             >
               {state.payload.secretBase32}
             </p>
@@ -163,7 +163,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
     <div className="admin-doc-stack admin-doc-stack--relaxed">
       {totpEnabled ? (
         <div className="admin-doc-inline-row">
-          <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-accent)]" />
+          <span className="ct-dot ct-status-dot-success" />
           <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
           </span>
@@ -171,7 +171,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
       ) : (
         <>
           <div className="admin-doc-inline-row">
-            <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-status-warning)]" />
+            <span className="ct-dot ct-status-dot-warning" />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.
             </span>

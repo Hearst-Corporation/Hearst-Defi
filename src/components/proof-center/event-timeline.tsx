@@ -92,7 +92,7 @@ function EventTimelineItem({
       <div className="min-w-0 flex-1 product-doc-stack product-doc-stack--compact">
         <div className="product-doc-inline-row">
           <Badge variant={KIND_VARIANT[event.kind]}>{KIND_LABEL[event.kind]}</Badge>
-          <span className="body-xs">Event #{event.eventId.toString()}</span>
+          <span className="body-xs ct-text-muted">Event #{event.eventId.toString()}</span>
         </div>
 
         <div className="proof-timeline-meta min-w-0">
@@ -101,21 +101,26 @@ function EventTimelineItem({
           </ProofRow>
           <ProofRow label="Block">{event.blockNumber.toString()}</ProofRow>
           <ProofRow label="Publisher">
-            <span title={event.publisher}>{abbreviateAddress(event.publisher)}</span>
+            <span title={event.publisher} className="ct-proof-row__truncate">
+              {abbreviateAddress(event.publisher)}
+            </span>
           </ProofRow>
           <ProofRow label="Tx hash">
             <a
               href={`${EXPLORER_TX_BASE}${event.txHash}`}
               target="_blank"
               rel="noreferrer noopener"
-              className={explorerLinkClass}
+              className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
               title={event.txHash}
+              aria-label={`View transaction ${event.txHash} on explorer`}
             >
-              {abbreviateAddress(event.txHash)}
+              <span className="ct-proof-row__truncate">
+                {abbreviateAddress(event.txHash)}
+              </span>
             </a>
           </ProofRow>
           <ProofRow label="Context hash">
-            <span className="ct-text-muted" title={event.contextHash}>
+            <span title={event.contextHash} className="ct-text-muted ct-proof-row__truncate">
               {abbreviateAddress(event.contextHash)}
             </span>
           </ProofRow>

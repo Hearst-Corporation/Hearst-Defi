@@ -18,6 +18,12 @@ export function ValueTooltip({ point }: ValueTooltipProps) {
   const yPct = (point.y / VB_H) * 100;
   const edgeClass = tooltipEdgeClass(point);
   const clipTop = yPct < 22;
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(point.date);
 
   return (
     <div
@@ -31,21 +37,12 @@ export function ValueTooltip({ point }: ValueTooltipProps) {
         <span className="pf-vc-tooltip__value tabular-nums">
           {formatUsdDetailed(point.value)}
         </span>
-        <div className="flex items-center justify-between gap-2">
-          <span className="pf-vc-tooltip__date">
-            {new Intl.DateTimeFormat("en-US", {
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-            }).format(point.date)}
-          </span>
-          {point.isDistribution && (
-            <span className="text-(length:--ct-text-micro) text-accent font-bold uppercase tracking-widest">
-              Yield
-            </span>
-          )}
-        </div>
+        <span className="pf-vc-tooltip__date">{formattedDate}</span>
+        {point.isDistribution ? (
+          <div className="pf-vc-tooltip__row">
+            <span className="pf-vc-tooltip__badge">Distribution</span>
+          </div>
+        ) : null}
       </div>
     </div>
   );

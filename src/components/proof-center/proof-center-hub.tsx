@@ -1,7 +1,6 @@
 import { resolveAttestationProvenance } from "@/components/proof-center/formatters";
 import type { Provenance as ProvenanceKind } from "@/components/ui/provenance-badge";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import type { ReactNode } from "react";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
@@ -78,7 +77,7 @@ function ProofHubCard({
   children,
 }: ProofHubCardProps) {
   return (
-    <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
+    <Card material="flat" className="h-full p-(--ct-space-6)" contentClassName="flex flex-col h-full">
       <DashboardPanelHeader
         eyebrow={eyebrow}
         title={title}

@@ -106,7 +106,6 @@ interface ProofArticleProps {
   description?: string;
   icon: React.ElementType;
   separated: boolean;
-  variant: "product" | "admin";
   children: React.ReactNode;
 }
 
@@ -115,33 +114,23 @@ function ProofArticle({
   description,
   icon: Icon,
   separated,
-  variant,
   children,
 }: ProofArticleProps) {
-  const admin = variant === "admin";
   return (
     <article
       className={cn(
-        admin ? "proof-list-row" : "proof-dataroom-item",
+        "proof-dataroom-item",
         separated && cn(sectionDividerClass, "proof-article-separated"),
       )}
     >
       <div className="flex items-start gap-(--ct-space-3)">
-        {!admin && (
-          <div className="proof-dataroom-icon-box" aria-hidden="true">
-            <Icon className="w-4 h-4 ct-text-muted" />
-          </div>
-        )}
+        <div className="proof-dataroom-icon-box" aria-hidden="true">
+          <Icon className="w-4 h-4 ct-text-muted" />
+        </div>
         <div className="min-w-0 flex-1">
-          {admin ? (
-            <h4 className="h4 m-0">{title}</h4>
-          ) : (
-            <>
-              <h4 className="h4 proof-article-title">{title}</h4>
-              {description && (
-                <p className="body-sm proof-article-lede">{description}</p>
-              )}
-            </>
+          <h4 className="h4 proof-article-title">{title}</h4>
+          {description && (
+            <p className="body-sm proof-article-lede">{description}</p>
           )}
           {children}
         </div>
@@ -153,11 +142,9 @@ function ProofArticle({
 function PlatformAddressRow({
   entry,
   separated,
-  variant = "product",
 }: {
   entry: PlatformAddressEntry;
   separated: boolean;
-  variant?: "product" | "admin";
 }) {
   return (
     <ProofArticle
@@ -165,7 +152,6 @@ function PlatformAddressRow({
       description={entry.description}
       icon={LinkIcon}
       separated={separated}
-      variant={variant}
     >
       <ProofRow label={entry.rowLabel ?? "Address"}>
         {entry.address ? (
@@ -199,20 +185,16 @@ function PlatformAddressRow({
 function DeployedContractCard({
   contract,
   separated,
-  variant = "product",
 }: {
   contract: DeployedContract;
   separated: boolean;
-  variant?: "product" | "admin";
 }) {
-  const admin = variant === "admin";
   return (
     <ProofArticle
       title={contract.name}
       description={contract.description}
       icon={ShieldCheck}
       separated={separated}
-      variant={variant}
     >
       <ProofRow label="Contract address">
         <a
@@ -251,31 +233,24 @@ function DeployedContractCard({
       <ProofRow label="Deploy block">{contract.deployBlock || "Pending"}</ProofRow>
       <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
 
-      <div
-        className={cn(
-          "proof-actions-row",
-          admin ? "flex items-center" : "product-doc-inline-row",
-        )}
-      >
+      <div className="proof-actions-row product-doc-inline-row">
         <Badge variant={contract.sourceVerified ? "success" : "warning"}>
           {contract.sourceVerified
             ? "Source-verified @ commit"
             : "Deployment provenance unverified"}
         </Badge>
-        {!admin && (
-          <Button asChild variant="secondary" size="md">
-            <a
-              href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-2"
-              aria-label={`View ${contract.name} on Basescan`}
-            >
-              View on Basescan
-              <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-            </a>
-          </Button>
-        )}
+        <Button asChild variant="secondary" size="md">
+          <a
+            href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-flex items-center gap-2"
+            aria-label={`View ${contract.name} on Basescan`}
+          >
+            View on Basescan
+            <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+          </a>
+        </Button>
       </div>
     </ProofArticle>
   );
@@ -283,50 +258,46 @@ function DeployedContractCard({
 
 export function ContractsAuditTrail({
   platformAddresses = [],
-  variant = "product",
 }: ContractsAuditTrailProps) {
   const deploymentsVerified = DEPLOYED_CONTRACTS.every((c) => c.sourceVerified);
-  const stackClass = variant === "admin" ? "admin-doc-stack admin-doc-stack--relaxed" : "product-doc-stack product-doc-stack--roomy";
-  const Container = variant === "admin" ? "div" : Card;
 
   return (
-    <div className={stackClass}>
+    <div className="product-doc-stack product-doc-stack--roomy">
       {platformAddresses.length > 0 ? (
-        <Container {...(variant === "admin" ? { className: "admin-doc-stack admin-doc-stack--compact" } : { material: "flat" })}>
+        <Card material="flat">
           <DashboardPanelHeader
             eyebrow="On-chain addresses"
             title="Vault, manager & custody scope"
             provenance="manual"
-            tone={variant === "admin" ? "quiet" : "primary"}
+            tone="primary"
           />
-          <div className={variant === "admin" ? "admin-doc-stack admin-doc-stack--tight" : ""}>
+          <div>
             {platformAddresses.map((entry, idx) => (
               <PlatformAddressRow
                 key={entry.label}
                 entry={entry}
-                separated={variant !== "admin" && idx > 0}
-                variant={variant}
+                separated={idx > 0}
               />
             ))}
           </div>
-        </Container>
+        </Card>
       ) : null}
 
-      <Container {...(variant === "admin" ? { className: "admin-doc-stack admin-doc-stack--compact" } : { material: "flat" })}>
+      <Card material="flat">
         <DashboardPanelHeader
           eyebrow="Deployed contracts · test network"
           title="Configured deployment addresses"
           provenance={deploymentsVerified ? "attested" : "manual"}
-          tone={variant === "admin" ? "quiet" : "primary"}
+          tone="primary"
         />
-        <div className={variant === "admin" ? "admin-doc-stack admin-doc-stack--relaxed" : ""}>
+        <div>
           {DEPLOYED_CONTRACTS.map((contract, idx) => (
-            <DeployedContractCard key={contract.address} contract={contract} separated={variant !== "admin" && idx > 0} variant={variant} />
+            <DeployedContractCard key={contract.address} contract={contract} separated={idx > 0} />
           ))}
         </div>
-      </Container>
+      </Card>
 
-      <Container {...(variant === "admin" ? { className: "admin-doc-stack admin-doc-stack--compact" } : { material: "flat" })}>
+      <Card material="flat">
         <DashboardPanelHeader
           eyebrow="Contract audit trail"
           title="Review status"
@@ -334,25 +305,20 @@ export function ContractsAuditTrail({
           tone="quiet"
         />
 
-        <ul className={cn("divide-y divide-(--ct-border-soft)", variant === "admin" && "border-t border-b border-(--ct-border-soft)")}>
+        <ul className="divide-y divide-(--ct-border-soft)">
           {AUDIT_ENTRIES.map((entry) => (
-            <li
-              key={entry.label}
-              className={cn("proof-list-row", variant === "admin" ? "px-(--ct-space-4)" : "product-doc-section__head")}
-            >
+            <li key={entry.label} className="proof-list-row product-doc-section__head">
               <div className="flex items-start gap-(--ct-space-3) w-full">
-                {variant === "admin" ? null : (
-                  <div className="proof-dataroom-icon-box mt-0.5">
-                    <FileText className="w-4 h-4 ct-text-muted" />
-                  </div>
-                )}
+                <div className="proof-dataroom-icon-box mt-0.5">
+                  <FileText className="w-4 h-4 ct-text-muted" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className={variant === "admin" ? "admin-doc-stack admin-doc-stack--micro" : "product-doc-stack--compact"}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-(--ct-space-3)">
+                    <div className="product-doc-stack--compact">
                       <span className="body-sm font-medium ct-text-primary">{entry.label}</span>
                       <span className="body-xs">{entry.status}</span>
                     </div>
-                    <div className={variant === "admin" ? "flex items-center gap-3" : "product-doc-inline-row shrink-0"}>
+                    <div className="product-doc-inline-row shrink-0">
                       <Badge variant={entry.variant}>{auditBadgeLabel(entry)}</Badge>
                       {entry.href !== null ? (
                         <Button asChild variant="secondary" size="md">
@@ -376,7 +342,7 @@ export function ContractsAuditTrail({
           ))}
         </ul>
 
-        <div className={cn("proof-release-gate", variant === "admin" ? "admin-doc-stack admin-doc-stack--tight px-(--ct-space-4) pb-(--ct-space-4)" : "product-doc-stack product-doc-stack--tight")}>
+        <div className="proof-release-gate product-doc-stack product-doc-stack--tight">
           <p className="stat-label m-0">Release gate</p>
           <p className="body-xs ct-text-muted m-0">
             Production (mainnet) deployment requires completion of an
@@ -385,7 +351,7 @@ export function ContractsAuditTrail({
             completed.
           </p>
         </div>
-      </Container>
+      </Card>
     </div>
   );
 }

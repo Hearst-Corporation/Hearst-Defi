@@ -3,14 +3,12 @@ import Link from "next/link";
 
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { ApyRange } from "@/components/ui/apy-range";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
-import {
-  VAULT_STATUS_VARIANT,
-  vaultStatusLabel,
-} from "@/lib/constants/vault";
+import { vaultStatusLabel } from "@/lib/constants/vault";
+import { cn } from "@/lib/cn";
 import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
@@ -40,27 +38,40 @@ function nonLiveNote(status: VaultProduct["status"]): string {
   }
 }
 
+/** Single supporting line under the CTA — what the next step actually is. */
+function ctaSupportLine(isLive: boolean): string {
+  return isLive
+    ? "Step 3 — confirm your ticket and funding details next. No funds move yet."
+    : "Browse the other Hearst products while this one finalizes.";
+}
+
 function InvestCta({
   isLive,
   investHref,
-  size = "md",
-  className,
 }: {
   isLive: boolean;
   investHref: string;
-  size?: "md" | "lg";
-  className?: string;
 }) {
   if (isLive) {
     return (
-      <Button variant="primary" size={size} asChild className={className}>
+      <Button
+        variant="primary"
+        size="lg"
+        asChild
+        className="vault-summary__cta-btn"
+      >
         <Link href={investHref}>Continue to deposit</Link>
       </Button>
     );
   }
 
   return (
-    <Button variant="secondary" size={size} asChild className={className}>
+    <Button
+      variant="secondary"
+      size="lg"
+      asChild
+      className="vault-summary__cta-btn"
+    >
       <Link href={INVEST_SELECT_PATH}>Browse other products</Link>
     </Button>
   );
@@ -85,7 +96,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       workspace
       titleLead={titleLead}
       titleAccent={titleAccent}
-      contextLabel="Vault Detail"
+      contextLabel={`Vault Detail · ${vault.ticker}`}
       lead={
         <Link
           href={INVEST_SELECT_PATH}
@@ -95,54 +106,67 @@ export default async function VaultDetailPage({ params }: PageProps) {
           ← Products
         </Link>
       }
-      actions={
-        <>
-          <Badge variant="accent" className="mono">
-            {vault.ticker}
-          </Badge>
-          <Badge variant={VAULT_STATUS_VARIANT[vault.status]}>
-            {vaultStatusLabel(vault.status)}
-          </Badge>
-        </>
-      }
     >
-      <section className="vault-detail-overview" aria-label="Key terms">
-        <div className="vault-detail-overview__main">
-          <dl className="vault-detail-overview__kpis">
-            <div className="vault-detail-overview__kpi">
-              <dt className="stat-label">APY range</dt>
-              <dd className="mt-(--ct-space-1)">
-                <ApyRange
-                  low={vault.apyLow}
-                  high={vault.apyHigh}
-                  precision={1}
-                  className="vault-detail-overview__value tabular-nums mono"
-                />
-              </dd>
-            </div>
-            <div className="vault-detail-overview__kpi">
-              <dt className="stat-label">Min subscription</dt>
-              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
-                {formatMinTicketUsdc(vault.minTicketUsdc)}
-              </dd>
-            </div>
-            <div className="vault-detail-overview__kpi">
-              <dt className="stat-label">Soft lock-up</dt>
-              <dd className="vault-detail-overview__value tabular-nums mono mt-(--ct-space-1)">
-                {vault.softLockupDays} days
-              </dd>
-            </div>
-          </dl>
+      <Card
+        role="region"
+        aria-label="Key terms and next action"
+        hoverOverlay={false}
+        className="vault-summary"
+        contentClassName="vault-summary__content"
+      >
+        <div className="vault-summary__identity">
+          <span className="vault-summary__ticker mono">{vault.ticker}</span>
+          <span
+            className={cn(
+              "vault-summary__status",
+              isLive
+                ? "vault-summary__status--live"
+                : "vault-summary__status--pending",
+            )}
+          >
+            <span className="vault-summary__status-dot" aria-hidden="true" />
+            {vaultStatusLabel(vault.status)}
+          </span>
         </div>
-        <div className="vault-detail-overview__cta">
+
+        <dl className="vault-summary__metrics">
+          <div className="vault-summary__metric vault-summary__metric--hero">
+            <dt className="stat-label">Target APY range</dt>
+            <dd>
+              <ApyRange
+                low={vault.apyLow}
+                high={vault.apyHigh}
+                precision={1}
+                className="vault-summary__hero-value tabular-nums mono"
+              />
+            </dd>
+          </div>
+          <div className="vault-summary__metric">
+            <dt className="stat-label">Min subscription</dt>
+            <dd className="vault-summary__value tabular-nums mono">
+              {formatMinTicketUsdc(vault.minTicketUsdc)}
+            </dd>
+          </div>
+          <div className="vault-summary__metric">
+            <dt className="stat-label">Soft lock-up</dt>
+            <dd className="vault-summary__value tabular-nums mono">
+              {vault.softLockupDays} days
+            </dd>
+          </div>
+        </dl>
+
+        <div className="vault-summary__cta">
           {!isLive ? (
-            <p className="body-xs ct-text-faint mb-(--ct-space-3)">
+            <p className="body-xs ct-text-faint vault-summary__cta-note">
               {nonLiveNote(vault.status)}
             </p>
           ) : null}
-          <InvestCta isLive={isLive} investHref={investHref} size="lg" className="w-full sm:w-auto px-(--ct-space-12)" />
+          <InvestCta isLive={isLive} investHref={investHref} />
+          <p className="body-xs ct-text-faint vault-summary__cta-support">
+            {ctaSupportLine(isLive)}
+          </p>
         </div>
-      </section>
+      </Card>
 
       <TermSheetPreview vault={vault} />
     </InvestFlowShell>

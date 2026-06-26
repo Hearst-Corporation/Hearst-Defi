@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Ptai } from "@/components/ui/ptai";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
 import {
   AdminDetailSection,

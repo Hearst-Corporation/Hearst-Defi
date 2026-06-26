@@ -16,7 +16,7 @@
 | **3 — Primitive components** | `Button`, `Card`, `Badge`, `ProvenanceBadge`, `Metric`, `MetricGrid`, `EmptySurface`, `PanelStatus`, `Skeleton`, `NestedPanel`, `DataRow`, `ProofRow`, `DashboardPanelHeader`, `SegmentedControl`, `ApyRange`, `Ptai`, `Progress`, `Tooltip`, `ConfirmDialog`, `Modal`, `Checkbox`, `ChoiceCard`, `WizardStepProgress`, `ChartTimeSelector`, `PresetPicker` | `src/components/ui/*.tsx` |
 | **4 — Shell primitives** | Title, KpiGrid, KpiCard, Eyebrow, Sub — shell-scoped display wrappers | `cockpit-shell/src/primitives/index.tsx` |
 | **5 — Pattern CSS** | Surface nesting rules, chart patterns, doc-flow, portfolio density mode, cockpit dense mode | `src/app/cockpit.css`, `src/app/doc-flow.css`, `src/app/(product)/portfolio/portfolio.css` |
-| **6 — Living documentation** | Rendered reference (open before any UI work). Text description of every layer above. | `src/app/admin/design-system/` (route), `docs/DESIGN_SYSTEM.md`, `docs/CSS_INDEX.md`, `docs/DS_SHELL_CONTRACT.md`, `docs/DS_CONFORMANCE_PROMPT.md` |
+| **6 — Living documentation** | Rendered reference (open before any UI work). Text description of every layer above. | `src/app/admin/design-system/` (route), `docs/DESIGN_SYSTEM.md`, `docs/CSS_INDEX.md`, **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (protected — mandatory read for shell/portfolio layout), `docs/DS_SHELL_CONTRACT.md`, `docs/DS_CONFORMANCE_PROMPT.md` |
 | **7 — Architecture decisions** | Why a decision was made (append-only). | `docs/decisions/ADR-013-*.md`, `ADR-015-*.md` |
 | **8 — DS bundle (snapshot)** | Compiled read-only snapshot for external consumers. **Not the source.** Needs `_ds_needs_recompile` cleared after any primitive change. | `ds-bundle/` |
 
@@ -84,10 +84,22 @@ canonical value or extend the scale — none duplicates a value or introduces a 
 | `--ct-ambient-stop-1` | `cockpit.css` | `var(--ct-ambient-glow-bg-top)` | Spatial radial near stop | — |
 | `--ct-ambient-stop-2` | `cockpit.css` | `var(--ct-ambient-glow-bg-bottom)` | Spatial radial far stop | — |
 
+### 3.2 Lot B — Portfolio Premium Foundations (2026-06-26)
+
+Foundations for the fintech institutionnelle premium look.
+
+| Token | File | Value / alias | V4 concept |
+|---|---|---|---|
+| `--ct-accent-muted` | `cockpit.css` | `color-mix(in oklab, var(--ct-accent) 40%, transparent)` | Secondary accent for muted elements |
+| `--ct-text-strong` | `cockpit.css` | `rgba(255, 255, 255, 0.92)` | Softened contrast for institutional feel |
+| `--ct-border-soft` | `cockpit.css` | `rgba(255, 255, 255, 0.04)` | Ultra-fine hairlines |
+| `--ct-surface-0..3` | `cockpit.css` | `color-mix(in oklch, #hex, var(--ct-accent) 2%)` | Tinted charcoal tiers |
+
 Primitive change: `.stat-value` gained `font-feature-settings:"tnum","ss01"`
-(expressive numerals; `tabular-nums` was already present). No page/product surface
-was touched in Lot A — wiring consumers (charts → curve aliases, hero KPI → `--ct-text-hero`)
-is **Lot B**.
+(expressive numerals; `tabular-nums` was already present). Portfolio cleanup:
+support modules (`CapitalYield`, `DistribCalendar`, `RecentActivity`) passed to
+"flat" rendering (transparent containers + hairlines) to remove cage-in-cage.
+`PositionCards` remains the primary opaque L3 surface.
 
 ---
 
@@ -107,9 +119,10 @@ These rules are enforced by CI (`scripts/ds-token-drift.mjs`, `scripts/ds-layout
 
 **Read first (in this order):**
 1. `docs/CSS_INDEX.md` — which file owns which surface.
-2. `docs/DESIGN_SYSTEM.md` — colour/type/surface canon.
-3. `src/app/admin/design-system/page.tsx` + rendered `/admin/design-system` — live primitive reference.
-4. `docs/DS_CONFORMANCE_PROMPT.md` — the 9 dimensions every surface must pass.
+2. **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** — **mandatory** for shell 3-col / portfolio / surface alignment (protected doc — never delete).
+3. `docs/DESIGN_SYSTEM.md` — colour/type/surface canon.
+4. `src/app/admin/design-system/page.tsx` + rendered `/admin/design-system` — live primitive reference.
+5. `docs/DS_CONFORMANCE_PROMPT.md` — the 9 dimensions every surface must pass.
 
 **Then ask yourself:**
 - Does a `--ct-*` token already express this value? → Use it.

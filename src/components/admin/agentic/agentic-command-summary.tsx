@@ -1,9 +1,10 @@
-// Admin · Agentic Control Tower — Command Summary (hero, presentational).
+// Admin · Agentic Control Tower — Status line (presentational).
 //
-// READ-ONLY. First thing visible: platform health status, 5 key metrics, and
-// any attention items. Tight and premium — no prose, no jargon. Pure component.
+// READ-ONLY. Replaces the hero box with a single dense status LINE: health on
+// the left, the headline metrics as inline value/label facts, and any attention
+// items as tight warning lines below. No box grid, no hardcoded values — every
+// token is var(--ct-*). Pure component.
 
-import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import type { TowerSummary } from "@/lib/agentic/system-map/tower-summary";
 
 const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
@@ -13,22 +14,14 @@ const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
   no_data: "Limited data",
 };
 
-const HEALTH_BADGE_VARIANT: Record<TowerSummary["health"], BadgeVariant> = {
+const HEALTH_TONE: Record<TowerSummary["health"], string> = {
   healthy: "success",
   watch: "warning",
   alert: "danger",
-  no_data: "default",
+  no_data: "neutral",
 };
 
-const TONE_CLASS: Record<string, string> = {
-  accent: "agentic-metric--accent",
-  success: "agentic-metric--success",
-  warning: "agentic-metric--warning",
-  danger: "agentic-metric--danger",
-  neutral: "agentic-metric--neutral",
-};
-
-export function AgenticCommandSummary({
+export function AgenticStatusLine({
   summary,
 }: {
   summary: TowerSummary | null | undefined;
@@ -37,35 +30,44 @@ export function AgenticCommandSummary({
   const { health, metrics, attention } = summary;
 
   return (
-    <header className="agentic-hero" data-health={health} aria-label="Agentic command summary">
-      <div className="agentic-hero-head">
-        <span className="eyebrow ct-text-muted">Agentic Control Tower</span>
-        <div className="agentic-hero-title-row">
-          <h1 className="agentic-hero-title m-0">Agentic platform</h1>
-          <Badge variant={HEALTH_BADGE_VARIANT[health]}>{HEALTH_LABEL[health]}</Badge>
-        </div>
-      </div>
+    <div className="flex flex-col gap-[var(--ct-space-2)]">
+      <header
+        className="agentic-statusline"
+        data-health={health}
+        aria-label="Agentic command summary"
+      >
+        <span className="agentic-statusline-health">
+          <span
+            className="agentic-statusline-fact-value"
+            data-tone={HEALTH_TONE[health]}
+          >
+            {HEALTH_LABEL[health]}
+          </span>
+          <span className="agentic-statusline-fact-label">platform</span>
+        </span>
 
-      <div className="agentic-hero-metrics">
         {metrics.map((m) => (
-          <div key={m.id} className={`agentic-metric ${TONE_CLASS[m.tone] ?? ""}`}>
-            <span className="agentic-metric-value tabular-nums">{m.value}</span>
-            <span className="agentic-metric-label">{m.label}</span>
-            {m.hint && <span className="agentic-metric-hint ct-text-muted">{m.hint}</span>}
-          </div>
+          <span key={m.id} className="agentic-statusline-fact" title={m.hint}>
+            <span
+              className="agentic-statusline-fact-value"
+              data-tone={m.tone === "neutral" ? undefined : m.tone}
+            >
+              {m.value}
+            </span>
+            <span className="agentic-statusline-fact-label">{m.label}</span>
+          </span>
         ))}
-      </div>
+      </header>
 
       {attention.length > 0 && (
-        <ul className="agentic-hero-attention" aria-label="Attention items">
+        <ul className="agentic-attention" aria-label="Attention items">
           {attention.map((a) => (
-            <li key={a} className="agentic-hero-attention-item">
-              <span className="agentic-hero-attention-dot" aria-hidden />
-              <span className="body-sm ct-text-body">{a}</span>
+            <li key={a} className="agentic-attention-item">
+              {a}
             </li>
           ))}
         </ul>
       )}
-    </header>
+    </div>
   );
 }

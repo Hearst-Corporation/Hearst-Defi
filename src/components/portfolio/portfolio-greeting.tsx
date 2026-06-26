@@ -1,22 +1,21 @@
+import { ProductPageHeader } from "@/components/connect/product-page-header";
+
 interface PortfolioGreetingProps {
   name: string;
 }
 
 /**
- * Portfolio hub header: greeting minimaliste.
+ * Portfolio hub header: portfolio-specific styling on top of the shared
+ * page-header skeleton so the hub keeps the same title/kicker/rule contract as
+ * the other product surfaces.
  */
 export function PortfolioGreeting({ name }: PortfolioGreetingProps) {
   return (
-    <header className="pf-greeting animate-in fade-in slide-in-from-top-2 duration-700 ease-out">
-      <div className="pf-greeting__lead min-w-0">
-        <h1 className="h1 m-0">
-          Welcome back, <span className="pf-greeting-name">{name}</span>
-        </h1>
-        <p className="pf-greeting__sub m-0">
-          <span className="pf-greeting__sub-dot" />
-          Portfolio cockpit
-        </p>
-      </div>
-    </header>
+    <ProductPageHeader
+      titleLead="Welcome back,"
+      titleAccent={name}
+      contextLabel="Portfolio overview"
+      className="pf-greeting animate-in fade-in slide-in-from-top-2 duration-700 ease-out"
+    />
   );
 }

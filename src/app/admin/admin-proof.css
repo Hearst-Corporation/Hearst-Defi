@@ -227,6 +227,49 @@
   margin-bottom: var(--ct-space-1);
 }
 
+/* Desktop security layout — enrolment + guidance side by side; the container
+   query collapses it to a single column on narrow surfaces (no media query,
+   width-driven like the rest of the cockpit). */
+.admin-doc .security-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ct-space-6);
+  align-items: start;
+}
+
+@container admin-doc (min-width: 52rem) {
+  .admin-doc .security-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}
+
+/* Account-protection guidance list (icon box + title/detail stack). */
+.admin-doc .security-guidance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-doc .security-guidance__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+}
+
+.admin-doc .security-guidance__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--ct-space-8);
+  height: var(--ct-space-8);
+  border-radius: var(--ct-radius-md);
+  background: var(--ct-surface-2);
+}
+
 /* =============================================================================
    5. SKELETONS (loading states)
    ============================================================================= */

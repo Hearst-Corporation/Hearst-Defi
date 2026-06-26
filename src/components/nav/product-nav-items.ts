@@ -130,7 +130,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     icon: "ShieldCheck",
     href: "/admin/proof-center",
     tabs: [
-      { id: "proof-system-overview", label: "Overview", href: "/admin/proof-center", icon: "ShieldCheck" },
       { id: "proofs", label: "Proofs", href: "/admin/proofs", icon: "FileCheck" },
       { id: "monitoring", label: "Monitoring", href: "/admin/monitoring", icon: "Settings2" },
       { id: "security", label: "Security", href: "/admin/security", icon: "ShieldCheck" },

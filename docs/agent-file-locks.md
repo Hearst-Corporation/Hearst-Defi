@@ -16,18 +16,69 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/vault-detail-grammar-convergence
-Owner: Agent — Vault Detail Root Grammar Convergence
-Branch: main (worktree shared — vault detail scope only)
+### agent/portfolio-status-ds-absorption
+Owner: Agent — Portfolio Status DS Absorption
+Branch: main (worktree shared)
 Reserved: 2026-06-26
+Note: user-authorized override of the active portfolio layout lock for the narrow
+      scope "promote PortfolioStatusPanel header grammar into PfCockpitPanelHeader"
+      plus the user-authorized cockpit.css global scale rollback needed to restore
+      shell dimensions. No chart/yield/layout sweep beyond that.
+Files:
+- src/components/portfolio/pf-cockpit-panel.tsx
+- src/components/portfolio/portfolio-status-panel.tsx
+- src/app/(product)/portfolio/portfolio.css (PfCockpitPanelHeader + pf-sp2 header/status blocks only)
+- src/components/portfolio/__tests__/portfolio-headers.test.tsx
+- src/app/cockpit.css (global root font-size rollback only)
+
+---
+
+### agent/value-chart-recode
+Owner: Agent — Value Chart Recode
+Branch: main (worktree shared)
+Reserved: 2026-06-26
+Note: user-authorized override of the active chart lock to rebuild the portfolio
+      value chart from scratch without widening into unrelated data/feed work.
+Files:
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/chart/**
+- src/lib/portfolio/geometry/value-series-projection.ts
+- src/lib/portfolio/geometry/svgConstants.ts
+- src/app/(product)/portfolio/portfolio.css (pf-value-chart / pf-vc-* only)
+- src/components/portfolio/__tests__/value-chart.test.tsx
+- src/lib/portfolio/geometry/__tests__/value-series-projection.test.ts
+
+---
+
+### feat/portfolio-rhythm-realignment
+Owner: Agent — Portfolio Layout & Rhythm Realignment
+Branch: feat/portfolio-rhythm-realignment
+Reserved: 2026-06-26
+Note: global pass overriding/coordinating with active squads on layout concerns (spacing, padding, containers, DOM hierarchy) to ensure cross-row consistency. Squads keep logic/internals lock.
+Files:
+- src/app/(product)/portfolio/page.tsx
+- src/app/(product)/portfolio/portfolio.css
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/portfolio-status-panel.tsx
+- docs/PORTFOLIO_LAYOUT_REFERENCE.md
+
+---
+
+### feat/agentic-tower-table-console — Vault Product Flow Redesign
+Owner: Agent — Vault Product Flow Redesign (premium first-fold + stepper)
+Branch: feat/agentic-tower-table-console
+Reserved: 2026-06-26
+Note: user-authorized override of the prior zombie lock "feat/vault-detail-grammar-convergence"
+      (no active worktree/branch existed for it). Same scope, reclaimed.
 Files:
 - src/app/(product)/vaults/[id]/page.tsx
-- src/app/(product)/vaults/[id]/loading.tsx
 - src/components/vaults/invest-flow-shell.tsx
-- src/components/vaults/vault-legal-proof-rows.tsx
-- src/components/ui/provenance-badge.tsx
-- src/app/cockpit.css (provenance-badge--compact rename only)
-- src/components/vaults/__tests__/invest-flow-shell.test.tsx
+- src/components/ui/wizard-step-progress.tsx
+- src/components/vaults/step-progress.tsx
+- src/app/cockpit.css (wizard-step-progress block + headline/fixed type-scale
+    tokens — P0 regression revert: commit 75ba7dfa inflated the -fixed tier ~1.6×,
+    restored to canon 18/20/24/28/32/40px. User-authorized 2026-06-26.)
+- src/app/doc-flow.css (invest-flow-shell + vault-detail-overview blocks only)
 
 ---
 
@@ -71,398 +122,41 @@ Files:
 
 ---
 
-## RELEASED LOCKS
-
-### fix/portfolio-qa-hardcode
-Owner: Agent — Portfolio QA Hardcode Removal
-Branch: fix/portfolio-qa-hardcode
+### squad/portfolio-premium-foundations
+Owner: Agent — Portfolio Premium Foundations (DS tokens + DOM cleanup)
+Branch: main (worktree shared)
 Released: 2026-06-26
 Status: merged
-
-Scope:
-- src/app/(product)/portfolio/page.tsx
+Files:
+- src/app/cockpit.css (DS tokens foundations)
+- src/app/(product)/portfolio/page.tsx (DOM cleanup, flat modules)
+- src/app/(product)/portfolio/portfolio.css (flat modules styles)
+- scripts/ds-token-allowlist.json (allowlist update)
+- docs/DESIGN_SYSTEM.md (doc update)
+- docs/DS_SINGLE_SOURCE_OF_TRUTH.md (doc update)
 
 Result:
-- Removed the temporary QA donut hardcode from the portfolio hub and re-wired `CapitalYield`
-  to real loader-backed data (`yieldStackProps`, `allocationDonutProps`, `totalValueUsdc`,
-  `source`, `updatedAt`), restoring the honest empty state for users without active positions.
+- Updated DS tokens for premium fintech look (tinted surfaces, softened text, fine hairlines).
+- Portfolio cleanup: support modules passed to flat rendering, cage-in-cage removed, hairlines added.
+- PositionCards remains the primary opaque surface.
+- Quality gate findings (185 clones, 10 dead code) are pre-existing in unrelated agentic modules.
 
 ---
 
-### feat/projection-preview-editable-inputs
-Owner: Opus Orchestrateur — Projection Preview Editable Inputs
-Branch: feat/projection-preview-editable-inputs
-Merged PR: #111 (merge d8975ac6)
+---
+
+## RELEASED LOCKS
+
+### fix/portfolio-surface-atoms
+Owner: Agent — Portfolio surface atom fixes (audit 2026-06-26)
 Released: 2026-06-26
-Status: merged
-
-Result:
-- Made the read-only /admin/projection/preview input editable, bounded and safe — draft-only, no
-  storage, no mutation; engine + API untouched. client.ts additive/pure: ProjectionPreviewDraft +
-  DEFAULT_PREVIEW_DRAFT + PREVIEW_BOUNDS; validatePreviewDraft (local, runs BEFORE any API call —
-  rejects non-number/NaN/Infinity/scientific-notation, capital out of 0–1e9, APY out of 0–100, APY
-  min>max, horizon non-integer or out of 1–120, seed not 3–64 [A-Za-z0-9_-]; per-field messages, no
-  value on failure); buildPreviewInput(value,mode) maps validated values to the API input preserving
-  the non-editable fixture (product/currency/70-30 allocation/assumptions) — v0 no methodology, v2
-  adds methodology with the validated seed (iterations 2000 fixed). Wrapper: editable Capital/APY min/
-  APY max/Horizon (+ v2 Seed) fields, inline+summary errors, invalid blocks the run (no API call),
-  Run/Reset, posture badges (Preview input·No storage·Read-only·Range only), allocation fixture note,
-  edit-after-success → stale ribbon, Reset → default draft + idle. Scoped CSS (input grid 5→2→1
-  responsive, field/error/reset/stale; token-only var(--ct-*), graphite, single green accent, 4px,
-  no overflow). Tests: validatePreviewDraft (valid coercion + all invalid cases incl. min>max /
-  NaN-Infinity-1e9 / prompt-like seed) + buildPreviewInput (v0/v2 mapping, fixture preserved) +
-  wrapper idle render (prefilled fields, seed hidden in v0, posture badges, allocation note, no
-  JSON/forbidden leak). Docs: PRODUCT_PROJECTION_SWARM.md editable-inputs section. Verified live
-  (:4115, dev-bypass admin): APY min>max → field+summary error, NO API call (idle, no report); valid
-  edits flow through (Target APY 6–12%, Capital 2000000 USDC); v2 seed editable → p5/p50/p95 change
-  with seed (seed-aaa 6.62/9/11.4 vs seed-bbb 6.51/9.02/11.35); stale ribbon after edit; Reset
-  restores defaults+idle; overflow 0; no forbidden words, no NaN/Inf, no JSON leak (only console noise
-  = pre-existing third-party Privy auth, unrelated). typecheck PASS, build PASS (postgresql), 63
-  projection UI/client tests pass. No Prisma/migration, no engine/API rewrite, no write/external-tool/
-  storage, no proof-center/portfolio/vault change, no nav change. Did NOT touch src/components/** owned
-  by other agents nor studio.tsx/page.tsx. Next lot (one): share the percentile band visual into the
-  Scenario Lab (/admin/scenario-lab), or add optional editable allocation weights (still read-only/draft).
-
-### feat/projection-preview-methodology-v2
-Owner: Opus Orchestrateur — Projection Preview Methodology v2 Rendering
-Branch: feat/projection-preview-methodology-v2
-Merged PR: #109 (merge 09857c99)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Rendered the existing Methodology v2 distribution (seeded p5/p50/p95) in the read-only
-  /admin/projection/preview surface — UI-only, consuming artifact.methodology + .distribution
-  verbatim (UI computes nothing). client.ts additive: PREVIEW_PROJECTION_INPUT_V2 (same labelled
-  fixture + methodology {version:"v2", seed:"preview-hyv-v2", iterations:2000, confidenceBands:true})
-  + PREVIEW_PROJECTION_SEED_V2 — no engine/types/API change. Wrapper: Deterministic v0 / Methodology
-  v2 toggle (switch resets to idle), fixed seed visible in toolbar, mode-aware idle copy. View: on
-  version v2, a Methodology v2 section — seed/iterations/model badges, p5/p50/p95 cards (APY% +
-  projected yield, p50 captioned "Median scenario"), a median-not-a-target note, a CSS-only
-  percentile band from distribution.bands (per-month p5→p95 band + p50 marker + axis + legend, no
-  chart lib/SVG, finite-guarded so no NaN/Infinity renders), backend limitations; missing-distribution
-  → "no distribution available" fallback (never fabricated). Generic Charts block still filters
-  percentile_band. Scoped CSS additive (toggle + v2 section + band; token-only var(--ct-*), graphite
-  panels, single green accent, 4px grid, responsive, overflow 0). Copy reworded to avoid forbidden
-  tokens (no guarantee/certain/promise anywhere). Tests: v2 render (section/seed/p5-p50-p95/band/
-  median framing/no-NaN-Inf/no-JSON-leak/missing-distribution fallback) + v0 unchanged + client v2
-  input shape. Docs: PRODUCT_PROJECTION_SWARM.md v2 rendering section. Verified live (:4114, dev-bypass
-  admin): v0 → version v0, no v2 section, overflow 0; v2 → seed preview-hyv-v2, iterations 2000,
-  p5/p50/p95 8.64/11.41/14.54% monotonic + yields, 12-month band + legend + p50 marker, median note,
-  3 limitations, no forbidden words, no NaN/Inf, no JSON leak, overflow 0 (only console noise =
-  pre-existing third-party Privy auth 403+CSP+iframe, unrelated). typecheck PASS, build PASS
-  (postgresql), 48 projection UI/client tests pass. No Prisma/migration, no engine/API rewrite, no
-  write/external-tool/execution, no proof-center/portfolio/vault change. Did NOT touch src/components/**
-  owned by other agents nor studio.tsx/page.tsx/actions.ts. Next lot (one): editable bounded preview
-  inputs + a v2 seed selector (still read-only), or share the percentile band visual into Scenario Lab.
-
-### feat/projection-artifact-ui-wiring
-Owner: Opus Orchestrateur — Projection Artifact UI Wiring
-Branch: feat/projection-artifact-ui-wiring
-Merged PR: #107 (merge 2bf8099e)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Rendered the existing read-only Product Projection artifact (product_projection_swarm →
-  POST /api/admin/agentic/projection) in a new admin Strategy surface — UI-only wiring, no
-  engine change. New route /admin/projection/preview + additive "Projection Preview" Strategy
-  sub-nav tab (existing /admin/projection Projection Studio left fully intact). client.ts
-  runProjectionPreview() (single on-demand POST, no mutation/storage/auto-poll; 200→artifact,
-  400→invalid, 500/network→generic; never leaks a raw payload/stack; PREVIEW_PROJECTION_INPUT
-  is an explicit, badged "Preview input" fixture, not "live"). Pure projection-report-view:
-  hero + Read-only/No-side-effects badges, metric cards (Capital base · Target APY range ·
-  Projected yield range · Horizon), Bear/Base/Bull scenarios, CSS-only charts (range band /
-  allocation mix / scenario compare, "missing input" note when absent — never a fake chart),
-  Assumptions/Risks/Provenance/Missing inputs/Disclaimers. APY range only; no guaranteed
-  return; no raw prompt/user text; v2 percentile_band intentionally NOT rendered. Client
-  wrapper: idle/loading/success/invalid/error states. Scoped CSS projection-preview.css
-  (token-only var(--ct-*), graphite-opaque DS panels, single green accent, 4px grid,
-  responsive). Tests (pure view: all blocks/APY-range/no-forbidden-words/no-leak/missingInputs/
-  no-v2 + client state mapping 200/400/500/network/malformed + nav). Docs: PRODUCT_PROJECTION_
-  SWARM.md UI section. Verified live (:4113, dev-bypass admin): route 200; Run renders artifact
-  — APY 8–15% range, Bear/Base/Bull, all blocks, 3 disclaimers; overflow 0px; no forbidden
-  words; no JSON leak (2 console errors = pre-existing third-party Privy auth 403+CSP,
-  unrelated). typecheck PASS, build PASS (postgresql), 51 projection-UI/client/nav tests pass.
-  No Prisma/migration, no backend rewrite (client helper added only), no write action, no
-  external tool, no execution, no proof-center/portfolio/vault change. Did NOT touch
-  src/components/** owned by other agents, nor studio.tsx/page.tsx/actions.ts. Next lot (one):
-  render the Methodology v2 distribution (distribution.bands + a p5/p50/p95 percentile_band
-  band visual) read-only in this same surface, with a v2 toggle on the preview input.
-
-### feat/projection-methodology-v2
-Owner: Opus Orchestrateur — Projection Methodology v2
-Branch: feat/projection-methodology-v2
-Merged PR: #105 (merge fe02c6c7)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Added seeded p5/p50/p95 methodology v2 to the read-only product projection — additive/non-breaking
-  (omit methodology → v0 unchanged). Pure & deterministic, REUSES the existing seeded PRNG
-  (src/lib/engine/prng.ts, untouched) — no Math.random/Date.now, no new dependency. New
-  product-projection/projection-methodology-v2.ts buildProjectionDistribution
-  (seeded_scenario_distribution: truncated-normal APY samples clamped to the PROVIDED apyRange,
-  projected yield = capitalBase×apy×horizon/12, linear-interp p5/p50/p95 + per-month bands ≤24pts;
-  seed explicit string→FNV-1a / number, or derived:<hash> from inputs; iterations clamped [100,10000];
-  null when apyRange absent — never fabricated). types: additive ProjectionMethodologyInput on input;
-  ProjectionMethodology/Percentile/Distribution; artifact gains optional methodology+distribution,
-  version "v0"|"v2", chart union += percentile_band. build-projection-artifact attaches them on
-  version:"v2" (absent apyRange → missingInputs methodology_v2(needs apyRange), stays v0).
-  validate-projection-input allowlists methodology (version v1|v2, seed, iterations, confidenceBands;
-  invalid → 400). projection-guards v2 checks: seed present, iterations bounded, p5≤p50≤p95, no
-  NaN/Inf, limitations present. API POST /api/admin/agentic/projection additive (no route change).
-  Tests: engine (determinism-by-seed, ordering, clamp, no NaN/Inf, null-on-missing, derived seed) +
-  artifact (v0 unchanged, v2 adds methodology/distribution/chart, guard catches tampered ordering) +
-  API (v2 200 deterministic, invalid 400). Docs: PROJECTION_METHODOLOGY_V2.md + PRODUCT_PROJECTION_
-  SWARM.md note. Verified live (:4112): v0 no distribution; v2+seed → p5/p50/p95 8.52/11.45/14.31%
-  ordered in [8,15], p50 yield 114500 USDC, 12 bands, percentile_band chart, 3 limitations, no NaN/Inf;
-  same seed → IDENTICAL; invalid → 400; no prompt leak. typecheck PASS, build PASS (postgresql), 588
-  agentic tests pass (2 pre-existing reporting-crew DB tests rouge = env client-provider mismatch).
-  src/lib/engine untouched (reuse only). No UI/DS, no migration, no execution, no external tool, no
-  financial guarantee, APY range/distribution only. Did NOT touch src/components/** (another agent's
-  UI). Next lot (enhancement, not a gap): market-calibrated v2 via the mining/BTC Monte-Carlo engine,
-  or a read-only UI lot (Scenario Lab / projection panel) rendering distribution.bands.
-
-### feat/product-projection-swarm
-Owner: Opus Orchestrateur — Product Projection Swarm
-Branch: feat/product-projection-swarm
-Merged PR: #103 (merge f1a8e024)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Built the read-only Product Projection Swarm (v0): run_projection action + projection_flow crew +
-  product_projection_swarm + a pure deterministic projection engine (src/lib/agentic/
-  product-projection/**). validate-projection-input (allowlist, drops prompts/unknown fields);
-  build-projection-artifact (deterministic, no Date/random; metrics target_apy[range]/capital_base/
-  projected_yield[derived capitalBase×apyRange×horizon, simple non-compounded]; bear/base/bull
-  scenarios framing the SAME provided range — invents nothing; structured charts not HTML;
-  missingInputs for absent apy/capital/allocation/horizon); projection-guards (forbidden words /
-  single-point-APY / mandatory disclaimers+provenance — disclaimers worded to avoid the banned tokens).
-  product_projection_swarm mode simulation; scope navigate/run_projection/explain_risk/
-  explain_provenance/explain_yield; forbids deploy/mark_live/send/source. Catalog 24→25 (11 read), crews
-  6→7, swarms 5→6. POST /api/admin/agentic/projection (admin-gated, no-store, rate-limit+body-size,
-  validates, runs guards before emit, returns artifact sideEffects/businessSideEffects false; 400
-  invalid, 500 generic-no-leak). NOTE: endpoint is /projection not /projection/build because "build" is
-  gitignored. Tests (engine determinism/missingInputs/APY-range/no-invented-numbers/guards, crew, swarm
-  scope, action, API) + counter updates (read 10→11, total 24→25, crews 6→7, swarms 5→6) + docs
-  (PRODUCT_PROJECTION_SWARM.md, SWARM_CALIBRATION.md). Verified live (:4111): full input → ranges +
-  bear/base/bull + 3 disclaimers + missingInputs:[allocation], no forbidden words; thin input → all
-  missing, nothing fabricated; invalid → 400; run_projection allow / draft_outreach out-of-scope;
-  registry = 6 swarms/25 actions/7 crews. typecheck PASS, build PASS (postgresql), 533 agentic tests
-  pass (2 pre-existing reporting-crew DB tests rouge = env client-provider mismatch). No UI/DS, no
-  migration, no execution, no external tool, no financial guarantee, APY range only. Did NOT touch
-  src/components/** (another agent's UI). The agentic read/observe/projection surface is now complete;
-  next enhancement (not a gap): Monte-Carlo p5/p50/p95 via the Scenario Engine under Methodology v2,
-  or a read-only UI lot rendering the artifact (Scenario Lab / projection panel).
-
-### feat/agentic-utility-read-actions
-Owner: Opus Orchestrateur — Agentic Utility Read Actions
-Branch: feat/agentic-utility-read-actions
-Merged PR: #101 (merge ef325143)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Added 3 read_only catalog actions so the two weak swarms have genuinely useful enforced scopes
-  (no write, no execution, no external tool, no Prisma, no prompt/user-text, no new swarm).
-  explain_risk (LP risk-profile explanation, output-guarded), explain_provenance (metric
-  provenance/attestation), read_session_context (metadata-only session view — ids/counts/timestamps,
-  NEVER raw user text/prompts). Scopes widened: lp_explainer += explain_risk/explain_provenance →
-  fully enforce + useful (4 LP explanations); memory_maintenance += read_session_context → enforce
-  minimal useful (real differentiated read action, no persistence). Catalog 21 → 24 (10 read / 5
-  draft / 1 confirmed_write / 8 forbidden). Verified live (:4110): new actions allow/read_only_allowed
-  in their swarm, out-of-scope in a wrong swarm → action_out_of_swarm_scope, registry exposes 24
-  actions. Tests: per-swarm scope + "utility actions well-formed"; updated EXPECTED_READ_ONLY_IDS +
-  system-map matrix counts (7→10 read, 21→24 total). typecheck PASS, build PASS (postgresql), 515
-  agentic tests pass (2 pre-existing reporting-crew DB tests rouge = env client-provider mismatch).
-  No UI/DS, no /admin/agentic visual, no migration, no product_projection_swarm. Did NOT touch
-  src/components/** (another agent's UI). Next lot: build product_projection_swarm — add a read_only
-  run_projection action backed by the seeded pure engine (output-guarded) + a projection_flow crew,
-  then the swarm (projection is read_only by ADR-006; no gated/confirmed_write machinery needed).
-
-### feat/swarm-scope-enforcement-all
-Owner: Opus Orchestrateur — Swarm Scope Enforcement All
-Branch: feat/swarm-scope-enforcement-all
-Merged PR: #99 (merge bd820926)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Extended the enforced allowedActionIds boundary to the 4 remaining swarms — all 5 now have a
-  load-bearing scope (none decorative). Registry-only change + tests/docs; no new actions, no new
-  swarm, no execution. Scopes (catalog ids, assertSwarmSafe-validated): platform_reporting
-  (navigate_admin_surface/compose_reporting_briefing/read_observability/review_router_quality/
-  inspect_tool_boundary; forbids send-run+source); lp_explainer (navigate_admin_surface/
-  explain_product/explain_yield; forbids send-run+source); vault_governance (navigate_admin_surface/
-  read_observability/create_review_note_draft/create_governance_proposal_draft/create_vault_draft →
-  drafts gated; forbids deploy_product+mark_vault_live[also floored]+send-run); memory_maintenance
-  (theoretical-but-bounded: navigate_admin_surface/read_observability only — no memory catalog action
-  exists yet; forbids send-run+source). outreach_governed unchanged (regression-guarded). Behaviour:
-  in-scope read→allow, draft→gated, out-of-scope→action_out_of_swarm_scope, swarm-forbidden→
-  forbidden_by_swarm, forbidden_autonomous→forbidden_autonomous (floor); no swarm loosens the floor.
-  New swarm-scope-all.test.ts (per-swarm + global "no swarm unbounded"/"floor holds"/"ids∈catalog");
-  updated boundary+route tests (no unscoped path remains); calibrate-swarms.mjs derives the
-  out-of-scope probe from the registry. SWARM_CALIBRATION.md: per-swarm scope table + verdict
-  (fully-enforce: outreach/vault_governance/platform_reporting; enforce-but-weak: lp_explainer;
-  theoretical-but-bounded: memory_maintenance). Verified live (:4109): all 5 swarms in-scope reachable,
-  out-of-scope blocked, forbidden effective — CALIBRATION OK. typecheck PASS, build PASS (postgresql),
-  514 agentic tests pass. Non-breaking endpoints, no autonomous_write/execution/external-tool/Prisma/
-  migration/UI-DS, no product_projection_swarm. Did NOT touch src/components/** (another agent's UI).
-  Next lot: add read-only explain_risk/explain_provenance + a memory read action to graduate
-  lp_explainer/memory_maintenance from weak/theoretical (still no projection swarm).
-
-### feat/swarm-boundary-enforcement
-Owner: Opus Orchestrateur — Swarm Boundary Enforcement
-Branch: feat/swarm-boundary-enforcement
-Merged PR: #97 (merge d4f66296)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Made the swarm boundary enforcing in evaluateActionReadiness (was decorative metadata).
-  Swarm-aware evaluator, tightens-only: forbidden_autonomous (floor) → forbidden_by_swarm (action in
-  swarm.forbiddenActions, even WITH token) → action_out_of_swarm_scope (allowedActionIds set & action
-  not in it) → tier decision. New optional SwarmDefinition.allowedActionIds (catalog-validated by
-  assertSwarmSafe → allowed_action_not_in_catalog); evaluation gains swarmScoped:boolean;
-  SwarmSimulationError gains reasonCode. outreach_governed_swarm is the FIRST enforcing swarm
-  (draft-only scope: navigate_admin_surface/explain_product/explain_yield/draft_outreach_email/
-  create_campaign_draft; forbids send-run + lead-sourcing + tier-A); other 4 stay tier-only
-  (backward-compatible). Reason codes: + forbidden_by_swarm, action_out_of_swarm_scope,
-  swarm_not_registered, crew_unavailable; split crew_mode_blocked → crew_blocked_forbidden/
-  crew_blocked_missing_confirmation; renamed confirmed_write_token_present →
-  human_confirmation_token_present; kept unknown_tier_blocked as fail-closed guard. simulate route
-  threads simulation.swarm + surfaces error reasonCode; registry snapshot exposes allowedActionIds.
-  New swarm-boundary-enforcement.test.ts; calibration net + calibrate-swarms.mjs made scope-aware.
-  Verified live (:4108): in-scope reachable, read_observability → action_out_of_swarm_scope,
-  outreach_trigger_send_run+token → forbidden_by_swarm, deploy_product+token → forbidden_autonomous,
-  unknown swarm → swarm_not_registered, confirmed_write+token (unscoped) → human_confirmation_token_present.
-  typecheck PASS, build PASS (postgresql), 539 agentic tests pass (2 pre-existing reporting-crew DB
-  tests rouge = env client-provider mismatch). Endpoints non-breaking (sideEffects/businessSideEffects
-  false, no raw payload, unknown swarm 404). No autonomous_write, no real execution, no external tool,
-  no Prisma/migration, no UI/DS. Did NOT touch src/components/** (another agent's UI). Next lot: extend
-  enforced allowedActionIds scopes to the other 4 swarms (vault_governance/lp_explainer/
-  platform_reporting/memory_maintenance) to graduate them from theoretical/weak.
-
-### chore/swarm-calibration
-Owner: Opus Orchestrateur — Swarm Calibration
-Branch: chore/swarm-calibration
-Merged PR: #95 (merge 1272a025)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Read-only/simulation-only calibration campaign of the agentic swarm chain (registry → simulate →
-  observability → aggregates), run live. All safety invariants PASS: 5 swarms, modes ∈ {simulation,
-  dry_run, gated}, none autonomous_write; forbidden blocked even with token; confirmed_write gated
-  without token; unknown action blocked fail-safe; unknown swarm → 404; sideEffects/businessSideEffects
-  false; no prompt/user-text/raw leak; observability opt-in metadata-only; aggregates clamp/window/leak
-  correct. Structural weakness identified: readiness is swarm-independent (swarm.forbiddenActions is
-  decorative). Adversarial multi-agent verdict: outreach_governed + platform_reporting = weak;
-  vault_governance/lp_explainer/memory_maintenance = theoretical; product_projection_swarm = build AFTER
-  (no projection action/crew; projection is read_only by ADR-006) — confirmed ABSENT. Deliverables:
-  pure safety-net test src/lib/agentic/__tests__/swarm-calibration.test.ts (13 tests, fails if a swarm
-  becomes unsafe), live runner scripts/agentic/calibrate-swarms.mjs (opt-in --record), docs/agentic/
-  SWARM_CALIBRATION.md (matrix + verdict + first-improvement + projection decision). typecheck PASS,
-  build PASS (postgresql), 520 agentic tests pass (2 pre-existing reporting-crew DB tests rouge = env
-  client-provider mismatch). Did NOT touch src/components/** (another agent's UI), no migration.
-  Next backend lot: make the swarm boundary enforcing (thread swarm into evaluateActionReadiness:
-  tier ∩ swarm allowlist + action_out_of_swarm_scope code), starting with outreach_governed_swarm.
-
-### chore/agentic-backend-audit
-Owner: Opus Orchestrateur — Agentic Backend Audit
-Branch: chore/agentic-backend-audit
-Merged PR: #92 (merge 92ceafff)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Audited the agentic backend surface (registry/simulate/simulations/aggregates routes + swarm/
-  observability libs): clean on auth gating, fail-safe input validation, error-leak (generic
-  responses, no stack/secret), purity/determinism, no `any`/as-unknown, no-store, guarded Redis
-  parse. One finding: the 3 GET read endpoints were admin-gated but not rate-limited (POST simulate
-  is; repo review-mode GET rate-limits reads). Fix: per-admin read rate limiting (60/min → 429) on
-  registry/simulations/aggregates GET; captures userId from requireAdmin + assertRateLimit. Tests
-  mock @/lib/rate-limit + new registry 429 case (84/84). Doc note added. No business/contract/
-  response-shape change. Did NOT touch src/components/admin/agentic/** (another agent's active UI
-  work). typecheck PASS, build PASS (postgresql). No UI/DS/proof-center/portfolio/vault/Prisma change.
-
-### feat/agentic-simulation-aggregates
-Owner: Opus Orchestrateur — Agentic Simulation Aggregates API
-Branch: feat/agentic-simulation-aggregates
-Merged PR: #90 (merge 184d3126)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Added GET /api/admin/agentic/simulations/aggregates — read-only, metadata-only roll-up over
-  the existing Redis-capped + in-memory simulation trace store (NO DB, NO migration, NO mutation).
-  New pure src/lib/agentic/observability/simulation-aggregates.ts:
-  aggregateAgenticSimulationTraces(traces, {window?, nowMs?, topReasonCodesLimit?}) — deterministic
-  (window cutoff injected, reads no clock), rolls up totals + bySwarm + byMode + byReadinessOutcome
-  + topReasonCodes (sorted count desc/key asc, codes capped 10), copies only allowlisted numeric/id/
-  code fields → emits no raw trace body / no free text. parseSimulationWindow validates 1h|24h|7d|all.
-  Endpoint admin-only, no-store, limit clamped [1,200], window default all; imports the specific obs
-  modules (not the router barrel) to avoid the Prisma chain; store unavailable → safe 200
-  {available:false, reason:"store_unavailable", aggregates:<empty>}, never a stack/secret; 400 on
-  invalid limit/window. 28 tests (45/45 agentic api+obs total). docs/agentic/
-  AGENTIC_SIMULATION_OBSERVABILITY.md updated. typecheck PASS, my files lint clean, build PASS
-  (postgresql). Runtime smoke (:4106, real Redis): available:true metadataOnly:true, limit/window
-  applied, clamp 200, no id/createdAt/prompt leaked. No UI/DS/admin-agentic-visual/proof-center/
-  portfolio/vault change. Next lot: a Control Tower UI view consuming registry/simulate/simulations/
-  aggregates read-only (separate UI lot) — the backend agentic read/observe surface is now complete.
-
-### feat/agentic-simulation-observability
-Owner: Opus Orchestrateur — Agentic Simulation Observability
-Branch: feat/agentic-simulation-observability
-Merged PR: #88 (merge bf4a2498)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Added opt-in, append-only, metadata-only observability for agentic swarm simulations —
-  NO Prisma migration, NO durable DB write (Redis capped list agentic:simulation:traces cap
-  200 + 7d TTL, in-memory mirror), NO business mutation, NO prompt/user-text/payload/secret,
-  NO external tool; a store failure never affects the simulation. simulation-store.ts (best-
-  effort Redis+memory), simulation-trace.ts (AgenticSimulationTrace metadata-only;
-  buildSimulationTrace allowlist-only — no payload smuggling; recordAgenticSimulationTrace
-  opt-in fail-safe: disabled→reason:"disabled" via AGENTIC_SIMULATION_OBSERVABILITY=0,
-  store_error→recorded:false, else recorded:true+storage). POST /api/admin/agentic/simulate
-  gained observability:{record?} opt-in (default records nothing; read-only contract preserved)
-  + response observability:{requested,recorded,reason?,storage?} + businessSideEffects:false;
-  unknown swarm → 404 before any record. New GET /api/admin/agentic/simulations (admin-only,
-  no-store, metadata-only, limit clamped [1,200]). Routes import the specific obs modules (not
-  the router barrel) to avoid the Prisma chain. 30 tests. docs/agentic/
-  AGENTIC_SIMULATION_OBSERVABILITY.md. typecheck PASS, build PASS (postgresql). Runtime smoke
-  (:4106, real Redis): no-opt-in→recorded:false; opt-in→recorded:true storage:redis;
-  forbidden→blocked+recorded; unknown→404 no record; GET→metadata-only keys. No UI/DS/admin-
-  agentic-visual/proof-center/portfolio/vault change, no migration. Next lot: simulation-trace
-  aggregates (counts by swarm/outcome over a window) read endpoint, or a UI history view (UI lot).
-
-### feat/agentic-readonly-api
-Owner: Opus Orchestrateur — Agentic Read-only API
-Branch: feat/agentic-readonly-api
-Merged PR: #86 (merge dc62708f)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Exposed the agentic swarm foundation via two admin-gated, read-only/simulation-only routes.
-  GET /api/admin/agentic/registry → deterministic snapshot (22 agents, 6 crews, 5 swarms,
-  action policies, safety metadata: allowedSwarmModes/disallowed[autonomous_write]/
-  simulationOnly/noExternalTools/noDbWrites/noPromptOrUserTextStored); requireAdmin → 401/403;
-  no-store; NO DB query. New pure serializer src/lib/agentic/swarm/registry-snapshot.ts.
-  POST /api/admin/agentic/simulate → allowlisted {swarmId, actionId?, context?}, runs pure
-  simulateSwarm + evaluateActionReadiness, returns rollup with sideEffects:false; 400 invalid,
-  404 unknown swarm (no fallback), 429 rate-limited, 500 generic (no stack/secret). forbidden
-  stays blocked even with a token; confirmed_write→requires_human_confirmation without token;
-  unknown write-like blocked. 46 tests (route + snapshot) + docs/agentic/AGENTIC_READONLY_API.md.
-  typecheck PASS, build PASS (postgresql). Runtime smoke (postgres :4106): registry 200, simulate
-  valid 200, unknown 404, forbidden→blocked, confirmed_write→requires_human_confirmation — all
-  sideEffects:false. No UI/DS/admin-agentic-visual/proof-center/portfolio/vault change, no Prisma
-  migration, no DB write, no external tool, no new dependency. Next lot: a UI lot surfacing the
-  swarm layer in the Control Tower (consuming these endpoints read-only) — separate, UI-scoped.
+Files:
+- src/app/(product)/portfolio/page.tsx
+- src/app/(product)/portfolio/portfolio.css
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/portfolio-status-panel.tsx
+- src/app/cockpit.css (--ct-border-soft revert)
+- docs/PORTFOLIO_LAYOUT_REFERENCE.md (hero CQ gate 53rem)
 
 ### feat/agentic-backend-foundation
 Owner: Opus Orchestrateur — Agentic Backend / Swarm / Crew Foundation

@@ -65,7 +65,7 @@ export default async function ProductWorkspacePage({
           {/* display value — intentionally p.h2, not a document heading */}
           <p
             className={cn(
-              "h2 ct-text-strong text-balance",
+              "h2 text-balance",
               !objective && "ct-text-muted italic",
             )}
           >

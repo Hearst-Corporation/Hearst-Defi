@@ -3,10 +3,8 @@
 /**
  * ValueChart — portfolio NAV area chart with honest time-series wiring.
  */
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
-import type { PortfolioPosition } from "@/lib/data/portfolio";
 import {
   buildPortfolioValueSeries,
   type ChartTimeRange,
@@ -15,7 +13,6 @@ import {
 } from "@/lib/portfolio/value-series";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
-import { ApyRange } from "@/components/ui/apy-range";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   generateAreaPath,
@@ -34,8 +31,21 @@ const RANGE_OPTIONS: { id: ChartTimeRange; label: string }[] = [
   { id: "all", label: "ALL" },
 ];
 
+interface ValueChartPosition {
+  id: string;
+  vaultName?: string | null;
+  principalUsdc?: number;
+  accruedYieldUsdc?: number;
+  distributedUsdc?: number;
+  valueUsdc?: number;
+  status?: string;
+  apyLow?: number | null;
+  apyHigh?: number | null;
+  subscribedAt?: Date;
+}
+
 interface ValueChartProps {
-  positions: PortfolioPosition[];
+  positions: ValueChartPosition[];
   totalValueUsdc: number;
   valueChartTransactions?: ValueSeriesTx[];
   /** Hourly (or finer) NAV snapshots — wired when backend feed exists. */
@@ -43,8 +53,22 @@ interface ValueChartProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
-  apyLow?: number;
-  apyHigh?: number;
+}
+
+function smartDefaultRange(
+  transactions: ValueSeriesTx[],
+  now: Date,
+): ChartTimeRange {
+  if (transactions.length === 0) return "30d";
+  const earliest = transactions.reduce(
+    (min, tx) => (tx.occurredAt < min ? tx.occurredAt : min),
+    transactions[0]!.occurredAt,
+  );
+  const ageMs = now.getTime() - earliest.getTime();
+  const DAY = 24 * 60 * 60 * 1000;
+  // If all activity fits within 30d, zoom out to ALL so the chart uses full width
+  if (ageMs <= 30 * DAY) return "all";
+  return "30d";
 }
 
 export function ValueChart({
@@ -55,18 +79,29 @@ export function ValueChart({
   source,
   updatedAt,
   embedded = false,
-  apyLow,
-  apyHigh,
 }: ValueChartProps) {
-  const uid = useId();
-  const [range, setRange] = useState<ChartTimeRange>("30d");
+  const reactId = useId();
+  // React useId() returns IDs with colons (e.g., ":r0:") which break SVG url(#...) references.
+  // Strip non-alphanumeric characters to ensure valid SVG IDs.
+  const uid = reactId.replace(/[^a-zA-Z0-9]/g, "");
+  const anchorDate = updatedAt ?? new Date();
+  const isEmpty = totalValueUsdc === 0 && positions.length === 0;
+  const formattedUpdatedAt = updatedAt
+    ? new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(updatedAt)
+    : null;
+
+  const [range, setRange] = useState<ChartTimeRange>(() =>
+    smartDefaultRange(valueChartTransactions, anchorDate),
+  );
   const [hoverPoint, setHoverPoint] = useState<ChartPoint | null>(null);
   const hoverIndexRef = useRef(-1);
 
-  const isEmpty = totalValueUsdc === 0 && positions.length === 0;
-  const anchorDate = updatedAt ?? new Date();
-
-  const provenance: Provenance | undefined = isEmpty
+  const provenance = isEmpty
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
 
@@ -107,6 +142,7 @@ export function ValueChart({
   }, [builtSeries]);
 
   const { points, xTicks, yTicks } = projection;
+  const seriesNote = builtSeries?.densityNote ?? null;
   const pathOpts = useMemo(
     () => ({ step: builtSeries?.mode === "ledger_sparse" }),
     [builtSeries?.mode],
@@ -156,18 +192,20 @@ export function ValueChart({
       <header className="pf-vc-header">
         <div className="pf-vc-header__left">
           <div className="pf-vc-header__row1">
-            <h2 className="pf-cockpit-panel__title--primary tracking-wider">Portfolio Value</h2>
-            {provenance && <ProvenanceBadge kind={provenance} compact />}
-            {updatedAt && (
-              <span className="pf-vc-header__date hidden sm:inline">
-                {new Intl.DateTimeFormat("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }).format(updatedAt)}
+            <h2 className="pf-cockpit-panel__title--primary">Portfolio Value</h2>
+            {provenance ? (
+              <span className="pf-vc-header__provenance">
+                {provenance === "live" ? "Live NAV" : "Estimated NAV"}
               </span>
-            )}
+            ) : null}
+            {formattedUpdatedAt ? (
+              <time
+                className="pf-vc-header__date hidden sm:inline"
+                dateTime={updatedAt?.toISOString()}
+              >
+                {formattedUpdatedAt}
+              </time>
+            ) : null}
           </div>
           {!isEmpty && (
             <div className="pf-vc-header__row2">
@@ -176,19 +214,12 @@ export function ValueChart({
                 <span className="pf-hero-kpi-value">
                   {formatUsdDetailed(chartValue).replace("$", "")}
                 </span>
-                <span className="pf-vc-balance__unit">USDC</span>
               </div>
-              {apyLow !== undefined && apyHigh !== undefined && (
-                <div className="pf-vc-apy">
-                  <span className="pf-vc-apy__dot" aria-hidden />
-                  <span className="pf-vc-apy__label">APY</span>
-                  <ApyRange
-                    low={apyLow}
-                    high={apyHigh}
-                    className="text-(length:--ct-text-sm) font-semibold text-secondary tracking-tight"
-                  />
-                </div>
-              )}
+              {seriesNote ? (
+                <span className="pf-vc-inline-note" aria-live="polite">
+                  {seriesNote}
+                </span>
+              ) : null}
             </div>
           )}
         </div>
@@ -219,12 +250,6 @@ export function ValueChart({
           </div>
         )}
       </header>
-
-      {builtSeries && !isEmpty && (
-        <p className="pf-vc-density-note" aria-live="polite">
-          {builtSeries.densityNote}
-        </p>
-      )}
 
       <div className="pf-value-chart__chart-slot">
         {isEmpty ? (

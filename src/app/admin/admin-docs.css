@@ -187,928 +187,383 @@
 }
 
 /* =============================================================================
-   Action Readiness lanes + Crew Simulation flows (Visual Integration V1).
-   Token-only, no hardcoded hex (color-mix from --ct-*). Responsive, no h-scroll.
+   AGENTIC CONTROL TOWER — line / table / collapse console (rewrite 2026-06-26)
+
+   Direction: NO box grids. The whole page reads as a stack of dense data
+   tables and collapsible record groups (native <details>/<summary>, zero JS).
+   Every value is a design token: var(--ct-*) for color/surface/space/radius/
+   type, no raw hex/rgb, no magic px. Tier/tone accents come from the status
+   token family (success/warning/danger/info) + the single accent --ct-accent.
    ============================================================================= */
 
-/* =============================================================================
-   Action Readiness — dense matrix table, grouped by autonomy tier.
-   One row per action (Action · Risk · Gate · Autonomy · Status). Tier group
-   header rows carry the label + count; the row's left border colours the tier.
-   ============================================================================= */
-
-.agentic-matrix-table {
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Tier group header row */
-.agentic-matrix-group-cell {
-  padding: var(--ct-space-3) var(--ct-space-3) var(--ct-space-1);
-  border-bottom: 1px solid var(--ct-border-soft);
-  text-align: left;
-}
-.agentic-matrix-group-title {
-  font-size: var(--ct-text-2xs);
-  font-weight: var(--ct-font-semibold, 600);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ct-text-body);
-}
-.agentic-matrix-group[data-tier="read_only"] .agentic-matrix-group-title { color: var(--ct-status-success); }
-.agentic-matrix-group[data-tier="draft_or_proposal"] .agentic-matrix-group-title,
-.agentic-matrix-group[data-tier="confirmed_write"] .agentic-matrix-group-title { color: var(--ct-status-warning); }
-.agentic-matrix-group[data-tier="forbidden_autonomous"] .agentic-matrix-group-title { color: var(--ct-status-danger); }
-.agentic-matrix-group-count {
-  margin-left: var(--ct-space-2);
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-faint);
-}
-
-/* Action rows */
-.agentic-matrix-row {
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 45%, transparent);
-}
-.agentic-matrix-row > td {
-  padding: var(--ct-space-1) var(--ct-space-3) var(--ct-space-1) 0;
-  vertical-align: middle;
-}
-.agentic-matrix-row > td.agentic-matrix-action {
-  padding-left: var(--ct-space-3);
-  border-left: 2px solid transparent;
-  overflow-wrap: anywhere;
-}
-.agentic-matrix-row[data-tier="read_only"] > td.agentic-matrix-action { border-left-color: var(--ct-status-success); }
-.agentic-matrix-row[data-tier="draft_or_proposal"] > td.agentic-matrix-action,
-.agentic-matrix-row[data-tier="confirmed_write"] > td.agentic-matrix-action { border-left-color: var(--ct-status-warning); }
-.agentic-matrix-row[data-tier="forbidden_autonomous"] > td.agentic-matrix-action { border-left-color: var(--ct-status-danger); }
-.agentic-matrix-cell { white-space: nowrap; }
-.agentic-matrix-risk {
-  font-size: var(--ct-text-2xs);
-  font-weight: var(--ct-font-semibold, 600);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ct-text-muted);
-}
-.agentic-matrix-risk[data-risk="medium"] { color: var(--ct-status-warning); }
-.agentic-matrix-risk[data-risk="high"],
-.agentic-matrix-risk[data-risk="critical"] { color: var(--ct-status-danger); }
-.agentic-matrix-status { font-size: var(--ct-text-2xs); color: var(--ct-text-muted); }
-.agentic-matrix-status[data-status="available"] { color: var(--ct-status-success); }
-.agentic-matrix-status[data-status="gated"] { color: var(--ct-status-warning); }
-.agentic-matrix-status[data-status="blocked"] { color: var(--ct-status-danger); }
-.agentic-matrix-status[data-status="planned"] { color: var(--ct-text-faint); }
-
-/* =============================================================================
-   Crew Simulation — compact cards + step rail.
-   ============================================================================= */
-
-.agentic-sim-head-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-  flex-wrap: wrap;
-}
-
-.agentic-sim-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: var(--ct-space-3);
-  align-items: start;
-}
-@media (min-width: 720px) {
-  .agentic-sim-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (min-width: 1100px) {
-  .agentic-sim-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.agentic-sim-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-  padding: var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  min-width: 0;
-}
-
-.agentic-sim-card-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.agentic-sim-card-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-1_5);
-}
-
-.agentic-sim-rail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.agentic-sim-step {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-md);
-  border-left: 2px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  min-width: 0;
-}
-.agentic-sim-step[data-mode="read_only"] { border-left-color: var(--ct-status-success); }
-.agentic-sim-step[data-mode="draft_only"],
-.agentic-sim-step[data-mode="confirmed_write_blocked"] { border-left-color: var(--ct-status-warning); }
-.agentic-sim-step[data-mode="forbidden"] { border-left-color: var(--ct-status-danger); }
-
-.agentic-sim-step-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-faint);
-}
-
-.agentic-sim-gate-dot {
-  flex: 0 0 auto;
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-status-warning);
-}
-
-.agentic-sim-blocked {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-1);
-}
-
-/* Blocked action pills (shared by both old flow-blocked and new sim-blocked) */
-.agentic-flow-blocked {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid color-mix(in srgb, var(--ct-status-danger) 40%, var(--ct-border-soft));
-  background: color-mix(in srgb, var(--ct-status-danger) 8%, transparent);
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-muted);
-  overflow-wrap: anywhere;
-}
-
-/* =============================================================================
-   Observability — compact stat strip + inline status.
-   ============================================================================= */
-
-.agentic-obs-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-  flex-wrap: wrap;
-}
-
-.agentic-obs-windows {
-  display: flex;
-  gap: var(--ct-space-1);
-  flex-wrap: wrap;
-}
-
-.agentic-obs-status-strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-2) var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-}
-
-.agentic-obs-status-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ct-space-2);
-}
-
-.agentic-obs-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--ct-space-3);
-}
-@media (min-width: 780px) {
-  .agentic-obs-stats {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-.agentic-obs-stat {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  padding: var(--ct-space-2);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  min-width: 0;
-}
-
-.agentic-obs-stat-value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold, 700);
-  color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
-}
-
-/* =============================================================================
-   Agentic Control Tower V2 — navigable command console grammar.
-   Token-only (--ct-*), zero hardcoded hex/rgb/rgba. Premium fintech, hierarchy
-   first, progressive disclosure. Accent green is a SIGNAL, not a fill.
-   ============================================================================= */
-
+/* --- page shell: a single vertical record stack ------------------------------ */
 .agentic-tower {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
-  min-width: 0;
-}
-
-/* Nested doc stacks inside the tower — tighter than global doc-flow default */
-.agentic-tower :is(.admin-doc-stack, .product-doc-stack) {
   gap: var(--ct-space-3);
 }
 
-/* Shared section scaffolding */
-.agentic-stack {
+/* --- status line (replaces the hero box): one row of inline facts ------------ */
+.agentic-statusline {
   display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  min-width: 0;
-  scroll-margin-top: var(--ct-space-16);
-}
-.agentic-section-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  max-width: 60ch;
-}
-.agentic-section-title {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-semibold, 600);
-  color: var(--ct-title-1);
-  letter-spacing: -0.01em;
-}
-
-/* ---- Overview: hero + nav --------------------------------------------------*/
-.agentic-overview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  scroll-margin-top: var(--ct-space-16);
-}
-
-.agentic-hero {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-5);
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-border-soft);
-  background:
-    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 55%),
-    var(--ct-surface-1);
-  min-width: 0;
-}
-.agentic-hero[data-health="alert"] {
-  border-color: var(--ct-status-danger-border);
-}
-.agentic-hero[data-health="watch"] {
-  border-color: var(--ct-status-warning-border);
-}
-
-.agentic-hero-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-.agentic-hero-title-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
   flex-wrap: wrap;
-}
-.agentic-hero-title {
-  font-size: var(--ct-text-3xl);
-  font-weight: var(--ct-font-bold, 700);
-  color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
-}
-.agentic-hero-lede {
-  max-width: 64ch;
-}
-
-
-.agentic-hero-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ct-space-2);
-}
-@media (min-width: 680px) {
-  .agentic-hero-metrics {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-@media (min-width: 900px) {
-  .agentic-hero-metrics {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-.agentic-metric {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-3);
+  align-items: center;
+  gap: var(--ct-space-2) var(--ct-space-4);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-left-width: var(--ct-space-0_5);
   border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  border-top-width: 2px;
-  background: var(--ct-surface-2);
-  min-width: 0;
+  background: var(--ct-graphite-subtle-bg);
 }
-.agentic-metric--success { border-top-color: var(--ct-status-success); }
-.agentic-metric--warning { border-top-color: var(--ct-status-warning); }
-.agentic-metric--danger { border-top-color: var(--ct-status-danger); }
-.agentic-metric--accent { border-top-color: var(--ct-accent); }
-.agentic-metric--neutral { border-top-color: var(--ct-border-strong); }
-.agentic-metric-value {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-bold, 700);
+.agentic-statusline[data-health="healthy"] { border-left-color: var(--ct-status-success); }
+.agentic-statusline[data-health="watch"]   { border-left-color: var(--ct-status-warning); }
+.agentic-statusline[data-health="alert"]   { border-left-color: var(--ct-status-danger); }
+.agentic-statusline[data-health="no_data"] { border-left-color: var(--ct-border-strong); }
+
+.agentic-statusline-health {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ct-space-2);
+  margin-right: auto;
+}
+.agentic-statusline-fact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ct-space-1_5);
+  white-space: nowrap;
+}
+.agentic-statusline-fact-value {
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-bold);
   color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ct-tracking-tight);
+  font-variant-numeric: tabular-nums;
 }
-.agentic-metric-label {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
-  font-weight: var(--ct-font-medium, 500);
-}
-.agentic-metric-hint {
-  font-size: var(--ct-text-xs);
+.agentic-statusline-fact-value[data-tone="success"] { color: var(--ct-status-success); }
+.agentic-statusline-fact-value[data-tone="warning"] { color: var(--ct-status-warning); }
+.agentic-statusline-fact-value[data-tone="danger"]  { color: var(--ct-status-danger); }
+.agentic-statusline-fact-value[data-tone="accent"]  { color: var(--ct-accent); }
+.agentic-statusline-fact-label {
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
 }
 
-.agentic-hero-attention {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  margin: 0;
-  padding: var(--ct-space-4);
+/* Attention items: tight warning lines under the status line. */
+.agentic-attention {
   list-style: none;
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
-}
-.agentic-hero-attention-item {
-  display: flex;
-  gap: var(--ct-space-2);
-  align-items: flex-start;
-}
-.agentic-hero-attention-dot {
-  margin-top: 0.4em;
-  width: 0.375rem;
-  height: 0.375rem;
-  flex: 0 0 auto;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-status-warning);
-}
-
-/* Sticky section nav — opaque graphite, no backdrop-filter (DS rule) */
-.agentic-nav {
-  position: sticky;
-  top: var(--ct-space-2);
-  z-index: 1;
-  padding: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  overflow-x: auto;
-}
-.agentic-nav-list {
-  display: flex;
-  gap: var(--ct-space-1);
   margin: 0;
   padding: 0;
-  list-style: none;
-  min-width: max-content;
-}
-.agentic-nav-link {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--ct-space-1_5) var(--ct-space-3);
-  border-radius: var(--ct-radius-full);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 140ms ease, background 140ms ease;
-}
-.agentic-nav-link:hover {
-  color: var(--ct-text-strong);
-  background: var(--ct-surface-2);
-}
-
-/* ---- Topology schema -------------------------------------------------------*/
-.agentic-topology {
-  display: grid;
-  gap: var(--ct-space-3);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-areas:
-    ".      obs    obs    ."
-    "guard  router router agents"
-    "hitl   tools  actions agents"
-    "forbidden forbidden actions agents";
-}
-.agentic-topology-node {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
-  padding: var(--ct-space-4);
+}
+.agentic-attention-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-1_5) var(--ct-space-3);
+  border-left: var(--ct-space-0_5) solid var(--ct-status-warning);
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-status-warning-soft);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-body);
+}
+
+/* --- collapsible record group (the core primitive) --------------------------- */
+.agentic-group {
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  text-decoration: none;
-  color: inherit;
-  min-width: 0;
-  transition: border-color 140ms ease, transform 140ms ease;
+  background: var(--ct-graphite-subtle-bg);
+  overflow: clip;
 }
-a.agentic-topology-node:hover {
-  border-color: var(--ct-border-strong);
-  transform: translateY(-1px);
+.agentic-group + .agentic-group { margin-top: 0; }
+
+.agentic-group-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background var(--ct-dur-base) var(--ct-ease);
 }
-.agentic-topology-node--obs { grid-area: obs; }
-.agentic-topology-node--guard { grid-area: guard; }
-.agentic-topology-node--router {
-  grid-area: router;
-  background:
-    radial-gradient(140% 160% at 50% 0%, color-mix(in srgb, var(--ct-accent) 10%, transparent), transparent 60%),
-    var(--ct-surface-2);
-  border-color: var(--ct-border-accent);
+.agentic-group-summary::-webkit-details-marker { display: none; }
+.agentic-group-summary:hover { background: var(--ct-graphite-nested-bg); }
+.agentic-group-summary:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--ct-accent);
 }
-.agentic-topology-node--agents { grid-area: agents; }
-.agentic-topology-node--hitl { grid-area: hitl; }
-.agentic-topology-node--tools { grid-area: tools; }
-.agentic-topology-node--actions { grid-area: actions; }
-.agentic-topology-node--forbidden {
-  grid-area: forbidden;
+
+/* Disclosure caret — pure CSS, rotates on open. */
+.agentic-caret {
+  width: var(--ct-space-3);
+  height: var(--ct-space-3);
+  flex-shrink: 0;
+  border-right: 1.5px solid var(--ct-text-muted);
+  border-bottom: 1.5px solid var(--ct-text-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--ct-dur-base) var(--ct-ease);
+}
+.agentic-group[open] > .agentic-group-summary .agentic-caret { transform: rotate(45deg); }
+
+.agentic-group-title {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tight);
+}
+.agentic-group-meta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+}
+.agentic-group-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-body);
+  font-weight: var(--ct-font-semibold);
+}
+.agentic-group-body {
+  border-top: 1px solid var(--ct-border-soft);
+}
+.agentic-group-note {
+  padding: var(--ct-space-2) var(--ct-space-4);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  border-bottom: 1px solid var(--ct-border-soft);
+}
+
+/* --- the data table: one shared, dense, tokenised table ---------------------- */
+.agentic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+.agentic-table thead th {
+  position: sticky;
+  top: 0;
+  padding: var(--ct-space-2) var(--ct-space-4);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
+  background: var(--ct-graphite-subtle-bg);
+  border-bottom: 1px solid var(--ct-border-strong);
+  white-space: nowrap;
+}
+.agentic-table tbody td {
+  padding: var(--ct-space-2) var(--ct-space-4);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-body);
+  border-bottom: 1px solid var(--ct-border-soft);
+  vertical-align: top;
+}
+.agentic-table tbody tr:last-child td { border-bottom: 0; }
+.agentic-table tbody tr {
+  transition: background var(--ct-dur-base) var(--ct-ease);
+}
+.agentic-table tbody tr:hover { background: var(--ct-graphite-nested-bg); }
+
+/* Left tier/tone accent rail on a row, driven by data-tone. */
+.agentic-table tbody td:first-child { border-left: var(--ct-space-0_5) solid transparent; }
+[data-tone="success"]  > td:first-child,
+tr[data-tone="success"]  td:first-child { border-left-color: var(--ct-status-success); }
+[data-tone="warning"]  > td:first-child,
+tr[data-tone="warning"]  td:first-child { border-left-color: var(--ct-status-warning); }
+[data-tone="danger"]   > td:first-child,
+tr[data-tone="danger"]   td:first-child { border-left-color: var(--ct-status-danger); }
+[data-tone="info"]     > td:first-child,
+tr[data-tone="info"]     td:first-child { border-left-color: var(--ct-status-info); }
+[data-tone="accent"]   > td:first-child,
+tr[data-tone="accent"]   td:first-child { border-left-color: var(--ct-accent); }
+
+/* Tier sub-header row inside a table. */
+.agentic-table .agentic-table-subhead td {
+  padding-top: var(--ct-space-3);
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
+  color: var(--ct-text-muted);
+  background: var(--ct-bg-deep);
+  border-bottom: 1px solid var(--ct-border-strong);
+}
+.agentic-table-subhead-count {
+  margin-left: var(--ct-space-2);
+  color: var(--ct-text-body);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The primary text cell (action / agent name). */
+.agentic-cell-strong {
+  color: var(--ct-text-primary);
+  font-weight: var(--ct-font-medium);
+}
+.agentic-cell-muted { color: var(--ct-text-muted); }
+.agentic-cell-faint { color: var(--ct-text-faint); }
+.agentic-cell-mono {
+  font-family: var(--font-mono);
+  word-break: break-word;
+}
+.agentic-cell-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Inline status/tier tag — token-only chip, no box pile. */
+.agentic-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--ct-space-1_5);
+  border-radius: var(--ct-radius-sm);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  white-space: nowrap;
+  border: 1px solid var(--ct-border);
+  color: var(--ct-text-muted);
+}
+.agentic-tag[data-tone="success"] {
+  color: var(--ct-status-success);
+  border-color: var(--ct-status-success-border);
+  background: var(--ct-status-success-soft);
+}
+.agentic-tag[data-tone="warning"] {
+  color: var(--ct-status-warning);
+  border-color: var(--ct-status-warning-border);
+  background: var(--ct-status-warning-soft);
+}
+.agentic-tag[data-tone="danger"] {
+  color: var(--ct-status-danger);
   border-color: var(--ct-status-danger-border);
   background: var(--ct-status-danger-soft);
 }
-.agentic-topology-node[data-tone="guard"] { border-left: 3px solid var(--ct-status-warning); }
-.agentic-topology-node[data-tone="observe"] { border-left: 3px solid var(--ct-status-info); }
-.agentic-topology-value {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-bold, 700);
-  color: var(--ct-text-strong);
-  letter-spacing: -0.02em;
-}
-.agentic-topology-label {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
-  font-weight: var(--ct-font-medium, 500);
-}
-.agentic-topology-hint {
-  font-size: var(--ct-text-xs);
+.agentic-tag[data-tone="info"] {
+  color: var(--ct-status-info);
+  border-color: var(--ct-status-info-border);
+  background: var(--ct-status-info-soft);
 }
 
-/* ---- Capabilities board ----------------------------------------------------*/
-.agentic-capability-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ct-space-4);
-}
-@media (min-width: 780px) {
-  .agentic-capability-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.agentic-capability {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  border-top-width: 3px;
-  background: var(--ct-surface-1);
-  min-width: 0;
-}
-.agentic-capability[data-tone="success"] { border-top-color: var(--ct-status-success); }
-.agentic-capability[data-tone="warning"] { border-top-color: var(--ct-status-warning); }
-.agentic-capability[data-tone="danger"] { border-top-color: var(--ct-status-danger); }
-.agentic-capability-head {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-2);
-}
-.agentic-capability-count {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-bold, 700);
-  color: var(--ct-text-strong);
-}
-.agentic-capability-title {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
-  font-weight: var(--ct-font-semibold, 600);
-}
-/* ---- Agents overview (grouped lanes) ---------------------------------------*/
-.agentic-agents-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ct-space-3);
-  align-items: start;
-}
-@media (min-width: 780px) {
-  .agentic-agents-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-@media (min-width: 1100px) {
-  .agentic-agents-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.agentic-agents-lane {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  min-width: 0;
-}
-.agentic-agents-lane-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  padding-bottom: var(--ct-space-2);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-.agentic-agents-lane-title {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold, 600);
-  color: var(--ct-title-2);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.agentic-agents-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
+/* Section caption row above a table inside the group body. */
+.agentic-section-caption {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.agentic-agents-row {
-  display: flex;
-  gap: var(--ct-space-2);
-  align-items: center;
-  min-width: 0;
-}
-.agentic-agents-cap {
-  flex: 0 0 auto;
-  font-size: var(--ct-text-2xs);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-muted);
-  white-space: nowrap;
-}
-.agentic-agents-cap[data-tone="success"] { border-color: var(--ct-status-success-border); }
-.agentic-agents-cap[data-tone="warning"] { border-color: var(--ct-status-warning-border); }
-.agentic-agents-cap[data-tone="danger"] { border-color: var(--ct-status-danger-border); }
-
-/* ---- Safety boundary -------------------------------------------------------*/
-.agentic-safety-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--ct-space-4);
-}
-@media (min-width: 780px) {
-  .agentic-safety-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.agentic-safety-pillar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-3);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  min-width: 0;
-}
-.agentic-safety-pillar[data-tone="success"] { border-color: var(--ct-status-success-border); }
-.agentic-safety-pillar[data-tone="warning"] { border-color: var(--ct-status-warning-border); }
-.agentic-safety-pillar[data-tone="danger"] { border-color: var(--ct-status-danger-border); }
-.agentic-safety-eyebrow {
-  font-size: var(--ct-text-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ct-text-faint);
-}
-.agentic-safety-headline {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold, 600);
-  color: var(--ct-text-strong);
-}
-.agentic-safety-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.agentic-safety-item {
+  padding: var(--ct-space-2) var(--ct-space-4);
   font-size: var(--ct-text-xs);
   color: var(--ct-text-muted);
-  padding-left: var(--ct-space-3);
-  position: relative;
-}
-.agentic-safety-item::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.5em;
-  width: 0.25rem;
-  height: 0.25rem;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-border-strong);
 }
 
-/* ---- Observability trends — compact unified module -------------------------*/
-.agentic-obs-trends-module {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  min-width: 0;
+/* Nested disclosure inside a row's detail cell (per-action examples, steps). */
+.agentic-rowdetail {
+  margin-top: var(--ct-space-1);
 }
-
-.agentic-obs-trends-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  flex-wrap: wrap;
-}
-
-.agentic-obs-trend-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 1px;
-  min-width: 0;
-  width: 100%;
-}
-
-.agentic-obs-trend-bar {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 0;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-0_5);
-}
-
-.agentic-obs-trend-bar-track {
-  display: flex;
-  width: 100%;
-  flex-direction: column-reverse;
-  overflow: hidden;
-  border-radius: var(--ct-radius-xs);
-  height: 2.75rem;
-}
-
-.agentic-obs-trend-label {
-  font-size: var(--ct-text-micro-size);
-  color: var(--ct-text-faint);
-  text-align: center;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-height: 0.875rem;
-  line-height: 1;
-}
-
-.agentic-obs-trend-label--spacer {
-  visibility: hidden;
-}
-
-.agentic-obs-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ct-space-2) var(--ct-space-3);
-}
-
-.agentic-obs-legend-item {
+.agentic-rowdetail-summary {
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1);
-  font-size: var(--ct-text-2xs);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wider);
   color: var(--ct-text-muted);
 }
-
-.agentic-obs-legend-swatch {
-  flex: 0 0 auto;
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: var(--ct-radius-full);
-}
-
-.agentic-obs-side-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--ct-space-3);
-  align-items: start;
-}
-@media (min-width: 56rem) {
-  .agentic-obs-side-grid {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  }
-}
-
-.agentic-obs-subpanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-
-.agentic-obs-dist-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-}
-
-.agentic-obs-dist-track {
-  width: 100%;
-  height: 4px;
-  overflow: hidden;
-  border-radius: var(--ct-radius-xs);
-  background: var(--ct-surface-2);
-}
-
-.agentic-obs-rules-list {
+.agentic-rowdetail-summary::-webkit-details-marker { display: none; }
+.agentic-rowdetail-summary:hover { color: var(--ct-accent); }
+.agentic-rowdetail-body {
+  margin-top: var(--ct-space-1_5);
+  padding-left: var(--ct-space-3);
+  border-left: 1px solid var(--ct-border-soft);
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
 }
 
-.agentic-obs-rules-row {
+/* Empty / unavailable inline state — a quiet line, not a box. */
+.agentic-empty-line {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding: var(--ct-space-3) var(--ct-space-4);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+}
+
+/* Window selector (observability) — inline pills, reuse .ct-pill. */
+.agentic-windowbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1);
+}
+
+/* Steps rail inside crew simulation row-detail. */
+.agentic-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  counter-reset: step;
+}
+.agentic-step {
   display: flex;
   align-items: baseline;
   gap: var(--ct-space-2);
-  min-width: 0;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-body);
 }
-
-.agentic-obs-status-meta {
-  font-size: var(--ct-text-2xs);
+.agentic-step-index {
+  flex-shrink: 0;
+  min-width: var(--ct-space-4);
+  font-variant-numeric: tabular-nums;
   color: var(--ct-text-faint);
 }
-
-.agentic-sim-step-mode {
-  flex: 0 0 auto;
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-faint);
-  white-space: nowrap;
+.agentic-step-mode {
+  margin-left: auto;
+  font-size: var(--ct-text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-muted);
 }
 
-/* ---- Recent decisions table — dense rows -----------------------------------*/
-.agentic-obs-decisions {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---- Router Quality Review — compact rates + watchlist strip ---------------*/
-.agentic-qr-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--ct-space-4);
-  align-items: start;
-}
-@media (min-width: 56rem) {
-  .agentic-qr-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-}
-.agentic-qr-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-.agentic-qr-table {
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-.agentic-qr-row > td {
-  padding: var(--ct-space-1) var(--ct-space-2) var(--ct-space-1) 0;
-  vertical-align: middle;
-}
-.agentic-qr-rate-label { overflow-wrap: anywhere; }
-.agentic-qr-bar-cell { width: 38%; }
-.agentic-qr-bar {
+/* Inline share/magnitude bar inside a table cell — token-only, no JS.
+   Width is driven by a CSS var (--agentic-bar-pct) set per row; tone-coloured
+   via data-tone so it reuses the same status palette as the row rails. */
+.agentic-bar {
   display: block;
   width: 100%;
-  height: 4px;
-  border-radius: var(--ct-radius-xs);
-  background: var(--ct-surface-2);
+  height: var(--ct-space-1);
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-border-soft);
   overflow: hidden;
 }
-.agentic-qr-bar-fill {
+.agentic-bar-fill {
   display: block;
   height: 100%;
-  border-radius: var(--ct-radius-xs);
-  background: var(--ct-accent);
+  width: var(--agentic-bar-pct, 0%);
+  background: var(--ct-text-faint);
+  border-radius: var(--ct-radius-sm);
 }
-.agentic-qr-pct { text-align: right; white-space: nowrap; }
-.agentic-qr-frac { text-align: right; white-space: nowrap; }
-.agentic-qr-watchlist {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.agentic-qr-watch-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
+.agentic-bar-fill[data-tone="success"] { background: var(--ct-status-success); }
+.agentic-bar-fill[data-tone="warning"] { background: var(--ct-status-warning); }
+.agentic-bar-fill[data-tone="danger"]  { background: var(--ct-status-danger); }
+.agentic-bar-fill[data-tone="info"]    { background: var(--ct-status-info); }
+.agentic-bar-fill[data-tone="accent"]  { background: var(--ct-accent); }
 
-/* ---- Long-term — single compact card, per-day strip beside totals ----------*/
-.agentic-lt {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-.agentic-lt-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--ct-space-4);
-  align-items: start;
-}
-@media (min-width: 56rem) {
-  .agentic-lt-body {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  }
-}
-.agentic-lt-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-
-/* Responsive: collapse the topology schema below tablet. */
-@media (max-width: 40rem) {
-  .agentic-topology {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "router"
-      "obs"
-      "guard"
-      "hitl"
-      "tools"
-      "agents"
-      "actions"
-      "forbidden";
-  }
+/* Responsive: tables stay readable; let the group body scroll x on tiny widths. */
+@container admin-doc (max-width: 40rem) {
+  .agentic-group-body { overflow-x: auto; }
+  .agentic-table { min-width: max-content; }
 }
 
 /* =============================================================================
