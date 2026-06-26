@@ -16,29 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/projection-artifact-ui-wiring
-Owner: Opus Orchestrateur — Projection Artifact UI Wiring
-Branch: feat/projection-artifact-ui-wiring
-Worktree: ../connect-opus-proj-ui
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/app/admin/projection/preview/** (NEW read-only route — does NOT touch studio.tsx/page.tsx/actions.ts)
-- src/app/admin/projection/projection-preview.css (NEW scoped CSS)
-- src/components/admin/projection/** (NEW view + interactive wrapper + tests)
-- src/lib/agentic/product-projection/client.ts (NEW client helper — no engine rewrite)
-- src/components/nav/product-nav-items.ts (additive Strategy tab only)
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- UI read-only wiring for the existing ProjectionReportArtifact. No methodology v2 render.
-- No Prisma, no backend engine rewrite, no write action, no external tool, no execution.
-- No guaranteed returns; APY range only; no raw prompt/user text display.
-- Does NOT touch src/components/** owned by other agents (vault/portfolio), proof-center.
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -96,6 +73,40 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/projection-artifact-ui-wiring
+Owner: Opus Orchestrateur — Projection Artifact UI Wiring
+Branch: feat/projection-artifact-ui-wiring
+Merged PR: #107 (merge 2bf8099e)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Rendered the existing read-only Product Projection artifact (product_projection_swarm →
+  POST /api/admin/agentic/projection) in a new admin Strategy surface — UI-only wiring, no
+  engine change. New route /admin/projection/preview + additive "Projection Preview" Strategy
+  sub-nav tab (existing /admin/projection Projection Studio left fully intact). client.ts
+  runProjectionPreview() (single on-demand POST, no mutation/storage/auto-poll; 200→artifact,
+  400→invalid, 500/network→generic; never leaks a raw payload/stack; PREVIEW_PROJECTION_INPUT
+  is an explicit, badged "Preview input" fixture, not "live"). Pure projection-report-view:
+  hero + Read-only/No-side-effects badges, metric cards (Capital base · Target APY range ·
+  Projected yield range · Horizon), Bear/Base/Bull scenarios, CSS-only charts (range band /
+  allocation mix / scenario compare, "missing input" note when absent — never a fake chart),
+  Assumptions/Risks/Provenance/Missing inputs/Disclaimers. APY range only; no guaranteed
+  return; no raw prompt/user text; v2 percentile_band intentionally NOT rendered. Client
+  wrapper: idle/loading/success/invalid/error states. Scoped CSS projection-preview.css
+  (token-only var(--ct-*), graphite-opaque DS panels, single green accent, 4px grid,
+  responsive). Tests (pure view: all blocks/APY-range/no-forbidden-words/no-leak/missingInputs/
+  no-v2 + client state mapping 200/400/500/network/malformed + nav). Docs: PRODUCT_PROJECTION_
+  SWARM.md UI section. Verified live (:4113, dev-bypass admin): route 200; Run renders artifact
+  — APY 8–15% range, Bear/Base/Bull, all blocks, 3 disclaimers; overflow 0px; no forbidden
+  words; no JSON leak (2 console errors = pre-existing third-party Privy auth 403+CSP,
+  unrelated). typecheck PASS, build PASS (postgresql), 51 projection-UI/client/nav tests pass.
+  No Prisma/migration, no backend rewrite (client helper added only), no write action, no
+  external tool, no execution, no proof-center/portfolio/vault change. Did NOT touch
+  src/components/** owned by other agents, nor studio.tsx/page.tsx/actions.ts. Next lot (one):
+  render the Methodology v2 distribution (distribution.bands + a p5/p50/p95 percentile_band
+  band visual) read-only in this same surface, with a v2 toggle on the preview input.
 
 ### feat/projection-methodology-v2
 Owner: Opus Orchestrateur — Projection Methodology v2
