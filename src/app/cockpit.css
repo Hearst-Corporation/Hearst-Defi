@@ -244,8 +244,8 @@
      responsive en fin de fichier). 48px reste réservé au SEUL état .collapsed. */
   /* Rail rétréci (Adrien 2026-06-20 : "trop large") — plafond + facteur vw
      baissés pour que le centre du cockpit respire davantage. */
-  --ct-rail-right: clamp(16rem, 20vw, 23rem); /* default open — max ~368px */
-  --ct-rail-right-expanded: clamp(19rem, 25vw, 30rem); /* user-expanded — max ~480px */
+  --ct-rail-right: 23rem; /* default open — max ~368px */
+  --ct-rail-right-expanded: 30rem; /* user-expanded — max ~480px */
 
   /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
      menu can hold long investor/admin labels without breaking the vertical
@@ -1573,12 +1573,12 @@ body {
    Overrides admin-doc .stat-value demotion (lg) for strip cells only. */
 @media (min-width: 80rem) {
   .ct-page-area .pf-hero-kpi-value {
-    font-size: clamp(1.75rem, 1.75rem + (100vw - 80rem) * 0.009375, 2.125rem); /* 28 → 34 */
+    font-size: 2.125rem; /* 34px — fixed (root is 16px fixed; no fluid type) */
   }
 
   .ct-page-area :is(.admin-doc, .product-doc, .pf-container)
     .dashboard-kpi-strip__value {
-    font-size: clamp(1.125rem, 1.125rem + (100vw - 80rem) * 0.003125, 1.25rem); /* 18 → 20 */
+    font-size: 1.25rem; /* 20px — fixed */
     /* bold (pas extrabold) : valeurs présentes mais les placeholders « — » ne
        dominent plus la bande. Taille resserrée (était 20→24, trop dominant sur
        une strip télémétrie dense de 4-8 cellules). */
@@ -4020,7 +4020,7 @@ button.ct-choice-card {
   flex-direction: column;
   align-items: center;
   /* Horizontal padding mirrors .ct-rail-left.launcher so icons share the logo H axis. */
-  padding: 0 clamp(8px, 0.6vw, 12px);
+  padding: 0 12px;
   justify-content: stretch;
   overflow: hidden;
   z-index: calc(var(--ct-z-modal) + 1); /* Au-dessus du shell cockpit */
@@ -4100,11 +4100,11 @@ button.ct-choice-card {
   display: grid;
   justify-items: center;
   align-items: start;
-  gap: clamp(0.375rem, 0.3rem + 0.25vw, 0.5rem); /* gap fluide: --ct-space-1_5 → --ct-space-2 */
+  gap: 0.5rem; /* gap fluide: --ct-space-1_5 → --ct-space-2 */
   width: 100%;
   margin-inline: auto;
-  min-height: clamp(4.5rem, 4.1rem + 1.5vw, 5.5rem); /* hauteur fluide */
-  padding: clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem) clamp(0.25rem, 0.1rem + 0.25vw, 0.5rem) clamp(0.625rem, 0.5rem + 0.3vw, 0.875rem); /* paddings fluides */
+  min-height: 5.5rem; /* hauteur fluide */
+  padding: 0.75rem 0.5rem 0.875rem; /* paddings fluides */
   border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
@@ -4119,8 +4119,8 @@ button.ct-choice-card {
 }
 
 .ct-rail-icon {
-  width: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem); /* 24px → 28px */
-  height: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem);
+  width: 1.75rem; /* 24px → 28px */
+  height: 1.75rem;
 }
 
 /* No box around rail icons (admin + base): hover tints color only, no surface
@@ -4167,7 +4167,7 @@ button.ct-choice-card {
 .ct-rail-item-tooltip {
   min-height: 0;
   display: -webkit-box;
-  font-size: clamp(0.7rem, 0.65rem + 0.25vw, 0.8125rem); /* 11px → 13px */
+  font-size: var(--ct-text-xs); /* 13px — fixed */
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
@@ -4243,7 +4243,7 @@ button.ct-choice-card {
 .ct-section {
   display: block;
   width: 100%;
-  padding-block: clamp(2rem, 4vw, 3rem);
+  padding-block: 3rem;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -4355,15 +4355,15 @@ button.ct-choice-card {
 
 /* Rail gauche */
 .ct-rail-left                              { padding: var(--ct-space-5) 0; align-items: center; }
-.ct-rail-left.launcher                     { padding: clamp(12px, 1.4vh, 18px) clamp(8px, 0.6vw, 12px); }
+.ct-rail-left.launcher                     { padding: clamp(12px, 1.4vh, 18px) 12px; }
 
 /* Badge user recentré sur l'axe du rail (`--ct-rail-left`) — sans override il dérive de
    ~10px vers la gauche dans la largeur réduite. */
 .ct-avatar {
   margin: 0 auto;
-  width: clamp(2.5rem, 2.2rem + 1.2vw, 3rem) !important; /* 40px → 48px */
-  height: clamp(2.5rem, 2.2rem + 1.2vw, 3rem) !important;
-  font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem) !important; /* 13px → 14px */
+  width: 3rem !important; /* 48px — fixed */
+  height: 3rem !important;
+  font-size: 0.875rem !important; /* 14px — fixed */
   /* Badge profil stylé : anneau accent vert sur tout le tour + halo doux,
      fond sombre translucide, glyphe/initiales teintés accent. */
   position: relative;
@@ -4466,7 +4466,7 @@ button.ct-choice-card {
    height pilote, width auto conserve le ratio du viewBox. */
 .ct-rail-left.launcher .ct-rail-top-badge svg {
   width: auto;
-  height: clamp(2rem, 1.7rem + 1.2vw, 2.5rem); /* 32px → 40px — logo domine les icônes de menu */
+  height: 2.5rem; /* 32px → 40px — logo domine les icônes de menu */
 }
 
 /* Launcher verrouillé en position repliée — un seul produit (Connect), le
@@ -4684,10 +4684,10 @@ main#main-content>.admin-doc.admin-doc-shell {
    6px/14px chip + button + input density) are package-derived and sit deliberately
    between scale steps for tight chat density; not accidental drift, do not snap to scale. */
 .ct-chat-actionbar                         { display: flex; align-items: center; gap: var(--ct-space-2); padding-bottom: var(--ct-space-1); }
-.ct-chat-mode-chip                         { padding: 2px 7px; font-size: clamp(0.625rem, 0.59rem + 0.18vw, 0.6875rem); /* 10px → 11px */ border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
+.ct-chat-mode-chip                         { padding: 2px 7px; font-size: 0.6875rem; /* 10px → 11px */ border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
 .ct-chat-mode-chip--on                     { color: var(--ct-accent); border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent); background: color-mix(in srgb, var(--ct-accent) 8%, transparent); }
 .ct-chat-mode-chip--off                    { color: var(--ct-text-faint); border: 1px solid color-mix(in srgb, var(--ct-text-faint) 35%, transparent); }
-.ct-chat-newbtn                            { padding: 3px 8px; font-size: clamp(0.625rem, 0.59rem + 0.18vw, 0.6875rem); /* 10px → 11px */ margin-left: auto; }
+.ct-chat-newbtn                            { padding: 3px 8px; font-size: 0.6875rem; /* 10px → 11px */ margin-left: auto; }
 /* Messages start from the BOTTOM and grow upward (chat-app convention): when the
    thread is short it sits on the input, not floating at the top. flex-end pushes
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
@@ -4729,11 +4729,11 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-chat-msg                               { 
   display: flex; 
   flex-direction: column; 
-  padding: var(--ct-space-2) 0; 
-  font-size: clamp(0.8125rem, 0.76rem + 0.26vw, 0.9375rem); /* 13px → 15px */
+  padding: var(--ct-space-2) 0;
+  font-size: var(--ct-text-sm); /* 15px — fixed */
   animation: ct-chat-msg-fade-in 0.4s var(--ct-ease) forwards;
 }
-.ct-chat-msg.assistant code                { padding: 1px 4px; font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
+.ct-chat-msg.assistant code                { padding: 1px 4px; font-size: 0.875rem; }
 
 /* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails.
    flex:1 + min-width:0 are REQUIRED for the ellipsis to fire: the package header is a
@@ -5644,8 +5644,8 @@ main#main-content>.admin-doc.admin-doc-shell {
 @media (max-width: 90rem) and (min-width: 75.0625rem) {
   .ct-root {
     --ct-rail-left: 5rem;                       /* 80px — icon rail, was 104px */
-    --ct-rail-right: clamp(15rem, 25vw, 24rem); /* open chat : fluid resserré */
-    --ct-rail-right-expanded: clamp(18rem, 28vw, 30rem); /* expanded : fluid resserré */
+    --ct-rail-right: 24rem; /* open chat : fluid resserré */
+    --ct-rail-right-expanded: 30rem; /* expanded : fluid resserré */
   }
 }
 
@@ -5661,8 +5661,8 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-rail-intra .ct-rail-item-tooltip { display: none; }
   .ct-rail-intra .ct-rail-item {
     gap: 0;
-    min-height: clamp(3rem, 2.6rem + 1vw, 3.75rem); /* square-ish icon target */
-    padding-block: clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem);
+    min-height: 3.75rem; /* square-ish icon target */
+    padding-block: 0.75rem;
     justify-items: center;
     align-items: center;
   }
@@ -5673,8 +5673,8 @@ main#main-content>.admin-doc.admin-doc-shell {
 @media (max-width: 74.999rem) and (min-width: 64rem) {
   .ct-root {
     --ct-rail-left: 4.5rem;                     /* 72px */
-    --ct-rail-right: clamp(14rem, 22vw, 20rem); /* open chat : fluid fin */
-    --ct-rail-right-expanded: clamp(16rem, 25vw, 22rem);
+    --ct-rail-right: 20rem; /* open chat : fluid fin */
+    --ct-rail-right-expanded: 22rem;
   }
 }
 
@@ -6475,8 +6475,8 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-rail-intra .ct-rail-sep { display: none !important; }
 
   .ct-rail-intra .ct-rail-item {
-    min-height: clamp(2.75rem, 2.5rem + 1vw, 3.5rem) !important;
-    padding: clamp(0.25rem, 0.2rem + 0.1vw, 0.375rem) clamp(0.625rem, 0.5rem + 0.5vw, 0.875rem) !important;
+    min-height: 3.5rem !important;
+    padding: 0.375rem 0.875rem !important;
     /* Row layout: each item shares the bar equally. The base .ct-rail-item is
        width:100% + flex-shrink:0 (right for the desktop VERTICAL rail); in this
        horizontal bar that made every item 374px wide → 5 items overflowed to

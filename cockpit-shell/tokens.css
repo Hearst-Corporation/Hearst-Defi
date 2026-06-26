@@ -199,9 +199,9 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
     opacity var(--ct-dur-base) var(--ct-ease);
 }
 .ct-rail-left.launcher {
-  width: clamp(208px, 15vw, 260px);
+  width: 260px;
   align-items: stretch;
-  padding: clamp(20px, 2.4vh, 32px) clamp(12px, 0.8vw, 16px);
+  padding: clamp(20px, 2.4vh, 32px) 16px;
 }
 .ct-rail-top {
   appearance: none; font: inherit; cursor: pointer;
@@ -227,7 +227,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   border: none;
 }
 .ct-rail-top-name {
-  font-size: clamp(13px, 1vw, 15.5px); font-weight: 700;
+  font-size: 15.5px; font-weight: 700;
   color: var(--ct-text-strong);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -258,7 +258,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 .ct-rail-row-icon { display: flex; flex-shrink: 0; color: var(--p-color); }
 .ct-rail-row-name {
   flex: 1; text-align: left;
-  font-size: clamp(13px, 0.95vw, 15px); font-weight: 600;
+  font-size: 15px; font-weight: 600;
   color: var(--ct-text-body);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -536,7 +536,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   color: var(--ct-text-muted);
 }
 .ct-kpi-value {
-  font-size: clamp(18px, 2.4vw, 28px);
+  font-size: 28px;
   font-weight: 800;
   color: var(--ct-text-primary);
   letter-spacing: -0.02em;
