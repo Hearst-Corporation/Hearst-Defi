@@ -185,7 +185,7 @@
   min-width: 0;
   display: grid;
   gap: var(--ct-space-5);
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
+  border-top: 1px solid var(--ct-graphite-border-nested);
   padding: var(--ct-space-8) 0;
 }
 
@@ -211,14 +211,6 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.pf-cockpit-panel {
-  min-width: 0;
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  box-shadow: none;
 }
 
 .pf-hero-grid {
@@ -251,36 +243,37 @@
 
 /* Stacked default — second cell separated by a TOP hairline. */
 .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
+  border-top: 1px solid var(--ct-graphite-border-nested);
 }
 
-@container pf (max-width: 58rem) {
-  .pf-hero-grid {
-    grid-template-columns: 1fr;
-  }
+@container pf (max-width: 52.999rem) {
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
   }
   .pf-hero-grid .pf-status-panel {
     border-left: none !important;
-    border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent) !important;
+    border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }
 }
 
 
 /* ---- SCROLL NATURALLY: all viewports, no viewport-lock ---- */
-.pf-container--fit { height: auto; overflow: visible; }
-.pf-container--fit .pf-cockpit { overflow: visible; }
+.pf-container--fit,
+.pf-container--zero { height: auto; overflow: visible; }
+.pf-container--fit .pf-cockpit,
+.pf-container--zero .pf-cockpit { overflow: visible; }
 .pf-cockpit-row { flex: 0 0 auto; }
 
 /* Hero in natural-scroll mode: give the hero a fixed height so the chart fills
    it properly. Without this the chart-wrapper's min-height wins and nothing
    drives the panel to expand — leaving the plot as a thin strip. */
 .pf-hero-grid { min-height: 0; }
-.pf-container--fit .pf-hero-grid {
+.pf-container--fit .pf-hero-grid,
+.pf-container--zero .pf-hero-grid {
   height: 18rem;
 }
-.pf-container--fit .pf-value-chart__chart-wrapper {
+.pf-container--fit .pf-value-chart__chart-wrapper,
+.pf-container--zero .pf-value-chart__chart-wrapper {
   aspect-ratio: auto;
   min-height: 0;
   height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
@@ -294,16 +287,23 @@
 /* Natural scroll: panels take their NATURAL height and never clip */
 .pf-container--fit .pf-cockpit-panel,
 .pf-container--fit .pf-embedded-pane,
-.pf-container--fit .pf-hero-grid,
 .pf-container--fit .pf-deck-grid,
 .pf-container--fit .pf-status-panel,
 .pf-container--fit .pf-trust-compact,
-.pf-container--fit .pf-payout-calendar-panel {
+.pf-container--fit .pf-payout-calendar-panel,
+.pf-container--zero .pf-cockpit-panel,
+.pf-container--zero .pf-embedded-pane,
+.pf-container--zero .pf-deck-grid,
+.pf-container--zero .pf-status-panel,
+.pf-container--zero .pf-trust-compact,
+.pf-container--zero .pf-payout-calendar-panel {
   height: auto;
   overflow: visible;
 }
 .pf-container--fit .pf-positions,
-.pf-container--fit .pf-activity {
+.pf-container--fit .pf-activity,
+.pf-container--zero .pf-positions,
+.pf-container--zero .pf-activity {
   overflow: visible;
 }
 
@@ -325,6 +325,11 @@
 .pf-cockpit-panel {
   position: relative;
   overflow: hidden;
+  min-width: 0;
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
+  box-shadow: none;
 }
 
 .pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
@@ -346,9 +351,11 @@
   z-index: 1;
 }
 
-/* Hero weld — chart + status share one plate; inner wrappers stay flat. */
+/* Hero weld — chart + status share one plate; inner wrappers stay flat.
+   Zero padding on the weld layer: each child owns its own internal rhythm
+   (.pf-value-chart has its own padding; .pf-status-panel uses !p-0 + internal p-6). */
 .pf-hero-grid .pf-embedded-pane {
-  padding: var(--ct-space-4) var(--ct-space-5);
+  padding: 0;
 }
 
 .pf-hero-grid .pf-cockpit-panel__header {
@@ -418,7 +425,7 @@
   line-height: var(--ct-leading-snug);
   letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 /* Titles inside a horizontal header — no block margin (breaks trail alignment). */
@@ -427,7 +434,7 @@
   margin: 0;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header-main {
+.pf-value-chart--hero-embedded .pf-vc-header__left {
   gap: var(--ct-space-3);
 }
 
@@ -468,15 +475,11 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  /* MOBILE-FIRST: 1 column by default so the (max-width: 58rem) stacking state
-     is the base and never gets overridden by source order. The 2-column split
-     (1.6fr | status rail) is applied ONLY inside @container pf (min-width: 58rem).
-     Putting the 2-col value here instead let the base win over the stacking
-     container query (defined earlier in the file) → grid stayed 2-col while the
-     stacked top-border showed = the floating hairline / broken hero. */
+  /* MOBILE-FIRST: 1 column by default. The 2-column split is applied ONLY inside
+     @container pf (min-width: 58rem) — see section 14 (terminal cascade). */
   grid-template-columns: 1fr;
-  /* chart-geometry — hero: header + plot + axis labels */
-  height: 18rem;
+  height: auto;
+  min-height: 18rem;
   overflow: clip;
 }
 
@@ -523,6 +526,13 @@
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
+/* Hero context: reduce chart padding so the plot gets more vertical real estate
+   inside the fixed 18rem grid. The weld layer is now padding:0 so this is the
+   only padding the chart carries. */
+.pf-value-chart--hero-embedded {
+  padding: var(--ct-space-2) var(--ct-space-3);
+}
+
 .pf-hero-kpi-value {
   /* DS hero tier — the single dominant number on the Portfolio surface (NAV value).
      Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / strong text. */
@@ -535,15 +545,24 @@
   font-feature-settings: "tnum" 1, "ss01" 1;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header {
+/* Hero header — now uses .pf-vc-header (not .pf-cockpit-panel__header which is
+   not in the DOM for this component). These rules are the live selectors. */
+.pf-value-chart--hero-embedded .pf-vc-header {
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--ct-space-3);
+  flex-shrink: 0;
 }
 
-.pf-value-chart--hero-embedded .pf-cockpit-panel__header-trail {
+.pf-value-chart--hero-embedded .pf-vc-header__trail {
   display: flex;
+  align-self: flex-start;
+}
+
+/* Density note takes vertical space the plot needs — hide it in the 18rem hero. */
+.pf-value-chart--hero-embedded .pf-vc-density-note {
+  display: none;
 }
 
 .pf-value-chart--hero-embedded .pf-hero-kpi-block {
@@ -569,6 +588,15 @@
 .pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
   aspect-ratio: auto;
   height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
+  background: transparent;
+  animation: none;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::before,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::after,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::before,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::after {
+  display: none;
 }
 
 .pf-value-chart__chart-wrapper,
@@ -1020,7 +1048,7 @@
    prevents a stray separator showing on the wrong edge. */
 .pf-hero-grid .pf-status-panel {
   border-left: 0;
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
+  border-top: 1px solid var(--ct-graphite-border-nested);
 }
 
 /* =============================================================================
@@ -2473,14 +2501,16 @@
   .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 }
 
-@container pf (min-width: 58rem) {
-  /* Hero welded grid split — 2 columns: Chart | Sidebar */
+@container pf (min-width: 53rem) {
+  /* Hero welded grid split — 2 columns: Chart | Sidebar (53rem = 848px —
+     between doc 1-col @ 814px (1280+chat) and 2-col @ 863px (1023 chat-off). */
   .pf-hero-grid {
-    grid-template-columns: 1.6fr minmax(16rem, 22rem);
+    grid-template-columns: 1.6fr minmax(16rem, 22rem) !important;
+    height: 18rem;
+    min-height: 18rem;
   }
-  /* when split horizontally the sidebar divider becomes a left border */
   .pf-hero-grid .pf-status-panel {
-    border-left: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent) !important;
+    border-left: 1px solid var(--ct-graphite-border-nested) !important;
     border-top: none !important;
     position: relative;
   }
@@ -2488,16 +2518,16 @@
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
   }
+}
 
-  /* Deck welded grid split — 2 columns: Calendar | Activity. Same recipe as the
-     hero: the internal separator flips from a TOP hairline (stacked base) to a
-     LEFT hairline on the second cell. ONE master surface, one hairline. */
+@container pf (min-width: 60rem) {
+  /* Deck welded grid split — 2 columns: Calendar | Activity (doc gate 60rem). */
   .pf-deck-grid {
     grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
   }
   .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
     border-top: none;
-    border-left: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
+    border-left: 1px solid var(--ct-graphite-border-nested);
   }
 }
 
@@ -2506,13 +2536,17 @@
    tight slot (≤44rem) — below that the chart needs the full width. Stacking too
    early (was 64rem) squeezed the 5-row status panel to ~44px and clipped rows. */
 @container pf (max-width: 44rem) {
-  .pf-container--fit .pf-hero-grid {
+  .pf-container--fit .pf-hero-grid,
+  .pf-container--zero .pf-hero-grid {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 18rem;
   }
 
-  .pf-container--fit .pf-hero-grid .pf-status-panel {
+  .pf-container--fit .pf-hero-grid .pf-status-panel,
+  .pf-container--zero .pf-hero-grid .pf-status-panel {
     border-left: none !important;
-    border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent) !important;
+    border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }
 }
 
@@ -2998,9 +3032,8 @@
 .pf-cockpit-row--positions { flex: 0 0 auto; min-height: 7rem; }
 
 /* Les plates prennent leur hauteur naturelle : on neutralise les aspect-ratios
-   et min-height fixes, sans forcer height:100% (qui écrasait/clippait). */
-.pf-cockpit-row .pf-hero-grid,
-.pf-cockpit-row .pf-deck-grid,
+   et min-height fixes, sans forcer height:100% (qui écrasait/clippait).
+   Hero/deck grids keep their own height + column rules (section 5 / 14). */
 .pf-cockpit-row .pf-cockpit-cell,
 .pf-cockpit-row .pf-cockpit-panel,
 .pf-cockpit-row .pf-embedded-pane {
@@ -3079,7 +3112,7 @@
   gap: var(--ct-space-3);
   width: 100%;
   margin-bottom: var(--ct-space-6);
-  opacity: 0.15; /* Reduced opacity for more subtlety */
+  opacity: 0.35;
 }
 
 .pf-activity-zero__ghost-row {
@@ -4160,4 +4193,33 @@
   .pf-leaf-bucket-row { grid-template-columns: 1fr auto; }
   .pf-leaf-bucket-row .pf-leaf-bucket-num:last-child { display: none; }
   .pf-leaf-bucket-row--head .pf-leaf-bucket-num:last-child { display: none; }
+}
+
+/* =============================================================================
+   14b. TERMINAL @container CASCADE — hero/deck column splits
+   Re-declared after late layout neutralizers so W_pf tier rules always win.
+   ============================================================================= */
+
+@container pf (min-width: 53rem) {
+  .pf-hero-grid {
+    grid-template-columns: 1.6fr minmax(16rem, 22rem) !important;
+    height: 18rem;
+    min-height: 18rem;
+  }
+
+  .pf-hero-grid .pf-status-panel {
+    border-left: 1px solid var(--ct-graphite-border-nested) !important;
+    border-top: none !important;
+  }
+}
+
+@container pf (min-width: 60rem) {
+  .pf-deck-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+  }
+
+  .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
 }
