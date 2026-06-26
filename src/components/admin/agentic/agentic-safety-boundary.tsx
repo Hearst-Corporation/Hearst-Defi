@@ -1,10 +1,11 @@
 // Admin · Agentic Control Tower — Safety Boundary (presentational).
 //
-// READ-ONLY. The single place that states the platform's hard limits in plain
-// language: nothing executes from this console, what is forbidden-autonomous,
-// what human gates exist, and that the compliance guards are always on. No write
-// controls. Pure component; data passed in, SSR-testable.
+// READ-ONLY. Rewritten 2026-06-26: the platform's hard limits as one row per
+// pillar in a collapsible table (Console · Forbidden · Human gates · Guards),
+// with the item lists tucked into a nested <details>. No write controls. No
+// hardcoded values. Pure component.
 
+import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
 
@@ -23,61 +24,89 @@ export function AgenticSafetyBoundary({
   const safetyHolds = controlCenter.safetySummary.filter((s) => s.holds).length;
   const safetyTotal = controlCenter.safetySummary.length;
 
+  interface PillarRow {
+    id: string;
+    pillar: string;
+    value: string;
+    tone: AgenticTone;
+    detail?: { summary: string; items: string[] };
+    note?: string;
+  }
+
+  const rows: PillarRow[] = [
+    {
+      id: "console",
+      pillar: "Console",
+      value: "Read-only",
+      tone: "success",
+      note: "No run, send, deploy, or mark-live control exists on this page.",
+    },
+    {
+      id: "forbidden",
+      pillar: "Forbidden",
+      value: `${forbidden.length} never autonomous`,
+      tone: "danger",
+      detail: { summary: "list", items: forbidden.map((f) => f.label) },
+    },
+    {
+      id: "gates",
+      pillar: "Human gates",
+      value: `${gates.length} gated actions`,
+      tone: "warning",
+      note: "Admin role + two-step confirmation token required.",
+    },
+    {
+      id: "guards",
+      pillar: "Guards",
+      value: `${guards.length} always-on`,
+      tone: "success",
+      detail: { summary: "list", items: guards.map((g) => g.name) },
+      note: `${safetyHolds}/${safetyTotal} guarantees verified.`,
+    },
+  ];
+
   return (
-    <section id="safety-boundary" className="agentic-stack" aria-label="Safety boundary">
-      <div className="agentic-section-head">
-        <h2 className="agentic-section-title m-0">Safety Boundary</h2>
-        <p className="body-sm ct-text-muted m-0">
-          The hard limits. Nothing executes here. Every write is gated; the most dangerous actions can never be autonomous.
-        </p>
-      </div>
-
-      <div className="agentic-safety-grid">
-        <div className="agentic-safety-pillar" data-tone="success">
-          <span className="agentic-safety-eyebrow">Console</span>
-          <span className="agentic-safety-headline">Read-only</span>
-          <p className="body-xs ct-text-muted m-0">
-            No run, send, deploy, or mark-live control exists on this page.
-          </p>
-        </div>
-
-        <div className="agentic-safety-pillar" data-tone="danger">
-          <span className="agentic-safety-eyebrow">Forbidden</span>
-          <span className="agentic-safety-headline tabular-nums">
-            {forbidden.length} never autonomous
-          </span>
-          <ul className="agentic-safety-list">
-            {forbidden.slice(0, 8).map((f) => (
-              <li key={f.id} className="agentic-safety-item">{f.label}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="agentic-safety-pillar" data-tone="warning">
-          <span className="agentic-safety-eyebrow">Human gates</span>
-          <span className="agentic-safety-headline tabular-nums">
-            {gates.length} gated actions
-          </span>
-          <p className="body-xs ct-text-muted m-0">
-            Admin role + two-step confirmation token required.
-          </p>
-        </div>
-
-        <div className="agentic-safety-pillar" data-tone="success">
-          <span className="agentic-safety-eyebrow">Guards</span>
-          <span className="agentic-safety-headline tabular-nums">
-            {guards.length} always-on
-          </span>
-          <ul className="agentic-safety-list">
-            {guards.map((g) => (
-              <li key={g.id} className="agentic-safety-item">{g.name}</li>
-            ))}
-          </ul>
-          <p className="body-xs ct-text-faint m-0">
-            {safetyHolds}/{safetyTotal} guarantees verified.
-          </p>
-        </div>
-      </div>
-    </section>
+    <AgenticGroup
+      id="safety-boundary"
+      title="Safety Boundary"
+      count={rows.length}
+      defaultOpen
+      note="The hard limits. Nothing executes here. Every write is gated; the most dangerous actions can never be autonomous."
+    >
+      <table className="agentic-table">
+        <thead>
+          <tr>
+            <th>Pillar</th>
+            <th>Guarantee</th>
+            <th>Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id} data-tone={r.tone}>
+              <td className="agentic-cell-strong">{r.pillar}</td>
+              <td>
+                <AgenticTag tone={r.tone}>{r.value}</AgenticTag>
+              </td>
+              <td className="agentic-cell-muted">
+                {r.note}
+                {r.detail && r.detail.items.length > 0 && (
+                  <details className="agentic-rowdetail">
+                    <summary className="agentic-rowdetail-summary">
+                      {r.detail.summary} ({r.detail.items.length})
+                    </summary>
+                    <div className="agentic-rowdetail-body">
+                      {r.detail.items.map((it) => (
+                        <span key={it}>{it}</span>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </AgenticGroup>
   );
 }

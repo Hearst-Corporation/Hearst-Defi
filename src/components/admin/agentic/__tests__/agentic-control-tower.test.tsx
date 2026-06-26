@@ -1,18 +1,18 @@
 /**
- * Agentic Control Tower V2 — component render contracts (SSR).
+ * Agentic Control Tower — component render contracts (SSR).
  *
- * Covers the new tower components: command summary, section nav, topology,
- * capabilities board, agents overview, safety boundary. Asserts the information
+ * Rewritten 2026-06-26 for the line/table/collapse console: status line,
+ * topology table, capabilities table, agents table (domain sub-headers), safety
+ * table — all inside collapsible <details> groups. Asserts the information
  * architecture (autonomous / gated / never-autonomous in product language), and
  * that NO execution control exists (no <button>/<form>/<input>, no Run/Execute/
- * Launch/Send/Deploy/Source/Mark-live actionable controls). renderToStaticMarkup
- * (repo convention — vitest env node, no @testing-library).
+ * Launch/Send/Deploy/Source/Mark-live actionable controls).
+ * renderToStaticMarkup (repo convention — vitest env node, no @testing-library).
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { AgenticCommandSummary } from "@/components/admin/agentic/agentic-command-summary";
-import { AgenticSectionNav } from "@/components/admin/agentic/agentic-section-nav";
+import { AgenticStatusLine } from "@/components/admin/agentic/agentic-command-summary";
 import { AgenticTopologyMap } from "@/components/admin/agentic/agentic-topology-map";
 import { AgenticCapabilitiesBoard } from "@/components/admin/agentic/agentic-capabilities-board";
 import { AgenticAgentsOverview } from "@/components/admin/agentic/agentic-agents-overview";
@@ -50,11 +50,11 @@ const NO_RUN_CONTROLS = (html: string) => {
   expect(actionable.test(html)).toBe(false);
 };
 
-describe("AgenticCommandSummary", () => {
-  const html = renderToStaticMarkup(<AgenticCommandSummary summary={SUMMARY} />);
+describe("AgenticStatusLine", () => {
+  const html = renderToStaticMarkup(<AgenticStatusLine summary={SUMMARY} />);
 
-  it("renders the hero with health + product headline numbers", () => {
-    expect(html).toContain("Agentic platform");
+  it("renders the status line with health + product headline numbers", () => {
+    expect(html).toContain("agentic-statusline");
     expect(html).toContain("Autonomous, read-only");
     expect(html).toContain("Gated writes");
     expect(html).toContain("Never autonomous");
@@ -62,23 +62,7 @@ describe("AgenticCommandSummary", () => {
   });
 
   it("renders nothing when summary is null", () => {
-    expect(renderToStaticMarkup(<AgenticCommandSummary summary={null} />)).toBe("");
-  });
-});
-
-describe("AgenticSectionNav", () => {
-  const html = renderToStaticMarkup(<AgenticSectionNav />);
-  it("renders in-page anchor links for the tower sections", () => {
-    expect(html).toContain('href="#overview"');
-    expect(html).toContain('href="#topology"');
-    expect(html).toContain('href="#capabilities"');
-    expect(html).toContain('href="#action-readiness"');
-    expect(html).toContain('href="#safety-boundary"');
-    NO_RUN_CONTROLS(html);
-  });
-  it("links are in-page anchors only (no external/exec hrefs)", () => {
-    const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1] ?? "");
-    for (const h of hrefs) expect(h.startsWith("#")).toBe(true);
+    expect(renderToStaticMarkup(<AgenticStatusLine summary={null} />)).toBe("");
   });
 });
 
@@ -91,7 +75,7 @@ describe("AgenticTopologyMap", () => {
       crewSimulations={SIMS}
     />,
   );
-  it("renders a readable schema with the major blocks (not 32 cards)", () => {
+  it("renders a readable facts table with the major blocks (not a card wall)", () => {
     expect(html).toContain("Intent Router");
     expect(html).toContain("Compliance Guards");
     expect(html).toContain("HITL Gates");
@@ -99,9 +83,9 @@ describe("AgenticTopologyMap", () => {
     expect(html).toContain("Agents & Crews".replace("&", "&amp;"));
     expect(html).toContain("Forbidden Zone");
     expect(html).toContain("Observability");
-    // topology node classes for the schema layout
-    expect(html).toContain("agentic-topology-node");
-    expect(html).toContain('data-tone="control"');
+    // line/table console primitives
+    expect(html).toContain("agentic-group");
+    expect(html).toContain("agentic-table");
     NO_RUN_CONTROLS(html);
   });
 });
@@ -123,9 +107,9 @@ describe("AgenticCapabilitiesBoard", () => {
 
 describe("AgenticAgentsOverview", () => {
   const html = renderToStaticMarkup(<AgenticAgentsOverview controlCenter={CC} />);
-  it("groups agents by domain (lanes), not 22 equal cards", () => {
+  it("groups agents by domain (sub-header rows), not 22 equal cards", () => {
     expect(html).toContain("Agents &amp; Crews");
-    expect(html).toContain("agentic-agents-lane");
+    expect(html).toContain("agentic-table-subhead");
     expect(html).toContain("Compliance");
     expect(html).toContain("Outreach");
     expect(html).toContain("reads only");

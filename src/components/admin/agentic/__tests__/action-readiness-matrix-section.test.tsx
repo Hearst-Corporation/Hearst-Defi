@@ -32,12 +32,17 @@ describe("ActionReadinessMatrixSection", () => {
     NO_WRITE_CONTROLS(html);
   });
 
-  it("renders the four tier lanes with data-tier attributes", () => {
+  it("renders the four tier lanes as table sub-header rows", () => {
     const html = render(MATRIX);
-    expect(html).toContain('data-tier="read_only"');
-    expect(html).toContain('data-tier="draft_or_proposal"');
-    expect(html).toContain('data-tier="confirmed_write"');
-    expect(html).toContain('data-tier="forbidden_autonomous"');
+    // Tier lanes are now grouped via sub-header rows inside the dense table,
+    // one per autonomy tier, each carrying the tier label + count.
+    const laneCount = (html.match(/class="agentic-table-subhead"/g) ?? []).length;
+    expect(laneCount).toBe(4);
+    // Each lane label appears within a sub-header cell.
+    expect(html).toContain(">Read-only<");
+    expect(html).toContain(">Draft / Proposal<");
+    expect(html).toContain(">Confirmed-write<");
+    expect(html).toContain(">Forbidden<");
     NO_WRITE_CONTROLS(html);
   });
 

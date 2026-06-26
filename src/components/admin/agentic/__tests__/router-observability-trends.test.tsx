@@ -55,7 +55,7 @@ describe("RouterObservabilityTrends", () => {
     expect(html).toContain("Outcome trend");
     expect(html).toContain("Outcome distribution");
     expect(html).toContain("Top matched rules");
-    expect(html).toContain("agentic-obs-trends-module");
+    expect(html).toContain("agentic-trends");
   });
 
   it("renders top matched rules with counts", () => {
@@ -91,9 +91,15 @@ describe("RouterObservabilityTrends", () => {
     expect(html).not.toContain("<button");
   });
 
-  it("uses DS color tokens, never a hardcoded hex", () => {
+  it("uses DS color tokens via tone-driven classes, never a hardcoded hex", () => {
     const html = render(filled, []);
+    // No raw hex anywhere, and no inline rgb()/rgba() color literals.
     expect(html).not.toMatch(/#[0-9a-fA-F]{6}/);
-    expect(html).toContain("var(--ct-");
+    expect(html).not.toMatch(/rgba?\(/);
+    // Color is carried by the token-only agentic vocabulary (data-tone + classes
+    // defined in admin-docs.css with var(--ct-*)), not inline style colors.
+    expect(html).toContain('data-tone="accent"');
+    expect(html).toContain("agentic-tag");
+    expect(html).toContain("agentic-bar-fill");
   });
 });

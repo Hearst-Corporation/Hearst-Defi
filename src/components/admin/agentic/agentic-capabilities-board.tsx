@@ -1,18 +1,18 @@
-// Admin · Agentic Control Tower — Capabilities Board (presentational).
+// Admin · Agentic Control Tower — Capabilities (presentational).
 //
-// READ-ONLY. Answers "what can the platform do, and how safely?" in four clear
-// capability columns: Autonomous today (read-only), Draft / proposal only,
-// Confirmed write (gated), Never autonomous. Product language — no jargon, no
-// per-item card wall. Pure component; data passed in, SSR-testable.
+// READ-ONLY. Rewritten 2026-06-26: "what can the platform do, and how safely?"
+// as one row per autonomy tier in a collapsible table (count · tier · meaning),
+// not four cards. The per-action detail lives once in Actions & Gates below.
+// No hardcoded values. Pure component.
 
+import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type { ActionReadinessMatrix, ActionReadinessTier } from "@/lib/agentic/action-readiness/types";
 
 interface Capability {
   tier: ActionReadinessTier;
   title: string;
-  /** Plain-language description of how safe this tier is. */
   meaning: string;
-  tone: "success" | "warning" | "danger";
+  tone: AgenticTone;
 }
 
 const CAPABILITIES: Capability[] = [
@@ -50,30 +50,35 @@ export function AgenticCapabilitiesBoard({
   if (!matrix) return null;
 
   return (
-    <section id="capabilities" className="agentic-stack" aria-label="Agentic capabilities">
-      <div className="agentic-section-head">
-        <h2 className="agentic-section-title m-0">Capabilities</h2>
-        <p className="body-sm ct-text-muted m-0">
-          What the platform can do, by how much human oversight it needs.
-        </p>
-      </div>
-
-      {/* Summary only — counts + plain-language meaning. The per-action detail
-          lives once in the Actions & Gates matrix below (no duplicated lists). */}
-      <div className="agentic-capability-grid">
-        {CAPABILITIES.map((c) => {
-          const count = matrix.items.filter((i) => i.tier === c.tier).length;
-          return (
-            <div key={c.tier} className="agentic-capability" data-tone={c.tone}>
-              <div className="agentic-capability-head">
-                <span className="agentic-capability-count tabular-nums">{count}</span>
-                <span className="agentic-capability-title">{c.title}</span>
-              </div>
-              <p className="body-xs ct-text-muted m-0">{c.meaning}</p>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+    <AgenticGroup
+      id="capabilities"
+      title="Capabilities"
+      count={CAPABILITIES.length}
+      note="What the platform can do, by how much human oversight it needs."
+    >
+      <table className="agentic-table">
+        <thead>
+          <tr>
+            <th className="agentic-cell-num">Count</th>
+            <th>Tier</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          {CAPABILITIES.map((c) => {
+            const count = matrix.items.filter((i) => i.tier === c.tier).length;
+            return (
+              <tr key={c.tier} data-tone={c.tone}>
+                <td className="agentic-cell-num agentic-cell-strong">{count}</td>
+                <td>
+                  <AgenticTag tone={c.tone}>{c.title}</AgenticTag>
+                </td>
+                <td className="agentic-cell-muted">{c.meaning}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </AgenticGroup>
   );
 }

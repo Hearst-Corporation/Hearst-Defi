@@ -100,9 +100,13 @@ describe("RouterObservabilityLongTerm", () => {
     expect(html).not.toContain("<button");
   });
 
-  it("uses DS tokens, never a hardcoded hex", () => {
+  it("uses DS tokens / tone classes, never a hardcoded hex", () => {
     const html = render(summary({ total: 1, days: [day({ date: "2026-06-25", total: 1, dangerousRefusals: 1 })] }));
+    // No literal hex anywhere — colour comes from the token-driven .agentic-bar
+    // grammar (data-tone in markup, var(--ct-*) in CSS), not inline values.
     expect(html).not.toMatch(/#[0-9a-fA-F]{6}/);
-    expect(html).toContain("var(--ct-");
+    expect(html).not.toMatch(/rgba?\(/);
+    expect(html).toContain('data-tone="danger"');
+    expect(html).toContain("agentic-bar");
   });
 });

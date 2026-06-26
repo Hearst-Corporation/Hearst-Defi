@@ -1,12 +1,12 @@
 // Admin · Agentic Control Tower (orchestrator, presentational).
 //
-// READ-ONLY. The single composition for /admin/agentic: command summary hero,
-// sticky section nav, topology schema, capabilities matrix, agents overview,
-// action readiness matrix, crew simulations, observability, and safety boundary.
-// Hierarchy first, details progressive. No write controls anywhere.
+// READ-ONLY. The single composition for /admin/agentic. Rewritten 2026-06-26 as
+// a dense line/table console: a status line, then a stack of collapsible record
+// groups (native <details>) — topology facts, capabilities, agents, actions &
+// gates, crew simulations, observability, safety boundary. No box grids, no
+// hardcoded values (every token is var(--ct-*)). No write controls anywhere.
 
-import { AgenticCommandSummary } from "@/components/admin/agentic/agentic-command-summary";
-import { AgenticSectionNav } from "@/components/admin/agentic/agentic-section-nav";
+import { AgenticStatusLine } from "@/components/admin/agentic/agentic-command-summary";
 import { AgenticTopologyMap } from "@/components/admin/agentic/agentic-topology-map";
 import { AgenticCapabilitiesBoard } from "@/components/admin/agentic/agentic-capabilities-board";
 import { AgenticAgentsOverview } from "@/components/admin/agentic/agentic-agents-overview";
@@ -41,10 +41,7 @@ export function AgenticControlTower({
 
   return (
     <div className="agentic-tower">
-      <div id="overview" className="agentic-overview">
-        <AgenticCommandSummary summary={summary} />
-        <AgenticSectionNav />
-      </div>
+      <AgenticStatusLine summary={summary} />
 
       <AgenticTopologyMap
         controlCenter={controlCenter}

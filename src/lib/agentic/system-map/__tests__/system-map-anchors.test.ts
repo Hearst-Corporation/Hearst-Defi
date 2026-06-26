@@ -43,8 +43,7 @@ describe("agentic page — control tower composition", () => {
 
 describe("control tower — section order (overview first, details progressive)", () => {
   const order = [
-    "AgenticCommandSummary",
-    "AgenticSectionNav",
+    "AgenticStatusLine",
     "AgenticTopologyMap",
     "AgenticCapabilitiesBoard",
     "AgenticAgentsOverview",
@@ -60,13 +59,11 @@ describe("control tower — section order (overview first, details progressive)"
     }
   });
 
-  it("renders the command summary + nav before the topology", () => {
-    const summaryIdx = TOWER.indexOf("<AgenticCommandSummary");
-    const navIdx = TOWER.indexOf("<AgenticSectionNav");
+  it("renders the status line before the topology", () => {
+    const summaryIdx = TOWER.indexOf("<AgenticStatusLine");
     const topologyIdx = TOWER.indexOf("<AgenticTopologyMap");
     expect(summaryIdx).toBeGreaterThan(-1);
-    expect(navIdx).toBeGreaterThan(summaryIdx);
-    expect(topologyIdx).toBeGreaterThan(navIdx);
+    expect(topologyIdx).toBeGreaterThan(summaryIdx);
   });
 
   it("renders the topology before the detail sections", () => {

@@ -1,16 +1,17 @@
-// Admin · Agentic Control Tower — Agents & Crews overview (presentational).
+// Admin · Agentic Control Tower — Agents & Crews (presentational).
 //
-// READ-ONLY. The agent / logic inventory grouped BY DOMAIN into compact lanes —
-// not 22 equal full-width cards. Each domain shows its agents as compact rows
-// with a write/gate marker, so an admin can scan "who exists" by area without a
-// documentation wall. Pure component; data passed in, SSR-testable.
+// READ-ONLY. Rewritten 2026-06-26: the agent / logic inventory as ONE table
+// inside a collapsible group, grouped by domain via sub-header rows. One dense
+// row per agent (name · domain · capability), not 22 cards. No hardcoded values.
+// Pure component.
 
+import { Fragment } from "react";
+import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type {
   AgenticControlCenterData,
   AgenticInventoryItem,
 } from "@/lib/agentic/control-center/types";
 
-/** Display order + friendly labels for the inventory domains. */
 const DOMAIN_LABEL: Record<string, string> = {
   chat: "Chat",
   routing: "Routing",
@@ -41,14 +42,13 @@ const DOMAIN_ORDER = [
   "observability",
 ];
 
-/** Plain-language capability marker for one inventory item. */
 function capability(item: AgenticInventoryItem): string {
   if (!item.writesAllowed) return "reads only";
   if (item.humanGateRequired) return "writes — gated";
   return "writes";
 }
 
-function capabilityTone(item: AgenticInventoryItem): "success" | "warning" | "danger" {
+function capabilityTone(item: AgenticInventoryItem): AgenticTone {
   if (!item.writesAllowed) return "success";
   if (item.humanGateRequired) return "warning";
   return "danger";
@@ -62,7 +62,6 @@ export function AgenticAgentsOverview({
   if (!controlCenter) return null;
   const inventory = controlCenter.inventory;
 
-  // Group by domain, preserving the display order; unknown domains go last.
   const byDomain = new Map<string, AgenticInventoryItem[]>();
   for (const item of inventory) {
     const list = byDomain.get(item.domain) ?? [];
@@ -78,42 +77,45 @@ export function AgenticAgentsOverview({
   const gatedCount = inventory.filter((i) => i.writesAllowed && i.humanGateRequired).length;
 
   return (
-    <section id="agents-overview" className="agentic-stack" aria-label="Agents and crews">
-      <div className="agentic-section-head">
-        <h2 className="agentic-section-title m-0">Agents &amp; Crews</h2>
-        <p className="body-sm ct-text-muted m-0">
-          {inventory.length} units · {domains.length} domains · {inventory.length - writeCount} read-only · {gatedCount} gated write{gatedCount !== 1 ? "s" : ""}
-        </p>
-      </div>
-
-      <div className="agentic-agents-grid">
-        {domains.map((domain) => {
-          const items = byDomain.get(domain) ?? [];
-          return (
-            <div key={domain} className="agentic-agents-lane">
-              <div className="agentic-agents-lane-head">
-                <span className="agentic-agents-lane-title">
-                  {DOMAIN_LABEL[domain] ?? domain}
-                </span>
-                <span className="ct-text-faint tabular-nums">{items.length}</span>
-              </div>
-              <ul className="agentic-agents-list">
+    <AgenticGroup
+      id="agents-overview"
+      title="Agents & Crews"
+      count={inventory.length}
+      note={`${inventory.length} units · ${domains.length} domains · ${inventory.length - writeCount} read-only · ${gatedCount} gated write${gatedCount !== 1 ? "s" : ""}.`}
+    >
+      <table className="agentic-table">
+        <thead>
+          <tr>
+            <th>Agent / surface</th>
+            <th>Capability</th>
+          </tr>
+        </thead>
+        <tbody>
+          {domains.map((domain) => {
+            const items = byDomain.get(domain) ?? [];
+            return (
+              <Fragment key={domain}>
+                <tr className="agentic-table-subhead">
+                  <td colSpan={2}>
+                    {DOMAIN_LABEL[domain] ?? domain}
+                    <span className="agentic-table-subhead-count">{items.length}</span>
+                  </td>
+                </tr>
                 {items.map((item) => (
-                  <li key={item.id} className="agentic-agents-row">
-                    <span className="body-xs ct-text-body flex-1 break-words">{item.name}</span>
-                    <span
-                      className="agentic-agents-cap"
-                      data-tone={capabilityTone(item)}
-                    >
-                      {capability(item)}
-                    </span>
-                  </li>
+                  <tr key={item.id} data-tone={capabilityTone(item)}>
+                    <td className="agentic-cell-strong">{item.name}</td>
+                    <td>
+                      <AgenticTag tone={capabilityTone(item)}>
+                        {capability(item)}
+                      </AgenticTag>
+                    </td>
+                  </tr>
                 ))}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </AgenticGroup>
   );
 }

@@ -1,15 +1,18 @@
 // Admin · Agentic Control Tower — Router Quality Review (presentational).
 //
-// READ-ONLY. Interprets the existing router observability data as a COMPACT
-// strip: health rates (unknown / dangerous-refusal / educational / nav /
-// fallback) + the negated-no-nav count rendered as dense table rows, and a
-// compact read-only WATCHLIST of degraded patterns. Top matched rules are NOT
-// repeated here — they live once in the Observability trends module above.
+// READ-ONLY. Rewritten 2026-06-26 to fit the line/table console. Lives nested
+// INSIDE the Observability group as a collapsible row-detail. Interprets the
+// existing router observability data as: a dense health-rates TABLE (metric ·
+// value · status) plus the negated-no-nav count, and a compact WATCHLIST table
+// of degraded patterns toned by severity. Top matched rules are NOT repeated
+// here — they live once in the Observability trends module above.
 // NO write controls, NO action buttons, NO rule/prompt editor, NO fake data.
 // Pure component — all data passed in, unit-testable via SSR.
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import {
+  AgenticTag,
+  type AgenticTone,
+} from "@/components/admin/agentic/agentic-group";
 import type {
   RouterQualityRate,
   RouterQualityReview,
@@ -17,54 +20,61 @@ import type {
   RouterQualitySignal,
 } from "@/lib/agentic/observability/types";
 
-type Tone = "success" | "warning" | "danger" | "default";
-
-/** Map a watchlist severity to a badge tone. */
-function severityTone(severity: RouterQualitySeverity): Tone {
+/** Map a watchlist severity to a tag tone. */
+function severityTone(severity: RouterQualitySeverity): AgenticTone {
   switch (severity) {
     case "alert":
       return "danger";
     case "watch":
       return "warning";
     default:
-      return "default";
+      return "info";
   }
 }
 
-/** One dense health-rate row: label · proportion bar · % · count/total. */
+/**
+ * Health-rate status from its share: higher share = noisier outcome. This is a
+ * presentational hint only (drives the row's tone rail + status tag); the data
+ * already carries the authoritative watchlist severities.
+ */
+function rateTone(rate: number): AgenticTone {
+  if (rate >= 0.15) return "warning";
+  if (rate >= 0.3) return "danger";
+  return "success";
+}
+
+/** One dense health-rate row: label · % + count/total · status tag. */
 function RateRow({ rate }: { rate: RouterQualityRate }) {
   const pct = Math.round(rate.rate * 1000) / 10; // one decimal %
+  const tone = rateTone(rate.rate);
   return (
-    <tr className="agentic-qr-row">
-      <td className="agentic-qr-rate-label body-xs ct-text-body">{rate.label}</td>
-      <td className="agentic-qr-bar-cell">
-        <span className="agentic-qr-bar" aria-hidden>
-          <span
-            className="agentic-qr-bar-fill"
-            style={{ width: `${Math.min(100, Math.max(0, rate.rate * 100))}%` }}
-          />
+    <tr data-tone={tone === "success" ? undefined : tone}>
+      <td className="agentic-cell-strong">{rate.label}</td>
+      <td className="agentic-cell-num">
+        {pct}%
+        <span className="agentic-cell-faint">
+          {" · "}
+          {rate.count}/{rate.total}
         </span>
       </td>
-      <td className="agentic-qr-pct body-xs ct-text-strong tabular-nums">{pct}%</td>
-      <td className="agentic-qr-frac body-xs ct-text-faint tabular-nums">
-        {rate.count}/{rate.total}
+      <td className="whitespace-nowrap">
+        <AgenticTag tone={tone}>{tone === "success" ? "ok" : tone}</AgenticTag>
       </td>
     </tr>
   );
 }
 
-/** One read-only watchlist row. Active rows are toned by severity; inactive are muted. */
+/** One read-only watchlist row. Active rows are toned by severity; inactive read "ok". */
 function WatchRow({ signal }: { signal: RouterQualitySignal }) {
+  const tone: AgenticTone = signal.active ? severityTone(signal.severity) : "success";
   return (
-    <li className="agentic-qr-watch-row">
-      <Badge variant={signal.active ? severityTone(signal.severity) : "default"}>
-        {signal.active ? signal.severity : "ok"}
-      </Badge>
-      <span className="body-xs flex-1 min-w-0">
-        <span className="ct-text-strong">{signal.label}</span>
-        <span className="ct-text-muted"> — {signal.detail}</span>
-      </span>
-    </li>
+    <tr data-tone={signal.active ? severityTone(signal.severity) : undefined}>
+      <td className="agentic-cell-strong">{signal.label}</td>
+      <td className="agentic-cell-muted">{signal.detail}</td>
+      <td className="whitespace-nowrap">
+        <AgenticTag tone={tone}>{signal.active ? signal.severity : "ok"}</AgenticTag>
+      </td>
+    </tr>
   );
 }
 
@@ -78,72 +88,74 @@ export function RouterQualityReview({
   const { total, rates, negatedNoNav, watchlist, activeSignalCount, note } = review;
 
   return (
-    <section
-      id="router-quality-review"
-      className="admin-doc-stack admin-doc-stack--tight"
-      aria-label="Router Quality Review"
-    >
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
-        <h3 className="h3 m-0">Router Quality Review</h3>
-        <span className="flex-1" />
-        <Badge variant={activeSignalCount > 0 ? "warning" : "success"}>
+    <details className="agentic-rowdetail" open>
+      <summary className="agentic-rowdetail-summary">
+        Router Quality Review
+        <AgenticTag tone={activeSignalCount > 0 ? "warning" : "success"}>
           {activeSignalCount > 0
             ? `${activeSignalCount} signal${activeSignalCount > 1 ? "s" : ""}`
             : "healthy"}
-        </Badge>
-      </div>
-      <p className="body-xs ct-text-muted m-0">
-        Read-only interpretation of the observability data above — health rates and
-        a watchlist of degraded patterns. No rule, prompt, guard, or HITL change; no
-        action — visibility only.
-      </p>
+        </AgenticTag>
+      </summary>
+      <div className="agentic-rowdetail-body">
+        <p className="m-0">
+          Read-only interpretation of the observability data above — health rates
+          and a watchlist of degraded patterns. No rule, prompt, guard, or HITL
+          change; no action — visibility only.
+        </p>
 
-      {total === 0 ? (
-        <Card
-          hoverOverlay={false}
-          contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-        >
-          <Badge variant="default">no data</Badge>
-          <p className="body-xs ct-text-muted">
+        {total === 0 ? (
+          <p className="agentic-empty-line m-0">
+            <AgenticTag tone="neutral">no data</AgenticTag>
             No router decisions in this window to review. Send chat traffic (or
             widen the window) to populate the quality review.
           </p>
-        </Card>
-      ) : (
-        <Card hoverOverlay={false} material="flat" contentClassName="agentic-qr-grid">
-          <div className="agentic-qr-block">
-            <span className="stat-label ct-text-muted">Health rates</span>
-            <table className="agentic-qr-table w-full">
+        ) : (
+          <>
+            <table className="agentic-table">
+              <thead>
+                <tr>
+                  <th>Health rate</th>
+                  <th className="agentic-cell-num">Value</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
               <tbody>
                 {rates.map((r) => (
                   <RateRow key={r.key} rate={r} />
                 ))}
-                <tr className="agentic-qr-row">
-                  <td className="agentic-qr-rate-label body-xs ct-text-body">
-                    Negated · no nav
-                  </td>
-                  <td className="agentic-qr-bar-cell" aria-hidden />
-                  <td className="agentic-qr-pct body-xs ct-text-strong tabular-nums">
+                <tr>
+                  <td className="agentic-cell-strong">Negated · no nav</td>
+                  <td className="agentic-cell-num">
                     {negatedNoNav}
+                    <span className="agentic-cell-faint">{" · blocked"}</span>
                   </td>
-                  <td className="agentic-qr-frac body-xs ct-text-faint">blocked</td>
+                  <td className="whitespace-nowrap">
+                    <AgenticTag tone="success">ok</AgenticTag>
+                  </td>
                 </tr>
               </tbody>
             </table>
-          </div>
 
-          <div className="agentic-qr-block">
-            <span className="stat-label ct-text-muted">Watchlist</span>
-            <ul className="agentic-qr-watchlist">
-              {watchlist.map((s) => (
-                <WatchRow key={s.key} signal={s} />
-              ))}
-            </ul>
-          </div>
-        </Card>
-      )}
+            <table className="agentic-table">
+              <thead>
+                <tr>
+                  <th>Watchlist</th>
+                  <th>Detail</th>
+                  <th>Severity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {watchlist.map((s) => (
+                  <WatchRow key={s.key} signal={s} />
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
 
-      <p className="body-xs ct-text-faint m-0">{note}</p>
-    </section>
+        <p className="agentic-cell-faint m-0">{note}</p>
+      </div>
+    </details>
   );
 }
