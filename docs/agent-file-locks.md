@@ -16,31 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/projection-methodology-v2
-Owner: Opus Orchestrateur — Projection Methodology v2
-Branch: feat/projection-methodology-v2
-Worktree: ../connect-opus-proj-v2
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/product-projection/** (additive v2 methodology)
-- src/lib/engine/prng.ts (REUSE only — read, no edit)
-- src/app/api/admin/agentic/projection/route.ts (additive input field)
-- src/lib/agentic/**/__tests__/**
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend only. Add seeded p5/p50/p95 methodology v2 to the projection artifact.
-- Reuses the existing pure seeded PRNG (src/lib/engine/prng.ts) — no new dependency.
-- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
-- No Prisma migration, no DB write, no write action, no external tool, no execution.
-- Seed injected; no Date.now/Math.random unseeded; APY range/distribution only;
-  no invented numbers; no guaranteed return; no prompt/user text.
-- Does NOT touch src/components/** (another agent's UI).
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -98,6 +73,40 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/projection-methodology-v2
+Owner: Opus Orchestrateur — Projection Methodology v2
+Branch: feat/projection-methodology-v2
+Merged PR: #105 (merge fe02c6c7)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Added seeded p5/p50/p95 methodology v2 to the read-only product projection — additive/non-breaking
+  (omit methodology → v0 unchanged). Pure & deterministic, REUSES the existing seeded PRNG
+  (src/lib/engine/prng.ts, untouched) — no Math.random/Date.now, no new dependency. New
+  product-projection/projection-methodology-v2.ts buildProjectionDistribution
+  (seeded_scenario_distribution: truncated-normal APY samples clamped to the PROVIDED apyRange,
+  projected yield = capitalBase×apy×horizon/12, linear-interp p5/p50/p95 + per-month bands ≤24pts;
+  seed explicit string→FNV-1a / number, or derived:<hash> from inputs; iterations clamped [100,10000];
+  null when apyRange absent — never fabricated). types: additive ProjectionMethodologyInput on input;
+  ProjectionMethodology/Percentile/Distribution; artifact gains optional methodology+distribution,
+  version "v0"|"v2", chart union += percentile_band. build-projection-artifact attaches them on
+  version:"v2" (absent apyRange → missingInputs methodology_v2(needs apyRange), stays v0).
+  validate-projection-input allowlists methodology (version v1|v2, seed, iterations, confidenceBands;
+  invalid → 400). projection-guards v2 checks: seed present, iterations bounded, p5≤p50≤p95, no
+  NaN/Inf, limitations present. API POST /api/admin/agentic/projection additive (no route change).
+  Tests: engine (determinism-by-seed, ordering, clamp, no NaN/Inf, null-on-missing, derived seed) +
+  artifact (v0 unchanged, v2 adds methodology/distribution/chart, guard catches tampered ordering) +
+  API (v2 200 deterministic, invalid 400). Docs: PROJECTION_METHODOLOGY_V2.md + PRODUCT_PROJECTION_
+  SWARM.md note. Verified live (:4112): v0 no distribution; v2+seed → p5/p50/p95 8.52/11.45/14.31%
+  ordered in [8,15], p50 yield 114500 USDC, 12 bands, percentile_band chart, 3 limitations, no NaN/Inf;
+  same seed → IDENTICAL; invalid → 400; no prompt leak. typecheck PASS, build PASS (postgresql), 588
+  agentic tests pass (2 pre-existing reporting-crew DB tests rouge = env client-provider mismatch).
+  src/lib/engine untouched (reuse only). No UI/DS, no migration, no execution, no external tool, no
+  financial guarantee, APY range/distribution only. Did NOT touch src/components/** (another agent's
+  UI). Next lot (enhancement, not a gap): market-calibrated v2 via the mining/BTC Monte-Carlo engine,
+  or a read-only UI lot (Scenario Lab / projection panel) rendering distribution.bands.
 
 ### feat/product-projection-swarm
 Owner: Opus Orchestrateur — Product Projection Swarm
