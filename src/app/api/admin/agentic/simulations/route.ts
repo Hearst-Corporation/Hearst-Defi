@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { logger } from "@/lib/logger";
+import { assertRateLimit } from "@/lib/rate-limit";
 import {
   readSimulationTraces,
   SIMULATION_TRACES_CAP,
@@ -11,6 +12,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_LIMIT = 50;
+const READ_RATE_MAX = 60;
+const READ_RATE_WINDOW_MS = 60_000;
 
 /**
  * GET /api/admin/agentic/simulations?limit=N
@@ -18,11 +21,13 @@ const DEFAULT_LIMIT = 50;
  * Admin-gated, READ-ONLY list of recent agentic simulation traces (metadata
  * only — no prompt / user text / payload / secrets). Served `no-store`. The
  * store is Redis-capped + in-memory (no DB); if it is empty the list is empty.
- * `limit` is clamped to [1, SIMULATION_TRACES_CAP].
+ * `limit` is clamped to [1, SIMULATION_TRACES_CAP]. Read rate-limited per admin.
  */
 export async function GET(request: NextRequest): Promise<Response> {
+  let userId: string;
   try {
-    await requireAdmin();
+    const auth = await requireAdmin();
+    userId = auth.userId;
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Admin access required";
@@ -32,6 +37,19 @@ export async function GET(request: NextRequest): Promise<Response> {
     return NextResponse.json(
       { error: message },
       { status: isAuthRequired ? 401 : 403 },
+    );
+  }
+
+  try {
+    await assertRateLimit(
+      `agentic-simulations:${userId}`,
+      READ_RATE_MAX,
+      READ_RATE_WINDOW_MS,
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "Too many requests — try again in a moment." },
+      { status: 429 },
     );
   }
 

@@ -14,6 +14,10 @@ vi.mock("@/lib/auth/require-admin", () => ({
   requireAdmin: vi.fn(),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({
+  assertRateLimit: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("@/lib/logger", () => ({
   logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
