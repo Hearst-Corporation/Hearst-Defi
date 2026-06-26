@@ -139,7 +139,7 @@
 .dashboard-readiness__run:hover {
   background: color-mix(in srgb, var(--ct-accent) 85%, white 15%);
   color: var(--ct-text-on-accent);
-  opacity: 0.92;
+  opacity: var(--ct-opacity-92);
 }
 
 /* ── Stats grid: vault mode + oracle freshness only (2 cells). ── */

@@ -1004,7 +1004,7 @@ body {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   line-height: var(--ct-leading-tight);
-  opacity: 0.68;
+  opacity: var(--ct-opacity-68);
   text-overflow: unset;
   white-space: normal;
 }
@@ -4907,7 +4907,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-chat-msg.user .ct-chat-msg-plain {
   color: var(--ct-text-primary);
   font-style: italic; /* Elegant "personal note" feel */
-  opacity: 0.9;
+  opacity: var(--ct-opacity-90);
 }
 .ct-chat-msg.assistant {
   align-self: flex-start;
@@ -5123,7 +5123,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-chat-msg-md p:last-child { margin-bottom: 0; }
 
 .ct-chat-msg-md strong { font-weight: var(--ct-font-bold); color: var(--ct-text-strong); }
-.ct-chat-msg-md em { font-style: italic; opacity: 0.9; }
+.ct-chat-msg-md em { font-style: italic; opacity: var(--ct-opacity-90); }
 
 .ct-chat-msg-md ul,
 .ct-chat-msg-md ol { 
@@ -5183,7 +5183,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 
 @keyframes ct-chat-thinking-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  0%, 100% { opacity: var(--ct-opacity-40); transform: scale(0.92); }
   50% { opacity: 1; transform: scale(1.08); }
 }
 
@@ -5600,7 +5600,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   left: 30%;
   transform: translate(-50%, -50%);
   filter: var(--ct-blur-glow-lg);
-  opacity: 0.04;
+  opacity: var(--ct-opacity-4);
 }
 
 .dash-ambient-orb--secondary {
@@ -5610,7 +5610,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   right: 10%;
   transform: translate(50%, 50%);
   filter: var(--ct-blur-glow-lg);
-  opacity: 0.03;
+  opacity: var(--ct-opacity-3);
 }
 
 /* ════════════════════════════════════════════════════════════════════════

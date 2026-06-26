@@ -38,6 +38,8 @@
      Échelle 1:1 des valeurs réellement utilisées → zéro régression visuelle.
      Le gate ds-layout-audit bannit les opacités nues hors de cette échelle. */
   --ct-opacity-2: 0.02;
+  --ct-opacity-3: 0.03;
+  --ct-opacity-4: 0.04;
   --ct-opacity-7: 0.07;
   --ct-opacity-8: 0.08;
   --ct-opacity-12: 0.12;
@@ -53,11 +55,13 @@
   --ct-opacity-50: 0.5;
   --ct-opacity-55: 0.55;
   --ct-opacity-60: 0.6;
+  --ct-opacity-68: 0.68;
   --ct-opacity-70: 0.7;
   --ct-opacity-75: 0.75;
   --ct-opacity-80: 0.8;
   --ct-opacity-85: 0.85;
   --ct-opacity-90: 0.9;
+  --ct-opacity-92: 0.92;
 
   /* Single source of truth = app design-lock (--font-sans, Satoshi Variable in globals.css).
      Previously hard-coded "Inter" here, silently overriding the design-lock at runtime. */
