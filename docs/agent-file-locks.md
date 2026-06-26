@@ -71,6 +71,30 @@ Files:
 
 ---
 
+### feat/agentic-backend-foundation
+Owner: Opus Orchestrateur — Agentic Backend / Swarm / Crew Foundation
+Branch: feat/agentic-backend-foundation
+Worktree: ../connect-opus-agentic-backend
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/swarm/** (new)
+- src/lib/agentic/action-readiness/** (additive evaluator only)
+- tests for the above
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend only — pure typed lib + tests + docs.
+- No UI/UX. No DS. No /admin/agentic visual changes.
+- No proof-center / vault / portfolio changes.
+- No dangerous execution, no send/deploy/write, no external tool calls.
+- No DB migration, no schema change, no secrets, no prompt/user-text storage.
+- Composes EXISTING crews — invents no new agents, changes no real numbers.
+
+---
+
 ## RELEASED LOCKS
 
 ### fix/prisma-worktree-isolation
