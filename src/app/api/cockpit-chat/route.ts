@@ -74,11 +74,15 @@ import {
   withCanvasStreamEvents,
   buildDeterministicCanvasStream,
 } from "@/lib/canvas/emit";
-import { deriveOutreachValuesFromObjective } from "@/lib/canvas/compose";
 import {
-  classifyOutreachIntent,
   buildOutreachAskFieldsMessage,
-  buildOutreachFieldsAckMessage,
+  buildOutreachDraftComplaintFixedMessage,
+  buildOutreachDraftPreparedMessage,
+  buildOutreachOpenCampaignMessage,
+  buildOutreachWorkflowStateFromMessages,
+  parseOutreachMessage,
+  reduceOutreachWorkflowState,
+  type OutreachWorkflowState,
 } from "@/lib/canvas/outreach-turn";
 import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
 import { buildCanvasGuidanceBlock } from "@/lib/canvas/guidance";
@@ -101,6 +105,7 @@ export const dynamic = "force-dynamic";
 // value of localStorage["cockpit:chat-model"]; anything outside this allowlist
 // falls back to the default so a tampered body can't pick an arbitrary model.
 const ALLOWED_MODELS = new Set<string>([env.OPENAI_MODEL]);
+const outreachStateCache = new Map<string, OutreachWorkflowState>();
 
 function resolveModel(requested: string | undefined): string {
   return requested && ALLOWED_MODELS.has(requested) ? requested : LLM_MODEL;
@@ -548,6 +553,7 @@ async function runMasterAgentTurn(args: {
   // without the marker never opens a canvas (returns null).
   let canvasIntent = detectCanvasIntent(rawMessage);
   const message = canvasIntent ? canvasIntent.cleanedMessage || rawMessage : rawMessage;
+  const outreachParsed = parseOutreachMessage(message);
 
   const persistence = createUserScopedPersistence(userId, chatMode);
 
@@ -624,7 +630,15 @@ async function runMasterAgentTurn(args: {
   // regex classifier BEFORE any model call, so opening the workshop never depends
   // on the LLM. The LLM classifier below stays only as a fallback for phrasings
   // the regex misses.
-  if (!isReview && isAdmin && !canvasIntent && classifyOutreachIntent(message).isOutreach) {
+  if (
+    !isReview &&
+    isAdmin &&
+    !canvasIntent &&
+    (outreachParsed.intent === "outreach_start" ||
+      outreachParsed.intent === "outreach_slots" ||
+      outreachParsed.intent === "outreach_open_campaign" ||
+      outreachParsed.intent === "outreach_draft_missing_complaint")
+  ) {
     canvasIntent = { canvasId: "outreach", cleanedMessage: message };
   }
 
@@ -920,21 +934,34 @@ async function runMasterAgentTurn(args: {
   // It NEVER creates a draft, sources leads, or announces an automatic action.
   // ────────────────────────────────────────────────────────────────────────
   if (canvasActive && canvasIntent && canvasIntent.canvasId === "outreach") {
-    const outreachValues = deriveOutreachValuesFromObjective(message);
-    const intent = classifyOutreachIntent(message);
-    const suppliesField = Boolean(
-      outreachValues && (outreachValues.name || outreachValues.kind),
-    );
-    const isSetupMessage = intent.isOutreach || suppliesField;
-    if (isSetupMessage) {
-      const fieldsComplete = Boolean(outreachValues?.name && outreachValues?.kind);
+    const priorUserMessages = history
+      .filter((m) => m.role === "user")
+      .map((m) => m.content);
+    const fromHistory = buildOutreachWorkflowStateFromMessages(priorUserMessages);
+    const cached = outreachStateCache.get(userId);
+    let outreachState: OutreachWorkflowState = cached
+      ? {
+          ...fromHistory,
+          ...cached,
+          workflow: "outreach_campaign",
+          draftStatus: cached.draftStatus ?? fromHistory.draftStatus ?? "none",
+        }
+      : fromHistory;
+    outreachState = reduceOutreachWorkflowState(outreachState, outreachParsed);
+    outreachStateCache.set(userId, outreachState);
+
+    if (outreachParsed.intent !== "none") {
       const detValues: Record<string, string> = {};
-      if (outreachValues?.name) detValues.name = outreachValues.name;
-      if (outreachValues?.kind) detValues.kind = outreachValues.kind;
+      if (outreachState.campaignName) detValues.name = outreachState.campaignName;
+      if (outreachState.campaignType) detValues.kind = outreachState.campaignType;
+      if (outreachState.draftContent?.subject) detValues.draftSubject = outreachState.draftContent.subject;
+      if (outreachState.draftContent?.body) detValues.draftBody = outreachState.draftContent.body;
+      if (outreachState.draftContent?.audienceNote) {
+        detValues.draftAudienceNote = outreachState.draftContent.audienceNote;
+      }
       const detObjective =
         message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220) || undefined;
 
-      // Open / refresh the workshop page (best-effort — never blocks the response).
       await publishNav(userId, {
         destinationKey: getCanvasDefinition("outreach").destinationKey,
         canvasId: "outreach",
@@ -944,19 +971,19 @@ async function runMasterAgentTurn(args: {
         /* best-effort nav publish */
       });
 
+      const hasPreparedDraft = Boolean(
+        outreachState.draftContent?.subject?.trim() &&
+          outreachState.draftContent?.body?.trim(),
+      );
       const templateText =
-        fieldsComplete && outreachValues?.name && outreachValues?.kind
-          ? buildOutreachFieldsAckMessage({
-              name: outreachValues.name,
-              kind: outreachValues.kind,
-            })
-          : buildOutreachAskFieldsMessage({
-              ...(intent.target ? { target: intent.target } : {}),
-              ...(intent.product ? { product: intent.product } : {}),
-            });
+        outreachParsed.intent === "outreach_draft_missing_complaint"
+          ? buildOutreachDraftComplaintFixedMessage(outreachState)
+          : outreachParsed.intent === "outreach_open_campaign"
+            ? buildOutreachOpenCampaignMessage(outreachState)
+            : hasPreparedDraft
+              ? buildOutreachDraftPreparedMessage(outreachState)
+              : buildOutreachAskFieldsMessage(outreachState);
 
-      // Persist the assistant template + the hidden canvas open-marker so the
-      // NEXT turn (detectActiveCanvasFromHistory) knows the workshop is on screen.
       if (chatId) {
         void persistence
           .saveMessage(chatId, {
@@ -970,7 +997,6 @@ async function runMasterAgentTurn(args: {
           });
       }
 
-      // No LLM was invoked → no LlmRun trace (honest: nothing ran on the model).
       return new Response(
         buildDeterministicCanvasStream({
           canvasId: "outreach",
@@ -1025,19 +1051,31 @@ async function runMasterAgentTurn(args: {
       };
     }
 
-    // Agent fills canvas fields from what the operator says (outreach: name/kind).
+    // Agent fills canvas fields from deterministic Outreach state.
     if (canvasIntent.canvasId === "outreach") {
-      // Canonical field extraction: the SAME deterministic, regex-only function
-      // the degraded autostart route uses (deriveOutreachValuesFromObjective), so
-      // the live stream and the fallback compose from ONE source of truth and can
-      // never diverge (Fix C). It only returns a name when the operator EXPLICITLY
-      // named the campaign ("nommée …") and a kind when stated (cold | newsletter);
-      // it never invents a name from a generic objective — the old LLM extractor
-      // did, surfacing "distributeurs institutionnels" as a campaign name.
-      const extracted = deriveOutreachValuesFromObjective(message);
+      const priorUserMessages = history
+        .filter((m) => m.role === "user")
+        .map((m) => m.content);
+      const fromHistory = buildOutreachWorkflowStateFromMessages(priorUserMessages);
+      const cached = outreachStateCache.get(userId);
+      let outreachState: OutreachWorkflowState = cached
+        ? {
+            ...fromHistory,
+            ...cached,
+            workflow: "outreach_campaign",
+            draftStatus: cached.draftStatus ?? fromHistory.draftStatus ?? "none",
+          }
+        : fromHistory;
+      outreachState = reduceOutreachWorkflowState(outreachState, outreachParsed);
+      outreachStateCache.set(userId, outreachState);
       const v: Record<string, string> = {};
-      if (extracted?.name) v.name = extracted.name;
-      if (extracted?.kind) v.kind = extracted.kind;
+      if (outreachState.campaignName) v.name = outreachState.campaignName;
+      if (outreachState.campaignType) v.kind = outreachState.campaignType;
+      if (outreachState.draftContent?.subject) v.draftSubject = outreachState.draftContent.subject;
+      if (outreachState.draftContent?.body) v.draftBody = outreachState.draftContent.body;
+      if (outreachState.draftContent?.audienceNote) {
+        v.draftAudienceNote = outreachState.draftContent.audienceNote;
+      }
       if (Object.keys(v).length > 0) canvasValues = v;
 
       // Canonical-state sync (ROUTE-2 / WIRE-3): when a FOLLOW-UP message on an

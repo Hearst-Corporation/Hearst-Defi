@@ -273,6 +273,10 @@ function composeOutreach(
   // gate below requires providedKind); the ?? "cold" only satisfies the type and
   // never actually defaults a surfaced proposal.
   const campaignKind: "cold" | "newsletter" = providedKind ?? "cold";
+  const draftSubject = values?.draftSubject?.trim() ?? "";
+  const draftBody = values?.draftBody?.trim() ?? "";
+  const draftAudienceNote = values?.draftAudienceNote?.trim() ?? "";
+  const draftReady = draftSubject.length > 0 && draftBody.length > 0;
 
   // Gating (ROUTE-2 / Fix D): the create_campaign_draft proposal is only surfaced
   // once BOTH required fields are present — a non-empty name AND an EXPLICIT kind.
@@ -435,6 +439,39 @@ function composeOutreach(
       actions: [sourceProposal, sendProposal].filter(
         (p): p is PendingActionProposal => p !== null,
       ),
+    },
+    {
+      id: "outreach-draft",
+      title: "Draft content",
+      status: draftReady ? "ready" : "building",
+      intro: draftReady
+        ? "Draft content is prepared for review. No send action has been triggered."
+        : "Draft content will appear here once campaign name and type are set.",
+      fields: [
+        {
+          key: "subject",
+          label: "Subject",
+          value: draftSubject || "—",
+          provenance: "Manual",
+          editable: false,
+        },
+        {
+          key: "body",
+          label: "Body",
+          value: draftBody || "—",
+          provenance: "Manual",
+          editable: false,
+        },
+        {
+          key: "audience",
+          label: "Audience note",
+          value: draftAudienceNote || "—",
+          provenance: "Manual",
+          editable: false,
+        },
+      ],
+      options: [],
+      actions: [],
     },
   ];
 }
