@@ -42,8 +42,22 @@ interface ValueChartProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
-  apyLow?: number;
-  apyHigh?: number;
+}
+
+function smartDefaultRange(
+  transactions: ValueSeriesTx[],
+  now: Date,
+): ChartTimeRange {
+  if (transactions.length === 0) return "30d";
+  const earliest = transactions.reduce(
+    (min, tx) => (tx.occurredAt < min ? tx.occurredAt : min),
+    transactions[0]!.occurredAt,
+  );
+  const ageMs = now.getTime() - earliest.getTime();
+  const DAY = 24 * 60 * 60 * 1000;
+  // If all activity fits within 30d, zoom out to ALL so the chart uses full width
+  if (ageMs <= 30 * DAY) return "all";
+  return "30d";
 }
 
 export function ValueChart({
@@ -54,16 +68,16 @@ export function ValueChart({
   source,
   updatedAt,
   embedded = false,
-  apyLow: _apyLow,
-  apyHigh: _apyHigh,
 }: ValueChartProps) {
   const uid = useId();
-  const [range, setRange] = useState<ChartTimeRange>("30d");
+  const anchorDate = updatedAt ?? new Date();
+  const isEmpty = totalValueUsdc === 0 && positions.length === 0;
+
+  const [range, setRange] = useState<ChartTimeRange>(() =>
+    smartDefaultRange(valueChartTransactions, anchorDate),
+  );
   const [hoverPoint, setHoverPoint] = useState<ChartPoint | null>(null);
   const hoverIndexRef = useRef(-1);
-
-  const isEmpty = totalValueUsdc === 0 && positions.length === 0;
-  const anchorDate = updatedAt ?? new Date();
 
   const provenance: Provenance | undefined = isEmpty
     ? undefined
@@ -172,7 +186,7 @@ export function ValueChart({
             <div className="pf-vc-header__row2">
               <div className="pf-vc-balance">
                 <span className="pf-vc-balance__sym">$</span>
-                <span className="text-hero tabular">
+                <span className="pf-hero-kpi-value">
                   {formatUsdDetailed(chartValue).replace("$", "")}
                 </span>
               </div>
