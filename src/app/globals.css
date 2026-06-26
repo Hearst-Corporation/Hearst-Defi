@@ -296,14 +296,14 @@ code,
   gap: var(--ct-space-3);
   padding-block: var(--ct-space-2_5);
 }
-.app-footer--compact > .app-footer__brand {
-  justify-self: start;
-  padding-inline-start: var(--ct-space-5);
-}
+/* Liens centrés sur la section centrale (col 2 = .ct-page-area), brand à DROITE
+   (col 3 = sous le chat). La col 1 (gauche, sous le rail) reste vide. */
 .app-footer--compact > .app-footer__links {
+  grid-column: 2;
   justify-self: center;
 }
-.app-footer--compact > .app-footer__status {
+.app-footer--compact > .app-footer__brand {
+  grid-column: 3;
   justify-self: end;
   padding-inline-end: var(--ct-space-5);
 }

@@ -44,12 +44,6 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
   if (variant === "compact") {
     return (
       <footer className="app-footer app-footer--compact" aria-label="Legal">
-        <span className="app-footer__brand body-xs ct-text-faint">
-          <span aria-hidden className="app-footer__diamond">
-            ◆
-          </span>
-          Hearst Yield Vault
-        </span>
         <nav className="app-footer__links" aria-label="Legal links">
           {LEGAL_LINKS.slice(0, 3).map((link, i) => (
             <span key={`${link.href}-${i}`} className="app-footer__item">
@@ -67,6 +61,12 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
             </span>
           ))}
         </nav>
+        <span className="app-footer__brand body-xs ct-text-faint">
+          <span aria-hidden className="app-footer__diamond">
+            ◆
+          </span>
+          Hearst Yield Vault
+        </span>
       </footer>
     );
   }
