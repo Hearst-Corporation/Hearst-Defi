@@ -16,6 +16,28 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### chore/swarm-calibration
+Owner: Opus Orchestrateur — Swarm Calibration
+Branch: chore/swarm-calibration
+Worktree: ../connect-opus-swarm-calib
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/__tests__/swarm-calibration.test.ts (new, non-destructive)
+- scripts/agentic/** (new optional live-calibration script)
+- docs/agentic/** (calibration notes)
+- docs/agent-file-locks.md
+
+Notes:
+- Read-only calibration campaign of the agentic backend (registry/simulate/
+  observability/aggregates). Adds a pure safety-invariant test only.
+- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
+- No Prisma migration, no DB write, no business mutation, no external tool.
+- Does NOT touch src/components/** (another agent's active UI work).
+
+---
+
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
