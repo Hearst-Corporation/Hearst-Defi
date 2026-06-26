@@ -82,44 +82,69 @@ async function main() {
   // 2) per-swarm safety matrix
   for (const s of swarms) {
     const sw = s.id;
+    const scoped = Array.isArray(s.allowedActionIds); // enforcing swarm
     const base = await simulate({ swarmId: sw });
     check(`${sw}: valid simulate 200`, base.status === 200);
     check(`${sw}: sideEffects false`, base.json?.sideEffects === false);
 
+    // Universal floor — holds for EVERY swarm regardless of scope.
     const fb = await simulate({
       swarmId: sw,
       actionId: FORBIDDEN_ACTION,
       context: { hasHumanConfirmationToken: true },
     });
     check(
-      `${sw}: forbidden stays blocked WITH token`,
+      `${sw}: forbidden_autonomous blocked WITH token`,
       fb.json?.readiness?.decision === "blocked",
       fb.json?.readiness?.reasonCode,
     );
-
-    const cw = await simulate({ swarmId: sw, actionId: CONFIRMED_ACTION });
-    check(
-      `${sw}: confirmed_write needs human (no token)`,
-      cw.json?.readiness?.decision === "requires_human_confirmation",
-    );
-
-    const dr = await simulate({ swarmId: sw, actionId: DRAFT_ACTION });
-    check(`${sw}: draft is gated`, dr.json?.readiness?.decision === "gated");
-
-    const ro = await simulate({ swarmId: sw, actionId: READ_ACTION });
-    check(`${sw}: read_only allowed`, ro.json?.readiness?.decision === "allow");
-
     const uk = await simulate({ swarmId: sw, actionId: UNKNOWN_ACTION });
     check(
       `${sw}: unknown action blocked fail-safe`,
       uk.json?.readiness?.decision === "blocked" && uk.json?.readiness?.unknown === true,
     );
-
-    // no leak
     check(
       `${sw}: no prompt/user-text/raw leak`,
       !/"(prompt|userText|rawBody|cookie|secret)"/i.test(JSON.stringify(base.json)),
     );
+
+    if (scoped) {
+      // ENFORCING swarm: out-of-scope blocked, in-scope reachable, swarm-forbidden blocked.
+      const inScope = s.allowedActionIds[0];
+      const isc = await simulate({ swarmId: sw, actionId: inScope });
+      check(
+        `${sw}: in-scope action reachable (${inScope})`,
+        isc.json?.readiness?.reasonCode !== "action_out_of_swarm_scope",
+      );
+      if (!s.allowedActionIds.includes(READ_ACTION)) {
+        const oos = await simulate({ swarmId: sw, actionId: READ_ACTION });
+        check(
+          `${sw}: out-of-scope action blocked (action_out_of_swarm_scope)`,
+          oos.json?.readiness?.decision === "blocked" &&
+            oos.json?.readiness?.reasonCode === "action_out_of_swarm_scope",
+        );
+      }
+      const fbAction = s.forbiddenActions[0];
+      if (fbAction) {
+        const fbs = await simulate({ swarmId: sw, actionId: fbAction });
+        check(
+          `${sw}: swarm-forbidden action blocked (${fbAction})`,
+          fbs.json?.readiness?.decision === "blocked",
+          fbs.json?.readiness?.reasonCode,
+        );
+      }
+    } else {
+      // TIER-ONLY swarm: backward-compatible behaviour.
+      const cw = await simulate({ swarmId: sw, actionId: CONFIRMED_ACTION });
+      check(
+        `${sw}: confirmed_write needs human (no token)`,
+        cw.json?.readiness?.decision === "requires_human_confirmation",
+      );
+      const dr = await simulate({ swarmId: sw, actionId: DRAFT_ACTION });
+      check(`${sw}: draft is gated`, dr.json?.readiness?.decision === "gated");
+      const ro = await simulate({ swarmId: sw, actionId: READ_ACTION });
+      check(`${sw}: read_only allowed`, ro.json?.readiness?.decision === "allow");
+    }
 
     if (RECORD) {
       const rec = await simulate({ swarmId: sw, observability: { record: true } });

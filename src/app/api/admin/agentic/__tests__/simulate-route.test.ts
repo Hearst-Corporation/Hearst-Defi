@@ -118,16 +118,70 @@ describe("POST /api/admin/agentic/simulate", () => {
     expect(body.readiness.reasonCode).toBe("forbidden_autonomous");
   });
 
-  it("requires human confirmation for confirmed_write without a token", async () => {
+  it("requires human confirmation for confirmed_write without a token (unscoped swarm)", async () => {
+    // platform_reporting_swarm has no enforced scope, so a confirmed_write action
+    // falls through to the tier decision (requires_human_confirmation without a
+    // token). The scoped outreach swarm's forbidden-by-swarm behaviour is covered
+    // by the boundary-enforcement test suite.
     mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
     const res = await POST(
       makeRequest({
-        swarmId: "outreach_governed_swarm",
+        swarmId: "platform_reporting_swarm",
         actionId: "outreach_trigger_send_run",
       }),
     );
     const body = (await res.json()) as { readiness: { decision: string } };
     expect(body.readiness.decision).toBe("requires_human_confirmation");
+  });
+
+  it("enforces the outreach swarm scope: the send-run is blocked by the swarm even with a token", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
+    const res = await POST(
+      makeRequest({
+        swarmId: "outreach_governed_swarm",
+        actionId: "outreach_trigger_send_run",
+        context: { hasHumanConfirmationToken: true },
+      }),
+    );
+    const body = (await res.json()) as {
+      readiness: { decision: string; reasonCode: string; swarmScoped: boolean };
+    };
+    expect(body.readiness.decision).toBe("blocked");
+    expect(body.readiness.reasonCode).toBe("forbidden_by_swarm");
+    expect(body.readiness.swarmScoped).toBe(true);
+  });
+
+  it("enforces the outreach swarm scope: an out-of-scope read action is blocked", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
+    const res = await POST(
+      makeRequest({
+        swarmId: "outreach_governed_swarm",
+        actionId: "read_observability",
+      }),
+    );
+    const body = (await res.json()) as {
+      readiness: { decision: string; reasonCode: string };
+    };
+    expect(body.readiness.decision).toBe("blocked");
+    expect(body.readiness.reasonCode).toBe("action_out_of_swarm_scope");
+  });
+
+  it("allows an in-scope read action and gates an in-scope draft on the outreach swarm", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
+    const ro = await POST(
+      makeRequest({
+        swarmId: "outreach_governed_swarm",
+        actionId: "navigate_admin_surface",
+      }),
+    );
+    expect(((await ro.json()) as { readiness: { decision: string } }).readiness.decision).toBe("allow");
+    const draft = await POST(
+      makeRequest({
+        swarmId: "outreach_governed_swarm",
+        actionId: "draft_outreach_email",
+      }),
+    );
+    expect(((await draft.json()) as { readiness: { decision: string } }).readiness.decision).toBe("gated");
   });
 
   it("blocks an unknown write-like action (fail-safe)", async () => {

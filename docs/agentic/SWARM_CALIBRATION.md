@@ -68,15 +68,57 @@ Reproduce: `pnpm test -- src/lib/agentic/__tests__/swarm-calibration.test.ts`
   `byReadinessOutcome`/`topReasonCodes` correct, invalid `limit`/`window` → 400,
   no `id`/`createdAt`/prompt leak.
 
-## Structural finding
+## Structural finding (original) — now partially resolved
 
-**Readiness is swarm-independent.** `evaluateActionReadiness(actionId)` ignores
-which swarm is being simulated — the same action returns the identical decision
-against every swarm, and a swarm's `forbiddenActions` metadata is **not** consulted
-by the readiness evaluator. The swarms are also thin: every one wraps a single
-crew except `vault_governance_swarm` (2), and `coordination` is always
-`sequential`. This is safe (everything still fails closed) but means the swarm
-layer currently adds little differentiated behaviour over its crews.
+**Readiness was swarm-independent.** `evaluateActionReadiness(actionId)` ignored
+which swarm was being simulated, and a swarm's `forbiddenActions` metadata was not
+consulted. See the **Boundary enforcement** update below for what changed.
+
+## Boundary enforcement (update — `outreach_governed_swarm` is first)
+
+`evaluateActionReadiness(actionId, context, swarm?)` is now **swarm-aware**. The
+swarm can only ever TIGHTEN the global tier floor (never loosen it), in this order:
+
+1. `forbidden_autonomous` tier → `blocked / forbidden_autonomous` (global floor).
+2. `actionId ∈ swarm.forbiddenActions` → `blocked / forbidden_by_swarm` (even WITH a token).
+3. `swarm.allowedActionIds` set & action ∉ it → `blocked / action_out_of_swarm_scope`.
+4. otherwise → the tier decision (read→allow, draft→gated, confirmed_write→needs-human/token).
+
+A new optional `allowedActionIds?: string[]` on `SwarmDefinition` is the **enforced
+positive scope** (catalog ids only; validated by `assertSwarmSafe`). When absent, the
+swarm keeps its backward-compatible tier-only behaviour (the other 4 swarms today).
+
+**`outreach_governed_swarm` (first enforcing swarm)** — `allowedActionIds` =
+`navigate_admin_surface, explain_product, explain_yield, draft_outreach_email,
+create_campaign_draft`; `forbiddenActions` (catalog ids) = `outreach_trigger_send_run,
+source_leads_autonomously, tier_a_auto_send`. Resulting behaviour:
+
+| action | before | after (outreach) |
+| --- | --- | --- |
+| `navigate_admin_surface` (in-scope read) | allow | **allow** |
+| `draft_outreach_email` (in-scope draft) | gated | **gated** |
+| `outreach_trigger_send_run` + token | allow (tier) | **blocked / forbidden_by_swarm** |
+| `read_observability` (out-of-scope) | allow | **blocked / action_out_of_swarm_scope** |
+| `create_vault_draft` (out-of-scope) | gated | **blocked / action_out_of_swarm_scope** |
+| `deploy_product` + token | blocked | **blocked / forbidden_autonomous** (floor) |
+
+The swarm is draft-only: the send-run is forbidden at the swarm boundary (sending is
+a separate ADR-016 gated path), so `forbiddenActions` is now load-bearing, not decorative.
+
+### Reason codes (this lot)
+
+- **Added**: `forbidden_by_swarm`, `action_out_of_swarm_scope`; error codes
+  `swarm_not_registered` (404) and `crew_unavailable`; split the vague
+  `crew_mode_blocked` into `crew_blocked_forbidden` / `crew_blocked_missing_confirmation`.
+- **Renamed**: `confirmed_write_token_present` → `human_confirmation_token_present`
+  (it means a human confirmation is on file, not that the action self-executes).
+- **Kept**: `unknown_tier_blocked` as a fail-closed exhaustiveness guard (unreachable
+  today — alarm-if-seen, never dashboard).
+- The readiness result gained a `swarmScoped: boolean` flag (true only when a swarm
+  scope tightened the decision).
+
+The endpoints stay backward-compatible: `sideEffects:false`,
+`businessSideEffects:false`, no raw payload / prompt / secret, unknown swarm → 404.
 
 ## Verdict
 

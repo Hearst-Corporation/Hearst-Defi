@@ -12,7 +12,10 @@
 
 import { listSimulationScenarioIds } from "../crew-simulation";
 import { simulateCrewFlow, isCrewSimulationError } from "../crew-simulation";
+import { ACTION_READINESS_ITEMS } from "../action-readiness";
 import type { SwarmDefinition, SwarmExecutionMode } from "./types";
+
+const CATALOG_ACTION_IDS = new Set(ACTION_READINESS_ITEMS.map((a) => a.id));
 
 const SAFE_MODES: readonly SwarmExecutionMode[] = [
   "simulation",
@@ -27,7 +30,8 @@ export type SwarmSafetyViolation = {
     | "missing_deploy_forbidden"
     | "missing_mark_live_forbidden"
     | "missing_send_forbidden"
-    | "gated_without_gate";
+    | "gated_without_gate"
+    | "allowed_action_not_in_catalog";
   swarmId: string;
   crewId?: string;
   detail: string;
@@ -98,6 +102,20 @@ export function assertSwarmSafe(
         swarmId: swarm.id,
         detail: `Gated swarm "${swarm.id}" composes no crew that requires a gate.`,
       });
+    }
+  }
+
+  // An enforced positive scope must reference only real catalog action ids,
+  // otherwise the scope silently blocks an id that can never match anything.
+  if (swarm.allowedActionIds) {
+    for (const actionId of swarm.allowedActionIds) {
+      if (!CATALOG_ACTION_IDS.has(actionId)) {
+        violations.push({
+          kind: "allowed_action_not_in_catalog",
+          swarmId: swarm.id,
+          detail: `Swarm "${swarm.id}" allows unknown action id "${actionId}" (not in the action catalog).`,
+        });
+      }
     }
   }
 
