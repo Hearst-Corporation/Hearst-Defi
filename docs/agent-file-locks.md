@@ -16,27 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/projection-preview-editable-inputs
-Owner: Opus Orchestrateur — Projection Preview Editable Inputs
-Branch: feat/projection-preview-editable-inputs
-Worktree: ../connect-opus-proj-edit
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/app/admin/projection/preview/** (existing read-only route)
-- src/app/admin/projection/projection-preview.css (scoped CSS — additive input controls)
-- src/components/admin/projection/** (wrapper + tests — editable bounded inputs)
-- src/lib/agentic/product-projection/client.ts (additive draft validator/builder — no engine rewrite)
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- UI read-only/draft input editing only (capital, APY min/max, horizon, v2 seed). Local bounded validation.
-- No backend engine/API rewrite, no Prisma, no write action, no external tool, no execution, no storage.
-- APY always min/max range; min ≤ max enforced; no NaN/Infinity; no guaranteed return; no raw JSON/prompt/user text.
-- Does NOT touch src/components/** owned by other agents, proof-center, portfolio, vault, studio.tsx.
-
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -94,6 +73,40 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/projection-preview-editable-inputs
+Owner: Opus Orchestrateur — Projection Preview Editable Inputs
+Branch: feat/projection-preview-editable-inputs
+Merged PR: #111 (merge d8975ac6)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Made the read-only /admin/projection/preview input editable, bounded and safe — draft-only, no
+  storage, no mutation; engine + API untouched. client.ts additive/pure: ProjectionPreviewDraft +
+  DEFAULT_PREVIEW_DRAFT + PREVIEW_BOUNDS; validatePreviewDraft (local, runs BEFORE any API call —
+  rejects non-number/NaN/Infinity/scientific-notation, capital out of 0–1e9, APY out of 0–100, APY
+  min>max, horizon non-integer or out of 1–120, seed not 3–64 [A-Za-z0-9_-]; per-field messages, no
+  value on failure); buildPreviewInput(value,mode) maps validated values to the API input preserving
+  the non-editable fixture (product/currency/70-30 allocation/assumptions) — v0 no methodology, v2
+  adds methodology with the validated seed (iterations 2000 fixed). Wrapper: editable Capital/APY min/
+  APY max/Horizon (+ v2 Seed) fields, inline+summary errors, invalid blocks the run (no API call),
+  Run/Reset, posture badges (Preview input·No storage·Read-only·Range only), allocation fixture note,
+  edit-after-success → stale ribbon, Reset → default draft + idle. Scoped CSS (input grid 5→2→1
+  responsive, field/error/reset/stale; token-only var(--ct-*), graphite, single green accent, 4px,
+  no overflow). Tests: validatePreviewDraft (valid coercion + all invalid cases incl. min>max /
+  NaN-Infinity-1e9 / prompt-like seed) + buildPreviewInput (v0/v2 mapping, fixture preserved) +
+  wrapper idle render (prefilled fields, seed hidden in v0, posture badges, allocation note, no
+  JSON/forbidden leak). Docs: PRODUCT_PROJECTION_SWARM.md editable-inputs section. Verified live
+  (:4115, dev-bypass admin): APY min>max → field+summary error, NO API call (idle, no report); valid
+  edits flow through (Target APY 6–12%, Capital 2000000 USDC); v2 seed editable → p5/p50/p95 change
+  with seed (seed-aaa 6.62/9/11.4 vs seed-bbb 6.51/9.02/11.35); stale ribbon after edit; Reset
+  restores defaults+idle; overflow 0; no forbidden words, no NaN/Inf, no JSON leak (only console noise
+  = pre-existing third-party Privy auth, unrelated). typecheck PASS, build PASS (postgresql), 63
+  projection UI/client tests pass. No Prisma/migration, no engine/API rewrite, no write/external-tool/
+  storage, no proof-center/portfolio/vault change, no nav change. Did NOT touch src/components/** owned
+  by other agents nor studio.tsx/page.tsx. Next lot (one): share the percentile band visual into the
+  Scenario Lab (/admin/scenario-lab), or add optional editable allocation weights (still read-only/draft).
 
 ### feat/projection-preview-methodology-v2
 Owner: Opus Orchestrateur — Projection Preview Methodology v2 Rendering
