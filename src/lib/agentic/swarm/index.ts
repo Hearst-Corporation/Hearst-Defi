@@ -43,3 +43,13 @@ export type {
   ActionReadinessContext,
   ActionReadinessEvaluation,
 } from "./readiness";
+
+export { buildAgenticRegistrySnapshot } from "./registry-snapshot";
+export type {
+  AgenticRegistrySnapshot,
+  AgentSummary,
+  CrewSummary,
+  SwarmSummary,
+  ActionSummary,
+  AgenticSafetyMetadata,
+} from "./registry-snapshot";
