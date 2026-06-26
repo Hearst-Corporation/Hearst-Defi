@@ -36,6 +36,8 @@ export interface PageHeaderBaseProps {
   filters?: ReactNode;
   /** Slot rendu AU-DESSUS du trait accent (ex. stepper du funnel invest). */
   beforeRule?: ReactNode;
+  /** Slot rendu sur la MÊME ligne que le titre, aligné à droite (ex. stepper compact). */
+  titleRowEnd?: ReactNode;
   children?: ReactNode;
   className?: string;
   align?: "start" | "center";
@@ -55,6 +57,7 @@ export function PageHeaderBase({
   actions,
   filters,
   beforeRule,
+  titleRowEnd,
   children,
   className,
   align = "start",
@@ -76,6 +79,7 @@ export function PageHeaderBase({
         className={cn(
           `${rootClass}__row`,
           centered && `${rootClass}__row--center`,
+          titleRowEnd && `${rootClass}__row--has-end`,
         )}
       >
         <div
@@ -126,6 +130,9 @@ export function PageHeaderBase({
             ) : null}
           </div>
         </div>
+        {titleRowEnd ? (
+          <div className={`${rootClass}__row-end`}>{titleRowEnd}</div>
+        ) : null}
       </div>
       {beforeRule}
       <div className="page-canon-rule" aria-hidden="true" />

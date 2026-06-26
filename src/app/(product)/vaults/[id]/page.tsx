@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
 import { vaultStatusLabel } from "@/lib/constants/vault";
@@ -106,7 +107,13 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </Link>
       }
     >
-      <section className="vault-summary" aria-label="Key terms and next action">
+      <Card
+        role="region"
+        aria-label="Key terms and next action"
+        hoverOverlay={false}
+        className="vault-summary"
+        contentClassName="vault-summary__content"
+      >
         <div className="vault-summary__identity">
           <span className="vault-summary__ticker mono">{vault.ticker}</span>
           <span
@@ -159,7 +166,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
             {ctaSupportLine(isLive)}
           </p>
         </div>
-      </section>
+      </Card>
 
       <TermSheetPreview vault={vault} />
     </InvestFlowShell>

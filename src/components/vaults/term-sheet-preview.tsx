@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { MetricGrid } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
@@ -26,14 +27,26 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   return (
     <div className="invest-flow-detail__grid">
       <div className="invest-flow-detail__primary">
-        <section className="vault-detail-block" aria-label="Target allocation">
+        <Card
+          role="region"
+          aria-label="Target allocation"
+          hoverOverlay={false}
+          className="vault-detail-block"
+          contentClassName="vault-detail-block__content"
+        >
           <header className="vault-detail-block__header">
             <h2 className="h2">Target allocation</h2>
           </header>
           <VaultAllocationInvestorList facts={allocationFacts} />
-        </section>
+        </Card>
 
-        <section className="vault-detail-block" aria-label="Regime scenarios">
+        <Card
+          role="region"
+          aria-label="Regime scenarios"
+          hoverOverlay={false}
+          className="vault-detail-block"
+          contentClassName="vault-detail-block__content"
+        >
           <header className="vault-detail-block__header">
             <h2 className="h2">Regime scenarios</h2>
           </header>
@@ -41,11 +54,17 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           <p className="body-xs ct-text-faint vault-regime-note">
             Conditional stress postures — not a projection of future returns · Methodology v1.0
           </p>
-        </section>
+        </Card>
       </div>
 
       <div className="invest-flow-detail__secondary">
-        <section className="vault-detail-block" aria-label="Vault metrics">
+        <Card
+          role="region"
+          aria-label="Vault metrics"
+          hoverOverlay={false}
+          className="vault-detail-block"
+          contentClassName="vault-detail-block__content"
+        >
           <header className="vault-detail-block__header vault-detail-block__header--split">
             <h2 className="h2">Vault metrics</h2>
             <div className="flex shrink-0 items-center gap-(--ct-space-2)">
@@ -64,16 +83,22 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                 : "Pending"}
             </VaultKpiCell>
           </MetricGrid>
-        </section>
+        </Card>
 
-        <section className="vault-detail-block" aria-label="Legal and structure">
+        <Card
+          role="region"
+          aria-label="Legal and structure"
+          hoverOverlay={false}
+          className="vault-detail-block"
+          contentClassName="vault-detail-block__content"
+        >
           <header className="vault-detail-block__header">
             <h2 className="h2">Legal &amp; structure</h2>
           </header>
           <div className="ct-panel-fields">
             <VaultLegalProofRows facts={legalFacts} variant="investor" />
           </div>
-        </section>
+        </Card>
 
         <p className="body-xs ct-text-faint ct-leading-relaxed vault-detail-disclaimer">
           {vault.disclaimers} {APY_DISCLAIMER_SUFFIX}

@@ -28,10 +28,11 @@ interface InvestFlowShellProps {
 
 export function InvestFlowShell({
   step,
+  // `contextLabel` stays on the interface (call-sites still pass it) but is no
+  // longer rendered — the context kicker sub-title was removed.
   title,
   titleLead,
   titleAccent,
-  contextLabel = "Investment Flow",
   description,
   lead,
   media,
@@ -65,17 +66,12 @@ export function InvestFlowShell({
         actions={actions}
         align={align}
         className={cn(headerClassName, "mb-0")}
-        beforeRule={
-          <div className="invest-flow-shell__stepper">
-            {contextLabel ? (
-              <p className="page-canon-kicker">{contextLabel}</p>
-            ) : null}
-            <div className="invest-flow-shell__stepper-row">
-              <StepProgress active={step} />
-            </div>
-            {headerBelowStepper}
+        titleRowEnd={
+          <div className="invest-flow-shell__stepper invest-flow-shell__stepper--inline">
+            <StepProgress active={step} />
           </div>
         }
+        beforeRule={headerBelowStepper}
       />
 
       <div className="invest-flow-shell__body">
