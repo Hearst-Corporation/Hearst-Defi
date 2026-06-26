@@ -176,7 +176,6 @@ export function ValueChart({
                 <span className="pf-hero-kpi-value">
                   {formatUsdDetailed(chartValue).replace("$", "")}
                 </span>
-                <span className="pf-vc-balance__unit">USDC</span>
               </div>
               {apyLow !== undefined && apyHigh !== undefined && (
                 <div className="pf-vc-apy">

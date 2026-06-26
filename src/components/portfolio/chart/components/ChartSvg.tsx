@@ -47,25 +47,13 @@ export function ChartSvg({
     >
       <defs>
         <linearGradient id={`${uid}-area-gradient`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--ct-chart-area-top)" stopOpacity="0.85" />
-          <stop offset="45%" stopColor="var(--ct-chart-area-bottom)" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="var(--ct-chart-area-top)" stopOpacity="0.4" />
           <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" stopOpacity="0" />
         </linearGradient>
         <clipPath id={`${uid}-plot-clip`}>
           <rect x={0} y={PAD_Y_TOP - 2} width={VB_W} height={CHART_BASELINE_Y - PAD_Y_TOP + 4} />
         </clipPath>
       </defs>
-
-      {yTicks.map((tick) => (
-        <line
-          key={tick.y}
-          x1={0}
-          y1={tick.y}
-          x2={VB_W}
-          y2={tick.y}
-          className="pf-vc-grid"
-        />
-      ))}
 
       <g clipPath={`url(#${uid}-plot-clip)`}>
         {areaPath && (

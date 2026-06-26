@@ -570,12 +570,12 @@
 
 .pf-hero-kpi-value {
   /* DS hero tier — the single dominant number on the Portfolio surface (NAV value).
-     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / accent. */
+     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / strong text. */
   font-size: var(--ct-text-hero);
   font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
   letter-spacing: var(--ct-tracking-tighter);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "ss01" 1;
 }
@@ -1059,7 +1059,7 @@
 /* Status panel is the hero-grid right slot: left-border separates it from the chart. */
 .pf-hero-grid .pf-status-panel {
   border-top: none;
-  border-left: 1px solid var(--ct-graphite-border-nested);
+  border-left: 0;
 }
 
 /* =============================================================================
@@ -2416,26 +2416,12 @@
     grid-template-columns: 1.6fr minmax(16rem, 22rem);
   }
   /* when split horizontally the sidebar divider becomes a left border */
-  .pf-hero-grid .pf-status-panel {
+.pf-hero-grid .pf-status-panel {
     border-top: 0;
-    border-left: 1px solid var(--ct-graphite-border-nested);
+    border-left: 0;
     position: relative;
   }
   
-  .pf-hero-grid .pf-status-panel::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 -1px;
-    width: 1px;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      color-mix(in srgb, var(--ct-accent) 15%, transparent) 20%,
-      color-mix(in srgb, var(--ct-accent) 15%, transparent) 80%,
-      transparent
-    );
-    pointer-events: none;
-  }
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
   }
@@ -2996,258 +2982,6 @@
    All tokens only. No raw hex/rgb. No glow. No halo.
    ============================================================================= */
 
-/* ── Portfolio Status Panel V2 (pf-sp2-*) — premium KPI tile grid ─────────── */
-
-.pf-sp2-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2_5);
-  padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-3);
-  border-bottom: 1px solid var(--ct-border-soft);
-  flex: 0 0 auto;
-}
-
-.pf-sp2-header__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-  min-width: 0;
-}
-
-.pf-sp2-header__title-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2_5);
-  min-width: 0;
-}
-
-.pf-sp2-title {
-  font-size: var(--ct-text-deci);
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
-  color: var(--ct-text-secondary);
-}
-
-/* Live pill — green only when data is confirmed live */
-.pf-sp2-live-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-2));
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 22%, var(--ct-border-soft));
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  color: var(--ct-accent);
-  flex-shrink: 0;
-}
-
-.pf-sp2-live-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  animation: pf-sp2-pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes pf-sp2-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(0.85); }
-}
-
-/* Deployment progress bar with label */
-.pf-sp2-deploy-track {
-  position: relative;
-  height: var(--ct-space-1);
-  width: 100%;
-  background: var(--ct-border-soft);
-  border-radius: var(--ct-radius-full);
-  overflow: visible;
-  margin-top: var(--ct-space-1);
-}
-
-.pf-sp2-deploy-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--ct-accent), color-mix(in srgb, var(--ct-accent) 70%, var(--ct-text-strong)));
-  border-radius: var(--ct-radius-full);
-  transition: width var(--ct-dur-slower) var(--ct-ease-in-out);
-  max-width: 100%;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 35%, transparent);
-}
-
-.pf-sp2-deploy-label {
-  position: absolute;
-  right: 0;
-  top: calc(100% + var(--ct-space-1));
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-}
-
-/* Body — tile grid + proof strip */
-.pf-sp2-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 0;
-  padding-top: var(--ct-space-2);
-}
-
-/* KPI list — stacked icon-led rows. One metric per line:
-   [accent icon chip] label + sublabel ........... value (right-aligned).
-   Accent-tinted icon chips + bold values for an institutional, premium feel. */
-.pf-sp2-kpi-list {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.pf-sp2-kpi-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3_5);
-  padding: var(--ct-space-3_5) var(--ct-space-5);
-  border-bottom: 1px solid var(--ct-border-ghost);
-  min-width: 0;
-  transition: background-color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.pf-sp2-kpi-row:hover {
-  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
-}
-
-.pf-sp2-kpi-row:last-child {
-  border-bottom: none;
-}
-
-.pf-sp2-kpi-row__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-8);
-  height: var(--ct-space-8);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
-  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
-  color: var(--ct-accent);
-  flex-shrink: 0;
-}
-
-.pf-sp2-kpi-row__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-px);
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.pf-sp2-kpi-row__label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-tight);
-}
-
-.pf-sp2-kpi-row__sublabel {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-70);
-  line-height: var(--ct-leading-tight);
-}
-
-.pf-sp2-kpi-row__value {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-  white-space: nowrap;
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.pf-sp2-proof__name {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-}
-
-/* Proof strip — full width, bottom */
-.pf-sp2-proof {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2_5);
-  padding: var(--ct-space-2_5) var(--ct-space-5);
-  border-top: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
-  flex: 0 0 auto;
-  min-width: 0;
-}
-
-.pf-sp2-proof--live {
-  /* Background tint removed to avoid "green veil" — signal carried by icon/status */
-  border-top-color: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-border-soft));
-}
-
-.pf-sp2-proof__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-6);
-  height: var(--ct-space-6);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-tertiary);
-  flex-shrink: 0;
-  background: var(--ct-surface-2);
-}
-
-.pf-sp2-proof__icon--live {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-2));
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
-}
-
-.pf-sp2-proof__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-px);
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.pf-sp2-proof__name {
-  /* Inherits from common rule above */
-}
-
-.pf-sp2-proof__status {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-tight);
-}
-
-.pf-sp2-proof__status--live {
-  color: var(--ct-accent);
-}
-
-.pf-sp2-proof__date {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
   flex-shrink: 0;
   opacity: var(--ct-opacity-70);
 }
