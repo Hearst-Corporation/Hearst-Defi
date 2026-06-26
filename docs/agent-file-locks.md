@@ -16,29 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-utility-read-actions
-Owner: Opus Orchestrateur — Agentic Utility Read Actions
-Branch: feat/agentic-utility-read-actions
-Worktree: ../connect-opus-util-actions
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/action-readiness/actions.ts (3 new read-only actions)
-- src/lib/agentic/swarm/registry.ts (lp_explainer + memory_maintenance scopes)
-- src/lib/agentic/**/__tests__/**
-- docs/agentic/**
-- scripts/agentic/calibrate-swarms.mjs if needed
-
-Notes:
-- Backend only. Add read-only utility actions (explain_risk, explain_provenance,
-  read_session_context) and widen the two weak swarm scopes.
-- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
-- No Prisma migration, no DB write, no write action, no dangerous execution,
-  no external tool, no prompt/user-text storage, no product_projection_swarm.
-- Does NOT touch src/components/** (another agent's UI).
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -96,6 +73,31 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-utility-read-actions
+Owner: Opus Orchestrateur — Agentic Utility Read Actions
+Branch: feat/agentic-utility-read-actions
+Merged PR: #101 (merge ef325143)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Added 3 read_only catalog actions so the two weak swarms have genuinely useful enforced scopes
+  (no write, no execution, no external tool, no Prisma, no prompt/user-text, no new swarm).
+  explain_risk (LP risk-profile explanation, output-guarded), explain_provenance (metric
+  provenance/attestation), read_session_context (metadata-only session view — ids/counts/timestamps,
+  NEVER raw user text/prompts). Scopes widened: lp_explainer += explain_risk/explain_provenance →
+  fully enforce + useful (4 LP explanations); memory_maintenance += read_session_context → enforce
+  minimal useful (real differentiated read action, no persistence). Catalog 21 → 24 (10 read / 5
+  draft / 1 confirmed_write / 8 forbidden). Verified live (:4110): new actions allow/read_only_allowed
+  in their swarm, out-of-scope in a wrong swarm → action_out_of_swarm_scope, registry exposes 24
+  actions. Tests: per-swarm scope + "utility actions well-formed"; updated EXPECTED_READ_ONLY_IDS +
+  system-map matrix counts (7→10 read, 21→24 total). typecheck PASS, build PASS (postgresql), 515
+  agentic tests pass (2 pre-existing reporting-crew DB tests rouge = env client-provider mismatch).
+  No UI/DS, no /admin/agentic visual, no migration, no product_projection_swarm. Did NOT touch
+  src/components/** (another agent's UI). Next lot: build product_projection_swarm — add a read_only
+  run_projection action backed by the seeded pure engine (output-guarded) + a projection_flow crew,
+  then the swarm (projection is read_only by ADR-006; no gated/confirmed_write machinery needed).
 
 ### feat/swarm-scope-enforcement-all
 Owner: Opus Orchestrateur — Swarm Scope Enforcement All
