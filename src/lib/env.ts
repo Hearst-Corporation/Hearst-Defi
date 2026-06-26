@@ -137,6 +137,24 @@ const serverEnvSchema = z.object({
   /** Optional secondary OpenAI model. When set, callLlm retries on it if the
    *  primary fails all retries OR the circuit breaker opens. e.g. "gpt-4o". */
   OPENAI_FALLBACK_MODEL: z.string().optional(),
+  // ── Hugging Face (Inference) ──────────────────────────────────────────────
+  // Used by the SEMANTIC compliance guard (zero-shot NLI) as a SECOND screen
+  // behind the keyword guard. Two accepted names (HF_TOKEN is the SDK's
+  // canonical var; the alias is kept for ops convenience). Both optional: when
+  // neither is set, the HF client throws at use-site (never at boot), so the app
+  // boots fine without HF — same contract as OPENAI_API_KEY.
+  HF_TOKEN: z.string().min(1).optional(),
+  HUGGINGFACE_API_KEY: z.string().min(1).optional(),
+  /** Zero-shot NLI model for the semantic compliance guard. Multilingual
+   *  (FR+EN) — the LP chat is French. Override per deploy if needed. */
+  HF_ZEROSHOT_MODEL: z
+    .string()
+    .min(1)
+    .default("MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"),
+  /** Semantic guard kill-switch. "1"/"shadow" = run in shadow (log divergences
+   *  vs keyword guard, never block). "enforce" = block on semantic violation.
+   *  Default OFF (absent) = guard not invoked at all. */
+  SEMANTIC_GUARD: z.enum(["0", "1", "shadow", "enforce"]).optional(),
   // Sentry observability — all optional, project boots without them (no-op fallback)
   SENTRY_DSN: z.string().url().optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
@@ -409,6 +427,9 @@ function resolveEnv(): ServerEnv {
         OUTREACH_AUTONOMY: lenient.data.OUTREACH_AUTONOMY ?? "SUGGEST",
         OUTREACH_DAILY_SEND_CAP: lenient.data.OUTREACH_DAILY_SEND_CAP ?? 30,
         CREWAI_ENGINE_TIMEOUT_MS: lenient.data.CREWAI_ENGINE_TIMEOUT_MS ?? 30000,
+        HF_ZEROSHOT_MODEL:
+          lenient.data.HF_ZEROSHOT_MODEL ??
+          "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
       };
       return data;
     }

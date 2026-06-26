@@ -16,6 +16,20 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### agent/hf-semantic-guard
+Owner: Agent — HF Semantic Compliance Guard
+Branch: main (worktree shared)
+Reserved: 2026-06-27
+Note: add a Hugging Face zero-shot NLI SEMANTIC layer as a SECOND screen behind
+      the existing keyword guard (forbidden-words.ts UNCHANGED). Shadow-only
+      first (flag SEMANTIC_GUARD=0). New files + env decl only.
+Files:
+- src/lib/llm/huggingface.ts (new)
+- src/lib/llm/semantic-guard.ts (new)
+- src/lib/llm/__tests__/semantic-guard.test.ts (new)
+- src/lib/env.ts (add HF_TOKEN / HUGGINGFACE_API_KEY / SEMANTIC_GUARD only)
+- package.json + pnpm-lock.yaml (add @huggingface/inference only)
+
 ### agent/portfolio-status-ds-absorption
 Owner: Agent — Portfolio Status DS Absorption
 Branch: main (worktree shared)

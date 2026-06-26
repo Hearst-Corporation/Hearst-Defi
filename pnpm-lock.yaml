@@ -31,6 +31,9 @@ importers:
       '@hearst/review-mode':
         specifier: file:./hearst-review-mode-0.1.0.tgz
         version: file:hearst-review-mode-0.1.0.tgz(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(zod@4.4.3)
+      '@huggingface/inference':
+        specifier: ^4.13.20
+        version: 4.13.20
       '@node-rs/argon2':
         specifier: ^2.0.2
         version: 2.0.2
@@ -698,6 +701,17 @@ packages:
     engines: {node: '>=20'}
     peerDependencies:
       hono: '>=4.12.21'
+
+  '@huggingface/inference@4.13.20':
+    resolution: {integrity: sha512-P11zjUrsdRFSf1tJl8PN7nffHwGUtAmgtOBhPQKZ822sZ6Z1EBuwUe1wDKiiLJ7sSoPkcrQmSSk29HQxbqjt7w==}
+    engines: {node: '>=18'}
+
+  '@huggingface/jinja@0.5.9':
+    resolution: {integrity: sha512-uWTG+l3VJRsl7EXxYizuL3P+cCPoc3cRqbWWRcQN0FhejRfbdq0RNhCmbY/YDtnTcz9icdLYuLDjsnz4d8JMuw==}
+    engines: {node: '>=18'}
+
+  '@huggingface/tasks@0.21.17':
+    resolution: {integrity: sha512-vdhQXFBb8hFm4U4KLGDT5a3C1JzSUU16Zoh4DJ1KDL3cdnIrUt+tIX+P1IxqZoXXx55PUQTJBu8iHH2HXtnBGg==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -9186,6 +9200,15 @@ snapshots:
   '@hono/node-server@2.0.4(hono@4.12.25)':
     dependencies:
       hono: 4.12.25
+
+  '@huggingface/inference@4.13.20':
+    dependencies:
+      '@huggingface/jinja': 0.5.9
+      '@huggingface/tasks': 0.21.17
+
+  '@huggingface/jinja@0.5.9': {}
+
+  '@huggingface/tasks@0.21.17': {}
 
   '@humanfs/core@0.19.2':
     dependencies:
