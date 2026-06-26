@@ -11,6 +11,13 @@
 @source not "../../.claude";
 @source not "../../scripts";
 
+/* Tailwind v4 `dark:` variant — class-based (activates only under a `.dark`
+   ancestor). The app itself is dark-only and does NOT use `dark:` utilities, so
+   this is inert for existing UI. It exists so class-driven dark components
+   (e.g. the Catalyst kit, which renders its dark theme entirely via `dark:`)
+   resolve correctly when wrapped in `.dark`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "Satoshi Variable";
   src: url("/fonts/Satoshi-Variable.woff2") format("woff2-variations");
@@ -276,13 +283,29 @@ code,
 /* ── Density B: compact single line (~40px), no-scroll preserving ─────────── */
 .app-footer--compact {
   min-height: var(--app-footer-h);
-  display: flex;
-  flex-wrap: wrap;
+  /* Grid calé sur les colonnes du shell : [rail gauche] [centre] [rail droit].
+     Les liens (col centrale) sont ainsi centrés sur la SECTION DU MILIEU
+     (.ct-page-area), pas sur la fenêtre entière. brand collé à gauche, status à
+     droite. --ct-rail-right-eff suit l'état du chat (collapsed/expanded). */
+  display: grid;
+  grid-template-columns:
+    var(--ct-rail-left)
+    minmax(0, 1fr)
+    var(--ct-rail-right-eff, var(--ct-rail-right));
   align-items: center;
-  justify-content: space-between;
   gap: var(--ct-space-3);
   padding-block: var(--ct-space-2_5);
-  padding-inline: var(--ct-space-5);
+}
+.app-footer--compact > .app-footer__brand {
+  justify-self: start;
+  padding-inline-start: var(--ct-space-5);
+}
+.app-footer--compact > .app-footer__links {
+  justify-self: center;
+}
+.app-footer--compact > .app-footer__status {
+  justify-self: end;
+  padding-inline-end: var(--ct-space-5);
 }
 
 .app-footer__brand {
