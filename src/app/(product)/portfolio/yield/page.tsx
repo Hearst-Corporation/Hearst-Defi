@@ -25,7 +25,6 @@ export const metadata = {
   description: "Your blended yield and vault allocation breakdown",
 };
 
-import { BlankCanvasMarker } from "@/components/portfolio/blank-canvas-marker";
 
 export default function YieldPage() {
   return (
@@ -33,7 +32,6 @@ export default function YieldPage() {
       data-portfolio-blank
       className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
     >
-      <BlankCanvasMarker />
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-semibold text-white">Yield</h1>
         <p className="mt-2 text-sm text-zinc-400">

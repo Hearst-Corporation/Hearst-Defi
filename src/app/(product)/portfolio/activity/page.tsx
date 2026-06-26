@@ -24,7 +24,6 @@ export const metadata = {
   description: "Your full transaction history",
 };
 
-import { BlankCanvasMarker } from "@/components/portfolio/blank-canvas-marker";
 
 export default function ActivityPage() {
   return (
@@ -32,7 +31,6 @@ export default function ActivityPage() {
       data-portfolio-blank
       className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
     >
-      <BlankCanvasMarker />
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-semibold text-white">Activity</h1>
         <p className="mt-2 text-sm text-zinc-400">

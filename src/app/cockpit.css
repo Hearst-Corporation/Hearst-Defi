@@ -3853,6 +3853,10 @@ html[data-blank-canvas] .ct-page-area {
 html[data-blank-canvas] .ct-page-area::after {
   content: none !important;
 }
+/* Bouton flottant "Master" (retour hub) masqué en feuille blanche portfolio. */
+html[data-blank-canvas] .ct-master-fab {
+  display: none !important;
+}
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
    .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
