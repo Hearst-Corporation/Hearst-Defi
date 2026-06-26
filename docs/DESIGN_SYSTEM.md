@@ -22,7 +22,7 @@
 
 ## 1. Principe
 
-Dark-mode unique au MVP. Fond global noir (`--ct-bg-deep`), accent vert `#A7FB90`
+Dark-mode unique au MVP. Fond global quasi-noir `#060708` (`--ct-bg-deep`), accent vert `#A7FB90`
 (`--ct-accent`). Le token `--ct-accent` porte la couleur du produit actif ;
 **tous les autres accents en dérivent** via `color-mix` → re-coloration globale
 d'un seul point.
@@ -42,17 +42,17 @@ dans `cockpit.css` (pattern établi : Sonner, rails).
 
 | Token | Valeur | Usage |
 |---|---|---|
-| `--ct-bg-deep` | `#000000` | Fond global iOS-dark, rails, cellules |
+| `--ct-bg-deep` | `#060708` | Fond global (un cran sous le noir pur), rails, cellules |
 | `--ct-accent` | `#A7FB90` | **Seul vert de l'UI** (piloté ThemeAccent) |
 | `--ct-accent-soft` | `accent 18% + transparent` | Halo ambiant, charts soft tone |
 | `--ct-accent-strong` | `accent 82% + #fff` | Arc actif jauges/charts |
-| `--ct-surface-0..3` | charcoal opaque (`#0E0F0F` → `#242428`) | Élévation croissante (tiers graphite pleins) |
-| `--ct-text-strong` | `#ffffff` | Chiffres clés, titres |
+| `--ct-surface-0..3` | charcoal opaque (`#060708` → `#2E3038`) | Élévation croissante (tiers graphite pleins) |
+| `--ct-text-strong` | `rgba(255,255,255,.94)` | Chiffres clés, titres |
 | `--ct-text-primary` | `rgba(245,245,245,.92)` | Texte courant |
 | `--ct-text-body` | `rgba(245,245,245,.72)` | Texte secondaire |
-| `--ct-text-muted` | `rgba(245,245,245,.48)` | Labels, captions |
+| `--ct-text-muted` | `rgba(245,245,245,.66)` | Labels, captions (WCAG AA sur `--ct-bg-deep`) |
 | `--ct-text-faint` | `rgba(245,245,245,.40)` | Disclaimers, micro |
-| `--ct-border-soft / border / strong` | `rgba(255,255,255,.06/.10/.16)` | Séparateurs |
+| `--ct-border-soft / border / strong` | Figma overlays (`#ffffff` 5/10/20%) | Séparateurs |
 | `--ct-status-success` | `var(--ct-accent)` | Live, positif — **= accent** (un seul vert) |
 | `--ct-status-warning` | `#fbbf24` | Estimated, attention |
 | `--ct-status-danger` | `#f87171` | Stale, négatif |
@@ -81,9 +81,9 @@ Transition : `var(--ct-dur-base) 220ms` + `var(--ct-ease) cubic-bezier(.2,.7,.2,
 ## 4. Typographie
 
 Sans/mono = **Satoshi** (`--font-sans`/`--font-mono`). Échelle cockpit
-(`cockpit.css` = source ; `globals.css` `@theme` miroir 1:1) :
-`--ct-text-micro` 9px (`.5625rem`) · `--ct-text-xs` 10px · `--ct-text-sm` 14px ·
-`--ct-text-base` 16px · `--ct-text-lg`…`--ct-text-display` (clamp responsive).
+(`cockpit.css` = source ; `globals.css` `@theme` aliase via `var(--ct-text-*)`) :
+`--ct-text-micro` 11px (`.6875rem`) · `--ct-text-xs` 13px · `--ct-text-sm` 15px ·
+`--ct-text-base` 16px · `--ct-text-lg`…`--ct-text-hero` (**rem fixes**, racine 16px fixe — plus aucun `clamp` fluide).
 Poids `400/500/600/700/800`. Chiffres : `tabular-nums` obligatoire (`.mono`/`.tabular`).
 Tracking titres : `--ct-tracking-tight` (`-0.03em`). KPI values :
 `.stat-value` → `--ct-tracking-tighter` (`-0.05em`) pour les grands chiffres,
@@ -239,8 +239,8 @@ Largeurs **live** (`src/app/cockpit.css` `:root`) :
 proportionnel au `vw`. Le **rail gauche** reste à 104px fixe. Le **chat** propose trois
 **presets** (48 / 352 / 420px) — le centre (`flex: 1`, `min-width: 0`) absorbe le reste.
 Persistance : `cockpit:rail-right-mode` (`collapsed` | `default` | `expanded`).
-La typo du centre utilise `clamp()` sur
-`--ct-text-lg`…`--ct-text-display` ; micro/xs/sm/base restent fixes pour la lisibilité.
+La typo est **entièrement en rem fixes** (racine 16px fixe) : l'ancien `clamp()`
+fluide sur `--ct-text-lg`…`--ct-text-display` a été retiré — un seul régime, repère stable à tout viewport.
 
 Le **chat** (`cockpit-shell/tokens.css`) utilise des tailles **px fixes** (9–15px) — hors
 échelle `--ct-text-*` fluide du centre, par design (densité rail, pas de reflow headline).
