@@ -122,6 +122,27 @@ Files:
 
 ---
 
+### fix/outreach-draft-continuity
+Owner: Opus Orchestrateur — Outreach Regex Router / Campaign Continuity
+Branch: fix/outreach-draft-continuity
+Merged PR: #116 (merge a86218b2)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Regex-only outreach campaign workflow: intent detection (5 patterns), slot extraction
+  (campaignName + campaignType, 3-priority parser), correction "tu m'as déjà demandé",
+  campaign navigation (7 patterns, sourcing blocked), sourcing gate (gated/confirmed only).
+- Workflow state (none|prepared|created), draftStatus never promoted without real campaignId.
+- resolveOutreachCampaignRoute: campaign_detail → /admin/outreach/campaigns/${id},
+  campaign_draft → /admin/outreach?name=...&kind=..., outreach_workspace fallback.
+- Hardcoded response templates: slot ack, correction recap, nav ack, sourcing gate.
+- "I can guide and analyze, not transact" supprimé du flow Outreach.
+- 32/32 tests PASS. typecheck PASS. smoke exact PASS.
+- No Prisma, no UI redesign, no autonomous sourcing/send, no LLM routing for outreach.
+
+---
+
 ### squad/portfolio-premium-foundations
 Owner: Agent — Portfolio Premium Foundations (DS tokens + DOM cleanup)
 Branch: main (worktree shared)
