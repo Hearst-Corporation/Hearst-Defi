@@ -199,10 +199,10 @@
   --ct-rail-right: 23rem; /* default open — max ~368px */
   --ct-rail-right-expanded: 30rem; /* user-expanded — max ~480px */
 
-  /* Left nav rail — icon + label permanent. Slightly widened so the collapsed
-     menu can hold long investor/admin labels without breaking the vertical
-     rhythm. Fluide aux tiers intermédiaires (cf. blocs responsive). */
-  --ct-rail-left: 6.5rem; /* 104px */
+  /* Left nav rail — fluid : rétrécit en continu de 104px (1440px+) à 64px
+     (≤768px) sans breakpoints ni sauts. Les labels s'effacent progressivement
+     via --ct-rail-label-opacity (calculé dans le même clamp). */
+  --ct-rail-left: clamp(4rem, 2rem + 5.556vw, 6.5rem);
   --ct-rail-bottom-clearance: calc(var(--ct-space-5) + 2.5rem + var(--ct-space-3));
 
   /* Transitions — déclarées explicitement ici car le package tokens.css
@@ -3702,10 +3702,14 @@ button.ct-choice-card {
   background-color: var(--ct-bg-deep) !important;
   background-image: none !important;
   border-right: 1px solid var(--ct-border-on-dark);
-  /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
-  width: var(--ct-rail-left) !important;
-  min-width: var(--ct-rail-left) !important;
-  max-width: var(--ct-rail-left) !important;
+  /* Largeur pilotée par --ct-rail-left (change via media query) — transition
+     directe sur width pour que le rétrécissement soit animé, pas un saut. */
+  width: var(--ct-rail-left);
+  min-width: var(--ct-rail-left);
+  max-width: var(--ct-rail-left);
+  transition: width 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              min-width 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              max-width 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
   position: relative;
 }
 
@@ -3946,6 +3950,7 @@ button.ct-choice-card {
   top: calc(var(--ct-shell-header-h) + var(--ct-space-1));
   bottom: var(--ct-rail-bottom-clearance);
   width: var(--ct-rail-left);
+  transition: width 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4108,9 +4113,13 @@ button.ct-choice-card {
   -webkit-line-clamp: 1;
   overflow: hidden;
   pointer-events: none;
-  /* Ensure rail labels stay above any background fades or ambient overlays. */
   z-index: var(--ct-z-rail-tooltip);
   position: relative;
+  opacity: 1;
+  transition: opacity 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              font-size 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              max-height 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  max-height: 2em;
 }
 
 /* Rail fixe — seul le mark H reste visible dans le header (nom produit masqué). */
@@ -4336,6 +4345,11 @@ button.ct-choice-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+/* Bouton profil (avatar) descendu de 15px vers le bas. Uniquement le bouton. */
+.ct-rail-identity-stack .ct-avatar {
+  transform: translateY(15px);
 }
 
 /* Badge armé (prêt à déconnecter) : bascule en rouge doux, même géométrie
@@ -5560,59 +5574,43 @@ main#main-content>.admin-doc.admin-doc-shell {
    Aucun nouveau token/classe : surcharge responsive de classes shell existantes,
    même pattern que le reste de ce fichier. */
 
-/* Laptop intermédiaire (1201–1440px) — le chat OUVERT reste utilisable, il
-   rétrécit (il ne se transforme PLUS en poignée 48px qui rendait le chat
-   impossible à ouvrir sur laptop). On resserre le plancher du clamp pour que le
-   centre garde une largeur lisible, et le rail gauche passe en 80px. La poignée
-   48px reste accessible via l'état .collapsed (choix explicite de l'utilisateur). */
+/* Rail fluid — --ct-rail-left est déjà un clamp() continu dans :root.
+   Les breakpoints ci-dessous ne touchent plus à --ct-rail-left.
+   Seuls le chat rail et le masquage tablette restent en media query. */
+
 @media (max-width: 90rem) and (min-width: 75.0625rem) {
   .ct-root {
-    --ct-rail-left: 5rem;                       /* 80px — icon rail, was 104px */
-    --ct-rail-right: 24rem; /* open chat : fluid resserré */
-    --ct-rail-right-expanded: 30rem; /* expanded : fluid resserré */
+    --ct-rail-right: 24rem;
+    --ct-rail-right-expanded: 30rem;
   }
 }
 
-/* Icon-only rail from ≤1440px down to the 900px bottom-bar handoff. At these
-   widths --ct-rail-left drops to the "icon rail" sizes (80px → 72px), where the
-   permanent text label (Portfolio/Vaults/Proofs/Admin) crowds the narrowed
-   column. Per the rail intent ("icon rail" at line 5533): drop the label and
-   keep ONLY the icon, centred, with the item collapsed to a square tap target.
-   The vertical rail is preserved here; the <900px rule still takes over with the
-   horizontal bottom bar. Labels return ≥1440px where the column has room.
-   Tooltip role stays via aria-label/title on the <Link> (set in RailItem). */
-@media (max-width: 90rem) and (min-width: 56.3125rem) {
-  .ct-rail-intra .ct-rail-item-tooltip { display: none; }
-  .ct-rail-intra .ct-rail-item {
-    gap: 0;
-    min-height: 3.75rem; /* square-ish icon target */
-    padding-block: 0.75rem;
-    justify-items: center;
-    align-items: center;
-  }
-}
-
-/* Petit laptop / grande tablette paysage (1024–1200px) — le chat ouvert se
-   resserre encore (centre prioritaire) mais reste utilisable. Rail gauche 72px. */
 @media (max-width: 74.999rem) and (min-width: 64rem) {
   .ct-root {
-    --ct-rail-left: 4.5rem;                     /* 72px */
-    --ct-rail-right: 20rem; /* open chat : fluid fin */
+    --ct-rail-right: 20rem;
     --ct-rail-right-expanded: 22rem;
   }
 }
 
-/* Tablette portrait & en-dessous (< 1024px) — pas de place pour 3 colonnes : le
-   chat passe en surcouche/masqué (le shell ne porte pas d'overlay drawer en
-   v0.2.0, donc on le masque proprement plutôt que d'écraser le centre). Le rail
-   gauche reste comme espaceur ; .ct-rail-intra (fixed) le recouvre. */
 @media (max-width: 63.999rem) {
   .ct-rail-right { display: none !important; }
 }
 
 @media (max-width: 767px) {
-  .ct-root { --ct-rail-left: 4rem; } /* 64px — icon-only rail compact */
-  .ct-page-area    { padding-left: var(--ct-space-4); padding-right: var(--ct-space-4); }
+  .ct-page-area { padding-left: var(--ct-space-4); padding-right: var(--ct-space-4); }
+}
+
+/* Labels fluid — s'effacent progressivement entre 1440px et 1200px.
+   clamp(0, (100vw - 1200px) / (1440px - 1200px), 1) = 0 à ≤1200px, 1 à ≥1440px.
+   Pas de seuil dur, pas de display:none, juste une opacité qui suit le viewport. */
+.ct-rail-intra .ct-rail-item-tooltip {
+  opacity: clamp(0, (100vw - 75rem) / (90rem - 75rem), 1);
+  max-height: clamp(0px, (100vw - 75rem) / (90rem - 75rem) * 2em, 2em);
+  overflow: hidden;
+}
+.ct-rail-intra .ct-rail-item {
+  gap: clamp(0rem, (100vw - 75rem) / (90rem - 75rem) * 0.5rem, 0.5rem);
+  min-height: clamp(3.75rem, 3.75rem + (100vw - 75rem) / (90rem - 75rem) * 1.75rem, 5.5rem);
 }
 
 /* ── DEBUG / PORTFOLIO FULL — KPI card glass pattern ────────────────────────
