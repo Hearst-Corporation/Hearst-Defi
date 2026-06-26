@@ -61,27 +61,21 @@
      code/.mono/.tabular rule below). No separate mono face per design-lock. */
   --font-mono: "Satoshi Variable", sans-serif;
 
-  /* Typography scale: cockpit.css --ct-text-* tokens are the source of truth.
-     These @theme values mirror them 1:1 — small sizes fixes, big sizes
-     responsive via clamp(min, fluid, max) entre mobile 375px et desktop 1440px.
-     Si cockpit.css change un token, mirror ICI pour que les classes Tailwind
-     (text-xl/2xl/3xl/etc.) restent en phase avec les usages CSS directs
-     `var(--ct-text-*)`. */
-  --text-micro: 0.6875rem;  /* 11px — mirror --ct-text-micro (cockpit.css) */
-  --text-xs: 0.8125rem;    /* 13px — mirror --ct-text-xs */
-  --text-sm: 0.9375rem;    /* 15px — mirror --ct-text-sm */
-  --text-md: 1rem;
-  /* FIXED — mirror cockpit.css --ct-text-* (which are fixed rem @16 root).
-     Root font is now 16px fixed, so these no longer need a fluid clamp; keeping
-     them fluid was the last fluid/fixed split in the type scale. Values match
-     cockpit.css exactly (lg=17, xl=19, 2xl=22, 3xl=26px). 4xl=30px (no cockpit
-     equivalent, frozen on its old clamp ceiling). */
-  --text-lg: 1.0625rem;   /* 17px — mirror --ct-text-lg */
-  --text-xl: 1.1875rem;   /* 19px — mirror --ct-text-xl */
-  --text-2xl: 1.375rem;   /* 22px — mirror --ct-text-2xl */
-  --text-3xl: 1.625rem;   /* 26px — mirror --ct-text-3xl */
-  --text-4xl: 1.875rem;   /* 30px */
-  --text-hero: 2.5rem;     /* 40px — mirror --ct-text-hero (cockpit.css), DS hero KPI tier */
+  /* Typography scale — ALIASED to cockpit.css --ct-text-* (single source).
+     These are var() aliases, NOT copied values: when cockpit.css changes a
+     token, the Tailwind utility (text-xl/2xl/…) follows automatically through
+     the cascade. No more manual mirror / drift. --text-md and --text-4xl have
+     no --ct-* master, so they keep a literal value. */
+  --text-micro: var(--ct-text-micro);  /* 11px */
+  --text-xs: var(--ct-text-xs);        /* 13px */
+  --text-sm: var(--ct-text-sm);        /* 15px */
+  --text-md: 1rem;                     /* 16px — no --ct-* master */
+  --text-lg: var(--ct-text-lg);        /* 17px */
+  --text-xl: var(--ct-text-xl);        /* 19px */
+  --text-2xl: var(--ct-text-2xl);      /* 22px */
+  --text-3xl: var(--ct-text-3xl);      /* 26px */
+  --text-4xl: 1.875rem;                /* 30px — no --ct-* master */
+  --text-hero: var(--ct-text-hero);    /* 40px */
 
   /* Font weights */
   --weight-regular: 400;
@@ -94,20 +88,21 @@
      tight/normal/wide/wider are KEPT IN SYNC with --ct-tracking-* (gate-enforced
      by ds:token-drift). uppercase/loose/display are Tailwind-only utilities with
      no --ct-* master, so they are not mirrored. */
-  --tracking-tight: -0.03em;  /* = --ct-tracking-tight */
-  --tracking-normal: 0;       /* = --ct-tracking-normal */
+  --tracking-tight: var(--ct-tracking-tight);
+  --tracking-normal: var(--ct-tracking-normal);
   --tracking-uppercase: 0.12em; /* Tailwind-only — eyebrows */
   --tracking-loose: 0.05em;   /* Tailwind-only */
-  --tracking-wide: 0.04em;    /* = --ct-tracking-wide */
-  --tracking-wider: 0.08em;   /* = --ct-tracking-wider */
-  --tracking-widest: 0.12em;  /* = --ct-tracking-widest */
+  --tracking-wide: var(--ct-tracking-wide);
+  --tracking-wider: var(--ct-tracking-wider);
+  --tracking-widest: var(--ct-tracking-widest);
   --tracking-display: 0.25em; /* Tailwind-only — display eyebrow */
 
-  /* Line heights — mirror cockpit.css --ct-leading-* (source of truth) */
+  /* Line heights — aliased to cockpit.css --ct-leading-* (source of truth).
+     display/base/loose have no --ct-* master, kept literal. */
   --leading-display: 1.1;
-  --leading-tight: 1.25; /* was 1.2 — aligned on --ct-leading-tight */
+  --leading-tight: var(--ct-leading-tight);
   --leading-base: 1.5;
-  --leading-relaxed: 1.65; /* was 1.6 — aligned on --ct-leading-relaxed */
+  --leading-relaxed: var(--ct-leading-relaxed);
   --leading-loose: 1.8;
 
   /* ---- Radius (aliased to Cockpit) ---- */
