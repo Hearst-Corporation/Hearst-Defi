@@ -16,6 +16,20 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/portfolio-rhythm-realignment
+Owner: Agent — Portfolio Layout & Rhythm Realignment
+Branch: feat/portfolio-rhythm-realignment
+Reserved: 2026-06-26
+Note: global pass overriding/coordinating with active squads on layout concerns (spacing, padding, containers, DOM hierarchy) to ensure cross-row consistency. Squads keep logic/internals lock.
+Files:
+- src/app/(product)/portfolio/page.tsx
+- src/app/(product)/portfolio/portfolio.css
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/portfolio-status-panel.tsx
+- docs/PORTFOLIO_LAYOUT_REFERENCE.md
+
+---
+
 ### feat/agentic-tower-table-console — Vault Product Flow Redesign
 Owner: Agent — Vault Product Flow Redesign (premium first-fold + stepper)
 Branch: feat/agentic-tower-table-console
@@ -98,6 +112,17 @@ Result:
 ---
 
 ## RELEASED LOCKS
+
+### fix/portfolio-surface-atoms
+Owner: Agent — Portfolio surface atom fixes (audit 2026-06-26)
+Released: 2026-06-26
+Files:
+- src/app/(product)/portfolio/page.tsx
+- src/app/(product)/portfolio/portfolio.css
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/portfolio-status-panel.tsx
+- src/app/cockpit.css (--ct-border-soft revert)
+- docs/PORTFOLIO_LAYOUT_REFERENCE.md (hero CQ gate 53rem)
 
 ### feat/agentic-backend-foundation
 Owner: Opus Orchestrateur — Agentic Backend / Swarm / Crew Foundation
