@@ -53,6 +53,8 @@ interface ValueChartProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   embedded?: boolean;
+  /** Left pane inside the unified portfolio hero — title/provenance live in pf-hero-header. */
+  heroPane?: "left";
 }
 
 function smartDefaultRange(
@@ -79,6 +81,7 @@ export function ValueChart({
   source,
   updatedAt,
   embedded = false,
+  heroPane,
 }: ValueChartProps) {
   const reactId = useId();
   // React useId() returns IDs with colons (e.g., ":r0:") which break SVG url(#...) references.
@@ -130,22 +133,38 @@ export function ValueChart({
     setHoverPoint(null);
   }, [range, builtSeries?.mode]);
 
+  const chartSeriesPoints = useMemo(() => {
+    if (!builtSeries || builtSeries.points.length === 0) return [];
+    if (builtSeries.points.length >= 2) return builtSeries.points;
+    const anchor = builtSeries.points[0]!;
+    const valueUsdc = anchor.valueUsdc;
+    const sourceKind = anchor.source;
+    return [
+      { at: builtSeries.windowStart, valueUsdc, source: sourceKind },
+      { at: builtSeries.windowEnd, valueUsdc, source: sourceKind },
+    ];
+  }, [builtSeries]);
+
   const projection = useMemo(() => {
-    if (!builtSeries || builtSeries.points.length === 0) {
+    if (!builtSeries || chartSeriesPoints.length === 0) {
       return { points: [], xTicks: [], yTicks: [], isFlat: true };
     }
     return projectChartSeries(
-      builtSeries.points,
+      chartSeriesPoints,
       builtSeries.windowStart,
       builtSeries.windowEnd,
     );
-  }, [builtSeries]);
+  }, [builtSeries, chartSeriesPoints]);
 
   const { points, xTicks, yTicks } = projection;
   const seriesNote = builtSeries?.densityNote ?? null;
   const pathOpts = useMemo(
-    () => ({ step: builtSeries?.mode === "ledger_sparse" }),
-    [builtSeries?.mode],
+    () => ({
+      step:
+        builtSeries?.mode === "ledger_sparse" &&
+        (builtSeries.points.length >= 2 || chartSeriesPoints.length > 2),
+    }),
+    [builtSeries?.mode, builtSeries?.points.length, chartSeriesPoints.length],
   );
   const areaPath = useMemo(() => generateAreaPath(points, pathOpts), [points, pathOpts]);
   const linePath = useMemo(() => generateLinePath(points, pathOpts), [points, pathOpts]);
@@ -182,31 +201,28 @@ export function ValueChart({
     setHoverPoint(null);
   };
 
-  return (
-    <PfCockpitPanel
-      variant="wide"
-      chrome={embedded ? "embedded" : "panel"}
-      aria-label="Portfolio value"
-      className={cn("relative pf-value-chart", embedded && "pf-value-chart--hero-embedded")}
-    >
+  const chartBody = (
+    <>
       <header className="pf-vc-header">
         <div className="pf-vc-header__left">
-          <div className="pf-vc-header__row1">
-            <h2 className="pf-cockpit-panel__title--primary">Portfolio Value</h2>
-            {provenance ? (
-              <span className="pf-vc-header__provenance">
-                {provenance === "live" ? "Live NAV" : "Estimated NAV"}
-              </span>
-            ) : null}
-            {formattedUpdatedAt ? (
-              <time
-                className="pf-vc-header__date hidden sm:inline"
-                dateTime={updatedAt?.toISOString()}
-              >
-                {formattedUpdatedAt}
-              </time>
-            ) : null}
-          </div>
+          {heroPane !== "left" ? (
+            <div className="pf-vc-header__row1">
+              <h2 className="pf-cockpit-panel__title--primary">Portfolio Value</h2>
+              {provenance ? (
+                <span className="pf-vc-header__provenance">
+                  {provenance === "live" ? "Live NAV" : "Estimated NAV"}
+                </span>
+              ) : null}
+              {formattedUpdatedAt ? (
+                <time
+                  className="pf-vc-header__date hidden sm:inline"
+                  dateTime={updatedAt?.toISOString()}
+                >
+                  {formattedUpdatedAt}
+                </time>
+              ) : null}
+            </div>
+          ) : null}
           {!isEmpty && (
             <div className="pf-vc-header__row2">
               <div className="pf-vc-balance">
@@ -283,6 +299,21 @@ export function ValueChart({
           </div>
         )}
       </div>
+    </>
+  );
+
+  return (
+    <PfCockpitPanel
+      variant="wide"
+      chrome={embedded ? "embedded" : "panel"}
+      aria-label="Portfolio value"
+      className={cn(
+        "relative pf-value-chart",
+        embedded && "pf-value-chart--hero-embedded",
+        heroPane === "left" && "pf-value-chart--hero-left",
+      )}
+    >
+      {chartBody}
     </PfCockpitPanel>
   );
 }

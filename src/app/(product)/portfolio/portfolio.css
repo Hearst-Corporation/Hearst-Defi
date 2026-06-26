@@ -246,10 +246,7 @@
    ============================================================================= */
 
 @container pf (max-width: 799.98px) {
-  .pf-hero-grid .pf-main-chart-wrapper {
-    border-left: 0;
-  }
-  .pf-hero-grid .pf-status-panel {
+  .pf-hero-body > .pf-status-panel {
     border-left: none !important;
     border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }
@@ -350,11 +347,13 @@
   z-index: 1;
 }
 
-/* Hero weld — summary + status share one plate; inner wrappers stay flat.
-   Zero padding on the weld layer: each child owns its own internal rhythm
-   (.pf-pv-summary has its own padding; .pf-status-panel uses !p-0 + internal p-6). */
+/* Hero weld — chart + status share one plate; inner panes stay flat. */
 .pf-hero-grid .pf-embedded-pane {
   padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .pf-hero-grid .pf-cockpit-panel__header {
@@ -364,16 +363,16 @@
 
 .pf-hero-grid .pf-main-chart-wrapper {
   background: transparent;
+  min-height: 0;
 }
 
 .pf-hero-grid .pf-main-chart-wrapper::before {
   display: none;
 }
 
-.pf-hero-grid > .pf-status-panel {
-  /* De-boxed: no panel surface of its own (welded inside the single hero panel).
-     Only the internal separator hairline remains — its side (left vs top) is set
-     by the responsive rules below, so we must NOT blanket-reset `border` here. */
+.pf-hero-body > .pf-status-panel {
+  border: none !important;
+  border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
 }
@@ -472,49 +471,36 @@
 .pf-panel-leaf-link:hover .pf-panel-leaf-link__arrow { transform: translateX(var(--ct-space-0_5)); }
 
 /* =============================================================================
-   5. HERO — welded chart + status panel
+   5. HERO — unified value + status surface
    ============================================================================= */
 
 .pf-hero-grid {
-  /* MOBILE-FIRST: 1 column by default. The 2-column split is applied ONLY inside
-     @container pf (min-width: 58rem) — see section 14 (terminal cascade). */
-  grid-template-columns: 1fr;
-  align-items: start;
-  height: auto;
-  min-height: 0;
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  overflow: clip;
-}
-
-/* The chart panel inside the weld (left/top). */
-.pf-main-chart-wrapper {
-  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  align-self: start;
-  background: transparent;
-}
-
-.pf-main-chart-wrapper::before {
-  display: none;
-}
-
-/* ---- PortfolioValueSummary ---- */
-.pf-pv-summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-  padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x);
   height: auto;
-  min-height: 0;
-  flex: 0 1 auto;
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
+  overflow: hidden;
 }
 
-.pf-pv-summary__provenance {
+.pf-hero-header {
+  flex: 0 0 auto;
+  padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x) var(--ct-space-4);
+  border-bottom: 1px solid var(--ct-graphite-border-nested);
+}
+
+.pf-hero-header__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ct-space-2_5);
+  min-width: 0;
+}
+
+.pf-hero-header__provenance {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   letter-spacing: var(--ct-tracking-wide);
@@ -522,117 +508,606 @@
   color: var(--ct-text-tertiary);
 }
 
-.pf-pv-summary .pf-cockpit-panel__header {
-  gap: var(--ct-space-2);
-  margin-bottom: var(--ct-space-1);
+.pf-hero-header__date {
+  font-size: var(--ct-text-nano);
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  text-transform: uppercase;
+  font-weight: var(--ct-font-medium);
+  opacity: var(--ct-opacity-50);
+  margin-left: auto;
 }
 
-.pf-pv-summary .pf-cockpit-panel__header-main {
-  min-height: 0;
-}
-
-.pf-pv-summary__body {
+.pf-hero-body {
   display: grid;
-  grid-template-rows: auto auto auto;
-  gap: var(--ct-space-4);
+  grid-template-columns: 1fr;
+  flex: 1 1 auto;
   min-height: 0;
+  align-items: stretch;
 }
 
-.pf-pv-summary__value-row {
+.pf-hero-body > .pf-status-panel {
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
+
+.pf-main-chart-wrapper {
+  position: relative;
   display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: var(--ct-space-1);
-  margin: 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: transparent;
 }
 
-.pf-pv-summary__currency {
-  font-size: var(--ct-text-lg-fixed);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-none);
+.pf-main-chart-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
+    transparent 22%
+  );
+  pointer-events: none;
 }
 
-.pf-pv-summary__value {
-  font-size: clamp(2.3rem, 3.6vw, 3rem);
+/* ---- ValueChart ---- */
+.pf-value-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1_5);
+  min-width: 0;
+  min-height: 0;
+  /* In the hero weld the chart sits inside a flex-column wrapper; height:100%
+     does NOT fill a flex-column parent (percentage height is indefinite there),
+     which collapsed .pf-value-chart to its header height and crushed the plot
+     to 0px. flex:1 1 auto makes it grow to fill the wrapper. height:100% stays
+     as the fallback for any non-flex parent (leaf pages). */
+  flex: 1 1 auto;
+  height: 100%;
+  padding: var(--ct-space-3) var(--ct-space-4);
+}
+
+/* Hero context: reduce chart padding so the plot gets more vertical real estate
+   inside the fixed 18rem grid. The weld layer is now padding:0 so this is the
+   only padding the chart carries. */
+.pf-value-chart--hero-embedded {
+  gap: var(--ct-space-4);
+  padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x);
+}
+
+.pf-hero-kpi-value {
+  /* DS hero tier — the single dominant number on the Portfolio surface (NAV value).
+     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / strong text. */
+  font-size: var(--ct-text-hero);
   font-weight: var(--ct-font-extrabold);
-  line-height: 0.92;
-  letter-spacing: -0.06em;
+  line-height: var(--ct-leading-none);
+  letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "ss01" 1;
-  margin-left: calc(var(--ct-space-0_5) * -1);
 }
 
-.pf-pv-summary__meta-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ct-space-2);
+/* Hero header — now uses .pf-vc-header (not .pf-cockpit-panel__header which is
+   not in the DOM for this component). These rules are the live selectors. */
+.pf-value-chart--hero-embedded .pf-vc-header {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  flex-shrink: 0;
 }
 
-.pf-pv-summary__meta-item {
+.pf-value-chart--hero-embedded .pf-vc-header__trail {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.125rem;
-  padding: 0 var(--ct-space-3);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-2);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-secondary);
-  white-space: nowrap;
+  align-self: flex-start;
 }
 
-.pf-pv-summary__meta-sep {
+.pf-value-chart__chart-wrapper,
+.pf-value-chart__chart-slot,
+.pf-skeleton-chart {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  /* chart-geometry — aspect backstop for non-hero usage; hero height is controlled by pf-hero-grid */
+  aspect-ratio: 200 / 72; /* chart-geometry */
+  overflow: hidden;
+  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+}
+
+/* Hero context: aspect-ratio would force height based on ~1000px width → 360px,
+   blowing the 16rem fixed grid. Override to pure flex fill. */
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
+  aspect-ratio: auto;
+  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
+  background: transparent;
+  animation: none;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::before,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::after,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::before,
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::after {
   display: none;
 }
 
-.pf-pv-summary__ledger-note {
+.pf-value-chart__chart-wrapper,
+.pf-value-chart__chart-slot {
+  background: var(--ct-surface-1);
+  box-shadow: none;
+  animation: pf-chart-entry 1s var(--ct-ease) forwards;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
+  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
+  background: var(--ct-surface-0);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
+    inset 0 -24px 40px color-mix(in srgb, var(--ct-bg-deep) 36%, transparent);
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__plot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 70% at 50% 100%,
+      color-mix(in srgb, var(--ct-accent) 12%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--ct-surface-0) 18%, transparent) 100%
+    );
+  pointer-events: none;
+}
+
+.pf-value-chart--hero-embedded .pf-value-chart__plot::after {
+  content: "";
+  position: absolute;
+  left: var(--ct-space-2);
+  right: var(--ct-space-2);
+  bottom: var(--ct-space-3);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent) 12%,
+    color-mix(in srgb, var(--ct-accent) 20%, transparent) 50%,
+    color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent) 88%,
+    transparent
+  );
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.pf-value-chart__chart-wrapper::before,
+.pf-value-chart__chart-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 18%, transparent)
+  );
+  pointer-events: none;
+}
+
+.pf-value-chart__chart-wrapper::after,
+.pf-value-chart__chart-slot::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 18%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ct-surface-0) 28%, transparent)
+  );
+  pointer-events: none;
+}
+
+.pf-value-chart__plot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  animation: pf-plot-fade-in var(--ct-dur-base) var(--ct-ease) forwards;
+}
+
+@keyframes pf-plot-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pf-value-chart__plot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Chart line + area — flat stroke, no glow animation. */
+.pf-value-chart__plot svg path[data-role="line"],
+.pf-value-chart__plot svg path[stroke="var(--ct-accent)"] {
+  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
+  opacity: 1;
+  transition: stroke var(--ct-dur-base) var(--ct-ease);
+}
+
+@keyframes pf-chart-entry {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pf-value-chart__chart-slot {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 7.5rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+}
+
+.pf-value-chart__empty,
+.pf-value-chart__sparse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-2);
+  height: 100%;
+  min-height: 7.5rem;
+  padding: var(--ct-space-4);
+}
+
+.pf-value-chart__empty-label,
+.pf-value-chart__sparse-hint {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-tertiary);
+  text-align: center;
+  max-width: 20rem;
+  line-height: var(--ct-leading-snug);
+}
+
+.pf-value-chart__sparse-value {
+  font-size: var(--ct-text-xl-fixed);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-accent);
+}
+
+.pf-vc-density-note,
+.pf-vc-inline-note {
   margin: 0;
-  display: grid;
-  gap: var(--ct-space-1);
   font-size: var(--ct-text-nano);
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
   color: var(--ct-text-tertiary);
   opacity: var(--ct-opacity-62);
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
-.pf-pv-summary__ledger-note span {
-  display: block;
+.pf-vc-inline-note {
+  padding: 0;
 }
 
-@container pf (max-width: 58rem) {
-  .pf-pv-summary__meta-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.pf-vc-header__trail {
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
-@container pf (max-width: 36rem) {
-  .pf-pv-summary__meta-row {
-    grid-template-columns: 1fr;
-  }
-
-  .pf-pv-summary__meta-item {
-    white-space: normal;
-  }
-}
-
-.pf-pv-summary__empty {
-  display: flex;
+.pf-value-chart__range-selector {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: var(--ct-space-6) 0;
+  gap: var(--ct-space-0_5);
+  padding: var(--ct-space-0_5);
+  border-radius: var(--ct-radius-full);
+  background: color-mix(in srgb, var(--ct-surface-1) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
+  margin-bottom: 0;
 }
 
-.pf-pv-summary__empty-label {
-  font-size: var(--ct-text-xs);
+.pf-vc-range-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ct-text-tertiary);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wider);
+  padding: var(--ct-space-1) var(--ct-space-2);
+  border-radius: var(--ct-radius-full);
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--ct-dur-fast) var(--ct-ease), background var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-vc-range-btn--active {
+  color: var(--ct-text-strong);
+  background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-2));
+}
+
+.pf-vc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ct-space-1_5);
+  align-items: center;
+  margin-top: var(--ct-space-2);
+}
+
+.pf-vc-header__provenance {
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
   color: var(--ct-text-tertiary);
 }
 
+.pf-vc-grid {
+  stroke: var(--ct-graphite-border-nested);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 8;
+  opacity: 0.28;
+}
+
+.pf-vc-line {
+  filter: none;
+  opacity: 0.92;
+}
+
+.pf-vc-area {
+  opacity: 1;
+}
+
+.pf-value-chart--hero-embedded .pf-vc-line {
+  stroke-width: 1.8;
+  opacity: 0.98;
+}
+
+.pf-value-chart--hero-embedded .pf-vc-area {
+  opacity: 1;
+}
+
+.pf-vc-svg {
+  overflow: visible;
+}
+
+.pf-vc-hover-line {
+  stroke: var(--ct-chart-curve-color);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.pf-vc-endcap {
+  opacity: 0.9;
+}
+
+.pf-vc-axis-label {
+  fill: var(--ct-text-tertiary);
+  font-size: var(--ct-text-nano);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  font-family: var(--ct-font-sans, system-ui, sans-serif);
+}
+
+.pf-vc-axis-label--x {
+  opacity: 0.5;
+}
+
+.pf-vc-axis-label--y {
+  opacity: 0.42;
+  font-variant-numeric: tabular-nums;
+}
+
 .pf-positions-empty__hint,
+.pf-activity__empty-hint {
+  color: var(--ct-text-tertiary);
+}
+
+.pf-vc-tooltip {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  will-change: left, top;
+}
+
+.pf-vc-tooltip--edge-left {
+  transform: translate(0.5rem, -110%);
+}
+
+.pf-vc-tooltip--edge-center {
+  transform: translate(-50%, -115%);
+}
+
+.pf-vc-tooltip--edge-right {
+  transform: translate(calc(-100% - 0.5rem), -110%);
+}
+
+.pf-vc-tooltip--clip-top {
+  transform: translate(-50%, 0.75rem);
+}
+
+.pf-vc-tooltip--clip-top.pf-vc-tooltip--edge-left {
+  transform: translate(0.5rem, 0.75rem);
+}
+
+.pf-vc-tooltip--clip-top.pf-vc-tooltip--edge-right {
+  transform: translate(calc(-100% - 0.5rem), 0.75rem);
+}
+
+.pf-vc-tooltip__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-0_5);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  border: 1px solid var(--ct-graphite-border-nested);
+  border-radius: var(--ct-radius-md);
+  box-shadow: 
+    var(--ct-glass-bevel),
+    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
+  backdrop-filter: blur(var(--ct-blur-lg));
+  min-width: 9rem;
+  transition: transform 0.15s var(--ct-ease);
+}
+
+.pf-vc-tooltip__value {
+  font-size: var(--ct-text-base);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-accent);
+  letter-spacing: var(--ct-tracking-tight);
+}
+
+.pf-vc-tooltip__date {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  opacity: 0.8;
+}
+
+.pf-value-chart__month-labels {
+  position: relative;
+  /* Controlled label band. Was space-5 height + space-1 margin-top + space-2
+     padding-top (~32px) for a 9px nano label pinned at top:0 — a dead zone under
+     the plot that inflated the hero. Tightened so the chart fills its box and
+     May/Jun sit just under the plot. Hero height is grid-fixed (16rem): the
+     flex:1 chart-wrapper absorbs the reclaimed space, nothing grows. */
+  height: var(--ct-space-4);
+  margin-top: 0;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-1);
+}
+
+.pf-value-chart__month-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  color: var(--ct-text-tertiary);
+  white-space: nowrap;
+  letter-spacing: var(--ct-tracking-wider);
+  text-transform: uppercase;
+}
+
+/* Corner metrics hover states */
+.chart-provenance-corner {
+  transition: all var(--ct-dur-base) var(--ct-ease);
+  cursor: help;
+  opacity: var(--ct-opacity-80);
+}
+
+.chart-provenance-corner:hover {
+  opacity: 1;
+  transform: scale(1.02);
+  color: var(--ct-accent-light);
+}
+
+/* Badge LIVE (provenance corner) dans le plot : décollé du bord droit ET du
+   haut pour ne plus toucher l'endpoint de courbe ni le coin. Override des
+   utilitaires top-2/right-2 du composant (hors scope) via un sélecteur scopé
+   plus spécifique. Pilule sombre discrète — pas de glow. */
+.pf-value-chart__plot .chart-provenance-corner {
+  top: var(--ct-space-3);
+  right: var(--ct-space-4);
+}
+
+.pf-value-chart--hero-left .pf-vc-header__row2 {
+  width: 100%;
+}
+
+.pf-value-chart--hero-left .pf-vc-header {
+  padding-bottom: var(--ct-space-1);
+}
+
+/* ── ValueChart header (pf-vc-*) ─────────────────────────────────────────── */
+
+.pf-vc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-2);
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.pf-vc-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pf-vc-header__row1 {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2_5);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.pf-vc-header__date {
+  font-size: var(--ct-text-nano);
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  text-transform: uppercase;
+  font-weight: var(--ct-font-medium);
+  opacity: var(--ct-opacity-50);
+}
+
+.pf-vc-header__row2 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-4);
+  flex-wrap: wrap;
+  min-width: 0;
+  justify-content: space-between;
+}
+
+.pf-vc-balance {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ct-space-1);
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.pf-vc-balance__sym {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  color: var(--ct-text-tertiary);
+  line-height: 1;
+  align-self: baseline;
+}
+
+.pf-vc-inline-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  min-width: 0;
+  margin-left: auto;
+  text-align: right;
+}
+
+.pf-vc-inline-note::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--ct-accent) 70%, transparent);
+}
+
 .pf-activity__empty-hint {
   color: var(--ct-text-tertiary);
 }
@@ -658,20 +1133,17 @@
 }
 
 
-/* Welded into the hero-grid right slot — flat graphite, 5 icon rows. */
+/* Welded into the hero body right slot — flat graphite, no surface of its own. */
 .pf-status-panel {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  /* Background/shadow come from the PfCockpitPanel wrapper; the internal
-     separator hairline (left on desktop, top when stacked) is owned by the
-     `.pf-hero-grid .pf-status-panel` responsive rules — do NOT force a border
-     here or it overrides the responsive side and the split looks wrong. */
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
+  overflow: hidden;
 }
 
 .pf-status-panel .pf-cockpit-panel__header {
@@ -765,15 +1237,7 @@
   height: var(--ct-space-3_5);
 }
 
-/* Status panel is the hero-grid right slot. MOBILE-FIRST default (1-col stacked):
-   a thin TOP hairline separates it from the chart above, no left border. The
-   2-col desktop state (@container pf min-width: 58rem) flips this to a LEFT
-   hairline + no top border. Keeping the base aligned with the 1-col grid default
-   prevents a stray separator showing on the wrong edge. */
-.pf-hero-grid .pf-status-panel {
-  border-left: 0;
-  border-top: 1px solid var(--ct-graphite-border-nested);
-}
+/* Status panel divider is owned by .pf-hero-body responsive rules above. */
 
 /* =============================================================================
    7. POSITIONS (table grid)
@@ -2312,23 +2776,14 @@
 }
 
 @container pf (min-width: 800px) {
-  /* Hero welded grid split — 2 columns: Chart | Sidebar.
-     Use px so this layout gate stays tied to the actual content width rather
-     than drifting with the global root font-size. 800px keeps the 1280px
-     portfolio hero side-by-side while preserving a readable chart lane. */
-  .pf-hero-grid {
-    grid-template-columns: 1.6fr minmax(16rem, 22rem) !important;
-    height: auto;
-    min-height: 0;
-  }
-  .pf-hero-grid .pf-status-panel {
-    border-left: 1px solid var(--ct-graphite-border-nested) !important;
-    border-top: none !important;
-    position: relative;
+  /* Hero body split — 2 columns: Chart | Status. */
+  .pf-hero-body {
+    grid-template-columns: 1.6fr minmax(16rem, 22rem);
   }
 
-  .pf-hero-grid .pf-main-chart-wrapper {
-    border-left: 0;
+  .pf-hero-body > .pf-status-panel {
+    border-top: none !important;
+    border-left: 1px solid var(--ct-graphite-border-nested) !important;
   }
 }
 
@@ -2348,15 +2803,13 @@
    tight slot (≤44rem) — below that the chart needs the full width. Stacking too
    early (was 64rem) squeezed the 5-row status panel to ~44px and clipped rows. */
 @container pf (max-width: 44rem) {
-  .pf-container--fit .pf-hero-grid,
-  .pf-container--zero .pf-hero-grid {
+  .pf-container--fit .pf-hero-body,
+  .pf-container--zero .pf-hero-body {
     grid-template-columns: 1fr;
-    height: auto;
-    min-height: 0;
   }
 
-  .pf-container--fit .pf-hero-grid .pf-status-panel,
-  .pf-container--zero .pf-hero-grid .pf-status-panel {
+  .pf-container--fit .pf-hero-body > .pf-status-panel,
+  .pf-container--zero .pf-hero-body > .pf-status-panel {
     border-left: none !important;
     border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }

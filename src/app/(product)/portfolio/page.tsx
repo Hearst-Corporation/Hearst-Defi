@@ -2,12 +2,11 @@ import "./portfolio.css";
 
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
-import { PortfolioValueSummary } from "@/components/portfolio/portfolio-value-summary";
+import { PortfolioHero } from "@/components/portfolio/portfolio-hero";
 import { PositionCards } from "@/components/portfolio/position-badges";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { PortfolioStatusPanel } from "@/components/portfolio/portfolio-status-panel";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
@@ -60,28 +59,18 @@ export default async function PortfolioPage() {
 
       <div className="pf-cockpit">
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
-          <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper">
-              <PortfolioValueSummary
-                totalValueUsdc={data.totalValueUsdc}
-                positionsCount={positionsCount}
-                deployedUsdc={deployedUsdc}
-                source={source}
-                updatedAt={updatedAt}
-                embedded={true}
-              />
-            </div>
-            <PortfolioStatusPanel
-              hasPositions={hasPositions}
-              positionsCount={positionsCount}
-              deployedUsdc={deployedUsdc}
-              totalValueUsdc={data.totalValueUsdc}
-              accruedYieldUsdc={accruedYieldUsdc}
-              source={source}
-              embedded={true}
-              updatedAt={updatedAt ?? undefined}
-            />
-          </div>
+          <PortfolioHero
+            hasPositions={hasPositions}
+            positions={positions}
+            totalValueUsdc={data.totalValueUsdc}
+            deployedUsdc={deployedUsdc}
+            accruedYieldUsdc={accruedYieldUsdc}
+            positionsCount={positionsCount}
+            source={source}
+            updatedAt={updatedAt}
+            valueChartTransactions={data.valueChartTransactions}
+            hourlySnapshots={data.hourlyValueSnapshots}
+          />
         </section>
 
         <section

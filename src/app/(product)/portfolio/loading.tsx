@@ -78,46 +78,39 @@ export default function PortfolioLoading() {
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--chart">
           <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper">
-              <div className="pf-pv-summary p-5 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col gap-2">
-                    <Skeleton className="h-6 w-32 opacity-40" />
-                    <Skeleton className="h-4 w-24 opacity-20" />
+            <header className="pf-hero-header">
+              <div className="pf-hero-header__row">
+                <Skeleton className="h-6 w-36 opacity-40" />
+                <Skeleton className="h-4 w-24 opacity-20" />
+                <Skeleton className="h-4 w-32 opacity-15" />
+              </div>
+            </header>
+            <div className="pf-hero-body">
+              <div className="pf-main-chart-wrapper">
+                <div className="pf-value-chart pf-value-chart--hero-embedded pf-value-chart--hero-left p-5 flex flex-col gap-4 flex-1">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <Skeleton className="h-10 w-44 opacity-60" />
+                    <div className="flex gap-1">
+                      {[0, 1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-6 w-8 opacity-20 rounded-full" />
+                      ))}
+                    </div>
                   </div>
-                  <Skeleton className="h-4 w-24 opacity-20" />
-                </div>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <Skeleton className="h-12 w-40 opacity-60" />
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-1">
-                  <Skeleton className="h-8 w-full opacity-20" />
-                  <Skeleton className="h-8 w-full opacity-20" />
-                  <Skeleton className="h-8 w-full opacity-20" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Skeleton className="h-3 w-40 opacity-10" />
-                  <Skeleton className="h-3 w-56 opacity-10" />
+                  <div className="pf-value-chart__chart-slot flex-1 min-h-[7.5rem] rounded-xl opacity-20 bg-surface-1" />
                 </div>
               </div>
-            </div>
-            <div className="pf-status-panel border-l border-nested">
-              <div className="p-6 flex flex-col gap-6 h-full">
-                <div className="flex flex-col gap-2">
+              <div className="pf-status-panel">
+                <div className="pf-sp2-header">
                   <Skeleton className="h-6 w-32 opacity-40" />
-                  <Skeleton className="h-4 w-20 opacity-20" />
+                  <Skeleton className="h-5 w-full opacity-15 rounded-full mt-3" />
                 </div>
-                <div className="flex flex-col gap-4 flex-1 justify-between py-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-4 w-1 rounded-full opacity-30" />
-                      <div className="flex-1">
-                        <Skeleton className="h-4 w-20 mb-1 opacity-30" />
-                        <Skeleton className="h-3 w-16 opacity-10" />
-                      </div>
-                      <Skeleton className="h-6 w-12 opacity-40" />
-                    </div>
-                  ))}
+                <div className="pf-sp2-body">
+                  <div className="pf-sp2-tiles">
+                    {[0, 1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-16 w-full opacity-15 rounded-lg" />
+                    ))}
+                  </div>
+                  <Skeleton className="h-12 w-full opacity-10 rounded-lg" />
                 </div>
               </div>
             </div>
