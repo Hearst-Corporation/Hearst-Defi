@@ -46,10 +46,16 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "simulation",
     coordination: "sequential",
     crewIds: ["risk_explanation_flow"],
-    // Enforced read-only scope: reach an admin surface and explain product / yield
-    // to an LP. No catalog action for risk/provenance exists yet — explanation is
-    // produced by the risk_explanation crew, not a write action.
-    allowedActionIds: ["navigate_admin_surface", "explain_product", "explain_yield"],
+    // Enforced read-only scope: reach an admin surface and explain product / yield /
+    // risk / provenance to an LP. All read-only and output-guarded (APY range, no
+    // guarantees) — never a write action.
+    allowedActionIds: [
+      "navigate_admin_surface",
+      "explain_product",
+      "explain_yield",
+      "explain_risk",
+      "explain_provenance",
+    ],
     // Categorical prohibitions (an LP explainer never sends or sources leads).
     forbiddenActions: ["outreach_trigger_send_run", "source_leads_autonomously"],
     safetyNotes: [
@@ -129,18 +135,21 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "dry_run",
     coordination: "sequential",
     crewIds: ["memory_distill_flow"],
-    // THEORETICAL-BUT-BOUNDED: no memory-specific catalog action exists yet, so the
-    // distillation itself is produced by the crew, not a write action. The swarm is
-    // given a minimal read-only scope (reach a surface + read status) and an enforced
-    // boundary — every other action is out-of-scope. A future lot may add a
-    // read-only `read_session_context` / `distill_memory` action to make it real.
-    allowedActionIds: ["navigate_admin_surface", "read_observability"],
+    // Enforced read-only scope: reach a surface, read observability status, and read
+    // metadata-only session context for distillation. read_session_context NEVER
+    // touches raw user text / prompts / conversation content — ids, counts, and
+    // timestamps only. Every other action is out-of-scope.
+    allowedActionIds: [
+      "navigate_admin_surface",
+      "read_observability",
+      "read_session_context",
+    ],
     // Categorical prohibitions (memory housekeeping never sends or sources leads).
     forbiddenActions: ["outreach_trigger_send_run", "source_leads_autonomously"],
     safetyNotes: [
       "Reads session metadata only — never raw user text or secrets.",
       "Dry-run: no external transmission, no persistence performed.",
-      "Theoretical-but-bounded: minimal read-only scope; everything else is out-of-scope.",
+      "Enforced read-only scope: read_session_context (metadata-only) + status; everything else is out-of-scope.",
     ],
   },
 ] as const;

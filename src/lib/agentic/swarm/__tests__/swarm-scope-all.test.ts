@@ -68,13 +68,20 @@ describe("platform_reporting_swarm — read/report scope", () => {
   });
 });
 
-describe("lp_explainer_swarm — explain scope", () => {
-  it("allows explain actions, blocks drafts/outreach/sends", () => {
+describe("lp_explainer_swarm — explain scope (incl. risk + provenance)", () => {
+  it("allows all four explain actions", () => {
     expect(decide("lp_explainer_swarm", "explain_product").decision).toBe("allow");
     expect(decide("lp_explainer_swarm", "explain_yield").decision).toBe("allow");
+    expect(decide("lp_explainer_swarm", "explain_risk").decision).toBe("allow");
+    expect(decide("lp_explainer_swarm", "explain_risk").reasonCode).toBe("read_only_allowed");
+    expect(decide("lp_explainer_swarm", "explain_provenance").decision).toBe("allow");
+    expect(decide("lp_explainer_swarm", "explain_provenance").reasonCode).toBe("read_only_allowed");
+  });
+  it("blocks drafts/outreach/sends", () => {
     expect(decide("lp_explainer_swarm", "draft_outreach_email").reasonCode).toBe("action_out_of_swarm_scope");
     expect(decide("lp_explainer_swarm", "create_vault_draft").reasonCode).toBe("action_out_of_swarm_scope");
     expect(decide("lp_explainer_swarm", "outreach_trigger_send_run", true).reasonCode).toBe("forbidden_by_swarm");
+    expect(decide("lp_explainer_swarm", "deploy_product", true).reasonCode).toBe("forbidden_autonomous");
   });
 });
 
@@ -91,13 +98,32 @@ describe("vault_governance_swarm — governance dry-run scope", () => {
   });
 });
 
-describe("memory_maintenance_swarm — theoretical but bounded", () => {
-  it("allows its minimal read scope, blocks everything else", () => {
+describe("memory_maintenance_swarm — enforce minimal useful (read_session_context)", () => {
+  it("allows its read-only scope incl. metadata-only session context", () => {
     expect(decide("memory_maintenance_swarm", "navigate_admin_surface").decision).toBe("allow");
     expect(decide("memory_maintenance_swarm", "read_observability").decision).toBe("allow");
+    expect(decide("memory_maintenance_swarm", "read_session_context").decision).toBe("allow");
+    expect(decide("memory_maintenance_swarm", "read_session_context").reasonCode).toBe("read_only_allowed");
+  });
+  it("blocks unrelated product/vault/outreach actions and the floor", () => {
+    expect(decide("memory_maintenance_swarm", "explain_product").reasonCode).toBe("action_out_of_swarm_scope");
     expect(decide("memory_maintenance_swarm", "create_vault_draft").reasonCode).toBe("action_out_of_swarm_scope");
     expect(decide("memory_maintenance_swarm", "draft_outreach_email").reasonCode).toBe("action_out_of_swarm_scope");
     expect(decide("memory_maintenance_swarm", "outreach_trigger_send_run", true).reasonCode).toBe("forbidden_by_swarm");
+    expect(decide("memory_maintenance_swarm", "deploy_product", true).reasonCode).toBe("forbidden_autonomous");
+  });
+});
+
+describe("new read-only utility actions are well-formed", () => {
+  it("explain_risk / explain_provenance / read_session_context are read_only, non-autonomous-by-policy", () => {
+    for (const id of ["explain_risk", "explain_provenance", "read_session_context"]) {
+      const e = evaluateActionReadiness(id); // no swarm → tier only
+      expect(e.tier).toBe("read_only");
+      expect(e.decision).toBe("allow");
+      expect(e.reasonCode).toBe("read_only_allowed");
+      expect(e.autonomousAllowed).toBe(false);
+      expect(e.unknown).toBe(false);
+    }
   });
 });
 

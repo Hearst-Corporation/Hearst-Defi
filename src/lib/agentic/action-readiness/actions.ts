@@ -121,6 +121,57 @@ export const ACTION_READINESS_ITEMS: ActionReadinessItem[] = [
       "What are the top matched rules?",
     ],
   },
+  {
+    id: "explain_risk",
+    label: "Explain risk",
+    tier: "read_only",
+    status: "available",
+    autonomousAllowed: true,
+    humanGateRequired: false,
+    confirmationRequired: false,
+    riskLevel: "low",
+    reason:
+      "Read-only explanation of a product/vault risk profile from available risk parameters. Output-guard enforced (no guarantees, no risk-free language); educational only, no DB write, no financial advice.",
+    examples: [
+      "What are the primary risks of this vault?",
+      "Explain the mining counterparty risk",
+      "Describe the lock-up and liquidity risk",
+    ],
+  },
+  {
+    id: "explain_provenance",
+    label: "Explain provenance",
+    tier: "read_only",
+    status: "available",
+    autonomousAllowed: true,
+    humanGateRequired: false,
+    confirmationRequired: false,
+    riskLevel: "none",
+    reason:
+      "Read-only explanation of the provenance/attestation/source of a metric (Live / Oracle / Attested / Estimated / Manual / Stale). Reads existing provenance metadata only — no mutation, no external call.",
+    examples: [
+      "Where does this APY figure come from?",
+      "Explain the proof-of-reserves attestation",
+      "What is the provenance of the NAV value?",
+    ],
+  },
+  {
+    id: "read_session_context",
+    label: "Read session context (metadata-only)",
+    tier: "read_only",
+    status: "available",
+    autonomousAllowed: true,
+    humanGateRequired: false,
+    confirmationRequired: false,
+    riskLevel: "none",
+    reason:
+      "Read-only, metadata-only view of agent session context (ids, counts, timestamps) for memory housekeeping. NEVER reads raw user text / conversation content / prompts; stores nothing; no mutation, no external transmission.",
+    examples: [
+      "How many turns in the current session?",
+      "Show session metadata for distillation",
+      "List session ids eligible for memory distill",
+    ],
+  },
 
   // ─── DRAFT / PROPOSAL ─────────────────────────────────────────────────────
   {
