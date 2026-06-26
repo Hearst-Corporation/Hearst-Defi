@@ -1,19 +1,19 @@
-// /portfolio/[positionId] — Position detail page
-// Server Component. Loads position via loadPosition() from lib/data/portfolio.
-// Non-negotiable #1: APY range via <ApyRange>.
-// Non-negotiable #2: ProvenanceBadge on every metric.
-// Non-negotiable #5: no forbidden words in copy.
-// Non-negotiable #10: "not guaranteed" disclaimer present.
-
-import "../portfolio.css";
-
-import { notFound } from "next/navigation";
-import { loadPosition } from "@/lib/data/portfolio";
-import { PositionHeader } from "@/components/portfolio/position-header";
-import { PositionKpis } from "@/components/portfolio/position-kpis";
-import { PositionActions } from "@/components/portfolio/position-actions";
-import { PositionTransactions } from "@/components/portfolio/position-transactions";
-import { Card } from "@/components/ui/card";
+/**
+ * Portfolio — détail position /portfolio/[positionId] — FEUILLE BLANCHE (rebuild from scratch).
+ *
+ * 2026-06-27 : l'ancienne page (PositionHeader / PositionKpis / PositionActions /
+ * PositionTransactions / Card + loadPosition + portfolio.css + tokens --ct-*) a été
+ * mise de côté pour repartir de zéro avec Catalyst, comme la page principale
+ * /portfolio. L'ancien code reste intact dans git
+ * (`git show HEAD:"src/app/(product)/portfolio/[positionId]/page.tsx"`) et tous les
+ * composants src/components/portfolio/* sont toujours là, simplement plus rendus ici.
+ *
+ * Cette coquille n'importe NI portfolio.css NI les tokens --ct-* et ne charge AUCUNE
+ * donnée (pas de loadPosition) : base Catalyst native (palette zinc, dark mode via
+ * .dark). Les surfaces sont reconstruites une par une, validées au fur et à mesure.
+ *
+ * Route DYNAMIQUE : on garde une signature Next.js 16 valide (`params` async).
+ */
 
 export const dynamic = "force-dynamic";
 
@@ -21,53 +21,32 @@ interface PageProps {
   params: Promise<{ positionId: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps) {
-  const { positionId } = await params;
-  return {
-    title: `Position ${positionId.slice(0, 8)} — Hearst Yield Vault`,
-  };
-}
+export const metadata = {
+  title: "Position",
+};
 
 export default async function PositionDetailPage({ params }: PageProps) {
   const { positionId } = await params;
 
-  const position = await loadPosition(positionId);
-  if (!position) notFound();
-
   return (
-    <div className="product-doc-stack product-doc-shell--cap">
-      <PositionHeader position={position} />
+    <main
+      data-portfolio-blank
+      className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
+    >
+      <div className="mx-auto max-w-5xl">
+        <h1 className="text-2xl font-semibold text-white">Position</h1>
+        <p className="mt-2 text-sm text-zinc-400">
+          Feuille blanche — reconstruction en cours.
+        </p>
 
-      <div className="position-detail-grid">
-        <div className="position-detail-main">
-          <PositionKpis position={position} />
-          <PositionTransactions transactions={position.transactions} source={position.source} />
+        <div className="mt-10 rounded-xl border border-dashed border-white/10 p-16 text-center">
+          <p className="text-sm text-zinc-500">
+            Détail position{" "}
+            <span className="font-mono text-zinc-400">{positionId}</span> — surface à
+            reconstruire avec Catalyst.
+          </p>
         </div>
-
-        <aside className="position-detail-aside">
-          <PositionActions position={position} />
-
-          {/* Disclaimer — non-negotiable #10 */}
-          <footer className="doc-page-disclaimer pt-0 border-t-0">
-            <Card
-              hoverOverlay={false}
-              aria-labelledby="position-methodology-note"
-              contentClassName="pf-stack pf-stack--tight"
-              className="bg-transparent border-none p-0"
-            >
-              <p id="position-methodology-note" className="eyebrow ct-text-muted">
-                Return assumptions
-              </p>
-              <p className="position-detail-disclaimer body-xs ct-text-faint">
-                APY ranges are target projections based on stated assumptions. They are not
-                a commitment of future returns. Accrued yield figures are indicative and
-                subject to change based on vault conditions and Methodology v1.0. Past
-                performance does not predict future results.
-              </p>
-            </Card>
-          </footer>
-        </aside>
       </div>
-    </div>
+    </main>
   );
 }
