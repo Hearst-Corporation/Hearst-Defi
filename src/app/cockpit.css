@@ -3843,9 +3843,16 @@ button.ct-choice-card {
    on neutralise le canvas DS — fond #191B22 + dot-grid vert — pour ne pas avoir
    "du gris sur du gris". La page Catalyst peint son propre fond (zinc). Scopé au
    marqueur data-portfolio-blank → AUCUN impact sur vaults/profile/proof. */
-.ct-page-area:has([data-portfolio-blank]) {
-  background-color: transparent;
-  background-image: none;
+.ct-page-area:has([data-portfolio-blank]),
+.ct-center-panel:has([data-portfolio-blank]) > .ct-page-area,
+.ct-center-panel:has([data-portfolio-blank]) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+/* Tue aussi le fondu noir bas (::after) qui pourrait stacker un voile sous la page blanche. */
+.ct-page-area:has([data-portfolio-blank])::after,
+.ct-root:not(:has(> .app-footer)) .ct-page-area:has([data-portfolio-blank])::after {
+  content: none !important;
 }
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
