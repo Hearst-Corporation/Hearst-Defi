@@ -500,7 +500,7 @@
 .pf-hero-header {
   flex: 0 0 auto;
   padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x) var(--ct-space-4);
-  border-bottom: 1px solid var(--ct-graphite-border-nested);
+  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
 }
 
 
@@ -528,6 +528,7 @@
   font-weight: var(--ct-font-medium);
   opacity: var(--ct-opacity-50);
   margin-left: auto;
+  padding-left: var(--ct-space-3);
 }
 
 .pf-hero-body {
@@ -2875,7 +2876,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--ct-space-3);
-  padding-top: var(--ct-space-3);
+  padding-top: var(--ct-space-4);
   border-top: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
 }
 
@@ -2883,8 +2884,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.4rem;
+  height: 1.4rem;
   border-radius: 999px;
   color: var(--ct-text-secondary);
   background: color-mix(in srgb, var(--ct-graphite-border-nested) 22%, transparent);

@@ -1,10 +1,6 @@
 import { ShieldCheck, TrendingUp, Layers, Wallet, ArrowDownToLine } from "lucide-react";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import {
-  PfCockpitPanel,
-  PfCockpitPanelHeader,
-} from "@/components/portfolio/pf-cockpit-panel";
-import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 
 const DASH = "—";
@@ -42,7 +38,6 @@ export function PortfolioStatusPanel({
       ? Math.min(100, (deployedUsdc / totalValueUsdc) * 100)
       : 0;
 
-  const provenance = hasPositions ? resolveProvenance(source, updatedAt) : undefined;
   const isLive = hasPositions && source === "live";
   const proofStatus = !hasPositions ? DASH : isLive ? "Current" : "Reference";
   const proofMeta = !hasPositions
@@ -62,41 +57,6 @@ export function PortfolioStatusPanel({
       aria-label="Portfolio status"
       className="pf-status-panel p-0!"
     >
-      <div className="pf-sp2-header">
-        <PfCockpitPanelHeader
-          title="Portfolio Status"
-          titleVariant="primary"
-          titleEnd={
-            isLive ? (
-              <span className="pf-cockpit-panel__title-pill" aria-label="Live data">
-                <span className="pf-cockpit-panel__title-pill-dot" aria-hidden="true" />
-                Live
-              </span>
-            ) : undefined
-          }
-          provenance={provenance}
-        />
-
-        {hasPositions ? (
-          <div
-            className="pf-sp2-deploy-track"
-            role="meter"
-            aria-valuenow={deploymentPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${deploymentPct.toFixed(0)}% deployed`}
-          >
-            <div
-              className="pf-sp2-deploy-fill"
-              style={{ width: `${Math.min(100, deploymentPct).toFixed(1)}%` }}
-            />
-            <span className="pf-sp2-deploy-label">
-              {deploymentPct.toFixed(0)}% deployed
-            </span>
-          </div>
-        ) : null}
-      </div>
-
       <div className="pf-sp2-body">
         <div className="pf-sp2-tiles">
           <div className="pf-sp2-tile">
@@ -129,9 +89,7 @@ export function PortfolioStatusPanel({
             <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
               {hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
             </span>
-            <span className="pf-sp2-tile__sub">
-              {hasPositions ? formatUsdCompact(deployedUsdc) : "No principal"}
-            </span>
+            <span className="pf-sp2-tile__sub">Of total capital</span>
           </div>
 
           <div className="pf-sp2-tile pf-sp2-tile--yield">
