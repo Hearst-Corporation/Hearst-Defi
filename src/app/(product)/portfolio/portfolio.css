@@ -3098,30 +3098,73 @@
   padding-top: var(--ct-space-2);
 }
 
-/* 2×2 KPI grid — DS primitive MetricGrid + Metric variant="nested".
-   The bento separators (1px gap on --ct-border-soft) + nested graphite cell
-   fill live here (layout chrome); the metric typography lives in Metric
-   (.stat-label / .stat-value), no longer reimplemented per-tile. */
-.pf-sp2-grid {
-  /* Force a strict 2×2 (override the MetricGrid 3-up ≥768px breakpoint): this
-     KPI block lives in the narrow status rail, not a full-width module. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--ct-border-soft);
+/* KPI list — stacked icon-led rows. One metric per line:
+   [icon chip] label + sublabel ........... value (right-aligned).
+   Rows separated by hairlines; mirrors the proof-strip visual language. */
+.pf-sp2-kpi-list {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.pf-sp2-grid > .ct-metric-nested {
-  padding: var(--ct-space-3_5) var(--ct-space-5);
-  background: var(--ct-graphite-nested-bg);
+.pf-sp2-kpi-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  padding: var(--ct-space-3) var(--ct-space-5);
+  border-bottom: 1px solid var(--ct-border-soft);
   min-width: 0;
 }
 
-/* Narrow rail: let the sublabel wrap instead of ellipsis-truncating. */
-.pf-sp2-grid > .ct-metric-nested .ct-metric-nested__sublabel {
-  white-space: normal;
-  overflow: visible;
+.pf-sp2-kpi-row:last-child {
+  border-bottom: none;
+}
+
+.pf-sp2-kpi-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-space-7);
+  height: var(--ct-space-7);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-2);
+  color: var(--ct-text-tertiary);
+  flex-shrink: 0;
+}
+
+.pf-sp2-kpi-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-px);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pf-sp2-kpi-row__label {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ct-tracking-widest);
+  color: var(--ct-text-tertiary);
+  line-height: var(--ct-leading-tight);
+}
+
+.pf-sp2-kpi-row__sublabel {
+  font-size: var(--ct-text-micro);
+  color: var(--ct-text-tertiary);
+  opacity: var(--ct-opacity-70);
+  line-height: var(--ct-leading-tight);
+}
+
+.pf-sp2-kpi-row__value {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-bold);
+  color: var(--ct-text-strong);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
 }
 
 .pf-sp2-proof__name {

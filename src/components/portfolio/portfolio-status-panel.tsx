@@ -1,11 +1,17 @@
-import { ShieldCheck } from "lucide-react";
+import {
+  ShieldCheck,
+  Wallet,
+  Layers,
+  PieChart,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Metric } from "@/components/ui/metric";
-import { MetricGrid } from "@/components/ui/nested-panel";
 
 const DASH = "—";
 
@@ -15,6 +21,33 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   timeZone: "UTC",
 });
+
+function KpiRow({
+  icon: Icon,
+  label,
+  value,
+  sublabel,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: ReactNode;
+  sublabel?: string;
+}) {
+  return (
+    <div className="pf-sp2-kpi-row">
+      <div className="pf-sp2-kpi-row__icon" aria-hidden="true">
+        <Icon size={14} strokeWidth={2} />
+      </div>
+      <div className="pf-sp2-kpi-row__body">
+        <span className="pf-sp2-kpi-row__label">{label}</span>
+        {sublabel ? (
+          <span className="pf-sp2-kpi-row__sublabel">{sublabel}</span>
+        ) : null}
+      </div>
+      <span className="pf-sp2-kpi-row__value tabular mono">{value}</span>
+    </div>
+  );
+}
 
 export interface PortfolioStatusPanelProps {
   hasPositions: boolean;
@@ -89,34 +122,34 @@ export function PortfolioStatusPanel({
         )}
       </div>
 
-      {/* ── KPI grid (2×2) — DS primitive: MetricGrid + Metric variant="nested" ── */}
+      {/* ── KPI list — stacked rows, icon-led ── */}
       <div className="pf-sp2-body">
-        <MetricGrid columns={2} className="pf-sp2-grid">
-          <Metric
-            variant="nested"
+        <div className="pf-sp2-kpi-list">
+          <KpiRow
+            icon={Wallet}
             label="Principal"
-            value={hasPositions ? formatUsdCompact(deployedUsdc) : DASH}
             sublabel="Net deposits"
+            value={hasPositions ? formatUsdCompact(deployedUsdc) : DASH}
           />
-          <Metric
-            variant="nested"
+          <KpiRow
+            icon={Layers}
             label="Positions"
-            value={hasPositions ? String(positionsCount) : DASH}
             sublabel={hasPositions ? "Active" : "None yet"}
+            value={hasPositions ? String(positionsCount) : DASH}
           />
-          <Metric
-            variant="nested"
+          <KpiRow
+            icon={PieChart}
             label="Deployed"
-            value={hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
             sublabel={hasPositions ? formatUsdCompact(deployedUsdc) : "No principal"}
+            value={hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
           />
-          <Metric
-            variant="nested"
+          <KpiRow
+            icon={TrendingUp}
             label="Accrued yield"
-            value={hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH}
             sublabel="Since inception"
+            value={hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH}
           />
-        </MetricGrid>
+        </div>
 
         {/* Proof strip — full width, green accent ONLY when live + verified */}
         <div className={cn("pf-sp2-proof", isLive && "pf-sp2-proof--live")}>
