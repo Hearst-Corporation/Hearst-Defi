@@ -25,6 +25,8 @@ export const metadata = {
   title: "Position",
 };
 
+import { BlankCanvasMarker } from "@/components/portfolio/blank-canvas-marker";
+
 export default async function PositionDetailPage({ params }: PageProps) {
   const { positionId } = await params;
 
@@ -33,6 +35,7 @@ export default async function PositionDetailPage({ params }: PageProps) {
       data-portfolio-blank
       className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
     >
+      <BlankCanvasMarker />
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-semibold text-white">Position</h1>
         <p className="mt-2 text-sm text-zinc-400">

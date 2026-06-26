@@ -3841,17 +3841,16 @@ button.ct-choice-card {
 
 /* FEUILLE BLANCHE Portfolio (2026-06-27) : sous /portfolio (rebuild Catalyst),
    on neutralise le canvas DS — fond #191B22 + dot-grid vert — pour ne pas avoir
-   "du gris sur du gris". La page Catalyst peint son propre fond (zinc). Scopé au
-   marqueur data-portfolio-blank → AUCUN impact sur vaults/profile/proof. */
-.ct-page-area:has([data-portfolio-blank]),
-.ct-center-panel:has([data-portfolio-blank]) > .ct-page-area,
-.ct-center-panel:has([data-portfolio-blank]) {
+   "du gris sur du gris". La page Catalyst peint son propre fond (zinc).
+   Ciblé via html[data-blank-canvas] (posé par <BlankCanvasMarker/> tant qu'une
+   page portfolio blanche est montée) PLUTÔT que :has() : le contenu est rendu
+   hors de .ct-page-area par le bailout next/dynamic du shell, donc un marqueur
+   descendant ne matchait pas. Retiré au démontage → 0 impact vaults/profile. */
+html[data-blank-canvas] .ct-page-area {
   background-color: transparent !important;
   background-image: none !important;
 }
-/* Tue aussi le fondu noir bas (::after) qui pourrait stacker un voile sous la page blanche. */
-.ct-page-area:has([data-portfolio-blank])::after,
-.ct-root:not(:has(> .app-footer)) .ct-page-area:has([data-portfolio-blank])::after {
+html[data-blank-canvas] .ct-page-area::after {
   content: none !important;
 }
 

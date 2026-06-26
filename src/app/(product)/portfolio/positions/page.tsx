@@ -25,12 +25,15 @@ export const metadata = {
   description: "Your active vault positions",
 };
 
+import { BlankCanvasMarker } from "@/components/portfolio/blank-canvas-marker";
+
 export default function PositionsPage() {
   return (
     <main
       data-portfolio-blank
       className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
     >
+      <BlankCanvasMarker />
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-semibold text-white">Positions</h1>
         <p className="mt-2 text-sm text-zinc-400">
