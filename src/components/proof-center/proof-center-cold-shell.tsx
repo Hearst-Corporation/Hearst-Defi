@@ -1,10 +1,11 @@
 import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PanelStatus } from "@/components/ui/panel-status";
 import { PORTFOLIO_ONBOARDING_INVEST_HREF } from "@/lib/portfolio/layout-preview";
 import { ShieldCheck, Zap, BarChart3, FileText, Lock } from "lucide-react";
-import { cn } from "@/lib/cn";
 
 const UNLOCKS = [
   {
@@ -38,29 +39,31 @@ export function ProofCenterColdShell({
   chainConfigured: boolean;
   variant?: "product" | "admin";
 }) {
-  const stackClass = variant === "admin" ? "admin-doc-stack admin-doc-stack--relaxed" : "proof-center-cold product-doc-stack product-doc-stack--roomy";
-  const Container = variant === "admin" ? "div" : Card;
+  const stackClass = variant === "admin" ? "proof-center-cold admin-doc-stack admin-doc-stack--roomy" : "proof-center-cold product-doc-stack product-doc-stack--roomy";
 
   return (
     <div
       className={stackClass}
       data-testid="proof-center-cold-shell"
     >
-      <Container {...(variant === "admin" ? { className: "admin-doc-stack admin-doc-stack--tight" } : { material: "flat", hoverOverlay: false, contentClassName: "proof-cold-card" })}>
+      <Card material="flat" hoverOverlay={false} contentClassName="proof-cold-card">
         <div className="flex items-start gap-(--ct-space-4)">
-          {variant === "admin" ? null : (
-            <div className="proof-dataroom-icon-box mt-1">
-              <Lock className="w-4 h-4 ct-text-muted" />
-            </div>
-          )}
+          <div className="proof-dataroom-icon-box mt-(--ct-space-1)">
+            <Lock className="w-4 h-4 ct-text-muted" />
+          </div>
           <div className={variant === "admin" ? "admin-doc-stack admin-doc-stack--tight" : "product-doc-stack product-doc-stack--tight"}>
-            <p className="eyebrow m-0">Status</p>
-            <h2 className={cn("m-0", variant === "admin" ? "h3 ct-text-strong" : "h3")}>Proof system active — awaiting vault activity</h2>
-            <p className="body-sm ct-text-muted m-0">
-              {chainConfigured
-                ? "Contracts are deployed on a test network. Attestations, distributions, and event logs publish once the vault operates."
-                : "On-chain proof modules activate after deployment. Off-chain documents publish as operations posts them."}
-            </p>
+            <div className="flex items-center gap-(--ct-space-2)">
+              <p className="eyebrow m-0">Status</p>
+              <Badge variant="accent">Active</Badge>
+            </div>
+            <h2 className="h3 m-0">Proof system active — awaiting vault activity</h2>
+            <PanelStatus
+              message={
+                chainConfigured
+                  ? "Contracts are deployed on a test network. Attestations, distributions, and event logs publish once the vault operates."
+                  : "On-chain proof modules activate after deployment. Off-chain documents publish as operations posts them."
+              }
+            />
           </div>
         </div>
         {variant === "product" ? (
@@ -68,9 +71,9 @@ export function ProofCenterColdShell({
             <Link href={PORTFOLIO_ONBOARDING_INVEST_HREF}>Explore products</Link>
           </Button>
         ) : null}
-      </Container>
+      </Card>
 
-      <Container {...(variant === "admin" ? { className: "admin-doc-stack admin-doc-stack--tight" } : { material: "flat", hoverOverlay: false, contentClassName: "proof-cold-card proof-cold-card--list" })}>
+      <Card material="flat" hoverOverlay={false} contentClassName="proof-cold-card proof-cold-card--list">
         <p className="stat-label m-0">What unlocks when the vault operates</p>
         <ul className="proof-cold-list">
           {UNLOCKS.map((item) => (
@@ -83,7 +86,7 @@ export function ProofCenterColdShell({
             </li>
           ))}
         </ul>
-      </Container>
+      </Card>
     </div>
   );
 }

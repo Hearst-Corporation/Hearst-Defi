@@ -96,17 +96,15 @@ export function PorSummary({
             href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
             target="_blank"
             rel="noreferrer noopener"
-            className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
+            className={explorerLinkClass}
             title={attestation.attestor}
             aria-label={`View attestor ${attestation.attestor} on explorer`}
           >
-            <span className="ct-proof-row__truncate">
-              {abbreviateAddress(attestation.attestor)}
-            </span>
+            {abbreviateAddress(attestation.attestor)}
           </a>
         </ProofRow>
         <ProofRow label="Evidence hash">
-          <span title={attestation.evidenceHash} className="ct-proof-row__truncate">
+          <span title={attestation.evidenceHash}>
             {abbreviateAddress(attestation.evidenceHash)}
           </span>
         </ProofRow>

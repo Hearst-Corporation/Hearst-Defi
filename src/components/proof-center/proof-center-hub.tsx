@@ -78,7 +78,7 @@ function ProofHubCard({
   children,
 }: ProofHubCardProps) {
   return (
-    <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
+    <Card material="flat" className="h-full p-(--ct-space-6)" contentClassName="flex flex-col h-full">
       <DashboardPanelHeader
         eyebrow={eyebrow}
         title={title}

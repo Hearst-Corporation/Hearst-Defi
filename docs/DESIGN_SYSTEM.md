@@ -131,9 +131,9 @@ Le projet utilise **deux modes typographiques distincts et intentionnels**. Ne j
 
 | Tier | Classe | Token | Taille | Traitement |
 |------|--------|-------|--------|------------|
-| H1 | `.h1` | `--ct-text-3xl-fixed` | **24px fixe** | 800, white (`--ct-text-primary`) |
-| H2 sections | `.h2` | `--ct-text-2xl` | 18→22px clamp | 700, **`--ct-accent`** |
-| H3 modules | `.h3` | `--ct-text-lg` | 15→17px clamp | 700, white, accent optionnel |
+| H1 | `.h1` | `--ct-text-3xl-fixed` | **24px fixe** | 600, white (`--ct-text-strong`) |
+| H2 sections | `.h2` | `--ct-text-2xl` | 18→22px clamp | 600, **white (`--ct-text-strong`)** |
+| H3 modules | `.h3` | `--ct-text-lg` | 15→17px clamp | 500, **`--ct-accent`** (signature portfolio) |
 | H4 sub-labels | `.h4` | `--ct-text-xs` | 13px | 600, muted |
 | Corps | `.body-sm` / `.body-xs` | `--ct-text-sm` / `--ct-text-xs` | 15px / 13px | — |
 
@@ -556,25 +556,35 @@ Rules:
 
 ### 13.2 Typographic scale + dominance
 
-Modéré spacing between levels, **green accent reserved for section titles (H2)**
-so the structure reads at a glance. The authoritative scale for doc pages lives
+Modéré spacing between levels, **green accent reserved for module / card titles (H3)**
+(portfolio signature — `.pf-container h3` → `--ct-accent`) so the structure reads at
+a glance. H2 section titles stay **white-strong**. The authoritative scale for doc pages lives
 in `doc-flow-typography.css` (`:is(.product-doc, .admin-doc)`, which overrides
 the base `.h1/.h2/.h3` in `cockpit.css` by specificity); the base classes are
 aligned to the same values so non-doc surfaces match.
 
 | Role | Class | Size | Weight | Color | Allowed | Forbidden |
 |------|-------|------|--------|-------|---------|-----------|
-| h1 | `.h1` | 24→28 (`3xl`) | 800 | white-strong (`--ct-text-primary`) | one per route — page title | card titles, repeated items |
-| h2 | `.h2` | 20→22 | 700 | **green (`--ct-accent`)** | section titles | page title, card titles |
-| h3 | `.h3` = `CardTitle` | 16→18 (`lg`) | 700 | white-strong | module/card titles | section titles, row labels |
+| h1 | `.h1` | 24 fixe (`3xl-fixed`) | 600 | white-strong (`--ct-text-strong`) | one per route — page title | card titles, repeated items |
+| h2 | `.h2` | 18→22 (`2xl`) | 600 | **white-strong (`--ct-text-strong`)** | section titles | page title, card titles |
+| h3 | `.h3` = `CardTitle` | 15→17 (`lg`) | 500 | **green (`--ct-accent`)** | module/card titles | section titles, row labels |
 | stat-value | `.stat-value` | `--ct-text-2xl` | 800 | — | KPI inside an L3 module; tracking `--ct-tracking-tighter` | first viewport when it would beat the page h1 → demote to `--ct-text-xl` |
 | stat-label / eyebrow | — | `--ct-text-micro` uppercase | — | muted; tracking `--ct-tracking-wider` | labels, kickers | as headings or body |
 | body-md/sm/xs | `.body-*` | `--ct-text-sm`/`xs` | — | body/muted | prose, metadata | KPI values, headlines |
 
-**H2 = green** is the single structural accent: a section title is the only text
-that carries `--ct-accent`. Do not put `ct-text-strong`/`ct-text-primary` on a
-`.h2` (it would override the green). Modal/dialog titles are an exception — they
-use `.h2` for size but stay white (not a page section).
+**H3 = green** is the single structural accent: a module / card title (`.h3` =
+`CardTitle`, native `<h3>`, `.pf-cockpit-panel__title--primary`) is the text that
+carries `--ct-accent` — the propagated portfolio signature. **H2 section titles
+stay white-strong** (`--ct-text-strong`); do not turn them green. `h2 ct-text-strong`
+is therefore redundant (the `.h2` class is already white) — drop the modifier; the
+only place it is meaningful is a modal/dialog title, where `.h2` is used for *size*
+on a non-doc surface that does not inherit the doc-flow white rule.
+
+> **Canon = the rendered page (portfolio).** Source of truth for these colors:
+> `portfolio.css` (`.pf-container .h2 { --ct-text-strong }`, `.pf-container h3/.h3
+> { --ct-accent }`) mirrored by `doc-flow-typography.css`. When this doc and the
+> rendered page disagree, the page wins (see header). This table was corrected
+> 2026-06-26 — it previously said "H2 green / H3 white", the inverse of the render.
 
 ### 13.3 Surface taxonomy — one language, two names
 
@@ -655,4 +665,5 @@ No raw rgba remains in either rule.
 | 2026-06-26 | portfolio-premium | **Portfolio Home Premium Redesign + DS P1**: Portfolio Status → KPI tile 2×2 panel; Capital & Yield → APY band visual + partial state notice; Payout Calendar → "Distribution coming" box; Positions → premium card with status chip + correct accent logic; DS P1: overlay/dialog tokens + intentional overrides documented. |
 | 2026-06-13 | `66b528f` (pushed `main`) | **Mixed checkpoint — accepted as-is.** DS row taxonomy (`DataRow` / `LegalMetadataRow` / `ProofRow`) and `MetricGrid` / `NestedKpiGrid` aliases shipped in `nested-panel.tsx` + §6/§9 doc updates. Same commit also contains scenario task-flow polish (`cockpit.css`, `central-task-runner.tsx`, `single-mode.tsx`). **No history rewrite** — commit already on `origin/main`; do not reopen or split `66b528f`. Next DS family: **fresh branch + isolated commit only.**
 | 2026-06-13 | Batch A | **UI hierarchy contract (§13)** + `/vaults` thesis de-duplicated (removed redundant section h2 under the shell h1). `Card` default kept `true`; `hoverOverlay` cleanup is **per-call-site** (static cards opt out, clickable cards keep it) — no global default flip yet. |
-| 2026-06-13 | Typo scale | **Typo hierarchy reworked (§13.2)** in `doc-flow-typography.css` (+ base in `cockpit.css`): modéré size steps (H1 24→28 white, H2 20→22 **green**, H3 16→18 white) so the hierarchy reads at a glance. Green is now the structural accent reserved for section titles. Was: flat doc scale (H1 20→24, H2 16→18 grey, H3 16 grey) → "tout jeté, pas de titre, pas d'accent vert". Applies to every `.product-doc`/`.admin-doc` page. |
+| 2026-06-26 | DS doc fix | **§4.1 + §13.2 tables corrected** to match the rendered canon (portfolio): **H2 = white-strong, H3 = green `--ct-accent`** (the propagated portfolio signature, `.pf-container h3 → --ct-accent`). The tables previously claimed the inverse (H2 green / H3 white), which never matched `doc-flow-typography.css` / `portfolio.css`. No code/render change — only the doc was wrong. `h2 ct-text-strong` modifiers dropped as redundant (kept on modal titles only). |
+| 2026-06-13 | Typo scale | **Typo hierarchy reworked (§13.2)** in `doc-flow-typography.css` (+ base in `cockpit.css`): modéré size steps. *(Note 2026-06-26: this row's "H2 green / H3 white" wording was a doc error — the actual render has always been H2 white / H3 green; see row above.)* Was: flat doc scale (H1 20→24, H2 16→18 grey, H3 16 grey). Applies to every `.product-doc`/`.admin-doc` page. |

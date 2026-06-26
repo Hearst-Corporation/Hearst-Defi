@@ -9,10 +9,10 @@ function SkeletonDataRoomItem() {
   return (
     <div className="flex items-start gap-(--ct-space-3) py-(--ct-space-4)">
       <Skeleton className="w-8 h-8 rounded-(--ct-radius-md) shrink-0" />
-      <div className="min-w-0 flex-1 flex flex-col gap-2">
+      <div className="min-w-0 flex-1 flex flex-col gap-(--ct-space-2)">
         <Skeleton className="h-5 w-1/3" />
         <Skeleton className="h-4 w-full" variant="text" />
-        <div className="flex flex-col gap-1 mt-1">
+        <div className="flex flex-col gap-(--ct-space-1) mt-(--ct-space-1)">
           <Skeleton className="h-4 w-1/2" variant="text" />
           <Skeleton className="h-4 w-2/3" variant="text" />
         </div>
@@ -22,22 +22,18 @@ function SkeletonDataRoomItem() {
 }
 
 function SkeletonPanel({
-  eyebrowWidth = 24,
-  titleWidth = 40,
   hasTrailing = true,
   children,
 }: {
-  eyebrowWidth?: number;
-  titleWidth?: number;
   hasTrailing?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="dashboard-cockpit-panel">
       <div className="dashboard-card-header items-center">
-        <div className="flex flex-col gap-1">
-          <Skeleton className={`h-3 w-${eyebrowWidth}`} variant="text" />
-          <Skeleton className={`h-6 w-${titleWidth}`} />
+        <div className="flex flex-col gap-(--ct-space-1)">
+          <Skeleton className="h-3 w-24" variant="text" />
+          <Skeleton className="h-6 w-40" />
         </div>
         {hasTrailing && <Skeleton className="h-5 w-16 rounded-full" />}
       </div>
@@ -72,15 +68,15 @@ export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
       <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-top">
         <div className="dashboard-cockpit-cell">
           <SkeletonPanel>
-            <div className="flex flex-col gap-4 p-4">
+            <div className="flex flex-col gap-(--ct-space-4) p-(--ct-space-4)">
               <Skeleton className="h-10 w-full" />
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-(--ct-space-4)">
                 <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-16 w-full" />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-(--ct-space-2)">
                 <Skeleton className="h-4 w-full" variant="text" />
                 <Skeleton className="h-4 w-2/3" variant="text" />
               </div>
@@ -89,10 +85,10 @@ export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
         </div>
         <div className="dashboard-cockpit-cell">
           <SkeletonPanel>
-            <div className="flex flex-col gap-4 p-4">
+            <div className="flex flex-col gap-(--ct-space-4) p-(--ct-space-4)">
               <Skeleton className="h-6 w-1/2" />
               <Skeleton className="h-4 w-full" variant="text" />
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-(--ct-space-4)">
                 <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-16 w-full" />
@@ -106,7 +102,7 @@ export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
       <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
         <div className="dashboard-cockpit-cell">
           <SkeletonPanel>
-            <div className="divide-y divide-(--ct-border-soft) px-4">
+            <div className="divide-y divide-(--ct-border-soft) px-(--ct-space-4)">
               <SkeletonDataRoomItem />
               <SkeletonDataRoomItem />
             </div>
@@ -114,7 +110,7 @@ export function ProofCenterLoading({ className }: ProofCenterLoadingProps) {
         </div>
         <div className="dashboard-cockpit-cell">
           <SkeletonPanel>
-            <div className="divide-y divide-(--ct-border-soft) px-4">
+            <div className="divide-y divide-(--ct-border-soft) px-(--ct-space-4)">
               <SkeletonDataRoomItem />
               <SkeletonDataRoomItem />
             </div>

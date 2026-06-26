@@ -70,7 +70,7 @@ export function SingleMode({
 
         <div className="scenario-lab-config__inputs admin-doc-stack admin-doc-stack--relaxed">
           <div className="min-w-0">
-            <h3 className="h4 ct-text-strong">Inputs</h3>
+            <h3 className="h4">Inputs</h3>
             <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
               Adjust sliders or load a preset.
             </p>

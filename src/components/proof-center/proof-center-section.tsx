@@ -18,7 +18,7 @@ export function ProofCenterSection({
   children: ReactNode;
 }) {
   const sectionClass = variant === "admin" ? "admin-doc-stack admin-doc-stack--compact" : "product-doc-section";
-  const titleClass = variant === "admin" ? "h2 ct-text-strong m-0" : "h2 m-0";
+  const titleClass = "h2 m-0";
 
   return (
     <section aria-labelledby={id} className={sectionClass}>

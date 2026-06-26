@@ -446,7 +446,7 @@ export function ProjectionStudio() {
           Same model as Scenario Lab: config block on top, result continuum below. ── */}
       <div className="projection-studio-config admin-doc-stack admin-doc-stack--relaxed">
         <div className="min-w-0">
-          <h3 className="h4 ct-text-strong">Projection inputs</h3>
+          <h3 className="h4">Projection inputs</h3>
           <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
             Adjust sliders or load a preset · Methodology {methodologyVersion}
           </p>
