@@ -16,28 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### chore/swarm-calibration
-Owner: Opus Orchestrateur — Swarm Calibration
-Branch: chore/swarm-calibration
-Worktree: ../connect-opus-swarm-calib
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/__tests__/swarm-calibration.test.ts (new, non-destructive)
-- scripts/agentic/** (new optional live-calibration script)
-- docs/agentic/** (calibration notes)
-- docs/agent-file-locks.md
-
-Notes:
-- Read-only calibration campaign of the agentic backend (registry/simulate/
-  observability/aggregates). Adds a pure safety-invariant test only.
-- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
-- No Prisma migration, no DB write, no business mutation, no external tool.
-- Does NOT touch src/components/** (another agent's active UI work).
-
----
-
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
@@ -94,6 +72,31 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### chore/swarm-calibration
+Owner: Opus Orchestrateur — Swarm Calibration
+Branch: chore/swarm-calibration
+Merged PR: #95 (merge 1272a025)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Read-only/simulation-only calibration campaign of the agentic swarm chain (registry → simulate →
+  observability → aggregates), run live. All safety invariants PASS: 5 swarms, modes ∈ {simulation,
+  dry_run, gated}, none autonomous_write; forbidden blocked even with token; confirmed_write gated
+  without token; unknown action blocked fail-safe; unknown swarm → 404; sideEffects/businessSideEffects
+  false; no prompt/user-text/raw leak; observability opt-in metadata-only; aggregates clamp/window/leak
+  correct. Structural weakness identified: readiness is swarm-independent (swarm.forbiddenActions is
+  decorative). Adversarial multi-agent verdict: outreach_governed + platform_reporting = weak;
+  vault_governance/lp_explainer/memory_maintenance = theoretical; product_projection_swarm = build AFTER
+  (no projection action/crew; projection is read_only by ADR-006) — confirmed ABSENT. Deliverables:
+  pure safety-net test src/lib/agentic/__tests__/swarm-calibration.test.ts (13 tests, fails if a swarm
+  becomes unsafe), live runner scripts/agentic/calibrate-swarms.mjs (opt-in --record), docs/agentic/
+  SWARM_CALIBRATION.md (matrix + verdict + first-improvement + projection decision). typecheck PASS,
+  build PASS (postgresql), 520 agentic tests pass (2 pre-existing reporting-crew DB tests rouge = env
+  client-provider mismatch). Did NOT touch src/components/** (another agent's UI), no migration.
+  Next backend lot: make the swarm boundary enforcing (thread swarm into evaluateActionReadiness:
+  tier ∩ swarm allowlist + action_out_of_swarm_scope code), starting with outreach_governed_swarm.
 
 ### chore/agentic-backend-audit
 Owner: Opus Orchestrateur — Agentic Backend Audit
