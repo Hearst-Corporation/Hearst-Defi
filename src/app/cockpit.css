@@ -2922,6 +2922,16 @@ body {
 .ct-surface-3    { background: var(--ct-surface-3); }
 .ct-hover-surface:hover { background: var(--ct-surface-2); }
 
+/* Donut/ring segment hover affordance — token-based stroke wash (replaces the
+   `hover:stroke-white/20` Tailwind arbitrary in vault-allocation-display). */
+.ct-donut-seg {
+  cursor: help;
+  transition: stroke var(--ct-dur-base) var(--ct-ease);
+}
+.ct-donut-seg:hover {
+  stroke: color-mix(in srgb, var(--ct-text-strong) 20%, transparent);
+}
+
 .ct-border-soft   { border: 1px solid var(--ct-border-soft); }
 .ct-border-base   { border: 1px solid var(--ct-border); }
 .ct-border-strong { border: 1px solid var(--ct-border-strong); }

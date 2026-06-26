@@ -35,21 +35,27 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
               <th scope="col" className="stat-label ct-table-header">
                 APY range
               </th>
-              <th scope="col" className="stat-label ct-table-header text-right">
+              <th
+                scope="col"
+                className="stat-label ct-table-header regime-scenario-table__num"
+              >
                 Min
               </th>
-              <th scope="col" className="stat-label ct-table-header text-right">
+              <th
+                scope="col"
+                className="stat-label ct-table-header regime-scenario-table__num"
+              >
                 BTC
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header text-right regime-scenario-table__col-wide"
+                className="stat-label ct-table-header regime-scenario-table__num regime-scenario-table__col-wide"
               >
                 USDC
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header text-right regime-scenario-table__col-wide"
+                className="stat-label ct-table-header regime-scenario-table__num regime-scenario-table__col-wide"
               >
                 Res
               </th>
@@ -57,7 +63,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
           </thead>
           <tbody>
             {regimes.map((row) => (
-              <tr key={row.id} className="group/row transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--ct-accent)_5%,transparent)]">
+              <tr key={row.id} className="group/row">
                 <td className="ct-table-cell align-top">
                   <div className="flex flex-col gap-(--ct-space-0_5)">
                     <span className={cn("body-sm font-bold uppercase tracking-wide", TONE_TEXT[row.tone])}>
@@ -79,16 +85,16 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                     className="body-sm font-bold ct-text-strong tabular mono"
                   />
                 </td>
-                <td className="ct-table-cell align-top text-right">
+                <td className="ct-table-cell align-top regime-scenario-table__num">
                   {pctCell(row.miningPct)}
                 </td>
-                <td className="ct-table-cell align-top text-right">
+                <td className="ct-table-cell align-top regime-scenario-table__num">
                   {pctCell(row.btcTacticalPct)}
                 </td>
-                <td className="ct-table-cell align-top text-right regime-scenario-table__col-wide">
+                <td className="ct-table-cell align-top regime-scenario-table__num regime-scenario-table__col-wide">
                   {pctCell(row.usdcBasePct)}
                 </td>
-                <td className="ct-table-cell align-top text-right regime-scenario-table__col-wide">
+                <td className="ct-table-cell align-top regime-scenario-table__num regime-scenario-table__col-wide">
                   {pctCell(row.stableReservePct)}
                 </td>
               </tr>

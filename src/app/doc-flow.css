@@ -2194,6 +2194,13 @@
   padding-block: var(--ct-space-6); /* Even more air */
 }
 
+/* Numeric columns (APY / Min / BTC / USDC / Res) right-align — header + cells.
+   Replaces per-element `text-right` Tailwind utilities in the JSX (DS: no nude
+   Tailwind utilities outside primitives). */
+.product-doc .regime-scenario-table .regime-scenario-table__num {
+  text-align: right;
+}
+
 .product-doc .regime-scenario-table tbody tr:last-child {
   border-bottom: none;
 }

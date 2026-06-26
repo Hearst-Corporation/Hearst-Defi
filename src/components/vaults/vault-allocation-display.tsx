@@ -60,11 +60,15 @@ export function VaultAllocationInvestorList({
   >((acc, s) => {
     const precedingBps = acc.reduce((sum, prev) => sum + prev.bps, 0);
     const pct = s.bps / 10000;
+    // Canonical donut dasharray (DESIGN_SYSTEM §5): `${arc} ${C - arc}` — the gap
+    // must be the *remaining* circumference, never the full C (that repeats the
+    // dash pattern → phantom arcs). Each segment is its own rotated <circle>.
+    const arc = pct * circumference;
     acc.push({
       bucket: s.bucket,
       color: s.color,
       bps: s.bps,
-      strokeDasharray: `${pct * circumference} ${circumference}`,
+      strokeDasharray: `${arc} ${circumference - arc}`,
       rotation: (precedingBps / 10000) * 360,
     });
     return acc;
@@ -89,7 +93,7 @@ export function VaultAllocationInvestorList({
               strokeDasharray={s.strokeDasharray}
               strokeDashoffset={0}
               transform={`rotate(${s.rotation - 90} ${radius} ${radius})`}
-              className="transition-all duration-700 ease-in-out hover:stroke-white/20 cursor-help"
+              className="ct-donut-seg"
             />
           ))}
         </svg>
