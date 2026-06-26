@@ -114,12 +114,10 @@ the existing `/admin/projection` Projection Studio.
 ### Methodology v2 rendering (v0/v2 toggle)
 
 The preview surface has a **Deterministic v0 / Methodology v2** toggle. Switching mode
-resets the report to idle; v0 sends `PREVIEW_PROJECTION_INPUT` (rendering unchanged),
-v2 sends `PREVIEW_PROJECTION_INPUT_V2` — the SAME labelled fixture plus
-`methodology: { version: "v2", seed: "preview-hyv-v2", iterations: 2000,
-confidenceBands: true }`. The seed is **fixed and visible** (toolbar + section
-metadata) so the distribution is reproducible. The UI computes nothing — it consumes
-the artifact's `methodology` + `distribution` verbatim.
+resets the report to idle. The UI computes nothing — it consumes the artifact's
+`methodology` + `distribution` verbatim. v2 adds a methodology block with the **visible,
+editable seed** (default `preview-hyv-v2`, `iterations: 2000`, `confidenceBands: true`),
+so the distribution is reproducible.
 
 When `artifact.version === "v2"`, a **Methodology v2** section renders (read-only):
 seed / iterations / model badges; p5 / p50 / p95 percentile cards (APY% + projected
@@ -133,8 +131,25 @@ range), the section shows a "no distribution available" fallback — never a fab
 band. The generic Charts block still filters out `percentile_band`; the band is owned
 by the v2 section. APY stays a distribution/range; nothing is framed as guaranteed.
 
-**Future** (not in this lot): editable bounded inputs, a v2 seed selector, and a richer
-Scenario Lab integration sharing this band visual.
+### Editable bounded preview inputs
+
+The preview input is **editable, draft-only, and bounded** — no storage, no mutation;
+the engine and API are untouched. Fields: **Capital base** (0–1,000,000,000), **APY min**
+and **APY max** (0–100, with **min ≤ max** enforced), **Horizon** (1–120, integer), and
+(v2 only) **Seed** (3–64 chars, `[A-Za-z0-9_-]` only). Non-editable fixture parts
+(product, currency, 70/30 allocation, assumptions) are preserved and the allocation is
+labelled "preview fixture (not editable)".
+
+Validation is **local and pure** (`validatePreviewDraft` in `client.ts`): it runs BEFORE
+any request and, on failure, shows per-field + summary errors and **never calls the API**.
+`NaN`/`Infinity`/scientific-notation/text are rejected; APY is always a min/max range.
+On success, `buildPreviewInput(value, mode)` maps the validated values to the API input
+(v0 → no methodology; v2 → methodology with the validated seed). Editing an input after a
+successful run flags the report **stale** ("run again to refresh"); **Reset** restores the
+default draft and returns to idle. No raw JSON / prompt / user text is ever shown.
+
+**Future** (not in this lot): a richer Scenario Lab integration sharing this band visual,
+and optional editable allocation weights (still read-only/draft).
 
 ## Relation to future UI / Scenario Lab
 

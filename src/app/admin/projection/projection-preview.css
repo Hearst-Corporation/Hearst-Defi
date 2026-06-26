@@ -633,3 +633,97 @@
   left: 0;
   color: var(--ct-text-muted);
 }
+
+/* ── Editable bounded preview inputs ──────────────────────────────────────── */
+.projpv-reset {
+  appearance: none;
+  border: 1px solid var(--ct-border-soft);
+  background: transparent;
+  color: var(--ct-text-secondary);
+  font-size: var(--ct-text-sm);
+  font-weight: 500;
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+.projpv-reset:hover:not(:disabled) {
+  color: var(--ct-text-primary);
+  border-color: var(--ct-border-strong);
+}
+.projpv-reset:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.projpv-inputs {
+  padding: var(--ct-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-3);
+}
+.projpv-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--ct-space-3);
+}
+@media (max-width: 920px) {
+  .projpv-inputs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .projpv-inputs-grid { grid-template-columns: 1fr; }
+}
+.projpv-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+  min-width: 0;
+}
+.projpv-field-label {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.projpv-field-input {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  color: var(--ct-text-primary);
+  font-family: var(--ct-font-mono);
+  font-size: var(--ct-text-sm);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-sm);
+  transition: border-color 120ms ease;
+}
+.projpv-field-input:focus {
+  outline: none;
+  border-color: var(--ct-border-accent);
+}
+.projpv-field--error .projpv-field-input { border-color: var(--ct-status-danger); }
+.projpv-field-msg {
+  font-size: 10px;
+  color: var(--ct-text-muted);
+  font-family: var(--ct-font-mono);
+}
+.projpv-field-msg--error { color: var(--ct-status-danger); }
+.projpv-inputs-foot {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  margin: 0;
+}
+.projpv-inputs-error {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-status-danger);
+  margin: 0;
+}
+.projpv-stale {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-status-warning);
+  margin: 0;
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border: 1px solid var(--ct-status-warning);
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-surface-0);
+}

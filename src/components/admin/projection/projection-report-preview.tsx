@@ -1,22 +1,28 @@
 "use client";
 
 /**
- * Projection Report Preview — read-only interactive wrapper.
+ * Projection Report Preview — read-only interactive wrapper with editable,
+ * bounded draft inputs.
  *
- * Triggers a SINGLE on-demand projection run against the read-only API from an
- * explicit, visible preview input. No mutation, no storage, no auto-polling, no
- * raw payload / stack traces shown. Renders {@link ProjectionReportView} on
- * success and friendly states otherwise.
+ * An admin can edit a few headline inputs (capital, APY min/max, horizon, v2
+ * seed). Inputs are draft-only and validated LOCALLY before any request — no
+ * storage, no mutation, no auto-polling. A single on-demand run hits the
+ * read-only API; the backend engine is untouched. No raw payload / stack traces
+ * are shown; APY is always a min/max range (min ≤ max); no NaN/Infinity passes.
  */
 
 import { useCallback, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import {
+  DEFAULT_PREVIEW_DRAFT,
+  PREVIEW_BOUNDS,
   PREVIEW_PROJECTION_INPUT,
-  PREVIEW_PROJECTION_INPUT_V2,
-  PREVIEW_PROJECTION_SEED_V2,
+  buildPreviewInput,
+  validatePreviewDraft,
   runProjectionPreview,
+  type ProjectionPreviewDraft,
+  type ProjectionDraftField,
   type RunProjectionResult,
 } from "@/lib/agentic/product-projection/client";
 import type { ProjectionReportArtifact } from "@/lib/agentic/product-projection";
@@ -31,41 +37,83 @@ type State =
   | { kind: "invalid"; message: string }
   | { kind: "error"; message: string };
 
-const input = PREVIEW_PROJECTION_INPUT;
+type FieldErrors = Partial<Record<ProjectionDraftField, string>>;
+
+const alloc = PREVIEW_PROJECTION_INPUT.allocation ?? [];
 
 export function ProjectionReportPreview() {
   const [mode, setMode] = useState<Mode>("v0");
+  const [draft, setDraft] = useState<ProjectionPreviewDraft>(DEFAULT_PREVIEW_DRAFT);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [stale, setStale] = useState(false);
   const [state, setState] = useState<State>({ kind: "idle" });
   const abortRef = useRef<AbortController | null>(null);
 
-  const run = useCallback((runMode: Mode) => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    setState({ kind: "loading" });
-    const payload = runMode === "v2" ? PREVIEW_PROJECTION_INPUT_V2 : PREVIEW_PROJECTION_INPUT;
-    void runProjectionPreview(payload, controller.signal).then((res: RunProjectionResult) => {
-      if (controller.signal.aborted) return;
-      if (res.ok) {
-        setState({ kind: "success", artifact: res.artifact });
-      } else if (res.status === 400) {
-        setState({ kind: "invalid", message: res.error });
-      } else {
-        setState({ kind: "error", message: res.error });
+  const run = useCallback(
+    (runMode: Mode) => {
+      const result = validatePreviewDraft(draft);
+      if (!result.ok) {
+        setFieldErrors(result.errors);
+        setLocalError("Fix the highlighted fields before running.");
+        return; // never call the API with invalid input
       }
-    });
-  }, []);
+      setFieldErrors({});
+      setLocalError(null);
+      setStale(false);
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setState({ kind: "loading" });
+      const payload = buildPreviewInput(result.value, runMode);
+      void runProjectionPreview(payload, controller.signal).then((res: RunProjectionResult) => {
+        if (controller.signal.aborted) return;
+        if (res.ok) {
+          setState({ kind: "success", artifact: res.artifact });
+        } else if (res.status === 400) {
+          setState({ kind: "invalid", message: res.error });
+        } else {
+          setState({ kind: "error", message: res.error });
+        }
+      });
+    },
+    [draft],
+  );
+
+  const onField = useCallback(
+    (field: ProjectionDraftField, value: string) => {
+      setDraft((d) => ({ ...d, [field]: value }));
+      setFieldErrors((e) => (e[field] ? { ...e, [field]: undefined } : e));
+      setLocalError(null);
+      // Editing after a successful run makes the shown report stale.
+      setState((s) => {
+        if (s.kind === "success") setStale(true);
+        return s;
+      });
+    },
+    [],
+  );
 
   const selectMode = useCallback(
     (next: Mode) => {
       if (next === mode) return;
       setMode(next);
-      // Switching mode invalidates the current report — reset to idle.
       abortRef.current?.abort();
+      setStale(false);
+      setLocalError(null);
       setState({ kind: "idle" });
     },
     [mode],
   );
+
+  const reset = useCallback(() => {
+    abortRef.current?.abort();
+    setDraft(DEFAULT_PREVIEW_DRAFT);
+    setFieldErrors({});
+    setLocalError(null);
+    setStale(false);
+    setState({ kind: "idle" });
+  }, []);
 
   const isLoading = state.kind === "loading";
 
@@ -74,11 +122,9 @@ export function ProjectionReportPreview() {
       <header className="projpv-toolbar ct-glass-panel ct-glass-panel--flat">
         <div className="projpv-toolbar-meta">
           <span className="projpv-badge projpv-badge--preview">Preview input</span>
-          <span className="projpv-toolbar-input">
-            {input.productName} · {input.apyRange?.min}–{input.apyRange?.max}% · {input.horizonMonths}m ·{" "}
-            {input.capitalBase?.toLocaleString("en-US")} {input.currency}
-            {mode === "v2" ? <> · <span className="projpv-toolbar-seed">seed: {PREVIEW_PROJECTION_SEED_V2}</span></> : null}
-          </span>
+          <span className="projpv-badge projpv-badge--source">No storage</span>
+          <span className="projpv-badge projpv-badge--read">Read-only</span>
+          <span className="projpv-badge projpv-badge--ok">Range only</span>
         </div>
         <div className="projpv-toolbar-actions">
           <div className="projpv-modeswitch" role="group" aria-label="Projection methodology">
@@ -99,6 +145,9 @@ export function ProjectionReportPreview() {
               Methodology v2
             </button>
           </div>
+          <button type="button" className="projpv-reset" onClick={reset} disabled={isLoading}>
+            Reset
+          </button>
           <button
             type="button"
             className={cn("projpv-run", isLoading && "projpv-run--busy")}
@@ -110,6 +159,66 @@ export function ProjectionReportPreview() {
         </div>
       </header>
 
+      {/* Editable bounded draft inputs */}
+      <section className="projpv-inputs ct-glass-panel ct-glass-panel--flat" aria-label="Preview input">
+        <div className="projpv-inputs-grid">
+          <DraftField
+            label="Capital base (USDC)"
+            field="capitalBase"
+            value={draft.capitalBase}
+            error={fieldErrors.capitalBase}
+            onChange={onField}
+            inputMode="numeric"
+            hint={`0–${PREVIEW_BOUNDS.capitalBase.max.toLocaleString("en-US")}`}
+          />
+          <DraftField
+            label="APY min (%)"
+            field="apyMin"
+            value={draft.apyMin}
+            error={fieldErrors.apyMin}
+            onChange={onField}
+            inputMode="decimal"
+            hint={`${PREVIEW_BOUNDS.apy.min}–${PREVIEW_BOUNDS.apy.max}`}
+          />
+          <DraftField
+            label="APY max (%)"
+            field="apyMax"
+            value={draft.apyMax}
+            error={fieldErrors.apyMax}
+            onChange={onField}
+            inputMode="decimal"
+            hint={`≥ APY min`}
+          />
+          <DraftField
+            label="Horizon (months)"
+            field="horizonMonths"
+            value={draft.horizonMonths}
+            error={fieldErrors.horizonMonths}
+            onChange={onField}
+            inputMode="numeric"
+            hint={`${PREVIEW_BOUNDS.horizonMonths.min}–${PREVIEW_BOUNDS.horizonMonths.max}`}
+          />
+          {mode === "v2" ? (
+            <DraftField
+              label="Seed (v2)"
+              field="seed"
+              value={draft.seed}
+              error={fieldErrors.seed}
+              onChange={onField}
+              inputMode="text"
+              hint="3–64 · a-z 0-9 - _"
+            />
+          ) : null}
+        </div>
+        <p className="projpv-inputs-foot">
+          Allocation: {alloc.map((a) => `${a.weightPct}%`).join(" / ")} preview fixture (not editable). Inputs are
+          draft-only — nothing is stored, and APY is always a range.
+        </p>
+        {localError ? (
+          <p className="projpv-inputs-error" role="alert">{localError}</p>
+        ) : null}
+      </section>
+
       {state.kind === "idle" ? (
         <div className="projpv-state projpv-state--idle ct-glass-panel ct-glass-panel--flat">
           <p className="projpv-state-title">
@@ -118,14 +227,14 @@ export function ProjectionReportPreview() {
           <p className="projpv-state-body">
             {mode === "v2" ? (
               <>
-                Run to render a seeded p5 / p50 / p95 distribution for the preview input above. The seed
-                is fixed and visible, so the result is reproducible. p50 is a median scenario, not an
-                assured return; APY is shown only as a distribution/range.
+                Run to render a seeded p5 / p50 / p95 distribution for the input above. The seed is visible
+                and editable, so the result is reproducible. p50 is a median scenario, not an assured
+                return; APY is shown only as a distribution/range.
               </>
             ) : (
               <>
-                Run the projection to render a deterministic, read-only report for the preview input above.
-                APY is shown only as a range; no figure here is an assured return.
+                Edit the inputs above, then run to render a deterministic, read-only report. APY is shown
+                only as a range; no figure here is an assured return.
               </>
             )}
           </p>
@@ -154,7 +263,59 @@ export function ProjectionReportPreview() {
         </div>
       ) : null}
 
-      {state.kind === "success" ? <ProjectionReportView artifact={state.artifact} /> : null}
+      {state.kind === "success" ? (
+        <>
+          {stale ? (
+            <p className="projpv-stale" role="status">
+              Inputs changed since this report — run again to refresh.
+            </p>
+          ) : null}
+          <ProjectionReportView artifact={state.artifact} />
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function DraftField({
+  label,
+  field,
+  value,
+  error,
+  onChange,
+  hint,
+  inputMode,
+}: {
+  label: string;
+  field: ProjectionDraftField;
+  value: string;
+  error?: string;
+  onChange: (field: ProjectionDraftField, value: string) => void;
+  hint?: string;
+  inputMode?: "numeric" | "decimal" | "text";
+}) {
+  const id = `projpv-field-${field}`;
+  return (
+    <div className={cn("projpv-field", error && "projpv-field--error")}>
+      <label className="projpv-field-label" htmlFor={id}>
+        {label}
+      </label>
+      <input
+        id={id}
+        name={field}
+        className="projpv-field-input"
+        value={value}
+        inputMode={inputMode}
+        autoComplete="off"
+        spellCheck={false}
+        aria-invalid={error ? true : undefined}
+        onChange={(e) => onChange(field, e.target.value)}
+      />
+      {error ? (
+        <span className="projpv-field-msg projpv-field-msg--error">{error}</span>
+      ) : hint ? (
+        <span className="projpv-field-msg">{hint}</span>
+      ) : null}
     </div>
   );
 }

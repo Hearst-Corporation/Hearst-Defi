@@ -16,6 +16,27 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/projection-preview-editable-inputs
+Owner: Opus Orchestrateur — Projection Preview Editable Inputs
+Branch: feat/projection-preview-editable-inputs
+Worktree: ../connect-opus-proj-edit
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/app/admin/projection/preview/** (existing read-only route)
+- src/app/admin/projection/projection-preview.css (scoped CSS — additive input controls)
+- src/components/admin/projection/** (wrapper + tests — editable bounded inputs)
+- src/lib/agentic/product-projection/client.ts (additive draft validator/builder — no engine rewrite)
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- UI read-only/draft input editing only (capital, APY min/max, horizon, v2 seed). Local bounded validation.
+- No backend engine/API rewrite, no Prisma, no write action, no external tool, no execution, no storage.
+- APY always min/max range; min ≤ max enforced; no NaN/Infinity; no guaranteed return; no raw JSON/prompt/user text.
+- Does NOT touch src/components/** owned by other agents, proof-center, portfolio, vault, studio.tsx.
+
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
