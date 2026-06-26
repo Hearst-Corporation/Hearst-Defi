@@ -38,11 +38,7 @@
   --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
-  --ct-figma-cover-bg: #26272D;
-  --ct-figma-secondary-lighter: #9eb3a8;
-  --ct-figma-secondary-darker: #7e8f86;
   --ct-figma-neutral: #747575;
-  --ct-figma-negative: #ffffff;
   --ct-figma-accent-light: #cffdc2;
   --ct-figma-border-5: #ffffff12;
   --ct-figma-border-10: #ffffff20;
@@ -80,12 +76,6 @@
   --ct-border-muted: var(--ct-border);
   --ct-bc-warning: color-mix(in srgb, var(--ct-status-warning) 28%, transparent);
   --ct-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
-
-  /* Hiérarchie de titres en vert accent — 3 intensités décroissantes
-     (.h1/.h2/.h3). Le body reste blanc ; seuls les titres portent le vert. */
-  --ct-title-1: var(--ct-accent);
-  --ct-title-2: color-mix(in srgb, var(--ct-accent) 80%, transparent);
-  --ct-title-3: color-mix(in srgb, var(--ct-accent) 65%, transparent);
 
   /* ── FONDS DE SURFACES — TOUT EN NOIR (direction Adrien) ──────────────────────
      Le shell (fond du centre + rails menu/chat) ET les boxes partagent le MÊME
@@ -127,17 +117,14 @@
   --ct-status-success: var(--ct-accent);
   --ct-status-success-soft: color-mix(in srgb, var(--ct-status-success) 10%, transparent);
   --ct-status-success-border: color-mix(in srgb, var(--ct-status-success) 20%, transparent);
-  --ct-status-success-glow: color-mix(in srgb, var(--ct-status-success) 50%, transparent);
 
   --ct-status-warning: var(--ct-figma-status-warning);
   --ct-status-warning-soft: color-mix(in srgb, var(--ct-figma-status-warning) 10%, transparent);
   --ct-status-warning-border: color-mix(in srgb, var(--ct-figma-status-warning) 20%, transparent);
-  --ct-status-warning-glow: color-mix(in srgb, var(--ct-figma-status-warning) 50%, transparent);
 
   --ct-status-danger: var(--ct-figma-status-danger);
   --ct-status-danger-soft: color-mix(in srgb, var(--ct-figma-status-danger) 10%, transparent);
   --ct-status-danger-border: color-mix(in srgb, var(--ct-figma-status-danger) 20%, transparent);
-  --ct-status-danger-glow: color-mix(in srgb, var(--ct-figma-status-danger) 50%, transparent);
 
   --ct-status-info: #60a5fa;
   --ct-status-info-soft: rgba(96, 165, 250, 0.10);
@@ -157,10 +144,7 @@
   --ct-z-raised: 10;
   --ct-z-overlay: 100;
   --ct-z-modal: 1000;
-  --ct-z-toast: 1100;          /* messages transitoires (erreurs, notifications) */
-  --ct-z-popover: 1200;        /* contrôles flottants (toolbar, dropdowns) */
   --ct-z-modal-overlay: 1300;  /* backdrop de modale */
-  --ct-z-rail: 50;
   --ct-z-bottom-bar: 30;
   --ct-z-dropdown: 40;
   --ct-z-rail-tooltip: 100;
@@ -177,27 +161,13 @@
   --ct-overlay-backdrop: rgba(0, 0, 0, 0.6);
   --ct-dialog-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
   --ct-dialog-ring: 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --ct-glow-subtle: 0 0 24px color-mix(in srgb, var(--ct-accent) 18%, transparent);
-  --ct-glow-soft:   0 0 32px color-mix(in srgb, var(--ct-accent) 26%, transparent);
-  --ct-glow-strong: 0 0 24px color-mix(in srgb, var(--ct-accent) 36%, transparent);
   --ct-glow-dot: 0 0 10px currentColor;
   --ct-shadow-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 28%, transparent);
   --ct-scrollbar-size: 6px;
 
   /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
-  --ct-ambient-glow-opacity: 0.15;
-  --ct-ambient-glow-mix-primary: 0%;
-  --ct-ambient-glow-mix-secondary: 0%;
-  --ct-ambient-glow-mix-fade-a: 0%;
-  --ct-ambient-glow-mix-fade-b: 0%;
   --ct-ambient-glow-bg-top: 0%;
   --ct-ambient-glow-bg-bottom: 0%;
-  /* Spatial background gradient stops — semantic aliases (V4 absorption, SSOT §3).
-     The shell radial/ambient light reads stop-1 (near, brighter) → stop-2 (far,
-     fade). Alias the existing calibrated bg-top/bottom mix ratios; no new value,
-     and the glow stays SHELL-ONLY (see docs/DS_SHELL_CONTRACT.md §Glow / Ambient). */
-  --ct-ambient-stop-1: var(--ct-ambient-glow-bg-top);
-  --ct-ambient-stop-2: var(--ct-ambient-glow-bg-bottom);
 
   /* Left rail — active item accent bar. */
   --ct-rail-active-inset-y: 18%;
@@ -211,23 +181,6 @@
 
   /* Sticky roadmap phase band — frosted header over scroll. */
   --ct-roadmap-phase-header-bg-mix: 88%;
-
-  /* ── GLASS — canonical premium recipe (source of truth) ──
-     One token set drives the `.ct-glass-panel` utility below; that class is the
-     ONLY recipe new premium surfaces should use. Inline backdrop recipes in
-     components should converge here rather than re-declaring the effect. */
-  --ct-glass-radius: 1.25rem; /* 20px — density calibration (était 28px) */
-  /* Quiet glass: gentle blur, no saturate punch — the glossy look is gone. */
-  --ct-glass-blur: blur(20px) saturate(100%);
-  /* #fff / #0d0e10 below are color-mix endpoints (mix ratios, not surface colors) —
-     the standard idiom; no token for a pure-white / pure-shade mixer. OK as-is. */
-  --ct-glass-border: color-mix(in srgb, #fff 9%, transparent);
-  /* Faint inner top rim + soft drop — depth without a glossy sheen. */
-  --ct-glass-rim: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
-  --ct-glass-drop: 0 26px 62px -46px color-mix(in srgb, #0d0e10 92%, transparent);
-  /* Intentional definition for the previously-dangling --ct-glass-bg
-     (consumed in chart-provenance-corner.tsx with this exact fallback). */
-  --ct-glass-bg: var(--ct-bg-deep);
 
   /* Layout — hauteur du header inter-apps du shell Cockpit (launcher + offset).
      Référencé dans .ct-rail-intra (top:) mais absent de tokens.css du package.
@@ -267,19 +220,10 @@
   --ct-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* symmetric — loops (pulse/shimmer), reversible toggles */
   --ct-ease-out: cubic-bezier(0, 0, 0.2, 1);      /* decelerate — one-shot entries (fade-in, slide-up) */
 
-  /* Blur scale — backdrop-filter & decorative ambient glows. Single source so
+  /* Blur scale — backdrop-filter & decorative ambient glow. Single source so
      no rule hardcodes a raw blur() radius (DS lint enforces this). */
-  --ct-blur-xs:  blur(3px);      /* faint depth (chart overlay veil) */
-  --ct-blur-sm:  blur(8px);      /* compact glass (chips, small panels) */
-  --ct-blur-md:  blur(12px);     /* rail items, nested glass */
-  --ct-blur-lg:  blur(16px);     /* sticky footers (1rem) */
-  --ct-blur-xl:  blur(20px);     /* canonical glass panel (.ct-glass-panel) */
-  --ct-blur-2xl: blur(24px);     /* KPI glass */
   --ct-blur-3xl: blur(28px);     /* heavy modal/overlay scrim */
-  --ct-blur-glow-sm: blur(40px); /* ambient glow (small) */
-  --ct-blur-glow-md: blur(60px); /* ambient glow (medium) */
   --ct-blur-glow-lg: blur(9.375rem);  /* radial brand glow (150px) */
-  --ct-blur-glow-xl: blur(11.25rem);  /* hero radial brand glow (180px) */
 
   /* Gradients */
   --ct-gradient-surface: linear-gradient(135deg, var(--ct-surface-3), var(--ct-surface-1));
