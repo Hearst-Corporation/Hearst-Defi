@@ -16,17 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### agent/catalyst-ui-kit-import
-Owner: Agent — Catalyst UI Kit Import
-Branch: main (worktree shared)
-Reserved: 2026-06-27
-Note: import the Tailwind Catalyst UI kit (27 TS components) into a NEW isolated
-      folder. No collision with existing src/components/ui/*. clsx → cn(@/lib/cn).
-Files:
-- src/components/catalyst/** (new folder)
-- package.json (add @headlessui/react + motion only)
-- pnpm-lock.yaml
-
 ### agent/portfolio-status-ds-absorption
 Owner: Agent — Portfolio Status DS Absorption
 Branch: main (worktree shared)
