@@ -10,6 +10,11 @@ import {
   type ActionReadinessEvaluation,
   type SwarmSimulationResult,
 } from "@/lib/agentic/swarm";
+import {
+  recordAgenticSimulationTrace,
+  type RecordSimulationResult,
+  type SimulationReadinessOutcome,
+} from "@/lib/agentic/observability/simulation-trace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +27,7 @@ type SimulateInput = {
   swarmId: string;
   actionId?: string;
   context?: { hasHumanConfirmationToken?: boolean };
+  observability?: { record?: boolean };
 };
 
 type ParseResult =
@@ -73,9 +79,26 @@ function parseBody(raw: unknown): ParseResult {
     context = { hasHumanConfirmationToken: token === true };
   }
 
+  let observability: SimulateInput["observability"];
+  if (obj.observability !== undefined) {
+    if (typeof obj.observability !== "object" || obj.observability === null) {
+      return { ok: false, error: "observability must be an object" };
+    }
+    const record = (obj.observability as Record<string, unknown>).record;
+    if (record !== undefined && typeof record !== "boolean") {
+      return { ok: false, error: "observability.record must be a boolean" };
+    }
+    observability = { record: record === true };
+  }
+
   return {
     ok: true,
-    value: { swarmId: obj.swarmId, ...(actionId ? { actionId } : {}), ...(context ? { context } : {}) },
+    value: {
+      swarmId: obj.swarmId,
+      ...(actionId ? { actionId } : {}),
+      ...(context ? { context } : {}),
+      ...(observability ? { observability } : {}),
+    },
   };
 }
 
@@ -151,6 +174,30 @@ export async function POST(request: NextRequest): Promise<Response> {
       );
     }
 
+    // OPT-IN, metadata-only observability. The business simulation has no side
+    // effects; recording a trace is a technical side effect gated behind an
+    // explicit `observability.record === true`. No payload/prompt/user text is
+    // passed — only counts + machine codes derived from the result.
+    const recordRequested = parsed.value.observability?.record === true;
+    let recordResult: RecordSimulationResult = { recorded: false };
+    if (recordRequested) {
+      recordResult = await recordAgenticSimulationTrace({
+        swarmId: simulation.swarm.id,
+        swarmMode: simulation.executionMode,
+        ...(parsed.value.actionId ? { actionId: parsed.value.actionId } : {}),
+        ...(readiness
+          ? {
+              readinessOutcome:
+                readiness.decision as SimulationReadinessOutcome,
+            }
+          : {}),
+        blockedCount: simulation.blockedActions.length,
+        gateCount: simulation.requiredGates.length,
+        confirmationCount: simulation.requiredConfirmations.length,
+        auditReasonCodes: simulation.audit.map((e) => e.reasonCode),
+      });
+    }
+
     return NextResponse.json(
       {
         swarm: {
@@ -165,7 +212,15 @@ export async function POST(request: NextRequest): Promise<Response> {
         safetyNotes: simulation.safetyNotes,
         audit: simulation.audit,
         readiness,
+        // Business simulation guarantee is unchanged.
         sideEffects: false as const,
+        businessSideEffects: false as const,
+        observability: {
+          requested: recordRequested,
+          recorded: recordResult.recorded,
+          ...(recordResult.reason ? { reason: recordResult.reason } : {}),
+          ...(recordResult.storage ? { storage: recordResult.storage } : {}),
+        },
       },
       { headers: { "Cache-Control": "no-store" } },
     );

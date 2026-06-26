@@ -16,6 +16,32 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/agentic-simulation-observability
+Owner: Opus Orchestrateur — Agentic Simulation Observability
+Branch: feat/agentic-simulation-observability
+Worktree: ../connect-opus-agentic-obs
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/observability/simulation-store.ts (new)
+- src/lib/agentic/observability/simulation-trace.ts (new)
+- src/lib/agentic/observability/index.ts (additive exports only)
+- src/app/api/admin/agentic/simulate/route.ts (opt-in observability)
+- src/app/api/admin/agentic/simulations/** (new read endpoint)
+- tests for the above
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend only. Optional append-only, metadata-only simulation audit traces.
+- No UI/UX. No DS. No /admin/agentic visual changes.
+- No proof-center / vault / portfolio changes.
+- No Prisma migration, no durable DB write (Redis+memory only), no business mutation.
+- No raw prompts / user text / payload / secrets. No external tools.
+
+---
+
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
