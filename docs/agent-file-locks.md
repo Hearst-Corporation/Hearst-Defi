@@ -16,29 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/projection-preview-methodology-v2
-Owner: Opus Orchestrateur — Projection Preview Methodology v2 Rendering
-Branch: feat/projection-preview-methodology-v2
-Worktree: ../connect-opus-proj-v2ui
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/app/admin/projection/preview/** (existing read-only route)
-- src/app/admin/projection/projection-preview.css (scoped CSS — additive v2 blocks)
-- src/components/admin/projection/** (view + wrapper + tests — additive v2 render)
-- src/lib/agentic/product-projection/client.ts (additive v2 preview input only — no engine rewrite)
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- UI read-only rendering of the EXISTING Methodology v2 distribution (artifact.distribution / bands).
-- v0/v2 toggle, visible stable seed, p5/p50/p95, percentile band visual.
-- No backend engine rewrite, no API change, no Prisma, no write action, no external tool, no execution.
-- p50 never shown as certainty; APY distribution/range only; no guaranteed return; no raw JSON/prompt/user text.
-- Does NOT touch src/components/** owned by other agents, proof-center, portfolio, vault, studio.tsx.
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -96,6 +73,39 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/projection-preview-methodology-v2
+Owner: Opus Orchestrateur — Projection Preview Methodology v2 Rendering
+Branch: feat/projection-preview-methodology-v2
+Merged PR: #109 (merge 09857c99)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Rendered the existing Methodology v2 distribution (seeded p5/p50/p95) in the read-only
+  /admin/projection/preview surface — UI-only, consuming artifact.methodology + .distribution
+  verbatim (UI computes nothing). client.ts additive: PREVIEW_PROJECTION_INPUT_V2 (same labelled
+  fixture + methodology {version:"v2", seed:"preview-hyv-v2", iterations:2000, confidenceBands:true})
+  + PREVIEW_PROJECTION_SEED_V2 — no engine/types/API change. Wrapper: Deterministic v0 / Methodology
+  v2 toggle (switch resets to idle), fixed seed visible in toolbar, mode-aware idle copy. View: on
+  version v2, a Methodology v2 section — seed/iterations/model badges, p5/p50/p95 cards (APY% +
+  projected yield, p50 captioned "Median scenario"), a median-not-a-target note, a CSS-only
+  percentile band from distribution.bands (per-month p5→p95 band + p50 marker + axis + legend, no
+  chart lib/SVG, finite-guarded so no NaN/Infinity renders), backend limitations; missing-distribution
+  → "no distribution available" fallback (never fabricated). Generic Charts block still filters
+  percentile_band. Scoped CSS additive (toggle + v2 section + band; token-only var(--ct-*), graphite
+  panels, single green accent, 4px grid, responsive, overflow 0). Copy reworded to avoid forbidden
+  tokens (no guarantee/certain/promise anywhere). Tests: v2 render (section/seed/p5-p50-p95/band/
+  median framing/no-NaN-Inf/no-JSON-leak/missing-distribution fallback) + v0 unchanged + client v2
+  input shape. Docs: PRODUCT_PROJECTION_SWARM.md v2 rendering section. Verified live (:4114, dev-bypass
+  admin): v0 → version v0, no v2 section, overflow 0; v2 → seed preview-hyv-v2, iterations 2000,
+  p5/p50/p95 8.64/11.41/14.54% monotonic + yields, 12-month band + legend + p50 marker, median note,
+  3 limitations, no forbidden words, no NaN/Inf, no JSON leak, overflow 0 (only console noise =
+  pre-existing third-party Privy auth 403+CSP+iframe, unrelated). typecheck PASS, build PASS
+  (postgresql), 48 projection UI/client tests pass. No Prisma/migration, no engine/API rewrite, no
+  write/external-tool/execution, no proof-center/portfolio/vault change. Did NOT touch src/components/**
+  owned by other agents nor studio.tsx/page.tsx/actions.ts. Next lot (one): editable bounded preview
+  inputs + a v2 seed selector (still read-only), or share the percentile band visual into Scenario Lab.
 
 ### feat/projection-artifact-ui-wiring
 Owner: Opus Orchestrateur — Projection Artifact UI Wiring
