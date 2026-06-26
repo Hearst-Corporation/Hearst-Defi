@@ -7,14 +7,18 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* ── SOURCE UNIQUE = src/app/cockpit.css ─────────────────────────────────────
-     Les tokens ci-dessous qui existent AUSSI dans cockpit.css ont été RÉCONCILIÉS
-     pour porter EXACTEMENT la même valeur que cockpit.css (la source live : son
-     :root non-layered gagne sur ce @layer). Plus aucune divergence ancien↔nouveau
-     shell — c'était la cause du « conflit » où des agents s'adaptaient à l'ancien
-     modèle. Éditer ces valeurs ICI n'a AUCUN effet au runtime : la valeur canonique
-     vit dans cockpit.css, ne PAS re-diverger. (bg-deep / accent / accent-soft / ease
-     restent la source unique côté tokens.css — cockpit.css ne les redéfinit pas.) */
+  /* ── SOURCE UNIQUE DES TOKENS = src/app/cockpit.css ──────────────────────────
+     RÈGLE : ce fichier ne déclare QUE les tokens qui n'existent PAS dans
+     cockpit.css. Tout token présent dans les deux serait de toute façon écrasé
+     par le :root non-layered de cockpit.css (qui gagne sur ce @layer cockpit) —
+     le redéclarer ici était du poids mort qui trompait la lecture. Les 16
+     collisions historiques (surfaces, borders, shadow-depth, text-muted/strong,
+     rails, accent-strong/border-accent, dur-base) ont été RETIRÉES : leur valeur
+     canonique vit exclusivement dans cockpit.css. NE PAS les réintroduire ici.
+
+     Restent ci-dessous les tokens RÉELLEMENT uniques à cette feuille (cockpit.css
+     ne les redéfinit pas) : fond, accents de base, textes primaire/body, ease,
+     et l'échelle d'opacité. */
   --ct-bg-deep: #060708;
   /* Plinth black — a hair darker than --ct-bg-deep, used by the footer base
      to extinguish ambient glow at the bottom edge. Intentionally below any surface. */
@@ -23,38 +27,12 @@
      Les autres accents en dérivent → tout le chrome se recolore d'un coup. */
   --ct-accent: #A7FB90;
   --ct-accent-ambient: color-mix(in srgb, var(--ct-accent) 70%, #000000);
-  --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff); /* = cockpit.css */
   --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-  --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent); /* = cockpit.css */
 
-  --ct-rail-left: 6.5rem; /* = cockpit.css (104px base) */
-  --ct-rail-right: clamp(16rem, 20vw, 23rem); /* = cockpit.css */
-  --ct-rail-right-expanded: clamp(19rem, 25vw, 30rem); /* = cockpit.css */
-
-  /* SURFACES — UN SEUL MODÈLE : charcoal OPAQUE étagé (aligné avec
-     src/app/cockpit.css, qui est la source live via :root non-layered). On retire
-     l'ancien modèle « film translucide » (rgba blanc) qui était mort/superseded et
-     créait une double définition translucide↔opaque. Une seule vérité maintenant :
-     surface-0 = niveau du fond, montée vers le clair pour la profondeur. */
-  --ct-surface-0: #060708;
-  --ct-surface-1: #1C1D21;
-  --ct-surface-2: #26272D;
-  --ct-surface-3: #2E3038;
-
-  --ct-text-strong: #ffffff;
   --ct-text-primary: rgba(245,245,245,0.92);
   --ct-text-body: rgba(245,245,245,0.72);
-  --ct-text-muted: rgba(245, 245, 245, 0.55); /* = cockpit.css */
-
-  --ct-border-soft: rgba(255,255,255,0.06);
-  --ct-border: rgba(255,255,255,0.10);
-  --ct-border-strong: rgba(255,255,255,0.16);
-
-  /* = cockpit.css (single-drop) */
-  --ct-shadow-depth: 0 8px 32px -8px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.10);
 
   --ct-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --ct-dur-base: 220ms; /* = cockpit.css */
 
   /* ── Opacity scale ── tokenise toute opacité non triviale (0 / 1 exclus).
      Échelle 1:1 des valeurs réellement utilisées → zéro régression visuelle.

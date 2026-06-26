@@ -70,6 +70,9 @@
   --ct-border-strong: var(--ct-figma-border-20);
   --ct-border-on-dark: var(--ct-figma-border-10);
   --ct-border-ghost: var(--ct-figma-border-5);
+  /* Alias used by admin-docs.css — was a phantom (used, never declared → empty
+     border). Points to the soft border so the alias resolves. */
+  --ct-border-subtle: var(--ct-border-soft);
 
   /* Aliases référencés par des surfaces existantes (action-queue, autonomy-panel,
      chat code blocks, admin-strategy) mais jamais définis → résolvaient à vide. */
@@ -167,6 +170,9 @@
   --ct-shadow-elevated: 0 16px 56px -12px rgba(0, 0, 0, 0.80), 0 4px 16px -4px rgba(0,0,0,0.50), var(--ct-glass-bevel-hover);
   --ct-shadow-depth: 0 8px 40px -8px rgba(0, 0, 0, 0.75), 0 2px 8px -2px rgba(0,0,0,0.40), var(--ct-glass-bevel);
   --ct-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.50);
+  /* Alias used by admin-docs.css — was a phantom (used, never declared → no
+     shadow). Points to the elevated shadow so the alias resolves. */
+  --ct-shadow-lg: var(--ct-shadow-elevated);
   /* Overlay & dialog tokens (P1 — replaces raw rgba in .cp-backdrop / .cp-dialog) */
   --ct-overlay-backdrop: rgba(0, 0, 0, 0.6);
   --ct-dialog-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
@@ -423,7 +429,12 @@
    chat does not reflow type). 2026-06-26. */
 html,
 body {
-  font-size: clamp(15px, 13.1818px + 0.2367vw, 20px);
+  /* Root font FIXED at 16px — 1rem = 16px everywhere, every viewport.
+     This is the keystone: the whole --ct-* rem scale is now a stable reference.
+     The previous fluid clamp (15→16.5px) made every rem a moving target — caps,
+     mockups, and height math were unverifiable. Fixing it removes the root cause
+     of "no repère" across the design system. Do NOT reintroduce a fluid root. */
+  font-size: 16px;
 }
 
 .dashboard-merged-card {
