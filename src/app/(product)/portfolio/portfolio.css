@@ -28,10 +28,11 @@
    1. CONTAINER BASE
    ============================================================================= */
 
-/* Centre LP : fond sombre plat, aucune nappe, aucun glow. */
+/* Centre LP : fond sombre plat, aucune nappe, aucun glow.
+   Bottom inset : une seule réserve — .product-doc sur .ct-page-area (cockpit.css),
+   pas de padding empilé ici ni dans .pf-cockpit (évite la bande noire double). */
 .ct-page-area:has(.pf-container) {
   background: var(--ct-bg-deep);
-  padding-bottom: var(--ct-space-16);
 }
 
 .pf-container {
@@ -173,7 +174,6 @@
   gap: var(--ct-space-5);   /* modules resserrés (était space-8 / 32px) */
   min-width: 0;
   margin-top: 0;
-  padding-bottom: var(--ct-space-16);
   /* Body libéré : remplit toute la largeur du centre, plus de void à droite. */
   width: 100%;
   max-width: none;
@@ -1344,6 +1344,9 @@
 }
 
 .cy-v5-donut__pending-ring {
+  /* Stroke tokenised here (was an inline color-mix on the SVG element). */
+  stroke: color-mix(in srgb, var(--ct-accent) 38%, transparent);
+  stroke-width: 1.5;
   transform-origin: center;
   animation: cy-v5-pending-rotate 24s linear infinite;
 }
@@ -3774,9 +3777,9 @@
 }
 
 .pf-leaf-section-title {
-  font-size: var(--ct-text-base);
+  font-size: var(--ct-text-2xl);            /* canon .h2 — 18→22px (était base 16px) */
   font-weight: var(--ct-font-semibold);
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);             /* canon .h2 — blanc (était accent vert) */
   margin: 0;
   letter-spacing: var(--ct-tracking-tight);
 }
