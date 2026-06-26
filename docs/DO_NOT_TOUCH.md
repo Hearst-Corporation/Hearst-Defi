@@ -17,6 +17,12 @@ S'arrêter et demander **avant** de modifier l'une de ces zones. Raisons incluse
 | **Déploiement** | Vercel (auto-deploy sur push main, sans gate CI) | Un push main = prod. Le workflow Railway est un zombie à décommissionner, pas le canal prod. |
 | **Package scripts** | `package.json` scripts | Hors scope docs ; modif = changement runtime. |
 
+## Docs protégées (jamais supprimer)
+
+| Doc | Pourquoi |
+|---|---|
+| **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** | Référence dimensions shell + portfolio (viewport → `W_pf` → grilles). Lecture **obligatoire** avant UI/layout/surfaces. Gate : `scripts/protected-docs-check.mjs` (pre-commit). Mise à jour **in place** seulement. |
+
 ## Conventions verrouillées
 - **Pas de cross-project import** depuis `Dev/Projects/hearst-connect` (réf. read-only) — tout recodé ici.
 - **Un seul vert** `--ct-accent` `#A7FB90` ; ne pas re-séparer brand/success ; maroon mort.

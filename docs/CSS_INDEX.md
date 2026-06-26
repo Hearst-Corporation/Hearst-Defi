@@ -5,6 +5,7 @@ indiquée (`Read offset/limit` ou `sed -n`). Lignes approximatives (snapshot 202
 avec `grep -n "/\*"` si décalage.
 
 ## Quel fichier lire selon le problème
+- **Dimensions shell + portfolio (viewport → W_pf, splits, paddings)** → **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (**obligatoire**, doc protégée — ne jamais supprimer).
 - **Shell, rails (gauche/chat droit), nav, login, fond spatial** → `cockpit.css`.
 - **Page produit/admin "document" (memo, vault wizard, proof center, scenario)** → `doc-flow.css`.
 - **Page Portfolio (`/portfolio`) : KPI, donut, ledger, hero grid, trust panel** → `portfolio.css`.

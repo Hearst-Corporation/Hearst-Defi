@@ -1,7 +1,12 @@
 # UI_CONTEXT — travailler sur l'UI sans relire tout le repo
 
-Lire ce fichier + `docs/CSS_INDEX.md`. Charger ensuite **uniquement** la page + le composant + la
-section CSS ciblés.
+Lire ce fichier + `docs/CSS_INDEX.md` + **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (**obligatoire**
+pour shell/rails/centre/chat, page portfolio, et toute calibration de surfaces). Charger ensuite
+**uniquement** la page + le composant + la section CSS ciblés.
+
+> **`docs/PORTFOLIO_LAYOUT_REFERENCE.md` est protégé** — ne jamais supprimer ; gate pre-commit
+> `scripts/protected-docs-check.mjs`. Chiffres viewport → `W_pf` → splits hero/deck = source de
+> vérité pour l'équipe design (remplace les px fixes périmés dans les résumés ci-dessous).
 
 ## Layout shell (vocabulaire)
 - **Section 1** = rail gauche (icônes nav verticale, `.ct-rail-left`).
@@ -12,7 +17,8 @@ CSS du shell, rails, fond spatial, nav, login → `cockpit.css` (voir `docs/CSS_
 
 ## Shell 3 colonnes — chrome fixe, centre fluide
 
-Modèle asymétrique documenté dans `docs/DESIGN_SYSTEM.md` §7. Résumé :
+Modèle asymétrique documenté dans `docs/DESIGN_SYSTEM.md` §7. **Dimensions live (tableaux)** :
+`docs/PORTFOLIO_LAYOUT_REFERENCE.md`. Résumé vocabulaire :
 
 ```
 ┌──────────┬──────────────────────────────┬──────────────┐

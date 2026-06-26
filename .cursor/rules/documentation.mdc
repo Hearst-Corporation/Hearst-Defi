@@ -13,6 +13,7 @@ Lire d'abord : `AGENTS.md` (keystone de routing) + `docs/decisions/ADR-011-llm-p
 (coût tokens).
 
 À éviter :
+- Supprimer ou renommer **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** — doc **protégée** (gate pre-commit) ; lecture obligatoire pour UI/layout portfolio ; mise à jour in place seulement.
 - Éditer `docs/methodology/v1.0.md` — **immuable**, bumper une nouvelle version au lieu de modifier.
 - Réécrire l'historique des ADR (append-only) ou renuméroter sans raison.
 - Présenter un snapshot daté (PROGRAM_MASTER, roadmap-status-*, SYSTEMIC_RISK_AUDIT-*) comme l'état courant.

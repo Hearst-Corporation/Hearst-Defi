@@ -16,7 +16,7 @@
 | **3 — Primitive components** | `Button`, `Card`, `Badge`, `ProvenanceBadge`, `Metric`, `MetricGrid`, `EmptySurface`, `PanelStatus`, `Skeleton`, `NestedPanel`, `DataRow`, `ProofRow`, `DashboardPanelHeader`, `SegmentedControl`, `ApyRange`, `Ptai`, `Progress`, `Tooltip`, `ConfirmDialog`, `Modal`, `Checkbox`, `ChoiceCard`, `WizardStepProgress`, `ChartTimeSelector`, `PresetPicker` | `src/components/ui/*.tsx` |
 | **4 — Shell primitives** | Title, KpiGrid, KpiCard, Eyebrow, Sub — shell-scoped display wrappers | `cockpit-shell/src/primitives/index.tsx` |
 | **5 — Pattern CSS** | Surface nesting rules, chart patterns, doc-flow, portfolio density mode, cockpit dense mode | `src/app/cockpit.css`, `src/app/doc-flow.css`, `src/app/(product)/portfolio/portfolio.css` |
-| **6 — Living documentation** | Rendered reference (open before any UI work). Text description of every layer above. | `src/app/admin/design-system/` (route), `docs/DESIGN_SYSTEM.md`, `docs/CSS_INDEX.md`, `docs/DS_SHELL_CONTRACT.md`, `docs/DS_CONFORMANCE_PROMPT.md` |
+| **6 — Living documentation** | Rendered reference (open before any UI work). Text description of every layer above. | `src/app/admin/design-system/` (route), `docs/DESIGN_SYSTEM.md`, `docs/CSS_INDEX.md`, **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (protected — mandatory read for shell/portfolio layout), `docs/DS_SHELL_CONTRACT.md`, `docs/DS_CONFORMANCE_PROMPT.md` |
 | **7 — Architecture decisions** | Why a decision was made (append-only). | `docs/decisions/ADR-013-*.md`, `ADR-015-*.md` |
 | **8 — DS bundle (snapshot)** | Compiled read-only snapshot for external consumers. **Not the source.** Needs `_ds_needs_recompile` cleared after any primitive change. | `ds-bundle/` |
 
@@ -107,9 +107,10 @@ These rules are enforced by CI (`scripts/ds-token-drift.mjs`, `scripts/ds-layout
 
 **Read first (in this order):**
 1. `docs/CSS_INDEX.md` — which file owns which surface.
-2. `docs/DESIGN_SYSTEM.md` — colour/type/surface canon.
-3. `src/app/admin/design-system/page.tsx` + rendered `/admin/design-system` — live primitive reference.
-4. `docs/DS_CONFORMANCE_PROMPT.md` — the 9 dimensions every surface must pass.
+2. **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** — **mandatory** for shell 3-col / portfolio / surface alignment (protected doc — never delete).
+3. `docs/DESIGN_SYSTEM.md` — colour/type/surface canon.
+4. `src/app/admin/design-system/page.tsx` + rendered `/admin/design-system` — live primitive reference.
+5. `docs/DS_CONFORMANCE_PROMPT.md` — the 9 dimensions every surface must pass.
 
 **Then ask yourself:**
 - Does a `--ct-*` token already express this value? → Use it.

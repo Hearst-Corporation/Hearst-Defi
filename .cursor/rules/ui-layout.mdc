@@ -11,10 +11,13 @@ alwaysApply: false
 > **pas** les tokens CSS (voir `design-system.mdc`).
 
 ## Read first
+- **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** — **obligatoire** : viewport → `W_pf`, rails, splits hero/deck, paddings empilés. **Ne jamais supprimer** (gate pre-commit).
 - `docs/UI_CONTEXT.md` — shell, rails, zones, mapping pages.
+- `docs/CSS_INDEX.md` — plages de lignes CSS.
 - `docs/DESIGN_SYSTEM.md` §9 — empty state honnête (cockpit sans position active).
 
 ## Must avoid
+- Supprimer ou renommer `docs/PORTFOLIO_LAYOUT_REFERENCE.md` — doc protégée ; mettre à jour in place.
 - Éditer des tokens CSS (`--ct-*`) → c'est `design-system.mdc`, pas ici.
 - Logique métier hors engine (data/llm/agents/server actions) — UI uniquement.
 - Toucher la structure de nav ailleurs que dans `src/components/nav/product-nav-items.ts`

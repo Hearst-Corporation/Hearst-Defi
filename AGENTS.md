@@ -8,12 +8,21 @@ contexte du domaine concerné, **pas** tout le README.
 
 | Tâche | Lire d'abord | Détail |
 |---|---|---|
-| UI / CSS / layout | `docs/UI_CONTEXT.md` + `docs/CSS_INDEX.md` | puis la page + le composant ciblés |
+| UI / CSS / layout | `docs/UI_CONTEXT.md` + `docs/CSS_INDEX.md` + **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (**obligatoire**) | puis la page + le composant ciblés |
+| Portfolio / shell / symétrie surfaces | **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (**obligatoire**) | puis `portfolio.css` + composants |
 | Server action / API / data | `docs/BACKEND_CONTEXT.md` | puis l'`actions.ts` ou `route.ts` ciblé |
 | Email / outreach | `docs/EMAIL_CONTEXT.md` | preview/draft only — jamais d'envoi réel |
 | Chat / agents / tools | `docs/AGENTS_CONTEXT.md` | `src/lib/llm/` + `src/lib/agents/` |
 | Quelle validation lancer | `docs/VALIDATION_MATRIX.md` | tâche → commande minimale |
 | Zones interdites | `docs/DO_NOT_TOUCH.md` | STOP avant d'y toucher |
+
+## Docs protégées (lecture obligatoire · jamais supprimer)
+
+| Doc | Quand | Gate |
+|-----|-------|------|
+| **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** | Shell 3 colonnes, `/portfolio`, grilles `pf-*`, symétrie/alignement surfaces, calibration Figma | `scripts/protected-docs-check.mjs` (pre-commit) |
+
+Mise à jour autorisée **in place** si les tokens/breakpoints CSS changent. Suppression / rename = **bloqué**.
 
 ## À éviter (ne pas charger sauf nécessité directe)
 - `README.md` (511 l.) et `CLAUDE.md` (197 l.) en entier — pour les règles, ce fichier suffit.

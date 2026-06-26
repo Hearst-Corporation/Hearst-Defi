@@ -5,7 +5,7 @@ rarement nécessaire en dev.
 
 | Type de tâche | Validation minimale | Validation complète (avant gros merge) |
 |---|---|---|
-| UI / CSS / composant | `pnpm test <glob composant>` (ex. `pnpm test portfolio`) | `pnpm test` + `pnpm typecheck` |
+| UI / CSS / composant | Lire **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** si shell/portfolio/surfaces · `pnpm test <glob composant>` (ex. `pnpm test portfolio`) | `pnpm test` + `pnpm typecheck` |
 | Server action / API / data | `pnpm test <glob domaine>` + `pnpm typecheck` | `pnpm test` ; `pnpm build` si route/schéma change |
 | Email / outreach | `pnpm test src/lib/email` | `pnpm test` (jamais d'envoi réel) |
 | Agent / chat / tools | `pnpm test src/lib/llm` | `pnpm test` |
