@@ -160,7 +160,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     if (isSwarmSimulationError(result)) {
       const status = result.kind === "unknown_swarm" ? 404 : 400;
       return NextResponse.json(
-        { error: result.message, kind: result.kind, sideEffects: false as const },
+        {
+          error: result.message,
+          kind: result.kind,
+          reasonCode: result.reasonCode,
+          sideEffects: false as const,
+        },
         { status, headers: { "Cache-Control": "no-store" } },
       );
     }
@@ -168,9 +173,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     const simulation: SwarmSimulationResult = result;
     let readiness: ActionReadinessEvaluation | null = null;
     if (parsed.value.actionId) {
+      // Swarm-aware: the swarm scope (mode + forbiddenActions + allowedActionIds)
+      // is threaded in so the boundary is enforcing, not decorative.
       readiness = evaluateActionReadiness(
         parsed.value.actionId,
         parsed.value.context ?? {},
+        simulation.swarm,
       );
     }
 

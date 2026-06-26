@@ -35,6 +35,8 @@ export type SwarmSummary = {
   coordination: string;
   crewIds: string[];
   forbiddenActions: string[];
+  /** Enforced positive scope (catalog ids), or null when the swarm is tier-only. */
+  allowedActionIds: string[] | null;
 };
 
 export type ActionSummary = {
@@ -91,6 +93,7 @@ export function buildAgenticRegistrySnapshot(): AgenticRegistrySnapshot {
     coordination: s.coordination,
     crewIds: [...s.crewIds],
     forbiddenActions: [...s.forbiddenActions],
+    allowedActionIds: s.allowedActionIds ? [...s.allowedActionIds] : null,
   }));
 
   const actions: ActionSummary[] = ACTION_READINESS_ITEMS.map((a) => ({

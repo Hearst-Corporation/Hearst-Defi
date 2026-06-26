@@ -70,15 +70,27 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "gated",
     coordination: "sequential",
     crewIds: ["outreach_draft_flow"],
+    // Enforced positive scope (catalog action ids only). The swarm is DRAFT-ONLY:
+    // it may reach an admin surface, read product/yield content, and produce
+    // outreach drafts — nothing else. The send-run is deliberately absent here and
+    // listed in forbiddenActions (sending is a separate ADR-016 gated path).
+    allowedActionIds: [
+      "navigate_admin_surface",
+      "explain_product",
+      "explain_yield",
+      "draft_outreach_email",
+      "create_campaign_draft",
+    ],
     forbiddenActions: [
-      "send",
+      // Catalog ids the swarm hard-blocks even with a token (sending / lead-sourcing).
       "outreach_trigger_send_run",
       "source_leads_autonomously",
-      "write_to_db",
+      "tier_a_auto_send",
     ],
     safetyNotes: [
       "Draft-only; the human approval gate is mandatory before any send.",
       "No send run is reachable from the swarm — sending is a separate gated path (ADR-016).",
+      "Scope is enforced: any action outside allowedActionIds is blocked as action_out_of_swarm_scope.",
     ],
   },
   {

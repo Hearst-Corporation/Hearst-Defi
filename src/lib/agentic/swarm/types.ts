@@ -42,6 +42,14 @@ export type SwarmDefinition = {
   crewIds: string[];
   /** Actions that must never be reachable from this swarm (send/deploy/…). */
   forbiddenActions: string[];
+  /**
+   * Optional explicit positive scope: the ONLY catalog action ids this swarm may
+   * evaluate as allow/gated/needs-confirmation. When present, an action id NOT in
+   * this list is `blocked / action_out_of_swarm_scope` (the swarm boundary becomes
+   * enforcing). When absent, the swarm falls back to tier-only evaluation
+   * (backward-compatible). Ids must exist in the action catalog.
+   */
+  allowedActionIds?: string[];
   safetyNotes: string[];
 };
 
@@ -95,6 +103,8 @@ export type SwarmSimulationError = {
   kind: "unknown_swarm" | "unknown_crew" | "forbidden";
   swarmId: string;
   crewId?: string;
+  /** Stable machine reason code (swarm_not_registered / crew_unavailable). */
+  reasonCode: string;
   message: string;
 };
 

@@ -148,15 +148,52 @@ describe("swarm calibration — HITL & forbidden contract (every action tier)", 
 
 describe("swarm calibration — full cross matrix (swarm × forbidden action)", () => {
   it("no (swarm, forbidden action) pair can ever resolve to allow", () => {
-    // Readiness is swarm-independent today, but this guards against a future
-    // regression where a swarm-scoped evaluator might wrongly unblock an action.
-    for (const swarmId of SWARM_IDS) {
-      const sim = simulateSwarm(swarmId);
+    // The global floor must hold even when the swarm scope is threaded in.
+    for (const swarm of SWARM_DEFINITIONS) {
+      const sim = simulateSwarm(swarm.id);
       expect(isSwarmSimulationError(sim)).toBe(false);
       for (const actionId of actionsByTier("forbidden_autonomous")) {
-        const e = evaluateActionReadiness(actionId, {
-          hasHumanConfirmationToken: true,
-        });
+        const e = evaluateActionReadiness(
+          actionId,
+          { hasHumanConfirmationToken: true },
+          swarm,
+        );
+        expect(e.decision).toBe("blocked");
+      }
+    }
+  });
+});
+
+describe("swarm calibration — enforcement is active for scoped swarms", () => {
+  it("an enforcing swarm blocks an out-of-scope action it does not allow", () => {
+    const scoped = SWARM_DEFINITIONS.filter((s) => s.allowedActionIds);
+    expect(scoped.length).toBeGreaterThan(0); // outreach_governed_swarm at least
+    for (const swarm of scoped) {
+      // Find a catalog action the swarm neither allows nor forbids.
+      const outOfScope = ACTION_READINESS_ITEMS.find(
+        (a) =>
+          a.tier !== "forbidden_autonomous" &&
+          !swarm.allowedActionIds!.includes(a.id) &&
+          !swarm.forbiddenActions.includes(a.id),
+      );
+      expect(outOfScope).toBeDefined();
+      const e = evaluateActionReadiness(outOfScope!.id, {}, swarm);
+      expect(e.decision).toBe("blocked");
+      expect(e.reasonCode).toBe("action_out_of_swarm_scope");
+      expect(e.swarmScoped).toBe(true);
+    }
+  });
+
+  it("a swarm-forbidden action stays blocked even with a token", () => {
+    for (const swarm of SWARM_DEFINITIONS) {
+      for (const actionId of swarm.forbiddenActions) {
+        // Only assert on catalog ids (free-text labels never match an action).
+        if (!ACTION_READINESS_ITEMS.some((a) => a.id === actionId)) continue;
+        const e = evaluateActionReadiness(
+          actionId,
+          { hasHumanConfirmationToken: true },
+          swarm,
+        );
         expect(e.decision).toBe("blocked");
       }
     }

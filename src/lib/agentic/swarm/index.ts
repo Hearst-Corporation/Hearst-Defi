@@ -42,6 +42,7 @@ export type {
   ActionDecision,
   ActionReadinessContext,
   ActionReadinessEvaluation,
+  SwarmReadinessScope,
 } from "./readiness";
 
 export { buildAgenticRegistrySnapshot } from "./registry-snapshot";

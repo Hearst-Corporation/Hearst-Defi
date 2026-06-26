@@ -52,6 +52,7 @@ export function simulateSwarm(
     return {
       kind: "unknown_swarm",
       swarmId,
+      reasonCode: "swarm_not_registered",
       message: `No swarm registered for id "${swarmId}". No fallback execution will occur.`,
     } satisfies SwarmSimulationError;
   }
@@ -70,6 +71,7 @@ export function simulateSwarm(
         kind: "unknown_crew",
         swarmId,
         crewId,
+        reasonCode: "crew_unavailable",
         message: `Swarm "${swarmId}" references unknown crew "${crewId}". No fallback execution will occur.`,
       } satisfies SwarmSimulationError;
     }
@@ -89,6 +91,16 @@ export function simulateSwarm(
 
     const gateRequired = crew.requiredGates.length > 0;
     const blocked = crewModeToBlocked(crew.scenario.mode);
+    // Split the former vague `crew_mode_blocked` into the two distinct incidents
+    // an operator needs to tell apart: a hard-forbidden crew step vs a step that
+    // is merely awaiting a human confirmation.
+    const reasonCode = blocked
+      ? crew.scenario.mode === "forbidden"
+        ? "crew_blocked_forbidden"
+        : "crew_blocked_missing_confirmation"
+      : gateRequired
+        ? "crew_requires_gate"
+        : "crew_read_only";
     audit.push({
       kind: "crew_simulated",
       crewId,
@@ -97,11 +109,7 @@ export function simulateSwarm(
       executionMode: swarm.mode,
       blocked,
       gateRequired,
-      reasonCode: blocked
-        ? "crew_mode_blocked"
-        : gateRequired
-          ? "crew_requires_gate"
-          : "crew_read_only",
+      reasonCode,
     });
   }
 

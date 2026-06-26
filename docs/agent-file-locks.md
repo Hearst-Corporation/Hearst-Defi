@@ -16,6 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/swarm-boundary-enforcement
+Owner: Opus Orchestrateur — Swarm Boundary Enforcement
+Branch: feat/swarm-boundary-enforcement
+Worktree: ../connect-opus-swarm-enforce
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/swarm/** (readiness, types, registry, simulate-swarm, safety, snapshot)
+- src/lib/agentic/**/__tests__/**
+- src/app/api/admin/agentic/simulate/route.ts (pass swarm context; additive reason codes)
+- scripts/agentic/calibrate-swarms.mjs
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend only. Make swarm boundaries enforceable in evaluateActionReadiness.
+- Outreach governed first. No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
+- No Prisma migration, no DB write, no dangerous execution, no external tool, no autonomous_write.
+- Does NOT touch src/components/** (another agent's active UI work).
+
+---
+
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
