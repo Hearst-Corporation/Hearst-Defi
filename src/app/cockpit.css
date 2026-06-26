@@ -3840,6 +3840,15 @@ button.ct-choice-card {
   background-size: 24px 24px;
 }
 
+/* FEUILLE BLANCHE Portfolio (2026-06-27) : sous /portfolio (rebuild Catalyst),
+   on neutralise le canvas DS — fond #191B22 + dot-grid vert — pour ne pas avoir
+   "du gris sur du gris". La page Catalyst peint son propre fond (zinc). Scopé au
+   marqueur data-portfolio-blank → AUCUN impact sur vaults/profile/proof. */
+.ct-page-area:has([data-portfolio-blank]) {
+  background-color: transparent;
+  background-image: none;
+}
+
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
    .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
    min-width:auto → il refuse de rétrécir sous la largeur min-content de son contenu.

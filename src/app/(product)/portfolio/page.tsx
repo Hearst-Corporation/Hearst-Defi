@@ -26,7 +26,10 @@ export const metadata = {
 
 export default function PortfolioPage() {
   return (
-    <main className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100">
+    <main
+      data-portfolio-blank
+      className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
+    >
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-semibold text-white">Portfolio</h1>
         <p className="mt-2 text-sm text-zinc-400">
