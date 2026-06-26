@@ -53,3 +53,23 @@ export {
   MIN_SAMPLE_FOR_RATES,
 } from "./quality-review";
 export { ROUTER_DECISIONS_KEY, ROUTER_DECISIONS_CAP } from "./store";
+
+// Agentic Simulation Observability — optional, append-only, metadata-only.
+export {
+  recordAgenticSimulationTrace,
+  buildSimulationTrace,
+} from "./simulation-trace";
+export type {
+  AgenticSimulationTrace,
+  SimulationTraceInput,
+  SimulationSwarmMode,
+  SimulationReadinessOutcome,
+  RecordSimulationResult,
+} from "./simulation-trace";
+export {
+  readSimulationTraces,
+  appendSimulationTrace,
+  SIMULATION_TRACES_KEY,
+  SIMULATION_TRACES_CAP,
+} from "./simulation-store";
+export type { SimulationTraceStorage } from "./simulation-store";
