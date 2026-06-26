@@ -66,8 +66,8 @@ const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
 };
 
 /* ── Donut geometry — canonical convention (radius − stroke/2, rotate −90) ── */
-const DONUT_RADIUS = 42;
-const DONUT_STROKE = 11;
+const DONUT_RADIUS = 70;
+const DONUT_STROKE = 14;
 const DONUT_NORM_R = DONUT_RADIUS - DONUT_STROKE / 2;
 const DONUT_CIRC = DONUT_NORM_R * 2 * Math.PI;
 

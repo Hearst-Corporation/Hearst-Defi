@@ -1243,27 +1243,30 @@
 /* ── Tier 1 — editorial headline metrics (flat, no nested box) ── */
 .cy-v5-headline {
   display: flex;
-  align-items: flex-end;
-  gap: var(--ct-space-6);
+  align-items: center;
+  justify-content: center;
+  gap: var(--ct-space-12);
   width: 100%;
   min-width: 0;
-  padding-bottom: var(--ct-space-0_5);
+  padding-bottom: var(--ct-space-6);
   border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 22%, transparent);
 }
 
 .cy-v5-metric {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
+  align-items: center;
+  text-align: center;
+  gap: var(--ct-space-1_5);
   min-width: 0;
 }
 
 .cy-v5-metric--primary {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
 }
 
 .cy-v5-metric__label {
-  font-size: var(--ct-text-nano);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -1273,7 +1276,7 @@
 }
 
 .cy-v5-metric__value {
-  font-size: var(--ct-text-lg-fixed);
+  font-size: var(--ct-text-xl-fixed);
   font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
@@ -1283,34 +1286,37 @@
 }
 
 .cy-v5-metric--primary .cy-v5-metric__value {
-  font-size: var(--ct-text-xl-fixed);
+  font-size: var(--ct-text-3xl-fixed);
 }
 
 .cy-v5-metric--accent .cy-v5-metric__value {
-  font-size: var(--ct-text-xl-fixed);
+  font-size: var(--ct-text-3xl-fixed);
   color: var(--ct-accent);
 }
 
 .cy-v5-metric__apy-row {
   display: flex;
-  align-items: flex-end;
-  gap: var(--ct-space-3);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-2);
   min-width: 0;
 }
 
 .cy-v5-metric--accent .cy-v5-apy--inline {
   margin-top: 0;
-  flex: 0 1 8.5rem;
+  flex: 0 0 auto;
+  width: 8.5rem;
 }
 
 /* ── Tier 2 — visual zone: donut + legend ── */
 .cy-v5-visual {
   display: flex;
-  align-items: flex-start;
-  gap: var(--ct-space-4);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-8);
   width: 100%;
   min-width: 0;
-  padding: 0;
+  padding: var(--ct-space-6) 0 0;
 }
 
 .cy-v5-visual--pending {
@@ -1320,13 +1326,13 @@
 /* ── Donut ── */
 .cy-v5-donut {
   position: relative;
-  width: 92px;
-  height: 92px;
+  width: 140px;
+  height: 140px;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: var(--ct-space-0_5);
+  margin-top: 0;
 }
 
 .cy-v5-donut__svg {
@@ -1369,7 +1375,7 @@
 }
 
 .cy-v5-donut__center-top {
-  font-size: var(--ct-text-nano);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
@@ -1378,7 +1384,7 @@
 }
 
 .cy-v5-donut__center-main {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-xl-fixed);
   font-weight: var(--ct-font-bold);
   line-height: var(--ct-leading-none);
   color: var(--ct-text-strong);
@@ -1396,26 +1402,27 @@
 .cy-v5-legend {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-0_5);
+  gap: var(--ct-space-2);
   margin: 0;
-  padding: var(--ct-space-0_5) 0 0;
+  padding: 0;
   list-style: none;
-  flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
+  max-width: 24rem;
 }
 
 .cy-v5-legend__row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  display: flex;
   align-items: center;
-  gap: var(--ct-space-2);
+  gap: var(--ct-space-3);
   min-width: 0;
-  padding: var(--ct-space-0_5) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 14%, transparent);
+  padding: var(--ct-space-2) var(--ct-space-3);
+  border-radius: var(--ct-radius-lg);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
 }
 
 .cy-v5-legend__row:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .cy-v5-legend__dot {
@@ -1426,35 +1433,36 @@
 }
 
 .cy-v5-legend__label {
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-medium);
   color: var(--ct-text-secondary);
-  min-width: 0;
+  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .cy-v5-legend__pct {
-  font-size: var(--ct-text-xs);
+  font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-bold);
   color: var(--ct-text-strong);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
   white-space: nowrap;
-  min-width: 3.5ch;
-    text-align: right;
+  flex: 0 0 auto;
+  text-align: right;
 }
 
 .cy-v5-legend__contrib {
-  font-size: var(--ct-text-micro);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   color: var(--ct-accent);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "ss01";
   white-space: nowrap;
+  flex: 0 0 auto;
+  text-align: right;
   min-width: 4.5ch;
-    text-align: right;
 }
 
 .cy-v5-legend__contrib--volatile {
@@ -1466,7 +1474,9 @@
 .cy-v5-pending-copy {
   display: flex;
   flex-direction: column;
-    gap: var(--ct-space-1_5);
+  align-items: center;
+  text-align: center;
+  gap: var(--ct-space-2);
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -1494,7 +1504,7 @@
 
 .cy-v5-apy--inline {
   flex: 0 0 auto;
-  width: min(8.5rem, 100%);
+  width: 8.5rem;
   padding-top: 0;
   border-top: none;
 }
@@ -1559,21 +1569,24 @@
 /* ── Disclaimer footnote ── */
 .cy-v5-disclaimer {
   margin: 0;
-  padding-top: var(--ct-space-0_5);
+  padding-top: var(--ct-space-6);
   font-size: var(--ct-text-micro);
   color: var(--ct-text-tertiary);
   opacity: var(--ct-opacity-60);
   line-height: var(--ct-leading-snug);
+  text-align: center;
 }
 
 /* ── Empty state (no position) ── */
 .cy-v5-empty {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: var(--ct-space-2);
   flex: 1 1 auto;
   min-width: 0;
-  padding: var(--ct-space-4) 0 var(--ct-space-2);
+  padding: var(--ct-space-8) 0 var(--ct-space-4);
 }
 
 .cy-v5-empty__lead {
@@ -1596,8 +1609,9 @@
 @container pf (max-width: 34rem) {
   .cy-v5-headline {
     flex-wrap: wrap;
-    align-items: flex-end;
-    gap: var(--ct-space-3) var(--ct-space-5);
+    align-items: center;
+    justify-content: center;
+    gap: var(--ct-space-6);
   }
 
   .cy-v5-metric--primary {
@@ -1610,17 +1624,17 @@
   }
 
   .cy-v5-apy--inline {
-    width: min(8.5rem, 100%);
+    width: 8.5rem;
   }
 
   .cy-v5-visual {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--ct-space-3);
+    align-items: center;
+    gap: var(--ct-space-6);
   }
 
   .cy-v5-donut {
-    align-self: flex-start;
+    align-self: center;
     margin-top: 0;
   }
 
