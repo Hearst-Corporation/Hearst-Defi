@@ -4,6 +4,7 @@
  * ValueChart — portfolio NAV area chart with honest time-series wiring.
  */
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
+import { ValueAreaPlot } from "@/components/portfolio/chart/value-area-plot";
 import { cn } from "@/lib/cn";
 import {
   buildPortfolioValueSeries,
@@ -11,18 +12,13 @@ import {
   type HourlyValueSnapshot,
   type ValueSeriesTx,
 } from "@/lib/portfolio/value-series";
+import {
+  buildPlotGeometry,
+  ensureMinimumPlotPoints,
+} from "@/lib/portfolio/geometry/value-plot-geometry";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
-import {
-  generateAreaPath,
-  generateLinePath,
-  projectChartSeries,
-  type ChartPoint,
-} from "@/lib/portfolio/geometry/value-series-projection";
-import { VB_W } from "@/lib/portfolio/geometry/svgConstants";
-import { ChartSvg } from "./chart/components/ChartSvg";
-import { ValueTooltip } from "./chart/components/ValueTooltip";
+import { useMemo, useState } from "react";
 
 const RANGE_OPTIONS: { id: ChartTimeRange; label: string }[] = [
   { id: "24h", label: "24H" },
@@ -61,14 +57,16 @@ function smartDefaultRange(
   transactions: ValueSeriesTx[],
   now: Date,
 ): ChartTimeRange {
-  if (transactions.length === 0) return "30d";
+  if (!Array.isArray(transactions) || transactions.length === 0) return "30d";
   const earliest = transactions.reduce(
     (min, tx) => (tx.occurredAt < min ? tx.occurredAt : min),
     transactions[0]!.occurredAt,
   );
   const ageMs = now.getTime() - earliest.getTime();
   const DAY = 24 * 60 * 60 * 1000;
-  // If all activity fits within 30d, zoom out to ALL so the chart uses full width
+  // With very few transactions, default to 30d so the chart has breathing room
+  // even if the position is new. "all" on a single-day range draws a flat line.
+  if (transactions.length <= 2 || ageMs <= 2 * DAY) return "30d";
   if (ageMs <= 30 * DAY) return "all";
   return "30d";
 }
@@ -83,10 +81,6 @@ export function ValueChart({
   embedded = false,
   heroPane,
 }: ValueChartProps) {
-  const reactId = useId();
-  // React useId() returns IDs with colons (e.g., ":r0:") which break SVG url(#...) references.
-  // Strip non-alphanumeric characters to ensure valid SVG IDs.
-  const uid = reactId.replace(/[^a-zA-Z0-9]/g, "");
   const anchorDate = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
   const formattedUpdatedAt = updatedAt
@@ -101,8 +95,6 @@ export function ValueChart({
   const [range, setRange] = useState<ChartTimeRange>(() =>
     smartDefaultRange(valueChartTransactions, anchorDate),
   );
-  const [hoverPoint, setHoverPoint] = useState<ChartPoint | null>(null);
-  const hoverIndexRef = useRef(-1);
 
   const provenance = isEmpty
     ? undefined
@@ -128,78 +120,22 @@ export function ValueChart({
     isEmpty,
   ]);
 
-  useEffect(() => {
-    hoverIndexRef.current = -1;
-    setHoverPoint(null);
-  }, [range, builtSeries?.mode]);
-
-  const chartSeriesPoints = useMemo(() => {
-    if (!builtSeries || builtSeries.points.length === 0) return [];
-    if (builtSeries.points.length >= 2) return builtSeries.points;
-    const anchor = builtSeries.points[0]!;
-    const valueUsdc = anchor.valueUsdc;
-    const sourceKind = anchor.source;
-    return [
-      { at: builtSeries.windowStart, valueUsdc, source: sourceKind },
-      { at: builtSeries.windowEnd, valueUsdc, source: sourceKind },
-    ];
-  }, [builtSeries]);
-
-  const projection = useMemo(() => {
-    if (!builtSeries || chartSeriesPoints.length === 0) {
-      return { points: [], xTicks: [], yTicks: [], isFlat: true };
-    }
-    return projectChartSeries(
-      chartSeriesPoints,
+  const plotGeometry = useMemo(() => {
+    if (!builtSeries) return null;
+    const seriesPoints = ensureMinimumPlotPoints(
+      builtSeries.points,
       builtSeries.windowStart,
       builtSeries.windowEnd,
     );
-  }, [builtSeries, chartSeriesPoints]);
+    return buildPlotGeometry(
+      seriesPoints,
+      builtSeries.windowStart,
+      builtSeries.windowEnd,
+    );
+  }, [builtSeries]);
 
-  const { points, xTicks, yTicks } = projection;
   const seriesNote = builtSeries?.densityNote ?? null;
-  const pathOpts = useMemo(
-    () => ({
-      step:
-        builtSeries?.mode === "ledger_sparse" &&
-        (builtSeries.points.length >= 2 || chartSeriesPoints.length > 2),
-    }),
-    [builtSeries?.mode, builtSeries?.points.length, chartSeriesPoints.length],
-  );
-  const areaPath = useMemo(() => generateAreaPath(points, pathOpts), [points, pathOpts]);
-  const linePath = useMemo(() => generateLinePath(points, pathOpts), [points, pathOpts]);
-  const lastPoint = points.length > 0 ? points[points.length - 1]! : null;
-  const distributionPoints = useMemo(
-    () => points.filter((p) => p.isDistribution),
-    [points],
-  );
-
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (points.length < 2) return;
-    const svg = e.currentTarget;
-    const rect = svg.getBoundingClientRect();
-    const viewX = ((e.clientX - rect.left) / rect.width) * VB_W;
-
-    let nearestIdx = 0;
-    let minDist = Math.abs(points[0]!.x - viewX);
-
-    for (let i = 1; i < points.length; i++) {
-      const dist = Math.abs(points[i]!.x - viewX);
-      if (dist < minDist) {
-        minDist = dist;
-        nearestIdx = i;
-      }
-    }
-
-    if (nearestIdx === hoverIndexRef.current) return;
-    hoverIndexRef.current = nearestIdx;
-    setHoverPoint(points[nearestIdx]!);
-  };
-
-  const handleMouseLeave = () => {
-    hoverIndexRef.current = -1;
-    setHoverPoint(null);
-  };
+  const canPlot = (plotGeometry?.coords.length ?? 0) >= 2;
 
   const chartBody = (
     <>
@@ -272,31 +208,17 @@ export function ValueChart({
           <div className="pf-value-chart__empty" aria-hidden>
             <span className="pf-value-chart__empty-label">No position yet</span>
           </div>
-        ) : points.length < 2 ? (
+        ) : !canPlot ? (
           <div className="pf-value-chart__sparse">
             <span className="pf-value-chart__sparse-value tabular-nums">
               {formatUsdDetailed(chartValue)}
             </span>
             <span className="pf-value-chart__sparse-hint">
-              {builtSeries?.densityNote ?? "Insufficient history for this range"}
+              {builtSeries?.densityNote ?? "Chart available once more activity is recorded"}
             </span>
           </div>
         ) : (
-          <div className="pf-value-chart__plot group/chart">
-            <ChartSvg
-              areaPath={areaPath}
-              linePath={linePath}
-              distributionPoints={distributionPoints}
-              hoverPoint={hoverPoint}
-              lastPoint={lastPoint}
-              xTicks={xTicks}
-              yTicks={yTicks}
-              uid={uid}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-            />
-            {hoverPoint && <ValueTooltip point={hoverPoint} />}
-          </div>
+          <ValueAreaPlot geometry={plotGeometry!} />
         )}
       </div>
     </>
