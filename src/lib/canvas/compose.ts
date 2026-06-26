@@ -106,7 +106,7 @@ function seedVaultDraftInput(): Record<string, unknown> {
 
 function composeCreateVault(
   objective: string | undefined,
-  agentLive: boolean,
+  _agentLive: boolean,
 ): CanvasSection[] {
   const draftInput = seedVaultDraftInput();
 

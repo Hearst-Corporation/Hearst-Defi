@@ -9,12 +9,12 @@
  * Layout: fixed 560×160 viewBox, bars left→right, labels below each bar.
  */
 
-import { useId, useState } from "react";
+import { useId } from "react";
 
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/explorer";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { formatUsdFull, formatUsdDetailed } from "@/lib/vaults/product-display";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 export const formatUsdc = formatUsdFull;
 

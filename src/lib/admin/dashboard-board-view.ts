@@ -55,7 +55,7 @@ export function resolveProofProvenance(
 export function resolveOperatorQueueProvenance(
   count: number,
   simulated?: boolean,
-  hasLiveKpis = false,
+  _hasLiveKpis = false,
   livePreview = false,
 ): Provenance {
   if (simulated) return "simulated";

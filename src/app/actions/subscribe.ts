@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
 export type EligibilityResult =
   | { ok: true }
   | { ok: false; error: string };

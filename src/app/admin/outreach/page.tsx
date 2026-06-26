@@ -8,7 +8,6 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { OutreachStatsCards } from "@/components/admin/outreach/stats-cards";
 import { OutreachAutonomyPanel } from "@/components/admin/outreach/autonomy-panel";

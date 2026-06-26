@@ -6,7 +6,6 @@ import type { PositionDetailTransaction } from "@/lib/data/portfolio";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { cn } from "@/lib/cn";
-import { Badge } from "@/components/ui/badge";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {

@@ -7,7 +7,7 @@ import {
   type ScenarioNarrativeOutput,
   type ProvenanceTag,
 } from "@/lib/agents/schemas";
-import { callLlm, type LlmClientLike } from "@/lib/llm/client";
+import { type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
 import {
   METHODOLOGY_VERSION,
@@ -23,7 +23,6 @@ import {
   assertCitesAssumption,
   assertNoForbiddenWords,
 } from "@/lib/agents/validators";
-import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import { runAgent, type SystemBlock } from "@/lib/agents/run-agent";
 import {
   loadUserAgentProfile,

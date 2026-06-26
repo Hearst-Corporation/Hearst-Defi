@@ -184,7 +184,7 @@ export function ProofCard({
 
 function PaperProofCard({
   proof,
-  demo = false,
+  demo: _demo = false,
 }: {
   proof: Extract<UnifiedProof, { source: "paper" }>;
   demo?: boolean;
