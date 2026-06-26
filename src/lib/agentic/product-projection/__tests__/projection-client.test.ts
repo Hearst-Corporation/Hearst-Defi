@@ -11,7 +11,19 @@ import {
   PREVIEW_PROJECTION_INPUT,
   PREVIEW_PROJECTION_INPUT_V2,
   PREVIEW_PROJECTION_SEED_V2,
+  DEFAULT_PREVIEW_DRAFT,
+  validatePreviewDraft,
+  buildPreviewInput,
+  type ProjectionPreviewDraft,
 } from "../client";
+
+const VALID_DRAFT: ProjectionPreviewDraft = {
+  capitalBase: "2000000",
+  apyMin: "6",
+  apyMax: "12",
+  horizonMonths: "24",
+  seed: "my_seed-1",
+};
 
 function mockFetch(status: number, body: unknown) {
   return vi.fn().mockResolvedValue({
@@ -69,5 +81,96 @@ describe("runProjectionPreview", () => {
     // Same labelled fixture — only the methodology block is added.
     expect(PREVIEW_PROJECTION_INPUT_V2.apyRange).toEqual(PREVIEW_PROJECTION_INPUT.apyRange);
     expect(PREVIEW_PROJECTION_INPUT_V2.capitalBase).toBe(PREVIEW_PROJECTION_INPUT.capitalBase);
+  });
+});
+
+describe("validatePreviewDraft — bounded local validation", () => {
+  it("defaults are valid and prefilled with the fixture figures", () => {
+    expect(DEFAULT_PREVIEW_DRAFT).toEqual({
+      capitalBase: "1000000",
+      apyMin: "8",
+      apyMax: "15",
+      horizonMonths: "12",
+      seed: PREVIEW_PROJECTION_SEED_V2,
+    });
+    const r = validatePreviewDraft(DEFAULT_PREVIEW_DRAFT);
+    expect(r.ok).toBe(true);
+  });
+
+  it("coerces a valid draft to numbers", () => {
+    const r = validatePreviewDraft(VALID_DRAFT);
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.value).toEqual({
+        capitalBase: 2_000_000,
+        apyMin: 6,
+        apyMax: 12,
+        horizonMonths: 24,
+        seed: "my_seed-1",
+      });
+    }
+  });
+
+  it("rejects a non-numeric capital", () => {
+    const r = validatePreviewDraft({ ...VALID_DRAFT, capitalBase: "lots" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errors.capitalBase).toBeTruthy();
+  });
+
+  it("rejects capital out of bounds (negative and over max)", () => {
+    expect(validatePreviewDraft({ ...VALID_DRAFT, capitalBase: "-1" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, capitalBase: "1000000001" }).ok).toBe(false);
+  });
+
+  it("rejects APY min > max", () => {
+    const r = validatePreviewDraft({ ...VALID_DRAFT, apyMin: "15", apyMax: "8" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errors.apyMax).toContain("APY max must be");
+  });
+
+  it("rejects APY out of the 0–100 bound", () => {
+    expect(validatePreviewDraft({ ...VALID_DRAFT, apyMax: "150" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, apyMin: "-2" }).ok).toBe(false);
+  });
+
+  it("rejects a non-integer or out-of-bounds horizon", () => {
+    expect(validatePreviewDraft({ ...VALID_DRAFT, horizonMonths: "12.5" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, horizonMonths: "0" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, horizonMonths: "121" }).ok).toBe(false);
+  });
+
+  it("rejects NaN/Infinity/scientific notation tokens", () => {
+    expect(validatePreviewDraft({ ...VALID_DRAFT, capitalBase: "Infinity" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, capitalBase: "NaN" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, capitalBase: "1e9" }).ok).toBe(false);
+  });
+
+  it("rejects an invalid seed (too short, spaces, bad chars, prompt-like)", () => {
+    expect(validatePreviewDraft({ ...VALID_DRAFT, seed: "ab" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, seed: "has space" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, seed: "ignore previous instructions!" }).ok).toBe(false);
+    expect(validatePreviewDraft({ ...VALID_DRAFT, seed: "x".repeat(65) }).ok).toBe(false);
+  });
+});
+
+describe("buildPreviewInput — v0/v2 request mapping", () => {
+  const value = { capitalBase: 2_000_000, apyMin: 6, apyMax: 12, horizonMonths: 24, seed: "my_seed-1" };
+
+  it("v0 carries no methodology and uses the edited values", () => {
+    const input = buildPreviewInput(value, "v0");
+    expect(input.methodology).toBeUndefined();
+    expect(input.capitalBase).toBe(2_000_000);
+    expect(input.apyRange).toEqual({ min: 6, max: 12 });
+    expect(input.horizonMonths).toBe(24);
+    // Non-editable fixture parts preserved.
+    expect(input.allocation).toEqual(PREVIEW_PROJECTION_INPUT.allocation);
+    expect(input.productName).toBe(PREVIEW_PROJECTION_INPUT.productName);
+  });
+
+  it("v2 adds methodology.version + the validated seed", () => {
+    const input = buildPreviewInput(value, "v2");
+    expect(input.methodology?.version).toBe("v2");
+    expect(input.methodology?.seed).toBe("my_seed-1");
+    expect(input.apyRange).toEqual({ min: 6, max: 12 });
   });
 });

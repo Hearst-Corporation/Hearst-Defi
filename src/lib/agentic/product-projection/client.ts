@@ -49,6 +49,152 @@ export const PREVIEW_PROJECTION_INPUT_V2: ProductProjectionInput = {
   },
 };
 
+/* ── Editable preview draft (UI-local, bounded, no storage) ──────────────────
+ * The preview surface lets an admin edit a few headline inputs. These are
+ * draft-only string fields validated locally BEFORE any API call — the backend
+ * stays the single source of truth and the engine is untouched. The fixture's
+ * non-editable parts (product, currency, allocation, assumptions) are preserved.
+ */
+
+export type ProjectionPreviewDraft = {
+  capitalBase: string;
+  apyMin: string;
+  apyMax: string;
+  horizonMonths: string;
+  seed: string;
+};
+
+export const DEFAULT_PREVIEW_DRAFT: ProjectionPreviewDraft = {
+  capitalBase: "1000000",
+  apyMin: "8",
+  apyMax: "15",
+  horizonMonths: "12",
+  seed: PREVIEW_PROJECTION_SEED_V2,
+};
+
+/** Inclusive bounds for the editable preview fields. */
+export const PREVIEW_BOUNDS = {
+  capitalBase: { min: 0, max: 1_000_000_000 },
+  apy: { min: 0, max: 100 },
+  horizonMonths: { min: 1, max: 120 },
+  seed: { minLen: 3, maxLen: 64, pattern: /^[A-Za-z0-9_-]+$/ },
+} as const;
+
+/** Fixed iterations for the v2 preview (backend convention; not user-exposed). */
+const PREVIEW_V2_ITERATIONS = 2000;
+
+export type ProjectionDraftField = keyof ProjectionPreviewDraft;
+
+export type ValidatedPreviewValue = {
+  capitalBase: number;
+  apyMin: number;
+  apyMax: number;
+  horizonMonths: number;
+  seed: string;
+};
+
+export type DraftValidationResult =
+  | { ok: true; value: ValidatedPreviewValue }
+  | { ok: false; errors: Partial<Record<ProjectionDraftField, string>> };
+
+function parseFiniteNumber(raw: string): number | null {
+  const t = raw.trim();
+  if (t === "") return null;
+  // Reject anything that isn't a plain decimal number (blocks "Infinity", "1e9", text).
+  if (!/^-?\d+(\.\d+)?$/.test(t)) return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Validate the editable draft. Pure: same draft ⇒ same result. On success returns
+ * coerced numeric values; on failure returns per-field messages and NO value, so
+ * the caller never calls the API with invalid input. APY is always a min/max range
+ * with min ≤ max; no NaN/Infinity can pass.
+ */
+export function validatePreviewDraft(draft: ProjectionPreviewDraft): DraftValidationResult {
+  const errors: Partial<Record<ProjectionDraftField, string>> = {};
+
+  const capitalBase = parseFiniteNumber(draft.capitalBase);
+  if (capitalBase === null) {
+    errors.capitalBase = "Enter a number.";
+  } else if (capitalBase < PREVIEW_BOUNDS.capitalBase.min || capitalBase > PREVIEW_BOUNDS.capitalBase.max) {
+    errors.capitalBase = `Must be ${PREVIEW_BOUNDS.capitalBase.min}–${PREVIEW_BOUNDS.capitalBase.max.toLocaleString("en-US")}.`;
+  }
+
+  const apyMin = parseFiniteNumber(draft.apyMin);
+  if (apyMin === null) {
+    errors.apyMin = "Enter a number.";
+  } else if (apyMin < PREVIEW_BOUNDS.apy.min || apyMin > PREVIEW_BOUNDS.apy.max) {
+    errors.apyMin = `Must be ${PREVIEW_BOUNDS.apy.min}–${PREVIEW_BOUNDS.apy.max}.`;
+  }
+
+  const apyMax = parseFiniteNumber(draft.apyMax);
+  if (apyMax === null) {
+    errors.apyMax = "Enter a number.";
+  } else if (apyMax < PREVIEW_BOUNDS.apy.min || apyMax > PREVIEW_BOUNDS.apy.max) {
+    errors.apyMax = `Must be ${PREVIEW_BOUNDS.apy.min}–${PREVIEW_BOUNDS.apy.max}.`;
+  }
+
+  if (apyMin !== null && apyMax !== null && !errors.apyMin && !errors.apyMax && apyMax < apyMin) {
+    errors.apyMax = "APY max must be ≥ APY min.";
+  }
+
+  const horizonMonths = parseFiniteNumber(draft.horizonMonths);
+  if (horizonMonths === null) {
+    errors.horizonMonths = "Enter a number.";
+  } else if (!Number.isInteger(horizonMonths)) {
+    errors.horizonMonths = "Must be a whole number of months.";
+  } else if (horizonMonths < PREVIEW_BOUNDS.horizonMonths.min || horizonMonths > PREVIEW_BOUNDS.horizonMonths.max) {
+    errors.horizonMonths = `Must be ${PREVIEW_BOUNDS.horizonMonths.min}–${PREVIEW_BOUNDS.horizonMonths.max}.`;
+  }
+
+  const seed = draft.seed.trim();
+  if (seed.length < PREVIEW_BOUNDS.seed.minLen || seed.length > PREVIEW_BOUNDS.seed.maxLen) {
+    errors.seed = `Seed must be ${PREVIEW_BOUNDS.seed.minLen}–${PREVIEW_BOUNDS.seed.maxLen} characters.`;
+  } else if (!PREVIEW_BOUNDS.seed.pattern.test(seed)) {
+    errors.seed = "Seed: letters, digits, - and _ only.";
+  }
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+  return {
+    ok: true,
+    value: {
+      capitalBase: capitalBase as number,
+      apyMin: apyMin as number,
+      apyMax: apyMax as number,
+      horizonMonths: horizonMonths as number,
+      seed,
+    },
+  };
+}
+
+/**
+ * Build the API input from validated values. Preserves the non-editable fixture
+ * parts (product, currency, allocation, assumptions). v0 carries no methodology;
+ * v2 adds the seeded methodology with the validated seed. No storage, no mutation.
+ */
+export function buildPreviewInput(
+  value: ValidatedPreviewValue,
+  mode: "v0" | "v2",
+): ProductProjectionInput {
+  const base: ProductProjectionInput = {
+    ...PREVIEW_PROJECTION_INPUT,
+    capitalBase: value.capitalBase,
+    apyRange: { min: value.apyMin, max: value.apyMax },
+    horizonMonths: value.horizonMonths,
+  };
+  if (mode === "v2") {
+    base.methodology = {
+      version: "v2",
+      seed: value.seed,
+      iterations: PREVIEW_V2_ITERATIONS,
+      confidenceBands: true,
+    };
+  }
+  return base;
+}
+
 export type RunProjectionResult =
   | { ok: true; artifact: ProjectionReportArtifact }
   | { ok: false; status: number; error: string };
