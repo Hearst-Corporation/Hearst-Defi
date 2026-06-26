@@ -3829,33 +3829,9 @@ button.ct-choice-card {
    couleur portée par .ct-page-area (une seule plaque). */
 .ct-center-panel { background: transparent !important; }
 .ct-page-area {
-  background-color: var(--ct-bg-center);
-  /* Dot-grid déplacé depuis les rails — texture subtile sur le canvas central. */
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
-    transparent 1.5px
-  );
-  background-size: 24px 24px;
-}
-
-/* FEUILLE BLANCHE Portfolio (2026-06-27) : sous /portfolio (rebuild Catalyst),
-   on neutralise le canvas DS — fond #191B22 + dot-grid vert — pour ne pas avoir
-   "du gris sur du gris". La page Catalyst peint son propre fond (zinc).
-   Ciblé via html[data-blank-canvas] (posé par <BlankCanvasMarker/> tant qu'une
-   page portfolio blanche est montée) PLUTÔT que :has() : le contenu est rendu
-   hors de .ct-page-area par le bailout next/dynamic du shell, donc un marqueur
-   descendant ne matchait pas. Retiré au démontage → 0 impact vaults/profile. */
-html[data-blank-canvas] .ct-page-area {
-  background-color: transparent !important;
-  background-image: none !important;
-}
-html[data-blank-canvas] .ct-page-area::after {
-  content: none !important;
-}
-/* Bouton flottant "Master" (retour hub) masqué en feuille blanche portfolio. */
-html[data-blank-canvas] .ct-master-fab {
-  display: none !important;
+  /* Canvas central : fond gris #191B22 + dot-grid retirés (ancien DS).
+     2026-06-27 — refonte UI A→Z. Le fond vient désormais de chaque page. */
+  background-color: transparent;
 }
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
@@ -4450,9 +4426,6 @@ html[data-blank-canvas] .ct-master-fab {
 .ct-hub-bar-label                          { padding-left: var(--ct-space-1); }
 .ct-hub-bar-track                          { padding: var(--ct-space-1); }        /* was 3px → nearest scale token (4px) */
 .ct-hub-bar-seg                            { padding: var(--ct-space-1_5) var(--ct-space-4); } /* 14px → nearest scale token (16px) */
-
-/* Master FAB */
-.ct-master-fab                             { padding: var(--ct-space-2_5) var(--ct-space-5); }
 
 /* Centre — page area & embed (global density calibration)
    Contrat shell authentifié : colonne flex, main scroll, footer pin. */

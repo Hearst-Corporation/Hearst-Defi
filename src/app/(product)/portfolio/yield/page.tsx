@@ -29,7 +29,6 @@ export const metadata = {
 export default function YieldPage() {
   return (
     <main
-      data-portfolio-blank
       className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
     >
       <div className="mx-auto max-w-5xl">

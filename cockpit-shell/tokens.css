@@ -333,33 +333,6 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
-/* Bouton flottant "Master" — retour au hub, visible uniquement en mode produit.
-   Position fixed pour garantir la visibilité au-dessus de la webview Electron. */
-.ct-master-fab {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 1000;
-  appearance: none; font: inherit; cursor: pointer;
-  padding: 10px 18px;
-  background: var(--ct-surface-2);
-  border: 1px solid var(--ct-border-strong);
-  border-radius: 9999px;
-  color: var(--ct-text-primary);
-  font-size: var(--ct-text-2xs); font-weight: 700;
-  letter-spacing: 0.06em;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    0 8px 24px -10px rgba(0,0,0,0.55);
-  transition: background var(--ct-dur-base) var(--ct-ease),
-              border-color var(--ct-dur-base) var(--ct-ease),
-              transform var(--ct-dur-base) var(--ct-ease);
-}
-.ct-master-fab:hover {
-  background: color-mix(in srgb, var(--ct-accent) 22%, var(--ct-surface-2));
-  border-color: var(--ct-border-accent);
-  transform: translateY(-1px);
-}
 .ct-chat-ctx-dot {
   width: 8px; height: 8px; border-radius: 50%;
   flex-shrink: 0;

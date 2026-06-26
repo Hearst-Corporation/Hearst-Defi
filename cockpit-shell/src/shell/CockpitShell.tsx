@@ -6,7 +6,6 @@ import {
   getSnapshot,
   getServerSnapshot,
   setDefaultActive,
-  setActive,
 } from "../stores/activeProductStore";
 import { CockpitContext } from "./context";
 import { RailLeft } from "./RailLeft";
@@ -87,16 +86,6 @@ export function CockpitShell({
             au-dessus de la bottom bar flottante. Pin bas naturel : dernier enfant
             flex-column du root (flex:0 0 auto). */}
         {footer}
-        {inProduct && (
-          <button
-            type="button"
-            className="ct-master-fab"
-            onClick={() => setActive(appId)}
-            title="Retour au hub Master"
-          >
-            Master
-          </button>
-        )}
         <HubBottomBar />
       </div>
     </CockpitContext.Provider>
