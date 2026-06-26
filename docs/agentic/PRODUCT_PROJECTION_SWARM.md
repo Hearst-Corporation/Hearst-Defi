@@ -87,13 +87,41 @@ top of the v0 range — pure, deterministic (reuses `src/lib/engine/prng.ts`, no
 number, no promise. Omitting `methodology` (or `version:"v1"`) keeps the v0 behaviour
 unchanged. Full contract + guards: [PROJECTION_METHODOLOGY_V2.md](./PROJECTION_METHODOLOGY_V2.md).
 
+## Read-only UI wiring (Projection Preview)
+
+Route: **`/admin/projection/preview`** (Strategy → "Projection Preview" sub-nav tab).
+A read-only admin surface that renders the existing `ProjectionReportArtifact` from
+`POST /api/admin/agentic/projection` for a clearly-labelled **Preview input**
+(`PREVIEW_PROJECTION_INPUT` in `src/lib/agentic/product-projection/client.ts` —
+Hearst Yield Vault, 8–15%, 12m, 1,000,000 USDC, 70/30 allocation). It does NOT touch
+the existing `/admin/projection` Projection Studio.
+
+- **Client**: `client.ts` `runProjectionPreview()` — a single on-demand POST (no
+  mutation, no storage, no auto-polling). 200 → artifact; 400 → invalid state; 500 /
+  network → generic error state. No raw payload or stack trace is ever shown.
+- **View** (`src/components/admin/projection/projection-report-view.tsx`, pure):
+  hero summary + Read-only / No-side-effects / Preview badges; headline metric cards
+  (Capital base · Target APY range · Projected yield range · Horizon); Bear/Base/Bull
+  scenarios; chart payloads rendered CSS-only (range band, allocation mix, scenario
+  compare — `missing input` note when a chart has no data, never a fake chart);
+  Assumptions, Risks (severity), Provenance (per metric), Missing inputs, and the
+  mandatory Disclaimers. APY is shown only as a range; nothing is framed as guaranteed.
+- **States**: idle / loading (skeleton) / success / invalid (400) / error (500/network).
+- **Design**: token-only (`var(--ct-*)`), graphite-opaque DS panels, single green
+  accent, 4px grid, responsive (no horizontal overflow); scoped CSS
+  `src/app/admin/projection/projection-preview.css`.
+
+**Not yet rendered** (intentional, out of this lot): the Methodology v2 distribution
+(`distribution` / `percentile_band` chart). The view filters it out and the preview
+input is v0; a follow-up lot can add a p5/p50/p95 band visual.
+
 ## Relation to future UI / Scenario Lab
 
-The artifact is a **backend contract** — a future UI lot (Scenario Lab / a Projection
-panel) can render `metrics`/`scenarios`/`charts`/`distribution.bands` read-only. The
-Scenario Engine (`src/lib/engine/*`, pure, seed-injected, Monte-Carlo) is the natural
-deeper input source for a market-calibrated v2 distribution; v0/v2 here take the inputs
-directly and stay a pure transform.
+The artifact is a **backend contract** — this lot renders the v0 report read-only; a
+later lot can render `distribution.bands` (Methodology v2) and a richer Scenario Lab.
+The Scenario Engine (`src/lib/engine/*`, pure, seed-injected, Monte-Carlo) is the
+natural deeper input source for a market-calibrated v2 distribution; v0/v2 here take the
+inputs directly and stay a pure transform.
 
 ## What this is NOT (out of scope here)
 
