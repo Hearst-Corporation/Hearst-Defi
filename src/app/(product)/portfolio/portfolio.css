@@ -65,7 +65,7 @@
 .pf-container .h3,
 .pf-container .pf-cockpit-panel__title--primary,
 .pf-container .pf-panel-title {
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 /* Figma text hierarchy — legacy .ct-text-faint → tertiary inside portfolio scope. */
@@ -120,7 +120,7 @@
 }
 
 .pf-greeting__lead .h1 {
-  font-size: var(--ct-text-3xl-fixed);
+  font-size: var(--ct-text-2xl-fixed); /* 20px — calmed from 24px; "Welcome back" was too loud */
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-tight);
   letter-spacing: var(--ct-tracking-tight);
@@ -134,7 +134,7 @@
    deliberate fixed headline and balloon the greeting against the 18px ticker. */
 @media (min-width: 80rem) {
   .ct-page-area .pf-container .pf-greeting__lead .h1 {
-    font-size: var(--ct-text-3xl-fixed);
+    font-size: var(--ct-text-2xl-fixed); /* keep the calmed 20px on wide screens too */
   }
 }
 
@@ -219,7 +219,7 @@
    PfCockpitPanel. Mirrors .pf-hero-grid: ONE grammar = one master surface per row.
    MOBILE-FIRST: 1 column by default (base), so the stacked state is the default and
    never gets overridden by source order. The 2-column split is applied ONLY inside
-   @container pf (min-width: 58rem) — same rule as the hero (see section 14). Both
+   @container pf (min-width: 53rem) — same rule as the hero (see section 14). Both
    children render as flat .pf-embedded-pane (no surface of their own); a single
    1px hairline separates them — TOP edge when stacked, LEFT edge when 2-col.
    ============================================================================= */
@@ -250,6 +250,14 @@
     border-left: none !important;
     border-top: 1px solid var(--ct-graphite-border-nested) !important;
   }
+  /* Stacked hero (chart ON TOP of status): the side-by-side height cap would
+     clip the whole lower half. Let it grow to content — the page scrolls. */
+  .pf-hero-grid {
+    max-height: none;
+  }
+  .pf-hero-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 
@@ -268,7 +276,8 @@
 }
 
 .pf-cockpit-row--deck .pf-distrib-chart-shell {
-  aspect-ratio: auto;
+  /* Match the bar-chart viewBox so the SVG `meet`-fits with NO empty top band. */
+  aspect-ratio: 560 / 168;
   min-height: 6rem;
 }
 
@@ -424,12 +433,12 @@
 .pf-container .pf-cockpit-panel__title--primary,
 .pf-container .pf-panel-title {
   margin: 0 0 var(--ct-space-3);
-  font-size: var(--ct-text-sm);  /* raised from 2xs (12px) → sm (15px) — align with doc-flow h3 tier */
+  font-size: var(--ct-text-sm);  /* 15px */
   font-weight: var(--ct-font-semibold);
   line-height: var(--ct-leading-snug);
   letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 /* Titles inside a horizontal header — no block margin (breaks trail alignment). */
@@ -480,6 +489,8 @@
   min-width: 0;
   min-height: 0;
   height: auto;
+  max-height: 27rem; /* HARD CAP: prevent infinite downward expansion (fits the
+                        Portfolio Status column: header + 2×2 tiles + proof row) */
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
@@ -491,6 +502,7 @@
   padding: var(--pf-panel-pad-y) var(--pf-panel-pad-x) var(--ct-space-4);
   border-bottom: 1px solid var(--ct-graphite-border-nested);
 }
+
 
 .pf-hero-header__row {
   display: flex;
@@ -523,7 +535,9 @@
   grid-template-columns: 1fr;
   flex: 1 1 auto;
   min-height: 0;
+  max-height: 100%; /* Respect parent max-height */
   align-items: stretch;
+  overflow: hidden; /* Clip children */
 }
 
 .pf-hero-body > .pf-status-panel {
@@ -578,8 +592,9 @@
 
 .pf-hero-kpi-value {
   /* DS hero tier — the single dominant number on the Portfolio surface (NAV value).
-     Rule: one hero per surface, never in cascade. 40px / extrabold / tnum / strong text. */
-  font-size: var(--ct-text-hero);
+     One hero per surface. Calmed 40px → 32px (display-fixed) so the center stops
+     dwarfing the rail/chat; still the loudest figure on the page. */
+  font-size: var(--ct-text-display-fixed);
   font-weight: var(--ct-font-extrabold);
   line-height: var(--ct-leading-none);
   letter-spacing: var(--ct-tracking-tighter);
@@ -592,7 +607,7 @@
    not in the DOM for this component). These rules are the live selectors. */
 .pf-value-chart--hero-embedded .pf-vc-header {
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center; /* balance, note + range selector on ONE baseline */
   justify-content: space-between;
   gap: var(--ct-space-4);
   flex-shrink: 0;
@@ -600,47 +615,26 @@
 
 .pf-value-chart--hero-embedded .pf-vc-header__trail {
   display: flex;
-  align-self: flex-start;
+  align-self: center;
 }
 
-.pf-value-chart__chart-wrapper,
-.pf-value-chart__chart-slot,
-.pf-skeleton-chart {
+.pf-value-chart__chart-slot {
   position: relative;
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 9rem;
+  max-height: 100%; /* HARD CAP: never exceed parent */
   width: 100%;
-  /* chart-geometry — aspect backstop for non-hero usage; hero height is controlled by pf-hero-grid */
-  aspect-ratio: 200 / 72; /* chart-geometry */
   overflow: hidden;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+  background: var(--ct-surface-1);
 }
 
-/* Hero context: aspect-ratio would force height based on ~1000px width → 360px,
-   blowing the 16rem fixed grid. Override to pure flex fill. */
-.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper,
 .pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
   aspect-ratio: auto;
-  height: 0; /* flex: 1 1 auto drives height; this prevents the intrinsic size from leaking */
-  background: transparent;
-  animation: none;
-}
-
-.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::before,
-.pf-value-chart--hero-embedded .pf-value-chart__chart-wrapper::after,
-.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::before,
-.pf-value-chart--hero-embedded .pf-value-chart__chart-slot::after {
-  display: none;
-}
-
-.pf-value-chart__chart-wrapper,
-.pf-value-chart__chart-slot {
-  background: var(--ct-surface-1);
-  box-shadow: none;
-  animation: pf-chart-entry 1s var(--ct-ease) forwards;
-}
-
-.pf-value-chart--hero-embedded .pf-value-chart__chart-slot {
+  min-height: 9rem;
+  height: auto;
   border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
   background: var(--ct-surface-0);
   box-shadow:
@@ -648,109 +642,43 @@
     inset 0 -24px 40px color-mix(in srgb, var(--ct-bg-deep) 36%, transparent);
 }
 
-.pf-value-chart--hero-embedded .pf-value-chart__plot::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      120% 70% at 50% 100%,
-      color-mix(in srgb, var(--ct-accent) 12%, transparent),
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      transparent 0%,
-      color-mix(in srgb, var(--ct-surface-0) 18%, transparent) 100%
-    );
-  pointer-events: none;
-}
-
-.pf-value-chart--hero-embedded .pf-value-chart__plot::after {
-  content: "";
-  position: absolute;
-  left: var(--ct-space-2);
-  right: var(--ct-space-2);
-  bottom: var(--ct-space-3);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent) 12%,
-    color-mix(in srgb, var(--ct-accent) 20%, transparent) 50%,
-    color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent) 88%,
-    transparent
-  );
-  pointer-events: none;
-  opacity: 0.7;
-}
-
-.pf-value-chart__chart-wrapper::before,
-.pf-value-chart__chart-slot::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, var(--ct-surface-0) 18%, transparent)
-  );
-  pointer-events: none;
-}
-
-.pf-value-chart__chart-wrapper::after,
-.pf-value-chart__chart-slot::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 18%;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, var(--ct-surface-0) 28%, transparent)
-  );
-  pointer-events: none;
-}
-
-.pf-value-chart__plot {
+.pf-vc-plot {
   position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  animation: pf-plot-fade-in var(--ct-dur-base) var(--ct-ease) forwards;
-}
-
-@keyframes pf-plot-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.pf-value-chart__plot svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* Chart line + area — flat stroke, no glow animation. */
-.pf-value-chart__plot svg path[data-role="line"],
-.pf-value-chart__plot svg path[stroke="var(--ct-accent)"] {
-  stroke: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-strong));
-  opacity: 1;
-  transition: stroke var(--ct-dur-base) var(--ct-ease);
-}
-
-@keyframes pf-chart-entry {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.pf-value-chart__chart-slot {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
-  min-height: 7.5rem;
   width: 100%;
-  overflow: hidden;
-  border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
+  min-height: 9rem;
+  max-height: 100%; /* HARD CAP: never exceed parent */
+  height: 100%;
+}
+
+.pf-vc-plot__canvas {
+  display: block;
+  flex: 0 0 auto; /* FIXED: don't grow beyond content */
+  width: 100%;
+  height: 100%; /* FIXED: fill parent exactly */
+  max-height: 100%; /* HARD CAP */
+}
+
+.pf-vc-plot__x-axis {
+  position: relative;
+  flex: 0 0 auto;
+  height: var(--ct-space-4);
+  margin: 0 var(--ct-space-2) var(--ct-space-1);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 55%, transparent);
+}
+
+.pf-vc-plot__x-tick {
+  position: absolute;
+  top: var(--ct-space-1);
+  transform: translateX(-50%);
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-wider);
+  text-transform: uppercase;
+  color: var(--ct-text-tertiary);
+  white-space: nowrap;
 }
 
 .pf-value-chart__empty,
@@ -787,7 +715,7 @@
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
   color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-62);
+  opacity: var(--ct-opacity-60);
   line-height: 1.2;
 }
 
@@ -847,156 +775,9 @@
   color: var(--ct-text-tertiary);
 }
 
-.pf-vc-grid {
-  stroke: var(--ct-graphite-border-nested);
-  stroke-width: 0.5;
-  stroke-dasharray: 2 8;
-  opacity: 0.28;
-}
-
-.pf-vc-line {
-  filter: none;
-  opacity: 0.92;
-}
-
-.pf-vc-area {
-  opacity: 1;
-}
-
-.pf-value-chart--hero-embedded .pf-vc-line {
-  stroke-width: 1.8;
-  opacity: 0.98;
-}
-
-.pf-value-chart--hero-embedded .pf-vc-area {
-  opacity: 1;
-}
-
-.pf-vc-svg {
-  overflow: visible;
-}
-
-.pf-vc-hover-line {
-  stroke: var(--ct-chart-curve-color);
-  stroke-width: 1;
-  stroke-dasharray: 3 5;
-  opacity: 0.4;
-  vector-effect: non-scaling-stroke;
-}
-
-.pf-vc-endcap {
-  opacity: 0.9;
-}
-
-.pf-vc-axis-label {
-  fill: var(--ct-text-tertiary);
-  font-size: var(--ct-text-nano);
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  font-family: var(--ct-font-sans, system-ui, sans-serif);
-}
-
-.pf-vc-axis-label--x {
-  opacity: 0.5;
-}
-
-.pf-vc-axis-label--y {
-  opacity: 0.42;
-  font-variant-numeric: tabular-nums;
-}
-
 .pf-positions-empty__hint,
 .pf-activity__empty-hint {
   color: var(--ct-text-tertiary);
-}
-
-.pf-vc-tooltip {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
-  will-change: left, top;
-}
-
-.pf-vc-tooltip--edge-left {
-  transform: translate(0.5rem, -110%);
-}
-
-.pf-vc-tooltip--edge-center {
-  transform: translate(-50%, -115%);
-}
-
-.pf-vc-tooltip--edge-right {
-  transform: translate(calc(-100% - 0.5rem), -110%);
-}
-
-.pf-vc-tooltip--clip-top {
-  transform: translate(-50%, 0.75rem);
-}
-
-.pf-vc-tooltip--clip-top.pf-vc-tooltip--edge-left {
-  transform: translate(0.5rem, 0.75rem);
-}
-
-.pf-vc-tooltip--clip-top.pf-vc-tooltip--edge-right {
-  transform: translate(calc(-100% - 0.5rem), 0.75rem);
-}
-
-.pf-vc-tooltip__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  padding: var(--ct-space-2) var(--ct-space-3);
-  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-md);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
-  backdrop-filter: blur(var(--ct-blur-lg));
-  min-width: 9rem;
-  transition: transform 0.15s var(--ct-ease);
-}
-
-.pf-vc-tooltip__value {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-accent);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.pf-vc-tooltip__date {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  opacity: 0.8;
-}
-
-.pf-value-chart__month-labels {
-  position: relative;
-  /* Controlled label band. Was space-5 height + space-1 margin-top + space-2
-     padding-top (~32px) for a 9px nano label pinned at top:0 — a dead zone under
-     the plot that inflated the hero. Tightened so the chart fills its box and
-     May/Jun sit just under the plot. Hero height is grid-fixed (16rem): the
-     flex:1 chart-wrapper absorbs the reclaimed space, nothing grows. */
-  height: var(--ct-space-4);
-  margin-top: 0;
-  flex: 0 0 auto;
-  font-variant-numeric: tabular-nums;
-  border-top: 1px solid var(--ct-border-soft);
-  padding-top: var(--ct-space-1);
-}
-
-.pf-value-chart__month-labels span {
-  position: absolute;
-  transform: translateX(-50%);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-tertiary);
-  white-space: nowrap;
-  letter-spacing: var(--ct-tracking-wider);
-  text-transform: uppercase;
 }
 
 /* Corner metrics hover states */
@@ -1010,15 +791,6 @@
   opacity: 1;
   transform: scale(1.02);
   color: var(--ct-accent-light);
-}
-
-/* Badge LIVE (provenance corner) dans le plot : décollé du bord droit ET du
-   haut pour ne plus toucher l'endpoint de courbe ni le coin. Override des
-   utilitaires top-2/right-2 du composant (hors scope) via un sélecteur scopé
-   plus spécifique. Pilule sombre discrète — pas de glow. */
-.pf-value-chart__plot .chart-provenance-corner {
-  top: var(--ct-space-3);
-  right: var(--ct-space-4);
 }
 
 .pf-value-chart--hero-left .pf-vc-header__row2 {
@@ -1067,7 +839,7 @@
 
 .pf-vc-header__row2 {
   display: flex;
-  align-items: baseline;
+  align-items: center; /* note sits on the balance's vertical centre, not its baseline */
   gap: var(--ct-space-4);
   flex-wrap: wrap;
   min-width: 0;
@@ -2014,7 +1786,7 @@
   min-height: 0;
   width: 100%;
   /* aspect-ratio backstop matching the bar-chart viewBox */
-  aspect-ratio: 560 / 180; /* chart-geometry */
+  aspect-ratio: 560 / 168; /* chart-geometry */
   overflow: visible;
   border-radius: calc(var(--ct-radius-xl) - var(--ct-space-2));
   background: linear-gradient(
@@ -2059,6 +1831,15 @@
 .pf-distrib-chart rect {
   transition: all var(--ct-dur-base) var(--ct-ease);
   cursor: pointer;
+}
+
+/* Paid distribution bars — accent-green with a soft ambient glow (restrained). */
+.pf-distrib-bar {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ct-accent) 30%, transparent));
+}
+.pf-distrib-chart__bar-group:hover .pf-distrib-bar,
+.pf-distrib-chart a:hover .pf-distrib-bar {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ct-accent) 45%, transparent));
 }
 
 .pf-distrib-chart__bar-group {
@@ -2775,7 +2556,7 @@
   .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 }
 
-@container pf (min-width: 800px) {
+@container pf (min-width: 53rem) {
   /* Hero body split — 2 columns: Chart | Status. */
   .pf-hero-body {
     grid-template-columns: 1.6fr minmax(16rem, 22rem);
@@ -3022,22 +2803,22 @@
 .pf-sp2-body {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
+  gap: var(--ct-space-4);
   padding: var(--ct-space-4) var(--pf-panel-pad-x) var(--pf-panel-pad-y);
 }
 
 .pf-sp2-tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-3);
+  gap: var(--ct-space-2_5);
 }
 
 .pf-sp2-tile {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-1_5);
+  gap: var(--ct-space-1);
   min-width: 0;
-  padding: var(--ct-space-4);
+  padding: var(--ct-space-3);
   border-radius: var(--ct-radius-lg);
   border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 70%, transparent);
   background: color-mix(in srgb, var(--ct-graphite-border-nested) 10%, transparent);
@@ -3047,8 +2828,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.4rem;
+  height: 1.4rem;
   border-radius: 999px;
   color: var(--ct-text-secondary);
   background: color-mix(in srgb, var(--ct-graphite-border-nested) 22%, transparent);
@@ -3075,7 +2856,7 @@
 }
 
 .pf-sp2-tile__value {
-  font-size: var(--ct-text-xl-fixed);
+  font-size: var(--ct-text-base); /* 16px — calmed from 18px to fit + harmonize */
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
   line-height: 1.1;
@@ -3102,8 +2883,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 999px;
   color: var(--ct-text-secondary);
   background: color-mix(in srgb, var(--ct-graphite-border-nested) 22%, transparent);
