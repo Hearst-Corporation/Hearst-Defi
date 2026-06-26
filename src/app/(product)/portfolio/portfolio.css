@@ -67,7 +67,7 @@
 .pf-container .h3,
 .pf-container .pf-cockpit-panel__title--primary,
 .pf-container .pf-panel-title {
-  color: var(--ct-accent);
+  color: var(--ct-text-strong);
 }
 
 /* Figma text hierarchy — legacy .ct-text-faint → tertiary inside portfolio scope. */
@@ -171,7 +171,7 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);   /* modules resserrés (était space-8 / 32px) */
+  gap: 0;   /* gap handled by row padding + hairlines */
   min-width: 0;
   margin-top: 0;
   /* Body libéré : remplit toute la largeur du centre, plus de void à droite. */
@@ -185,6 +185,13 @@
   min-width: 0;
   display: grid;
   gap: var(--ct-space-5);
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
+  padding: var(--ct-space-8) 0;
+}
+
+.pf-cockpit-row:first-of-type {
+  border-top: none;
+  padding-top: 0;
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
@@ -192,6 +199,12 @@
 .pf-cockpit-row--yield  { grid-template-columns: 1fr; }
 .pf-cockpit-row--deck  { grid-template-columns: 1fr; }
 .pf-cockpit-row--positions { grid-template-columns: 1fr; }
+
+/* Positions content (embedded) — the master PfCockpitPanel owns the surface;
+   the embedded pane stays transparent (see .pf-cockpit-panel / .pf-embedded-pane). */
+.pf-positions-badges {
+  padding: 0;
+}
 
 .pf-cockpit-cell {
   min-width: 0;
@@ -201,104 +214,44 @@
 }
 
 .pf-cockpit-panel {
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 12px 40px -8px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(var(--ct-blur-xl));
-}
-
-.pf-fused-surface {
-  display: grid;
-  position: relative;
   min-width: 0;
-  min-height: 0;
-  background: var(--ct-graphite-subtle-bg);
   border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
   border-radius: var(--ct-radius-xl);
+  background: var(--ct-graphite-subtle-bg);
   box-shadow: none;
-  overflow: hidden;
 }
 
 .pf-hero-grid {
   display: grid;
   min-width: 0;
   min-height: 0;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: none;
-  overflow: hidden;
 }
 
-/* Pseudo element gradient masks removed to align with surface contract */
-.pf-fused-surface::before {
-  display: none;
-}
-
-.pf-fused-surface--deck {
-  grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
-  min-height: 24rem; /* Slightly taller for better breathing */
-}
-
-.pf-fused-surface__pane {
+/* =============================================================================
+   DECK GRID — internal 2-cell split (calendar | activity) inside ONE master
+   PfCockpitPanel. Mirrors .pf-hero-grid: ONE grammar = one master surface per row.
+   MOBILE-FIRST: 1 column by default (base), so the stacked state is the default and
+   never gets overridden by source order. The 2-column split is applied ONLY inside
+   @container pf (min-width: 58rem) — same rule as the hero (see section 14). Both
+   children render as flat .pf-embedded-pane (no surface of their own); a single
+   1px hairline separates them — TOP edge when stacked, LEFT edge when 2-col.
+   ============================================================================= */
+.pf-deck-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   min-width: 0;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  background: transparent;
-  position: relative;
 }
 
-.pf-fused-surface__pane::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom right, var(--ct-surface-0), transparent);
-  opacity: 0;
-  transition: opacity var(--ct-dur-base) var(--ct-ease), background-color var(--ct-dur-base) var(--ct-ease);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.pf-fused-surface__pane:hover::after {
-  opacity: 0.4; /* Softened to avoid washing out content hovers */
-  background-color: color-mix(in srgb, var(--ct-accent) 2%, transparent);
-}
-
-.pf-fused-surface__pane > .pf-embedded-pane {
+.pf-deck-grid > .pf-embedded-pane {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
 }
 
-.pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-left: 1px solid var(--ct-graphite-border-nested);
-  position: relative;
-}
-
-.pf-fused-surface__pane + .pf-fused-surface__pane::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 -1px;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    color-mix(in srgb, var(--ct-accent) 15%, transparent) 20%,
-    color-mix(in srgb, var(--ct-accent) 15%, transparent) 80%,
-    transparent
-  );
-  pointer-events: none;
-}
-
-.pf-fused-surface__pane--rail {
-  background: transparent;
-  border-right: 1px solid var(--ct-graphite-border-nested);
+/* Stacked default — second cell separated by a TOP hairline. */
+.pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
 }
 
 @container pf (max-width: 58rem) {
@@ -309,8 +262,8 @@
     border-left: 0;
   }
   .pf-hero-grid .pf-status-panel {
-    border-left: none;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+    border-left: none !important;
+    border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent) !important;
   }
 }
 
@@ -342,7 +295,7 @@
 .pf-container--fit .pf-cockpit-panel,
 .pf-container--fit .pf-embedded-pane,
 .pf-container--fit .pf-hero-grid,
-.pf-container--fit .pf-fused-surface,
+.pf-container--fit .pf-deck-grid,
 .pf-container--fit .pf-status-panel,
 .pf-container--fit .pf-trust-compact,
 .pf-container--fit .pf-payout-calendar-panel {
@@ -380,13 +333,9 @@
   gap: var(--ct-space-2_5);
 }
 
-/* Deck panels share the same flat graphite plate as the hero weld. */
-.pf-cockpit-row--deck .pf-cockpit-panel {
-  border-color: var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
-}
-
-.pf-fused-surface .pf-embedded-pane {
+/* Deck embedded panes (calendar | activity) — flat, no surface of their own;
+   the master PfCockpitPanel of the deck row owns the single graphite surface. */
+.pf-deck-grid > .pf-embedded-pane {
   border-color: transparent;
   background: transparent;
   box-shadow: none;
@@ -403,7 +352,6 @@
 }
 
 .pf-hero-grid .pf-cockpit-panel__header {
-  min-height: var(--ct-space-12);
   display: flex;
   align-items: flex-start;
 }
@@ -417,21 +365,23 @@
 }
 
 .pf-cockpit-cell[data-section="activity-payouts"] .pf-cockpit-panel,
-.pf-cockpit-cell[data-section="yield-trust"] .pf-cockpit-panel,
-.pf-fused-surface__pane[data-section="activity-payouts"] .pf-cockpit-panel,
-.pf-fused-surface__pane[data-section="yield-trust"] .pf-cockpit-panel {
+.pf-cockpit-cell[data-section="yield-trust"] .pf-cockpit-panel {
   border-color: transparent;
   background: transparent;
   box-shadow: none;
 }
 
+.pf-hero-grid > .pf-status-panel {
+  /* De-boxed: no panel surface of its own (welded inside the single hero panel).
+     Only the internal separator hairline remains — its side (left vs top) is set
+     by the responsive rules below, so we must NOT blanket-reset `border` here. */
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 .pf-cockpit-cell[data-section="activity-payouts"],
 .pf-cockpit-cell[data-section="yield-trust"] {
   position: relative;
-}
-
-.pf-fused-surface--deck .pf-cockpit-panel {
-  height: 100%;
 }
 
 /* ---- Panel header ---- */
@@ -518,8 +468,13 @@
    ============================================================================= */
 
 .pf-hero-grid {
-  /* chart-geometry — 2 cols: chart (flex) + status rail (fixed 19rem max) */
-  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
+  /* MOBILE-FIRST: 1 column by default so the (max-width: 58rem) stacking state
+     is the base and never gets overridden by source order. The 2-column split
+     (1.6fr | status rail) is applied ONLY inside @container pf (min-width: 58rem).
+     Putting the 2-col value here instead let the base win over the stacking
+     container query (defined earlier in the file) → grid stayed 2-col while the
+     stacked top-border showed = the floating hairline / broken hero. */
+  grid-template-columns: 1fr;
   /* chart-geometry — hero: header + plot + axis labels */
   height: 18rem;
   overflow: clip;
@@ -958,9 +913,11 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  /* Background and border come from PfCockpitPanel wrapper */
+  /* Background/shadow come from the PfCockpitPanel wrapper; the internal
+     separator hairline (left on desktop, top when stacked) is owned by the
+     `.pf-hero-grid .pf-status-panel` responsive rules — do NOT force a border
+     here or it overrides the responsive side and the split looks wrong. */
   background: transparent !important;
-  border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
@@ -1056,10 +1013,14 @@
   height: var(--ct-space-3_5);
 }
 
-/* Status panel is the hero-grid right slot: left-border separates it from the chart. */
+/* Status panel is the hero-grid right slot. MOBILE-FIRST default (1-col stacked):
+   a thin TOP hairline separates it from the chart above, no left border. The
+   2-col desktop state (@container pf min-width: 58rem) flips this to a LEFT
+   hairline + no top border. Keeping the base aligned with the 1-col grid default
+   prevents a stray separator showing on the wrong edge. */
 .pf-hero-grid .pf-status-panel {
-  border-top: none;
   border-left: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
 }
 
 /* =============================================================================
@@ -1200,11 +1161,15 @@
 .cy-panel {
   /* inherits the plate from .pf-cockpit-panel; only layout specifics here */
   min-width: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 .cy-panel.pf-cockpit-panel {
   gap: var(--ct-space-2_5);
-  padding: var(--ct-space-3) var(--ct-space-4);
+  padding: 0;
 }
 
 /* ---- V5 body: premium horizontal layout for wide screens ---- */
@@ -1240,10 +1205,11 @@
   gap: var(--ct-space-6);
   width: 100%;
   min-width: 0;
-  padding: var(--ct-space-5) var(--ct-space-6);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl);
+  padding: var(--ct-space-2) 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .cy-v5-headline__divider {
@@ -2078,11 +2044,11 @@
   align-items: center;
 }
 
-.pf-fused-surface--deck .pf-activity {
+.pf-deck-grid .pf-activity {
   justify-content: flex-start;
 }
 
-.pf-fused-surface--deck .pf-activity--empty {
+.pf-deck-grid .pf-activity--empty {
   flex: 1 1 auto;
   align-items: center;
   justify-content: center;
@@ -2090,11 +2056,11 @@
   padding: var(--ct-space-4) var(--ct-space-3);
 }
 
-.pf-fused-surface--deck .pf-activity__empty-hint {
+.pf-deck-grid .pf-activity__empty-hint {
   max-width: 32ch;
 }
 
-.pf-fused-surface--deck .pf-trust-compact--embedded .pf-trust-compact-kpis {
+.pf-deck-grid .pf-trust-compact--embedded .pf-trust-compact-kpis {
   /* Two KPIs side-by-side in the deck pane: halves the block height so the
      Proof-status KPI no longer clips under the no-scroll gate (was stacked). */
   grid-template-columns: 1fr 1fr;
@@ -2372,21 +2338,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-3);
-  padding: var(--ct-space-5) var(--ct-space-6);
-  border-radius: var(--ct-radius-xl);
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-graphite-border-nested);
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.4),
-    var(--ct-glass-bevel);
+  padding: var(--ct-space-4) 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--ct-border-soft);
+  border-bottom: 1px solid var(--ct-border-soft);
+  box-shadow: none;
   width: 100%;
   max-width: 26rem;
   align-self: center;
 }
 
 .pf-dc-coming--inactive {
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
-  border-color: color-mix(in srgb, var(--ct-border-soft) 20%, transparent);
+  background: transparent;
+  border-color: var(--ct-border-soft);
   box-shadow: none;
   transform: none !important;
 }
@@ -2502,13 +2468,10 @@
    scales down so nothing clips in tight slots.
    ============================================================================= */
 
-/* ---- DECK: 1-col (fused surface handles the split) ---- */
+/* ---- DECK: outer row stays 1fr; the .pf-deck-grid handles the internal split ---- */
 @container pf (min-width: 36rem) {
   .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 }
-
-/* ---- MID: outer row stays 1fr at all sizes (the pf-fused-surface--mid handles
-        its own internal 2-column split). No @container override needed here. ---- */
 
 @container pf (min-width: 58rem) {
   /* Hero welded grid split — 2 columns: Chart | Sidebar */
@@ -2516,14 +2479,25 @@
     grid-template-columns: 1.6fr minmax(16rem, 22rem);
   }
   /* when split horizontally the sidebar divider becomes a left border */
-.pf-hero-grid .pf-status-panel {
-    border-top: 0;
-    border-left: 0;
+  .pf-hero-grid .pf-status-panel {
+    border-left: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent) !important;
+    border-top: none !important;
     position: relative;
   }
-  
+
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
+  }
+
+  /* Deck welded grid split — 2 columns: Calendar | Activity. Same recipe as the
+     hero: the internal separator flips from a TOP hairline (stacked base) to a
+     LEFT hairline on the second cell. ONE master surface, one hairline. */
+  .pf-deck-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+  }
+  .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
+    border-top: none;
+    border-left: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent);
   }
 }
 
@@ -2537,31 +2511,11 @@
   }
 
   .pf-container--fit .pf-hero-grid .pf-status-panel {
-    border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
+    border-left: none !important;
+    border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 50%, transparent) !important;
   }
 }
 
-
-@container pf (max-width: 60rem) {
-  .pf-fused-surface--deck {
-    grid-template-columns: 1fr;
-    min-height: auto; /* Allow natural height on stack */
-  }
-
-  .pf-fused-surface__pane + .pf-fused-surface__pane {
-    border-left: 0;
-    border-top: 1px solid var(--ct-graphite-border-nested);
-  }
-
-  .pf-fused-surface__pane + .pf-fused-surface__pane::before {
-    display: none; /* Hide vertical halo on stack */
-  }
-
-  .pf-fused-surface__pane::after {
-    display: none; /* Hide hover halo on stack to avoid double borders */
-  }
-}
 
 /* ---- Panel-level container (each plate can host its own query) ---- */
 .pf-cockpit-panel,
@@ -2739,13 +2693,8 @@
   align-items: stretch;
   width: 100%;
   min-height: 5.5rem;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ct-surface-1) 80%, transparent),
-    color-mix(in srgb, var(--ct-surface-2) 60%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 80%, transparent);
-  border-top-color: color-mix(in srgb, var(--ct-border-soft) 30%, transparent);
+  background: var(--ct-graphite-subtle-bg);
+  border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   text-decoration: none;
   transition: 
@@ -2754,10 +2703,7 @@
     transform var(--ct-dur-base) var(--ct-ease),
     box-shadow var(--ct-dur-base) var(--ct-ease);
   overflow: hidden;
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 8px 24px -4px color-mix(in srgb, var(--ct-surface-0) 40%, transparent);
-  backdrop-filter: blur(var(--ct-blur-xl));
+  box-shadow: none;
 }
 
 .pf-position-card::before {
@@ -2777,12 +2723,9 @@
 }
 
 .pf-position-card:hover {
-  background: color-mix(in srgb, var(--ct-surface-2) 92%, var(--ct-accent) 3%);
-  border-color: color-mix(in srgb, var(--ct-accent) 30%, var(--ct-graphite-border-nested));
+  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
   transform: translateY(-2px);
-  box-shadow: 
-    var(--ct-glass-bevel),
-    0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
+  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
 }
 
 .pf-position-card--active {
@@ -3057,8 +3000,7 @@
 /* Les plates prennent leur hauteur naturelle : on neutralise les aspect-ratios
    et min-height fixes, sans forcer height:100% (qui écrasait/clippait). */
 .pf-cockpit-row .pf-hero-grid,
-.pf-cockpit-row .pf-fused-surface,
-.pf-cockpit-row .pf-fused-surface--deck,
+.pf-cockpit-row .pf-deck-grid,
 .pf-cockpit-row .pf-cockpit-cell,
 .pf-cockpit-row .pf-cockpit-panel,
 .pf-cockpit-row .pf-embedded-pane {

@@ -1,24 +1,4 @@
 {
-  "dash-chart-container": [
-    "src/app/(product)/charts-shared.css",
-    "src/app/(product)/portfolio/portfolio.css"
-  ],
-  "dash-chart-svg": [
-    "src/app/(product)/charts-shared.css",
-    "src/app/(product)/portfolio/portfolio.css"
-  ],
-  "dash-chart-circle": [
-    "src/app/(product)/charts-shared.css",
-    "src/app/(product)/portfolio/portfolio.css"
-  ],
-  "donut-center": [
-    "src/app/(product)/charts-shared.css",
-    "src/app/(product)/portfolio/portfolio.css"
-  ],
-  "donut-val": [
-    "src/app/(product)/charts-shared.css",
-    "src/app/(product)/portfolio/portfolio.css"
-  ],
   "pf-cockpit-panel": [
     "src/app/(product)/portfolio/portfolio.css",
     "src/app/cockpit.css"
@@ -30,10 +10,6 @@
   "pf-cockpit-panel__header-trail": [
     "src/app/(product)/portfolio/portfolio.css",
     "src/app/cockpit.css"
-  ],
-  "tabular": [
-    "src/app/(product)/portfolio/portfolio.css",
-    "src/app/globals.css"
   ],
   "ct-pill": [
     "src/app/admin/admin-strategy.css",
@@ -207,17 +183,9 @@
     "src/app/admin/dashboard/dashboard.css",
     "src/app/cockpit.css"
   ],
-  "login-split": [
-    "src/app/auth.css",
-    "src/app/cockpit.css"
-  ],
   "ct-text-muted": [
     "src/app/cockpit.css",
     "src/app/doc-flow-typography.css"
-  ],
-  "admin-doc": [
-    "src/app/cockpit.css",
-    "src/app/doc-flow.css"
   ],
   "product-doc": [
     "src/app/cockpit.css",
@@ -246,5 +214,13 @@
   "ct-root": [
     "src/app/cockpit.css",
     "src/app/globals.css"
+  ],
+  "wizard-step-progress__item": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow.css"
+  ],
+  "wizard-step-progress__label": [
+    "src/app/cockpit.css",
+    "src/app/doc-flow.css"
   ]
 }

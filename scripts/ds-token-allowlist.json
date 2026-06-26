@@ -34,26 +34,26 @@
     {
       "token": "--ct-surface-0",
       "pkgValue": "rgba(255,255,255,0.02)",
-      "cockpitValue": "#0E0F0F",
-      "reason": "opacity overlay migrated to fixed charcoal hex — surface-0 = global background level (#0E0F0F)."
+      "cockpitValue": "color-mix(in oklch, #060708, var(--ct-accent) 0%)",
+      "reason": "opacity overlay migrated to fixed charcoal hex — surface-0 = global background level (#060708) + 0% accent tint (Portfolio Premium)."
     },
     {
       "token": "--ct-surface-1",
       "pkgValue": "rgba(255,255,255,0.04)",
-      "cockpitValue": "#141416",
-      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette (Figma Hearst Flow)."
+      "cockpitValue": "color-mix(in oklch, #1C1D21, var(--ct-accent) 0%)",
+      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette + 0% accent tint (Portfolio Premium)."
     },
     {
       "token": "--ct-surface-2",
       "pkgValue": "rgba(255,255,255,0.06)",
-      "cockpitValue": "#1c1c1f",
-      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette (Figma Hearst Flow)."
+      "cockpitValue": "color-mix(in oklch, #26272D, var(--ct-accent) 0%)",
+      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette + 0% accent tint (Portfolio Premium)."
     },
     {
       "token": "--ct-surface-3",
       "pkgValue": "rgba(255,255,255,0.09)",
-      "cockpitValue": "#242428",
-      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette (Figma Hearst Flow)."
+      "cockpitValue": "color-mix(in oklch, #2E3038, var(--ct-accent) 0%)",
+      "reason": "opacity overlay migrated to fixed charcoal hex — staged opaque charcoal palette + 0% accent tint (Portfolio Premium)."
     },
     {
       "token": "--ct-text-muted",
@@ -64,8 +64,8 @@
     {
       "token": "--ct-border-soft",
       "pkgValue": "rgba(255,255,255,0.06)",
-      "cockpitValue": "var(--ct-figma-border-5)",
-      "reason": "Hearst Flow Figma white overlay #FFFFFF0D — replaces approximate rgba mix."
+      "cockpitValue": "rgba(255, 255, 255, 0.04)",
+      "reason": "Intentional softening — 4% opacity for ultra-fine hairlines (Portfolio Premium)."
     },
     {
       "token": "--ct-border",
@@ -90,6 +90,18 @@
       "pkgValue": "180ms",
       "cockpitValue": "220ms",
       "reason": "Intentional calibration — 220ms feels less snappy and more premium on glass surfaces."
+    },
+    {
+      "token": "--ct-accent-muted",
+      "pkgValue": "transparent",
+      "cockpitValue": "color-mix(in oklab, var(--ct-accent) 40%, transparent)",
+      "reason": "New secondary accent token for muted elements (Portfolio Premium)."
+    },
+    {
+      "token": "--ct-text-strong",
+      "pkgValue": "#ffffff",
+      "cockpitValue": "rgba(255, 255, 255, 0.92)",
+      "reason": "Typographic softening — reduced contrast for institutional premium feel (Portfolio Premium)."
     }
   ]
 }

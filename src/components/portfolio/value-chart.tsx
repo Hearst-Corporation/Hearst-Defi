@@ -15,7 +15,6 @@ import {
 } from "@/lib/portfolio/value-series";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
-import { ApyRange } from "@/components/ui/apy-range";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   generateAreaPath,
@@ -55,8 +54,8 @@ export function ValueChart({
   source,
   updatedAt,
   embedded = false,
-  apyLow,
-  apyHigh,
+  apyLow: _apyLow,
+  apyHigh: _apyHigh,
 }: ValueChartProps) {
   const uid = useId();
   const [range, setRange] = useState<ChartTimeRange>("30d");
@@ -173,21 +172,10 @@ export function ValueChart({
             <div className="pf-vc-header__row2">
               <div className="pf-vc-balance">
                 <span className="pf-vc-balance__sym">$</span>
-                <span className="pf-hero-kpi-value">
+                <span className="text-hero tabular">
                   {formatUsdDetailed(chartValue).replace("$", "")}
                 </span>
               </div>
-              {apyLow !== undefined && apyHigh !== undefined && (
-                <div className="pf-vc-apy">
-                  <span className="pf-vc-apy__dot" aria-hidden />
-                  <span className="pf-vc-apy__label">APY</span>
-                  <ApyRange
-                    low={apyLow}
-                    high={apyHigh}
-                    className="text-(length:--ct-text-sm) font-semibold text-secondary tracking-tight"
-                  />
-                </div>
-              )}
             </div>
           )}
         </div>

@@ -74,6 +74,29 @@ Files:
 
 ---
 
+### squad/portfolio-premium-foundations
+Owner: Agent — Portfolio Premium Foundations (DS tokens + DOM cleanup)
+Branch: main (worktree shared)
+Released: 2026-06-26
+Status: merged
+Files:
+- src/app/cockpit.css (DS tokens foundations)
+- src/app/(product)/portfolio/page.tsx (DOM cleanup, flat modules)
+- src/app/(product)/portfolio/portfolio.css (flat modules styles)
+- scripts/ds-token-allowlist.json (allowlist update)
+- docs/DESIGN_SYSTEM.md (doc update)
+- docs/DS_SINGLE_SOURCE_OF_TRUTH.md (doc update)
+
+Result:
+- Updated DS tokens for premium fintech look (tinted surfaces, softened text, fine hairlines).
+- Portfolio cleanup: support modules passed to flat rendering, cage-in-cage removed, hairlines added.
+- PositionCards remains the primary opaque surface.
+- Quality gate findings (185 clones, 10 dead code) are pre-existing in unrelated agentic modules.
+
+---
+
+---
+
 ## RELEASED LOCKS
 
 ### feat/agentic-backend-foundation

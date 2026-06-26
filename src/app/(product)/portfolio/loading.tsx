@@ -1,12 +1,11 @@
 import "./portfolio.css";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/cn";
 
-function FusedSkeleton({ variant }: { variant: "mid" | "deck" }) {
+function DeckSkeleton() {
   return (
-    <div className={cn("pf-fused-surface", `pf-fused-surface--${variant}`)}>
-      <div className="pf-fused-surface__pane">
+    <div className="pf-cockpit-panel !p-0">
+      <div className="pf-deck-grid">
         <div className="pf-embedded-pane">
           <div className="pf-cockpit-panel__header">
             <div className="flex flex-col gap-1">
@@ -33,8 +32,6 @@ function FusedSkeleton({ variant }: { variant: "mid" | "deck" }) {
             </div>
           </div>
         </div>
-      </div>
-      <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">
         <div className="pf-embedded-pane">
           <div className="pf-cockpit-panel__header">
             <div className="flex flex-col gap-1">
@@ -116,8 +113,8 @@ export default function PortfolioLoading() {
         </div>
 
         <div className="pf-cockpit-row pf-cockpit-row--yield">
-          <div className="pf-cockpit-cell">
-            <div className="pf-cockpit-panel cy-panel">
+          <div className="pf-cockpit-panel !p-0">
+            <div className="pf-embedded-pane">
               <div className="pf-cockpit-panel__header">
                 <Skeleton className="h-6 w-48 opacity-40" />
                 <Skeleton className="h-6 w-24 opacity-20" />
@@ -149,29 +146,31 @@ export default function PortfolioLoading() {
         </div>
 
         <div className="pf-cockpit-row pf-cockpit-row--deck">
-          <FusedSkeleton variant="deck" />
+          <DeckSkeleton />
         </div>
 
         <div className="pf-cockpit-row pf-cockpit-row--positions">
-          <div className="pf-cockpit-cell">
-            <div className="pf-positions-stack">
-              {[0, 1].map((i) => (
-                <div key={i} className="pf-position-card h-[88px] p-6 flex items-center gap-6">
-                  <div className="flex-1">
-                    <Skeleton className="h-7 w-48 mb-2" />
-                    <Skeleton className="h-5 w-24" />
+          <div className="pf-cockpit-panel !p-0">
+            <div className="pf-embedded-pane">
+              <div className="pf-positions-stack">
+                {[0, 1].map((i) => (
+                  <div key={i} className="pf-position-card h-[88px] p-6 flex items-center gap-6">
+                    <div className="flex-1">
+                      <Skeleton className="h-7 w-48 mb-2" />
+                      <Skeleton className="h-5 w-24" />
+                    </div>
+                    <div className="w-32">
+                      <Skeleton className="h-5 w-16 mb-2" />
+                      <Skeleton className="h-7 w-24" />
+                    </div>
+                    <div className="w-32">
+                      <Skeleton className="h-5 w-16 mb-2" />
+                      <Skeleton className="h-7 w-20" />
+                    </div>
+                    <Skeleton className="h-6 w-6 rounded shrink-0" />
                   </div>
-                  <div className="w-32">
-                    <Skeleton className="h-5 w-16 mb-2" />
-                    <Skeleton className="h-7 w-24" />
-                  </div>
-                  <div className="w-32">
-                    <Skeleton className="h-5 w-16 mb-2" />
-                    <Skeleton className="h-7 w-20" />
-                  </div>
-                  <Skeleton className="h-6 w-6 rounded shrink-0" />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

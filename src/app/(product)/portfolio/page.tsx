@@ -1,6 +1,7 @@
 import "./portfolio.css";
 
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
+import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionCards } from "@/components/portfolio/position-badges";
@@ -61,52 +62,58 @@ export default async function PortfolioPage() {
 
       <div className="pf-cockpit">
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
-          <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper">
-              <ValueChart
-                positions={positions}
+          <PfCockpitPanel variant="wide" aria-label="Portfolio overview hero" className="!p-0">
+            <div className="pf-hero-grid">
+              <div className="pf-main-chart-wrapper">
+                <ValueChart
+                  positions={positions}
+                  totalValueUsdc={data.totalValueUsdc}
+                  valueChartTransactions={data.valueChartTransactions}
+                  hourlySnapshots={data.hourlyValueSnapshots}
+                  source={source}
+                  updatedAt={updatedAt}
+                  embedded={true}
+                  apyLow={yieldStackProps.blendedLow}
+                  apyHigh={yieldStackProps.blendedHigh}
+                />
+              </div>
+              <PortfolioStatusPanel
+                hasPositions={hasPositions}
+                positionsCount={positionsCount}
+                deployedUsdc={deployedUsdc}
                 totalValueUsdc={data.totalValueUsdc}
-                valueChartTransactions={data.valueChartTransactions}
-                hourlySnapshots={data.hourlyValueSnapshots}
+                accruedYieldUsdc={accruedYieldUsdc}
                 source={source}
-                updatedAt={updatedAt}
                 embedded={true}
-                apyLow={yieldStackProps.blendedLow}
-                apyHigh={yieldStackProps.blendedHigh}
+                updatedAt={updatedAt ?? undefined}
               />
             </div>
-            <PortfolioStatusPanel
-              hasPositions={hasPositions}
-              positionsCount={positionsCount}
-              deployedUsdc={deployedUsdc}
-              totalValueUsdc={data.totalValueUsdc}
-              accruedYieldUsdc={accruedYieldUsdc}
-              source={source}
-              embedded={true}
-              updatedAt={updatedAt ?? undefined}
-            />
-          </div>
+          </PfCockpitPanel>
         </section>
 
         <section className="pf-cockpit-row pf-cockpit-row--yield" aria-label="Capital and yield allocation">
-          <div className="pf-cockpit-cell">
+          <PfCockpitPanel variant="wide" aria-label="Capital and yield" className="!p-0">
             <CapitalYield
               {...yieldStackProps}
               buckets={allocationDonutProps.buckets}
               totalValueUsdc={data.totalValueUsdc}
               hasActivePosition={hasPositions}
               leafHref="/portfolio/yield"
-              embedded={false}
+              embedded={true}
             />
-          </div>
+          </PfCockpitPanel>
         </section>
 
         <section
           className="pf-cockpit-row pf-cockpit-row--deck"
           aria-label="Portfolio distributions and activity"
         >
-          <div className="pf-fused-surface pf-fused-surface--deck">
-            <div className="pf-fused-surface__pane">
+          <PfCockpitPanel
+            variant="wide"
+            aria-label="Distributions and activity"
+            className="!p-0"
+          >
+            <div className="pf-deck-grid">
               <DistribCalendar
                 {...distribCalendarProps}
                 leafHref="/portfolio/distributions"
@@ -116,8 +123,6 @@ export default async function PortfolioPage() {
                 nextDistributionAt={data.nextDistributionAt}
                 hasActivePosition={hasPositions}
               />
-            </div>
-            <div className="pf-fused-surface__pane pf-fused-surface__pane--aside">
               <RecentActivity
                 transactions={data.recentTransactions}
                 source={source}
@@ -126,17 +131,17 @@ export default async function PortfolioPage() {
                 embedded={true}
               />
             </div>
-          </div>
+          </PfCockpitPanel>
         </section>
 
         <section className="pf-cockpit-row pf-cockpit-row--positions" aria-label="Your positions">
-          <div className="pf-cockpit-cell" data-section="positions">
+          <PfCockpitPanel variant="wide" aria-label="Your positions" className="!p-0">
             <PositionCards
               positions={positions}
               leafHref="/portfolio/positions"
-              embedded={false}
+              embedded={true}
             />
-          </div>
+          </PfCockpitPanel>
         </section>
       </div>
     </div>

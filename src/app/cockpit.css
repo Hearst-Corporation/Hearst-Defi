@@ -25,6 +25,7 @@
 
   /* Dérivés d'accent — dérivés du vert canonique. */
   --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
+  --ct-accent-muted:  color-mix(in oklab, var(--ct-accent) 40%, transparent);
   --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
 
   /* Texte DANS les cards noires → corps blanc, lisible.
@@ -33,7 +34,7 @@
      --ct-text-primary / --ct-text-body : source unique cockpit-shell/tokens.css
      (valeurs strictement identiques — ex-doublons miroir retirés pour tuer le
      faux positif ds-token-drift, ils cascadent du shell). */
-  --ct-text-strong:  #ffffff;
+  --ct-text-strong:  rgba(255, 255, 255, 0.94);
   --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
   --ct-text-faint:   rgba(245, 245, 245, 0.40);
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
@@ -64,7 +65,7 @@
   --ct-chart-area-top: var(--ct-figma-accent-area-top);
   --ct-chart-area-bottom: var(--ct-figma-accent-area-bottom);
   /* Chrome sombre — overlays blancs Figma (remplace les color-mix approximatifs). */
-  --ct-border-soft: var(--ct-figma-border-5);
+  --ct-border-soft: rgba(255, 255, 255, 0.04);
   --ct-border: var(--ct-figma-border-10);
   --ct-border-strong: var(--ct-figma-border-20);
   --ct-border-on-dark: var(--ct-figma-border-10);
@@ -86,11 +87,11 @@
   /* ── FONDS DE SURFACES — charcoal étagé, opaque (palette Figma Hearst Flow) ──
      Fond global = #0E0F0F. Les surfaces montent du fond vers le clair pour la
      profondeur. surface-0 = niveau du fond (rails/chat), cards au-dessus. */
-  --ct-surface-0: #060708;
-  --ct-surface-1: #1C1D21;
-  --ct-surface-1-hi: #202228; /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
-  --ct-surface-2: #26272D;
-  --ct-surface-3: #2E3038;
+  --ct-surface-0: color-mix(in oklch, #060708, var(--ct-accent) 0%);
+  --ct-surface-1: color-mix(in oklch, #1C1D21, var(--ct-accent) 0%);
+  --ct-surface-1-hi: color-mix(in oklch, #202228, var(--ct-accent) 0%); /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
+  --ct-surface-2: color-mix(in oklch, #26272D, var(--ct-accent) 0%);
+  --ct-surface-3: color-mix(in oklch, #2E3038, var(--ct-accent) 0%);
 
   /* Graphite module surfaces — solid black plates (no gradient, no glass).
      L1 box = surface-1 (pour détacher du fond bg-deep); nested inset = surface-2. */
@@ -168,13 +169,13 @@
   --ct-scrollbar-size: 6px;
 
   /* Ambient shell overlay (`.ct-panels-row::after`) — calibration knobs only. */
-  --ct-ambient-glow-opacity: 0.80;
-  --ct-ambient-glow-mix-primary: 14%;
-  --ct-ambient-glow-mix-secondary: 10%;
-  --ct-ambient-glow-mix-fade-a: 5%;
-  --ct-ambient-glow-mix-fade-b: 3%;
-  --ct-ambient-glow-bg-top: 16%;
-  --ct-ambient-glow-bg-bottom: 36%;
+  --ct-ambient-glow-opacity: 0.15;
+  --ct-ambient-glow-mix-primary: 0%;
+  --ct-ambient-glow-mix-secondary: 0%;
+  --ct-ambient-glow-mix-fade-a: 0%;
+  --ct-ambient-glow-mix-fade-b: 0%;
+  --ct-ambient-glow-bg-top: 0%;
+  --ct-ambient-glow-bg-bottom: 0%;
   /* Spatial background gradient stops — semantic aliases (V4 absorption, SSOT §3).
      The shell radial/ambient light reads stop-1 (near, brighter) → stop-2 (far,
      fade). Alias the existing calibrated bg-top/bottom mix ratios; no new value,
@@ -3890,6 +3891,55 @@ button.ct-choice-card {
   /* Au-dessus du fond d'ambiance, sous la pastille bottom-bar flottante. */
   position: relative;
   z-index: 11;
+  overflow: visible;
+}
+
+/* Dissolve unique — voile blur porté par le footer (pas de surcouche sur main).
+   Bande courte mais très diffuse en haut : blur fort + masque long transparent,
+   teinte noire seulement sur le dernier tiers (évite le bloc plein haut→bas). */
+.ct-root > .app-footer--compact::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: clamp(var(--ct-space-12), 16vh, var(--ct-space-20));
+  pointer-events: none;
+  backdrop-filter: var(--ct-blur-3xl);
+  -webkit-backdrop-filter: var(--ct-blur-3xl);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgb(0 0 0 / 0.25) 72%,
+    rgb(0 0 0 / 0.65) 88%,
+    #000 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgb(0 0 0 / 0.25) 72%,
+    rgb(0 0 0 / 0.65) 88%,
+    #000 100%
+  );
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 60%,
+    color-mix(in srgb, var(--ct-bg-black) 8%, transparent) 82%,
+    color-mix(in srgb, var(--ct-bg-black) 28%, transparent) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-root > .app-footer--compact::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    mask-image: none;
+    -webkit-mask-image: none;
+    background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  }
 }
 
 /* La pastille menu flottante (.ct-bottom-bar, absolute bottom:1.5rem) s'ancre
@@ -3920,49 +3970,6 @@ button.ct-choice-card {
   background: linear-gradient(to bottom, transparent 0%, var(--ct-bg-deep) 100%);
   pointer-events: none;
   z-index: 10;
-}
-
-/* Centre dissolve — voile blur collé au bas du scrollport (main), pas fixed sur
-   page-area : fixed ne recouvrait pas le body central (seuls rails/chat masquaient).
-   ::after sticky + marge négative = le contenu qui scroll passe sous le flou. */
-.ct-root:has(> .app-footer) .ct-page-area > :has(> main#main-content) > main#main-content,
-.ct-root:has(> .app-footer) .ct-page-area > main#main-content {
-  --ct-scroll-dissolve-h: clamp(var(--ct-space-10), 12vh, var(--ct-space-16));
-}
-
-.ct-root:has(> .app-footer) .ct-page-area > :has(> main#main-content) > main#main-content::after,
-.ct-root:has(> .app-footer) .ct-page-area > main#main-content::after {
-  content: "";
-  position: sticky;
-  bottom: 0;
-  display: block;
-  flex: 0 0 auto;
-  width: 100%;
-  height: var(--ct-scroll-dissolve-h);
-  margin-top: calc(-1 * var(--ct-scroll-dissolve-h));
-  pointer-events: none;
-  z-index: var(--ct-z-raised);
-  backdrop-filter: var(--ct-blur-md);
-  -webkit-backdrop-filter: var(--ct-blur-md);
-  mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 50%,
-    color-mix(in srgb, var(--ct-bg-black) 65%, transparent) 100%
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ct-root:has(> .app-footer) .ct-page-area > :has(> main#main-content) > main#main-content::after,
-  .ct-root:has(> .app-footer) .ct-page-area > main#main-content::after {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    mask-image: none;
-    -webkit-mask-image: none;
-    background: linear-gradient(to bottom, transparent, var(--ct-bg-deep));
-  }
 }
 
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──

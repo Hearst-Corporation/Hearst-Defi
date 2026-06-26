@@ -76,7 +76,7 @@ dans `cockpit.css` (pattern établi : Sonner, rails).
 
 `--ct-radius-sm .375 / md .5 / lg .75 / xl 1rem / full 9999px`.
 Z : `base 1 · raised 10 · rail 50 · overlay/​tooltip 100 · modal 1000`.
-Transition : `var(--ct-dur-base) 180ms` + `var(--ct-ease) cubic-bezier(.2,.7,.2,1)`.
+Transition : `var(--ct-dur-base) 220ms` + `var(--ct-ease) cubic-bezier(.2,.7,.2,1)`.
 
 ## 4. Typographie
 

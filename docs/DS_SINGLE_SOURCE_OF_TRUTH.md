@@ -84,10 +84,22 @@ canonical value or extend the scale — none duplicates a value or introduces a 
 | `--ct-ambient-stop-1` | `cockpit.css` | `var(--ct-ambient-glow-bg-top)` | Spatial radial near stop | — |
 | `--ct-ambient-stop-2` | `cockpit.css` | `var(--ct-ambient-glow-bg-bottom)` | Spatial radial far stop | — |
 
+### 3.2 Lot B — Portfolio Premium Foundations (2026-06-26)
+
+Foundations for the fintech institutionnelle premium look.
+
+| Token | File | Value / alias | V4 concept |
+|---|---|---|---|
+| `--ct-accent-muted` | `cockpit.css` | `color-mix(in oklab, var(--ct-accent) 40%, transparent)` | Secondary accent for muted elements |
+| `--ct-text-strong` | `cockpit.css` | `rgba(255, 255, 255, 0.92)` | Softened contrast for institutional feel |
+| `--ct-border-soft` | `cockpit.css` | `rgba(255, 255, 255, 0.04)` | Ultra-fine hairlines |
+| `--ct-surface-0..3` | `cockpit.css` | `color-mix(in oklch, #hex, var(--ct-accent) 2%)` | Tinted charcoal tiers |
+
 Primitive change: `.stat-value` gained `font-feature-settings:"tnum","ss01"`
-(expressive numerals; `tabular-nums` was already present). No page/product surface
-was touched in Lot A — wiring consumers (charts → curve aliases, hero KPI → `--ct-text-hero`)
-is **Lot B**.
+(expressive numerals; `tabular-nums` was already present). Portfolio cleanup:
+support modules (`CapitalYield`, `DistribCalendar`, `RecentActivity`) passed to
+"flat" rendering (transparent containers + hairlines) to remove cage-in-cage.
+`PositionCards` remains the primary opaque L3 surface.
 
 ---
 
