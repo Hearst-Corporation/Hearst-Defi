@@ -110,6 +110,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "product-workspace", label: "Overview", href: "/admin/product-workspace", icon: "FileText" },
       { id: "scenario-lab", label: "Scenario Lab", href: "/admin/scenario-lab", icon: "FlaskConical" },
       { id: "projection", label: "Projection", href: "/admin/projection", icon: "FileText" },
+      { id: "projection-preview", label: "Projection Preview", railLabel: "Preview", href: "/admin/projection/preview", icon: "Eye" },
     ],
   },
   {

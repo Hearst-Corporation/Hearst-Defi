@@ -16,6 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/projection-artifact-ui-wiring
+Owner: Opus Orchestrateur — Projection Artifact UI Wiring
+Branch: feat/projection-artifact-ui-wiring
+Worktree: ../connect-opus-proj-ui
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/app/admin/projection/preview/** (NEW read-only route — does NOT touch studio.tsx/page.tsx/actions.ts)
+- src/app/admin/projection/projection-preview.css (NEW scoped CSS)
+- src/components/admin/projection/** (NEW view + interactive wrapper + tests)
+- src/lib/agentic/product-projection/client.ts (NEW client helper — no engine rewrite)
+- src/components/nav/product-nav-items.ts (additive Strategy tab only)
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- UI read-only wiring for the existing ProjectionReportArtifact. No methodology v2 render.
+- No Prisma, no backend engine rewrite, no write action, no external tool, no execution.
+- No guaranteed returns; APY range only; no raw prompt/user text display.
+- Does NOT touch src/components/** owned by other agents (vault/portfolio), proof-center.
+
+---
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
