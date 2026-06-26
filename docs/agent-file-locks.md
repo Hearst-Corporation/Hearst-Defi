@@ -71,31 +71,32 @@ Files:
 
 ---
 
+## RELEASED LOCKS
+
 ### feat/agentic-backend-foundation
 Owner: Opus Orchestrateur — Agentic Backend / Swarm / Crew Foundation
 Branch: feat/agentic-backend-foundation
-Worktree: ../connect-opus-agentic-backend
-Started: 2026-06-26
-Status: active
+Merged PR: #84 (merge 40e24a37)
+Released: 2026-06-26
+Status: merged
 
-Scope:
-- src/lib/agentic/swarm/** (new)
-- src/lib/agentic/action-readiness/** (additive evaluator only)
-- tests for the above
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend only — pure typed lib + tests + docs.
-- No UI/UX. No DS. No /admin/agentic visual changes.
-- No proof-center / vault / portfolio changes.
-- No dangerous execution, no send/deploy/write, no external tool calls.
-- No DB migration, no schema change, no secrets, no prompt/user-text storage.
-- Composes EXISTING crews — invents no new agents, changes no real numbers.
-
----
-
-## RELEASED LOCKS
+Result:
+- Added a pure, deterministic, read-only SWARM layer (src/lib/agentic/swarm/**) composing
+  the 6 existing crew simulations — no new agents invented, no real numbers changed, no UI,
+  no API, no DB. types.ts: SwarmExecutionMode union {simulation|dry_run|gated} makes an
+  autonomous-write swarm unrepresentable; AgenticAuditEvent carries ids + machine reason codes
+  only (no prompt/user text). registry.ts: 5 swarms (platform_reporting, lp_explainer,
+  vault_governance[dry_run], outreach_governed[gated], memory_maintenance[dry_run]).
+  simulate-swarm.ts: simulateSwarm(id) deterministic (no Date/random), aggregates blocked
+  actions/gates/confirmations, emits a pure audit trail; unknown swarm/crew → typed error, no
+  fallback. readiness.ts: evaluateActionReadiness reuses ACTION_READINESS_ITEMS + fail-safe
+  classifier — read_only→allow, draft→gated, confirmed_write→requires_human_confirmation
+  (→allow only with explicit token, never autonomous), forbidden→blocked even with token,
+  unknown write-like→blocked. safety.ts: per-swarm invariants. 26 swarm tests + 107 existing
+  crew/action tests green. docs/agentic/BACKEND_AGENTIC_FOUNDATION.md. typecheck PASS, lint 0,
+  build PASS (postgresql). All forbidden paths (admin/agentic, proof-center, portfolio, vault,
+  schema, migrations) untouched. Next lot: read-only API surface (/api/admin/agentic/registry
+  + /simulate) OR a UI topology node for swarms (separate UI lot).
 
 ### fix/prisma-worktree-isolation
 Owner: Opus Orchestrateur — Prisma Worktree Isolation
