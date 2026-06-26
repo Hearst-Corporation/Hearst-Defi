@@ -16,28 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/swarm-boundary-enforcement
-Owner: Opus Orchestrateur — Swarm Boundary Enforcement
-Branch: feat/swarm-boundary-enforcement
-Worktree: ../connect-opus-swarm-enforce
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/swarm/** (readiness, types, registry, simulate-swarm, safety, snapshot)
-- src/lib/agentic/**/__tests__/**
-- src/app/api/admin/agentic/simulate/route.ts (pass swarm context; additive reason codes)
-- scripts/agentic/calibrate-swarms.mjs
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend only. Make swarm boundaries enforceable in evaluateActionReadiness.
-- Outreach governed first. No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
-- No Prisma migration, no DB write, no dangerous execution, no external tool, no autonomous_write.
-- Does NOT touch src/components/** (another agent's active UI work).
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -95,6 +73,38 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/swarm-boundary-enforcement
+Owner: Opus Orchestrateur — Swarm Boundary Enforcement
+Branch: feat/swarm-boundary-enforcement
+Merged PR: #97 (merge d4f66296)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Made the swarm boundary enforcing in evaluateActionReadiness (was decorative metadata).
+  Swarm-aware evaluator, tightens-only: forbidden_autonomous (floor) → forbidden_by_swarm (action in
+  swarm.forbiddenActions, even WITH token) → action_out_of_swarm_scope (allowedActionIds set & action
+  not in it) → tier decision. New optional SwarmDefinition.allowedActionIds (catalog-validated by
+  assertSwarmSafe → allowed_action_not_in_catalog); evaluation gains swarmScoped:boolean;
+  SwarmSimulationError gains reasonCode. outreach_governed_swarm is the FIRST enforcing swarm
+  (draft-only scope: navigate_admin_surface/explain_product/explain_yield/draft_outreach_email/
+  create_campaign_draft; forbids send-run + lead-sourcing + tier-A); other 4 stay tier-only
+  (backward-compatible). Reason codes: + forbidden_by_swarm, action_out_of_swarm_scope,
+  swarm_not_registered, crew_unavailable; split crew_mode_blocked → crew_blocked_forbidden/
+  crew_blocked_missing_confirmation; renamed confirmed_write_token_present →
+  human_confirmation_token_present; kept unknown_tier_blocked as fail-closed guard. simulate route
+  threads simulation.swarm + surfaces error reasonCode; registry snapshot exposes allowedActionIds.
+  New swarm-boundary-enforcement.test.ts; calibration net + calibrate-swarms.mjs made scope-aware.
+  Verified live (:4108): in-scope reachable, read_observability → action_out_of_swarm_scope,
+  outreach_trigger_send_run+token → forbidden_by_swarm, deploy_product+token → forbidden_autonomous,
+  unknown swarm → swarm_not_registered, confirmed_write+token (unscoped) → human_confirmation_token_present.
+  typecheck PASS, build PASS (postgresql), 539 agentic tests pass (2 pre-existing reporting-crew DB
+  tests rouge = env client-provider mismatch). Endpoints non-breaking (sideEffects/businessSideEffects
+  false, no raw payload, unknown swarm 404). No autonomous_write, no real execution, no external tool,
+  no Prisma/migration, no UI/DS. Did NOT touch src/components/** (another agent's UI). Next lot: extend
+  enforced allowedActionIds scopes to the other 4 swarms (vault_governance/lp_explainer/
+  platform_reporting/memory_maintenance) to graduate them from theoretical/weak.
 
 ### chore/swarm-calibration
 Owner: Opus Orchestrateur — Swarm Calibration
