@@ -16,111 +16,12 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### agent/portfolio-status-ds-absorption
-Owner: Agent — Portfolio Status DS Absorption
-Branch: main (worktree shared)
-Reserved: 2026-06-26
-Note: user-authorized override of the active portfolio layout lock for the narrow
-      scope "promote PortfolioStatusPanel header grammar into PfCockpitPanelHeader"
-      plus the user-authorized cockpit.css global scale rollback needed to restore
-      shell dimensions. No chart/yield/layout sweep beyond that.
-Files:
-- src/components/portfolio/pf-cockpit-panel.tsx
-- src/components/portfolio/portfolio-status-panel.tsx
-- src/app/(product)/portfolio/portfolio.css (PfCockpitPanelHeader + pf-sp2 header/status blocks only)
-- src/components/portfolio/__tests__/portfolio-headers.test.tsx
-- src/app/cockpit.css (global root font-size rollback only)
-
----
-
-### agent/value-chart-recode
-Owner: Agent — Value Chart Recode
-Branch: main (worktree shared)
-Reserved: 2026-06-26
-Note: user-authorized override of the active chart lock to rebuild the portfolio
-      value chart from scratch without widening into unrelated data/feed work.
-Files:
-- src/components/portfolio/value-chart.tsx
-- src/components/portfolio/chart/**
-- src/lib/portfolio/geometry/value-series-projection.ts
-- src/lib/portfolio/geometry/svgConstants.ts
-- src/app/(product)/portfolio/portfolio.css (pf-value-chart / pf-vc-* only)
-- src/components/portfolio/__tests__/value-chart.test.tsx
-- src/lib/portfolio/geometry/__tests__/value-series-projection.test.ts
-
----
-
-### feat/portfolio-rhythm-realignment
-Owner: Agent — Portfolio Layout & Rhythm Realignment
-Branch: feat/portfolio-rhythm-realignment
-Reserved: 2026-06-26
-Note: global pass overriding/coordinating with active squads on layout concerns (spacing, padding, containers, DOM hierarchy) to ensure cross-row consistency. Squads keep logic/internals lock.
-Files:
-- src/app/(product)/portfolio/page.tsx
-- src/app/(product)/portfolio/portfolio.css
-- src/components/portfolio/value-chart.tsx
-- src/components/portfolio/portfolio-status-panel.tsx
-- docs/PORTFOLIO_LAYOUT_REFERENCE.md
-
----
-
-### feat/agentic-tower-table-console — Vault Product Flow Redesign
-Owner: Agent — Vault Product Flow Redesign (premium first-fold + stepper)
-Branch: feat/agentic-tower-table-console
-Reserved: 2026-06-26
-Note: user-authorized override of the prior zombie lock "feat/vault-detail-grammar-convergence"
-      (no active worktree/branch existed for it). Same scope, reclaimed.
-Files:
-- src/app/(product)/vaults/[id]/page.tsx
-- src/components/vaults/invest-flow-shell.tsx
-- src/components/ui/wizard-step-progress.tsx
-- src/components/vaults/step-progress.tsx
-- src/app/cockpit.css (wizard-step-progress block + headline/fixed type-scale
-    tokens — P0 regression revert: commit 75ba7dfa inflated the -fixed tier ~1.6×,
-    restored to canon 18/20/24/28/32/40px. User-authorized 2026-06-26.)
-- src/app/doc-flow.css (invest-flow-shell + vault-detail-overview blocks only)
-
----
-
-### squad/capital-yield-dimension-cleanup
-Owner: Agent 1/4 — Capital & Yield Dimension Cleanup Squad
-Branch: main (worktree shared — Capital & Yield scope only)
-Reserved: 2026-06-26
-Files:
-- src/components/portfolio/capital-yield.tsx
-- src/components/portfolio/__tests__/capital-yield.test.tsx
-- src/app/(product)/portfolio/portfolio.css (cy-panel / cy-v5-* blocks only)
-- src/app/(product)/portfolio/loading.tsx (cy-v5 skeleton only)
-- src/app/(product)/portfolio/page.tsx (CapitalYield props / pf-cockpit-row--yield only — no other rows)
-
----
-
-### squad/portfolio-value-chart-rebuild
-Owner: Agent 3/4 — Portfolio Value Chart Rebuild Squad
-Branch: main (worktree shared — chart scope only)
-Reserved: 2026-06-26
-Files:
-- src/components/portfolio/value-chart.tsx
-- src/components/portfolio/chart/**
-- src/lib/portfolio/value-series.ts
-- src/lib/portfolio/investor-nav-snapshot.ts
-- src/lib/portfolio/geometry/value-series-projection.ts
-- src/lib/portfolio/geometry/svgConstants.ts
-- src/lib/data/portfolio.ts (hourlyValueSnapshots feed)
-- src/lib/inngest/functions/investor-nav-snapshot-hourly.ts
-- prisma/schema.prisma (InvestorNavSnapshot model)
-- prisma/migrations/20260626120000_add_investor_nav_snapshot/**
-- src/app/api/inngest/route.ts (register investor-nav-snapshot-hourly)
-- src/app/(product)/portfolio/page.tsx (ValueChart prop wiring only)
-- src/app/(product)/portfolio/portfolio.css (pf-value-chart / pf-vc-* blocks only)
-- scripts/seed-dev-position.ts (hourly NAV dev_seed backfill)
-- related tests under src/components/portfolio/__tests__/value-chart.test.tsx
-- src/lib/portfolio/__tests__/value-series.test.ts
-- src/lib/portfolio/__tests__/investor-nav-snapshot.test.ts
-- src/lib/inngest/functions/__tests__/investor-nav-snapshot-hourly.test.ts
-- src/lib/portfolio/geometry/__tests__/value-series-projection.test.ts
-
----
+> NOTE 2026-06-27 : locks fantômes portfolio/vault purgés (agents finis sur main,
+> aucun worktree/branche dédiée vivante). Le chantier "recode des surfaces A→Z"
+> (Catalyst + DS) reprend la main sur portfolio/vaults. Locks retirés :
+> portfolio-status-ds-absorption, value-chart-recode, portfolio-rhythm-realignment,
+> agentic-tower-table-console (vault flow), capital-yield-dimension-cleanup,
+> portfolio-value-chart-rebuild.
 
 ### fix/outreach-draft-continuity
 Owner: Opus Orchestrateur — Outreach Regex Router / Campaign Continuity
@@ -163,6 +64,30 @@ Result:
 - Quality gate findings (185 clones, 10 dead code) are pre-existing in unrelated agentic modules.
 
 ---
+
+### feat/defi-market-data
+Owner: Agent — DeFi Market Data Loaders (free APIs)
+Branch: feat/defi-market-data (worktree ../connect-defi-market-data)
+Reserved: 2026-06-27
+Note: NEW data-layer module — free crypto/DeFi market feeds (Binance REST price,
+      Chainlink on-chain stablecoin prices + DefiLlama fallback, DefiLlama lending
+      yields per protocol, DefiLlama protocol TVL). All files are new except the
+      env.ts additions (additive optional env vars only). Does NOT touch the locked
+      src/lib/data/portfolio.ts or any portfolio/vault UI under squad locks.
+Files:
+- src/lib/data/binance-price.ts
+- src/lib/data/stablecoin-prices.ts
+- src/lib/data/lending-yields.ts
+- src/lib/data/protocol-tvl.ts
+- src/lib/data/__tests__/binance-price.test.ts
+- src/lib/data/__tests__/stablecoin-prices.test.ts
+- src/lib/data/__tests__/lending-yields.test.ts
+- src/lib/data/__tests__/protocol-tvl.test.ts
+- src/lib/env.ts (additive optional vars only: ETH_RPC_URL, Chainlink stablecoin
+    aggregator overrides, BINANCE_API_BASE_URL, DEFILLAMA_* base URLs — no edits to
+    existing fields)
+- src/lib/circuit-breaker.ts (additive `reset()` method only — test isolation;
+    zero runtime behavior change, benefits the existing defillama.ts breaker too)
 
 ---
 
