@@ -16,7 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
@@ -73,6 +72,22 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### fix/portfolio-qa-hardcode
+Owner: Agent — Portfolio QA Hardcode Removal
+Branch: fix/portfolio-qa-hardcode
+Released: 2026-06-26
+Status: merged
+
+Scope:
+- src/app/(product)/portfolio/page.tsx
+
+Result:
+- Removed the temporary QA donut hardcode from the portfolio hub and re-wired `CapitalYield`
+  to real loader-backed data (`yieldStackProps`, `allocationDonutProps`, `totalValueUsdc`,
+  `source`, `updatedAt`), restoring the honest empty state for users without active positions.
+
+---
 
 ### feat/projection-preview-editable-inputs
 Owner: Opus Orchestrateur — Projection Preview Editable Inputs
