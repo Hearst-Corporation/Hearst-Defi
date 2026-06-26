@@ -5536,6 +5536,25 @@ main#main-content>.admin-doc.admin-doc-shell {
   }
 }
 
+/* Icon-only rail from ≤1440px down to the 900px bottom-bar handoff. At these
+   widths --ct-rail-left drops to the "icon rail" sizes (80px → 72px), where the
+   permanent text label (Portfolio/Vaults/Proofs/Admin) crowds the narrowed
+   column. Per the rail intent ("icon rail" at line 5533): drop the label and
+   keep ONLY the icon, centred, with the item collapsed to a square tap target.
+   The vertical rail is preserved here; the <900px rule still takes over with the
+   horizontal bottom bar. Labels return ≥1440px where the column has room.
+   Tooltip role stays via aria-label/title on the <Link> (set in RailItem). */
+@media (max-width: 90rem) and (min-width: 56.3125rem) {
+  .ct-rail-intra .ct-rail-item-tooltip { display: none; }
+  .ct-rail-intra .ct-rail-item {
+    gap: 0;
+    min-height: clamp(3rem, 2.6rem + 1vw, 3.75rem); /* square-ish icon target */
+    padding-block: clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem);
+    justify-items: center;
+    align-items: center;
+  }
+}
+
 /* Petit laptop / grande tablette paysage (1024–1200px) — le chat ouvert se
    resserre encore (centre prioritaire) mais reste utilisable. Rail gauche 72px. */
 @media (max-width: 74.999rem) and (min-width: 64rem) {
