@@ -16,30 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-simulation-aggregates
-Owner: Opus Orchestrateur — Agentic Simulation Aggregates API
-Branch: feat/agentic-simulation-aggregates
-Worktree: ../connect-opus-agentic-agg
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/observability/simulation-aggregates.ts (new)
-- src/lib/agentic/observability/index.ts (additive exports only)
-- src/app/api/admin/agentic/simulations/aggregates/** (new read endpoint)
-- tests for the above
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend read-only aggregates only, over the existing Redis+memory trace store.
-- No UI/UX. No DS. No /admin/agentic visual changes.
-- No proof-center / vault / portfolio changes.
-- No Prisma migration, no DB write, no business mutation.
-- No raw prompt / user text / payload / secrets. No external tools.
-
----
-
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
@@ -96,6 +72,31 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-simulation-aggregates
+Owner: Opus Orchestrateur — Agentic Simulation Aggregates API
+Branch: feat/agentic-simulation-aggregates
+Merged PR: #90 (merge 184d3126)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Added GET /api/admin/agentic/simulations/aggregates — read-only, metadata-only roll-up over
+  the existing Redis-capped + in-memory simulation trace store (NO DB, NO migration, NO mutation).
+  New pure src/lib/agentic/observability/simulation-aggregates.ts:
+  aggregateAgenticSimulationTraces(traces, {window?, nowMs?, topReasonCodesLimit?}) — deterministic
+  (window cutoff injected, reads no clock), rolls up totals + bySwarm + byMode + byReadinessOutcome
+  + topReasonCodes (sorted count desc/key asc, codes capped 10), copies only allowlisted numeric/id/
+  code fields → emits no raw trace body / no free text. parseSimulationWindow validates 1h|24h|7d|all.
+  Endpoint admin-only, no-store, limit clamped [1,200], window default all; imports the specific obs
+  modules (not the router barrel) to avoid the Prisma chain; store unavailable → safe 200
+  {available:false, reason:"store_unavailable", aggregates:<empty>}, never a stack/secret; 400 on
+  invalid limit/window. 28 tests (45/45 agentic api+obs total). docs/agentic/
+  AGENTIC_SIMULATION_OBSERVABILITY.md updated. typecheck PASS, my files lint clean, build PASS
+  (postgresql). Runtime smoke (:4106, real Redis): available:true metadataOnly:true, limit/window
+  applied, clamp 200, no id/createdAt/prompt leaked. No UI/DS/admin-agentic-visual/proof-center/
+  portfolio/vault change. Next lot: a Control Tower UI view consuming registry/simulate/simulations/
+  aggregates read-only (separate UI lot) — the backend agentic read/observe surface is now complete.
 
 ### feat/agentic-simulation-observability
 Owner: Opus Orchestrateur — Agentic Simulation Observability
