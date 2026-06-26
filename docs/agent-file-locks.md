@@ -16,6 +16,53 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### agent/portfolio-css-dead-code-cleanup
+Owner: Agent — Portfolio CSS Dead Code Cleanup
+Branch: main (worktree shared)
+Reserved: 2026-06-26
+Note: Surgical cleanup of orphaned CSS (pf-pair-grid, unused data-section selectors, 
+      duplicate @container rules). Does NOT touch active component blocks owned by squads.
+Files:
+- src/app/(product)/portfolio/portfolio.css (orphaned .pf-pair-grid, data-section, 
+  duplicate @container cascade sections 14/14b cleanup ONLY)
+- src/components/portfolio/__tests__/portfolio-headers.test.tsx (phantom class fix)
+
+---
+
+### agent/portfolio-status-ds-absorption
+Owner: Agent — Portfolio Status DS Absorption
+Branch: main (worktree shared)
+Reserved: 2026-06-26
+Note: user-authorized override of the active portfolio layout lock for the narrow
+      scope "promote PortfolioStatusPanel header grammar into PfCockpitPanelHeader"
+      plus the user-authorized cockpit.css global scale rollback needed to restore
+      shell dimensions. No chart/yield/layout sweep beyond that.
+Files:
+- src/components/portfolio/pf-cockpit-panel.tsx
+- src/components/portfolio/portfolio-status-panel.tsx
+- src/app/(product)/portfolio/portfolio.css (PfCockpitPanelHeader + pf-sp2 header/status blocks only)
+- src/components/portfolio/__tests__/portfolio-headers.test.tsx
+- src/app/cockpit.css (global root font-size rollback only)
+
+---
+
+### agent/value-chart-recode
+Owner: Agent — Value Chart Recode
+Branch: main (worktree shared)
+Reserved: 2026-06-26
+Note: user-authorized override of the active chart lock to rebuild the portfolio
+      value chart from scratch without widening into unrelated data/feed work.
+Files:
+- src/components/portfolio/value-chart.tsx
+- src/components/portfolio/chart/**
+- src/lib/portfolio/geometry/value-series-projection.ts
+- src/lib/portfolio/geometry/svgConstants.ts
+- src/app/(product)/portfolio/portfolio.css (pf-value-chart / pf-vc-* only)
+- src/components/portfolio/__tests__/value-chart.test.tsx
+- src/lib/portfolio/geometry/__tests__/value-series-projection.test.ts
+
+---
+
 ### feat/portfolio-rhythm-realignment
 Owner: Agent — Portfolio Layout & Rhythm Realignment
 Branch: feat/portfolio-rhythm-realignment

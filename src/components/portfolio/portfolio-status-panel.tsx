@@ -1,9 +1,11 @@
 import { ShieldCheck, TrendingUp, Layers, Wallet, ArrowDownToLine } from "lucide-react";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
+import {
+  PfCockpitPanel,
+  PfCockpitPanelHeader,
+} from "@/components/portfolio/pf-cockpit-panel";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 
 const DASH = "—";
 
@@ -61,18 +63,19 @@ export function PortfolioStatusPanel({
       className="pf-status-panel p-0!"
     >
       <div className="pf-sp2-header">
-        <div className="pf-sp2-header__top">
-          <div className="pf-sp2-header__title-row">
-            <span className="pf-sp2-title">Portfolio Status</span>
-            {isLive ? (
-              <span className="pf-sp2-live-pill" aria-label="Live data">
-                <span className="pf-sp2-live-dot" aria-hidden="true" />
+        <PfCockpitPanelHeader
+          title="Portfolio Status"
+          titleVariant="primary"
+          titleEnd={
+            isLive ? (
+              <span className="pf-cockpit-panel__title-pill" aria-label="Live data">
+                <span className="pf-cockpit-panel__title-pill-dot" aria-hidden="true" />
                 Live
               </span>
-            ) : null}
-          </div>
-          {provenance ? <ProvenanceBadge kind={provenance} compact /> : null}
-        </div>
+            ) : undefined
+          }
+          provenance={provenance}
+        />
 
         {hasPositions ? (
           <div

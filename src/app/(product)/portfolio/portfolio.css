@@ -242,48 +242,10 @@
 }
 
 /* =============================================================================
-   PAIR GRID — niveau 2 (Positions | Capital & Yield). Same fused grammar as the
-   deck: ONE master plate, two flat .pf-embedded-pane children split by a single
-   hairline (TOP when stacked, LEFT when 2-col). Each pane is its OWN inline-size
-   container (pfpane) so wide modules (Capital & Yield donut+legend, the
-   position-card metric grid) reflow to the PANE width — never squeezed by the
-   row split (the @container pf rules elsewhere only fire on a narrow PAGE).
+   RESPONSIVE HELPERS — hero mobile reflow
    ============================================================================= */
-.pf-pair-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  min-width: 0;
-  min-height: 0;
-}
 
-.pf-pair-grid > .pf-embedded-pane {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  container-type: inline-size;
-  container-name: pfpane;
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  gap: var(--ct-space-3);
-  position: relative;
-  z-index: 1;
-}
-
-/* Positions pane pads via the rule above — drop the stack's own inset so the
-   cards align to the pane edge (single inset, no cage-in-cage doubling). */
-.pf-pair-grid > .pf-positions-badges .pf-positions-stack {
-  padding: 0;
-}
-
-/* Stacked default — second pane split by a TOP hairline. */
-.pf-pair-grid > .pf-embedded-pane + .pf-embedded-pane {
-  border-top: 1px solid var(--ct-graphite-border-nested);
-}
-
-@container pf (max-width: 52.999rem) {
+@container pf (max-width: 799.98px) {
   .pf-hero-grid .pf-main-chart-wrapper {
     border-left: 0;
   }
@@ -416,24 +378,12 @@
   display: none;
 }
 
-.pf-cockpit-cell[data-section="activity-payouts"] .pf-cockpit-panel,
-.pf-cockpit-cell[data-section="yield-trust"] .pf-cockpit-panel {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-
 .pf-hero-grid > .pf-status-panel {
   /* De-boxed: no panel surface of its own (welded inside the single hero panel).
      Only the internal separator hairline remains — its side (left vs top) is set
      by the responsive rules below, so we must NOT blanket-reset `border` here. */
   background: transparent !important;
   box-shadow: none !important;
-}
-
-.pf-cockpit-cell[data-section="activity-payouts"],
-.pf-cockpit-cell[data-section="yield-trust"] {
-  position: relative;
 }
 
 /* ---- Panel header ---- */
@@ -453,6 +403,24 @@
   min-width: 0;
   min-height: var(--ct-space-8); /* Stabilize header height for alignment */
   justify-content: center;
+}
+
+.pf-cockpit-panel__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.pf-cockpit-panel__title-row > :first-child {
+  min-width: 0;
+}
+
+.pf-cockpit-panel__title-end {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
 }
 
 .pf-cockpit-panel__header-trail {
@@ -603,21 +571,6 @@
 .pf-value-chart--hero-embedded .pf-vc-header__trail {
   display: flex;
   align-self: flex-start;
-}
-
-/* Series note belongs to the chart surface, not a summary chip. */
-.pf-value-chart--hero-embedded .pf-vc-density-note {
-  display: block;
-  padding: 0;
-  font-size: var(--ct-text-micro);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-70);
-}
-
-.pf-value-chart--hero-embedded .pf-hero-kpi-block {
-  margin: 0 0 var(--ct-space-1);
 }
 
 .pf-value-chart__chart-wrapper,
@@ -797,15 +750,19 @@
   color: var(--ct-accent);
 }
 
-.pf-vc-density-note {
+.pf-vc-density-note,
+.pf-vc-inline-note {
   margin: 0;
-  padding: 0 var(--ct-space-0_5);
   font-size: var(--ct-text-nano);
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
   color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-55);
+  opacity: var(--ct-opacity-62);
   line-height: 1.2;
+}
+
+.pf-vc-inline-note {
+  padding: 0;
 }
 
 .pf-vc-header__trail {
@@ -1072,7 +1029,7 @@
 }
 
 .pf-status-panel .pf-cockpit-panel__header {
-  padding: var(--ct-space-2_5) var(--ct-space-4) var(--ct-space-1);
+  padding: 0;
   margin-bottom: 0;
 }
 
@@ -2709,9 +2666,11 @@
   .pf-cockpit-row--deck { grid-template-columns: 1fr; }
 }
 
-@container pf (min-width: 53rem) {
-  /* Hero welded grid split — 2 columns: Chart | Sidebar (53rem = 848px —
-     between doc 1-col @ 814px (1280+chat) and 2-col @ 863px (1023 chat-off). */
+@container pf (min-width: 800px) {
+  /* Hero welded grid split — 2 columns: Chart | Sidebar.
+     Use px so this layout gate stays tied to the actual content width rather
+     than drifting with the global root font-size. 800px keeps the 1280px
+     portfolio hero side-by-side while preserving a readable chart lane. */
   .pf-hero-grid {
     grid-template-columns: 1.6fr minmax(16rem, 22rem) !important;
     height: 18rem;
@@ -2758,6 +2717,28 @@
   }
 }
 
+/* Niveau 3 — support deck. DOM order = Payout (1) · Recent Activity (2).
+   Stacked (mobile): Recent surfaces ABOVE Payout (live ledger over forward
+   calendar) — prompt mobile order 4→5. Desktop ≥60rem: Payout left | Recent
+   right with a single vertical hairline left of Recent. */
+.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
+  order: -1;
+  border-top: none;
+}
+.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
+
+@container pf (min-width: 60rem) {
+  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
+    order: 0;
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
+    border-top: none;
+  }
+}
 
 /* ---- Panel-level container (each plate can host its own query) ---- */
 .pf-cockpit-panel,
@@ -2895,6 +2876,7 @@
   letter-spacing: var(--ct-tracking-tight);
 }
 
+.pf-cockpit-panel__title-pill,
 .pf-sp2-live-pill {
   display: inline-flex;
   align-items: center;
@@ -2910,6 +2892,7 @@
   letter-spacing: var(--ct-tracking-wide);
 }
 
+.pf-cockpit-panel__title-pill-dot,
 .pf-sp2-live-dot {
   width: 0.42rem;
   height: 0.42rem;
@@ -3819,6 +3802,7 @@
   align-items: baseline;
   gap: var(--ct-space-1);
   min-width: 0;
+  flex: 0 0 auto;
 }
 
 .pf-vc-balance__sym {
@@ -3838,6 +3822,29 @@
   opacity: var(--ct-opacity-70);
   margin-left: var(--ct-space-0_5);
   align-self: baseline;
+}
+
+.pf-vc-header__row2 {
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.pf-vc-inline-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  min-width: 0;
+  margin-left: auto;
+  text-align: right;
+}
+
+.pf-vc-inline-note::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--ct-accent) 70%, transparent);
 }
 
 /* APY badge inline — sits on the same baseline as the balance. */
@@ -4692,74 +4699,3 @@
   .pf-leaf-bucket-row--head .pf-leaf-bucket-num:last-child { display: none; }
 }
 
-/* =============================================================================
-   14b. TERMINAL @container CASCADE — hero/deck column splits
-   Re-declared after late layout neutralizers so W_pf tier rules always win.
-   ============================================================================= */
-
-@container pf (min-width: 53rem) {
-  .pf-hero-grid {
-    grid-template-columns: 1.6fr minmax(16rem, 22rem) !important;
-    height: 18rem;
-    min-height: 18rem;
-  }
-
-  .pf-hero-grid .pf-status-panel {
-    border-left: 1px solid var(--ct-graphite-border-nested) !important;
-    border-top: none !important;
-  }
-}
-
-@container pf (min-width: 60rem) {
-  .pf-deck-grid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
-  }
-
-  .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
-    border-top: none;
-    border-left: 1px solid var(--ct-graphite-border-nested);
-  }
-}
-
-/* =============================================================================
-   14c. NIVEAU-2 PAIR + NIVEAU-3 SUPPORT — terminal splits + support order.
-   Declared last so the W_pf tier rules always win over earlier neutralizers.
-   ============================================================================= */
-
-/* Niveau 2 — Positions (slightly wider, the prominent module) | Capital & Yield.
-   Splits at 53rem (same gate as the hero chart|status weld, so niveau-2 goes
-   2-col exactly when the hero does); below that the panes stack (mobile order:
-   Positions, then Capital & Yield). Each pane is a pfpane container, so the
-   modules reflow to the pane width — no squeeze. */
-@container pf (min-width: 53rem) {
-  .pf-pair-grid {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  }
-  .pf-pair-grid > .pf-embedded-pane + .pf-embedded-pane {
-    border-top: none;
-    border-left: 1px solid var(--ct-graphite-border-nested);
-  }
-}
-
-/* Niveau 3 — support deck. DOM order = Payout (1) · Recent Activity (2).
-   Stacked (mobile): Recent surfaces ABOVE Payout (live ledger over forward
-   calendar) — prompt mobile order 4→5. Desktop ≥60rem: Payout left | Recent
-   right with a single vertical hairline left of Recent. */
-.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
-  order: -1;
-  border-top: none;
-}
-.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
-  border-top: 1px solid var(--ct-graphite-border-nested);
-}
-
-@container pf (min-width: 60rem) {
-  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
-    order: 0;
-    border-top: none;
-    border-left: 1px solid var(--ct-graphite-border-nested);
-  }
-  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
-    border-top: none;
-  }
-}

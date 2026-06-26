@@ -5,7 +5,6 @@
  */
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
-import type { PortfolioPosition } from "@/lib/data/portfolio";
 import {
   buildPortfolioValueSeries,
   type ChartTimeRange,
@@ -32,8 +31,21 @@ const RANGE_OPTIONS: { id: ChartTimeRange; label: string }[] = [
   { id: "all", label: "ALL" },
 ];
 
+interface ValueChartPosition {
+  id: string;
+  vaultName?: string | null;
+  principalUsdc?: number;
+  accruedYieldUsdc?: number;
+  distributedUsdc?: number;
+  valueUsdc?: number;
+  status?: string;
+  apyLow?: number | null;
+  apyHigh?: number | null;
+  subscribedAt?: Date;
+}
+
 interface ValueChartProps {
-  positions: PortfolioPosition[];
+  positions: ValueChartPosition[];
   totalValueUsdc: number;
   valueChartTransactions?: ValueSeriesTx[];
   /** Hourly (or finer) NAV snapshots — wired when backend feed exists. */
@@ -71,6 +83,14 @@ export function ValueChart({
   const uid = useId();
   const anchorDate = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
+  const formattedUpdatedAt = updatedAt
+    ? new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(updatedAt)
+    : null;
 
   const [range, setRange] = useState<ChartTimeRange>(() =>
     smartDefaultRange(valueChartTransactions, anchorDate),
@@ -119,6 +139,7 @@ export function ValueChart({
   }, [builtSeries]);
 
   const { points, xTicks, yTicks } = projection;
+  const seriesNote = builtSeries?.densityNote ?? null;
   const pathOpts = useMemo(
     () => ({ step: builtSeries?.mode === "ledger_sparse" }),
     [builtSeries?.mode],
@@ -168,22 +189,20 @@ export function ValueChart({
       <header className="pf-vc-header">
         <div className="pf-vc-header__left">
           <div className="pf-vc-header__row1">
-            <h2 className="pf-cockpit-panel__title--primary tracking-wider">Portfolio Value</h2>
+            <h2 className="pf-cockpit-panel__title--primary">Portfolio Value</h2>
             {provenance ? (
               <span className="pf-vc-header__provenance">
                 {provenance === "live" ? "Live NAV" : "Estimated NAV"}
               </span>
             ) : null}
-            {updatedAt && (
-              <span className="pf-vc-header__date hidden sm:inline">
-                {new Intl.DateTimeFormat("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }).format(updatedAt)}
-              </span>
-            )}
+            {formattedUpdatedAt ? (
+              <time
+                className="pf-vc-header__date hidden sm:inline"
+                dateTime={updatedAt?.toISOString()}
+              >
+                {formattedUpdatedAt}
+              </time>
+            ) : null}
           </div>
           {!isEmpty && (
             <div className="pf-vc-header__row2">
@@ -193,6 +212,11 @@ export function ValueChart({
                   {formatUsdDetailed(chartValue).replace("$", "")}
                 </span>
               </div>
+              {seriesNote ? (
+                <span className="pf-vc-inline-note" aria-live="polite">
+                  {seriesNote}
+                </span>
+              ) : null}
             </div>
           )}
         </div>
@@ -223,12 +247,6 @@ export function ValueChart({
           </div>
         )}
       </header>
-
-      {builtSeries && !isEmpty && (
-        <p className="pf-vc-density-note" aria-live="polite">
-          {builtSeries.densityNote}
-        </p>
-      )}
 
       <div className="pf-value-chart__chart-slot">
         {isEmpty ? (

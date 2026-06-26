@@ -417,15 +417,13 @@
    px+vw (NEVER rem on `html` — that would be recursive). Floor 15px at ≤768px,
    ceiling 20px at ≥2880px, so a 2450px screen sits mid-track and keeps growing.
    Loaded after globals.css (layout.tsx import order) → this wins over
-   `html,body { font-size: var(--text-md) }`. Scaled −20% (Adrien, 2026-06-26):
-   the previous track topped out at 20px and read too large at 100% on desktop.
-   Slope/ceiling cut 20% (ceiling 20→16px); floor held a touch higher (13px) for
-   mobile legibility. Anchors: 1440→13.3px · 1920→14.2px · 2450→15.2px · 2880→16px.
+   `html,body { font-size: var(--text-md) }`. Computed with node, verified
+   (scratchpad/root.mjs): 1280→16.21px · 1920→17.73px · 2450→18.98px · 2880→20px.
    Chosen unit `vw` follows the browser window (not the centre column — opening the
    chat does not reflow type). 2026-06-26. */
 html,
 body {
-  font-size: clamp(13px, 10.5454px + 0.1894vw, 16px);
+  font-size: clamp(15px, 13.1818px + 0.2367vw, 20px);
 }
 
 .dashboard-merged-card {
