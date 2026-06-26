@@ -3239,9 +3239,14 @@ pre.ct-surface-1.rounded-md {
   box-shadow: var(--ct-shadow-focus-ring);
 }
 
-/* material="flat" — same solid black; for dense lists/tables (anti cage-in-cage). */
+/* DESIGN_SYSTEM §10.1 — `material="flat"` = MÊME fond graphite opaque que le tier
+   par défaut (variante anti cage-in-cage pour listes denses), PAS « moins noir ».
+   La seule différence légitime du flat = pas de hover border-lift (géré ci-dessus
+   via :not(.ct-glass-panel--flat)). Le fond reste --ct-graphite-subtle-bg pour ne
+   PAS créer deux surfaces divergentes (flat #060708 vs graphite #1C1D21) sur une
+   même page — c'était la cause du conflit de surface Proof Center. */
 .ct-glass-panel--flat {
-  background: var(--ct-surface-0);
+  background: var(--ct-graphite-subtle-bg);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
