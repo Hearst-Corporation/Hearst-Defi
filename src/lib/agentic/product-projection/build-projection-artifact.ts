@@ -19,6 +19,7 @@ import type {
   ProvenanceSource,
 } from "./types";
 import { MANDATORY_DISCLAIMERS } from "./projection-guards";
+import { buildProjectionDistribution } from "./projection-methodology-v2";
 
 const DEFAULT_HORIZON_MONTHS = 12;
 
@@ -263,12 +264,35 @@ export function buildProjectionArtifact(
     `All figures are derived from the provided inputs and their provenance; ` +
     `this is a projection only, future results are not assured, and APY is shown only as a range.`;
 
-  const id = `projection:v0:${input.productType}:${slug(input.productName)}:${horizonMonths}m`;
+  // ── Methodology v2 (additive, opt-in via input.methodology.version="v2") ──
+  // Seeded p5/p50/p95 distribution. If requested without an apyRange there is no
+  // distribution (never fabricated) — recorded in missingInputs instead.
+  let methodology: ProjectionReportArtifact["methodology"];
+  let distribution: ProjectionReportArtifact["distribution"];
+  let version: ProjectionReportArtifact["version"] = "v0";
+  if (input.methodology?.version === "v2") {
+    const dist = buildProjectionDistribution(input);
+    if (dist) {
+      distribution = dist;
+      methodology = dist.methodology;
+      version = "v2";
+      charts.push({
+        id: "projection_percentile_band",
+        type: "percentile_band",
+        title: "Scenario distribution (p5 / p50 / p95)",
+        data: { bands: dist.bands, percentiles: dist.percentiles },
+      });
+    } else {
+      missingInputs.push("methodology_v2(needs apyRange)");
+    }
+  }
+
+  const id = `projection:${version}:${input.productType}:${slug(input.productName)}:${horizonMonths}m`;
 
   return {
     id,
     kind: "product_projection_report",
-    version: "v0",
+    version,
     product: {
       ...(input.productId ? { id: input.productId } : {}),
       name: input.productName,
@@ -286,6 +310,8 @@ export function buildProjectionArtifact(
     disclaimers: [...MANDATORY_DISCLAIMERS],
     provenance,
     missingInputs,
+    ...(methodology ? { methodology } : {}),
+    ...(distribution ? { distribution } : {}),
     sideEffects: false,
     businessSideEffects: false,
   };

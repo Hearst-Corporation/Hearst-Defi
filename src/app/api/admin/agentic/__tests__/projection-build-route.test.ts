@@ -107,4 +107,41 @@ describe("POST /api/admin/agentic/projection", () => {
       expect(text.toLowerCase()).not.toContain(w);
     }
   });
+
+  it("v2 methodology + seed → p5/p50/p95 distribution, deterministic, sideEffects false", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
+    const body = {
+      ...VALID,
+      methodology: { version: "v2", seed: "demo-seed", iterations: 2000 },
+    };
+    const r1 = (await (await POST(makeRequest(body))).json()) as {
+      artifact: {
+        version: string;
+        methodology?: { seed: string; iterations: number };
+        distribution?: { percentiles: { p5: { apyPct: number }; p50: { apyPct: number }; p95: { apyPct: number } } };
+        charts: { type: string }[];
+      };
+      sideEffects: boolean;
+    };
+    expect(r1.sideEffects).toBe(false);
+    expect(r1.artifact.version).toBe("v2");
+    expect(r1.artifact.methodology?.iterations).toBe(2000);
+    const p = r1.artifact.distribution!.percentiles;
+    expect(p.p5.apyPct).toBeLessThanOrEqual(p.p50.apyPct);
+    expect(p.p50.apyPct).toBeLessThanOrEqual(p.p95.apyPct);
+    expect(r1.artifact.charts.some((c) => c.type === "percentile_band")).toBe(true);
+    // Same seed repeated → identical artifact.
+    const r2 = await (await POST(makeRequest(body))).json();
+    expect(r2.artifact).toEqual(r1.artifact);
+  });
+
+  it("rejects an invalid methodology (400)", async () => {
+    mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
+    expect(
+      (await POST(makeRequest({ ...VALID, methodology: { version: "v3" } }))).status,
+    ).toBe(400);
+    expect(
+      (await POST(makeRequest({ ...VALID, methodology: { iterations: "lots" } }))).status,
+    ).toBe(400);
+  });
 });

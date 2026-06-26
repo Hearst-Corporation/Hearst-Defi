@@ -145,5 +145,48 @@ export function validateProjectionInput(raw: unknown): ValidationResult {
     value.assumptions = assumptions;
   }
 
+  if (raw.methodology !== undefined) {
+    if (!isRecord(raw.methodology)) {
+      return { ok: false, error: "methodology must be an object" };
+    }
+    const m = raw.methodology;
+    const methodology: NonNullable<ProductProjectionInput["methodology"]> = {};
+    if (m.version !== undefined) {
+      if (m.version !== "v1" && m.version !== "v2") {
+        return { ok: false, error: "methodology.version must be v1 or v2" };
+      }
+      methodology.version = m.version;
+    }
+    if (m.seed !== undefined) {
+      if (typeof m.seed === "number") {
+        if (!Number.isFinite(m.seed)) {
+          return { ok: false, error: "methodology.seed number must be finite" };
+        }
+        methodology.seed = m.seed;
+      } else if (typeof m.seed === "string") {
+        if (m.seed.length === 0 || m.seed.length > MAX_NAME) {
+          return { ok: false, error: "methodology.seed string is empty or too long" };
+        }
+        methodology.seed = m.seed;
+      } else {
+        return { ok: false, error: "methodology.seed must be a string or number" };
+      }
+    }
+    if (m.iterations !== undefined) {
+      const it = finiteNumber(m.iterations);
+      if (it === undefined || it < 1 || it > 1_000_000) {
+        return { ok: false, error: "methodology.iterations must be a positive finite number" };
+      }
+      methodology.iterations = Math.floor(it);
+    }
+    if (m.confidenceBands !== undefined) {
+      if (typeof m.confidenceBands !== "boolean") {
+        return { ok: false, error: "methodology.confidenceBands must be a boolean" };
+      }
+      methodology.confidenceBands = m.confidenceBands;
+    }
+    value.methodology = methodology;
+  }
+
   return { ok: true, value };
 }
