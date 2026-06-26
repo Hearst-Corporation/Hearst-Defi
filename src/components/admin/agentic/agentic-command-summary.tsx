@@ -41,7 +41,7 @@ export function AgenticCommandSummary({
       <div className="agentic-hero-head">
         <span className="eyebrow ct-text-muted">Agentic Control Tower</span>
         <div className="agentic-hero-title-row">
-          <h1 className="agentic-hero-title m-0">Agentic platform</h1>
+          <h2 className="agentic-hero-title m-0">Agentic platform</h2>
           <Badge variant={HEALTH_BADGE_VARIANT[health]}>{HEALTH_LABEL[health]}</Badge>
         </div>
       </div>
