@@ -1600,13 +1600,13 @@
 }
 
 .cy-v5-pending-copy__title {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   color: var(--ct-text-strong);
 }
 
 .cy-v5-pending-copy__desc {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-xs);
   color: var(--ct-text-secondary);
   line-height: var(--ct-leading-relaxed);
   max-width: 32ch;
@@ -1627,13 +1627,13 @@
 }
 
 .cy-v5-disclaimer__badge {
-  font-size: 10px;
+  font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-bold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
   background: var(--ct-surface-2);
-  padding: 2px 6px;
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
   border-radius: var(--ct-radius-sm);
 }
 
