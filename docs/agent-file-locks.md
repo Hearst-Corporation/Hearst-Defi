@@ -16,32 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-simulation-observability
-Owner: Opus Orchestrateur — Agentic Simulation Observability
-Branch: feat/agentic-simulation-observability
-Worktree: ../connect-opus-agentic-obs
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/observability/simulation-store.ts (new)
-- src/lib/agentic/observability/simulation-trace.ts (new)
-- src/lib/agentic/observability/index.ts (additive exports only)
-- src/app/api/admin/agentic/simulate/route.ts (opt-in observability)
-- src/app/api/admin/agentic/simulations/** (new read endpoint)
-- tests for the above
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend only. Optional append-only, metadata-only simulation audit traces.
-- No UI/UX. No DS. No /admin/agentic visual changes.
-- No proof-center / vault / portfolio changes.
-- No Prisma migration, no durable DB write (Redis+memory only), no business mutation.
-- No raw prompts / user text / payload / secrets. No external tools.
-
----
-
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
@@ -98,6 +72,33 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-simulation-observability
+Owner: Opus Orchestrateur — Agentic Simulation Observability
+Branch: feat/agentic-simulation-observability
+Merged PR: #88 (merge bf4a2498)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Added opt-in, append-only, metadata-only observability for agentic swarm simulations —
+  NO Prisma migration, NO durable DB write (Redis capped list agentic:simulation:traces cap
+  200 + 7d TTL, in-memory mirror), NO business mutation, NO prompt/user-text/payload/secret,
+  NO external tool; a store failure never affects the simulation. simulation-store.ts (best-
+  effort Redis+memory), simulation-trace.ts (AgenticSimulationTrace metadata-only;
+  buildSimulationTrace allowlist-only — no payload smuggling; recordAgenticSimulationTrace
+  opt-in fail-safe: disabled→reason:"disabled" via AGENTIC_SIMULATION_OBSERVABILITY=0,
+  store_error→recorded:false, else recorded:true+storage). POST /api/admin/agentic/simulate
+  gained observability:{record?} opt-in (default records nothing; read-only contract preserved)
+  + response observability:{requested,recorded,reason?,storage?} + businessSideEffects:false;
+  unknown swarm → 404 before any record. New GET /api/admin/agentic/simulations (admin-only,
+  no-store, metadata-only, limit clamped [1,200]). Routes import the specific obs modules (not
+  the router barrel) to avoid the Prisma chain. 30 tests. docs/agentic/
+  AGENTIC_SIMULATION_OBSERVABILITY.md. typecheck PASS, build PASS (postgresql). Runtime smoke
+  (:4106, real Redis): no-opt-in→recorded:false; opt-in→recorded:true storage:redis;
+  forbidden→blocked+recorded; unknown→404 no record; GET→metadata-only keys. No UI/DS/admin-
+  agentic-visual/proof-center/portfolio/vault change, no migration. Next lot: simulation-trace
+  aggregates (counts by swarm/outcome over a window) read endpoint, or a UI history view (UI lot).
 
 ### feat/agentic-readonly-api
 Owner: Opus Orchestrateur — Agentic Read-only API
