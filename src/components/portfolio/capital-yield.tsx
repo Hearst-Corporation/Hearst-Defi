@@ -66,8 +66,8 @@ const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
 };
 
 /* ── Donut geometry — canonical convention (radius − stroke/2, rotate −90) ── */
-const DONUT_RADIUS = 70;
-const DONUT_STROKE = 14;
+const DONUT_RADIUS = 80;
+const DONUT_STROKE = 18;
 const DONUT_NORM_R = DONUT_RADIUS - DONUT_STROKE / 2;
 const DONUT_CIRC = DONUT_NORM_R * 2 * Math.PI;
 
@@ -184,22 +184,43 @@ function PendingDonut() {
 }
 
 /* ── Compact APY range track — visual band only (values live in Target APY) ── */
-function ApyRangeTrack({ low, high }: { low: number; high: number }) {
+function ApyRangeInstrument({ low, high }: { low: number; high: number }) {
+  const scaleMax = Math.max(high + 4, 20);
+  const leftPct = (low / scaleMax) * 100;
+  const widthPct = ((high - low) / scaleMax) * 100;
+
   return (
     <div
-      className="cy-v5-apy cy-v5-apy--inline"
+      className="cy-v5-apy-instrument"
       aria-hidden="true"
       title={`Target APY range ${low.toFixed(1)}–${high.toFixed(1)}%`}
     >
-      <div className="cy-v5-apy__track">
-        <span className="cy-v5-apy__band" />
-        <span className="cy-v5-apy__tick cy-v5-apy__tick--low" />
-        <span className="cy-v5-apy__tick cy-v5-apy__tick--high" />
+      <div className="cy-v5-apy-instrument__rail">
+        <div
+          className="cy-v5-apy-instrument__zone"
+          style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+        />
+        <div
+          className="cy-v5-apy-instrument__tick cy-v5-apy-instrument__tick--low"
+          style={{ left: `${leftPct}%` }}
+        />
+        <div
+          className="cy-v5-apy-instrument__tick cy-v5-apy-instrument__tick--high"
+          style={{ left: `${leftPct + widthPct}%` }}
+        />
       </div>
-      <div className="cy-v5-apy__anchors">
-        <span className="cy-v5-apy__anchor">{low.toFixed(1)}%</span>
-        <span className="cy-v5-apy__anchor cy-v5-apy__anchor--high">
-          {high.toFixed(1)}%
+      <div className="cy-v5-apy-instrument__labels">
+        <span
+          className="cy-v5-apy-instrument__label"
+          style={{ left: `${leftPct}%` }}
+        >
+          {low.toFixed(1)}
+        </span>
+        <span
+          className="cy-v5-apy-instrument__label cy-v5-apy-instrument__label--accent"
+          style={{ left: `${leftPct + widthPct}%` }}
+        >
+          {high.toFixed(1)}
         </span>
       </div>
     </div>
@@ -224,9 +245,15 @@ function MetricsHeadline({
           {formatUsdCompact(totalValueUsdc)}
         </span>
       </div>
+
+      <div className="cy-v5-headline__divider" aria-hidden="true" />
+
       <div className="cy-v5-metric cy-v5-metric--accent">
-        <span className="cy-v5-metric__label">Target APY</span>
-        <div className="cy-v5-metric__apy-row">
+        <div className="cy-v5-metric__header">
+          <span className="cy-v5-metric__label">Target APY</span>
+          <span className="cy-v5-horizon-meta">12m fwd</span>
+        </div>
+        <div className="cy-v5-metric__apy-block">
           <span className="cy-v5-metric__value">
             <ApyRange
               low={rLow}
@@ -234,15 +261,11 @@ function MetricsHeadline({
               className="font-bold ct-text-accent tabular"
             />
           </span>
-          <ApyRangeTrack low={rLow} high={rHigh} />
+          <ApyRangeInstrument low={rLow} high={rHigh} />
         </div>
       </div>
     </div>
   );
-}
-
-function HorizonChip() {
-  return <span className="cy-v5-horizon-chip tabular">12m fwd</span>;
 }
 
 export function CapitalYield({
@@ -258,42 +281,21 @@ export function CapitalYield({
   embedded = false,
   hasActivePosition = false,
 }: CapitalYieldProps) {
-  // --- HARDCODE DEMO AS REQUESTED BY USER ---
-  // If there's no data, we inject some realistic mock data to show the full visual
-  const isDemoMode = sources.length === 0 || buckets.length === 0;
-  
-  const displayBuckets = isDemoMode ? [
-    { bucket: "mining", pct: 65, amountUsdc: totalValueUsdc * 0.65 },
-    { bucket: "btc_tactical", pct: 20, amountUsdc: totalValueUsdc * 0.20 },
-    { bucket: "usdc_base", pct: 15, amountUsdc: totalValueUsdc * 0.15 },
-  ] as AllocationBucketSlice[] : buckets;
-  
-  const displaySources = isDemoMode ? [
-    { bucket: "mining", label: "Mining Operations", contributionPct: 8.5, isVolatile: false },
-    { bucket: "btc_tactical", label: "BTC Tactical", contributionPct: 2.0, isVolatile: true },
-    { bucket: "usdc_base", label: "USDC Base Yield", contributionPct: 1.0, isVolatile: false },
-  ] as YieldSource[] : sources;
-  
-  const displayTotalValue = totalValueUsdc > 0 ? totalValueUsdc : 11.00;
-  const displayBlendedLow = blendedLow > 0 ? blendedLow : 8.0;
-  const displayBlendedHigh = blendedHigh > 0 ? blendedHigh : 15.0;
-  // ------------------------------------------
-
   // LIVE: we have vault allocation + real data + investor position
   const hasData =
-    displaySources.length > 0 && displayTotalValue > 0 && displayBuckets.length > 0;
+    sources.length > 0 && totalValueUsdc > 0 && buckets.length > 0;
 
   // Two distinct empty states — never same copy (historical incoherence):
   //   awaiting-data: position confirmed on-chain, vault snapshot not yet cached
   //   no-position:   investor has not subscribed yet
   const emptyReason: "no-position" | "awaiting-data" =
-    hasActivePosition && displayTotalValue > 0 ? "awaiting-data" : "no-position";
+    hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
 
   // Rich partial: a confirmed position with real capital, but the vault
   // allocation breakdown is not yet published. We still surface the REAL figures
   // the account already has (capital + target APY) instead of an empty block.
   const showRichPartial =
-    !hasData && emptyReason === "awaiting-data" && displayTotalValue > 0;
+    !hasData && emptyReason === "awaiting-data" && totalValueUsdc > 0;
 
   const provenance =
     hasData || showRichPartial
@@ -301,7 +303,7 @@ export function CapitalYield({
       : undefined;
 
   const [rLow, rHigh] =
-    displayBlendedLow <= displayBlendedHigh ? [displayBlendedLow, displayBlendedHigh] : [displayBlendedHigh, displayBlendedLow];
+    blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
 
   return (
     <PfCockpitPanel
@@ -326,7 +328,6 @@ export function CapitalYield({
               {/* Readable provenance label (not the dot-only compact pill) so
                   "Estimated" is legible — non-negotiable #2. */}
               {provenance ? <ProvenanceBadge kind={provenance} /> : null}
-              <HorizonChip />
               {leafHref ? <PortfolioLeafLink href={leafHref} /> : null}
             </div>
           ) : leafHref ? (
@@ -338,7 +339,7 @@ export function CapitalYield({
       {hasData ? (
         <div className="cy-v5-body">
           <MetricsHeadline
-            totalValueUsdc={displayTotalValue}
+            totalValueUsdc={totalValueUsdc}
             rLow={rLow}
             rHigh={rHigh}
           />
@@ -346,14 +347,14 @@ export function CapitalYield({
           {/* ── Tier 2 — allocation donut + legend ── */}
           <div className="cy-v5-visual">
             <AllocationDonut
-              buckets={displayBuckets}
+              buckets={buckets}
               centerTop="Alloc"
-              centerMain={`${displayBuckets.reduce((sum, bucket) => sum + bucket.pct, 0)}%`}
+              centerMain={`${buckets.reduce((sum, bucket) => sum + bucket.pct, 0)}%`}
             />
 
             <ul className="cy-v5-legend" aria-label="Allocation breakdown">
-              {displayBuckets.map((b) => {
-                const src = displaySources.find((s) => s.bucket === b.bucket);
+              {buckets.map((b) => {
+                const src = sources.find((s) => s.bucket === b.bucket);
                 const contribution = src?.contributionPct ?? null;
                 const contribLabel =
                   contribution !== null
@@ -371,20 +372,33 @@ export function CapitalYield({
                       style={{ background: BUCKET_COLOR[b.bucket] }}
                       aria-hidden="true"
                     />
-                    <span className="cy-v5-legend__label">
-                      {src?.label ?? b.bucket}
-                    </span>
-                    <span className="cy-v5-legend__pct">{b.pct}%</span>
-                    {contribLabel !== null ? (
-                      <span
-                        className={cn(
-                          "cy-v5-legend__contrib",
-                          src?.isVolatile && "cy-v5-legend__contrib--volatile",
-                        )}
-                      >
-                        {contribLabel}
+                    <div className="cy-v5-legend__info">
+                      <span className="cy-v5-legend__label">
+                        {src?.label ?? b.bucket}
                       </span>
-                    ) : null}
+                      <div className="cy-v5-legend__rail" aria-hidden="true">
+                        <div
+                          className="cy-v5-legend__fill"
+                          style={{
+                            width: `${b.pct}%`,
+                            background: BUCKET_COLOR[b.bucket],
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="cy-v5-legend__values">
+                      <span className="cy-v5-legend__pct">{b.pct}%</span>
+                      {contribLabel !== null ? (
+                        <span
+                          className={cn(
+                            "cy-v5-legend__contrib",
+                            src?.isVolatile && "cy-v5-legend__contrib--volatile",
+                          )}
+                        >
+                          {contribLabel}
+                        </span>
+                      ) : null}
+                    </div>
                   </li>
                 );
               })}
@@ -392,17 +406,21 @@ export function CapitalYield({
           </div>
 
           {/* ── Disclaimer — non-negotiable #10 ── */}
-          <p className="cy-v5-disclaimer" role="note">
-            Conditional projection — not guaranteed ·{" "}
-            {methodologyVersion.startsWith("v")
-              ? methodologyVersion
-              : `v${methodologyVersion}`}
-          </p>
+          <div className="cy-v5-disclaimer" role="note">
+            <span className="cy-v5-disclaimer__badge">Projection</span>
+            <span className="cy-v5-disclaimer__text">Returns not guaranteed</span>
+            <span className="cy-v5-disclaimer__meta">
+              Model{" "}
+              {methodologyVersion.startsWith("v")
+                ? methodologyVersion
+                : `v${methodologyVersion}`}
+            </span>
+          </div>
         </div>
       ) : showRichPartial ? (
         <div className="cy-v5-body">
           <MetricsHeadline
-            totalValueUsdc={displayTotalValue}
+            totalValueUsdc={totalValueUsdc}
             rLow={rLow}
             rHigh={rHigh}
           />
@@ -411,6 +429,9 @@ export function CapitalYield({
           <div className="cy-v5-visual cy-v5-visual--pending">
             <PendingDonut />
             <div className="cy-v5-pending-copy">
+              <span className="cy-v5-pending-copy__title">
+                Allocation breakdown pending
+              </span>
               <span className="cy-v5-pending-copy__desc">
                 Capital and target yield confirmed; bucket split appears on the
                 next vault snapshot.
@@ -418,12 +439,16 @@ export function CapitalYield({
             </div>
           </div>
 
-          <p className="cy-v5-disclaimer" role="note">
-            Conditional projection — not guaranteed ·{" "}
-            {methodologyVersion.startsWith("v")
-              ? methodologyVersion
-              : `v${methodologyVersion}`}
-          </p>
+          <div className="cy-v5-disclaimer" role="note">
+            <span className="cy-v5-disclaimer__badge">Projection</span>
+            <span className="cy-v5-disclaimer__text">Returns not guaranteed</span>
+            <span className="cy-v5-disclaimer__meta">
+              Model{" "}
+              {methodologyVersion.startsWith("v")
+                ? methodologyVersion
+                : `v${methodologyVersion}`}
+            </span>
+          </div>
         </div>
       ) : (
         <div className="cy-v5-empty">
