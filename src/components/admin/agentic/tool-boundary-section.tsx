@@ -88,7 +88,7 @@ function CountCard({ tier, value }: { tier: ToolBoundaryTier; value: number }) {
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
     <tr className="border-b border-(--ct-border-soft) last:border-0 align-top">
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-body font-mono break-all">
+      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-body mono break-all">
         {tool.id}
       </td>
       <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)]">
@@ -106,7 +106,7 @@ function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
       <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted whitespace-nowrap">
         {tool.runtimeStatus}
       </td>
-      <td className="py-[var(--ct-space-2)] body-xs ct-text-faint font-mono break-all">
+      <td className="py-[var(--ct-space-2)] body-xs ct-text-faint mono break-all">
         {tool.source}
       </td>
     </tr>

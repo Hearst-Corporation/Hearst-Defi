@@ -737,8 +737,8 @@
 .pf-value-chart__range-selector {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
+  gap: var(--ct-space-0_5);
+  padding: var(--ct-space-0_5);
   border-radius: var(--ct-radius-full);
   background: color-mix(in srgb, var(--ct-surface-1) 55%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-border-soft) 40%, transparent);
@@ -799,7 +799,7 @@
 
 .pf-vc-axis-label {
   fill: var(--ct-text-tertiary);
-  font-size: 9px;
+  font-size: var(--ct-text-nano);
   font-weight: 500;
   letter-spacing: 0.03em;
   font-family: var(--ct-font-sans, system-ui, sans-serif);
@@ -1364,7 +1364,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: var(--ct-space-0_5);
     pointer-events: none;
 }
 
@@ -2316,11 +2316,11 @@
 .pf-dc-coming__badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: var(--ct-space-0_5) var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-accent) 20%, transparent);
-  font-size: 10px;
+  font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-bold);
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
@@ -2350,7 +2350,7 @@
   color: var(--ct-text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  padding: 4px 10px;
+  padding: var(--ct-space-1) var(--ct-space-2_5);
   background: var(--ct-surface-2);
   border-radius: var(--ct-radius-md);
   border: 1px solid var(--ct-border-soft);
@@ -3461,7 +3461,7 @@
   background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
   border: 1px solid color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
   border-radius: var(--ct-radius-sm);
-  padding: 2px var(--ct-space-1_5);
+  padding: var(--ct-space-0_5) var(--ct-space-1_5);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -3879,7 +3879,7 @@
   height: var(--ct-space-2_5);
   border-radius: 99px;
   overflow: hidden;
-  gap: 2px;
+  gap: var(--ct-space-0_5);
 }
 
 .pf-leaf-alloc-bar-seg {
