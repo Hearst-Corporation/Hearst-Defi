@@ -2,7 +2,7 @@ import "./portfolio.css";
 
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
-import { ValueChart } from "@/components/portfolio/value-chart";
+import { PortfolioValueSummary } from "@/components/portfolio/portfolio-value-summary";
 import { PositionCards } from "@/components/portfolio/position-badges";
 import { CapitalYield } from "@/components/portfolio/capital-yield";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
@@ -62,11 +62,10 @@ export default async function PortfolioPage() {
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
           <div className="pf-hero-grid pf-cockpit-cell">
             <div className="pf-main-chart-wrapper">
-              <ValueChart
-                positions={positions}
+              <PortfolioValueSummary
                 totalValueUsdc={data.totalValueUsdc}
-                valueChartTransactions={data.valueChartTransactions}
-                hourlySnapshots={data.hourlyValueSnapshots}
+                positionsCount={positionsCount}
+                deployedUsdc={deployedUsdc}
                 source={source}
                 updatedAt={updatedAt}
                 embedded={true}

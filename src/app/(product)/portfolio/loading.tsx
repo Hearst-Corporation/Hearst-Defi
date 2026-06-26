@@ -78,21 +78,26 @@ export default function PortfolioLoading() {
       <div className="pf-cockpit">
         <div className="pf-cockpit-row pf-cockpit-row--chart">
           <div className="pf-hero-grid pf-cockpit-cell">
-            <div className="pf-main-chart-wrapper min-h-[280px]">
-              <div className="pf-value-chart p-6 h-full flex flex-col gap-6">
+            <div className="pf-main-chart-wrapper">
+              <div className="pf-pv-summary p-5 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col gap-2">
                     <Skeleton className="h-6 w-32 opacity-40" />
                     <Skeleton className="h-4 w-24 opacity-20" />
                   </div>
-                  <Skeleton className="h-8 w-24 opacity-30" />
+                  <Skeleton className="h-4 w-24 opacity-20" />
                 </div>
-                <div className="flex-1 flex items-baseline gap-3">
-                  <Skeleton className="h-12 w-48 opacity-60" />
-                  <Skeleton className="h-4 w-12 opacity-30" />
+                <div className="flex items-baseline gap-2 mt-2">
+                  <Skeleton className="h-12 w-40 opacity-60" />
                 </div>
-                <div className="flex-1 relative">
-                  <Skeleton className="absolute inset-0 opacity-10" />
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  <Skeleton className="h-8 w-full opacity-20" />
+                  <Skeleton className="h-8 w-full opacity-20" />
+                  <Skeleton className="h-8 w-full opacity-20" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-3 w-40 opacity-10" />
+                  <Skeleton className="h-3 w-56 opacity-10" />
                 </div>
               </div>
             </div>
