@@ -48,6 +48,39 @@ describe("ValueChart", () => {
     expect(html).toContain("ALL");
   });
 
+  it("renders provenance and series note without repeating hero chips", () => {
+    const html = renderToStaticMarkup(
+      <ValueChart
+        positions={[
+          {
+            id: "p1",
+            vaultName: "Hearst Yield",
+            principalUsdc: 11,
+            accruedYieldUsdc: 0,
+            distributedUsdc: 0,
+            valueUsdc: 11,
+            status: "active",
+            apyLow: 8,
+            apyHigh: 15,
+            subscribedAt: new Date("2026-01-01T00:00:00.000Z"),
+          },
+        ]}
+        totalValueUsdc={11}
+        source="live"
+        embedded
+        updatedAt={new Date("2026-06-25T12:00:00Z")}
+        valueChartTransactions={[
+          { type: "deposit", amountUsdc: 11, occurredAt: new Date("2026-06-01") },
+        ]}
+      />,
+    );
+
+    expect(html).toContain("Estimated NAV");
+    expect(html).toContain("Ledger-based");
+    expect(html).not.toContain("Target APY");
+    expect(html).not.toContain("Positions");
+  });
+
   it("renders the SVG chart when ledger data is present", () => {
     const html = renderToStaticMarkup(
       <ValueChart

@@ -3,7 +3,6 @@
 /**
  * ValueChart — portfolio NAV area chart with honest time-series wiring.
  */
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { cn } from "@/lib/cn";
 import type { PortfolioPosition } from "@/lib/data/portfolio";
@@ -79,7 +78,7 @@ export function ValueChart({
   const [hoverPoint, setHoverPoint] = useState<ChartPoint | null>(null);
   const hoverIndexRef = useRef(-1);
 
-  const provenance: Provenance | undefined = isEmpty
+  const provenance = isEmpty
     ? undefined
     : resolveProvenance(source, updatedAt, "estimated");
 
@@ -170,7 +169,11 @@ export function ValueChart({
         <div className="pf-vc-header__left">
           <div className="pf-vc-header__row1">
             <h2 className="pf-cockpit-panel__title--primary tracking-wider">Portfolio Value</h2>
-            {provenance && <ProvenanceBadge kind={provenance} compact />}
+            {provenance ? (
+              <span className="pf-vc-header__provenance">
+                {provenance === "live" ? "Live NAV" : "Estimated NAV"}
+              </span>
+            ) : null}
             {updatedAt && (
               <span className="pf-vc-header__date hidden sm:inline">
                 {new Intl.DateTimeFormat("en-US", {

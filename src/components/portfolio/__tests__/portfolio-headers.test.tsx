@@ -25,14 +25,13 @@ const position: PositionDetail = {
 
 describe("portfolio headers", () => {
   it("renders the portfolio greeting", () => {
-    const html = renderToStaticMarkup(<PortfolioGreeting />);
+    const html = renderToStaticMarkup(<PortfolioGreeting name="Adrienne" />);
 
     expect(html).toContain("pf-greeting");
-    expect(html).toContain("PORTFOLIO");
-    expect(html).toContain("Institutional cockpit");
-    expect(html).toContain("Verified data feeds");
-    expect(html).not.toContain("Welcome back");
-    expect(html).not.toContain("product-page-header");
+    expect(html).toContain("product-page-header");
+    expect(html).toContain("Welcome back,");
+    expect(html).toContain("Adrienne");
+    expect(html).toContain("Portfolio overview");
   });
 
   it("renders the position header on its own chrome", () => {

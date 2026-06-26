@@ -268,6 +268,35 @@ function MetricsHeadline({
   );
 }
 
+function PendingAllocationHeadline({
+  totalValueUsdc,
+  rLow,
+  rHigh,
+}: {
+  totalValueUsdc: number;
+  rLow: number;
+  rHigh: number;
+}) {
+  return (
+    <div className="cy-v5-pending-headline">
+      <div className="cy-v5-pending-headline__eyebrow">
+        Capital confirmed
+      </div>
+      <div className="cy-v5-pending-headline__value tabular">
+        {formatUsdCompact(totalValueUsdc)}
+      </div>
+      <div className="cy-v5-pending-headline__apy">
+        <span className="cy-v5-pending-headline__apy-label">Target APY</span>
+        <ApyRange
+          low={rLow}
+          high={rHigh}
+          className="font-bold ct-text-accent tabular"
+        />
+      </div>
+    </div>
+  );
+}
+
 export function CapitalYield({
   sources,
   blendedLow,
@@ -286,7 +315,7 @@ export function CapitalYield({
     sources.length > 0 && totalValueUsdc > 0 && buckets.length > 0;
 
   // Two distinct empty states — never same copy (historical incoherence):
-  //   awaiting-data: position confirmed on-chain, vault snapshot not yet cached
+  //   awaiting-data: position active, vault snapshot not yet cached
   //   no-position:   investor has not subscribed yet
   const emptyReason: "no-position" | "awaiting-data" =
     hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
@@ -419,7 +448,7 @@ export function CapitalYield({
         </div>
       ) : showRichPartial ? (
         <div className="cy-v5-body">
-          <MetricsHeadline
+          <PendingAllocationHeadline
             totalValueUsdc={totalValueUsdc}
             rLow={rLow}
             rHigh={rHigh}
@@ -433,8 +462,8 @@ export function CapitalYield({
                 Allocation breakdown pending
               </span>
               <span className="cy-v5-pending-copy__desc">
-                Capital and target yield confirmed; bucket split appears on the
-                next vault snapshot.
+                Vault snapshot not yet published; capital and target yield are
+                confirmed, and the bucket split appears on the next snapshot.
               </span>
             </div>
           </div>
@@ -452,10 +481,10 @@ export function CapitalYield({
         </div>
       ) : (
         <div className="cy-v5-empty">
-          <p className="cy-v5-empty__lead">Position not yet confirmed.</p>
+          <p className="cy-v5-empty__lead">No position yet.</p>
           <p className="cy-v5-empty__sub">
             Allocation and projected yield appear once your first position is
-            confirmed on-chain.
+            active.
           </p>
         </div>
       )}

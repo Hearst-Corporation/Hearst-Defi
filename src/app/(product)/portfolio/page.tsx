@@ -1,7 +1,6 @@
 import "./portfolio.css";
 
 import { loadPortfolioView } from "@/lib/data/portfolio-view";
-import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { PortfolioGreeting } from "@/components/portfolio/portfolio-greeting";
 import { ValueChart } from "@/components/portfolio/value-chart";
 import { PositionCards } from "@/components/portfolio/position-badges";
@@ -18,8 +17,29 @@ export const metadata = {
   description: "Your positions and distributions",
 };
 
+function displayName(
+  investor: { email: string | null; walletAddress: string | null } | null,
+): string {
+  if (investor?.email) {
+    const emailLocal = investor.email.split("@")[0]?.trim() ?? "";
+    const normalizedLocal = emailLocal.replace(/[._-]+/g, " ").trim();
+    if (normalizedLocal) {
+      return normalizedLocal.charAt(0).toUpperCase() + normalizedLocal.slice(1);
+    }
+  }
+
+  const wallet = investor?.walletAddress?.trim();
+  if (wallet) {
+    if (wallet.length > 10) return `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
+    return wallet;
+  }
+
+  return "Investor";
+}
+
 export default async function PortfolioPage() {
   const {
+    investor,
     data,
     hasPositions,
     yieldStackProps,
@@ -36,89 +56,85 @@ export default async function PortfolioPage() {
 
   return (
     <div className={containerClassName} data-testid="portfolio-page" data-portfolio-hub="true">
-      <PortfolioGreeting />
-
-      <div className="pf-hairline" aria-hidden="true" />
+      <PortfolioGreeting name={displayName(investor)} />
 
       <div className="pf-cockpit">
-        {/* HERO — Portfolio Value (chart welded with portfolio status) */}
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
-          <PfCockpitPanel variant="wide" aria-label="Portfolio overview hero">
-            <div className="pf-hero-grid">
-              <div className="pf-main-chart-wrapper">
-                <ValueChart
-                  positions={positions}
-                  totalValueUsdc={data.totalValueUsdc}
-                  valueChartTransactions={data.valueChartTransactions}
-                  hourlySnapshots={data.hourlyValueSnapshots}
-                  source={source}
-                  updatedAt={updatedAt}
-                  embedded={true}
-                />
-              </div>
-              <PortfolioStatusPanel
-                hasPositions={hasPositions}
-                positionsCount={positionsCount}
-                deployedUsdc={deployedUsdc}
-                totalValueUsdc={data.totalValueUsdc}
-                accruedYieldUsdc={accruedYieldUsdc}
-                source={source}
-                embedded={true}
-                updatedAt={updatedAt ?? undefined}
-              />
-            </div>
-          </PfCockpitPanel>
-        </section>
-
-        {/* NIVEAU 2 — Positions (prominent) + Capital & Yield */}
-        <section
-          className="pf-cockpit-row pf-cockpit-row--pair"
-          aria-label="Positions and capital allocation"
-        >
-          <PfCockpitPanel variant="wide" aria-label="Positions and capital & yield">
-            <div className="pf-pair-grid">
-              <PositionCards
+          <div className="pf-hero-grid pf-cockpit-cell">
+            <div className="pf-main-chart-wrapper">
+              <ValueChart
                 positions={positions}
-                leafHref="/portfolio/positions"
-                embedded={true}
-              />
-              <CapitalYield
-                {...yieldStackProps}
-                buckets={allocationDonutProps.buckets}
                 totalValueUsdc={data.totalValueUsdc}
-                hasActivePosition={hasPositions}
-                leafHref="/portfolio/yield"
-                embedded={true}
-              />
-            </div>
-          </PfCockpitPanel>
-        </section>
-
-        {/* NIVEAU 3 — Payout calendar + Recent activity (compact support) */}
-        <section
-          className="pf-cockpit-row pf-cockpit-row--deck"
-          aria-label="Distributions and activity"
-        >
-          <PfCockpitPanel variant="wide" aria-label="Distributions and activity">
-            <div className="pf-deck-grid">
-              <DistribCalendar
-                {...distribCalendarProps}
-                leafHref="/portfolio/distributions"
-                secondaryLeafHref="/portfolio/tax"
-                secondaryLeafLabel="Tax preview"
-                embedded={true}
-                nextDistributionAt={data.nextDistributionAt}
-                hasActivePosition={hasPositions}
-              />
-              <RecentActivity
-                transactions={data.recentTransactions}
+                valueChartTransactions={data.valueChartTransactions}
+                hourlySnapshots={data.hourlyValueSnapshots}
                 source={source}
                 updatedAt={updatedAt}
-                leafHref="/portfolio/activity"
                 embedded={true}
               />
             </div>
-          </PfCockpitPanel>
+            <PortfolioStatusPanel
+              hasPositions={hasPositions}
+              positionsCount={positionsCount}
+              deployedUsdc={deployedUsdc}
+              totalValueUsdc={data.totalValueUsdc}
+              accruedYieldUsdc={accruedYieldUsdc}
+              source={source}
+              embedded={true}
+              updatedAt={updatedAt ?? undefined}
+            />
+          </div>
+        </section>
+
+        <section
+          className="pf-cockpit-row pf-cockpit-row--yield"
+          aria-label="Capital and yield allocation"
+        >
+          <div className="pf-cockpit-cell">
+            <CapitalYield
+              {...yieldStackProps}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
+              hasActivePosition={hasPositions}
+              source={source === "live" ? "live" : "estimated"}
+              updatedAt={updatedAt}
+              leafHref="/portfolio/yield"
+              embedded={false}
+            />
+          </div>
+        </section>
+
+        <section
+          className="pf-cockpit-row pf-cockpit-row--deck"
+          aria-label="Portfolio distributions and activity"
+        >
+          <div className="pf-deck-grid">
+            <DistribCalendar
+              {...distribCalendarProps}
+              leafHref="/portfolio/distributions"
+              secondaryLeafHref="/portfolio/tax"
+              secondaryLeafLabel="Tax preview"
+              embedded={false}
+              nextDistributionAt={data.nextDistributionAt}
+              hasActivePosition={hasPositions}
+            />
+            <RecentActivity
+              transactions={data.recentTransactions}
+              source={source}
+              updatedAt={updatedAt}
+              leafHref="/portfolio/activity"
+              embedded={false}
+            />
+          </div>
+        </section>
+
+        <section className="pf-cockpit-row pf-cockpit-row--positions" aria-label="Your positions">
+          <div className="pf-cockpit-cell" data-section="positions">
+            <PositionCards
+              positions={positions}
+              leafHref="/portfolio/positions"
+              embedded={false}
+            />
+          </div>
         </section>
       </div>
     </div>

@@ -2,12 +2,11 @@ import Link from "next/link";
 import { ApyRange } from "@/components/ui/apy-range";
 import { type PortfolioPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import { cn } from "@/lib/cn";
 import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import { Plus, ChevronRight, TrendingUp, Layers } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 
 interface PositionCardsProps {
   positions: PortfolioPosition[];
@@ -26,12 +25,18 @@ export function PositionCards({
   embedded = false,
 }: PositionCardsProps) {
   const hasPositions = positions.length > 0;
+  const openedFmt = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 
   return (
     <PfCockpitPanel
       variant="wide"
       chrome={embedded ? "embedded" : "panel"}
-      aria-label={hasPositions ? "Your positions" : "Explore vaults"}
+      aria-label="Your positions"
       className="pf-positions-badges"
     >
       <PfCockpitPanelHeader
@@ -48,74 +53,51 @@ export function PositionCards({
 
       <div className="pf-positions-stack">
         {hasPositions ? (
-          positions.map((p, idx) => {
-            const statusConfig = POSITION_STATUS_CONFIG[p.status];
-            const isActive = p.status === "active";
-            return (
-              <Link
-                key={p.id}
-                href={`/portfolio/${p.id}`}
-                className={cn(
-                  "pf-position-card",
-                  isActive && "pf-position-card--active",
-                )}
-                style={{ animationDelay: `${idx * 0.07}s` }}
-                aria-label={`${p.vaultName ?? "Vault"} — ${statusConfig.label} — ${formatUsdCompact(p.valueUsdc)}`}
-              >
-                {/* Active left accent bar */}
-                {isActive && (
-                  <div className="pf-position-card__accent-bar" aria-hidden />
-                )}
-
-                {/* Card content — structured grid */}
-                <div className="pf-position-card__content">
-                  {/* Main col: vault name + status */}
-                  <div className="pf-position-card__main">
-                    <span className="pf-position-card__name">
-                      {p.vaultName ?? "Vault"}
-                    </span>
-                    <span className={cn(
-                      "pf-position-card__status",
-                      isActive && "pf-position-card__status--active",
-                    )}>
-                      {statusConfig.label}
-                    </span>
-                  </div>
-
-                  {/* Metrics col: position value */}
-                  <div className="pf-position-card__group">
-                    <span className="pf-position-card__label">
-                      <Layers size={10} strokeWidth={2.5} aria-hidden className="inline mr-1 opacity-60" />
-                      Position
-                    </span>
-                    <span className="pf-position-card__value tabular">
-                      {formatUsdCompact(p.valueUsdc)}
-                    </span>
-                  </div>
-
-                  {/* Metrics col: target APY */}
-                  {p.apyLow !== null && p.apyHigh !== null && (
-                    <div className="pf-position-card__group">
-                      <span className="pf-position-card__label">
-                        <TrendingUp size={10} strokeWidth={2.5} aria-hidden className="inline mr-1 opacity-60" />
-                        Target APY
-                      </span>
-                      <ApyRange
-                        low={p.apyLow}
-                        high={p.apyHigh}
-                        className="pf-position-card__apy tabular"
-                      />
-                    </div>
-                  )}
-
-                  {/* Chevron */}
-                  <div className="pf-position-card__action" aria-hidden="true">
-                    <ChevronRight size={16} strokeWidth={2} />
-                  </div>
-                </div>
-              </Link>
-            );
-          })
+          <>
+            <div className="pf-positions__row pf-positions__row--head" aria-hidden="true">
+              <span>Vault</span>
+              <span>Opened</span>
+              <span>Status</span>
+              <span className="text-right">Value</span>
+              <span className="text-right">Target APY</span>
+            </div>
+            {positions.map((p, idx) => {
+              const statusConfig = POSITION_STATUS_CONFIG[p.status];
+              return (
+                <Link
+                  key={p.id}
+                  href={`/portfolio/${p.id}`}
+                  className="pf-positions__row pf-positions__row--body"
+                  style={{ animationDelay: `${idx * 0.07}s` }}
+                  aria-label={`${p.vaultName ?? "Vault"} — ${statusConfig.label} — ${formatUsdCompact(p.valueUsdc)}`}
+                >
+                  <span className="pf-positions__vault">
+                    <span>{p.vaultName ?? "Vault"}</span>
+                  </span>
+                  <span className="pf-positions__opened">
+                    {openedFmt.format(p.subscribedAt)}
+                  </span>
+                  <span className="pf-positions__status-cell">
+                    <span
+                      className={statusConfig.dot}
+                      aria-hidden="true"
+                    />
+                    <span>{statusConfig.label}</span>
+                  </span>
+                  <span className="pf-positions__num">
+                    {formatUsdCompact(p.valueUsdc)}
+                  </span>
+                  <span className="pf-positions__num">
+                    {p.apyLow !== null && p.apyHigh !== null ? (
+                      <ApyRange low={p.apyLow} high={p.apyHigh} />
+                    ) : (
+                      "—"
+                    )}
+                  </span>
+                </Link>
+              );
+            })}
+          </>
         ) : (
           /* Empty state — premium ghost + CTA */
           <div className="pf-positions-empty-premium">
@@ -132,8 +114,8 @@ export function PositionCards({
               className="pf-positions-empty-premium__cta group"
             >
               <span className="flex flex-col min-w-0">
-                <span className="pf-positions-empty-cta-label">Explore Opportunities</span>
-                <span className="pf-positions-empty-cta-sub">Subscribe to your first vault position</span>
+                <span className="pf-positions-empty-cta-label">Explore vaults</span>
+                <span className="pf-positions-empty-cta-sub">Subscribe to your first position</span>
               </span>
               <span className="pf-positions-empty-cta-icon">
                 <Plus size={15} strokeWidth={2.5} aria-hidden="true" />
