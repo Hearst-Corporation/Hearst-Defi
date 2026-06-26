@@ -16,6 +16,30 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/agentic-simulation-aggregates
+Owner: Opus Orchestrateur — Agentic Simulation Aggregates API
+Branch: feat/agentic-simulation-aggregates
+Worktree: ../connect-opus-agentic-agg
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/observability/simulation-aggregates.ts (new)
+- src/lib/agentic/observability/index.ts (additive exports only)
+- src/app/api/admin/agentic/simulations/aggregates/** (new read endpoint)
+- tests for the above
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend read-only aggregates only, over the existing Redis+memory trace store.
+- No UI/UX. No DS. No /admin/agentic visual changes.
+- No proof-center / vault / portfolio changes.
+- No Prisma migration, no DB write, no business mutation.
+- No raw prompt / user text / payload / secrets. No external tools.
+
+---
+
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
