@@ -384,6 +384,7 @@
 
   /* Layout sizing tokens — composants métier Connect. */
   --ct-donut-size: 6.5rem;        /* allocation donut chart diameter */
+  --ct-icon-tx: 0.875rem;         /* 14px — ledger tx-row icon (between icon-xs 12 / icon-sm 16) */
   --ct-sidebar-w: 25rem;           /* slide-over / detail sidebar */
   --ct-spec-nav-w: 13.75rem;       /* spec doc left nav */
   --ct-card-min-w: 11rem;          /* generic KPI card floor */
