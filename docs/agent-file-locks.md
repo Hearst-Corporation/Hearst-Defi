@@ -16,32 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/product-projection-swarm
-Owner: Opus Orchestrateur — Product Projection Swarm
-Branch: feat/product-projection-swarm
-Worktree: ../connect-opus-projection
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/product-projection/** (new pure engine)
-- src/lib/agentic/action-readiness/actions.ts (run_projection)
-- src/lib/agentic/crew-simulation/** (projection_flow)
-- src/lib/agentic/swarm/registry.ts (product_projection_swarm)
-- src/lib/agentic/**/__tests__/**
-- src/app/api/admin/agentic/projection/** (new read-only endpoint)
-- docs/agentic/**
-- scripts/agentic/calibrate-swarms.mjs if needed
-
-Notes:
-- Backend only. Add read-only run_projection action, projection_flow crew,
-  product_projection_swarm, pure deterministic projection artifact builder.
-- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
-- No Prisma migration, no DB write, no write action, no external tool, no execution.
-- APY always a range; no guaranteed returns; no invented numbers; no prompt/user text.
-- Does NOT touch src/components/** (another agent's UI).
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -99,6 +73,39 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/product-projection-swarm
+Owner: Opus Orchestrateur — Product Projection Swarm
+Branch: feat/product-projection-swarm
+Merged PR: #103 (merge f1a8e024)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Built the read-only Product Projection Swarm (v0): run_projection action + projection_flow crew +
+  product_projection_swarm + a pure deterministic projection engine (src/lib/agentic/
+  product-projection/**). validate-projection-input (allowlist, drops prompts/unknown fields);
+  build-projection-artifact (deterministic, no Date/random; metrics target_apy[range]/capital_base/
+  projected_yield[derived capitalBase×apyRange×horizon, simple non-compounded]; bear/base/bull
+  scenarios framing the SAME provided range — invents nothing; structured charts not HTML;
+  missingInputs for absent apy/capital/allocation/horizon); projection-guards (forbidden words /
+  single-point-APY / mandatory disclaimers+provenance — disclaimers worded to avoid the banned tokens).
+  product_projection_swarm mode simulation; scope navigate/run_projection/explain_risk/
+  explain_provenance/explain_yield; forbids deploy/mark_live/send/source. Catalog 24→25 (11 read), crews
+  6→7, swarms 5→6. POST /api/admin/agentic/projection (admin-gated, no-store, rate-limit+body-size,
+  validates, runs guards before emit, returns artifact sideEffects/businessSideEffects false; 400
+  invalid, 500 generic-no-leak). NOTE: endpoint is /projection not /projection/build because "build" is
+  gitignored. Tests (engine determinism/missingInputs/APY-range/no-invented-numbers/guards, crew, swarm
+  scope, action, API) + counter updates (read 10→11, total 24→25, crews 6→7, swarms 5→6) + docs
+  (PRODUCT_PROJECTION_SWARM.md, SWARM_CALIBRATION.md). Verified live (:4111): full input → ranges +
+  bear/base/bull + 3 disclaimers + missingInputs:[allocation], no forbidden words; thin input → all
+  missing, nothing fabricated; invalid → 400; run_projection allow / draft_outreach out-of-scope;
+  registry = 6 swarms/25 actions/7 crews. typecheck PASS, build PASS (postgresql), 533 agentic tests
+  pass (2 pre-existing reporting-crew DB tests rouge = env client-provider mismatch). No UI/DS, no
+  migration, no execution, no external tool, no financial guarantee, APY range only. Did NOT touch
+  src/components/** (another agent's UI). The agentic read/observe/projection surface is now complete;
+  next enhancement (not a gap): Monte-Carlo p5/p50/p95 via the Scenario Engine under Methodology v2,
+  or a read-only UI lot rendering the artifact (Scenario Lab / projection panel).
 
 ### feat/agentic-utility-read-actions
 Owner: Opus Orchestrateur — Agentic Utility Read Actions
