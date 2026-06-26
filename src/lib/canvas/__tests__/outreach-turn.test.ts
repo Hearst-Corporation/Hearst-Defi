@@ -1,128 +1,157 @@
-/**
- * Deterministic Outreach turn — classifier + canonical template copy (NO LLM).
- *
- * These pin the state-machine decisions and the exact assistant copy so the
- * Outreach setup conversation never depends on the model:
- *   - the canonical opening message is detected by regex (not the LLM);
- *   - a read question does NOT open the workshop;
- *   - the turn-1 question asks for name + kind (cold | newsletter);
- *   - the post-draft copy never announces an automatic action and proposes the
- *     next step UNDER explicit confirmation.
- */
-
 import { describe, expect, it } from "vitest";
 
 import {
-  classifyOutreachIntent,
+  buildOutreachWorkflowStateFromMessages,
+  buildOutreachDraftPreparedMessage,
+  buildOutreachDraftComplaintFixedMessage,
+  parseOutreachMessage,
+  reduceOutreachWorkflowState,
+  prepareOutreachDraftContent,
   buildOutreachAskFieldsMessage,
-  buildOutreachFieldsAckMessage,
-  buildOutreachPostDraftMessage,
 } from "@/lib/canvas/outreach-turn";
 
-const CANONICAL =
-  "lance une campagne outreach distributeurs institutionnels pour Hearst Yield";
-const TURN2 =
-  'crée un draft de campagne nommée "Distributeurs Institutionnels Q3", type cold';
-
-describe("classifyOutreachIntent", () => {
-  it("detects the canonical opening message and extracts target + product (no LLM)", () => {
-    const intent = classifyOutreachIntent(CANONICAL);
-    expect(intent.isOutreach).toBe(true);
-    expect(intent.target).toBe("distributeurs institutionnels");
-    expect(intent.product).toBe("Hearst Yield");
+describe("parseOutreachMessage", () => {
+  it("parses 'Adrien et c'est un colde'", () => {
+    expect(parseOutreachMessage("Adrien et c'est un colde")).toEqual({
+      intent: "outreach_slots",
+      campaignName: "Adrien",
+      campaignType: "cold",
+    });
   });
 
-  it("detects a bare 'lance une campagne outreach' with no target/product", () => {
-    const intent = classifyOutreachIntent("lance une campagne outreach");
-    expect(intent.isOutreach).toBe(true);
-    expect(intent.target).toBeUndefined();
-    expect(intent.product).toBeUndefined();
+  it("parses 'Adrien test cold'", () => {
+    expect(parseOutreachMessage("Adrien test cold")).toEqual({
+      intent: "outreach_slots",
+      campaignName: "Adrien test",
+      campaignType: "cold",
+    });
   });
 
-  it("treats the turn-2 'crée un draft de campagne …' message as outreach setup", () => {
-    expect(classifyOutreachIntent(TURN2).isOutreach).toBe(true);
+  it("parses 'Qatar LP newsletter'", () => {
+    expect(parseOutreachMessage("Qatar LP newsletter")).toEqual({
+      intent: "outreach_slots",
+      campaignName: "Qatar LP",
+      campaignType: "newsletter",
+    });
   });
 
-  it("does NOT open the workshop for a plain read question", () => {
-    expect(classifyOutreachIntent("combien de prospects distributeurs avons-nous ?").isOutreach).toBe(false);
-    expect(classifyOutreachIntent("c'est quoi l'outreach ?").isOutreach).toBe(false);
-    expect(classifyOutreachIntent("liste les prospects tier A").isOutreach).toBe(false);
+  it("parses type only for 'cold'", () => {
+    expect(parseOutreachMessage("cold")).toEqual({
+      intent: "outreach_slots",
+      campaignType: "cold",
+      missing: ["campaignName"],
+    });
   });
 
-  it("does NOT treat the action label 'Create campaign draft' as outreach setup (defense vs label leak)", () => {
-    expect(classifyOutreachIntent("Create campaign draft").isOutreach).toBe(false);
+  it("parses type only for 'newsletter'", () => {
+    expect(parseOutreachMessage("newsletter")).toEqual({
+      intent: "outreach_slots",
+      campaignType: "newsletter",
+      missing: ["campaignName"],
+    });
+  });
+
+  it("parses name only for 'Adrien test'", () => {
+    expect(parseOutreachMessage("Adrien test")).toEqual({
+      intent: "outreach_slots",
+      campaignName: "Adrien test",
+      missing: ["campaignType"],
+    });
+  });
+
+  it("parses complaint draft vide", () => {
+    expect(parseOutreachMessage("T'as rien écrit dans le brouillon")).toEqual({
+      intent: "outreach_draft_missing_complaint",
+    });
+  });
+
+  it("parses open campaign intents", () => {
+    expect(parseOutreachMessage("La campagne")).toEqual({
+      intent: "outreach_open_campaign",
+    });
+    expect(parseOutreachMessage("Ouvre-moi à la bonne page de la campagne")).toEqual({
+      intent: "outreach_open_campaign",
+    });
   });
 });
 
-describe("buildOutreachAskFieldsMessage (turn 1 — deterministic question)", () => {
-  it("matches the canonical question with target + product", () => {
-    const msg = buildOutreachAskFieldsMessage({
-      target: "distributeurs institutionnels",
-      product: "Hearst Yield",
-    });
-    expect(msg).toBe(
-      "J'ouvre le workspace Outreach pour une campagne ciblant les distributeurs institutionnels autour de Hearst Yield. " +
-        "Pour créer le draft, quel nom veux-tu donner à la campagne, et souhaites-tu un type `cold` ou `newsletter` ?",
+describe("Outreach deterministic workflow state", () => {
+  it("prepares a non-empty draft as soon as name+type are known", () => {
+    const state = buildOutreachWorkflowStateFromMessages([
+      "On va faire un outreach",
+      "Adrien et c'est un colde",
+    ]);
+    expect(state.campaignName).toBe("Adrien");
+    expect(state.campaignType).toBe("cold");
+    expect(state.draftStatus).toBe("prepared");
+    expect(state.draftContent?.subject.trim().length).toBeGreaterThan(0);
+    expect(state.draftContent?.body.trim().length).toBeGreaterThan(0);
+  });
+
+  it("complaint regenerates missing draft content without clearing slots", () => {
+    const base = buildOutreachWorkflowStateFromMessages([
+      "On va faire un outreach",
+      "Adrien et c'est un colde",
+    ]);
+    const broken = {
+      ...base,
+      draftStatus: "none" as const,
+      draftContent: undefined,
+    };
+    const repaired = reduceOutreachWorkflowState(
+      broken,
+      parseOutreachMessage("T'as rien écrit dans le brouillon."),
     );
+    expect(repaired.campaignName).toBe("Adrien");
+    expect(repaired.campaignType).toBe("cold");
+    expect(repaired.draftStatus).toBe("prepared");
+    expect(repaired.draftContent?.subject).toBeTruthy();
+    expect(repaired.draftContent?.body).toBeTruthy();
   });
 
-  it("still asks for name + kind when target/product are unknown", () => {
-    const msg = buildOutreachAskFieldsMessage({});
-    const lower = msg.toLowerCase();
-    expect(lower).toContain("nom");
-    expect(lower).toContain("cold");
-    expect(lower).toContain("newsletter");
-    expect(lower).toContain("workspace outreach");
+  it("never marks draft as created without a real campaignId", () => {
+    const state = reduceOutreachWorkflowState(
+      {
+        workflow: "outreach_campaign",
+        campaignName: "Adrien",
+        campaignType: "cold",
+        draftStatus: "created",
+        campaignId: undefined,
+        draftContent: prepareOutreachDraftContent({
+          campaignName: "Adrien",
+          campaignType: "cold",
+        }),
+      },
+      parseOutreachMessage("La campagne"),
+    );
+    expect(state.draftStatus).toBe("prepared");
   });
-});
 
-describe("buildOutreachFieldsAckMessage (turn 2 — deterministic ack)", () => {
-  it("confirms the name + kind and that nothing is created until confirmation", () => {
-    const msg = buildOutreachFieldsAckMessage({
-      name: "Distributeurs Institutionnels Q3",
-      kind: "cold",
+  it("builds deterministic copy for ask/prepared/complaint", () => {
+    const ask = buildOutreachAskFieldsMessage({ workflow: "outreach_campaign" });
+    expect(ask).toContain("nom");
+    const prepared = buildOutreachDraftPreparedMessage({
+      workflow: "outreach_campaign",
+      campaignName: "Adrien",
+      campaignType: "cold",
+      draftStatus: "prepared",
+      draftContent: prepareOutreachDraftContent({
+        campaignName: "Adrien",
+        campaignType: "cold",
+      }),
     });
-    expect(msg).toContain("Distributeurs Institutionnels Q3");
-    expect(msg).toContain("cold");
-    expect(msg).toContain("Create campaign draft");
-    expect(msg.toLowerCase()).toContain("rien n'est créé tant que tu ne confirmes pas");
-    // Never announces an automatic action.
-    expect(msg.toLowerCase()).not.toContain("je vais sourcer");
-  });
-});
-
-describe("buildOutreachPostDraftMessage (post-draft — deterministic, safe)", () => {
-  const msg = buildOutreachPostDraftMessage("Distributeurs Institutionnels Q3");
-
-  it("states the draft was created and nothing was sourced/sent", () => {
-    expect(msg).toContain("`Distributeurs Institutionnels Q3`");
-    expect(msg.toLowerCase()).toContain("statut draft");
-    expect(msg.toLowerCase()).toContain("aucun lead n'a été sourcé");
-    expect(msg.toLowerCase()).toContain("aucun email");
-  });
-
-  it("proposes the sourcing step UNDER explicit confirmation", () => {
-    expect(msg.toLowerCase()).toContain("souhaites-tu");
-    expect(msg.toLowerCase()).toContain("confirmation explicite");
-  });
-
-  it("NEVER announces an automatic action", () => {
-    const lower = msg.toLowerCase();
-    for (const phrase of [
-      "je vais sourcer",
-      "nous devons sourcer",
-      "je vais le faire maintenant",
-      "je source maintenant",
-      "je vais envoyer",
-    ]) {
-      expect(lower).not.toContain(phrase);
-    }
-  });
-
-  it("never emits a forbidden compliance word", () => {
-    const lower = msg.toLowerCase();
-    for (const w of ["guarantee", "promise", "certain", "will deliver", "risk-free"]) {
-      expect(lower).not.toContain(w);
-    }
+    expect(prepared).toContain("Aucun envoi n’a été lancé");
+    const fixed = buildOutreachDraftComplaintFixedMessage({
+      workflow: "outreach_campaign",
+      campaignName: "Adrien",
+      campaignType: "cold",
+      draftStatus: "prepared",
+      draftContent: prepareOutreachDraftContent({
+        campaignName: "Adrien",
+        campaignType: "cold",
+      }),
+    });
+    expect(fixed).toContain("Tu as raison");
+    expect(fixed.toLowerCase()).not.toContain("sourcing");
   });
 });

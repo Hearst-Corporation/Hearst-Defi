@@ -427,7 +427,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       {/* Input */}
       <div className="ct-chat-composer-wrap">
         <div className="ct-chat-composer-hint">
-          I can guide and analyze, not transact.
+          Drafts are prepared in review mode. Nothing sends without confirmation.
         </div>
         <form
           className="ct-chat-form"

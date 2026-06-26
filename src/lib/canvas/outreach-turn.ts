@@ -1,126 +1,301 @@
 /**
- * Deterministic Outreach turn — router + canonical copy (NO LLM).
- *
- * The Outreach campaign-setup conversation must be reliable, so its critical
- * turns are handled by a deterministic state machine, not by prompting the
- * model. This module owns:
- *   - the regex intent classifier (does this message open / drive the workshop?);
- *   - the template assistant copy for each structured step.
- *
- * Pure (no fs / prisma / network) so BOTH the server route and the client action
- * button can import it. Field extraction (name / kind) lives in
- * `deriveOutreachValuesFromObjective` (compose.ts) — the single canonical source.
+ * Deterministic Outreach parser/state utilities (NO LLM).
  */
 
-/**
- * Outreach-campaign OPEN/SETUP intent. Matches a campaign-setup phrasing, never
- * a plain read question ("combien de prospects ?"). Requires "campagne"/"campaign"
- * to co-occur with an outreach/prospection/distributor cue, OR a creation verb on
- * a campaign — so the word "outreach" alone (e.g. "c'est quoi l'outreach ?") does
- * NOT open the workshop.
- */
-const OUTREACH_INTENT_RE =
-  /\b(?:campagne|campaign)\b[^.?!]*\b(?:outreach|prospection|distributeurs?)\b|\b(?:outreach|prospection)\b[^.?!]*\b(?:campagne|campaign|leads?|prospects?|distributeurs?)\b|\b(?:lance[rz]?|d[ée]marre[rz]?|pr[ée]pare[rz]?|monte[rz]?|cr[ée]e?[rz]?|set\s*up|start)\b[^.?!]*\b(?:campagne|campaign)\b/i;
+export type OutreachCampaignType = "cold" | "newsletter";
 
-export interface OutreachIntent {
-  isOutreach: boolean;
-  /** The audience the operator named, when extractable (e.g. "distributeurs institutionnels"). */
-  target?: string;
-  /** The product the campaign is about, when extractable (e.g. "Hearst Yield"). */
-  product?: string;
-}
+export type OutreachParseResult = {
+  intent:
+    | "outreach_start"
+    | "outreach_slots"
+    | "outreach_open_campaign"
+    | "outreach_draft_missing_complaint"
+    | "outreach_source_leads"
+    | "none";
+  campaignName?: string;
+  campaignType?: OutreachCampaignType;
+  missing?: Array<"campaignName" | "campaignType">;
+};
+
+export type OutreachWorkflowState = {
+  workflow: "outreach_campaign";
+  campaignName?: string;
+  campaignType?: OutreachCampaignType;
+  draftStatus?: "none" | "prepared" | "created";
+  draftContent?: {
+    subject: string;
+    body: string;
+    audienceNote?: string;
+  };
+  campaignId?: string;
+  campaignRoute?: string;
+};
+
+const CONTROL_RE = /[\x00-\x1F\x7F]/g;
+const MULTI_SPACE_RE = /\s+/g;
+
+const COLD_ALIAS_RE =
+  /\b(?:cold|colde|campagne\s+cold|prospection|c['’]?\s*est\s+un\s+cold|c['’]?\s*est\s+un\s+colde)\b/i;
+const NEWSLETTER_ALIAS_RE = /\b(?:newsletter|news\s*letter|mailing)\b/i;
+const SOURCE_LEADS_RE =
+  /\b(?:source|sourcing|prospect|prospects|leads?|lead)\b[^.?!]*\b(?:outreach|campagne|campaign)?\b/i;
+const OPEN_CAMPAIGN_RE =
+  /\bla\s+campagne\b|\b(?:ouvre(?:-?moi)?|open)\b[^.?!]*\b(?:campagne|campaign)\b|\bbonne\s+page\s+de\s+la\s+campagne\b/i;
+const DRAFT_COMPLAINT_RE =
+  /\b(?:t['’]?\s*as\s+rien\s+[ée]crit(?:\s+dans\s+le\s+brouillon)?|rien\s+[ée]crit\s+dans\s+le\s+brouillon|brouillon\s+vide|draft\s+vide)\b/i;
+const START_RE =
+  /\b(?:on\s+va\s+faire|lance|d[ée]marre|pr[ée]pare|cr[ée]e?|setup|set\s*up|start)\b[^.?!]*\b(?:outreach|campagne|campaign)\b/i;
 
 function clean(value: string): string {
   return value
-    .replace(/[\x00-\x1F\x7F]/g, "")
+    .replace(CONTROL_RE, "")
     .replace(/["“«»”]/g, "")
     .trim()
-    .replace(/\s+/g, " ")
-    .slice(0, 80);
+    .replace(MULTI_SPACE_RE, " ")
+    .slice(0, 160);
 }
 
-/**
- * Classify whether a message opens / drives the Outreach campaign workshop, and
- * best-effort extract the target + product for the template copy. Deterministic
- * and pure — no LLM, never throws.
- */
-export function classifyOutreachIntent(message: string): OutreachIntent {
-  const text = typeof message === "string" ? message : "";
-  if (!OUTREACH_INTENT_RE.test(text)) return { isOutreach: false };
+function normalize(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(CONTROL_RE, "")
+    .toLowerCase()
+    .replace(MULTI_SPACE_RE, " ")
+    .trim();
+}
 
-  let target: string | undefined;
-  let product: string | undefined;
+function normalizeCampaignType(text: string): OutreachCampaignType | undefined {
+  if (NEWSLETTER_ALIAS_RE.test(text)) return "newsletter";
+  if (/\bprospection\b/i.test(text) && /\b(?:email|mail|lead|leads|prospect|source|sourcing)\b/i.test(text)) {
+    return undefined;
+  }
+  if (COLD_ALIAS_RE.test(text)) return "cold";
+  return undefined;
+}
 
-  // Canonical shape: "… outreach <TARGET> pour <PRODUCT>".
-  const both = /outreach\s+(.+?)\s+pour\s+(.+?)\s*[.!?]*\s*$/i.exec(text);
-  if (both?.[1] && both[2]) {
-    target = clean(both[1]);
-    product = clean(both[2]);
-  } else {
-    const t = /\b(distributeurs?(?:\s+institutionnels?)?(?:\s+\w+)?)/i.exec(text);
-    if (t?.[1]) target = clean(t[1]);
-    const p = /\bpour\s+(.+?)\s*[.!?]*\s*$/i.exec(text);
-    if (p?.[1]) product = clean(p[1]);
+function cleanupTrailingSlotNoise(value: string): string {
+  return value
+    .replace(
+      /(?:\b(?:et|c['’]?\s*est|cest|c\s+est|un|une|type|de|d['’]|la|le|campaign|campagne|outreach)\b[\s,:-]*)+$/i,
+      "",
+    )
+    .trim();
+}
+
+function extractCampaignName(text: string, campaignType?: OutreachCampaignType): string | undefined {
+  const explicitName =
+    /(?:nomm[ée]e?|appel[ée]e?|named|called|nom\s*[:=])\s*["“«]?\s*([^"”»\n,]{2,160})/i.exec(text);
+  if (explicitName?.[1]) {
+    const out = clean(explicitName[1]);
+    if (out.length >= 2) return out;
   }
 
+  if (campaignType) {
+    const beforeType =
+      /^(.*?)\b(?:cold|colde|newsletter|news\s*letter|mailing|prospection)\b/i.exec(text);
+    if (beforeType?.[1]) {
+      const out = clean(cleanupTrailingSlotNoise(beforeType[1]));
+      if (out.length >= 2) return out;
+    }
+  }
+
+  const normalized = normalize(text);
+  if (
+    START_RE.test(normalized) ||
+    /\b(?:outreach|campagne|campaign|prospection|newsletter|cold|colde|mailing)\b/i.test(
+      normalized,
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    /[?!]/.test(text) ||
+    /\b(?:creer|cr[eé]er|prepare|pr[eé]pare|simuler|ouvre|ouvrir|open|liste|list|montre|show|navigue|monte(?:-?moi)?)\b/i.test(
+      normalized,
+    )
+  ) {
+    return undefined;
+  }
+  const tokens = normalized.split(" ").filter(Boolean);
+  if (tokens.length === 0 || tokens.length > 4) return undefined;
+  if (!/[A-ZÀ-ÖØ-Ý]/.test(text)) return undefined;
+
+  const generic = clean(
+    text
+      .replace(/[.,!?]/g, " ")
+      .replace(MULTI_SPACE_RE, " ")
+      .trim(),
+  );
+  return generic.length >= 2 ? generic : undefined;
+}
+
+export function parseOutreachMessage(message: string): OutreachParseResult {
+  const text = typeof message === "string" ? message.trim() : "";
+  if (text.length === 0) return { intent: "none" };
+
+  const normalizedText = normalize(text);
+
+  if (DRAFT_COMPLAINT_RE.test(normalizedText)) {
+    return { intent: "outreach_draft_missing_complaint" };
+  }
+  if (OPEN_CAMPAIGN_RE.test(normalizedText)) {
+    return { intent: "outreach_open_campaign" };
+  }
+  if (SOURCE_LEADS_RE.test(normalizedText)) {
+    return { intent: "outreach_source_leads" };
+  }
+
+  const campaignType = normalizeCampaignType(normalizedText);
+  const campaignName = extractCampaignName(text, campaignType);
+  if (campaignName || campaignType) {
+    const missing: Array<"campaignName" | "campaignType"> = [];
+    if (!campaignName) missing.push("campaignName");
+    if (!campaignType) missing.push("campaignType");
+    return {
+      intent: "outreach_slots",
+      ...(campaignName ? { campaignName } : {}),
+      ...(campaignType ? { campaignType } : {}),
+      ...(missing.length > 0 ? { missing } : {}),
+    };
+  }
+
+  if (START_RE.test(normalizedText) || /\bcampaign\b|\bcampagne\b/i.test(normalizedText)) {
+    return {
+      intent: "outreach_start",
+      missing: ["campaignName", "campaignType"],
+    };
+  }
+
+  return { intent: "none" };
+}
+
+export function prepareOutreachDraftContent(args: {
+  campaignName: string;
+  campaignType: OutreachCampaignType;
+}): OutreachWorkflowState["draftContent"] {
   return {
-    isOutreach: true,
-    ...(target ? { target } : {}),
-    ...(product ? { product } : {}),
+    subject: "Introduction to Hearst Yield Vault",
+    body:
+      "Hi {{first_name}},\n\n" +
+      "I wanted to introduce Hearst Yield Vault, a read-only institutional yield product designed around transparent APY ranges, provenance, and risk framing.\n\n" +
+      "The current preview is structured for review only: no send action has been triggered, and distribution or sourcing requires confirmation.\n\n" +
+      "Best,\nHearst Connect",
+    audienceNote: `${args.campaignName} · ${args.campaignType}`,
   };
 }
 
-/**
- * Turn 1 — the workshop is open but the required fields (name + kind) are
- * missing. Deterministic question asking exactly for the campaign name and the
- * kind. Mentions the target/product when they were extractable.
- */
-export function buildOutreachAskFieldsMessage(args: {
-  target?: string;
-  product?: string;
-}): string {
-  const { target, product } = args;
-  const scope =
-    target && product
-      ? `pour une campagne ciblant les ${target} autour de ${product}`
-      : target
-        ? `pour une campagne ciblant les ${target}`
-        : product
-          ? `pour une campagne autour de ${product}`
-          : "pour une nouvelle campagne de prospection distributeurs";
-  return (
-    `J'ouvre le workspace Outreach ${scope}. ` +
-    "Pour créer le draft, quel nom veux-tu donner à la campagne, et souhaites-tu un type `cold` ou `newsletter` ?"
-  );
+export function reduceOutreachWorkflowState(
+  prev: OutreachWorkflowState,
+  parsed: OutreachParseResult,
+): OutreachWorkflowState {
+  const next: OutreachWorkflowState = {
+    ...prev,
+    workflow: "outreach_campaign",
+    draftStatus: prev.draftStatus ?? "none",
+  };
+  if (parsed.campaignName) next.campaignName = parsed.campaignName;
+  if (parsed.campaignType) next.campaignType = parsed.campaignType;
+
+  const hasSubject = Boolean(next.draftContent?.subject?.trim());
+  const hasBody = Boolean(next.draftContent?.body?.trim());
+  const hasDraftContent = hasSubject && hasBody;
+
+  if (
+    next.campaignName &&
+    next.campaignType &&
+    (!hasDraftContent || parsed.intent === "outreach_draft_missing_complaint")
+  ) {
+    next.draftContent = prepareOutreachDraftContent({
+      campaignName: next.campaignName,
+      campaignType: next.campaignType,
+    });
+    next.draftStatus = "prepared";
+  } else if (hasDraftContent && next.draftStatus !== "created") {
+    next.draftStatus = "prepared";
+  }
+
+  if (next.draftStatus === "created" && !next.campaignId) {
+    next.draftStatus = "prepared";
+  }
+
+  return next;
 }
 
-/**
- * Turn 2 — the operator supplied both required fields. Deterministic
- * acknowledgement that the Create-campaign-draft button is now available and
- * that NOTHING is created until they confirm. Never announces an auto action.
- */
+export function buildOutreachWorkflowStateFromMessages(
+  userMessages: string[],
+): OutreachWorkflowState {
+  let state: OutreachWorkflowState = {
+    workflow: "outreach_campaign",
+    draftStatus: "none",
+  };
+  for (const msg of userMessages) {
+    state = reduceOutreachWorkflowState(state, parseOutreachMessage(msg));
+  }
+  return state;
+}
+
+export function buildOutreachAskFieldsMessage(state: OutreachWorkflowState): string {
+  const missing = [];
+  if (!state.campaignName) missing.push("nom de campagne");
+  if (!state.campaignType) missing.push("type (`cold` ou `newsletter`)");
+  const suffix =
+    missing.length > 0
+      ? `Il me manque ${missing.join(" et ")}.`
+      : "Je peux préparer le draft dès que les slots sont complets.";
+  return `J’ouvre le workspace Outreach. ${suffix}`;
+}
+
+export function buildOutreachDraftPreparedMessage(state: OutreachWorkflowState): string {
+  const name = state.campaignName ?? "Campaign";
+  const kind = state.campaignType ?? "cold";
+  return `J’ai préparé un brouillon pour “${name}” · ${kind}. Aucun envoi n’a été lancé.`;
+}
+
+export function buildOutreachDraftComplaintFixedMessage(state: OutreachWorkflowState): string {
+  const name = state.campaignName ?? "Campaign";
+  const kind = state.campaignType ?? "cold";
+  return `Tu as raison. Je corrige : le contenu du draft “${name}” · ${kind} est maintenant prêt. Aucun envoi n’est lancé.`;
+}
+
+export function buildOutreachOpenCampaignMessage(state: OutreachWorkflowState): string {
+  if (!state.campaignName && !state.campaignType) {
+    return "Je peux ouvrir la campagne dès que tu me donnes son nom et son type (`cold` ou `newsletter`).";
+  }
+  if (!state.campaignName) {
+    return "Je peux ouvrir la campagne, il me manque seulement le nom.";
+  }
+  if (!state.campaignType) {
+    return "Je peux ouvrir la campagne, il me manque seulement le type (`cold` ou `newsletter`).";
+  }
+  return `J’ouvre la campagne “${state.campaignName}” · ${state.campaignType} dans le workspace Outreach.`;
+}
+
+export interface OutreachIntent {
+  isOutreach: boolean;
+}
+
+export function classifyOutreachIntent(message: string): OutreachIntent {
+  return { isOutreach: parseOutreachMessage(message).intent !== "none" };
+}
+
 export function buildOutreachFieldsAckMessage(args: {
   name: string;
   kind: "cold" | "newsletter";
 }): string {
-  return (
-    `C'est noté : campagne « ${args.name} », type \`${args.kind}\`. ` +
-    "Le bouton « Create campaign draft » est disponible dans le workspace — rien n'est créé tant que tu ne confirmes pas. " +
-    "Aucun lead n'est sourcé et aucun email n'est rédigé ou envoyé à cette étape."
-  );
+  return buildOutreachDraftPreparedMessage({
+    workflow: "outreach_campaign",
+    campaignName: args.name,
+    campaignType: args.kind,
+    draftStatus: "prepared",
+    draftContent: prepareOutreachDraftContent({
+      campaignName: args.name,
+      campaignType: args.kind,
+    }),
+  });
 }
 
-/**
- * Post-draft — emitted AFTER a successful create_campaign_draft confirmation.
- * Deterministic so the model can never improvise "je vais sourcer". States what
- * was done, that nothing was sourced/sent, and proposes the next step UNDER
- * explicit confirmation.
- */
 export function buildOutreachPostDraftMessage(name: string): string {
-  const safeName = clean(name) || name;
-  return (
-    `Le brouillon de campagne \`${safeName}\` a été créé en statut draft. ` +
-    "Aucun lead n'a été sourcé, aucun email n'a été rédigé ou envoyé. " +
-    "Souhaites-tu maintenant préparer le sourcing de leads ? Cette étape demandera une confirmation explicite."
-  );
+  return `Le draft de campagne “${clean(name) || name}” est enregistré avec un contenu non vide. Aucun envoi n’a été lancé.`;
 }

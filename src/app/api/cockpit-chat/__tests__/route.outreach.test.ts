@@ -167,20 +167,15 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
 
   afterEach(() => vi.restoreAllMocks());
 
-  const CANONICAL =
-    "lance une campagne outreach distributeurs institutionnels pour Hearst Yield";
-  const TURN2 =
-    'crée un draft de campagne nommée "Distributeurs Institutionnels Q3", type cold';
+  const TURN1 = "On va faire un outreach";
+  const TURN2 = "Adrien et c'est un colde";
+  const TURN3 = "T'as rien écrit dans le brouillon.";
 
-  it("turn 1: NO OpenAI, NO chat LLM — publishes outreach canvas + building frame + template question", async () => {
-    const res = await POST(chatRequest(CANONICAL));
+  it("turn 1 asks only missing slots (no LLM classifier/router)", async () => {
+    const res = await POST(chatRequest(TURN1));
     expect(res.status).toBe(200);
-
-    // The chat LLM and the LLM classifier never ran — pure deterministic path.
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(openaiCreate).not.toHaveBeenCalled();
-
-    // The outreach workshop was published.
     expect(mockPublishNav).toHaveBeenCalledWith(
       USER_ID,
       expect.objectContaining({ canvasId: "outreach", destinationKey: "admin-agent-canvas", autostart: true }),
@@ -195,26 +190,26 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
     // Name + kind show no fabricated value.
     expect(campaign.fields.find((f) => f.key === "name")!.value).toBe("—");
     expect(campaign.fields.find((f) => f.key === "kind")!.value).toBe("—");
-    // The deterministic template asks for name + kind.
-    expect(text).toContain("quel nom");
+    const draft = frames[0]!.sections.find((s) => s.id === "outreach-draft")!;
+    expect(draft.fields.find((f) => f.key === "subject")!.value).toBe("—");
+    expect(draft.fields.find((f) => f.key === "body")!.value).toBe("—");
+    expect(text).toContain("Il me manque");
     expect(text).toContain("`cold`");
     expect(text).toContain("`newsletter`");
-    expect(text).toContain("distributeurs institutionnels");
-    expect(text).toContain("Hearst Yield");
+    expect(text.toLowerCase()).not.toContain("confirmation nécessaire");
+    expect(text).not.toContain("I can guide and analyze, not transact.");
 
-    // The assistant template was persisted (with the canvas open-marker), and NO
-    // LlmRun was written (no model ran).
     await vi.waitFor(() => {
       const assistant = mockMsgCreate.mock.calls
         .map((c) => c[0].data)
         .find((d: { role?: string }) => d.role === "assistant");
-      expect(assistant?.content).toContain("quel nom");
+      expect(assistant?.content).toContain("Il me manque");
     });
     expect(vi.mocked(prisma.llmRun.create)).not.toHaveBeenCalled();
   });
 
-  it("turn 2: extracts Q3 + cold → ready frame; button payload name EQUALS the workspace name; revision monotonic", async () => {
-    const res1 = await POST(chatRequest(CANONICAL));
+  it("turn 2 prepares draft immediately and turn 3 complaint repairs/returns draft without re-asking slots", async () => {
+    const res1 = await POST(chatRequest(TURN1));
     const { frames: f1 } = await readBody(res1);
     const rev1 = f1[0]!.revision;
 
@@ -234,22 +229,58 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
     const { frames, text } = await readBody(res2);
     const frame = frames[0]!;
     const campaign = frame.sections.find((s) => s.id === "outreach-campaign")!;
+    const draft = frame.sections.find((s) => s.id === "outreach-draft")!;
     expect(campaign.status).toBe("ready");
+    expect(draft.status).toBe("ready");
 
     const nameValue = campaign.fields.find((f) => f.key === "name")!.value;
-    const action = frame.sections
-      .flatMap((s) => s.actions)
-      .find((a) => a.toolId === "create_campaign_draft")!;
-    expect(action).toBeTruthy();
-    // Workspace name === action payload name === the canonical value.
-    expect(nameValue).toBe("Distributeurs Institutionnels Q3");
-    expect(action.input?.name).toBe("Distributeurs Institutionnels Q3");
-    expect(action.input?.kind).toBe("cold");
+    const kindValue = campaign.fields.find((f) => f.key === "kind")!.value;
+    const subject = draft.fields.find((f) => f.key === "subject")!.value;
+    const body = draft.fields.find((f) => f.key === "body")!.value;
+    expect(nameValue).toBe("Adrien");
+    expect(kindValue).toBe("cold");
+    expect(subject.trim().length).toBeGreaterThan(0);
+    expect(body.trim().length).toBeGreaterThan(0);
+    expect(text).toContain("J’ai préparé un brouillon");
+    expect(text).toContain("Adrien");
+    expect(text).toContain("Aucun envoi n’a été lancé");
+    expect(text.toLowerCase()).not.toContain("souhaites-tu continuer");
+    expect(text.toLowerCase()).not.toContain("confirmation nécessaire");
+    expect(text.toLowerCase()).not.toContain("source");
+    expect(text).not.toContain("I can guide and analyze, not transact.");
 
-    // Revision strictly greater than turn 1 (monotonic, not the legacy 1/2).
     expect(frame.revision).toBeGreaterThan(rev1);
+    expect(vi.mocked(prisma.llmRun.create)).not.toHaveBeenCalled();
 
-    // Deterministic ack; never announces an automatic action.
-    expect(text.toLowerCase()).not.toContain("je vais sourcer");
+    vi.clearAllMocks();
+    vi.mocked(prisma.cockpitChat.create).mockResolvedValue({ id: "chat-3", userId: USER_ID } as never);
+    vi.mocked(prisma.cockpitChat.findUnique).mockResolvedValue({ userId: USER_ID } as never);
+    vi.mocked(prisma.cockpitChat.updateMany).mockResolvedValue({ count: 1 } as never);
+    vi.mocked(prisma.cockpitMessage.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.cockpitMessage.findMany).mockResolvedValue([] as never);
+    vi.mocked(prisma.cockpitMessage.count).mockResolvedValue(0 as never);
+
+    const res3 = await POST(chatRequest(TURN3));
+    expect(res3.status).toBe(200);
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
+    expect(openaiCreate).not.toHaveBeenCalled();
+
+    const turn3 = await readBody(res3);
+    const frame3 = turn3.frames[0]!;
+    const campaign3 = frame3.sections.find((s) => s.id === "outreach-campaign")!;
+    const draft3 = frame3.sections.find((s) => s.id === "outreach-draft")!;
+    expect(campaign3.fields.find((f) => f.key === "name")!.value).toBe("Adrien");
+    expect(campaign3.fields.find((f) => f.key === "kind")!.value).toBe("cold");
+    expect(draft3.fields.find((f) => f.key === "subject")!.value.trim().length).toBeGreaterThan(0);
+    expect(draft3.fields.find((f) => f.key === "body")!.value.trim().length).toBeGreaterThan(0);
+    expect(turn3.text).toContain("Tu as raison");
+    expect(turn3.text).toContain("Adrien");
+    expect(turn3.text).toContain("Aucun envoi n’est lancé");
+    expect(turn3.text.toLowerCase()).not.toContain("quel nom");
+    expect(turn3.text.toLowerCase()).not.toContain("newsletter");
+    expect(turn3.text.toLowerCase()).not.toContain("source");
+    expect(turn3.text.toLowerCase()).not.toContain("created");
+    expect(turn3.text).not.toContain("I can guide and analyze, not transact.");
+    expect(vi.mocked(prisma.llmRun.create)).not.toHaveBeenCalled();
   });
 });
