@@ -298,45 +298,44 @@
   --ct-doc-flow-stack-gap: var(--ct-space-8);  /* 24px — sibling cards in a stack */
   --ct-doc-flow-inner-gap: var(--ct-space-6);  /* 20px — intra-section / card body */
 
-  /* Text scale — RESPONSIVE via clamp(min, fluid, max).
-     - Small (base/sm/xs/micro) restent fixes pour la lisibilité du body sur mobile.
-     - Big (lg → display) interpolent linéairement du mobile (375px) au desktop
-       (1440px). Au-delà de 1440px, plafonnés à la valeur max. En dessous de
-       375px, plancher à la valeur min.
-     Formule : fluid = (max_px − min_px) / (1440 − 375) × (100vw − 375px) + min_px,
-     converti en `Xrem + Yvw`. */
-  --ct-text-octa: 0.5rem;      /* 8px — densest uppercase micro-label (dashboard value/label tier) */
-  --ct-text-nano: 0.5625rem;   /* 9px — sub-micro kicker / SVG chart label */
-  --ct-text-micro: 0.6875rem;  /* 11px — reading-tier bump */
-  --ct-text-2xs: 0.75rem;      /* 12px — between micro(11) and xs(13), panel labels */
-  --ct-text-2xs-plus: 0.78125rem; /* 12.5px — chat error body (base-shell) */
-  --ct-text-xs: 0.8125rem;    /* 13px — reading-tier bump (table/body) */
-  --ct-text-sm: 0.9375rem;    /* 15px — reading-tier bump */
-  --ct-text-base: 1rem;       /* 16px — fix */
+  /* Text scale — fluidity is driven by a FLUID ROOT font-size (see `html` rule
+     below): `html { font-size: clamp(15px, … + vw, 20px) }`. Because every token
+     here is expressed in `rem`, the WHOLE scale — corps, micro-labels, KPI,
+     headlines — grows with the viewport through the root, no per-token `vw` needed
+     and no double-counting. These are clean rem multiples (the original ratios);
+     the single source of motion is the root clamp, verified with node
+     (scratchpad/root.mjs) at 768/1280/1920/2450/2880px. */
+  --ct-text-octa: 0.5rem;      /* 8px @16 root — densest uppercase micro-label (dashboard value/label tier) */
+  --ct-text-nano: 0.5625rem;   /* 9px @16 root — sub-micro kicker / SVG chart label */
+  --ct-text-micro: 0.6875rem;  /* 11px @16 root — reading-tier bump */
+  --ct-text-2xs: 0.75rem;      /* 12px @16 root — between micro(11) and xs(13), panel labels */
+  --ct-text-2xs-plus: 0.78125rem; /* 12.5px @16 root — chat error body (base-shell) */
+  --ct-text-xs: 0.8125rem;    /* 13px @16 root — reading-tier bump (table/body) */
+  --ct-text-sm: 0.9375rem;    /* 15px @16 root — reading-tier bump */
+  --ct-text-base: 1rem;       /* 16px @16 root — body */
   /* portfolio scale fill — slots between existing steps + hero */
-  --ct-text-deci: 0.625rem;       /* 10px — between nano(9) and micro(11) */
-  --ct-text-deca: 0.875rem;       /* 14px — between xs(13) and sm(15), delta/metric */
-  --ct-text-14: 0.875rem;         /* 14px — between xs(13) and sm(15) */
-  --ct-text-hero-sym: 1.25rem;    /* 20px — hero value-chart symbol ($) */
-  --ct-text-hero-num: 3rem;       /* 48px — hero value-chart large number */
-  /* Typography big scale — density calibration (headlines −1 step desktop max). */
-  --ct-text-lg:      clamp(0.9375rem, 0.912rem + 0.141vw, 1.0625rem); /* 15 → 17 */
-  --ct-text-xl:      clamp(1.0625rem, 1.024rem + 0.188vw, 1.1875rem); /* 17 → 19 */
-  --ct-text-2xl:     clamp(1.125rem,  1.074rem + 0.263vw, 1.375rem);  /* 18 → 22 */
-  --ct-text-3xl:     clamp(1.375rem,  1.324rem + 0.329vw, 1.625rem);  /* 22 → 26 */
-  --ct-text-5xl:     clamp(1.5rem,    1.412rem + 0.376vw, 1.875rem);  /* 24 → 30 */
-  --ct-text-display: clamp(1.75rem,   1.636rem + 0.470vw, 2.125rem);  /* 28 → 34 */
-  /* Fixed headline tier — seeded from the portfolio page (new DS reference).
-     Non-fluid: stable KPI/heading numbers that must not resize per viewport. */
-  --ct-text-xl-fixed: 1.125rem;       /* 18px — fixed value display (ticker) */
-  --ct-text-2xl-fixed: 1.25rem;       /* 20px — fixed hero value (NAV) */
-  --ct-text-28-fixed: 1.75rem;        /* 28px — fixed hero number (risk summary value) */
-  --ct-text-3xl-fixed: 1.5rem;        /* 24px — fixed heading (greeting lead) */
-  --ct-text-display-fixed: 2rem;      /* 32px — fixed hero KPI number */
-  --ct-text-hero: 2.5rem;             /* 40px — DS-level hero KPI tier (V4 absorption,
-                                         SSOT §3). Above display-fixed(32) for the
-                                         single dominant figure of a hero surface;
-                                         value-chart keeps its own --ct-text-hero-num(48). */
+  --ct-text-deci: 0.625rem;       /* 10px @16 root — between nano(9) and micro(11) */
+  --ct-text-deca: 0.875rem;       /* 14px @16 root — between xs(13) and sm(15), delta/metric */
+  --ct-text-14: 0.875rem;         /* 14px @16 root — between xs(13) and sm(15) */
+  --ct-text-hero-sym: 1.25rem;    /* 20px @16 root — hero value-chart symbol ($) */
+  --ct-text-hero-num: 3rem;       /* 48px @16 root — hero value-chart large number */
+  /* Typography big scale — clean rem multiples; grow via the fluid root. */
+  --ct-text-lg:      1.0625rem; /* 17px @16 root */
+  --ct-text-xl:      1.1875rem; /* 19px @16 root */
+  --ct-text-2xl:     1.375rem;  /* 22px @16 root */
+  --ct-text-3xl:     1.625rem;  /* 26px @16 root */
+  --ct-text-5xl:     1.875rem;  /* 30px @16 root */
+  --ct-text-display: 2.125rem;  /* 34px @16 root */
+  /* Headline tier — clean rem multiples; grow via the fluid root. Names keep the
+     `-fixed` suffix for call-site stability site-wide. */
+  --ct-text-xl-fixed: 1.75rem;        /* 28px @16 root (ticker) */
+  --ct-text-2xl-fixed: 2rem;          /* 32px @16 root (NAV value) */
+  --ct-text-28-fixed: 2.75rem;        /* 44px @16 root (risk summary) */
+  --ct-text-3xl-fixed: 2.5rem;        /* 40px @16 root (greeting lead) */
+  --ct-text-display-fixed: 3.25rem;   /* 52px @16 root (hero KPI) */
+  --ct-text-hero: 4rem;               /* 64px @16 root — DS hero KPI tier
+                                         (V4 absorption, SSOT §3). Single dominant figure of a hero
+                                         surface; value-chart keeps its own --ct-text-hero-num. */
 
   /* Font weight scale (mirrors Tailwind). */
   --ct-font-light: 300;
@@ -393,6 +392,24 @@
   --ct-scenario-central-dur-base: var(--ct-dur-base);
   --ct-scenario-central-ease: var(--ct-ease);
 }
+
+/* ── FLUID ROOT — the single engine that makes ALL type responsive ──────────
+   The whole site sizes text in `rem` (the --ct-text-* tokens, Tailwind text-*,
+   .ct-form-label, body copy, headlines…). Making the ROOT font-size fluid scales
+   every one of them at once, with no per-call-site edits and no double-counting
+   (tokens above are clean rem multiples — zero `vw` inside them). Expressed in
+   px+vw (NEVER rem on `html` — that would be recursive). Floor 15px at ≤768px,
+   ceiling 20px at ≥2880px, so a 2450px screen sits mid-track and keeps growing.
+   Loaded after globals.css (layout.tsx import order) → this wins over
+   `html,body { font-size: var(--text-md) }`. Computed with node, verified
+   (scratchpad/root.mjs): 1280→16.21px · 1920→17.73px · 2450→18.98px · 2880→20px.
+   Chosen unit `vw` follows the browser window (not the centre column — opening the
+   chat does not reflow type). 2026-06-26. */
+html,
+body {
+  font-size: clamp(15px, 13.1818px + 0.2367vw, 20px);
+}
+
 .dashboard-merged-card {
   /* Radius + bevel alignés sur les surfaces fusionnées (ops/lower) et la
      readiness → une seule famille de surfaces, bords moins durs. */
@@ -3887,9 +3904,8 @@ button.ct-choice-card {
   position: relative;
 }
 
-/* Fondu bas — dégradé transparent vers bg-deep sur le bas du centre.
-   Pas de backdrop-filter (crée une couche opaque). Juste un fade propre. */
-.ct-center-panel > .ct-page-area::after {
+/* Fondu bas — dégradé transparent vers bg-deep (surfaces sans footer shell). */
+.ct-root:not(:has(> .app-footer)) .ct-center-panel > .ct-page-area::after {
   content: "";
   position: fixed;
   bottom: 0;
@@ -3899,6 +3915,49 @@ button.ct-choice-card {
   background: linear-gradient(to bottom, transparent 0%, var(--ct-bg-deep) 100%);
   pointer-events: none;
   z-index: 10;
+}
+
+/* Centre dissolve — voile blur collé au bas du scrollport (main), pas fixed sur
+   page-area : fixed ne recouvrait pas le body central (seuls rails/chat masquaient).
+   ::after sticky + marge négative = le contenu qui scroll passe sous le flou. */
+.ct-root:has(> .app-footer) .ct-page-area > :has(> main#main-content) > main#main-content,
+.ct-root:has(> .app-footer) .ct-page-area > main#main-content {
+  --ct-scroll-dissolve-h: clamp(var(--ct-space-10), 12vh, var(--ct-space-16));
+}
+
+.ct-root:has(> .app-footer) .ct-page-area > :has(> main#main-content) > main#main-content::after,
+.ct-root:has(> .app-footer) .ct-page-area > main#main-content::after {
+  content: "";
+  position: sticky;
+  bottom: 0;
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  height: var(--ct-scroll-dissolve-h);
+  margin-top: calc(-1 * var(--ct-scroll-dissolve-h));
+  pointer-events: none;
+  z-index: var(--ct-z-raised);
+  backdrop-filter: var(--ct-blur-md);
+  -webkit-backdrop-filter: var(--ct-blur-md);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 100%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--ct-bg-deep) 20%, transparent) 50%,
+    color-mix(in srgb, var(--ct-bg-black) 65%, transparent) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-root:has(> .app-footer) .ct-page-area > :has(> main#main-content) > main#main-content::after,
+  .ct-root:has(> .app-footer) .ct-page-area > main#main-content::after {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    mask-image: none;
+    -webkit-mask-image: none;
+    background: linear-gradient(to bottom, transparent, var(--ct-bg-deep));
+  }
 }
 
 /* ── RAIL INTRA-APP — nav verticale dans la zone .ct-rail-left ──
@@ -4402,9 +4461,10 @@ button.ct-choice-card {
   padding: var(--ct-space-6) var(--ct-space-7) var(--ct-space-3);
 }
 
-/* Shell Black Fade — smooth transition to footer plinth.
-   Fades content as it reaches the bottom of the scroll viewport. */
-.ct-page-area::after {
+/* Shell Black Fade — smooth transition when no external legal footer.
+   With .ct-root > .app-footer the plinth owns the bottom edge; a black fade here
+   stacks visually as a phantom footer band inside the centre column. */
+.ct-root:not(:has(> .app-footer)) .ct-page-area::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -4412,7 +4472,7 @@ button.ct-choice-card {
   right: 0;
   /* Responsive fade height: smaller on mobile, generous on desktop. */
   height: clamp(var(--ct-space-8), 8vh, var(--ct-space-16));
-  background: linear-gradient(to bottom, transparent, var(--ct-bg-black));
+  background: linear-gradient(to bottom, transparent, var(--ct-bg-deep));
   pointer-events: none;
   z-index: 10;
 }
@@ -4499,12 +4559,14 @@ button.ct-choice-card {
 }
 
 /* Admin + LP doc-flow — single centre plaque (portfolio canon), transparent
-   inner shells; black boxes + gray nested insets above this layer. */
+   inner shells; black boxes + gray nested insets above this layer.
+   Bottom inset léger : le footer compact vit en .ct-root > .app-footer (pleine
+   largeur), pas dans la colonne — space-16 créait ~128px de bande noire empilée. */
 .ct-page-area:has(:is(.admin-doc, .product-doc)) {
   background: var(--ct-bg-deep);
   padding-top: var(--ct-space-12); /* Increased from space-9 */
   padding-inline: var(--ct-space-8); /* Increased from space-5 */
-  padding-bottom: var(--ct-space-16); /* Increased from space-8 */
+  padding-bottom: var(--ct-space-6);
 }
 /* Admin layout fills main scroll column (mirrors product-doc-shell chain). */
 main#main-content>.admin-doc.admin-doc-shell {

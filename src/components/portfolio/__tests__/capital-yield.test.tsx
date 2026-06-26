@@ -90,10 +90,10 @@ describe("CapitalYield — awaiting-data state (position active, no vault snapsh
     expect(html).toContain("12.8");
   });
 
-  it("shows 'Allocation breakdown' and 'vault snapshot not yet published' copy", () => {
+  it("shows 'Allocation breakdown' and the awaiting-snapshot copy", () => {
     const html = renderToStaticMarkup(<CapitalYield {...AWAITING_PROPS} />);
     expect(html).toContain("Allocation breakdown");
-    expect(html).toContain("vault snapshot not yet published");
+    expect(html).toContain("next vault snapshot");
   });
 
   it("shows the 'not guaranteed' disclaimer — non-negotiable #10", () => {

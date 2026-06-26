@@ -8,6 +8,7 @@ import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { ApyRange } from "@/components/ui/apy-range";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { cn } from "@/lib/cn";
 
@@ -139,7 +140,7 @@ function AllocationDonut({
       </svg>
       <div className="cy-v5-donut__center">
         <span className="cy-v5-donut__center-top">{centerTop}</span>
-        <span className="cy-v5-donut__center-main tabular">{centerMain}</span>
+        <span className="cy-v5-donut__center-main">{centerMain}</span>
       </div>
     </div>
   );
@@ -169,8 +170,6 @@ function PendingDonut() {
           cy={DONUT_RADIUS}
           r={DONUT_NORM_R}
           fill="transparent"
-          stroke="color-mix(in srgb, var(--ct-accent) 38%, transparent)"
-          strokeWidth={1.5}
           strokeDasharray="2 5"
           strokeLinecap="round"
           className="cy-v5-donut__pending-ring"
@@ -198,8 +197,8 @@ function ApyRangeTrack({ low, high }: { low: number; high: number }) {
         <span className="cy-v5-apy__tick cy-v5-apy__tick--high" />
       </div>
       <div className="cy-v5-apy__anchors">
-        <span className="cy-v5-apy__anchor tabular">{low.toFixed(1)}%</span>
-        <span className="cy-v5-apy__anchor cy-v5-apy__anchor--high tabular">
+        <span className="cy-v5-apy__anchor">{low.toFixed(1)}%</span>
+        <span className="cy-v5-apy__anchor cy-v5-apy__anchor--high">
           {high.toFixed(1)}%
         </span>
       </div>
@@ -221,7 +220,7 @@ function MetricsHeadline({
     <div className="cy-v5-headline">
       <div className="cy-v5-metric cy-v5-metric--primary">
         <span className="cy-v5-metric__label">Capital active</span>
-        <span className="cy-v5-metric__value tabular">
+        <span className="cy-v5-metric__value">
           {formatUsdCompact(totalValueUsdc)}
         </span>
       </div>
@@ -299,11 +298,13 @@ export function CapitalYield({
               ? "Active capital · allocation pending"
               : undefined
         }
-        provenance={provenance}
         titleVariant="primary"
         trailing={
           hasData || showRichPartial ? (
             <div className="cy-v5-header-trail">
+              {/* Readable provenance label (not the dot-only compact pill) so
+                  "Estimated" is legible — non-negotiable #2. */}
+              {provenance ? <ProvenanceBadge kind={provenance} /> : null}
               <HorizonChip />
               {leafHref ? <PortfolioLeafLink href={leafHref} /> : null}
             </div>
@@ -352,11 +353,11 @@ export function CapitalYield({
                     <span className="cy-v5-legend__label">
                       {src?.label ?? b.bucket}
                     </span>
-                    <span className="cy-v5-legend__pct tabular">{b.pct}%</span>
+                    <span className="cy-v5-legend__pct">{b.pct}%</span>
                     {contribLabel !== null ? (
                       <span
                         className={cn(
-                          "cy-v5-legend__contrib tabular",
+                          "cy-v5-legend__contrib",
                           src?.isVolatile && "cy-v5-legend__contrib--volatile",
                         )}
                       >
@@ -393,8 +394,8 @@ export function CapitalYield({
                 Allocation breakdown pending
               </span>
               <span className="cy-v5-pending-copy__desc">
-                vault snapshot not yet published — your capital and target yield
-                are confirmed; the bucket split appears on the next snapshot.
+                Capital and target yield confirmed; bucket split appears on the
+                next vault snapshot.
               </span>
             </div>
           </div>

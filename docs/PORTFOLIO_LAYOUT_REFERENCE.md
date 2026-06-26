@@ -41,7 +41,7 @@ viewport
 | `--ct-rail-right-expanded` | `clamp(19rem, 25vw, 30rem)` | **304–480px** selon viewport |
 | `.ct-rail-right.collapsed` | **48px** | Seul preset fixe côté chat |
 | `--ct-space-7` | `1.75rem` = **28px** | Padding horizontal `.ct-page-area` |
-| Portfolio bottom padding | `--ct-space-16` = **64px** | Override `:has(.pf-container)` |
+| Doc-flow bottom (`.product-doc`) | `--ct-space-6` = **24px** | Une seule réserve bas centre (footer shell = sibling `.ct-root`) |
 
 **Formule largeur contenu portfolio :**
 
