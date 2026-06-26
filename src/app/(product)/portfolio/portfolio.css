@@ -3098,67 +3098,32 @@
   padding-top: var(--ct-space-2);
 }
 
-/* 2×2 tile grid */
-.pf-sp2-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* 2×2 KPI grid — DS primitive MetricGrid + Metric variant="nested".
+   The bento separators (1px gap on --ct-border-soft) + nested graphite cell
+   fill live here (layout chrome); the metric typography lives in Metric
+   (.stat-label / .stat-value), no longer reimplemented per-tile. */
+.pf-sp2-grid {
+  /* Force a strict 2×2 (override the MetricGrid 3-up ≥768px breakpoint): this
+     KPI block lives in the narrow status rail, not a full-width module. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   background: var(--ct-border-soft);
   flex: 1 1 auto;
+  min-width: 0;
 }
 
-.pf-sp2-tile {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
+.pf-sp2-grid > .ct-metric-nested {
   padding: var(--ct-space-3_5) var(--ct-space-5);
   background: var(--ct-graphite-nested-bg);
-  transition: all var(--ct-dur-fast) var(--ct-ease);
   min-width: 0;
-  position: relative;
-  z-index: 1;
 }
 
-.pf-sp2-tile:hover {
-  background: var(--ct-surface-3);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 25%, transparent);
-  z-index: 2;
+/* Narrow rail: let the sublabel wrap instead of ellipsis-truncating. */
+.pf-sp2-grid > .ct-metric-nested .ct-metric-nested__sublabel {
+  white-space: normal;
+  overflow: visible;
 }
 
-/* Yield tile — subtle accent tint: green = verified positive signal only */
-.pf-sp2-tile--yield {
-  /* Background tint removed to avoid "green veil" — signal carried by icon/value */
-}
-
-.pf-sp2-tile--yield:hover {
-  background: var(--ct-surface-3);
-}
-
-.pf-sp2-tile__icon,
-.pf-sp2-proof__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-6);
-  height: var(--ct-space-6);
-  border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-tertiary);
-  flex-shrink: 0;
-}
-
-.pf-sp2-tile__icon {
-  background: var(--ct-surface-3);
-  margin-bottom: var(--ct-space-0_5);
-}
-
-.pf-sp2-tile__icon--accent {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 9%, var(--ct-surface-3));
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
-}
-
-.pf-sp2-tile__label,
 .pf-sp2-proof__name {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
@@ -3166,41 +3131,6 @@
   letter-spacing: var(--ct-tracking-widest);
   color: var(--ct-text-tertiary);
   white-space: nowrap;
-}
-
-.pf-sp2-tile__label {
-  line-height: var(--ct-leading-none);
-}
-
-.pf-sp2-tile__value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-  white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pf-sp2-tile__value--accent {
-  color: var(--ct-accent);
-}
-
-.pf-sp2-tile__value--dim {
-  color: var(--ct-text-tertiary);
-  opacity: var(--ct-opacity-40);
-  font-weight: var(--ct-font-light);
-}
-
-.pf-sp2-tile__sub {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  line-height: var(--ct-leading-tight);
-  white-space: nowrap;
-  opacity: var(--ct-opacity-70);
 }
 
 /* Proof strip — full width, bottom */
@@ -3221,6 +3151,15 @@
 }
 
 .pf-sp2-proof__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ct-space-6);
+  height: var(--ct-space-6);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  color: var(--ct-text-tertiary);
+  flex-shrink: 0;
   background: var(--ct-surface-2);
 }
 

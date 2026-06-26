@@ -1,9 +1,11 @@
-import { ShieldCheck, TrendingUp, Layers, Wallet, ArrowDownToLine } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { PfCockpitPanel } from "@/components/portfolio/pf-cockpit-panel";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { cn } from "@/lib/cn";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { Metric } from "@/components/ui/metric";
+import { MetricGrid } from "@/components/ui/nested-panel";
 
 const DASH = "—";
 
@@ -87,61 +89,34 @@ export function PortfolioStatusPanel({
         )}
       </div>
 
-      {/* ── KPI tile grid (2×2) ── */}
+      {/* ── KPI grid (2×2) — DS primitive: MetricGrid + Metric variant="nested" ── */}
       <div className="pf-sp2-body">
-        <div className="pf-sp2-tiles">
-
-          {/* Tile 1 — Principal (net deposits) */}
-          <div className="pf-sp2-tile">
-            <div className="pf-sp2-tile__icon">
-              <ArrowDownToLine size={13} strokeWidth={2.2} aria-hidden />
-            </div>
-            <span className="pf-sp2-tile__label">Principal</span>
-            <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
-              {hasPositions ? formatUsdCompact(deployedUsdc) : DASH}
-            </span>
-            <span className="pf-sp2-tile__sub">Net deposits</span>
-          </div>
-
-          {/* Tile 2 — Positions */}
-          <div className="pf-sp2-tile">
-            <div className="pf-sp2-tile__icon">
-              <Wallet size={13} strokeWidth={2.2} aria-hidden />
-            </div>
-            <span className="pf-sp2-tile__label">Positions</span>
-            <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
-              {hasPositions ? String(positionsCount) : DASH}
-            </span>
-            <span className="pf-sp2-tile__sub">{hasPositions ? "Active" : "None yet"}</span>
-          </div>
-
-          {/* Tile 3 — Deployed % */}
-          <div className="pf-sp2-tile">
-            <div className="pf-sp2-tile__icon">
-              <Layers size={13} strokeWidth={2.2} aria-hidden />
-            </div>
-            <span className="pf-sp2-tile__label">Deployed</span>
-            <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
-              {hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
-            </span>
-            <span className="pf-sp2-tile__sub">{hasPositions ? formatUsdCompact(deployedUsdc) : "No principal"}</span>
-          </div>
-
-          {/* Tile 4 — Accrued yield — green ONLY because positive verified signal */}
-          <div className="pf-sp2-tile pf-sp2-tile--yield">
-            <div className="pf-sp2-tile__icon pf-sp2-tile__icon--accent">
-              <TrendingUp size={13} strokeWidth={2.2} aria-hidden />
-            </div>
-            <span className="pf-sp2-tile__label">Accrued yield</span>
-            <span className={cn(
-              "pf-sp2-tile__value tabular",
-              hasPositions ? "pf-sp2-tile__value--accent" : "pf-sp2-tile__value--dim",
-            )}>
-              {hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH}
-            </span>
-            <span className="pf-sp2-tile__sub">Since inception</span>
-          </div>
-        </div>
+        <MetricGrid columns={2} className="pf-sp2-grid">
+          <Metric
+            variant="nested"
+            label="Principal"
+            value={hasPositions ? formatUsdCompact(deployedUsdc) : DASH}
+            sublabel="Net deposits"
+          />
+          <Metric
+            variant="nested"
+            label="Positions"
+            value={hasPositions ? String(positionsCount) : DASH}
+            sublabel={hasPositions ? "Active" : "None yet"}
+          />
+          <Metric
+            variant="nested"
+            label="Deployed"
+            value={hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
+            sublabel={hasPositions ? formatUsdCompact(deployedUsdc) : "No principal"}
+          />
+          <Metric
+            variant="nested"
+            label="Accrued yield"
+            value={hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH}
+            sublabel="Since inception"
+          />
+        </MetricGrid>
 
         {/* Proof strip — full width, green accent ONLY when live + verified */}
         <div className={cn("pf-sp2-proof", isLive && "pf-sp2-proof--live")}>
