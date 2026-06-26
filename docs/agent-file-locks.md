@@ -16,6 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/agentic-readonly-api
+Owner: Opus Orchestrateur — Agentic Read-only API
+Branch: feat/agentic-readonly-api
+Worktree: ../connect-opus-agentic-api
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/app/api/admin/agentic/** (new GET registry + POST simulate)
+- src/lib/agentic/swarm/registry-snapshot.ts (new, API-safe serialization)
+- src/lib/agentic/swarm/index.ts (export the snapshot only)
+- tests for the agentic API + snapshot
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend API only. GET registry + POST simulation, no side effects.
+- No UI/UX. No DS. No /admin/agentic visual changes.
+- No proof-center / vault / portfolio changes.
+- No Prisma migration, no DB write, no external tool, no prompt/user-text, no secrets.
+
+---
+
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
