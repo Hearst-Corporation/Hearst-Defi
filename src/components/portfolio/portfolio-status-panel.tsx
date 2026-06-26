@@ -36,7 +36,7 @@ function KpiRow({
   return (
     <div className="pf-sp2-kpi-row">
       <div className="pf-sp2-kpi-row__icon" aria-hidden="true">
-        <Icon size={14} strokeWidth={2} />
+        <Icon size={16} strokeWidth={2} />
       </div>
       <div className="pf-sp2-kpi-row__body">
         <span className="pf-sp2-kpi-row__label">{label}</span>

@@ -3099,8 +3099,8 @@
 }
 
 /* KPI list — stacked icon-led rows. One metric per line:
-   [icon chip] label + sublabel ........... value (right-aligned).
-   Rows separated by hairlines; mirrors the proof-strip visual language. */
+   [accent icon chip] label + sublabel ........... value (right-aligned).
+   Accent-tinted icon chips + bold values for an institutional, premium feel. */
 .pf-sp2-kpi-list {
   display: flex;
   flex-direction: column;
@@ -3111,10 +3111,15 @@
 .pf-sp2-kpi-row {
   display: flex;
   align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-3) var(--ct-space-5);
-  border-bottom: 1px solid var(--ct-border-soft);
+  gap: var(--ct-space-3_5);
+  padding: var(--ct-space-3_5) var(--ct-space-5);
+  border-bottom: 1px solid var(--ct-border-ghost);
   min-width: 0;
+  transition: background-color var(--ct-dur-fast) var(--ct-ease);
+}
+
+.pf-sp2-kpi-row:hover {
+  background: color-mix(in srgb, var(--ct-accent) 4%, transparent);
 }
 
 .pf-sp2-kpi-row:last-child {
@@ -3125,12 +3130,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--ct-space-7);
-  height: var(--ct-space-7);
+  width: var(--ct-space-8);
+  height: var(--ct-space-8);
   border-radius: var(--ct-radius-md);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-2);
-  color: var(--ct-text-tertiary);
+  border: 1px solid color-mix(in srgb, var(--ct-accent) 18%, var(--ct-border-soft));
+  background: color-mix(in srgb, var(--ct-accent) 8%, var(--ct-surface-2));
+  color: var(--ct-accent);
   flex-shrink: 0;
 }
 
@@ -3146,8 +3151,8 @@
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
   text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-secondary);
   line-height: var(--ct-leading-tight);
 }
 
@@ -3159,9 +3164,10 @@
 }
 
 .pf-sp2-kpi-row__value {
-  font-size: var(--ct-text-sm);
+  font-size: var(--ct-text-base);
   font-weight: var(--ct-font-bold);
   color: var(--ct-text-strong);
+  letter-spacing: var(--ct-tracking-tight);
   white-space: nowrap;
   flex-shrink: 0;
   text-align: right;
