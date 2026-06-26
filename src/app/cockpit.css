@@ -65,7 +65,7 @@
   --ct-chart-area-top: var(--ct-figma-accent-area-top);
   --ct-chart-area-bottom: var(--ct-figma-accent-area-bottom);
   /* Chrome sombre — overlays blancs Figma (remplace les color-mix approximatifs). */
-  --ct-border-soft: rgba(255, 255, 255, 0.04);
+  --ct-border-soft: var(--ct-figma-border-5);
   --ct-border: var(--ct-figma-border-10);
   --ct-border-strong: var(--ct-figma-border-20);
   --ct-border-on-dark: var(--ct-figma-border-10);
@@ -84,19 +84,29 @@
   --ct-title-2: color-mix(in srgb, var(--ct-accent) 80%, transparent);
   --ct-title-3: color-mix(in srgb, var(--ct-accent) 65%, transparent);
 
-  /* ── FONDS DE SURFACES — charcoal étagé, opaque (palette Figma Hearst Flow) ──
-     Fond global = #0E0F0F. Les surfaces montent du fond vers le clair pour la
-     profondeur. surface-0 = niveau du fond (rails/chat), cards au-dessus. */
+  /* ── FONDS DE SURFACES — TOUT EN NOIR (direction Adrien) ──────────────────────
+     Le shell (fond du centre + rails menu/chat) ET les boxes partagent le MÊME
+     noir profond, porté par le token --ct-bg-deep (défini #060708 dans tokens.css).
+     Aucun hex hardcodé dans les usages : les rails + --ct-graphite-subtle-bg
+     pointent sur var(--ct-bg-deep). surface-1 reste le gris réservé aux chips,
+     hovers, insets nichés et états actifs (relief subtil sur le noir). */
   --ct-surface-0: color-mix(in oklch, #060708, var(--ct-accent) 0%);
   --ct-surface-1: color-mix(in oklch, #1C1D21, var(--ct-accent) 0%);
   --ct-surface-1-hi: color-mix(in oklch, #202228, var(--ct-accent) 0%); /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
   --ct-surface-2: color-mix(in oklch, #26272D, var(--ct-accent) 0%);
   --ct-surface-3: color-mix(in oklch, #2E3038, var(--ct-accent) 0%);
 
+  /* Canvas central (body) — un cran PLUS CLAIR que le noir des boxes/rails, pour
+     que les boxes noires se détachent comme des dalles. Porte aussi le dot-grid
+     (déplacé des rails). Token DS — aucun hex hardcodé dans les usages. */
+  --ct-bg-center: #191B22;
+
   /* Graphite module surfaces — solid black plates (no gradient, no glass).
-     L1 box = surface-1 (pour détacher du fond bg-deep); nested inset = surface-2. */
+     L1 box = var(--ct-bg-deep) : MÊME noir que le shell (tout en noir), la
+     séparation vient des liserés (--ct-graphite-border-nested) ; état actif =
+     surface-1 (gris) en relief ; nested inset = surface-2. */
   --ct-graphite-active-bg: var(--ct-surface-1);
-  --ct-graphite-subtle-bg: var(--ct-surface-1);
+  --ct-graphite-subtle-bg: var(--ct-bg-deep);
   --ct-graphite-nested-bg: var(--ct-surface-2);
   --ct-graphite-border: var(--ct-figma-border-20);
   --ct-graphite-border-nested: var(--ct-figma-border-10);
@@ -407,13 +417,15 @@
    px+vw (NEVER rem on `html` — that would be recursive). Floor 15px at ≤768px,
    ceiling 20px at ≥2880px, so a 2450px screen sits mid-track and keeps growing.
    Loaded after globals.css (layout.tsx import order) → this wins over
-   `html,body { font-size: var(--text-md) }`. Computed with node, verified
-   (scratchpad/root.mjs): 1280→16.21px · 1920→17.73px · 2450→18.98px · 2880→20px.
+   `html,body { font-size: var(--text-md) }`. Scaled −20% (Adrien, 2026-06-26):
+   the previous track topped out at 20px and read too large at 100% on desktop.
+   Slope/ceiling cut 20% (ceiling 20→16px); floor held a touch higher (13px) for
+   mobile legibility. Anchors: 1440→13.3px · 1920→14.2px · 2450→15.2px · 2880→16px.
    Chosen unit `vw` follows the browser window (not the centre column — opening the
    chat does not reflow type). 2026-06-26. */
 html,
 body {
-  font-size: clamp(15px, 13.1818px + 0.2367vw, 20px);
+  font-size: clamp(13px, 10.5454px + 0.1894vw, 16px);
 }
 
 .dashboard-merged-card {
@@ -3734,13 +3746,8 @@ button.ct-choice-card {
      propres éléments via @layer en dev ; il s'appliquera là où la cascade le
      permet). */
   /* Rail = surface-1 + dot grid identique au rail droit. */
-  background-color: var(--ct-surface-1) !important;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
-    transparent 1.5px
-  ) !important;
-  background-size: 24px 24px !important;
+  background-color: var(--ct-bg-deep) !important;
+  background-image: none !important;
   border-right: 1px solid var(--ct-border-on-dark);
   /* Rail verrouillé en position fermée — largeur fixe, jamais déployé. */
   width: var(--ct-rail-left) !important;
@@ -3759,13 +3766,8 @@ button.ct-choice-card {
      que le rail gauche. L'effet repose sur ce background translucide (le blur
      est best-effort, cf. note rail gauche). */
   /* Rail droit = surface-1 + dot grid (pattern login-split réutilisé). */
-  background-color: var(--ct-surface-1) !important;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
-    transparent 1.5px
-  ) !important;
-  background-size: 24px 24px !important;
+  background-color: var(--ct-bg-deep) !important;
+  background-image: none !important;
   border-left: 1px solid var(--ct-border-on-dark);
   flex-shrink: 0;
   /* Open (default) chat = largeur FLUIDE (le package posait 22rem fixe). Le clamp
@@ -3873,7 +3875,16 @@ button.ct-choice-card {
    (noir) < nested --ct-graphite-nested-bg (gris). Wrappers transparents ;
    couleur portée par .ct-page-area (une seule plaque). */
 .ct-center-panel { background: transparent !important; }
-.ct-page-area    { background: var(--ct-bg-deep); }
+.ct-page-area {
+  background-color: var(--ct-bg-center);
+  /* Dot-grid déplacé depuis les rails — texture subtile sur le canvas central. */
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 24px 24px;
+}
 
 /* ── HYGIÈNE FLEXBOX — le centre DOIT pouvoir rétrécir (cause racine "cassé partout")
    .ct-center-panel est un enfant flex de .ct-panels-row. Par défaut un enfant flex a
@@ -4585,7 +4596,10 @@ button.ct-choice-card {
    Bottom inset léger : le footer compact vit en .ct-root > .app-footer (pleine
    largeur), pas dans la colonne — space-16 créait ~128px de bande noire empilée. */
 .ct-page-area:has(:is(.admin-doc, .product-doc)) {
-  background: var(--ct-bg-deep);
+  /* Le canvas central (couleur + dot-grid) est la SEULE source DS sur .ct-page-area
+     (var(--ct-bg-center)). On ne repeint PAS ici : un `background` shorthand
+     resetterait le dot-grid (pattern invisible) et recréerait un fond par-contexte.
+     Padding doc-flow uniquement. */
   padding-top: var(--ct-space-12); /* Increased from space-9 */
   padding-inline: var(--ct-space-8); /* Increased from space-5 */
   padding-bottom: var(--ct-space-6);
@@ -5907,7 +5921,11 @@ main#main-content>.admin-doc.admin-doc-shell {
 .wizard-step-progress--rail {
   --ct-rail-dot: 1.625rem; /* 26px — refined, not chunky */
   position: relative;
-  align-items: flex-start;
+  /* The rail's intrinsic height = the dots row only (labels are absolutely
+     positioned below). So the stepper's vertical centre IS the dots' centre —
+     letting the parent `align-items: center` align the dots onto the title line. */
+  align-items: center;
+  height: var(--ct-rail-dot);
   gap: var(--ct-space-2);
 }
 
@@ -5942,6 +5960,8 @@ main#main-content>.admin-doc.admin-doc-shell {
   z-index: var(--ct-z-base);
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: var(--ct-rail-dot); /* dots row only — copy is absolute below */
   gap: var(--ct-space-2);
   padding-inline: var(--ct-space-1);
 }
@@ -5978,11 +5998,17 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 
 .wizard-step-progress--rail .wizard-step-progress__copy {
+  /* Captions + labels hang BELOW the dots row, aligned to a common top edge so
+     every column's caption/label baselines line up regardless of dot state. */
+  position: absolute;
+  top: calc(100% + var(--ct-space-2));
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--ct-space-0_5);
-  min-width: 0;
+  min-width: max-content;
   text-align: center;
 }
 

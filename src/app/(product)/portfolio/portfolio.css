@@ -28,12 +28,10 @@
    1. CONTAINER BASE
    ============================================================================= */
 
-/* Centre LP : fond sombre plat, aucune nappe, aucun glow.
-   Bottom inset : une seule réserve — .product-doc sur .ct-page-area (cockpit.css),
-   pas de padding empilé ici ni dans .pf-cockpit (évite la bande noire double). */
-.ct-page-area:has(.pf-container) {
-  background: var(--ct-bg-deep);
-}
+/* Centre LP : le fond du canvas central (couleur + dot-grid) est piloté UNIQUEMENT
+   par le design system, sur .ct-page-area (var(--ct-bg-center) dans cockpit.css).
+   AUCUN override de fond spécifique au portfolio ici — une seule source DS pour
+   tous les fonds : changer le token les change partout, sans hardcode par-page. */
 
 .pf-container {
   display: flex;
@@ -67,7 +65,7 @@
 .pf-container .h3,
 .pf-container .pf-cockpit-panel__title--primary,
 .pf-container .pf-panel-title {
-  color: var(--ct-text-strong);
+  color: var(--ct-accent);
 }
 
 /* Figma text hierarchy — legacy .ct-text-faint → tertiary inside portfolio scope. */
@@ -171,7 +169,7 @@
 .pf-cockpit {
   display: flex;
   flex-direction: column;
-  gap: 0;   /* gap handled by row padding + hairlines */
+  gap: var(--ct-space-5);
   min-width: 0;
   margin-top: 0;
   /* Body libéré : remplit toute la largeur du centre, plus de void à droite. */
@@ -185,20 +183,12 @@
   min-width: 0;
   display: grid;
   gap: var(--ct-space-5);
-  border-top: 1px solid var(--ct-graphite-border-nested);
-  padding: var(--ct-space-8) 0;
-}
-
-.pf-cockpit-row:first-of-type {
-  border-top: none;
-  padding-top: 0;
 }
 
 /* Default (below the gate): each row is a single column, content-sized. */
-.pf-cockpit-row--chart  { grid-template-columns: 1fr; }
-.pf-cockpit-row--yield  { grid-template-columns: 1fr; }
+.pf-cockpit-row--chart { grid-template-columns: 1fr; }
+.pf-cockpit-row--pair  { grid-template-columns: 1fr; }
 .pf-cockpit-row--deck  { grid-template-columns: 1fr; }
-.pf-cockpit-row--positions { grid-template-columns: 1fr; }
 
 /* Positions content (embedded) — the master PfCockpitPanel owns the surface;
    the embedded pane stays transparent (see .pf-cockpit-panel / .pf-embedded-pane). */
@@ -243,6 +233,48 @@
 
 /* Stacked default — second cell separated by a TOP hairline. */
 .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
+
+/* =============================================================================
+   PAIR GRID — niveau 2 (Positions | Capital & Yield). Same fused grammar as the
+   deck: ONE master plate, two flat .pf-embedded-pane children split by a single
+   hairline (TOP when stacked, LEFT when 2-col). Each pane is its OWN inline-size
+   container (pfpane) so wide modules (Capital & Yield donut+legend, the
+   position-card metric grid) reflow to the PANE width — never squeezed by the
+   row split (the @container pf rules elsewhere only fire on a narrow PAGE).
+   ============================================================================= */
+.pf-pair-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pf-pair-grid > .pf-embedded-pane {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  container-type: inline-size;
+  container-name: pfpane;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: var(--ct-space-4) var(--ct-space-5);
+  gap: var(--ct-space-3);
+  position: relative;
+  z-index: 1;
+}
+
+/* Positions pane pads via the rule above — drop the stack's own inset so the
+   cards align to the pane edge (single inset, no cage-in-cage doubling). */
+.pf-pair-grid > .pf-positions-badges .pf-positions-stack {
+  padding: 0;
+}
+
+/* Stacked default — second pane split by a TOP hairline. */
+.pf-pair-grid > .pf-embedded-pane + .pf-embedded-pane {
   border-top: 1px solid var(--ct-graphite-border-nested);
 }
 
@@ -330,6 +362,14 @@
   border-radius: var(--ct-radius-xl);
   background: var(--ct-graphite-subtle-bg);
   box-shadow: none;
+}
+
+/* Fused rows host ONE master plate spanning edge-to-edge; the grid panes inside
+   own their own padding. Replaces the per-call `!p-0` utility on the panels. */
+.pf-cockpit-row--chart > .pf-cockpit-panel,
+.pf-cockpit-row--pair > .pf-cockpit-panel,
+.pf-cockpit-row--deck > .pf-cockpit-panel {
+  padding: 0;
 }
 
 .pf-cockpit-panel--compact { gap: var(--ct-space-2_5); }
@@ -425,7 +465,7 @@
   line-height: var(--ct-leading-snug);
   letter-spacing: var(--ct-tracking-wider);
   text-transform: uppercase;
-  color: var(--ct-text-strong);
+  color: var(--ct-accent);
 }
 
 /* Titles inside a horizontal header — no block margin (breaks trail alignment). */
@@ -1722,6 +1762,32 @@
     text-align: center;
   }
 }
+
+/* Pane-scoped reflow — Capital & Yield in a narrow niveau-2 pane (pfpane) stacks
+   headline → donut+legend → disclaimer, keyed to the PANE width so the 2-column
+   row split never crushes the donut/legend. */
+@container pfpane (max-width: 46rem) {
+  .cy-v5-body {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "headline"
+      "visual"
+      "disclaimer";
+    column-gap: 0;
+    justify-items: start;
+  }
+  .cy-v5-visual {
+    justify-content: flex-start;
+  }
+}
+
+@container pfpane (max-width: 22rem) {
+  .cy-v5-visual {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ct-space-6);
+  }
+}
 /* =============================================================================
    9. DISTRIBUTIONS / PAYOUT CALENDAR
    ============================================================================= */
@@ -2738,6 +2804,12 @@
     box-shadow var(--ct-dur-base) var(--ct-ease);
   overflow: hidden;
   box-shadow: none;
+  animation: pf-card-entry 0.5s var(--ct-ease) both;
+}
+
+@keyframes pf-card-entry {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .pf-position-card::before {
@@ -2783,8 +2855,8 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr auto;
   align-items: center;
-  padding: var(--ct-space-4) var(--ct-space-6);
-  gap: var(--ct-space-6);
+  padding: var(--ct-space-4) var(--ct-space-5);
+  gap: var(--ct-space-5);
   min-width: 0;
 }
 
@@ -2987,9 +3059,26 @@
   }
 }
 
-/* Row for positions — full width at bottom */
-.pf-cockpit-row--positions {
-  grid-template-columns: 1fr;
+/* Pane-scoped compaction — position cards in a narrow niveau-2 pane (pfpane)
+   drop to a 2-row layout (name over metrics, chevron hidden), keyed to the pane
+   width so the row split never crushes the 4-column grid. */
+@container pfpane (max-width: 34rem) {
+  .pf-position-card__content {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ct-space-4);
+  }
+  .pf-position-card__main {
+    grid-column: 1 / -1;
+  }
+  .pf-position-card__action {
+    display: none;
+  }
+}
+
+@container pfpane (max-width: 22rem) {
+  .pf-position-card__content {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =============================================================================
@@ -3024,12 +3113,10 @@
 }
 
 /* Rows : hauteur NATURELLE (scroll relâché). Le min-height reste un plancher
-   de stabilité visuelle, mais plus de partage proportionnel qui plafonne le
-   contenu au viewport et clippe les empty-states (ex. "confirmed on-chain"). */
-.pf-cockpit-row--chart     { flex: 0 0 auto; min-height: 24rem; }
-.pf-cockpit-row--yield     { flex: 0 0 auto; min-height: 12rem; }
-.pf-cockpit-row--deck      { flex: 0 0 auto; min-height: 15rem; }
-.pf-cockpit-row--positions { flex: 0 0 auto; min-height: 7rem; }
+   de stabilité visuelle, mais considérablement réduit pour densifier l'UI. */
+.pf-cockpit-row--chart { flex: 0 0 auto; min-height: 18rem; }
+.pf-cockpit-row--pair  { flex: 0 0 auto; min-height: auto; }
+.pf-cockpit-row--deck  { flex: 0 0 auto; min-height: 12rem; }
 
 /* Les plates prennent leur hauteur naturelle : on neutralise les aspect-ratios
    et min-height fixes, sans forcer height:100% (qui écrasait/clippait).
@@ -3140,51 +3227,6 @@
   height: var(--ct-space-2);
   border-radius: var(--ct-radius-full);
   background: var(--ct-surface-2);
-}
-
-/* ── Position cards — premium rewrite ─────────────────────────────────────── */
-
-.pf-position-card {
-  display: block;
-  border-radius: var(--ct-radius-lg);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 18%, transparent);
-  transition: background var(--ct-dur-base) var(--ct-ease),
-              border-color var(--ct-dur-base) var(--ct-ease),
-              transform var(--ct-dur-base) var(--ct-ease);
-  text-decoration: none;
-  animation: pf-card-entry 0.5s var(--ct-ease) both;
-}
-
-@keyframes pf-card-entry {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.pf-position-card:hover {
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  border-color: color-mix(in srgb, var(--ct-border-soft) 35%, transparent);
-  transform: translateY(-1px);
-}
-
-.pf-position-card--active {
-  border-color: color-mix(in srgb, var(--ct-accent) 18%, transparent);
-}
-
-.pf-position-card--active:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 28%, transparent);
-}
-
-.pf-position-card__chevron {
-  background: color-mix(in srgb, var(--ct-surface-2) 30%, transparent);
-  color: var(--ct-text-tertiary);
-  transition: background var(--ct-dur-fast) var(--ct-ease),
-              color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.pf-position-card:hover .pf-position-card__chevron {
-  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
-  color: var(--ct-text-secondary);
 }
 
 /* Empty state for positions */
@@ -4221,5 +4263,48 @@
   .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
     border-top: none;
     border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+}
+
+/* =============================================================================
+   14c. NIVEAU-2 PAIR + NIVEAU-3 SUPPORT — terminal splits + support order.
+   Declared last so the W_pf tier rules always win over earlier neutralizers.
+   ============================================================================= */
+
+/* Niveau 2 — Positions (slightly wider, the prominent module) | Capital & Yield.
+   Splits at 53rem (same gate as the hero chart|status weld, so niveau-2 goes
+   2-col exactly when the hero does); below that the panes stack (mobile order:
+   Positions, then Capital & Yield). Each pane is a pfpane container, so the
+   modules reflow to the pane width — no squeeze. */
+@container pf (min-width: 53rem) {
+  .pf-pair-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+  .pf-pair-grid > .pf-embedded-pane + .pf-embedded-pane {
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+}
+
+/* Niveau 3 — support deck. DOM order = Payout (1) · Recent Activity (2).
+   Stacked (mobile): Recent surfaces ABOVE Payout (live ledger over forward
+   calendar) — prompt mobile order 4→5. Desktop ≥60rem: Payout left | Recent
+   right with a single vertical hairline left of Recent. */
+.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
+  order: -1;
+  border-top: none;
+}
+.pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
+  border-top: 1px solid var(--ct-graphite-border-nested);
+}
+
+@container pf (min-width: 60rem) {
+  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(2) {
+    order: 0;
+    border-top: none;
+    border-left: 1px solid var(--ct-graphite-border-nested);
+  }
+  .pf-cockpit-row--deck .pf-deck-grid > .pf-embedded-pane:nth-child(1) {
+    border-top: none;
   }
 }

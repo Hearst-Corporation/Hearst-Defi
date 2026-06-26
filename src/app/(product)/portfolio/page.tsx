@@ -18,28 +18,8 @@ export const metadata = {
   description: "Your positions and distributions",
 };
 
-function displayName(
-  investor: { email: string | null; walletAddress: string | null } | null,
-): string {
-  if (investor?.email) {
-    const emailLocal = investor.email.split("@")[0]?.trim() ?? "";
-    const normalizedLocal = emailLocal.replace(/[._-]+/g, " ").trim();
-    if (normalizedLocal) {
-      return normalizedLocal.charAt(0).toUpperCase() + normalizedLocal.slice(1);
-    }
-  }
-  const w = investor?.walletAddress;
-  if (w) {
-    const wallet = w.trim();
-    if (wallet.length > 10) return `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
-    if (wallet.length > 0) return wallet;
-  }
-  return "Investor";
-}
-
 export default async function PortfolioPage() {
   const {
-    investor,
     data,
     hasPositions,
     yieldStackProps,
@@ -56,13 +36,14 @@ export default async function PortfolioPage() {
 
   return (
     <div className={containerClassName} data-testid="portfolio-page" data-portfolio-hub="true">
-      <PortfolioGreeting name={displayName(investor)} />
+      <PortfolioGreeting />
 
       <div className="pf-hairline" aria-hidden="true" />
 
       <div className="pf-cockpit">
+        {/* HERO — Portfolio Value (chart welded with portfolio status) */}
         <section className="pf-cockpit-row pf-cockpit-row--chart" aria-label="Portfolio overview">
-          <PfCockpitPanel variant="wide" aria-label="Portfolio overview hero" className="!p-0">
+          <PfCockpitPanel variant="wide" aria-label="Portfolio overview hero">
             <div className="pf-hero-grid">
               <div className="pf-main-chart-wrapper">
                 <ValueChart
@@ -73,8 +54,6 @@ export default async function PortfolioPage() {
                   source={source}
                   updatedAt={updatedAt}
                   embedded={true}
-                  apyLow={yieldStackProps.blendedLow}
-                  apyHigh={yieldStackProps.blendedHigh}
                 />
               </div>
               <PortfolioStatusPanel
@@ -91,28 +70,36 @@ export default async function PortfolioPage() {
           </PfCockpitPanel>
         </section>
 
-        <section className="pf-cockpit-row pf-cockpit-row--yield" aria-label="Capital and yield allocation">
-          <PfCockpitPanel variant="wide" aria-label="Capital and yield" className="!p-0">
-            <CapitalYield
-              {...yieldStackProps}
-              buckets={allocationDonutProps.buckets}
-              totalValueUsdc={data.totalValueUsdc}
-              hasActivePosition={hasPositions}
-              leafHref="/portfolio/yield"
-              embedded={true}
-            />
+        {/* NIVEAU 2 — Positions (prominent) + Capital & Yield */}
+        <section
+          className="pf-cockpit-row pf-cockpit-row--pair"
+          aria-label="Positions and capital allocation"
+        >
+          <PfCockpitPanel variant="wide" aria-label="Positions and capital & yield">
+            <div className="pf-pair-grid">
+              <PositionCards
+                positions={positions}
+                leafHref="/portfolio/positions"
+                embedded={true}
+              />
+              <CapitalYield
+                {...yieldStackProps}
+                buckets={allocationDonutProps.buckets}
+                totalValueUsdc={data.totalValueUsdc}
+                hasActivePosition={hasPositions}
+                leafHref="/portfolio/yield"
+                embedded={true}
+              />
+            </div>
           </PfCockpitPanel>
         </section>
 
+        {/* NIVEAU 3 — Payout calendar + Recent activity (compact support) */}
         <section
           className="pf-cockpit-row pf-cockpit-row--deck"
-          aria-label="Portfolio distributions and activity"
+          aria-label="Distributions and activity"
         >
-          <PfCockpitPanel
-            variant="wide"
-            aria-label="Distributions and activity"
-            className="!p-0"
-          >
+          <PfCockpitPanel variant="wide" aria-label="Distributions and activity">
             <div className="pf-deck-grid">
               <DistribCalendar
                 {...distribCalendarProps}
@@ -131,16 +118,6 @@ export default async function PortfolioPage() {
                 embedded={true}
               />
             </div>
-          </PfCockpitPanel>
-        </section>
-
-        <section className="pf-cockpit-row pf-cockpit-row--positions" aria-label="Your positions">
-          <PfCockpitPanel variant="wide" aria-label="Your positions" className="!p-0">
-            <PositionCards
-              positions={positions}
-              leafHref="/portfolio/positions"
-              embedded={true}
-            />
           </PfCockpitPanel>
         </section>
       </div>

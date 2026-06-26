@@ -96,8 +96,8 @@ Padding centre = **56px** (28×2) sauf ≤767px (**32px**). Rail shell = **0px**
 | **390** | 0 | 0 | 390 | **358** | **1 col** | **1 col** |
 
 Seuils container portfolio :
-- Hero **2 colonnes** si `W_pf ≥ 928px` (`58rem`)
-- Hero **1 colonne** si `W_pf < 928px`
+- Hero **2 colonnes** si `W_pf ≥ 848px` (`53rem`) — abaissé depuis `58rem` pour éviter le chevauchement rem flottant / `max-width` à ~930px (laptop 1440 + chat ouvert)
+- Hero **1 colonne** si `W_pf < 848px`
 - Deck **2 colonnes** si `W_pf ≥ 960px` (`60rem`)
 - Deck **1 colonne** si `W_pf < 960px`
 
@@ -107,7 +107,7 @@ Seuils container portfolio :
 
 ### 5.1 Hero — `.pf-hero-grid`
 
-**Condition** : `@container pf (min-width: 58rem)` → `W_pf ≥ 928px`
+**Condition** : `@container pf (min-width: 53rem)` → `W_pf ≥ 848px`
 
 ```css
 grid-template-columns: 1.6fr minmax(16rem, 22rem);
@@ -171,15 +171,14 @@ Pour aligner un élément au **bord intérieur d'un panneau graphite** :
 
 | Row | Classe | min-height | Notes |
 |-----|--------|------------|-------|
-| Chart | `.pf-cockpit-row--chart` | **24rem** (384px) | Hero grid `height: auto` en row |
-| Yield | `.pf-cockpit-row--yield` | **12rem** (192px) | |
-| Deck | `.pf-cockpit-row--deck` | **15rem** (240px) | Fused surface min **24rem** |
-| Positions | `.pf-cockpit-row--positions` | **7rem** (112px) | |
+| Chart | `.pf-cockpit-row--chart` | **18rem** (288px) | Hero grid densifiée |
+| Yield | `.pf-cockpit-row--yield` | **auto** | Hauteur naturelle |
+| Deck | `.pf-cockpit-row--deck` | **12rem** (192px) | |
+| Positions | `.pf-cockpit-row--positions` | **auto** | Hauteur naturelle |
 
 Gap entre rows : `--ct-space-5` = **20px**.
 
-Contrat scroll : page en **scroll naturel** (`page.tsx` sans `pf-container--fit`).  
-Le skeleton (`loading.tsx`) utilise `pf-container--fit` → légère divergence loading vs chargé.
+Contrat scroll : page en **scroll naturel** (`page.tsx` et `loading.tsx` sans `pf-container--fit`).
 
 ---
 

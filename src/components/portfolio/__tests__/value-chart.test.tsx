@@ -39,13 +39,11 @@ describe("ValueChart", () => {
         totalValueUsdc={260_000}
         source="live"
         embedded
-        apyLow={9.4}
-        apyHigh={12.8}
       />,
     );
 
     expect(html).toContain("260,000");
-    expect(html).toContain("USDC");
+    expect(html).not.toContain("pf-vc-apy");
     expect(html).toContain("24H");
     expect(html).toContain("ALL");
   });
