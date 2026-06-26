@@ -16,6 +16,17 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### fix/outreach-regex-continuity
+Owner: Opus Orchestrateur — Outreach Regex Router / Campaign Continuity
+Branch: fix/outreach-regex-continuity
+Reserved: 2026-06-26
+Status: active
+Files:
+- src/lib/chat/outreach-regex-router.ts (new)
+- src/lib/chat/__tests__/outreach-regex-router.test.ts (new)
+- src/app/api/cockpit-chat/route.ts (outreach pre-router hook only)
+
+---
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence

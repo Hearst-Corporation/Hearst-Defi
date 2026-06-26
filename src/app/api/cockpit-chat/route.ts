@@ -80,6 +80,20 @@ import {
   buildOutreachAskFieldsMessage,
   buildOutreachFieldsAckMessage,
 } from "@/lib/canvas/outreach-turn";
+// Outreach Regex Router — deterministic, zero-LLM pre-router for campaign turns.
+// Handles nav requests, user-correction, sourcing gate, and slot extraction from history.
+import {
+  parseOutreachCampaignSlots,
+  isCampaignNavRequest,
+  isUserCorrection,
+  isSourcingRequest,
+  resolveOutreachCampaignRoute,
+  extractOutreachStateFromHistory,
+  buildOutreachStateRecapMessage,
+  buildOutreachNavAckMessage,
+  buildOutreachSourcingGateMessage,
+  mergeOutreachState,
+} from "@/lib/chat/outreach-regex-router";
 import { isAdminCanvas, getCanvasDefinition } from "@/lib/canvas/registry";
 import { buildCanvasGuidanceBlock } from "@/lib/canvas/guidance";
 import { createRequestContext, withRequestContext } from "@/lib/request-context";
@@ -908,29 +922,123 @@ async function runMasterAgentTurn(args: {
   // ────────────────────────────────────────────────────────────────────────
   // DETERMINISTIC OUTREACH TURN (state machine, NO LLM).
   //
-  // The structured campaign-setup steps are handled by templates, NOT the model,
-  // so the question/ack is reliable and the model can never improvise. This fires
-  // when the outreach workshop is active AND this message is a structured setup
-  // message — i.e. an open-intent message, OR a follow-up that supplies a
-  // campaign field (name / kind). A genuine off-script question while the canvas
-  // is open falls through to the LLM path below (with guidance) untouched.
-  //   - fields missing → open canvas + deterministic "name + kind?" question;
-  //   - both fields present → ready canvas (with the HITL button) + deterministic
-  //     ack ("nothing is created until you confirm").
-  // It NEVER creates a draft, sources leads, or announces an automatic action.
+  // Handles ALL outreach-canvas turns that must not reach the model:
+  //   1. Setup messages (intent open or slot supply) → ask-fields / fields-ack
+  //   2. Navigation requests ("ouvre la campagne", "la campagne") → publishNav
+  //   3. User-correction ("tu m'as déjà demandé") → state recap, no re-ask
+  //   4. Sourcing requests → HITL gate message, no auto-action
+  //   5. Slot supply via the new regex router (catches "Adrien test cold" etc.)
+  //
+  // Slot state is reconstructed from history on every turn (no persistent store).
+  // The LLM is NEVER reached for these patterns when the outreach canvas is active.
   // ────────────────────────────────────────────────────────────────────────
   if (canvasActive && canvasIntent && canvasIntent.canvasId === "outreach") {
+    // Reconstruct campaign state from conversation history (stateless recovery).
+    const historyState = extractOutreachStateFromHistory(history);
+
+    // Classify intent FIRST — required to decide whether to trust current-message slots.
+    // An intent message ("lance une campagne outreach…") is NOT a slot-supply message;
+    // parseOutreachCampaignSlots would extract the target description as a campaign name.
+    // A slot-supply message ("Adrien test cold", "nommée Q3 cold") IS trustworthy.
+    const _intentForSlotGuard = classifyOutreachIntent(message);
+    const _isIntentOpen = _intentForSlotGuard.isOutreach;
+
+    // Parse current-message slots ONLY when the message is NOT a pure intent opener.
+    // Correction / nav / sourcing paths also check message below and benefit from
+    // history-reconstructed state; they do not need currentSlots for display.
+    const currentSlots = _isIntentOpen
+      ? { missing: ["campaignName" as const, "campaignType" as const] }
+      : parseOutreachCampaignSlots(message);
+    const outreachState = mergeOutreachState(historyState, currentSlots);
+
+    // --- Priority 1: sourcing gate (check BEFORE nav — sourcing phrases must never nav) ---
+    if (isSourcingRequest(message)) {
+      const gateText = buildOutreachSourcingGateMessage(outreachState);
+      persistAssistantAckMessage({
+        persistence,
+        chatId,
+        turnId,
+        variant: "outreach-sourcing-gate",
+        text: `${gateText}\n${canvasOpenMarker("outreach")}`,
+      });
+      return ackResponse(gateText, chatId);
+    }
+
+    // --- Priority 2: navigation requests ---
+    if (isCampaignNavRequest(message)) {
+      const route = resolveOutreachCampaignRoute(outreachState);
+      const navText = buildOutreachNavAckMessage(route, outreachState);
+      // Publish navigation only when there is an actual destination (not missing_state).
+      if (route.kind !== "missing_state") {
+        await publishNav(userId, {
+          destinationKey:
+            route.kind === "campaign_detail"
+              ? // Campaign detail page — use the outreach canvas destination so the
+                // bridge opens the right admin panel (the canvas is already on screen).
+                getCanvasDefinition("outreach").destinationKey
+              : getCanvasDefinition("outreach").destinationKey,
+          canvasId: "outreach",
+          autostart: true,
+          ...(outreachState.campaignName
+            ? { objective: outreachState.campaignName }
+            : {}),
+        }).catch(() => {
+          /* best-effort nav publish */
+        });
+      }
+      persistAssistantAckMessage({
+        persistence,
+        chatId,
+        turnId,
+        variant: "outreach-nav-ack",
+        text: `${navText}\n${canvasOpenMarker("outreach")}`,
+      });
+      return ackResponse(navText, chatId);
+    }
+
+    // --- Priority 3: user-correction ("tu m'as déjà demandé") ---
+    if (isUserCorrection(message)) {
+      const recapText = buildOutreachStateRecapMessage(outreachState);
+      persistAssistantAckMessage({
+        persistence,
+        chatId,
+        turnId,
+        variant: "outreach-state-recap",
+        text: `${recapText}\n${canvasOpenMarker("outreach")}`,
+      });
+      return ackResponse(recapText, chatId);
+    }
+
+    // --- Priority 4: setup/slot-supply messages ---
     const outreachValues = deriveOutreachValuesFromObjective(message);
-    const intent = classifyOutreachIntent(message);
+    // Re-use the already-computed intent (avoids double regex work).
+    const intent = _intentForSlotGuard;
+
+    // suppliesField: the legacy extractor found an explicit label OR the regex
+    // router (slot-supply mode only) found a slot in THIS message.
     const suppliesField = Boolean(
-      outreachValues && (outreachValues.name || outreachValues.kind),
+      (outreachValues && (outreachValues.name || outreachValues.kind)) ||
+        // currentSlots is already guarded (set to empty when _isIntentOpen).
+        (currentSlots.campaignName || currentSlots.campaignType),
     );
     const isSetupMessage = intent.isOutreach || suppliesField;
+
     if (isSetupMessage) {
-      const fieldsComplete = Boolean(outreachValues?.name && outreachValues?.kind);
+      // Effective values: legacy extractor (explicit "nommée X") has highest priority,
+      // then regex-router slots from THIS message (slot-supply turn, not intent turn),
+      // then history-reconstructed state.
+      const effectiveName =
+        outreachValues?.name ??
+        currentSlots.campaignName ??
+        outreachState.campaignName;
+      const effectiveKind =
+        outreachValues?.kind ??
+        currentSlots.campaignType ??
+        outreachState.campaignType;
+      const fieldsComplete = Boolean(effectiveName && effectiveKind);
       const detValues: Record<string, string> = {};
-      if (outreachValues?.name) detValues.name = outreachValues.name;
-      if (outreachValues?.kind) detValues.kind = outreachValues.kind;
+      if (effectiveName) detValues.name = effectiveName;
+      if (effectiveKind) detValues.kind = effectiveKind;
       const detObjective =
         message.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, 220) || undefined;
 
@@ -945,10 +1053,10 @@ async function runMasterAgentTurn(args: {
       });
 
       const templateText =
-        fieldsComplete && outreachValues?.name && outreachValues?.kind
+        fieldsComplete && effectiveName && effectiveKind
           ? buildOutreachFieldsAckMessage({
-              name: outreachValues.name,
-              kind: outreachValues.kind,
+              name: effectiveName,
+              kind: effectiveKind as "cold" | "newsletter",
             })
           : buildOutreachAskFieldsMessage({
               ...(intent.target ? { target: intent.target } : {}),
