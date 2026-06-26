@@ -16,6 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/agentic-utility-read-actions
+Owner: Opus Orchestrateur — Agentic Utility Read Actions
+Branch: feat/agentic-utility-read-actions
+Worktree: ../connect-opus-util-actions
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/action-readiness/actions.ts (3 new read-only actions)
+- src/lib/agentic/swarm/registry.ts (lp_explainer + memory_maintenance scopes)
+- src/lib/agentic/**/__tests__/**
+- docs/agentic/**
+- scripts/agentic/calibrate-swarms.mjs if needed
+
+Notes:
+- Backend only. Add read-only utility actions (explain_risk, explain_provenance,
+  read_session_context) and widen the two weak swarm scopes.
+- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
+- No Prisma migration, no DB write, no write action, no dangerous execution,
+  no external tool, no prompt/user-text storage, no product_projection_swarm.
+- Does NOT touch src/components/** (another agent's UI).
+
+---
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence

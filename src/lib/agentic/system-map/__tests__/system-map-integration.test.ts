@@ -51,7 +51,7 @@ describe("system map integration — action readiness", () => {
     }
   });
 
-  it("action node metrics reflect the matrix counts (7/5/1/8)", () => {
+  it("action node metrics reflect the matrix counts (10/5/1/8)", () => {
     const nodes = build().nodes;
     const m = (id: string) =>
       nodes.find((n) => n.id === id)!.metrics?.find((x) => x.label === "count")?.value;
@@ -59,8 +59,9 @@ describe("system map integration — action readiness", () => {
     expect(m("draft-actions")).toBe(String(MATRIX.counts.draft_or_proposal));
     expect(m("confirmed-write-actions")).toBe(String(MATRIX.counts.confirmed_write));
     expect(m("forbidden-actions")).toBe(String(MATRIX.counts.forbidden_autonomous));
-    // The real matrix is 7 read / 5 draft / 1 confirmed-write / 8 forbidden.
-    expect(MATRIX.counts.read_only).toBe(7);
+    // The real matrix is 10 read / 5 draft / 1 confirmed-write / 8 forbidden
+    // (3 read-only utility actions added: explain_risk/explain_provenance/read_session_context).
+    expect(MATRIX.counts.read_only).toBe(10);
     expect(MATRIX.counts.draft_or_proposal).toBe(5);
     expect(MATRIX.counts.confirmed_write).toBe(1);
     expect(MATRIX.counts.forbidden_autonomous).toBe(8);
@@ -178,10 +179,10 @@ describe("system map integration — invariants preserved", () => {
 });
 
 describe("system map integration — entry point helpers", () => {
-  it("getActionReadinessMatrix returns the 21-action matrix", () => {
+  it("getActionReadinessMatrix returns the 24-action matrix", () => {
     const m = getActionReadinessMatrix();
     expect(m).not.toBeNull();
-    expect(m!.items.length).toBe(21);
+    expect(m!.items.length).toBe(24);
   });
 
   it("getCrewSimulations returns 6 non-error results, all executable false", () => {

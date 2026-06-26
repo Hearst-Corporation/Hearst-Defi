@@ -24,10 +24,15 @@ Reproduce: `pnpm test -- src/lib/agentic/__tests__/swarm-calibration.test.ts`
 
 - `product_projection_swarm`: **ABSENT** (not merged) — unknown swarm → HTTP 404.
 
-## Action catalog (21, by tier)
+## Action catalog (24, by tier)
 
-- **read_only (7)**: compose_reporting_briefing, explain_product, explain_yield,
-  inspect_tool_boundary, navigate_admin_surface, read_observability, review_router_quality
+> Originally 21; +3 read-only utility actions (`explain_risk`, `explain_provenance`,
+> `read_session_context`) were added to graduate the two weak swarms — see "Utility
+> read actions added" below.
+
+- **read_only (10)**: compose_reporting_briefing, explain_product, explain_yield,
+  inspect_tool_boundary, navigate_admin_surface, read_observability, review_router_quality,
+  **explain_risk**, **explain_provenance**, **read_session_context**
 - **draft_or_proposal (5)**: create_campaign_draft, create_governance_proposal_draft,
   create_review_note_draft, create_vault_draft, draft_outreach_email
 - **confirmed_write (1)**: outreach_trigger_send_run
@@ -94,26 +99,30 @@ enforced scope** — see the per-swarm table below.
 | swarm | allowedActionIds | forbiddenActions (catalog) |
 | --- | --- | --- |
 | `platform_reporting_swarm` | navigate_admin_surface, compose_reporting_briefing, read_observability, review_router_quality, inspect_tool_boundary | outreach_trigger_send_run, source_leads_autonomously |
-| `lp_explainer_swarm` | navigate_admin_surface, explain_product, explain_yield | outreach_trigger_send_run, source_leads_autonomously |
+| `lp_explainer_swarm` | navigate_admin_surface, explain_product, explain_yield, **explain_risk**, **explain_provenance** | outreach_trigger_send_run, source_leads_autonomously |
 | `vault_governance_swarm` | navigate_admin_surface, read_observability, create_review_note_draft, create_governance_proposal_draft, create_vault_draft | deploy_product, mark_vault_live, outreach_trigger_send_run |
 | `outreach_governed_swarm` | navigate_admin_surface, explain_product, explain_yield, draft_outreach_email, create_campaign_draft | outreach_trigger_send_run, source_leads_autonomously, tier_a_auto_send |
-| `memory_maintenance_swarm` | navigate_admin_surface, read_observability | outreach_trigger_send_run, source_leads_autonomously |
+| `memory_maintenance_swarm` | navigate_admin_surface, read_observability, **read_session_context** | outreach_trigger_send_run, source_leads_autonomously |
 
-### Updated calibration verdict (after enforcement)
+> **Utility read actions added** (read_only, output-guarded, no write/exec/tool):
+> `explain_risk`, `explain_provenance` (LP-facing explanations), `read_session_context`
+> (metadata-only session view — ids/counts/timestamps, never raw user text). Catalog is now
+> **24 actions** (10 read_only / 5 draft / 1 confirmed_write / 8 forbidden_autonomous).
+
+### Updated calibration verdict (after utility read actions)
 
 - **fully enforce + useful**: `outreach_governed_swarm` (gated draft→send boundary),
   `vault_governance_swarm` (draft-only governance: vault/review/governance drafts gated,
-  deploy/mark-live floored), `platform_reporting_swarm` (read/observability composition).
-- **enforce but weak**: `lp_explainer_swarm` — bounded and useful (explain product/yield)
-  but thin; the real safety value (APY-range/output-guard) lives in its crew, not the scope.
-- **theoretical but bounded**: `memory_maintenance_swarm` — no memory-specific catalog
-  action exists yet, so its scope is a minimal read-only boundary (surface + status). It is
-  now enforced (everything else → out-of-scope) but delivers no differentiated action until a
-  read-only `read_session_context` / `distill_memory` action is added (a future lot).
-- **missing actions**: an explain_risk / explain_provenance read action (for lp_explainer),
-  a memory read action (for memory_maintenance), and — still deferred — any projection action
-  (for the not-yet-built `product_projection_swarm`).
-- **no swarm is decorative**: every swarm has a load-bearing `allowedActionIds` boundary.
+  deploy/mark-live floored), `platform_reporting_swarm` (read/observability composition),
+  and now **`lp_explainer_swarm`** — bounded read scope of four LP explanations
+  (product/yield/risk/provenance), all output-guarded, no write reachable.
+- **enforce minimal useful**: `memory_maintenance_swarm` — now has a real, differentiated
+  read action (`read_session_context`, metadata-only) plus status reads, all read-only and
+  bounded. It is honest housekeeping (no persistence, dry-run), not a write surface.
+- **missing actions**: only a projection action remains — still deferred with the
+  not-yet-built `product_projection_swarm` (projection is read_only by ADR-006).
+- **no swarm is decorative**: every swarm has a load-bearing `allowedActionIds` boundary,
+  and every swarm now has at least one genuinely useful in-scope action.
 
 **`outreach_governed_swarm` (first enforcing swarm)** — `allowedActionIds` =
 `navigate_admin_surface, explain_product, explain_yield, draft_outreach_email,

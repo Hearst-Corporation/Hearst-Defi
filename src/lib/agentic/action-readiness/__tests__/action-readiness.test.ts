@@ -16,6 +16,9 @@ const EXPECTED_READ_ONLY_IDS = [
   "review_router_quality",
   "inspect_tool_boundary",
   "read_observability",
+  "explain_risk",
+  "explain_provenance",
+  "read_session_context",
 ];
 
 const EXPECTED_DRAFT_IDS = [
