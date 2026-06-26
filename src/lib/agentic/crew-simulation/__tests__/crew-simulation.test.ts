@@ -12,14 +12,29 @@ import {
 // --- Scenario catalogue ---
 
 describe("CREW_SIMULATION_SCENARIOS catalogue", () => {
-  it("contains all 6 expected scenario ids", () => {
+  it("contains all 7 expected scenario ids", () => {
     expect(SCENARIO_IDS).toContain("reporting_crew_briefing");
     expect(SCENARIO_IDS).toContain("outreach_draft_flow");
     expect(SCENARIO_IDS).toContain("product_review_flow");
     expect(SCENARIO_IDS).toContain("risk_explanation_flow");
     expect(SCENARIO_IDS).toContain("vault_readiness_flow");
     expect(SCENARIO_IDS).toContain("memory_distill_flow");
-    expect(CREW_SIMULATION_SCENARIOS).toHaveLength(6);
+    expect(SCENARIO_IDS).toContain("projection_flow");
+    expect(CREW_SIMULATION_SCENARIOS).toHaveLength(7);
+  });
+
+  it("projection_flow is read-only, non-executable, and triggers no external tool/write", () => {
+    const s = CREW_SIMULATION_SCENARIOS.find((x) => x.id === "projection_flow")!;
+    expect(s.mode).toBe("read_only");
+    expect(s.executable).toBe(false);
+    for (const step of s.steps) {
+      expect(step.executable).toBe(false);
+      expect(step.mode).toBe("read_only");
+      expect(step.gateRequired).toBe(false);
+    }
+    expect(assertScenarioSafe(s)).toEqual([]);
+    const r = simulateCrewFlow("projection_flow");
+    expect(isCrewSimulationError(r)).toBe(false);
   });
 
   it("every scenario has executable:false at the scenario level", () => {
@@ -353,7 +368,7 @@ describe("simulateCrewFlow", () => {
 describe("listSimulationScenarioIds", () => {
   it("returns all 6 scenario ids", () => {
     const ids = listSimulationScenarioIds();
-    expect(ids).toHaveLength(6);
+    expect(ids).toHaveLength(7);
     expect(ids).toContain("reporting_crew_briefing");
     expect(ids).toContain("outreach_draft_flow");
   });

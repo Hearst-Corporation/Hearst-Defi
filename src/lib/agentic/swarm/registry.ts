@@ -152,6 +152,38 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
       "Enforced read-only scope: read_session_context (metadata-only) + status; everything else is out-of-scope.",
     ],
   },
+  {
+    id: "product_projection_swarm",
+    label: "Product Projection Swarm",
+    description:
+      "Composes the projection crew to produce a read-only, deterministic projection artifact (scenarios, ranges, assumptions, provenance, disclaimers). APY is only a range; no number is invented; no return is promised; nothing is executed (ADR-006).",
+    mode: "simulation",
+    coordination: "sequential",
+    crewIds: ["projection_flow"],
+    // Enforced read-only scope: run a projection and explain its risk / provenance /
+    // yield basis to a reviewer. All read-only and output-guarded; no write reachable.
+    allowedActionIds: [
+      "navigate_admin_surface",
+      "run_projection",
+      "explain_risk",
+      "explain_provenance",
+      "explain_yield",
+    ],
+    // Categorical prohibitions. deploy_product + mark_vault_live are also blocked by
+    // the global floor; listing them keeps the projection swarm's no-mutation intent
+    // explicit (and satisfies the vault/product swarm safety assertion).
+    forbiddenActions: [
+      "deploy_product",
+      "mark_vault_live",
+      "outreach_trigger_send_run",
+      "source_leads_autonomously",
+    ],
+    safetyNotes: [
+      "Read-only projection only — no vault state is modified, nothing is deployed or marked live.",
+      "APY is shown only as a range; the artifact makes no return claim and invents no number (ADR-006).",
+      "Scope is enforced: outreach, drafts, and any write action are out-of-scope or forbidden.",
+    ],
+  },
 ] as const;
 
 export const SWARM_IDS: readonly string[] = SWARM_DEFINITIONS.map((s) => s.id);

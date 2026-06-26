@@ -75,7 +75,7 @@ describe("GET /api/admin/agentic/registry", () => {
     };
 
     expect(body.sideEffects).toBe(false);
-    expect(body.snapshot.swarms.length).toBe(5);
+    expect(body.snapshot.swarms.length).toBe(6);
     expect(body.snapshot.crews.length).toBeGreaterThan(0);
     expect(body.snapshot.agents.length).toBeGreaterThan(0);
     expect(body.snapshot.actions.length).toBeGreaterThan(0);

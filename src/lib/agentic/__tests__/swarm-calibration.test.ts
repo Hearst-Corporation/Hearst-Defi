@@ -86,7 +86,7 @@ describe("swarm calibration — simulation invariants (every swarm)", () => {
   });
 
   it("an unknown swarm fails safe (no fallback execution)", () => {
-    const r = simulateSwarm("product_projection_swarm");
+    const r = simulateSwarm("definitely_not_a_registered_swarm");
     expect(isSwarmSimulationError(r)).toBe(true);
     if (isSwarmSimulationError(r)) expect(r.kind).toBe("unknown_swarm");
   });

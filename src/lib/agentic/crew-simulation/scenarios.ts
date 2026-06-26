@@ -384,6 +384,65 @@ export const CREW_SIMULATION_SCENARIOS: CrewSimulationScenario[] = [
       "No outreach or external action is triggered from a distilled summary.",
     ],
   },
+
+  {
+    id: "projection_flow",
+    label: "Projection Flow",
+    trigger: "Admin requests a read-only product projection from allowlisted inputs",
+    mode: "read_only",
+    risk: "low",
+    executable: false,
+    steps: [
+      {
+        id: "step_normalize_input",
+        label: "Normalize Projection Input",
+        description:
+          "Validate and allowlist the projection input (product, apyRange, capitalBase, horizon, allocation, assumptions). Reject unknown fields; never read prompt/user text.",
+        mode: "read_only",
+        executable: false,
+        usesToolIds: ["validate_projection_input"],
+        produces: ["normalized_projection_input"],
+        gateRequired: false,
+      },
+      {
+        id: "step_build_artifact",
+        label: "Build Projection Artifact",
+        description:
+          "Deterministically build the projection artifact (metrics, scenarios, charts, assumptions, risks). Invents no number; missing inputs are reported, not fabricated. No LLM call, no write.",
+        mode: "read_only",
+        executable: false,
+        usesToolIds: ["build_projection_artifact"],
+        produces: ["projection_artifact"],
+        gateRequired: false,
+      },
+      {
+        id: "step_output_guard",
+        label: "Run Output Guards",
+        description:
+          "Assert the artifact carries mandatory disclaimers + provenance, contains no forbidden words, and expresses APY only as a range (ADR-006 / non-negotiables).",
+        mode: "read_only",
+        executable: false,
+        usesToolIds: ["read_output_guard"],
+        produces: ["guarded_projection_artifact"],
+        gateRequired: false,
+      },
+    ],
+    forbiddenActions: [
+      "claim_unverified_return",
+      "single_point_apy",
+      "deploy_contract",
+      "mark_live",
+      "send_outreach",
+      "write_database",
+      "execute_tool",
+    ],
+    safetyNotes: [
+      "Read-only and deterministic — same input yields identical artifact, no Date/random.",
+      "APY is only ever a range; no return is claimed; no number is invented.",
+      "Missing inputs are surfaced (missingInputs), never fabricated.",
+      "No external tool, no write, no storage of prompt/user text.",
+    ],
+  },
 ];
 
 export const SCENARIO_IDS = CREW_SIMULATION_SCENARIOS.map((s) => s.id);
