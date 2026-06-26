@@ -90,6 +90,55 @@ GET /api/admin/agentic/simulations?limit=50
 `limit` is clamped to `[1, 200]`. The store is small + short-lived; an empty
 store returns an empty list.
 
+## Aggregates (GET /api/admin/agentic/simulations/aggregates)
+
+Admin-gated, `no-store`, **metadata-only** roll-up over the recorded traces. It
+reads the same Redis-capped + in-memory store (no DB, no mutation) and aggregates
+in memory. It emits **no raw trace body** (no `id`/`createdAt`/payload) — only
+counts and machine codes.
+
+```
+GET /api/admin/agentic/simulations/aggregates?limit=200&window=24h
+```
+
+Query params:
+
+| Param | Default | Meaning |
+| --- | --- | --- |
+| `limit` | `200` | traces to read, clamped to `[1, 200]` |
+| `window` | `all` | `1h` / `24h` / `7d` / `all` — filters by `createdAt` |
+
+Response `200`:
+
+```jsonc
+{
+  "available": true,
+  "aggregates": {
+    "window": { "requested": "24h", "from": "...", "to": "...", "traceCount": 12 },
+    "totals": { "simulations": 12, "blocked": 47, "gates": 3, "confirmations": 3,
+                "recordedWithReadiness": 8 },
+    "bySwarm": [{ "swarmId": "vault_governance_swarm", "count": 4,
+                  "blockedCount": 20, "gateCount": 0, "confirmationCount": 0 }],
+    "byMode": [{ "mode": "dry_run", "count": 4 }],
+    "byReadinessOutcome": [{ "outcome": "blocked", "count": 4 }],
+    "topReasonCodes": [{ "reasonCode": "crew_read_only", "count": 10 }],
+    "metadataOnly": true
+  }
+}
+```
+
+Group-by rows are sorted by `count` desc then key asc (deterministic);
+`topReasonCodes` is capped (top 10). Errors:
+
+| Status | When |
+| --- | --- |
+| `400` | invalid `limit` (non-positive) or `window` (not 1h/24h/7d/all) |
+| `401` / `403` | not authenticated / not admin |
+
+If the store is unavailable the route returns a **safe** `200` with
+`{ available: false, reason: "store_unavailable", aggregates: <empty> }` — never
+a stack trace or secret. No `500` path leaks internals.
+
 ## Storage / TTL / cap
 
 - Backend: Redis capped list key `agentic:simulation:traces` (distinct from the

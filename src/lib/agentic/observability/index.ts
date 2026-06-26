@@ -73,3 +73,12 @@ export {
   SIMULATION_TRACES_CAP,
 } from "./simulation-store";
 export type { SimulationTraceStorage } from "./simulation-store";
+export {
+  aggregateAgenticSimulationTraces,
+  parseSimulationWindow,
+} from "./simulation-aggregates";
+export type {
+  SimulationAggregates,
+  SimulationAggregateOptions,
+  SimulationWindowKey,
+} from "./simulation-aggregates";
