@@ -16,6 +16,28 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### chore/agentic-backend-audit
+Owner: Opus Orchestrateur — Agentic Backend Audit
+Branch: chore/agentic-backend-audit
+Worktree: ../connect-opus-agentic-audit
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/swarm/** (audit + hardening only)
+- src/lib/agentic/observability/simulation-*.ts (audit + hardening only)
+- src/app/api/admin/agentic/** (audit + hardening only)
+- tests for the above
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- Backend audit + minimal hardening only. No UI/UX, no DS, no admin/agentic visual.
+- No proof-center / vault / portfolio changes. No Prisma migration, no DB write.
+- Does NOT touch src/components/admin/agentic/** (another agent's active UI work).
+
+---
+
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)

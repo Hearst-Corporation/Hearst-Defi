@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { logger } from "@/lib/logger";
+import { assertRateLimit } from "@/lib/rate-limit";
 import {
   readSimulationTraces,
   SIMULATION_TRACES_CAP,
@@ -15,6 +16,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_LIMIT = SIMULATION_TRACES_CAP;
+const READ_RATE_MAX = 60;
+const READ_RATE_WINDOW_MS = 60_000;
 
 /** Empty, safe aggregate shape used when the store is unavailable. */
 function emptyAggregates(requested: "1h" | "24h" | "7d" | "all") {
@@ -46,8 +49,10 @@ function emptyAggregates(requested: "1h" | "24h" | "7d" | "all") {
  * stack trace or secret.
  */
 export async function GET(request: NextRequest): Promise<Response> {
+  let userId: string;
   try {
-    await requireAdmin();
+    const auth = await requireAdmin();
+    userId = auth.userId;
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Admin access required";
@@ -57,6 +62,19 @@ export async function GET(request: NextRequest): Promise<Response> {
     return NextResponse.json(
       { error: message },
       { status: isAuthRequired ? 401 : 403 },
+    );
+  }
+
+  try {
+    await assertRateLimit(
+      `agentic-aggregates:${userId}`,
+      READ_RATE_MAX,
+      READ_RATE_WINDOW_MS,
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "Too many requests — try again in a moment." },
+      { status: 429 },
     );
   }
 

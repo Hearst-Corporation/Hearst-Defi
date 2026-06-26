@@ -92,6 +92,9 @@ Errors:
 
 ## Safety guarantees (enforced + tested)
 
+- **Admin-gated + per-admin rate-limited.** Every endpoint runs `requireAdmin`
+  (→ 401/403) and is rate-limited per admin (60/min) — reads included — so a
+  leaked admin session or accidental hammering returns `429`, not unbounded load.
 - **`sideEffects: false`** on every success and on a typed simulation error.
 - **No DB write, no external tool call, no real execution, no network** during a
   simulation (the underlying functions are pure).
