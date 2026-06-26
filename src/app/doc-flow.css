@@ -1257,7 +1257,11 @@
     margin-top: 0;
   }
 
-  .product-doc .wizard-step-progress__label {
+  /* Default dotted stepper hides labels when cramped; the rail variant keeps
+     them — they shorten via the compact mobile treatment below instead. */
+  .product-doc
+    .wizard-step-progress:not(.wizard-step-progress--rail)
+    .wizard-step-progress__label {
     display: none;
   }
 }
@@ -1309,15 +1313,30 @@
 }
 
 .product-doc .invest-flow-shell .product-page-header {
-  padding-bottom: var(--ct-space-8); /* Increased from space-2 */
+  padding-bottom: var(--ct-space-5);
 }
 
+/* Stepper band — kicker stacked ABOVE the full-width rail stepper.
+   The rail is a first-class journey element, not a chip on the kicker line. */
 .product-doc .invest-flow-shell__stepper {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-4); /* Increased */
+  gap: var(--ct-space-2);
   padding-top: 0;
-  margin-bottom: var(--ct-space-4); /* Added margin */
+  margin-bottom: 0;
+}
+
+.product-doc .invest-flow-shell__stepper > .page-canon-kicker {
+  margin: 0;
+}
+
+/* Pull the stepper band tight under the title + hug the rule (compact header). */
+.product-doc .invest-flow-shell .product-page-header__title-stack {
+  gap: var(--ct-space-1_5);
+}
+
+.product-doc .invest-flow-shell .page-canon-rule {
+  margin-top: var(--ct-space-4);
 }
 
 .product-doc .vault-invest-step-context {
@@ -1325,34 +1344,23 @@
   letter-spacing: 0.01em;
 }
 
-/* Kicker « Investment Flow » + stepper « 1 2 3 4 » sur la MÊME ligne. */
+/* Rail spans the available column width — equal-weight steps across the band. */
 .product-doc .invest-flow-shell__stepper-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
 }
 
-.product-doc .invest-flow-shell__stepper-row > .page-canon-kicker {
-  margin: 0;
+.product-doc .invest-flow-shell__stepper-row .wizard-step-progress--rail {
+  --ct-rail-steps: 4;
+  width: 100%;
+  flex: 1 1 auto;
 }
 
-/* Stepper resserré dans le header — ne s'étale plus pleine largeur. */
-.product-doc .invest-flow-shell__stepper-row .wizard-step-progress {
-  width: auto;
-  flex: 0 0 auto;
-}
-
-.product-doc .invest-flow-shell__stepper-row .wizard-step-progress__item {
-  flex: 0 0 auto;
-  flex-direction: row;
-  gap: var(--ct-space-2);
-  padding-inline: var(--ct-space-3);
-}
-
-.product-doc .invest-flow-shell__stepper-row .wizard-step-progress__connector {
-  display: none;
+.product-doc .invest-flow-shell__stepper-row .wizard-step-progress--rail
+  .wizard-step-progress__item {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .product-doc .invest-flow-shell__header-cta {
@@ -1450,7 +1458,7 @@
 /* Thin separator between fixed header chrome and scrollable body */
 .product-doc .invest-flow-shell--workspace > .product-page-header {
   border-bottom: 1px solid var(--ct-border-soft);
-  padding-bottom: var(--ct-space-4);
+  padding-bottom: var(--ct-space-3);
   margin-bottom: 0;
   box-shadow: 0 12px 24px -22px color-mix(in srgb, var(--ct-bg-deep) 72%, transparent);
 }
@@ -1465,8 +1473,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-doc-flow-inner-gap);
-  padding-top: var(--ct-space-8); /* Increased from space-6 for breathing room */
-  padding-bottom: var(--ct-space-12); /* Increased from space-8 */
+  padding-top: var(--ct-space-5); /* Lift summary into the first fold */
+  padding-bottom: var(--ct-space-12);
 }
 
 /* Remove the outer visual surface — keep layout only.
@@ -1488,8 +1496,8 @@
 /* Desktop: tighten the gap between header chrome and body */
 @container product-doc (min-width: 40rem) {
   .product-doc .invest-flow-shell--workspace .invest-flow-shell__body {
-    gap: var(--ct-space-8); /* Increased from space-5 */
-    padding-top: var(--ct-space-8); /* Increased from space-4 */
+    gap: var(--ct-space-8);
+    padding-top: var(--ct-space-5); /* Lift summary into the first fold */
   }
 }
 
@@ -1831,66 +1839,182 @@
   flex: 1;
 }
 
-/* Vault detail — single hero band (only boxed surface on the term sheet page). */
-.product-doc .vault-detail-overview {
+/* ── Vault detail — summary command band ─────────────────────────────────────
+   The decisive first-fold surface: product identity + the three terms that
+   matter (APY hero) + the primary action. The only boxed surface above the
+   term sheet. Subtle accent-lit charcoal with a faint top sheen. */
+.product-doc .vault-summary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-6);
-  padding: var(--ct-space-8); /* Increased from space-6 */
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-6);
   border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl); /* Increased from lg */
-  background: var(--ct-surface-1);
+  border-radius: var(--ct-radius-lg);
+  background:
+    radial-gradient(
+      120% 140% at 0% 0%,
+      color-mix(in srgb, var(--ct-accent) 6%, transparent),
+      transparent 58%
+    ),
+    var(--ct-surface-1);
+  box-shadow: var(--ct-shadow-soft);
 }
 
-.product-doc .vault-detail-overview__kpis {
+/* Identity row — ticker + live state pill. Carries the old floating badges,
+   now integrated honestly at the head of the summary. */
+.product-doc .vault-summary__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+}
+
+.product-doc .vault-summary__ticker {
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-secondary);
+  padding: var(--ct-space-1) var(--ct-space-2_5);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-surface-2);
+}
+
+.product-doc .vault-summary__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  font-size: var(--ct-text-micro);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-wide);
+  text-transform: uppercase;
+}
+
+.product-doc .vault-summary__status-dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  flex-shrink: 0;
+}
+
+.product-doc .vault-summary__status--live {
+  color: var(--ct-accent);
+}
+
+.product-doc .vault-summary__status--live .vault-summary__status-dot {
+  background: var(--ct-accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ct-accent) 60%, transparent);
+}
+
+.product-doc .vault-summary__status--pending {
+  color: var(--ct-text-muted);
+}
+
+.product-doc .vault-summary__status--pending .vault-summary__status-dot {
+  background: var(--ct-text-muted);
+}
+
+/* Metrics — APY is the hero; min + lock-up are supporting stats. */
+.product-doc .vault-summary__metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--ct-space-4) var(--ct-space-6);
   margin: 0;
 }
 
-.product-doc .vault-detail-overview__kpi {
+.product-doc .vault-summary__metric {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
+  min-width: 0;
 }
 
-.product-doc .vault-detail-overview__value {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-extrabold);
+.product-doc .vault-summary__metric--hero {
+  grid-column: 1 / -1;
+}
+
+.product-doc .vault-summary__hero-value {
+  /* Hero number — the one dominant figure, on the fixed heading tier (24px) so
+     it harmonizes with the 24px page H1 + cockpit instrument scale. A faint
+     accent sheen keeps it special without shouting. */
+  font-size: var(--ct-text-3xl-fixed);
+  font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-tighter);
   color: var(--ct-text-strong);
   line-height: 1;
-  text-shadow: 0 0 20px color-mix(in srgb, var(--ct-accent) 15%, transparent);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--ct-accent) 12%, transparent);
 }
 
-.product-doc .vault-detail-overview__kpi dt {
-  margin-bottom: var(--ct-space-0_5);
+.product-doc .vault-summary__value {
+  font-size: var(--ct-text-lg);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  color: var(--ct-text-primary);
+  line-height: 1;
 }
 
-.product-doc .vault-detail-overview__cta {
+/* CTA cluster — the dominant action + a single supporting line. */
+.product-doc .vault-summary__cta {
   display: flex;
   flex-direction: column;
+  gap: var(--ct-space-2_5);
 }
 
-@container product-doc (min-width: 40rem) {
-  .product-doc .vault-detail-overview {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--ct-space-8);
-  }
+.product-doc .vault-summary__cta-note {
+  margin: 0;
+}
 
-  .product-doc .vault-detail-overview__kpis {
+.product-doc .vault-summary__cta-btn {
+  width: 100%;
+}
+
+.product-doc .vault-summary__cta-support {
+  margin: 0;
+  max-width: 40ch;
+}
+
+/* ≥34rem — metrics resolve into one clean aligned row (APY · Min · Lock-up),
+   full column width so labels never wrap. The CTA is a full-width bar below,
+   separated by a hairline — unmistakably the primary action. Vertical stack
+   fits the narrow cockpit column far better than a side-by-side split. */
+@container product-doc (min-width: 34rem) {
+  .product-doc .vault-summary__metrics {
     display: flex;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-    gap: var(--ct-space-4) var(--ct-space-10);
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: var(--ct-space-9);
   }
 
-  .product-doc .vault-detail-overview__cta {
+  .product-doc .vault-summary__metric {
     flex: 0 0 auto;
-    align-items: flex-end;
+  }
+
+  .product-doc .vault-summary__metric--hero {
+    padding-right: var(--ct-space-9);
+    border-right: 1px solid var(--ct-border-soft);
+  }
+
+  .product-doc .vault-summary__cta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ct-space-2) var(--ct-space-5);
+    padding-top: var(--ct-space-5);
+    border-top: 1px solid var(--ct-border-soft);
+  }
+
+  .product-doc .vault-summary__cta-btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  /* Support line sits to the right of the button, not stacked under it. */
+  .product-doc .vault-summary__cta-support {
+    flex: 1 1 16rem;
+  }
+
+  .product-doc .vault-summary__cta-note {
+    flex: 1 0 100%;
   }
 }
 

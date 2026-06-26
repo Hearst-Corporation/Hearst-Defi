@@ -2982,10 +2982,6 @@
    All tokens only. No raw hex/rgb. No glow. No halo.
    ============================================================================= */
 
-  flex-shrink: 0;
-  opacity: var(--ct-opacity-70);
-}
-
 /* ── Recent Activity — premium zero-state ──────────────────────────────────── */
 .pf-activity-zero {
   display: flex;

@@ -16,18 +16,21 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/vault-detail-grammar-convergence
-Owner: Agent — Vault Detail Root Grammar Convergence
-Branch: main (worktree shared — vault detail scope only)
+### feat/agentic-tower-table-console — Vault Product Flow Redesign
+Owner: Agent — Vault Product Flow Redesign (premium first-fold + stepper)
+Branch: feat/agentic-tower-table-console
 Reserved: 2026-06-26
+Note: user-authorized override of the prior zombie lock "feat/vault-detail-grammar-convergence"
+      (no active worktree/branch existed for it). Same scope, reclaimed.
 Files:
 - src/app/(product)/vaults/[id]/page.tsx
-- src/app/(product)/vaults/[id]/loading.tsx
 - src/components/vaults/invest-flow-shell.tsx
-- src/components/vaults/vault-legal-proof-rows.tsx
-- src/components/ui/provenance-badge.tsx
-- src/app/cockpit.css (provenance-badge--compact rename only)
-- src/components/vaults/__tests__/invest-flow-shell.test.tsx
+- src/components/ui/wizard-step-progress.tsx
+- src/components/vaults/step-progress.tsx
+- src/app/cockpit.css (wizard-step-progress block + headline/fixed type-scale
+    tokens — P0 regression revert: commit 75ba7dfa inflated the -fixed tier ~1.6×,
+    restored to canon 18/20/24/28/32/40px. User-authorized 2026-06-26.)
+- src/app/doc-flow.css (invest-flow-shell + vault-detail-overview blocks only)
 
 ---
 

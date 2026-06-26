@@ -326,16 +326,21 @@
   --ct-text-3xl:     1.625rem;  /* 26px @16 root */
   --ct-text-5xl:     1.875rem;  /* 30px @16 root */
   --ct-text-display: 2.125rem;  /* 34px @16 root */
-  /* Headline tier — clean rem multiples; grow via the fluid root. Names keep the
-     `-fixed` suffix for call-site stability site-wide. */
-  --ct-text-xl-fixed: 1.75rem;        /* 28px @16 root (ticker) */
-  --ct-text-2xl-fixed: 2rem;          /* 32px @16 root (NAV value) */
-  --ct-text-28-fixed: 2.75rem;        /* 44px @16 root (risk summary) */
-  --ct-text-3xl-fixed: 2.5rem;        /* 40px @16 root (greeting lead) */
-  --ct-text-display-fixed: 3.25rem;   /* 52px @16 root (hero KPI) */
-  --ct-text-hero: 4rem;               /* 64px @16 root — DS hero KPI tier
-                                         (V4 absorption, SSOT §3). Single dominant figure of a hero
-                                         surface; value-chart keeps its own --ct-text-hero-num. */
+  /* Headline / fixed-value tier — DELIBERATELY NON-FLUID cockpit instruments
+     (greeting H1, NAV, ticker, hero KPI). They must NOT balloon: inside the
+     3-column cockpit they sit next to a 13px menu + 17px chat title, so the
+     canon caps the H1 at 24px. (Restored 2026-06-26 — commit 75ba7dfa had
+     migrated these to a fluid root and inflated the whole tier ~1.6×, which
+     made every body title read 'démesuré' vs chat/menu. The `-fixed` suffix
+     means fixed; these are intentional flat px, NOT clamp() targets.) */
+  --ct-text-xl-fixed: 1.125rem;       /* 18px — fixed value display (ticker) */
+  --ct-text-2xl-fixed: 1.25rem;       /* 20px — fixed hero value (NAV) */
+  --ct-text-28-fixed: 1.75rem;        /* 28px — fixed hero number (risk summary) */
+  --ct-text-3xl-fixed: 1.5rem;        /* 24px — fixed heading canon (greeting / page H1) */
+  --ct-text-display-fixed: 2rem;      /* 32px — fixed hero KPI number */
+  --ct-text-hero: 2.5rem;             /* 40px — DS-level hero KPI tier (V4 absorption,
+                                         SSOT §3). Single dominant figure of a hero surface;
+                                         value-chart keeps its own --ct-text-hero-num. */
 
   /* Font weight scale (mirrors Tailwind). */
   --ct-font-light: 300;
@@ -5876,6 +5881,123 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .wizard-step-progress__label--pending {
   color: var(--ct-text-muted);
+}
+
+/* ── Rail variant — premium product stepper (invest flow) ────────────────────
+   Continuous track behind the dots, accent-filled progress segment up to the
+   current step, larger numbered dots, two-tier copy (state caption + label).
+   Opt-in via variant="rail"; the default dotted row above is untouched. */
+.wizard-step-progress--rail {
+  --ct-rail-dot: 1.625rem; /* 26px — refined, not chunky */
+  position: relative;
+  align-items: flex-start;
+  gap: var(--ct-space-2);
+}
+
+/* Track: spans from the first dot centre to the last dot centre. */
+.wizard-step-progress--rail .wizard-step-progress__track {
+  position: absolute;
+  top: calc(var(--ct-rail-dot) / 2);
+  left: calc(100% / var(--ct-rail-steps, 4) / 2);
+  right: calc(100% / var(--ct-rail-steps, 4) / 2);
+  height: 2px;
+  transform: translateY(-1px);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-border-soft);
+  overflow: hidden;
+}
+
+.wizard-step-progress--rail .wizard-step-progress__track-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ct-accent) 55%, transparent),
+    var(--ct-accent)
+  );
+  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--ct-accent) 45%, transparent);
+  transition: width var(--ct-dur-slow) var(--ct-ease);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__item {
+  position: relative;
+  z-index: var(--ct-z-base);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-2);
+  padding-inline: var(--ct-space-1);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__dot {
+  width: var(--ct-rail-dot);
+  height: var(--ct-rail-dot);
+  font-size: var(--ct-text-2xs);
+}
+
+/* Active dot — ringed + soft accent halo, the visual "you are here". */
+.wizard-step-progress--rail .wizard-step-progress__dot--active {
+  border-color: color-mix(in srgb, var(--ct-accent) 70%, var(--ct-border));
+  background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-1));
+  color: var(--ct-text-strong);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 40%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--ct-accent) 14%, transparent),
+    0 0 18px -4px color-mix(in srgb, var(--ct-accent) 50%, transparent);
+}
+
+/* Done dot — solid accent, dark glyph (a cleared milestone). */
+.wizard-step-progress--rail .wizard-step-progress__dot--done {
+  border-color: transparent;
+  background: var(--ct-accent);
+  color: var(--ct-bg-deep);
+  box-shadow: 0 0 14px -4px color-mix(in srgb, var(--ct-accent) 55%, transparent);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__dot--pending {
+  border-color: var(--ct-border-soft);
+  background: var(--ct-surface-1);
+  color: var(--ct-text-muted);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-0_5);
+  min-width: 0;
+  text-align: center;
+}
+
+.wizard-step-progress__caption {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.wizard-step-progress__caption--active {
+  color: var(--ct-accent);
+}
+
+.wizard-step-progress__caption--done {
+  color: var(--ct-text-secondary);
+}
+
+.wizard-step-progress__caption--pending {
+  color: var(--ct-text-faint);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__label {
+  font-size: var(--ct-text-2xs);
+  font-weight: var(--ct-font-medium);
+  letter-spacing: normal;
+  line-height: var(--ct-leading-snug);
+}
+
+.wizard-step-progress--rail .wizard-step-progress__label--active {
+  font-weight: var(--ct-font-semibold);
 }
 
 /* Checklist dot — onboarding requirements (mirrors wizard-step done/pending) */

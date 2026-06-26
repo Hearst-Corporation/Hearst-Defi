@@ -67,10 +67,10 @@ export function InvestFlowShell({
         className={cn(headerClassName, "mb-0")}
         beforeRule={
           <div className="invest-flow-shell__stepper">
+            {contextLabel ? (
+              <p className="page-canon-kicker">{contextLabel}</p>
+            ) : null}
             <div className="invest-flow-shell__stepper-row">
-              {contextLabel ? (
-                <p className="page-canon-kicker">{contextLabel}</p>
-              ) : null}
               <StepProgress active={step} />
             </div>
             {headerBelowStepper}
