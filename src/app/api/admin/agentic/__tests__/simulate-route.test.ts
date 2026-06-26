@@ -118,11 +118,11 @@ describe("POST /api/admin/agentic/simulate", () => {
     expect(body.readiness.reasonCode).toBe("forbidden_autonomous");
   });
 
-  it("requires human confirmation for confirmed_write without a token (unscoped swarm)", async () => {
-    // platform_reporting_swarm has no enforced scope, so a confirmed_write action
-    // falls through to the tier decision (requires_human_confirmation without a
-    // token). The scoped outreach swarm's forbidden-by-swarm behaviour is covered
-    // by the boundary-enforcement test suite.
+  it("every swarm now forbids the send-run by swarm policy (no unscoped path)", async () => {
+    // All 5 swarms are scoped now; the single confirmed_write action
+    // (outreach_trigger_send_run) is forbidden by every swarm, so the route never
+    // returns requires_human_confirmation for it. The tier-only
+    // requires_human_confirmation path is covered by the pure boundary tests.
     mockRequireAdmin.mockResolvedValue({ userId: "a" } as never);
     const res = await POST(
       makeRequest({
@@ -130,8 +130,11 @@ describe("POST /api/admin/agentic/simulate", () => {
         actionId: "outreach_trigger_send_run",
       }),
     );
-    const body = (await res.json()) as { readiness: { decision: string } };
-    expect(body.readiness.decision).toBe("requires_human_confirmation");
+    const body = (await res.json()) as {
+      readiness: { decision: string; reasonCode: string };
+    };
+    expect(body.readiness.decision).toBe("blocked");
+    expect(body.readiness.reasonCode).toBe("forbidden_by_swarm");
   });
 
   it("enforces the outreach swarm scope: the send-run is blocked by the swarm even with a token", async () => {

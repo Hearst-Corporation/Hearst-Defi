@@ -119,10 +119,25 @@ describe("a swarm can only TIGHTEN, never loosen", () => {
     }
   });
 
-  it("unscoped swarms keep tier-only behaviour (read stays allow)", () => {
-    expect(platform.allowedActionIds).toBeUndefined();
-    const e = evaluateActionReadiness("read_observability", {}, platform);
+  it("an unscoped swarm scope keeps tier-only behaviour (read stays allow)", () => {
+    // All registered swarms are now scoped, so simulate the backward-compatible
+    // path with a synthetic scope that omits allowedActionIds.
+    const unscoped = { mode: "simulation" as const, forbiddenActions: [] };
+    const e = evaluateActionReadiness("read_observability", {}, unscoped);
     expect(e.decision).toBe("allow");
+    expect(e.swarmScoped).toBe(false);
+  });
+
+  it("a 2-arg call (no swarm) still resolves by tier only", () => {
+    expect(evaluateActionReadiness("read_observability").decision).toBe("allow");
+    expect(evaluateActionReadiness("create_vault_draft").decision).toBe("gated");
+  });
+
+  it("platform_reporting is now scoped and blocks an out-of-scope draft", () => {
+    expect(platform.allowedActionIds).toBeDefined();
+    const e = evaluateActionReadiness("draft_outreach_email", {}, platform);
+    expect(e.decision).toBe("blocked");
+    expect(e.reasonCode).toBe("action_out_of_swarm_scope");
   });
 });
 

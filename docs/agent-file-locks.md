@@ -16,6 +16,26 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/swarm-scope-enforcement-all
+Owner: Opus Orchestrateur — Swarm Scope Enforcement All
+Branch: feat/swarm-scope-enforcement-all
+Worktree: ../connect-opus-swarm-scope-all
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/lib/agentic/swarm/** (registry scopes + tests)
+- src/lib/agentic/**/__tests__/**
+- docs/agentic/**
+- scripts/agentic/calibrate-swarms.mjs
+
+Notes:
+- Backend only. Extend enforced allowedActionIds to the 4 remaining swarms.
+- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
+- No Prisma migration, no DB write, no dangerous execution, no external tool.
+- No product_projection_swarm. Does NOT touch src/components/** (another agent's UI).
+
+---
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence

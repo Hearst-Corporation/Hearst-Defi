@@ -86,7 +86,34 @@ swarm can only ever TIGHTEN the global tier floor (never loosen it), in this ord
 
 A new optional `allowedActionIds?: string[]` on `SwarmDefinition` is the **enforced
 positive scope** (catalog ids only; validated by `assertSwarmSafe`). When absent, the
-swarm keeps its backward-compatible tier-only behaviour (the other 4 swarms today).
+swarm keeps its backward-compatible tier-only behaviour. **All 5 swarms now have an
+enforced scope** — see the per-swarm table below.
+
+### Per-swarm enforced scopes (all 5)
+
+| swarm | allowedActionIds | forbiddenActions (catalog) |
+| --- | --- | --- |
+| `platform_reporting_swarm` | navigate_admin_surface, compose_reporting_briefing, read_observability, review_router_quality, inspect_tool_boundary | outreach_trigger_send_run, source_leads_autonomously |
+| `lp_explainer_swarm` | navigate_admin_surface, explain_product, explain_yield | outreach_trigger_send_run, source_leads_autonomously |
+| `vault_governance_swarm` | navigate_admin_surface, read_observability, create_review_note_draft, create_governance_proposal_draft, create_vault_draft | deploy_product, mark_vault_live, outreach_trigger_send_run |
+| `outreach_governed_swarm` | navigate_admin_surface, explain_product, explain_yield, draft_outreach_email, create_campaign_draft | outreach_trigger_send_run, source_leads_autonomously, tier_a_auto_send |
+| `memory_maintenance_swarm` | navigate_admin_surface, read_observability | outreach_trigger_send_run, source_leads_autonomously |
+
+### Updated calibration verdict (after enforcement)
+
+- **fully enforce + useful**: `outreach_governed_swarm` (gated draft→send boundary),
+  `vault_governance_swarm` (draft-only governance: vault/review/governance drafts gated,
+  deploy/mark-live floored), `platform_reporting_swarm` (read/observability composition).
+- **enforce but weak**: `lp_explainer_swarm` — bounded and useful (explain product/yield)
+  but thin; the real safety value (APY-range/output-guard) lives in its crew, not the scope.
+- **theoretical but bounded**: `memory_maintenance_swarm` — no memory-specific catalog
+  action exists yet, so its scope is a minimal read-only boundary (surface + status). It is
+  now enforced (everything else → out-of-scope) but delivers no differentiated action until a
+  read-only `read_session_context` / `distill_memory` action is added (a future lot).
+- **missing actions**: an explain_risk / explain_provenance read action (for lp_explainer),
+  a memory read action (for memory_maintenance), and — still deferred — any projection action
+  (for the not-yet-built `product_projection_swarm`).
+- **no swarm is decorative**: every swarm has a load-bearing `allowedActionIds` boundary.
 
 **`outreach_governed_swarm` (first enforcing swarm)** — `allowedActionIds` =
 `navigate_admin_surface, explain_product, explain_yield, draft_outreach_email,
