@@ -1305,7 +1305,7 @@
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--ct-space-20); /* Increased for product sheet feel */
+  gap: var(--ct-space-8); /* Consistent rhythm between carded blocks */
 }
 
 .product-doc .invest-flow-shell .product-page-header {
@@ -1546,7 +1546,7 @@
 .product-doc .invest-flow-detail__primary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
+  gap: var(--ct-space-8); /* Increased from doc-flow-stack-gap */
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-primary;
@@ -1555,7 +1555,7 @@
 .product-doc .invest-flow-detail__secondary {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-12); /* Increased from doc-flow-stack-gap */
+  gap: var(--ct-space-8); /* Increased from doc-flow-stack-gap */
   min-width: 0;
   container-type: inline-size;
   container-name: invest-flow-secondary;
@@ -1899,6 +1899,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-6); /* Increased from space-4 */
+  padding: var(--ct-space-8);
+  background: var(--ct-surface-1);
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-xl);
 }
 
 .product-doc .vault-detail-block__header {
@@ -1914,8 +1918,7 @@
 
 .product-doc .vault-detail-disclaimer {
   margin: 0;
-  padding-top: var(--ct-space-12); /* Increased from space-8 for breathing room */
-  border-top: 1px solid var(--ct-border-soft);
+  padding-top: var(--ct-space-2);
 }
 
 /* ── Target allocation — graphique (barre empilée 100% + barres par bucket) ── */
