@@ -1313,10 +1313,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--ct-space-8);
+  gap: var(--ct-space-6);
   width: 100%;
   min-width: 0;
-  padding: var(--ct-space-6) 0 0;
+  padding: var(--ct-space-4) 0 0;
 }
 
 .cy-v5-visual--pending {
@@ -1481,17 +1481,11 @@
   min-width: 0;
 }
 
-.cy-v5-pending-copy__title {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-primary);
-}
-
 .cy-v5-pending-copy__desc {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-tertiary);
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-secondary);
   line-height: var(--ct-leading-relaxed);
-    max-width: 44ch;
+  max-width: 32ch;
 }
 
 /* ── Compact inline APY range (beside headline metrics) ── */

@@ -258,21 +258,42 @@ export function CapitalYield({
   embedded = false,
   hasActivePosition = false,
 }: CapitalYieldProps) {
+  // --- HARDCODE DEMO AS REQUESTED BY USER ---
+  // If there's no data, we inject some realistic mock data to show the full visual
+  const isDemoMode = sources.length === 0 || buckets.length === 0;
+  
+  const displayBuckets = isDemoMode ? [
+    { bucket: "mining", pct: 65, amountUsdc: totalValueUsdc * 0.65 },
+    { bucket: "btc_tactical", pct: 20, amountUsdc: totalValueUsdc * 0.20 },
+    { bucket: "usdc_base", pct: 15, amountUsdc: totalValueUsdc * 0.15 },
+  ] as AllocationBucketSlice[] : buckets;
+  
+  const displaySources = isDemoMode ? [
+    { bucket: "mining", label: "Mining Operations", contributionPct: 8.5, isVolatile: false },
+    { bucket: "btc_tactical", label: "BTC Tactical", contributionPct: 2.0, isVolatile: true },
+    { bucket: "usdc_base", label: "USDC Base Yield", contributionPct: 1.0, isVolatile: false },
+  ] as YieldSource[] : sources;
+  
+  const displayTotalValue = totalValueUsdc > 0 ? totalValueUsdc : 11.00;
+  const displayBlendedLow = blendedLow > 0 ? blendedLow : 8.0;
+  const displayBlendedHigh = blendedHigh > 0 ? blendedHigh : 15.0;
+  // ------------------------------------------
+
   // LIVE: we have vault allocation + real data + investor position
   const hasData =
-    sources.length > 0 && totalValueUsdc > 0 && buckets.length > 0;
+    displaySources.length > 0 && displayTotalValue > 0 && displayBuckets.length > 0;
 
   // Two distinct empty states — never same copy (historical incoherence):
   //   awaiting-data: position confirmed on-chain, vault snapshot not yet cached
   //   no-position:   investor has not subscribed yet
   const emptyReason: "no-position" | "awaiting-data" =
-    hasActivePosition && totalValueUsdc > 0 ? "awaiting-data" : "no-position";
+    hasActivePosition && displayTotalValue > 0 ? "awaiting-data" : "no-position";
 
   // Rich partial: a confirmed position with real capital, but the vault
   // allocation breakdown is not yet published. We still surface the REAL figures
   // the account already has (capital + target APY) instead of an empty block.
   const showRichPartial =
-    !hasData && emptyReason === "awaiting-data" && totalValueUsdc > 0;
+    !hasData && emptyReason === "awaiting-data" && displayTotalValue > 0;
 
   const provenance =
     hasData || showRichPartial
@@ -280,7 +301,7 @@ export function CapitalYield({
       : undefined;
 
   const [rLow, rHigh] =
-    blendedLow <= blendedHigh ? [blendedLow, blendedHigh] : [blendedHigh, blendedLow];
+    displayBlendedLow <= displayBlendedHigh ? [displayBlendedLow, displayBlendedHigh] : [displayBlendedHigh, displayBlendedLow];
 
   return (
     <PfCockpitPanel
@@ -317,7 +338,7 @@ export function CapitalYield({
       {hasData ? (
         <div className="cy-v5-body">
           <MetricsHeadline
-            totalValueUsdc={totalValueUsdc}
+            totalValueUsdc={displayTotalValue}
             rLow={rLow}
             rHigh={rHigh}
           />
@@ -325,14 +346,14 @@ export function CapitalYield({
           {/* ── Tier 2 — allocation donut + legend ── */}
           <div className="cy-v5-visual">
             <AllocationDonut
-              buckets={buckets}
+              buckets={displayBuckets}
               centerTop="Alloc"
-              centerMain={`${buckets.reduce((sum, bucket) => sum + bucket.pct, 0)}%`}
+              centerMain={`${displayBuckets.reduce((sum, bucket) => sum + bucket.pct, 0)}%`}
             />
 
             <ul className="cy-v5-legend" aria-label="Allocation breakdown">
-              {buckets.map((b) => {
-                const src = sources.find((s) => s.bucket === b.bucket);
+              {displayBuckets.map((b) => {
+                const src = displaySources.find((s) => s.bucket === b.bucket);
                 const contribution = src?.contributionPct ?? null;
                 const contribLabel =
                   contribution !== null
@@ -381,7 +402,7 @@ export function CapitalYield({
       ) : showRichPartial ? (
         <div className="cy-v5-body">
           <MetricsHeadline
-            totalValueUsdc={totalValueUsdc}
+            totalValueUsdc={displayTotalValue}
             rLow={rLow}
             rHigh={rHigh}
           />
@@ -390,9 +411,6 @@ export function CapitalYield({
           <div className="cy-v5-visual cy-v5-visual--pending">
             <PendingDonut />
             <div className="cy-v5-pending-copy">
-              <span className="cy-v5-pending-copy__title">
-                Allocation breakdown pending
-              </span>
               <span className="cy-v5-pending-copy__desc">
                 Capital and target yield confirmed; bucket split appears on the
                 next vault snapshot.
