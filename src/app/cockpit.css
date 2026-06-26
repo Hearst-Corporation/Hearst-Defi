@@ -4347,9 +4347,9 @@ button.ct-choice-card {
   align-items: center;
 }
 
-/* Bouton profil (avatar) descendu de 15px vers le bas. Uniquement le bouton. */
+/* Bouton profil (avatar) descendu de 30px vers le bas. Uniquement le bouton. */
 .ct-rail-identity-stack .ct-avatar {
-  transform: translateY(15px);
+  transform: translateY(30px);
 }
 
 /* Badge armé (prêt à déconnecter) : bascule en rouge doux, même géométrie
