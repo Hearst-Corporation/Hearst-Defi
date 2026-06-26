@@ -3707,10 +3707,6 @@ button.ct-choice-card {
   min-width: var(--ct-rail-left) !important;
   max-width: var(--ct-rail-left) !important;
   position: relative;
-  /* Harmonize borders : fade out the border and background at the very bottom
-     to match the black plinth. */
-  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
-  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
 .ct-rail-right {
@@ -3730,10 +3726,6 @@ button.ct-choice-card {
      doit déborder par-dessus la bordure gauche. Le header tronque déjà son titre. */
   overflow: hidden;
   position: relative;
-  /* Harmonize borders : fade out the border and background at the very bottom
-     to match the black plinth. */
-  mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
-  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - var(--ct-space-12)), transparent);
 }
 
 .ct-rail-right.collapsed {
