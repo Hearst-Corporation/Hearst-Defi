@@ -29,18 +29,22 @@ describe("resolveClientNav (client fast-path classifier)", () => {
 
   describe("kind: nav — resolves an LP destination and navigates locally", () => {
     it("routes explicit LP navigation phrases to their real route", () => {
-      const cases: Array<[string, string]> = [
-        ["ouvre mon portefeuille", "/portfolio"],
-        ["voir les produits", "/vaults"],
-        ["open proof center", "/proof-center"],
-        ["go to portfolio", "/portfolio"],
-        ["mon profil kyc", "/profile"],
+      const cases: Array<[string, string, "fr" | "en"]> = [
+        ["ouvre mon portefeuille", "/portfolio", "fr"],
+        ["voir les produits", "/vaults", "fr"],
+        ["open proof center", "/proof-center", "en"],
+        ["go to portfolio", "/portfolio", "en"],
+        ["mon profil kyc", "/profile", "fr"],
       ];
-      for (const [message, route] of cases) {
+      for (const [message, route, lang] of cases) {
         const result = resolveClientNav(message);
         expect(result.kind).toBe("nav");
         expect(result.route).toBe(route);
-        expect(result.ack).toBe(NAV_SHORTCUT_ACK);
+        if (lang === "en") {
+          expect(result.ack).toBe("Taking you there.");
+        } else {
+          expect(result.ack).toBe(NAV_SHORTCUT_ACK);
+        }
         expect(result.label).toBeTruthy();
         // The resolved route must be a real whitelisted LP destination.
         expect(LP_ROUTES.has(result.route ?? "")).toBe(true);
@@ -68,7 +72,9 @@ describe("resolveClientNav (client fast-path classifier)", () => {
       // the client mirrors that exactly (zero network) instead of POSTing.
       const result = resolveClientNav("show me the APY range");
       expect(result.kind).toBe("reject");
-      expect(result.ack).toBe(NAV_REJECT_ACK);
+      expect(result.ack).toBe(
+        "I can't find that section in your workspace. Can I help with something else?",
+      );
     });
 
     it("never routes sensitive mutating intents (they reach the LLM, which refuses)", () => {

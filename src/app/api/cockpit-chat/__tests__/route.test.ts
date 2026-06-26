@@ -74,6 +74,14 @@ vi.mock("@/lib/llm/nav-channel", () => ({
   publishNav: vi.fn(),
 }));
 
+vi.mock("@/lib/canvas/classify-canvas-intent", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/canvas/classify-canvas-intent")>();
+  return {
+    ...original,
+    classifyCanvasIntentLlm: vi.fn().mockResolvedValue(null),
+  };
+});
+
 // Product-intent classification is now a deterministic regex; mock it so tests
 // choose the verdict explicitly (default: not a product intent → no short-circuit).
 vi.mock("@/lib/llm/product-workspace-intent", async (importOriginal) => {
@@ -98,6 +106,7 @@ import {
   classifyProductWorkspaceIntent,
   PRODUCT_WORKSPACE_DESTINATION_KEY,
 } from "@/lib/llm/product-workspace-intent";
+import { classifyCanvasIntentLlm } from "@/lib/canvas/classify-canvas-intent";
 
 const mockRequireAuth = vi.mocked(requireAuth);
 const mockAdminChatModeFindUnique = vi.mocked(prisma.adminChatMode.findUnique);
@@ -108,6 +117,7 @@ const mockNavTraceCreate = vi.mocked(prisma.navTrace.create);
 const mockRunChatAgent = vi.mocked(runChatAgent);
 const mockPublishNav = vi.mocked(publishNav);
 const mockClassify = vi.mocked(classifyProductWorkspaceIntent);
+const mockClassifyCanvasIntentLlm = vi.mocked(classifyCanvasIntentLlm);
 const mockGetSession = vi.mocked(getSession);
 
 /** Default: not a product intent (so most tests exercise the normal chat path). */
@@ -606,6 +616,30 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
     expect(parsed.metadata.intent).toBe("refusal");
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockPublishNav).not.toHaveBeenCalled();
+  });
+
+  it("5. covered navigation never calls LLM router/classifier", async () => {
+    const coveredMessages = [
+      "Amène-moi au dashboard",
+      "Open my portfolio",
+      "Va sur proof center",
+      "Show me projection",
+      "Ouvre scenario lab",
+      "Open outreach",
+      "Montre les campagnes",
+      "Va dans control tower",
+      "Ouvre mes positions",
+      "Show distributions",
+    ];
+
+    for (const message of coveredMessages) {
+      vi.clearAllMocks();
+      mockGetSession.mockResolvedValue({ role: "admin" } as never);
+      const res = await POST(makeChatRequest(message));
+      expect(res.status).toBe(200);
+      expect(mockRunChatAgent).not.toHaveBeenCalled();
+      expect(mockClassifyCanvasIntentLlm).not.toHaveBeenCalled();
+    }
   });
 
   it("4. fallback legacy: router misses → LLM runs normally", async () => {
