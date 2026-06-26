@@ -113,6 +113,8 @@ export function GridOverlay() {
     <div className="dev-grid" aria-hidden>
       <div className="dev-grid__center">
         <GridZone label="CENTRE" />
+        {/* Ligne verte verticale au milieu de la largeur du cadre central. */}
+        <div className="dev-grid__midline" />
       </div>
       <div className="dev-grid__chat">
         <GridZone label="CHAT" />
