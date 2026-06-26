@@ -36,6 +36,8 @@ import {
   resolveNavFallbackDestinationKey,
   NAV_SHORTCUT_ACK,
   NAV_REJECT_ACK,
+  buildNavShortcutAck,
+  buildNavRejectAck,
 } from "@/lib/llm/nav-fallback-intent";
 import {
   ADMIN_NAV_DESTINATIONS,
@@ -100,14 +102,14 @@ export function resolveClientNav(message: string): ClientNavResult {
         kind: "nav",
         route: dest.route,
         label: dest.label,
-        ack: NAV_SHORTCUT_ACK,
+        ack: buildNavShortcutAck(text),
       };
     }
   }
 
   // A nav-verb gesture that matched no LP destination → instant local reject.
   if (looksLikeNavIntent(text)) {
-    return { kind: "reject", ack: NAV_REJECT_ACK };
+    return { kind: "reject", ack: buildNavRejectAck(text) };
   }
 
   // Real question (or admin nav out of LP scope) → server.

@@ -145,7 +145,7 @@ function firstMatch(
  * null. Pure regex on the normalized input.
  */
 const NAV_LEAD =
-  "(?:go to|open|take me to|show( me)?|view|ouvre|ouvrir|va (?:dans|sur|a|au|aux)|vas? (?:dans|sur)|aller (?:dans|sur|a)|affiche|affiche moi|montre|montre moi|voir|consulte|accede a|accede aux|redirige vers)";
+  "(?:go to|open|take me to|show( me)?|view|ouvre|ouvrir|ouvri|va (?:dans|sur|a|au|aux)|vas? (?:dans|sur)|aller (?:dans|sur|a)|affiche|affiche moi|montre|montre moi|voir|consulte|accede a|accede aux|redirige vers)";
 
 function resolveAugmentedNav(
   normalized: string,
@@ -154,19 +154,23 @@ function resolveAugmentedNav(
   const navLed = new RegExp(`\\b${NAV_LEAD}\\b`).test(normalized);
 
   if (navLed && /\bvaults?\b/.test(normalized)) return "vaults";
-  if (navLed && /\b(portefeuille|portfolio)\b/.test(normalized)) return "portfolio";
+  if (navLed && /\b(portefeuille|portfolio|portofolio|dashboard|dashbord)\b/.test(normalized)) {
+    return "portfolio";
+  }
   if (/\b(product workspace|espace produit|workspace produit)\b/.test(normalized)) {
     return "admin-product-workspace";
   }
-  if (/\b(outreach|investor pipeline|pipeline investisseurs?|prospects?)\b/.test(normalized)) {
+  if (/\b(outreach|outrich|outtrich|investor pipeline|pipeline investisseurs?|prospects?|campaign|campain|campagne)\b/.test(normalized)) {
     return "admin-outreach";
   }
-  if (/\b(dashboard|tableau de bord|home|accueil)\b/.test(normalized)) {
+  if (/\b(dashboard|dashbord|tableau de bord|home|accueil|control tower|tour de controle)\b/.test(normalized)) {
     return isAdmin ? "admin-dashboard" : "portfolio";
   }
   // Bare reports/brief navigation (the generative "génère un rapport" is caught
   // earlier as reporting_request). "reports" is a logical key the chat maps.
-  if (/\b(reports?|rapports?|reporting)\b/.test(normalized)) return "reports";
+  if (/\b(reports?|rapports?|reporting)\b/.test(normalized)) {
+    return isAdmin ? "admin-investor-memo" : "portfolio-activity";
+  }
   return null;
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { NAV_DESTINATIONS } from "@/lib/llm/navigate-tool";
 import {
+  NAV_CANONICAL_MATRIX,
   NAV_KEYWORDS,
   resolveLpNavDestinationKey,
   resolveAdminNavFallbackKey,
@@ -16,6 +17,13 @@ describe("nav-fallback derived rules (regex covers the whole site)", () => {
       (d) => (NAV_KEYWORDS[d.key]?.length ?? 0) === 0,
     ).map((d) => d.key);
     expect(missing).toEqual([]);
+  });
+
+  it("canonical matrix keys stay mapped to real keywords", () => {
+    const missingKeywords = NAV_CANONICAL_MATRIX.filter(
+      (row) => (NAV_KEYWORDS[row.destinationKey]?.length ?? 0) === 0,
+    ).map((row) => row.destinationKey);
+    expect(missingKeywords).toEqual([]);
   });
 
   it("opens new LP sub-pages without touching the LLM", () => {

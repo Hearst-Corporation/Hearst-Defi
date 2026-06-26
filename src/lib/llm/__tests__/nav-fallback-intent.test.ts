@@ -5,6 +5,8 @@ import {
   ADMIN_OUTREACH_DESTINATION_KEY,
   NAV_REJECT_ACK,
   NAV_SHORTCUT_ACK,
+  buildNavRejectAck,
+  buildNavShortcutAck,
   looksLikeNavIntent,
   resolveAdminNavFallbackKey,
   resolveLpNavDestinationKey,
@@ -33,6 +35,12 @@ describe("nav-fallback-intent", () => {
       expect(resolveLpNavDestinationKey("show portfolio")).toBe("portfolio");
       expect(resolveLpNavDestinationKey("show vaults")).toBe("vaults");
       expect(resolveLpNavDestinationKey("open proof center")).toBe("proof-center");
+      expect(resolveLpNavDestinationKey("open my dashboard")).toBe("portfolio");
+      expect(resolveLpNavDestinationKey("open activity")).toBe("portfolio-activity");
+      expect(resolveLpNavDestinationKey("open distributions")).toBe(
+        "portfolio-distributions",
+      );
+      expect(resolveLpNavDestinationKey("open yield")).toBe("portfolio-yield");
     });
 
     it("returns null for generic product Q&A", () => {
@@ -78,9 +86,34 @@ describe("nav-fallback-intent", () => {
       expect(resolveAdminNavFallbackKey("compose email outreach")).toBe(
         ADMIN_OUTREACH_DESTINATION_KEY,
       );
+      expect(resolveAdminNavFallbackKey("show campaigns")).toBe(
+        ADMIN_OUTREACH_DESTINATION_KEY,
+      );
+      expect(resolveAdminNavFallbackKey("open scenario lab")).toBe(
+        SCENARIO_LAB_DESTINATION_KEY,
+      );
+      expect(resolveAdminNavFallbackKey("go to projection")).toBe("admin-projection");
+      expect(resolveAdminNavFallbackKey("open control tower")).toBe("admin-home");
       expect(resolveAdminNavFallbackKey("va sur le dashboard admin")).toBe(
         "admin-dashboard",
       );
+    });
+
+    it("accepts mixed-language and typo variants", () => {
+      expect(resolveAdminNavFallbackKey("ouvre dashboard")).toBe("admin-dashboard");
+      expect(resolveAdminNavFallbackKey("va proof center")).toBe("admin-proof-center");
+      expect(resolveAdminNavFallbackKey("show la campagne")).toBe(
+        ADMIN_OUTREACH_DESTINATION_KEY,
+      );
+      expect(resolveAdminNavFallbackKey("ouvri le dashboard")).toBe("admin-dashboard");
+      expect(resolveAdminNavFallbackKey("dashbord admin")).toBe("admin-dashboard");
+      expect(resolveAdminNavFallbackKey("campain outreach")).toBe(
+        ADMIN_OUTREACH_DESTINATION_KEY,
+      );
+      expect(resolveAdminNavFallbackKey("scenarion lab")).toBe(
+        SCENARIO_LAB_DESTINATION_KEY,
+      );
+      expect(resolveAdminNavFallbackKey("projetion admin")).toBe("admin-projection");
     });
 
     it("returns null for unrelated admin ops", () => {
@@ -256,6 +289,20 @@ describe("nav-fallback-intent", () => {
       for (const word of forbidden) {
         expect(NAV_REJECT_ACK.toLowerCase()).not.toContain(word.toLowerCase());
       }
+    });
+  });
+
+  describe("language-aware nav acknowledgements", () => {
+    it("returns French ack for French messages", () => {
+      expect(buildNavShortcutAck("ouvre mon portefeuille")).toBe(NAV_SHORTCUT_ACK);
+      expect(buildNavRejectAck("ouvre la lune")).toBe(NAV_REJECT_ACK);
+    });
+
+    it("returns English ack for English messages", () => {
+      expect(buildNavShortcutAck("open my portfolio")).toBe("Taking you there.");
+      expect(buildNavRejectAck("open the moon page")).toBe(
+        "I can't find that section in your workspace. Can I help with something else?",
+      );
     });
   });
 });

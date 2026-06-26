@@ -47,7 +47,10 @@ import { distillChatToMemory } from "@/lib/agents/memory-distill";
 import { syncMemoryToHubSpot } from "@/lib/hubspot/sync-memory";
 import { publishNav } from "@/lib/llm/nav-channel";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
-import { resolveNavFallbackDestinationKey, NAV_SHORTCUT_ACK } from "@/lib/llm/nav-fallback-intent";
+import {
+  resolveNavFallbackDestinationKey,
+  buildNavShortcutAck,
+} from "@/lib/llm/nav-fallback-intent";
 import {
   ADMIN_NAV_DESTINATIONS,
   resolveNavDestinationForProfile,
@@ -642,23 +645,6 @@ async function runMasterAgentTurn(args: {
     canvasIntent = { canvasId: "outreach", cleanedMessage: message };
   }
 
-  // Agent-canvas intent in natural language. MUST run BEFORE the regex nav
-  // shortcut: a word like "outreach" matches the shortcut (→ /admin/outreach
-  // page) and returns early, so the canvas would never open. The preset chip
-  // emits a marker (already in `canvasIntent`); this also catches free-typed
-  // admin requests the deterministic classifier missed. Admin-only, fail-safe
-  // (null → no canvas), and only when nothing already picked a canvas.
-  if (!isReview && isAdmin && !canvasIntent) {
-    const detected = await classifyCanvasIntentLlm(
-      openai as unknown as ClassifyClient,
-      model,
-      message,
-    );
-    if (detected) {
-      canvasIntent = { canvasId: detected.canvasId, cleanedMessage: message };
-    }
-  }
-
   // Cross-turn memory: a canvas opened on an earlier turn is still on screen
   // (Section 2) until the operator navigates away — so a vague follow-up
   // ("on commence comment") must stay in that workshop. `freshCanvasThisTurn`
@@ -832,7 +818,7 @@ async function runMasterAgentTurn(args: {
       chatId,
       turnId,
       variant: "nav-shortcut",
-      text: NAV_SHORTCUT_ACK,
+      text: buildNavShortcutAck(message),
     });
     // Router Observability: legacy regex nav fallback published the navigation.
     void recordRouterDecisionSafe({
@@ -841,7 +827,21 @@ async function runMasterAgentTurn(args: {
       turnId,
       chatId,
     });
-    return ackResponse(NAV_SHORTCUT_ACK, chatId);
+    return ackResponse(buildNavShortcutAck(message), chatId);
+  }
+
+  // Agent-canvas intent in natural language (LLM fallback only after deterministic
+  // navigation paths). By running this AFTER nav router shortcuts, covered
+  // navigation phrasings never invoke classifyCanvasIntentLlm.
+  if (!isReview && isAdmin && !canvasIntent) {
+    const detected = await classifyCanvasIntentLlm(
+      openai as unknown as ClassifyClient,
+      model,
+      message,
+    );
+    if (detected) {
+      canvasIntent = { canvasId: detected.canvasId, cleanedMessage: message };
+    }
   }
 
   // StreamingChatClient is a deliberately minimal structural contract (a subset
