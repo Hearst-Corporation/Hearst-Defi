@@ -2,7 +2,6 @@ import { notFound, redirect } from "next/navigation";
 
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { InvestForm } from "@/components/vaults/invest-form";
-import { AppFooter } from "@/components/app-footer";
 import { getVault } from "@/lib/data/vaults";
 import { getInvestor, getSession } from "@/lib/auth/session";
 import { isSumsubConfigured } from "@/lib/onboarding/config";
@@ -62,7 +61,6 @@ export default async function InvestDepositPage({ params }: PageProps) {
           Step 3 of 4 · Review allocation amount, wallet readiness, and confirm deposit
         </p>
       }
-      footer={<AppFooter variant="full" />}
     >
       <InvestForm
         vault={vault}
