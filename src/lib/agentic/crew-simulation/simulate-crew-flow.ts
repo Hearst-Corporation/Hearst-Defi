@@ -18,6 +18,8 @@ function buildSummary(scenarioId: string): string {
       "Vault Readiness Flow reads smart contract state and ADR gate status, then produces an advisory readiness assessment. Mainnet deploy remains hard-blocked (ADR-006 audit gate).",
     memory_distill_flow:
       "Memory Distill Flow reads session context metadata (no user text) and produces a concise internal summary. No external transmission. No tool is executed.",
+    projection_flow:
+      "Projection Flow validates allowlisted input, deterministically builds a read-only projection artifact (metrics, scenarios, charts, assumptions, provenance), and runs output guards. APY is only a range; no number is invented; no return is promised; no write is performed.",
   };
   return (
     summaries[scenarioId] ??

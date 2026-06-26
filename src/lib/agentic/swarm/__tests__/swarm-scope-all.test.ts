@@ -114,9 +114,22 @@ describe("memory_maintenance_swarm — enforce minimal useful (read_session_cont
   });
 });
 
+describe("product_projection_swarm — read-only projection scope", () => {
+  it("allows run_projection + explain actions, blocks outreach/vault/forbidden", () => {
+    expect(decide("product_projection_swarm", "run_projection").decision).toBe("allow");
+    expect(decide("product_projection_swarm", "run_projection").reasonCode).toBe("read_only_allowed");
+    expect(decide("product_projection_swarm", "explain_risk").decision).toBe("allow");
+    expect(decide("product_projection_swarm", "explain_provenance").decision).toBe("allow");
+    expect(decide("product_projection_swarm", "draft_outreach_email").reasonCode).toBe("action_out_of_swarm_scope");
+    expect(decide("product_projection_swarm", "create_vault_draft").reasonCode).toBe("action_out_of_swarm_scope");
+    expect(decide("product_projection_swarm", "outreach_trigger_send_run", true).reasonCode).toBe("forbidden_by_swarm");
+    expect(decide("product_projection_swarm", "deploy_product", true).reasonCode).toBe("forbidden_autonomous");
+  });
+});
+
 describe("new read-only utility actions are well-formed", () => {
-  it("explain_risk / explain_provenance / read_session_context are read_only, non-autonomous-by-policy", () => {
-    for (const id of ["explain_risk", "explain_provenance", "read_session_context"]) {
+  it("explain_risk / explain_provenance / read_session_context / run_projection are read_only, non-autonomous-by-policy", () => {
+    for (const id of ["explain_risk", "explain_provenance", "read_session_context", "run_projection"]) {
       const e = evaluateActionReadiness(id); // no swarm → tier only
       expect(e.tier).toBe("read_only");
       expect(e.decision).toBe("allow");

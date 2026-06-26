@@ -19,6 +19,7 @@ const EXPECTED_READ_ONLY_IDS = [
   "explain_risk",
   "explain_provenance",
   "read_session_context",
+  "run_projection",
 ];
 
 const EXPECTED_DRAFT_IDS = [

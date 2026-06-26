@@ -172,6 +172,23 @@ export const ACTION_READINESS_ITEMS: ActionReadinessItem[] = [
       "List session ids eligible for memory distill",
     ],
   },
+  {
+    id: "run_projection",
+    label: "Run product projection",
+    tier: "read_only",
+    status: "available",
+    autonomousAllowed: true,
+    humanGateRequired: false,
+    confirmationRequired: false,
+    riskLevel: "low",
+    reason:
+      "Deterministic, read-only projection artifact from allowlisted inputs (scenarios, ranges, assumptions, provenance, disclaimers). Invents no number, makes no return claim, APY only as a range (ADR-006). No DB write, no external tool, no mutation, no storage.",
+    examples: [
+      "Project the Hearst Yield Vault over 12 months",
+      "Build a bear/base/bull projection from a stated APY range",
+      "Show the projected yield range for a given capital base",
+    ],
+  },
 
   // ─── DRAFT / PROPOSAL ─────────────────────────────────────────────────────
   {

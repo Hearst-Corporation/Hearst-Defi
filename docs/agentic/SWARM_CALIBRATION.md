@@ -94,35 +94,36 @@ positive scope** (catalog ids only; validated by `assertSwarmSafe`). When absent
 swarm keeps its backward-compatible tier-only behaviour. **All 5 swarms now have an
 enforced scope** — see the per-swarm table below.
 
-### Per-swarm enforced scopes (all 5)
+### Per-swarm enforced scopes (all 6)
 
 | swarm | allowedActionIds | forbiddenActions (catalog) |
 | --- | --- | --- |
 | `platform_reporting_swarm` | navigate_admin_surface, compose_reporting_briefing, read_observability, review_router_quality, inspect_tool_boundary | outreach_trigger_send_run, source_leads_autonomously |
-| `lp_explainer_swarm` | navigate_admin_surface, explain_product, explain_yield, **explain_risk**, **explain_provenance** | outreach_trigger_send_run, source_leads_autonomously |
+| `lp_explainer_swarm` | navigate_admin_surface, explain_product, explain_yield, explain_risk, explain_provenance | outreach_trigger_send_run, source_leads_autonomously |
 | `vault_governance_swarm` | navigate_admin_surface, read_observability, create_review_note_draft, create_governance_proposal_draft, create_vault_draft | deploy_product, mark_vault_live, outreach_trigger_send_run |
 | `outreach_governed_swarm` | navigate_admin_surface, explain_product, explain_yield, draft_outreach_email, create_campaign_draft | outreach_trigger_send_run, source_leads_autonomously, tier_a_auto_send |
-| `memory_maintenance_swarm` | navigate_admin_surface, read_observability, **read_session_context** | outreach_trigger_send_run, source_leads_autonomously |
+| `memory_maintenance_swarm` | navigate_admin_surface, read_observability, read_session_context | outreach_trigger_send_run, source_leads_autonomously |
+| `product_projection_swarm` | navigate_admin_surface, **run_projection**, explain_risk, explain_provenance, explain_yield | deploy_product, mark_vault_live, outreach_trigger_send_run, source_leads_autonomously |
 
-> **Utility read actions added** (read_only, output-guarded, no write/exec/tool):
-> `explain_risk`, `explain_provenance` (LP-facing explanations), `read_session_context`
-> (metadata-only session view — ids/counts/timestamps, never raw user text). Catalog is now
-> **24 actions** (10 read_only / 5 draft / 1 confirmed_write / 8 forbidden_autonomous).
+> **Catalog is now 25 actions** (11 read_only / 5 draft / 1 confirmed_write / 8 forbidden_autonomous)
+> and **6 swarms / 7 crews**. `run_projection` (read_only) + the `projection_flow` crew + the
+> `product_projection_swarm` were added — see [PRODUCT_PROJECTION_SWARM.md](./PRODUCT_PROJECTION_SWARM.md).
 
-### Updated calibration verdict (after utility read actions)
+### Updated calibration verdict (after product projection swarm)
 
 - **fully enforce + useful**: `outreach_governed_swarm` (gated draft→send boundary),
-  `vault_governance_swarm` (draft-only governance: vault/review/governance drafts gated,
-  deploy/mark-live floored), `platform_reporting_swarm` (read/observability composition),
-  and now **`lp_explainer_swarm`** — bounded read scope of four LP explanations
-  (product/yield/risk/provenance), all output-guarded, no write reachable.
-- **enforce minimal useful**: `memory_maintenance_swarm` — now has a real, differentiated
-  read action (`read_session_context`, metadata-only) plus status reads, all read-only and
-  bounded. It is honest housekeeping (no persistence, dry-run), not a write surface.
-- **missing actions**: only a projection action remains — still deferred with the
-  not-yet-built `product_projection_swarm` (projection is read_only by ADR-006).
-- **no swarm is decorative**: every swarm has a load-bearing `allowedActionIds` boundary,
-  and every swarm now has at least one genuinely useful in-scope action.
+  `vault_governance_swarm` (draft-only governance), `platform_reporting_swarm`
+  (read/observability composition), `lp_explainer_swarm` (four output-guarded LP
+  explanations), and now **`product_projection_swarm`** — a real read-only deterministic
+  projection artifact (`run_projection`): ranges/scenarios/assumptions/provenance/disclaimers,
+  APY range only, no invented number, no write.
+- **enforce minimal useful**: `memory_maintenance_swarm` — real differentiated read action
+  (`read_session_context`, metadata-only) + status; honest housekeeping, no persistence.
+- **missing actions**: none blocking — the agentic read/observe/projection surface is complete.
+  Deeper projection (Monte-Carlo p5/p50/p95 via the Scenario Engine under Methodology v2) is a
+  future enhancement, not a gap.
+- **no swarm is decorative**: every swarm has a load-bearing `allowedActionIds` boundary and at
+  least one genuinely useful in-scope action.
 
 **`outreach_governed_swarm` (first enforcing swarm)** — `allowedActionIds` =
 `navigate_admin_surface, explain_product, explain_yield, draft_outreach_email,

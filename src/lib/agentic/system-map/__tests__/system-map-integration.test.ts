@@ -51,7 +51,7 @@ describe("system map integration — action readiness", () => {
     }
   });
 
-  it("action node metrics reflect the matrix counts (10/5/1/8)", () => {
+  it("action node metrics reflect the matrix counts (11/5/1/8)", () => {
     const nodes = build().nodes;
     const m = (id: string) =>
       nodes.find((n) => n.id === id)!.metrics?.find((x) => x.label === "count")?.value;
@@ -61,7 +61,7 @@ describe("system map integration — action readiness", () => {
     expect(m("forbidden-actions")).toBe(String(MATRIX.counts.forbidden_autonomous));
     // The real matrix is 10 read / 5 draft / 1 confirmed-write / 8 forbidden
     // (3 read-only utility actions added: explain_risk/explain_provenance/read_session_context).
-    expect(MATRIX.counts.read_only).toBe(10);
+    expect(MATRIX.counts.read_only).toBe(11);
     expect(MATRIX.counts.draft_or_proposal).toBe(5);
     expect(MATRIX.counts.confirmed_write).toBe(1);
     expect(MATRIX.counts.forbidden_autonomous).toBe(8);
@@ -100,13 +100,13 @@ describe("system map integration — crew simulation", () => {
     }
   });
 
-  it("crew-simulation node reports 6 scenarios + 0 executable", () => {
+  it("crew-simulation node reports 7 scenarios + 0 executable", () => {
     const node = build().nodes.find((n) => n.id === "crew-simulation")!;
     const scenarios = node.metrics?.find((m) => m.label === "scenarios")?.value;
     const exec = node.metrics?.find((m) => m.label === "executable")?.value;
-    expect(scenarios).toBe("6");
+    expect(scenarios).toBe("7");
     expect(exec).toBe("0");
-    expect(SIMS).toHaveLength(6);
+    expect(SIMS).toHaveLength(7);
   });
 
   it("every flow node carries executable: false in its metrics", () => {
@@ -179,15 +179,15 @@ describe("system map integration — invariants preserved", () => {
 });
 
 describe("system map integration — entry point helpers", () => {
-  it("getActionReadinessMatrix returns the 24-action matrix", () => {
+  it("getActionReadinessMatrix returns the 25-action matrix", () => {
     const m = getActionReadinessMatrix();
     expect(m).not.toBeNull();
-    expect(m!.items.length).toBe(24);
+    expect(m!.items.length).toBe(25);
   });
 
-  it("getCrewSimulations returns 6 non-error results, all executable false", () => {
+  it("getCrewSimulations returns 7 non-error results, all executable false", () => {
     const sims = getCrewSimulations();
-    expect(sims).toHaveLength(6);
+    expect(sims).toHaveLength(7);
     for (const s of sims) {
       expect(s.scenario.executable).toBe(false);
     }
