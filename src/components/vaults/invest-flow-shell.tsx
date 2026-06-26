@@ -53,26 +53,6 @@ export function InvestFlowShell({
     className,
   );
 
-  // #region agent log
-  fetch("http://127.0.0.1:7746/ingest/5c5b4e5a-0fc3-4328-87e5-3f1273cb02d8", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "7fd9dc" },
-    body: JSON.stringify({
-      sessionId: "7fd9dc",
-      location: "invest-flow-shell.tsx:render",
-      message: "InvestFlowShell grammar",
-      data: {
-        step,
-        workspace,
-        hasWorkspaceClass: shellClasses.includes("invest-flow-shell--workspace"),
-        contextLabel,
-      },
-      timestamp: Date.now(),
-      hypothesisId: "A",
-    }),
-  }).catch(() => {});
-  // #endregion
-
   return (
     <div className={shellClasses}>
       <ProductPageHeader

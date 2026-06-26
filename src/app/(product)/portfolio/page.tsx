@@ -90,24 +90,11 @@ export default async function PortfolioPage() {
 
         <section className="pf-cockpit-row pf-cockpit-row--yield" aria-label="Capital and yield allocation">
           <div className="pf-cockpit-cell">
-            {/* TEMP QA HARDCODE — visual review of live donut. REVERT before commit. */}
             <CapitalYield
               {...yieldStackProps}
-              sources={[
-                { bucket: "mining", label: "Mining Operations", contributionPct: 8.5, isVolatile: true },
-                { bucket: "usdc_base", label: "USDC Base Yield", contributionPct: 3.8 },
-                { bucket: "btc_tactical", label: "BTC Tactical", contributionPct: 1.6, isVolatile: true },
-              ]}
-              blendedLow={9.4}
-              blendedHigh={12.8}
-              buckets={[
-                { bucket: "mining", pct: 55, valueUsdc: 137500 },
-                { bucket: "usdc_base", pct: 30, valueUsdc: 75000 },
-                { bucket: "btc_tactical", pct: 15, valueUsdc: 37500 },
-              ]}
-              totalValueUsdc={250000}
+              buckets={allocationDonutProps.buckets}
+              totalValueUsdc={data.totalValueUsdc}
               hasActivePosition={hasPositions}
-              source="live"
               leafHref="/portfolio/yield"
               embedded={false}
             />
