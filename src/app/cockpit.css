@@ -4645,6 +4645,20 @@ main#main-content>.admin-doc.admin-doc-shell {
    "Assist…". Restored at >=1280px where the rail is back to its full width. */
 @media (max-width: 1279.98px) {
   .ct-chat-ctx-name { display: none; }
+  /* Compressed-rail crowding fix. The title row ("Assistant" + the "READY" tag)
+     shares the header with four non-shrinkable 28px buttons (136px). On the
+     narrow rail (~226px) that left the title only ~44px, crushing "Assistant"
+     to 0 and clipping "READY" to "REA…". Two measured cuts give the title a
+     usable ~78px floor so "Assistant" renders intact:
+       1. Drop the width-EXPAND toggle — expanding the chat on a <1280px viewport
+          only worsens the squeeze, so it is the one redundant control here.
+       2. Drop the "READY" status tag — the live cue still resolves via the
+          product dot + the streaming hairline, so no information is lost.
+     Both restored at >=1280px where the rail is back to full width. */
+  .ct-rail-right-btn--width { display: none; }
+  /* Header-scoped so this override beats the later base `.ct-chat-status-tag`
+     rule (defined further down in this file) regardless of source order. */
+  .ct-rail-right-header .ct-chat-status-tag { display: none; }
 }
 
 /* ============================================================================
@@ -5519,6 +5533,25 @@ main#main-content>.admin-doc.admin-doc-shell {
     --ct-rail-left: 5rem;                       /* 80px — icon rail, was 104px */
     --ct-rail-right: clamp(15rem, 25vw, 24rem); /* open chat : fluid resserré */
     --ct-rail-right-expanded: clamp(18rem, 28vw, 30rem); /* expanded : fluid resserré */
+  }
+}
+
+/* Icon-only rail from ≤1440px down to the 900px bottom-bar handoff. At these
+   widths --ct-rail-left drops to the "icon rail" sizes (80px → 72px), where the
+   permanent text label (Portfolio/Vaults/Proofs/Admin) crowds the narrowed
+   column. Per the rail intent ("icon rail" at line 5533): drop the label and
+   keep ONLY the icon, centred, with the item collapsed to a square tap target.
+   The vertical rail is preserved here; the <900px rule still takes over with the
+   horizontal bottom bar. Labels return ≥1440px where the column has room.
+   Tooltip role stays via aria-label/title on the <Link> (set in RailItem). */
+@media (max-width: 90rem) and (min-width: 56.3125rem) {
+  .ct-rail-intra .ct-rail-item-tooltip { display: none; }
+  .ct-rail-intra .ct-rail-item {
+    gap: 0;
+    min-height: clamp(3rem, 2.6rem + 1vw, 3.75rem); /* square-ish icon target */
+    padding-block: clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem);
+    justify-items: center;
+    align-items: center;
   }
 }
 
