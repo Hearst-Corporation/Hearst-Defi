@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -17,6 +18,12 @@ import { probeReviewMode } from "@/lib/admin/review-mode-probe";
  * a security boundary: the server gates canvas access (admin layout `notFound`)
  * and every write (chat-tools `requireAdmin` + the HITL token). When the chat
  * kill-switch is off, every chip is disabled.
+ *
+ * Route-gated probe (perf): the admin chips only matter on admin surfaces, so the
+ * GET /api/admin/review-mode probe ONLY runs when the current route is under
+ * `/admin`. On the LP cockpit (`/portfolio`, `/vaults`, `/proof-center`, …) the
+ * component defaults to the LP set immediately — zero network, no admin probe.
+ * This keeps non-admin routes free of the wasted requireAdmin round-trip.
  */
 
 interface Preset {
@@ -67,6 +74,18 @@ const LP_PRESETS: readonly Preset[] = [
 
 type Role = "admin" | "lp" | null;
 
+/**
+ * Pure helper — exported for unit-testing the probe route-gate.
+ *
+ * The admin chip set only matters on admin surfaces, so the GET
+ * /api/admin/review-mode probe should run ONLY when the current route is under
+ * `/admin`. On every other route (the LP cockpit: `/portfolio`, `/vaults`,
+ * `/proof-center`, `/profile`, …) we never probe — zero requireAdmin round-trip.
+ */
+export function shouldProbeAdminRole(pathname: string | null | undefined): boolean {
+  return pathname?.startsWith("/admin") ?? false;
+}
+
 export function ChatPresets({
   onPick,
   masterAgentEnabled = true,
@@ -75,9 +94,15 @@ export function ChatPresets({
   onPick: (text: string) => void;
   masterAgentEnabled?: boolean;
 }) {
-  const [role, setRole] = useState<Role>(null);
+  const pathname = usePathname();
+  // The admin chip set is only relevant on admin surfaces. Off `/admin` we never
+  // probe — default straight to the LP set (no requireAdmin round-trip, no flash).
+  const isAdminSurface = shouldProbeAdminRole(pathname);
+  const [role, setRole] = useState<Role>(isAdminSurface ? null : "lp");
 
   useEffect(() => {
+    // Non-admin route → LP set already resolved; skip the probe entirely.
+    if (!isAdminSurface) return;
     let cancelled = false;
     // Deduped, session-cached admin probe: the GET /api/admin/review-mode round
     // trip happens at most once per session and is shared with the admin chat
@@ -89,9 +114,10 @@ export function ChatPresets({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isAdminSurface]);
 
-  // Until the probe resolves, render nothing (avoids flashing admin chips at LPs).
+  // Until the probe resolves (admin surfaces only), render nothing (avoids
+  // flashing admin chips at LPs). Non-admin routes start at "lp" → no null gap.
   if (role === null) return null;
 
   const presets = role === "admin" ? ADMIN_PRESETS : LP_PRESETS;
