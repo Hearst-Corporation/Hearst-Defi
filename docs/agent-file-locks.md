@@ -16,29 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/agentic-readonly-api
-Owner: Opus Orchestrateur — Agentic Read-only API
-Branch: feat/agentic-readonly-api
-Worktree: ../connect-opus-agentic-api
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/app/api/admin/agentic/** (new GET registry + POST simulate)
-- src/lib/agentic/swarm/registry-snapshot.ts (new, API-safe serialization)
-- src/lib/agentic/swarm/index.ts (export the snapshot only)
-- tests for the agentic API + snapshot
-- docs/agentic/**
-- docs/agent-file-locks.md
-
-Notes:
-- Backend API only. GET registry + POST simulation, no side effects.
-- No UI/UX. No DS. No /admin/agentic visual changes.
-- No proof-center / vault / portfolio changes.
-- No Prisma migration, no DB write, no external tool, no prompt/user-text, no secrets.
-
----
-
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
 Branch: main (worktree shared — vault detail scope only)
@@ -95,6 +72,30 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/agentic-readonly-api
+Owner: Opus Orchestrateur — Agentic Read-only API
+Branch: feat/agentic-readonly-api
+Merged PR: #86 (merge dc62708f)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Exposed the agentic swarm foundation via two admin-gated, read-only/simulation-only routes.
+  GET /api/admin/agentic/registry → deterministic snapshot (22 agents, 6 crews, 5 swarms,
+  action policies, safety metadata: allowedSwarmModes/disallowed[autonomous_write]/
+  simulationOnly/noExternalTools/noDbWrites/noPromptOrUserTextStored); requireAdmin → 401/403;
+  no-store; NO DB query. New pure serializer src/lib/agentic/swarm/registry-snapshot.ts.
+  POST /api/admin/agentic/simulate → allowlisted {swarmId, actionId?, context?}, runs pure
+  simulateSwarm + evaluateActionReadiness, returns rollup with sideEffects:false; 400 invalid,
+  404 unknown swarm (no fallback), 429 rate-limited, 500 generic (no stack/secret). forbidden
+  stays blocked even with a token; confirmed_write→requires_human_confirmation without token;
+  unknown write-like blocked. 46 tests (route + snapshot) + docs/agentic/AGENTIC_READONLY_API.md.
+  typecheck PASS, build PASS (postgresql). Runtime smoke (postgres :4106): registry 200, simulate
+  valid 200, unknown 404, forbidden→blocked, confirmed_write→requires_human_confirmation — all
+  sideEffects:false. No UI/DS/admin-agentic-visual/proof-center/portfolio/vault change, no Prisma
+  migration, no DB write, no external tool, no new dependency. Next lot: a UI lot surfacing the
+  swarm layer in the Control Tower (consuming these endpoints read-only) — separate, UI-scoped.
 
 ### feat/agentic-backend-foundation
 Owner: Opus Orchestrateur — Agentic Backend / Swarm / Crew Foundation
