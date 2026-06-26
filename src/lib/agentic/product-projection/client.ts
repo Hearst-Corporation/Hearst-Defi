@@ -31,6 +31,24 @@ export const PREVIEW_PROJECTION_INPUT: ProductProjectionInput = {
   ],
 };
 
+/** Stable, visible seed for the v2 preview — same seed ⇒ identical distribution. */
+export const PREVIEW_PROJECTION_SEED_V2 = "preview-hyv-v2";
+
+/**
+ * Methodology v2 preview input: the SAME labelled fixture plus an opt-in seeded
+ * distribution (p5/p50/p95). The seed is fixed and visible so the preview is
+ * reproducible. The backend clamps `iterations`; nothing here is computed in the UI.
+ */
+export const PREVIEW_PROJECTION_INPUT_V2: ProductProjectionInput = {
+  ...PREVIEW_PROJECTION_INPUT,
+  methodology: {
+    version: "v2",
+    seed: PREVIEW_PROJECTION_SEED_V2,
+    iterations: 2000,
+    confidenceBands: true,
+  },
+};
+
 export type RunProjectionResult =
   | { ok: true; artifact: ProjectionReportArtifact }
   | { ok: false; status: number; error: string };

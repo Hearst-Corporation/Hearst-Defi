@@ -9,6 +9,8 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   runProjectionPreview,
   PREVIEW_PROJECTION_INPUT,
+  PREVIEW_PROJECTION_INPUT_V2,
+  PREVIEW_PROJECTION_SEED_V2,
 } from "../client";
 
 function mockFetch(status: number, body: unknown) {
@@ -59,5 +61,13 @@ describe("runProjectionPreview", () => {
   it("preview input keeps APY as a range and is labelled, not live", () => {
     expect(PREVIEW_PROJECTION_INPUT.apyRange).toEqual({ min: 8, max: 15 });
     expect(PREVIEW_PROJECTION_INPUT.productName).toBe("Hearst Yield Vault");
+  });
+
+  it("v2 preview input opts into methodology v2 with a fixed visible seed, same base figures", () => {
+    expect(PREVIEW_PROJECTION_INPUT_V2.methodology?.version).toBe("v2");
+    expect(PREVIEW_PROJECTION_INPUT_V2.methodology?.seed).toBe(PREVIEW_PROJECTION_SEED_V2);
+    // Same labelled fixture — only the methodology block is added.
+    expect(PREVIEW_PROJECTION_INPUT_V2.apyRange).toEqual(PREVIEW_PROJECTION_INPUT.apyRange);
+    expect(PREVIEW_PROJECTION_INPUT_V2.capitalBase).toBe(PREVIEW_PROJECTION_INPUT.capitalBase);
   });
 });

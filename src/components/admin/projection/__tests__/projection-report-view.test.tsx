@@ -11,7 +11,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { buildProjectionArtifact } from "@/lib/agentic/product-projection";
-import { PREVIEW_PROJECTION_INPUT } from "@/lib/agentic/product-projection/client";
+import type { ProjectionReportArtifact } from "@/lib/agentic/product-projection";
+import {
+  PREVIEW_PROJECTION_INPUT,
+  PREVIEW_PROJECTION_INPUT_V2,
+  PREVIEW_PROJECTION_SEED_V2,
+} from "@/lib/agentic/product-projection/client";
 import { ProjectionReportView } from "../projection-report-view";
 
 const FORBIDDEN = ["guarantee", "guaranteed", "promise", "certain", "will deliver", "risk-free", "riskless"];
@@ -62,7 +67,65 @@ describe("ProjectionReportView", () => {
     expect(thinHtml).toContain("apyRange not provided");
   });
 
-  it("does not render the v2 percentile_band chart in this lot", () => {
+  it("a v0 artifact renders no Methodology v2 section", () => {
+    expect(html).not.toContain("Methodology v2");
+    expect(html).not.toContain("projpv-band");
+    // The literal v2 chart type never leaks as a string either.
     expect(html).not.toContain("percentile_band");
+  });
+});
+
+describe("ProjectionReportView — Methodology v2", () => {
+  const v2 = buildProjectionArtifact(PREVIEW_PROJECTION_INPUT_V2);
+  const html = renderToStaticMarkup(<ProjectionReportView artifact={v2} />);
+
+  it("the v2 preview input actually produces a v2 distribution artifact", () => {
+    expect(v2.version).toBe("v2");
+    expect(v2.distribution).toBeDefined();
+    expect(v2.methodology?.seed).toBe(PREVIEW_PROJECTION_SEED_V2);
+  });
+
+  it("renders the Methodology v2 section with seed, iterations and model", () => {
+    expect(html).toContain("Methodology v2");
+    expect(html).toContain(`seed: ${PREVIEW_PROJECTION_SEED_V2}`);
+    expect(html).toContain("seeded_scenario_distribution");
+    expect(html).toContain(`iterations: ${v2.methodology?.iterations}`);
+  });
+
+  it("shows p5 / p50 / p95 percentiles", () => {
+    expect(html).toContain(">p5<");
+    expect(html).toContain(">p50<");
+    expect(html).toContain(">p95<");
+    expect(html).toContain("Median scenario");
+  });
+
+  it("renders the percentile band visual", () => {
+    expect(html).toContain("projpv-band");
+    expect(html).toContain("p5–p95 band");
+    expect(html).toContain("p50 median");
+  });
+
+  it("frames p50 as a median, never a guaranteed/expected return", () => {
+    expect(html).toContain("median of a conditional distribution");
+    const lower = html.toLowerCase();
+    for (const w of FORBIDDEN) expect(lower).not.toContain(w);
+  });
+
+  it("emits no NaN/Infinity and no raw JSON dump", () => {
+    expect(html).not.toMatch(/NaN|Infinity/);
+    expect(html).not.toContain('"bands":');
+    expect(html).not.toContain('"percentiles":');
+  });
+
+  it("falls back gracefully when a v2 artifact has no distribution", () => {
+    const noDist: ProjectionReportArtifact = {
+      ...v2,
+      distribution: undefined,
+      methodology: undefined,
+    };
+    const fallback = renderToStaticMarkup(<ProjectionReportView artifact={noDist} />);
+    expect(fallback).toContain("Methodology v2");
+    expect(fallback).toContain("no distribution available");
+    expect(fallback).not.toMatch(/NaN|Infinity/);
   });
 });

@@ -111,9 +111,30 @@ the existing `/admin/projection` Projection Studio.
   accent, 4px grid, responsive (no horizontal overflow); scoped CSS
   `src/app/admin/projection/projection-preview.css`.
 
-**Not yet rendered** (intentional, out of this lot): the Methodology v2 distribution
-(`distribution` / `percentile_band` chart). The view filters it out and the preview
-input is v0; a follow-up lot can add a p5/p50/p95 band visual.
+### Methodology v2 rendering (v0/v2 toggle)
+
+The preview surface has a **Deterministic v0 / Methodology v2** toggle. Switching mode
+resets the report to idle; v0 sends `PREVIEW_PROJECTION_INPUT` (rendering unchanged),
+v2 sends `PREVIEW_PROJECTION_INPUT_V2` — the SAME labelled fixture plus
+`methodology: { version: "v2", seed: "preview-hyv-v2", iterations: 2000,
+confidenceBands: true }`. The seed is **fixed and visible** (toolbar + section
+metadata) so the distribution is reproducible. The UI computes nothing — it consumes
+the artifact's `methodology` + `distribution` verbatim.
+
+When `artifact.version === "v2"`, a **Methodology v2** section renders (read-only):
+seed / iterations / model badges; p5 / p50 / p95 percentile cards (APY% + projected
+yield), with **p50 explicitly captioned "Median scenario"** and a note that p50 is
+the median of a conditional distribution — *not an expected return or a target*, p5/p95
+a projection band; a **CSS-only percentile band visual** built from
+`distribution.bands` (per-horizon-month p5→p95 band + p50 marker, axis label, legend —
+no chart library, no SVG, finite-guarded so no `NaN`/`Infinity` ever renders); and the
+backend `limitations`. If a v2 artifact carries no `distribution` (e.g. missing APY
+range), the section shows a "no distribution available" fallback — never a fabricated
+band. The generic Charts block still filters out `percentile_band`; the band is owned
+by the v2 section. APY stays a distribution/range; nothing is framed as guaranteed.
+
+**Future** (not in this lot): editable bounded inputs, a v2 seed selector, and a richer
+Scenario Lab integration sharing this band visual.
 
 ## Relation to future UI / Scenario Lab
 

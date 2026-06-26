@@ -444,3 +444,192 @@
   color: var(--ct-text-muted);
   margin: 0;
 }
+
+/* ── Toolbar: mode toggle + seed (Methodology v2) ─────────────────────────── */
+.projpv-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  flex-wrap: wrap;
+}
+.projpv-toolbar-seed {
+  font-family: var(--ct-font-mono);
+  color: var(--ct-accent-strong);
+}
+.projpv-modeswitch {
+  display: inline-flex;
+  border: 1px solid var(--ct-border-soft);
+  border-radius: var(--ct-radius-md);
+  overflow: hidden;
+  background: var(--ct-surface-1);
+}
+.projpv-mode {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ct-text-secondary);
+  font-size: var(--ct-text-xs);
+  font-weight: 500;
+  padding: var(--ct-space-2) var(--ct-space-3);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+  white-space: nowrap;
+}
+.projpv-mode + .projpv-mode { border-left: 1px solid var(--ct-border-soft); }
+.projpv-mode:hover { color: var(--ct-text-primary); }
+.projpv-mode--active {
+  background: var(--ct-accent-soft);
+  color: var(--ct-accent-strong);
+}
+
+/* ── Methodology v2 section ───────────────────────────────────────────────── */
+.projpv-v2 {
+  padding: var(--ct-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-4);
+  border: 1px solid var(--ct-border-accent);
+}
+.projpv-v2-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  flex-wrap: wrap;
+}
+.projpv-v2-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.projpv-v2-meta { display: flex; gap: var(--ct-space-2); flex-wrap: wrap; }
+.projpv-v2-percentiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ct-space-3);
+}
+@media (max-width: 760px) {
+  .projpv-v2-percentiles { grid-template-columns: 1fr; }
+}
+.projpv-pcard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--ct-space-3);
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-1);
+}
+.projpv-pcard--accent { border-color: var(--ct-border-accent); }
+.projpv-pcard-label {
+  font-family: var(--ct-font-mono);
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  text-transform: uppercase;
+}
+.projpv-pcard-caption { font-size: var(--ct-text-xs); color: var(--ct-text-secondary); }
+.projpv-pcard-apy {
+  font-size: var(--ct-text-lg);
+  font-weight: 600;
+  color: var(--ct-text-primary);
+}
+.projpv-pcard--accent .projpv-pcard-apy { color: var(--ct-accent); }
+.projpv-pcard-yield {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  font-family: var(--ct-font-mono);
+}
+.projpv-v2-note {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-secondary);
+  margin: 0;
+  max-width: 80ch;
+}
+
+/* ── Percentile band visual (CSS-only) ────────────────────────────────────── */
+.projpv-band { margin: 0; display: flex; flex-direction: column; gap: var(--ct-space-2); }
+.projpv-band-plot {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ct-space-1);
+  height: 132px;
+  padding-top: var(--ct-space-2);
+}
+.projpv-band-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-1);
+  height: 100%;
+}
+.projpv-band-track {
+  position: relative;
+  width: 100%;
+  max-width: 18px;
+  flex: 1 1 auto;
+  border-radius: var(--ct-radius-sm);
+  background: var(--ct-surface-2);
+}
+.projpv-band-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--ct-accent-soft);
+  border: 1px solid var(--ct-border-accent);
+  border-radius: var(--ct-radius-sm);
+}
+.projpv-band-median {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 2px;
+  background: var(--ct-accent);
+}
+.projpv-band-x {
+  font-size: 10px;
+  color: var(--ct-text-muted);
+  font-family: var(--ct-font-mono);
+  height: 12px;
+}
+.projpv-band-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-3);
+  flex-wrap: wrap;
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+}
+.projpv-band-key { display: inline-flex; align-items: center; gap: var(--ct-space-1); }
+.projpv-band-key--band::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--ct-accent-soft);
+  border: 1px solid var(--ct-border-accent);
+}
+.projpv-band-key--median::before {
+  content: "";
+  width: 12px;
+  height: 2px;
+  background: var(--ct-accent);
+}
+.projpv-band-axis { font-family: var(--ct-font-mono); }
+.projpv-v2-limits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-1);
+}
+.projpv-v2-limit {
+  font-size: var(--ct-text-xs);
+  color: var(--ct-text-muted);
+  padding-left: var(--ct-space-3);
+  position: relative;
+}
+.projpv-v2-limit::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--ct-text-muted);
+}
