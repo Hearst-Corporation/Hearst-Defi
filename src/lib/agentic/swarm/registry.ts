@@ -21,10 +21,21 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "simulation",
     coordination: "sequential",
     crewIds: ["reporting_crew_briefing"],
-    forbiddenActions: ["send_briefing", "write_to_db", "execute_tool"],
+    // Enforced read-only scope: reach an admin surface, compose the briefing, and
+    // read the platform's own observability / quality / tool-boundary signals.
+    allowedActionIds: [
+      "navigate_admin_surface",
+      "compose_reporting_briefing",
+      "read_observability",
+      "review_router_quality",
+      "inspect_tool_boundary",
+    ],
+    // Categorical prohibitions (a reporting swarm never sends or sources leads).
+    forbiddenActions: ["outreach_trigger_send_run", "source_leads_autonomously"],
     safetyNotes: [
       "All inputs are read-only aggregates; the briefing is a deterministic composition.",
       "No external transmission, no persistence, no tool execution.",
+      "Scope is enforced: drafts, outreach, and vault mutations are out-of-scope.",
     ],
   },
   {
@@ -35,10 +46,16 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "simulation",
     coordination: "sequential",
     crewIds: ["risk_explanation_flow"],
-    forbiddenActions: ["give_financial_advice", "write_to_db", "execute_tool"],
+    // Enforced read-only scope: reach an admin surface and explain product / yield
+    // to an LP. No catalog action for risk/provenance exists yet — explanation is
+    // produced by the risk_explanation crew, not a write action.
+    allowedActionIds: ["navigate_admin_surface", "explain_product", "explain_yield"],
+    // Categorical prohibitions (an LP explainer never sends or sources leads).
+    forbiddenActions: ["outreach_trigger_send_run", "source_leads_autonomously"],
     safetyNotes: [
       "Output guard always runs; APY stays a range; no guarantee language.",
       "Read-only throughout — no mutation path exists.",
+      "Scope is enforced: outreach drafts, vault drafts, and sends are out-of-scope.",
     ],
   },
   {
@@ -49,17 +66,28 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "dry_run",
     coordination: "sequential",
     crewIds: ["product_review_flow", "vault_readiness_flow"],
+    // Enforced governance dry-run scope: reach an admin surface, read observability,
+    // and produce draft-only review / governance / vault artifacts. All drafts are
+    // `gated` (the effect needs a human gate); nothing is executed.
+    allowedActionIds: [
+      "navigate_admin_surface",
+      "read_observability",
+      "create_review_note_draft",
+      "create_governance_proposal_draft",
+      "create_vault_draft",
+    ],
+    // Categorical prohibitions (a governance dry-run never deploys, marks-live, or
+    // sends). deploy_product + mark_vault_live are also blocked by the global floor.
     forbiddenActions: [
       "deploy_product",
       "mark_vault_live",
-      "send",
-      "safe_signature",
-      "write_to_db",
+      "outreach_trigger_send_run",
     ],
     safetyNotes: [
       "Advisory only — no vault state is modified.",
       "Mainnet deploy remains gated on a completed Spearbit audit (ADR-006).",
       "mark_live is a multi-sig page action, never reachable from a swarm.",
+      "Scope is enforced: drafts are gated; outreach and live mutations are out-of-scope/forbidden.",
     ],
   },
   {
@@ -101,10 +129,18 @@ export const SWARM_DEFINITIONS: readonly SwarmDefinition[] = [
     mode: "dry_run",
     coordination: "sequential",
     crewIds: ["memory_distill_flow"],
-    forbiddenActions: ["store_user_text", "external_transmit", "execute_tool"],
+    // THEORETICAL-BUT-BOUNDED: no memory-specific catalog action exists yet, so the
+    // distillation itself is produced by the crew, not a write action. The swarm is
+    // given a minimal read-only scope (reach a surface + read status) and an enforced
+    // boundary — every other action is out-of-scope. A future lot may add a
+    // read-only `read_session_context` / `distill_memory` action to make it real.
+    allowedActionIds: ["navigate_admin_surface", "read_observability"],
+    // Categorical prohibitions (memory housekeeping never sends or sources leads).
+    forbiddenActions: ["outreach_trigger_send_run", "source_leads_autonomously"],
     safetyNotes: [
       "Reads session metadata only — never raw user text or secrets.",
       "Dry-run: no external transmission, no persistence performed.",
+      "Theoretical-but-bounded: minimal read-only scope; everything else is out-of-scope.",
     ],
   },
 ] as const;

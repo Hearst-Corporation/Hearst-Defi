@@ -116,10 +116,18 @@ async function main() {
         `${sw}: in-scope action reachable (${inScope})`,
         isc.json?.readiness?.reasonCode !== "action_out_of_swarm_scope",
       );
-      if (!s.allowedActionIds.includes(READ_ACTION)) {
-        const oos = await simulate({ swarmId: sw, actionId: READ_ACTION });
+      // Derive a guaranteed out-of-scope, non-forbidden, non-floor action from the
+      // catalog (read_observability is in some swarms' scope, so it can't be hard-coded).
+      const oosAction = (snap.actions ?? []).find(
+        (a) =>
+          a.tier !== "forbidden_autonomous" &&
+          !s.allowedActionIds.includes(a.id) &&
+          !s.forbiddenActions.includes(a.id),
+      )?.id;
+      if (oosAction) {
+        const oos = await simulate({ swarmId: sw, actionId: oosAction });
         check(
-          `${sw}: out-of-scope action blocked (action_out_of_swarm_scope)`,
+          `${sw}: out-of-scope action blocked (${oosAction} → action_out_of_swarm_scope)`,
           oos.json?.readiness?.decision === "blocked" &&
             oos.json?.readiness?.reasonCode === "action_out_of_swarm_scope",
         );
