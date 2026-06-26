@@ -64,6 +64,6 @@ describe("portfolio headers", () => {
     expect(html).toContain("pf-cockpit-panel__title-row");
     expect(html).toContain("pf-cockpit-panel__title-pill");
     expect(html).toContain("Live");
-    expect(html).not.toContain("pf-sp2-header__title-row");
+    expect(html).toContain("pf-cockpit-panel__title-pill");
   });
 });

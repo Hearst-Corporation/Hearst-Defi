@@ -80,7 +80,10 @@ export function ValueChart({
   updatedAt,
   embedded = false,
 }: ValueChartProps) {
-  const uid = useId();
+  const reactId = useId();
+  // React useId() returns IDs with colons (e.g., ":r0:") which break SVG url(#...) references.
+  // Strip non-alphanumeric characters to ensure valid SVG IDs.
+  const uid = reactId.replace(/[^a-zA-Z0-9]/g, "");
   const anchorDate = updatedAt ?? new Date();
   const isEmpty = totalValueUsdc === 0 && positions.length === 0;
   const formattedUpdatedAt = updatedAt

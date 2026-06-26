@@ -16,19 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### agent/portfolio-css-dead-code-cleanup
-Owner: Agent — Portfolio CSS Dead Code Cleanup
-Branch: main (worktree shared)
-Reserved: 2026-06-26
-Note: Surgical cleanup of orphaned CSS (pf-pair-grid, unused data-section selectors, 
-      duplicate @container rules). Does NOT touch active component blocks owned by squads.
-Files:
-- src/app/(product)/portfolio/portfolio.css (orphaned .pf-pair-grid, data-section, 
-  duplicate @container cascade sections 14/14b cleanup ONLY)
-- src/components/portfolio/__tests__/portfolio-headers.test.tsx (phantom class fix)
-
----
-
 ### agent/portfolio-status-ds-absorption
 Owner: Agent — Portfolio Status DS Absorption
 Branch: main (worktree shared)

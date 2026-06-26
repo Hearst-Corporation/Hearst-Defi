@@ -2861,14 +2861,6 @@
   border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
 }
 
-.pf-sp2-header__top,
-.pf-sp2-header__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
-
 .pf-sp2-title {
   font-size: var(--ct-text-sm);
   font-weight: var(--ct-font-semibold);
