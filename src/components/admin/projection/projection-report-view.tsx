@@ -14,6 +14,7 @@ import { cn } from "@/lib/cn";
 import type {
   ProjectionReportArtifact,
   ProjectionChart,
+  ProjectionDistribution,
 } from "@/lib/agentic/product-projection";
 
 function fmtRange(r?: { min: number; max: number; unit: string }): string | null {
@@ -215,6 +216,9 @@ export function ProjectionReportView({
         </div>
       </Block>
 
+      {/* Methodology v2 — seeded p5/p50/p95 distribution (read-only) */}
+      {artifact.version === "v2" ? <MethodologyV2Section artifact={artifact} /> : null}
+
       {/* Charts + assumptions */}
       <div className="projpv-row">
         <Block title="Charts" className="projpv-col-grow">
@@ -321,5 +325,137 @@ function MetricCard({
       )}
       {provenance ? <span className="projpv-metric-prov">{provenance}</span> : null}
     </div>
+  );
+}
+
+/* ── Methodology v2 (seeded p5/p50/p95) ───────────────────────────────────── */
+
+function fmtNum(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+}
+
+function MethodologyV2Section({ artifact }: { artifact: ProjectionReportArtifact }) {
+  const dist = artifact.distribution;
+  const method = artifact.methodology;
+
+  // v2 requested but no distribution (e.g. apyRange missing): surface, don't fake.
+  if (!dist || !method) {
+    return (
+      <Block title="Methodology v2" hint="Seeded scenario distribution">
+        <MissingNote label="no distribution available for this input (needs an APY range)" />
+      </Block>
+    );
+  }
+
+  const { p5, p50, p95 } = dist.percentiles;
+  return (
+    <section className="projpv-v2 ct-glass-panel">
+      <header className="projpv-v2-head">
+        <div className="projpv-v2-title">
+          <h3 className="projpv-block-title">Methodology v2</h3>
+          <span className="projpv-block-hint">Seeded scenario distribution — p5 / p50 / p95</span>
+        </div>
+        <div className="projpv-v2-meta">
+          <span className="projpv-badge projpv-badge--source">seed: {method.seed}</span>
+          <span className="projpv-badge projpv-badge--source">iterations: {method.iterations}</span>
+          <span className="projpv-badge projpv-badge--source">{method.model}</span>
+        </div>
+      </header>
+
+      <div className="projpv-v2-percentiles">
+        <PercentileCard label="p5" caption="Low band" pct={p5.apyPct} yieldVal={p5.projectedYield} />
+        <PercentileCard label="p50" caption="Median scenario" pct={p50.apyPct} yieldVal={p50.projectedYield} accent />
+        <PercentileCard label="p95" caption="High band" pct={p95.apyPct} yieldVal={p95.projectedYield} />
+      </div>
+
+      <p className="projpv-v2-note">
+        p50 is the median of a conditional distribution under the stated assumptions — it is not an
+        expected return or a target. p5 and p95 frame a projection band, not a fixed outcome.
+      </p>
+
+      <PercentileBand bands={dist.bands} />
+
+      {dist.methodology.limitations.length > 0 ? (
+        <ul className="projpv-v2-limits">
+          {dist.methodology.limitations.map((l) => (
+            <li key={l} className="projpv-v2-limit">{l}</li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
+function PercentileCard({
+  label,
+  caption,
+  pct,
+  yieldVal,
+  accent,
+}: {
+  label: string;
+  caption: string;
+  pct: number;
+  yieldVal?: { value: number; unit: string };
+  accent?: boolean;
+}) {
+  return (
+    <div className={cn("projpv-pcard", accent && "projpv-pcard--accent")}>
+      <span className="projpv-pcard-label">{label}</span>
+      <span className="projpv-pcard-caption">{caption}</span>
+      <span className="projpv-pcard-apy">{Number.isFinite(pct) ? `${fmtNum(pct)}%` : "—"}</span>
+      {yieldVal ? (
+        <span className="projpv-pcard-yield">
+          {fmtNum(yieldVal.value)} {yieldVal.unit}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function PercentileBand({ bands }: { bands: ProjectionDistribution["bands"] }) {
+  const finite = bands.filter(
+    (b) =>
+      Number.isFinite(b.p5) &&
+      Number.isFinite(b.p50) &&
+      Number.isFinite(b.p95) &&
+      Number.isFinite(b.horizonMonth),
+  );
+  const axisMax = finite.reduce((m, b) => Math.max(m, b.p95), 0);
+  if (finite.length === 0 || axisMax <= 0) {
+    return <MissingNote label="no percentile band data to plot" />;
+  }
+  const unit = finite[0]?.unit ?? "";
+  const last = finite[finite.length - 1]!;
+  const labelEvery = Math.max(1, Math.ceil(finite.length / 6));
+  const pos = (v: number) => `${Math.min(100, Math.max(0, (v / axisMax) * 100))}%`;
+
+  return (
+    <figure
+      className="projpv-band"
+      role="img"
+      aria-label={`Projection band over ${last.horizonMonth} months: p5 ${fmtNum(finite[0]!.p5)} to p95 ${fmtNum(last.p95)} ${unit}`}
+    >
+      <div className="projpv-band-plot">
+        {finite.map((b, i) => (
+          <div className="projpv-band-col" key={b.horizonMonth} title={`m${b.horizonMonth}: p5 ${fmtNum(b.p5)} · p50 ${fmtNum(b.p50)} · p95 ${fmtNum(b.p95)} ${unit}`}>
+            <div className="projpv-band-track">
+              <div
+                className="projpv-band-fill"
+                style={{ bottom: pos(b.p5), top: `calc(100% - ${pos(b.p95)})` }}
+              />
+              <div className="projpv-band-median" style={{ bottom: pos(b.p50) }} />
+            </div>
+            <span className="projpv-band-x">{i % labelEvery === 0 || i === finite.length - 1 ? `${b.horizonMonth}m` : ""}</span>
+          </div>
+        ))}
+      </div>
+      <figcaption className="projpv-band-legend">
+        <span className="projpv-band-key projpv-band-key--band">p5–p95 band</span>
+        <span className="projpv-band-key projpv-band-key--median">p50 median</span>
+        <span className="projpv-band-axis">axis 0 – {fmtNum(axisMax)} {unit}</span>
+      </figcaption>
+    </figure>
   );
 }

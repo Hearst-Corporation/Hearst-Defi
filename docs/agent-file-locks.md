@@ -16,6 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### feat/projection-preview-methodology-v2
+Owner: Opus Orchestrateur — Projection Preview Methodology v2 Rendering
+Branch: feat/projection-preview-methodology-v2
+Worktree: ../connect-opus-proj-v2ui
+Started: 2026-06-26
+Status: active
+
+Scope:
+- src/app/admin/projection/preview/** (existing read-only route)
+- src/app/admin/projection/projection-preview.css (scoped CSS — additive v2 blocks)
+- src/components/admin/projection/** (view + wrapper + tests — additive v2 render)
+- src/lib/agentic/product-projection/client.ts (additive v2 preview input only — no engine rewrite)
+- docs/agentic/**
+- docs/agent-file-locks.md
+
+Notes:
+- UI read-only rendering of the EXISTING Methodology v2 distribution (artifact.distribution / bands).
+- v0/v2 toggle, visible stable seed, p5/p50/p95, percentile band visual.
+- No backend engine rewrite, no API change, no Prisma, no write action, no external tool, no execution.
+- p50 never shown as certainty; APY distribution/range only; no guaranteed return; no raw JSON/prompt/user text.
+- Does NOT touch src/components/** owned by other agents, proof-center, portfolio, vault, studio.tsx.
+
+---
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
