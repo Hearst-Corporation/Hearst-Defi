@@ -8,9 +8,9 @@
 
 .dev-grid {
   --dg-cell: 32px;
-  --dg-line: color-mix(in srgb, var(--ct-accent) 22%, transparent);
-  --dg-major: color-mix(in srgb, var(--ct-accent) 55%, transparent);
-  --dg-label: color-mix(in srgb, var(--ct-accent) 90%, white);
+  --dg-line: rgba(255, 255, 255, 0.05);
+  --dg-major: rgba(255, 255, 255, 0.12);
+  --dg-label: rgba(255, 255, 255, 0.45);
   position: fixed;
   inset: 0;
   z-index: 99999;
