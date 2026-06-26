@@ -1311,12 +1311,13 @@
 /* ── Tier 2 — visual zone: donut + legend ── */
 .cy-v5-visual {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: var(--ct-space-6);
+  justify-content: center;
+  gap: var(--ct-space-12);
   width: 100%;
   min-width: 0;
-  padding: var(--ct-space-4) 0 0;
+  padding: var(--ct-space-6) 0 0;
 }
 
 .cy-v5-visual--pending {
@@ -1406,6 +1407,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  flex: 1 1 auto;
   width: 100%;
   max-width: 24rem;
 }
@@ -1474,8 +1476,8 @@
 .cy-v5-pending-copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   gap: var(--ct-space-2);
   flex: 1 1 auto;
   min-width: 0;
@@ -1600,7 +1602,7 @@
 }
 
 /* ── Responsive: stack headline + visual on narrow containers ── */
-@container pf (max-width: 34rem) {
+@container pf (max-width: 40rem) {
   .cy-v5-headline {
     flex-wrap: wrap;
     align-items: center;
@@ -1625,6 +1627,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--ct-space-6);
+    padding: var(--ct-space-4) 0 0;
   }
 
   .cy-v5-donut {
@@ -1634,6 +1637,11 @@
 
   .cy-v5-legend {
     width: 100%;
+  }
+
+  .cy-v5-pending-copy {
+    align-items: center;
+    text-align: center;
   }
 }
 /* =============================================================================
