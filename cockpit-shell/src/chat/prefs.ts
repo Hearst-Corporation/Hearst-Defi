@@ -1,6 +1,6 @@
 /** Client-only chat display prefs (localStorage). */
 
-export const LS_MARKDOWN = "cockpit:chat-markdown";
+const LS_MARKDOWN = "cockpit:chat-markdown";
 
 const LEGACY_KEYS = [
   "cockpit:hypercli-key",

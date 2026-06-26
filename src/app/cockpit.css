@@ -169,8 +169,7 @@
   --ct-ambient-glow-bg-top: 0%;
   --ct-ambient-glow-bg-bottom: 0%;
 
-  /* Left rail — active item accent bar. */
-  --ct-rail-active-inset-y: 18%;
+  /* Left rail — active item accent bar width. */
   --ct-rail-active-bar-w: var(--ct-space-0_5);
 
   /* Doc-flow page headers — action cluster vertical offset. */
@@ -4053,11 +4052,11 @@ button.ct-choice-card {
   display: grid;
   justify-items: center;
   align-items: start;
-  gap: 0.5rem; /* gap fluide: --ct-space-1_5 → --ct-space-2 */
+  gap: 0.5rem; /* icon → label */
   width: 100%;
   margin-inline: auto;
-  min-height: 5.5rem; /* hauteur fluide */
-  padding: 0.75rem 0.5rem 0.875rem; /* paddings fluides */
+  min-height: 5.5rem;
+  padding: 0.75rem 0.5rem 0.875rem;
   border-radius: var(--ct-radius-md);
   color: var(--ct-text-muted);
   background: transparent;
@@ -4072,7 +4071,7 @@ button.ct-choice-card {
 }
 
 .ct-rail-icon {
-  width: 1.75rem; /* 24px → 28px */
+  width: 1.75rem; /* 28px */
   height: 1.75rem;
 }
 
@@ -4115,7 +4114,7 @@ button.ct-choice-card {
 }
 
 /* Permanent rail label under the icon. Tous les labels tiennent désormais sur
-   UNE ligne (Portfolio/Invest/Proofs/Admin) → plus de réserve 2-lignes (qui
+   UNE ligne (Portfolio/Vaults/Proofs/Admin) → plus de réserve 2-lignes (qui
    laissait un espace fantôme en bas de chaque item et décalait le rythme). */
 .ct-rail-item-tooltip {
   min-height: 0;
@@ -4637,9 +4636,6 @@ main#main-content>.admin-doc.admin-doc-shell {
    6px/14px chip + button + input density) are package-derived and sit deliberately
    between scale steps for tight chat density; not accidental drift, do not snap to scale. */
 .ct-chat-actionbar                         { display: flex; align-items: center; gap: var(--ct-space-2); padding-bottom: var(--ct-space-1); }
-.ct-chat-mode-chip                         { padding: 2px 7px; font-size: 0.6875rem; /* 10px → 11px */ border-radius: var(--ct-radius-sm); letter-spacing: 0.02em; text-transform: uppercase; }
-.ct-chat-mode-chip--on                     { color: var(--ct-accent); border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent); background: color-mix(in srgb, var(--ct-accent) 8%, transparent); }
-.ct-chat-mode-chip--off                    { color: var(--ct-text-faint); border: 1px solid color-mix(in srgb, var(--ct-text-faint) 35%, transparent); }
 .ct-chat-newbtn                            { padding: 3px 8px; font-size: 0.6875rem; /* 10px → 11px */ margin-left: auto; }
 /* Messages start from the BOTTOM and grow upward (chat-app convention): when the
    thread is short it sits on the input, not floating at the top. flex-end pushes
@@ -6395,7 +6391,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* === DEFINITIVE NARROW OVERRIDE (appended last so it wins) ===
    Makes product base (portfolio) truly full-width on phones/tablets.
    - Hides launcher rail.
-   - Moves intra product nav (Portfolio/Invest/Proofs/Admin) to bottom bar.
+   - Moves intra product nav (Portfolio/Vaults/Proofs/Admin) to bottom bar.
    - Content gets the space; portfolio's @container pf now sees near-full width. */
 @media (max-width: 900px) {
   .ct-rail-left { display: none !important; }
