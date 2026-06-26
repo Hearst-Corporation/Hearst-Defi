@@ -2065,6 +2065,10 @@
   font-size: var(--ct-text-xs);
 }
 
+.pf-inline-row--tight {
+  gap: var(--ct-space-2);
+}
+
 /* ---- Footnote ---- */
 .pf-panel-footnote {
   margin: 0;

@@ -109,7 +109,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
       <div className="admin-doc-inline-row admin-doc-inline-row--between">
         <label className={cn(
           "ct-form-label mb-0 cursor-pointer select-none transition-colors duration-300",
-          isExtreme ? "ct-text-warning font-bold" : "ct-text-muted"
+          isExtreme ? "ct-status-warning font-bold" : "ct-text-muted"
         )}>
           {label}
           {isExtreme && (
@@ -120,7 +120,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         </label>
         <span className={cn(
           "mono tabular body-xs font-semibold transition-colors duration-300",
-          isExtreme ? "ct-text-warning" : "ct-text-primary"
+          isExtreme ? "ct-status-warning" : "ct-text-primary"
         )}>
           {fmt(value)}
         </span>
@@ -710,7 +710,7 @@ export function ProjectionStudio() {
                         className={cn(
                           "uppercase tracking-wider text-[length:var(--ct-text-deci)] bg-transparent",
                           selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
-                          selectedCell.confidence === "medium" ? "ct-text-warning border-warning-soft" :
+                          selectedCell.confidence === "medium" ? "ct-status-warning ct-bc-warning" :
                           "ct-text-danger border-danger-soft"
                         )}
                       >
@@ -767,7 +767,7 @@ export function ProjectionStudio() {
                         className={cn(
                           "uppercase tracking-wider text-[length:var(--ct-text-deci)] bg-transparent",
                           selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
-                          selectedCell.confidence === "medium" ? "ct-text-warning border-warning-soft" :
+                          selectedCell.confidence === "medium" ? "ct-status-warning ct-bc-warning" :
                           "ct-text-danger border-danger-soft"
                         )}
                       >
