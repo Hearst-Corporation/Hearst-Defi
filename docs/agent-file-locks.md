@@ -16,26 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### feat/swarm-scope-enforcement-all
-Owner: Opus Orchestrateur — Swarm Scope Enforcement All
-Branch: feat/swarm-scope-enforcement-all
-Worktree: ../connect-opus-swarm-scope-all
-Started: 2026-06-26
-Status: active
-
-Scope:
-- src/lib/agentic/swarm/** (registry scopes + tests)
-- src/lib/agentic/**/__tests__/**
-- docs/agentic/**
-- scripts/agentic/calibrate-swarms.mjs
-
-Notes:
-- Backend only. Extend enforced allowedActionIds to the 4 remaining swarms.
-- No UI/DS, no /admin/agentic visual, no proof-center/portfolio/vault.
-- No Prisma migration, no DB write, no dangerous execution, no external tool.
-- No product_projection_swarm. Does NOT touch src/components/** (another agent's UI).
-
----
 
 ### feat/vault-detail-grammar-convergence
 Owner: Agent — Vault Detail Root Grammar Convergence
@@ -93,6 +73,37 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### feat/swarm-scope-enforcement-all
+Owner: Opus Orchestrateur — Swarm Scope Enforcement All
+Branch: feat/swarm-scope-enforcement-all
+Merged PR: #99 (merge bd820926)
+Released: 2026-06-26
+Status: merged
+
+Result:
+- Extended the enforced allowedActionIds boundary to the 4 remaining swarms — all 5 now have a
+  load-bearing scope (none decorative). Registry-only change + tests/docs; no new actions, no new
+  swarm, no execution. Scopes (catalog ids, assertSwarmSafe-validated): platform_reporting
+  (navigate_admin_surface/compose_reporting_briefing/read_observability/review_router_quality/
+  inspect_tool_boundary; forbids send-run+source); lp_explainer (navigate_admin_surface/
+  explain_product/explain_yield; forbids send-run+source); vault_governance (navigate_admin_surface/
+  read_observability/create_review_note_draft/create_governance_proposal_draft/create_vault_draft →
+  drafts gated; forbids deploy_product+mark_vault_live[also floored]+send-run); memory_maintenance
+  (theoretical-but-bounded: navigate_admin_surface/read_observability only — no memory catalog action
+  exists yet; forbids send-run+source). outreach_governed unchanged (regression-guarded). Behaviour:
+  in-scope read→allow, draft→gated, out-of-scope→action_out_of_swarm_scope, swarm-forbidden→
+  forbidden_by_swarm, forbidden_autonomous→forbidden_autonomous (floor); no swarm loosens the floor.
+  New swarm-scope-all.test.ts (per-swarm + global "no swarm unbounded"/"floor holds"/"ids∈catalog");
+  updated boundary+route tests (no unscoped path remains); calibrate-swarms.mjs derives the
+  out-of-scope probe from the registry. SWARM_CALIBRATION.md: per-swarm scope table + verdict
+  (fully-enforce: outreach/vault_governance/platform_reporting; enforce-but-weak: lp_explainer;
+  theoretical-but-bounded: memory_maintenance). Verified live (:4109): all 5 swarms in-scope reachable,
+  out-of-scope blocked, forbidden effective — CALIBRATION OK. typecheck PASS, build PASS (postgresql),
+  514 agentic tests pass. Non-breaking endpoints, no autonomous_write/execution/external-tool/Prisma/
+  migration/UI-DS, no product_projection_swarm. Did NOT touch src/components/** (another agent's UI).
+  Next lot: add read-only explain_risk/explain_provenance + a memory read action to graduate
+  lp_explainer/memory_maintenance from weak/theoretical (still no projection swarm).
 
 ### feat/swarm-boundary-enforcement
 Owner: Opus Orchestrateur — Swarm Boundary Enforcement
