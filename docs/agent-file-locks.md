@@ -12,6 +12,61 @@ Agents must reserve files here before editing.
 - Do not remove another agent’s lock without explicit user approval.
 - Sensitive files require explicit ownership.
 
+> Workflow complet (worktrees isolés, scope, staging, PR, rebase, STOP) :
+> [`docs/AGENT_WORKFLOW.md`](AGENT_WORKFLOW.md). Ce fichier = état **vivant** des verrous.
+
+---
+
+## WORKTREE & BRANCH STATE — SNAPSHOT 2026-06-28
+
+> Vue de coordination des worktrees / branches / PRs réellement vivants. À tenir
+> à jour quand un worktree naît ou meurt. `origin/main` HEAD = `3dd02518`
+> (PR #144 — projection truth source — mergée).
+
+### Worktrees vivants
+
+| Worktree | Branche | vs origin/main | Statut | Action |
+|---|---|---|---|---|
+| `connect — Hearst Defi/` (principal) | `fix/projection-truth-source-clean` | ahead 0 (mergé via #144) | ⚠️ tree principal sur branche mergée | **ne pas dev ici** — `git switch main` recommandé |
+| `connect-defi-market-data` | `feat/defi-market-data` | ahead 3 | **active** (lock posé) | garder — data-layer en cours |
+| `connect-outreach-regex` | `fix/outreach-regex-continuity` | ahead 1 | **ready-pr** — PR #114 ouverte | garder jusqu'au merge #114 |
+| `/private/tmp/claude-501/wt-nav-p0` | `fix/nav-augmented-profile-guard` | ahead 0 (mergé #143) | **stale** | retirer après confirmation no-agent-actif |
+| `/private/tmp/claude-501/wt-chat-catalyst` | `feat/chat-catalyst-primitives` | ahead 0 (mergé) | **stale** | retirer après confirmation no-agent-actif |
+| `connect-outreach-draft-fix` | `fix/outreach-draft-continuity` | ahead 0 (mergé #116) | **stale** | retirer après confirmation no-agent-actif |
+
+### PRs ouvertes
+
+- **#114** — `fix/outreach-regex-continuity` — outreach regex workflow.
+- **#81** — `feat/agentic-premium-redesign-from-local` — agentic control tower redesign.
+
+### Branches parquées / à statuer (NE PAS merger dans une passe docs)
+
+- **`purge-css-final`** (ahead 3) — purge CSS finale **parquée**. **Ne pas merger
+  maintenant. Ne pas rebase** tant que le menu projection n'est pas stable.
+- `chore/purge-dead-ds-css` (ahead 1) — résolution de marqueurs de conflit CSS ;
+  vérifier si superseded par les purges DS déjà sur `main` avant de décider.
+- `purge-dead-css-iso` (ahead 0) — entièrement sur `main`, branche stale.
+- `fix/projection-truth-source` (ahead 2) — contenu intégré via #144 ; à clôturer.
+- `chore/simplify-projection-menu` (ahead 0) — mergé (#142), branche stale.
+
+### Nettoyage stale (À EXÉCUTER UNIQUEMENT après confirmation qu'aucun agent n'y tourne)
+
+```bash
+# Worktrees dont la branche est entièrement sur main (ahead 0) :
+git worktree remove /private/tmp/claude-501/wt-nav-p0
+git worktree remove /private/tmp/claude-501/wt-chat-catalyst
+git worktree remove "../connect-outreach-draft-fix"
+# Tree principal : revenir sur main (working tree clean, rien à perdre) :
+#   cd "connect — Hearst Defi" && git switch main && git pull --ff-only
+# Branches locales entièrement mergées :
+git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
+              fix/outreach-draft-continuity purge-dead-css-iso \
+              chore/simplify-projection-menu fix/projection-truth-source-clean
+```
+
+> `purge-css-final`, `feat/defi-market-data`, `fix/outreach-regex-continuity` (#114),
+> `feat/agentic-premium-redesign-from-local` (#81) sont **vivantes** — ne pas toucher.
+
 ---
 
 ## ACTIVE LOCKS
