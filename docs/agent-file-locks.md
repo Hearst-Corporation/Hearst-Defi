@@ -16,41 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### fix/chat-nav-guard-safety
-Owner: Opus — Chat Rail Safety + Deterministic Nav Repair
-Branch: fix/chat-nav-guard-safety
-Worktree: /private/tmp/claude-501/wt-chat-nav-guard
-Started: 2026-06-28
-Status: active
-
-Scope:
-- src/lib/llm/nav-fallback-intent.ts (restore verb-gating + determinism)
-- src/lib/llm/output-guard.ts (Unicode normalize wiring + streaming APY hold-back)
-- src/lib/agents/forbidden-words.ts (normalizeForScan: NFKC + zero-width strip)
-- src/lib/agents/apy-range.ts (normalizeForScan on single-point detection)
-- src/lib/llm/chat-agent.ts (wire semantic-guard defense-in-depth; remove stream
-  terminate race so a blocked turn finalises blocked=true)
-- src/lib/llm/__tests__/stress-nav-corpus.test.ts (bucket-keyed determinism witness)
-- src/lib/llm/__tests__/stress-nav-invariants.test.ts (false-positive + determinism tests)
-- src/lib/llm/__tests__/output-guard.test.ts (streaming APY leak tests)
-- src/lib/llm/__tests__/semantic-guard.test.ts (spec paraphrase cases)
-- src/lib/agents/__tests__/forbidden-words-unicode.test.ts (new — Unicode bypass)
-- scripts/stress/last-result.json (refreshed stress artifact: 0 breaks, 0 FP)
-
-Notes:
-- Nav: bare correctly-spelled nouns no longer navigate (mention ≠ nav); typos as
-  short commands still do; proof-center/outreach/scenario verb-gated. Determinism
-  168→0 breaks, false positives 1→0.
-- Guards: Unicode (NFKC/zero-width/NFD) bypass closed on forbidden-words + APY;
-  streaming no longer leaks a single-point APY prefix; semantic-guard wired
-  (enforce-gated, fail-safe).
-- Forbidden paths untouched: Portfolio/chart, Projection, Prisma/schema, Vault/Proof
-  UI, design shell. schema.prisma NOT committed (local dev sqlite flip reverted).
-- Known out-of-scope reds: typecheck on portfolio/value-chart (missing untracked
-  modules on origin/main); 23 outreach-* agent tests red on the base commit too.
-
----
-
 > NOTE 2026-06-27 : locks fantômes portfolio/vault purgés (agents finis sur main,
 > aucun worktree/branche dédiée vivante). Le chantier "recode des surfaces A→Z"
 > (Catalyst + DS) reprend la main sur portfolio/vaults. Locks retirés :
@@ -127,6 +92,33 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### fix/chat-nav-guard-safety
+Owner: Opus — Chat Rail Safety + Deterministic Nav Repair
+Branch: fix/chat-nav-guard-safety
+Merged PR: #125 (merge 1db081d3)
+Released: 2026-06-28
+Status: merged
+
+Result:
+- Nav determinism repaired (stress-nav-corpus 168→0 breaks, 1→0 false positives,
+  100% match over 11k+ iterations): #117's non-verb-gated rules (LP dashboard/
+  proof-center, admin outreach/scenario) restored to verb-gated; bare correctly-
+  spelled nouns no longer navigate (mention ≠ nav) while typo short-commands still
+  do; corpus determinism witness keyed by (bucket, phrase).
+- Compliance guard Unicode bypass closed: normalizeForScan (NFKC + zero-width strip
+  + NFD recompose) wired into BOTH forbidden-words and single-point-APY scans.
+- semantic-guard wired as defense-in-depth in chat-agent (enforce-gated, fail-safe;
+  blocks persistence of paraphrased return-promises).
+- Streaming APY leak fixed: long single-point sentences hold at completed-sentence
+  boundaries; ctrl.terminate() replaced by drain-and-swallow (a blocked turn now
+  finalises blocked=true instead of racing to client_cancelled).
+- Tests: +nav false-positive/determinism/explicit-intent + "same input 10×",
+  +Unicode bypass suite, +streaming APY leak, +spec paraphrases. All targeted
+  suites green. Surgical staging; forbidden paths (Portfolio/chart, Projection,
+  Prisma/schema, Vault/Proof UI, design shell) untouched; gitleaks clean.
+- Out-of-scope reds (pre-existing on base commit, NOT touched): typecheck on
+  portfolio/value-chart (untracked modules on origin/main); 23 outreach-* tests.
 
 ### fix/portfolio-surface-atoms
 Owner: Agent — Portfolio surface atom fixes (audit 2026-06-26)
