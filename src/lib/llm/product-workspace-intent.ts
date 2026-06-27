@@ -3,8 +3,18 @@ export const SCENARIO_LAB_DESTINATION_KEY = "admin-scenario-lab";
 
 const MAX_OBJECTIVE_LEN = 220;
 
-const PRODUCT_CREATION_INTENT_RE =
-  /\b(créer|cree|create|creation|création|nouveau produit|nouveau vault|nouvelle offre|new product|new vault|product creation|lancer un produit|lancement produit|go to market|go-to-market)\b/i;
+// Self-contained product-creation phrases — they already carry the product noun
+// ("nouveau produit", "new vault"), so they classify as product creation on
+// their own.
+const PRODUCT_CREATION_PHRASE_RE =
+  /\b(nouveau produit|nouveau vault|nouvelle offre|new product|new vault|product creation|lancer un produit|lancement produit|go to market|go-to-market)\b/i;
+
+// Bare creation verbs ("créer", "create", "monter"…). These are AMBIGUOUS alone
+// ("create projection", "create a scenario") so they only signal a PRODUCT
+// creation when paired with product context (PRODUCT_CONTEXT_RE) — see
+// `hasCreation` below.
+const PRODUCT_CREATION_VERB_RE =
+  /\b(créer|cree|creer|create|creation|création|construire|monter|structurer)\b/i;
 
 const PRODUCT_FRAMING_INTENT_RE =
   /\b(cadrer|cadrage|frame|framing|thesis|thèse|strategie|stratégie|strategy|modeling|modelling|modélisation|modeliser|modéliser)\b/i;
@@ -56,10 +66,26 @@ export function classifyProductWorkspaceIntent(
     };
   }
 
-  const hasCreation = PRODUCT_CREATION_INTENT_RE.test(message);
+  const hasProductContext = PRODUCT_CONTEXT_RE.test(message);
+  // P0: a bare creation verb only counts as PRODUCT creation when paired with a
+  // product/vault noun. A self-contained phrase ("nouveau produit") always counts.
+  // "create projection" / "create a scenario" have a creation verb but NO product
+  // context → not a product intent.
+  const hasCreation =
+    PRODUCT_CREATION_PHRASE_RE.test(message) ||
+    (PRODUCT_CREATION_VERB_RE.test(message) && hasProductContext);
   const hasFraming =
-    PRODUCT_FRAMING_INTENT_RE.test(message) && PRODUCT_CONTEXT_RE.test(message);
+    PRODUCT_FRAMING_INTENT_RE.test(message) && hasProductContext;
   const hasSimulation = isExplicitSimulationIntent(message);
+
+  // P0 NOTE — projection/product confusion is closed by `hasCreation` above: a
+  // bare creation verb ("create", "monter") only signals PRODUCT creation when a
+  // product/vault noun is present. So "create projection" / "make a forecast"
+  // (no product noun) → hasCreation=false. They then fall through to either the
+  // explicit_simulation branch (if a simulation verb is present, → Scenario Lab,
+  // NEVER the Product Workspace) or the final `none`. We deliberately do NOT add a
+  // hard short-circuit here: a genuine simulation must keep its
+  // `shouldOpenScenarioLab` routing (the demo-plan builder depends on it).
 
   if ((hasCreation || hasFraming) && hasSimulation) {
     return {

@@ -139,36 +139,78 @@ function firstMatch(
 /**
  * Router-owned navigation augmentation for the explicit phrasings the legacy
  * resolver (`resolveNavFallbackDestinationKey`) does not cover — notably "va dans
- * X" (the legacy NAV_VERB has "va sur" but not "va dans") and bare section names
- * ("dashboard", "reports"). Runs ONLY after the legacy resolver returns null, so
- * it never overrides the canonical sub-page resolution. Returns a route key or
- * null. Pure regex on the normalized input.
+ * X" (the legacy NAV_VERB has "va sur" but not "va dans"). Runs ONLY after the
+ * legacy resolver returns null, so it never overrides the canonical sub-page
+ * resolution. Returns a route key or null. Pure regex on the normalized input.
+ *
+ * VERB-GATING (P0 fix): every branch now requires an explicit navigation verb
+ * (`navLed`) before the section term, OR a distinctive TYPO command (the whole
+ * message is the misspelling). A bare correctly-spelled mention ("dashboard",
+ * "outreach", "control tower", "campaign"), a question, or a bug report must NOT
+ * navigate — they fall through to null and reach the LLM. This mirrors the
+ * verb-gating already enforced in `nav-fallback-intent.ts` so the two nav layers
+ * agree (closes the client↔server parity gap where the legacy resolver said
+ * "no nav" but this augmented layer still navigated).
  */
 const NAV_LEAD =
   "(?:go to|open|take me to|show( me)?|view|ouvre|ouvrir|ouvri|va (?:dans|sur|a|au|aux)|vas? (?:dans|sur)|aller (?:dans|sur|a)|affiche|affiche moi|montre|montre moi|voir|consulte|accede a|accede aux|redirige vers)";
+
+/**
+ * Bug-report / complaint / confusion signals. A message that reports something
+ * broken or wrong is NEVER a navigation intent ("dashboard is broken",
+ * "le dashboard est cassé", "projection is wrong"). Checked BEFORE any augmented
+ * nav branch so a section name inside a complaint can't hijack navigation.
+ */
+const BUG_REPORT_RE =
+  /\b(broken|cassee?|casse|is wrong|are wrong|isnt working|is not working|not working|doesnt work|does not work|bug|bugue|bugged|buggy|is confusing|confusing|marche pas|ne marche|fonctionne pas|ne fonctionne|probleme|en panne|plante|plantee?)\b/;
 
 function resolveAugmentedNav(
   normalized: string,
   isAdmin: boolean,
 ): string | null {
+  // Bug report / complaint → never navigate (let the chat answer/clarify).
+  if (BUG_REPORT_RE.test(normalized)) return null;
+
   const navLed = new RegExp(`\\b${NAV_LEAD}\\b`).test(normalized);
+
+  // Distinctive typo COMMANDS (the whole normalized message is the misspelling).
+  // A misspelling is an explicit short command, never a conversational mention,
+  // so it may resolve verb-less — but only the typo, never the correctly-spelled
+  // common noun (those require a verb below). Outreach typos (outrich/campain)
+  // are intentionally NOT here: the legacy resolver (which runs FIRST) already
+  // handles them admin-only and is covered by nav-global-hardening — duplicating
+  // here would just risk drift.
+  if (/^(?:dashbord|portofolio)$/.test(normalized)) return "portfolio";
 
   if (navLed && /\bvaults?\b/.test(normalized)) return "vaults";
   if (navLed && /\b(portefeuille|portfolio|portofolio|dashboard|dashbord)\b/.test(normalized)) {
     return "portfolio";
   }
-  if (/\b(product workspace|espace produit|workspace produit)\b/.test(normalized)) {
+  if (navLed && /\b(product workspace|espace produit|workspace produit)\b/.test(normalized)) {
     return "admin-product-workspace";
   }
-  if (/\b(outreach|outrich|outtrich|investor pipeline|pipeline investisseurs?|prospects?|campaign|campain|campagne)\b/.test(normalized)) {
+  // Outreach / campaign — VERB-GATED. A bare "outreach"/"campaign" mention no
+  // longer navigates (was the LP→admin leak source). Typo commands handled above.
+  if (navLed && /\b(outreach|investor pipeline|pipeline investisseurs?|prospects?|campaign|campagne|campagnes)\b/.test(normalized)) {
     return "admin-outreach";
   }
-  if (/\b(dashboard|dashbord|tableau de bord|home|accueil|control tower|tour de controle)\b/.test(normalized)) {
+  // Dashboard / control tower / admin home — VERB-GATED. A bare "control tower"
+  // or "dashboard" no longer navigates (FP source). With a verb: LP→portfolio,
+  // admin→admin-dashboard; "control tower"/"admin home" terms are admin surfaces,
+  // so an LP asking for them resolves nothing (no lying portfolio fallback).
+  if (navLed && /\b(dashboard|dashbord|tableau de bord)\b/.test(normalized)) {
     return isAdmin ? "admin-dashboard" : "portfolio";
   }
-  // Bare reports/brief navigation (the generative "génère un rapport" is caught
-  // earlier as reporting_request). "reports" is a logical key the chat maps.
-  if (/\b(reports?|rapports?|reporting)\b/.test(normalized)) {
+  if (navLed && /\b(home|accueil|control tower|tour de controle|tour de contrôle)\b/.test(normalized)) {
+    // Control tower / admin home are admin-only surfaces. An LP gesture toward
+    // them resolves NOTHING here (→ null → reject/clarify), never a misleading
+    // portfolio redirect.
+    return isAdmin ? "admin-home" : null;
+  }
+  // Bare reports/brief navigation. VERB-GATED so a conversational "reporting"
+  // mention does not navigate; the generative "génère un rapport" is caught
+  // earlier as reporting_request.
+  if (navLed && /\b(reports?|rapports?|reporting)\b/.test(normalized)) {
     return isAdmin ? "admin-investor-memo" : "portfolio-activity";
   }
   return null;
@@ -300,7 +342,12 @@ export function classifyAgenticIntent(
   // 8. NAVIGATION — delegated to the existing deterministic resolver (route keys
   //    never drift). A negation short-circuits BEFORE delegation so a negated nav
   //    ("ne va pas dans vaults") can never resolve a destination.
-  if (!negated) {
+  //    BUG-REPORT GUARD (P0): a complaint that names a section ("dashboard is
+  //    broken", "le dashboard est cassé", "projection is wrong") is never a nav
+  //    intent. We skip the whole navigation block so neither the legacy resolver
+  //    NOR the augmented layer can navigate on it — it falls through to education
+  //    / unknown (LLM answers or clarifies).
+  if (!negated && !BUG_REPORT_RE.test(normalized)) {
     const routeKey =
       resolveNavFallbackDestinationKey({
         navProfile: ctx.navProfile ?? "lp",

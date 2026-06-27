@@ -698,10 +698,29 @@ async function runMasterAgentTurn(args: {
     !canvasIntent
   ) {
     const routeKey = agenticDecision.routeKey;
-    const profile: "lp" | "admin" = routeKey.startsWith("admin-")
+    // PROFILE GUARD (P0): scope the destination to the REAL user, NOT the routeKey
+    // prefix. Deriving "admin" from `routeKey.startsWith("admin-")` let an LP
+    // publish an admin-* nav directive (the destination exists in the admin space,
+    // so the prefix-derived check passed) — a surface leak + a directive to a page
+    // the layout would 403.
+    //   - An admin may navigate BOTH admin and LP surfaces (admins use LP pages).
+    //   - An LP may navigate ONLY LP surfaces — an admin-* key for an LP is dropped.
+    // The destination is resolved against the user's actual allowance: try the
+    // admin space only when isAdmin, then always allow the LP space.
+    const routeProfile: "lp" | "admin" = routeKey.startsWith("admin-")
       ? "admin"
       : "lp";
-    if (resolveNavDestinationForProfile(routeKey, profile)) {
+    const dest =
+      routeProfile === "admin"
+        ? isAdmin
+          ? resolveNavDestinationForProfile(routeKey, "admin")
+          : null // LP can never reach an admin route — drop it.
+        : resolveNavDestinationForProfile(routeKey, "lp");
+    if (dest) {
+      // The published profile reflects the RESOLVED destination's space (admin
+      // route → "admin", LP route → "lp"), so the NavTrace stays accurate for an
+      // admin navigating an LP page.
+      const profile = routeProfile;
       await publishNav(userId, { destinationKey: routeKey }).catch(() => {
         /* best-effort nav publish */
       });

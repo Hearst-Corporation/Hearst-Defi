@@ -16,6 +16,29 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### fix/nav-augmented-profile-guard
+Owner: Opus — Navigation P0 Repair (Augmented Nav + Profile Guard)
+Branch: fix/nav-augmented-profile-guard
+Worktree: /private/tmp/claude-501/wt-nav-p0
+Started: 2026-06-28
+Status: active
+
+Scope:
+- src/lib/agentic/intent-router.ts (verb-gate resolveAugmentedNav + bug-report guard)
+- src/lib/agentic/intent-router-rules.ts (projection/product confusion guard if needed)
+- src/lib/llm/product-workspace-intent.ts (exclude projection/scenario from product intent)
+- src/app/api/cockpit-chat/route.ts (fast-path profile guard — real profile, not key prefix)
+- src/lib/agentic/__tests__/intent-router.test.ts (P0 FP + allowed + projection tests)
+- src/lib/llm/__tests__/* (parity / profile-guard tests as needed)
+
+Notes:
+- P0 only: close augmented-nav false positives (bare dashboard/control tower/
+  outreach/campaign), bug-report→no-nav, LP→admin-route leak, projection≠product.
+- Forbidden paths untouched: Portfolio/chart, Projection calculations, Outreach
+  draft, output guard, Prisma, Catalyst/UI.
+
+---
+
 > NOTE 2026-06-27 : locks fantômes portfolio/vault purgés (agents finis sur main,
 > aucun worktree/branche dédiée vivante). Le chantier "recode des surfaces A→Z"
 > (Catalyst + DS) reprend la main sur portfolio/vaults. Locks retirés :
