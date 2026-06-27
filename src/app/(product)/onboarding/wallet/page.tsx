@@ -34,7 +34,7 @@ export default async function WalletPage() {
             later or contact support.
           </p>
         </div>
-        <div className="p-5">
+        <div className="p-5 lg:p-6">
           <EmptySurface
             live
             variant="inline"

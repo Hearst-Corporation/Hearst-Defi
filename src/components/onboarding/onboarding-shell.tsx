@@ -27,10 +27,10 @@ export function OnboardingShell({
       irContact={irContact}
     >
       <div
-        className="dark flex min-h-screen w-full justify-center bg-black px-4 py-10 sm:px-6 lg:py-16"
+        className="dark flex min-h-screen w-full justify-center"
         data-testid="onboarding-shell"
       >
-        <div className="flex w-full max-w-2xl flex-col gap-6">
+        <div className="dark flex w-full max-w-2xl flex-col rounded-2xl border border-white/10 bg-zinc-900 p-5 lg:p-6 mb-8 gap-y-5">
           <header className="flex justify-center">
             <Image
               src="/logos/hearst-connect-dark.svg"

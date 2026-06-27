@@ -59,7 +59,8 @@ export function InvestFlowShell({
   const centered = align === "center";
 
   const shellClasses = cn(
-    "invest-flow-shell mx-auto flex w-full flex-col gap-6 pb-8",
+    // Grey body container (Portfolio canon): black panels sit on a zinc-900 surface.
+    "invest-flow-shell mx-auto flex w-full flex-col gap-6 rounded-2xl border border-white/10 bg-zinc-900 p-5 lg:p-6 mb-8",
     width === "cap" && "product-doc-shell--cap max-w-5xl",
     width === "narrow" && "product-doc-shell--narrow max-w-2xl",
     width === "full" && "max-w-6xl",
