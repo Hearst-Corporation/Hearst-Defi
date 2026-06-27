@@ -1,11 +1,21 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
+
 import { Badge } from "@/components/catalyst/badge";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { MachineTable } from "@/components/admin/source/machine-table";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
+import {
+  COUNTRY_LABELS,
+  CUSTOMS_DUTY_PCT,
+  FREIGHT_USD_PER_UNIT,
+  DEFAULT_DESTINATION,
+  type DestinationCountry,
+} from "@/lib/telegram/cost-model";
 
 /**
  * Strategy · Source — the data-ingestion control surface.
@@ -63,10 +73,31 @@ const BRICKS: ReadonlyArray<{
   },
 ];
 
-export default async function SourcePage() {
+const COUNTRY_ORDER: DestinationCountry[] = [
+  "china",
+  "uae",
+  "france",
+  "usa",
+  "russia",
+];
+
+function resolveDestination(raw: string | undefined): DestinationCountry {
+  return raw && raw in CUSTOMS_DUTY_PCT
+    ? (raw as DestinationCountry)
+    : DEFAULT_DESTINATION;
+}
+
+export default async function SourcePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ dest?: string }>;
+}) {
   await requireAdmin();
 
-  const market = await loadMachineMarket();
+  const { dest } = await searchParams;
+  const destination = resolveDestination(dest);
+
+  const market = await loadMachineMarket(undefined, destination);
   const profitable = market.rows.filter(
     (r) => r.marginUsdPerThDay !== null && r.marginUsdPerThDay >= 0,
   ).length;
@@ -106,7 +137,8 @@ export default async function SourcePage() {
             <p className="body-xs ct-text-muted">
               Liste {market.listDate ?? "n/a"} · {market.rows.length} machines ·{" "}
               {profitable} rentables · Énergie {market.energyUsdPerKwh * 100} ¢/kWh ·
-              Prix ex-works (port/douane/install non inclus)
+              Landed = ex-works + port ${FREIGHT_USD_PER_UNIT} + douane{" "}
+              {CUSTOMS_DUTY_PCT[destination]}% ({COUNTRY_LABELS[destination]})
             </p>
           </div>
           <div className="text-right">
@@ -119,6 +151,24 @@ export default async function SourcePage() {
               BTC ${market.btcPriceUsd.toLocaleString()}
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-[var(--ct-space-2)]">
+          <span className="body-xs ct-text-muted">Destination :</span>
+          {COUNTRY_ORDER.map((c) => (
+            <Link
+              key={c}
+              href={c === DEFAULT_DESTINATION ? "/admin/source" : `/admin/source?dest=${c}`}
+              className={cn(
+                "rounded-[var(--ct-radius-md)] border px-[var(--ct-space-3)] py-[var(--ct-space-1)] body-xs transition-colors",
+                destination === c
+                  ? "border-[var(--ct-accent)] text-[var(--ct-accent)]"
+                  : "border-[var(--ct-border-soft)] ct-text-muted hover:ct-text-strong",
+              )}
+            >
+              {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
+            </Link>
+          ))}
         </div>
 
         {!market.configured ? (

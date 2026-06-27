@@ -57,16 +57,59 @@ export interface LandedFee {
   enabled: boolean;
 }
 
+/** Flat freight per machine, in USD (rough working assumption). */
+export const FREIGHT_USD_PER_UNIT = 100;
+
 /**
- * Default fee library — all DISABLED with 0 amounts so the base computation is
- * pure ex-works until Adrien fills real figures. They exist as the slots to
- * fill (freight / customs / install), not as guesses.
+ * Destination countries we may import ASICs into, and their customs duty rate
+ * (% of ex-works) on Bitcoin ASIC miners of Chinese origin. Figures sourced
+ * 2026 — TREAT AS ESTIMATES to validate with a customs broker per shipment:
+ *   - USA   : 27.6%  (2.6% MFN base + 25% Section 301 on China) [USTR/White&Case]
+ *   - UAE   : 5%     (GCC common external tariff)
+ *   - FR/EU : 0%     (ASIC classed as data-processing/electrical, duty-free)
+ *   - RU    : 5%     (estimate)
+ *   - CN    : 0%     (ex-works / domestic, no import duty)
  */
-export const DEFAULT_FEES: readonly LandedFee[] = [
-  { id: "freight", label: "Frais de port", kind: "freight", mode: "usdPerTh", amount: 0, enabled: false },
-  { id: "customs", label: "Douane", kind: "customs", mode: "pct", amount: 0, enabled: false },
-  { id: "install", label: "Installation", kind: "install", mode: "usdFlat", amount: 0, enabled: false },
-];
+export type DestinationCountry = "usa" | "uae" | "france" | "russia" | "china";
+
+export const CUSTOMS_DUTY_PCT: Record<DestinationCountry, number> = {
+  usa: 27.6,
+  uae: 5,
+  france: 0,
+  russia: 5,
+  china: 0,
+};
+
+export const COUNTRY_LABELS: Record<DestinationCountry, string> = {
+  usa: "USA",
+  uae: "Émirats (UAE)",
+  france: "France / UE",
+  russia: "Russie",
+  china: "Chine (domestique)",
+};
+
+export const DEFAULT_DESTINATION: DestinationCountry = "uae";
+
+/**
+ * Build the fee library for a destination country: freight $100/unit (flat) +
+ * country customs duty (% of ex-works). Install stays a 0 slot to fill later.
+ */
+export function feesForDestination(
+  country: DestinationCountry = DEFAULT_DESTINATION,
+): LandedFee[] {
+  const duty = CUSTOMS_DUTY_PCT[country];
+  return [
+    { id: "freight", label: "Frais de port", kind: "freight", mode: "usdFlat", amount: FREIGHT_USD_PER_UNIT, enabled: true },
+    { id: "customs", label: `Douane (${COUNTRY_LABELS[country]})`, kind: "customs", mode: "pct", amount: duty, enabled: duty > 0 },
+    { id: "install", label: "Installation", kind: "install", mode: "usdFlat", amount: 0, enabled: false },
+  ];
+}
+
+/**
+ * Default fee library — freight $100 + UAE customs by default. Pass an empty
+ * array to compute pure ex-works (no fees).
+ */
+export const DEFAULT_FEES: readonly LandedFee[] = feesForDestination();
 
 /** Apply one fee to an ex-works price for a machine of `th` TH/s. */
 export function applyFee(fee: LandedFee, exWorksUsd: number, th: number): number {
@@ -86,6 +129,7 @@ export function applyFee(fee: LandedFee, exWorksUsd: number, th: number): number
 export interface MachineEconomics {
   model: string;
   cooling: ResolvedCooling;
+  region: "china" | "usa";
   thPerUnit: number;
   efficiencyJTh: number | null;
 
@@ -146,6 +190,7 @@ export function computeMachineEconomics(
   return {
     model: sample.model,
     cooling,
+    region: sample.region,
     thPerUnit: th,
     efficiencyJTh: sample.efficiencyJTh,
     exWorksUsd,

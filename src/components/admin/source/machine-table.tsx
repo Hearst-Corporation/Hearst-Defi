@@ -13,6 +13,7 @@ type SortKey =
   | "thPerUnit"
   | "efficiencyJTh"
   | "exWorksUsd"
+  | "landedUsd"
   | "capexUsdPerThDay"
   | "energyUsdPerThDay"
   | "totalCostUsdPerThDay"
@@ -97,6 +98,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
               <Th label="TH/s" k="thPerUnit" sort={sort} onSort={toggleSort} num />
               <Th label="J/TH" k="efficiencyJTh" sort={sort} onSort={toggleSort} num />
               <Th label="Ex-works" k="exWorksUsd" sort={sort} onSort={toggleSort} num />
+              <Th label="Landed" k="landedUsd" sort={sort} onSort={toggleSort} num />
               <Th label="CAPEX $/TH/j" k="capexUsdPerThDay" sort={sort} onSort={toggleSort} num />
               <Th label="Énergie $/TH/j" k="energyUsdPerThDay" sort={sort} onSort={toggleSort} num />
               <Th label="Coût total $/TH/j" k="totalCostUsdPerThDay" sort={sort} onSort={toggleSort} num />
@@ -127,6 +129,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
                 <Num>{r.thPerUnit}</Num>
                 <Num>{r.efficiencyJTh ?? "—"}</Num>
                 <Num>${r.exWorksUsd.toLocaleString()}</Num>
+                <Num>${r.landedUsd.toLocaleString()}</Num>
                 <Num>{fmtUsd(r.capexUsdPerThDay, 5)}</Num>
                 <Num>{fmtUsd(r.energyUsdPerThDay, 5)}</Num>
                 <Num>{fmtUsd(r.totalCostUsdPerThDay, 5)}</Num>

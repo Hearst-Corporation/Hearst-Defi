@@ -37,9 +37,16 @@ export interface MachinePriceSample {
    * Letine encodes it as "18.5W", "14.9J", "13.5w" etc. next to the model.
    */
   efficiencyJTh: number | null;
+  /**
+   * Sourcing region of the quote. Letine's main list is ex-works China; a
+   * trailing "*USA Stock*" section reprices the same models for US delivery.
+   */
+  region: Region;
   /** Verbatim source line (audit trail). */
   rawLine: string;
 }
+
+export type Region = "china" | "usa";
 
 export interface ParsedPriceList {
   /** Date string from the message header, ISO yyyy-mm-dd when resolved. */
@@ -114,6 +121,7 @@ function parseEfficiency(label: string): number | null {
 export function parsePriceLine(
   rawLine: string,
   sectionCooling: Cooling,
+  region: Region = "china",
 ): MachinePriceSample | null {
   const line = rawLine.trim();
   if (!line || !line.includes("$")) return null;
@@ -157,8 +165,16 @@ export function parsePriceLine(
     priceUsd: round(priceUsd, 2),
     perThUsd: round(perThUsd, 4),
     efficiencyJTh: parseEfficiency(model),
+    region,
     rawLine: line,
   };
+}
+
+/** Detect a regional section header ("*USA Stock*"). null if not regional. */
+function regionFromHeader(line: string): Region | null {
+  const l = line.toLowerCase();
+  if (/\busa\b|u\.s\.|united states/.test(l)) return "usa";
+  return null;
 }
 
 /** Parse a full Letine-style message into a dated list of samples. */
@@ -166,10 +182,20 @@ export function parseMachinePriceMessage(text: string): ParsedPriceList {
   const listDate = parseListDate(text);
   const samples: MachinePriceSample[] = [];
   let section: Cooling = "unknown";
+  let region: Region = "china";
 
   for (const rawLine of text.split("\n")) {
     const line = rawLine.trim();
     if (!line) continue;
+
+    // Regional sections (e.g. "*USA Stock*") flip the region for everything that
+    // follows — Letine puts USA stock last, repricing earlier models.
+    const regionHeader = regionFromHeader(line);
+    if (regionHeader && /^\*.*\*$/.test(line) && !line.includes("$")) {
+      region = regionHeader;
+      section = "unknown";
+      continue;
+    }
 
     const header = coolingFromHeader(line);
     if (header) {
@@ -183,7 +209,7 @@ export function parseMachinePriceMessage(text: string): ParsedPriceList {
       continue;
     }
 
-    const sample = parsePriceLine(line, section);
+    const sample = parsePriceLine(line, section, region);
     if (sample) samples.push(sample);
   }
 

@@ -4,9 +4,11 @@ import { getTelegramClient, isTelegramConfigured } from "./client";
 import { parseMachinePriceMessage } from "./parse-machine-price";
 import {
   computeMachineEconomics,
+  feesForDestination,
   ENERGY_COST_USD_PER_KWH,
+  DEFAULT_DESTINATION,
   type MachineEconomics,
-  type LandedFee,
+  type DestinationCountry,
 } from "./cost-model";
 import { fetchHashprice } from "@/lib/data/hashprice";
 
@@ -29,6 +31,8 @@ export interface MachineRow extends MachineEconomics {
 export interface MachineMarketSnapshot {
   configured: boolean;
   channel: string;
+  /** Destination country used for customs duty in the landed cost. */
+  destination: DestinationCountry;
   /** Date string from the parsed list header (yyyy-mm-dd) or null. */
   listDate: string | null;
   /** Live hashprice (revenue) in $/TH/day. */
@@ -47,11 +51,13 @@ const MESSAGES_TO_SCAN = 8;
 
 export async function loadMachineMarket(
   channel: string = DEFAULT_CHANNEL,
-  fees?: readonly LandedFee[],
+  destination: DestinationCountry = DEFAULT_DESTINATION,
 ): Promise<MachineMarketSnapshot> {
   const hp = await fetchHashprice();
+  const fees = feesForDestination(destination);
   const base: Omit<MachineMarketSnapshot, "configured" | "rows" | "listDate"> = {
     channel,
+    destination,
     hashpriceUsdPerThDay: hp.usd_per_th_day,
     btcPriceUsd: hp.btc_price_usd,
     hashpriceStale: hp.stale,

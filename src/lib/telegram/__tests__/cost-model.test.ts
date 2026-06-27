@@ -8,6 +8,9 @@ import {
 import { resolveCooling } from "../model-catalog";
 import {
   computeMachineEconomics,
+  feesForDestination,
+  CUSTOMS_DUTY_PCT,
+  FREIGHT_USD_PER_UNIT,
   ENERGY_COST_USD_PER_KWH,
   AMORT_MONTHS,
   DAYS_PER_MONTH,
@@ -79,12 +82,11 @@ describe("computeMachineEconomics — energy at 6¢, ex-works base", () => {
     expect(ENERGY_COST_USD_PER_KWH).toBe(0.06);
   });
 
-  it("computes air S21++ capex on 36-month amortization", () => {
+  it("computes air S21++ capex on 36-month amortization (pure ex-works)", () => {
     const sample = parsePriceLine("S21++ 235T: $1551 (6.6U/T)", "air")!;
-    const e = computeMachineEconomics(sample);
+    const e = computeMachineEconomics(sample, []); // no fees
     expect(e.cooling).toBe("air");
     expect(e.amortMonths).toBe(36);
-    // landed == ex-works when fees disabled
     expect(e.landedUsd).toBe(1551);
     expect(e.feesUsd).toBe(0);
     const expectedCapex = 1551 / 235 / (36 * DAYS_PER_MONTH);
@@ -93,15 +95,15 @@ describe("computeMachineEconomics — energy at 6¢, ex-works base", () => {
 
   it("computes hydro on 60-month amortization", () => {
     const sample = parsePriceLine("S21+ Hyd 358T: $2273 (6.35U/T)", "hydro")!;
-    const e = computeMachineEconomics(sample);
+    const e = computeMachineEconomics(sample, []);
     expect(e.amortMonths).toBe(60);
     expect(AMORT_MONTHS.hydro).toBe(60);
   });
 
-  it("computes energy from efficiency at 6¢/kWh", () => {
+  it("computes energy from efficiency at 6¢/kWh (independent of fees)", () => {
     // 18.5 J/TH = 18.5 W/TH → 18.5*24/1000 = 0.444 kWh/TH/day
     const sample = parsePriceLine("M63S 18.5W 406T: $6.6/T", "unknown")!;
-    const e = computeMachineEconomics(sample);
+    const e = computeMachineEconomics(sample, []);
     const expectedEnergy = (18.5 * 24) / 1000 * 0.06 * DEFAULT_UPTIME;
     expect(e.energyUsdPerThDay).toBeCloseTo(expectedEnergy, 6);
     expect(e.totalCostUsdPerThDay).toBeCloseTo(
@@ -112,10 +114,34 @@ describe("computeMachineEconomics — energy at 6¢, ex-works base", () => {
 
   it("returns null energy when efficiency unknown", () => {
     const sample = parsePriceLine("Avalon Q 90T: $1365", "unknown")!;
-    const e = computeMachineEconomics(sample);
+    const e = computeMachineEconomics(sample, []);
     expect(e.efficiencyJTh).toBeNull();
     expect(e.energyUsdPerThDay).toBeNull();
     expect(e.totalCostUsdPerThDay).toBeNull();
+  });
+});
+
+describe("destination fees — freight $100 + country customs", () => {
+  const sample = parsePriceLine("S21++ 235T: $1551 (6.6U/T)", "air")!;
+
+  it("USA: freight $100 + 27.6% customs", () => {
+    const e = computeMachineEconomics(sample, feesForDestination("usa"));
+    expect(CUSTOMS_DUTY_PCT.usa).toBe(27.6);
+    const expected = FREIGHT_USD_PER_UNIT + 1551 * 0.276;
+    expect(e.feesUsd).toBeCloseTo(expected, 2);
+    expect(e.landedUsd).toBeCloseTo(1551 + expected, 2);
+  });
+
+  it("France/EU: freight only (0% customs)", () => {
+    const e = computeMachineEconomics(sample, feesForDestination("france"));
+    expect(CUSTOMS_DUTY_PCT.france).toBe(0);
+    expect(e.feesUsd).toBeCloseTo(FREIGHT_USD_PER_UNIT, 2);
+  });
+
+  it("UAE default: freight + 5% customs", () => {
+    const e = computeMachineEconomics(sample, feesForDestination("uae"));
+    const expected = FREIGHT_USD_PER_UNIT + 1551 * 0.05;
+    expect(e.feesUsd).toBeCloseTo(expected, 2);
   });
 });
 
@@ -141,9 +167,17 @@ describe("landed fees library", () => {
     expect(e.landedUsd).toBeGreaterThan(e.exWorksUsd);
   });
 
-  it("ignores disabled fees (base = ex-works)", () => {
-    const e = computeMachineEconomics(sample);
+  it("empty fee array = pure ex-works", () => {
+    const e = computeMachineEconomics(sample, []);
     expect(e.landedUsd).toBe(e.exWorksUsd);
+  });
+
+  it("ignores a disabled fee", () => {
+    const fees: LandedFee[] = [
+      { id: "x", label: "x", kind: "other", mode: "usdFlat", amount: 500, enabled: false },
+    ];
+    const e = computeMachineEconomics(sample, fees);
+    expect(e.feesUsd).toBe(0);
   });
 });
 
@@ -164,5 +198,20 @@ M63S 18.5W 372/374/390T: $6.6/T`;
     const byModel = Object.fromEntries(parsed.samples.map((s) => [s.model, s]));
     expect(byModel["S21++ 235T"]!.cooling).toBe("air");
     expect(byModel["S21+ Hyd 358T"]!.cooling).toBe("hydro");
+  });
+
+  it("tags region: main list = china, USA Stock section = usa", () => {
+    const withUsa = `Letine Price (26th June. 2026):
+*Air Cooling*
+S21++ 235T: $1551 (6.6U/T)
+*USA Stock*
+S21++ 235T: $7.9/T
+Avalon Q 90T: $1299`;
+    const parsed = parseMachinePriceMessage(withUsa);
+    expect(parsed.samples.filter((s) => s.region === "china").length).toBe(1);
+    expect(parsed.samples.filter((s) => s.region === "usa").length).toBe(2);
+    const s21 = parsed.samples.filter((s) => s.model === "S21++ 235T");
+    expect(s21.length).toBe(2);
+    expect(s21.map((s) => s.region).sort()).toEqual(["china", "usa"]);
   });
 });
