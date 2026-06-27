@@ -15,6 +15,14 @@ contexte du domaine concerné, **pas** tout le README.
 | Chat / agents / tools | `docs/AGENTS_CONTEXT.md` | `src/lib/llm/` + `src/lib/agents/` |
 | Quelle validation lancer | `docs/VALIDATION_MATRIX.md` | tâche → commande minimale |
 | Zones interdites | `docs/DO_NOT_TOUCH.md` | STOP avant d'y toucher |
+| **Comment développer ici (worktrees, branches, PR)** | **`docs/AGENT_WORKFLOW.md`** | + `docs/agent-file-locks.md` (verrous vivants) |
+
+## Workflow worktree (règle d'or)
+
+Un agent = **un worktree isolé créé depuis `origin/main`** ; jamais de dev dans le
+working tree principal. Staging chirurgical (jamais `git add -A`), push branche only
+(jamais `main`), merge = PR gatée sur accord. Détail + STOP conditions :
+[`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md).
 
 ## Docs protégées (lecture obligatoire · jamais supprimer)
 

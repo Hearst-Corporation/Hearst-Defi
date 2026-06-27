@@ -1,0 +1,39 @@
+---
+description: Multi-agent worktree isolation — one agent = one isolated worktree from origin/main
+alwaysApply: true
+---
+
+# Worktree isolation (s'applique à TOUT agent, toute passe)
+
+Règle d'or : **un agent = un worktree git ISOLÉ, créé depuis `origin/main`.**
+Personne ne développe dans le working tree principal (il sert à fetch / créer-supprimer
+des worktrees / inspecter `main`).
+
+```bash
+git fetch origin
+git worktree add ../connect-<scope>-<agent> -b <type>/<scope>-<agent> origin/main
+cd ../connect-<scope>-<agent>
+```
+
+- **Scope déclaré** avant d'éditer : `Branch / Worktree / Scope / Files allowed /
+  Files forbidden / Expected commit / STOP`. On ne touche que `Files allowed`.
+- **Staging chirurgical** : jamais `git add -A` / `-u` / `.` / `commit -a`.
+  Toujours `git add <chemins exacts>` ; `git diff --staged --name-only` = scope only.
+- **Verrous** : réserver dans `docs/agent-file-locks.md` avant d'éditer un fichier ;
+  release après merge. Fichiers sensibles (cockpit.css, portfolio.css, route.ts,
+  intent-router.ts, nav-fallback-intent.ts, ConnectShell.tsx, prisma/**, registry.ts,
+  package.json, next.config.*, .mcp.json) = **un seul owner**.
+- **Push branche only** (`git push -u origin HEAD`) — jamais `main` (= prod Vercel).
+  Merge = PR gatée, **sur accord explicite**. Après merge : `git worktree remove` +
+  `git branch -d` + release du lock.
+- **Rebase** sur `origin/main` avant PR ; conflit hors scope → STOP.
+
+## STOP immédiat si
+
+Hors de ton worktree · fichier hors scope dans `git status` · HEAD/`main` bouge dans
+ton env · fichier locké requis · conflit hors scope · test rouge nouveau hors scope ·
+autre agent sur les mêmes fichiers · besoin de `git add -A` · doute source vs démo ·
+permission/outil refusé (pas de retry, pas de `--no-verify`).
+
+Détail complet : `docs/AGENT_WORKFLOW.md`. État vivant : `docs/agent-file-locks.md`.
+Commit/push (3 niveaux) : `.cursor/rules/commit-discipline.mdc`.

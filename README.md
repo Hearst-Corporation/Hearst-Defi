@@ -396,6 +396,36 @@ Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
 
 ---
 
+## Multi-agent workflow (worktrees) — règle officielle
+
+Plusieurs agents travaillent en parallèle sur ce repo. Pour éviter que les
+branches/worktrees se marchent dessus (working tree instable, HEAD qui bouge,
+commits arrachés, conflits CSS/nav/projection) :
+
+> **Règle d'or :** chaque agent travaille dans un **git worktree isolé créé depuis
+> `origin/main`**. Personne ne développe dans le working tree principal.
+
+```bash
+git fetch origin
+git worktree add ../connect-<scope>-<agent> -b <type>/<scope>-<agent> origin/main
+cd ../connect-<scope>-<agent>
+```
+
+- **Staging chirurgical** : jamais `git add -A` / `-u` / `.` — toujours les chemins
+  exacts de ton lot. Un commit = un scope = un owner.
+- **Push branche only**, jamais `main` (push `main` = prod Vercel). Merge = PR gatée,
+  sur accord explicite.
+- **Verrous** : réserver les fichiers dans `docs/agent-file-locks.md` avant d'éditer ;
+  release après merge. Fichiers sensibles = un seul owner à la fois.
+- **STOP** si : hors de ton worktree, fichier hors scope dans `git status`, HEAD/main
+  qui bouge, fichier locké requis, conflit hors scope, ou besoin de `git add -A`.
+
+Workflow complet (scope, rebase, PR, STOP conditions, état des worktrees vivants) :
+**[`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md)** + l'état vivant des verrous dans
+**[`docs/agent-file-locks.md`](docs/agent-file-locks.md)**.
+
+---
+
 ## Commands
 
 ```bash
@@ -514,6 +544,9 @@ authorize unaudited mainnet code.
 - [`docs/roadmap.json`](docs/roadmap.json) + `/admin/roadmap` UI — chaque PR
   doit référencer un item roadmap.
 - [`CLAUDE.md`](CLAUDE.md) — instructions agent (Claude Code + sous-agents).
+- [`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md) — **workflow multi-agents**
+  (worktrees isolés, scope, staging, PR, STOP) + [`docs/agent-file-locks.md`](docs/agent-file-locks.md)
+  (état vivant des verrous & worktrees).
 
 ---
 
