@@ -3737,9 +3737,14 @@ button.ct-choice-card {
   width: var(--ct-rail-right-expanded);
 }
 
-.ct-rail-right-header,
-.ct-rail-right-body {
+.ct-rail-right-header {
   background: transparent !important;
+}
+/* Chat body = fond noir OPAQUE : le halo vert ambiant (.ct-ambient-glow) ne doit
+   PAS transparaître à travers le chat (sinon voile vert sur les panneaux). Le halo
+   reste visible sur le shell/fond, jamais comme voile sur le module chat. */
+.ct-rail-right-body {
+  background: var(--ct-bg-deep) !important;
 }
 
 /* Liserés clairs sur le chrome sombre — le séparateur du header chat et les
