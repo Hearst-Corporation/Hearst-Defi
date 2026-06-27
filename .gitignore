@@ -113,3 +113,6 @@ ds-bundle/
 .design-sync/node_modules
 .design-sync/compiled-foundation.css
 .design-sync/ds-entry.tsx
+
+# Telegram machine-price generated artifact (regenerated on demand)
+telegram-machines.html
