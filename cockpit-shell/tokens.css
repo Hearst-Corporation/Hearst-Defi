@@ -103,6 +103,12 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   height: 100dvh;
   overflow: hidden;
   color: var(--ct-text-primary);
+  /* Fond noir opaque peint sur le conteneur racine lui-même (avant tout enfant
+     absolu, dès le SSR/premier paint). Garantit que le halo `.ct-ambient-glow`
+     (z-0, radial-gradient accent → transparent) soit TOUJOURS composité sur du
+     noir et jamais sur du vide transparent → supprime le flash vert au reload.
+     N'altère pas le halo : celui-ci garde son opacity et son vert intacts. */
+  background: var(--ct-bg-deep);
 }
 
 /* ── FONDS ── */

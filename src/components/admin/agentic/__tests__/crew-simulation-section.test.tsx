@@ -1,7 +1,7 @@
 /**
  * CrewSimulationSection — read-only render contract.
  *
- * Verifies the 6 scenario cards, step rails, gates, blocked action chips, and
+ * Verifies the 7 scenario panels, step rails, gates, blocked action chips, and
  * `executable: false` marker — with NO write/action controls and NO run/execute/
  * launch/send/deploy controls. SSR render (repo convention).
  */
@@ -44,9 +44,9 @@ describe("CrewSimulationSection", () => {
     NO_RUN_CONTROLS(html);
   });
 
-  it("renders all six scenarios", () => {
+  it("renders all seven scenarios", () => {
     const html = render(SIMS);
-    expect(SIMS).toHaveLength(6);
+    expect(SIMS).toHaveLength(7);
     for (const s of SIMS) {
       expect(html).toContain(s.scenario.label);
     }

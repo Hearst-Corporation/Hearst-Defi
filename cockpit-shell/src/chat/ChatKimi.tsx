@@ -1,10 +1,20 @@
 "use client";
 
 /**
- * ChatKimi.tsx — Couche de rendu pure du chat Kimi 2.6.
+ * ChatKimi.tsx — Couche de rendu pure du chat Hearst Assistant.
  *
  * Toute la logique d'état et de streaming est dans useChat.ts.
  * Ce composant gère : JSX, textarea, focus, scroll, retry, reset.
+ *
+ * Skin : bento Tailwind (canon Portfolio) — panneaux `bg-black` / sous-surfaces
+ * `bg-[#15191C]`, bordures `border-white/10`, accent unique #A7FB90. Deux classes
+ * legacy sont CONSERVÉES car ce sont des points d'ancrage structurels :
+ *   - `ct-chat-root` : la coquille (RailRight) cible `.ct-rail-right-body:has(.ct-chat-root)`
+ *     pour passer le body en `overflow:hidden; min-height:0` (le scroll vit alors
+ *     sur la liste interne — cf. cockpit.css "Chat scroll fix").
+ *   - `ct-chat-list` : porte le fix `min-height:0` du viewport scrollable + l'ancrage
+ *     bas (`> :first-child { margin-top:auto }`) et les masques de fondu.
+ * Les retirer casserait le scroll. Tout le reste du markup est en Tailwind.
  */
 
 import {
@@ -16,6 +26,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import DOMPurify from "dompurify";
+import { cn } from "@/lib/cn";
 import {
   subscribe,
   getSnapshot,
@@ -87,7 +98,7 @@ function renderMarkdown(text: string): string {
       .join("");
     return `<ul>${items}</ul>`;
   });
-  
+
   // Clean up trailing newlines after block elements to prevent excessive <br>
   html = html.replace(/(<\/(?:h1|h2|h3|ul|pre)>)\n/g, "$1");
   // Replace remaining newlines with <br> but NOT inside <pre> blocks
@@ -99,6 +110,37 @@ function sanitizeHtml(html: string): string {
   if (typeof window === "undefined") return "";
   return DOMPurify.sanitize(html);
 }
+
+// ---------------------------------------------------------------------------
+// Tokens de style partagés (bento) — réutilisés par plusieurs sous-composants.
+// ---------------------------------------------------------------------------
+
+/** Label micro : 10px, uppercase, tracking large, gras, zinc-500. */
+const MICRO_LABEL =
+  "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
+
+// Markdown body — Tailwind via arbitrary descendant variants. Reproduit la prose
+// chat : titres serrés, listes à puces accent, code mono teinté accent, blocs pre
+// encadrés. Pas de halo, juste typographie + espacement.
+const MARKDOWN_PROSE = cn(
+  "text-[13px] leading-[1.65] text-zinc-300",
+  // Headings
+  "[&_h1]:mt-5 [&_h1]:mb-2 [&_h1]:text-[18px] [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-white",
+  "[&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white",
+  "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:text-white",
+  "[&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0",
+  // Paragraphs
+  "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+  // Inline emphasis
+  "[&_strong]:font-bold [&_strong]:text-white [&_em]:italic [&_em]:opacity-90",
+  // Lists
+  "[&_ul]:my-2 [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:my-1",
+  "[&_li]:marker:text-[#A7FB90]",
+  // Code
+  "[&_code]:rounded [&_code]:bg-black/40 [&_code]:px-[5px] [&_code]:py-[2px] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[#A7FB90]",
+  "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/60 [&_pre]:p-3 [&_pre]:text-[12px] [&_pre]:font-mono",
+  "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-zinc-300",
+);
 
 // ---------------------------------------------------------------------------
 // Props
@@ -288,64 +330,72 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     sendMessage(lastUser.content);
   }, [messages, sendMessage]);
 
-  const accent = productColor ?? "var(--ct-accent, #A7FB90)";
+  const accent = productColor ?? "#A7FB90";
 
   return (
-    <div className="ct-chat-root">
+    // `ct-chat-root` conservé : hook structurel du shell (`:has()`) + colonne flex.
+    <div className="ct-chat-root flex h-full min-h-0 flex-1 flex-col">
       {/* Action bar */}
-      <div className="ct-chat-actionbar">
+      <div className="flex items-center gap-2 pb-1">
         <button
           type="button"
           onClick={newConversation}
           title="New chat"
           aria-label="Start new conversation"
-          className="ct-chat-newbtn"
+          className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-[3px] text-[11px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[#A7FB90]/40 hover:text-white"
         >
           + New
         </button>
       </div>
 
-      {/* Messages */}
-      <div ref={chatListRef} className="ct-chat-list">
+      {/* Messages — `ct-chat-list` conservé : porte le fix scroll (min-h-0),
+          l'ancrage bas (> :first-child margin-top:auto) et les masques de fondu. */}
+      <div
+        ref={chatListRef}
+        className="ct-chat-list flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-12"
+      >
         {isConversationEmpty && !streaming && (
-          <div className="ct-chat-empty">
-            <div className="ct-chat-welcome">
-              <div className="ct-chat-welcome-icon">
+          <div className="m-auto flex w-full max-w-[90%] flex-col items-center gap-4">
+            <div className="py-4 text-center">
+              <div className="mb-3 flex justify-center text-[#A7FB90]">
                 <HearstMark size={24} />
               </div>
-              <h2 className="ct-chat-welcome-title">Hearst Assistant</h2>
-              <p className="ct-chat-welcome-text">
+              <h2 className="mb-1 text-[15px] font-semibold text-white">Hearst Assistant</h2>
+              <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
                 Your institutional co-pilot for portfolio insights and vault analysis.
               </p>
             </div>
 
-            <div className="ct-chat-context-card">
-              <div className="ct-chat-context-card-header">
-                <svg className="ct-chat-icon" viewBox="0 0 13 13" fill="none">
+            <div className="w-full rounded-2xl border border-white/10 bg-[#15191C] p-3">
+              <div className={cn("mb-2 flex items-center gap-2", MICRO_LABEL)}>
+                <svg className="h-3 w-3" viewBox="0 0 13 13" fill="none" aria-hidden="true">
                   <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
                 </svg>
                 <span>Current Context</span>
               </div>
-              <div className="ct-chat-context-card-body">
+              <div className="flex flex-col gap-1.5">
                 {productName ? (
-                  <div className="ct-chat-context-item">
-                    <span className="ct-chat-context-dot" style={{ background: productColor }} />
+                  <div className="flex items-center gap-2 text-[13px] text-zinc-300">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ background: productColor ?? "#A7FB90" }}
+                    />
                     <span>{productName}</span>
                   </div>
                 ) : (
-                  <div className="ct-chat-context-item">
-                    <span className="ct-chat-context-dot" />
+                  <div className="flex items-center gap-2 text-[13px] text-zinc-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
                     <span>General Portfolio</span>
                   </div>
                 )}
-                <div className="ct-chat-context-item">
-                  <span className="ct-chat-context-dot" />
+                <div className="flex items-center gap-2 text-[13px] text-zinc-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
                   <span>Verified Data Feeds</span>
                 </div>
               </div>
             </div>
 
-            <div className="ct-chat-suggestions-label">Suggested Actions</div>
+            <div className={cn("self-start", MICRO_LABEL)}>Suggested Actions</div>
             <ChatPresets
               masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
               onPick={(text) => {
@@ -367,7 +417,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           // makes the empty-state replaced cleanly by the real conversation.
           if (msg.id === "welcome") return null;
           // Cache la bulle assistant vide en attente de stream — on affiche
-          // uniquement le logo H (ct-chat-thinking) à la place.
+          // uniquement le logo H (indicateur de réflexion) à la place.
           if (
             msg.role === "assistant" &&
             msg.content === "" &&
@@ -389,7 +439,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         {/* Indicateur de réflexion : logo H sous la dernière bulle assistant pendant le streaming */}
         {streaming && (
           <div
-            className="ct-chat-thinking active"
+            className="flex animate-pulse items-center justify-start py-3 text-[#A7FB90]"
             aria-label="The assistant is thinking"
           >
             <HearstMark size={18} />
@@ -397,12 +447,12 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         )}
 
         {error && (
-          <div className="ct-chat-error">
-            <p>{error}</p>
+          <div className="my-4 flex flex-col gap-2.5 rounded-2xl border border-[#f9a03f]/20 bg-[#f9a03f]/[0.06] px-4 py-3">
+            <p className="text-[13px] font-medium leading-normal text-white">{error}</p>
             <button
               type="button"
               onClick={retryLast}
-              className="ct-chat-retry"
+              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[12px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[#A7FB90]/40 hover:text-[#A7FB90]"
               aria-label="Retry last message"
             >
               ↻ Retry
@@ -417,20 +467,26 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           part automatiquement à la fin du tour courant. État honnête — il n'est
           PAS encore envoyé. Double-Entrée rapide force l'envoi immédiat. */}
       {queued ? (
-        <div className="ct-chat-queued" aria-live="polite">
-          <span className="ct-chat-queued-dot" aria-hidden="true" />
-          <span className="ct-chat-queued-text">Queued · {queued}</span>
-          <span className="ct-chat-queued-hint">sends after this reply — press Enter again to force</span>
+        <div
+          className="mt-2 flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[#15191C]/50 px-2.5 py-1.5 text-[13px] text-zinc-400"
+          aria-live="polite"
+        >
+          <span
+            className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#A7FB90]"
+            aria-hidden="true"
+          />
+          <span className="min-w-0 flex-1 truncate text-white">Queued · {queued}</span>
+          <span className="shrink-0 text-zinc-500">sends after this reply — press Enter again to force</span>
         </div>
       ) : null}
 
       {/* Input */}
-      <div className="ct-chat-composer-wrap">
-        <div className="ct-chat-composer-hint">
+      <div className="mt-auto flex flex-col gap-2 pt-2">
+        <div className="text-center text-[11px] italic text-zinc-500">
           Drafts are prepared in review mode. Nothing sends without confirmation.
         </div>
         <form
-          className="ct-chat-form"
+          className="flex items-end gap-2 rounded-lg border border-white/10 bg-[#15191C] py-2 pl-3 pr-2 transition-colors duration-150 focus-within:border-[#A7FB90]/40"
           onSubmit={(e) => {
             e.preventDefault();
             handleSend(input);
@@ -438,7 +494,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         >
           <textarea
             ref={textareaRef}
-            className="ct-chat-input"
+            className="max-h-[10.5rem] min-h-10 flex-1 resize-none border-none bg-transparent py-1.5 text-[13px] leading-normal text-white outline-none placeholder:text-zinc-500"
             rows={1}
             placeholder="Message the assistant…"
             value={input}
@@ -450,18 +506,25 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           />
           <button
             type="submit"
-            className="ct-chat-send"
+            className={cn(
+              "flex aspect-square h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 transition-colors duration-150",
+              input.trim()
+                ? "text-black"
+                : "border border-white/10 bg-transparent text-zinc-500",
+            )}
             disabled={!input.trim()}
             aria-label={streaming ? "Queue or send message" : "Send message"}
             style={input.trim() ? { background: accent } : undefined}
           >
             {streaming ? (
-              <span className="ct-chat-send-dots">
-                <span /><span /><span />
+              <span className="inline-flex items-center gap-[3px]">
+                <span className="h-1 w-1 animate-pulse rounded-full bg-current" />
+                <span className="h-1 w-1 animate-pulse rounded-full bg-current [animation-delay:0.15s]" />
+                <span className="h-1 w-1 animate-pulse rounded-full bg-current [animation-delay:0.3s]" />
               </span>
             ) : (
               <svg
-                className="ct-chat-icon"
+                className="h-[18px] w-[18px]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -500,27 +563,37 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
   const isEmpty = msg.content === "" && (msg.charts?.length ?? 0) === 0;
 
   return (
-    <div className={`ct-chat-msg ${isUser ? "user" : "assistant"}`}>
+    <div
+      className={cn(
+        "flex flex-col py-2 text-[13px] leading-relaxed",
+        isUser ? "max-w-[85%] items-end self-end text-right" : "max-w-full items-start self-start",
+      )}
+    >
       {!isEmpty ? (
         <span
-          className={`ct-chat-badge ${isUser ? "ct-chat-badge--user" : "ct-chat-badge--agent"}`}
+          className={cn(
+            "mb-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase leading-none tracking-[0.12em]",
+            isUser
+              ? "self-end text-zinc-500"
+              : "text-[#A7FB90] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#A7FB90] before:content-['']",
+          )}
         >
           {isUser ? "You" : "Assistant"}
         </span>
       ) : null}
       {isEmpty ? (
-        <div className="ct-chat-typing">
-          <span />
-          <span />
-          <span />
+        <div className="inline-flex items-center gap-[3px]">
+          <span className="h-1 w-1 animate-pulse rounded-full bg-[#A7FB90]" />
+          <span className="h-1 w-1 animate-pulse rounded-full bg-[#A7FB90] [animation-delay:0.15s]" />
+          <span className="h-1 w-1 animate-pulse rounded-full bg-[#A7FB90] [animation-delay:0.3s]" />
         </div>
       ) : isUser ? (
-        <p className="ct-chat-msg-plain">{msg.content}</p>
+        <p className="m-0 whitespace-pre-wrap italic text-white/90">{msg.content}</p>
       ) : markdown ? (
         <>
           {msg.content ? (
             <div
-              className="ct-chat-msg-md"
+              className={MARKDOWN_PROSE}
               // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via DOMPurify
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtml(renderMarkdown(msg.content)),
@@ -528,27 +601,32 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
             />
           ) : null}
           <ChatCharts charts={msg.charts} />
-          {isStreamingThis && (
-            <span className="ct-chat-cursor ct-chat-cursor--accent" />
-          )}
+          {isStreamingThis && <StreamCursor />}
         </>
       ) : (
         <>
-          {msg.content ? <p className="ct-chat-msg-plain">{msg.content}</p> : null}
+          {msg.content ? (
+            <p className="m-0 whitespace-pre-wrap text-zinc-300">{msg.content}</p>
+          ) : null}
           <ChatCharts charts={msg.charts} />
-          {isStreamingThis && (
-            <span className="ct-chat-cursor ct-chat-cursor--accent" />
-          )}
+          {isStreamingThis && <StreamCursor />}
         </>
       )}
     </div>
   );
 }
 
+/** Curseur de streaming — barre accent qui pulse en fin de texte. */
+function StreamCursor() {
+  return (
+    <span className="ml-0.5 inline-block h-[1.1em] w-0.5 animate-pulse bg-[#A7FB90] align-text-bottom shadow-[0_0_8px_#A7FB90]" />
+  );
+}
+
 function ChatCharts({ charts }: { charts: ChatChart[] | undefined }) {
   if (!charts || charts.length === 0) return null;
   return (
-    <div className="ct-chat-charts" aria-label="Charts generated by the chat">
+    <div className="mt-2.5 grid gap-2.5 whitespace-normal" aria-label="Charts generated by the chat">
       {charts.map((chart) => (
         <ChatChartCard key={chart.id} chart={chart} />
       ))}
@@ -558,23 +636,31 @@ function ChatCharts({ charts }: { charts: ChatChart[] | undefined }) {
 
 function ChatChartCard({ chart }: { chart: ChatChart }) {
   return (
-    <article className={`ct-chat-chart ct-chat-chart--${chart.status}`}>
-      <div className="ct-chat-chart-head">
+    <article
+      className={cn(
+        "mt-2 rounded-lg border border-white/10 bg-[#15191C]/40 p-3 transition-colors duration-150 hover:border-white/20",
+        chart.status === "building" && "opacity-80",
+      )}
+    >
+      <div className="mb-2 flex items-start justify-between">
         <div>
-          <div className="ct-chat-chart-title">{chart.title}</div>
-          <div className="ct-chat-chart-metric">{chart.metric}</div>
+          <div className={MICRO_LABEL}>{chart.title}</div>
+          <div className="text-[13px] font-semibold text-white">{chart.metric}</div>
         </div>
-        <span className="ct-chat-chart-badge">{chart.provenance}</span>
+        <span className="rounded bg-white/5 px-1 py-px text-[9px] uppercase text-zinc-500">{chart.provenance}</span>
       </div>
       <ChartVisual chart={chart} />
-      <div className="ct-chat-chart-foot">
+      <div className="flex justify-between text-[11px] text-zinc-500">
         <span>{chart.status === "ready" ? "Ready" : "Building"}</span>
         <span>{Math.round(chart.progress)}%</span>
       </div>
-      <div className="ct-chat-chart-progress" aria-hidden="true">
-        <span style={{ width: `${Math.max(4, Math.min(100, chart.progress))}%` }} />
+      <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+        <span
+          className="block h-full rounded-[inherit] bg-[#A7FB90] transition-[width] duration-150"
+          style={{ width: `${Math.max(4, Math.min(100, chart.progress))}%` }}
+        />
       </div>
-      <p className="ct-chat-chart-note">{chart.note}</p>
+      <p className="mt-2 text-[11px] leading-snug text-zinc-500">{chart.note}</p>
     </article>
   );
 }
@@ -589,14 +675,21 @@ function ChartVisual({ chart }: { chart: ChatChart }) {
   return <StressCorridor chart={chart} />;
 }
 
+/** Skeleton de chargement d'un chart — barre balayée par un gradient accent. */
+function ChartSkeleton() {
+  return (
+    <div className="mt-1.5 h-[76px] animate-pulse rounded-lg bg-gradient-to-r from-transparent via-[#A7FB90]/15 to-transparent bg-white/5" />
+  );
+}
+
 function AllocationStack({ chart }: { chart: ChatChart }) {
   if (!chart.segments || chart.segments.length === 0) {
-    return <div className="ct-chat-chart-skeleton" />;
+    return <ChartSkeleton />;
   }
   let x = 0;
   return (
-    <svg className="ct-chat-chart-svg" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
-      <rect x="0" y="20" width="260" height="18" rx="9" className="ct-chat-chart-base" />
+    <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
+      <rect x="0" y="20" width="260" height="18" rx="9" className="fill-white/10" />
       {chart.segments.map((segment) => {
         const width = (segment.value / 100) * 260;
         const currentX = x;
@@ -612,7 +705,7 @@ function AllocationStack({ chart }: { chart: ChatChart }) {
               fill={segment.color}
               opacity="0.9"
             />
-            <text x={currentX + 4} y="56" className="ct-chat-chart-text">
+            <text x={currentX + 4} y="56" className="fill-zinc-500 text-[8px]">
               {segment.value}%
             </text>
           </g>
@@ -624,7 +717,7 @@ function AllocationStack({ chart }: { chart: ChatChart }) {
 
 function DistributionRange({ chart }: { chart: ChatChart }) {
   if (!chart.points || chart.points.length === 0) {
-    return <div className="ct-chat-chart-skeleton" />;
+    return <ChartSkeleton />;
   }
   const lows = chart.points
     .map((point, index) => `${18 + index * 44},${56 - (point.low ?? 0) * 1.3}`)
@@ -633,37 +726,36 @@ function DistributionRange({ chart }: { chart: ChatChart }) {
     .map((point, index) => `${18 + index * 44},${56 - (point.high ?? 0) * 1.3}`)
     .join(" ");
   return (
-    <svg className="ct-chat-chart-svg" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
-      <polyline points={highs} fill="none" className="ct-chat-chart-line-accent" />
-      <polyline points={lows} fill="none" className="ct-chat-chart-line-info" />
-      <line x1="18" y1="58" x2="238" y2="58" className="ct-chat-chart-axis" />
-      <text x="18" y="70" className="ct-chat-chart-text">M1</text>
-      <text x="222" y="70" className="ct-chat-chart-text">M12</text>
+    <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
+      <polyline points={highs} fill="none" className="stroke-[#A7FB90] [stroke-width:2.2]" />
+      <polyline points={lows} fill="none" className="stroke-[#60a5fa] [stroke-width:2.2]" />
+      <line x1="18" y1="58" x2="238" y2="58" className="stroke-white/10 [stroke-width:1]" />
+      <text x="18" y="70" className="fill-zinc-500 text-[8px]">M1</text>
+      <text x="222" y="70" className="fill-zinc-500 text-[8px]">M12</text>
     </svg>
   );
 }
 
 function StressCorridor({ chart }: { chart: ChatChart }) {
   if (!chart.points || chart.points.length === 0) {
-    return <div className="ct-chat-chart-skeleton" />;
+    return <ChartSkeleton />;
   }
   const points = chart.points
     .map((point, index) => `${20 + index * 70},${70 - (point.value ?? 0) * 0.7}`)
     .join(" ");
   return (
-    <svg className="ct-chat-chart-svg" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
-      <polyline points={points} fill="none" className="ct-chat-chart-line-warning" />
-      <line x1="20" y1="58" x2="232" y2="58" className="ct-chat-chart-axis" />
+    <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
+      <polyline points={points} fill="none" className="stroke-[#f9a03f] [stroke-width:2.4]" />
+      <line x1="20" y1="58" x2="232" y2="58" className="stroke-white/10 [stroke-width:1]" />
       {chart.points.map((point, index) => (
         <circle
           key={point.label}
           cx={20 + index * 70}
           cy={70 - (point.value ?? 0) * 0.7}
           r="3.5"
-          className="ct-chat-chart-dot"
+          className="fill-[#A7FB90]"
         />
       ))}
     </svg>
   );
 }
-

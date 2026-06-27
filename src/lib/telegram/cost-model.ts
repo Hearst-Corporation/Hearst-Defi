@@ -16,6 +16,11 @@
 
 import type { MachinePriceSample } from "./parse-machine-price";
 import { resolveCooling, type ResolvedCooling } from "./model-catalog";
+import {
+  manufacturerOf,
+  resolveEfficiency,
+  type Manufacturer,
+} from "./manufacturer-catalog";
 
 // ── Fixed assumptions ────────────────────────────────────────────────────────
 
@@ -128,10 +133,14 @@ export function applyFee(fee: LandedFee, exWorksUsd: number, th: number): number
 
 export interface MachineEconomics {
   model: string;
+  manufacturer: Manufacturer;
   cooling: ResolvedCooling;
   region: "china" | "usa";
   thPerUnit: number;
+  /** Resolved efficiency (J/TH) — from line or manufacturer catalog. */
   efficiencyJTh: number | null;
+  /** "line" | "catalog" | "unknown" — where the efficiency came from. */
+  efficiencySource: "line" | "catalog" | "unknown";
 
   /** Letine ex-works price (machine only). */
   exWorksUsd: number;
@@ -161,6 +170,8 @@ export function computeMachineEconomics(
   uptime: number = DEFAULT_UPTIME,
 ): MachineEconomics {
   const cooling = resolveCooling(sample.model, sample.cooling).cooling;
+  const manufacturer = manufacturerOf(sample.model);
+  const eff = resolveEfficiency(sample.model, sample.efficiencyJTh);
   const th = sample.thPerUnit;
   const exWorksUsd = sample.priceUsd;
 
@@ -177,8 +188,8 @@ export function computeMachineEconomics(
   );
 
   let energyUsdPerThDay: number | null = null;
-  if (sample.efficiencyJTh && sample.efficiencyJTh > 0) {
-    const kwhPerThDay = (sample.efficiencyJTh * HOURS_PER_DAY) / 1000;
+  if (eff.jTh && eff.jTh > 0) {
+    const kwhPerThDay = (eff.jTh * HOURS_PER_DAY) / 1000;
     energyUsdPerThDay = round(kwhPerThDay * energyUsdPerKwh * uptime, 6);
   }
 
@@ -189,10 +200,12 @@ export function computeMachineEconomics(
 
   return {
     model: sample.model,
+    manufacturer,
     cooling,
     region: sample.region,
     thPerUnit: th,
-    efficiencyJTh: sample.efficiencyJTh,
+    efficiencyJTh: eff.jTh,
+    efficiencySource: eff.source,
     exWorksUsd,
     feesUsd,
     landedUsd,

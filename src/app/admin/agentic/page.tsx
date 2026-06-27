@@ -38,19 +38,21 @@ export default async function AgenticControlTowerPage({
   const crewSimulations = getCrewSimulations();
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Agentic"
-        titleAccent="Control Tower"
-        contextLabel={`registry ${controlCenter.version} · read-only`}
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Agentic"
+          titleAccent="Control Tower"
+          contextLabel={`registry ${controlCenter.version} · read-only`}
+        />
 
-      <AgenticControlTower
-        controlCenter={controlCenter}
-        observability={observability}
-        actionReadiness={actionReadiness}
-        crewSimulations={crewSimulations}
-      />
-    </>
+        <AgenticControlTower
+          controlCenter={controlCenter}
+          observability={observability}
+          actionReadiness={actionReadiness}
+          crewSimulations={crewSimulations}
+        />
+      </div>
+    </div>
   );
 }

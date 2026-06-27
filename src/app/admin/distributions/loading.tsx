@@ -1,18 +1,52 @@
-import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
-
+// Grey opaque bento skeleton for the admin distributions console — header +
+// action, a summary band, then a table of runs. The opaque grey shell masks the
+// ambient halo during load.
 export default function DistributionsLoading() {
   return (
-    <div className="animate-in fade-in duration-[var(--ct-dur-slower)]">
-      <div className="admin-doc-stack--actions">
-        <Skeleton className="h-3 w-28" variant="text" />
-        <Skeleton className="h-10 w-44" />
-      </div>
+    <div
+      className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8"
+      aria-busy="true"
+      aria-label="Loading distributions"
+    >
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
-      <SkeletonCard />
+        {/* HEADER */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-white/10">
+          <div className="flex flex-col gap-2 min-w-0">
+            <div className="h-3 w-28 bg-[#15191C] animate-pulse rounded" />
+            <div className="h-7 w-48 bg-[#15191C] animate-pulse rounded" />
+          </div>
+          <div className="h-10 w-44 bg-[#15191C] animate-pulse rounded-lg shrink-0" />
+        </div>
 
-      <div className="admin-doc-stack">
-        <SkeletonCard />
-        <SkeletonCard />
+        {/* SUMMARY BAND */}
+        <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/5">
+          {[0, 1, 2].map((kpi) => (
+            <div key={kpi} className="flex flex-col gap-3 p-5">
+              <div className="h-2.5 w-20 bg-[#15191C] animate-pulse rounded" />
+              <div className="h-7 w-28 bg-[#15191C] animate-pulse rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* RUNS TABLE */}
+        <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+          <div className="p-5 border-b border-white/5">
+            <div className="h-8 w-full bg-[#15191C] animate-pulse rounded" />
+          </div>
+          <div className="divide-y divide-white/5">
+            {[0, 1, 2, 3].map((row) => (
+              <div key={row} className="flex items-center justify-between gap-4 p-5">
+                <div className="flex flex-col gap-2 min-w-0">
+                  <div className="h-4 w-40 bg-[#15191C] animate-pulse rounded" />
+                  <div className="h-3 w-28 bg-[#15191C] animate-pulse rounded" />
+                </div>
+                <div className="h-6 w-20 bg-[#15191C] animate-pulse rounded-full shrink-0" />
+              </div>
+            ))}
+          </div>
+        </section>
+
       </div>
     </div>
   );

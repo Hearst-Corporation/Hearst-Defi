@@ -5,9 +5,19 @@
 // static display against the code, and safety notes. NO write controls, NO action
 // buttons, NO run/send/deploy/source — nothing executes. Pure component; all data
 // passed in, unit-testable via SSR.
+//
+// Bento canon (Portfolio): black BentoPanel + hairline border, micro uppercase
+// labels, single accent green #A7FB90. Tiers/risk/severity render as colored
+// chips — read=zinc, gated-write=amber, danger=red, allowed/ok=accent green.
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import type { ReactNode } from "react";
+
+import {
+  BentoHeader,
+  BentoKpiTile,
+  BentoPanel,
+} from "@/components/ui/bento";
+import { cn } from "@/lib/cn";
 import type {
   ReflectedToolBoundaryItem,
   ToolBoundaryConsistencyIssue,
@@ -16,7 +26,29 @@ import type {
   ToolBoundaryV1Summary,
 } from "@/lib/agentic/tool-boundary";
 
-type Tone = "success" | "warning" | "danger" | "default" | "accent";
+/** Bento chip tone — drives the border/bg/text triplet only. */
+type ChipTone = "ok" | "warn" | "danger" | "neutral";
+
+/** Single green #A7FB90 for ok/allowed; amber for gated, red for danger, zinc otherwise. */
+const CHIP_TONE: Record<ChipTone, string> = {
+  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+  danger: "border-red-400/30 bg-red-400/10 text-red-400",
+  neutral: "border-white/10 bg-white/5 text-zinc-400",
+};
+
+function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap",
+        CHIP_TONE[tone],
+      )}
+    >
+      {children}
+    </span>
+  );
+}
 
 const TIER_LABEL: Record<ToolBoundaryTier, string> = {
   read_only: "Read-only",
@@ -26,14 +58,13 @@ const TIER_LABEL: Record<ToolBoundaryTier, string> = {
   unknown: "Unknown",
 };
 
-function tierTone(tier: ToolBoundaryTier): Tone {
+function tierTone(tier: ToolBoundaryTier): ChipTone {
   switch (tier) {
     case "read_only":
-      return "success";
+      return "ok";
     case "draft_or_proposal":
-      return "warning";
     case "confirmed_write":
-      return "warning";
+      return "warn";
     case "forbidden_autonomous":
       return "danger";
     default:
@@ -41,30 +72,28 @@ function tierTone(tier: ToolBoundaryTier): Tone {
   }
 }
 
-function riskTone(risk: ToolBoundaryRiskLevel): Tone {
+function riskTone(risk: ToolBoundaryRiskLevel): ChipTone {
   switch (risk) {
     case "critical":
     case "high":
       return "danger";
     case "medium":
-      return "warning";
-    case "low":
-      return "default";
+      return "warn";
     default:
-      return "default";
+      return "neutral";
   }
 }
 
 function severityTone(
   severity: ToolBoundaryConsistencyIssue["severity"],
-): Tone {
+): ChipTone {
   switch (severity) {
     case "critical":
       return "danger";
     case "warning":
-      return "warning";
+      return "warn";
     default:
-      return "default";
+      return "neutral";
   }
 }
 
@@ -76,37 +105,41 @@ const COUNT_TIERS: ToolBoundaryTier[] = [
   "unknown",
 ];
 
-function CountCard({ tier, value }: { tier: ToolBoundaryTier; value: number }) {
+function Th({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <Card hoverOverlay={false} contentClassName="flex flex-col gap-[var(--ct-space-1)]">
-      <span className="stat-label ct-text-muted">{TIER_LABEL[tier]}</span>
-      <span className="h3 m-0 tabular-nums">{value}</span>
-    </Card>
+    <th
+      className={cn(
+        "bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500",
+        className,
+      )}
+    >
+      {children}
+    </th>
   );
 }
 
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
-    <tr className="border-b border-(--ct-border-soft) last:border-0 align-top">
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-body mono break-all">
+    <tr className="border-b border-white/5 align-top transition-colors last:border-b-0 hover:bg-white/[0.02]">
+      <td className="break-all px-4 py-3 font-mono text-[12px] text-zinc-300">
         {tool.id}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)]">
-        <Badge variant={tierTone(tool.tier)}>{TIER_LABEL[tool.tier]}</Badge>
+      <td className="px-4 py-3">
+        <Chip tone={tierTone(tool.tier)}>{TIER_LABEL[tool.tier]}</Chip>
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)]">
-        <Badge variant={riskTone(tool.riskLevel)}>{tool.riskLevel}</Badge>
+      <td className="px-4 py-3">
+        <Chip tone={riskTone(tool.riskLevel)}>{tool.riskLevel}</Chip>
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted tabular-nums whitespace-nowrap">
+      <td className="whitespace-nowrap px-4 py-3 text-[12px] tabular-nums text-zinc-500">
         {tool.humanGateRequired ? "HITL" : "—"}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted tabular-nums whitespace-nowrap">
+      <td className="whitespace-nowrap px-4 py-3 text-[12px] tabular-nums text-zinc-500">
         {tool.autonomousAllowed ? "yes" : "no"}
       </td>
-      <td className="py-[var(--ct-space-2)] pr-[var(--ct-space-3)] body-xs ct-text-muted whitespace-nowrap">
+      <td className="whitespace-nowrap px-4 py-3 text-[12px] text-zinc-500">
         {tool.runtimeStatus}
       </td>
-      <td className="py-[var(--ct-space-2)] body-xs ct-text-faint mono break-all">
+      <td className="break-all px-4 py-3 font-mono text-[12px] text-zinc-600">
         {tool.source}
       </td>
     </tr>
@@ -132,133 +165,143 @@ export function ToolBoundarySection({
   return (
     <section
       id="tool-boundary-v1"
-      className="admin-doc-stack"
+      className="flex flex-col gap-y-5"
       aria-label="Tool Boundary v1"
     >
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-wrap">
-        <h3 className="h3 m-0">Tool Boundary v1 — registry reflection</h3>
-        <span className="flex-1" />
-        <Badge variant="accent">source: code reflection</Badge>
-        <Badge variant={criticalCount > 0 ? "danger" : "success"}>
-          {criticalCount > 0
-            ? `${criticalCount} critical`
-            : "consistent"}
-        </Badge>
-      </div>
-      <p className="body-xs ct-text-muted">
-        The real tools declared in the registry, reflected read-only — tier, gate,
-        risk, runtime status, and source. Nothing here executes a tool.
-      </p>
+      <BentoPanel>
+        <BentoHeader
+          title="Tool Boundary v1 — registry reflection"
+          subtitle="The real tools declared in the registry, reflected read-only — tier, gate, risk, runtime status, and source. Nothing here executes a tool."
+          as="h3"
+          trailing={
+            <>
+              <Chip tone="ok">source: code reflection</Chip>
+              <Chip tone={criticalCount > 0 ? "danger" : "ok"}>
+                {criticalCount > 0 ? `${criticalCount} critical` : "consistent"}
+              </Chip>
+            </>
+          }
+        />
 
-      {/* Per-tier counts */}
-      <div className="admin-doc-card-grid-3">
-        {COUNT_TIERS.map((tier) => (
-          <CountCard key={tier} tier={tier} value={counts[tier]} />
-        ))}
-      </div>
+        {/* Per-tier counts */}
+        <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-3 lg:grid-cols-5">
+          {COUNT_TIERS.map((tier) => (
+            <BentoKpiTile
+              key={tier}
+              className="bg-black"
+              label={TIER_LABEL[tier]}
+              value={counts[tier]}
+              accent={tier === "read_only"}
+            />
+          ))}
+        </div>
+      </BentoPanel>
 
       {/* Consistency warnings (read-only) */}
-      <Card
-        hoverOverlay={false}
-        contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-      >
-        <div className="admin-doc-inline-row admin-doc-inline-row--start">
-          <span className="stat-label ct-text-muted">Static-vs-code consistency</span>
-          <span className="flex-1" />
-          <Badge variant={consistencyIssues.length === 0 ? "success" : "warning"}>
-            {consistencyIssues.length === 0
-              ? "no drift"
-              : `${consistencyIssues.length} issue${consistencyIssues.length > 1 ? "s" : ""}`}
-          </Badge>
+      <BentoPanel>
+        <BentoHeader
+          title="Static-vs-code consistency"
+          as="h3"
+          trailing={
+            <Chip tone={consistencyIssues.length === 0 ? "ok" : "warn"}>
+              {consistencyIssues.length === 0
+                ? "no drift"
+                : `${consistencyIssues.length} issue${consistencyIssues.length > 1 ? "s" : ""}`}
+            </Chip>
+          }
+        />
+        <div className="p-5">
+          {consistencyIssues.length === 0 ? (
+            <p className="m-0 text-[13px] leading-snug text-zinc-400">
+              The static Control Center boundary matches the real registry — no
+              missing, stale, or misclassified tools.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {consistencyIssues.map((issue) => (
+                <li
+                  key={issue.id}
+                  className="flex items-start gap-2.5"
+                >
+                  <Chip tone={severityTone(issue.severity)}>
+                    {issue.severity}
+                  </Chip>
+                  <span className="flex-1 text-[13px] leading-snug text-zinc-400">
+                    {issue.message}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        {consistencyIssues.length === 0 ? (
-          <p className="body-xs ct-text-muted">
-            The static Control Center boundary matches the real registry — no
-            missing, stale, or misclassified tools.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-[var(--ct-space-2)]">
-            {consistencyIssues.map((issue) => (
-              <li
-                key={issue.id}
-                className="admin-doc-inline-row admin-doc-inline-row--start align-top"
-              >
-                <Badge variant={severityTone(issue.severity)}>
-                  {issue.severity}
-                </Badge>
-                <span className="body-xs ct-text-muted flex-1">{issue.message}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
+      </BentoPanel>
 
       {/* Real tools table */}
-      <Card hoverOverlay={false} material="flat" contentClassName="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-(--ct-border-strong)">
-              {["Tool", "Tier", "Risk", "Gate", "Autonomous", "Runtime", "Source"].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="stat-label ct-text-muted whitespace-nowrap pb-[var(--ct-space-2)] pr-[var(--ct-space-3)]"
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {realTools.map((t) => (
-              <ToolRow key={t.id} tool={t} />
-            ))}
-          </tbody>
-        </table>
-      </Card>
+      <BentoPanel>
+        <BentoHeader
+          title="Tools"
+          subtitle="Tier · risk · gate · autonomous · runtime · source"
+          as="h3"
+        />
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-white/5">
+                {["Tool", "Tier", "Risk", "Gate", "Autonomous", "Runtime", "Source"].map(
+                  (h) => (
+                    <Th key={h} className="whitespace-nowrap">
+                      {h}
+                    </Th>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {realTools.map((t) => (
+                <ToolRow key={t.id} tool={t} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </BentoPanel>
 
       {/* Forbidden-autonomous actions (represented, not callable tools) */}
-      <Card
-        hoverOverlay={false}
-        contentClassName="flex flex-col gap-[var(--ct-space-2)]"
-      >
-        <div className="admin-doc-inline-row admin-doc-inline-row--start">
-          <span className="stat-label ct-text-muted">
-            Forbidden-autonomous actions (not callable tools)
-          </span>
-          <span className="flex-1" />
-          <Badge variant="danger">{forbiddenActions.length}</Badge>
-        </div>
-        <ul className="flex flex-col gap-[var(--ct-space-1)]">
+      <BentoPanel>
+        <BentoHeader
+          title="Forbidden-autonomous actions (not callable tools)"
+          as="h3"
+          trailing={<Chip tone="danger">{forbiddenActions.length}</Chip>}
+        />
+        <ul className="flex flex-col p-5">
           {forbiddenActions.map((a) => (
             <li
               key={a.id}
-              className="admin-doc-inline-row admin-doc-inline-row--start align-top"
+              className="border-b border-white/5 py-3 text-[13px] leading-snug last:border-b-0"
             >
-              <span className="body-xs ct-text-body flex-1">
-                <span className="ct-text-strong">{a.name}</span>
-                <span className="ct-text-muted"> — {a.notes}</span>
-              </span>
+              <span className="font-medium text-white">{a.name}</span>
+              <span className="text-zinc-500"> — {a.notes}</span>
             </li>
           ))}
         </ul>
-      </Card>
+      </BentoPanel>
 
       {/* Safety notes */}
-      <Card
-        hoverOverlay={false}
-        contentClassName="flex flex-col gap-[var(--ct-space-1)]"
-      >
-        <span className="stat-label ct-text-muted">Safety</span>
-        <ul className="flex flex-col gap-[var(--ct-space-1)]">
+      <BentoPanel>
+        <BentoHeader title="Safety" as="h3" />
+        <ul className="flex flex-col gap-2 p-5">
           {safetyNotes.map((note) => (
-            <li key={note} className="body-xs ct-text-muted">
-              · {note}
+            <li
+              key={note}
+              className="flex gap-2 text-[12px] leading-snug text-zinc-500"
+            >
+              <span aria-hidden className="select-none text-zinc-600">
+                ·
+              </span>
+              <span className="flex-1">{note}</span>
             </li>
           ))}
         </ul>
-      </Card>
+      </BentoPanel>
     </section>
   );
 }
