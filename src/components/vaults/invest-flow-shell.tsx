@@ -1,4 +1,3 @@
-import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { StepProgress } from "@/components/vaults/step-progress";
 import { cn } from "@/lib/cn";
 import type { InvestStepId } from "@/lib/vaults/invest-routes";
@@ -26,13 +25,24 @@ interface InvestFlowShellProps {
   className?: string;
 }
 
+/**
+ * Invest funnel shell — pure bento (Portfolio canon).
+ *
+ * Vertical normal flow: header block (back link → bicolore title + inline step
+ * indicator → context kicker / description) then the body. No absolute/sticky
+ * positioning, so a downstream sticky CTA can never overlap the header.
+ * Accent is the single green #A7FB90.
+ *
+ * `width` maps to a max-width container; `workspace` widens it for the dense
+ * vault-detail layout. All props are preserved — only the rendering changed.
+ */
 export function InvestFlowShell({
   step,
-  // `contextLabel` stays on the interface (call-sites still pass it) but is no
-  // longer rendered — the context kicker sub-title was removed.
+  // `contextLabel` is rendered as the kicker under the title row.
   title,
   titleLead,
   titleAccent,
+  contextLabel = "Investment Flow",
   description,
   lead,
   media,
@@ -46,39 +56,106 @@ export function InvestFlowShell({
   footer,
   className,
 }: InvestFlowShellProps) {
+  const centered = align === "center";
+
   const shellClasses = cn(
-    "invest-flow-shell product-doc-stack",
-    width === "cap" && "product-doc-shell--cap",
-    width === "narrow" && "product-doc-shell--narrow",
-    workspace && "invest-flow-shell--workspace",
+    "invest-flow-shell mx-auto flex w-full flex-col gap-6 pb-8",
+    width === "cap" && "product-doc-shell--cap max-w-5xl",
+    width === "narrow" && "product-doc-shell--narrow max-w-2xl",
+    width === "full" && "max-w-6xl",
+    workspace && "invest-flow-shell--workspace max-w-6xl",
     className,
   );
 
+  const hasTitle =
+    titleLead != null || titleAccent != null || title != null;
+
   return (
     <div className={shellClasses}>
-      <ProductPageHeader
-        lead={lead}
-        media={media}
-        titleLead={titleLead}
-        titleAccent={titleAccent}
-        title={title}
-        description={description}
-        actions={actions}
-        align={align}
-        className={cn(headerClassName, "mb-0")}
-        titleRowEnd={
-          <div className="invest-flow-shell__stepper invest-flow-shell__stepper--inline">
+      <header
+        className={cn(
+          "invest-flow-shell__header flex flex-col gap-4 border-b border-white/5 pb-5",
+          centered && "items-center text-center",
+          headerClassName,
+        )}
+      >
+        {lead ? <div className="flex items-center">{lead}</div> : null}
+
+        <div
+          className={cn(
+            "flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between",
+            centered && "lg:flex-col lg:items-center",
+          )}
+        >
+          <div
+            className={cn(
+              "flex min-w-0 items-center gap-3",
+              centered && "flex-col gap-2 text-center",
+            )}
+          >
+            {media ? <div className="shrink-0">{media}</div> : null}
+            {hasTitle ? (
+              <h1 className="text-2xl font-medium tracking-tight text-white">
+                {titleLead != null || titleAccent != null ? (
+                  <>
+                    {titleLead}
+                    {titleAccent ? (
+                      <>
+                        {titleLead ? " " : null}
+                        <span className="text-[#A7FB90]">{titleAccent}</span>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  title
+                )}
+              </h1>
+            ) : null}
+          </div>
+
+          <div className="shrink-0 lg:max-w-md lg:flex-1">
             <StepProgress active={step} />
           </div>
-        }
-        beforeRule={headerBelowStepper}
-      />
+        </div>
 
-      <div className="invest-flow-shell__body">
+        {contextLabel ? (
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            {contextLabel}
+          </p>
+        ) : null}
+
+        {description ? (
+          <div
+            className={cn(
+              "text-[13px] text-zinc-400",
+              centered && "mx-auto",
+            )}
+          >
+            {description}
+          </div>
+        ) : null}
+
+        {headerBelowStepper}
+
+        {actions ? (
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-3",
+              centered && "justify-center",
+            )}
+          >
+            {actions}
+          </div>
+        ) : null}
+      </header>
+
+      <div className="invest-flow-shell__body flex flex-col gap-5">
         {children}
 
         {footer ? (
-          <footer className="doc-page-disclaimer">{footer}</footer>
+          <footer className="border-t border-white/5 pt-5 text-[11px] text-zinc-500">
+            {footer}
+          </footer>
         ) : null}
       </div>
     </div>

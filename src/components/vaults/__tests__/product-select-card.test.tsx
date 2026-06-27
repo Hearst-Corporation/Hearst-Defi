@@ -38,15 +38,18 @@ describe("ProductSelectCard — DS layout + provenance", () => {
     expect(html).toContain(">Live</span>");
   });
 
-  it("uses container-query card classes with flat term rows — no md: width breakpoints", () => {
+  it("renders a bento panel (black surface, hairline border) with flat term rows", () => {
     const html = renderToStaticMarkup(<ProductSelectCard vault={VAULT} />);
 
-    expect(html).toContain("vault-select-card");
-    expect(html).toContain("vault-select-card__main");
-    expect(html).toContain("vault-select-card__meta");
-    expect(html).toContain("vault-select-card__terms");
-    expect(html).toContain("vault-select-card__term-row");
-    expect(html).not.toMatch(/md:(flex|w|hidden|block|gap)/);
+    // Bento panel chrome (Portfolio canon), not the legacy vault-select-card DS.
+    expect(html).toContain("rounded-2xl");
+    expect(html).toContain("border-white/10");
+    expect(html).toContain("bg-black");
+    expect(html).not.toContain("vault-select-card");
+    // Flat term rows still present.
+    expect(html).toContain("Min. ticket");
+    expect(html).toContain("Lock-up");
+    expect(html).toContain("Risk");
   });
 
   it("renders APY as a range", () => {

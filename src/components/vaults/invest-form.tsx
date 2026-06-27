@@ -8,15 +8,9 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { cn } from "@/lib/cn";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Ptai } from "@/components/ui/ptai";
-import { Button } from "@/components/ui/button";
-import { LegalMetadataRow } from "@/components/ui/nested-panel";
-import { Checkbox } from "@/components/ui/checkbox";
-import { PanelStatus } from "@/components/ui/panel-status";
-import { Badge } from "@/components/ui/badge";
-import { kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
+import { kycLabel } from "@/lib/profile/kyc-display";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";
-import { VaultPanelHeader, VaultPanelLink } from "@/components/vaults/vault-flow-primitives";
 import { TimeToTargetChart } from "@/components/vaults/time-to-target-chart";
 import {
   investConfirmedPath,
@@ -107,38 +101,112 @@ interface InvestFormProps {
   session: SessionUser | null;
 }
 
+/* ── bento primitives (Portfolio-style, pure Tailwind) ─────────────── */
+
+function BentoPanel({
+  children,
+  className,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      {...rest}
+      className={cn(
+        "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function BentoHeader({
+  title,
+  subtitle,
+  trailing,
+}: {
+  title: string;
+  subtitle?: string;
+  trailing?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between p-5 border-b border-white/5">
+      <div className="flex flex-col gap-1.5">
+        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          {title}
+        </h2>
+        {subtitle ? (
+          <p className="text-[12px] text-zinc-500 tracking-wide">{subtitle}</p>
+        ) : null}
+      </div>
+      {trailing ? <div className="shrink-0 pb-0.5">{trailing}</div> : null}
+    </div>
+  );
+}
+
+function FieldLabel({
+  htmlFor,
+  children,
+}: {
+  htmlFor?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+    >
+      {children}
+    </label>
+  );
+}
+
+const PRIMARY_BTN =
+  "inline-flex items-center justify-center bg-[#A7FB90] text-zinc-900 font-bold rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-[#A7FB90]/90 disabled:opacity-50 disabled:cursor-not-allowed";
+const SECONDARY_BTN =
+  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed";
+
 function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
   const mgmtFee = vault.fees.mgmtBps / 100;
   const perfFee = vault.fees.perfBps / 100;
 
   return (
-    <dl className="vault-invest-terms-strip">
-      <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Target APY</dt>
+    <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/5 bg-white/5">
+      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Target APY
+        </dt>
         <dd>
           <ApyRange
             low={vault.apyLow}
             high={vault.apyHigh}
             precision={1}
-            className="body-sm mono tabular-nums ct-text-strong"
+            className="text-[13px] font-medium text-white tabular-nums"
           />
         </dd>
       </div>
-      <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Lock-up</dt>
-        <dd className="body-sm tabular mono ct-text-strong">
+      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Lock-up
+        </dt>
+        <dd className="text-[13px] font-medium text-white tabular-nums">
           {vault.softLockupDays}d soft
         </dd>
       </div>
-      <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Min ticket</dt>
-        <dd className="body-sm tabular mono ct-text-strong">
+      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Min ticket
+        </dt>
+        <dd className="text-[13px] font-medium text-white tabular-nums">
           {formatUsdAmount(vault.minTicketUsdc, true)}
         </dd>
       </div>
-      <div className="vault-invest-terms-strip__row">
-        <dt className="stat-label">Fees (gross)</dt>
-        <dd className="body-sm mono ct-text-strong">
+      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Fees (gross)
+        </dt>
+        <dd className="text-[13px] font-medium text-white tabular-nums">
           {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%
         </dd>
       </div>
@@ -162,30 +230,55 @@ function AmountLedger({
   return (
     <div
       className={cn(
-        "vault-amount-ledger",
-        isCalculating && "vault-amount-ledger--calculating",
-        !isValid && "vault-amount-ledger--invalid",
+        "rounded-lg border bg-[#15191C] transition-colors",
+        isValid ? "border-white/10" : "border-red-500/40",
+        isCalculating && "opacity-80",
       )}
     >
-      <div className="vault-amount-ledger__header">
-        <span className="stat-label ct-text-muted">{label}</span>
-        <span className="body-xs ct-text-faint mono tabular">{currency}</span>
+      <div className="flex items-center justify-between px-4 pt-3">
+        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          {label}
+        </span>
+        <span className="text-[10px] text-zinc-600 tabular-nums">{currency}</span>
       </div>
-      <div className="vault-amount-ledger__content">
-        {children}
-      </div>
+      <div className="px-4 pb-3 pt-1">{children}</div>
     </div>
   );
 }
 
 function InvestHelpLinks() {
   return (
-    <div className="vault-invest-help-links">
-      <VaultPanelLink href="/proof-center">Proof Center</VaultPanelLink>
-      <span className="vault-invest-help-links__sep" aria-hidden>
+    <div className="flex items-center gap-2 text-[12px]">
+      <Link
+        href="/proof-center"
+        className="font-medium text-[#A7FB90] hover:underline"
+      >
+        Proof Center
+      </Link>
+      <span className="text-zinc-600" aria-hidden>
         ·
       </span>
-      <VaultPanelLink href="/docs/methodology/v1.0.md">Methodology v1.0</VaultPanelLink>
+      <Link
+        href="/docs/methodology/v1.0.md"
+        className="font-medium text-[#A7FB90] hover:underline"
+      >
+        Methodology v1.0
+      </Link>
+    </div>
+  );
+}
+
+function EligibilityRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-white/5 last:border-b-0">
+      <span className="text-[12px] text-zinc-500">{label}</span>
+      <span className="text-[13px] tabular-nums">{children}</span>
     </div>
   );
 }
@@ -201,37 +294,52 @@ function EligibilityChecklist({
   const accreditation = !!investor?.accreditationAttestedAt;
   const walletConnected = !!session?.walletAddress;
 
+  const kycChipClass =
+    kycStatus === "approved"
+      ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+      : kycStatus === "rejected"
+        ? "border-red-500/30 bg-red-500/10 text-red-400"
+        : kycStatus === "pending"
+          ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+          : "border-white/10 bg-white/5 text-zinc-400";
+
   return (
-    <div className="vault-eligibility-checklist">
-      <VaultPanelHeader
+    <BentoPanel>
+      <BentoHeader
         title="Eligibility & KYC"
-        eyebrow="Institutional compliance status"
+        subtitle="Institutional compliance status"
       />
-      <div className="vault-panel-body vault-panel-body--stack">
-        <LegalMetadataRow label="KYC status">
-          <Badge variant={kycBadgeVariant(kycStatus)}>
+      <div className="p-5 flex flex-col">
+        <EligibilityRow label="KYC status">
+          <span
+            className={cn(
+              "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+              kycChipClass,
+            )}
+          >
             {kycLabel(kycStatus)}
-          </Badge>
-        </LegalMetadataRow>
-        <LegalMetadataRow label="Accreditation">
+          </span>
+        </EligibilityRow>
+        <EligibilityRow label="Accreditation">
           {accreditation ? (
-            <span className="ct-text-accent">Attested</span>
+            <span className="text-[#A7FB90]">Attested</span>
           ) : (
-            <span className="ct-text-muted">Pending attestation</span>
+            <span className="text-zinc-500">Pending attestation</span>
           )}
-        </LegalMetadataRow>
-        <LegalMetadataRow label="Wallet readiness">
+        </EligibilityRow>
+        <EligibilityRow label="Wallet readiness">
           {walletConnected ? (
-            <span className="ct-text-accent">Linked</span>
+            <span className="text-[#A7FB90]">Linked</span>
           ) : (
-            <span className="ct-text-muted">Connection pending</span>
+            <span className="text-zinc-500">Connection pending</span>
           )}
-        </LegalMetadataRow>
-        <p className="body-xs ct-text-faint mt-3">
-          Subscription is restricted to verified qualified investors. All status flags must be green before final execution.
+        </EligibilityRow>
+        <p className="text-[11px] text-zinc-600 leading-relaxed mt-4">
+          Subscription is restricted to verified qualified investors. All status
+          flags must be green before final execution.
         </p>
       </div>
-    </div>
+    </BentoPanel>
   );
 }
 
@@ -245,31 +353,26 @@ function InvestFormProjections({
   ptai: { projection: string; trigger: string; action: string; impact: string };
 }) {
   return (
-    <section aria-label="Analytics & Projections">
-      <div className="vault-invest-section-divider">
-        <span className="body-xs ct-text-muted uppercase tracking-widest font-bold">
-          Analytics & Projections
-        </span>
-      </div>
-
-      <div className="vault-flow-flat-section">
-        <VaultPanelHeader title="Indicative NAV path — 24 month horizon" />
-        <div className="vault-panel-body">
+    <section aria-label="Analytics & Projections" className="flex flex-col gap-5">
+      <BentoPanel>
+        <BentoHeader title="Indicative NAV path — 24 month horizon" />
+        <div className="p-5">
           <TimeToTargetChart amount={amount} vault={vault} />
         </div>
-      </div>
+      </BentoPanel>
 
-      <div className="vault-flow-flat-section">
-        <VaultPanelHeader title="PTAI estimate" />
-        <div className="vault-panel-body">
+      <BentoPanel>
+        <BentoHeader title="PTAI estimate" />
+        <div className="p-5">
           <Ptai
+            variant="flat"
             projection={ptai.projection}
             trigger={ptai.trigger}
             action={ptai.action}
             impact={ptai.impact}
           />
         </div>
-      </div>
+      </BentoPanel>
     </section>
   );
 }
@@ -295,58 +398,69 @@ function AmountSection({
   helper: { text: string; variant: "ok" | "warn" | "neutral" };
   disabled?: boolean;
 }) {
-  return (
-    <div className="vault-flow-flat-section">
-      <div className="vault-panel-body vault-panel-body--stack">
-        <VaultPanelHeader
-          title="Allocation amount"
-          eyebrow="Base Sepolia pilot · testnet USDC only · not mainnet"
-        />
+  const inputId = disabled ? "amt-input-disabled" : "amt-input";
+  const helperId = disabled ? "amt-helper-disabled" : "amt-helper";
 
-        <section>
-          <AmountLedger isCalculating={isCalculating} isValid={amount === 0 || amountValid}>
-            <div className="vault-amount-field">
-              <span aria-hidden className="vault-amount-prefix mono">
+  return (
+    <BentoPanel>
+      <BentoHeader
+        title="Allocation amount"
+        subtitle="Base Sepolia pilot · testnet USDC only · not mainnet"
+      />
+      <div className="p-5 flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <FieldLabel htmlFor={inputId}>Allocation amount</FieldLabel>
+          <AmountLedger
+            isCalculating={isCalculating}
+            isValid={amount === 0 || amountValid}
+          >
+            <div className="flex items-baseline gap-1.5">
+              <span
+                aria-hidden
+                className="text-[20px] font-medium text-zinc-500 tabular-nums"
+              >
                 $
               </span>
               <input
-                id={disabled ? "amt-input-disabled" : "amt-input"}
+                id={inputId}
                 type={disabled ? "text" : "number"}
                 min={disabled ? undefined : vault.minTicketUsdc}
                 max={disabled ? undefined : maxAmount}
                 step={disabled ? undefined : 1000}
                 value={rawAmount}
-                onChange={disabled ? undefined : (e) => onAmountChange?.(e.target.value)}
+                onChange={
+                  disabled ? undefined : (e) => onAmountChange?.(e.target.value)
+                }
                 disabled={disabled}
                 readOnly={disabled}
                 placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
-                aria-describedby={disabled ? "amt-helper-disabled" : "amt-helper"}
+                aria-describedby={helperId}
                 aria-invalid={!disabled && amount > 0 && !amountValid}
                 className={cn(
-                  "ct-input tabular vault-amount-input mono",
-                  disabled && "vault-amount-input--muted",
-                  !disabled && amount > 0 && !amountValid ? "vault-amount-input--invalid" : "",
+                  "w-full bg-transparent border-0 p-0 text-[28px] font-medium text-white tabular-nums leading-none outline-none placeholder:text-zinc-600 focus:outline-none",
+                  disabled && "text-zinc-500",
+                  !disabled && amount > 0 && !amountValid && "text-red-400",
                 )}
               />
             </div>
           </AmountLedger>
 
           <p
-            id={disabled ? "amt-helper-disabled" : "amt-helper"}
+            id={helperId}
             className={cn(
-              "body-xs mt-3 px-1",
-              helper.variant === "ok" && "ct-status-success",
-              helper.variant === "warn" && "ct-status-warning",
-              helper.variant === "neutral" && "ct-text-muted",
+              "text-[12px] px-1",
+              helper.variant === "ok" && "text-[#A7FB90]",
+              helper.variant === "warn" && "text-amber-400",
+              helper.variant === "neutral" && "text-zinc-500",
             )}
           >
             {helper.text}
           </p>
-        </section>
+        </div>
 
         <InvestTermsStrip vault={vault} />
       </div>
-    </div>
+    </BentoPanel>
   );
 }
 
@@ -374,65 +488,71 @@ function InvestFormUnconfigured({
   };
 
   return (
-    <div className="vault-invest-form-container">
-      <div className="vault-invest-form-main">
-        <AmountSection
-          vault={vault}
-          maxAmount={maxAmount}
-          amount={0}
-          rawAmount=""
-          amountValid={false}
-          helper={helper}
-          disabled
-        />
+    <div className="dark flex flex-col gap-5">
+      <AmountSection
+        vault={vault}
+        maxAmount={maxAmount}
+        amount={0}
+        rawAmount=""
+        amountValid={false}
+        helper={helper}
+        disabled
+      />
 
-        <DepositSummary vault={vault} amount={0} />
+      <DepositSummary vault={vault} amount={0} />
 
-        <PreFlightCheck
-          walletAddress={null}
-          amount={0}
-          onAllowanceApproved={() => {}}
-          allowanceApproved={false}
-          approving={false}
-          onApproveStart={() => {}}
-          onApproveEnd={() => {}}
-        />
+      <PreFlightCheck
+        walletAddress={null}
+        amount={0}
+        onAllowanceApproved={() => {}}
+        allowanceApproved={false}
+        approving={false}
+        onApproveStart={() => {}}
+        onApproveEnd={() => {}}
+      />
 
-        <div className="vault-flow-flat-section">
-          <div className="vault-panel-body vault-panel-body--stack">
-            <div className="vault-legal-block">
-              <Checkbox checked={false} onChange={() => {}} className="pointer-events-none vault-control--muted">
+      <BentoPanel>
+        <div className="p-5 flex flex-col gap-5">
+          <div>
+            <label className="flex items-start gap-3 cursor-default opacity-60">
+              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-white/15 bg-[#15191C]" />
+              <span className="text-[13px] text-zinc-300 leading-snug">
                 I have reviewed and accept the term sheet for {vault.name}.
-              </Checkbox>
-              <p className="body-xs ct-text-faint mt-2 ml-7">
-                Structured product exclusively for qualified investors. Review the full subscription agreement before proceeding.
-              </p>
-            </div>
+              </span>
+            </label>
+            <p className="text-[11px] text-zinc-600 leading-relaxed mt-2 ml-7">
+              Structured product exclusively for qualified investors. Review the
+              full subscription agreement before proceeding.
+            </p>
+          </div>
 
-            <PanelStatus
-              message="Wallet connection will be enabled for your account before deposit signing."
-              detail="You can review the subscription path, assumptions, and checks now, then continue once wallet access is provisioned."
-            />
+          <div className="rounded-lg border border-white/5 bg-[#15191C] p-4">
+            <p className="text-[13px] text-zinc-400 m-0">
+              Wallet connection will be enabled for your account before deposit
+              signing.
+            </p>
+            <p className="text-[11px] text-zinc-600 leading-relaxed m-0 mt-1.5">
+              You can review the subscription path, assumptions, and checks now,
+              then continue once wallet access is provisioned.
+            </p>
+          </div>
 
-            <InvestHelpLinks />
+          <InvestHelpLinks />
 
-            <div className="vault-form-actions vault-form-actions--split">
-              <Button variant="secondary" size="md" asChild>
-                <Link href={investProductPath(vault.id)}>← Back</Link>
-              </Button>
-              <Button variant="primary" size="md" disabled className="vault-form-actions__primary">
-                Connect a wallet to continue
-              </Button>
-            </div>
+          <div className="flex items-center justify-between gap-3">
+            <Link href={investProductPath(vault.id)} className={SECONDARY_BTN}>
+              ← Back
+            </Link>
+            <button type="button" disabled className={PRIMARY_BTN}>
+              Connect a wallet to continue
+            </button>
           </div>
         </div>
+      </BentoPanel>
 
-        <div className="vault-flow-flat-section">
-          <EligibilityChecklist investor={investor} session={session} />
-        </div>
+      <EligibilityChecklist investor={investor} session={session} />
 
-        <InvestFormProjections amount={0} vault={vault} ptai={ptai} />
-      </div>
+      <InvestFormProjections amount={0} vault={vault} ptai={ptai} />
     </div>
   );
 }
@@ -595,203 +715,227 @@ function InvestFormLive({
   const ptai = buildPtai(deferredAmount, vault);
 
   return (
-    <div className="vault-invest-form-container">
-      <div className="vault-invest-form-main">
-        <AmountSection
-          vault={vault}
-          maxAmount={maxAmount}
+    <div className="dark flex flex-col gap-5">
+      <AmountSection
+        vault={vault}
+        maxAmount={maxAmount}
+        amount={amount}
+        rawAmount={rawAmount}
+        onAmountChange={(val) => {
+          setRawAmount(val);
+          setAllowanceApproved(false);
+          setAwaitingConfirm(false);
+        }}
+        isCalculating={isCalculating}
+        amountValid={amountValid}
+        helper={helper}
+      />
+
+      <DepositSummary vault={vault} amount={amount} />
+
+      {amount === 0 ? null : (
+        <PreFlightCheck
+          walletAddress={walletAddress}
           amount={amount}
-          rawAmount={rawAmount}
-          onAmountChange={(val) => {
-            setRawAmount(val);
-            setAllowanceApproved(false);
-            setAwaitingConfirm(false);
-          }}
-          isCalculating={isCalculating}
-          amountValid={amountValid}
-          helper={helper}
+          onAllowanceApproved={() => setAllowanceApproved(true)}
+          allowanceApproved={allowanceApproved}
+          approving={approving}
+          onApproveStart={() => setApproving(true)}
+          onApproveEnd={() => setApproving(false)}
+          onApproveError={(msg) => setDepositError(msg)}
         />
+      )}
 
-        <DepositSummary vault={vault} amount={amount} />
-
-        <div className={cn(
-          "vault-flow-flat-section",
-          amount === 0 && "vault-flow-flat-section--hidden"
-        )}>
-          <PreFlightCheck
-            walletAddress={walletAddress}
-            amount={amount}
-            onAllowanceApproved={() => setAllowanceApproved(true)}
-            allowanceApproved={allowanceApproved}
-            approving={approving}
-            onApproveStart={() => setApproving(true)}
-            onApproveEnd={() => setApproving(false)}
-            onApproveError={(msg) => setDepositError(msg)}
-          />
-        </div>
-
-        <div className={cn(
-          "vault-flow-flat-section",
-          amount === 0 && "vault-flow-flat-section--hidden"
-        )}>
-          <div className="vault-panel-body vault-panel-body--stack">
-            <div className="vault-legal-block">
-              <Checkbox
-                checked={agreedToTermSheet}
-                onChange={(checked) => {
-                  setAgreedToTermSheet(checked);
-                  setAwaitingConfirm(false);
-                }}
+      {amount === 0 ? null : (
+        <BentoPanel>
+          <div className="p-5 flex flex-col gap-5">
+            <div>
+              <label
+                htmlFor="invest-term-sheet"
+                className="flex items-start gap-3 cursor-pointer"
               >
-                I have reviewed and accept the{" "}
-                <Link
-                  href={investProductPath(vault.id)}
-                  className="underline ct-text-primary hover:ct-text-strong vault-inline-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  term sheet
-                </Link>{" "}
-                for {vault.name}.
-              </Checkbox>
-              <p className="body-xs ct-text-faint mt-2 ml-7">
-                Structured product exclusively for qualified investors. Review the full subscription agreement before proceeding.
+                <span className="relative mt-0.5 flex size-4 shrink-0 items-center justify-center">
+                  <input
+                    id="invest-term-sheet"
+                    type="checkbox"
+                    checked={agreedToTermSheet}
+                    onChange={(e) => {
+                      setAgreedToTermSheet(e.target.checked);
+                      setAwaitingConfirm(false);
+                    }}
+                    className="sr-only"
+                  />
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "flex size-4 items-center justify-center rounded border transition-colors",
+                      agreedToTermSheet
+                        ? "border-[#A7FB90] bg-[#A7FB90]"
+                        : "border-white/15 bg-[#15191C]",
+                    )}
+                  >
+                    {agreedToTermSheet ? (
+                      <svg
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        className="size-2.5 text-zinc-900"
+                      >
+                        <path
+                          d="M2 6l3 3 5-6"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    ) : null}
+                  </span>
+                </span>
+                <span className="text-[13px] text-zinc-300 leading-snug">
+                  I have reviewed and accept the{" "}
+                  <Link
+                    href={investProductPath(vault.id)}
+                    className="underline text-[#A7FB90] hover:text-white"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    term sheet
+                  </Link>{" "}
+                  for {vault.name}.
+                </span>
+              </label>
+              <p className="text-[11px] text-zinc-600 leading-relaxed mt-2 ml-7">
+                Structured product exclusively for qualified investors. Review
+                the full subscription agreement before proceeding.
               </p>
             </div>
 
             {depositError ? (
-              <PanelStatus
-                tone="danger"
+              <div
                 role="alert"
-                message={depositError}
-              />
+                className="rounded-lg border border-red-500/30 bg-red-500/10 p-4"
+              >
+                <p className="text-[12px] text-red-400 m-0">{depositError}</p>
+              </div>
             ) : null}
 
             {awaitingConfirm ? (
               <div
-                className="vault-confirm-panel vault-confirm-panel--seam"
+                className="rounded-lg border border-white/10 bg-[#15191C] p-5 flex flex-col gap-4"
                 aria-label="Confirm your deposit"
               >
                 <div className="flex items-baseline justify-between">
-                  <p className="stat-label">
+                  <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 m-0">
                     Confirm allocation
                   </p>
-                  <Badge variant="default" className="ct-text-accent border-accent-soft bg-transparent shadow-none">
+                  <span className="inline-flex items-center rounded-full border border-[#A7FB90]/30 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A7FB90]">
                     Review mode
-                  </Badge>
+                  </span>
                 </div>
-                <div className="vault-confirm-panel__rows">
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Vault</span>
-                    <span className="ct-text-body font-semibold">{vault.name}</span>
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
+                    <span className="text-zinc-500">Vault</span>
+                    <span className="text-white font-semibold">{vault.name}</span>
                   </div>
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Share class</span>
-                    <span className="ct-text-body tabular mono">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
+                    <span className="text-zinc-500">Share class</span>
+                    <span className="text-zinc-200 tabular-nums">
                       Class {shareClassCode(vault.shareClass)}
                     </span>
                   </div>
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Amount</span>
-                    <span className="ct-text-strong font-semibold tabular-nums mono">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
+                    <span className="text-zinc-500">Amount</span>
+                    <span className="text-white font-semibold tabular-nums">
                       {formatUsdAmount(amount)} USDC
                     </span>
                   </div>
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Target APY</span>
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
+                    <span className="text-zinc-500">Target APY</span>
                     <ApyRange
                       low={vault.apyLow}
                       high={vault.apyHigh}
                       precision={1}
-                      className="body-sm mono tabular-nums ct-text-strong"
+                      className="text-[13px] font-medium text-white tabular-nums"
                     />
                   </div>
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Lock-up</span>
-                    <span className="ct-text-body tabular mono">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
+                    <span className="text-zinc-500">Lock-up</span>
+                    <span className="text-zinc-200 tabular-nums">
                       {vault.softLockupDays}d soft
                     </span>
                   </div>
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Network</span>
-                    <span className="ct-text-body">Base Sepolia (testnet)</span>
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
+                    <span className="text-zinc-500">Network</span>
+                    <span className="text-zinc-200">Base Sepolia (testnet)</span>
                   </div>
-                  <div className="vault-confirm-panel__row body-sm">
-                    <span className="ct-text-muted">Action</span>
-                    <span className="ct-text-body">Deposit</span>
+                  <div className="flex items-center justify-between gap-4 py-2 text-[13px]">
+                    <span className="text-zinc-500">Action</span>
+                    <span className="text-zinc-200">Deposit</span>
                   </div>
                 </div>
-                <p className="body-xs ct-text-muted vault-confirm-panel__disclaimer">
+                <p className="text-[11px] text-zinc-500 leading-relaxed m-0">
                   Base Sepolia testnet transaction — for pilot testing only.
                   Irreversible once submitted. Subject to{" "}
                   {vault.softLockupDays}-day soft lock-up. Target APY shown as a
                   range — indicative estimate, not a return projection. See
                   methodology v1.0.
                 </p>
-                <div className="vault-form-actions vault-form-actions--split pt-2">
-                  <Button
-                    variant="secondary"
-                    size="md"
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  <button
+                    type="button"
                     onClick={handleCancelConfirm}
                     disabled={depositing}
+                    className={SECONDARY_BTN}
                   >
                     Cancel
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="md"
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void handleConfirm()}
                     disabled={!ctaEnabled || depositing}
-                    className="vault-form-actions__primary"
+                    className={PRIMARY_BTN}
                   >
                     {depositing
                       ? "Confirming…"
                       : `Confirm ${formatUsdAmount(amount)} deposit`}
-                  </Button>
+                  </button>
                 </div>
               </div>
             ) : (
               <>
                 <InvestHelpLinks />
 
-                <div className="vault-form-actions vault-form-actions--split">
-                <Button variant="secondary" size="md" asChild>
-                  <Link href={investProductPath(vault.id)}>← Back</Link>
-                </Button>
+                <div className="flex items-center justify-between gap-3">
+                  <Link
+                    href={investProductPath(vault.id)}
+                    className={SECONDARY_BTN}
+                  >
+                    ← Back
+                  </Link>
 
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={handleReview}
-                  disabled={!ctaEnabled}
-                  aria-disabled={!ctaEnabled}
-                  className={cn(
-                    "vault-form-actions__primary",
-                    !ctaEnabled && "vault-cta--disabled",
-                  )}
-                >
-                  {ctaLabel(currentCtaState, amount)}
-                </Button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={handleReview}
+                    disabled={!ctaEnabled}
+                    aria-disabled={!ctaEnabled}
+                    className={PRIMARY_BTN}
+                  >
+                    {ctaLabel(currentCtaState, amount)}
+                  </button>
+                </div>
               </>
             )}
           </div>
-        </div>
+        </BentoPanel>
+      )}
 
-        <div className={cn(
-          "vault-flow-flat-section",
-          amount === 0 && "vault-flow-flat-section--hidden"
-        )}>
-          <EligibilityChecklist investor={investor} session={session} />
-        </div>
+      {amount === 0 ? null : (
+        <EligibilityChecklist investor={investor} session={session} />
+      )}
 
-        <div className={cn(
-          "vault-flow-flat-section",
-          amount === 0 && "vault-flow-flat-section--hidden"
-        )}>
-          <InvestFormProjections amount={deferredAmount} vault={vault} ptai={ptai} />
-        </div>
-      </div>
+      {amount === 0 ? null : (
+        <InvestFormProjections amount={deferredAmount} vault={vault} ptai={ptai} />
+      )}
     </div>
   );
 }

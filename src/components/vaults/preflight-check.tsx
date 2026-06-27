@@ -4,9 +4,6 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import type { ConnectedWallet } from "@privy-io/react-auth";
 
 import { cn } from "@/lib/cn";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { VaultPanelHeader } from "@/components/vaults/vault-flow-primitives";
 import { formatUsdAmount } from "@/lib/vaults/product-display";
 import {
   approveUsdc,
@@ -33,28 +30,23 @@ function CheckRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="vault-preflight-check__row">
-      <div className="vault-preflight-check__row-main">
-        <span
-          aria-hidden
-          className={cn(
-            "vault-preflight-check__dot",
-            status === "ok" && "ct-status-dot-success",
-            status === "action" && "ct-status-dot-warning",
-            status === "pending" && "ct-status-dot-info",
-          )}
-          style={{
-            transitionDelay: status === "ok" ? "150ms" : "0ms"
-          }}
-        />
-        <div className="vault-preflight-check__row-copy min-w-0">
-          <span className="body-sm font-semibold ct-text-primary">{label}</span>
-          <span className="body-xs ct-text-muted vault-preflight-check__detail">
-            {detail}
-          </span>
-        </div>
+    <div className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0">
+      <span
+        aria-hidden
+        className={cn(
+          "size-2.5 shrink-0 rounded-full border-2 border-[#15191C]",
+          status === "ok" && "bg-[#A7FB90]",
+          status === "action" && "bg-[#A7FB90]/40",
+          status === "pending" && "bg-white/20",
+        )}
+      />
+      <div className="flex flex-col gap-0.5 min-w-0 flex-auto">
+        <span className="text-[13px] font-medium text-zinc-200">{label}</span>
+        <span className="text-[12px] text-zinc-500 tracking-wide truncate">
+          {detail}
+        </span>
       </div>
-      {action ? <div className="vault-preflight-check__action shrink-0 animate-in fade-in slide-in-from-right-2 duration-300">{action}</div> : null}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
 }
@@ -158,34 +150,39 @@ export function PreFlightCheck({
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
   const panelBody = !ready ? (
-    <p className="body-xs ct-text-muted animate-pulse py-4 text-center">
+    <p className="text-[12px] text-zinc-500 animate-pulse py-4 text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
-    <div className="product-doc-stack--tight py-4">
-      <Badge variant="warning" className="self-start">
+    <div className="flex flex-col gap-2 py-2">
+      <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[#A7FB90] bg-[#A7FB90]/10 border border-[#A7FB90]/20 rounded-full px-2.5 py-1">
         Configuration pending
-      </Badge>
-      <p className="body-xs ct-text-muted">
+      </span>
+      <p className="text-[12px] text-zinc-500 tracking-wide">
         On-chain configuration is being finalized. Please contact Investor
         Relations.
       </p>
     </div>
   ) : (
     <>
-      <p className="vault-preflight-readiness body-xs ct-text-muted">
-        <span className="tabular mono ct-text-primary font-semibold">
-          {checksComplete}
+      <div className="flex items-center justify-between pb-3 mb-1 border-b border-white/5">
+        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Readiness
         </span>
-        {" "}of 4 checks complete
-      </p>
+        <span className="text-[12px] text-zinc-400">
+          <span className="font-semibold text-white tabular-nums font-mono">
+            {checksComplete}
+          </span>
+          {" "}of 4 complete
+        </span>
+      </div>
 
       {vaultStale ? (
-        <div className="product-doc-stack--dense py-3">
-          <Badge variant="warning" className="self-start">
+        <div className="flex flex-col gap-2 mb-3 rounded-xl border border-[#A7FB90]/20 bg-[#15191C] p-3">
+          <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[#A7FB90] bg-[#A7FB90]/10 border border-[#A7FB90]/20 rounded-full px-2.5 py-1">
             Testnet contract
-          </Badge>
-          <p className="body-xs ct-text-muted">
+          </span>
+          <p className="text-[12px] text-zinc-500 tracking-wide">
             This vault is a testnet build with no emergency pause or guardian
             and a $1,000 minimum — not the audited production contract.
           </p>
@@ -220,26 +217,25 @@ export function PreFlightCheck({
         }
         action={
           !allowanceOk && amount > 0 && walletOk ? (
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               type="button"
               onClick={() => void handleApprove()}
               disabled={approving || !networkOk}
               className={cn(
-                "border ct-bc-accent ct-text-accent hover:ct-surface-1 transition-all duration-300",
-                approving && "opacity-70 cursor-wait",
+                "rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#A7FB90] transition-colors hover:bg-[#A7FB90]/20",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                approving && "cursor-wait opacity-70",
               )}
             >
               {approving ? (
                 <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-current animate-ping" />
+                  <span className="size-1.5 rounded-full bg-current animate-ping" />
                   Approving…
                 </span>
               ) : (
                 "Approve"
               )}
-            </Button>
+            </button>
           ) : undefined
         }
       />
@@ -253,12 +249,16 @@ export function PreFlightCheck({
   );
 
   return (
-    <div className="vault-flow-flat-section">
-      <VaultPanelHeader
-        title="Pre-flight check"
-        eyebrow="Wallet · network · allowance · epoch"
-      />
-      <div className="vault-panel-body vault-preflight-check">{panelBody}</div>
+    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <div className="flex flex-col gap-1.5 p-5 border-b border-white/5">
+        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          Pre-flight check
+        </h2>
+        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold">
+          Wallet · network · allowance · epoch
+        </p>
+      </div>
+      <div className="p-5 flex flex-col">{panelBody}</div>
     </div>
   );
 }

@@ -10,9 +10,11 @@ describe("InvestFlowShell width", () => {
         <p>body</p>
       </InvestFlowShell>,
     );
-    expect(html).toContain('<p class="page-canon-kicker">Investment Flow</p>');
+    // Bento kicker (Portfolio canon) carries the context label; the stepper
+    // owns progress so the index is never duplicated in the eyebrow.
+    expect(html).toContain("Investment Flow");
     expect(html).not.toContain("Invest · Step");
-    expect(html).toContain("wizard-step-progress");
+    expect(html).toContain('role="progressbar"');
   });
 
   it("defaults to cap max-width", () => {

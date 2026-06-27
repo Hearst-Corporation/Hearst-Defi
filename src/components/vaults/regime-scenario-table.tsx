@@ -1,15 +1,19 @@
-import { ApyRange } from "@/components/ui/apy-range";
 import { cn } from "@/lib/cn";
 import { deriveStressRegimes, type StressRegime } from "@/lib/constants/vault";
 import type { VaultProduct } from "@/lib/data/vaults";
 
-const TONE_TEXT: Record<StressRegime["tone"], string> = {
-  success: "ct-status-success",
-  danger: "ct-status-danger",
+const TONE_DOT: Record<StressRegime["tone"], string> = {
+  success: "bg-[#A7FB90]",
+  danger: "bg-zinc-600",
 };
 
-function pctCell(value: number) {
-  return <span className="tabular mono body-sm font-semibold ct-text-strong">{value}%</span>;
+const TONE_LABEL: Record<StressRegime["tone"], string> = {
+  success: "text-white",
+  danger: "text-zinc-400",
+};
+
+function PctCell({ value }: { value: number }) {
+  return <span className="text-[14px] font-medium text-white tabular-nums">{value}%</span>;
 }
 
 interface RegimeScenarioTableProps {
@@ -19,43 +23,50 @@ interface RegimeScenarioTableProps {
 export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
   const regimes = deriveStressRegimes(vault);
   return (
-    <div className="regime-scenario-table">
-      <table>
+    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
           <thead>
-            <tr>
-              <th scope="col" className="stat-label ct-table-header">
+            <tr className="border-b border-white/10">
+              <th
+                scope="col"
+                className="pl-5 pr-4 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+              >
                 Regime
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header regime-scenario-table__col-scenario"
+                className="hidden md:table-cell px-4 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
               >
                 Scenario
               </th>
-              <th scope="col" className="stat-label ct-table-header">
+              <th
+                scope="col"
+                className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+              >
                 APY range
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header regime-scenario-table__num"
+                className="px-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
               >
                 Min
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header regime-scenario-table__num"
+                className="px-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
               >
                 BTC
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header regime-scenario-table__num regime-scenario-table__col-wide"
+                className="px-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
               >
                 USDC
               </th>
               <th
                 scope="col"
-                className="stat-label ct-table-header regime-scenario-table__num regime-scenario-table__col-wide"
+                className="pr-5 pl-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
               >
                 Res
               </th>
@@ -63,44 +74,54 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
           </thead>
           <tbody>
             {regimes.map((row) => (
-              <tr key={row.id} className="group/row">
-                <td className="ct-table-cell align-top">
-                  <div className="flex flex-col gap-(--ct-space-0_5)">
-                    <span className={cn("body-sm font-bold uppercase tracking-wide", TONE_TEXT[row.tone])}>
-                      {row.label}
-                    </span>
-                    <span className="regime-scenario-table__scenario-inline body-xs ct-text-faint leading-tight">
-                      {row.scenario}
-                    </span>
+              <tr
+                key={row.id}
+                className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition-colors"
+              >
+                <td className="pl-5 pr-4 py-4 align-top">
+                  <div className="flex items-start gap-3">
+                    <div className={cn("mt-1 w-1 h-9 rounded-full", TONE_DOT[row.tone])} />
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={cn(
+                          "text-[14px] font-medium uppercase tracking-wide",
+                          TONE_LABEL[row.tone],
+                        )}
+                      >
+                        {row.label}
+                      </span>
+                      <span className="md:hidden text-[10px] text-zinc-500 leading-tight">
+                        {row.scenario}
+                      </span>
+                    </div>
                   </div>
                 </td>
-                <td className="ct-table-cell align-top body-xs ct-text-muted ct-cell-note-max regime-scenario-table__col-scenario leading-relaxed">
+                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[12px] text-zinc-400 leading-relaxed">
                   {row.scenario}
                 </td>
-                <td className="ct-table-cell align-top">
-                  <ApyRange
-                    low={row.apyLow}
-                    high={row.apyHigh}
-                    precision={1}
-                    className="body-sm font-bold ct-text-strong tabular mono"
-                  />
+                <td className="px-4 py-4 align-top">
+                  <span className="text-[14px] font-medium text-[#A7FB90] tabular-nums whitespace-nowrap">
+                    {row.apyLow.toFixed(1)} <span className="text-zinc-500 mx-0.5">—</span>{" "}
+                    {row.apyHigh.toFixed(1)} <span className="text-zinc-500">%</span>
+                  </span>
                 </td>
-                <td className="ct-table-cell align-top regime-scenario-table__num">
-                  {pctCell(row.miningPct)}
+                <td className="px-4 py-4 align-top text-right">
+                  <PctCell value={row.miningPct} />
                 </td>
-                <td className="ct-table-cell align-top regime-scenario-table__num">
-                  {pctCell(row.btcTacticalPct)}
+                <td className="px-4 py-4 align-top text-right">
+                  <PctCell value={row.btcTacticalPct} />
                 </td>
-                <td className="ct-table-cell align-top regime-scenario-table__num regime-scenario-table__col-wide">
-                  {pctCell(row.usdcBasePct)}
+                <td className="px-4 py-4 align-top text-right">
+                  <PctCell value={row.usdcBasePct} />
                 </td>
-                <td className="ct-table-cell align-top regime-scenario-table__num regime-scenario-table__col-wide">
-                  {pctCell(row.stableReservePct)}
+                <td className="pr-5 pl-4 py-4 align-top text-right">
+                  <PctCell value={row.stableReservePct} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
     </div>
   );
 }

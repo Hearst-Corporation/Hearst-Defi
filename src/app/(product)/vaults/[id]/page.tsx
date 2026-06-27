@@ -3,8 +3,6 @@ import Link from "next/link";
 
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { ApyRange } from "@/components/ui/apy-range";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
 import { vaultStatusLabel } from "@/lib/constants/vault";
@@ -54,26 +52,25 @@ function InvestCta({
 }) {
   if (isLive) {
     return (
-      <Button
-        variant="primary"
-        size="lg"
-        asChild
-        className="vault-summary__cta-btn"
+      <Link
+        href={investHref}
+        className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#A7FB90] px-5 py-3 text-[13px] font-bold uppercase tracking-[0.1em] text-zinc-900 shadow-sm transition-colors hover:bg-[#A7FB90]/90"
       >
-        <Link href={investHref}>Continue to deposit</Link>
-      </Button>
+        Continue to deposit
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="size-4">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+        </svg>
+      </Link>
     );
   }
 
   return (
-    <Button
-      variant="secondary"
-      size="lg"
-      asChild
-      className="vault-summary__cta-btn"
+    <Link
+      href={INVEST_SELECT_PATH}
+      className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-[13px] font-bold uppercase tracking-[0.1em] text-zinc-200 transition-colors hover:bg-white/10 hover:text-white"
     >
-      <Link href={INVEST_SELECT_PATH}>Browse other products</Link>
-    </Button>
+      Browse other products
+    </Link>
   );
 }
 
@@ -107,66 +104,80 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </Link>
       }
     >
-      <Card
+      {/* KEY TERMS + NEXT ACTION (bento panel) */}
+      <section
         role="region"
         aria-label="Key terms and next action"
-        hoverOverlay={false}
-        className="vault-summary"
-        contentClassName="vault-summary__content"
+        className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
       >
-        <div className="vault-summary__identity">
-          <span className="vault-summary__ticker mono">{vault.ticker}</span>
+        {/* Identity header */}
+        <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-white/5">
+          <span className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-400 tabular-nums">
+            {vault.ticker}
+          </span>
           <span
             className={cn(
-              "vault-summary__status",
-              isLive
-                ? "vault-summary__status--live"
-                : "vault-summary__status--pending",
+              "inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold",
+              isLive ? "text-[#A7FB90]" : "text-zinc-400",
             )}
           >
-            <span className="vault-summary__status-dot" aria-hidden="true" />
+            <span
+              aria-hidden="true"
+              className={cn(
+                "size-2 rounded-full",
+                isLive ? "bg-[#A7FB90]" : "bg-zinc-500",
+              )}
+            />
             {vaultStatusLabel(vault.status)}
           </span>
         </div>
 
-        <dl className="vault-summary__metrics">
-          <div className="vault-summary__metric vault-summary__metric--hero">
-            <dt className="stat-label">Target APY range</dt>
+        {/* Metrics strip */}
+        <dl className="grid grid-cols-1 md:grid-cols-3 border-b border-white/5 bg-[#15191C]">
+          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
+            <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Target APY range
+            </dt>
             <dd>
               <ApyRange
                 low={vault.apyLow}
                 high={vault.apyHigh}
                 precision={1}
-                className="vault-summary__hero-value tabular-nums mono"
+                className="text-[22px] font-medium text-[#A7FB90] leading-none tracking-tight tabular-nums"
               />
             </dd>
           </div>
-          <div className="vault-summary__metric">
-            <dt className="stat-label">Min subscription</dt>
-            <dd className="vault-summary__value tabular-nums mono">
+          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
+            <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Min subscription
+            </dt>
+            <dd className="text-[22px] font-medium text-white leading-none tracking-tight tabular-nums">
               {formatMinTicketUsdc(vault.minTicketUsdc)}
             </dd>
           </div>
-          <div className="vault-summary__metric">
-            <dt className="stat-label">Soft lock-up</dt>
-            <dd className="vault-summary__value tabular-nums mono">
+          <div className="flex flex-col gap-2 p-5 md:px-6">
+            <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Soft lock-up
+            </dt>
+            <dd className="text-[22px] font-medium text-white leading-none tracking-tight tabular-nums">
               {vault.softLockupDays} days
             </dd>
           </div>
         </dl>
 
-        <div className="vault-summary__cta">
+        {/* CTA block */}
+        <div className="flex flex-col gap-3 p-5 md:p-6">
           {!isLive ? (
-            <p className="body-xs ct-text-faint vault-summary__cta-note">
+            <p className="text-[12px] text-zinc-500 tracking-wide">
               {nonLiveNote(vault.status)}
             </p>
           ) : null}
           <InvestCta isLive={isLive} investHref={investHref} />
-          <p className="body-xs ct-text-faint vault-summary__cta-support">
+          <p className="text-[12px] text-zinc-500 tracking-wide">
             {ctaSupportLine(isLive)}
           </p>
         </div>
-      </Card>
+      </section>
 
       <TermSheetPreview vault={vault} />
     </InvestFlowShell>

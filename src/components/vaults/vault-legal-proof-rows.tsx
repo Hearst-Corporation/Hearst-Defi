@@ -1,4 +1,4 @@
-import { LegalMetadataRow } from "@/components/ui/nested-panel";
+import type { ReactNode } from "react";
 import { VaultDetailRow } from "@/components/vaults/vault-flow-primitives";
 import {
   REG_LABELS,
@@ -18,23 +18,38 @@ interface VaultLegalProofRowsProps {
   variant: "admin" | "investor";
 }
 
+function ProofRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
+      <span className="text-[13px] text-zinc-400">{label}</span>
+      <span className="text-[13px] font-medium text-white tabular-nums">
+        {value}
+      </span>
+    </div>
+  );
+}
+
 export function VaultLegalProofRows({ facts, variant }: VaultLegalProofRowsProps) {
   if (variant === "admin") {
     return (
       <>
-        <LegalMetadataRow label="Strategy">
-          {STRATEGY_LABELS[facts.strategy] ?? facts.strategy}
-        </LegalMetadataRow>
-        <LegalMetadataRow label="SPV">
-          {SPV_LABELS[facts.spvJurisdiction] ?? facts.spvJurisdiction}
-        </LegalMetadataRow>
-        <LegalMetadataRow label="Share Class">{facts.shareClass}</LegalMetadataRow>
-        <LegalMetadataRow label="Reg Exemption">
-          {REG_LABELS[facts.regExemption] ?? facts.regExemption}
-        </LegalMetadataRow>
-        <LegalMetadataRow label="Min Ticket">
-          {`${formatUsdFull(facts.minTicketUsdc)} USDC`}
-        </LegalMetadataRow>
+        <ProofRow
+          label="Strategy"
+          value={STRATEGY_LABELS[facts.strategy] ?? facts.strategy}
+        />
+        <ProofRow
+          label="SPV"
+          value={SPV_LABELS[facts.spvJurisdiction] ?? facts.spvJurisdiction}
+        />
+        <ProofRow label="Share Class" value={facts.shareClass} />
+        <ProofRow
+          label="Reg Exemption"
+          value={REG_LABELS[facts.regExemption] ?? facts.regExemption}
+        />
+        <ProofRow
+          label="Min Ticket"
+          value={`${formatUsdFull(facts.minTicketUsdc)} USDC`}
+        />
       </>
     );
   }

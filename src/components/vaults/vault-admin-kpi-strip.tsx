@@ -1,11 +1,9 @@
 import { ApyRange } from "@/components/ui/apy-range";
-import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { bpsToPercent, type VaultKpiFacts } from "@/lib/vaults/vault-detail-facts";
-
-import { MetricGrid } from "@/components/ui/nested-panel";
+import { cn } from "@/lib/cn";
 
 interface VaultAdminKpiStripProps {
   facts: VaultKpiFacts;
@@ -22,51 +20,75 @@ export function VaultAdminKpiStrip({
       : 0;
 
   return (
-    <MetricGrid columns={4} className="mb-[var(--ct-space-4)]">
-      <Card>
-        <div className="admin-doc-inline-row admin-doc-inline-row--between mb-[var(--ct-space-1)]">
-          <span className="stat-label">Target APY</span>
+    <div
+      className={cn(
+        "grid grid-cols-2 gap-4 mb-8",
+        showAumCard ? "lg:grid-cols-4" : "lg:grid-cols-3",
+      )}
+    >
+      {/* Target APY */}
+      <div className="rounded-2xl border border-white/10 bg-black shadow-sm p-5 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            Target APY
+          </span>
           <ProvenanceBadge kind="estimated" />
         </div>
-        <ApyRange low={facts.apyLow} high={facts.apyHigh} precision={1} />
-        <p className="body-xs ct-text-faint mt-[var(--ct-space-1)]">Not guaranteed — estimated</p>
-      </Card>
+        <div className="text-[18px] font-medium leading-none tracking-tight tabular-nums">
+          <ApyRange
+            low={facts.apyLow}
+            high={facts.apyHigh}
+            precision={1}
+            className="font-medium text-[#A7FB90]"
+          />
+        </div>
+        <p className="text-[10px] text-zinc-500 tracking-wide">Not guaranteed — estimated</p>
+      </div>
 
-      <Card>
-        <span className="stat-label block mb-[var(--ct-space-1)]">Fees</span>
-        <span className="stat-value mono tabular">
+      {/* Fees */}
+      <div className="rounded-2xl border border-white/10 bg-black shadow-sm p-5 flex flex-col gap-2">
+        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Fees
+        </span>
+        <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
           {bpsToPercent(facts.mgmtFeeBps)}% / {bpsToPercent(facts.perfFeeBps)}%
         </span>
-        <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">Mgmt / Perf</p>
-      </Card>
+        <p className="text-[10px] text-zinc-500 tracking-wide">Mgmt / Perf</p>
+      </div>
 
-      <Card>
-        <span className="stat-label block mb-[var(--ct-space-1)]">Lock-up</span>
-        <span className="stat-value mono tabular">
+      {/* Lock-up */}
+      <div className="rounded-2xl border border-white/10 bg-black shadow-sm p-5 flex flex-col gap-2">
+        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          Lock-up
+        </span>
+        <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
           {facts.softLockupDays}d
         </span>
-        <p className="body-xs ct-text-muted mt-[var(--ct-space-1)]">Soft lock-up</p>
-      </Card>
+        <p className="text-[10px] text-zinc-500 tracking-wide">Soft lock-up</p>
+      </div>
 
+      {/* AUM */}
       {showAumCard ? (
-        <Card>
-          <div className="admin-doc-inline-row admin-doc-inline-row--between mb-[var(--ct-space-1)]">
-            <span className="stat-label">AUM</span>
+        <div className="rounded-2xl border border-white/10 bg-black shadow-sm p-5 flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              AUM
+            </span>
             <ProvenanceBadge
               kind={facts.currentAumUsdc > 0 ? "live" : "estimated"}
             />
           </div>
-          <span className="stat-value mono tabular">
+          <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
             {formatUsdFull(facts.currentAumUsdc)}
           </span>
-          <div className="mt-[var(--ct-space-2)]">
+          <div className="mt-1">
             <Progress value={aumPct} label="AUM vs capacity" />
           </div>
-          <p className="body-xs ct-text-faint mt-[var(--ct-space-1)]">
+          <p className="text-[10px] text-zinc-500 tracking-wide">
             / {formatUsdFull(facts.capacityUsdc)} capacity
           </p>
-        </Card>
+        </div>
       ) : null}
-    </MetricGrid>
+    </div>
   );
 }

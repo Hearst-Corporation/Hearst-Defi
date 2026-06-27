@@ -2,8 +2,7 @@
 
 import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
-import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
-import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -14,6 +13,9 @@ interface TimeToTargetChartProps {
 
 const CHART_MONTHS = 24;
 const TARGET_CUMULATIVE_PCT = 10; // 10% cumulative yield as "milestone"
+
+const ACCENT = "#A7FB90";
+const GRID_STROKE = "rgba(255,255,255,0.04)";
 
 const VB_W = 300;
 const VB_H = 120;
@@ -51,21 +53,51 @@ function areaPath(xs: number[], ys: number[]): string {
   return `${line} L${lastX},${baselineY} L${firstX},${baselineY} Z`;
 }
 
+/** Shared bento panel frame — matches the Portfolio chart panel exactly. */
+function ChartFrame({
+  title,
+  children,
+  ariaLabel,
+}: {
+  title: string;
+  children: React.ReactNode;
+  ariaLabel?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
+        <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">
+          {title}
+        </h2>
+        <ProvenanceBadge kind="estimated" />
+      </div>
+      <div
+        className="flex-1 min-h-[200px] flex items-center justify-center relative px-2 pb-2"
+        role="img"
+        aria-label={ariaLabel}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   if (amount <= 0) {
     return (
-      <div className="vault-chart-stack">
-        <div className="ct-chart-box-160" role="img" aria-label="Projected NAV chart awaiting deposit amount">
-          <ChartProvenanceCorner kind="estimated" />
-          <ChartDisclaimerUnderlay />
+      <div className="flex flex-col gap-3">
+        <ChartFrame
+          title="Projected NAV Horizon"
+          ariaLabel="Projected NAV chart awaiting deposit amount"
+        >
           <EmptySurface
             variant="chart"
             message="Enter a deposit amount to populate the projected NAV horizon."
             detail="The chart frame stays fixed so the preview and deposit views share the same layout."
             className="h-full justify-center"
           />
-        </div>
-        <p className="body-xs ct-text-faint text-center">
+        </ChartFrame>
+        <p className="text-[10px] text-zinc-500 text-center tracking-wide">
           Conditional projection — not a projection of future returns. Methodology v1.0.
         </p>
       </div>
@@ -83,18 +115,19 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
 
   if (!hasData) {
     return (
-      <div className="vault-chart-stack">
-        <div className="ct-chart-box-160" role="img" aria-label="No projection data available">
-          <ChartProvenanceCorner kind="estimated" />
-          <ChartDisclaimerUnderlay />
+      <div className="flex flex-col gap-3">
+        <ChartFrame
+          title="Projected NAV Horizon"
+          ariaLabel="No projection data available"
+        >
           <EmptySurface
             variant="chart"
             message="Projection inputs are incomplete."
             detail="This chart slot remains visible and will populate once the horizon series is available."
             className="h-full justify-center"
           />
-        </div>
-        <p className="body-xs ct-text-faint text-center">
+        </ChartFrame>
+        <p className="text-[10px] text-zinc-500 text-center tracking-wide">
           Conditional projection — not a projection of future returns. Methodology v1.0.
         </p>
       </div>
@@ -149,12 +182,8 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   const axisMonths = [0, 6, 12, 18, 24].filter((m) => m < totalPts);
 
   return (
-    <div className="vault-chart-stack">
-      <div
-        className="ct-chart-box-160"
-      >
-        <ChartProvenanceCorner kind="estimated" />
-        <ChartDisclaimerUnderlay />
+    <div className="flex flex-col gap-3">
+      <ChartFrame title="Projected NAV Horizon">
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}
           preserveAspectRatio="xMidYMid meet"
@@ -162,6 +191,13 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           role="img"
           aria-labelledby="tttc-title tttc-desc"
         >
+          <defs>
+            <linearGradient id="ttt-mid-gradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor={ACCENT} stopOpacity="0.15" />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
           <title id="tttc-title">
             Cumulative yield projection for {vault.name}
           </title>
@@ -180,8 +216,10 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
               y1={gy}
               x2={PAD_L + INNER_W}
               y2={gy}
-              stroke="var(--ct-border-soft)"
-              strokeWidth="0.4"
+              stroke={GRID_STROKE}
+              strokeWidth="0.5"
+              strokeDasharray="4 4"
+              vectorEffect="non-scaling-stroke"
               aria-hidden="true"
             />
           ))}
@@ -189,16 +227,15 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           {/* Band fill between mid and high */}
           <path
             d={bandArea}
-            fill="var(--ct-accent)"
-            className="vault-ttt-band"
+            fill={ACCENT}
+            fillOpacity="0.08"
             aria-hidden="true"
           />
 
-          {/* Mid area fill */}
+          {/* Mid area fill — accent gradient 0.15 → 0 */}
           <path
             d={midArea}
-            fill="var(--ct-accent)"
-            className="vault-ttt-mid-area"
+            fill="url(#ttt-mid-gradient)"
             aria-hidden="true"
           />
 
@@ -206,21 +243,21 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           <path
             d={highLine}
             fill="none"
-            stroke="var(--ct-accent)"
-            strokeWidth="0.5"
-            className="vault-ttt-high-line"
+            stroke={ACCENT}
+            strokeOpacity="0.4"
+            strokeWidth="1"
             strokeLinejoin="round"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
             aria-hidden="true"
           />
 
-          {/* Mid cumulative yield curve */}
+          {/* Mid cumulative yield curve — accent line, strokeWidth 2 */}
           <path
             d={midLine}
             fill="none"
-            stroke="var(--ct-accent)"
-            strokeWidth="1.2"
+            stroke={ACCENT}
+            strokeWidth="2"
             strokeLinejoin="round"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
@@ -234,8 +271,9 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
                 y1={PAD_T}
                 x2={targetX}
                 y2={PAD_T + INNER_H}
-                stroke="var(--ct-status-warning)"
-                strokeWidth="0.8"
+                stroke={ACCENT}
+                strokeOpacity="0.5"
+                strokeWidth="1"
                 strokeDasharray="2,2"
                 vectorEffect="non-scaling-stroke"
                 aria-hidden="true"
@@ -245,7 +283,8 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
                 <text
                   x={Math.min(targetX + 2, VB_W - PAD_R - 40)}
                   y={PAD_T + 5}
-                  className="dash-chart-svg-text-tick-warning"
+                  fill={ACCENT}
+                  className="text-[7px] font-mono"
                   aria-hidden="true"
                 >
                   {targetLabel}
@@ -261,22 +300,23 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
               x={xAt(m, totalPts)}
               y={VB_H - 1}
               textAnchor="middle"
-              className="dash-chart-svg-text-tick-faint"
+              fill="#71717a"
+              className="text-[7px] font-mono"
               aria-hidden="true"
             >
               M{m}
             </text>
           ))}
         </svg>
-      </div>
+      </ChartFrame>
 
       {months10pct !== null && (
-        <p className="body-xs ct-text-faint text-center">
+        <p className="text-[10px] text-zinc-500 text-center tracking-wide">
           +{TARGET_CUMULATIVE_PCT}% cumulative yield milestone at month {months10pct}
         </p>
       )}
 
-      <p className="body-xs ct-text-faint text-center">
+      <p className="text-[10px] text-zinc-500 text-center tracking-wide">
         Conditional projection — not a projection of future returns. Methodology v1.0.
       </p>
     </div>

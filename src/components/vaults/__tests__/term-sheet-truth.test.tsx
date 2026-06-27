@@ -46,10 +46,11 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
     expect(html).not.toContain("1.00% · 10%");
   });
 
-  it("renders regime scenarios without ct-table-surface wrapper", () => {
-    expect(html).toContain("regime-scenario-table");
+  it("renders regime scenarios in a bento panel, not the ct-table-surface DS", () => {
+    // The regime table is present (section heading) inside a bento panel.
+    expect(html).toContain("Regime Scenarios");
     expect(html).not.toContain("ct-table-surface");
-    expect(html).not.toContain("overflow-x-auto");
+    expect(html).toContain("rounded-2xl");
   });
 
   it("carries the not-guaranteed APY disclaimer suffix", () => {
@@ -62,11 +63,12 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
     );
   });
 
-  it("uses doc-flow h2 section headers, not quiet panel labels", () => {
-    expect(html).toContain('class="h2"');
-    expect(html).toContain("Target allocation");
-    expect(html).toContain("Regime scenarios");
-    expect(html).toContain("Vault metrics");
+  it("uses bento <h2> section headers, not quiet panel labels", () => {
+    // Bento section headers (Portfolio canon <h2>), with the canonical sections.
+    expect(html).toMatch(/<h2[^>]*>[^<]*Target Allocation/i);
+    expect(html).toContain("Target Allocation");
+    expect(html).toContain("Regime Scenarios");
+    expect(html).toContain("Vault Metrics");
     expect(html).not.toContain("invest-flow-detail__panel-label");
     expect(html).not.toContain('class="h3 ct-text-strong ct-drop-glow-subtle"');
   });
@@ -77,7 +79,10 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
   });
 
   it("uses vault product primitives in legal section (not proof-center rows)", () => {
-    expect(html).toContain("vault-panel-row");
+    // VaultDetailRow now renders as a bento proof row (border-b py-3 / tabular-nums)
+    // instead of the legacy .vault-panel-row chrome.
+    expect(html).toContain("border-b border-white/5 py-3");
+    expect(html).toContain("text-[13px] font-medium text-white tabular-nums");
     expect(html).not.toContain("ct-proof-row");
   });
 
