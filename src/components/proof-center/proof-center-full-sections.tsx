@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { ProofGrid } from "@/components/proof/proof-grid";
@@ -34,9 +35,10 @@ interface ProofCenterFullSectionsProps {
 
 /**
  * Bento section wrapper — pure Tailwind, matches the Portfolio page + the
- * converted vault flow. Keeps the visible page `<h2>` so existing
- * `aria-labelledby` wiring and section ordering stay intact across the
- * product + admin /proof-center/full routes.
+ * converted vault flow. The panel chrome is the shared {@link BentoPanel}
+ * primitive (byte-identical class string); only the header is kept inline so
+ * the visible `<h2 id>` survives for `aria-labelledby` wiring and the section
+ * ordering stays intact across the product + admin /proof-center/full routes.
  */
 function BentoSection({
   id,
@@ -52,10 +54,7 @@ function BentoSection({
   children: ReactNode;
 }) {
   return (
-    <section
-      aria-labelledby={id}
-      className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
-    >
+    <BentoPanel role="region" aria-labelledby={id}>
       <div className="flex flex-wrap items-end justify-between gap-4 p-5 border-b border-white/5">
         <div className="flex flex-col gap-1.5">
           <h2
@@ -73,7 +72,7 @@ function BentoSection({
         ) : null}
       </div>
       <div className="p-5 lg:p-6">{children}</div>
-    </section>
+    </BentoPanel>
   );
 }
 

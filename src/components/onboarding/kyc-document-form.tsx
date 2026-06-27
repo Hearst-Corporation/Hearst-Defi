@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 
 import { submitKycDocument } from "@/lib/onboarding/actions";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 
 // ---------------------------------------------------------------------------
@@ -68,10 +69,11 @@ const FIELD_LABEL =
   "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
 const SELECT_INPUT =
   "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-const PRIMARY_BTN =
-  "inline-flex items-center justify-center w-full rounded-lg bg-[#A7FB90] text-zinc-900 font-bold px-4 py-2.5 text-[13px] transition-colors hover:bg-[#A7FB90]/90 disabled:opacity-50 disabled:cursor-not-allowed";
-const SECONDARY_BTN =
-  "inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white font-medium px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed";
+// Shared bento CTA chrome (single source of truth in @/components/ui/bento).
+// The submit button keeps `w-full` (full-width on its own row); the shared
+// BENTO_PRIMARY_BTN has the identical chrome otherwise.
+const PRIMARY_BTN = cn("w-full", BENTO_PRIMARY_BTN);
+const SECONDARY_BTN = BENTO_SECONDARY_BTN;
 
 export interface KycDocumentFormProps {
   /** Called after a successful submission (e.g. navigate to the next step). */
