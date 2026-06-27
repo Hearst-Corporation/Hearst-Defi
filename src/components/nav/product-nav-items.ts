@@ -108,10 +108,18 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     href: "/admin/product-workspace",
     tabs: [
       { id: "product-workspace", label: "Overview", href: "/admin/product-workspace", icon: "FileText" },
-      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
       { id: "scenario-lab", label: "Scenario Lab", href: "/admin/scenario-lab", icon: "FlaskConical" },
       { id: "projection", label: "Projection", href: "/admin/projection", icon: "FileText" },
       { id: "projection-preview", label: "Projection Preview", railLabel: "Preview", href: "/admin/projection/preview", icon: "Eye" },
+    ],
+  },
+  {
+    id: "marketplace",
+    label: "Marketplace",
+    icon: "TrendingUp",
+    href: "/admin/marketplace",
+    tabs: [
+      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
     ],
   },
   {
