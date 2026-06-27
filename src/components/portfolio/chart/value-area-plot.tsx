@@ -103,17 +103,11 @@ interface ValueAreaPlotProps {
 export function ValueAreaPlot({ geometry, className }: ValueAreaPlotProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  // Stable identity for geometry to prevent re-render loops
-  const geometryRef = useRef(geometry);
-  if (geometry.coords.length >= 2) {
-    geometryRef.current = geometry;
-  }
-  const stableGeometry = geometryRef.current;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
-    if (!canvas || !wrap || stableGeometry.coords.length < 2) return;
+    if (!canvas || !wrap || geometry.coords.length < 2) return;
 
     const render = () => {
       const rect = wrap.getBoundingClientRect();
@@ -145,7 +139,7 @@ export function ValueAreaPlot({ geometry, className }: ValueAreaPlotProps) {
         "rgba(255,255,255,0.08)",
       );
 
-      drawPlot(ctx, stableGeometry, cssW, cssH, accent, accentSoft, grid);
+      drawPlot(ctx, geometry, cssW, cssH, accent, accentSoft, grid);
     };
 
     render();
@@ -157,7 +151,7 @@ export function ValueAreaPlot({ geometry, className }: ValueAreaPlotProps) {
     return () => {
       if (ro) ro.disconnect();
     };
-  }, [stableGeometry]);
+  }, [geometry]);
 
   if (geometry.coords.length < 2) return null;
 
