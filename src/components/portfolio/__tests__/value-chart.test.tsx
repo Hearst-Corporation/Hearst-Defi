@@ -81,7 +81,7 @@ describe("ValueChart", () => {
     expect(html).not.toContain("Positions");
   });
 
-  it("renders the canvas plot when ledger data is present", () => {
+  it("renders the SVG chart when ledger data is present", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={[
@@ -108,8 +108,9 @@ describe("ValueChart", () => {
       />,
     );
 
-    expect(html).toContain("<canvas");
-    expect(html).toContain("pf-vc-plot");
+    // The plot moved from an inline SVG to a <canvas> (ValueAreaPlot). Assert the
+    // canvas chart surface is rendered (role="img" portfolio value plot).
+    expect(html).toContain("pf-vc-plot__canvas");
     expect(html).toContain("Ledger-based");
   });
 
@@ -145,6 +146,7 @@ describe("ValueChart", () => {
     );
 
     expect(html).toContain("Hourly NAV prints");
+    // Canvas-based plot (was an SVG <path> before the ValueAreaPlot migration).
     expect(html).toContain("pf-vc-plot__canvas");
     expect(html).not.toContain("Ledger-based");
   });

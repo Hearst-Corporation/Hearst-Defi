@@ -217,6 +217,55 @@ describe("guardChatStream", () => {
     const out = await readAll(guardChatStream(streamFromChunks(chunks)));
     expect(out).toContain(BLOCK_SENTINEL);
   });
+
+  // --- Streaming APY leak (audit P1) -------------------------------------
+  // A single-point APY sentence LONGER than the 64-char SETTLE window used to
+  // leak its misleading prefix ("…, net de frais …, est de ") to the user before
+  // the "11 %" reached the scan window. The sentence-boundary hold-back must keep
+  // that prefix UN-emitted: the consumer sees the block sentinel, never the lead-in.
+  it("does not leak the misleading prefix of a long single-point APY sentence", async () => {
+    // One sentence, > 64 chars (the SETTLE window), ending in a single-point
+    // claim with the yield keyword within detection range of the %. Streamed one
+    // char per chunk to maximise the chance of an early SETTLE-window flush.
+    const sentence =
+      "Pour être tout à fait précis avec vous aujourd'hui, le rendement est de 11 %.";
+    expect(sentence.length).toBeGreaterThan(64);
+    const chunks = [...sentence]; // one char per chunk
+    const out = await readAll(guardChatStream(streamFromChunks(chunks)));
+    // The claim is blocked…
+    expect(out).toContain(BLOCK_SENTINEL);
+    // …and NONE of the misleading prefix reached the consumer. Nothing of the
+    // sentence may appear before the sentinel — the whole yield sentence was held
+    // until validated, then blocked.
+    const beforeSentinel = out.slice(0, out.indexOf(BLOCK_SENTINEL));
+    expect(beforeSentinel).not.toContain("Pour être tout à fait précis");
+    expect(beforeSentinel).not.toContain("le rendement");
+  });
+
+  it("still streams a long COMPLIANT yield sentence (range) in full", async () => {
+    // A long (>64 char) sentence that resolves to a RANGE must NOT be held/blocked.
+    const sentence =
+      "Pour être tout à fait précis avec vous aujourd'hui, le rendement se situe entre 8 et 15 %.";
+    expect(sentence.length).toBeGreaterThan(64);
+    const chunks = [...sentence];
+    const out = await readAll(guardChatStream(streamFromChunks(chunks)));
+    expect(out).not.toContain(BLOCK_SENTINEL);
+    expect(out).toBe(sentence);
+  });
+
+  it("holds a yield sentence split across chunks until it completes as a range", async () => {
+    // The yield keyword arrives, THEN the range — split so the keyword is settled
+    // before the range. The hold-back must wait for the sentence boundary, so the
+    // full compliant sentence streams and nothing is blocked.
+    const chunks = [
+      "Pour répondre précisément : le rendement annualisé du vault ",
+      "se situe historiquement ",
+      "entre 8 et 15 % selon les conditions de marché.",
+    ];
+    const out = await readAll(guardChatStream(streamFromChunks(chunks)));
+    expect(out).not.toContain(BLOCK_SENTINEL);
+    expect(out).toBe(chunks.join(""));
+  });
 });
 
 // ---------------------------------------------------------------------------

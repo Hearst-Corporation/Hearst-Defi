@@ -98,6 +98,33 @@ Files:
 
 ## RELEASED LOCKS
 
+### fix/chat-nav-guard-safety
+Owner: Opus — Chat Rail Safety + Deterministic Nav Repair
+Branch: fix/chat-nav-guard-safety
+Merged PR: #125 (merge 1db081d3)
+Released: 2026-06-28
+Status: merged
+
+Result:
+- Nav determinism repaired (stress-nav-corpus 168→0 breaks, 1→0 false positives,
+  100% match over 11k+ iterations): #117's non-verb-gated rules (LP dashboard/
+  proof-center, admin outreach/scenario) restored to verb-gated; bare correctly-
+  spelled nouns no longer navigate (mention ≠ nav) while typo short-commands still
+  do; corpus determinism witness keyed by (bucket, phrase).
+- Compliance guard Unicode bypass closed: normalizeForScan (NFKC + zero-width strip
+  + NFD recompose) wired into BOTH forbidden-words and single-point-APY scans.
+- semantic-guard wired as defense-in-depth in chat-agent (enforce-gated, fail-safe;
+  blocks persistence of paraphrased return-promises).
+- Streaming APY leak fixed: long single-point sentences hold at completed-sentence
+  boundaries; ctrl.terminate() replaced by drain-and-swallow (a blocked turn now
+  finalises blocked=true instead of racing to client_cancelled).
+- Tests: +nav false-positive/determinism/explicit-intent + "same input 10×",
+  +Unicode bypass suite, +streaming APY leak, +spec paraphrases. All targeted
+  suites green. Surgical staging; forbidden paths (Portfolio/chart, Projection,
+  Prisma/schema, Vault/Proof UI, design shell) untouched; gitleaks clean.
+- Out-of-scope reds (pre-existing on base commit, NOT touched): typecheck on
+  portfolio/value-chart (untracked modules on origin/main); 23 outreach-* tests.
+
 ### fix/portfolio-surface-atoms
 Owner: Agent — Portfolio surface atom fixes (audit 2026-06-26)
 Released: 2026-06-26
