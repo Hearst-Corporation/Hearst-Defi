@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { BentoLabel } from "@/components/ui/bento";
 import { Progress } from "@/components/ui/progress";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -9,16 +10,18 @@ import type {
   RiskSeverity,
 } from "@/lib/data/risk-framework";
 
+/** Severity → Progress fill (bento: single green for low, amber/red otherwise). */
 const SEVERITY_FILL: Record<RiskSeverity, string> = {
-  low: "cockpit-risk-fill--low",
-  medium: "cockpit-risk-fill--medium",
-  high: "cockpit-risk-fill--high",
+  low: "bg-[#A7FB90]",
+  medium: "bg-amber-400",
+  high: "bg-red-400",
 };
 
+/** Severity → value text color. */
 const SEVERITY_TEXT: Record<RiskSeverity, string> = {
-  low: "ct-status-success",
-  medium: "ct-status-warning",
-  high: "ct-status-danger",
+  low: "text-[#A7FB90]",
+  medium: "text-amber-400",
+  high: "text-red-400",
 };
 
 const SEVERITY_BADGE: Record<RiskSeverity, "success" | "warning" | "danger"> = {
@@ -27,8 +30,24 @@ const SEVERITY_BADGE: Record<RiskSeverity, "success" | "warning" | "danger"> = {
   high: "danger",
 };
 
+const BAND_TEXT: Record<RiskFrameworkData["band"], string> = {
+  low: "text-[#A7FB90]",
+  medium: "text-amber-400",
+  high: "text-red-400",
+};
+
+const BAND_BADGE: Record<
+  RiskFrameworkData["band"],
+  "success" | "warning" | "danger"
+> = {
+  low: "success",
+  medium: "warning",
+  high: "danger",
+};
+
 /**
  * Risk summary content — no panel wrapper (parent cell provides the surface).
+ * Bento canon: sub-surfaces on #15191C, micro labels, single green accent.
  */
 export function DashboardRiskSummaryCard({
   data,
@@ -43,113 +62,112 @@ export function DashboardRiskSummaryCard({
 
   if (data.source === "fallback") {
     return (
-      <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
+      <div data-risk-provenance={provenance}>
         <EmptySurface
           variant="inline"
           message="No risk inputs yet."
           detail="This block populates after the first vault snapshot and mining metric are recorded."
           ariaLabel="Risk posture"
-          className="flex-1 flex items-center justify-center py-(--ct-space-8)"
+          className="flex flex-1 items-center justify-center py-8"
         />
       </div>
     );
   }
 
   return (
-    <div className="dashboard-risk-summary" data-risk-provenance={provenance}>
-
-      <div className="dashboard-risk-summary__body flex flex-col gap-4">
-        <div className="dashboard-risk-summary__overview flex items-start justify-between bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_30%,transparent)] p-[var(--ct-space-3)] rounded-(--ct-radius-sm) border border-[var(--ct-border-ghost)]">
-          <div className="dashboard-risk-summary__hero flex flex-col gap-1">
-            <div className="dashboard-risk-summary__headline">
-              <Tooltip
-                content={(
-                  <div className="dashboard-metric-tooltip">
-                    <div className="dashboard-metric-tooltip__title">Composite Risk Score</div>
-                    <div className="dashboard-metric-tooltip__desc">Aggregated risk metric across all dimensions. 0-30 Low, 31-70 Medium, 71-100 High.</div>
-                  </div>
-                )}
-              >
-                <div className="cursor-help">
-                  <span className="cockpit-label-sm block mb-[var(--ct-space-0_5)]">Composite score</span>
-                  <div className="dashboard-risk-summary__headline-row flex items-baseline gap-1">
-                    <span
-                      className={cn(
-                        "text-[length:var(--ct-text-display-fixed)] font-bold tabular tracking-tighter leading-none",
-                        data.band === "low"
-                          ? "ct-status-success"
-                          : data.band === "medium"
-                            ? "ct-status-warning"
-                            : "ct-status-danger",
-                      )}
-                    >
-                      {data.composite}
-                    </span>
-                    <span className="text-[length:var(--ct-text-2xs)] font-bold ct-text-faint tabular opacity-50">/ 100</span>
-                  </div>
+    <div className="flex flex-col gap-4" data-risk-provenance={provenance}>
+      {/* Overview hero — composite score + band + five-factor caption. */}
+      <div className="flex items-start justify-between gap-4 rounded-lg border border-white/5 bg-[#15191C] p-3">
+        <div className="flex flex-col gap-1">
+          <Tooltip
+            content={
+              <div className="dashboard-metric-tooltip">
+                <div className="dashboard-metric-tooltip__title">
+                  Composite Risk Score
                 </div>
-              </Tooltip>
-            </div>
-            <Badge
-              variant={
-                data.band === "low"
-                  ? "success"
-                  : data.band === "medium"
-                    ? "warning"
-                    : "danger"
-              }
-              className="px-[var(--ct-space-2)] py-[var(--ct-space-0_5)] cockpit-label-xs w-fit"
-            >
-              {data.bandLabel}
-            </Badge>
-          </div>
-
-          <div className="flex-1 max-w-[200px] ml-[var(--ct-space-4)]">
-            <p className="dashboard-risk-summary__blurb cockpit-value-xs m-0 leading-tight uppercase tracking-tight">
-              Five-factor operator view: contract, mining, counterparties, market, liquidity.
-            </p>
-          </div>
-        </div>
-
-        <div className="dashboard-risk-summary__grid grid grid-cols-1 gap-2">
-          {data.dimensions.map((dimension) => (
-            <article
-              key={dimension.id}
-              className="dashboard-risk-summary__item group bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_20%,transparent)] p-[var(--ct-space-2)] rounded-(--ct-radius-xs) border border-transparent hover:border-[var(--ct-border-ghost)] transition-all"
-              aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
-            >
-              <div className="dashboard-risk-summary__item-top flex items-center justify-between mb-[var(--ct-space-1_5)]">
-                <div className="dashboard-risk-summary__item-copy flex items-center gap-3">
-                  <span className="cockpit-value-md uppercase tracking-tight min-w-[100px]">
-                    {dimension.label}
-                  </span>
-                  <Badge variant={SEVERITY_BADGE[dimension.severity]} className="cockpit-label-xs px-[var(--ct-space-1_5)] py-0 h-3.5 min-w-0">
-                    {dimension.status}
-                  </Badge>
-                  <p className="cockpit-label-sm m-0 leading-none opacity-70 group-hover:opacity-100 transition-opacity">
-                    {dimension.detail}
-                  </p>
+                <div className="dashboard-metric-tooltip__desc">
+                  Aggregated risk metric across all dimensions. 0-30 Low, 31-70
+                  Medium, 71-100 High.
                 </div>
+              </div>
+            }
+          >
+            <div className="cursor-help">
+              <BentoLabel className="mb-1 block">Composite score</BentoLabel>
+              <div className="flex items-baseline gap-1">
                 <span
                   className={cn(
-                    "cockpit-value-md",
-                    SEVERITY_TEXT[dimension.severity],
+                    "text-[32px] font-bold leading-none tracking-tighter tabular-nums",
+                    BAND_TEXT[data.band],
                   )}
                 >
-                  {dimension.score}
+                  {data.composite}
+                </span>
+                <span className="text-[12px] font-bold tabular-nums text-zinc-600">
+                  / 100
                 </span>
               </div>
-
-              <Progress
-                value={dimension.score}
-                variant="plain"
-                fillClassName={cn(SEVERITY_FILL[dimension.severity], "transition-all duration-500")}
-                className="dashboard-risk-summary__progress h-1 bg-(--ct-bg-deep)"
-                label={`${dimension.label} risk score ${dimension.score} of 100`}
-              />
-            </article>
-          ))}
+            </div>
+          </Tooltip>
+          <Badge
+            variant={BAND_BADGE[data.band]}
+            className="w-fit px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em]"
+          >
+            {data.bandLabel}
+          </Badge>
         </div>
+
+        <p className="m-0 ml-4 max-w-[200px] flex-1 text-[11px] uppercase leading-tight tracking-tight text-zinc-500">
+          Five-factor operator view: contract, mining, counterparties, market,
+          liquidity.
+        </p>
+      </div>
+
+      {/* Per-dimension rows — label + status badge + detail + score + bar. */}
+      <div className="grid grid-cols-1 gap-2">
+        {data.dimensions.map((dimension) => (
+          <article
+            key={dimension.id}
+            className="group rounded-md border border-transparent bg-[#15191C] p-2 transition-colors hover:border-white/10"
+            aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
+          >
+            <div className="mb-1.5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="min-w-[100px] text-[13px] font-medium uppercase tracking-tight text-zinc-200">
+                  {dimension.label}
+                </span>
+                <Badge
+                  variant={SEVERITY_BADGE[dimension.severity]}
+                  className="h-3.5 min-w-0 px-1.5 py-0 text-[10px] font-bold uppercase tracking-[0.15em]"
+                >
+                  {dimension.status}
+                </Badge>
+                <p className="m-0 text-[11px] leading-none text-zinc-500 opacity-70 transition-opacity group-hover:opacity-100">
+                  {dimension.detail}
+                </p>
+              </div>
+              <span
+                className={cn(
+                  "text-[13px] font-medium tabular-nums",
+                  SEVERITY_TEXT[dimension.severity],
+                )}
+              >
+                {dimension.score}
+              </span>
+            </div>
+
+            <Progress
+              value={dimension.score}
+              variant="plain"
+              fillClassName={cn(
+                SEVERITY_FILL[dimension.severity],
+                "transition-all duration-500",
+              )}
+              className="h-1 rounded-full bg-black"
+              label={`${dimension.label} risk score ${dimension.score} of 100`}
+            />
+          </article>
+        ))}
       </div>
     </div>
   );

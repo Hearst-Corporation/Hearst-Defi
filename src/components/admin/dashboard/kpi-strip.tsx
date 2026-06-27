@@ -22,7 +22,14 @@ function provenanceDesc(p: string): string {
 }
 
 
-/** Compact per-vault KPI row for `/admin/dashboard` (container-query grid). */
+/**
+ * Compact per-vault KPI row for `/admin/dashboard`. Bento canon (Portfolio):
+ * micro uppercase labels, 18px tabular values, accent #A7FB90. Dense strip
+ * layout (inline cells + hairline separators) is preserved — the cell markup is
+ * inline rather than <BentoKpiTile> because each cell carries a provenance dot
+ * in the label row, a danger/accent value tone, and a delta-meta line the tile
+ * primitive does not model.
+ */
 export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   return (
     <div className="dashboard-kpi-strip">
@@ -30,7 +37,10 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
         <div key={kpi.label} className="flex items-center">
           <DashboardKpiCell kpi={kpi} />
           {index < kpis.length - 1 && (
-            <div className="dashboard-kpi-strip__separator" aria-hidden="true" />
+            <div
+              className="h-8 w-px shrink-0 self-center bg-white/10"
+              aria-hidden="true"
+            />
           )}
         </div>
       ))}
@@ -40,11 +50,15 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
 
 function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
   // Determine delta styling based on value content
-  const deltaType = kpi.sublabel?.includes("↑") ? "up" : kpi.sublabel?.includes("↓") ? "down" : "neutral";
+  const deltaType = kpi.sublabel?.includes("↑")
+    ? "up"
+    : kpi.sublabel?.includes("↓")
+      ? "down"
+      : "neutral";
   const deltaClass = {
-    up: "dashboard-kpi-delta--up",
-    down: "dashboard-kpi-delta--down",
-    neutral: "dashboard-kpi-delta--neutral",
+    up: "text-[#A7FB90]",
+    down: "ct-status-danger",
+    neutral: "text-zinc-500",
   }[deltaType];
 
   return (
@@ -58,34 +72,34 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
       side="top"
     >
       <div
-        className={cn(
-          "dashboard-kpi-strip__cell",
-          kpi.alert && "dashboard-kpi-strip__cell--alert",
-          kpi.accent && "dashboard-kpi-strip__cell--accent",
-        )}
+        className="flex flex-1 flex-col gap-2 px-5 py-4"
         aria-label={`${kpi.label}: ${kpi.value}`}
       >
-        <div className="dashboard-kpi-strip__label-row">
-          <span className="cockpit-label-xs">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
             {kpi.label}
           </span>
           <ProvenanceBadge kind={kpi.provenance} variant="strip" />
         </div>
         <span
           className={cn(
-            "dashboard-kpi-strip__value tabular-nums",
-            kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong",
+            "text-[18px] font-medium leading-none tracking-tight tabular-nums",
+            kpi.alert
+              ? "ct-status-danger"
+              : kpi.accent
+                ? "text-[#A7FB90]"
+                : "text-white",
           )}
         >
           {kpi.value}
         </span>
-        <span className="dashboard-kpi-strip__meta cockpit-label-xs flex items-center gap-1.5 lowercase">
-          <span className="opacity-70">{kpi.sublabel?.replace(/[↑↓]/g, "")}</span>
+        <span className="mt-auto flex items-center gap-1.5 text-[10px] lowercase text-zinc-500">
+          <span>{kpi.sublabel?.replace(/[↑↓]/g, "")}</span>
           {kpi.sublabel?.includes("↑") && (
-            <span className={cn("dashboard-kpi-delta", deltaClass)}>↑</span>
+            <span className={cn("not-italic", deltaClass)}>↑</span>
           )}
           {kpi.sublabel?.includes("↓") && (
-            <span className={cn("dashboard-kpi-delta", deltaClass)}>↓</span>
+            <span className={cn("not-italic", deltaClass)}>↓</span>
           )}
         </span>
       </div>

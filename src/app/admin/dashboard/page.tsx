@@ -2,7 +2,6 @@ import "./risk-summary-responsive.css";
 import "./system-readiness.css";
 import "./dashboard.css";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
@@ -40,30 +39,36 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     "HYV";
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Admin"
-        titleAccent="Command Center"
-        contextLabel={`${activeTicker} · Admin Command`}
-        className="dashboard-page-header"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
-      <DashboardAssetsBoard
-        data={page.data}
-        risk={risk}
-        proof={overview.proof}
-        capitalUsdc={page.capitalUsdc}
-        headlineApy={page.headlineApy}
-        hasLiveKpis={page.hasLiveKpis}
-        hasSeedPreview={page.hasSeedPreview}
-        showVaultAnalytics={page.showVaultAnalytics}
-        simulated={page.simulated}
-        yieldPosture={page.yieldPosture}
-        proofFresh={page.proofFresh}
-        cockpit={cockpit}
-        platformTotals={totals}
-        overviewClusters={overviewClusters}
-      />
-    </>
+        {/* HEADER */}
+        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
+          <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">
+            Admin <span className="text-[#A7FB90]">Command Center</span>
+          </h1>
+          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
+            {activeTicker} · Admin Command
+          </div>
+        </div>
+
+        <DashboardAssetsBoard
+          data={page.data}
+          risk={risk}
+          proof={overview.proof}
+          capitalUsdc={page.capitalUsdc}
+          headlineApy={page.headlineApy}
+          hasLiveKpis={page.hasLiveKpis}
+          hasSeedPreview={page.hasSeedPreview}
+          showVaultAnalytics={page.showVaultAnalytics}
+          simulated={page.simulated}
+          yieldPosture={page.yieldPosture}
+          proofFresh={page.proofFresh}
+          cockpit={cockpit}
+          platformTotals={totals}
+          overviewClusters={overviewClusters}
+        />
+      </div>
+    </div>
   );
 }
