@@ -127,7 +127,8 @@ export function ProjectionReportPreview() {
     <div className="flex flex-col gap-4 min-w-0">
       <header className={cn(PANEL, "flex flex-wrap items-center justify-between gap-4 p-4")}>
         <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <Badge variant="accent">Preview input</Badge>
+          <Badge variant="warning">Demo — not linked to current projection</Badge>
+          <Badge variant="accent">Fixture input</Badge>
           <SourceChip>No storage</SourceChip>
           <Badge variant="accent">Read-only</Badge>
           <Badge variant="accent">Range only</Badge>
