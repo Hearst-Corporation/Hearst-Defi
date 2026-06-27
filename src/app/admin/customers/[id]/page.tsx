@@ -67,29 +67,28 @@ export default async function CustomerDetailPage({
   const applied = detail.agentProfile;
 
   return (
-    <>
-      <AdminPageHeader
-        title={detail.email}
-        eyebrow={`investor · ${detail.userId}`}
-        description="Identity, qualification, assistant settings, saved notes, and recent activity."
-        lead={
-          <Link
-            href="/admin/customers"
-            className="text-[12px] text-zinc-500 transition-colors hover:text-white"
-          >
-            ← Investors
-          </Link>
-        }
-        actions={
-          <KycAction
-            investorId={detail.investorId}
-            status={detail.kycStatus as "pending" | "approved" | "rejected"}
-          />
-        }
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          title={detail.email}
+          eyebrow={`investor · ${detail.userId}`}
+          description="Identity, qualification, assistant settings, saved notes, and recent activity."
+          lead={
+            <Link
+              href="/admin/customers"
+              className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+            >
+              ← Investors
+            </Link>
+          }
+          actions={
+            <KycAction
+              investorId={detail.investorId}
+              status={detail.kycStatus as "pending" | "approved" | "rejected"}
+            />
+          }
+        />
 
-      <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
-        <div className="p-5 lg:p-6 flex flex-col gap-y-5">
           {/* Identity + positions */}
           <AdminDetailSection label="Identity" title="Investor profile">
             <AdminDetailGrid>
@@ -297,6 +296,5 @@ export default async function CustomerDetailPage({
           </AdminDetailSection>
         </div>
       </div>
-    </>
   );
 }

@@ -20,7 +20,10 @@ export default function PortfolioPage() {
 
           {/* Top Bar (spans full width of hero) */}
           <div className="lg:col-span-2 flex flex-wrap items-center justify-between pb-3 border-b border-white/10 mb-1 gap-4">
-            <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">Portfolio Cockpit</h1>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">HYV · Investor Cockpit</span>
+              <h1 className="text-[24px] font-semibold tracking-tight text-white">Portfolio <span className="text-[#A7FB90]">Cockpit</span></h1>
+            </div>
             <div className="text-xs font-medium text-zinc-400">
               Welcome back, <span className="text-[#A7FB90]">Investor</span>
             </div>

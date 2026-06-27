@@ -30,7 +30,7 @@ export default function ConfirmedPage() {
             </span>
           </div>
           <div className="flex flex-col gap-2">
-            <h1 className="text-[24px] leading-[28px] font-medium text-white tracking-tight text-pretty">
+            <h1 className="text-[24px] leading-[28px] font-semibold text-white tracking-tight text-pretty">
               Application <span className="text-[#A7FB90]">received</span>
             </h1>
             <p className="text-[13px] text-zinc-400 leading-relaxed text-pretty">

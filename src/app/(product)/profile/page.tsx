@@ -63,7 +63,10 @@ export default async function ProfilePage() {
         {/* HERO */}
         <section className="flex flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
-            <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">Investor Profile</h1>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">HYV · Account</span>
+              <h1 className="text-[24px] font-semibold tracking-tight text-white">Investor <span className="text-[#A7FB90]">Profile</span></h1>
+            </div>
             <Badge variant={session.role === "admin" ? "default" : "accent"}>
               {session.role === "admin" ? "Admin" : "Investor"}
             </Badge>

@@ -53,12 +53,14 @@ export default async function ScenarioLabPage({
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER */}
-        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
-          <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">
-            Scenario <span className="text-[#A7FB90]">Lab</span>
-          </h1>
-          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
-            Strategy · {vault.ticker}
+        <div className="flex flex-wrap items-end justify-between pb-3 border-b border-white/10 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              Strategy · {vault.ticker}
+            </span>
+            <h1 className="text-[24px] font-semibold tracking-tight text-white">
+              Scenario <span className="text-[#A7FB90]">Lab</span>
+            </h1>
           </div>
         </div>
 

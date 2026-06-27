@@ -32,7 +32,7 @@ export default async function ProofsPage() {
 
         <section className="flex flex-col gap-4" aria-label="Published evidence">
           {items.length > 0 ? (
-            <h2 className="text-[13px] font-semibold tracking-tight text-white">
+            <h2 className="text-[15px] font-semibold tracking-tight text-white">
               Published evidence{" "}
               <span className="text-zinc-500 tabular-nums">
                 ({items.length})
