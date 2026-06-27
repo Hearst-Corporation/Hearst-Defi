@@ -355,43 +355,45 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         className="ct-chat-list flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-12"
       >
         {isConversationEmpty && !streaming && (
-          <div className="m-auto flex w-full flex-col gap-5">
-            {/* Assistant panel — bento noir, aligné sur les modules produit */}
-            <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
-              <div className="py-2 text-center">
-                <div className="mb-3 flex justify-center text-[#A7FB90]">
-                  <HearstMark size={24} />
+          <div className="m-auto flex w-full flex-col gap-4">
+            {/* Assistant panel — hero premium + contexte, un seul panneau bento */}
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-sm">
+              <div className="flex flex-col items-center gap-3 px-5 pb-5 pt-7 text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[#A7FB90]">
+                  <HearstMark size={26} />
+                </span>
+                <div className="flex flex-col gap-1.5">
+                  <h2 className="text-[17px] font-semibold tracking-tight text-white">Hearst Assistant</h2>
+                  <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
+                    Your institutional co-pilot for portfolio insights and vault analysis.
+                  </p>
                 </div>
-                <h2 className="mb-1 text-[15px] font-semibold text-white">Hearst Assistant</h2>
-                <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
-                  Your institutional co-pilot for portfolio insights and vault analysis.
-                </p>
               </div>
 
-              <div className="w-full rounded-lg border border-white/5 bg-[#15191C] p-3">
-                <div className={cn("mb-2 flex items-center gap-2", MICRO_LABEL)}>
-                  <svg className="h-3 w-3" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                    <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              <div className="border-t border-white/5 px-5 py-4">
+                <div className={cn("mb-3 flex items-center gap-2", MICRO_LABEL)}>
+                  <svg className="h-3 w-3 text-[#A7FB90]" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                    <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                   </svg>
                   <span>Current Context</span>
                 </div>
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-2.5">
                   {productName ? (
-                    <div className="flex items-center gap-2 text-[13px] text-zinc-300">
+                    <div className="flex items-center gap-2.5 text-[13px] text-zinc-200">
                       <span
-                        className="h-1.5 w-1.5 rounded-full"
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
                         style={{ background: productColor ?? "#A7FB90" }}
                       />
                       <span>{productName}</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-[13px] text-zinc-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                    <div className="flex items-center gap-2.5 text-[13px] text-zinc-200">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A7FB90]" />
                       <span>General Portfolio</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-[13px] text-zinc-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                  <div className="flex items-center gap-2.5 text-[13px] text-zinc-200">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-600" />
                     <span>Verified Data Feeds</span>
                   </div>
                 </div>
@@ -399,7 +401,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
             </div>
 
             {/* Suggested actions panel — bento noir */}
-            <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
+            <div className="flex flex-col gap-3.5 rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
               <div className={cn("self-start", MICRO_LABEL)}>Suggested Actions</div>
               <ChatPresets
                 masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
@@ -487,12 +489,16 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       ) : null}
 
       {/* Input */}
-      <div className="mt-auto flex flex-col gap-2 pt-2">
-        <div className="text-center text-[11px] italic text-zinc-500">
+      <div className="mt-auto flex flex-col gap-2.5 pt-2">
+        <div className="flex items-center justify-center gap-1.5 text-[11px] italic text-zinc-500">
+          <svg className="h-3 w-3 shrink-0 not-italic text-zinc-600" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <rect x="2.5" y="5.5" width="8" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.1" />
+            <path d="M4.5 5.5V4a2 2 0 0 1 4 0v1.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+          </svg>
           Drafts are prepared in review mode. Nothing sends without confirmation.
         </div>
         <form
-          className="flex items-end gap-2 rounded-lg border border-white/10 bg-[#15191C] py-2 pl-3 pr-2 transition-colors duration-150 focus-within:border-[#A7FB90]/40"
+          className="flex items-end gap-2 rounded-xl border border-white/10 bg-[#15191C] py-2 pl-3.5 pr-2 shadow-sm transition-colors duration-150 focus-within:border-[#A7FB90]/40"
           onSubmit={(e) => {
             e.preventDefault();
             handleSend(input);

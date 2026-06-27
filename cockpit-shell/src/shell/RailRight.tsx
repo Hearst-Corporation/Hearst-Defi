@@ -27,6 +27,7 @@ import {
 import { ChatKimi } from "../chat/ChatKimi";
 import { ChatSettings } from "../chat/ChatSettings";
 import { ChatHistory } from "../chat/ChatHistory";
+import { HearstMark } from "./HearstMark";
 import { useCockpit } from "./context";
 
 const TITLES: Record<string, string> = {
@@ -84,11 +85,15 @@ export function RailRight() {
     <aside className={railClass}>
       <div className="ct-rail-right-header flex items-center gap-2 border-b border-white/10">
         {open && (
-          <span className="flex min-w-0 flex-1 items-center gap-2">
-            <span
-              className={`h-2 w-2 shrink-0 rounded-full${streaming ? " animate-pulse" : ""}`}
-              style={{ background: product.color }}
-            />
+          <span className="flex min-w-0 flex-1 items-center gap-2.5">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[#A7FB90]">
+              <HearstMark size={16} />
+              <span
+                className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0B0E10]${streaming ? " animate-pulse" : ""}`}
+                style={{ background: product.color }}
+                aria-hidden="true"
+              />
+            </span>
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="flex items-center gap-2">
                 <span className="truncate text-[15px] font-medium leading-none text-white">
