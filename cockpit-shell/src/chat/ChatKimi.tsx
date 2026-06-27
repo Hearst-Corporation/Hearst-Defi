@@ -355,57 +355,63 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         className="ct-chat-list flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-12"
       >
         {isConversationEmpty && !streaming && (
-          <div className="m-auto flex w-full max-w-[90%] flex-col items-center gap-4">
-            <div className="py-4 text-center">
-              <div className="mb-3 flex justify-center text-[#A7FB90]">
-                <HearstMark size={24} />
+          <div className="m-auto flex w-full flex-col gap-5">
+            {/* Assistant panel — bento noir, aligné sur les modules produit */}
+            <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
+              <div className="py-2 text-center">
+                <div className="mb-3 flex justify-center text-[#A7FB90]">
+                  <HearstMark size={24} />
+                </div>
+                <h2 className="mb-1 text-[15px] font-semibold text-white">Hearst Assistant</h2>
+                <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
+                  Your institutional co-pilot for portfolio insights and vault analysis.
+                </p>
               </div>
-              <h2 className="mb-1 text-[15px] font-semibold text-white">Hearst Assistant</h2>
-              <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
-                Your institutional co-pilot for portfolio insights and vault analysis.
-              </p>
-            </div>
 
-            <div className="w-full rounded-2xl border border-white/10 bg-[#15191C] p-3">
-              <div className={cn("mb-2 flex items-center gap-2", MICRO_LABEL)}>
-                <svg className="h-3 w-3" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                  <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                </svg>
-                <span>Current Context</span>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {productName ? (
-                  <div className="flex items-center gap-2 text-[13px] text-zinc-300">
-                    <span
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{ background: productColor ?? "#A7FB90" }}
-                    />
-                    <span>{productName}</span>
-                  </div>
-                ) : (
+              <div className="w-full rounded-lg border border-white/5 bg-[#15191C] p-3">
+                <div className={cn("mb-2 flex items-center gap-2", MICRO_LABEL)}>
+                  <svg className="h-3 w-3" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                    <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                  </svg>
+                  <span>Current Context</span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {productName ? (
+                    <div className="flex items-center gap-2 text-[13px] text-zinc-300">
+                      <span
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{ background: productColor ?? "#A7FB90" }}
+                      />
+                      <span>{productName}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-[13px] text-zinc-300">
+                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                      <span>General Portfolio</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-[13px] text-zinc-300">
                     <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
-                    <span>General Portfolio</span>
+                    <span>Verified Data Feeds</span>
                   </div>
-                )}
-                <div className="flex items-center gap-2 text-[13px] text-zinc-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
-                  <span>Verified Data Feeds</span>
                 </div>
               </div>
             </div>
 
-            <div className={cn("self-start", MICRO_LABEL)}>Suggested Actions</div>
-            <ChatPresets
-              masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
-              onPick={(text) => {
-                setInput(text);
-                requestAnimationFrame(() => {
-                  autoGrow();
-                  textareaRef.current?.focus();
-                });
-              }}
-            />
+            {/* Suggested actions panel — bento noir */}
+            <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
+              <div className={cn("self-start", MICRO_LABEL)}>Suggested Actions</div>
+              <ChatPresets
+                masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
+                onPick={(text) => {
+                  setInput(text);
+                  requestAnimationFrame(() => {
+                    autoGrow();
+                    textareaRef.current?.focus();
+                  });
+                }}
+              />
+            </div>
           </div>
         )}
 
