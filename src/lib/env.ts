@@ -99,6 +99,13 @@ const serverEnvSchema = z.object({
   // until a partner-attested feed lands). When unset, coverage is Pending —
   // never fabricated. 0–10000.
   MINING_REVENUE_SHARE_BPS: z.coerce.number().int().min(0).max(10000).optional(),
+  // Telegram MTProto (machine-price ingestion from Letine et al.). ALL optional —
+  // when any is absent the /admin/source machine table degrades to "not
+  // configured" instead of throwing. api_hash + session are secrets (.env.local
+  // only). Generate the session once via `node scripts/telegram-login.mjs`.
+  TELEGRAM_API_ID: z.coerce.number().int().positive().optional(),
+  TELEGRAM_API_HASH: z.string().optional(),
+  TELEGRAM_SESSION: z.string().optional(),
   // Fireblocks custody (Proof-of-Reserves). Optional — when absent, custody data
   // falls back to mock with a `Manual` provenance badge instead of `Live`.
   FIREBLOCKS_API_KEY: z.string().optional(),
