@@ -3,13 +3,13 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   createAgentTemplate,
   updateAgentTemplate,
 } from "@/app/admin/agents/actions";
 import type { AgentTemplate } from "@prisma/client";
+import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
+import { cn } from "@/lib/cn";
 import { AGENT_CATALOG } from "@/lib/agents/agent-catalog";
 import { AGENT_ICONS } from "@/lib/agents/agent-icons";
 import {
@@ -23,6 +23,36 @@ import {
 
 /** Mirror of the server-side Zod cap on systemAdditions. */
 const SYSTEM_ADDITIONS_MAX = 2000;
+
+/** Micro uppercase field label — bento canon. */
+const FIELD_LABEL =
+  "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+
+/** Native input/select/textarea chrome — bento canon. */
+const FIELD_CONTROL =
+  "w-full bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 focus:outline-none rounded-lg px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600";
+
+/** Neutral badge pill used in the persona summary + base-agent echo. */
+function Pill({
+  accent = false,
+  children,
+}: {
+  accent?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        accent
+          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+          : "border-white/10 bg-white/5 text-zinc-400",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
 
 /** Create + edit form for an AgentTemplate (the reusable persona library). */
 export function AgentTemplateForm({
@@ -72,48 +102,51 @@ export function AgentTemplateForm({
   return (
     <form
       action={onSubmit}
-      className="admin-doc-stack"
+      className="flex flex-col gap-y-6"
       aria-label="Agent template form"
     >
       {/* Selected base agent — echoes the catalog card you arrived from. */}
       {entry && (
-        <div className="admin-doc-inline-row admin-doc-inline-row--start admin-inset-panel--md border border-(--ct-border-soft)">
+        <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#15191C] p-5">
           <span
             aria-hidden
-            className="admin-inset-chip flex size-12 shrink-0 items-center justify-center border border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
+            className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
           >
             <Icon className="size-6" strokeWidth={1.75} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block stat-label ct-text-muted">Base agent</span>
-            <span className="block body-sm font-semibold ct-text-strong">
+            <span className={cn("block", FIELD_LABEL)}>Base agent</span>
+            <span className="block text-[14px] font-semibold text-white">
               {entry.label}
             </span>
-            <span className="block body-xs ct-text-muted">{entry.description}</span>
+            <span className="block text-[12px] text-zinc-400">
+              {entry.description}
+            </span>
           </span>
-          <Badge variant={entry.scope === "platform" ? "accent" : "default"}>
-            {entry.scopeLabel}
-          </Badge>
+          <Pill accent={entry.scope === "platform"}>{entry.scopeLabel}</Pill>
         </div>
       )}
 
       {/* ── Section 1 · Identity ──────────────────────────────────────── */}
-      <section
-        className="admin-doc-stack admin-doc-stack--actions"
-        aria-labelledby="sec-identity"
-      >
-        <header>
-          <h3 id="sec-identity" className="h3">
+      <section className="flex flex-col gap-y-4" aria-labelledby="sec-identity">
+        <header className="flex flex-col gap-1">
+          <h3
+            id="sec-identity"
+            className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
+          >
             Identity
           </h3>
-          <p className="body-xs ct-text-muted">
+          <p className="text-[12px] text-zinc-500">
             How this persona appears in the library.
           </p>
         </header>
 
-        <label className="block body-xs" htmlFor="tpl-label">
-          <span className="ct-form-label">
-            Label <span aria-hidden className="ct-text-accent">*</span>
+        <label className="flex flex-col gap-1.5" htmlFor="tpl-label">
+          <span className={FIELD_LABEL}>
+            Label{" "}
+            <span aria-hidden className="text-[#A7FB90]">
+              *
+            </span>
           </span>
           <input
             id="tpl-label"
@@ -124,16 +157,16 @@ export function AgentTemplateForm({
             maxLength={80}
             defaultValue={template?.label ?? ""}
             placeholder="Institutional LP"
-            className="ct-input"
+            className={FIELD_CONTROL}
           />
-          <span className="admin-field-hint block body-xs ct-text-muted">
+          <span className="text-[11px] text-zinc-500">
             2–80 characters. Used to generate the slug.
           </span>
         </label>
 
-        <label className="block body-xs" htmlFor="tpl-description">
-          <span className="ct-form-label">
-            Description <span className="ct-text-muted">(optional)</span>
+        <label className="flex flex-col gap-1.5" htmlFor="tpl-description">
+          <span className={FIELD_LABEL}>
+            Description <span className="text-zinc-500">(optional)</span>
           </span>
           <input
             id="tpl-description"
@@ -142,36 +175,39 @@ export function AgentTemplateForm({
             maxLength={2000}
             defaultValue={template?.description ?? ""}
             placeholder="Institutional investor, muted register"
-            className="ct-input"
+            className={FIELD_CONTROL}
           />
         </label>
       </section>
 
       {/* ── Section 2 · Behavior ──────────────────────────────────────── */}
-      <section
-        className="admin-doc-stack admin-doc-stack--actions"
-        aria-labelledby="sec-behavior"
-      >
-        <header>
-          <h3 id="sec-behavior" className="h3">
+      <section className="flex flex-col gap-y-4" aria-labelledby="sec-behavior">
+        <header className="flex flex-col gap-1">
+          <h3
+            id="sec-behavior"
+            className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
+          >
             Behavior
           </h3>
-          <p className="body-xs ct-text-muted">
+          <p className="text-[12px] text-zinc-500">
             Base agent and response register. Leave blank to inherit the agent
             defaults.
           </p>
         </header>
 
-        <label className="block body-xs" htmlFor="tpl-baseAgent">
-          <span className="ct-form-label">
-            Base agent <span aria-hidden className="ct-text-accent">*</span>
+        <label className="flex flex-col gap-1.5" htmlFor="tpl-baseAgent">
+          <span className={FIELD_LABEL}>
+            Base agent{" "}
+            <span aria-hidden className="text-[#A7FB90]">
+              *
+            </span>
           </span>
           <select
             id="tpl-baseAgent"
             name="baseAgent"
             value={baseAgent}
             onChange={(e) => setBaseAgent(e.target.value as BaseAgent)}
-            className="ct-input"
+            className={FIELD_CONTROL}
           >
             {BASE_AGENTS.map((a) => (
               <option key={a} value={a}>
@@ -181,15 +217,15 @@ export function AgentTemplateForm({
           </select>
         </label>
 
-        <div className="admin-doc-form-grid-2">
-          <label className="block body-xs" htmlFor="tpl-tone">
-            <span className="ct-form-label">Tone</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="flex flex-col gap-1.5" htmlFor="tpl-tone">
+            <span className={FIELD_LABEL}>Tone</span>
             <select
               id="tpl-tone"
               name="tone"
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="ct-input"
+              className={FIELD_CONTROL}
             >
               <option value="">— default —</option>
               {TONES.map((t) => (
@@ -200,14 +236,14 @@ export function AgentTemplateForm({
             </select>
           </label>
 
-          <label className="block body-xs" htmlFor="tpl-language">
-            <span className="ct-form-label">Language</span>
+          <label className="flex flex-col gap-1.5" htmlFor="tpl-language">
+            <span className={FIELD_LABEL}>Language</span>
             <select
               id="tpl-language"
               name="language"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="ct-input"
+              className={FIELD_CONTROL}
             >
               <option value="">— default —</option>
               {LANGUAGES.map((l) => (
@@ -218,14 +254,14 @@ export function AgentTemplateForm({
             </select>
           </label>
 
-          <label className="block body-xs" htmlFor="tpl-verbosity">
-            <span className="ct-form-label">Verbosity</span>
+          <label className="flex flex-col gap-1.5" htmlFor="tpl-verbosity">
+            <span className={FIELD_LABEL}>Verbosity</span>
             <select
               id="tpl-verbosity"
               name="verbosity"
               value={verbosity}
               onChange={(e) => setVerbosity(e.target.value)}
-              className="ct-input"
+              className={FIELD_CONTROL}
             >
               <option value="">— default —</option>
               {VERBOSITIES.map((v) => (
@@ -240,20 +276,23 @@ export function AgentTemplateForm({
 
       {/* ── Section 3 · Instructions ──────────────────────────────────── */}
       <section
-        className="admin-doc-stack admin-doc-stack--actions"
+        className="flex flex-col gap-y-4"
         aria-labelledby="sec-instructions"
       >
-        <header>
-          <h3 id="sec-instructions" className="h3">
+        <header className="flex flex-col gap-1">
+          <h3
+            id="sec-instructions"
+            className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
+          >
             Instructions
           </h3>
-          <p className="body-xs ct-text-muted">
+          <p className="text-[12px] text-zinc-500">
             Appended verbatim to the system prompt. Never promise returns.
           </p>
         </header>
 
-        <label className="block body-xs" htmlFor="tpl-systemAdditions">
-          <span className="ct-form-label">Tone &amp; behavior notes</span>
+        <label className="flex flex-col gap-1.5" htmlFor="tpl-systemAdditions">
+          <span className={FIELD_LABEL}>Tone &amp; behavior notes</span>
           <textarea
             id="tpl-systemAdditions"
             name="systemAdditions"
@@ -262,13 +301,14 @@ export function AgentTemplateForm({
             defaultValue={template?.systemAdditions ?? ""}
             onChange={(e) => setSystemLen(e.target.value.length)}
             placeholder="Highlight the Cayman SPV structure and compliance; muted register."
-            className="ct-input"
+            className={FIELD_CONTROL}
           />
           <span
             aria-live="polite"
-            className={`admin-field-hint block text-right body-xs ${
-              systemOver ? "ct-status-danger" : "ct-text-muted"
-            }`}
+            className={cn(
+              "text-right text-[11px]",
+              systemOver ? "text-red-400" : "text-zinc-500",
+            )}
           >
             {systemLen} / {SYSTEM_ADDITIONS_MAX}
           </span>
@@ -277,22 +317,26 @@ export function AgentTemplateForm({
 
       {/* Live persona preview — the exact register this template encodes. */}
       <div
-        className="admin-doc-inline-row admin-doc-inline-row--start"
+        className="flex flex-wrap items-center gap-2"
         aria-label="Persona summary"
       >
-        <span className="stat-label ct-text-muted">Persona</span>
-        <Badge variant={entry?.scope === "platform" ? "accent" : "default"}>
+        <span className={FIELD_LABEL}>Persona</span>
+        <Pill accent={entry?.scope === "platform"}>
           {BASE_AGENT_LABELS[baseAgent] ?? baseAgent}
-        </Badge>
-        {tone && <Badge variant="default">{tone}</Badge>}
-        {language && <Badge variant="default">{language.toUpperCase()}</Badge>}
-        {verbosity && <Badge variant="default">{verbosity}</Badge>}
+        </Pill>
+        {tone && <Pill>{tone}</Pill>}
+        {language && <Pill>{language.toUpperCase()}</Pill>}
+        {verbosity && <Pill>{verbosity}</Pill>}
       </div>
 
-      <div className="admin-doc-inline-row">
-        <Button type="submit" variant="primary" size="md" disabled={isPending || systemOver}>
+      <div className="flex items-center">
+        <button
+          type="submit"
+          disabled={isPending || systemOver}
+          className={BENTO_PRIMARY_BTN}
+        >
           {isPending ? "Saving…" : isEdit ? "Save changes" : "Create template"}
-        </Button>
+        </button>
       </div>
     </form>
   );

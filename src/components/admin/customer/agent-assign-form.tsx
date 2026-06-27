@@ -3,9 +3,16 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import {
+  BentoLabel,
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
 import { assignTemplate, recalibrateAgent } from "@/app/admin/customers/[id]/actions";
 import type { AgentTemplate } from "@prisma/client";
+
+const SELECT_INPUT =
+  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 /**
  * Assigns the AgentTemplate a customer's cockpit-chat inherits, plus a button
@@ -68,16 +75,20 @@ export function AgentAssignForm({
   }
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
-      <form action={onAssign} className="admin-doc-inline-row admin-form-row flex-wrap" aria-label="Assign template">
+    <div className="flex flex-col gap-5">
+      <form
+        action={onAssign}
+        className="flex flex-wrap items-end gap-3"
+        aria-label="Assign template"
+      >
         <input type="hidden" name="userId" value={userId} />
-        <label className="block body-xs grow" htmlFor="assign-template">
-          <span className="ct-form-label">Inherited template</span>
+        <label className="flex grow flex-col gap-2" htmlFor="assign-template">
+          <BentoLabel>Inherited template</BentoLabel>
           <select
             id="assign-template"
             name="templateId"
             defaultValue={currentTemplateId ?? ""}
-            className="ct-input"
+            className={SELECT_INPUT}
           >
             <option value="">— none —</option>
             {archivedCurrent && (
@@ -92,18 +103,22 @@ export function AgentAssignForm({
             ))}
           </select>
         </label>
-        <Button type="submit" variant="secondary" size="md" disabled={isPending}>
+        <button type="submit" className={BENTO_SECONDARY_BTN} disabled={isPending}>
           Assign
-        </Button>
+        </button>
       </form>
 
       <form action={onRecalibrate} aria-label="Recalibrate from questionnaire">
         <input type="hidden" name="userId" value={userId} />
-        <Button type="submit" variant="primary" size="md" disabled={isPending || !canRecalibrate}>
+        <button
+          type="submit"
+          className={BENTO_PRIMARY_BTN}
+          disabled={isPending || !canRecalibrate}
+        >
           Recalibrate from questionnaire
-        </Button>
+        </button>
         {!canRecalibrate && (
-          <p className="body-xs ct-text-muted mt-(--ct-space-1)">
+          <p className="mt-2 text-[12px] text-zinc-500">
             No questionnaire answers yet — fill the qualification above first.
           </p>
         )}

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+
+import { BentoPanel } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 
 interface AdminTableProps<T> {
@@ -11,6 +12,13 @@ interface AdminTableProps<T> {
   colWidths?: string[];
 }
 
+/**
+ * Admin data table — Portfolio "Active Positions" canon (bento).
+ * Black panel + hairline border, micro uppercase thead labels, rows with a
+ * hairline divider and a faint hover wash. The cells themselves are supplied by
+ * each consumer's `renderRow` (they pass their own `<td>`), so only the chrome
+ * (panel, thead, row hover) is styled here.
+ */
 export function AdminTable<T>({
   data,
   headers,
@@ -19,16 +27,16 @@ export function AdminTable<T>({
   colWidths,
 }: AdminTableProps<T>) {
   return (
-    <Card className={cn("p-0 overflow-hidden", className)} hoverOverlay={false}>
+    <BentoPanel className={className}>
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left body-sm">
+        <table className="w-full table-fixed text-left text-[13px]">
           <thead>
-            <tr>
+            <tr className="border-b border-white/5">
               {headers.map((h, i) => (
                 <th
                   key={i}
                   className={cn(
-                    "stat-label ct-table-header whitespace-nowrap",
+                    "px-5 py-3 text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap text-zinc-500",
                     colWidths?.[i],
                   )}
                 >
@@ -41,7 +49,7 @@ export function AdminTable<T>({
             {data.map((item, i) => (
               <tr
                 key={i}
-                className="border-b border-(--ct-border-soft) last:border-0"
+                className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.02]"
               >
                 {renderRow(item)}
               </tr>
@@ -49,7 +57,7 @@ export function AdminTable<T>({
           </tbody>
         </table>
       </div>
-    </Card>
+    </BentoPanel>
   );
 }
 
@@ -72,29 +80,27 @@ export function AdminPagination({
   const end = Math.min(page * pageSize, total);
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--compact border-t border-(--ct-border-soft) py-(--ct-space-4)">
-      <div className="admin-doc-row-spread">
-        <p className="body-xs ct-text-muted">
-          Showing {start}-{end} of {total}
-        </p>
-        <div className="admin-doc-inline-row">
-          {page > 1 && (
-            <Link
-              href={`${basePath}?page=${page - 1}&pageSize=${pageSize}`}
-              className="rounded-md border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1_5) body-xs ct-text-muted hover:ct-text-strong transition-colors ease-(--ct-ease)"
-            >
-              Previous
-            </Link>
-          )}
-          {hasMore && (
-            <Link
-              href={`${basePath}?page=${page + 1}&pageSize=${pageSize}`}
-              className="rounded-md border border-(--ct-border-soft) px-(--ct-space-3) py-(--ct-space-1_5) body-xs ct-text-muted hover:ct-text-strong transition-colors ease-(--ct-ease)"
-            >
-              Next
-            </Link>
-          )}
-        </div>
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 py-4">
+      <p className="text-[12px] text-zinc-500 tabular-nums">
+        Showing {start}-{end} of {total}
+      </p>
+      <div className="flex items-center gap-2">
+        {page > 1 && (
+          <Link
+            href={`${basePath}?page=${page - 1}&pageSize=${pageSize}`}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10"
+          >
+            Previous
+          </Link>
+        )}
+        {hasMore && (
+          <Link
+            href={`${basePath}?page=${page + 1}&pageSize=${pageSize}`}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10"
+          >
+            Next
+          </Link>
+        )}
       </div>
     </div>
   );

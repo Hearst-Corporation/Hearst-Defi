@@ -119,7 +119,7 @@ export function ProjectionReportPreview() {
 
   return (
     <div className="projpv-shell">
-      <header className="projpv-toolbar ct-glass-panel ct-glass-panel--flat">
+      <header className="projpv-toolbar rounded-2xl border border-white/10 bg-black shadow-sm">
         <div className="projpv-toolbar-meta">
           <span className="projpv-badge projpv-badge--preview">Preview input</span>
           <span className="projpv-badge projpv-badge--source">No storage</span>
@@ -160,7 +160,7 @@ export function ProjectionReportPreview() {
       </header>
 
       {/* Editable bounded draft inputs */}
-      <section className="projpv-inputs ct-glass-panel ct-glass-panel--flat" aria-label="Preview input">
+      <section className="projpv-inputs rounded-2xl border border-white/10 bg-black shadow-sm" aria-label="Preview input">
         <div className="projpv-inputs-grid">
           <DraftField
             label="Capital base (USDC)"
@@ -220,7 +220,7 @@ export function ProjectionReportPreview() {
       </section>
 
       {state.kind === "idle" ? (
-        <div className="projpv-state projpv-state--idle ct-glass-panel ct-glass-panel--flat">
+        <div className="projpv-state projpv-state--idle rounded-2xl border border-white/10 bg-black shadow-sm">
           <p className="projpv-state-title">
             {mode === "v2" ? "Methodology v2 — seeded distribution" : "Read-only projection preview"}
           </p>
@@ -242,7 +242,7 @@ export function ProjectionReportPreview() {
       ) : null}
 
       {state.kind === "loading" ? (
-        <div className="projpv-state projpv-state--loading ct-glass-panel ct-glass-panel--flat" aria-busy="true">
+        <div className="projpv-state projpv-state--loading rounded-2xl border border-white/10 bg-black shadow-sm" aria-busy="true">
           <p className="projpv-state-title">Building projection…</p>
           <div className="projpv-skel" />
           <div className="projpv-skel projpv-skel--wide" />
@@ -250,14 +250,14 @@ export function ProjectionReportPreview() {
       ) : null}
 
       {state.kind === "invalid" ? (
-        <div className="projpv-state projpv-state--warn ct-glass-panel ct-glass-panel--flat" role="alert">
+        <div className="projpv-state projpv-state--warn rounded-2xl border border-white/10 bg-black shadow-sm" role="alert">
           <p className="projpv-state-title">Input not accepted</p>
           <p className="projpv-state-body">{state.message}</p>
         </div>
       ) : null}
 
       {state.kind === "error" ? (
-        <div className="projpv-state projpv-state--error ct-glass-panel ct-glass-panel--flat" role="alert">
+        <div className="projpv-state projpv-state--error rounded-2xl border border-white/10 bg-black shadow-sm" role="alert">
           <p className="projpv-state-title">Projection unavailable</p>
           <p className="projpv-state-body">{state.message}</p>
         </div>

@@ -107,65 +107,65 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   };
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Vault"
-        titleAccent="Rebalancing"
-        contextLabel="Vaults"
-        actions={
-          isDev ? (
-            <ManualSignalTrigger action={manualSignalAction} vaultId={vaultId} />
-          ) : undefined
-        }
-      />
-
-      {/* Signal KPI summary — suppressed when no signals exist */}
-      {signalKpis.length > 0 && (
-        <AdminKpiStripPanel kpis={signalKpis} />
-      )}
-
-      <AdminUrlTabFilter
-        ariaLabel="Signal status filter"
-        activeKey={activeStatus}
-        tabs={TABS.map((tab) => {
-          const count =
-            tab.value === "all"
-              ? Object.values(countMap).reduce((a, b) => a + b, 0)
-              : (countMap[tab.value] ?? 0);
-
-          return {
-            key: tab.value,
-            label: (
-              <>
-                {tab.label}
-                {count > 0 ? <span className="tabular">{count}</span> : null}
-              </>
-            ),
-            href: withAdminVaultQuery("/admin/signals", vaultQuery, {
-              status: tab.value,
-            }),
-          };
-        })}
-      />
-
-      {/* Event list */}
-      {events.length === 0 ? (
-        <EmptySurface
-          variant="widget"
-          message={`No rebalance signals with status "${activeStatus}".`}
-          detail="Signals for the selected vault are created automatically by the Inngest rebalancing-signal function when engine rules fire."
-          className="min-h-32"
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Vault"
+          titleAccent="Rebalancing"
+          contextLabel="Vaults"
+          actions={
+            isDev ? (
+              <ManualSignalTrigger action={manualSignalAction} vaultId={vaultId} />
+            ) : undefined
+          }
         />
-      ) : (
-        <section className="admin-doc-stack admin-doc-stack--relaxed">
-          <p className="body-xs admin-doc-weight-semibold ct-text-body">
-            {events.length} signal{events.length !== 1 ? "s" : ""}
-          </p>
-          {events.map((event) => (
-            <RebalanceCard key={event.id} event={event} requiredSigners={2} />
-          ))}
-        </section>
-      )}
-    </>
+
+        {/* Signal KPI summary — suppressed when no signals exist */}
+        {signalKpis.length > 0 && <AdminKpiStripPanel kpis={signalKpis} />}
+
+        <AdminUrlTabFilter
+          ariaLabel="Signal status filter"
+          activeKey={activeStatus}
+          tabs={TABS.map((tab) => {
+            const count =
+              tab.value === "all"
+                ? Object.values(countMap).reduce((a, b) => a + b, 0)
+                : (countMap[tab.value] ?? 0);
+
+            return {
+              key: tab.value,
+              label: (
+                <>
+                  {tab.label}
+                  {count > 0 ? <span className="tabular">{count}</span> : null}
+                </>
+              ),
+              href: withAdminVaultQuery("/admin/signals", vaultQuery, {
+                status: tab.value,
+              }),
+            };
+          })}
+        />
+
+        {/* Event list */}
+        {events.length === 0 ? (
+          <EmptySurface
+            variant="widget"
+            message={`No rebalance signals with status "${activeStatus}".`}
+            detail="Signals for the selected vault are created automatically by the Inngest rebalancing-signal function when engine rules fire."
+            className="min-h-32"
+          />
+        ) : (
+          <section className="flex flex-col gap-y-5">
+            <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              {events.length} signal{events.length !== 1 ? "s" : ""}
+            </p>
+            {events.map((event) => (
+              <RebalanceCard key={event.id} event={event} requiredSigners={2} />
+            ))}
+          </section>
+        )}
+      </div>
+    </div>
   );
 }

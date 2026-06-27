@@ -10,8 +10,8 @@ import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoPanel } from "@/components/ui/bento";
 import { loadProspectDetail } from "@/lib/data/outreach";
 import {
   AdminDetailSection,
@@ -123,273 +123,279 @@ export default async function ProspectDetailPage({
   const mailbox = getMailboxReadiness();
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Prospect"
-        titleAccent={displayName}
-        contextLabel={`Outreach · ${p.source}`}
-        description="Identity, the Apollo enrichment snapshot, qualification tier, and the full engagement record for this prospect."
-        lead={
-          <Link
-            href="/admin/outreach"
-            className="body-xs ct-text-muted hover:ct-text-strong"
-          >
-            ← Outreach
-          </Link>
-        }
-        actions={
-          <div className="admin-doc-inline-row admin-doc-inline-row--end">
-            <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"}>{p.status}</Badge>
-            {p.tier ? (
-              <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
-            ) : null}
-            {p.hubspotContactId ? (
-              <a
-                href={`https://app-eu1.hubspot.com/contacts/contact/${p.hubspotContactId}`}
-                target="_blank"
-                rel="noreferrer"
-                className="body-xs ct-text-muted hover:ct-text-strong"
-              >
-                HubSpot ↗
-              </a>
-            ) : null}
-          </div>
-        }
-      />
-
-      {/* Identity */}
-      <AdminDetailSection label="Identity" title="Identity">
-        <AdminDetailGrid>
-          <AdminDetailItem label="Email">
-            <span className="mono ct-text-strong">
-              <a href={`mailto:${p.email}`} className="hover:underline">
-                {p.email}
-              </a>
-            </span>
-          </AdminDetailItem>
-          <AdminDetailItem label="Name">{fullName || "—"}</AdminDetailItem>
-          <AdminDetailItem label="Title">{p.title ?? "—"}</AdminDetailItem>
-          <AdminDetailItem label="Company">{p.company ?? "—"}</AdminDetailItem>
-          <AdminDetailItem label="Source">{p.source}</AdminDetailItem>
-          <AdminDetailItem label="Email status">
-            {p.emailStatus ? (
-              <Badge variant={EMAIL_STATUS_VARIANT[p.emailStatus] ?? "default"}>
-                {p.emailStatus}
-              </Badge>
-            ) : (
-              <span className="ct-text-muted">—</span>
-            )}
-          </AdminDetailItem>
-          <AdminDetailItem label="Added">{formatAdminDate(p.createdAt)}</AdminDetailItem>
-          <AdminDetailItem label="Last contacted">
-            {p.lastContactedAt ? formatAdminDate(p.lastContactedAt) : "—"}
-          </AdminDetailItem>
-        </AdminDetailGrid>
-      </AdminDetailSection>
-
-      {/* Apollo enrichment */}
-      <AdminDetailSection
-        label="Apollo enrichment"
-        title="Apollo enrichment"
-        description="The person/org detail captured from Apollo at source time."
-      >
-        {isApolloSourced || p.linkedinUrl || p.companyDomain || p.industry ? (
-          <AdminDetailGrid>
-            <AdminDetailItem label="LinkedIn">
-              {p.linkedinUrl ? (
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Prospect"
+          titleAccent={displayName}
+          contextLabel={`Outreach · ${p.source}`}
+          description="Identity, the Apollo enrichment snapshot, qualification tier, and the full engagement record for this prospect."
+          lead={
+            <Link
+              href="/admin/outreach"
+              className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+            >
+              ← Outreach
+            </Link>
+          }
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"}>{p.status}</Badge>
+              {p.tier ? (
+                <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
+              ) : null}
+              {p.hubspotContactId ? (
                 <a
-                  href={p.linkedinUrl}
+                  href={`https://app-eu1.hubspot.com/contacts/contact/${p.hubspotContactId}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="ct-text-accent hover:underline break-all"
+                  className="text-[12px] text-zinc-500 transition-colors hover:text-white"
                 >
-                  View profile ↗
+                  HubSpot ↗
                 </a>
+              ) : null}
+            </div>
+          }
+        />
+
+        {/* Identity */}
+        <AdminDetailSection label="Identity" title="Identity">
+          <AdminDetailGrid>
+            <AdminDetailItem label="Email">
+              <span className="font-mono text-white">
+                <a href={`mailto:${p.email}`} className="hover:underline">
+                  {p.email}
+                </a>
+              </span>
+            </AdminDetailItem>
+            <AdminDetailItem label="Name">{fullName || "—"}</AdminDetailItem>
+            <AdminDetailItem label="Title">{p.title ?? "—"}</AdminDetailItem>
+            <AdminDetailItem label="Company">{p.company ?? "—"}</AdminDetailItem>
+            <AdminDetailItem label="Source">{p.source}</AdminDetailItem>
+            <AdminDetailItem label="Email status">
+              {p.emailStatus ? (
+                <Badge variant={EMAIL_STATUS_VARIANT[p.emailStatus] ?? "default"}>
+                  {p.emailStatus}
+                </Badge>
               ) : (
-                "—"
+                <span className="text-zinc-400">—</span>
               )}
             </AdminDetailItem>
-            <AdminDetailItem label="Company domain">
-              <span className="mono">
-                {p.companyDomain ? (
+            <AdminDetailItem label="Added">{formatAdminDate(p.createdAt)}</AdminDetailItem>
+            <AdminDetailItem label="Last contacted">
+              {p.lastContactedAt ? formatAdminDate(p.lastContactedAt) : "—"}
+            </AdminDetailItem>
+          </AdminDetailGrid>
+        </AdminDetailSection>
+
+        {/* Apollo enrichment */}
+        <AdminDetailSection
+          label="Apollo enrichment"
+          title="Apollo enrichment"
+          description="The person/org detail captured from Apollo at source time."
+        >
+          {isApolloSourced || p.linkedinUrl || p.companyDomain || p.industry ? (
+            <AdminDetailGrid>
+              <AdminDetailItem label="LinkedIn">
+                {p.linkedinUrl ? (
                   <a
-                    href={`https://${p.companyDomain}`}
+                    href={p.linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:underline break-all"
+                    className="break-all text-[#A7FB90] hover:underline"
                   >
-                    {p.companyDomain}
+                    View profile ↗
                   </a>
                 ) : (
                   "—"
                 )}
-              </span>
-            </AdminDetailItem>
-            <AdminDetailItem label="Industry">{p.industry ?? "—"}</AdminDetailItem>
-            <AdminDetailItem label="Apollo ID">
-              <span className="mono ct-text-muted break-all">{p.apolloId ?? "—"}</span>
-            </AdminDetailItem>
-            {extraRows.map((r) => (
-              <AdminDetailItem key={r.key} label={r.key}>
-                <span className="break-words">{r.value}</span>
               </AdminDetailItem>
-            ))}
+              <AdminDetailItem label="Company domain">
+                <span className="font-mono">
+                  {p.companyDomain ? (
+                    <a
+                      href={`https://${p.companyDomain}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="break-all hover:underline"
+                    >
+                      {p.companyDomain}
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </AdminDetailItem>
+              <AdminDetailItem label="Industry">{p.industry ?? "—"}</AdminDetailItem>
+              <AdminDetailItem label="Apollo ID">
+                <span className="break-all font-mono text-zinc-400">{p.apolloId ?? "—"}</span>
+              </AdminDetailItem>
+              {extraRows.map((r) => (
+                <AdminDetailItem key={r.key} label={r.key}>
+                  <span className="break-words">{r.value}</span>
+                </AdminDetailItem>
+              ))}
+            </AdminDetailGrid>
+          ) : (
+            <EmptySurface
+              variant="widget"
+              message="No Apollo enrichment."
+              detail="This prospect was added manually, so there is no Apollo person/org snapshot. Apollo-sourced prospects carry LinkedIn, domain, industry, and the raw enrichment payload."
+              className="min-h-24"
+            />
+          )}
+        </AdminDetailSection>
+
+        {/* Qualification */}
+        <AdminDetailSection label="Qualification" title="Qualification">
+          <AdminDetailGrid>
+            <AdminDetailItem label="Lifecycle stage" fullWidth>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
+                <span className="text-[12px] text-zinc-400">{stage.description}</span>
+              </div>
+            </AdminDetailItem>
+            <AdminDetailItem label="Tier">
+              {p.tier ? (
+                <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
+              ) : (
+                <span className="text-zinc-400">— (not scored)</span>
+              )}
+            </AdminDetailItem>
+            <AdminDetailItem label="Qualification score">
+              <span className="tabular-nums">{p.qualScore != null ? `${p.qualScore} / 100` : "—"}</span>
+            </AdminDetailItem>
+            <AdminDetailItem label="Sourced for ICP">{p.icpName ?? "—"}</AdminDetailItem>
+            <AdminDetailItem label="Sequence step">
+              <span className="tabular-nums">{p.sequenceStep}</span>
+            </AdminDetailItem>
           </AdminDetailGrid>
-        ) : (
-          <EmptySurface
-            variant="widget"
-            message="No Apollo enrichment."
-            detail="This prospect was added manually, so there is no Apollo person/org snapshot. Apollo-sourced prospects carry LinkedIn, domain, industry, and the raw enrichment payload."
-            className="min-h-24"
-          />
-        )}
-      </AdminDetailSection>
+        </AdminDetailSection>
 
-      {/* Qualification */}
-      <AdminDetailSection label="Qualification" title="Qualification">
-        <AdminDetailGrid>
-          <AdminDetailItem label="Lifecycle stage" fullWidth>
-            <div className="admin-doc-inline-row">
-              <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
-              <span className="body-xs ct-text-muted">{stage.description}</span>
-            </div>
-          </AdminDetailItem>
-          <AdminDetailItem label="Tier">
-            {p.tier ? (
-              <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
-            ) : (
-              <span className="ct-text-muted">— (not scored)</span>
-            )}
-          </AdminDetailItem>
-          <AdminDetailItem label="Qualification score">
-            <span className="tabular-nums">{p.qualScore != null ? `${p.qualScore} / 100` : "—"}</span>
-          </AdminDetailItem>
-          <AdminDetailItem label="Sourced for ICP">{p.icpName ?? "—"}</AdminDetailItem>
-          <AdminDetailItem label="Sequence step">
-            <span className="tabular-nums">{p.sequenceStep}</span>
-          </AdminDetailItem>
-        </AdminDetailGrid>
-      </AdminDetailSection>
-
-      {/* Engagement — emails */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Emails">
-        <h2 className="h2">Emails ({p.emails.length})</h2>
-        {/* Honest sending posture — no mailbox is connected today; this never
-            implies anything was sent. Drafts are always safe. */}
-        <p className="body-xs ct-text-muted">Sending: {mailbox.statusLabel}</p>
-        {p.emails.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message="No emails yet."
-            detail="No outreach email has been queued or sent to this prospect. Drafts appear here once a campaign drafts to this recipient."
-            className="min-h-24"
-          />
-        ) : (
-          <AdminTable
-            data={p.emails}
-            headers={["Subject", "Campaign", "Status", "Last event", "Sent"]}
-            colWidths={["36%", "22%", "16%", "14%", "12%"]}
-            renderRow={(e) => (
-              <>
-                <td className="ct-table-cell truncate ct-text-strong">
-                  <Link
-                    href={`/admin/outreach/${e.campaignId}`}
-                    className="hover:underline"
-                  >
-                    {e.subject}
-                  </Link>
-                </td>
-                <td className="hidden ct-table-cell truncate ct-text-muted md:table-cell">
-                  {e.campaignName ?? "—"}
-                </td>
-                <td className="ct-table-cell ct-text-body">
-                  {e.status}
-                  {e.draftedByAgent ? (
-                    <span className="body-xs ct-text-muted"> · agent</span>
-                  ) : null}
-                </td>
-                <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
-                  {e.latestEventType ?? "—"}
-                </td>
-                <td className="hidden ct-table-cell ct-text-muted lg:table-cell">
-                  {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
-                </td>
-              </>
-            )}
-          />
-        )}
-      </section>
-
-      {/* Engagement — replies */}
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Replies">
-        <h2 className="h2">Replies ({p.replies.length})</h2>
-        {p.replies.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message="No replies yet."
-            detail="Inbound replies matched to this prospect appear here, classified by intent once the reply handler processes them."
-            className="min-h-24"
-          />
-        ) : (
-          <div className="admin-doc-stack admin-doc-stack--list">
-            {p.replies.map((r) => (
-              <Card key={r.id} className="p-[var(--ct-space-5)]" hoverOverlay={false}>
-                <div className="admin-doc-stack admin-doc-stack--tight">
-                  <div className="admin-doc-inline-row">
-                    {r.intent ? (
-                      <Badge variant={INTENT_VARIANT[r.intent] ?? "default"}>
-                        {r.intent}
-                      </Badge>
-                    ) : (
-                      <Badge variant="default">unclassified</Badge>
-                    )}
-                    {r.actionTaken ? (
-                      <span className="body-xs ct-text-muted">→ {r.actionTaken}</span>
+        {/* Engagement — emails */}
+        <section className="flex flex-col gap-4" aria-label="Emails">
+          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+            Emails ({p.emails.length})
+          </h2>
+          {/* Honest sending posture — no mailbox is connected today; this never
+              implies anything was sent. Drafts are always safe. */}
+          <p className="text-[12px] text-zinc-400">Sending: {mailbox.statusLabel}</p>
+          {p.emails.length === 0 ? (
+            <EmptySurface
+              variant="widget"
+              message="No emails yet."
+              detail="No outreach email has been queued or sent to this prospect. Drafts appear here once a campaign drafts to this recipient."
+              className="min-h-24"
+            />
+          ) : (
+            <AdminTable
+              data={p.emails}
+              headers={["Subject", "Campaign", "Status", "Last event", "Sent"]}
+              colWidths={["w-[36%]", "w-[22%]", "w-[16%]", "w-[14%]", "w-[12%]"]}
+              renderRow={(e) => (
+                <>
+                  <td className="truncate px-5 py-3 font-medium text-white">
+                    <Link
+                      href={`/admin/outreach/${e.campaignId}`}
+                      className="hover:underline"
+                    >
+                      {e.subject}
+                    </Link>
+                  </td>
+                  <td className="hidden truncate px-5 py-3 text-zinc-400 md:table-cell">
+                    {e.campaignName ?? "—"}
+                  </td>
+                  <td className="px-5 py-3 text-zinc-300">
+                    {e.status}
+                    {e.draftedByAgent ? (
+                      <span className="text-[12px] text-zinc-500"> · agent</span>
                     ) : null}
-                    {r.confidence != null ? (
-                      <span className="body-xs ct-text-muted">
-                        {r.confidence}% confidence
-                      </span>
-                    ) : null}
-                    <span className="body-xs ct-text-muted">
-                      {formatAdminDate(r.createdAt)}
-                    </span>
-                  </div>
-                  {r.subject ? (
-                    <p className="body-sm ct-text-strong m-0">{r.subject}</p>
-                  ) : null}
-                  <p className="body-xs ct-text-muted whitespace-pre-wrap m-0">
-                    {r.body}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Notes & tags */}
-      {(p.notes || p.tags.length > 0) && (
-        <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Notes">
-          <h2 className="h2">Notes &amp; tags</h2>
-          <Card className="p-[var(--ct-space-6)]" hoverOverlay={false}>
-            <div className="admin-doc-stack admin-doc-stack--tight">
-              {p.tags.length > 0 ? (
-                <div className="admin-doc-inline-row">
-                  {p.tags.map((t) => (
-                    <Badge key={t} variant="default">
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
-              ) : null}
-              {p.notes ? (
-                <p className="body-sm ct-text-body whitespace-pre-wrap m-0">{p.notes}</p>
-              ) : null}
-            </div>
-          </Card>
+                  </td>
+                  <td className="hidden px-5 py-3 text-zinc-400 lg:table-cell">
+                    {e.latestEventType ?? "—"}
+                  </td>
+                  <td className="hidden px-5 py-3 text-zinc-400 lg:table-cell">
+                    {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
+                  </td>
+                </>
+              )}
+            />
+          )}
         </section>
-      )}
-    </>
+
+        {/* Engagement — replies */}
+        <section className="flex flex-col gap-4" aria-label="Replies">
+          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+            Replies ({p.replies.length})
+          </h2>
+          {p.replies.length === 0 ? (
+            <EmptySurface
+              variant="widget"
+              message="No replies yet."
+              detail="Inbound replies matched to this prospect appear here, classified by intent once the reply handler processes them."
+              className="min-h-24"
+            />
+          ) : (
+            <div className="flex flex-col gap-3">
+              {p.replies.map((r) => (
+                <BentoPanel key={r.id} className="p-5">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {r.intent ? (
+                        <Badge variant={INTENT_VARIANT[r.intent] ?? "default"}>
+                          {r.intent}
+                        </Badge>
+                      ) : (
+                        <Badge variant="default">unclassified</Badge>
+                      )}
+                      {r.actionTaken ? (
+                        <span className="text-[12px] text-zinc-400">→ {r.actionTaken}</span>
+                      ) : null}
+                      {r.confidence != null ? (
+                        <span className="text-[12px] text-zinc-400">
+                          {r.confidence}% confidence
+                        </span>
+                      ) : null}
+                      <span className="text-[12px] text-zinc-400">
+                        {formatAdminDate(r.createdAt)}
+                      </span>
+                    </div>
+                    {r.subject ? (
+                      <p className="m-0 text-[13px] font-medium text-white">{r.subject}</p>
+                    ) : null}
+                    <p className="m-0 whitespace-pre-wrap text-[12px] text-zinc-400">
+                      {r.body}
+                    </p>
+                  </div>
+                </BentoPanel>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Notes & tags */}
+        {(p.notes || p.tags.length > 0) && (
+          <section className="flex flex-col gap-4" aria-label="Notes">
+            <h2 className="text-[15px] font-semibold tracking-tight text-white">Notes &amp; tags</h2>
+            <BentoPanel className="p-6">
+              <div className="flex flex-col gap-2">
+                {p.tags.length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {p.tags.map((t) => (
+                      <Badge key={t} variant="default">
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+                {p.notes ? (
+                  <p className="m-0 whitespace-pre-wrap text-[13px] text-zinc-300">{p.notes}</p>
+                ) : null}
+              </div>
+            </BentoPanel>
+          </section>
+        )}
+      </div>
+    </div>
   );
 }

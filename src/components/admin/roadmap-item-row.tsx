@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -7,8 +8,7 @@ import {
   quickSetStatus,
   updateRoadmapItem,
 } from "@/app/admin/roadmap/actions";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/ui/bento";
 import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
 import { safeUrl } from "@/lib/safe-url";
@@ -26,6 +26,12 @@ const STATUSES: RoadmapStatus[] = [
   "blocked",
   "validated",
 ];
+
+const INPUT_CLASS =
+  "mt-2 w-full rounded-lg border border-white/10 bg-[#15191C] px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
+
+const GHOST_BTN =
+  "rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   const [open, setOpen] = useState(false);
@@ -59,37 +65,43 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
 
   return (
     <div className="ct-roadmap-item-row" aria-label={item.label}>
-      <div className="flex min-w-0 flex-col gap-[var(--ct-space-4)] lg:flex-row lg:items-start lg:justify-between">
-        <div className="admin-doc-inline-row admin-doc-inline-row--relaxed items-start min-w-0 flex-1">
+      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           <span
             role="img"
             aria-label={statusLabel(item.status)}
             className={cn(
-              "mt-[var(--ct-space-1)] inline-block h-2.5 w-2.5 shrink-0 rounded-full",
+              "mt-1 inline-block h-2.5 w-2.5 shrink-0 rounded-full",
               statusDotClass(item.status),
             )}
             title={statusLabel(item.status)}
           />
-          <div className="min-w-0 flex-1 admin-doc-stack admin-doc-stack--tight">
-            <span className="body-sm font-medium ct-text-primary">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <span className="text-[13px] font-medium text-white">
               {item.label}
             </span>
-            <div className="admin-doc-inline-row admin-doc-inline-row--tight body-xs">
-              <Badge variant="default">{item.owner}</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                {item.owner}
+              </span>
               {item.evidenceUrl ? (
-                <a
+                <Link
                   href={safeUrl(item.evidenceUrl)}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-medium ct-text-accent underline-offset-2 hover:underline"
+                  className="text-[12px] font-medium text-[#A7FB90] underline-offset-2 hover:underline"
                 >
                   Evidence ↗
-                </a>
+                </Link>
               ) : null}
-              {item.blockers ? <Badge variant="danger">Blocker</Badge> : null}
+              {item.blockers ? (
+                <span className="inline-flex items-center rounded-md border border-red-400/30 bg-red-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-300">
+                  Blocker
+                </span>
+              ) : null}
             </div>
             {item.validatedBy && !open ? (
-              <p className="body-xs ct-text-faint m-0">
+              <p className="m-0 text-[12px] text-zinc-500">
                 Validated by {item.validatedBy}
                 {item.validatedAt
                   ? ` · ${item.validatedAt.toISOString().slice(0, 10)}`
@@ -99,21 +111,19 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           </div>
         </div>
 
-        <div className="admin-doc-inline-row admin-doc-inline-row--tight items-start self-end lg:self-start">
-          <div className="hidden admin-doc-inline-row admin-doc-inline-row--tight sm:flex">
+        <div className="flex items-start gap-2 self-end lg:self-start">
+          <div className="hidden items-center gap-1.5 sm:flex">
             {STATUSES.map((s) => (
-              <Button
+              <button
                 key={s}
                 type="button"
-                variant="ghost"
-                size="sm"
                 onClick={() => setStatus(s)}
                 disabled={isPending || item.status === s}
                 className={cn(
-                  "rounded-md px-[var(--ct-space-2_5)] py-[var(--ct-space-1_5)] disabled:cursor-default",
+                  "flex h-7 w-7 items-center justify-center rounded-md border transition-colors disabled:cursor-default",
                   item.status === s
-                    ? "ct-surface-2 ct-text-primary"
-                    : "ct-text-muted hover:bg-[var(--ct-surface-2)] hover:ct-text-primary",
+                    ? "border-white/10 bg-white/10"
+                    : "border-transparent text-zinc-500 hover:border-white/10 hover:bg-white/5",
                 )}
                 title={statusLabel(s)}
                 aria-label={`Set status to ${statusLabel(s)}`}
@@ -125,19 +135,19 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                     statusDotClass(s),
                   )}
                 />
-              </Button>
+              </button>
             ))}
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
+            type="button"
             onClick={() => setOpen((current) => !current)}
             aria-expanded={open}
             aria-controls={formId}
+            className={GHOST_BTN}
           >
             {open ? "Close" : "Details"}
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -150,24 +160,24 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         <form
           id={formId}
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions"
+          className="flex flex-col gap-y-5"
           aria-label={`Edit ${item.label}`}
         >
           <input type="hidden" name="itemId" value={item.id} />
 
-          <p className="body-xs ct-text-faint mono m-0">
+          <p className="m-0 font-mono text-[12px] text-zinc-500">
             {item.id}
             {item.spec_ref ? ` · ${item.spec_ref}` : ""}
           </p>
 
-          <div className="admin-doc-form-grid-2">
-            <label className="block body-xs" htmlFor={`${formId}-status`}>
-              <span className="ct-form-label">Status</span>
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <label className="block" htmlFor={`${formId}-status`}>
+              <BentoLabel>Status</BentoLabel>
               <select
                 id={`${formId}-status`}
                 name="status"
                 defaultValue={item.status}
-                className="ct-select"
+                className={INPUT_CLASS}
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -177,72 +187,66 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               </select>
             </label>
 
-            <label className="block body-xs" htmlFor={`${formId}-validatedBy`}>
-              <span className="ct-form-label">Validated by</span>
+            <label className="block" htmlFor={`${formId}-validatedBy`}>
+              <BentoLabel>Validated by</BentoLabel>
               <input
                 id={`${formId}-validatedBy`}
                 name="validatedBy"
                 type="text"
                 defaultValue={item.validatedBy ?? ""}
                 placeholder="Adrien"
-                className="ct-input"
+                className={INPUT_CLASS}
               />
             </label>
           </div>
 
-          <label className="block body-xs" htmlFor={`${formId}-evidenceUrl`}>
-            <span className="ct-form-label">Evidence URL</span>
+          <label className="block" htmlFor={`${formId}-evidenceUrl`}>
+            <BentoLabel>Evidence URL</BentoLabel>
             <input
               id={`${formId}-evidenceUrl`}
               name="evidenceUrl"
               type="url"
               defaultValue={item.evidenceUrl ?? ""}
               placeholder="https://… preview, PR, screenshot"
-              className="ct-input mono"
+              className={`${INPUT_CLASS} font-mono`}
             />
           </label>
 
-          <label className="block body-xs" htmlFor={`${formId}-notes`}>
-            <span className="ct-form-label">Notes</span>
+          <label className="block" htmlFor={`${formId}-notes`}>
+            <BentoLabel>Notes</BentoLabel>
             <textarea
               id={`${formId}-notes`}
               name="notes"
               rows={2}
               defaultValue={item.notes ?? ""}
-              className="ct-textarea"
+              className={`${INPUT_CLASS} resize-y leading-relaxed`}
             />
           </label>
 
-          <label className="block body-xs" htmlFor={`${formId}-blockers`}>
-            <span className="ct-form-label">Blockers</span>
+          <label className="block" htmlFor={`${formId}-blockers`}>
+            <BentoLabel>Blockers</BentoLabel>
             <textarea
               id={`${formId}-blockers`}
               name="blockers"
               rows={2}
               defaultValue={item.blockers ?? ""}
               placeholder="What's blocking this?"
-              className="ct-textarea"
+              className={`${INPUT_CLASS} resize-y leading-relaxed`}
             />
           </label>
 
-          <div className="admin-doc-inline-row justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setOpen(false)}
-            >
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={() => setOpen(false)} className={GHOST_BTN}>
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              variant="primary"
-              size="sm"
               disabled={isPending}
               aria-busy={isPending}
+              className={BENTO_PRIMARY_BTN}
             >
               {isPending ? "Saving…" : "Save"}
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

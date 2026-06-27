@@ -3,8 +3,16 @@
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import {
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
+import {
+  BENTO_FIELD,
+  BENTO_FIELD_LABEL,
+  BENTO_INPUT,
+} from "@/components/admin/outreach/bento-form";
 import { addProspect } from "@/app/admin/outreach/actions";
 
 /**
@@ -33,9 +41,9 @@ export function ProspectAddForm() {
 
   return (
     <>
-      <Button variant="primary" size="md" onClick={() => setOpen(true)}>
+      <button type="button" className={BENTO_PRIMARY_BTN} onClick={() => setOpen(true)}>
         Add prospect
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -46,75 +54,74 @@ export function ProspectAddForm() {
         <form
           ref={formRef}
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions"
+          className="flex flex-col gap-4"
           aria-label="Add prospect"
         >
-          <div className="admin-doc-form-grid-2">
-          <label className="admin-doc-field" htmlFor="prospect-email">
-            <span className="stat-label">Email</span>
-            <input
-              id="prospect-email"
-              name="email"
-              type="email"
-              required
-              placeholder="lp@firm.com"
-              className="ct-input"
-              autoFocus
-            />
-          </label>
-          <label className="admin-doc-field" htmlFor="prospect-company">
-            <span className="stat-label">Company</span>
-            <input
-              id="prospect-company"
-              name="company"
-              type="text"
-              placeholder="Firm name"
-              className="ct-input"
-            />
-          </label>
-          <label className="admin-doc-field" htmlFor="prospect-firstName">
-            <span className="stat-label">First name</span>
-            <input
-              id="prospect-firstName"
-              name="firstName"
-              type="text"
-              placeholder="Jane"
-              className="ct-input"
-            />
-          </label>
-          <label className="admin-doc-field" htmlFor="prospect-lastName">
-            <span className="stat-label">Last name</span>
-            <input
-              id="prospect-lastName"
-              name="lastName"
-              type="text"
-              placeholder="Doe"
-              className="ct-input"
-            />
-          </label>
-          <label className="admin-doc-field" htmlFor="prospect-title">
-            <span className="stat-label">Title</span>
-            <input
-              id="prospect-title"
-              name="title"
-              type="text"
-              placeholder="Head of Treasury"
-              className="ct-input"
-            />
-          </label>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className={BENTO_FIELD} htmlFor="prospect-email">
+              <span className={BENTO_FIELD_LABEL}>Email</span>
+              <input
+                id="prospect-email"
+                name="email"
+                type="email"
+                required
+                placeholder="lp@firm.com"
+                className={BENTO_INPUT}
+                autoFocus
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="prospect-company">
+              <span className={BENTO_FIELD_LABEL}>Company</span>
+              <input
+                id="prospect-company"
+                name="company"
+                type="text"
+                placeholder="Firm name"
+                className={BENTO_INPUT}
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="prospect-firstName">
+              <span className={BENTO_FIELD_LABEL}>First name</span>
+              <input
+                id="prospect-firstName"
+                name="firstName"
+                type="text"
+                placeholder="Jane"
+                className={BENTO_INPUT}
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="prospect-lastName">
+              <span className={BENTO_FIELD_LABEL}>Last name</span>
+              <input
+                id="prospect-lastName"
+                name="lastName"
+                type="text"
+                placeholder="Doe"
+                className={BENTO_INPUT}
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="prospect-title">
+              <span className={BENTO_FIELD_LABEL}>Title</span>
+              <input
+                id="prospect-title"
+                name="title"
+                type="text"
+                placeholder="Head of Treasury"
+                className={BENTO_INPUT}
+              />
+            </label>
           </div>
-          <div className="admin-form-actions">
-            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
               {isPending ? "Adding…" : "Add"}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="ghost"
-              size="md"
+              className={BENTO_SECONDARY_BTN}
               onClick={() => setOpen(false)}
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

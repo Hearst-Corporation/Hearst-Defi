@@ -3,7 +3,8 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { cn } from "@/lib/cn";
 import { runSourcing } from "@/app/admin/outreach/actions";
 
 /**
@@ -36,14 +37,13 @@ export function SourceMoreButton({ icpId }: { icpId: string }) {
   }
 
   return (
-    <Button
+    <button
       type="button"
-      variant="secondary"
-      size="sm"
+      className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[12px]")}
       onClick={onClick}
       disabled={isPending}
     >
       {isPending ? "Sourcing…" : "Source more"}
-    </Button>
+    </button>
   );
 }

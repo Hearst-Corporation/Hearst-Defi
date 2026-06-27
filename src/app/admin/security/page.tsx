@@ -1,8 +1,6 @@
 import { ShieldCheck, KeyRound, LifeBuoy } from "lucide-react";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isTotpEnabled } from "@/lib/auth/totp";
 
@@ -42,39 +40,64 @@ export default async function AdminSecurityPage() {
   const totpEnabled = await isTotpEnabled(userId);
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--roomy">
-      <AdminPageHeader
-        titleLead="Security"
-        titleAccent="Center"
-        contextLabel="Account Security"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
-      <div className="security-grid">
-        <Card>
-          <DashboardPanelHeader title="Two-factor sign-in (TOTP)" tone="quiet" />
-          <p className="body-xs ct-text-muted security-totp-lead">
-            Use an authenticator app (Google Authenticator, Authy, 1Password) to
-            generate a time-based code at login. Required once enrolled.
-          </p>
-          <TotpEnrolmentClient initialEnabled={totpEnabled} />
-        </Card>
+        {/* HEADER */}
+        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
+          <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">
+            Security <span className="text-[#A7FB90]">Center</span>
+          </h1>
+          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
+            Account Security
+          </div>
+        </div>
 
-        <Card material="flat">
-          <DashboardPanelHeader title="Account protection" tone="quiet" />
-          <ul className="security-guidance">
-            {PROTECTIONS.map((item) => (
-              <li key={item.title} className="security-guidance__item">
-                <span className="security-guidance__icon" aria-hidden="true">
-                  <item.icon className="ct-icon-sm ct-text-muted" />
-                </span>
-                <span className="admin-doc-stack admin-doc-stack--tight">
-                  <span className="body-sm ct-text-primary">{item.title}</span>
-                  <span className="body-xs ct-text-muted">{item.detail}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <BentoPanel>
+            <BentoHeader
+              title="Two-factor sign-in (TOTP)"
+              subtitle="Required once enrolled"
+            />
+            <div className="flex flex-col gap-4 p-5">
+              <p className="text-[13px] leading-relaxed text-zinc-400">
+                Use an authenticator app (Google Authenticator, Authy, 1Password)
+                to generate a time-based code at login. Required once enrolled.
+              </p>
+              <TotpEnrolmentClient initialEnabled={totpEnabled} />
+            </div>
+          </BentoPanel>
+
+          <BentoPanel>
+            <BentoHeader
+              title="Account protection"
+              subtitle="Guidance & recovery"
+            />
+            <ul className="flex flex-col">
+              {PROTECTIONS.map((item) => (
+                <li
+                  key={item.title}
+                  className="flex items-start gap-4 border-b border-white/5 p-5 last:border-b-0"
+                >
+                  <span
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#15191C]"
+                    aria-hidden="true"
+                  >
+                    <item.icon className="size-4 text-[#A7FB90]" />
+                  </span>
+                  <span className="flex min-w-0 flex-col gap-1.5">
+                    <span className="text-[13px] font-medium text-white">
+                      {item.title}
+                    </span>
+                    <span className="text-[12px] leading-relaxed text-zinc-400">
+                      {item.detail}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </BentoPanel>
+        </div>
       </div>
     </div>
   );

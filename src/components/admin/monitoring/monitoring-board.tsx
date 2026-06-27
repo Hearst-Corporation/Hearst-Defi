@@ -1,10 +1,8 @@
 import type { ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { PanelStatus } from "@/components/ui/panel-status";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
 
@@ -19,187 +17,192 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
   }
 
   return (
-    <div className="admin-doc-stack">
-      <section>
-        <DashboardPanelHeader title="Run volume by agent" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
-        <MonitoringTable
-          colSpan={3}
-          isEmpty={stats.runsByAgent.length === 0}
-          colgroup={
-            <colgroup>
-              <col style={{ width: "60%" }} />
-              <col style={{ width: "20%" }} />
-              <col style={{ width: "20%" }} />
-            </colgroup>
-          }
-          header={
-            <>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Agent</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right">Runs</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right">Cost (USD)</th>
-            </>
-          }
-        >
-          {stats.runsByAgent.map((row) => (
-            <tr key={row.agentName}>
-              <td className="ct-table-cell px-[var(--ct-space-4)]">{row.agentName}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular">{row.count}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular">${row.costUsd.toFixed(4)}</td>
-            </tr>
-          ))}
-        </MonitoringTable>
-      </section>
+    <div className="flex flex-col gap-y-5">
+      <MonitoringPanel
+        title="Run volume by agent"
+        subtitle="Calls & cost per agent"
+        colSpan={3}
+        isEmpty={stats.runsByAgent.length === 0}
+        colgroup={
+          <colgroup>
+            <col style={{ width: "60%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "20%" }} />
+          </colgroup>
+        }
+        header={
+          <>
+            <Th className="pl-5 text-left">Agent</Th>
+            <Th className="text-right">Runs</Th>
+            <Th className="pr-5 text-right">Cost (USD)</Th>
+          </>
+        }
+      >
+        {stats.runsByAgent.map((row) => (
+          <Tr key={row.agentName}>
+            <Td className="pl-5 font-medium text-white">{row.agentName}</Td>
+            <Td className="text-right tabular-nums text-zinc-300">{row.count}</Td>
+            <Td className="pr-5 text-right tabular-nums text-zinc-300">
+              ${row.costUsd.toFixed(4)}
+            </Td>
+          </Tr>
+        ))}
+      </MonitoringPanel>
 
-      <section>
-        <DashboardPanelHeader title="Recent agent runs" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
-        <MonitoringTable
-          colSpan={7}
-          isEmpty={stats.recentRuns.length === 0}
-          colgroup={
-            <colgroup>
-              <col style={{ width: "20%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "11%" }} />
-              <col style={{ width: "11%" }} />
-              <col style={{ width: "18%" }} />
-            </colgroup>
-          }
-          header={
-            <>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Agent</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Model</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left whitespace-nowrap">Status</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right whitespace-nowrap">Tokens (in/out)</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right whitespace-nowrap">Latency</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right">Cost</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right">Time</th>
-            </>
-          }
-        >
-          {stats.recentRuns.map((run) => (
-            <tr key={run.id}>
-              <td className="ct-table-cell px-[var(--ct-space-4)]">{run.agentName}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)]">{run.model}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] whitespace-nowrap">
-                <RunStatusBadge status={run.status} />
-                {run.errorType ? (
-                  <span className="ct-text-muted ml-[var(--ct-space-2)]">{run.errorType}</span>
-                ) : null}
-              </td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular whitespace-nowrap">
-                {run.inputTokens === null || run.outputTokens === null
-                  ? "—"
-                  : `${run.inputTokens} / ${run.outputTokens}`}
-              </td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular">
-                {run.latencyMs ? `${run.latencyMs}ms` : "—"}
-              </td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right tabular">
-                {run.costUsd ? `$${run.costUsd.toFixed(4)}` : "—"}
-              </td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right ct-text-muted">
-                {formatAdminDateTime(run.createdAt)}
-              </td>
-            </tr>
-          ))}
-        </MonitoringTable>
-      </section>
+      <MonitoringPanel
+        title="Recent agent runs"
+        subtitle="Latest executions"
+        colSpan={7}
+        isEmpty={stats.recentRuns.length === 0}
+        colgroup={
+          <colgroup>
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "18%" }} />
+          </colgroup>
+        }
+        header={
+          <>
+            <Th className="pl-5 text-left">Agent</Th>
+            <Th className="text-left">Model</Th>
+            <Th className="text-left whitespace-nowrap">Status</Th>
+            <Th className="text-right whitespace-nowrap">Tokens (in/out)</Th>
+            <Th className="text-right whitespace-nowrap">Latency</Th>
+            <Th className="text-right">Cost</Th>
+            <Th className="pr-5 text-right">Time</Th>
+          </>
+        }
+      >
+        {stats.recentRuns.map((run) => (
+          <Tr key={run.id}>
+            <Td className="pl-5 font-medium text-white">{run.agentName}</Td>
+            <Td className="text-zinc-300">{run.model}</Td>
+            <Td className="whitespace-nowrap">
+              <RunStatusBadge status={run.status} />
+              {run.errorType ? (
+                <span className="ml-2 text-zinc-500">{run.errorType}</span>
+              ) : null}
+            </Td>
+            <Td className="text-right tabular-nums whitespace-nowrap text-zinc-300">
+              {run.inputTokens === null || run.outputTokens === null
+                ? "—"
+                : `${run.inputTokens} / ${run.outputTokens}`}
+            </Td>
+            <Td className="text-right tabular-nums text-zinc-300">
+              {run.latencyMs ? `${run.latencyMs}ms` : "—"}
+            </Td>
+            <Td className="text-right tabular-nums text-zinc-300">
+              {run.costUsd ? `$${run.costUsd.toFixed(4)}` : "—"}
+            </Td>
+            <Td className="pr-5 text-right text-zinc-500">
+              {formatAdminDateTime(run.createdAt)}
+            </Td>
+          </Tr>
+        ))}
+      </MonitoringPanel>
 
-      <section>
-        <DashboardPanelHeader title="Navigation traces" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
-        <MonitoringTable
-          colSpan={6}
-          isEmpty={stats.recentNavTraces.length === 0}
-          colgroup={
-            <colgroup>
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "14%" }} />
-              <col style={{ width: "24%" }} />
-              <col style={{ width: "14%" }} />
-              <col style={{ width: "18%" }} />
-              <col style={{ width: "18%" }} />
-            </colgroup>
-          }
-          header={
-            <>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left whitespace-nowrap">Profile</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left whitespace-nowrap">Mode</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Destination</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left whitespace-nowrap">Status</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Reason</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right">Time</th>
-            </>
-          }
-        >
-          {stats.recentNavTraces.map((trace) => (
-            <tr key={trace.id}>
-              <td className="ct-table-cell px-[var(--ct-space-4)] whitespace-nowrap">{trace.profile}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] whitespace-nowrap">{trace.mode}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)]">{trace.destinationKey ?? "—"}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] whitespace-nowrap">
-                <RunStatusBadge status={trace.status} />
-              </td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] ct-text-muted">{trace.reason ?? "—"}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right ct-text-muted">
-                {formatAdminDateTime(trace.createdAt)}
-              </td>
-            </tr>
-          ))}
-        </MonitoringTable>
-      </section>
+      <MonitoringPanel
+        title="Navigation traces"
+        subtitle="Master Agent routing"
+        colSpan={6}
+        isEmpty={stats.recentNavTraces.length === 0}
+        colgroup={
+          <colgroup>
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "24%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "18%" }} />
+            <col style={{ width: "18%" }} />
+          </colgroup>
+        }
+        header={
+          <>
+            <Th className="pl-5 text-left whitespace-nowrap">Profile</Th>
+            <Th className="text-left whitespace-nowrap">Mode</Th>
+            <Th className="text-left">Destination</Th>
+            <Th className="text-left whitespace-nowrap">Status</Th>
+            <Th className="text-left">Reason</Th>
+            <Th className="pr-5 text-right">Time</Th>
+          </>
+        }
+      >
+        {stats.recentNavTraces.map((trace) => (
+          <Tr key={trace.id}>
+            <Td className="pl-5 whitespace-nowrap font-medium text-white">
+              {trace.profile}
+            </Td>
+            <Td className="whitespace-nowrap text-zinc-300">{trace.mode}</Td>
+            <Td className="text-zinc-300">{trace.destinationKey ?? "—"}</Td>
+            <Td className="whitespace-nowrap">
+              <RunStatusBadge status={trace.status} />
+            </Td>
+            <Td className="text-zinc-500">{trace.reason ?? "—"}</Td>
+            <Td className="pr-5 text-right text-zinc-500">
+              {formatAdminDateTime(trace.createdAt)}
+            </Td>
+          </Tr>
+        ))}
+      </MonitoringPanel>
 
-      <section>
-        <DashboardPanelHeader title="Admin tool activity" tone="quiet" titleLevel="section" className="mb-[var(--ct-space-4)]" />
-        <MonitoringTable
-          colSpan={5}
-          isEmpty={stats.recentToolRuns.length === 0}
-          colgroup={
-            <colgroup>
-              <col style={{ width: "30%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "24%" }} />
-              <col style={{ width: "18%" }} />
-            </colgroup>
-          }
-          header={
-            <>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Tool</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left whitespace-nowrap">Kind</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left whitespace-nowrap">Status</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left">Error</th>
-              <th className="stat-label ct-table-header px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-right">Time</th>
-            </>
-          }
-        >
-          {stats.recentToolRuns.map((run) => (
-            <tr key={run.id}>
-              <td className="ct-table-cell px-[var(--ct-space-4)]">{run.toolId}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] whitespace-nowrap">{run.toolKind}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] whitespace-nowrap">
-                <RunStatusBadge status={run.status} />
-              </td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] ct-text-muted">{run.errorMessage ?? "—"}</td>
-              <td className="ct-table-cell px-[var(--ct-space-4)] text-right ct-text-muted">
-                {formatAdminDateTime(run.createdAt)}
-              </td>
-            </tr>
-          ))}
-        </MonitoringTable>
-      </section>
+      <MonitoringPanel
+        title="Admin tool activity"
+        subtitle="Read & write tool runs"
+        colSpan={5}
+        isEmpty={stats.recentToolRuns.length === 0}
+        colgroup={
+          <colgroup>
+            <col style={{ width: "30%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "24%" }} />
+            <col style={{ width: "18%" }} />
+          </colgroup>
+        }
+        header={
+          <>
+            <Th className="pl-5 text-left">Tool</Th>
+            <Th className="text-left whitespace-nowrap">Kind</Th>
+            <Th className="text-left whitespace-nowrap">Status</Th>
+            <Th className="text-left">Error</Th>
+            <Th className="pr-5 text-right">Time</Th>
+          </>
+        }
+      >
+        {stats.recentToolRuns.map((run) => (
+          <Tr key={run.id}>
+            <Td className="pl-5 font-medium text-white">{run.toolId}</Td>
+            <Td className="whitespace-nowrap text-zinc-300">{run.toolKind}</Td>
+            <Td className="whitespace-nowrap">
+              <RunStatusBadge status={run.status} />
+            </Td>
+            <Td className="text-zinc-500">{run.errorMessage ?? "—"}</Td>
+            <Td className="pr-5 text-right text-zinc-500">
+              {formatAdminDateTime(run.createdAt)}
+            </Td>
+          </Tr>
+        ))}
+      </MonitoringPanel>
     </div>
   );
 }
 
-function MonitoringTable({
+/** Bento panel wrapping a Portfolio-style fixed table (header + body). */
+function MonitoringPanel({
+  title,
+  subtitle,
   colSpan,
   isEmpty,
   colgroup,
   header,
   children,
 }: {
+  title: string;
+  subtitle: string;
   colSpan: number;
   isEmpty: boolean;
   colgroup?: ReactNode;
@@ -207,18 +210,24 @@ function MonitoringTable({
   children: ReactNode;
 }) {
   return (
-    <Card className="p-0 overflow-hidden" hoverOverlay={false}>
+    <BentoPanel>
+      <BentoHeader title={title} subtitle={subtitle} as="h3" />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed body-sm">
+        <table className="min-w-full table-fixed text-[13px]">
           {colgroup}
           <thead>
-            <tr>{header}</tr>
+            <tr className="border-b border-white/5">{header}</tr>
           </thead>
           <tbody>
             {isEmpty ? (
               <tr>
-                <td colSpan={colSpan}>
-                  <PanelStatus {...EMPTY_COPY} />
+                <td colSpan={colSpan} className="px-5 py-8 text-center">
+                  <p className="text-[13px] font-medium text-zinc-400">
+                    {EMPTY_COPY.message}
+                  </p>
+                  <p className="mt-1 text-[12px] text-zinc-500">
+                    {EMPTY_COPY.detail}
+                  </p>
                 </td>
               </tr>
             ) : (
@@ -227,24 +236,71 @@ function MonitoringTable({
           </tbody>
         </table>
       </div>
-    </Card>
+    </BentoPanel>
   );
 }
 
+function Th({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <th
+      className={cn(
+        "bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500",
+        className,
+      )}
+    >
+      {children}
+    </th>
+  );
+}
+
+function Tr({ children }: { children: ReactNode }) {
+  return (
+    <tr className="border-b border-white/5 transition-colors last:border-b-0 hover:bg-white/[0.02]">
+      {children}
+    </tr>
+  );
+}
+
+function Td({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <td className={cn("px-4 py-3 align-middle", className)}>{children}</td>;
+}
+
+/**
+ * Status pill — bento color map.
+ * success/published = accent green #A7FB90, failed = red-400,
+ * timeout/blocked = amber-400, queued/confirmation_required = zinc.
+ */
 function RunStatusBadge({ status }: { status: string }) {
-  const variantMap: Record<string, "success" | "danger" | "warning" | "default"> = {
-    success: "success",
-    published: "success",
-    failed: "danger",
-    timeout: "warning",
-    blocked: "warning",
-    queued: "default",
-    confirmation_required: "default",
+  const toneMap: Record<string, string> = {
+    success: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+    published: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+    failed: "border-red-400/30 bg-red-400/10 text-red-400",
+    timeout: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+    blocked: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+    queued: "border-white/10 bg-white/5 text-zinc-400",
+    confirmation_required: "border-white/10 bg-white/5 text-zinc-400",
   };
 
   return (
-    <Badge variant={variantMap[status] ?? "default"}>
+    <span
+      className={cn(
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        toneMap[status] ?? "border-white/10 bg-white/5 text-zinc-400",
+      )}
+    >
       {status}
-    </Badge>
+    </span>
   );
 }

@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { ApyRange } from "@/components/ui/apy-range";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  BENTO_PRIMARY_BTN,
+  BentoHeader,
+  BentoPanel,
+} from "@/components/ui/bento";
 import { Metric } from "@/components/ui/metric";
 import { Ptai } from "@/components/ui/ptai";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { PanelStatus } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
-import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   allocationStrokeFor,
   allocationLabelFor,
@@ -65,7 +64,14 @@ const DEFAULT_1D_VALUES = [-30, -15, 0, 15, 30];
 const DEFAULT_2D_X_VALUES = [-30, 0, 30];
 const DEFAULT_2D_Y_VALUES = [0.05, 0.085, 0.12];
 
-// ─── Risk color helper (uses status tokens, no hardcoded hex) ─────────────────
+// ─── Bento style tokens (Portfolio canon) ────────────────────────────────────
+
+// Nested sub-surface inside a black bento panel.
+const SUB_SURFACE = "rounded-lg border border-white/10 bg-[#15191C]";
+// Micro uppercase eyebrow label.
+const EYEBROW = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+
+// ─── Risk color helpers (bento accent / status hex) ───────────────────────────
 
 // Risk band thresholds (0–100) — single source shared by both color helpers and
 // the PTAI rebalancing-trigger copy below, so the number can't drift apart.
@@ -73,18 +79,18 @@ const RISK_SUCCESS_MAX = 35;
 const RISK_WARN_MAX = 65;
 
 function riskTextClass(score: number): string {
-  if (score <= RISK_SUCCESS_MAX) return "ct-status-success";
-  if (score <= RISK_WARN_MAX) return "ct-status-warning";
-  return "ct-status-danger";
+  if (score <= RISK_SUCCESS_MAX) return "text-[#A7FB90]";
+  if (score <= RISK_WARN_MAX) return "text-amber-300";
+  return "text-red-400";
 }
 
 function riskBgClass(score: number): string {
-  if (score <= RISK_SUCCESS_MAX) return "ct-status-success-bg";
-  if (score <= RISK_WARN_MAX) return "ct-status-warning-bg";
-  return "ct-status-danger-bg";
+  if (score <= RISK_SUCCESS_MAX) return "bg-[#A7FB90]/10";
+  if (score <= RISK_WARN_MAX) return "bg-amber-300/10";
+  return "bg-red-400/10";
 }
 
-// ─── Slider primitive (uses ct-input class, Cockpit-themed) ──────────────────
+// ─── Slider primitive ─────────────────────────────────────────────────────────
 
 type SliderProps = {
   label: string;
@@ -98,34 +104,38 @@ type SliderProps = {
 
 function SliderField({ label, value, min, max, step, onChange, format }: SliderProps) {
   const fmt = format ?? ((v: number) => v.toFixed(2));
-  
+
   // Visual validation for extreme values
   const isBtcExtreme = label === "BTC Price Change" && Math.abs(value) >= 100;
   const isHashExtreme = label === "Hashprice" && (value <= 0.03 || value >= 0.3);
   const isExtreme = isBtcExtreme || isHashExtreme;
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--micro">
-      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-        <label className={cn(
-          "ct-form-label mb-0 cursor-pointer select-none transition-colors duration-300",
-          isExtreme ? "ct-status-warning font-bold" : "ct-text-muted"
-        )}>
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <label
+          className={cn(
+            "cursor-pointer select-none text-[11px] font-medium transition-colors",
+            isExtreme ? "font-bold text-amber-300" : "text-zinc-400",
+          )}
+        >
           {label}
           {isExtreme && (
-            <span className="ml-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-wider opacity-80">
+            <span className="ml-1.5 text-[10px] uppercase tracking-wider opacity-80">
               (Extreme)
             </span>
           )}
         </label>
-        <span className={cn(
-          "mono tabular body-xs font-semibold transition-colors duration-300",
-          isExtreme ? "ct-status-warning" : "ct-text-primary"
-        )}>
+        <span
+          className={cn(
+            "font-mono text-[12px] font-semibold tabular-nums transition-colors",
+            isExtreme ? "text-amber-300" : "text-white",
+          )}
+        >
           {fmt(value)}
         </span>
       </div>
-      <div className="relative flex items-center h-6">
+      <div className="relative flex h-6 items-center">
         <input
           type="range"
           min={min}
@@ -135,7 +145,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
           onChange={(e) => onChange(parseFloat(e.target.value))}
           className={cn(
             "projection-studio-range w-full",
-            isExtreme && "projection-studio-range--extreme"
+            isExtreme && "projection-studio-range--extreme",
           )}
           aria-label={`${label} (range ${fmt(min)}–${fmt(max)})`}
         />
@@ -148,23 +158,23 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
 
 function AllocationBreakdown({ allocations }: { allocations: MatrixCell["allocations"] }) {
   return (
-    <div className="admin-doc-stack admin-doc-stack--compact">
-      <p className="eyebrow ct-text-muted">Derived Allocation</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--ct-space-4)]">
+    <div className="flex flex-col gap-3">
+      <p className={EYEBROW}>Derived Allocation</p>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {allocations.map((alloc) => {
           const color = allocationStrokeFor(alloc.bucket);
           const label = allocationLabelFor(alloc.bucket);
           return (
-            <div key={alloc.bucket} className="admin-doc-stack admin-doc-stack--micro">
-              <div className="admin-doc-inline-row admin-doc-inline-row--between">
+            <div key={alloc.bucket} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-1.5 h-1.5 rounded-full"
+                    className="h-1.5 w-1.5 rounded-full"
                     style={{ backgroundColor: color }}
                   />
-                  <span className="body-xs font-semibold ct-text-strong">{label}</span>
+                  <span className="text-[12px] font-semibold text-zinc-200">{label}</span>
                 </div>
-                <span className="mono tabular body-xs ct-text-primary">
+                <span className="font-mono text-[12px] tabular-nums text-white">
                   {(alloc.pct * 100).toFixed(1)}%
                 </span>
               </div>
@@ -195,12 +205,17 @@ function AssumptionsStrip({ inputs }: { inputs: ScenarioInputs }) {
   ];
 
   return (
-    <div className="flex items-center gap-[var(--ct-space-4)] py-[var(--ct-space-2)] px-[var(--ct-space-4)] bg-[var(--ct-surface-1)] border border-[var(--ct-border-soft)] rounded-[var(--ct-radius-md)] overflow-x-auto no-scrollbar flex-nowrap">
-      <span className="eyebrow text-[length:var(--ct-text-deci)] ct-text-muted whitespace-nowrap">Inputs</span>
+    <div
+      className={cn(
+        "no-scrollbar flex flex-nowrap items-center gap-4 overflow-x-auto px-4 py-2",
+        SUB_SURFACE,
+      )}
+    >
+      <span className={cn(EYEBROW, "whitespace-nowrap")}>Inputs</span>
       {items.map((item, idx) => (
         <div key={idx} className="flex items-center gap-1.5 whitespace-nowrap">
-          <span className="body-xs ct-text-faint">{item.label}:</span>
-          <span className="mono tabular body-xs font-bold ct-text-primary">{item.value}</span>
+          <span className="text-[12px] text-zinc-500">{item.label}:</span>
+          <span className="font-mono text-[12px] font-bold tabular-nums text-white">{item.value}</span>
         </div>
       ))}
     </div>
@@ -225,25 +240,26 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
   const rows = is2D ? (yValues?.length ?? 1) : 1;
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
+    <div className="flex flex-col gap-3">
       {xAxis && (
-        <div className="flex items-center gap-[var(--ct-space-2)] body-xs ct-text-muted select-none">
-          <span className="eyebrow text-[length:var(--ct-text-deci)]">Axis</span>
-          <span className="mono ct-text-body px-1 bg-[var(--ct-graphite-nested-bg)] rounded border border-[var(--ct-border-soft)]">{xAxis}</span>
+        <div className="flex select-none items-center gap-2 text-[12px] text-zinc-400">
+          <span className={EYEBROW}>Axis</span>
+          <span className="rounded border border-white/10 bg-[#15191C] px-1 font-mono text-zinc-300">{xAxis}</span>
           {yAxis && (
             <>
-              <span className="ct-text-faint">×</span>
-              <span className="mono ct-text-body px-1 bg-[var(--ct-graphite-nested-bg)] rounded border border-[var(--ct-border-soft)]">{yAxis}</span>
+              <span className="text-zinc-600">×</span>
+              <span className="rounded border border-white/10 bg-[#15191C] px-1 font-mono text-zinc-300">{yAxis}</span>
             </>
           )}
         </div>
       )}
       <div
-        className="admin-doc-grid-dense p-1 bg-[var(--ct-bg-deep)] rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)]"
+        className="rounded-xl border border-white/10 bg-black p-1"
         style={{
+          display: "grid",
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           gridTemplateRows: `repeat(${rows}, auto)`,
-          gap: '2px',
+          gap: "2px",
         }}
         role="grid"
         aria-label="Projection heatmap"
@@ -273,18 +289,28 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 damping: 25,
               }}
               className={cn(
-                "admin-strategy-heatmap-cell border-0 transition-colors duration-300 relative",
+                "relative rounded-lg border p-2.5 text-left transition-colors",
                 riskBgClass(cell.riskScore),
-                isSelected ? "opacity-100 ring-1 ring-[var(--ct-border-strong)]" : "opacity-70 hover:opacity-100",
+                isSelected
+                  ? "border-white/30 opacity-100"
+                  : "border-white/5 opacity-70 hover:opacity-100",
               )}
             >
-              <div className="admin-doc-stack admin-doc-stack--micro">
+              <div className="flex flex-col gap-1.5">
                 <span
-                  className={cn("mono tabular body-xs font-bold leading-tight", isSelected ? "ct-text-strong" : riskTextClass(cell.riskScore))}
+                  className={cn(
+                    "font-mono text-[12px] font-bold leading-tight tabular-nums",
+                    isSelected ? "text-white" : riskTextClass(cell.riskScore),
+                  )}
                 >
                   {cell.apyLow.toFixed(1)}–{cell.apyHigh.toFixed(1)}%
                 </span>
-                <span className={cn("eyebrow text-[length:var(--ct-text-nano)] mono opacity-80", isSelected ? "ct-text-strong" : "ct-text-muted")}>
+                <span
+                  className={cn(
+                    "font-mono text-[10px] uppercase tracking-wider opacity-80",
+                    isSelected ? "text-white" : "text-zinc-500",
+                  )}
+                >
                   R {cell.riskScore}
                 </span>
               </div>
@@ -292,6 +318,50 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ─── Execution-mode segmented control (bento) ─────────────────────────────────
+
+function ExecutionModeControl({
+  value,
+  onChange,
+}: {
+  value: BatchMode;
+  onChange: (v: BatchMode) => void;
+}) {
+  const items: { value: BatchMode; label: string }[] = [
+    { value: "none", label: "Single" },
+    { value: "1d", label: "1D Sweep" },
+    { value: "2d", label: "2D Matrix" },
+  ];
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Execution mode"
+      className="inline-flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1"
+    >
+      {items.map((item) => {
+        const active = value === item.value;
+        return (
+          <button
+            key={item.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(item.value)}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-[11px] font-bold transition-colors",
+              active
+                ? "bg-white text-zinc-900 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-300",
+            )}
+          >
+            {item.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -413,429 +483,421 @@ export function ProjectionStudio() {
   }, [result]);
 
   return (
-    <Card material="flat" hoverOverlay={false} className="scenario-lab-box p-(--ct-space-6)">
-      {/* projection-studio-shell provides the container context (container-name: projection-shell)
-          needed for the @container projection-shell queries. The admin-doc-stack provides gap. */}
-      <div className="projection-studio-shell">
-      <div className="admin-doc-stack admin-doc-stack--roomy">
-
-      {/* ── PRESET STRIP — same hairline-bordered pattern as Scenario Lab toolbar ── */}
-      <div className="projection-studio-preset-strip">
-        <div className="projection-studio-preset-strip__head">
-          <span className="eyebrow ct-text-muted">Presets</span>
-          <span className="body-xs ct-text-faint">Load assumptions, then tune inputs below.</span>
+    <div className="flex flex-col gap-5">
+      {/* ── PRESETS ──────────────────────────────────────────────────────── */}
+      <BentoPanel>
+        <BentoHeader
+          title="Presets"
+          subtitle="Load assumptions, then tune inputs below."
+        />
+        <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
+          {PRESETS.map((p) => {
+            const active = selectedPreset === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => loadPreset(p.id)}
+                disabled={isPending}
+                aria-pressed={active}
+                className={cn(
+                  "flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors disabled:opacity-50",
+                  active
+                    ? "border-[#A7FB90]/40 bg-[#A7FB90]/10"
+                    : "border-white/10 bg-[#15191C] hover:border-white/20",
+                )}
+              >
+                <span
+                  className={cn(
+                    "text-[12px] font-semibold",
+                    active ? "text-[#A7FB90]" : "text-white",
+                  )}
+                >
+                  {p.label}
+                </span>
+                <span className="text-[11px] leading-snug text-zinc-500">{p.description}</span>
+              </button>
+            );
+          })}
         </div>
-        <div className="projection-studio-preset-strip__items">
-          {PRESETS.map((p) => (
+      </BentoPanel>
+
+      {/* ── INPUTS ───────────────────────────────────────────────────────── */}
+      <BentoPanel>
+        <BentoHeader
+          title="Projection inputs"
+          subtitle={`Adjust sliders or load a preset · Methodology ${methodologyVersion}`}
+        />
+        <div className="flex flex-col gap-6 p-5">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Market Environment */}
+            <div className="flex flex-col gap-4">
+              <p className={EYEBROW}>Market Environment</p>
+              <SliderField
+                label="BTC Price Change"
+                value={btcChange}
+                min={-100}
+                max={300}
+                step={1}
+                onChange={setBtcChange}
+                format={(v) => `${v > 0 ? "+" : ""}${v.toFixed(0)}%`}
+              />
+              <SliderField
+                label="Hashprice"
+                value={hashprice}
+                min={0.01}
+                max={0.5}
+                step={0.001}
+                onChange={setHashprice}
+                format={(v) => `$${v.toFixed(3)}/TH`}
+              />
+              <SliderField
+                label="Vol Index"
+                value={volIndex}
+                min={0}
+                max={100}
+                step={1}
+                onChange={setVolIndex}
+                format={(v) => v.toFixed(0)}
+              />
+            </div>
+
+            {/* Network & Yield */}
+            <div className="flex flex-col gap-4">
+              <p className={EYEBROW}>Network & Yield</p>
+              <SliderField
+                label="Energy Cost"
+                value={energyCost}
+                min={0.01}
+                max={1}
+                step={0.001}
+                onChange={setEnergyCost}
+                format={(v) => `$${v.toFixed(3)}/kWh`}
+              />
+              <SliderField
+                label="Stable APY"
+                value={stableApy}
+                min={0}
+                max={30}
+                step={0.1}
+                onChange={setStableApy}
+                format={(v) => `${v.toFixed(1)}%`}
+              />
+
+              {/* Execution Mode */}
+              <div className="mt-2 flex flex-col gap-2">
+                <p className={EYEBROW}>Execution Mode</p>
+                <ExecutionModeControl value={batchMode} onChange={setBatchMode} />
+                {batchMode === "1d" && (
+                  <p className="text-[11px] italic text-zinc-500">
+                    BTC sweep: <span className="font-mono text-zinc-400">{DEFAULT_1D_VALUES.join(", ")}%</span>
+                  </p>
+                )}
+                {batchMode === "2d" && (
+                  <p className="text-[11px] italic text-zinc-500">
+                    BTC sweep × Hashprice (3×3 matrix)
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Allocation Context */}
+          <div className={cn("p-4", SUB_SURFACE)}>
+            <p className={cn(EYEBROW, "mb-1")}>Allocation Note</p>
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              Derived by engine from scenario inputs. Not manually adjustable here.
+              Run projection to see derived targets.
+            </p>
+          </div>
+
+          {error && (
+            <p className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-[12px] text-red-400">
+              {error}
+            </p>
+          )}
+
+          {/* Run button */}
+          <div className="flex justify-end">
             <button
-              key={p.id}
               type="button"
-              onClick={() => loadPreset(p.id)}
+              className={BENTO_PRIMARY_BTN}
+              onClick={handleRun}
               disabled={isPending}
-              aria-pressed={selectedPreset === p.id}
-              className="projection-studio-preset-button ct-pill"
+              aria-busy={isPending}
             >
-              <span className="projection-studio-preset-button__label">{p.label}</span>
-              <span className="projection-studio-preset-button__description">{p.description}</span>
+              {isPending
+                ? batchMode === "none"
+                  ? "Running…"
+                  : "Running batch…"
+                : batchMode === "none"
+                  ? "Run projection"
+                  : batchMode === "1d"
+                    ? "Run 1D Batch (5 runs)"
+                    : "Run 2D Batch (9 runs)"}
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── INPUTS — full-width config, sliders + execution mode + Run.
-          Same model as Scenario Lab: config block on top, result continuum below. ── */}
-      <div className="projection-studio-config admin-doc-stack admin-doc-stack--relaxed">
-        <div className="min-w-0">
-          <h3 className="h4">Projection inputs</h3>
-          <p className="mt-[var(--ct-space-0_5)] body-xs ct-text-muted">
-            Adjust sliders or load a preset · Methodology {methodologyVersion}
-          </p>
-        </div>
-
-        <div className="projection-studio-input-cols">
-        {/* Market Environment */}
-        <div className="projection-studio-input-group">
-          <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">Market Environment</p>
-          <div className="admin-doc-stack admin-doc-stack--actions">
-            <SliderField
-              label="BTC Price Change"
-              value={btcChange}
-              min={-100}
-              max={300}
-              step={1}
-              onChange={setBtcChange}
-              format={(v) => `${v > 0 ? "+" : ""}${v.toFixed(0)}%`}
-            />
-            <SliderField
-              label="Hashprice"
-              value={hashprice}
-              min={0.01}
-              max={0.5}
-              step={0.001}
-              onChange={setHashprice}
-              format={(v) => `$${v.toFixed(3)}/TH`}
-            />
-            <SliderField
-              label="Vol Index"
-              value={volIndex}
-              min={0}
-              max={100}
-              step={1}
-              onChange={setVolIndex}
-              format={(v) => v.toFixed(0)}
-            />
           </div>
         </div>
+      </BentoPanel>
 
-        {/* Network & Yield */}
-        <div className="projection-studio-input-group">
-          <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">Network & Yield</p>
-          <div className="admin-doc-stack admin-doc-stack--actions">
-            <SliderField
-              label="Energy Cost"
-              value={energyCost}
-              min={0.01}
-              max={1}
-              step={0.001}
-              onChange={setEnergyCost}
-              format={(v) => `$${v.toFixed(3)}/kWh`}
-            />
-            <SliderField
-              label="Stable APY"
-              value={stableApy}
-              min={0}
-              max={30}
-              step={0.1}
-              onChange={setStableApy}
-              format={(v) => `${v.toFixed(1)}%`}
-            />
-          </div>
-
-          {/* Execution Mode */}
-          <div className="admin-doc-stack admin-doc-stack--actions mt-[var(--ct-space-5)]">
-            <p className="eyebrow ct-text-muted">Execution Mode</p>
-            <SegmentedControl<BatchMode>
-              variant="radiogroup"
-              ariaLabel="Execution mode"
-              value={batchMode}
-              onChange={setBatchMode}
-              items={[
-                { value: "none", label: "Single" },
-                { value: "1d", label: "1D Sweep" },
-                { value: "2d", label: "2D Matrix" },
-              ]}
-            />
-            {batchMode === "1d" && (
-              <p className="body-xs ct-text-faint italic">
-                BTC sweep: <span className="mono ct-text-muted">{DEFAULT_1D_VALUES.join(", ")}%</span>
-              </p>
-            )}
-            {batchMode === "2d" && (
-              <p className="body-xs ct-text-faint italic">
-                BTC sweep × Hashprice (3×3 matrix)
-              </p>
-            )}
-          </div>
-        </div>
-        </div>
-
-        {/* Allocation Context */}
-        <div className="admin-inset-panel admin-inset-panel--md">
-          <p className="eyebrow ct-text-muted mb-[var(--ct-space-1)]">Allocation Note</p>
-          <p className="body-xs ct-text-faint leading-relaxed">
-            Derived by engine from scenario inputs. Not manually adjustable here.
-            Run projection to see derived targets.
-          </p>
-        </div>
-
-        {error && (
-          <p className="body-xs admin-doc-callout">
-            {error}
-          </p>
-        )}
-
-        {/* Run button — right-aligned at the end of the config block (Scenario Lab model) */}
-        <div className="flex justify-end">
-          <Button
-            variant="primary"
-            className="font-semibold"
-            onClick={handleRun}
-            disabled={isPending}
-            aria-busy={isPending}
-          >
-            {isPending
-              ? batchMode === "none"
-                ? "Running…"
-                : "Running batch…"
-              : batchMode === "none"
-                ? "Run projection"
-                : batchMode === "1d"
-                  ? "Run 1D Batch (5 runs)"
-                  : "Run 2D Batch (9 runs)"}
-          </Button>
-        </div>
-      </div>
-
-      {/* ── RESULT — full-width continuum directly BELOW the inputs (Scenario Lab model).
-          Separated from the config above by a top hairline. ── */}
-      <section
-        ref={outputRef}
-        className="projection-studio-result"
-        aria-labelledby="projection-result-title"
-      >
+      {/* ── RESULT ───────────────────────────────────────────────────────── */}
+      <section ref={outputRef} aria-labelledby="projection-result-title">
         <h3 id="projection-result-title" className="sr-only">
           Projection result
         </h3>
-          <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
           {!result ? (
             <motion.div
               key="idle"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="scenario-lab-output-idle projection-studio-output-placeholder p-[var(--ct-space-6)]"
+              transition={{ duration: 0.2 }}
               role="status"
               aria-label="Projection output — awaiting first run"
             >
-              <div className="admin-doc-stack admin-doc-stack--compact max-w-lg">
-                <p className="eyebrow ct-text-muted">Projection Output</p>
-                <p className="body-sm ct-text-faint">
-                  Configure market assumptions and network parameters, then run projection to generate yield estimates.
-                </p>
-
-                <div className="pt-[var(--ct-space-2)]">
-                  <p className="text-[length:var(--ct-text-deci)] uppercase tracking-wider ct-text-muted mb-[var(--ct-space-2)]">Workflow</p>
-                  <div className="flex flex-wrap gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-1)]">
-                    <span className="body-xs ct-text-muted">
-                    <span className="ct-text-muted mono">1.</span> Select preset
-                  </span>
-                  <span className="body-xs ct-text-muted">
-                    <span className="ct-text-muted mono">2.</span> Tune inputs
-                  </span>
-                  <span className="body-xs ct-text-muted">
-                    <span className="ct-text-muted mono">3.</span> Run projection
-                    </span>
+              <BentoPanel>
+                <BentoHeader title="Projection Output" />
+                <div className="flex max-w-lg flex-col gap-3 p-5">
+                  <p className="text-[13px] text-zinc-500">
+                    Configure market assumptions and network parameters, then run projection to generate yield estimates.
+                  </p>
+                  <div className="pt-2">
+                    <p className={cn(EYEBROW, "mb-2")}>Workflow</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                      <span className="text-[12px] text-zinc-400">
+                        <span className="font-mono text-zinc-500">1.</span> Select preset
+                      </span>
+                      <span className="text-[12px] text-zinc-400">
+                        <span className="font-mono text-zinc-500">2.</span> Tune inputs
+                      </span>
+                      <span className="text-[12px] text-zinc-400">
+                        <span className="font-mono text-zinc-500">3.</span> Run projection
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </BentoPanel>
             </motion.div>
           ) : (
             <motion.div
               key="result"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="projection-studio-output-content"
+              transition={{ duration: 0.2, ease: "easeOut" }}
             >
-            {/* Study metadata */}
-            <DashboardPanelHeader
-              title="Projection output"
-              eyebrow="Result scene"
-              tone="primary"
-              subtitle={lastRunAt ? `Last run: ${lastRunAt.toLocaleTimeString()}` : undefined}
-              status="Live Engine"
-              statusTone="ok"
-              trailing={
-                <div className="flex items-center gap-[var(--ct-space-3)]">
-                  <div className="flex items-center gap-[var(--ct-space-1_5)] pr-[var(--ct-space-3)] border-r border-[var(--ct-border-soft)]">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-[length:var(--ct-text-deci)] mono ct-text-muted hover:ct-text-strong"
-                      onClick={() => {
-                        navigator.clipboard.writeText(result.studyId);
-                        toast.success("Study ID copied to clipboard");
-                      }}
-                    >
-                      Copy ID
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-[length:var(--ct-text-deci)] mono ct-text-muted hover:ct-text-strong"
-                      onClick={() => toast.info("Export to PDF/CSV coming soon")}
-                    >
-                      Export
-                    </Button>
-                  </div>
-                  <Badge variant="default" className="mono tabular">
-                    ID {result.studyId.slice(-8)}
-                  </Badge>
-                  <Badge variant="brand">
-                    {result.runIds.length} {result.runIds.length > 1 ? "Runs" : "Run"}
-                  </Badge>
-                </div>
-              }
-              className="px-[var(--ct-space-6)] py-[var(--ct-space-5)] border-b border-[var(--ct-border-soft)]"
-            />
-
-            <div className="px-[var(--ct-space-6)] py-[var(--ct-space-6)] admin-doc-stack admin-doc-stack--actions">
-              {/* Assumptions Strip */}
-              <AssumptionsStrip
-                inputs={{
-                  btc_price_change_pct: btcChange,
-                  hashprice_usd_th_day: hashprice,
-                  energy_cost_kwh: energyCost,
-                  stable_apy_pct: stableApy,
-                  vol_index: volIndex,
-                }}
-              />
-
-              {/* Single run: KPI grid */}
-              {result.runIds.length === 1 && selectedCell && (
-                <div className="admin-doc-form-grid-3">
-                  <Metric
-                    label="APY Range"
-                    provenance="estimated"
-                    value={
-                      <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
-                    }
-                  />
-                  <Metric
-                    label="Risk Score"
-                    provenance="estimated"
-                    value={
-                      <span className={cn("tabular", riskTextClass(selectedCell.riskScore))}>
-                        {selectedCell.riskScore}
-                      </span>
-                    }
-                  />
-                  <Metric
-                    label="Confidence"
-                    provenance="estimated"
-                    value={
-                      <Badge
-                        variant="default"
-                        className={cn(
-                          "uppercase tracking-wider text-[length:var(--ct-text-deci)] bg-transparent",
-                          selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
-                          selectedCell.confidence === "medium" ? "ct-status-warning ct-bc-warning" :
-                          "ct-text-danger border-danger-soft"
-                        )}
+              <BentoPanel>
+                {/* Study metadata header */}
+                <BentoHeader
+                  title="Projection output"
+                  subtitle={lastRunAt ? `Last run: ${lastRunAt.toLocaleTimeString()}` : undefined}
+                  trailing={
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="rounded-md px-2 py-1 font-mono text-[11px] text-zinc-500 transition-colors hover:text-white"
+                        onClick={() => {
+                          navigator.clipboard.writeText(result.studyId);
+                          toast.success("Study ID copied to clipboard");
+                        }}
                       >
-                        {selectedCell.confidence}
-                      </Badge>
-                    }
-                  />
-                </div>
-              )}
-
-              {/* Batch: heatmap */}
-              {result.runIds.length > 1 && (
-                <div className="admin-doc-stack admin-doc-stack--actions">
-                  <p className="eyebrow ct-text-muted">
-                    Sensitivity Matrix
-                  </p>
-                  <Heatmap
-                    cells={result.matrix.cells}
-                    xAxis={result.matrix.x}
-                    yAxis={result.matrix.y}
-                    xValues={xVals}
-                    yValues={yVals}
-                    selectedRunId={selectedRunId}
-                    onSelect={setSelectedRunId}
-                  />
-                </div>
-              )}
-
-              {/* Selected cell detail (batch) */}
-              {result.runIds.length > 1 && selectedCell && (
-                <div className="admin-doc-form-grid-3">
-                  <Metric
-                    label="Selected APY Range"
-                    provenance="estimated"
-                    value={
-                      <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
-                    }
-                  />
-                  <Metric
-                    label="Risk Score"
-                    provenance="estimated"
-                    value={
-                      <span className={cn("tabular", riskTextClass(selectedCell.riskScore))}>
-                        {selectedCell.riskScore}
-                      </span>
-                    }
-                  />
-                  <Metric
-                    label="Confidence"
-                    provenance="estimated"
-                    value={
-                      <Badge
-                        variant="default"
-                        className={cn(
-                          "uppercase tracking-wider text-[length:var(--ct-text-deci)] bg-transparent",
-                          selectedCell.confidence === "high" ? "ct-text-success border-success-soft" :
-                          selectedCell.confidence === "medium" ? "ct-status-warning ct-bc-warning" :
-                          "ct-text-danger border-danger-soft"
-                        )}
+                        Copy ID
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-md px-2 py-1 font-mono text-[11px] text-zinc-500 transition-colors hover:text-white"
+                        onClick={() => toast.info("Export to PDF/CSV coming soon")}
                       >
-                        {selectedCell.confidence}
-                      </Badge>
-                    }
-                  />
-                </div>
-              )}
-
-              {/* Allocation Breakdown */}
-              {selectedCell && (
-                <AllocationBreakdown allocations={selectedCell.allocations} />
-              )}
-
-              {/* PTAI block — mandatory for every projection (#3) */}
-            {selectedCell && (
-              <div className="admin-inset-panel admin-inset-panel--md ct-surface-0">
-                <p className="eyebrow ct-text-muted mb-[var(--ct-space-3)]">PTAI Projection Impact</p>
-                <Ptai
-                  projection={`APY range ${selectedCell.apyLow.toFixed(1)}–${selectedCell.apyHigh.toFixed(1)}% under current assumptions (methodology v1.0). Not guaranteed — projections are conditional on stated inputs.`}
-                  trigger={`Risk score ${selectedCell.riskScore}/100 computed from vol_index, hashprice margin, and BTC price change inputs. Rebalancing rule activates when risk > ${RISK_WARN_MAX}.`}
-                  action={`Admin review of projection study ${result.studyId.slice(-8)} required before promotion. Promote to vault draft via button below.`}
-                  impact={`Target APY range seeded into VaultDeployment (draft status). Requires 2-of-N multisig approval before going live. Past performance does not predict future results.`}
+                        Export
+                      </button>
+                      <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-mono text-[11px] tabular-nums text-zinc-400">
+                        ID {result.studyId.slice(-8)}
+                      </span>
+                      <span className="rounded-md border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2 py-1 text-[11px] font-bold text-[#A7FB90]">
+                        {result.runIds.length} {result.runIds.length > 1 ? "Runs" : "Run"}
+                      </span>
+                    </div>
+                  }
                 />
-              </div>
-            )}
 
-            {/* Readiness Note */}
-            <PanelStatus
-              message="Projection is ready for promotion."
-              detail="The model outputs are consistent with the selected methodology (v1.0). Promotion will create a draft deployment for further refinement."
-              tone="muted"
-              className="mt-[var(--ct-space-2)]"
-            />
+                <div className="flex flex-col gap-4 p-5">
+                  {/* Assumptions Strip */}
+                  <AssumptionsStrip
+                    inputs={{
+                      btc_price_change_pct: btcChange,
+                      hashprice_usd_th_day: hashprice,
+                      energy_cost_kwh: energyCost,
+                      stable_apy_pct: stableApy,
+                      vol_index: volIndex,
+                    }}
+                  />
 
-            {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-            <p className="body-xs ct-text-faint italic leading-relaxed">
-              <strong className="ct-text-muted not-italic">Disclaimer:</strong>{" "}
-              Projections are conditional on stated assumptions and are not guaranteed.
-              Rule-based engine — no Monte Carlo. Past performance does not predict future
-              results. Hearst Yield Vault is offered exclusively to professional / qualified
-              investors. Not an offer or solicitation where prohibited.
-            </p>
+                  {/* Single run: KPI grid */}
+                  {result.runIds.length === 1 && selectedCell && (
+                    <div className={cn("grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3", SUB_SURFACE)}>
+                      <div className="bg-[#15191C] p-4">
+                        <Metric
+                          label="APY Range"
+                          provenance="estimated"
+                          value={
+                            <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
+                          }
+                        />
+                      </div>
+                      <div className="bg-[#15191C] p-4">
+                        <Metric
+                          label="Risk Score"
+                          provenance="estimated"
+                          value={
+                            <span className={cn("tabular-nums", riskTextClass(selectedCell.riskScore))}>
+                              {selectedCell.riskScore}
+                            </span>
+                          }
+                        />
+                      </div>
+                      <div className="bg-[#15191C] p-4">
+                        <Metric
+                          label="Confidence"
+                          provenance="estimated"
+                          value={
+                            <span
+                              className={cn(
+                                "text-[12px] uppercase tracking-wider",
+                                selectedCell.confidence === "high"
+                                  ? "text-[#A7FB90]"
+                                  : selectedCell.confidence === "medium"
+                                    ? "text-amber-300"
+                                    : "text-red-400",
+                              )}
+                            >
+                              {selectedCell.confidence}
+                            </span>
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
 
-            {/* Promote to vault draft */}
-            <div className="admin-doc-inline-row admin-doc-inline-row--actions pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handlePromote}
-                disabled={isPromoting || !result}
-                aria-busy={isPromoting}
-              >
-                {isPromoting ? "Promoting…" : "Promote to Vault Draft"}
-              </Button>
-              <span className="body-xs ct-text-muted">
-                Seeds APY range into a new VaultDeployment (draft)
-              </span>
-            </div>
-            </div>
+                  {/* Batch: heatmap */}
+                  {result.runIds.length > 1 && (
+                    <div className="flex flex-col gap-3">
+                      <p className={EYEBROW}>Sensitivity Matrix</p>
+                      <Heatmap
+                        cells={result.matrix.cells}
+                        xAxis={result.matrix.x}
+                        yAxis={result.matrix.y}
+                        xValues={xVals}
+                        yValues={yVals}
+                        selectedRunId={selectedRunId}
+                        onSelect={setSelectedRunId}
+                      />
+                    </div>
+                  )}
+
+                  {/* Selected cell detail (batch) */}
+                  {result.runIds.length > 1 && selectedCell && (
+                    <div className={cn("grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3", SUB_SURFACE)}>
+                      <div className="bg-[#15191C] p-4">
+                        <Metric
+                          label="Selected APY Range"
+                          provenance="estimated"
+                          value={
+                            <ApyRange low={selectedCell.apyLow} high={selectedCell.apyHigh} precision={1} />
+                          }
+                        />
+                      </div>
+                      <div className="bg-[#15191C] p-4">
+                        <Metric
+                          label="Risk Score"
+                          provenance="estimated"
+                          value={
+                            <span className={cn("tabular-nums", riskTextClass(selectedCell.riskScore))}>
+                              {selectedCell.riskScore}
+                            </span>
+                          }
+                        />
+                      </div>
+                      <div className="bg-[#15191C] p-4">
+                        <Metric
+                          label="Confidence"
+                          provenance="estimated"
+                          value={
+                            <span
+                              className={cn(
+                                "text-[12px] uppercase tracking-wider",
+                                selectedCell.confidence === "high"
+                                  ? "text-[#A7FB90]"
+                                  : selectedCell.confidence === "medium"
+                                    ? "text-amber-300"
+                                    : "text-red-400",
+                              )}
+                            >
+                              {selectedCell.confidence}
+                            </span>
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Allocation Breakdown */}
+                  {selectedCell && (
+                    <AllocationBreakdown allocations={selectedCell.allocations} />
+                  )}
+
+                  {/* PTAI block — mandatory for every projection (#3) */}
+                  {selectedCell && (
+                    <div className={cn("p-4", SUB_SURFACE)}>
+                      <p className={cn(EYEBROW, "mb-3")}>PTAI Projection Impact</p>
+                      <Ptai
+                        projection={`APY range ${selectedCell.apyLow.toFixed(1)}–${selectedCell.apyHigh.toFixed(1)}% under current assumptions (methodology v1.0). Not guaranteed — projections are conditional on stated inputs.`}
+                        trigger={`Risk score ${selectedCell.riskScore}/100 computed from vol_index, hashprice margin, and BTC price change inputs. Rebalancing rule activates when risk > ${RISK_WARN_MAX}.`}
+                        action={`Admin review of projection study ${result.studyId.slice(-8)} required before promotion. Promote to vault draft via button below.`}
+                        impact={`Target APY range seeded into VaultDeployment (draft status). Requires 2-of-N multisig approval before going live. Past performance does not predict future results.`}
+                      />
+                    </div>
+                  )}
+
+                  {/* Readiness Note */}
+                  <div className={cn("flex flex-col gap-1 p-4", SUB_SURFACE)}>
+                    <p className="text-[13px] font-medium text-zinc-200">
+                      Projection is ready for promotion.
+                    </p>
+                    <p className="text-[12px] text-zinc-500">
+                      The model outputs are consistent with the selected methodology (v1.0). Promotion will create a draft deployment for further refinement.
+                    </p>
+                  </div>
+
+                  {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
+                  <p className="text-[11px] italic leading-relaxed text-zinc-500">
+                    <strong className="not-italic text-zinc-400">Disclaimer:</strong>{" "}
+                    Projections are conditional on stated assumptions and are not guaranteed.
+                    Rule-based engine — no Monte Carlo. Past performance does not predict future
+                    results. Hearst Yield Vault is offered exclusively to professional / qualified
+                    investors. Not an offer or solicitation where prohibited.
+                  </p>
+
+                  {/* Promote to vault draft */}
+                  <div className="flex flex-wrap items-center gap-4 border-t border-white/5 pt-4">
+                    <button
+                      type="button"
+                      className={BENTO_PRIMARY_BTN}
+                      onClick={handlePromote}
+                      disabled={isPromoting || !result}
+                      aria-busy={isPromoting}
+                    >
+                      {isPromoting ? "Promoting…" : "Promote to Vault Draft"}
+                    </button>
+                    <span className="text-[12px] text-zinc-500">
+                      Seeds APY range into a new VaultDeployment (draft)
+                    </span>
+                  </div>
+                </div>
+              </BentoPanel>
             </motion.div>
           )}
-          </AnimatePresence>
+        </AnimatePresence>
       </section>
-
-      </div>
-      </div>
-    </Card>
+    </div>
   );
 }

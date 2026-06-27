@@ -4,8 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Card } from "@/components/ui/card";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
+import { BentoPanel } from "@/components/ui/bento";
 import { loadAgentTemplate } from "@/lib/data/agent-templates";
 
 export const dynamic = "force-dynamic";
@@ -22,23 +22,28 @@ export default async function EditAgentTemplatePage({
   if (!template) notFound();
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Edit agent"
-        titleAccent="template"
-        contextLabel={template.label}
-        description="Review and refine the reusable profile applied to investor-facing agent experiences."
-        lead={
-          <Link href="/admin/agents" className="body-xs ct-text-muted hover:ct-text-strong">
-            ← Agents
-          </Link>
-        }
-      />
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Edit template">
-        <Card className="w-full p-[var(--ct-space-6)]" hoverOverlay={false}>
-          <AgentTemplateForm template={template} />
-        </Card>
-      </section>
-    </>
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Edit agent"
+          titleAccent="template"
+          contextLabel={template.label}
+          description="Review and refine the reusable profile applied to investor-facing agent experiences."
+          lead={
+            <Link
+              href="/admin/agents"
+              className="text-[12px] text-zinc-500 hover:text-white"
+            >
+              ← Agents
+            </Link>
+          }
+        />
+        <BentoPanel aria-label="Edit template">
+          <div className="p-5 lg:p-6">
+            <AgentTemplateForm template={template} />
+          </div>
+        </BentoPanel>
+      </div>
+    </div>
   );
 }

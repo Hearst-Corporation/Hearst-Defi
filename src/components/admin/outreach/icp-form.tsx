@@ -3,8 +3,16 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import {
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
+import {
+  BENTO_FIELD,
+  BENTO_FIELD_LABEL,
+  BENTO_INPUT,
+} from "@/components/admin/outreach/bento-form";
 import { createIcp, runSourcing } from "@/app/admin/outreach/actions";
 
 /**
@@ -45,9 +53,9 @@ export function IcpForm() {
 
   return (
     <>
-      <Button variant="primary" size="md" onClick={() => setOpen(true)}>
+      <button type="button" className={BENTO_PRIMARY_BTN} onClick={() => setOpen(true)}>
         Define a distributor ICP
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -57,88 +65,87 @@ export function IcpForm() {
       >
         <form
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions"
+          className="flex flex-col gap-4"
           aria-label="Define an ideal customer profile"
         >
-          <div className="admin-doc-form-grid-2">
-          <label className="admin-doc-field" htmlFor="icp-name">
-            <span className="stat-label">Name</span>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className={BENTO_FIELD} htmlFor="icp-name">
+              <span className={BENTO_FIELD_LABEL}>Name</span>
+              <input
+                id="icp-name"
+                name="name"
+                type="text"
+                required
+                placeholder="US RIAs & family offices"
+                className={BENTO_INPUT}
+                autoFocus
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="icp-language">
+              <span className={BENTO_FIELD_LABEL}>Email language</span>
+              <select
+                id="icp-language"
+                name="language"
+                defaultValue="en"
+                className={BENTO_INPUT}
+                aria-label="Email language"
+              >
+                <option value="en">English</option>
+                <option value="fr">French</option>
+              </select>
+            </label>
+          </div>
+          <label className={BENTO_FIELD} htmlFor="icp-titles">
+            <span className={BENTO_FIELD_LABEL}>
+              Target titles (comma separated)
+            </span>
             <input
-              id="icp-name"
-              name="name"
+              id="icp-titles"
+              name="titles"
               type="text"
-              required
-              placeholder="US RIAs & family offices"
-              className="ct-input"
-              autoFocus
+              placeholder="wealth manager, family office, RIA, IFA"
+              className={BENTO_INPUT}
             />
           </label>
-          <label className="admin-doc-field" htmlFor="icp-language">
-            <span className="stat-label">Email language</span>
-            <select
-              id="icp-language"
-              name="language"
-              defaultValue="en"
-              className="ct-input"
-              aria-label="Email language"
-            >
-              <option value="en">English</option>
-              <option value="fr">French</option>
-            </select>
-          </label>
-        </div>
-        <label className="admin-doc-field" htmlFor="icp-titles">
-          <span className="stat-label">
-            Target titles (comma separated)
-          </span>
-          <input
-            id="icp-titles"
-            name="titles"
-            type="text"
-            placeholder="wealth manager, family office, RIA, IFA"
-            className="ct-input"
-          />
-        </label>
-        <div className="admin-doc-form-grid-2">
-          <label className="admin-doc-field" htmlFor="icp-locations">
-            <span className="stat-label">Locations</span>
-            <input
-              id="icp-locations"
-              name="locations"
-              type="text"
-              placeholder="United States, Switzerland, United Kingdom"
-              className="ct-input"
-            />
-          </label>
-          <label className="admin-doc-field" htmlFor="icp-industries">
-            <span className="stat-label">Industries / keywords</span>
-            <input
-              id="icp-industries"
-              name="industries"
-              type="text"
-              placeholder="wealth management, financial services"
-              className="ct-input"
-            />
-          </label>
-        </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className={BENTO_FIELD} htmlFor="icp-locations">
+              <span className={BENTO_FIELD_LABEL}>Locations</span>
+              <input
+                id="icp-locations"
+                name="locations"
+                type="text"
+                placeholder="United States, Switzerland, United Kingdom"
+                className={BENTO_INPUT}
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="icp-industries">
+              <span className={BENTO_FIELD_LABEL}>Industries / keywords</span>
+              <input
+                id="icp-industries"
+                name="industries"
+                type="text"
+                placeholder="wealth management, financial services"
+                className={BENTO_INPUT}
+              />
+            </label>
+          </div>
           <input type="hidden" name="persona" value="distributor" />
-          <p className="body-xs ct-text-muted m-0">
+          <p className="m-0 text-[12px] text-zinc-400">
             Tier thresholds default to 85 / 60 / 40 (Prime / Warm / Cold). Sourcing
             finds, scores, and tiers leads — it never sends.
           </p>
-          <div className="admin-form-actions">
-            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
               {isPending ? "Sourcing…" : "Create & source leads"}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="ghost"
-              size="md"
+              className={BENTO_SECONDARY_BTN}
               onClick={() => setOpen(false)}
               disabled={isPending}
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { AdminTable } from "@/components/admin/admin-table-layout";
-import { Card } from "@/components/ui/card";
+import { BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
@@ -59,33 +59,36 @@ export default async function DistributionsPage({
   const distributionKpis = buildDistributionsKpiStrip(history);
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Vault"
-        titleAccent="Distributions"
-        contextLabel="Vaults"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Vault"
+          titleAccent="Distributions"
+          contextLabel="Vaults"
+        />
 
-      {/* Distribution KPI summary — suppressed when no history */}
-      {distributionKpis.length > 0 && (
-        <AdminKpiStripPanel kpis={distributionKpis} />
-      )}
+        {/* Distribution KPI summary — suppressed when no history */}
+        {distributionKpis.length > 0 && (
+          <AdminKpiStripPanel kpis={distributionKpis} />
+        )}
 
-      {/* Compute + confirm form (client) */}
-      <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />
+        {/* Compute + confirm form (client) */}
+        <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />
 
-      {/* Distribution history */}
-      <section className="admin-doc-stack admin-doc-stack--actions">
-        <h2 className="h2">History ({activeVaultLabel})</h2>
+        {/* Distribution history */}
+        <section className="flex flex-col gap-4">
+          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+            History ({activeVaultLabel})
+          </h2>
 
-        {history.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message={`No distributions yet for ${activeVaultLabel}.`}
-            detail="Confirmed distributions for this vault will appear here after multisig approval."
-            className="min-h-32"
-          />
-        ) : (
+          {history.length === 0 ? (
+            <EmptySurface
+              variant="widget"
+              message={`No distributions yet for ${activeVaultLabel}.`}
+              detail="Confirmed distributions for this vault will appear here after multisig approval."
+              className="min-h-32"
+            />
+          ) : (
           <AdminTable
             data={history}
             headers={[
@@ -120,44 +123,44 @@ export default async function DistributionsPage({
 
               return (
                 <>
-                  <td className="ct-table-cell body-sm ct-text-body truncate">
+                  <td className="truncate px-5 py-4 align-top text-[13px] text-zinc-300">
                     {vaultHref && label ? (
                       <Link
                         href={vaultHref}
-                        className="block max-w-full truncate ct-text-accent hover:underline"
+                        className="block max-w-full truncate text-[#A7FB90] hover:underline"
                       >
                         {label}
                       </Link>
                     ) : label ? (
-                      <span className="ct-text-muted">{label}</span>
+                      <span className="text-zinc-400">{label}</span>
                     ) : (
-                      <span className="ct-text-faint">—</span>
+                      <span className="text-zinc-600">—</span>
                     )}
                   </td>
-                  <td className="ct-table-cell mono body-xs ct-text-body">
+                  <td className="px-5 py-4 align-top font-mono text-[12px] text-zinc-300">
                     {d.period}
                   </td>
-                  <td className="ct-table-cell text-right body-sm ct-text-strong tabular">
+                  <td className="px-5 py-4 text-right align-top font-medium tabular-nums text-white">
                     {formatUsdDetailed(d.amountUsdc.toNumber())}
                   </td>
-                  <td className="hidden ct-table-cell text-right ct-text-muted tabular md:table-cell">
+                  <td className="hidden px-5 py-4 text-right align-top tabular-nums text-zinc-400 md:table-cell">
                     {d.recipientsCount}
                   </td>
-                  <td className="ct-table-cell text-right ct-text-muted">
+                  <td className="px-5 py-4 text-right align-top text-zinc-400">
                     {formatAdminDate(new Date(d.distributedAt))}
                   </td>
-                  <td className="hidden ct-table-cell text-right mono body-xs ct-text-faint xl:table-cell">
+                  <td className="hidden px-5 py-4 text-right align-top font-mono text-[12px] text-zinc-600 xl:table-cell">
                     {d.txHash ? (
                       d.txHash.startsWith("0xMOCK") ? (
-                        <span className="ct-text-faint">simulated</span>
+                        <span className="text-zinc-600">simulated</span>
                       ) : (
                         `${d.txHash.slice(0, 8)}…`
                       )
                     ) : (
-                      <span className="ct-text-faint">—</span>
+                      <span className="text-zinc-600">—</span>
                     )}
                   </td>
-                  <td className="hidden ct-table-cell text-right lg:table-cell">
+                  <td className="hidden px-5 py-4 text-right align-top lg:table-cell">
                     <span className="inline-flex justify-end">
                       <ProvenanceBadge
                         variant="strip"
@@ -175,19 +178,22 @@ export default async function DistributionsPage({
               );
             }}
           />
-        )}
+          )}
 
-        <Card hoverOverlay={false}>
-          <div className="admin-doc-stack admin-doc-stack--tight">
-            <h3 className="h3">Historical record</h3>
-            <p className="body-xs ct-text-faint ct-prose-xl">
-              Distributions shown above are historical records only. They are not a
-              commitment to any future distribution. Past distributions are not a
-              reliable indicator of future performance or yield.
-            </p>
-          </div>
-        </Card>
-      </section>
-    </>
+          <BentoPanel>
+            <div className="flex flex-col gap-2 p-5">
+              <h3 className="text-[13px] font-semibold text-white">
+                Historical record
+              </h3>
+              <p className="max-w-prose text-[12px] text-zinc-600">
+                Distributions shown above are historical records only. They are
+                not a commitment to any future distribution. Past distributions
+                are not a reliable indicator of future performance or yield.
+              </p>
+            </div>
+          </BentoPanel>
+        </section>
+      </div>
+    </div>
   );
 }

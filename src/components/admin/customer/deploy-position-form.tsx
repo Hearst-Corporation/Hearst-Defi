@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
+
+const SELECT_INPUT =
+  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 /**
  * Admin "Deploy position" form — creates an off-chain position for a specific
@@ -37,21 +40,21 @@ export function DeployPositionForm({
   const blocked = kycStatus !== "approved";
 
   return (
-    <div className="admin-doc-stack" style={{ gap: "var(--ct-space-3)" }}>
+    <div className="flex flex-col gap-3">
       {blocked && (
-        <p className="body-xs ct-status-warning">
+        <p className="text-[12px] text-amber-400">
           KYC must be approved before deploying a position. Use the Approve button
           above first.
         </p>
       )}
 
-      <form action={handleSubmit} className="admin-doc-inline-row flex-wrap">
+      <form action={handleSubmit} className="flex flex-wrap items-end gap-3">
         <input type="hidden" name="investorId" value={investorId} />
 
-        <div className="flex flex-col gap-(--ct-space-1)">
-          <label htmlFor={`deploy-amount-${investorId}`} className="ct-form-label">
+        <div className="flex flex-col gap-2">
+          <BentoLabel htmlFor={`deploy-amount-${investorId}`}>
             Amount (USDC)
-          </label>
+          </BentoLabel>
           <input
             id={`deploy-amount-${investorId}`}
             name="amountUsdc"
@@ -61,41 +64,37 @@ export function DeployPositionForm({
             defaultValue={250000}
             required
             disabled={blocked || pending}
-            className="ct-input body-sm tabular-nums"
-            style={{ width: "10rem" }}
+            className={cn(SELECT_INPUT, "w-40 tabular-nums")}
           />
         </div>
 
-        <div className="flex flex-col gap-(--ct-space-1)">
-          <label htmlFor={`deploy-class-${investorId}`} className="ct-form-label">
+        <div className="flex flex-col gap-2">
+          <BentoLabel htmlFor={`deploy-class-${investorId}`}>
             Share class
-          </label>
+          </BentoLabel>
           <select
             id={`deploy-class-${investorId}`}
             name="classCode"
             defaultValue="A"
             disabled={blocked || pending}
-            className="ct-input body-sm"
+            className={SELECT_INPUT}
           >
             <option value="A">Class A — $250k min · 60d</option>
             <option value="B">Class B — $1M min · 90d</option>
           </select>
         </div>
 
-        <div className="flex flex-col justify-end">
-          <Button
-            type="submit"
-            variant="secondary"
-            size="sm"
-            disabled={blocked || pending}
-          >
-            {pending ? "Deploying…" : "Deploy position"}
-          </Button>
-        </div>
+        <button
+          type="submit"
+          className={BENTO_SECONDARY_BTN}
+          disabled={blocked || pending}
+        >
+          {pending ? "Deploying…" : "Deploy position"}
+        </button>
       </form>
 
       {result !== null && (
-        <p className={cn("body-xs", result.ok ? "ct-text-success" : "ct-text-danger")}>
+        <p className={cn("text-[12px]", result.ok ? "text-[#A7FB90]" : "text-red-400")}>
           {result.ok
             ? `Position deployed — id ${result.positionId}`
             : `Error: ${result.error}`}

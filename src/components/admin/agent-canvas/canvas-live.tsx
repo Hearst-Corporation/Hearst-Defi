@@ -142,8 +142,8 @@ export function CanvasLive({
 
   if (!state) {
     return (
-      <div className="ct-canvas-empty">
-        <p className="ct-placeholder">
+      <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-white/10 bg-black px-6 py-12 text-center">
+        <p className="text-[13px] leading-relaxed text-zinc-500">
           The agent is opening this workspace…
           <br />
           Ask in the chat to fill it.
@@ -153,9 +153,16 @@ export function CanvasLive({
   }
 
   return (
-    <div className="ct-canvas">
-      <p className="ct-canvas-disclaimer">{state.disclaimer}</p>
-      <div className={cn("ct-canvas-sections", !state.agentLive && "ct-canvas-sections--offline")}>
+    <>
+      <p className="text-[12px] italic leading-relaxed text-zinc-500">
+        {state.disclaimer}
+      </p>
+      <div
+        className={cn(
+          "flex flex-col gap-y-5",
+          !state.agentLive && "opacity-60",
+        )}
+      >
         {state.sections.map((section) => (
           <CanvasSectionView
             key={section.id}
@@ -167,6 +174,6 @@ export function CanvasLive({
           />
         ))}
       </div>
-    </div>
+    </>
   );
 }

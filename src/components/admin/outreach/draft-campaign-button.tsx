@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
 import { draftAllCampaignEmails } from "@/app/admin/outreach/actions";
 
 /**
@@ -31,14 +31,13 @@ export function DraftCampaignButton({ campaignId }: { campaignId: string }) {
   }
 
   return (
-    <Button
+    <button
       type="button"
-      variant="primary"
-      size="md"
+      className={BENTO_PRIMARY_BTN}
       onClick={onClick}
       disabled={isPending}
     >
       {isPending ? "Drafting…" : "Draft with agent"}
-    </Button>
+    </button>
   );
 }

@@ -62,19 +62,19 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         title="Reject this deployment?"
         className="max-w-md"
       >
-        <p className="body-sm ct-text-muted mb-[var(--ct-space-4)]">
+        <p className="mb-4 text-[13px] text-zinc-400">
           Pushes the vault back to draft. Requires a written reason for the
           audit log.
         </p>
 
-        <div className="admin-doc-stack admin-doc-stack--tight">
+        <div className="flex flex-col gap-2">
           <label
             id={labelId}
             htmlFor={`${labelId}-reason`}
-            className="stat-label block"
+            className="block text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500"
           >
             Reason{" "}
-            <span className="ct-text-faint">
+            <span className="text-zinc-600">
               ({trimmed.length}/{MAX_REASON_CHARS})
             </span>
           </label>
@@ -87,20 +87,20 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Missing audit report, incorrect fee structure…"
-            className="ct-input w-full resize-none"
+            className="w-full resize-none rounded-lg border border-white/10 bg-[#15191C] px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
           />
         </div>
 
         {error && (
           <div
             role="alert"
-            className="ct-status-danger-bg ct-alert-danger"
+            className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[13px] text-red-400"
           >
             {error}
           </div>
         )}
 
-        <div className="mt-[var(--ct-space-8)] admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
+        <div className="mt-8 flex flex-wrap items-center justify-end gap-2">
           <Button variant="ghost" size="md" onClick={handleClose} disabled={isPending}>
             Cancel
           </Button>

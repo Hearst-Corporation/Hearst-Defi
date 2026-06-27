@@ -5,9 +5,18 @@ import { toast } from "sonner";
 import DOMPurify from "dompurify";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
+import {
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+  BentoPanel,
+} from "@/components/ui/bento";
+import {
+  BENTO_FIELD,
+  BENTO_FIELD_LABEL,
+  BENTO_INPUT,
+} from "@/components/admin/outreach/bento-form";
+import { cn } from "@/lib/cn";
 import { approveEmail, updateEmail } from "@/app/admin/outreach/actions";
 import { buildEmailHtmlShell } from "@/lib/email/html-shell";
 
@@ -119,12 +128,12 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
 
   return (
     <>
-      <Card className="admin-card" hoverOverlay={false}>
-        <div className="admin-doc-stack admin-doc-stack--actions">
-          <div className="admin-doc-row-spread">
-            <div className="admin-doc-stack admin-doc-stack--micro">
-              <p className="body-xs ct-text-muted mono">{email.toEmail}</p>
-              <div className="admin-doc-inline-row admin-doc-inline-row--tight">
+      <BentoPanel className="p-5">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <p className="font-mono text-[12px] text-zinc-400">{email.toEmail}</p>
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={variant}>{email.status}</Badge>
                 {email.draftedByAgent && (
                   <Badge variant="default">agent draft</Badge>
@@ -136,69 +145,66 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
                   </Badge>
                 )}
                 {hasDelivery && email.latestEventAt && (
-                  <span className="body-xs ct-text-muted">
+                  <span className="text-[12px] text-zinc-400">
                     {fmtEventTime(email.latestEventAt)}
                   </span>
                 )}
               </div>
             </div>
             {/* Preview affordance */}
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
+              className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[12px]")}
               onClick={() => setPreviewOpen(true)}
             >
               Preview
-            </Button>
+            </button>
           </div>
 
-          <label className="admin-doc-field" htmlFor={`email-subject-${email.id}`}>
-            <span className="ct-form-label">Subject</span>
+          <label className={BENTO_FIELD} htmlFor={`email-subject-${email.id}`}>
+            <span className={BENTO_FIELD_LABEL}>Subject</span>
             <input
               id={`email-subject-${email.id}`}
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               disabled={locked}
-              className="ct-input"
+              className={cn(BENTO_INPUT, "disabled:cursor-not-allowed disabled:opacity-60")}
             />
           </label>
 
-          <label className="admin-doc-field" htmlFor={`email-body-${email.id}`}>
-            <span className="ct-form-label">Body</span>
+          <label className={BENTO_FIELD} htmlFor={`email-body-${email.id}`}>
+            <span className={BENTO_FIELD_LABEL}>Body</span>
             <textarea
               id={`email-body-${email.id}`}
               rows={8}
               value={body}
               onChange={(e) => setBody(e.target.value)}
               disabled={locked}
-              className="ct-input"
+              className={cn(BENTO_INPUT, "disabled:cursor-not-allowed disabled:opacity-60")}
             />
           </label>
 
-          <div className="admin-form-actions">
-            <Button
+          <div className="flex flex-wrap items-center gap-2">
+            <button
               type="button"
-              variant="secondary"
-              size="md"
+              className={BENTO_SECONDARY_BTN}
               onClick={onSave}
               disabled={locked || savePending || !dirty}
             >
               {savePending ? "Saving…" : "Save"}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="primary"
-              size="md"
+              className={BENTO_PRIMARY_BTN}
               onClick={onApprove}
               disabled={locked || approvePending || email.status === "approved"}
             >
               {approvePending ? "Approving…" : "Approve"}
-            </Button>
+            </button>
           </div>
         </div>
-      </Card>
+      </BentoPanel>
 
       {/* Email preview modal — read-only HTML shell, sanitised */}
       <Modal
@@ -207,7 +213,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
         title={`Preview — ${email.toEmail}`}
         className="max-w-2xl"
       >
-        <div className="rounded-lg overflow-hidden bg-(--ct-bg-deep)">
+        <div className="overflow-hidden rounded-lg border border-white/10 bg-[#15191C]">
           <iframe
             title="Email preview"
             srcDoc={renderPreviewHtml(body)}
@@ -216,7 +222,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
             style={{ minHeight: "340px" }}
           />
         </div>
-        <p className="body-xs ct-text-muted admin-note-spaced">
+        <p className="mt-3 text-[12px] text-zinc-400">
           Read-only preview. Actual send uses the same HTML shell via Resend.
         </p>
       </Modal>

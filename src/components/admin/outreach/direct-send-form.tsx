@@ -3,8 +3,16 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
+import {
+  BENTO_FIELD,
+  BENTO_FIELD_LABEL,
+  BENTO_INPUT,
+} from "@/components/admin/outreach/bento-form";
 import { draftDirectEmail, sendDirectEmail } from "@/app/admin/outreach/actions";
 
 /**
@@ -51,12 +59,12 @@ export function DirectSendForm() {
   const [to, setTo] = useState("");
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
+    <div className="flex flex-col gap-5">
       {/* Recipient + optional context for agent drafting */}
-      <form action={onDraft} className="admin-doc-stack admin-doc-stack--actions" aria-label="Draft with agent">
-        <div className="admin-doc-form-grid-2">
-          <label className="block body-xs" htmlFor="ds-to">
-            <span className="ct-form-label">Recipient email</span>
+      <form action={onDraft} className="flex flex-col gap-4" aria-label="Draft with agent">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <label className={BENTO_FIELD} htmlFor="ds-to">
+            <span className={BENTO_FIELD_LABEL}>Recipient email</span>
             <input
               id="ds-to"
               name="to"
@@ -65,44 +73,44 @@ export function DirectSendForm() {
               value={to}
               onChange={(e) => setTo(e.target.value)}
               placeholder="lp@fund.io"
-              className="ct-input"
+              className={BENTO_INPUT}
             />
           </label>
-          <label className="block body-xs" htmlFor="ds-company">
-            <span className="ct-form-label">Company (optional — helps the agent)</span>
-            <input id="ds-company" name="company" type="text" placeholder="Acme Capital" className="ct-input" />
+          <label className={BENTO_FIELD} htmlFor="ds-company">
+            <span className={BENTO_FIELD_LABEL}>Company (optional — helps the agent)</span>
+            <input id="ds-company" name="company" type="text" placeholder="Acme Capital" className={BENTO_INPUT} />
           </label>
-          <label className="block body-xs" htmlFor="ds-firstName">
-            <span className="ct-form-label">First name (optional)</span>
-            <input id="ds-firstName" name="firstName" type="text" placeholder="Alice" className="ct-input" />
+          <label className={BENTO_FIELD} htmlFor="ds-firstName">
+            <span className={BENTO_FIELD_LABEL}>First name (optional)</span>
+            <input id="ds-firstName" name="firstName" type="text" placeholder="Alice" className={BENTO_INPUT} />
           </label>
-          <label className="block body-xs" htmlFor="ds-lastName">
-            <span className="ct-form-label">Last name (optional)</span>
-            <input id="ds-lastName" name="lastName" type="text" placeholder="Dupont" className="ct-input" />
+          <label className={BENTO_FIELD} htmlFor="ds-lastName">
+            <span className={BENTO_FIELD_LABEL}>Last name (optional)</span>
+            <input id="ds-lastName" name="lastName" type="text" placeholder="Dupont" className={BENTO_INPUT} />
           </label>
         </div>
-        <label className="block body-xs" htmlFor="ds-brief">
-          <span className="ct-form-label">Brief for the agent (optional)</span>
+        <label className={BENTO_FIELD} htmlFor="ds-brief">
+          <span className={BENTO_FIELD_LABEL}>Brief for the agent (optional)</span>
           <textarea
             id="ds-brief"
             name="brief"
             rows={2}
             placeholder="Short intro, mention our institutional USDC yield and invite them to the qualification form."
-            className="ct-input"
+            className={BENTO_INPUT}
           />
         </label>
-        <div className="admin-doc-inline-row">
-          <Button type="submit" variant="secondary" size="md" disabled={isDrafting}>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="submit" className={BENTO_SECONDARY_BTN} disabled={isDrafting}>
             {isDrafting ? "Drafting…" : "Draft with agent"}
-          </Button>
+          </button>
         </div>
       </form>
 
       {/* Subject + body (editable) → send */}
-      <form action={onSend} className="admin-doc-stack admin-doc-stack--actions" aria-label="Compose and send">
+      <form action={onSend} className="flex flex-col gap-4" aria-label="Compose and send">
         <input type="hidden" name="to" value={to} />
-        <label className="block body-xs" htmlFor="ds-subject">
-          <span className="ct-form-label">Subject</span>
+        <label className={BENTO_FIELD} htmlFor="ds-subject">
+          <span className={BENTO_FIELD_LABEL}>Subject</span>
           <input
             id="ds-subject"
             name="subject"
@@ -111,11 +119,11 @@ export function DirectSendForm() {
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Institutional USDC yield — quick intro"
-            className="ct-input"
+            className={BENTO_INPUT}
           />
         </label>
-        <label className="block body-xs" htmlFor="ds-body">
-          <span className="ct-form-label">Body (plain text)</span>
+        <label className={BENTO_FIELD} htmlFor="ds-body">
+          <span className={BENTO_FIELD_LABEL}>Body (plain text)</span>
           <textarea
             id="ds-body"
             name="body"
@@ -124,16 +132,16 @@ export function DirectSendForm() {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Hello,\n\nA short note about Hearst Connect…"
-            className="ct-input"
+            className={BENTO_INPUT}
           />
         </label>
-        <div className="admin-doc-inline-row admin-form-row flex-wrap">
-          <Button type="submit" variant="primary" size="md" disabled={isSending || !to || !subject || !body}>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isSending || !to || !subject || !body}>
             {isSending ? "Sending…" : "Send now"}
-          </Button>
+          </button>
           {sentId && <Badge variant="success">Sent · tracked</Badge>}
         </div>
-        <p className="body-xs ct-text-muted">
+        <p className="text-[12px] text-zinc-400">
           Sent from the dedicated outreach address with open/click tracking. Recorded
           under the “Direct sends” campaign so it appears in your stats.
         </p>

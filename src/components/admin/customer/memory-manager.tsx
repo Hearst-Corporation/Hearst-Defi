@@ -3,9 +3,9 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { cn } from "@/lib/cn";
 import {
   addMemory,
   toggleMemory,
@@ -16,6 +16,14 @@ import type { AgentMemory } from "@prisma/client";
 function fmtDate(d: Date): string {
   return new Date(d).toISOString().slice(0, 10);
 }
+
+const SELECT_INPUT =
+  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+// Kind chip — accent when the fact is on the prompt (active), neutral when off.
+const KIND_CHIP_ACTIVE =
+  "inline-flex items-center rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A7FB90]";
+const KIND_CHIP_OFF =
+  "inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400";
 
 /**
  * Admin curation of a customer's accumulating agent memory: facts auto-distilled
@@ -50,26 +58,43 @@ export function MemoryManager({
   }
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
-      <form action={onAdd} className="admin-doc-inline-row admin-form-row flex-wrap" aria-label="Add memory">
+    <div className="flex flex-col gap-5">
+      <form
+        action={onAdd}
+        className="flex flex-wrap items-end gap-3"
+        aria-label="Add memory"
+      >
         <input type="hidden" name="userId" value={userId} />
-        <input
-          name="content"
-          type="text"
-          required
-          maxLength={280}
-          placeholder="Durable fact about this customer…"
-          className="ct-input grow"
-        />
-        <select name="kind" defaultValue="fact" className="ct-input" aria-label="Kind">
-          <option value="fact">fact</option>
-          <option value="preference">preference</option>
-          <option value="goal">goal</option>
-          <option value="constraint">constraint</option>
-        </select>
-        <Button type="submit" variant="secondary" size="md" disabled={isPending}>
+        <div className="flex grow flex-col gap-2">
+          <BentoLabel htmlFor="memory-content">Durable fact</BentoLabel>
+          <input
+            id="memory-content"
+            name="content"
+            type="text"
+            required
+            maxLength={280}
+            placeholder="Durable fact about this customer…"
+            className={cn(SELECT_INPUT, "w-full")}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <BentoLabel htmlFor="memory-kind">Kind</BentoLabel>
+          <select
+            id="memory-kind"
+            name="kind"
+            defaultValue="fact"
+            className={SELECT_INPUT}
+            aria-label="Kind"
+          >
+            <option value="fact">fact</option>
+            <option value="preference">preference</option>
+            <option value="goal">goal</option>
+            <option value="constraint">constraint</option>
+          </select>
+        </div>
+        <button type="submit" className={BENTO_SECONDARY_BTN} disabled={isPending}>
           Add
-        </Button>
+        </button>
       </form>
 
       {memory.length === 0 ? (
@@ -80,27 +105,36 @@ export function MemoryManager({
           className="min-h-24"
         />
       ) : (
-        <ul className="admin-doc-stack">
+        <ul className="flex flex-col">
           {memory.map((m) => (
             <li
               key={m.id}
-              className="admin-doc-row-spread admin-divider-row border-b border-(--ct-border-soft) last:border-0"
+              className="flex items-start justify-between gap-4 border-b border-white/5 py-3 last:border-0"
             >
               <div className="min-w-0">
-                <div className="admin-doc-inline-row">
-                  <Badge variant={m.active ? "success" : "default"}>{m.kind}</Badge>
-                  <span className="body-xs ct-text-faint mono">{m.source}</span>
-                  <span className="body-xs ct-text-faint">{fmtDate(m.updatedAt)}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={m.active ? KIND_CHIP_ACTIVE : KIND_CHIP_OFF}>
+                    {m.kind}
+                  </span>
+                  <span className="font-mono text-[12px] text-zinc-600">{m.source}</span>
+                  <span className="text-[12px] text-zinc-600 tabular-nums">
+                    {fmtDate(m.updatedAt)}
+                  </span>
                 </div>
-                <p className={m.active ? "body-sm ct-text-body" : "body-sm ct-text-faint line-through"}>
+                <p
+                  className={cn(
+                    "mt-1.5 text-[13px] leading-snug",
+                    m.active ? "text-zinc-300" : "text-zinc-600 line-through",
+                  )}
+                >
                   {m.content}
                 </p>
               </div>
-              <div className="admin-doc-inline-row shrink-0">
+              <div className="flex shrink-0 items-center gap-3">
                 <button
                   type="button"
                   disabled={isPending}
-                  className="body-xs ct-text-muted hover:ct-text-strong"
+                  className="text-[12px] text-zinc-500 transition-colors hover:text-white disabled:opacity-50"
                   onClick={() => {
                     const fd = new FormData();
                     fd.set("id", m.id);
@@ -113,7 +147,7 @@ export function MemoryManager({
                 <button
                   type="button"
                   disabled={isPending}
-                  className="body-xs ct-status-danger hover:underline"
+                  className="text-[12px] text-red-400 transition-colors hover:underline disabled:opacity-50"
                   onClick={() => {
                     const fd = new FormData();
                     fd.set("id", m.id);

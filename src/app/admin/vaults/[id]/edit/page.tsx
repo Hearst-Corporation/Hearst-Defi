@@ -3,12 +3,9 @@ import { notFound, redirect } from "next/navigation";
 
 import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
-
-import "../../../admin-strategy.css";
 
 export const dynamic = "force-dynamic";
 
@@ -68,18 +65,23 @@ export default async function EditVaultPage({ params }: PageProps) {
   };
 
   return (
-    <>
-      <AdminPageHeader
-        lead={
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/admin/vaults/${id}`}>← {vault.ticker}</Link>
-          </Button>
-        }
-        titleLead="Edit"
-        titleAccent="Vault Draft"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          lead={
+            <Link
+              href={`/admin/vaults/${id}`}
+              className="text-[12px] text-zinc-400 transition-colors hover:text-white"
+            >
+              ← {vault.ticker}
+            </Link>
+          }
+          titleLead="Edit"
+          titleAccent="Vault Draft"
+        />
 
-      <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
-    </>
+        <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
+      </div>
+    </div>
   );
 }

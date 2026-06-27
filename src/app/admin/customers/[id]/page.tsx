@@ -6,8 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { DeployPositionForm } from "@/components/admin/customer/deploy-position-form";
@@ -45,6 +44,13 @@ const QUAL_SOURCE_LABEL: Record<string, string> = {
   manual: "Admin entry",
 };
 
+// Bento chip chrome — neutral pill used for calibration meta (style/language/
+// detail/vault). Accent variant marks the active preset.
+const META_CHIP =
+  "inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-zinc-300";
+const ACCENT_CHIP =
+  "inline-flex items-center rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#A7FB90]";
+
 export default async function CustomerDetailPage({
   params,
 }: {
@@ -67,7 +73,10 @@ export default async function CustomerDetailPage({
         eyebrow={`investor · ${detail.userId}`}
         description="Identity, qualification, assistant settings, saved notes, and recent activity."
         lead={
-          <Link href="/admin/customers" className="body-xs ct-text-muted hover:ct-text-strong">
+          <Link
+            href="/admin/customers"
+            className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+          >
             ← Investors
           </Link>
         }
@@ -79,186 +88,215 @@ export default async function CustomerDetailPage({
         }
       />
 
-      {/* Identity + positions */}
-      <AdminDetailSection label="Identity" title="Investor profile">
-        <AdminDetailGrid>
-          <AdminDetailItem label="Email">
-            <span className="ct-text-strong">{detail.email}</span>
-          </AdminDetailItem>
-          <AdminDetailItem label="Role">{detail.role}</AdminDetailItem>
-          <AdminDetailItem label="Wallet">
-            <span className="mono ct-text-muted">{detail.walletAddress ?? "—"}</span>
-          </AdminDetailItem>
-          <AdminDetailItem label="Joined">{formatAdminDate(detail.joinedAt)}</AdminDetailItem>
-        </AdminDetailGrid>
-        <div className="admin-doc-stack admin-doc-stack--tight border-t border-(--ct-border-soft) pt-(--ct-space-4) mt-(--ct-space-4)">
-          <p className="body-xs ct-text-muted m-0">
-            Account sign-in. Auto-created and admin-provisioned investors start
-            with no usable password — they log in via a one-time activation
-            link. Generate a fresh link here if the welcome email never reached
-            them.
-          </p>
-          <ActivationLinkButton investorId={detail.investorId} />
-        </div>
-      </AdminDetailSection>
-
-      <AdminDetailSection label="Positions">
-        <h3 className="h3">Vault positions ({detail.positions.length})</h3>
-        {detail.positions.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message="No positions on record."
-            detail="This investor has not yet subscribed to a vault position."
-            className="min-h-20"
-          />
-        ) : (
-          <AdminTable
-            data={detail.positions}
-            headers={["Vault", "Status", <span key="principal" className="text-right">Principal</span>, <span key="subscribed" className="text-right">Subscribed</span>]}
-            colWidths={["40%", "25%", "20%", "15%"]}
-            renderRow={(p) => (
-              <>
-                <td className="ct-table-cell mono ct-text-body">{p.vaultKey}</td>
-                <td className="ct-table-cell ct-text-muted">
-                  {POSITION_STATUS_LABEL[p.status] ?? p.status}
-                </td>
-                <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                  {formatUsdFull(p.principalUsdc)}
-                </td>
-                <td className="ct-table-cell text-right ct-text-muted">
-                  {formatAdminDate(p.subscribedAt)}
-                </td>
-              </>
-            )}
-          />
-        )}
-      </AdminDetailSection>
-
-      {/* Deploy position */}
-      <AdminDetailSection
-        label="Deploy position"
-        description="Open an off-chain position for this investor — fills the cockpit for demo or pilot use without requiring a real on-chain deposit. KYC must be approved first."
-      >
-        <h3 className="h3">Deploy position</h3>
-        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
-          <DeployPositionForm
-            investorId={detail.investorId}
-            kycStatus={detail.kycStatus as "pending" | "approved" | "rejected"}
-          />
-        </Card>
-      </AdminDetailSection>
-
-      {/* Qualification (Typeform) */}
-      <AdminDetailSection
-        label="Qualification"
-        title="Investor qualification"
-        description={
-          detail.qualification
-            ? `Source: ${QUAL_SOURCE_LABEL[detail.qualification.source] ?? detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
-            : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."
-        }
-      >
-        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
-          <QualificationForm
-            investorId={detail.investorId}
-            userId={detail.userId}
-            profile={detail.qualification}
-          />
-        </Card>
-      </AdminDetailSection>
-
-      {/* Agent calibration */}
-      <AdminDetailSection label="Agent" title="Assistant settings">
-        {persona && (
-          <Card className="p-(--ct-space-6)" hoverOverlay={false}>
-            <div className="admin-doc-stack admin-doc-stack--compact">
-              <h3 className="h3">Recommended</h3>
-              <div className="admin-doc-inline-row flex-wrap">
-                {persona.segments.map((s) => (
-                  <Badge key={s} variant="accent">{s}</Badge>
-                ))}
-                <Badge variant="flat">Style: {persona.tone}</Badge>
-                <Badge variant="flat">Language: {persona.language}</Badge>
-                <Badge variant="flat">Detail: {persona.verbosity}</Badge>
-                <Badge variant="flat">vault: {persona.suggestedVault}</Badge>
+      <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+        <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+          {/* Identity + positions */}
+          <AdminDetailSection label="Identity" title="Investor profile">
+            <AdminDetailGrid>
+              <AdminDetailItem label="Email">
+                <span className="font-medium text-white">{detail.email}</span>
+              </AdminDetailItem>
+              <AdminDetailItem label="Role">{detail.role}</AdminDetailItem>
+              <AdminDetailItem label="Wallet">
+                <span className="font-mono text-zinc-500">
+                  {detail.walletAddress ?? "—"}
+                </span>
+              </AdminDetailItem>
+              <AdminDetailItem label="Joined">
+                {formatAdminDate(detail.joinedAt)}
+              </AdminDetailItem>
+            </AdminDetailGrid>
+            <BentoPanel className="p-5">
+              <div className="flex flex-col gap-3">
+                <p className="m-0 text-[12px] leading-relaxed text-zinc-500">
+                  Account sign-in. Auto-created and admin-provisioned investors start
+                  with no usable password — they log in via a one-time activation
+                  link. Generate a fresh link here if the welcome email never reached
+                  them.
+                </p>
+                <ActivationLinkButton investorId={detail.investorId} />
               </div>
-              <p className="body-sm ct-text-muted">{persona.customInstructions}</p>
-            </div>
-          </Card>
-        )}
+            </BentoPanel>
+          </AdminDetailSection>
 
-        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
-          <div className="admin-doc-stack admin-doc-stack--compact">
-            <h3 className="h3">Current</h3>
-            {applied ? (
-              <div className="admin-doc-inline-row flex-wrap">
-                {applied.template && <Badge variant="brand">Preset: {applied.template.label}</Badge>}
-                <Badge variant="flat">Style: {applied.tone ?? "—"}</Badge>
-                <Badge variant="flat">Language: {applied.language ?? "—"}</Badge>
-                <Badge variant="flat">Detail: {applied.verbosity ?? "—"}</Badge>
-              </div>
+          <AdminDetailSection label="Positions" title={`Vault positions (${detail.positions.length})`}>
+            {detail.positions.length === 0 ? (
+              <EmptySurface
+                variant="widget"
+                message="No positions on record."
+                detail="This investor has not yet subscribed to a vault position."
+                className="min-h-20"
+              />
             ) : (
-              <p className="body-sm ct-text-muted">
-                No profile is applied yet. Refresh from intake answers or assign a reusable template.
-              </p>
+              <AdminTable
+                data={detail.positions}
+                headers={["Vault", "Status", <span key="principal" className="text-right">Principal</span>, <span key="subscribed" className="text-right">Subscribed</span>]}
+                colWidths={["40%", "25%", "20%", "15%"]}
+                renderRow={(p) => (
+                  <>
+                    <td className="px-5 py-3 font-mono text-[13px] text-zinc-300">
+                      {p.vaultKey}
+                    </td>
+                    <td className="px-5 py-3 text-[13px] text-zinc-500">
+                      {POSITION_STATUS_LABEL[p.status] ?? p.status}
+                    </td>
+                    <td className="px-5 py-3 text-right text-[13px] font-medium tabular-nums text-white">
+                      {formatUsdFull(p.principalUsdc)}
+                    </td>
+                    <td className="px-5 py-3 text-right text-[13px] text-zinc-500">
+                      {formatAdminDate(p.subscribedAt)}
+                    </td>
+                  </>
+                )}
+              />
             )}
-            {applied?.customInstructions && (
-              <p className="body-sm ct-text-muted">{applied.customInstructions}</p>
-            )}
-            <AgentAssignForm
-              investorId={detail.investorId}
-              userId={detail.userId}
-              templates={templates}
-              currentTemplateId={applied?.templateId ?? null}
-              currentTemplate={applied?.template ?? null}
-              canRecalibrate={detail.qualification !== null}
-            />
-          </div>
-        </Card>
-      </AdminDetailSection>
+          </AdminDetailSection>
 
-      {/* Memory */}
-      <AdminDetailSection
-        label="Memory"
-        title="Saved notes"
-        description="Persistent context and notes for this investor."
-      >
-        <Card className="p-(--ct-space-6)" hoverOverlay={false}>
-          <MemoryManager
-            investorId={detail.investorId}
-            userId={detail.userId}
-            memory={detail.memory}
-          />
-        </Card>
-      </AdminDetailSection>
+          {/* Deploy position */}
+          <AdminDetailSection
+            label="Deploy position"
+            title="Deploy position"
+            description="Open an off-chain position for this investor — fills the cockpit for demo or pilot use without requiring a real on-chain deposit. KYC must be approved first."
+          >
+            <BentoPanel className="p-6">
+              <DeployPositionForm
+                investorId={detail.investorId}
+                kycStatus={detail.kycStatus as "pending" | "approved" | "rejected"}
+              />
+            </BentoPanel>
+          </AdminDetailSection>
 
-      {/* Recent conversations */}
-      <AdminDetailSection
-        label="Conversations"
-        title={`Recent chat activity (${detail.chats.length})`}
-      >
-        {detail.chats.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message="No chat activity yet."
-            detail="Investor conversations will appear here once a session has been opened."
-            className="min-h-20"
-          />
-        ) : (
-          <AdminTable
-            data={detail.chats}
-            headers={["Title", <span key="messages" className="text-right">Messages</span>, <span key="updated" className="text-right">Updated</span>]}
-            colWidths={["50%", "25%", "25%"]}
-            renderRow={(c) => (
-              <>
-                <td className="ct-table-cell ct-text-body truncate">{c.title ?? "(untitled)"}</td>
-                <td className="ct-table-cell text-right tabular-nums ct-text-muted">{c.messageCount}</td>
-                <td className="ct-table-cell text-right ct-text-muted">{formatAdminDate(c.updatedAt)}</td>
-              </>
+          {/* Qualification (Typeform) */}
+          <AdminDetailSection
+            label="Qualification"
+            title="Investor qualification"
+            description={
+              detail.qualification
+                ? `Source: ${QUAL_SOURCE_LABEL[detail.qualification.source] ?? detail.qualification.source} · updated ${formatAdminDate(detail.qualification.updatedAt)}`
+                : "No qualification profile on file yet. Complete the intake questionnaire to tailor the assistant for this investor."
+            }
+          >
+            <BentoPanel className="p-6">
+              <QualificationForm
+                investorId={detail.investorId}
+                userId={detail.userId}
+                profile={detail.qualification}
+              />
+            </BentoPanel>
+          </AdminDetailSection>
+
+          {/* Agent calibration */}
+          <AdminDetailSection label="Agent" title="Assistant settings">
+            {persona && (
+              <BentoPanel className="p-6">
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wider text-white">
+                    Recommended
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {persona.segments.map((s) => (
+                      <span key={s} className={ACCENT_CHIP}>
+                        {s}
+                      </span>
+                    ))}
+                    <span className={META_CHIP}>Style: {persona.tone}</span>
+                    <span className={META_CHIP}>Language: {persona.language}</span>
+                    <span className={META_CHIP}>Detail: {persona.verbosity}</span>
+                    <span className={META_CHIP}>vault: {persona.suggestedVault}</span>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-zinc-400">
+                    {persona.customInstructions}
+                  </p>
+                </div>
+              </BentoPanel>
             )}
-          />
-        )}
-      </AdminDetailSection>
+
+            <BentoPanel className="p-6">
+              <div className="flex flex-col gap-4">
+                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-white">
+                  Current
+                </h3>
+                {applied ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {applied.template && (
+                      <span className={ACCENT_CHIP}>Preset: {applied.template.label}</span>
+                    )}
+                    <span className={META_CHIP}>Style: {applied.tone ?? "—"}</span>
+                    <span className={META_CHIP}>Language: {applied.language ?? "—"}</span>
+                    <span className={META_CHIP}>Detail: {applied.verbosity ?? "—"}</span>
+                  </div>
+                ) : (
+                  <p className="text-[13px] leading-relaxed text-zinc-400">
+                    No profile is applied yet. Refresh from intake answers or assign a reusable template.
+                  </p>
+                )}
+                {applied?.customInstructions && (
+                  <p className="text-[13px] leading-relaxed text-zinc-400">
+                    {applied.customInstructions}
+                  </p>
+                )}
+                <AgentAssignForm
+                  investorId={detail.investorId}
+                  userId={detail.userId}
+                  templates={templates}
+                  currentTemplateId={applied?.templateId ?? null}
+                  currentTemplate={applied?.template ?? null}
+                  canRecalibrate={detail.qualification !== null}
+                />
+              </div>
+            </BentoPanel>
+          </AdminDetailSection>
+
+          {/* Memory */}
+          <AdminDetailSection
+            label="Memory"
+            title="Saved notes"
+            description="Persistent context and notes for this investor."
+          >
+            <BentoPanel className="p-6">
+              <MemoryManager
+                investorId={detail.investorId}
+                userId={detail.userId}
+                memory={detail.memory}
+              />
+            </BentoPanel>
+          </AdminDetailSection>
+
+          {/* Recent conversations */}
+          <AdminDetailSection
+            label="Conversations"
+            title={`Recent chat activity (${detail.chats.length})`}
+          >
+            {detail.chats.length === 0 ? (
+              <EmptySurface
+                variant="widget"
+                message="No chat activity yet."
+                detail="Investor conversations will appear here once a session has been opened."
+                className="min-h-20"
+              />
+            ) : (
+              <AdminTable
+                data={detail.chats}
+                headers={["Title", <span key="messages" className="text-right">Messages</span>, <span key="updated" className="text-right">Updated</span>]}
+                colWidths={["50%", "25%", "25%"]}
+                renderRow={(c) => (
+                  <>
+                    <td className="px-5 py-3 truncate text-[13px] text-zinc-300">
+                      {c.title ?? "(untitled)"}
+                    </td>
+                    <td className="px-5 py-3 text-right text-[13px] tabular-nums text-zinc-500">
+                      {c.messageCount}
+                    </td>
+                    <td className="px-5 py-3 text-right text-[13px] text-zinc-500">
+                      {formatAdminDate(c.updatedAt)}
+                    </td>
+                  </>
+                )}
+              />
+            )}
+          </AdminDetailSection>
+        </div>
+      </div>
     </>
   );
 }

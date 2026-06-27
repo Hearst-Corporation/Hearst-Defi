@@ -1,5 +1,5 @@
 import { RoadmapItemRow } from "@/components/admin/roadmap-item-row";
-import { Card } from "@/components/ui/card";
+import { BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { Progress } from "@/components/ui/progress";
@@ -20,20 +20,22 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
   const mvpPhase = phases.find((phase) => phase.id === "mvp");
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--relaxed">
+    <div className="flex flex-col gap-y-5">
       {mvpPhase ? (
-        <Card className="max-w-xl" aria-label="MVP progress" hoverOverlay={false}>
-          <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--loose">
-            <span className="stat-label">MVP delivery progress</span>
-            <span className="mono tabular body-lg ct-text-primary">
-              {mvpPhase.doneCount} / {mvpPhase.total} (
-              {progressPct(mvpPhase.doneCount, mvpPhase.total)}%)
-            </span>
-          </div>
-          <div className="mt-[var(--ct-space-4)]">
+        <BentoPanel className="max-w-xl" aria-label="MVP progress">
+          <div className="flex flex-col gap-3 p-5">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                MVP progress
+              </span>
+              <span className="font-mono tabular-nums text-[15px] text-white">
+                {mvpPhase.doneCount} / {mvpPhase.total} (
+                {progressPct(mvpPhase.doneCount, mvpPhase.total)}%)
+              </span>
+            </div>
             <Progress value={progressPct(mvpPhase.doneCount, mvpPhase.total)} />
           </div>
-        </Card>
+        </BentoPanel>
       ) : null}
 
       {phases.length === 0 ? (
@@ -48,12 +50,12 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
         phases.map((phase) => (
           <section
             key={phase.id}
-            className="admin-doc-stack admin-doc-stack--relaxed"
+            className="flex flex-col gap-y-5"
             aria-label={phase.label}
           >
-            <div className="ct-roadmap-phase-header admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--baseline admin-doc-inline-row--loose border-b border-(--ct-border-soft)">
+            <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-3">
               <h2 className="h2">{phase.label}</h2>
-              <span className="mono tabular body-sm ct-text-muted">
+              <span className="font-mono tabular-nums text-[12px] text-zinc-500">
                 {phase.doneCount} / {phase.total}
               </span>
             </div>
@@ -64,7 +66,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
                 className="min-h-24"
               />
             ) : (
-              <div className="admin-doc-stack admin-doc-stack--relaxed">
+              <div className="flex flex-col gap-y-5">
                 {phase.weeks.map((week) => (
                   <RoadmapWeekCard key={week.id} week={week} />
                 ))}
@@ -90,11 +92,13 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
   }
 
   return (
-    <Card aria-label={week.label} hoverOverlay={false}>
-      <header className="admin-doc-stack admin-doc-stack--tight border-b border-(--ct-border-soft) pb-[var(--ct-space-6)]">
-        <h3 className="h3 m-0">{week.label}</h3>
-        <div className="admin-doc-inline-row admin-doc-inline-row--loose body-sm ct-text-muted">
-          <span className="mono tabular">
+    <BentoPanel aria-label={week.label}>
+      <header className="flex flex-col gap-2 border-b border-white/5 p-5">
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] leading-none text-zinc-400">
+          {week.label}
+        </h3>
+        <div className="flex items-center gap-4 text-[12px] text-zinc-500">
+          <span className="font-mono tabular-nums">
             {week.doneCount} / {week.total}
           </span>
           <Progress
@@ -104,13 +108,16 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
         </div>
       </header>
 
-      <ul className="list-none p-0 m-0 divide-y divide-(--ct-border-soft)">
+      <ul className="m-0 list-none p-0">
         {week.items.map((item) => (
-          <li key={item.id}>
+          <li
+            key={item.id}
+            className="border-b border-white/5 px-5 last:border-b-0"
+          >
             <RoadmapItemRow item={item} />
           </li>
         ))}
       </ul>
-    </Card>
+    </BentoPanel>
   );
 }

@@ -9,6 +9,7 @@ type CoolingFilter = "all" | "air" | "hydro" | "immersion";
 type SortKey =
   | "model"
   | "cooling"
+  | "region"
   | "thPerUnit"
   | "efficiencyJTh"
   | "exWorksUsd"
@@ -92,6 +93,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
             <tr className="bg-[var(--ct-surface-1)] ct-text-muted">
               <Th label="Modèle" k="model" sort={sort} onSort={toggleSort} />
               <Th label="Cooling" k="cooling" sort={sort} onSort={toggleSort} />
+              <Th label="Région" k="region" sort={sort} onSort={toggleSort} />
               <Th label="TH/s" k="thPerUnit" sort={sort} onSort={toggleSort} num />
               <Th label="J/TH" k="efficiencyJTh" sort={sort} onSort={toggleSort} num />
               <Th label="Ex-works" k="exWorksUsd" sort={sort} onSort={toggleSort} num />
@@ -102,9 +104,9 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
             </tr>
           </thead>
           <tbody>
-            {view.map((r) => (
+            {view.map((r, i) => (
               <tr
-                key={`${r.model}-${r.thPerUnit}`}
+                key={`${r.model}-${r.thPerUnit}-${i}`}
                 className="border-t border-[var(--ct-border-soft)] hover:bg-[var(--ct-surface-1)]"
               >
                 <td className="px-[var(--ct-space-3)] py-[var(--ct-space-2)] ct-text-strong">
@@ -118,6 +120,9 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
                     />
                     {r.cooling}
                   </span>
+                </td>
+                <td className="px-[var(--ct-space-3)] py-[var(--ct-space-2)] ct-text-muted uppercase">
+                  {r.region === "usa" ? "USA" : "Chine"}
                 </td>
                 <Num>{r.thPerUnit}</Num>
                 <Num>{r.efficiencyJTh ?? "—"}</Num>

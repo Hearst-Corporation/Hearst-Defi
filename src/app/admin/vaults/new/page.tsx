@@ -7,8 +7,6 @@ import { VaultWizard } from "./wizard";
 import { ResumeDraftBanner } from "./resume-banner";
 import type { FormState } from "../_vault-form";
 
-import "../../admin-strategy.css";
-
 export const dynamic = "force-dynamic";
 
 type Step =
@@ -100,31 +98,30 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
   const applyResumeForm = resumeAcknowledged ? resumeForm : undefined;
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="New"
-        titleAccent="Vault Deployment"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader titleLead="New" titleAccent="Vault Deployment" />
 
-      {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (
-        <ResumeDraftBanner
-          ticker={
-            typeof resumeForm.ticker === "string" && resumeForm.ticker.length > 0
-              ? resumeForm.ticker
-              : undefined
-          }
-          stepLabel={stepLabel}
-          stepNumber={stepNumber}
-          updatedAt={draftUpdatedAt}
-        />
-      ) : (
-        <VaultWizard
-          resumeStep={applyResume}
-          resumeForm={applyResumeForm}
-          cloneValues={cloneValues}
-          adminId={adminId}
-        />
-      )}
-    </>
+        {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (
+          <ResumeDraftBanner
+            ticker={
+              typeof resumeForm.ticker === "string" && resumeForm.ticker.length > 0
+                ? resumeForm.ticker
+                : undefined
+            }
+            stepLabel={stepLabel}
+            stepNumber={stepNumber}
+            updatedAt={draftUpdatedAt}
+          />
+        ) : (
+          <VaultWizard
+            resumeStep={applyResume}
+            resumeForm={applyResumeForm}
+            cloneValues={cloneValues}
+            adminId={adminId}
+          />
+        )}
+      </div>
+    </div>
   );
 }

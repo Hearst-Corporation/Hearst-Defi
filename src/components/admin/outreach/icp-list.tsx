@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { BentoPanel } from "@/components/ui/bento";
 import { SourceMoreButton } from "@/components/admin/outreach/source-more-button";
 import type { IcpRow } from "@/lib/data/outreach";
 
@@ -12,25 +12,21 @@ export function IcpList({ icps }: { icps: IcpRow[] }) {
   if (icps.length === 0) return null;
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--actions">
+    <div className="flex flex-col gap-3">
       {icps.map((icp) => (
-        <Card
-          key={icp.id}
-          className="admin-card--snug"
-          hoverOverlay={false}
-        >
-          <div className="admin-doc-inline-row admin-doc-inline-row--between">
-            <div className="admin-doc-stack admin-doc-stack--tight">
-              <div className="admin-doc-inline-row admin-doc-inline-row--tight">
-                <span className="ct-text-strong body-sm">{icp.name}</span>
+        <BentoPanel key={icp.id} className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[13px] font-medium text-white">{icp.name}</span>
                 <Badge variant={icp.active ? "success" : "default"}>
                   {icp.persona}
                 </Badge>
-                <span className="body-xs ct-text-muted">
+                <span className="text-[12px] text-zinc-400">
                   {icp.prospectCount} sourced
                 </span>
               </div>
-              <p className="body-xs ct-text-muted m-0">
+              <p className="m-0 text-[12px] text-zinc-400">
                 {[
                   icp.titles.length > 0 ? icp.titles.join(", ") : null,
                   icp.locations.length > 0 ? icp.locations.join(", ") : null,
@@ -38,14 +34,14 @@ export function IcpList({ icps }: { icps: IcpRow[] }) {
                   .filter(Boolean)
                   .join(" · ") || "No filters set"}
               </p>
-              <p className="body-xs ct-text-muted m-0">
+              <p className="m-0 text-[12px] text-zinc-400">
                 Tiers — Prime ≥ {icp.tierAMin} · Warm ≥ {icp.tierBMin} · Cold ≥{" "}
                 {icp.tierCMin} · {icp.language.toUpperCase()}
               </p>
             </div>
             <SourceMoreButton icpId={icp.id} />
           </div>
-        </Card>
+        </BentoPanel>
       ))}
     </div>
   );

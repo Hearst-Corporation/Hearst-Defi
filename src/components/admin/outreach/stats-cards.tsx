@@ -33,11 +33,13 @@ export function OutreachStatsCards({ stats }: { stats: OutreachStats }) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-[var(--ct-space-5)]">
+    <div className="flex flex-wrap items-center gap-5">
       {items.map((item) => (
-        <div key={item.label} className="flex items-baseline gap-[var(--ct-space-1_5)]">
-          <span className="stat-label uppercase text-[length:var(--ct-text-nano)] tracking-widest ct-text-faint">{item.label}</span>
-          <span className="body-sm tabular-nums font-bold ct-text-strong">{item.value}</span>
+        <div key={item.label} className="flex items-baseline gap-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            {item.label}
+          </span>
+          <span className="text-[13px] font-bold tabular-nums text-white">{item.value}</span>
         </div>
       ))}
     </div>

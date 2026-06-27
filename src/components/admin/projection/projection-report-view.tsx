@@ -34,7 +34,7 @@ function Block({
   className?: string;
 }) {
   return (
-    <section className={cn("projpv-block ct-glass-panel ct-glass-panel--flat", className)}>
+    <section className={cn("projpv-block rounded-2xl border border-white/10 bg-black shadow-sm", className)}>
       <header className="projpv-block-head">
         <h3 className="projpv-block-title">{title}</h3>
         {hint ? <span className="projpv-block-hint">{hint}</span> : null}
@@ -153,7 +153,7 @@ export function ProjectionReportView({
   return (
     <div className="projpv" data-testid="projection-report">
       {/* Hero summary */}
-      <section className="projpv-hero ct-glass-panel">
+      <section className="projpv-hero rounded-2xl border border-white/10 bg-black shadow-sm">
         <div className="projpv-hero-top">
           <div className="projpv-hero-id">
             <h2 className="projpv-hero-name">{artifact.product.name}</h2>
@@ -316,7 +316,7 @@ function MetricCard({
   accent?: boolean;
 }) {
   return (
-    <div className={cn("projpv-metric ct-glass-panel ct-glass-panel--flat", accent && "projpv-metric--accent")}>
+    <div className={cn("projpv-metric rounded-xl border border-white/10 bg-[#15191C]", accent && "projpv-metric--accent")}>
       <span className="projpv-metric-label">{label}</span>
       {value ? (
         <span className="projpv-metric-value">{value}</span>
@@ -350,7 +350,7 @@ function MethodologyV2Section({ artifact }: { artifact: ProjectionReportArtifact
 
   const { p5, p50, p95 } = dist.percentiles;
   return (
-    <section className="projpv-v2 ct-glass-panel">
+    <section className="projpv-v2 rounded-2xl border border-white/10 bg-black shadow-sm">
       <header className="projpv-v2-head">
         <div className="projpv-v2-title">
           <h3 className="projpv-block-title">Methodology v2</h3>
