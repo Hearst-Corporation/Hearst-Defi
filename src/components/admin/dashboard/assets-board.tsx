@@ -1,10 +1,12 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/cn";
 import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
 import { LiveMetrics } from "@/components/admin/cockpit/live-metrics";
 import { LiveOps } from "@/components/admin/cockpit/live-ops";
-import { Card } from "@/components/ui/card";
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import {
   computeNavDelta,
   resolveChartProvenance,
@@ -45,6 +47,10 @@ import { SystemReadinessModule } from "./system-readiness";
  * - Vault-scoped (active pill): KPI strip, allocation orbit, NAV, risk summary.
  * - Platform-wide (not filtered by pill): operator queue, platform status, audit trail.
  *   LiveMetrics is filtered to `data.vaultMeta.id` only.
+ *
+ * Bento canon (mirrors src/app/(product)/portfolio/page.tsx): the page wraps this
+ * board in the grey surface; here every module is a black BentoPanel with a
+ * hairline border, micro uppercase headers and a single accent green (#A7FB90).
  */
 
 interface DashboardAssetsBoardProps {
@@ -66,6 +72,63 @@ interface DashboardAssetsBoardProps {
   platformTotals: PlatformTotals;
   /** Platform-wide cluster aggregates for the executive overview band. */
   overviewClusters: OverviewClusters;
+}
+
+/** Status pill (dot + label) for a panel header — accent-green when "ok". */
+function PaneStatus({
+  label,
+  tone = "ok",
+}: {
+  label: string;
+  tone?: "ok" | "watch" | "alert";
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 leading-none">
+      <span
+        className={cn(
+          "size-[5px] rounded-full",
+          tone === "ok" && "bg-[#A7FB90]",
+          tone === "watch" && "bg-amber-400",
+          tone === "alert" && "bg-red-400",
+        )}
+        aria-hidden
+      />
+      <span
+        className={cn(
+          "text-[9px] font-bold uppercase tracking-[0.15em]",
+          tone === "ok" && "text-[#A7FB90]",
+          tone === "watch" && "text-amber-400",
+          tone === "alert" && "text-red-400",
+        )}
+      >
+        {label}
+      </span>
+    </span>
+  );
+}
+
+/** BentoHeader specialised for the ops/lower panes: title + status + leaf link + provenance. */
+function PaneHeader({
+  title,
+  status,
+  statusTone,
+  href,
+  provenance,
+}: {
+  title: string;
+  status?: string;
+  statusTone?: "ok" | "watch" | "alert";
+  href?: string;
+  provenance?: Provenance;
+}) {
+  const trailing: ReactNode = (
+    <>
+      {status ? <PaneStatus label={status} tone={statusTone} /> : null}
+      {href ? <AdminLeafLink href={href} /> : null}
+      {provenance ? <ProvenanceBadge kind={provenance} variant="strip" /> : null}
+    </>
+  );
+  return <BentoHeader as="h3" title={title} trailing={trailing} />;
 }
 
 export function DashboardAssetsBoard({
@@ -170,192 +233,152 @@ export function DashboardAssetsBoard({
   });
 
   return (
-    <div className="dashboard-cockpit">
+    <div className="flex flex-col gap-5">
 
-      {/* ── Row 0: System readiness (full-width operator header) ── */}
-      <div className="dashboard-cockpit-row dashboard-cockpit-row--readiness">
-        <div className="dashboard-cockpit-cell">
-          <SystemReadinessModule view={readiness} />
-        </div>
-      </div>
+      {/* ── System readiness (full-width operator header, owns its surface) ── */}
+      <SystemReadinessModule view={readiness} />
 
-      {/* ── Row 1: Platform overview — executive totals across all vaults ── */}
-      <div className="dashboard-cockpit-row dashboard-cockpit-row--overview">
-        <div className="dashboard-cockpit-cell">
-          <PlatformOverviewBand view={overviewView} allocations={allocation} />
-        </div>
-      </div>
+      {/* ── Platform overview — executive totals across all vaults ── */}
+      <BentoPanel aria-label="Platform overview panel">
+        <PlatformOverviewBand view={overviewView} allocations={allocation} />
+      </BentoPanel>
 
-      {/* ── Row 2: KPI strip + charts ── */}
-      <div
-        className={cn(
-          "dashboard-cockpit-row dashboard-cockpit-row--kpi",
-          // No live charts → size to content (KPI strip + note) so the row does
-          // not stretch into a giant empty void; the freed height goes to ops/lower.
-          !showVaultAnalytics && "dashboard-cockpit-row--kpi-compact",
-        )}
-      >
-        <div className="dashboard-cockpit-cell">
-          {/* ADR-013 exception: dense command-board merged card (strip + separators, not nested glass). */}
-          <Card
-            aria-label="Vault KPIs and charts"
-            hoverOverlay={false}
-            contentClassName="flex flex-col"
-            className="dashboard-merged-card"
-          >
-            <section aria-label="Vault KPIs">
-              <DashboardKpiStrip kpis={stripKpis} />
-            </section>
+      {/* ── KPI strip + charts ── */}
+      <BentoPanel aria-label="Vault KPIs and charts">
+        <section aria-label="Vault KPIs" className="border-b border-white/5">
+          <DashboardKpiStrip kpis={stripKpis} />
+        </section>
 
-            {showVaultAnalytics ? (
-              <div className="dashboard-command-row-a--hero dashboard-hero-card__analytics">
-                <div className="dashboard-hero-card__slot dashboard-hero-card__slot--allocation dashboard-command-slot dashboard-command-slot--allocation">
-                  <AllocationOrbit
-                    allocations={allocation}
-                    capitalUsdc={capitalUsdc}
-                    allocationTotal={allocationTotal}
-                    provenance={resolveChartProvenance(
-                      simulated,
-                      allocationLive,
-                      chartSeedPreview,
-                    )}
-                  />
-                </div>
-                <div className="dashboard-hero-card__slot dashboard-hero-card__slot--nav">
-                  <NavSlot
-                    navPoints={navPoints}
-                    lastNav={lastNav}
-                    navDelta={computeNavDelta(lastNav, firstNav)}
-                    navProvenance={resolveChartProvenance(
-                      simulated,
-                      navLive,
-                      chartSeedPreview,
-                    )}
-                  />
-                </div>
-                {chartSeedPreview ? (
-                  <p
-                    className="dashboard-seed-preview-note body-xs ct-text-faint m-0"
-                    role="status"
-                  >
-                    Seed snapshot — simulated preview, not live production telemetry.
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <section
-                aria-label="Vault analytics awaiting live data"
-                className="dashboard-awaiting-analytics"
+        {showVaultAnalytics ? (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-[#15191C]">
+            <div className="flex flex-col p-5 lg:px-6 border-b border-white/5 lg:border-b-0 lg:border-r">
+              <AllocationOrbit
+                allocations={allocation}
+                capitalUsdc={capitalUsdc}
+                allocationTotal={allocationTotal}
+                provenance={resolveChartProvenance(
+                  simulated,
+                  allocationLive,
+                  chartSeedPreview,
+                )}
+              />
+            </div>
+            <div className="flex flex-col p-5 lg:px-6">
+              <NavSlot
+                navPoints={navPoints}
+                lastNav={lastNav}
+                navDelta={computeNavDelta(lastNav, firstNav)}
+                navProvenance={resolveChartProvenance(
+                  simulated,
+                  navLive,
+                  chartSeedPreview,
+                )}
+              />
+            </div>
+            {chartSeedPreview ? (
+              <p
+                className="col-span-full px-5 lg:px-6 pb-4 text-[10px] text-zinc-500 tracking-wide"
+                role="status"
               >
-                <p className="body-sm ct-text-muted m-0" role="status">
-                  Capital allocation and NAV trends appear once a live vault snapshot
-                  is connected. KPI strip above shows honest placeholders until then.
-                </p>
-              </section>
-            )}
-
-            {data.recentEvents.length > 0 ? (
-              <section
-                aria-label="Recent vault activity"
-                className="dashboard-recent-events-section"
-              >
-                <DashboardPanelHeader
-                  title="Recent activity"
-                  eyebrow="Rebalance log"
-                  tone="primary"
-                />
-                <DashboardRecentEvents events={data.recentEvents} />
-              </section>
+                Seed snapshot — simulated preview, not live production telemetry.
+              </p>
             ) : null}
-          </Card>
-        </div>
+          </div>
+        ) : (
+          <section
+            aria-label="Vault analytics awaiting live data"
+            className="flex items-center justify-center px-8 py-10 text-center bg-[#15191C]"
+          >
+            <p className="max-w-[45ch] text-[13px] leading-relaxed text-zinc-400" role="status">
+              Capital allocation and NAV trends appear once a live vault snapshot
+              is connected. KPI strip above shows honest placeholders until then.
+            </p>
+          </section>
+        )}
+
+        {data.recentEvents.length > 0 ? (
+          <section aria-label="Recent vault activity" className="border-t border-white/5">
+            <BentoHeader as="h3" title="Recent activity" subtitle="Rebalance log" />
+            <div className="p-5">
+              <DashboardRecentEvents events={data.recentEvents} />
+            </div>
+          </section>
+        ) : null}
+      </BentoPanel>
+
+      {/* ── Ops trio — three independent panels (Portfolio canon) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <BentoPanel>
+          <PaneHeader
+            title="Operator queue"
+            status="Active"
+            statusTone="ok"
+            href="/admin/monitoring"
+          />
+          <div className="p-5">
+            <ActionQueue items={cockpit.actionQueue} />
+          </div>
+        </BentoPanel>
+
+        <BentoPanel>
+          <PaneHeader
+            title="Vault health"
+            status="Monitoring"
+            statusTone="ok"
+            href="/admin/monitoring"
+          />
+          <div className="p-5">
+            <LiveMetrics vaults={scopedVaultMetrics} />
+          </div>
+        </BentoPanel>
+
+        <BentoPanel>
+          <PaneHeader
+            title="Platform status"
+            status="Live"
+            statusTone="ok"
+            href="/admin/monitoring"
+          />
+          <div className="p-5">
+            <LiveOps
+              inngestJobs={cockpit.inngestJobs}
+              sentryStats={cockpit.sentryStats}
+              onChainEvents={cockpit.onChainEvents}
+            />
+          </div>
+        </BentoPanel>
       </div>
 
-      {/* ── Row 2: Ops trio — one fused surface, three panes ── */}
-      <div className="dashboard-cockpit-row dashboard-cockpit-row--ops">
-        <div className="dashboard-cockpit-cell">
-          <div className="dashboard-ops-surface">
-
-            <div className="dashboard-ops-pane">
-              <DashboardPanelHeader
-                title="Operator queue"
-                eyebrow="Queue"
-                tone="primary"
-                status="Active"
-                statusTone="ok"
-                trailing={<AdminLeafLink href="/admin/monitoring" />}
-              />
-              <ActionQueue items={cockpit.actionQueue} />
-            </div>
-
-            <div className="dashboard-ops-pane dashboard-ops-pane--divider">
-              <DashboardPanelHeader
-                title="Vault health"
-                eyebrow="Telemetry"
-                tone="primary"
-                status="Monitoring"
-                statusTone="ok"
-                trailing={<AdminLeafLink href="/admin/monitoring" />}
-              />
-              <LiveMetrics vaults={scopedVaultMetrics} />
-            </div>
-
-            <div className="dashboard-ops-pane dashboard-ops-pane--divider">
-              <DashboardPanelHeader
-                title="Platform status"
-                eyebrow="Infrastructure"
-                tone="primary"
-                status="Live"
-                statusTone="ok"
-                trailing={<AdminLeafLink href="/admin/monitoring" />}
-              />
-              <LiveOps
-                inngestJobs={cockpit.inngestJobs}
-                sentryStats={cockpit.sentryStats}
-                onChainEvents={cockpit.onChainEvents}
-              />
-            </div>
-
+      {/* ── Risk posture + Audit trail — two independent panels (Portfolio canon) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <BentoPanel>
+          <PaneHeader
+            title="Risk posture"
+            status="Guarded"
+            statusTone="ok"
+            href="/admin/vaults"
+            provenance={riskProvenance}
+          />
+          <div className="p-5">
+            <DashboardRiskSummaryCard
+              data={risk}
+              hasLiveKpis={hasLiveKpis}
+              simulated={simulated}
+            />
           </div>
-        </div>
-      </div>
+        </BentoPanel>
 
-      {/* ── Row 3: Risk posture + Audit trail — one fused surface, two panes ── */}
-      <div className="dashboard-cockpit-row dashboard-cockpit-row--lower">
-        <div className="dashboard-cockpit-cell">
-          <div className="dashboard-lower-surface">
-
-            <div className="dashboard-lower-pane dashboard-lower-pane--risk">
-              <DashboardPanelHeader
-                title="Risk posture"
-                eyebrow="Compliance"
-                tone="primary"
-                status="Guarded"
-                statusTone="ok"
-                trailing={<AdminLeafLink href="/admin/vaults" />}
-                provenance={riskProvenance}
-              />
-              <DashboardRiskSummaryCard
-                data={risk}
-                hasLiveKpis={hasLiveKpis}
-                simulated={simulated}
-              />
-            </div>
-
-            <div className="dashboard-lower-pane dashboard-lower-pane--audit dashboard-lower-pane--divider">
-              <DashboardPanelHeader
-                title="Audit trail"
-                eyebrow="Ledger"
-                tone="primary"
-                status="Logging"
-                statusTone="ok"
-                trailing={<AdminLeafLink href="/admin/audit" />}
-              />
-              <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />
-            </div>
-
+        <BentoPanel>
+          <PaneHeader
+            title="Audit trail"
+            status="Logging"
+            statusTone="ok"
+            href="/admin/audit"
+          />
+          <div className="p-5">
+            <AuditTrailRolling entries={cockpit.auditTrail.slice(0, 5)} />
           </div>
-        </div>
+        </BentoPanel>
       </div>
 
     </div>
