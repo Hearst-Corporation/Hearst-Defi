@@ -1,11 +1,12 @@
 /* =============================================================================
    dashboard.css — Admin Command Center cockpit (page-scoped)
 
-   Companion to risk-summary-responsive.css / system-readiness.css. Holds the
-   semantic classes that used to live as arbitrary Tailwind utilities inside the
-   dashboard + cockpit JSX (action-queue, audit-trail-rolling, live-ops,
-   live-metrics, risk-summary-card). Markup carries semantic `.cockpit-*` /
-   `.dash-*` names; this sheet owns every value.
+   Holds the semantic classes that used to live as arbitrary Tailwind utilities
+   inside the dashboard + cockpit JSX (action-queue, audit-trail-rolling,
+   live-ops, live-metrics). The dashboard is now a Tailwind bento; the former
+   companion sheets (risk-summary-responsive.css / system-readiness.css) and the
+   classes only the legacy cockpit grid consumed have been removed. Markup
+   carries semantic `.cockpit-*` / `.dash-*` names; this sheet owns every value.
 
    EDITING RULES (same canon as portfolio.css):
    - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb. color-mix() ratios are
@@ -37,12 +38,6 @@
 .cockpit-dot--idle {
   background: var(--ct-border);
   opacity: var(--ct-opacity-60);
-}
-
-/* Live status dot — solid success without pulse (Zero Glow policy) */
-.dashboard-status-dot--live {
-  position: relative;
-  background: var(--ct-status-success);
 }
 
 /* =============================================================================
@@ -142,12 +137,8 @@
 }
 
 /* =============================================================================
-   4. TABLE HAIRLINES — border-bottom on audit-trail header + rows
+   4. TABLE CELL PADDING — audit-trail header + rows
    ============================================================================= */
-
-.cockpit-table-rule {
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
 
 .dashboard-cockpit .ct-table-cell,
 .dashboard-cockpit .ct-table-header {
@@ -173,109 +164,6 @@
 }
 .cockpit-col-entity-id {
   width: 20%;
-}
-
-/* =============================================================================
-   6. RISK SUMMARY — severity fill variants for the <Progress> bar
-      (risk-summary-card fillClassName)
-   ============================================================================= */
-
-.dashboard-risk-summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.dashboard-risk-summary__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-}
-
-.dashboard-risk-summary__overview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  padding-bottom: var(--ct-space-5);
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-risk-summary__hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-}
-
-.dashboard-risk-summary__headline {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.dashboard-risk-summary__headline-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-1);
-}
-
-.dashboard-risk-summary__value {
-  font-size: var(--ct-text-display-fixed); /* 28 → 32px hero tier */
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.dashboard-risk-summary__blurb {
-  max-width: 60ch;
-  font-size: var(--ct-text-micro);
-  line-height: 1.6;
-}
-
-.dashboard-risk-summary__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--ct-space-5) var(--ct-space-6);
-}
-
-.dashboard-risk-summary__item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-risk-summary__item-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-risk-summary__item-copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  min-width: 0;
-}
-
-.dashboard-risk-summary__score {
-  font-size: var(--ct-text-deca);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.dashboard-risk-summary__progress {
-  height: 4px;
-}
-
-.cockpit-risk-fill--low {
-  background: var(--ct-status-success);
-}
-.cockpit-risk-fill--medium {
-  background: var(--ct-status-warning);
-}
-.cockpit-risk-fill--high {
-  background: var(--ct-status-danger);
 }
 
 /* =============================================================================
@@ -345,68 +233,6 @@
   gap: var(--ct-space-5) !important;
 }
 
-.dashboard-page-header {
-  margin-bottom: 0;
-}
-
-.dashboard-page-header .page-canon-toolbar__actions {
-  display: none;
-}
-
-.dashboard-overview-ledger {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin-top: var(--ct-space-2);
-}
-
-.dashboard-overview-ledger__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-2) 0;
-  border-bottom: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-overview-ledger__row:last-child {
-  border-bottom: none;
-}
-
-.dashboard-overview-ledger__label {
-  font-size: var(--ct-text-octa);
-  font-weight: 700;
-  color: var(--ct-text-faint);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  opacity: var(--ct-opacity-60);
-}
-
-.dashboard-overview-ledger__sublabel {
-  font-size: var(--ct-text-octa);
-  color: var(--ct-text-faint);
-  opacity: var(--ct-opacity-40);
-  margin-top: 1px;
-}
-
-.dashboard-awaiting-analytics {
-  padding: var(--ct-space-10) var(--ct-space-8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border-top: 1px solid var(--ct-border-ghost);
-  background: color-mix(in srgb, var(--ct-graphite-nested-bg) 40%, transparent);
-}
-
-.dashboard-awaiting-analytics p {
-  max-width: 45ch;
-  font-size: var(--ct-text-micro);
-  line-height: 1.6;
-  color: var(--ct-text-muted);
-  opacity: var(--ct-opacity-80);
-}
-
 .dashboard-merged-card {
   background: var(--ct-graphite-subtle-bg);
   border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
@@ -414,24 +240,7 @@
   box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
 }
 
-.dashboard-hero-card__analytics {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 0;
-  border-top: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-hero-card__slot {
-  padding: var(--ct-space-5) var(--ct-space-6);
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-hero-card__slot--allocation {
-  border-right: 1px solid var(--ct-border-ghost);
-}
-
-.dashboard-orbit-card, 
+.dashboard-orbit-card,
 .dashboard-nav-slot {
   padding: 0;
   background: transparent;
@@ -510,155 +319,17 @@
   transition: opacity var(--ct-dur-base) var(--ct-ease), transform var(--ct-dur-base) var(--ct-ease);
 }
 
-.dashboard-ops-surface,
-.dashboard-lower-surface {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
-  border-radius: var(--ct-radius-xl);
-  overflow: hidden;
-  transition: all var(--ct-dur-base) var(--ct-ease);
-}
-
-.dashboard-lower-surface {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-/* Responsive: 3 columns → stacked on small screens */
-@media (max-width: 90rem) {
-  .dashboard-ops-surface {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .dashboard-ops-pane:last-child {
-    grid-column: 1 / -1;
-    border-left: none;
-    border-top: 1px solid var(--ct-border-ghost);
-  }
-}
-
-@media (max-width: 64rem) {
-  .dashboard-ops-surface,
-  .dashboard-lower-surface {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-ops-pane--divider,
-  .dashboard-lower-pane--divider {
-    border-left: none;
-    border-top: 1px solid var(--ct-border-ghost);
-  }
-}
-
-/* Wide screens (21:9 desktop): enhanced spacing */
+/* Wide screens (21:9 desktop): enhanced cockpit spacing */
 @media (min-width: 120rem) {
   .dashboard-cockpit {
     gap: var(--ct-space-6);
   }
-
-  .dashboard-ops-surface,
-  .dashboard-lower-surface {
-    gap: 1px;
-    background: var(--ct-border-ghost);
-  }
-  
-  .dashboard-ops-pane,
-  .dashboard-lower-pane {
-    background: var(--ct-graphite-subtle-bg);
-    padding: var(--ct-space-5) var(--ct-space-6);
-  }
-}
-
-.dashboard-ops-pane,
-.dashboard-lower-pane {
-  padding: var(--ct-space-4) var(--ct-space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  transition: background-color var(--ct-dur-fast) var(--ct-ease);
-}
-
-.dashboard-ops-pane:hover,
-.dashboard-lower-pane:hover {
-  background: var(--ct-graphite-nested-bg);
-}
-
-.dashboard-ops-pane .dashboard-card-header,
-.dashboard-lower-pane .dashboard-card-header {
-  margin-bottom: 0;
-}
-
-.dashboard-ops-pane--divider,
-.dashboard-lower-pane--divider {
-  border-left: 1px solid var(--ct-border-ghost);
 }
 
 /* =============================================================================
-   17. SMOOTH TRANSITIONS & LOADING STATES — fade/slide animations
+   17. MICRO-INTERACTIONS — subtle scale on interactive elements
    ============================================================================= */
 
-/* Vault switch transition — subtle slide and fade */
-@keyframes dash-vault-enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dashboard-cockpit--fit > .dashboard-cockpit-row {
-  animation: dash-vault-enter 0.4s var(--ct-ease) forwards;
-}
-
-.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(1) { animation-delay: 0ms; }
-.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(2) { animation-delay: 50ms; }
-.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(3) { animation-delay: 100ms; }
-.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(4) { animation-delay: 150ms; }
-.dashboard-cockpit--fit > .dashboard-cockpit-row:nth-child(5) { animation-delay: 200ms; }
-
-/* Data update shimmer effect for refreshing metrics */
-@keyframes dash-data-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-.dashboard-kpi-strip__cell--updating {
-  position: relative;
-}
-
-.dashboard-kpi-strip__cell--updating::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--ct-accent) 8%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: dash-data-shimmer 1.5s var(--ct-ease) infinite;
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* Smooth loading state transitions */
-.dashboard-skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--ct-graphite-nested-bg) 0%,
-    color-mix(in srgb, var(--ct-accent) 5%, var(--ct-graphite-nested-bg)) 50%,
-    var(--ct-graphite-nested-bg) 100%
-  );
-  background-size: 200% 100%;
-  animation: dash-data-shimmer 2s var(--ct-ease) infinite;
-  border-radius: var(--ct-radius-md);
-}
-
-/* Micro-interaction: subtle scale on interactive elements */
 .dashboard-command-slot,
 .dashboard-orbit__segment--interactive {
   transition: transform var(--ct-dur-fast) var(--ct-ease), opacity var(--ct-dur-fast) var(--ct-ease);
@@ -670,11 +341,8 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-cockpit--fit > .dashboard-cockpit-row,
-  .dashboard-kpi-strip__cell--updating::after,
-  .dashboard-skeleton,
-  .dashboard-status-dot--live::after {
-    animation: none;
+  .dashboard-command-slot,
+  .dashboard-orbit__segment--interactive {
     transition: opacity 0.1s ease;
   }
 }

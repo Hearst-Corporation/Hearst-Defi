@@ -1,5 +1,4 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { Progress } from "@/components/ui/progress";
+import { BentoHeader } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
@@ -9,40 +8,65 @@ import { DistributionStrip } from "./distribution-strip";
 
 /**
  * Executive platform overview — 4 labeled clusters (Capital | Clients |
- * Governance | Exposure) in one flat graphite surface. Platform-wide totals
+ * Governance | Exposure) in one flat black surface. Platform-wide totals
  * consolidated from the dedicated admin pages, each cluster drilling down via
- * a "View full →" leaf link. Flat (no nested glass): the surface owns the
- * material, panes own only padding (anti cage-in-cage).
+ * a "View full →" leaf link. Flat bento (Portfolio canon): the parent panel
+ * owns the material, panes own only padding + a hairline divider.
  */
-export function PlatformOverviewBand({ view, allocations }: { view: OverviewClustersView, allocations: DashboardAllocation[] }) {
+export function PlatformOverviewBand({
+  view,
+  allocations,
+}: {
+  view: OverviewClustersView;
+  allocations: DashboardAllocation[];
+}) {
+  const capacityUsedRaw =
+    view.clusters
+      .find((c) => c.label === "Capital")
+      ?.kpis.find((k) => k.label === "Capacity used")?.value ?? "—";
+  const capacityPct =
+    parseFloat(capacityUsedRaw.replace(/[^0-9.]/g, "")) || 0;
+  const exposureClusterHasDist = allocations.filter((a) => a.pct > 0).length;
+
   return (
-    <div className="dashboard-overview-surface" aria-label="Platform overview">
+    <div
+      aria-label="Platform overview"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-white/5 sm:divide-y-0 sm:divide-x"
+    >
       {view.clusters.map((cluster, index) => (
-        <div
-          key={cluster.label}
-          className={cn(
-            "dashboard-overview-pane",
-            index > 0 && "dashboard-overview-pane--divider",
-          )}
-        >
-          <DashboardPanelHeader
+        <div key={cluster.label} className="flex flex-col p-5">
+          <BentoHeader
+            as="h3"
             title={cluster.label}
-            eyebrow={index === 0 ? view.caption : undefined}
-            tone="primary"
+            subtitle={index === 0 ? view.caption : undefined}
             trailing={<AdminLeafLink href={cluster.href} />}
+            className="border-b-0 p-0 pb-3"
           />
-          <div className="dashboard-overview-ledger">
+          <div className="flex flex-col">
             {cluster.kpis.map((kpi) => (
-              <div key={kpi.label} className="dashboard-overview-ledger__row">
-                <div className="flex flex-col min-width-0">
-                  <span className="dashboard-overview-ledger__label">{kpi.label}</span>
-                  <span className="dashboard-overview-ledger__sublabel truncate">{kpi.sublabel}</span>
+              <div
+                key={kpi.label}
+                className="flex items-center justify-between gap-4 border-b border-white/5 py-2 last:border-b-0"
+              >
+                <div className="flex min-w-0 flex-col">
+                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                    {kpi.label}
+                  </span>
+                  <span className="mt-px truncate text-[10px] text-zinc-600">
+                    {kpi.sublabel}
+                  </span>
                 </div>
-                <div className="flex flex-col items-end shrink-0">
-                  <span className={cn(
-                    "dashboard-overview-ledger__value tabular-nums",
-                    kpi.alert ? "ct-status-danger" : kpi.accent ? "ct-status-success" : "ct-text-strong"
-                  )}>
+                <div className="flex shrink-0 flex-col items-end">
+                  <span
+                    className={cn(
+                      "text-[14px] font-medium leading-none tracking-tight tabular-nums",
+                      kpi.alert
+                        ? "text-red-400"
+                        : kpi.accent
+                          ? "text-[#A7FB90]"
+                          : "text-white",
+                    )}
+                  >
                     {kpi.value}
                   </span>
                 </div>
@@ -50,23 +74,39 @@ export function PlatformOverviewBand({ view, allocations }: { view: OverviewClus
             ))}
           </div>
           {cluster.label === "Capital" && (
-            <div className="mt-5 pt-4 border-t border-[var(--ct-border-ghost)]">
+            <div className="mt-5 pt-4 border-t border-white/5">
               <div className="flex items-center justify-between mb-2">
-                <span className="dashboard-overview-ledger__label">Capacity usage</span>
-                <span className="cockpit-value-xs opacity-80">{cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "—"}</span>
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                  Capacity usage
+                </span>
+                <span className="text-[12px] font-medium tabular-nums text-zinc-400">
+                  {capacityUsedRaw}
+                </span>
               </div>
-              <Progress
-                value={parseFloat(cluster.kpis.find(k => k.label === "Capacity used")?.value ?? "0") || 0}
-                variant="plain"
-                label="Capacity usage"
-              />
+              <div
+                role="progressbar"
+                aria-valuenow={capacityPct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Capacity usage"
+                className="h-1.5 w-full overflow-hidden rounded-full bg-[#15191C]"
+              >
+                <div
+                  className="h-full rounded-full bg-[#A7FB90] transition-[width] duration-300 ease-out"
+                  style={{ width: `${Math.min(100, Math.max(0, capacityPct))}%` }}
+                />
+              </div>
             </div>
           )}
-          {cluster.label === "Exposure" && allocations.length > 0 && (
-            <div className="mt-5 pt-4 border-t border-[var(--ct-border-ghost)]">
+          {cluster.label === "Exposure" && exposureClusterHasDist > 0 && (
+            <div className="mt-5 pt-4 border-t border-white/5">
               <div className="flex items-center justify-between mb-2">
-                <span className="dashboard-overview-ledger__label">Distribution</span>
-                <span className="cockpit-value-xs opacity-80">{allocations.filter(a => a.pct > 0).length} buckets</span>
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                  Distribution
+                </span>
+                <span className="text-[12px] font-medium tabular-nums text-zinc-400">
+                  {exposureClusterHasDist} buckets
+                </span>
               </div>
               <DistributionStrip allocations={allocations} />
             </div>

@@ -160,6 +160,36 @@ const CHAT_NEGATIONS = new Set([
   "ni",
 ]);
 
+/**
+ * Zero-width / invisible characters an attacker (or a jailbroken model) can
+ * splice INTO a forbidden needle to slip it past the literal matcher:
+ *   U+200B–200D zero-width space/non-joiner/joiner, U+2060 word-joiner,
+ *   U+FEFF BOM/zero-width no-break space, U+00AD soft hyphen,
+ *   U+180E Mongolian vowel separator, U+200E/200F LTR/RTL marks.
+ * "rendement g​aranti" would otherwise read as compliant. Stripped before
+ * scanning so the needle re-forms.
+ */
+const INVISIBLE_CHARS_RE = /[​-‏⁠﻿­᠎]/g;
+
+/**
+ * Normalize untrusted text for forbidden-word scanning (Unicode bypass defense).
+ *
+ *  1. NFKC — folds compatibility forms (fullwidth "ｇ", ligatures, styled math
+ *     letters "𝐠𝐮𝐚𝐫𝐚𝐧𝐭𝐞𝐞") back to their plain ASCII equivalents, and
+ *     RECOMPOSES NFD-decomposed accents (e + combining ´ → é) so a decomposed
+ *     needle re-forms before matching.
+ *  2. Strip zero-width / invisible separators (see INVISIBLE_CHARS_RE) so a
+ *     needle broken by an injected invisible char re-joins.
+ *
+ * Lowercasing is left to the callers (the scan engine already lowercases). This
+ * is scan-only: the ORIGINAL text is what gets logged/displayed; only the
+ * matcher sees the normalized form. Pure, dependency-free.
+ */
+export function normalizeForScan(text: string): string {
+  if (!text) return text;
+  return text.normalize("NFKC").replace(INVISIBLE_CHARS_RE, "");
+}
+
 /** Escape regex meta-characters in a literal needle. */
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -263,7 +293,11 @@ function scanForbidden(
   }: { checkAfter: boolean; exemptNegationPrefixed?: boolean },
 ): string[] | null {
   if (!text) return null;
-  const haystack = text.toLowerCase();
+  // Unicode bypass defense: fold compatibility forms + recompose decomposed
+  // accents (NFKC) and strip zero-width separators BEFORE lowercasing, so
+  // "g​aranti", a fullwidth "ｇaranti", or an NFD-decomposed accent all
+  // re-form into the literal needle the matcher looks for.
+  const haystack = normalizeForScan(text).toLowerCase();
   const found: string[] = [];
 
   for (const needle of needles) {

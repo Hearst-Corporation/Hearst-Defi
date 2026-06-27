@@ -1,17 +1,15 @@
 {
-  "iterations": 10300,
-  "repeats": 10,
-  "corpusSize": 1030,
-  "positiveCorpusSize": 1008,
+  "iterations": 11312,
+  "repeats": 8,
+  "corpusSize": 1414,
+  "positiveCorpusSize": 1392,
   "negativeCorpusSize": 22,
-  "positiveMatches": 1008,
+  "positiveMatches": 1392,
   "matchRatePct": 100,
-  "falsePositives": 1,
+  "falsePositives": 0,
   "falsePositivesSensitive": 0,
-  "falsePositivesBenign": 1,
+  "falsePositivesBenign": 0,
   "falseNegatives": 0,
   "determinismBreaks": 0,
-  "sampleFailures": [
-    "[FP conversational] \"peux-tu m'expliquer la preuve de réserve\" expected null got=proof-center (lp=proof-center admin=null)"
-  ]
+  "sampleFailures": []
 }

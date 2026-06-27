@@ -108,4 +108,94 @@ describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-
       });
     }
   });
+
+  // ---- 5. False positives the broadened router (#117) reintroduced --------
+  // These regressed after the global nav hardening: a bare mention, a question,
+  // or a bug report started navigating. Each MUST stay non-navigating on BOTH
+  // resolvers. (Restored verb-gating; bare correctly-spelled nouns excluded.)
+  describe("conversational mentions / questions / bug reports never navigate", () => {
+    const mustNotNavigate = [
+      // bare mention of a destination noun
+      "portfolio",
+      "proof center",
+      // explanation / question phrasings
+      "peux-tu m'expliquer la preuve de réserve",
+      "explique-moi mon portfolio",
+      "what is proof of reserves",
+      "tell me about vaults",
+      "j'ai une question sur les campagnes",
+      // bug reports — never a navigation intent
+      "le dashboard est cassé",
+      "portfolio value is wrong",
+    ] as const;
+
+    for (const phrase of mustNotNavigate) {
+      it(`"${phrase}" → null on BOTH resolvers`, () => {
+        expect(resolveLpNavDestinationKey(phrase)).toBeNull();
+        expect(resolveAdminNavFallbackKey(phrase)).toBeNull();
+      });
+    }
+  });
+
+  // ---- 6. Explicit navigation intents that MUST still resolve -------------
+  // The verb-gating tightening must NOT regress genuine navigation. Each pair is
+  // [phrase, expected LP key]. Typo-as-command ("portofolio", "dashbord") is an
+  // explicit short command and DOES navigate; the correctly-spelled bare noun
+  // does not (covered above).
+  describe("explicit navigation intents still resolve (LP)", () => {
+    const lpNav: Array<[string, string]> = [
+      ["ouvre dashboard", "portfolio"],
+      ["amène-moi au dashboard", "portfolio"],
+      ["open my portfolio", "portfolio"],
+      ["show distributions", "portfolio-distributions"],
+      ["va sur proof center", "proof-center"],
+      ["portofolio", "portfolio"], // typo command
+      ["dashbord", "portfolio"], // typo command
+    ];
+    for (const [phrase, key] of lpNav) {
+      it(`"${phrase}" → ${key}`, () => {
+        expect(resolveLpNavDestinationKey(phrase)).toBe(key);
+      });
+    }
+  });
+
+  describe("explicit navigation intents still resolve (admin)", () => {
+    const adminNav: Array<[string, string]> = [
+      ["ouvre scenario lab", "admin-scenario-lab"],
+      ["open outreach", "admin-outreach"],
+      ["scenarion lab", "admin-scenario-lab"], // typo command
+    ];
+    for (const [phrase, key] of adminNav) {
+      it(`"${phrase}" → ${key}`, () => {
+        expect(resolveAdminNavFallbackKey(phrase)).toBe(key);
+      });
+    }
+  });
+
+  // ---- 7. Determinism: same input N times = same destination -------------
+  // The pure resolvers must be referentially transparent. Running each phrase 10
+  // times in a row must yield the identical result every time (no regex lastIndex
+  // leak, no module-level mutable state, no ordering instability).
+  describe("same input 10 times = same destination", () => {
+    const phrases = [
+      "ouvre dashboard",
+      "show distributions",
+      "va sur proof center",
+      "open outreach",
+      "scenarion lab",
+      "portfolio", // null, must stay null
+      "le dashboard est cassé", // null, must stay null
+    ] as const;
+
+    for (const phrase of phrases) {
+      it(`"${phrase}" is stable across 10 LP + 10 admin calls`, () => {
+        const lp0 = resolveLpNavDestinationKey(phrase);
+        const admin0 = resolveAdminNavFallbackKey(phrase);
+        for (let i = 0; i < 10; i++) {
+          expect(resolveLpNavDestinationKey(phrase)).toBe(lp0);
+          expect(resolveAdminNavFallbackKey(phrase)).toBe(admin0);
+        }
+      });
+    }
+  });
 });

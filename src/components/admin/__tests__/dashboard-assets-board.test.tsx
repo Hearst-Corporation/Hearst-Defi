@@ -170,12 +170,14 @@ function makeLiveData(overrides: Partial<DashboardData> = {}): DashboardData {
 }
 
 describe("DashboardAssetsBoard — command-center layout", () => {
-  it("roots the board in dashboard-cockpit for the fit cockpit layout", () => {
+  it("roots the board and mounts the System readiness operator header", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    // The `--fit` layout behavior is now baked into the base `.dashboard-cockpit`
-    // rules (the modifier class was consolidated away), so the root class alone
-    // is the contract.
-    expect(html).toContain("dashboard-cockpit");
+    // Bento rebuild: the legacy `.dashboard-cockpit` grid root was retired. The
+    // board now opens with a vertical bento stack whose first module is the
+    // full-width System readiness header — that semantic anchor (not a CSS grid
+    // class) is the contract that the board mounted its top-level surface.
+    expect(html).toContain('class="flex flex-col gap-5"');
+    expect(html).toContain('aria-label="System readiness"');
   });
 
   it("does not duplicate KPI rows in a secondary vitals column", () => {
@@ -187,7 +189,9 @@ describe("DashboardAssetsBoard — command-center layout", () => {
   it("renders the platform overview band (4 clusters + caption) above the vault strip", () => {
     const html = render(makeData({ source: "fallback" }), 0);
 
-    expect(html).toContain("dashboard-cockpit-row--overview");
+    // Bento rebuild: the legacy `.dashboard-cockpit-row--overview` /
+    // `.dashboard-overview-surface` grid is gone; the band is now a flat Tailwind
+    // grid anchored by the stable `aria-label="Platform overview"` semantic.
     expect(html).toContain('aria-label="Platform overview"');
     expect(html).toContain("Platform · all vaults");
     // The four cluster labels.
@@ -196,7 +200,7 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain(">Governance<");
     expect(html).toContain(">Exposure<");
     // Band sits before the vault KPI strip (executive position).
-    const overview = html.indexOf("dashboard-cockpit-row--overview");
+    const overview = html.indexOf('aria-label="Platform overview"');
     const kpis = html.indexOf('aria-label="Vault KPIs"');
     expect(overview).toBeGreaterThan(-1);
     expect(kpis).toBeGreaterThan(overview);
@@ -213,12 +217,18 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
   it("prioritizes KPI strip, cockpit ops row, then lower row (risk + audit)", () => {
     // No-live-kpis path: KPI card → awaiting placeholder → ops row → lower row.
+    // Bento rebuild: ordering is now asserted on stable semantic anchors instead
+    // of the retired `.dashboard-cockpit-row--*` grid classes —
+    //   awaiting  = the "Vault analytics awaiting live data" placeholder section
+    //   ops row   = the Operator-queue/Vault-health/Platform-status trio panel
+    //               (anchored on the unique ">Vault health<" pane title)
+    //   lower row = the Risk-posture/Audit-trail panel (anchored on ">Audit trail<")
     const html = render(makeData({ source: "fallback" }), 0);
 
     const kpis = html.indexOf('aria-label="Vault KPIs"');
-    const awaiting = html.indexOf("dashboard-awaiting-analytics");
-    const cockpitOps = html.indexOf("dashboard-cockpit-row--ops");
-    const activity = html.indexOf("dashboard-cockpit-row--lower");
+    const awaiting = html.indexOf('aria-label="Vault analytics awaiting live data"');
+    const cockpitOps = html.indexOf(">Vault health<");
+    const activity = html.indexOf(">Audit trail<");
 
     expect(kpis).toBeGreaterThan(-1);
     expect(awaiting).toBeGreaterThan(kpis);
@@ -243,10 +253,16 @@ describe("DashboardAssetsBoard — command-center layout", () => {
       />,
     );
 
+    // Bento rebuild ordering anchors (live path):
+    //   vaultSignal = the live charts hero (allocation orbit), anchored on the
+    //                 unique "Vault allocation map" section that only renders
+    //                 when vault analytics are live — replaces the retired
+    //                 `.dashboard-command-row-a--hero` row class.
+    //   ops / lower = same trio + risk/audit anchors as the no-live path.
     const kpis = html.indexOf('aria-label="Vault KPIs"');
-    const vaultSignal = html.indexOf("dashboard-command-row-a--hero");
-    const cockpitOps = html.indexOf("dashboard-cockpit-row--ops");
-    const activity = html.indexOf("dashboard-cockpit-row--lower");
+    const vaultSignal = html.indexOf('aria-label="Vault allocation map"');
+    const cockpitOps = html.indexOf(">Vault health<");
+    const activity = html.indexOf(">Audit trail<");
 
     expect(kpis).toBeGreaterThan(-1);
     expect(vaultSignal).toBeGreaterThan(kpis);
@@ -380,12 +396,15 @@ describe("DashboardAssetsBoard — command-center layout", () => {
 
   it("renders empty cockpit modules honestly: queue, metrics, audit all show empty state", () => {
     const html = render(makeData({ source: "fallback" }), 0);
-    const cockpitOps = html.indexOf("dashboard-cockpit-row--ops");
+    // Bento rebuild: the ops trio is anchored on its unique ">Vault health<"
+    // pane title instead of the retired `.dashboard-cockpit-row--ops` class.
+    const cockpitOps = html.indexOf(">Vault health<");
 
     expect(cockpitOps).toBeGreaterThan(-1);
-    // No-live-kpis: awaiting-analytics placeholder, not the hero chart.
-    expect(html).toContain("dashboard-awaiting-analytics");
-    expect(html).not.toContain("dashboard-command-row-a--hero");
+    // No-live-kpis: the "awaiting live data" placeholder section renders, and the
+    // live charts hero (allocation orbit) does NOT — no fake live analytics.
+    expect(html).toContain('aria-label="Vault analytics awaiting live data"');
+    expect(html).not.toContain('aria-label="Vault allocation map"');
     // Each ops panel shows honest empty state.
     expect(html).toContain("All clear — no operator actions queued.");
     expect(html).toContain("No vault telemetry yet.");
@@ -457,28 +476,30 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain("No telemetry");
   });
 
-  it("readiness: dot-strip replaces the matrix; verdict class applied; no fake freshness stat", () => {
-    // Task 1: posture-label is the dominant element (class present); old H2 title gone.
-    // Task 3+6: dot-strip present; old matrix rows absent.
-    // Task 4: blurb does not mention queue count (queue mention lives only in KPI strip).
-    // Task 5: "Last system check" / "Synced moments ago" removed entirely.
+  it("readiness: dot-strip replaces the matrix; verdict posture applied; no fake freshness stat", () => {
+    // Bento rebuild: SystemReadinessModule was re-skinned to a BentoPanel, so the
+    // `.dashboard-readiness__*` class hooks are gone. The same contract is now
+    // asserted on stable semantic anchors:
+    //   verdict   = the BentoPanel carries `data-posture`, with the dominant
+    //               18px postureLabel + the "System readiness" header.
+    //   dot-strip = the factor dots live in a `aria-label="Readiness factors"` list.
+    // The honesty / anti-duplication guards below keep matching by string and
+    // stay verbatim — they prove the old matrix + fake freshness stat never
+    // return and the verdict blurb never duplicates the queue-count mention.
     const html = render(makeData({ source: "fallback" }), 0);
 
-    // Verdict element present (dominant)
-    expect(html).toContain("dashboard-readiness__posture-label");
-    // Eyebrow kicker replaces old H2 title
-    expect(html).toContain("dashboard-readiness__title-kicker");
-    // Old H2 class removed (boundary-aware: ends with closing quote to avoid matching -kicker)
-    expect(html).not.toContain('dashboard-readiness__title"');
-    // Compact dot-strip present
-    expect(html).toContain("dashboard-readiness__dot-strip");
-    // Old matrix structure absent
+    // Verdict element present (dominant posture on the readiness panel header).
+    expect(html).toContain("data-posture=");
+    expect(html).toContain('aria-label="System readiness"');
+    // Compact dot-strip present (terse factor list, not the 5-row matrix).
+    expect(html).toContain('aria-label="Readiness factors"');
+    // Old matrix structure absent (the retired matrix hooks must not come back).
     expect(html).not.toContain("dashboard-readiness__matrix");
     expect(html).not.toContain("dashboard-readiness__factor-label");
-    // Fake freshness stat absent
+    // Fake freshness stat absent (honesty: no invented "last synced" copy).
     expect(html).not.toContain("Synced moments ago");
     expect(html).not.toContain("Last system check");
-    // Blurb does not duplicate queue count mention
+    // Blurb does not duplicate queue count mention (queue lives only in KPI strip).
     expect(html).not.toContain("Operator action required before readiness clears.");
   });
 
@@ -547,9 +568,13 @@ describe("DashboardAssetsBoard — command-center layout", () => {
     expect(html).toContain(">Operator queue<");
     expect(html).toContain(">Vault health<");
     expect(html).toContain(">Platform status<");
-    // Audit trail is in the lower row (Row 3).
-    expect(html).toContain("dashboard-cockpit-row--lower");
+    // Audit trail lives in the lower row (Row 3) — the Risk-posture/Audit-trail
+    // panel. Bento rebuild: the `.dashboard-cockpit-row--lower` grid class is
+    // gone, so the contract is the order (ops trio → risk posture → audit trail).
     expect(html).toContain(">Audit trail<");
+    expect(html.indexOf(">Vault health<")).toBeGreaterThan(-1);
+    expect(html.indexOf(">Risk posture<")).toBeGreaterThan(html.indexOf(">Vault health<"));
+    expect(html.indexOf(">Audit trail<")).toBeGreaterThan(html.indexOf(">Risk posture<"));
     expect(html).toContain("dashboard-orbit__svg");
     // The "% mapped" gauge is now split into two typography-tokenized spans
     // (`<value>%` + `Mapped`) inside the orbit core meta row.

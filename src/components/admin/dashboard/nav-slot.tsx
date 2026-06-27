@@ -1,5 +1,4 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { type Provenance } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { Tooltip } from "@/components/ui/tooltip";
 import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-formatters";
 import {
@@ -30,35 +29,39 @@ export function NavSlot({
 
   return (
     <div className="dashboard-command-slot dashboard-command-slot--nav dashboard-nav-slot">
-      <DashboardPanelHeader
-        title="NAV trend · 30d"
-        eyebrow="Analytics"
-        tone="primary"
-        provenance={!isMuted ? navProvenance : undefined}
-        className="dashboard-nav-slot__header"
-      />
+      <div className="dashboard-nav-slot__header flex items-end justify-between">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] leading-none">
+            Analytics
+          </span>
+          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+            NAV trend · 30d
+          </h3>
+        </div>
+        {!isMuted ? <ProvenanceBadge kind={navProvenance} variant="strip" /> : null}
+      </div>
       <div className="dashboard-nav-slot__value-row">
         <div className="flex flex-col">
-          <span className="cockpit-label-xs opacity-50 mb-1">Current NAV</span>
-          <p className="dashboard-nav-slot__value tabular m-0 flex items-baseline gap-[var(--ct-space-1)]">
+          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 mb-1">Current NAV</span>
+          <p className="dashboard-nav-slot__value tabular-nums m-0 flex items-baseline gap-[var(--ct-space-1)]">
               {lastNav !== null ? (
                 <>
-                  <span className="cockpit-label-xs opacity-40">USD</span>
-                  <span className="cockpit-value-md text-[length:var(--ct-text-2xl-fixed)]!">{dashboardUsdCompact.format(lastNav)}</span>
+                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">USD</span>
+                  <span className="text-[24px] font-medium leading-none tracking-tight text-white">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
-                <span className="cockpit-label-sm opacity-50">Awaiting data</span>
+                <span className="text-[13px] text-zinc-500">Awaiting data</span>
               )}
           </p>
         </div>
 
         {navDelta !== null ? (
           <div className="flex flex-col items-end">
-            <span className="cockpit-label-xs opacity-50 mb-1">30d Change</span>
+            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 mb-1">30d Change</span>
             <p
               className={cn(
-                "dashboard-nav-slot__delta cockpit-value-sm m-0 text-[length:var(--ct-text-deca)]!",
-                navDelta >= 0 ? "dashboard-kpi-delta--up" : "dashboard-kpi-delta--down",
+                "dashboard-nav-slot__delta m-0 text-[13px] font-semibold tabular-nums",
+                navDelta >= 0 ? "text-[#A7FB90]" : "text-[var(--ct-status-danger)]",
               )}
             >
               {navDelta >= 0 ? "+" : ""}
@@ -134,13 +137,13 @@ function NavBarChartShell({
           ))}
         </div>
         {caption ? (
-          <p className="dashboard-nav-bars__caption body-sm ct-text-faint m-0">{caption}</p>
+          <p className="dashboard-nav-bars__caption text-[10px] uppercase tracking-widest text-zinc-500 m-0">{caption}</p>
         ) : null}
       </div>
       {monthLabels ? (
         <div className="dashboard-nav-bars__months" aria-hidden>
           {monthLabels.map((label, index) => (
-            <span key={`${label}-${index}`} className="cockpit-label-xs opacity-60">{label}</span>
+            <span key={`${label}-${index}`} className="text-[10px] uppercase tracking-widest text-zinc-500">{label}</span>
           ))}
         </div>
       ) : null}

@@ -152,6 +152,20 @@ describe("semanticViolationBeyondKeywords — mode behaviour", () => {
     expect(blocked).toBe(true);
   });
 
+  // The exact paraphrases called out by the audit/spec: these carry NO forbidden
+  // needle (keyword guard misses them) yet are return-promises. In enforce mode
+  // the semantic layer must block each.
+  it.each([
+    "your capital is protected against any downside",
+    "votre capital est protégé contre toute baisse",
+    "there is no downside risk",
+    "returns are assured",
+  ])("enforce mode blocks spec paraphrase: %s", async (phrase) => {
+    envState.SEMANTIC_GUARD = "enforce";
+    mockZeroShot.mockResolvedValue(zsOutput(0.95));
+    expect(await semanticViolationBeyondKeywords(phrase, false)).toBe(true);
+  });
+
   it("enforce mode does NOT double-count when keyword guard already caught it", async () => {
     envState.SEMANTIC_GUARD = "enforce";
     mockZeroShot.mockResolvedValue(zsOutput(0.95));

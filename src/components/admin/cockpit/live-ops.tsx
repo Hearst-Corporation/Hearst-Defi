@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { PanelStatus } from "@/components/ui/panel-status";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
@@ -27,79 +26,80 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <div aria-label="Platform status" className="dashboard-live-ops">
+    <div aria-label="Platform status" className="flex flex-col gap-6">
 
-      <div className="dashboard-command-divide-stack">
-        <div className="dashboard-live-ops-section">
-          <header className="flex items-center justify-between mb-[var(--ct-space-1_5)] px-[var(--ct-space-1)]">
-            <h3 className="cockpit-label-sm m-0">Inngest Jobs</h3>
-            <span className="cockpit-label-xs opacity-60">Real-time</span>
-          </header>
-          <div className="dashboard-command-divide-stack">
-            {inngestJobs.map((job) => (
-              <InngestRow key={job.id} job={job} />
+      {/* INNGEST JOBS */}
+      <section className="flex flex-col">
+        <header className="flex items-center justify-between mb-2.5">
+          <h3 className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Inngest Jobs</h3>
+          <span className="text-[10px] uppercase tracking-widest text-zinc-600">Real-time</span>
+        </header>
+        <div className="flex flex-col">
+          {inngestJobs.map((job) => (
+            <InngestRow key={job.id} job={job} />
+          ))}
+        </div>
+      </section>
+
+      {/* LLM HEALTH */}
+      <section className="flex flex-col">
+        <header className="flex items-center justify-between mb-2.5">
+          <h3 className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">LLM Health</h3>
+          <span className="text-[10px] uppercase tracking-widest text-zinc-600">24h Window</span>
+        </header>
+        <div className="flex items-stretch gap-3 bg-[#15191C] rounded-lg p-4">
+          <Tooltip
+            content={(
+              <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">
+                <div className="text-[12px] font-medium text-white">Sentry Errors</div>
+                <div className="text-[11px] text-zinc-400 leading-snug">Critical exceptions captured in the last 24 hours across all services.</div>
+              </div>
+            )}
+          >
+            <div className="flex-1 cursor-help">
+              <SentryCounter
+                label="Errors"
+                count={sentryStats.errors24h}
+                alert={sentryStats.errors24h > 0}
+              />
+            </div>
+          </Tooltip>
+          <div className="w-px self-stretch bg-white/5" />
+          <Tooltip
+            content={(
+              <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">
+                <div className="text-[12px] font-medium text-white">Sentry Warnings</div>
+                <div className="text-[11px] text-zinc-400 leading-snug">Non-critical warnings captured in the last 24 hours.</div>
+              </div>
+            )}
+          >
+            <div className="flex-1 cursor-help">
+              <SentryCounter
+                label="Warnings"
+                count={sentryStats.warnings24h}
+                alert={false}
+              />
+            </div>
+          </Tooltip>
+        </div>
+      </section>
+
+      {/* CHAIN ACTIVITY */}
+      <section className="flex flex-col">
+        <header className="flex items-center justify-between mb-2.5">
+          <h3 className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Chain Activity</h3>
+          <span className="text-[10px] uppercase tracking-widest text-zinc-600">Live Feed</span>
+        </header>
+        {onChainEvents.length === 0 ? (
+          <p className="text-[13px] text-zinc-400 py-2" role="status">No recent on-chain events.</p>
+        ) : (
+          <ul className="flex flex-col" role="list">
+            {onChainEvents.map((ev) => (
+              <OnChainEventRow key={ev.id} event={ev} />
             ))}
-          </div>
-        </div>
-
-        <div className="dashboard-live-ops-section">
-          <header className="flex items-center justify-between mb-[var(--ct-space-1_5)] px-[var(--ct-space-1)]">
-            <h3 className="cockpit-label-sm m-0">LLM Health</h3>
-            <span className="cockpit-label-xs opacity-60">24h Window</span>
-          </header>
-          <div className="admin-doc-inline-row admin-doc-inline-row--relaxed admin-doc-inline-row--actions bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_50%,transparent)] rounded-(--ct-radius-sm) p-[var(--ct-space-1_5)] border border-[var(--ct-border-ghost)]">
-            <Tooltip
-              content={(
-                <div className="dashboard-metric-tooltip">
-                  <div className="dashboard-metric-tooltip__title">Sentry Errors</div>
-                  <div className="dashboard-metric-tooltip__desc">Critical exceptions captured in the last 24 hours across all services.</div>
-                </div>
-              )}
-            >
-              <div className="flex-1 cursor-help">
-                <SentryCounter
-                  label="Errors"
-                  count={sentryStats.errors24h}
-                  alert={sentryStats.errors24h > 0}
-                />
-              </div>
-            </Tooltip>
-            <div className="w-px h-4 bg-[var(--ct-border-ghost)]" />
-            <Tooltip
-              content={(
-                <div className="dashboard-metric-tooltip">
-                  <div className="dashboard-metric-tooltip__title">Sentry Warnings</div>
-                  <div className="dashboard-metric-tooltip__desc">Non-critical warnings captured in the last 24 hours.</div>
-                </div>
-              )}
-            >
-              <div className="flex-1 cursor-help">
-                <SentryCounter
-                  label="Warnings"
-                  count={sentryStats.warnings24h}
-                  alert={false}
-                />
-              </div>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className="dashboard-live-ops-section">
-          <header className="flex items-center justify-between mb-[var(--ct-space-1_5)] px-[var(--ct-space-1)]">
-            <h3 className="cockpit-label-sm m-0">Chain Activity</h3>
-            <span className="cockpit-label-xs opacity-60">Live Feed</span>
-          </header>
-          {onChainEvents.length === 0 ? (
-            <PanelStatus message="No recent on-chain events." className="cockpit-value-sm py-2" />
-          ) : (
-            <ul className="dashboard-command-divide-stack" role="list">
-              {onChainEvents.map((ev) => (
-                <OnChainEventRow key={ev.id} event={ev} />
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
@@ -114,20 +114,27 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions dashboard-inngest-row cockpit-hover-row cockpit-hover-row--inset py-[var(--ct-space-1)]"
+      className="flex items-center justify-between gap-3 py-2.5 border-b border-white/5 last:border-b-0"
       aria-label={`${job.name}: ${label}`}
     >
-      <span className="cockpit-value-sm truncate uppercase">{job.name}</span>
-      <div className="admin-doc-inline-row admin-doc-inline-row--dense shrink-0 gap-1.5">
-        <span aria-hidden className={cn("dashboard-status-dot scale-50", dot)} />
+      <span className="text-[13px] text-zinc-300 truncate uppercase">{job.name}</span>
+      <div className="flex items-center gap-1.5 shrink-0">
+        <span
+          aria-hidden
+          className={cn(
+            "size-1.5 rounded-full",
+            dot,
+            job.status === "pending" && "animate-pulse",
+          )}
+        />
         <span
           className={cn(
-            "cockpit-label-xs",
+            "text-[10px] uppercase tracking-widest",
             job.status === "ok"
-              ? "ct-status-success"
+              ? "text-[#A7FB90]"
               : job.status === "err"
-                ? "ct-status-danger"
-                : "ct-text-muted",
+                ? "text-red-400"
+                : "text-zinc-500",
           )}
         >
           {label}
@@ -138,10 +145,10 @@ function InngestRow({ job }: { job: InngestJob }) {
 }
 
 const STATUS_DOT: Record<InngestJobStatus, string> = {
-  ok: "cockpit-dot--ok",
-  err: "cockpit-dot--err",
-  pending: "cockpit-dot--pending animate-pulse",
-  unknown: "cockpit-dot--idle",
+  ok: "bg-[#A7FB90]",
+  err: "bg-red-400",
+  pending: "bg-amber-400",
+  unknown: "bg-zinc-600",
 };
 
 const STATUS_LABEL: Record<InngestJobStatus, string> = {
@@ -161,12 +168,12 @@ function SentryCounter({
   alert: boolean;
 }) {
   return (
-    <div className="admin-doc-stack admin-doc-stack--micro gap-0">
-      <span className="cockpit-label-xs mb-[var(--ct-space-0_5)]">{label}</span>
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{label}</span>
       <span
         className={cn(
-          "cockpit-value-md",
-          alert && count > 0 ? "ct-status-danger" : "ct-text-strong",
+          "text-[18px] font-medium tabular-nums leading-none",
+          alert && count > 0 ? "text-red-400" : "text-white",
         )}
       >
         {count}
@@ -191,19 +198,19 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     <>
       <span
         aria-hidden
-        className="shrink-0 ct-text-faint text-[length:var(--ct-text-deci)] font-bold w-4 text-center mt-px opacity-60"
+        className="shrink-0 text-zinc-600 text-[10px] font-bold w-4 text-center mt-px"
       >
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <span className="cockpit-value-sm truncate block uppercase">{event.label}</span>
-        <span className="cockpit-label-xs opacity-60">{ago}</span>
+        <span className="text-[13px] text-zinc-300 truncate block uppercase">{event.label}</span>
+        <span className="text-[10px] uppercase tracking-widest text-zinc-600">{ago}</span>
       </div>
     </>
   );
 
   const rowClassName =
-    "admin-doc-inline-row admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-event-row py-[var(--ct-space-1_5)] cockpit-hover-row cockpit-hover-row--inset";
+    "flex items-start gap-3 py-3 border-b border-white/5 last:border-b-0";
 
   const interactiveContent =
     event.txHash && !isPlaceholderTxHash(event.txHash) ? (
@@ -211,7 +218,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
         href={explorerTxUrl(event.txHash)}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn(rowClassName, "cockpit-hover-fade")}
+        className={cn(rowClassName, "transition-colors hover:bg-white/[0.02]")}
       >
         {content}
       </Link>
@@ -219,13 +226,9 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
       <div className={rowClassName}>{content}</div>
     );
 
-  if (event.txHash && !isPlaceholderTxHash(event.txHash)) {
-    return (
-      <li aria-label={`${event.type}: ${event.label}`}>{interactiveContent}</li>
-    );
-  }
-
-  return <li aria-label={`${event.type}: ${event.label}`}>{interactiveContent}</li>;
+  return (
+    <li aria-label={`${event.type}: ${event.label}`}>{interactiveContent}</li>
+  );
 }
 
 // ---------------------------------------------------------------------------
