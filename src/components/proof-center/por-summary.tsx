@@ -1,8 +1,4 @@
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Metric } from "@/components/ui/metric";
-import { MetricGrid, ProofRow } from "@/components/ui/nested-panel";
 import { POR_ATTESTATION_EMPTY } from "@/components/proof/empty-messages";
 import {
   EXPLORER_ADDRESS_BASE,
@@ -12,7 +8,6 @@ import type { OnChainAttestation } from "@/lib/chain/por-registry";
 import type { CustodySnapshot } from "@/lib/data/custody";
 import { ipfsGatewayUrl } from "@/lib/ipfs-gateway";
 import { abbreviateAddress } from "@/lib/onchain";
-import { explorerLinkClass, sectionDividerClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
 
 import { CustodySection } from "./custody-panel";
@@ -36,6 +31,57 @@ interface PorSummaryProps {
   demo?: boolean;
 }
 
+/** Bento KPI tile — label + value, matching the Portfolio / vaults flow. */
+function BentoKpi({
+  label,
+  value,
+  sublabel,
+}: {
+  label: string;
+  value: string;
+  sublabel?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        {label}
+      </span>
+      <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+        {value}
+      </span>
+      {sublabel ? (
+        <span className="text-[10px] text-zinc-500 tracking-wide font-mono">
+          {sublabel}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+/** Bento proof row — label / value on a divided line. */
+function BentoProofRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3 last:border-b-0">
+      <span className="text-[13px] text-zinc-400">{label}</span>
+      <span className="text-[13px] font-medium text-white font-mono tabular-nums">
+        {children}
+      </span>
+    </div>
+  );
+}
+
+const explorerLinkClass =
+  "text-zinc-400 hover:text-white transition-colors duration-150";
+
+const bentoLinkButtonClass =
+  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10";
+
 export function PorSummary({
   attestation,
   custody = null,
@@ -58,7 +104,7 @@ export function PorSummary({
   const attestedAt = formatNestedTimestamp(attestation.timestamp);
 
   const inner = (
-    <>
+    <div className="flex flex-col gap-5">
       {!bare && !sectionLed && (
         <ProofCenterCardHeader
           sectionLed={sectionLed}
@@ -78,20 +124,25 @@ export function PorSummary({
         />
       )}
 
-      <MetricGrid columns={4}>
-        <Metric variant="nested" label="Total AUM" value={formatUsdCompact(attestation.totalAumUsd)} />
-        <Metric variant="nested" label="Mined (period)" value={formatBtc(attestation.minedBtc)} />
-        <Metric
-          variant="nested"
+      {/* ct-nested-kpi-grid marker retained for proof-center contract tests */}
+      <div className="ct-nested-kpi-grid grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
+        <BentoKpi label="Total AUM" value={formatUsdCompact(attestation.totalAumUsd)} />
+        <BentoKpi label="Mined (period)" value={formatBtc(attestation.minedBtc)} />
+        <BentoKpi
           label="Attested at"
           value={attestedAt.value}
           sublabel={attestedAt.sublabel}
         />
-        <Metric variant="nested" label="Period" value={formatPorPeriod(attestation.period)} />
-      </MetricGrid>
+        <BentoKpi label="Period" value={formatPorPeriod(attestation.period)} />
+      </div>
 
-      <div className={cn(sectionDividerClass, "proof-attestation-detail", stale && "opacity-[var(--ct-opacity-60)]")}>
-        <ProofRow label="Attestor address">
+      <div
+        className={cn(
+          "flex flex-col",
+          stale && "opacity-[var(--ct-opacity-60)]",
+        )}
+      >
+        <BentoProofRow label="Attestor address">
           <a
             href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
             target="_blank"
@@ -102,62 +153,66 @@ export function PorSummary({
           >
             {abbreviateAddress(attestation.attestor)}
           </a>
-        </ProofRow>
-        <ProofRow label="Evidence hash">
+        </BentoProofRow>
+        <BentoProofRow label="Evidence hash">
           <span title={attestation.evidenceHash}>
             {abbreviateAddress(attestation.evidenceHash)}
           </span>
-        </ProofRow>
-        <ProofRow label="Block">{attestation.blockNumber.toString()}</ProofRow>
+        </BentoProofRow>
+        <BentoProofRow label="Block">{attestation.blockNumber.toString()}</BentoProofRow>
       </div>
 
-      <div className="proof-actions-row product-doc-inline-row">
-        <Button asChild variant="secondary" size="md">
-          <a
-            href={`${EXPLORER_TX_BASE}${attestation.txHash}`}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="View attestation transaction on Base Sepolia explorer"
-          >
-            View attestation tx on Base Sepolia (Testnet)
-          </a>
-        </Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <a
+          href={`${EXPLORER_TX_BASE}${attestation.txHash}`}
+          target="_blank"
+          rel="noreferrer noopener"
+          aria-label="View attestation transaction on Base Sepolia explorer"
+          className={bentoLinkButtonClass}
+        >
+          View attestation tx on Base Sepolia (Testnet)
+        </a>
         {(() => {
           const href = ipfsGatewayUrl(attestation.evidenceCid);
           return href ? (
-            <Button asChild variant="secondary" size="md">
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label="View evidence document on IPFS"
-              >
-                View evidence (IPFS)
-              </a>
-            </Button>
+            <a
+              href={href}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="View evidence document on IPFS"
+              className={bentoLinkButtonClass}
+            >
+              View evidence (IPFS)
+            </a>
           ) : attestation.evidenceCid.length > 0 ? (
-            <span className="ct-text-muted body-sm">View evidence (IPFS)</span>
+            <span className="text-[13px] text-zinc-500">View evidence (IPFS)</span>
           ) : (
-            <span className="ct-text-muted body-sm">No evidence CID available</span>
+            <span className="text-[13px] text-zinc-500">No evidence CID available</span>
           );
         })()}
       </div>
 
       {stale ? (
-        <p className="proof-note body-xs ct-status-warning">
+        <p className="text-[11px] leading-relaxed text-(--ct-status-warning)">
           Last attestation is older than 24h — badge shows Stale. A fresh
           attestation is expected each period close.
         </p>
       ) : !verified ? (
-        <p className="proof-note body-xs ct-status-warning">
+        <p className="text-[11px] leading-relaxed text-(--ct-status-warning)">
           Attestation signer is not yet verified against the allowlist — badge
           shows Stale until the signature is confirmed.
         </p>
       ) : null}
 
       {custody ? <CustodySection custody={custody} nested /> : null}
-    </>
+    </div>
   );
 
-  return bare ? inner : <Card material="flat">{inner}</Card>;
+  return bare ? (
+    inner
+  ) : (
+    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col p-5 lg:p-6">
+      {inner}
+    </div>
+  );
 }

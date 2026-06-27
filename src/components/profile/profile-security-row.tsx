@@ -16,24 +16,24 @@ export function ProfileSecurityRow({
   return (
     <div
       role="listitem"
-      className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose prof-security-row"
+      className="flex items-start justify-between gap-3 py-3 border-b border-white/5"
     >
-      <span
-        aria-hidden
-        className={cn(
-          "prof-security-row__dot",
-          status === "ok" && "ct-status-dot-success",
-          status === "warn" && "ct-status-dot-warning",
-          status === "off" && "prof-security-row__dot--off",
-        )}
-      />
-      <div className="pf-inline-row pf-inline-row--between prof-security-row__body">
-        <div className="prof-security-row__copy">
-          <span className="body-sm font-medium ct-text-primary">{title}</span>
-          <span className="body-xs ct-text-muted">{description}</span>
+      <div className="flex min-w-0 items-start gap-3">
+        <span
+          aria-hidden
+          className={cn(
+            "mt-1.5 size-2 shrink-0 rounded-full",
+            status === "ok" && "bg-[#A7FB90]",
+            status === "warn" && "bg-amber-400",
+            status === "off" && "bg-zinc-600",
+          )}
+        />
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="text-[13px] font-medium text-zinc-200">{title}</span>
+          <span className="text-[12px] text-zinc-500">{description}</span>
         </div>
-        <div className="shrink-0">{action}</div>
       </div>
+      <div className="shrink-0">{action}</div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { StepProgress } from "@/components/vaults/step-progress";
 import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
 import { getIrContact } from "@/lib/ir-contact";
@@ -83,6 +84,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
   return (
     <div className="dark flex flex-col gap-y-5 mx-auto w-full max-w-2xl mb-8">
+
+      {/* STEP PROGRESS — funnel step 4 (Confirmed) */}
+      <StepProgress active="confirmed" />
 
       {/* CONFIRMATION HERO */}
       <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col items-center text-center p-8">

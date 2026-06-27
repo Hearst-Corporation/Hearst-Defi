@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
+
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { Card } from "@/components/ui/card";
-import { ProofRow } from "@/components/ui/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { RECENT_DISTRIBUTIONS_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
@@ -9,10 +9,8 @@ import { distributionProvenance } from "@/lib/proof-center/distribution-provenan
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { abbreviateAddress } from "@/lib/onchain";
-import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
 
-import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
@@ -38,6 +36,15 @@ function weakestProvenance(kinds: readonly Provenance[]): Provenance {
   );
 }
 
+/** Micro label — Portfolio/vaults bento style. */
+function MicroLabel({ children }: { children: ReactNode }) {
+  return (
+    <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      {children}
+    </span>
+  );
+}
+
 interface RecentDistributionsProps extends ProofCenterSectionLedProps {
   distributions: ReadonlyArray<ProofCenterDistributionRow>;
 }
@@ -51,12 +58,14 @@ export function RecentDistributions({
     const empty = (
       <>
         {!bare && (
-          <ProofCenterCardHeader
-            sectionLed={sectionLed}
-            eyebrow="Latest distributions"
-            title="Awaiting first distribution"
-            tone="quiet"
-          />
+          <div className="flex items-end justify-between p-5 border-b border-white/5">
+            <div className="flex flex-col gap-1.5">
+              <MicroLabel>Latest distributions</MicroLabel>
+              <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+                Awaiting first distribution
+              </h3>
+            </div>
+          </div>
         )}
         <EmptySurface live {...RECENT_DISTRIBUTIONS_EMPTY} />
       </>
@@ -64,9 +73,9 @@ export function RecentDistributions({
     return bare ? (
       empty
     ) : (
-      <Card material="flat" hoverOverlay={false}>
+      <section className="dark rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
         {empty}
-      </Card>
+      </section>
     );
   }
 
@@ -77,56 +86,83 @@ export function RecentDistributions({
   const inner = (
     <>
       {!bare && (
-        <ProofCenterCardHeader
-          sectionLed={sectionLed}
-          eyebrow={sectionLed ? "Latest distributions" : "Payout history"}
-          title={sectionLed ? `Last ${distributions.length} USDC distributions` : "USDC Distributions"}
-          provenance={panelProvenance}
-          tone={sectionLed ? "primary" : "quiet"}
-        />
+        <div className="flex items-end justify-between p-5 border-b border-white/5">
+          <div className="flex flex-col gap-1.5">
+            <MicroLabel>
+              {sectionLed ? "Latest distributions" : "Payout history"}
+            </MicroLabel>
+            <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+              {sectionLed
+                ? `Last ${distributions.length} USDC distributions`
+                : "USDC Distributions"}
+            </h3>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 pb-0.5">
+            <ProvenanceBadge kind={panelProvenance} variant="compact" />
+          </div>
+        </div>
       )}
 
-      <ul className="divide-y divide-(--ct-border-soft)" aria-label="Recent distributions">
+      <ul
+        className="flex flex-col px-5"
+        aria-label="Recent distributions"
+      >
         {distributions.map((d) => {
           const provenance = distributionProvenance(d.txHash);
           return (
             <li
               key={d.id}
-              className="product-doc-section__head proof-list-row"
+              className="flex flex-col gap-2.5 py-4 border-b border-white/5 last:border-b-0"
             >
-              <div className="min-w-0 flex-1 product-doc-stack product-doc-stack--compact">
-                <div className="product-doc-inline-row product-doc-inline-row--between">
-                  <span className="body-sm font-medium ct-text-primary">
+              {/* Period + amount headline row */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="text-[13px] font-medium text-white">
                     Period {d.period}
                   </span>
                   <ProvenanceBadge variant="strip" kind={provenance} />
                 </div>
-                <div className="proof-row-meta min-w-0">
-                  <ProofRow label="Amount">{formatUsdCompact(d.amountUsdc)}</ProofRow>
-                  <ProofRow label="Recipients">{d.recipientsCount.toString()}</ProofRow>
-                  <ProofRow label="Distributed">
+                <span className="text-[13px] font-medium text-[#A7FB90] tabular-nums">
+                  {formatUsdCompact(d.amountUsdc)}
+                </span>
+              </div>
+
+              {/* Meta grid */}
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="flex flex-col gap-1">
+                  <MicroLabel>Recipients</MicroLabel>
+                  <span className="text-[13px] text-zinc-400 tabular-nums">
+                    {d.recipientsCount.toString()}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <MicroLabel>Distributed</MicroLabel>
+                  <span className="text-[13px] text-zinc-400 tabular-nums">
                     {dateFmt.format(d.distributedAt)} UTC
-                  </ProofRow>
-                  <ProofRow label="Tx hash">
-                    {d.txHash && !d.txHash.toLowerCase().startsWith("0xmock") ? (
-                      <a
-                        href={`${EXPLORER_TX_BASE}${d.txHash}`}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-                        title={d.txHash}
-                        aria-label={`View transaction ${d.txHash} on explorer`}
-                      >
-                        <span className="ct-proof-row__truncate">
-                          {abbreviateAddress(d.txHash)}
-                        </span>
-                      </a>
-                    ) : d.txHash ? (
-                      <span className="ct-text-muted body-xs ct-proof-row__truncate">Simulated (testnet fixture)</span>
-                    ) : (
-                      <span className="ct-text-muted">Pending broadcast</span>
-                    )}
-                  </ProofRow>
+                  </span>
+                </div>
+                <div className="flex min-w-0 flex-col gap-1">
+                  <MicroLabel>Tx hash</MicroLabel>
+                  {d.txHash && !d.txHash.toLowerCase().startsWith("0xmock") ? (
+                    <a
+                      href={`${EXPLORER_TX_BASE}${d.txHash}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className={cn(
+                        "inline-flex items-center gap-1 text-[13px] font-medium text-[#A7FB90] transition-colors duration-150 hover:text-[#A7FB90]/80",
+                      )}
+                      title={d.txHash}
+                      aria-label={`View transaction ${d.txHash} on explorer`}
+                    >
+                      <span className="truncate">{abbreviateAddress(d.txHash)}</span>
+                    </a>
+                  ) : d.txHash ? (
+                    <span className="truncate text-[13px] text-zinc-500">
+                      Simulated (testnet fixture)
+                    </span>
+                  ) : (
+                    <span className="text-[13px] text-zinc-500">Pending broadcast</span>
+                  )}
                 </div>
               </div>
             </li>
@@ -135,5 +171,12 @@ export function RecentDistributions({
       </ul>
     </>
   );
-  return bare ? inner : <Card material="flat">{inner}</Card>;
+
+  return bare ? (
+    inner
+  ) : (
+    <section className="dark rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      {inner}
+    </section>
+  );
 }

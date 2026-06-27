@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Ptai } from "@/components/ui/ptai";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
@@ -18,14 +17,13 @@ export function RebalancePtaiModalTrigger({
 
   return (
     <>
-      <Button
+      <button
         type="button"
-        variant="secondary"
-        size="sm"
         onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-white/10 transition-colors"
       >
         View PTAI detail
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -33,14 +31,20 @@ export function RebalancePtaiModalTrigger({
         title={`Rebalance ${event.ruleId} — PTAI detail`}
         className="max-w-2xl"
       >
-        <div className="product-doc-stack product-doc-stack--relaxed">
-          <Ptai
-            projection={event.projection || "No projection recorded for this event."}
-            trigger={cleanRebalanceTriggerText(event.triggerText)}
-            action={event.actionText}
-            impact={event.impactText}
-          />
-          <p className="body-xs ct-text-faint">
+        <div className="flex flex-col gap-4">
+          {/* PTAI — Projection → Trigger → Action → Impact (non-negotiable).
+              Rendered inside a nested bento sub-panel; the 4-section structure
+              lives in the <Ptai> component and is preserved verbatim. */}
+          <div className="rounded-lg bg-[#15191C] p-4">
+            <Ptai
+              variant="flat"
+              projection={event.projection || "No projection recorded for this event."}
+              trigger={cleanRebalanceTriggerText(event.triggerText)}
+              action={event.actionText}
+              impact={event.impactText}
+            />
+          </div>
+          <p className="text-[11px] text-zinc-500 leading-relaxed">
             Projections shown above are indicative only and not a commitment to
             any specific outcome. Past performance is not a reliable indicator
             of future results.

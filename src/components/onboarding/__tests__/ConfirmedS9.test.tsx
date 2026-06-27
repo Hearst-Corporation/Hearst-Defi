@@ -139,18 +139,17 @@ describe("S9 ConfirmedPage — all required elements present", () => {
   });
 
 
-  it("uses InvestFlowShell step 4 layout with product-doc stacks and vault panel primitives", async () => {
+  it("renders bento step-4 layout with the funnel step indicator and actions", async () => {
     const html = await getHtml();
-    expect(html).toContain("Invest");
+    // Step indicator (a11y progressbar) — funnel step 4, Confirmed.
+    expect(html).toContain('role="progressbar"');
     expect(html).toContain('aria-valuetext="Step 4 of 4: Confirmed"');
     expect(html).not.toMatch(/eyebrow[^>]*>Invest · Step/);
-    expect(html).toContain("product-doc-shell--narrow");
-    expect(html).not.toContain("product-doc-shell--cap");
-    expect(html).toContain("product-doc-stack");
-    expect(html).toContain("product-doc-stack--tight");
-    expect(html).toContain("product-doc-stack--actions");
-    expect(html).toContain("vault-panel-row");
-    expect(html).toContain("vault-panel-inset-block");
+    // Bento panels (Portfolio canon), not the legacy product-doc / vault-panel DS.
+    expect(html).toContain("rounded-2xl");
+    expect(html).toContain("bg-black");
+    expect(html).not.toContain("vault-panel-row");
+    expect(html).not.toContain("vault-panel-inset-block");
     expect(html).toContain("Add to calendar");
     expect(html).toContain("View other products");
   });

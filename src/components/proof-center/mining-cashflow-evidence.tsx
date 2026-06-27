@@ -1,10 +1,8 @@
 import { MINING_CASHFLOW_COPY } from "@/components/proof/empty-messages";
-import { Card } from "@/components/ui/card";
-import { Metric } from "@/components/ui/metric";
-import { MetricGrid } from "@/components/ui/nested-panel";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { cn } from "@/lib/cn";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
-import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" | "stale"> = {
@@ -19,6 +17,72 @@ const HEADER = {
   title: "Yield source — Bitcoin mining revenue",
 } as const;
 
+const PANEL_CLASS =
+  "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col";
+
+/** Bento section header — title (h3) + subtitle + provenance badge. */
+function BentoHeader({
+  sectionLed,
+  eyebrow,
+  title,
+  provenance,
+}: {
+  sectionLed: boolean;
+  eyebrow: string;
+  title: string;
+  provenance: "live" | "estimated" | "manual" | "stale";
+}) {
+  return (
+    <div className="flex items-end justify-between p-5 border-b border-white/5">
+      <div className="flex flex-col gap-1.5">
+        {/* sectionLed: the visible page <h2> owns the section title; the panel
+            shows only its h3 subtitle + provenance. */}
+        {!sectionLed ? (
+          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none m-0">
+            {eyebrow}
+          </h3>
+        ) : null}
+        <p className="text-[12px] text-zinc-500 tracking-wide m-0">{title}</p>
+      </div>
+      <ProvenanceBadge kind={provenance} />
+    </div>
+  );
+}
+
+/** A single KPI cell on the bento grid. */
+function KpiCell({
+  label,
+  value,
+  sublabel,
+  accent = false,
+  className,
+}: {
+  label: string;
+  value: string;
+  sublabel: string;
+  accent?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-2 p-5", className)}>
+      <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        {label}
+      </dt>
+      <dd
+        className={cn(
+          "text-[18px] font-medium leading-none tracking-tight tabular-nums m-0",
+          accent ? "text-[#A7FB90]" : "text-white",
+        )}
+      >
+        {value}
+      </dd>
+      <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 m-0">
+        {sublabel}
+      </p>
+    </div>
+  );
+}
+
 export function MiningCashFlowEvidence({
   coverage,
   sectionLed = false,
@@ -29,22 +93,21 @@ export function MiningCashFlowEvidence({
   const provenance = coverage?.provenance ?? "pending";
 
   // Pending / invalid — render the FULL instrument shell (header + provenance +
-  // a calibration rail + a ghost KPI grid) rather than a bare empty surface, so
-  // the panel reads as an instrument awaiting attestation, never broken-empty.
-  // No fake Live/Verified: badge is Manual (pending) / Stale (invalid), values "—".
+  // a status line) rather than a bare empty surface, so the panel reads as an
+  // instrument awaiting attestation, never broken-empty.
+  // No fake Live/Verified: badge is Manual (pending) / Stale (invalid).
   if (provenance === "pending" || provenance === "invalid") {
     const pending = (
       <>
         {!bare && (
-          <ProofCenterCardHeader
+          <BentoHeader
             sectionLed={sectionLed}
             eyebrow={sectionLed ? HEADER.eyebrow : "Awaiting attestation"}
             title={sectionLed ? HEADER.title : "Mining Revenue"}
             provenance={BADGE[provenance]}
-            tone="quiet"
           />
         )}
-        <p className="body-sm ct-text-muted m-0" role="status">
+        <p className="p-5 text-[13px] leading-relaxed text-zinc-400 m-0" role="status">
           {MINING_CASHFLOW_COPY[provenance]}
         </p>
       </>
@@ -52,9 +115,9 @@ export function MiningCashFlowEvidence({
     return bare ? (
       pending
     ) : (
-      <Card material="flat" aria-label="Mining cash-flow evidence — awaiting attestation">
+      <section className={PANEL_CLASS} aria-label="Mining cash-flow evidence — awaiting attestation">
         {pending}
-      </Card>
+      </section>
     );
   }
 
@@ -66,44 +129,45 @@ export function MiningCashFlowEvidence({
   const inner = (
     <>
       {!bare && (
-        <ProofCenterCardHeader
+        <BentoHeader
           sectionLed={sectionLed}
           eyebrow={sectionLed ? HEADER.eyebrow : "Yield Evidence"}
           title={sectionLed ? HEADER.title : "Mining Revenue"}
           provenance={BADGE[provenance]}
-          tone={sectionLed ? "primary" : "quiet"}
         />
       )}
 
-      <p className="body-sm proof-article-lede">{MINING_CASHFLOW_COPY[provenance]}</p>
+      <p className="p-5 text-[13px] leading-relaxed text-zinc-400 border-b border-white/5 m-0">
+        {MINING_CASHFLOW_COPY[provenance]}
+      </p>
 
-      <MetricGrid columns={4}>
-        <Metric
-          variant="nested"
+      <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-[#15191C]">
+        <KpiCell
           label="Distribution coverage"
           value={ratioLabel}
           sublabel="net mining cash ÷ target"
+          accent
+          className="border-b border-white/5 sm:border-r lg:border-r"
         />
-        <Metric
-          variant="nested"
+        <KpiCell
           label="State"
           value={coverage?.state ?? "invalid"}
           sublabel={coverage?.recommendation.action ?? "—"}
+          className="border-b border-white/5 lg:border-r"
         />
-        <Metric
-          variant="nested"
+        <KpiCell
           label="Latest revenue period"
           value={coverage?.period ?? "—"}
           sublabel={coverage?.lastUpdated ? "as of attestation" : "awaiting first close"}
+          className="border-b border-white/5 sm:border-r sm:border-b-0 lg:border-r"
         />
-        <Metric
-          variant="nested"
+        <KpiCell
           label="Attestation status"
           value={provenance === "live" ? "Attested" : "Pending"}
           sublabel="mining partner + pool"
         />
-      </MetricGrid>
+      </dl>
     </>
   );
-  return bare ? inner : <Card material="flat">{inner}</Card>;
+  return bare ? inner : <section className={PANEL_CLASS}>{inner}</section>;
 }

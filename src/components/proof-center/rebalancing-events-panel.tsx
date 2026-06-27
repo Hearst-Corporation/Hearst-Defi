@@ -1,19 +1,12 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { ProofRow } from "@/components/ui/nested-panel";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { REBALANCING_EVENTS_EMPTY } from "@/components/proof/empty-messages";
 import { RebalancePtaiModalTrigger } from "@/components/proof-center/rebalance-ptai-modal-trigger";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
 import { abbreviateAddress } from "@/lib/onchain";
-import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
 
-import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
-import { cleanRebalanceTriggerText, statusVariant } from "./formatters";
+import { cleanRebalanceTriggerText } from "./formatters";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -45,6 +38,35 @@ function weakestRebalanceProvenance(
   );
 }
 
+// Provenance dot — accent green = Live, neutral = Manual/Stale. Single accent
+// (#A7FB90); never a warning/danger colour for benign rebalance states.
+const PROVENANCE_LABEL: Record<RebalanceProvenance, string> = {
+  live: "Live",
+  manual: "Manual",
+  stale: "Stale",
+};
+
+const PROVENANCE_DOT: Record<RebalanceProvenance, string> = {
+  live: "bg-[#A7FB90]",
+  manual: "bg-zinc-500",
+  stale: "bg-zinc-600",
+};
+
+// Status pill — accent for the executed (terminal/healthy) state, quiet zinc
+// chrome otherwise. No green other than #A7FB90.
+const STATUS_PILL: Record<string, string> = {
+  executed: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  approved: "border-white/10 bg-white/5 text-zinc-300",
+  pending: "border-white/10 bg-white/5 text-zinc-400",
+  cancelled: "border-white/10 bg-white/5 text-zinc-500",
+};
+
+function statusPillClass(status: string): string {
+  return STATUS_PILL[status] ?? "border-white/10 bg-white/5 text-zinc-400";
+}
+
+const microLabel = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+
 interface RebalancingEventsPanelProps extends ProofCenterSectionLedProps {
   events: ReadonlyArray<ProofCenterRebalanceRow>;
 }
@@ -58,22 +80,27 @@ export function RebalancingEventsPanel({
     const empty = (
       <>
         {!bare && (
-          <ProofCenterCardHeader
-            sectionLed={sectionLed}
-            eyebrow="Rebalancing events"
-            title="Awaiting first rebalance"
-            tone="quiet"
-          />
+          <div className="flex items-end justify-between p-5 border-b border-white/5">
+            <div className="flex flex-col gap-1.5">
+              <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+                Rebalancing events
+              </h2>
+              <p className="text-[12px] text-zinc-500 tracking-wide">Awaiting first rebalance</p>
+            </div>
+          </div>
         )}
-        <EmptySurface live {...REBALANCING_EVENTS_EMPTY} />
+        <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
+          <p className="text-[13px] font-medium text-zinc-300">{REBALANCING_EVENTS_EMPTY.message}</p>
+          <p className="text-[12px] text-zinc-500 max-w-sm">{REBALANCING_EVENTS_EMPTY.detail}</p>
+        </div>
       </>
     );
     return bare ? (
       empty
     ) : (
-      <Card material="flat" hoverOverlay={false}>
+      <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
         {empty}
-      </Card>
+      </div>
     );
   }
 
@@ -84,81 +111,125 @@ export function RebalancingEventsPanel({
   const inner = (
     <>
       {!bare && (
-        <ProofCenterCardHeader
-          sectionLed={sectionLed}
-          eyebrow={sectionLed ? "Rebalancing events" : "Vault operations"}
-          title={sectionLed ? `Last ${events.length} rule-triggered events (PTAI)` : "Rule-triggered events"}
-          provenance={panelProvenance}
-          tone={sectionLed ? "primary" : "quiet"}
-        />
+        <div className="flex items-end justify-between p-5 border-b border-white/5">
+          <div className="flex flex-col gap-1.5">
+            <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+              {sectionLed ? "Rebalancing events" : "Vault operations"}
+            </h2>
+            <p className="text-[12px] text-zinc-500 tracking-wide">
+              {sectionLed
+                ? `Last ${events.length} rule-triggered events (PTAI)`
+                : "Rule-triggered events"}
+            </p>
+          </div>
+          <span
+            className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+            role="status"
+            aria-label={`Data provenance: ${PROVENANCE_LABEL[panelProvenance]}`}
+          >
+            <span
+              aria-hidden
+              className={cn("inline-block h-1.5 w-1.5 rounded-full", PROVENANCE_DOT[panelProvenance])}
+            />
+            {PROVENANCE_LABEL[panelProvenance]}
+          </span>
+        </div>
       )}
 
-      <ul className="divide-y divide-(--ct-border-soft)" aria-label="Recent rebalancing events">
-        {events.map((event) => (
-          <li
-            key={event.id}
-            className="product-doc-section__head proof-list-row"
-          >
-            <div className="min-w-0 flex-1 product-doc-stack product-doc-stack--compact">
-              <div className="product-doc-inline-row product-doc-inline-row--between product-doc-inline-row--wrap">
-                <div className="product-doc-inline-row">
-                  <Badge variant="accent" className="mono body-xs">
+      <ul aria-label="Recent rebalancing events" className="flex flex-col">
+        {events.map((event) => {
+          const eventProvenance = rebalanceProvenance(event.status);
+          return (
+            <li
+              key={event.id}
+              className="flex flex-col gap-3 px-5 py-4 border-b border-white/5 last:border-b-0"
+            >
+              {/* Top row — rule + status pills, provenance dot */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center rounded border border-[#A7FB90]/25 bg-[#A7FB90]/10 px-2 py-0.5 font-mono text-[11px] font-medium text-[#A7FB90]">
                     {event.ruleId}
-                  </Badge>
-                  <Badge variant={statusVariant(event.status)}>
-                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                  </Badge>
-                </div>
-                <ProvenanceBadge
-                  variant="strip"
-                  kind={rebalanceProvenance(event.status)}
-                />
-              </div>
-
-              <div className="proof-row-meta min-w-0">
-                <ProofRow label="Triggered">
-                  {dateFmt.format(event.triggeredAt)} UTC
-                </ProofRow>
-                {event.status === "executed" ? (
-                  <ProofRow label="Executed">
-                    {dateFmt.format(event.executedAt)} UTC
-                  </ProofRow>
-                ) : null}
-                <ProofRow label="Trigger summary">
-                  <span className="line-clamp-2">
-                    {cleanRebalanceTriggerText(event.triggerText)}
                   </span>
-                </ProofRow>
-                {event.txHash ? (
-                  <ProofRow label="Tx hash">
-                    <a
-                      href={`${EXPLORER_TX_BASE}${event.txHash}`}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-                      title={event.txHash}
-                      aria-label={`View transaction ${event.txHash} on explorer`}
-                    >
-                      <span className="ct-proof-row__truncate">
-                        {abbreviateAddress(event.txHash)}
-                      </span>
-                    </a>
-                  </ProofRow>
-                ) : (
-                  <ProofRow label="Tx hash">
-                    <span className="ct-text-muted">Pending execution</span>
-                  </ProofRow>
-                )}
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]",
+                      statusPillClass(event.status),
+                    )}
+                  >
+                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                  </span>
+                </div>
+                <span
+                  className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 shrink-0"
+                  role="status"
+                  aria-label={`Data provenance: ${PROVENANCE_LABEL[eventProvenance]}`}
+                >
+                  <span
+                    aria-hidden
+                    className={cn("inline-block h-1.5 w-1.5 rounded-full", PROVENANCE_DOT[eventProvenance])}
+                  />
+                  {PROVENANCE_LABEL[eventProvenance]}
+                </span>
               </div>
 
-              <div className="proof-row-action">
+              {/* Meta block — nested bento sub-panel */}
+              <dl className="grid grid-cols-1 gap-2.5 rounded-lg bg-[#15191C] p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className={microLabel}>Triggered</dt>
+                  <dd className="text-[12px] font-mono text-zinc-300 text-right tabular-nums">
+                    {dateFmt.format(event.triggeredAt)} UTC
+                  </dd>
+                </div>
+                {event.status === "executed" ? (
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className={microLabel}>Executed</dt>
+                    <dd className="text-[12px] font-mono text-zinc-300 text-right tabular-nums">
+                      {dateFmt.format(event.executedAt)} UTC
+                    </dd>
+                  </div>
+                ) : null}
+                <div className="flex flex-col gap-1">
+                  <dt className={microLabel}>Trigger summary</dt>
+                  <dd className="text-[13px] text-zinc-300 leading-snug line-clamp-2">
+                    {cleanRebalanceTriggerText(event.triggerText)}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className={microLabel}>Tx hash</dt>
+                  <dd className="text-right">
+                    {event.txHash ? (
+                      <a
+                        href={`${EXPLORER_TX_BASE}${event.txHash}`}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="inline-flex items-center gap-1 font-mono text-[12px] text-zinc-400 hover:text-white transition-colors"
+                        title={event.txHash}
+                        aria-label={`View transaction ${event.txHash} on explorer`}
+                      >
+                        {abbreviateAddress(event.txHash)}
+                      </a>
+                    ) : (
+                      <span className="text-[12px] text-zinc-500">Pending execution</span>
+                    )}
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="flex justify-end">
                 <RebalancePtaiModalTrigger event={event} />
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </>
   );
-  return bare ? inner : <Card material="flat">{inner}</Card>;
+
+  return bare ? (
+    inner
+  ) : (
+    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      {inner}
+    </div>
+  );
 }

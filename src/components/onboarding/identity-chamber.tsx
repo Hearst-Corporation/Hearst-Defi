@@ -58,10 +58,14 @@ export function IdentityChamber({
       crown={
         <>
           <StepProgressBar active="identity" />
-          <div className="product-doc-stack--tight">
-            <p className="eyebrow ct-text-muted m-0">Onboarding · Step 2 of 3</p>
-            <h1 className="h1 m-0">Identity verification</h1>
-            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
+          <div className="flex flex-col gap-2">
+            <p className="m-0 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Onboarding · Step 2 of 3
+            </p>
+            <h1 className="m-0 text-[28px] font-medium text-white tracking-tight leading-tight">
+              Identity verification
+            </h1>
+            <p className="m-0 text-[13px] leading-relaxed text-zinc-400 text-pretty max-w-prose">
               AML / KYC verification is required prior to onboarding. The process
               takes approximately 3–5 minutes and requires a valid government-issued
               ID.
@@ -83,13 +87,16 @@ export function IdentityChamber({
           irContact={irContact}
           compliance={complianceCopy}
           actions={
-            <div className="product-doc-stack--actions">
+            <div className="flex flex-col gap-3">
               {mayContinue ? (
                 <Button variant="primary" size="lg" asChild className="w-full">
                   <Link href="/onboarding/wallet">Continue to wallet binding</Link>
                 </Button>
               ) : kycVendorReady ? (
-                <p className="body-xs ct-text-faint m-0 text-center" role="status">
+                <p
+                  className="m-0 text-center text-[12px] text-zinc-500"
+                  role="status"
+                >
                   Launch identity verification above to continue.
                 </p>
               ) : (

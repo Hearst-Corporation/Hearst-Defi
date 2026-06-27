@@ -6,7 +6,6 @@ import {
   type ReactNode,
 } from "react";
 
-import { PanelStatusSection } from "@/components/ui/panel-status";
 import type { IrContact } from "@/lib/ir-contact";
 import type { OnboardingChecklistItem } from "@/lib/onboarding/state";
 import { cn } from "@/lib/cn";
@@ -57,10 +56,10 @@ interface OnboardingChamberProps {
 /**
  * Single premium surface — Crown · Body · Sole.
  *
- * ADR-013 exception: crown slots use inline `<h1 className="h1 m-0">` instead of
- * `ProductPageHeader` — the chamber is a centered wizard shell (StepProgressBar +
- * tight eyebrow stack). Typography still flows through `.product-doc` on
- * `onboarding-shell__stage`; only the header primitive differs from doc-flow pages.
+ * Pure Tailwind bento — matches the Portfolio page and the converted vault term
+ * sheet: `rounded-2xl border border-white/10 bg-black`, section borders in
+ * `border-white/5`. The crown/body/sole zones keep their distinct padding and
+ * the optional split (`aside`) stacks below `md` and goes side-by-side above it.
  */
 export function OnboardingChamber({
   crown,
@@ -72,25 +71,38 @@ export function OnboardingChamber({
 }: OnboardingChamberProps) {
   const stack = (
     <>
-      <header className="onboarding-chamber__crown">{crown}</header>
-      <div className="onboarding-chamber__body">{body}</div>
-      <footer className="onboarding-chamber__sole">{sole}</footer>
+      <header className="flex flex-col gap-6 px-5 pt-6 pb-5 sm:px-8 sm:pt-10 sm:pb-6">
+        {crown}
+      </header>
+      <div className="flex flex-col gap-6 px-5 pt-2 pb-6 border-t border-white/5 sm:px-8 sm:pb-8">
+        {body}
+      </div>
+      <footer
+        className={cn(
+          "px-5 pt-5 pb-6 sm:px-8 sm:pt-6 sm:pb-8",
+          aside ? "[&>*]:pt-5 sm:[&>*]:pt-6 [&>*]:border-t [&>*]:border-white/5" : "border-t border-white/5 bg-[#15191C]",
+        )}
+      >
+        {sole}
+      </footer>
     </>
   );
 
   return (
     <article
       className={cn(
-        "onboarding-chamber ct-glass-panel",
-        aside && "onboarding-chamber--split",
+        "dark relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-black shadow-sm",
+        aside && "md:flex-row md:items-stretch",
         className,
       )}
       data-testid={testId}
     >
       {aside ? (
         <>
-          <div className="onboarding-chamber__main">{stack}</div>
-          <div className="onboarding-chamber__aside">{aside}</div>
+          <div className="flex min-w-0 flex-col md:flex-1">{stack}</div>
+          <div className="flex min-w-0 border-t border-white/5 md:w-[var(--ct-rail-right)] md:shrink-0 md:border-t-0 md:border-l">
+            {aside}
+          </div>
         </>
       ) : (
         stack
@@ -105,18 +117,20 @@ export function OnboardingRequirementsList({
   items: OnboardingChecklistItem[];
 }) {
   return (
-    <PanelStatusSection label="Requirements" aria-label="Onboarding requirements">
-      <ul className="m-0 p-0 list-none product-doc-stack--list">
+    <div aria-label="Onboarding requirements" className="flex flex-col gap-3">
+      <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        Requirements
+      </p>
+      <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {items.map((item) => (
-          <li
-            key={item.id}
-            className="product-doc-inline-row product-doc-inline-row--start product-doc-inline-row--loose"
-          >
+          <li key={item.id} className="flex items-start gap-3">
             <span
               aria-hidden
               className={cn(
-                "ct-checklist-dot",
-                item.done ? "ct-checklist-dot--done" : undefined,
+                "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border",
+                item.done
+                  ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
+                  : "border-white/10 bg-[#15191C] text-transparent",
               )}
             >
               {item.done ? (
@@ -138,10 +152,10 @@ export function OnboardingRequirementsList({
                 </svg>
               ) : null}
             </span>
-            <span className="body-sm ct-text-body">
+            <span className="text-[13px] text-zinc-200">
               {item.label}
               {item.optional ? (
-                <span className="eyebrow ct-text-faint ml-(--ct-space-2) align-middle">
+                <span className="ml-2 align-middle text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
                   Optional
                 </span>
               ) : null}
@@ -149,7 +163,7 @@ export function OnboardingRequirementsList({
           </li>
         ))}
       </ul>
-    </PanelStatusSection>
+    </div>
   );
 }
 
@@ -163,19 +177,19 @@ export function OnboardingChamberSole({
   actions?: ReactNode;
 }) {
   return (
-    <div className="product-doc-stack--relaxed">
+    <div className="flex flex-col gap-5">
       {actions}
 
-      <p className="body-xs ct-text-faint m-0 text-pretty text-center">
+      <p className="m-0 text-pretty text-center text-[12px] leading-relaxed text-zinc-500">
         {compliance}
       </p>
 
       {irContact ? (
-        <p className="body-xs ct-text-faint m-0 text-center text-pretty">
+        <p className="m-0 text-pretty text-center text-[12px] leading-relaxed text-zinc-500">
           Questions?{" "}
           <a
             href={`mailto:${irContact.email}`}
-            className="ct-link-accent hover:underline"
+            className="font-medium text-[#A7FB90] hover:underline"
           >
             {irContact.name}
           </a>
@@ -186,7 +200,7 @@ export function OnboardingChamberSole({
                 href={irContact.calendlyHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ct-link-accent hover:underline"
+                className="font-medium text-[#A7FB90] hover:underline"
               >
                 Schedule a call
               </a>

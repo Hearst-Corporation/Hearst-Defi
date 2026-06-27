@@ -42,7 +42,7 @@ export function ProofCenterFullLogLayout({
   const backLink = (
     <Link
       href={backHref}
-      className="proof-back-link body-sm ct-text-muted no-underline hover:text-[var(--ct-accent)] ct-transition-base"
+      className="inline-flex items-center gap-1.5 text-[12px] font-medium text-zinc-400 no-underline hover:text-white transition-colors"
       aria-label="Back to Proof Center"
     >
       <ArrowLeft className="ct-icon-sm" aria-hidden />
@@ -51,7 +51,7 @@ export function ProofCenterFullLogLayout({
   );
 
   return (
-    <div className={admin ? "admin-doc-stack" : "product-doc-stack"}>
+    <div className="dark flex flex-col gap-y-5">
       {admin ? (
         <AdminPageHeader
           titleLead="Full"
