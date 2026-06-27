@@ -3,8 +3,11 @@
 import { useRef, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/ui/bento";
 import { postFeedback } from "@/app/admin/feedback/actions";
+
+const INPUT_CLASS =
+  "mt-2 w-full rounded-lg border border-white/10 bg-[#15191C] px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
 
 export function FeedbackForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -24,51 +27,48 @@ export function FeedbackForm() {
   }
 
   return (
-    <form ref={formRef} action={onSubmit} className="admin-doc-stack admin-doc-stack--actions" aria-label="Feedback form">
-      <div className="admin-doc-form-grid-2">
-        <label className="block body-xs" htmlFor="feedback-itemId">
-          <span className="ct-form-label">
-            Related item (optional)
-          </span>
+    <form
+      ref={formRef}
+      action={onSubmit}
+      className="flex flex-col gap-y-5"
+      aria-label="Feedback form"
+    >
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <label className="block" htmlFor="feedback-itemId">
+          <BentoLabel>Related item (optional)</BentoLabel>
           <input
             id="feedback-itemId"
             name="itemId"
             type="text"
             placeholder="e.g. dash-hero"
-            className="ct-input mono"
+            className={`${INPUT_CLASS} font-mono`}
           />
         </label>
-        <label className="block body-xs" htmlFor="feedback-author">
-          <span className="ct-form-label">
-            Your name (optional)
-          </span>
+        <label className="block" htmlFor="feedback-author">
+          <BentoLabel>Your name (optional)</BentoLabel>
           <input
             id="feedback-author"
             name="author"
             type="text"
             placeholder="Adrien"
-            className="ct-input"
+            className={INPUT_CLASS}
           />
         </label>
       </div>
 
-      <label className="block body-xs" htmlFor="feedback-pathname">
-        <span className="ct-form-label">
-          Page or context (optional)
-        </span>
+      <label className="block" htmlFor="feedback-pathname">
+        <BentoLabel>Page or context (optional)</BentoLabel>
         <input
           id="feedback-pathname"
           name="pathname"
           type="text"
           placeholder="/admin/roadmap"
-          className="ct-input mono"
+          className={`${INPUT_CLASS} font-mono`}
         />
       </label>
 
-      <label className="block body-xs" htmlFor="feedback-message">
-        <span className="ct-form-label">
-          Feedback
-        </span>
+      <label className="block" htmlFor="feedback-message">
+        <BentoLabel>Feedback</BentoLabel>
         <textarea
           id="feedback-message"
           name="message"
@@ -76,18 +76,26 @@ export function FeedbackForm() {
           required
           minLength={2}
           placeholder="What works? What doesn't? What's confusing?"
-          className="ct-textarea"
+          className={`${INPUT_CLASS} resize-y leading-relaxed`}
           aria-describedby="feedback-hint"
         />
-        <span id="feedback-hint" className="mt-[var(--ct-space-1)] block ct-text-muted">
+        <span
+          id="feedback-hint"
+          className="mt-2 block text-[12px] text-zinc-500"
+        >
           Capture what changed, what feels off, and what should happen next.
         </span>
       </label>
 
       <div className="flex justify-end">
-        <Button type="submit" variant="primary" disabled={isPending} size="sm" aria-busy={isPending}>
+        <button
+          type="submit"
+          disabled={isPending}
+          aria-busy={isPending}
+          className={BENTO_PRIMARY_BTN}
+        >
           {isPending ? "Sending…" : "Log feedback"}
-        </Button>
+        </button>
       </div>
     </form>
   );

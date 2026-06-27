@@ -1,6 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AgentBriefLive } from "@/components/admin/product-workspace/agent-brief-live";
-import { Card } from "@/components/ui/card";
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProductWorkspaceDraft } from "@/lib/product-workspace/draft";
@@ -52,45 +52,46 @@ export default async function ProductWorkspacePage({
       : null;
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--roomy">
-      <AdminPageHeader
-        titleLead="Product"
-        titleAccent="Workspace"
-        contextLabel="Strategy"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Product"
+          titleAccent="Workspace"
+          contextLabel="Strategy"
+        />
 
-      <Card hoverOverlay={false} className="admin-doc-card-pad">
-        <div className="admin-doc-objective">
-          <p className="eyebrow">Objective</p>
-          {/* display value — intentionally p.h2, not a document heading */}
-          <p
-            className={cn(
-              "h2 text-balance",
-              !objective && "ct-text-muted italic",
-            )}
-          >
-            {objective ?? "Awaiting objective from cockpit agent"}
-          </p>
-          <p className="body-sm ct-text-body">
-            Framing and documentation only — no vault creation, allocations, or
-            approvals from this surface.
-          </p>
-        </div>
-      </Card>
+        <BentoPanel>
+          <BentoHeader title="Objective" />
+          <div className="flex flex-col gap-2 p-5">
+            {/* display value — intentionally p, not a document heading */}
+            <p
+              className={cn(
+                "text-[22px] font-medium leading-tight tracking-tight text-balance",
+                objective ? "text-white" : "italic text-zinc-500",
+              )}
+            >
+              {objective ?? "Awaiting objective from cockpit agent"}
+            </p>
+            <p className="text-[13px] leading-relaxed text-zinc-400">
+              Framing and documentation only — no vault creation, allocations, or
+              approvals from this surface.
+            </p>
+          </div>
+        </BentoPanel>
 
-      <section aria-labelledby="pw-agent-brief-heading" className="admin-doc-section">
-        <div className="admin-doc-section-heading">
-          <span aria-hidden className="admin-doc-section-rule" />
-          <h2 id="pw-agent-brief-heading" className="h2">Agent framing brief</h2>
-        </div>
-        <Card hoverOverlay={false} className="admin-doc-card-pad">
-          <AgentBriefLive
-            objective={objective ?? null}
-            autostart={autostart}
-            initialBrief={initialBrief}
+        <BentoPanel aria-labelledby="pw-agent-brief-heading">
+          <BentoHeader
+            title={<span id="pw-agent-brief-heading">Agent framing brief</span>}
           />
-        </Card>
-      </section>
+          <div className="p-5">
+            <AgentBriefLive
+              objective={objective ?? null}
+              autostart={autostart}
+              initialBrief={initialBrief}
+            />
+          </div>
+        </BentoPanel>
+      </div>
     </div>
   );
 }

@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { setInvestorKyc } from "@/app/admin/customers/actions";
+import { cn } from "@/lib/cn";
+
+/** Compact inline bento control — neutral hairline pill, table-cell sized. */
+const KYC_BTN =
+  "inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-zinc-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed";
 
 /**
  * Admin KYC override control. Renders inline in the customers table. "Approve"
@@ -27,14 +31,9 @@ export function KycAction({
   if (status === "approved") {
     return (
       <>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => setOpen(true)}
-        >
+        <button type="button" className={KYC_BTN} onClick={() => setOpen(true)}>
           {label}
-        </Button>
+        </button>
         <ConfirmDialog
           open={open}
           onOpenChange={setOpen}
@@ -57,9 +56,15 @@ export function KycAction({
     <form action={setInvestorKyc} className="inline">
       <input type="hidden" name="investorId" value={investorId} />
       <input type="hidden" name="status" value={next} />
-      <Button type="submit" variant="secondary" size="sm">
+      <button
+        type="submit"
+        className={cn(
+          KYC_BTN,
+          "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90] hover:bg-[#A7FB90]/20",
+        )}
+      >
         {label}
-      </Button>
+      </button>
     </form>
   );
 }

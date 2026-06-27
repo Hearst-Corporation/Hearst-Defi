@@ -6,13 +6,10 @@ import { toast } from "sonner";
 import { deleteProof } from "@/app/admin/proofs/actions";
 import { OFF_CHAIN_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { PublishOnChainButton } from "@/components/admin/publish-on-chain-button";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { BentoPanel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { abbreviateAddress } from "@/lib/onchain";
 import { safeUrl } from "@/lib/safe-url";
-import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
-import { Card } from "@/components/ui/card";
 import { EmptySurface } from "@/components/ui/empty-surface";
 
 interface ProofItem {
@@ -32,6 +29,28 @@ function truncateUri(str: string, max: number): string {
   return `${str.slice(0, max)}…`;
 }
 
+/** Tinted bento chip — proof type / period tag. */
+function ProofChip({
+  children,
+  accent = false,
+}: {
+  children: React.ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        accent
+          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+          : "border-white/10 bg-white/5 text-zinc-400",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
 export function ProofList({ items }: { items: ProofItem[] }) {
   if (items.length === 0) {
     return (
@@ -39,7 +58,13 @@ export function ProofList({ items }: { items: ProofItem[] }) {
     );
   }
 
-  return items.map((item) => <AdminProofRow key={item.id} item={item} />);
+  return (
+    <div className="flex flex-col gap-3">
+      {items.map((item) => (
+        <AdminProofRow key={item.id} item={item} />
+      ))}
+    </div>
+  );
 }
 
 function AdminProofRow({ item }: { item: ProofItem }) {
@@ -65,63 +90,71 @@ function AdminProofRow({ item }: { item: ProofItem }) {
 
   const uriDisplay = truncateUri(item.uri, 40);
   const postedAtDisplay = item.postedAt.toISOString().slice(0, 10);
+  const safeHref = safeUrl(item.uri);
 
   return (
-    <Card>
-      <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--loose">
-        <div className="min-w-0 flex-1 admin-doc-stack admin-doc-stack--tight">
-          <div className="admin-doc-inline-row body-xs ct-text-muted">
-            <Badge variant="brand">{item.proofType}</Badge>
-            {item.period ? (
-              <Badge variant="default">{item.period}</Badge>
-            ) : null}
-            <time className="mono">{postedAtDisplay}</time>
-            <span className="mono ct-text-body">by {abbreviateAddress(item.postedBy)}</span>
+    <BentoPanel>
+      <div className="flex flex-wrap items-start justify-between gap-4 p-5">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2 text-[12px] text-zinc-500">
+            <ProofChip accent>{item.proofType}</ProofChip>
+            {item.period ? <ProofChip>{item.period}</ProofChip> : null}
+            <time className="font-mono text-zinc-500">{postedAtDisplay}</time>
+            <span className="font-mono text-zinc-300">
+              by {abbreviateAddress(item.postedBy)}
+            </span>
           </div>
 
-          <div className="admin-doc-inline-row admin-doc-inline-row--spacious body-xs ct-text-muted">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-zinc-500">
             <span>
-              <span className="ct-text-muted">hash </span>
-              <span className="mono ct-text-body">{abbreviateAddress(item.hash)}</span>
+              <span className="text-zinc-500">hash </span>
+              <span className="font-mono text-zinc-300">
+                {abbreviateAddress(item.hash)}
+              </span>
             </span>
             <span>
-              <span className="ct-text-muted">uri </span>
+              <span className="text-zinc-500">uri </span>
               <a
-                href={safeUrl(item.uri)}
+                href={safeHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(explorerLinkClass, "mono underline underline-offset-2")}
+                className="font-mono text-[#A7FB90] underline decoration-[#A7FB90]/30 underline-offset-2 hover:decoration-[#A7FB90]"
               >
                 {uriDisplay} ↗
               </a>
             </span>
             {item.txHash ? (
               <span>
-                <span className="ct-text-muted">tx </span>
-                <span className="mono ct-text-body">{abbreviateAddress(item.txHash)}</span>
+                <span className="text-zinc-500">tx </span>
+                <span className="font-mono text-zinc-300">
+                  {abbreviateAddress(item.txHash)}
+                </span>
               </span>
             ) : null}
           </div>
 
           {item.notes ? (
-            <p className="body-xs ct-text-muted italic">{item.notes}</p>
+            <p className="text-[12px] italic text-zinc-500">{item.notes}</p>
           ) : null}
         </div>
 
-        <div className="admin-doc-inline-row">
+        <div className="flex shrink-0 items-center gap-2">
           {item.proofType === "mining_attestation" && !item.txHash ? (
             <PublishOnChainButton proofId={item.id} />
           ) : null}
-          <Button
-            variant="danger"
-            size="sm"
+          <button
+            type="button"
             onClick={onDelete}
             disabled={isPending}
+            className={cn(
+              BENTO_SECONDARY_BTN,
+              "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20",
+            )}
           >
             {isPending ? "Deleting…" : "Delete"}
-          </Button>
+          </button>
         </div>
       </div>
-    </Card>
+    </BentoPanel>
   );
 }

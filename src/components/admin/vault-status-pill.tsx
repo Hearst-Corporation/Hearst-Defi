@@ -11,13 +11,16 @@ const STATUS_MAP: Record<VaultStatus, { label: string }> = {
   closed: { label: "Closed" },
 };
 
+// Bento lifecycle palette — one green (#A7FB90) for the healthy "live" state,
+// amber for the in-flight review/paused states, red for closed, neutral zinc for
+// draft/deployed. Colours drive both the dot (bg-current) and the label.
 const STATUS_TONE: Record<VaultStatus, string> = {
-  draft: "ct-text-muted",
-  review: "ct-status-warning",
-  deployed: "ct-text-strong",
-  live: "ct-status-success",
-  paused: "ct-status-warning",
-  closed: "ct-status-danger",
+  draft: "text-zinc-400",
+  review: "text-amber-300",
+  deployed: "text-zinc-300",
+  live: "text-[#A7FB90]",
+  paused: "text-amber-300",
+  closed: "text-red-400",
 };
 
 interface VaultStatusPillProps {
@@ -25,21 +28,21 @@ interface VaultStatusPillProps {
   className?: string;
 }
 
-/** Vault lifecycle — dot + label, no glass pill (DS PASS B). */
+/** Vault lifecycle — dot + label, bento palette (no glass pill). */
 export function VaultStatusPill({ status, className }: VaultStatusPillProps) {
   const key = status as VaultStatus;
   const config = STATUS_MAP[key] ?? { label: status };
-  const tone = STATUS_TONE[key] ?? "ct-text-muted";
+  const tone = STATUS_TONE[key] ?? "text-zinc-400";
 
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-[var(--ct-space-1_5)] font-medium body-xs",
+        "inline-flex shrink-0 items-center gap-1.5 text-[12px] font-medium",
         tone,
         className,
       )}
     >
-      <span aria-hidden className="ct-dot bg-current" />
+      <span aria-hidden className="size-1.5 rounded-full bg-current" />
       {config.label}
     </span>
   );

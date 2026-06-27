@@ -3,9 +3,16 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import {
+  BentoLabel,
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
 import { createInvestor } from "@/app/admin/customers/actions";
+
+const SELECT_INPUT =
+  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 /** Admin "create investor" — disclosure form above the directory table. */
 export function CreateInvestorButton() {
@@ -26,9 +33,9 @@ export function CreateInvestorButton() {
 
   return (
     <>
-      <Button variant="primary" size="md" onClick={() => setOpen(true)}>
+      <button type="button" className={BENTO_PRIMARY_BTN} onClick={() => setOpen(true)}>
         New investor
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -36,42 +43,42 @@ export function CreateInvestorButton() {
         title="Provision investor account"
         className="max-w-2xl"
       >
-        <form action={onSubmit} className="admin-doc-stack admin-doc-stack--actions" aria-label="Create investor">
-          <div className="admin-doc-form-grid-3">
-          <label className="admin-doc-field">
-            <span className="stat-label">Email</span>
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="email@firm.com"
-              className="ct-input"
-              autoFocus
-            />
-          </label>
-          <label className="admin-doc-field">
-            <span className="stat-label">Role</span>
-            <select name="role" defaultValue="investor" className="ct-input" aria-label="Role">
-              <option value="investor">investor</option>
-              <option value="admin">admin</option>
-            </select>
-          </label>
-          <label className="admin-doc-field">
-            <span className="stat-label">KYC</span>
-            <select name="kycStatus" defaultValue="pending" className="ct-input" aria-label="KYC">
-              <option value="pending">KYC pending</option>
-              <option value="approved">KYC approved</option>
-              <option value="rejected">KYC rejected</option>
-            </select>
-          </label>
+        <form action={onSubmit} className="flex flex-col gap-5" aria-label="Create investor">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <label className="flex flex-col gap-2">
+              <BentoLabel>Email</BentoLabel>
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="email@firm.com"
+                className={SELECT_INPUT}
+                autoFocus
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <BentoLabel>Role</BentoLabel>
+              <select name="role" defaultValue="investor" className={SELECT_INPUT} aria-label="Role">
+                <option value="investor">investor</option>
+                <option value="admin">admin</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-2">
+              <BentoLabel>KYC</BentoLabel>
+              <select name="kycStatus" defaultValue="pending" className={SELECT_INPUT} aria-label="KYC">
+                <option value="pending">KYC pending</option>
+                <option value="approved">KYC approved</option>
+                <option value="rejected">KYC rejected</option>
+              </select>
+            </label>
           </div>
-          <div className="admin-form-actions">
-            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
               {isPending ? "Creating…" : "Create"}
-            </Button>
-            <Button type="button" variant="ghost" size="md" onClick={() => setOpen(false)}>
+            </button>
+            <button type="button" className={BENTO_SECONDARY_BTN} onClick={() => setOpen(false)}>
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

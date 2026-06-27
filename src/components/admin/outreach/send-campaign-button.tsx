@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { sendCampaign } from "@/app/admin/outreach/actions";
 
@@ -47,10 +47,9 @@ export function SendCampaignButton({
 
   return (
     <>
-      <Button
+      <button
         type="button"
-        variant="primary"
-        size="md"
+        className={BENTO_PRIMARY_BTN}
         onClick={openDialog}
         disabled={isPending || approvedCount === 0}
         aria-busy={isPending}
@@ -58,7 +57,7 @@ export function SendCampaignButton({
         {isPending
           ? "Sending…"
           : `Send ${approvedCount} approved email${approvedCount === 1 ? "" : "s"}`}
-      </Button>
+      </button>
 
       <ConfirmDialog
         open={dialogOpen}
@@ -67,11 +66,11 @@ export function SendCampaignButton({
         description={
           <>
             This will dispatch{" "}
-            <strong className="ct-text-strong">
+            <strong className="font-semibold text-white">
               {approvedCount} approved email{approvedCount === 1 ? "" : "s"}
             </strong>{" "}
             via Resend immediately. The campaign status will switch to{" "}
-            <span className="mono">sending</span> and cannot be paused once
+            <span className="font-mono">sending</span> and cannot be paused once
             started.
           </>
         }

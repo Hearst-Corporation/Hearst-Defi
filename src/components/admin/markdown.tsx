@@ -3,6 +3,12 @@ import remarkGfm from "remark-gfm";
 
 import { safeUrl } from "@/lib/safe-url";
 
+/**
+ * Markdown renderer — Portfolio bento prose canon.
+ * Headings + body in zinc/white, accent-green (#A7FB90) links, inline/block
+ * code on the `bg-[#15191C]` sub-surface, hairline table + rules. Pure render —
+ * the `content` / `demoteH1` API is unchanged.
+ */
 export function Markdown({
   content,
   demoteH1 = false,
@@ -12,76 +18,80 @@ export function Markdown({
   demoteH1?: boolean;
 }) {
   return (
-    <div className="prose-spec">
+    <div className="prose-spec text-[14px] text-zinc-300">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         urlTransform={safeUrl}
         components={{
           h1: ({ children }) =>
             demoteH1 ? (
-              <h2 className="mt-(--ct-space-8) mb-(--ct-space-3) h2 first:mt-0">{children}</h2>
+              <h2 className="mt-8 mb-3 text-[18px] font-semibold tracking-tight text-white first:mt-0">
+                {children}
+              </h2>
             ) : (
-              <h1 className="mt-(--ct-space-10) mb-(--ct-space-4) h1 first:mt-0">{children}</h1>
+              <h1 className="mt-10 mb-4 text-[24px] font-semibold tracking-tight text-white first:mt-0">
+                {children}
+              </h1>
             ),
           h2: ({ children }) => (
-            <h2 className="mt-(--ct-space-8) mb-(--ct-space-3) h2">
+            <h2 className="mt-8 mb-3 text-[18px] font-semibold tracking-tight text-white">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-(--ct-space-6) mb-(--ct-space-2) h3">
+            <h3 className="mt-6 mb-2 text-[15px] font-semibold tracking-tight text-zinc-100">
               {children}
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-(--ct-space-3) body-sm leading-(--ct-leading-relaxed) ct-text-body">
+            <p className="my-3 text-[14px] leading-relaxed text-zinc-300">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-(--ct-space-3) admin-doc-list admin-doc-list--disc body-sm ct-text-body">
+            <ul className="my-3 list-disc space-y-1.5 pl-5 text-[14px] text-zinc-300 marker:text-zinc-600">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-(--ct-space-3) admin-doc-list admin-doc-list--decimal body-sm ct-text-body">
+            <ol className="my-3 list-decimal space-y-1.5 pl-5 text-[14px] text-zinc-300 marker:text-zinc-600">
               {children}
             </ol>
           ),
-          li: ({ children }) => <li className="body-sm">{children}</li>,
+          li: ({ children }) => <li className="text-[14px] leading-relaxed">{children}</li>,
           code: ({ children, className }) => {
             if (className?.startsWith("language-")) {
               return (
-                <code className="mono body-xs ct-text-strong">
+                <code className="font-mono text-[12px] text-zinc-200">
                   {children}
                 </code>
               );
             }
             return (
-              <code className="rounded-sm ct-surface-1 px-(--ct-space-1) py-(--ct-space-0_5) mono body-xs ct-text-primary">
+              <code className="rounded-sm bg-[#15191C] px-1 py-0.5 font-mono text-[12px] text-[#A7FB90]">
                 {children}
               </code>
             );
           },
           pre: ({ children }) => (
-            <pre className="my-(--ct-space-4) overflow-x-auto rounded-md border border-(--ct-border-soft) bg-transparent p-(--ct-space-4) body-xs">
+            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-[#15191C] p-4 text-[12px]">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-(--ct-space-4) overflow-x-auto">
-              <table className="w-full border-collapse body-xs">
+            <div className="my-4 overflow-x-auto rounded-lg border border-white/10">
+              <table className="w-full border-collapse text-[12px]">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-(--ct-border) ct-table-header stat-label text-left">
+            <th className="border-b border-white/10 px-3 py-2 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-(--ct-border) ct-table-cell align-top ct-text-body">
+            <td className="border-b border-white/5 px-3 py-2 align-top text-zinc-300">
               {children}
             </td>
           ),
@@ -90,7 +100,7 @@ export function Markdown({
             return (
               <a
                 href={safeHref}
-                className="ct-text-strong underline-offset-2 hover:underline"
+                className="text-[#A7FB90] underline-offset-2 hover:underline"
                 target={safeHref.startsWith("http") ? "_blank" : undefined}
                 rel={safeHref.startsWith("http") ? "noreferrer" : undefined}
               >
@@ -99,17 +109,13 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-(--ct-space-4) border-l-2 border-(--ct-text-strong) pl-(--ct-space-4) body-sm italic ct-text-body">
+            <blockquote className="my-4 border-l-2 border-[#A7FB90]/40 pl-4 text-[14px] italic text-zinc-400">
               {children}
             </blockquote>
           ),
-          hr: () => (
-            <hr className="my-(--ct-space-8) border-t border-(--ct-border)" />
-          ),
+          hr: () => <hr className="my-8 border-t border-white/10" />,
           strong: ({ children }) => (
-            <strong className="ct-text-primary">
-              {children}
-            </strong>
+            <strong className="font-semibold text-white">{children}</strong>
           ),
         }}
       >

@@ -38,18 +38,16 @@ function ForbiddenWordList({ matches }: { matches: ForbiddenMatch[] }) {
     <ul
       role="alert"
       aria-live="polite"
-      className="admin-doc-inline-row admin-doc-inline-row--dense mt-[var(--ct-space-1)]"
+      className="mt-1.5 flex flex-wrap items-center gap-1.5"
     >
       {matches.map((m) => (
         <li
           key={`${m.word}-${m.index}`}
-          className="ct-forbidden-chip"
+          className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[12px] font-medium leading-none text-red-400"
         >
-          {/* squiggle decoration */}
-          <span
-            aria-hidden="true"
-            className="ct-squiggle"
-          />
+          <span aria-hidden="true" className="text-red-400">
+            ⚠
+          </span>
           <span>{m.word}</span>
         </li>
       ))}
@@ -103,8 +101,7 @@ export function ForbiddenWordsInput({
     "aria-describedby": hasViolations ? `${id}-forbidden` : undefined,
     className: cn(
       className,
-      hasViolations &&
-        "ring-1 ring-[var(--ct-status-danger)] focus:ring-[var(--ct-status-danger)]",
+      hasViolations && "ring-1 ring-red-500/60 focus:ring-red-500/60",
     ),
   };
 

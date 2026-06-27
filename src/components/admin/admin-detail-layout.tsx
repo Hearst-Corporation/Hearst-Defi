@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { Card } from "@/components/ui/card";
+
+import { BentoPanel } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 
 interface AdminDetailSectionProps {
@@ -11,6 +12,11 @@ interface AdminDetailSectionProps {
   className?: string;
 }
 
+/**
+ * Admin detail section — Portfolio bento canon.
+ * Optional uppercase-ish title + muted description, then the section body.
+ * Vertical rhythm matches the product surfaces (gap-4).
+ */
 export function AdminDetailSection({
   id,
   label,
@@ -21,13 +27,19 @@ export function AdminDetailSection({
 }: AdminDetailSectionProps) {
   return (
     <section
-      className={cn("admin-doc-stack admin-doc-stack--actions", className)}
+      className={cn("flex flex-col gap-4", className)}
       aria-label={label}
       id={id}
     >
-      {title && <h2 className="h2">{title}</h2>}
+      {title && (
+        <h2 className="text-[15px] font-semibold tracking-tight text-white">
+          {title}
+        </h2>
+      )}
       {description && (
-        <div className="body-xs ct-text-muted">{description}</div>
+        <div className="text-[12px] leading-relaxed text-zinc-500">
+          {description}
+        </div>
       )}
       {children}
     </section>
@@ -46,17 +58,17 @@ export function AdminDetailGrid({
   cols = 2,
 }: AdminDetailGridProps) {
   return (
-    <Card className="p-(--ct-space-6)" hoverOverlay={false}>
+    <BentoPanel className="p-6">
       <dl
         className={cn(
-          cols === 2 ? "admin-doc-form-grid-2" : "admin-doc-form-grid",
-          "body-sm",
+          "grid grid-cols-1 gap-x-8 gap-y-5",
+          cols === 2 && "md:grid-cols-2",
           className,
         )}
       >
         {children}
       </dl>
-    </Card>
+    </BentoPanel>
   );
 }
 
@@ -74,9 +86,11 @@ export function AdminDetailItem({
   fullWidth,
 }: AdminDetailItemProps) {
   return (
-    <div className={cn(fullWidth && "md:col-span-2", className)}>
-      <dt className="ct-form-label">{label}</dt>
-      <dd className="ct-text-body">{children}</dd>
+    <div className={cn("flex flex-col gap-1.5", fullWidth && "md:col-span-2", className)}>
+      <dt className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+        {label}
+      </dt>
+      <dd className="m-0 text-[13px] leading-snug text-zinc-200">{children}</dd>
     </div>
   );
 }

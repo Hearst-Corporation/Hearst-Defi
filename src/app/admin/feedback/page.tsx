@@ -2,7 +2,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { FeedbackForm } from "@/components/admin/feedback-form";
 import { FeedbackList } from "@/components/admin/feedback-list";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { Card } from "@/components/ui/card";
+import { BentoPanel, BentoHeader } from "@/components/ui/bento";
 import { prisma } from "@/lib/db";
 import { buildFeedbackKpiStrip } from "@/lib/admin/feedback-kpi-strip";
 
@@ -17,26 +17,31 @@ export default async function FeedbackPage() {
   const kpis = buildFeedbackKpiStrip(items);
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Feedback"
-        titleAccent="Review"
-        contextLabel="Feedback Review"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Feedback"
+          titleAccent="Review"
+          contextLabel="Feedback Review"
+        />
 
-      {kpis.length > 0 && <AdminKpiStripPanel kpis={kpis} />}
+        {kpis.length > 0 && <AdminKpiStripPanel kpis={kpis} />}
 
-      <section className="admin-doc-stack admin-doc-stack--actions">
-        <h2 className="h2">Submit feedback</h2>
-        <Card hoverOverlay={false} material="flat">
-          <FeedbackForm />
-        </Card>
-      </section>
+        <BentoPanel aria-label="Submit feedback">
+          <BentoHeader
+            title="Submit feedback"
+            subtitle="Capture what changed, what feels off, and what should happen next."
+          />
+          <div className="p-5 lg:p-6">
+            <FeedbackForm />
+          </div>
+        </BentoPanel>
 
-      <section className="admin-doc-stack admin-doc-stack--actions">
-        <h2 className="h2">Feedback log ({items.length})</h2>
-        <FeedbackList items={items} />
-      </section>
-    </>
+        <BentoPanel aria-label="Feedback log">
+          <BentoHeader title={`Feedback log (${items.length})`} />
+          <FeedbackList items={items} />
+        </BentoPanel>
+      </div>
+    </div>
   );
 }

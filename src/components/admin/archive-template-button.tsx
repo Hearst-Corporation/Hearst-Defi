@@ -3,8 +3,8 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { setAgentTemplateArchived } from "@/app/admin/agents/actions";
+import { BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 
 /** Toggles a template's archived flag (soft retire / restore). */
 export function ArchiveTemplateButton({
@@ -31,8 +31,13 @@ export function ArchiveTemplateButton({
   }
 
   return (
-    <Button size="sm" variant="ghost" disabled={isPending} onClick={onClick}>
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={onClick}
+      className={BENTO_SECONDARY_BTN}
+    >
       {archived ? "Restore" : "Archive"}
-    </Button>
+    </button>
   );
 }

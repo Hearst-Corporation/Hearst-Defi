@@ -2,8 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { Badge } from "@/components/catalyst/badge";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { MachineTable } from "@/components/admin/source/machine-table";
 import { Card } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { loadMachineMarket } from "@/lib/telegram/read-machines";
 
 /**
  * Strategy · Source — the data-ingestion control surface.
@@ -57,12 +59,17 @@ const BRICKS: ReadonlyArray<{
     title: "Prix machines (Telegram)",
     detail:
       "Canaux Telegram → moyenne journalière → amortissement (air 3 ans / hydro 5 ans) → $/TH/jour.",
-    status: "todo",
+    status: "wired",
   },
 ];
 
 export default async function SourcePage() {
   await requireAdmin();
+
+  const market = await loadMachineMarket();
+  const profitable = market.rows.filter(
+    (r) => r.marginUsdPerThDay !== null && r.marginUsdPerThDay >= 0,
+  ).length;
 
   return (
     <>
@@ -89,6 +96,49 @@ export default async function SourcePage() {
           );
         })}
       </div>
+
+      <Card contentClassName="flex flex-col gap-[var(--ct-space-4)]">
+        <div className="flex flex-wrap items-start justify-between gap-[var(--ct-space-3)]">
+          <div className="flex flex-col gap-[var(--ct-space-1)]">
+            <h2 className="body-md font-semibold ct-text-strong">
+              Prix machines — {market.channel}
+            </h2>
+            <p className="body-xs ct-text-muted">
+              Liste {market.listDate ?? "n/a"} · {market.rows.length} machines ·{" "}
+              {profitable} rentables · Énergie {market.energyUsdPerKwh * 100} ¢/kWh ·
+              Prix ex-works (port/douane/install non inclus)
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="body-xs ct-text-muted">Revenu (hashprice live)</div>
+            <div className="body-sm font-semibold text-[var(--ct-accent)] tabular-nums">
+              ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
+              {market.hashpriceStale ? " (stale)" : ""}
+            </div>
+            <div className="body-xs ct-text-muted tabular-nums">
+              BTC ${market.btcPriceUsd.toLocaleString()}
+            </div>
+          </div>
+        </div>
+
+        {!market.configured ? (
+          <p className="body-xs ct-text-muted">
+            Telegram non configuré. Renseignez TELEGRAM_API_ID / TELEGRAM_API_HASH
+            / TELEGRAM_SESSION dans .env.local (login via{" "}
+            <code>node scripts/telegram-login.mjs</code>).
+          </p>
+        ) : market.error ? (
+          <p className="body-xs text-[var(--ct-status-danger,#ff6b6b)]">
+            Lecture Telegram impossible : {market.error}
+          </p>
+        ) : market.rows.length === 0 ? (
+          <p className="body-xs ct-text-muted">
+            Aucune liste de prix exploitable dans les derniers messages.
+          </p>
+        ) : (
+          <MachineTable rows={market.rows} />
+        )}
+      </Card>
     </>
   );
 }

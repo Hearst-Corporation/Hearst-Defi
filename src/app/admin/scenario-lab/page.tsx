@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { LabShell } from "@/components/scenario/lab-shell";
 import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
 import { prisma } from "@/lib/db";
@@ -50,14 +49,19 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--roomy scenario-lab-page scenario-lab-page--fit">
-      <AdminPageHeader
-        titleLead="Scenario"
-        titleAccent="Lab"
-        contextLabel={`Strategy · ${vault.ticker}`}
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8 scenario-lab-page scenario-lab-page--fit">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
-      <div className="admin-doc-stack admin-doc-stack--roomy">
+        {/* HEADER */}
+        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
+          <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">
+            Scenario <span className="text-[#A7FB90]">Lab</span>
+          </h1>
+          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
+            Strategy · {vault.ticker}
+          </div>
+        </div>
+
         <LabShell
           vaultId={vaultId}
           initialInputs={liveInputs}

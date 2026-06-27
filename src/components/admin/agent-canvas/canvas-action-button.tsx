@@ -3,9 +3,18 @@
 import { useCallback, useState } from "react";
 
 import type { PendingActionProposal } from "@/lib/canvas/contract";
-import { Button } from "@/components/ui/button";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { buildOutreachPostDraftMessage } from "@/lib/canvas/outreach-turn";
+
+// Risk chip chrome — bento canon: tinted border + fill + text, kept distinct
+// per risk level (honesty: a high-risk write never reads as the accent-green
+// "go" colour). low/medium are quiet neutral chips; high is amber.
+const RISK_CHIP: Record<PendingActionProposal["riskLevel"], string> = {
+  low: "border-white/10 bg-white/5 text-zinc-400",
+  medium: "border-white/10 bg-white/5 text-zinc-300",
+  high: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+};
 
 /**
  * After a campaign draft is created, inject a DETERMINISTIC post-draft message
@@ -158,46 +167,68 @@ export function CanvasActionButton({
   const busy = phase === "proposing" || phase === "executing";
 
   return (
-    <div className="ct-canvas-action">
-      <div className="ct-canvas-action-head">
-        <span className="ct-canvas-action-label">{proposal.label}</span>
-        <span className={cn("ct-canvas-action-risk", `ct-canvas-action-risk--${proposal.riskLevel}`)}>
+    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#15191C] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[13px] font-semibold text-white">{proposal.label}</span>
+        <span
+          className={cn(
+            "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em]",
+            RISK_CHIP[proposal.riskLevel],
+          )}
+        >
           {proposal.riskLevel}
         </span>
       </div>
 
       {/* PTAI — Projection → Trigger → Action → Impact */}
-      <dl className="ct-canvas-ptai">
-        <div><dt>Projection</dt><dd>{proposal.summary.projection}</dd></div>
-        <div><dt>Trigger</dt><dd>{proposal.summary.trigger}</dd></div>
-        <div><dt>Action</dt><dd>{proposal.summary.action}</dd></div>
-        <div><dt>Impact</dt><dd>{proposal.summary.impact}</dd></div>
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-[12px]">
+        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Projection</dt>
+        <dd className="m-0 text-zinc-300">{proposal.summary.projection}</dd>
+        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Trigger</dt>
+        <dd className="m-0 text-zinc-300">{proposal.summary.trigger}</dd>
+        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Action</dt>
+        <dd className="m-0 text-zinc-300">{proposal.summary.action}</dd>
+        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Impact</dt>
+        <dd className="m-0 text-zinc-300">{proposal.summary.impact}</dd>
       </dl>
 
       {proposal.willNotDo.length > 0 && (
-        <ul className="ct-canvas-willnotdo">
+        <ul className="m-0 flex list-none flex-col gap-0.5 p-0 text-[10px] text-zinc-500">
           {proposal.willNotDo.map((item, i) => (
-            <li key={i}>{item}</li>
+            <li key={i} className="before:content-['—_']">
+              {item}
+            </li>
           ))}
         </ul>
       )}
 
       {(phase === "idle" || phase === "proposing" || phase === "error") && (
-        <Button type="button" variant="secondary" size="md" disabled={disabled || busy} onClick={propose}>
+        <button
+          type="button"
+          className={cn(BENTO_SECONDARY_BTN, "self-start")}
+          disabled={disabled || busy}
+          onClick={propose}
+        >
           {phase === "proposing" ? "Preparing…" : proposal.label}
-        </Button>
+        </button>
       )}
 
       {(phase === "awaiting_confirm" || phase === "executing") && (
         <>
-          <div className="ct-canvas-action-confirm">
-            <Button type="button" variant="primary" size="md" disabled={disabled || busy} onClick={confirm}>
-              {phase === "executing" ? "Executing…" : "Confirm"}
-            </Button>
-            <Button
+          <div className="flex items-center gap-2">
+            <button
               type="button"
-              variant="ghost"
-              size="md"
+              className={BENTO_PRIMARY_BTN}
+              disabled={disabled || busy}
+              onClick={confirm}
+            >
+              {phase === "executing" ? "Executing…" : "Confirm"}
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-50",
+              )}
               disabled={busy}
               onClick={(event) => {
                 event.preventDefault();
@@ -208,14 +239,14 @@ export function CanvasActionButton({
               }}
             >
               Cancel
-            </Button>
+            </button>
           </div>
-          {feedback && <p className="ct-canvas-action-feedback">{feedback}</p>}
+          {feedback && <p className="m-0 text-[10px] text-zinc-500">{feedback}</p>}
         </>
       )}
 
-      {phase === "done" && <p className="ct-canvas-action-done">✓ {feedback}</p>}
-      {phase === "error" && <p className="ct-canvas-action-error">{feedback}</p>}
+      {phase === "done" && <p className="m-0 text-[12px] text-[#A7FB90]">✓ {feedback}</p>}
+      {phase === "error" && <p className="m-0 text-[12px] text-red-400">{feedback}</p>}
     </div>
   );
 }

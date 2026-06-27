@@ -3,8 +3,16 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import {
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
+import {
+  BENTO_FIELD,
+  BENTO_FIELD_LABEL,
+  BENTO_INPUT,
+} from "@/components/admin/outreach/bento-form";
 import { createCampaign } from "@/app/admin/outreach/actions";
 
 /**
@@ -31,9 +39,9 @@ export function CampaignForm() {
 
   return (
     <>
-      <Button variant="primary" size="md" onClick={() => setOpen(true)}>
+      <button type="button" className={BENTO_PRIMARY_BTN} onClick={() => setOpen(true)}>
         New campaign
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -43,80 +51,79 @@ export function CampaignForm() {
       >
         <form
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions"
+          className="flex flex-col gap-4"
           aria-label="Create campaign"
         >
-          <div className="admin-doc-form-grid-2">
-          <label className="admin-doc-field" htmlFor="campaign-name">
-            <span className="stat-label">Name</span>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className={BENTO_FIELD} htmlFor="campaign-name">
+              <span className={BENTO_FIELD_LABEL}>Name</span>
+              <input
+                id="campaign-name"
+                name="name"
+                type="text"
+                required
+                placeholder="Q3 institutional cold outreach"
+                className={BENTO_INPUT}
+                autoFocus
+              />
+            </label>
+            <label className={BENTO_FIELD} htmlFor="campaign-kind">
+              <span className={BENTO_FIELD_LABEL}>Kind</span>
+              <select
+                id="campaign-kind"
+                name="kind"
+                defaultValue="cold"
+                className={BENTO_INPUT}
+                aria-label="Campaign kind"
+              >
+                <option value="cold">Cold outreach</option>
+                <option value="newsletter">Newsletter</option>
+              </select>
+            </label>
+          </div>
+          <label className={BENTO_FIELD} htmlFor="campaign-subject">
+            <span className={BENTO_FIELD_LABEL}>Subject template (optional)</span>
             <input
-              id="campaign-name"
-              name="name"
+              id="campaign-subject"
+              name="subjectTemplate"
               type="text"
-              required
-              placeholder="Q3 institutional cold outreach"
-              className="ct-input"
-              autoFocus
+              placeholder="A single-vault yield structure for {{company}}"
+              className={BENTO_INPUT}
             />
           </label>
-          <label className="admin-doc-field" htmlFor="campaign-kind">
-            <span className="stat-label">Kind</span>
-            <select
-              id="campaign-kind"
-              name="kind"
-              defaultValue="cold"
-              className="ct-input"
-              aria-label="Campaign kind"
-            >
-              <option value="cold">Cold outreach</option>
-              <option value="newsletter">Newsletter</option>
-            </select>
+          <label className={BENTO_FIELD} htmlFor="campaign-body">
+            <span className={BENTO_FIELD_LABEL}>
+              Base brief for the agent (optional)
+            </span>
+            <textarea
+              id="campaign-body"
+              name="bodyTemplate"
+              rows={5}
+              placeholder="Introduce the Hearst Yield Vault: mining-backed structured yield, monthly USDC distributions, target APY range, Cayman SPV. Muted, institutional register."
+              className={BENTO_INPUT}
+            />
           </label>
-        </div>
-        <label className="admin-doc-field" htmlFor="campaign-subject">
-          <span className="stat-label">Subject template (optional)</span>
-          <input
-            id="campaign-subject"
-            name="subjectTemplate"
-            type="text"
-            placeholder="A single-vault yield structure for {{company}}"
-            className="ct-input"
-          />
-        </label>
-        <label className="admin-doc-field" htmlFor="campaign-body">
-          <span className="stat-label">
-            Base brief for the agent (optional)
-          </span>
-          <textarea
-            id="campaign-body"
-            name="bodyTemplate"
-            rows={5}
-            placeholder="Introduce the Hearst Yield Vault: mining-backed structured yield, monthly USDC distributions, target APY range, Cayman SPV. Muted, institutional register."
-            className="ct-input"
-          />
-        </label>
-        <label className="admin-doc-inline-row admin-doc-inline-row--tight body-xs ct-text-muted">
-          <input
-            type="checkbox"
-            name="includeTypeform"
-            value="1"
-            defaultChecked
-            className="size-4 accent-[var(--ct-accent)]"
-          />
-          <span>Personalise from Typeform qualification when available</span>
-        </label>
-          <div className="admin-form-actions">
-            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+          <label className="flex items-center gap-2 text-[12px] text-zinc-400">
+            <input
+              type="checkbox"
+              name="includeTypeform"
+              value="1"
+              defaultChecked
+              className="size-4 accent-[#A7FB90]"
+            />
+            <span>Personalise from Typeform qualification when available</span>
+          </label>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
               {isPending ? "Creating…" : "Create"}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="ghost"
-              size="md"
+              className={BENTO_SECONDARY_BTN}
               onClick={() => setOpen(false)}
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

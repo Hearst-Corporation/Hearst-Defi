@@ -3,12 +3,12 @@
 // ManualSignalTrigger — dev/demo-only widget to seed a `pending` RebalanceEvent
 // without the Inngest Dev Server running. Calls requestManualSignal (server
 // action, itself guarded to NODE_ENV==="development") then refreshes the page.
-// Uses <Modal> + Button + native <select> only — no new primitive, no new token.
+// Bento canon: native bento buttons + <Modal> overlay + native <select>.
 
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN, BentoLabel } from "@/components/ui/bento";
 import { Modal } from "@/components/ui/modal";
 
 const RULE_IDS = [
@@ -63,9 +63,9 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
 
   return (
     <>
-      <Button variant="secondary" size="sm" onClick={handleOpen}>
+      <button type="button" onClick={handleOpen} className={BENTO_SECONDARY_BTN}>
         Trigger test signal
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -73,23 +73,21 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
         title="Trigger a test signal"
         className="max-w-md"
       >
-        <p className="body-sm ct-text-muted mb-[var(--ct-space-4)]">
+        <p className="mb-4 text-[13px] leading-relaxed text-zinc-400">
           Dev only. Seeds a pending rebalance signal with placeholder PTAI text
           so the approve / reject flow can be exercised without the Inngest Dev
           Server.
         </p>
 
-        <div className="admin-doc-stack admin-doc-stack--tight">
-          <label id={labelId} htmlFor={`${labelId}-rule`} className="stat-label block">
-            Rule
-          </label>
+        <div className="flex flex-col gap-2">
+          <BentoLabel htmlFor={`${labelId}-rule`}>Rule</BentoLabel>
           <select
             id={`${labelId}-rule`}
             aria-labelledby={labelId}
             disabled={isPending}
             value={ruleId}
             onChange={(e) => setRuleId(e.target.value)}
-            className="ct-input ct-select w-full"
+            className="w-full rounded-lg border border-white/10 bg-[#15191C] px-3 py-2.5 text-[13px] text-white transition-colors focus:border-[#A7FB90]/40 focus:outline-none disabled:opacity-50"
           >
             {RULE_IDS.map((r) => (
               <option key={r} value={r}>
@@ -100,18 +98,31 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
         </div>
 
         {error && (
-          <div role="alert" className="ct-status-danger-bg ct-alert-danger">
+          <div
+            role="alert"
+            className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2.5 text-[13px] text-red-300"
+          >
             {error}
           </div>
         )}
 
-        <div className="mt-[var(--ct-space-8)] admin-doc-inline-row admin-doc-inline-row--end admin-doc-inline-row--actions justify-end">
-          <Button variant="ghost" size="md" onClick={handleClose} disabled={isPending}>
+        <div className="mt-8 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={isPending}
+            className={BENTO_SECONDARY_BTN}
+          >
             Cancel
-          </Button>
-          <Button variant="primary" size="md" onClick={handleSubmit} disabled={isPending}>
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isPending}
+            className={BENTO_PRIMARY_BTN}
+          >
             {isPending ? "…" : "Create signal"}
-          </Button>
+          </button>
         </div>
       </Modal>
     </>

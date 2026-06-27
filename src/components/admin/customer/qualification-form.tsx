@@ -3,10 +3,13 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { BentoLabel, BENTO_PRIMARY_BTN } from "@/components/ui/bento";
 import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
+
+const SELECT_INPUT =
+  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface SelectDef {
   name: keyof QualificationProfile & string;
@@ -48,19 +51,19 @@ export function QualificationForm({
   }
 
   return (
-    <form action={onSubmit} className="admin-doc-stack admin-doc-stack--actions" aria-label="Qualification">
+    <form action={onSubmit} className="flex flex-col gap-5" aria-label="Qualification">
       <input type="hidden" name="userId" value={userId} />
-      <div className="admin-doc-form-grid-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {FIELDS.map((f) => {
           const current = profile ? (profile[f.name] as string | null) : null;
           return (
-            <label key={f.name} className="block body-xs" htmlFor={`qual-${f.name}`}>
-              <span className="ct-form-label">{f.label}</span>
+            <label key={f.name} className="flex flex-col gap-2" htmlFor={`qual-${f.name}`}>
+              <BentoLabel>{f.label}</BentoLabel>
               <select
                 id={`qual-${f.name}`}
                 name={f.name}
                 defaultValue={current ?? ""}
-                className="ct-input"
+                className={SELECT_INPUT}
               >
                 <option value="">— unset —</option>
                 {f.options.map(([v, l]) => (
@@ -73,10 +76,10 @@ export function QualificationForm({
           );
         })}
       </div>
-      <div className="admin-doc-inline-row">
-        <Button type="submit" variant="primary" size="md" disabled={isPending}>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
           {isPending ? "Saving…" : "Save & recalibrate"}
-        </Button>
+        </button>
       </div>
     </form>
   );

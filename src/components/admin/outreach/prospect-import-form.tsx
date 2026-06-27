@@ -3,8 +3,16 @@
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import {
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
+import {
+  BENTO_FIELD,
+  BENTO_FIELD_LABEL,
+  BENTO_INPUT,
+} from "@/components/admin/outreach/bento-form";
 import { importProspects } from "@/app/admin/outreach/actions";
 
 /**
@@ -39,9 +47,9 @@ export function ProspectImportForm() {
 
   return (
     <>
-      <Button variant="secondary" size="md" onClick={() => setOpen(true)}>
+      <button type="button" className={BENTO_SECONDARY_BTN} onClick={() => setOpen(true)}>
         Import emails
-      </Button>
+      </button>
 
       <Modal
         isOpen={open}
@@ -52,11 +60,11 @@ export function ProspectImportForm() {
         <form
           ref={formRef}
           action={onSubmit}
-          className="admin-doc-stack admin-doc-stack--actions"
+          className="flex flex-col gap-4"
           aria-label="Import prospects"
         >
-          <label className="admin-doc-field" htmlFor="import-raw">
-            <span className="stat-label">
+          <label className={BENTO_FIELD} htmlFor="import-raw">
+            <span className={BENTO_FIELD_LABEL}>
               One per line — email, or email,company, or email,first,last
             </span>
             <textarea
@@ -67,22 +75,21 @@ export function ProspectImportForm() {
               placeholder={
                 "lp@firm.com\ntreasury@fund.io, Acme Capital\njane@spv.co, Jane, Doe"
               }
-              className="ct-input"
+              className={BENTO_INPUT}
               autoFocus
             />
           </label>
-          <div className="admin-form-actions">
-            <Button type="submit" variant="primary" size="md" disabled={isPending}>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
               {isPending ? "Importing…" : "Import"}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="ghost"
-              size="md"
+              className={BENTO_SECONDARY_BTN}
               onClick={() => setOpen(false)}
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

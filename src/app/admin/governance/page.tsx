@@ -4,12 +4,10 @@ import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
-import { Button } from "@/components/ui/button";
+import { BentoPanel, BentoHeader, BENTO_PRIMARY_BTN } from "@/components/ui/bento";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
 import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
-
-import "../admin-proof.css";
 
 export const dynamic = "force-dynamic";
 
@@ -54,39 +52,47 @@ export default async function GovernancePage({ searchParams }: PageProps) {
   const governanceKpis = buildGovernanceKpiStrip(queue);
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Governance"
-        titleAccent="Console"
-        contextLabel="Proof & System"
-        actions={
-          <Button variant="primary" asChild size="md">
-            <Link href="/admin/governance/propose">+ New proposal</Link>
-          </Button>
-        }
-      />
-
-      {governanceKpis.length > 0 ? (
-        <AdminKpiStripPanel kpis={governanceKpis} />
-      ) : null}
-
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="Proposal queue">
-        <AdminUrlTabFilter
-          ariaLabel="Filter proposals by status"
-          activeKey={activeTab}
-          tabs={TABS.map((tab) => ({
-            key: tab.key,
-            label: tab.label,
-            href:
-              tab.key === "all" ? "/admin/governance" : `/admin/governance?tab=${tab.key}`,
-          }))}
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Governance"
+          titleAccent="Console"
+          contextLabel="Proof & System"
+          actions={
+            <Link href="/admin/governance/propose" className={BENTO_PRIMARY_BTN}>
+              + New proposal
+            </Link>
+          }
         />
 
-        <h2 className="h2">Governance proposals</h2>
+        {governanceKpis.length > 0 ? (
+          <AdminKpiStripPanel kpis={governanceKpis} />
+        ) : null}
 
-        <ProposalQueue proposals={filtered} />
-      </section>
-
-    </>
+        <BentoPanel aria-label="Proposal queue">
+          <BentoHeader
+            title="Governance proposals"
+            subtitle="Multisig action queue · sign, timelock, execute"
+            trailing={
+              <AdminUrlTabFilter
+                ariaLabel="Filter proposals by status"
+                activeKey={activeTab}
+                tabs={TABS.map((tab) => ({
+                  key: tab.key,
+                  label: tab.label,
+                  href:
+                    tab.key === "all"
+                      ? "/admin/governance"
+                      : `/admin/governance?tab=${tab.key}`,
+                }))}
+              />
+            }
+          />
+          <div className="p-5 lg:p-6">
+            <ProposalQueue proposals={filtered} />
+          </div>
+        </BentoPanel>
+      </div>
+    </div>
   );
 }

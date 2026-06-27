@@ -10,8 +10,9 @@ export interface AdminUrlTab {
 }
 
 /**
- * URL-driven admin filter tabs — Link + ct-pill accent (vaults, governance, signals).
- * Server component: navigation via href, no client state.
+ * URL-driven admin filter tabs — Portfolio bento canon.
+ * Active tab = accent-green (#A7FB90) chip, inactive = zinc pill with a faint
+ * hover wash. Server component: navigation via href, no client state.
  */
 export function AdminUrlTabFilter({
   tabs,
@@ -26,7 +27,7 @@ export function AdminUrlTabFilter({
 }) {
   return (
     <div
-      className={cn("admin-doc-inline-row", className)}
+      className={cn("flex flex-wrap items-center gap-2", className)}
       role="tablist"
       aria-label={ariaLabel}
     >
@@ -38,7 +39,12 @@ export function AdminUrlTabFilter({
             href={tab.href}
             role="tab"
             aria-selected={isActive}
-            className={cn("ct-pill", isActive && "accent")}
+            className={cn(
+              "inline-flex items-center rounded-lg border px-3 py-1.5 text-[12px] font-medium tracking-wide transition-colors",
+              isActive
+                ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+                : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
+            )}
           >
             {tab.label}
           </Link>

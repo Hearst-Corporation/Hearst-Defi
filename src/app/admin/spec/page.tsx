@@ -13,19 +13,21 @@ export default async function SpecIndexPage() {
     redirect(`/admin/spec/${first.slug}`);
   }
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Product"
-        titleAccent="Spec"
-        contextLabel="Operations"
-      />
-      <EmptySurface
-        variant="widget"
-        message="No spec files found."
-        detail="Add documents under /docs/spec/ to populate the specification library."
-        className="min-h-32"
-        ariaLabel="Specification library awaiting documents"
-      />
-    </>
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Product"
+          titleAccent="Spec"
+          contextLabel="Operations"
+        />
+        <EmptySurface
+          variant="widget"
+          message="No spec files found."
+          detail="Add documents under /docs/spec/ to populate the specification library."
+          className="min-h-32"
+          ariaLabel="Specification library awaiting documents"
+        />
+      </div>
+    </div>
   );
 }

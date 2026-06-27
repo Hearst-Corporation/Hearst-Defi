@@ -1,15 +1,17 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { Badge } from "@/components/catalyst/badge";
+import {
+  BentoPanel,
+  BentoHeader,
+  BentoLabel,
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
 import {
   addAllowlistEntryAction,
   toggleAllowlistEntryAction,
   updateAllowlistEntryAction,
 } from "@/app/admin/governance/allowlist/actions";
 import type { AllowlistCategory } from "@/lib/governance/allowlist";
-import { adminFormField, adminFormFieldCompact } from "@/lib/ui/form-classes";
 import { cn } from "@/lib/cn";
 
 export interface AllowlistEntryRow {
@@ -22,14 +24,15 @@ export interface AllowlistEntryRow {
   notes: string | null;
 }
 
-const CATEGORY_VARIANT: Record<
+// One green: #A7FB90. Category + risk badges map onto Catalyst Badge colors.
+const CATEGORY_COLOR: Record<
   AllowlistCategory,
-  "success" | "accent" | "warning" | "default"
+  "green" | "sky" | "amber" | "zinc"
 > = {
-  custody: "success",
-  counterparty: "accent",
-  operations: "warning",
-  internal: "default",
+  custody: "green",
+  counterparty: "sky",
+  operations: "amber",
+  internal: "zinc",
 };
 
 const CATEGORY_LABELS: Record<AllowlistCategory, string> = {
@@ -46,37 +49,48 @@ const ALL_CATEGORIES: AllowlistCategory[] = [
   "internal",
 ];
 
-function riskVariant(score: number): "success" | "warning" | "danger" {
-  if (score <= 25) return "success";
-  if (score <= 60) return "warning";
-  return "danger";
+function riskColor(score: number): "green" | "amber" | "red" {
+  if (score <= 25) return "green";
+  if (score <= 60) return "amber";
+  return "red";
 }
+
+// Portfolio-canon field chrome: dark sub-surface, hairline border, accent focus.
+const FIELD =
+  "w-full rounded-lg border border-white/10 bg-[#15191C] px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
+const FIELD_COMPACT =
+  "w-full rounded-lg border border-white/10 bg-[#0F1316] px-3 py-2 text-[12px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
 
 export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
   return (
     <>
-      <Card>
-        <DashboardPanelHeader title="Anchorage quorum routing" tone="quiet" titleLevel="section" className="gov-section-header" />
-        <p className="body-sm ct-text-muted">
-          Addresses on this list use the <span className="font-semibold ct-text-primary">fast path</span> (2/3 sigs · 0h timelock · no board notification).
-          Unknown addresses route through the <span className="font-semibold ct-text-primary">medium path</span> (&lt;$100k → 3/5 · 12h) or{" "}
-          <span className="font-semibold ct-text-primary">sensitive path</span> (≥$100k → 4/5 · 24h · board).
-          Emergency shutdowns always require 5/5 regardless of allowlist.
-        </p>
-      </Card>
+      {/* ── Routing reference ─────────────────────────────────────────────── */}
+      <BentoPanel aria-label="Anchorage quorum routing">
+        <BentoHeader title="Anchorage quorum routing" />
+        <div className="p-5 lg:p-6">
+          <p className="text-[13px] leading-relaxed text-zinc-400">
+            Addresses on this list use the{" "}
+            <span className="font-semibold text-white">fast path</span> (2/3 sigs · 0h
+            timelock · no board notification). Unknown addresses route through the{" "}
+            <span className="font-semibold text-white">medium path</span> (&lt;$100k → 3/5
+            · 12h) or{" "}
+            <span className="font-semibold text-white">sensitive path</span> (≥$100k → 4/5
+            · 24h · board). Emergency shutdowns always require 5/5 regardless of allowlist.
+          </p>
+        </div>
+      </BentoPanel>
 
-      <section aria-labelledby="allowlist-add-heading">
-        <Card>
-          <h2 id="allowlist-add-heading" className="sr-only">
-            Add entry
-          </h2>
-          <DashboardPanelHeader title="Add entry" tone="quiet" titleLevel="section" className="gov-section-header" />
-          <form action={addAllowlistEntryAction} className="admin-doc-stack admin-doc-stack--relaxed">
-            <div className="admin-doc-form-grid-2">
-              <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
-                <label htmlFor="add-address" className="stat-label block">
-                  Address (0x…) *
-                </label>
+      {/* ── Add entry ─────────────────────────────────────────────────────── */}
+      <BentoPanel aria-labelledby="allowlist-add-heading">
+        <h2 id="allowlist-add-heading" className="sr-only">
+          Add entry
+        </h2>
+        <BentoHeader title="Add entry" />
+        <div className="p-5 lg:p-6">
+          <form action={addAllowlistEntryAction} className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <BentoLabel htmlFor="add-address">Address (0x…) *</BentoLabel>
                 <input
                   id="add-address"
                   name="address"
@@ -84,13 +98,11 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   required
                   pattern="0x[0-9a-fA-F]{40}"
                   placeholder="0xABCDEF…"
-                  className={cn(adminFormField, "mono")}
+                  className={cn(FIELD, "font-mono")}
                 />
               </div>
-              <div className="admin-doc-stack admin-doc-stack--dense">
-                <label htmlFor="add-label" className="stat-label block">
-                  Label *
-                </label>
+              <div className="flex flex-col gap-1.5">
+                <BentoLabel htmlFor="add-label">Label *</BentoLabel>
                 <input
                   id="add-label"
                   name="label"
@@ -98,14 +110,12 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   required
                   maxLength={200}
                   placeholder="Coinbase Custody Vault"
-                  className={adminFormField}
+                  className={FIELD}
                 />
               </div>
-              <div className="admin-doc-stack admin-doc-stack--dense">
-                <label htmlFor="add-category" className="stat-label block">
-                  Category *
-                </label>
-                <select id="add-category" name="category" required className={adminFormField}>
+              <div className="flex flex-col gap-1.5">
+                <BentoLabel htmlFor="add-category">Category *</BentoLabel>
+                <select id="add-category" name="category" required className={FIELD}>
                   {ALL_CATEGORIES.map((c) => (
                     <option key={c} value={c}>
                       {CATEGORY_LABELS[c]}
@@ -113,10 +123,8 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   ))}
                 </select>
               </div>
-              <div className="admin-doc-stack admin-doc-stack--dense">
-                <label htmlFor="add-riskScore" className="stat-label block">
-                  Risk score (0–100)
-                </label>
+              <div className="flex flex-col gap-1.5">
+                <BentoLabel htmlFor="add-riskScore">Risk score (0–100)</BentoLabel>
                 <input
                   id="add-riskScore"
                   name="riskScore"
@@ -124,172 +132,211 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   min={0}
                   max={100}
                   defaultValue={0}
-                  className={adminFormField}
+                  className={FIELD}
                 />
               </div>
-              <div className="admin-doc-stack admin-doc-stack--dense sm:col-span-2">
-                <label htmlFor="add-notes" className="stat-label block">
-                  Notes (optional)
-                </label>
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <BentoLabel htmlFor="add-notes">Notes (optional)</BentoLabel>
                 <textarea
                   id="add-notes"
                   name="notes"
                   rows={2}
                   maxLength={500}
                   placeholder="Context for this entry…"
-                  className={cn(adminFormField, "resize-none")}
+                  className={cn(FIELD, "resize-none")}
                 />
               </div>
             </div>
             <div className="flex justify-end">
-              <Button type="submit" variant="primary" size="md">
+              <button type="submit" className={BENTO_PRIMARY_BTN}>
                 Add to allowlist
-              </Button>
+              </button>
             </div>
           </form>
-        </Card>
-      </section>
+        </div>
+      </BentoPanel>
 
-      <section aria-labelledby="allowlist-table-heading">
-        {entries.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message="No addresses on the allowlist yet."
-            detail="Add the first trusted address using the form above."
-            className="min-h-32"
+      {/* ── Entries table ─────────────────────────────────────────────────── */}
+      {entries.length === 0 ? (
+        <BentoPanel aria-label="Allowlist entries">
+          <BentoHeader title="Allowlist entries" />
+          <div className="p-5 lg:p-6">
+            <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-8 text-center">
+              <p className="text-[13px] font-medium text-zinc-300">
+                No addresses on the allowlist yet.
+              </p>
+              <p className="text-[12px] text-zinc-500">
+                Add the first trusted address using the form above.
+              </p>
+            </div>
+          </div>
+        </BentoPanel>
+      ) : (
+        <BentoPanel aria-labelledby="allowlist-table-heading">
+          <h2 id="allowlist-table-heading" className="sr-only">
+            Allowlist entries
+          </h2>
+          <BentoHeader
+            title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
           />
-        ) : (
-          <>
-            <h2 id="allowlist-table-heading" className="sr-only">
-              Allowlist entries
-            </h2>
-            <Card className="overflow-hidden" hoverOverlay={false}>
-              <DashboardPanelHeader
-                title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
-                tone="quiet"
-                titleLevel="section"
-                className="gov-section-header"
-              />
-              <div className="gov-allowlist-table-scroll overflow-x-auto">
-                <table className="min-w-184 w-full table-fixed body-sm" aria-label="Address allowlist">
-                  <thead>
-                    <tr className="gov-allowlist-thead-row">
-                      <th scope="col" className="w-[38%] stat-label ct-table-header text-left">Label / Address</th>
-                      <th scope="col" className="hidden w-[18%] stat-label ct-table-header text-left md:table-cell">Category</th>
-                      <th scope="col" className="hidden w-[14%] stat-label ct-table-header text-left lg:table-cell">Risk score</th>
-                      <th scope="col" className="w-[22%] stat-label ct-table-header text-left">Status</th>
-                      <th scope="col" className="w-[40%] stat-label ct-table-header text-left md:w-[22%] lg:w-[8%]">Edit</th>
-                    </tr>
-                  </thead>
-                  <tbody className="gov-allowlist-tbody">
-                    {entries.map((entry) => (
-                      <tr
-                        key={entry.id}
-                        className={cn(
-                          entry.active ? "ct-text-body" : "gov-allowlist-row--inactive",
-                        )}
-                      >
-                        <td className="ct-table-cell">
-                          <p className="body-sm ct-text-strong">{entry.label}</p>
-                          <p className="gov-allowlist-address mono break-all body-xs ct-text-muted">{entry.address}</p>
-                          {entry.notes ? (
-                            <p className="gov-allowlist-notes body-xs italic ct-text-muted">{entry.notes}</p>
-                          ) : null}
-                        </td>
-                        <td className="hidden ct-table-cell md:table-cell">
-                          <Badge variant={CATEGORY_VARIANT[entry.category]}>
-                            {CATEGORY_LABELS[entry.category]}
-                          </Badge>
-                        </td>
-                        <td className="hidden ct-table-cell lg:table-cell">
-                          <Badge variant={riskVariant(entry.riskScore)}>{entry.riskScore}</Badge>
-                        </td>
-                        <td className="ct-table-cell">
-                          <form action={toggleAllowlistEntryAction}>
-                            <input type="hidden" name="id" value={entry.id} />
-                            <input type="hidden" name="active" value={entry.active ? "true" : "false"} />
-                            <button
-                              type="submit"
-                              aria-pressed={entry.active}
-                              aria-label={
-                                entry.active
-                                  ? `Deactivate ${entry.label}`
-                                  : `Reactivate ${entry.label}`
-                              }
-                              className={cn(
-                                "ct-pill gov-allowlist-toggle cursor-pointer body-xs font-semibold transition-colors",
-                                entry.active
-                                  ? "gov-allowlist-toggle--active"
-                                  : "gov-allowlist-toggle--inactive",
-                              )}
-                            >
-                              {entry.active ? "Active" : "Inactive"}
-                            </button>
-                          </form>
-                        </td>
-                        <td className="ct-table-cell">
-                          <details className="group">
-                            <summary className="gov-allowlist-edit-summary cursor-pointer list-none body-xs ct-text-muted select-none">
-                              <span className="group-open:hidden">Edit ▾</span>
-                              <span className="hidden group-open:inline">Close ▴</span>
-                            </summary>
-                            <form action={updateAllowlistEntryAction} className="gov-allowlist-edit-form admin-doc-stack admin-doc-stack--tight">
-                              <input type="hidden" name="id" value={entry.id} />
-                              <div className="admin-doc-stack admin-doc-stack--compact">
-                                <label htmlFor={`edit-label-${entry.id}`} className="stat-label block">
-                                  Label
-                                </label>
-                                <input
-                                  id={`edit-label-${entry.id}`}
-                                  name="label"
-                                  type="text"
-                                  defaultValue={entry.label}
-                                  maxLength={200}
-                                  className={adminFormFieldCompact}
-                                />
-                              </div>
-                              <div className="admin-doc-stack admin-doc-stack--compact">
-                                <label htmlFor={`edit-risk-${entry.id}`} className="stat-label block">
-                                  Risk score
-                                </label>
-                                <input
-                                  id={`edit-risk-${entry.id}`}
-                                  name="riskScore"
-                                  type="number"
-                                  min={0}
-                                  max={100}
-                                  defaultValue={entry.riskScore}
-                                  className={adminFormFieldCompact}
-                                />
-                              </div>
-                              <div className="admin-doc-stack admin-doc-stack--compact">
-                                <label htmlFor={`edit-notes-${entry.id}`} className="stat-label block">
-                                  Notes
-                                </label>
-                                <textarea
-                                  id={`edit-notes-${entry.id}`}
-                                  name="notes"
-                                  rows={2}
-                                  maxLength={500}
-                                  defaultValue={entry.notes ?? ""}
-                                  className={cn(adminFormFieldCompact, "resize-none")}
-                                />
-                              </div>
-                              <Button type="submit" variant="secondary" size="md">
-                                Save
-                              </Button>
-                            </form>
-                          </details>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </>
-        )}
-      </section>
+          <div className="overflow-x-auto">
+            <table
+              className="min-w-184 w-full table-fixed text-sm"
+              aria-label="Address allowlist"
+            >
+              <thead>
+                <tr className="border-b border-white/5">
+                  <th
+                    scope="col"
+                    className="w-[38%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500"
+                  >
+                    Label / Address
+                  </th>
+                  <th
+                    scope="col"
+                    className="hidden w-[18%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:table-cell"
+                  >
+                    Category
+                  </th>
+                  <th
+                    scope="col"
+                    className="hidden w-[14%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell"
+                  >
+                    Risk score
+                  </th>
+                  <th
+                    scope="col"
+                    className="w-[22%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="w-[40%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:w-[22%] lg:w-[8%]"
+                  >
+                    Edit
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className={cn(
+                      "border-b border-white/5 align-top transition-colors last:border-b-0 hover:bg-white/[0.02]",
+                      !entry.active && "opacity-55",
+                    )}
+                  >
+                    <td className="px-5 py-4">
+                      <p className="text-[13px] font-medium text-white">{entry.label}</p>
+                      <p className="break-all font-mono text-[11px] text-zinc-500">
+                        {entry.address}
+                      </p>
+                      {entry.notes ? (
+                        <p className="mt-1 text-[11px] italic text-zinc-500">
+                          {entry.notes}
+                        </p>
+                      ) : null}
+                    </td>
+                    <td className="hidden px-5 py-4 md:table-cell">
+                      <Badge color={CATEGORY_COLOR[entry.category]}>
+                        {CATEGORY_LABELS[entry.category]}
+                      </Badge>
+                    </td>
+                    <td className="hidden px-5 py-4 lg:table-cell">
+                      <Badge color={riskColor(entry.riskScore)}>{entry.riskScore}</Badge>
+                    </td>
+                    <td className="px-5 py-4">
+                      <form action={toggleAllowlistEntryAction}>
+                        <input type="hidden" name="id" value={entry.id} />
+                        <input
+                          type="hidden"
+                          name="active"
+                          value={entry.active ? "true" : "false"}
+                        />
+                        <button
+                          type="submit"
+                          aria-pressed={entry.active}
+                          aria-label={
+                            entry.active
+                              ? `Deactivate ${entry.label}`
+                              : `Reactivate ${entry.label}`
+                          }
+                          className={cn(
+                            "inline-flex cursor-pointer items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors",
+                            entry.active
+                              ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90] hover:bg-[#A7FB90]/20"
+                              : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10",
+                          )}
+                        >
+                          {entry.active ? "Active" : "Inactive"}
+                        </button>
+                      </form>
+                    </td>
+                    <td className="px-5 py-4">
+                      <details className="group">
+                        <summary className="cursor-pointer select-none list-none text-[11px] text-zinc-400 transition-colors hover:text-white">
+                          <span className="group-open:hidden">Edit ▾</span>
+                          <span className="hidden group-open:inline">Close ▴</span>
+                        </summary>
+                        <form
+                          action={updateAllowlistEntryAction}
+                          className="mt-3 flex flex-col gap-3 rounded-lg border border-white/10 bg-[#0F1316] p-3"
+                        >
+                          <input type="hidden" name="id" value={entry.id} />
+                          <div className="flex flex-col gap-1.5">
+                            <BentoLabel htmlFor={`edit-label-${entry.id}`}>
+                              Label
+                            </BentoLabel>
+                            <input
+                              id={`edit-label-${entry.id}`}
+                              name="label"
+                              type="text"
+                              defaultValue={entry.label}
+                              maxLength={200}
+                              className={FIELD_COMPACT}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <BentoLabel htmlFor={`edit-risk-${entry.id}`}>
+                              Risk score
+                            </BentoLabel>
+                            <input
+                              id={`edit-risk-${entry.id}`}
+                              name="riskScore"
+                              type="number"
+                              min={0}
+                              max={100}
+                              defaultValue={entry.riskScore}
+                              className={FIELD_COMPACT}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <BentoLabel htmlFor={`edit-notes-${entry.id}`}>
+                              Notes
+                            </BentoLabel>
+                            <textarea
+                              id={`edit-notes-${entry.id}`}
+                              name="notes"
+                              rows={2}
+                              maxLength={500}
+                              defaultValue={entry.notes ?? ""}
+                              className={cn(FIELD_COMPACT, "resize-none")}
+                            />
+                          </div>
+                          <button type="submit" className={BENTO_SECONDARY_BTN}>
+                            Save
+                          </button>
+                        </form>
+                      </details>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </BentoPanel>
+      )}
     </>
   );
 }

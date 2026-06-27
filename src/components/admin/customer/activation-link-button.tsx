@@ -3,8 +3,16 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { cn } from "@/lib/cn";
 import { generateActivationLink } from "@/app/admin/customers/[id]/actions";
+
+// Smaller secondary CTA for inline use (matches the bento secondary chrome at
+// the table/list density).
+const SECONDARY_SM = cn(
+  BENTO_SECONDARY_BTN,
+  "px-3 py-1.5 text-[12px]",
+);
 
 /**
  * Admin recovery for the welcome-email dead-end: mints a fresh activation link
@@ -39,26 +47,26 @@ export function ActivationLinkButton({ investorId }: { investorId: string }) {
   }
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--tight">
-      <Button
-        variant="secondary"
-        size="sm"
+    <div className="flex flex-col gap-3">
+      <button
+        type="button"
+        className={cn(SECONDARY_SM, "self-start")}
         onClick={onClick}
         disabled={isPending}
       >
         {isPending ? "Generating…" : "Generate activation link"}
-      </Button>
+      </button>
       {link && (
-        <div className="admin-doc-stack admin-doc-stack--micro">
-          <p className="body-xs ct-text-muted m-0">
+        <div className="flex flex-col gap-2">
+          <p className="m-0 text-[12px] text-zinc-500">
             Share this one-time link so the investor can set a password and log
             in. Valid 7 days.
           </p>
-          <div className="admin-doc-inline-row admin-doc-inline-row--tight">
-            <code className="mono body-xs ct-text-body break-all">{link}</code>
-            <Button variant="ghost" size="sm" onClick={copy}>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="break-all font-mono text-[12px] text-zinc-300">{link}</code>
+            <button type="button" className={SECONDARY_SM} onClick={copy}>
               Copy
-            </Button>
+            </button>
           </div>
         </div>
       )}

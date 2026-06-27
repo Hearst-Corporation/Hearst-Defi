@@ -2,8 +2,11 @@
 
 import type { CanvasSection, Provenance } from "@/lib/canvas/contract";
 import { ProvenanceBadge, type Provenance as BadgeProvenance } from "@/components/ui/provenance-badge";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  BentoHeader,
+  BentoPanel,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 
 import { CanvasActionButton } from "./canvas-action-button";
@@ -34,61 +37,72 @@ export function CanvasSectionView({
   onSetField: (sectionId: string, fieldKey: string, value: string) => void;
 }) {
   return (
-    <Card className={cn("ct-canvas-section", section.status === "building" && "ct-canvas-section--building")}>
-      <div className="ct-canvas-section-head">
-        <h3 className="h3 ct-canvas-section-title m-0">{section.title}</h3>
-        {section.status === "building" && (
-          <span className="ct-canvas-section-status">Composing…</span>
+    <BentoPanel className={cn(section.status === "building" && "opacity-70")}>
+      <BentoHeader
+        as="h3"
+        title={section.title}
+        {...(section.intro ? { subtitle: section.intro } : {})}
+        trailing={
+          section.status === "building" ? (
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              Composing…
+            </span>
+          ) : undefined
+        }
+      />
+
+      <div className="flex flex-col gap-5 p-5">
+        {section.fields.length > 0 && (
+          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {section.fields.map((field) => (
+              <div
+                key={field.key}
+                className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-[#15191C] p-4"
+              >
+                <dt className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  {field.label}
+                  <ProvenanceBadge kind={toBadgeProvenance(field.provenance)} compact />
+                </dt>
+                <dd className="m-0 text-[13px] font-medium text-white">{field.value}</dd>
+                {field.note && (
+                  <dd className="m-0 text-[10px] tracking-wide text-zinc-500">{field.note}</dd>
+                )}
+              </div>
+            ))}
+          </dl>
+        )}
+
+        {section.options.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {section.options.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={BENTO_SECONDARY_BTN}
+                onClick={() => {
+                  if (opt.effect.kind === "prefill_chat") onPrefillChat(opt.effect.prompt);
+                  else onSetField(opt.effect.sectionId, opt.effect.fieldKey, opt.effect.value);
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {section.actions.length > 0 && (
+          <div className="flex flex-col gap-3">
+            {section.actions.map((action) => (
+              <CanvasActionButton
+                key={action.proposalId}
+                canvasId={canvasId}
+                proposal={action}
+                disabled={!agentLive}
+              />
+            ))}
+          </div>
         )}
       </div>
-
-      {section.intro && <p className="ct-canvas-section-intro">{section.intro}</p>}
-
-      {section.fields.length > 0 && (
-        <dl className="ct-canvas-fields">
-          {section.fields.map((field) => (
-            <div key={field.key} className="ct-canvas-field">
-              <dt className="ct-canvas-field-label">
-                {field.label}
-                <ProvenanceBadge kind={toBadgeProvenance(field.provenance)} compact />
-              </dt>
-              <dd className="ct-canvas-field-value">{field.value}</dd>
-              {field.note && <dd className="ct-canvas-field-note">{field.note}</dd>}
-            </div>
-          ))}
-        </dl>
-      )}
-
-      {section.options.length > 0 && (
-        <div className="ct-canvas-options">
-          {section.options.map((opt) => (
-            <Button
-              key={opt.id}
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                if (opt.effect.kind === "prefill_chat") onPrefillChat(opt.effect.prompt);
-                else onSetField(opt.effect.sectionId, opt.effect.fieldKey, opt.effect.value);
-              }}
-            >
-              {opt.label}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      {section.actions.length > 0 && (
-        <div className="ct-canvas-actions">
-          {section.actions.map((action) => (
-            <CanvasActionButton
-              key={action.proposalId}
-              canvasId={canvasId}
-              proposal={action}
-              disabled={!agentLive}
-            />
-          ))}
-        </div>
-      )}
-    </Card>
+    </BentoPanel>
   );
 }

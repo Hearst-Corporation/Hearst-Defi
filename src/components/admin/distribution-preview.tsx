@@ -33,59 +33,63 @@ export function DistributionPreview({
   }
 
   return (
-    <div className={cn("admin-doc-stack admin-doc-stack--relaxed", className)}>
+    <div className={cn("flex flex-col gap-5", className)}>
       {/* Summary */}
-      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-        <div>
-          <h3 className="h3">Distribution preview</h3>
-          <p className="stat-value tabular">{formatUsdDetailed(totalUsdc)} USDC</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1.5">
+          <h3 className="text-[15px] font-semibold tracking-tight text-white">
+            Distribution preview
+          </h3>
+          <p className="text-[18px] font-medium leading-none tracking-tight tabular-nums text-white">
+            {formatUsdDetailed(totalUsdc)} USDC
+          </p>
         </div>
-        <div className="text-right">
-          <p className="body-xs ct-text-muted">Period</p>
-          <p className="stat-label mono">{period}</p>
+        <div className="flex flex-col items-end gap-1.5 text-right">
+          <p className="text-[12px] text-zinc-500">Period</p>
+          <p className="font-mono text-[13px] font-medium text-white">{period}</p>
         </div>
       </div>
 
       {/* Recipients table */}
-      <div className="overflow-hidden">
-        <table className="w-full table-fixed body-sm tabular">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#15191C]">
+        <table className="w-full table-fixed text-left text-[13px] tabular-nums">
           <thead>
-            <tr>
-              <th className="w-[42%] text-left stat-label ct-table-header">
+            <tr className="border-b border-white/5">
+              <th className="w-[42%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                 Investor wallet
               </th>
-              <th className="w-[18%] text-right stat-label ct-table-header">
+              <th className="w-[18%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                 Share %
               </th>
-              <th className="w-[40%] text-right stat-label ct-table-header">
+              <th className="w-[40%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                 Payout (USDC)
               </th>
             </tr>
           </thead>
           <tbody>
             {recipients.map((r) => (
-              <tr key={r.investorId} className="border-t border-(--ct-border-soft)">
-                <td className="ct-table-cell mono body-xs ct-text-body truncate">
+              <tr key={r.investorId} className="border-b border-white/5 last:border-0">
+                <td className="truncate px-5 py-3 font-mono text-[12px] text-zinc-300">
                   {abbrWallet(r.walletAddress)}
                 </td>
-                <td className="ct-table-cell text-right ct-text-muted tabular">
+                <td className="px-5 py-3 text-right text-zinc-400">
                   {r.sharesPct.toFixed(4)}%
                 </td>
-                <td className="ct-table-cell text-right ct-text-strong tabular body-sm">
+                <td className="px-5 py-3 text-right font-medium text-white">
                   {formatUsdDetailed(r.payoutUsdc)}
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-(--ct-border-strong)">
-              <td className="ct-table-cell body-xs ct-text-muted">
+            <tr className="border-t border-white/10">
+              <td className="px-5 py-3 text-[12px] text-zinc-400">
                 Total ({recipients.length} recipients)
               </td>
-              <td className="ct-table-cell text-right ct-text-muted tabular body-xs">
+              <td className="px-5 py-3 text-right text-[12px] text-zinc-400">
                 100%
               </td>
-              <td className="ct-table-cell text-right ct-text-strong tabular body-sm">
+              <td className="px-5 py-3 text-right font-medium text-white">
                 {formatUsdDetailed(totalUsdc)}
               </td>
             </tr>
@@ -94,7 +98,7 @@ export function DistributionPreview({
       </div>
 
       {/* Disclaimer — CLAUDE.md #10 */}
-      <p className="body-xs ct-text-faint">
+      <p className="text-[12px] text-zinc-600">
         This is a dry-run preview. Amounts shown are indicative and subject to
         rounding. Final confirmation requires multisig approval. Distributions
         are not a commitment to any future return.

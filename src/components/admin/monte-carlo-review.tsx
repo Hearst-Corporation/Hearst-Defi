@@ -9,8 +9,7 @@
 
 import { useMemo } from "react";
 
-import { cn } from "@/lib/cn";
-import { Badge } from "@/components/ui/badge";
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import { runMonteCarlo } from "@/lib/engine/monte-carlo";
 import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 
@@ -147,71 +146,61 @@ export function MonteCarloReview({
   const { p5, p50, p95 } = result.percentiles;
 
   return (
-    <div
-      className={cn(
-        "ct-glass-panel p-(--ct-space-4) admin-doc-stack admin-doc-stack--relaxed",
-        className,
-      )}
+    <BentoPanel
+      className={className}
       role="region"
       aria-label="Monte Carlo projection"
     >
-      {/* Header */}
-      <div className="admin-doc-inline-row admin-doc-inline-row--between">
-        <p className="stat-label ct-text-muted">
-          Monte Carlo — 1y horizon ({formatUsdcGrouped(result.paths)} paths,
-          seed&nbsp;{result.seed})
+      <BentoHeader
+        title={
+          <>
+            Monte Carlo — 1y horizon ({formatUsdcGrouped(result.paths)} paths,
+            seed&nbsp;{result.seed})
+          </>
+        }
+        trailing={
+          <span
+            className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-medium text-zinc-400"
+            title="Methodology v2.0 — optional companion to the rule-based engine"
+          >
+            Estimated
+          </span>
+        }
+      />
+
+      <div className="flex flex-col gap-4 p-5">
+        {/* Percentile row — p5 · p50 · p95 */}
+        <div
+          className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-[#15191C]"
+          aria-label={`p5: ${fmtPct(p5)}%, p50: ${fmtPct(p50)}%, p95: ${fmtPct(p95)}%`}
+        >
+          <MetricCell label="p5" value={fmtPct(p5)} tone="muted" />
+          <MetricCell label="p50" value={fmtPct(p50)} tone="primary" />
+          <MetricCell label="p95" value={fmtPct(p95)} tone="accent" />
+        </div>
+
+        {/* Tail-risk line */}
+        <p className="text-[12px] text-zinc-400">
+          P(APY &lt; 8%) ={" "}
+          <span className="font-semibold tabular-nums text-white">
+            {(result.probBelowFloor * 100).toFixed(1)}%
+          </span>
+          &ensp;·&ensp;range:{" "}
+          <span className="font-semibold tabular-nums text-[#A7FB90]">
+            {fmtPct(p5)}%&ndash;{fmtPct(p95)}%
+          </span>
         </p>
-        <Badge
-          variant="default"
-          title="Methodology v2.0 — optional companion to the rule-based engine"
-        >
-          Estimated
-        </Badge>
+
+        {/* Mandatory disclaimer — CLAUDE.md #10 */}
+        <p className="border-t border-white/5 pt-3 text-[12px] leading-relaxed text-zinc-500">
+          Projections — not guaranteed. Methodology v2.0. Simulated paths
+          assume BTC GBM (μ&nbsp;=&nbsp;10%/yr, σ&nbsp;=&nbsp;60%/yr) and a
+          mean-reverting network difficulty model. Assumptions and results are
+          indicative only; past performance is not a reliable indicator of future
+          results.
+        </p>
       </div>
-
-      {/* Percentile row — p5 · p50 · p95 */}
-      <div
-        className="admin-doc-inline-row admin-doc-inline-row--relaxed"
-        aria-label={`p5: ${fmtPct(p5)}%, p50: ${fmtPct(p50)}%, p95: ${fmtPct(p95)}%`}
-      >
-        <MetricCell label="p5" value={fmtPct(p5)} tone="muted" />
-        <span
-          className="ct-text-faint body-xs select-none"
-          aria-hidden
-        >
-          ·
-        </span>
-        <MetricCell label="p50" value={fmtPct(p50)} tone="primary" />
-        <span
-          className="ct-text-faint body-xs select-none"
-          aria-hidden
-        >
-          ·
-        </span>
-        <MetricCell label="p95" value={fmtPct(p95)} tone="accent" />
-      </div>
-
-      {/* Tail-risk line */}
-      <p className="body-xs ct-text-muted">
-        P(APY &lt; 8%) ={" "}
-        <span className="tabular font-semibold ct-text-primary">
-          {(result.probBelowFloor * 100).toFixed(1)}%
-        </span>
-        &ensp;·&ensp;range:{" "}
-        <span className="tabular font-semibold ct-text-accent">
-          {fmtPct(p5)}%&ndash;{fmtPct(p95)}%
-        </span>
-      </p>
-
-      {/* Mandatory disclaimer — CLAUDE.md #10 */}
-      <p className="body-xs ct-text-faint border-t border-(--ct-border-soft) pt-(--ct-space-3)">
-        Projections — not guaranteed. Methodology v2.0. Simulated paths
-        assume BTC GBM (μ&nbsp;=&nbsp;10%/yr, σ&nbsp;=&nbsp;60%/yr) and a
-        mean-reverting network difficulty model. Assumptions and results are
-        indicative only; past performance is not a reliable indicator of future
-        results.
-      </p>
-    </div>
+    </BentoPanel>
   );
 }
 
@@ -228,17 +217,17 @@ interface MetricCellProps {
 function MetricCell({ label, value, tone }: MetricCellProps) {
   const valueClass =
     tone === "accent"
-      ? "tabular body-sm ct-text-accent"
+      ? "tabular-nums text-[16px] font-medium text-[#A7FB90]"
       : tone === "primary"
-        ? "tabular body-sm ct-text-strong"
-        : "tabular body-sm ct-text-muted";
+        ? "tabular-nums text-[16px] font-medium text-white"
+        : "tabular-nums text-[16px] font-medium text-zinc-400";
 
   return (
-    <div className="admin-doc-inline-row admin-doc-inline-row--baseline admin-doc-inline-row--dense">
-      <span className="stat-label ct-text-faint">{label}</span>
-      <span className={valueClass}>
-        {value}%
+    <div className="flex flex-col gap-1.5 bg-[#15191C] p-4">
+      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        {label}
       </span>
+      <span className={valueClass}>{value}%</span>
     </div>
   );
 }

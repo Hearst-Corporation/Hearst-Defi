@@ -3,8 +3,8 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Card } from "@/components/ui/card";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
+import { BentoPanel } from "@/components/ui/bento";
 import {
   BASE_AGENTS,
   type BaseAgent,
@@ -27,23 +27,28 @@ export default async function NewAgentTemplatePage({
     : undefined;
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="New agent"
-        titleAccent="template"
-        contextLabel="Agent Operations"
-        description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
-        lead={
-          <Link href="/admin/agents" className="body-xs ct-text-muted hover:ct-text-strong">
-            ← Agents
-          </Link>
-        }
-      />
-      <section className="admin-doc-stack admin-doc-stack--actions" aria-label="New template">
-        <Card className="w-full p-[var(--ct-space-6)]" hoverOverlay={false}>
-          <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
-        </Card>
-      </section>
-    </>
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="New agent"
+          titleAccent="template"
+          contextLabel="Agent Operations"
+          description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
+          lead={
+            <Link
+              href="/admin/agents"
+              className="text-[12px] text-zinc-500 hover:text-white"
+            >
+              ← Agents
+            </Link>
+          }
+        />
+        <BentoPanel aria-label="New template">
+          <div className="p-5 lg:p-6">
+            <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
+          </div>
+        </BentoPanel>
+      </div>
+    </div>
   );
 }

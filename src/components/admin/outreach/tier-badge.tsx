@@ -34,7 +34,7 @@ export function TierBadge({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="ct-text-muted body-xs hover:ct-text-strong ct-focus-ring rounded"
+        className="rounded text-[12px] text-zinc-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
         aria-label="Set tier"
       >
         —
@@ -61,7 +61,7 @@ export function TierBadge({
   if (open) {
     return (
       <span
-        className="ct-outreach-tier-picker"
+        className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-[#15191C] p-1"
         role="group"
         aria-label="Choose tier"
       >
@@ -71,7 +71,7 @@ export function TierBadge({
             type="button"
             disabled={isPending}
             onClick={() => choose(t)}
-            className="ct-outreach-tier-option ct-focus-ring"
+            className="rounded-md px-2 py-1 text-[11px] font-bold text-zinc-400 transition-colors hover:bg-white/10 hover:text-white aria-pressed:bg-[#A7FB90] aria-pressed:text-zinc-900 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
             aria-pressed={t === tier}
           >
             {t}
@@ -80,7 +80,7 @@ export function TierBadge({
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="ct-outreach-tier-option ct-text-muted ct-focus-ring"
+          className="rounded-md px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
           aria-label="Cancel"
         >
           ✕
@@ -94,7 +94,7 @@ export function TierBadge({
     <button
       type="button"
       onClick={() => setOpen(true)}
-      className="ct-focus-ring rounded-full"
+      className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
       title={`Tier ${current} — ${TIER_LABEL[current]} · click to override`}
       aria-label={`Tier ${current}, click to override`}
     >

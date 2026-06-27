@@ -5,10 +5,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { ApyRange } from "@/components/ui/apy-range";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { PanelStatus } from "@/components/ui/panel-status";
-import { MetricGrid } from "@/components/ui/nested-panel";
+import { BentoPanel } from "@/components/ui/bento";
 import { Progress } from "@/components/ui/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
@@ -117,8 +114,64 @@ function isValidSigner(raw: string): boolean {
   return /^0x[0-9a-fA-F]{40}$/.test(v) || /^[a-z0-9]{25}$/.test(v);
 }
 
+// Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
+// accent (#A7FB90) focus ring. One source for every native control in the form.
+const BENTO_INPUT =
+  "w-full rounded-lg border border-white/10 bg-[#15191C] px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none";
+const BENTO_FIELD_HINT = "text-[12px] text-zinc-600";
+const BENTO_LABEL =
+  "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
+
 function inputClass(extra?: string) {
-  return `ct-input w-full ${extra ?? ""}`;
+  return extra ? `${BENTO_INPUT} ${extra}` : BENTO_INPUT;
+}
+
+/** Bento section heading inside a panel body. */
+function StepHeader({ title }: { title: string }) {
+  return (
+    <h2 className="text-[15px] font-semibold tracking-tight text-white">
+      {title}
+    </h2>
+  );
+}
+
+/** Bento two/three-column field grid (replaces MetricGrid). */
+function FieldGrid({
+  columns = 2,
+  className,
+  children,
+}: {
+  columns?: 2 | 3;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-5",
+        columns === 2 ? "md:grid-cols-2" : "md:grid-cols-3",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Read-only recap row (label left, value right) for the review step. */
+function RecapRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className={BENTO_LABEL}>{label}</span>
+      {children}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -327,39 +380,69 @@ export function VaultForm(props: VaultFormProps) {
         : "Save Changes";
 
   return (
-    <div className="admin-strategy-wizard" onBlur={handleBlur}>
-      {/* Progress bar */}
-      <div className="admin-strategy-wizard__stepper admin-doc-stack admin-doc-stack--actions">
-        <div className="admin-doc-row-spread">
-          {STEPS.map((s, i) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => goToStep(s.key)}
-              className={cn(
-                "admin-strategy-wizard__step-item",
-                i === stepIndex && "active",
-                i < stepIndex && "completed"
-              )}
-            >
-              <span className="step-number">{i + 1}</span>
-              <span className="step-label">{s.label}</span>
-            </button>
-          ))}
+    <div
+      className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
+      onBlur={handleBlur}
+    >
+      {/* Progress bar — spans both columns */}
+      <div className="flex flex-col gap-4 lg:col-span-2">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          {STEPS.map((s, i) => {
+            const isActive = i === stepIndex;
+            const isCompleted = i < stepIndex;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => goToStep(s.key)}
+                className={cn(
+                  "flex flex-col items-center gap-1.5",
+                  isCompleted ? "cursor-pointer" : "cursor-default",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex size-7 items-center justify-center rounded-full border font-mono text-[12px] transition-colors",
+                    isActive &&
+                      "border-[#A7FB90] text-[#A7FB90] ring-2 ring-[#A7FB90]/15",
+                    isCompleted &&
+                      "border-[#A7FB90] bg-[#A7FB90] text-zinc-900",
+                    !isActive &&
+                      !isCompleted &&
+                      "border-white/10 bg-[#15191C] text-zinc-600",
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <span
+                  className={cn(
+                    "text-[12px] font-medium transition-colors",
+                    isActive
+                      ? "text-white"
+                      : isCompleted
+                        ? "text-zinc-400"
+                        : "text-zinc-600",
+                  )}
+                >
+                  {s.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
         <Progress value={progressPct} label="Wizard progress" className="h-1" />
       </div>
 
-      <div className="admin-strategy-wizard__main">
-      <Card>
+      <div className="min-w-0">
+      <BentoPanel className="gap-6 p-5 lg:p-6">
         {/* Step 1 — Identity & Strategy */}
         {step === "identity" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Identity & Strategy" />
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Identity & Strategy" />
 
-            <MetricGrid columns={2}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">Ticker *</span>
+            <FieldGrid columns={2}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Ticker *</span>
                 <input
                   className={inputClass()}
                   value={form.ticker}
@@ -367,13 +450,13 @@ export function VaultForm(props: VaultFormProps) {
                   placeholder="HYV-A"
                   maxLength={12}
                 />
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   3-12 uppercase letters, digits, hyphens
                 </span>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Name *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Name *</span>
                 <ForbiddenWordsInput
                   className={inputClass()}
                   value={form.name}
@@ -383,13 +466,13 @@ export function VaultForm(props: VaultFormProps) {
                   aria-label="Vault name"
                 />
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <MetricGrid columns={2}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">Strategy *</span>
+            <FieldGrid columns={2}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Strategy *</span>
                 <select
-                  className={inputClass("ct-select")}
+                  className={inputClass()}
                   value={form.strategy}
                   onChange={(e) =>
                     set("strategy", e.target.value as FormState["strategy"])
@@ -401,8 +484,8 @@ export function VaultForm(props: VaultFormProps) {
                 </select>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">UI Theme Color</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>UI Theme Color</span>
                 <input
                   className={inputClass()}
                   value={form.colorTag}
@@ -410,17 +493,17 @@ export function VaultForm(props: VaultFormProps) {
                   placeholder="e.g. accent, #A7FB90"
                   maxLength={32}
                 />
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   CSS variable or hex code for visual branding
                 </span>
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <label className="admin-doc-field block">
-              <span className="stat-label">Description</span>
+            <label className="flex flex-col gap-2">
+              <span className={BENTO_LABEL}>Description</span>
               <ForbiddenWordsInput
                 multiline
-                className={inputClass("ct-textarea")}
+                className={inputClass("resize-y")}
                 value={form.description ?? ""}
                 onChange={(v) => set("description", v)}
                 rows={3}
@@ -433,133 +516,134 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 2 — Economics */}
         {step === "economics" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Economics" />
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Economics" />
 
-            <MetricGrid columns={2}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">Min Ticket (USDC) *</span>
+            <FieldGrid columns={2}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Min Ticket (USDC) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.minTicketUsdc}
                   onChange={(e) => setNumber("minTicketUsdc", e.target.value)}
                   min={1000}
                   placeholder="e.g. 250000"
                 />
-                <span className="body-xs ct-text-faint">Minimum investment per LP</span>
+                <span className={BENTO_FIELD_HINT}>Minimum investment per LP</span>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Vault Capacity (USDC) *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Vault Capacity (USDC) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.capacityUsdc}
                   onChange={(e) => setNumber("capacityUsdc", e.target.value)}
                   min={1000}
                   placeholder="e.g. 10000000"
                 />
-                <span className="body-xs ct-text-faint">Hard cap for this share class</span>
+                <span className={BENTO_FIELD_HINT}>Hard cap for this share class</span>
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <MetricGrid columns={2}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">Mgmt Fee (bps) *</span>
+            <FieldGrid columns={2}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Mgmt Fee (bps) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.mgmtFeeBps}
                   onChange={(e) => setNumber("mgmtFeeBps", e.target.value)}
                   min={0}
                   max={500}
                 />
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   {pct(form.mgmtFeeBps)}% annually
                 </span>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Perf Fee (bps) *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Perf Fee (bps) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.perfFeeBps}
                   onChange={(e) => setNumber("perfFeeBps", e.target.value)}
                   min={0}
                   max={3000}
                 />
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   {pct(form.perfFeeBps)}% of profits
                 </span>
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <MetricGrid columns={2}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">Hurdle Rate (bps)</span>
+            <FieldGrid columns={2}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Hurdle Rate (bps)</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.hurdleBps}
                   onChange={(e) => setNumber("hurdleBps", e.target.value)}
                   min={0}
                   max={2000}
                 />
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   {pct(form.hurdleBps)}% annual hurdle (optional)
                 </span>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Soft Lock-up (days) *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Soft Lock-up (days) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.softLockupDays}
                   onChange={(e) => setNumber("softLockupDays", e.target.value)}
                   min={0}
                   max={365}
                 />
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   Redemption notice period
                 </span>
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <MetricGrid columns={2}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">Target APY Low (bps) *</span>
+            <FieldGrid columns={2}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Target APY Low (bps) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.targetApyLowBps}
                   onChange={(e) => setNumber("targetApyLowBps", e.target.value)}
                   min={0}
                 />
-                <span className="body-xs ct-text-faint">{pct(form.targetApyLowBps)}%</span>
+                <span className={BENTO_FIELD_HINT}>{pct(form.targetApyLowBps)}%</span>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Target APY High (bps) *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Target APY High (bps) *</span>
                 <input
                   type="number"
-                  className={inputClass()}
+                  className={inputClass("tabular-nums")}
                   value={form.targetApyHighBps}
                   onChange={(e) => setNumber("targetApyHighBps", e.target.value)}
                   min={0}
                 />
-                <span className="body-xs ct-text-faint">{pct(form.targetApyHighBps)}%</span>
+                <span className={BENTO_FIELD_HINT}>{pct(form.targetApyHighBps)}%</span>
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <div className="admin-doc-inset flex flex-col gap-[var(--ct-space-1)]">
-              <span className="stat-label block">APY Range Preview</span>
+            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+              <span className={BENTO_LABEL}>APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
                 precision={1}
+                className="text-[18px] font-medium tabular-nums text-[#A7FB90]"
               />
             </div>
           </div>
@@ -567,22 +651,21 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 3 — Allocation targets */}
         {step === "allocations" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Allocation Targets" />
-            <p className="body-sm ct-text-muted">
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Allocation Targets" />
+            <p className="text-[13px] text-zinc-400">
               Must sum to exactly 10 000 bps (100%). Currently:{" "}
               <span
-                className={
-                  allocTotal() === 10000
-                    ? "font-semibold ct-status-success"
-                    : "font-semibold ct-status-danger"
-                }
+                className={cn(
+                  "font-semibold",
+                  allocTotal() === 10000 ? "text-[#A7FB90]" : "text-red-400",
+                )}
               >
                 {allocTotal()} / 10 000
               </span>
             </p>
 
-            <MetricGrid columns={2} className="gap-y-6">
+            <FieldGrid columns={2} className="gap-y-6">
               {(
                 [
                   { key: "targetMiningBps", label: "Mining" },
@@ -591,10 +674,10 @@ export function VaultForm(props: VaultFormProps) {
                   { key: "targetStableReserveBps", label: "Stable Reserve" },
                 ] as const
               ).map(({ key, label }) => (
-                <div key={key} className="admin-doc-stack admin-doc-stack--tight">
-                  <div className="admin-doc-row-spread">
-                    <span className="stat-label">{label}</span>
-                    <span className="mono tabular body-sm ct-text-primary">
+                <div key={key} className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={BENTO_LABEL}>{label}</span>
+                    <span className="font-mono text-[13px] tabular-nums text-white">
                       {pct(form[key])}%
                     </span>
                   </div>
@@ -605,26 +688,26 @@ export function VaultForm(props: VaultFormProps) {
                     step={50}
                     value={form[key]}
                     onChange={(e) => setAllocationBps(key, e.target.value)}
-                    className="w-full accent-[var(--ct-accent)]"
+                    className="w-full accent-[#A7FB90]"
                     aria-label={`${label} allocation`}
                   />
                   <Progress value={form[key]} max={10000} label={`${label} allocation`} className="h-1" />
                 </div>
               ))}
-            </MetricGrid>
+            </FieldGrid>
           </div>
         )}
 
         {/* Step 4 — Legal & SPV */}
         {step === "legal" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Legal & SPV" />
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Legal & SPV" />
 
-            <MetricGrid columns={3}>
-              <label className="admin-doc-field block">
-                <span className="stat-label">SPV Jurisdiction *</span>
+            <FieldGrid columns={3}>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>SPV Jurisdiction *</span>
                 <select
-                  className={inputClass("ct-select")}
+                  className={inputClass()}
                   value={form.spvJurisdiction}
                   onChange={(e) =>
                     set("spvJurisdiction", e.target.value as FormState["spvJurisdiction"])
@@ -637,8 +720,8 @@ export function VaultForm(props: VaultFormProps) {
                 </select>
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Share Class *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Share Class *</span>
                 <input
                   className={inputClass()}
                   value={form.shareClass}
@@ -648,10 +731,10 @@ export function VaultForm(props: VaultFormProps) {
                 />
               </label>
 
-              <label className="admin-doc-field block">
-                <span className="stat-label">Regulatory Exemption *</span>
+              <label className="flex flex-col gap-2">
+                <span className={BENTO_LABEL}>Regulatory Exemption *</span>
                 <select
-                  className={inputClass("ct-select")}
+                  className={inputClass()}
                   value={form.regExemption}
                   onChange={(e) =>
                     set("regExemption", e.target.value as FormState["regExemption"])
@@ -662,24 +745,24 @@ export function VaultForm(props: VaultFormProps) {
                   <option value="art2_lux">Art. 2 Lux</option>
                 </select>
               </label>
-            </MetricGrid>
+            </FieldGrid>
 
-            <label className="admin-doc-field block">
-              <span className="stat-label">Legal Disclaimers *</span>
+            <label className="flex flex-col gap-2">
+              <span className={BENTO_LABEL}>Legal Disclaimers *</span>
               <ForbiddenWordsInput
                 multiline
-                className={inputClass("ct-textarea")}
+                className={inputClass("resize-y")}
                 value={form.disclaimers}
                 onChange={(v) => set("disclaimers", v)}
                 rows={6}
                 placeholder="Institutional disclaimers. Must include 'not guaranteed' and mention risks..."
                 aria-label="Vault disclaimers"
               />
-              <div className="admin-doc-row-spread mt-1">
-                <span className="body-xs ct-text-faint">
+              <div className="flex items-center justify-between gap-3">
+                <span className={BENTO_FIELD_HINT}>
                   {form.disclaimers.length} chars (min 80)
                 </span>
-                <span className="body-xs ct-text-faint">
+                <span className={BENTO_FIELD_HINT}>
                   Restricted terms will be flagged
                 </span>
               </div>
@@ -689,20 +772,22 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 5 — Governance */}
         {step === "governance" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Governance" />
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Governance" />
 
-            <div className="admin-doc-stack admin-doc-stack--relaxed">
-              <div className="admin-doc-stack admin-doc-stack--tight">
-                <span className="stat-label block mb-2">Authorized Signers (2–5 identities) *</span>
-                <div className="admin-doc-stack admin-doc-stack--tight">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <span className={cn(BENTO_LABEL, "mb-1")}>
+                  Authorized Signers (2–5 identities) *
+                </span>
+                <div className="flex flex-col gap-2">
                   {form.signersWhitelist.map((s, i) => {
                     const isValid = isValidSigner(s);
                     return (
-                      <div key={i} className="admin-doc-stack admin-doc-stack--tight">
-                        <div className="admin-doc-inline-row">
+                      <div key={i} className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
                           <input
-                            className={inputClass("flex-1 mono body-sm")}
+                            className={inputClass("flex-1 font-mono")}
                             value={s}
                             onChange={(e) => {
                               const next = [...form.signersWhitelist];
@@ -729,7 +814,7 @@ export function VaultForm(props: VaultFormProps) {
                           )}
                         </div>
                         {!isValid && (
-                          <span className="body-xs ct-status-danger">
+                          <span className="text-[12px] text-red-400">
                             Invalid format: must be a 0x… address or 25-char ID.
                           </span>
                         )}
@@ -742,7 +827,7 @@ export function VaultForm(props: VaultFormProps) {
                     variant="ghost"
                     size="sm"
                     type="button"
-                    className="w-fit mt-1"
+                    className="mt-1 w-fit"
                     onClick={() => set("signersWhitelist", [...form.signersWhitelist, ""])}
                   >
                     + Add another signer
@@ -752,12 +837,12 @@ export function VaultForm(props: VaultFormProps) {
 
               {/* Admin identity helper */}
               {props.adminId && (
-                <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight bg-[var(--ct-bg-deep)]/50 border border-[var(--ct-border-ghost)]">
-                  <span className="body-xs ct-text-muted">
+                <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+                  <span className="text-[12px] text-zinc-400">
                     Your current admin identity:
                   </span>
-                  <div className="admin-doc-inline-row admin-doc-inline-row--between">
-                    <code className="mono body-xs ct-text-strong break-all select-all">{props.adminId}</code>
+                  <div className="flex items-center justify-between gap-3">
+                    <code className="select-all break-all font-mono text-[12px] text-white">{props.adminId}</code>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
@@ -797,11 +882,11 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="admin-doc-stack admin-doc-stack--tight pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
-                <span className="stat-label block mb-2">
+              <div className="flex flex-col gap-2 border-t border-white/10 pt-5">
+                <span className={cn(BENTO_LABEL, "mb-1")}>
                   Approval Quorum (M-of-N) *
                 </span>
-                <div className="admin-doc-inline-row" role="radiogroup" aria-label="Approval quorum">
+                <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Approval quorum">
                   {[2, 3, 4, 5].map((n) => {
                     const disabled = n > form.signersWhitelist.length;
                     const active = form.requiredSigners === n;
@@ -814,9 +899,11 @@ export function VaultForm(props: VaultFormProps) {
                         disabled={disabled}
                         onClick={() => set("requiredSigners", n)}
                         className={cn(
-                          "ct-pill",
-                          active && "accent",
-                          disabled && "admin-strategy-pill--disabled"
+                          "rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors",
+                          active
+                            ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
+                            : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10",
+                          disabled && "cursor-not-allowed opacity-40",
                         )}
                       >
                         {n} of {form.signersWhitelist.length}
@@ -824,7 +911,7 @@ export function VaultForm(props: VaultFormProps) {
                     );
                   })}
                 </div>
-                <p className="body-xs ct-text-faint mt-1">
+                <p className={cn(BENTO_FIELD_HINT, "mt-1")}>
                   Threshold of distinct signatures required to authorize deployment.
                 </p>
               </div>
@@ -834,129 +921,100 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 6 — Review & Simulate (read-only recap) */}
         {step === "review_simulate" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Review & Simulate" />
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Review & Simulate" />
 
-            <div className="admin-doc-inset admin-confirm-panel divide-y divide-[var(--ct-border-soft)]">
-              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--head">
-                <MetricGrid columns={2}>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Ticker</span>
-                    <span className="mono tabular body-sm ct-text-strong">{form.ticker}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Name</span>
-                    <span className="body-sm ct-text-primary truncate" title={form.name}>{form.name}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Strategy</span>
-                    <span className="body-sm ct-text-primary capitalize">{form.strategy.replace(/_/g, " ")}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">UI Theme</span>
-                    <span className="body-sm ct-text-primary">{form.colorTag}</span>
-                  </div>
-                </MetricGrid>
-              </div>
+            <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+              <FieldGrid columns={2} className="pb-4">
+                <RecapRow label="Ticker">
+                  <span className="font-mono text-[13px] tabular-nums text-white">{form.ticker}</span>
+                </RecapRow>
+                <RecapRow label="Name">
+                  <span className="truncate text-[13px] text-zinc-300" title={form.name}>{form.name}</span>
+                </RecapRow>
+                <RecapRow label="Strategy">
+                  <span className="text-[13px] capitalize text-zinc-300">{form.strategy.replace(/_/g, " ")}</span>
+                </RecapRow>
+                <RecapRow label="UI Theme">
+                  <span className="text-[13px] text-zinc-300">{form.colorTag}</span>
+                </RecapRow>
+              </FieldGrid>
 
-              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <MetricGrid columns={2}>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Min Ticket</span>
-                    <span className="mono tabular body-sm">{formatUsdFull(form.minTicketUsdc)}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Capacity</span>
-                    <span className="mono tabular body-sm">{formatUsdFull(form.capacityUsdc)}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Fees</span>
-                    <span className="mono tabular body-sm">
-                      {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
-                      {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
-                    </span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Lockup</span>
-                    <span className="mono tabular body-sm">{form.softLockupDays} days</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Target APY</span>
-                    <ApyRange
-                      low={form.targetApyLowBps / 100}
-                      high={form.targetApyHighBps / 100}
-                      precision={1}
-                    />
-                  </div>
-                </MetricGrid>
-              </div>
+              <FieldGrid columns={2} className="py-4">
+                <RecapRow label="Min Ticket">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{formatUsdFull(form.minTicketUsdc)}</span>
+                </RecapRow>
+                <RecapRow label="Capacity">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{formatUsdFull(form.capacityUsdc)}</span>
+                </RecapRow>
+                <RecapRow label="Fees">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">
+                    {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
+                    {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
+                  </span>
+                </RecapRow>
+                <RecapRow label="Lockup">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{form.softLockupDays} days</span>
+                </RecapRow>
+                <RecapRow label="Target APY">
+                  <ApyRange
+                    low={form.targetApyLowBps / 100}
+                    high={form.targetApyHighBps / 100}
+                    precision={1}
+                    className="text-[13px] tabular-nums text-[#A7FB90]"
+                  />
+                </RecapRow>
+              </FieldGrid>
 
-              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <MetricGrid columns={3}>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">SPV</span>
-                    <span className="body-sm ct-text-primary">{form.spvJurisdiction}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Share Class</span>
-                    <span className="body-sm">{form.shareClass}</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Reg Exemption</span>
-                    <span className="body-sm">{form.regExemption}</span>
-                  </div>
-                </MetricGrid>
-              </div>
+              <FieldGrid columns={3} className="py-4">
+                <RecapRow label="SPV">
+                  <span className="text-[13px] text-zinc-300">{form.spvJurisdiction}</span>
+                </RecapRow>
+                <RecapRow label="Share Class">
+                  <span className="text-[13px] text-zinc-300">{form.shareClass}</span>
+                </RecapRow>
+                <RecapRow label="Reg Exemption">
+                  <span className="text-[13px] text-zinc-300">{form.regExemption}</span>
+                </RecapRow>
+              </FieldGrid>
 
-              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <MetricGrid columns={2}>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Mining</span>
-                    <span className="mono tabular body-sm">{pct(form.targetMiningBps)}%</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">BTC Tactical</span>
-                    <span className="mono tabular body-sm">{pct(form.targetBtcTacticalBps)}%</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">USDC Base</span>
-                    <span className="mono tabular body-sm">{pct(form.targetUsdcBaseBps)}%</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Stable Reserve</span>
-                    <span className="mono tabular body-sm">{pct(form.targetStableReserveBps)}%</span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Total</span>
-                    <span
-                      className={
-                        allocTotal() === 10000
-                          ? "mono tabular body-sm ct-status-success font-semibold"
-                          : "mono tabular body-sm ct-status-danger font-semibold"
-                      }
-                    >
-                      {pct(allocTotal())}%
-                    </span>
-                  </div>
-                </MetricGrid>
-              </div>
+              <FieldGrid columns={2} className="py-4">
+                <RecapRow label="Mining">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{pct(form.targetMiningBps)}%</span>
+                </RecapRow>
+                <RecapRow label="BTC Tactical">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{pct(form.targetBtcTacticalBps)}%</span>
+                </RecapRow>
+                <RecapRow label="USDC Base">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{pct(form.targetUsdcBaseBps)}%</span>
+                </RecapRow>
+                <RecapRow label="Stable Reserve">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">{pct(form.targetStableReserveBps)}%</span>
+                </RecapRow>
+                <RecapRow label="Total">
+                  <span
+                    className={cn(
+                      "font-mono text-[13px] font-semibold tabular-nums",
+                      allocTotal() === 10000 ? "text-[#A7FB90]" : "text-red-400",
+                    )}
+                  >
+                    {pct(allocTotal())}%
+                  </span>
+                </RecapRow>
+              </FieldGrid>
 
-              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--mid">
-                <MetricGrid columns={2}>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Signers</span>
-                    <span className="body-sm ct-text-primary">
-                      {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
-                    </span>
-                  </div>
-                  <div className="admin-confirm-panel__row">
-                    <span className="stat-label">Required Quorum</span>
-                    <span className="mono tabular body-sm">
-                      {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
-                    </span>
-                  </div>
-                </MetricGrid>
-              </div>
+              <FieldGrid columns={2} className="pt-4">
+                <RecapRow label="Signers">
+                  <span className="text-[13px] text-zinc-300">
+                    {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
+                  </span>
+                </RecapRow>
+                <RecapRow label="Required Quorum">
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">
+                    {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
+                  </span>
+                </RecapRow>
+              </FieldGrid>
             </div>
 
             {/* Monte Carlo inline projection (ADR-006, methodology v2.0 ratified 2026-05-22) */}
@@ -972,7 +1030,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="body-xs ct-text-faint border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)]">
+            <p className="border-t border-white/10 pt-4 text-[12px] text-zinc-600">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -982,25 +1040,25 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Step 7 — Sign & Deploy */}
         {step === "sign_deploy" && (
-          <div className="admin-doc-stack">
-            <DashboardPanelHeader title="Sign & Deploy" />
+          <div className="flex flex-col gap-5">
+            <StepHeader title="Sign & Deploy" />
 
-            <div className="admin-doc-inset admin-doc-stack admin-doc-stack--actions">
-              <p className="body-sm ct-text-muted">
+            <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+              <p className="text-[13px] text-zinc-400">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
               </p>
-              <p className="body-sm ct-text-primary">
-                Click <strong>Submit for Review</strong> below to enter the multisig queue.
+              <p className="text-[13px] text-zinc-300">
+                Click <strong className="font-semibold text-white">Submit for Review</strong> below to enter the multisig queue.
               </p>
-              <div className="admin-confirm-panel__rows admin-strategy-confirm-rows--deploy">
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Vault</span>
-                  <span className="mono tabular body-sm ct-text-strong">{form.ticker || "—"}</span>
+              <div className="flex flex-col gap-2 border-t border-white/5 pt-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className={BENTO_LABEL}>Vault</span>
+                  <span className="font-mono text-[13px] tabular-nums text-white">{form.ticker || "—"}</span>
                 </div>
-                <div className="admin-confirm-panel__row">
-                  <span className="stat-label">Required signers</span>
-                  <span className="mono tabular body-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className={BENTO_LABEL}>Required signers</span>
+                  <span className="font-mono text-[13px] tabular-nums text-zinc-300">
                     {form.requiredSigners} of {filledSigners.length}
                   </span>
                 </div>
@@ -1009,15 +1067,15 @@ export function VaultForm(props: VaultFormProps) {
 
             {/* Signer whitelist recap — surfaces malformed entries and whether
                 THIS admin can sign later (cf. signApproval actorWallet). */}
-            <div className="admin-doc-inset admin-doc-stack admin-doc-stack--tight">
-              <span className="stat-label block">Signers whitelist</span>
+            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+              <span className={BENTO_LABEL}>Signers whitelist</span>
               {filledSigners.length === 0 ? (
-                <span className="body-xs ct-status-danger">
+                <span className="text-[12px] text-red-400">
                   No signers added — add at least {form.requiredSigners} in the
                   Governance step.
                 </span>
               ) : (
-                <ul className="admin-doc-stack admin-doc-stack--tight">
+                <ul className="flex flex-col gap-2">
                   {filledSigners.map((s, i) => {
                     const valid = isValidSigner(s);
                     const isMe =
@@ -1025,16 +1083,16 @@ export function VaultForm(props: VaultFormProps) {
                     return (
                       <li
                         key={`${s}-${i}`}
-                        className="admin-doc-inline-row admin-doc-inline-row--between"
+                        className="flex items-center justify-between gap-3"
                       >
-                        <code className="mono body-xs ct-text-muted break-all">
+                        <code className="break-all font-mono text-[12px] text-zinc-400">
                           {s.trim()}
                           {isMe && (
-                            <span className="ct-text-faint"> (you)</span>
+                            <span className="text-zinc-600"> (you)</span>
                           )}
                         </code>
                         {!valid && (
-                          <span className="body-xs ct-status-danger">malformed</span>
+                          <span className="text-[12px] text-red-400">malformed</span>
                         )}
                       </li>
                     );
@@ -1043,7 +1101,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {props.adminId !== undefined && !adminInWhitelist && (
-                <p className="body-xs ct-status-danger pt-[var(--ct-space-1)]">
+                <p className="pt-1 text-[12px] text-red-400">
                   Your identity ({props.adminId}) is not in the whitelist — you
                   will not be able to sign this deployment yourself.
                 </p>
@@ -1051,18 +1109,17 @@ export function VaultForm(props: VaultFormProps) {
             </div>
 
             {!signersOk && (
-              <PanelStatus
-                tone="danger"
+              <div
                 role="status"
-                message={
-                  hasMalformedSigner
-                    ? "Fix the malformed signer(s) in the Governance step before submitting."
-                    : `Add at least ${form.requiredSigners} distinct valid signers in the Governance step before submitting.`
-                }
-              />
+                className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[13px] text-red-400"
+              >
+                {hasMalformedSigner
+                  ? "Fix the malformed signer(s) in the Governance step before submitting."
+                  : `Add at least ${form.requiredSigners} distinct valid signers in the Governance step before submitting.`}
+              </div>
             )}
 
-            <p className="body-xs ct-text-faint">
+            <p className="text-[12px] text-zinc-600">
               Target APY range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%.
               Not guaranteed. Subject to market conditions.
             </p>
@@ -1071,10 +1128,15 @@ export function VaultForm(props: VaultFormProps) {
 
         {/* Navigation */}
         {error ? (
-          <PanelStatus tone="danger" role="alert" message={error} className="admin-strategy-wizard-error" />
+          <div
+            role="alert"
+            className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[13px] text-red-400"
+          >
+            {error}
+          </div>
         ) : null}
 
-        <div className="admin-strategy-wizard-nav admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions">
+        <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/5 pt-5">
           <Button
             variant="ghost"
             size="sm"
@@ -1085,7 +1147,7 @@ export function VaultForm(props: VaultFormProps) {
             Back
           </Button>
 
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+          <div className="flex items-center gap-2">
             {stepIndex < STEPS.length - 1 ? (
               <Button variant="primary" size="md" type="button" onClick={nextStep}>
                 Next
@@ -1103,10 +1165,11 @@ export function VaultForm(props: VaultFormProps) {
             )}
           </div>
         </div>
-      </Card>
+      </BentoPanel>
       </div>
 
-      <aside className="admin-strategy-wizard__aside">
+      <aside className="lg:sticky lg:top-6">
+        {/* ProjectionFooter renders its own bento panel — no extra wrapper. */}
         <ProjectionFooter vaultDraft={form} />
       </aside>
     </div>

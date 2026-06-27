@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { Ptai } from "@/components/ui/ptai";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { BentoPanel } from "@/components/ui/bento";
 import {
   approveRebalance,
   rejectRebalance,
@@ -92,20 +92,20 @@ function AllocationDiffTable({
   if (buckets.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full table-fixed body-sm tabular">
+    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#15191C]">
+      <table className="w-full table-fixed text-left text-[13px] tabular-nums">
         <thead>
-          <tr>
-            <th className="w-[34%] text-left stat-label ct-table-header">
+          <tr className="border-b border-white/5">
+            <th className="w-[34%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
               Bucket
             </th>
-            <th className="w-[22%] text-right stat-label ct-table-header">
+            <th className="w-[22%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
               Current %
             </th>
-            <th className="w-[22%] text-right stat-label ct-table-header">
+            <th className="w-[22%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
               Target %
             </th>
-            <th className="w-[22%] text-right stat-label ct-table-header">
+            <th className="w-[22%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
               Delta
             </th>
           </tr>
@@ -119,24 +119,24 @@ function AllocationDiffTable({
             const delta = toPct - fromPct;
 
             return (
-              <tr key={bucket} className="border-t border-(--ct-border-soft)">
-                <td className="ct-table-cell ct-text-body mono body-xs capitalize truncate">
+              <tr key={bucket} className="border-b border-white/5 last:border-0">
+                <td className="truncate px-5 py-3 font-mono text-[12px] capitalize text-zinc-300">
                   {bucket.replace(/_/g, " ")}
                 </td>
-                <td className="ct-table-cell text-right ct-text-muted tabular">
+                <td className="px-5 py-3 text-right text-zinc-400">
                   {fromPct.toFixed(1)}%
                 </td>
-                <td className="ct-table-cell text-right ct-text-body tabular">
+                <td className="px-5 py-3 text-right text-zinc-300">
                   {toPct.toFixed(1)}%
                 </td>
                 <td
                   className={cn(
-                    "ct-table-cell text-right font-semibold tabular",
+                    "px-5 py-3 text-right font-semibold",
                     delta > 0
-                      ? "ct-status-success"
+                      ? "text-[#A7FB90]"
                       : delta < 0
-                        ? "ct-status-danger"
-                        : "ct-text-muted",
+                        ? "text-red-400"
+                        : "text-zinc-400",
                   )}
                 >
                   {delta > 0 ? "+" : ""}
@@ -221,196 +221,200 @@ export function RebalanceCard({
   }
 
   return (
-    <Card contentClassName="admin-doc-stack admin-doc-stack--roomy">
-        {/* Header */}
-        <div className="admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--relaxed">
-          <div className="admin-doc-stack admin-doc-stack--compact">
-            <div className="admin-doc-inline-row">
-              <Badge variant="accent" className="mono body-xs">
-                {event.ruleId}
-              </Badge>
-              <Badge variant={statusVariant(event.status)}>
-                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-              </Badge>
-            </div>
-            <p className="body-sm ct-text-muted">
-              Triggered {formatAdminDateTime(new Date(event.triggeredAt))}
-            </p>
+    <BentoPanel className="gap-5 p-5 lg:p-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="accent" className="font-mono">
+              {event.ruleId}
+            </Badge>
+            <Badge variant={statusVariant(event.status)}>
+              {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+            </Badge>
           </div>
-          <div className="text-right">
-            <p className="body-xs ct-text-muted tabular">
-              {signerCount}/{requiredSigners} sigs
-            </p>
-            {event.txHash && (
-              <p className="body-xs mono ct-text-muted">
-                tx: {abbrWallet(event.txHash)}
-              </p>
-            )}
-          </div>
+          <p className="text-[13px] text-zinc-400">
+            Triggered {formatAdminDateTime(new Date(event.triggeredAt))}
+          </p>
         </div>
-
-        {/* PTAI block — mandatory per CLAUDE.md #3 */}
-        <Ptai
-          projection={event.projection || "No projection data available."}
-          trigger={cleanTriggerText(event.triggerText)}
-          action={event.actionText}
-          impact={event.impactText}
-        />
-
-        {/* Disclaimer — CLAUDE.md #10 */}
-        <p className="body-xs ct-text-faint">
-          Projections shown above are indicative only and not a commitment to any
-          specific outcome. Past performance is not a reliable indicator of future
-          results.
-        </p>
-
-        {/* Allocation diff */}
-        {(fromAlloc.length > 0 || toAlloc.length > 0) && (
-          <div className="admin-doc-stack admin-doc-stack--tight">
-            <p className="h4">Allocation delta</p>
-            <AllocationDiffTable from={fromAlloc} to={toAlloc} />
-          </div>
-        )}
-
-        {/* Approved signers list */}
-        {signers.length > 0 && (
-          <div className="admin-doc-stack admin-doc-stack--compact">
-            <p className="h4">Signers</p>
-            <ul className="admin-doc-stack admin-doc-stack--micro">
-              {signers.map((w) => (
-                <li key={w} className="body-xs mono ct-text-muted">
-                  {abbrWallet(w)}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Error display */}
-        <div aria-live="polite">
-          {error && (
-            <p className="body-xs ct-status-danger border border-(--ct-border-soft) px-[var(--ct-space-3)] py-[var(--ct-space-2)] rounded-lg">
-              {error}
+        <div className="text-right">
+          <p className="text-[12px] tabular-nums text-zinc-400">
+            {signerCount}/{requiredSigners} sigs
+          </p>
+          {event.txHash && (
+            <p className="font-mono text-[12px] text-zinc-400">
+              tx: {abbrWallet(event.txHash)}
             </p>
           )}
         </div>
+      </div>
 
-        {/* Actions */}
-        <div className="admin-doc-stack admin-doc-stack--actions">
-          {event.status === "pending" && (
-            <>
-              <div className="admin-doc-inline-row">
-                {confirmingAction === "approve" ? (
-                  <>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={handleApprove}
-                      disabled={isPending}
-                      aria-busy={isPending}
-                    >
-                      {isPending ? "Processing…" : "Confirm approve"}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setConfirmingAction(null)}
-                      disabled={isPending}
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={handleApprove}
-                      disabled={isPending}
-                      aria-busy={isPending}
-                    >
-                      {`Approve (${signerCount}/${requiredSigners} sigs)`}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setShowRejectForm((v) => !v);
-                        setError(null);
-                      }}
-                      disabled={isPending}
-                    >
-                      Reject
-                    </Button>
-                  </>
-                )}
-              </div>
-              {showRejectForm && (
-                <div className="admin-doc-inline-row">
-                  <input
-                    type="text"
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Rejection reason…"
-                    className="ct-input flex-1 body-sm"
-                    disabled={isPending}
-                  />
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleReject}
-                    disabled={isPending || !rejectReason.trim()}
-                  >
-                    Confirm reject
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
+      {/* PTAI block — mandatory per CLAUDE.md #3 */}
+      <Ptai
+        projection={event.projection || "No projection data available."}
+        trigger={cleanTriggerText(event.triggerText)}
+        action={event.actionText}
+        impact={event.impactText}
+      />
 
-          {/* "approved" status is transient — auto-execute fires immediately on threshold.
-              This branch handles signals that were approved before the oracle path landed. */}
-          {event.status === "approved" && (
-            <div className="admin-doc-inline-row">
-              {confirmingAction === "execute" ? (
+      {/* Disclaimer — CLAUDE.md #10 */}
+      <p className="text-[12px] text-zinc-600">
+        Projections shown above are indicative only and not a commitment to any
+        specific outcome. Past performance is not a reliable indicator of future
+        results.
+      </p>
+
+      {/* Allocation diff */}
+      {(fromAlloc.length > 0 || toAlloc.length > 0) && (
+        <div className="flex flex-col gap-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            Allocation delta
+          </p>
+          <AllocationDiffTable from={fromAlloc} to={toAlloc} />
+        </div>
+      )}
+
+      {/* Approved signers list */}
+      {signers.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            Signers
+          </p>
+          <ul className="flex flex-col gap-1">
+            {signers.map((w) => (
+              <li key={w} className="font-mono text-[12px] text-zinc-400">
+                {abbrWallet(w)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Error display */}
+      <div aria-live="polite">
+        {error && (
+          <p className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-[12px] text-red-400">
+            {error}
+          </p>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col gap-3">
+        {event.status === "pending" && (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              {confirmingAction === "approve" ? (
                 <>
-                  <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending} aria-busy={isPending}>
-                    {isPending ? "Executing…" : "Confirm execute"}
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleApprove}
+                    disabled={isPending}
+                    aria-busy={isPending}
+                  >
+                    {isPending ? "Processing…" : "Confirm approve"}
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setConfirmingAction(null)} disabled={isPending}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setConfirmingAction(null)}
+                    disabled={isPending}
+                  >
                     Cancel
                   </Button>
                 </>
               ) : (
-                <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending} aria-busy={isPending}>
-                  Execute (off-chain)
+                <>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleApprove}
+                    disabled={isPending}
+                    aria-busy={isPending}
+                  >
+                    {`Approve (${signerCount}/${requiredSigners} sigs)`}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowRejectForm((v) => !v);
+                      setError(null);
+                    }}
+                    disabled={isPending}
+                  >
+                    Reject
+                  </Button>
+                </>
+              )}
+            </div>
+            {showRejectForm && (
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="text"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Rejection reason…"
+                  className="flex-1 rounded-lg border border-white/10 bg-[#15191C] px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
+                  disabled={isPending}
+                />
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleReject}
+                  disabled={isPending || !rejectReason.trim()}
+                >
+                  Confirm reject
                 </Button>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </>
+        )}
 
-          {event.status === "executed" && (
-            <div className="admin-doc-stack admin-doc-stack--compact">
-              <p className="body-xs ct-status-success">
-                Auto-executed on approval · {formatAdminDateTime(new Date(event.executedAt))}
-              </p>
-              {event.txHash && (
-                <p className="body-xs mono ct-text-muted">
-                  tx: {event.txHash}
-                </p>
-              )}
-            </div>
-          )}
+        {/* "approved" status is transient — auto-execute fires immediately on threshold.
+            This branch handles signals that were approved before the oracle path landed. */}
+        {event.status === "approved" && (
+          <div className="flex flex-wrap items-center gap-2">
+            {confirmingAction === "execute" ? (
+              <>
+                <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending} aria-busy={isPending}>
+                  {isPending ? "Executing…" : "Confirm execute"}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setConfirmingAction(null)} disabled={isPending}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button variant="primary" size="sm" onClick={handleExecute} disabled={isPending} aria-busy={isPending}>
+                Execute (off-chain)
+              </Button>
+            )}
+          </div>
+        )}
 
-          {event.status === "cancelled" && (
-            <p className="body-xs ct-text-muted">
-              Signal cancelled.{" "}
-              {event.triggerText.includes("[REJECTED:")
-                ? event.triggerText.match(/\[REJECTED:(.*)\]/)?.[1]?.trim()
-                : null}
+        {event.status === "executed" && (
+          <div className="flex flex-col gap-2">
+            <p className="text-[12px] text-[#A7FB90]">
+              Auto-executed on approval · {formatAdminDateTime(new Date(event.executedAt))}
             </p>
-          )}
-        </div>
-    </Card>
+            {event.txHash && (
+              <p className="font-mono text-[12px] text-zinc-400">
+                tx: {event.txHash}
+              </p>
+            )}
+          </div>
+        )}
+
+        {event.status === "cancelled" && (
+          <p className="text-[12px] text-zinc-400">
+            Signal cancelled.{" "}
+            {event.triggerText.includes("[REJECTED:")
+              ? event.triggerText.match(/\[REJECTED:(.*)\]/)?.[1]?.trim()
+              : null}
+          </p>
+        )}
+      </div>
+    </BentoPanel>
   );
 }
