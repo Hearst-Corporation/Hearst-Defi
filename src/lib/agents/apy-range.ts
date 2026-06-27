@@ -25,6 +25,8 @@
  * (compliance regression closed alongside holes #2 + #3).
  */
 
+import { normalizeForScan } from "@/lib/agents/forbidden-words";
+
 /**
  * Yield-claim detector: two-tier strategy that catches all single-point yield
  * claims while blocking false fires from verb-sense uses of "yields/returns".
@@ -172,7 +174,12 @@ export function completedSentences(text: string, final: boolean): string[] {
  *   4. Fire — the sentence is a single-point yield claim.
  */
 export function hasSinglePointApy(text: string, final: boolean): boolean {
-  for (const sentence of completedSentences(text, final)) {
+  // Unicode bypass defense (parity with the forbidden-words scan): fold
+  // compatibility forms + recompose decomposed accents and strip zero-width
+  // separators so a "1​1 %" or fullwidth "１１ %" single-point claim can't slip
+  // past the yield-claim regex. Display/persistence still use the original text.
+  const normalized = normalizeForScan(text);
+  for (const sentence of completedSentences(normalized, final)) {
     if (!YIELD_CLAIM_RE.test(sentence)) continue; // no yield-amount pattern → skip
     if (hasNumericRange(sentence)) continue;       // genuine fourchette → compliant
     if (hasSourceAttribution(sentence)) continue;  // yield-source breakdown → compliant

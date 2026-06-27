@@ -1,6 +1,11 @@
 import "server-only";
 
 import { chatOutputViolation, guardChatStream } from "@/lib/llm/output-guard";
+// Semantic compliance guard (defense-in-depth behind the keyword guard). Catches
+// PARAPHRASED return-promises the needle matcher can't ("your capital is
+// protected against any downside"). Fail-safe + mode-gated: a no-op unless
+// SEMANTIC_GUARD=enforce, returns false on HF outage. See semantic-guard.ts.
+import { semanticViolationBeyondKeywords } from "@/lib/llm/semantic-guard";
 import { projectAdminReadResultForExternal } from "@/lib/llm/tools/redaction";
 import { getAllowedAdminReadTools, executeAdminReadTool } from "@/lib/llm/tools/registry";
 import { ADMIN_WRITE_TOOL_IDS } from "@/lib/llm/tools/types";
@@ -546,7 +551,28 @@ export function runChatAgent(
           // pass already streamed its text live above.
         }
 
-        const blocked = chatOutputViolation(effectiveText, true) !== null;
+        const keywordViolated = chatOutputViolation(effectiveText, true) !== null;
+        // SEMANTIC defense-in-depth (paraphrase). Runs ONLY when the keyword guard
+        // passed (no point re-checking an already-blocked answer) and only acts in
+        // SEMANTIC_GUARD=enforce — fail-safe to false otherwise (off/shadow/HF
+        // outage). Note the SCOPE: the user-facing text was already streamed via
+        // guardChatStream (which blocks keyword/APY spans, not paraphrases), so a
+        // semantic hit here cannot un-stream — it blocks PERSISTENCE so a
+        // paraphrased promise is never saved and re-injected into the next turn's
+        // prompt. The keyword/APY guard remains the hard real-time guarantee.
+        let semanticViolated = false;
+        if (!keywordViolated && effectiveText.trim().length > 0) {
+          try {
+            semanticViolated = await semanticViolationBeyondKeywords(
+              effectiveText,
+              false,
+            );
+          } catch {
+            // Fail-open: a semantic-guard error must never break the turn.
+            semanticViolated = false;
+          }
+        }
+        const blocked = keywordViolated || semanticViolated;
 
         try {
           controller.close();
