@@ -118,6 +118,14 @@ export type ScenarioParams = {
   };
   durationMonths: number;
   riskFreeRate: number;
+  /**
+   * Optional ANNUAL stable-sleeve yields (fractions, e.g. 0.048). When provided,
+   * the caller is injecting a LIVE source (e.g. DeFiLlama) instead of the engine
+   * defaults — keeps the engine pure (no fetch) while killing the hardcoded
+   * 4.8%/4.5% constants. Omit → engine defaults (DEFAULT_USDC/STABLE_ANNUAL).
+   */
+  usdcAnnualYield?: number;
+  stableAnnualYield?: number;
 };
 
 export type MonthlyReturn = {

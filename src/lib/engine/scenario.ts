@@ -209,8 +209,11 @@ function round(n: number, decimals: number): number {
 
 // ─── v2: ScenarioParams → ScenarioResult ─────────────────────────────────────
 
-const MONTHLY_USDC_YIELD = 0.048 / 12;
-const MONTHLY_STABLE_YIELD = 0.045 / 12;
+// Engine DEFAULTS for the stable sleeves (annual). Used only when the caller
+// does not inject a live yield via ScenarioParams.usdcAnnualYield /
+// stableAnnualYield. Kept as the conservative fallback, never as a "live" value.
+export const DEFAULT_USDC_ANNUAL_YIELD = 0.048;
+export const DEFAULT_STABLE_ANNUAL_YIELD = 0.045;
 
 // BTC tactical monthly return proxy: hashprice is correlated with BTC network
 // activity and miner revenue. A high hashprice (> $0.05/100TH/day) implies
@@ -254,6 +257,11 @@ function buildMonthlySeriesV2(
   const miningMonthly = params.miningYieldPct / 12;
   const btcMonthly = btcMonthlyReturn(hashpricePer100Th);
   const w = params.allocationWeights;
+  // Injected live yields override engine defaults; otherwise defaults apply.
+  const usdcMonthly =
+    (params.usdcAnnualYield ?? DEFAULT_USDC_ANNUAL_YIELD) / 12;
+  const stableMonthly =
+    (params.stableAnnualYield ?? DEFAULT_STABLE_ANNUAL_YIELD) / 12;
 
   const series: MonthlyReturn[] = [];
   let nav = 100;
@@ -261,8 +269,8 @@ function buildMonthlySeriesV2(
   for (let m = 1; m <= params.durationMonths; m++) {
     const miningContrib = w.mining * miningMonthly;
     const btcContrib = w.btcTactical * btcMonthly;
-    const usdcContrib = w.usdcBase * MONTHLY_USDC_YIELD;
-    const stableContrib = w.stableReserve * MONTHLY_STABLE_YIELD;
+    const usdcContrib = w.usdcBase * usdcMonthly;
+    const stableContrib = w.stableReserve * stableMonthly;
 
     const periodReturn = miningContrib + btcContrib + usdcContrib + stableContrib;
     nav = nav * (1 + periodReturn);

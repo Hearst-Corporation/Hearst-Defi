@@ -28,6 +28,12 @@ export interface LabShellProps {
   autostart?: boolean;
   /** Optional BTC spot used for center context rendering. */
   liveBtcPrice?: { usd: number; stale: boolean };
+  /** Provenance of the stable-yield input (truth-source honesty, audit #3). */
+  stableYield?: {
+    source: "live" | "fallback";
+    apyPct?: number;
+    fallbackReason?: string;
+  };
 }
 
 export function LabShell({
@@ -36,6 +42,7 @@ export function LabShell({
   initialObjective,
   autostart,
   liveBtcPrice,
+  stableYield,
 }: LabShellProps) {
   const [activeTab, setActiveTab] = useState<LabTab>("scenario");
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("single");
@@ -57,6 +64,22 @@ export function LabShell({
             <ScenarioModeToggle active={scenarioMode} onChange={setScenarioMode} />
           ) : null}
         </div>
+
+        {stableYield ? (
+          <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+            Stable yield :{" "}
+            {stableYield.source === "live" ? (
+              <span className="text-[#A7FB90]">
+                live {stableYield.apyPct?.toFixed(2)}% (DeFiLlama)
+              </span>
+            ) : (
+              <span className="text-amber-400">
+                fallback 4.5%{" "}
+                {stableYield.fallbackReason ? `(${stableYield.fallbackReason})` : ""}
+              </span>
+            )}
+          </p>
+        ) : null}
 
         {/* scenario-lab-body = internal scroll region in the fit gate */}
         <div className="scenario-lab-body">
