@@ -8,6 +8,7 @@ import { BentoPanel, BentoHeader } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
+import { loadVaultApy } from "@/lib/telegram/read-vault-apy";
 import {
   COUNTRY_LABELS,
   CUSTOMS_DUTY_PCT,
@@ -118,7 +119,10 @@ export default async function SourcePage({
   const { dest } = await searchParams;
   const destination = resolveDestination(dest);
 
-  const market = await loadMachineMarket(undefined, destination);
+  const [market, apy] = await Promise.all([
+    loadMachineMarket(undefined, destination),
+    loadVaultApy(destination),
+  ]);
   const profitable = market.rows.filter(
     (r) => r.marginUsdPerThDay !== null && r.marginUsdPerThDay >= 0,
   ).length;
@@ -224,6 +228,50 @@ export default async function SourcePage({
             ) : (
               <MachineTable rows={market.rows} />
             )}
+          </div>
+        </BentoPanel>
+
+        <BentoPanel>
+          <BentoHeader
+            title="APY range par vault"
+            subtitle={
+              <>
+                Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}% (
+                {apy.usdcSource}) · BTC scénario {apy.btcReturn.bear}/
+                {apy.btcReturn.base}/+{apy.btcReturn.bull}% · allocation dérivée
+                risk-adjusted
+              </>
+            }
+          />
+          <div className="flex flex-col gap-4 p-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {apy.vaults.map((v) => (
+                <div
+                  key={v.id}
+                  className="rounded-2xl border border-white/10 bg-[#15191C] p-4"
+                >
+                  <div className="text-[13px] font-semibold text-white">
+                    {v.label}
+                  </div>
+                  <div className="mt-1 text-[20px] font-bold tabular-nums text-[#A7FB90]">
+                    {v.apyLow}% — {v.apyHigh}%
+                  </div>
+                  <div className="mt-2 text-[11px] text-zinc-500">
+                    mining {v.allocation.miningPct}% · BTC {v.allocation.btcPct}%
+                    · USDC {v.allocation.usdcPct}%
+                  </div>
+                  <div className="text-[11px] text-zinc-600">
+                    drag emprunt −{v.borrowDragPct}%
+                  </div>
+                </div>
+              ))}
+            </div>
+            <ul className="flex flex-col gap-1 text-[11px] text-zinc-500">
+              {apy.assumptions.map((a) => (
+                <li key={a}>• {a}</li>
+              ))}
+            </ul>
+            <p className="text-[11px] italic text-zinc-600">{apy.disclaimer}</p>
           </div>
         </BentoPanel>
       </div>
