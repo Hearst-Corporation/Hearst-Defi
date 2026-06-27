@@ -2,7 +2,6 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 
 import "../../admin-strategy.css";
-import "../projection-preview.css";
 
 export const dynamic = "force-dynamic";
 

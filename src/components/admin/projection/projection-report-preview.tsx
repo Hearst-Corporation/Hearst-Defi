@@ -9,10 +9,14 @@
  * storage, no mutation, no auto-polling. A single on-demand run hits the
  * read-only API; the backend engine is untouched. No raw payload / stack traces
  * are shown; APY is always a min/max range (min ≤ max); no NaN/Infinity passes.
+ *
+ * Bento Tailwind (Portfolio canon): graphite-opaque panels, neutral borders,
+ * single green accent (#A7FB90) reserved for emphasis/values.
  */
 
 import { useCallback, useRef, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 import {
   DEFAULT_PREVIEW_DRAFT,
@@ -40,6 +44,8 @@ type State =
 type FieldErrors = Partial<Record<ProjectionDraftField, string>>;
 
 const alloc = PREVIEW_PROJECTION_INPUT.allocation ?? [];
+
+const PANEL = "rounded-2xl border border-white/10 bg-black shadow-sm";
 
 export function ProjectionReportPreview() {
   const [mode, setMode] = useState<Mode>("v0");
@@ -118,19 +124,28 @@ export function ProjectionReportPreview() {
   const isLoading = state.kind === "loading";
 
   return (
-    <div className="projpv-shell">
-      <header className="projpv-toolbar rounded-2xl border border-white/10 bg-black shadow-sm">
-        <div className="projpv-toolbar-meta">
-          <span className="projpv-badge projpv-badge--preview">Preview input</span>
-          <span className="projpv-badge projpv-badge--source">No storage</span>
-          <span className="projpv-badge projpv-badge--read">Read-only</span>
-          <span className="projpv-badge projpv-badge--ok">Range only</span>
+    <div className="flex flex-col gap-4 min-w-0">
+      <header className={cn(PANEL, "flex flex-wrap items-center justify-between gap-4 p-4")}>
+        <div className="flex flex-wrap items-center gap-2 min-w-0">
+          <Badge variant="accent">Preview input</Badge>
+          <SourceChip>No storage</SourceChip>
+          <Badge variant="accent">Read-only</Badge>
+          <Badge variant="accent">Range only</Badge>
         </div>
-        <div className="projpv-toolbar-actions">
-          <div className="projpv-modeswitch" role="group" aria-label="Projection methodology">
+        <div className="flex flex-wrap items-center gap-3">
+          <div
+            className="inline-flex rounded-lg border border-white/10 bg-white/5 overflow-hidden"
+            role="group"
+            aria-label="Projection methodology"
+          >
             <button
               type="button"
-              className={cn("projpv-mode", mode === "v0" && "projpv-mode--active")}
+              className={cn(
+                "px-3 py-1.5 text-[11px] font-bold tracking-wide whitespace-nowrap transition-colors",
+                mode === "v0"
+                  ? "bg-[#A7FB90]/10 text-[#A7FB90]"
+                  : "text-zinc-500 hover:text-zinc-300",
+              )}
               aria-pressed={mode === "v0"}
               onClick={() => selectMode("v0")}
             >
@@ -138,19 +153,32 @@ export function ProjectionReportPreview() {
             </button>
             <button
               type="button"
-              className={cn("projpv-mode", mode === "v2" && "projpv-mode--active")}
+              className={cn(
+                "px-3 py-1.5 text-[11px] font-bold tracking-wide whitespace-nowrap transition-colors border-l border-white/10",
+                mode === "v2"
+                  ? "bg-[#A7FB90]/10 text-[#A7FB90]"
+                  : "text-zinc-500 hover:text-zinc-300",
+              )}
               aria-pressed={mode === "v2"}
               onClick={() => selectMode("v2")}
             >
               Methodology v2
             </button>
           </div>
-          <button type="button" className="projpv-reset" onClick={reset} disabled={isLoading}>
+          <button
+            type="button"
+            className="px-3 py-1.5 rounded-lg border border-white/10 text-[13px] font-medium text-zinc-400 hover:text-white hover:border-white/20 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={reset}
+            disabled={isLoading}
+          >
             Reset
           </button>
           <button
             type="button"
-            className={cn("projpv-run", isLoading && "projpv-run--busy")}
+            className={cn(
+              "px-4 py-1.5 rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[13px] font-semibold text-[#A7FB90] transition-colors whitespace-nowrap hover:bg-[#A7FB90] hover:text-black",
+              isLoading && "opacity-60 cursor-progress hover:bg-[#A7FB90]/10 hover:text-[#A7FB90]",
+            )}
             onClick={() => run(mode)}
             disabled={isLoading}
           >
@@ -160,8 +188,8 @@ export function ProjectionReportPreview() {
       </header>
 
       {/* Editable bounded draft inputs */}
-      <section className="projpv-inputs rounded-2xl border border-white/10 bg-black shadow-sm" aria-label="Preview input">
-        <div className="projpv-inputs-grid">
+      <section className={cn(PANEL, "p-4 flex flex-col gap-3")} aria-label="Preview input">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <DraftField
             label="Capital base (USDC)"
             field="capitalBase"
@@ -210,21 +238,21 @@ export function ProjectionReportPreview() {
             />
           ) : null}
         </div>
-        <p className="projpv-inputs-foot">
+        <p className="text-[11px] text-zinc-500 m-0">
           Allocation: {alloc.map((a) => `${a.weightPct}%`).join(" / ")} preview fixture (not editable). Inputs are
           draft-only — nothing is stored, and APY is always a range.
         </p>
         {localError ? (
-          <p className="projpv-inputs-error" role="alert">{localError}</p>
+          <p className="text-[13px] text-red-400 m-0" role="alert">{localError}</p>
         ) : null}
       </section>
 
       {state.kind === "idle" ? (
-        <div className="projpv-state projpv-state--idle rounded-2xl border border-white/10 bg-black shadow-sm">
-          <p className="projpv-state-title">
+        <div className={cn(PANEL, "p-5 flex flex-col gap-2")}>
+          <p className="text-[13px] font-semibold text-white m-0">
             {mode === "v2" ? "Methodology v2 — seeded distribution" : "Read-only projection preview"}
           </p>
-          <p className="projpv-state-body">
+          <p className="text-[13px] text-zinc-400 m-0 max-w-[64ch]">
             {mode === "v2" ? (
               <>
                 Run to render a seeded p5 / p50 / p95 distribution for the input above. The seed is visible
@@ -242,31 +270,34 @@ export function ProjectionReportPreview() {
       ) : null}
 
       {state.kind === "loading" ? (
-        <div className="projpv-state projpv-state--loading rounded-2xl border border-white/10 bg-black shadow-sm" aria-busy="true">
-          <p className="projpv-state-title">Building projection…</p>
-          <div className="projpv-skel" />
-          <div className="projpv-skel projpv-skel--wide" />
+        <div className={cn(PANEL, "p-5 flex flex-col gap-2")} aria-busy="true">
+          <p className="text-[13px] font-semibold text-white m-0">Building projection…</p>
+          <div className="h-3 w-2/5 rounded-sm bg-[#15191C] animate-pulse" />
+          <div className="h-3 w-3/4 rounded-sm bg-[#15191C] animate-pulse" />
         </div>
       ) : null}
 
       {state.kind === "invalid" ? (
-        <div className="projpv-state projpv-state--warn rounded-2xl border border-white/10 bg-black shadow-sm" role="alert">
-          <p className="projpv-state-title">Input not accepted</p>
-          <p className="projpv-state-body">{state.message}</p>
+        <div className={cn(PANEL, "p-5 flex flex-col gap-2")} role="alert">
+          <p className="text-[13px] font-semibold text-amber-400 m-0">Input not accepted</p>
+          <p className="text-[13px] text-zinc-400 m-0 max-w-[64ch]">{state.message}</p>
         </div>
       ) : null}
 
       {state.kind === "error" ? (
-        <div className="projpv-state projpv-state--error rounded-2xl border border-white/10 bg-black shadow-sm" role="alert">
-          <p className="projpv-state-title">Projection unavailable</p>
-          <p className="projpv-state-body">{state.message}</p>
+        <div className={cn(PANEL, "p-5 flex flex-col gap-2")} role="alert">
+          <p className="text-[13px] font-semibold text-red-400 m-0">Projection unavailable</p>
+          <p className="text-[13px] text-zinc-400 m-0 max-w-[64ch]">{state.message}</p>
         </div>
       ) : null}
 
       {state.kind === "success" ? (
         <>
           {stale ? (
-            <p className="projpv-stale" role="status">
+            <p
+              className="text-[11px] text-amber-400 m-0 px-3 py-2 rounded-lg border border-amber-400/30 bg-amber-400/5"
+              role="status"
+            >
               Inputs changed since this report — run again to refresh.
             </p>
           ) : null}
@@ -274,6 +305,14 @@ export function ProjectionReportPreview() {
         </>
       ) : null}
     </div>
+  );
+}
+
+function SourceChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+      {children}
+    </span>
   );
 }
 
@@ -296,14 +335,17 @@ function DraftField({
 }) {
   const id = `projpv-field-${field}`;
   return (
-    <div className={cn("projpv-field", error && "projpv-field--error")}>
-      <label className="projpv-field-label" htmlFor={id}>
+    <div className="flex flex-col gap-1 min-w-0">
+      <label className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500" htmlFor={id}>
         {label}
       </label>
       <input
         id={id}
         name={field}
-        className="projpv-field-input"
+        className={cn(
+          "w-full min-w-0 box-border rounded-md border bg-[#15191C] text-white font-mono text-[13px] px-3 py-2 transition-colors outline-none focus:border-[#A7FB90]/40",
+          error ? "border-red-400/50" : "border-white/10",
+        )}
         value={value}
         inputMode={inputMode}
         autoComplete="off"
@@ -312,9 +354,9 @@ function DraftField({
         onChange={(e) => onChange(field, e.target.value)}
       />
       {error ? (
-        <span className="projpv-field-msg projpv-field-msg--error">{error}</span>
+        <span className="text-[10px] font-mono text-red-400">{error}</span>
       ) : hint ? (
-        <span className="projpv-field-msg">{hint}</span>
+        <span className="text-[10px] font-mono text-zinc-500">{hint}</span>
       ) : null}
     </div>
   );
