@@ -75,21 +75,21 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
   }
 
   return (
-    <div className="ct-chat-history">
-      <div className="ct-chat-history-actions">
+    <div className="flex flex-col gap-3 rounded-lg bg-black p-3">
+      <div className="flex items-center gap-2">
         <button
           type="button"
-          className="ct-chat-history-newbtn"
+          className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium text-black transition-opacity duration-150 hover:opacity-90"
           onClick={newChat}
           aria-label="Start new conversation"
-          style={productColor ? { background: productColor } : undefined}
+          style={{ background: productColor ?? "#A7FB90" }}
         >
           + New conversation
         </button>
         {chats.length > 0 && (
           <button
             type="button"
-            className="ct-chat-history-clearbtn"
+            className="ml-auto rounded-md border border-white/10 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 transition-colors duration-150 hover:text-white hover:border-white/20"
             onClick={clearAll}
             title="Clear all"
           >
@@ -99,51 +99,58 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
       </div>
 
       {loading && (
-        <div className="ct-chat-history-loading">
-          <div className="ct-embed-spinner" />
-          <p className="ct-placeholder">Loading history…</p>
+        <div className="flex flex-col items-center gap-3 py-8">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#A7FB90]" />
+          <p className="text-[12px] text-zinc-500">Loading history…</p>
         </div>
       )}
       {error && (
-        <div className="ct-chat-error">
-          <p>{error}</p>
-          <button type="button" className="ct-chat-retry" onClick={load}>
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-white/10 bg-[#15191C] px-4 py-6 text-center">
+          <p className="text-[13px] text-zinc-300">{error}</p>
+          <button
+            type="button"
+            className="rounded-md border border-white/10 px-3 py-1.5 text-[12px] text-zinc-400 transition-colors duration-150 hover:text-white hover:border-white/20"
+            onClick={load}
+          >
             ↻ Try again
           </button>
         </div>
       )}
       {!loading && !error && chats.length === 0 && (
-        <div className="ct-chat-history-empty">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="ct-chat-history-empty-icon">
+        <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <p className="ct-placeholder">
+          <p className="text-[12px] leading-relaxed text-zinc-500">
             No conversations yet.<br />
             Start a chat and your history will appear here.
           </p>
         </div>
       )}
 
-      <ul className="ct-chat-history-list">
+      <ul className="flex flex-col gap-1.5">
         {chats.map((c) => (
-          <li key={c.id} className="ct-chat-history-item">
+          <li
+            key={c.id}
+            className="group flex items-stretch overflow-hidden rounded-lg bg-[#15191C] transition-colors duration-150 hover:bg-white/[0.05]"
+          >
             <button
               type="button"
-              className="ct-chat-history-item-main"
+              className="flex min-w-0 flex-1 flex-col gap-1 px-3 py-2.5 text-left"
               onClick={() => selectChat(c.id)}
             >
-              <div className="ct-chat-history-item-header">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ct-chat-history-doc-icon">
+              <div className="flex min-w-0 items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-zinc-500">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
-                <span className="ct-chat-history-title">{c.title}</span>
+                <span className="truncate text-[13px] text-zinc-200">{c.title}</span>
               </div>
-              <span className="ct-chat-history-date">{formatDate(c.updated_at)}</span>
+              <span className="text-[10px] text-zinc-500">{formatDate(c.updated_at)}</span>
             </button>
             <button
               type="button"
-              className="ct-chat-history-delete"
+              className="flex shrink-0 items-center px-3 text-zinc-600 opacity-0 transition-all duration-150 hover:text-white group-hover:opacity-100"
               onClick={() => deleteChat(c.id)}
               aria-label="Delete conversation"
               title="Delete"

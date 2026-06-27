@@ -1,8 +1,9 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminTable } from "@/components/admin/admin-table-layout";
 import { ApyRange } from "@/components/ui/apy-range";
-import { Metric } from "@/components/ui/metric";
+import { BentoHeader, BentoKpiTile, BentoPanel } from "@/components/ui/bento";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { cn } from "@/lib/cn";
 
 import { fetchBinancePrices } from "@/lib/data/binance-price";
 import { fetchLendingYields } from "@/lib/data/lending-yields";
@@ -54,138 +55,204 @@ export default async function MarketplacePage() {
   ]);
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="DeFi"
-        titleAccent="Marketplace"
-        contextLabel="Live market data"
-        description="Spot prices, decentralized stablecoin pegs, lending yields and protocol TVL — sourced from free public feeds (Binance, Chainlink, DefiLlama). Read-only; every figure is provenance-tagged."
-      />
-
-      {/* ── Spot prices (Binance) ─────────────────────────────────────────── */}
-      <section className="admin-doc-stack admin-doc-stack--relaxed">
-        <div className="admin-doc-row-spread">
-          <h2 className="h2">Spot prices</h2>
-          <ProvenanceBadge kind={binance.source === "live" ? "live" : "stale"} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-(--ct-space-4)">
-          {binance.tickers.map((t) => (
-            <Metric
-              key={t.symbol}
-              label={t.symbol.replace("USDT", " / USDT")}
-              value={formatUsd(t.lastPrice)}
-              trend={trendOf(t.priceChangePct)}
-              provenance={t.provenance}
-              tooltip="Spot price via Binance REST /api/v3/ticker/24hr (24h change)."
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* ── Decentralized stablecoin prices ───────────────────────────────── */}
-      <section className="admin-doc-stack admin-doc-stack--relaxed">
-        <div className="admin-doc-row-spread">
-          <h2 className="h2">Stablecoin pegs</h2>
-          <ProvenanceBadge kind={stablecoins.source === "oracle" ? "oracle" : stablecoins.source === "live" ? "live" : "stale"} />
-        </div>
-        <AdminTable
-          data={stablecoins.prices}
-          headers={["Asset", "Price", "Peg deviation", "Source"]}
-          colWidths={["w-[28%]", "w-[24%]", "w-[26%]", "w-[22%]"]}
-          renderRow={(coin) => (
-            <>
-              <td className="ct-table-cell ct-text-strong">{coin.symbol}</td>
-              <td className="ct-table-cell text-right tabular-nums ct-text-strong">
-                ${coin.priceUsd.toFixed(4)}
-              </td>
-              <td className="ct-table-cell text-right tabular-nums ct-text-muted">
-                {(coin.pegDeviationBps / 100).toFixed(2)} bps
-              </td>
-              <td className="ct-table-cell">
-                <ProvenanceBadge kind={coin.provenance} compact />
-              </td>
-            </>
-          )}
+    <div className="dark mb-8 flex flex-col rounded-2xl border border-white/10 bg-zinc-900">
+      <div className="flex flex-col gap-y-5 p-5 lg:p-6">
+        <AdminPageHeader
+          titleLead="DeFi"
+          titleAccent="Marketplace"
+          contextLabel="Live market data"
+          description="Spot prices, decentralized stablecoin pegs, lending yields and protocol TVL — sourced from free public feeds (Binance, Chainlink, DefiLlama). Read-only; every figure is provenance-tagged."
         />
-        <p className="body-xs ct-text-muted">
-          USDC / USDT / DAI read from Chainlink USD aggregators (provenance{" "}
-          <span className="ct-text-body">oracle</span>) when a mainnet RPC is
-          configured; crvUSD / GHO / USDe and any fallback from the DefiLlama
-          coins aggregator (provenance <span className="ct-text-body">live</span>).
-        </p>
-      </section>
 
-      {/* ── Lending yields (Morpho / Compound / Aave) ─────────────────────── */}
-      <section className="admin-doc-stack admin-doc-stack--relaxed">
-        <div className="admin-doc-row-spread">
-          <h2 className="h2">Lending yields</h2>
-          <ProvenanceBadge kind={lending.source === "live" ? "live" : "stale"} />
-        </div>
-        {/* Per-protocol best APY summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-(--ct-space-4)">
-          {lending.protocols.map((p) => (
-            <Metric
-              key={p.protocol}
-              label={p.label}
-              value={
-                <ApyRange
-                  low={Math.min(p.apyMedianPct, p.topPool.apyPct)}
-                  high={p.topPool.apyPct}
-                  precision={2}
-                />
-              }
-              sublabel={`${p.poolCount} pool${p.poolCount > 1 ? "s" : ""} · ${formatUsdCompact(p.tvlUsd)} TVL`}
-              provenance={lending.source === "live" ? "live" : "stale"}
-              tooltip="USDC supply APY (median → best) across qualifying pools on Ethereum/Base/Arbitrum/Optimism, via DefiLlama."
-            />
-          ))}
-        </div>
-        {/* Top pools detail */}
-        <AdminTable
-          data={lending.pools.slice(0, 10)}
-          headers={["Protocol", "Chain", "APY (base → total)", "Reward", "TVL"]}
-          colWidths={["w-[22%]", "w-[16%]", "w-[28%]", "w-[16%]", "w-[18%]"]}
-          renderRow={(pool) => (
-            <>
-              <td className="ct-table-cell ct-text-strong capitalize">{pool.protocol}</td>
-              <td className="ct-table-cell ct-text-muted">{pool.chain}</td>
-              <td className="ct-table-cell text-right">
-                <ApyRange low={pool.apyBasePct} high={pool.apyPct} precision={2} />
-              </td>
-              <td className="ct-table-cell text-right tabular-nums body-xs ct-text-muted">
-                {pool.apyRewardPct > 0 ? `+${pool.apyRewardPct.toFixed(2)}%` : "—"}
-              </td>
-              <td className="ct-table-cell text-right tabular-nums ct-text-muted">
-                {formatUsdCompact(pool.tvlUsd)}
-              </td>
-            </>
-          )}
-        />
-      </section>
+        {/* ── Spot prices (Binance) ─────────────────────────────────────────── */}
+        <BentoPanel>
+          <BentoHeader
+            title="Spot prices"
+            subtitle="BTC / ETH · Binance 24h ticker"
+            trailing={
+              <ProvenanceBadge kind={binance.source === "live" ? "live" : "stale"} />
+            }
+          />
+          <div className="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2">
+            {binance.tickers.map((t) => (
+              <BentoKpiTile
+                key={t.symbol}
+                label={t.symbol.replace("USDT", " / USDT")}
+                value={formatUsd(t.lastPrice)}
+                sub={
+                  <span className="flex items-center gap-2">
+                    <Trend trend={trendOf(t.priceChangePct)} />
+                    <ProvenanceBadge kind={t.provenance} compact />
+                  </span>
+                }
+                className="bg-black"
+              />
+            ))}
+          </div>
+        </BentoPanel>
 
-      {/* ── Protocol TVL ──────────────────────────────────────────────────── */}
-      <section className="admin-doc-stack admin-doc-stack--relaxed">
-        <div className="admin-doc-row-spread">
-          <h2 className="h2">Protocol TVL</h2>
-          <ProvenanceBadge kind={tvl.source === "live" ? "live" : "stale"} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-(--ct-space-4)">
-          {tvl.protocols.map((p) => (
-            <Metric
-              key={p.protocol}
-              label={p.label}
-              value={formatUsdCompact(p.tvlUsd)}
-              sublabel={p.slug}
-              provenance={p.provenance}
-              tooltip={`Total value locked, DefiLlama /tvl/${p.slug}.`}
-            />
-          ))}
-        </div>
-        <p className="body-xs ct-text-muted tabular-nums">
-          Combined tracked TVL:{" "}
-          <span className="ct-text-strong">{formatUsdCompact(tvl.totalTvlUsd)}</span>
-        </p>
-      </section>
-    </>
+        {/* ── Decentralized stablecoin prices ───────────────────────────────── */}
+        <BentoPanel>
+          <BentoHeader
+            title="Stablecoin pegs"
+            subtitle="On-chain decentralized stablecoins"
+            trailing={
+              <ProvenanceBadge
+                kind={
+                  stablecoins.source === "oracle"
+                    ? "oracle"
+                    : stablecoins.source === "live"
+                      ? "live"
+                      : "stale"
+                }
+              />
+            }
+          />
+          <AdminTable
+            className="rounded-none border-0 shadow-none"
+            data={stablecoins.prices}
+            headers={["Asset", "Price", "Peg deviation", "Source"]}
+            colWidths={["w-[28%]", "w-[24%]", "w-[26%]", "w-[22%]"]}
+            renderRow={(coin) => (
+              <>
+                <td className="px-5 py-3 align-middle text-[13px] font-medium text-white">
+                  {coin.symbol}
+                </td>
+                <td className="px-5 py-3 text-right align-middle font-medium tabular-nums text-white">
+                  ${coin.priceUsd.toFixed(4)}
+                </td>
+                <td className="px-5 py-3 text-right align-middle tabular-nums text-zinc-400">
+                  {(coin.pegDeviationBps / 100).toFixed(2)} bps
+                </td>
+                <td className="px-5 py-3 align-middle">
+                  <ProvenanceBadge kind={coin.provenance} compact />
+                </td>
+              </>
+            )}
+          />
+          <p className="border-t border-white/5 p-5 text-[12px] leading-relaxed text-zinc-400">
+            USDC / USDT / DAI read from Chainlink USD aggregators (provenance{" "}
+            <span className="font-medium text-zinc-200">oracle</span>) when a
+            mainnet RPC is configured; crvUSD / GHO / USDe and any fallback from
+            the DefiLlama coins aggregator (provenance{" "}
+            <span className="font-medium text-zinc-200">live</span>).
+          </p>
+        </BentoPanel>
+
+        {/* ── Lending yields (Morpho / Compound / Aave) ─────────────────────── */}
+        <BentoPanel>
+          <BentoHeader
+            title="Lending yields"
+            subtitle="USDC supply APY · median → best pool"
+            trailing={
+              <ProvenanceBadge kind={lending.source === "live" ? "live" : "stale"} />
+            }
+          />
+          {/* Per-protocol best APY summary */}
+          <div className="grid grid-cols-1 gap-px bg-white/5 md:grid-cols-3">
+            {lending.protocols.map((p) => (
+              <BentoKpiTile
+                key={p.protocol}
+                label={p.label}
+                accent
+                value={
+                  <ApyRange
+                    className="font-medium tabular-nums text-[#A7FB90]"
+                    low={Math.min(p.apyMedianPct, p.topPool.apyPct)}
+                    high={p.topPool.apyPct}
+                    precision={2}
+                  />
+                }
+                sub={`${p.poolCount} pool${p.poolCount > 1 ? "s" : ""} · ${formatUsdCompact(p.tvlUsd)} TVL`}
+                className="bg-black"
+              />
+            ))}
+          </div>
+          {/* Top pools detail */}
+          <AdminTable
+            className="rounded-none border-0 border-t border-white/5 shadow-none"
+            data={lending.pools.slice(0, 10)}
+            headers={["Protocol", "Chain", "APY (base → total)", "Reward", "TVL"]}
+            colWidths={["w-[22%]", "w-[16%]", "w-[28%]", "w-[16%]", "w-[18%]"]}
+            renderRow={(pool) => (
+              <>
+                <td className="px-5 py-3 align-middle text-[13px] font-medium capitalize text-white">
+                  {pool.protocol}
+                </td>
+                <td className="px-5 py-3 align-middle text-zinc-400">{pool.chain}</td>
+                <td className="px-5 py-3 text-right align-middle">
+                  <ApyRange
+                    className="font-medium tabular-nums text-white"
+                    low={pool.apyBasePct}
+                    high={pool.apyPct}
+                    precision={2}
+                  />
+                </td>
+                <td className="px-5 py-3 text-right align-middle tabular-nums text-[12px] text-zinc-400">
+                  {pool.apyRewardPct > 0 ? `+${pool.apyRewardPct.toFixed(2)}%` : "—"}
+                </td>
+                <td className="px-5 py-3 text-right align-middle tabular-nums text-zinc-400">
+                  {formatUsdCompact(pool.tvlUsd)}
+                </td>
+              </>
+            )}
+          />
+        </BentoPanel>
+
+        {/* ── Protocol TVL ──────────────────────────────────────────────────── */}
+        <BentoPanel>
+          <BentoHeader
+            title="Protocol TVL"
+            subtitle="Total value locked · DefiLlama"
+            trailing={
+              <ProvenanceBadge kind={tvl.source === "live" ? "live" : "stale"} />
+            }
+          />
+          <div className="grid grid-cols-1 gap-px bg-white/5 md:grid-cols-3">
+            {tvl.protocols.map((p) => (
+              <BentoKpiTile
+                key={p.protocol}
+                label={p.label}
+                value={formatUsdCompact(p.tvlUsd)}
+                sub={
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono text-zinc-500">{p.slug}</span>
+                    <ProvenanceBadge kind={p.provenance} compact />
+                  </span>
+                }
+                className="bg-black"
+              />
+            ))}
+          </div>
+          <p className="border-t border-white/5 p-5 text-[12px] tabular-nums text-zinc-400">
+            Combined tracked TVL:{" "}
+            <span className="font-medium text-white">
+              {formatUsdCompact(tvl.totalTvlUsd)}
+            </span>
+          </p>
+        </BentoPanel>
+      </div>
+    </div>
+  );
+}
+
+/** Inline +/- change pill matching the Portfolio yield-line accent treatment. */
+function Trend({
+  trend,
+}: {
+  trend: { direction: "up" | "down" | "flat"; text: string };
+}) {
+  const tone =
+    trend.direction === "up"
+      ? "text-[#A7FB90]"
+      : trend.direction === "down"
+        ? "text-rose-300"
+        : "text-zinc-500";
+  const glyph =
+    trend.direction === "up" ? "↑" : trend.direction === "down" ? "↓" : "→";
+  return (
+    <span className={cn("font-mono text-[11px] font-medium tabular-nums", tone)}>
+      {glyph} {trend.text}
+    </span>
   );
 }

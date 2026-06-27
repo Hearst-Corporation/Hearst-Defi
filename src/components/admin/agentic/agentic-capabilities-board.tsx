@@ -1,18 +1,50 @@
 // Admin · Agentic Control Tower — Capabilities (presentational).
 //
-// READ-ONLY. Rewritten 2026-06-26: "what can the platform do, and how safely?"
-// as one row per autonomy tier in a collapsible table (count · tier · meaning),
-// not four cards. The per-action detail lives once in Actions & Gates below.
-// No hardcoded values. Pure component.
+// READ-ONLY. "What can the platform do, and how safely?" — one row per autonomy
+// tier (count · tier · meaning). The per-action detail lives once in Actions &
+// Gates below. No hardcoded values. Pure component.
+//
+// Bento canon (Portfolio): black BentoPanel + hairline border, micro uppercase
+// labels, single accent green #A7FB90. Tier renders as a colored chip —
+// autonomous/read-only=accent green, draft/gated=amber, never-autonomous=red.
 
-import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
-import type { ActionReadinessMatrix, ActionReadinessTier } from "@/lib/agentic/action-readiness/types";
+import type { ReactNode } from "react";
+
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { cn } from "@/lib/cn";
+import type {
+  ActionReadinessMatrix,
+  ActionReadinessTier,
+} from "@/lib/agentic/action-readiness/types";
+
+/** Bento chip tone — drives the border/bg/text triplet only. */
+type ChipTone = "ok" | "warn" | "danger";
+
+/** Single green #A7FB90 for autonomous; amber for gated, red for never-autonomous. */
+const CHIP_TONE: Record<ChipTone, string> = {
+  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+  danger: "border-red-400/30 bg-red-400/10 text-red-400",
+};
+
+function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap",
+        CHIP_TONE[tone],
+      )}
+    >
+      {children}
+    </span>
+  );
+}
 
 interface Capability {
   tier: ActionReadinessTier;
   title: string;
   meaning: string;
-  tone: AgenticTone;
+  tone: ChipTone;
 }
 
 const CAPABILITIES: Capability[] = [
@@ -20,19 +52,19 @@ const CAPABILITIES: Capability[] = [
     tier: "read_only",
     title: "Autonomous",
     meaning: "Reads only — safe to run without human review.",
-    tone: "success",
+    tone: "ok",
   },
   {
     tier: "draft_or_proposal",
     title: "Draft only",
     meaning: "Agent prepares; human must confirm before anything sends.",
-    tone: "warning",
+    tone: "warn",
   },
   {
     tier: "confirmed_write",
     title: "Gated write",
     meaning: "Explicit 2-step human confirmation required.",
-    tone: "warning",
+    tone: "warn",
   },
   {
     tier: "forbidden_autonomous",
@@ -50,35 +82,55 @@ export function AgenticCapabilitiesBoard({
   if (!matrix) return null;
 
   return (
-    <AgenticGroup
-      id="capabilities"
-      title="Capabilities"
-      count={CAPABILITIES.length}
-      note="What the platform can do, by how much human oversight it needs."
-    >
-      <table className="agentic-table">
-        <thead>
-          <tr>
-            <th className="agentic-cell-num">Count</th>
-            <th>Tier</th>
-            <th>Meaning</th>
-          </tr>
-        </thead>
-        <tbody>
-          {CAPABILITIES.map((c) => {
-            const count = matrix.items.filter((i) => i.tier === c.tier).length;
-            return (
-              <tr key={c.tier} data-tone={c.tone}>
-                <td className="agentic-cell-num agentic-cell-strong">{count}</td>
-                <td>
-                  <AgenticTag tone={c.tone}>{c.title}</AgenticTag>
-                </td>
-                <td className="agentic-cell-muted">{c.meaning}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </AgenticGroup>
+    <BentoPanel id="capabilities" aria-label="Capabilities">
+      <BentoHeader
+        title="Capabilities"
+        subtitle="What the platform can do, by how much human oversight it needs."
+        as="h3"
+        trailing={
+          <span className="text-[18px] font-medium leading-none text-white tabular-nums">
+            {CAPABILITIES.length}
+          </span>
+        }
+      />
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-[13px]">
+          <thead>
+            <tr className="border-b border-white/5">
+              <th className="bg-transparent px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 whitespace-nowrap">
+                Count
+              </th>
+              <th className="bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                Tier
+              </th>
+              <th className="bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                Meaning
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {CAPABILITIES.map((c) => {
+              const count = matrix.items.filter(
+                (i) => i.tier === c.tier,
+              ).length;
+              return (
+                <tr
+                  key={c.tier}
+                  className="border-b border-white/5 align-middle transition-colors last:border-b-0 hover:bg-white/[0.02]"
+                >
+                  <td className="px-4 py-3 text-right font-medium text-white tabular-nums">
+                    {count}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Chip tone={c.tone}>{c.title}</Chip>
+                  </td>
+                  <td className="px-4 py-3 text-zinc-400">{c.meaning}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </BentoPanel>
   );
 }

@@ -2,10 +2,9 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
-import { Badge } from "@/components/catalyst/badge";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { MachineTable } from "@/components/admin/source/machine-table";
-import { Card } from "@/components/ui/card";
+import { BentoPanel, BentoHeader } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
@@ -34,10 +33,10 @@ import {
 
 type BrickStatus = "wired" | "todo" | "tbd";
 
-const STATUS_BADGE: Record<BrickStatus, { color: "lime" | "amber" | "zinc"; label: string }> = {
-  wired: { color: "lime", label: "Câblé" },
-  todo: { color: "amber", label: "À câbler" },
-  tbd: { color: "zinc", label: "À définir" },
+const STATUS_CHIP: Record<BrickStatus, { accent: boolean; label: string }> = {
+  wired: { accent: true, label: "Câblé" },
+  todo: { accent: false, label: "À câbler" },
+  tbd: { accent: false, label: "À définir" },
 };
 
 const BRICKS: ReadonlyArray<{
@@ -81,6 +80,28 @@ const COUNTRY_ORDER: DestinationCountry[] = [
   "russia",
 ];
 
+/** Tinted bento chip — brick wiring status. */
+function StatusChip({
+  accent,
+  children,
+}: {
+  accent: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        accent
+          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+          : "border-white/10 bg-white/5 text-zinc-400",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
 function resolveDestination(raw: string | undefined): DestinationCountry {
   return raw && raw in CUSTOMS_DUTY_PCT
     ? (raw as DestinationCountry)
@@ -103,92 +124,109 @@ export default async function SourcePage({
   ).length;
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Sources de"
-        titleAccent="données"
-        contextLabel="Strategy"
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Sources de"
+          titleAccent="données"
+          contextLabel="Strategy"
+        />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--ct-space-4)]">
-        {BRICKS.map((brick) => {
-          const badge = STATUS_BADGE[brick.status];
-          return (
-            <Card
-              key={brick.id}
-              contentClassName="flex h-full flex-col gap-[var(--ct-space-2)]"
-            >
-              <div className="flex items-start justify-between gap-[var(--ct-space-3)]">
-                <h3 className="body-sm font-semibold ct-text-strong">{brick.title}</h3>
-                <Badge color={badge.color}>{badge.label}</Badge>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {BRICKS.map((brick) => {
+            const chip = STATUS_CHIP[brick.status];
+            return (
+              <BentoPanel key={brick.id}>
+                <div className="flex h-full flex-col gap-2 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-[13px] font-semibold text-white">
+                      {brick.title}
+                    </h3>
+                    <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
+                  </div>
+                  <p className="text-[12px] text-zinc-500">{brick.detail}</p>
+                </div>
+              </BentoPanel>
+            );
+          })}
+        </div>
+
+        <BentoPanel>
+          <BentoHeader
+            title={`Prix machines — ${market.channel}`}
+            subtitle={
+              <>
+                Liste {market.listDate ?? "n/a"} · {market.rows.length} machines
+                · {profitable} rentables · Énergie{" "}
+                {market.energyUsdPerKwh * 100} ¢/kWh · Landed = ex-works + port $
+                {FREIGHT_USD_PER_UNIT} + douane {CUSTOMS_DUTY_PCT[destination]}% (
+                {COUNTRY_LABELS[destination]})
+              </>
+            }
+            trailing={
+              <div className="text-right">
+                <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  Revenu (hashprice live)
+                </div>
+                <div className="text-[13px] font-semibold tabular-nums text-[#A7FB90]">
+                  ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
+                  {market.hashpriceStale ? " (stale)" : ""}
+                </div>
+                <div className="text-[12px] tabular-nums text-zinc-500">
+                  BTC ${market.btcPriceUsd.toLocaleString()}
+                </div>
               </div>
-              <p className="body-xs ct-text-muted">{brick.detail}</p>
-            </Card>
-          );
-        })}
+            }
+          />
+
+          <div className="flex flex-col gap-5 p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                Destination
+              </span>
+              {COUNTRY_ORDER.map((c) => (
+                <Link
+                  key={c}
+                  href={
+                    c === DEFAULT_DESTINATION
+                      ? "/admin/source"
+                      : `/admin/source?dest=${c}`
+                  }
+                  className={cn(
+                    "rounded-lg border px-3 py-1 text-[12px] transition-colors",
+                    destination === c
+                      ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
+                      : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
+                </Link>
+              ))}
+            </div>
+
+            {!market.configured ? (
+              <p className="text-[12px] text-zinc-500">
+                Telegram non configuré. Renseignez TELEGRAM_API_ID /
+                TELEGRAM_API_HASH / TELEGRAM_SESSION dans .env.local (login via{" "}
+                <code className="font-mono text-zinc-300">
+                  node scripts/telegram-login.mjs
+                </code>
+                ).
+              </p>
+            ) : market.error ? (
+              <p className="text-[12px] text-rose-400">
+                Lecture Telegram impossible : {market.error}
+              </p>
+            ) : market.rows.length === 0 ? (
+              <p className="text-[12px] text-zinc-500">
+                Aucune liste de prix exploitable dans les derniers messages.
+              </p>
+            ) : (
+              <MachineTable rows={market.rows} />
+            )}
+          </div>
+        </BentoPanel>
       </div>
-
-      <Card contentClassName="flex flex-col gap-[var(--ct-space-4)]">
-        <div className="flex flex-wrap items-start justify-between gap-[var(--ct-space-3)]">
-          <div className="flex flex-col gap-[var(--ct-space-1)]">
-            <h2 className="body-md font-semibold ct-text-strong">
-              Prix machines — {market.channel}
-            </h2>
-            <p className="body-xs ct-text-muted">
-              Liste {market.listDate ?? "n/a"} · {market.rows.length} machines ·{" "}
-              {profitable} rentables · Énergie {market.energyUsdPerKwh * 100} ¢/kWh ·
-              Landed = ex-works + port ${FREIGHT_USD_PER_UNIT} + douane{" "}
-              {CUSTOMS_DUTY_PCT[destination]}% ({COUNTRY_LABELS[destination]})
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="body-xs ct-text-muted">Revenu (hashprice live)</div>
-            <div className="body-sm font-semibold text-[var(--ct-accent)] tabular-nums">
-              ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
-              {market.hashpriceStale ? " (stale)" : ""}
-            </div>
-            <div className="body-xs ct-text-muted tabular-nums">
-              BTC ${market.btcPriceUsd.toLocaleString()}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-[var(--ct-space-2)]">
-          <span className="body-xs ct-text-muted">Destination :</span>
-          {COUNTRY_ORDER.map((c) => (
-            <Link
-              key={c}
-              href={c === DEFAULT_DESTINATION ? "/admin/source" : `/admin/source?dest=${c}`}
-              className={cn(
-                "rounded-[var(--ct-radius-md)] border px-[var(--ct-space-3)] py-[var(--ct-space-1)] body-xs transition-colors",
-                destination === c
-                  ? "border-[var(--ct-accent)] text-[var(--ct-accent)]"
-                  : "border-[var(--ct-border-soft)] ct-text-muted hover:ct-text-strong",
-              )}
-            >
-              {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
-            </Link>
-          ))}
-        </div>
-
-        {!market.configured ? (
-          <p className="body-xs ct-text-muted">
-            Telegram non configuré. Renseignez TELEGRAM_API_ID / TELEGRAM_API_HASH
-            / TELEGRAM_SESSION dans .env.local (login via{" "}
-            <code>node scripts/telegram-login.mjs</code>).
-          </p>
-        ) : market.error ? (
-          <p className="body-xs text-[var(--ct-status-danger,#ff6b6b)]">
-            Lecture Telegram impossible : {market.error}
-          </p>
-        ) : market.rows.length === 0 ? (
-          <p className="body-xs ct-text-muted">
-            Aucune liste de prix exploitable dans les derniers messages.
-          </p>
-        ) : (
-          <MachineTable rows={market.rows} />
-        )}
-      </Card>
-    </>
+    </div>
   );
 }

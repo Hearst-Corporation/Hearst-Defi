@@ -16,25 +16,32 @@ export default async function ProofsPage() {
   });
 
   return (
-    <>
-      <AdminPageHeader
-        titleLead="Proof"
-        titleAccent="Library"
-        contextLabel="Proof & System"
-        actions={
-          <AdminLeafLink
-            href="/admin/proof-center/full"
-            label="View in Proof Center"
-          />
-        }
-      />
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <AdminPageHeader
+          titleLead="Proof"
+          titleAccent="Library"
+          contextLabel="Proof & System"
+          actions={
+            <AdminLeafLink
+              href="/admin/proof-center/full"
+              label="View in Proof Center"
+            />
+          }
+        />
 
-      <section className="admin-doc-stack admin-doc-stack--actions">
-        {items.length > 0 ? (
-          <h2 className="h2">Published evidence ({items.length})</h2>
-        ) : null}
-        <ProofList items={items} />
-      </section>
-    </>
+        <section className="flex flex-col gap-4" aria-label="Published evidence">
+          {items.length > 0 ? (
+            <h2 className="text-[13px] font-semibold tracking-tight text-white">
+              Published evidence{" "}
+              <span className="text-zinc-500 tabular-nums">
+                ({items.length})
+              </span>
+            </h2>
+          ) : null}
+          <ProofList items={items} />
+        </section>
+      </div>
+    </div>
   );
 }

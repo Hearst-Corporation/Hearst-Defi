@@ -1,12 +1,13 @@
 // Admin · Agentic Control Tower — Crew Simulation (presentational).
 //
-// READ-ONLY. Rewritten 2026-06-26: 6 crew scenarios as ONE row each in a
-// collapsible group (scenario · risk · mode · gates), with the step rail tucked
-// into a nested <details> so the table stays scannable. `executable: false` is
-// stated once at the group level. No run / send / deploy anywhere. No hardcoded
-// values. Pure component.
+// READ-ONLY. Bento conversion 2026-06-28: each crew scenario is a black
+// BentoPanel (scenario header · risk/mode/gates KPI strip · nested step rail).
+// `executable: false` is stated once in the section header. No run / send /
+// deploy / source control anywhere — these are simulations, nothing executes.
+// No hardcoded colour outside the canon (#A7FB90 accent, #15191C sub-surface).
+// Pure component.
 
-import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import type {
   CrewSimulationMode,
   CrewSimulationResult,
@@ -20,16 +21,69 @@ const MODE_LABEL: Record<CrewSimulationMode, string> = {
   forbidden: "forbidden",
 };
 
-function riskTone(risk: CrewSimulationRisk): AgenticTone {
+type Tone = "ok" | "warn" | "danger" | "muted";
+
+function riskTone(risk: CrewSimulationRisk): Tone {
   if (risk === "critical" || risk === "high") return "danger";
-  if (risk === "medium") return "warning";
-  return "neutral";
+  if (risk === "medium") return "warn";
+  return "muted";
 }
 
-function modeTone(mode: CrewSimulationMode): AgenticTone {
-  if (mode === "read_only") return "success";
+function modeTone(mode: CrewSimulationMode): Tone {
+  if (mode === "read_only") return "ok";
   if (mode === "forbidden") return "danger";
-  return "warning";
+  return "warn";
+}
+
+const DOT_CLASS: Record<Tone, string> = {
+  ok: "bg-[#A7FB90]",
+  warn: "bg-amber-400/80",
+  danger: "bg-red-400/80",
+  muted: "bg-zinc-600",
+};
+
+const TAG_CLASS: Record<Tone, string> = {
+  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
+  danger: "border-red-400/25 bg-red-400/10 text-red-300",
+  muted: "border-white/10 bg-white/5 text-zinc-400",
+};
+
+/** Micro uppercase label. */
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      {children}
+    </span>
+  );
+}
+
+/** Tokenised inline tag with a leading status dot. */
+function Tag({ tone, children }: { tone: Tone; children: React.ReactNode }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium ${TAG_CLASS[tone]}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[tone]}`} aria-hidden />
+      {children}
+    </span>
+  );
+}
+
+/** One labelled stat cell inside the per-scenario KPI strip. */
+function KpiCell({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2 bg-[#15191C] p-4">
+      <Label>{label}</Label>
+      <div className="flex items-center">{children}</div>
+    </div>
+  );
 }
 
 export function CrewSimulationSection({
@@ -40,65 +94,103 @@ export function CrewSimulationSection({
   if (!simulations || simulations.length === 0) return null;
 
   return (
-    <AgenticGroup
-      id="crew-simulation"
-      title="Crew Simulation"
-      count={simulations.length}
-      meta={<AgenticTag tone="danger">executable: false</AgenticTag>}
-      note="What each crew would do — read-only simulation. No step executes; no tool is called."
-    >
-      <table className="agentic-table">
-        <thead>
-          <tr>
-            <th>Scenario</th>
-            <th>Risk</th>
-            <th>Mode</th>
-            <th className="agentic-cell-num">Gates</th>
-          </tr>
-        </thead>
-        <tbody>
-          {simulations.map(({ scenario, summary, requiredGates, blockedActions }) => (
-            <tr key={scenario.id} data-tone={modeTone(scenario.mode)}>
-              <td className="agentic-cell-strong">
-                {scenario.label}
-                <details className="agentic-rowdetail">
-                  <summary className="agentic-rowdetail-summary">flow</summary>
-                  <div className="agentic-rowdetail-body">
-                    <span className="agentic-cell-muted">{summary}</span>
-                    <ol className="agentic-steps">
+    <BentoPanel className="bg-transparent border-0 shadow-none gap-4">
+      <BentoHeader
+        className="px-0 pt-0"
+        title="Crew Simulation"
+        subtitle="What each crew would do — read-only simulation. No step executes; no tool is called."
+        trailing={<Tag tone="danger">executable: false</Tag>}
+      />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {simulations.map(
+          ({ scenario, summary, requiredGates, blockedActions }) => {
+            const showRisk = scenario.risk !== "low" && scenario.risk !== "none";
+            return (
+              <BentoPanel key={scenario.id} className="bg-[#15191C]">
+                <div className="flex flex-col gap-1.5 p-5">
+                  <h3 className="text-[14px] font-semibold leading-tight text-white">
+                    {scenario.label}
+                  </h3>
+                  <p className="text-[12px] leading-relaxed text-zinc-400">
+                    {summary}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-white/5 bg-black">
+                  <KpiCell label="Risk">
+                    {showRisk ? (
+                      <Tag tone={riskTone(scenario.risk)}>{scenario.risk}</Tag>
+                    ) : (
+                      <span className="text-[13px] text-zinc-600">—</span>
+                    )}
+                  </KpiCell>
+                  <KpiCell label="Mode">
+                    <Tag tone={modeTone(scenario.mode)}>
+                      {MODE_LABEL[scenario.mode]}
+                    </Tag>
+                  </KpiCell>
+                  <KpiCell label="Gates">
+                    <span className="text-[14px] font-medium tabular-nums text-white">
+                      {requiredGates.length || "—"}
+                    </span>
+                  </KpiCell>
+                </div>
+
+                <div className="flex flex-col gap-3 p-5">
+                  <details className="group">
+                    <summary className="flex cursor-pointer list-none items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 transition-colors hover:text-zinc-300">
+                      <span
+                        className="inline-block h-1.5 w-1.5 rotate-45 border-b border-r border-current transition-transform group-open:rotate-[225deg]"
+                        aria-hidden
+                      />
+                      Flow · {scenario.steps.length} steps
+                    </summary>
+                    <ol className="mt-3 flex flex-col gap-2">
                       {scenario.steps.map((step, i) => (
-                        <li key={step.id} className="agentic-step">
-                          <span className="agentic-step-index">{i + 1}</span>
-                          <span>{step.label}</span>
-                          <span className="agentic-step-mode">{MODE_LABEL[step.mode]}</span>
+                        <li
+                          key={step.id}
+                          className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/40 px-3 py-2"
+                        >
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/5 text-[10px] font-bold tabular-nums text-zinc-400">
+                            {i + 1}
+                          </span>
+                          <span className="flex-1 text-[12px] text-zinc-300">
+                            {step.label}
+                          </span>
+                          <span className="text-[10px] uppercase tracking-[0.1em] font-bold text-zinc-500">
+                            {MODE_LABEL[step.mode]}
+                          </span>
                         </li>
                       ))}
                     </ol>
+
                     {blockedActions.length > 0 && (
-                      <span className="agentic-cell-faint">
-                        blocked: {blockedActions.join(", ")}
-                      </span>
+                      <div className="mt-3 flex flex-col gap-2">
+                        <Label>Blocked</Label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {blockedActions.map((action) => (
+                            <span
+                              key={action}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-red-400/20 bg-red-400/5 px-2 py-0.5 text-[11px] text-red-300/90"
+                            >
+                              <span
+                                className="h-1 w-1 rounded-full bg-red-400/70"
+                                aria-hidden
+                              />
+                              {action}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                  </div>
-                </details>
-              </td>
-              <td>
-                {scenario.risk !== "low" && scenario.risk !== "none" ? (
-                  <AgenticTag tone={riskTone(scenario.risk)}>{scenario.risk}</AgenticTag>
-                ) : (
-                  <span className="agentic-cell-faint">—</span>
-                )}
-              </td>
-              <td>
-                <AgenticTag tone={modeTone(scenario.mode)}>{MODE_LABEL[scenario.mode]}</AgenticTag>
-              </td>
-              <td className="agentic-cell-num agentic-cell-muted">
-                {requiredGates.length || "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </AgenticGroup>
+                  </details>
+                </div>
+              </BentoPanel>
+            );
+          },
+        )}
+      </div>
+    </BentoPanel>
   );
 }
