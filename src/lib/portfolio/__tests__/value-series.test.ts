@@ -79,7 +79,10 @@ describe("buildPortfolioValueSeries", () => {
 
     expect(built.mode).toBe("hourly");
     expect(built.densityNote).toBe("Hourly NAV prints");
-    expect(built.points.filter((p) => p.source === "hourly_snapshot")).toHaveLength(2);
+    // Two distinct in-window prints after dedup (the two -20h collapse to one),
+    // plus a flat carry-back point at windowStart so the line spans the window.
+    expect(built.points[0]?.at.getTime()).toBe(now.getTime() - 24 * PORTFOLIO_VALUE_HOURLY_CADENCE_MS);
+    expect(built.points.filter((p) => p.source === "hourly_snapshot")).toHaveLength(3);
     expect(built.points[built.points.length - 1]?.source).toBe("live_anchor");
     expect(built.points[built.points.length - 1]?.valueUsdc).toBe(11);
   });
@@ -100,9 +103,12 @@ describe("buildPortfolioValueSeries", () => {
       hourlySnapshots: hourly,
     });
 
-    expect(built.points).toHaveLength(1);
-    expect(built.points[0]?.source).toBe("live_anchor");
-    expect(built.points[0]?.valueUsdc).toBe(11);
+    // Flat carry-back anchors windowStart; the single recent print (<30min old)
+    // is replaced in place by the live anchor at the current NAV.
+    expect(built.points).toHaveLength(2);
+    expect(built.points[0]?.at.getTime()).toBe(now.getTime() - 24 * 60 * 60 * 1000);
+    expect(built.points[built.points.length - 1]?.source).toBe("live_anchor");
+    expect(built.points[built.points.length - 1]?.valueUsdc).toBe(11);
   });
 });
 

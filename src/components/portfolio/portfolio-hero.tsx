@@ -58,21 +58,19 @@ export function PortfolioHero({
   return (
     <div className="pf-hero-grid pf-cockpit-cell" aria-label="Portfolio overview">
       <header className="pf-hero-header">
-        <div className="pf-hero-header__row">
-          <h2 className="pf-cockpit-panel__title--primary">Portfolio Value</h2>
-          {!isEmpty && provenance ? (
-            <span className="pf-hero-header__provenance">{provenanceLabel}</span>
-          ) : null}
-          {formattedDate ? (
-            <time className="pf-hero-header__date" dateTime={updatedAt?.toISOString()}>
-              {formattedDate}
-            </time>
-          ) : null}
-        </div>
+        <h2 className="pf-panel-title">Portfolio Value</h2>
+        {!isEmpty && provenance ? (
+          <span className="pf-hero-header__provenance">{provenanceLabel}</span>
+        ) : null}
+        {formattedDate ? (
+          <time className="pf-hero-header__date" dateTime={updatedAt?.toISOString()}>
+            {formattedDate}
+          </time>
+        ) : null}
       </header>
 
       <div className="pf-hero-body">
-        <div className="pf-main-chart-wrapper">
+        <div className="pf-hero-chart-area">
           <ValueChart
             heroPane="left"
             positions={positions}

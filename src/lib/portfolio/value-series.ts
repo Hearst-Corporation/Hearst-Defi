@@ -122,6 +122,21 @@ function buildFromHourlySnapshots(
 
   const points = dedupeByTimestamp(inWindow);
 
+  // Carry the earliest known NAV flat back to windowStart so the line spans the
+  // whole window instead of being stranded against the right edge when the feed
+  // only covers part of the range (e.g. 7 days of prints in a 30D / ALL window).
+  // A flat carry-back is the honest estimate for a period we have no prints for
+  // — NEVER a fabricated trend, and never a distribution "cliff" (a payout is
+  // cash received by the investor, not portfolio value lost).
+  const first = points[0];
+  if (first && first.at.getTime() - windowStart.getTime() > HOUR_MS) {
+    points.unshift({
+      at: windowStart,
+      valueUsdc: first.valueUsdc,
+      source: "hourly_snapshot",
+    });
+  }
+
   const last = points[points.length - 1];
   const needsLiveAnchor =
     !last || Math.abs(windowEnd.getTime() - last.at.getTime()) > HOUR_MS / 2;

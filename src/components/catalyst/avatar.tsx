@@ -27,26 +27,73 @@ export function Avatar({
       className={cn(
         className,
         // Basic layout
-        'inline-grid shrink-0 align-middle [--avatar-radius:20%] *:col-start-1 *:row-start-1',
-        'outline -outline-offset-1 outline-black/10 dark:outline-white/10',
+        'inline-flex items-center justify-center shrink-0 align-middle [--avatar-radius:20%]',
+        // Outlines from the requested design
+        'ring-2 ring-white outline -outline-offset-1 outline-black/5 dark:ring-gray-900 dark:outline-white/10',
         // Border radius
-        square ? 'rounded-(--avatar-radius) *:rounded-(--avatar-radius)' : 'rounded-full *:rounded-full'
+        square ? 'rounded-(--avatar-radius)' : 'rounded-full',
+        // If no src, apply the background for initials
+        !src && 'bg-gray-500 dark:bg-gray-800'
       )}
     >
       {initials && (
-        <svg
-          className="size-full fill-current p-[5%] text-[48px] font-medium uppercase select-none"
-          viewBox="0 0 100 100"
-          aria-hidden={alt ? undefined : 'true'}
-        >
-          {alt && <title>{alt}</title>}
-          <text x="50%" y="50%" alignmentBaseline="middle" dominantBaseline="middle" textAnchor="middle" dy=".125em">
-            {initials}
-          </text>
-        </svg>
+        <span className={cn(
+          "font-medium text-white",
+          // Adapt text size based on container size heuristics (Tailwind Arbitrary values not easily readable, but we map common sizes)
+          className?.includes('size-6') ? "text-xs" :
+          className?.includes('size-8') ? "text-sm" :
+          className?.includes('size-12') ? "text-lg" :
+          className?.includes('size-14') ? "text-xl" :
+          "" // default for size-10 is standard text size
+        )}>
+          {initials}
+        </span>
       )}
-      {src && <img className="size-full" src={src} alt={alt} />}
+      {src && <img className={cn(
+        "size-full object-cover",
+        square ? 'rounded-(--avatar-radius)' : 'rounded-full'
+      )} src={src} alt={alt} />}
     </span>
+  )
+}
+
+/**
+ * AvatarGroup — A new Catalyst component to render overlapping avatars
+ * Usage:
+ * <AvatarGroup size="md">
+ *   <Avatar src="..." />
+ *   <Avatar src="..." />
+ * </AvatarGroup>
+ */
+export function AvatarGroup({
+  children,
+  className,
+  size = 'md',
+}: {
+  children: React.ReactNode
+  className?: string
+  size?: 'sm' | 'md' | 'lg'
+}) {
+  return (
+    <div
+      className={cn(
+        'isolate flex overflow-hidden',
+        size === 'sm' && '-space-x-1 *:size-6',
+        size === 'md' && '-space-x-2 *:size-8',
+        size === 'lg' && '-space-x-2 *:size-10',
+        className
+      )}
+    >
+      {React.Children.map(children, (child, index) => {
+        if (!React.isValidElement(child)) return child
+        // Inject z-index based on position (first element on top: z-30, then 20, 10, 0)
+        const zIndex = 30 - index * 10
+        const childElement = child as React.ReactElement<{ className?: string }>
+        return React.cloneElement(childElement, {
+          className: cn(`relative z-[${Math.max(0, zIndex)}] inline-block`, childElement.props.className),
+        })
+      })}
+    </div>
   )
 }
 

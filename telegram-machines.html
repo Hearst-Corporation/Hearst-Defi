@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Letine machines — 2026-06-26</title>
+<style>
+  :root { --bg:#0b0e0d; --panel:#15191c; --line:#222; --accent:#A7FB90; --muted:#8a938e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,system-ui,sans-serif; background:var(--bg); color:#e6efe9; padding:32px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  h1 span { color:var(--accent); }
+  .meta { color:var(--muted); margin-bottom:20px; }
+  .filters { margin-bottom:14px; display:flex; gap:8px; flex-wrap:wrap; }
+  .filters button { background:var(--panel); color:#e6efe9; border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font:inherit; }
+  .filters button.active { border-color:var(--accent); color:var(--accent); }
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  th,td { padding:8px 12px; text-align:left; border-bottom:1px solid var(--line); }
+  th { background:#10140f; color:var(--muted); font-weight:600; cursor:pointer; user-select:none; white-space:nowrap; }
+  th:hover { color:var(--accent); }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .strong { color:var(--accent); font-weight:700; }
+  .c-air { color:#7fd3ff; } .c-hydro { color:#A7FB90; } .c-immersion { color:#ffce6b; } .c-unknown { color:var(--muted); }
+  .src { font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+  .src-label { color:var(--accent); } .src-catalog { color:#7fd3ff; } .src-fallback { color:#ffce6b; }
+  tr:hover td { background:#1b211d; }
+</style></head>
+<body>
+  <h1>Letine — <span>Prix machines</span></h1>
+  <div class="meta">Source: @LetineSidonia · Date liste: <b>2026-06-26</b> · 57 machines · CAPEX $/TH/jour = prix / TH / (amort × 30,4j) · Air 3 ans, Hydro/Immersion 5 ans</div>
+  <div class="filters">
+    <button data-f="all" class="active">Tous (57)</button>
+    <button data-f="air">Air</button>
+    <button data-f="hydro">Hydro</button>
+    <button data-f="immersion">Immersion</button>
+  </div>
+  <table id="t">
+    <thead><tr>
+      <th data-k="model">Modèle</th><th data-k="cooling">Cooling</th>
+      <th data-k="src">Source</th>
+      <th data-k="th" class="num">TH/s</th><th data-k="price" class="num">Prix unité</th>
+      <th data-k="perth" class="num">$/TH</th><th data-k="amort" class="num">Amort.</th>
+      <th data-k="capex" class="num">CAPEX $/TH/jour</th>
+    </tr></thead>
+    <tbody><tr data-cooling="air">
+  <td>S21 151T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">151</td>
+  <td class="num">$830</td>
+  <td class="num">$5.4967</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.005</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21++216T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">216</td>
+  <td class="num">$1,296</td>
+  <td class="num">$6</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0055</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21++225T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">225</td>
+  <td class="num">$1,440</td>
+  <td class="num">$6.4</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0058</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21++ 235T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">235</td>
+  <td class="num">$1,551</td>
+  <td class="num">$6.6</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.006</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21 Pro+ 234T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">234</td>
+  <td class="num">$1,848</td>
+  <td class="num">$7.8974</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0072</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21 Pro+ 245T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">245</td>
+  <td class="num">$1,960</td>
+  <td class="num">$8</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0073</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21 XP 270T</td>
+  <td class="c-air">air</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">270</td>
+  <td class="num">$3,267</td>
+  <td class="num">$12.1</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0111</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>S19XP+Hyd 293T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">293</td>
+  <td class="num">$967</td>
+  <td class="num">$3.3003</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0018</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>S21+Hyd 338T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">338</td>
+  <td class="num">$2,129</td>
+  <td class="num">$6.2988</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0035</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>S21+ Hyd 358T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">358</td>
+  <td class="num">$2,273</td>
+  <td class="num">$6.3492</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0035</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>S21+ Hyd 395T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">395</td>
+  <td class="num">$2,547</td>
+  <td class="num">$6.4481</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0035</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>S21e XP Hyd 3U 860T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">860</td>
+  <td class="num">$10,664</td>
+  <td class="num">$12.4</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0068</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>S21J XP Hyd 495T July</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">495</td>
+  <td class="num">$6,138</td>
+  <td class="num">$12.4</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0068</td>
+</tr>
+<tr data-cooling="immersion">
+  <td>S21 IMM 215T 16w</td>
+  <td class="c-immersion">immersion</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">215</td>
+  <td class="num">$1,269</td>
+  <td class="num">$5.9023</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0032</td>
+</tr>
+<tr data-cooling="immersion">
+  <td>S21 IMM 227T 16w</td>
+  <td class="c-immersion">immersion</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">227</td>
+  <td class="num">$1,385</td>
+  <td class="num">$6.1013</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0033</td>
+</tr>
+<tr data-cooling="immersion">
+  <td>S21 IMM 239T 16w</td>
+  <td class="c-immersion">immersion</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">239</td>
+  <td class="num">$1,482</td>
+  <td class="num">$6.2008</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0034</td>
+</tr>
+<tr data-cooling="immersion">
+  <td>S21 XP 300T 13.5w</td>
+  <td class="c-immersion">immersion</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">300</td>
+  <td class="num">$3,780</td>
+  <td class="num">$12.6</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0069</td>
+</tr>
+<tr data-cooling="immersion">
+  <td>A2 Pro 256T 14.9J mix</td>
+  <td class="c-immersion">immersion</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">256</td>
+  <td class="num">$2,892.8</td>
+  <td class="num">$11.3</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0062</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>A3 Hyd 500T 13.5J mix</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">500</td>
+  <td class="num">$5,250</td>
+  <td class="num">$10.5</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0058</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>A3 Pro Hyd 660T 12.5J mix</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">660</td>
+  <td class="num">$7,986</td>
+  <td class="num">$12.1</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0066</td>
+</tr>
+<tr data-cooling="air">
+  <td>M50S+ 22w 140/142/144/146T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">146</td>
+  <td class="num">$905.2</td>
+  <td class="num">$6.2</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0057</td>
+</tr>
+<tr data-cooling="air">
+  <td>M60 19.9W 156/158/160/162/164T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">164</td>
+  <td class="num">$1,049.6</td>
+  <td class="num">$6.4</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0058</td>
+</tr>
+<tr data-cooling="air">
+  <td>M61 19.9W 204/206T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">206</td>
+  <td class="num">$1,318.4</td>
+  <td class="num">$6.4</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0058</td>
+</tr>
+<tr data-cooling="air">
+  <td>M61 19W 206/208/210/212T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">212</td>
+  <td class="num">$1,378</td>
+  <td class="num">$6.5</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0059</td>
+</tr>
+<tr data-cooling="air">
+  <td>M60s+ 17W 204/206/208T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">208</td>
+  <td class="num">$1,684.8</td>
+  <td class="num">$8.1</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0074</td>
+</tr>
+<tr data-cooling="air">
+  <td>M61s+17W 234/236/238/240/242T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">242</td>
+  <td class="num">$1,960.2</td>
+  <td class="num">$8.1</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0074</td>
+</tr>
+<tr data-cooling="air">
+  <td>M70 14.5W 218/220/230/236/238/240T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M70/M70S — air (dual-fan)">catalog</td>
+  <td class="num">240</td>
+  <td class="num">$2,448</td>
+  <td class="num">$10.2</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0093</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M63 19.9W 348/358/368/372/374/376T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M63 family — hydro">catalog</td>
+  <td class="num">376</td>
+  <td class="num">$2,293.6</td>
+  <td class="num">$6.1</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0033</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M63S 18.5W 372/374/390/398/402/406T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M63 family — hydro">catalog</td>
+  <td class="num">406</td>
+  <td class="num">$2,679.6</td>
+  <td class="num">$6.6</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0036</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M63S+ 17W 398/402/404/410/416/418T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M63 family — hydro">catalog</td>
+  <td class="num">418</td>
+  <td class="num">$2,967.8</td>
+  <td class="num">$7.1</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0039</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M63S++15.5W 440/442/444/448/480T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M63 family — hydro">catalog</td>
+  <td class="num">480</td>
+  <td class="num">$3,744</td>
+  <td class="num">$7.8</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0043</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M63S++15W 476/480/484/488/496/500T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M63 family — hydro">catalog</td>
+  <td class="num">500</td>
+  <td class="num">$4,050</td>
+  <td class="num">$8.1</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0044</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M73S 13.5W 535/540/545/550/555/560T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M73/M74 — hydro (CDU loop)">catalog</td>
+  <td class="num">560</td>
+  <td class="num">$6,048</td>
+  <td class="num">$10.8</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0059</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M7D 14.5W 606/612/618/636/642/648T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M7D/M7DS — hydro">catalog</td>
+  <td class="num">648</td>
+  <td class="num">$5,637.6</td>
+  <td class="num">$8.7</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0048</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M7DS 13.5W 648/654/660/684/690/696T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M7D/M7DS — hydro">catalog</td>
+  <td class="num">696</td>
+  <td class="num">$7,099.2</td>
+  <td class="num">$10.2</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0056</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>M74S+ 12.5W 324/330T</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-catalog" title="Whatsminer M73/M74 — hydro (CDU loop)">catalog</td>
+  <td class="num">330</td>
+  <td class="num">$4,422</td>
+  <td class="num">$13.4</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0073</td>
+</tr>
+<tr data-cooling="air">
+  <td>M66 19.9W 246/272/274/280T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">280</td>
+  <td class="num">$1,708</td>
+  <td class="num">$6.1</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0056</td>
+</tr>
+<tr data-cooling="air">
+  <td>M66s+ 17W 284/288/314/316/318T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Whatsminer M5x/M6x — air">catalog</td>
+  <td class="num">318</td>
+  <td class="num">$2,257.8</td>
+  <td class="num">$7.1</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0065</td>
+</tr>
+<tr data-cooling="air">
+  <td>Avalon A15XP 209T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Avalon — air">catalog</td>
+  <td class="num">209</td>
+  <td class="num">$1,108</td>
+  <td class="num">$5.3014</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0048</td>
+</tr>
+<tr data-cooling="air">
+  <td>Avalon Nano3s 6T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Avalon — air">catalog</td>
+  <td class="num">6</td>
+  <td class="num">$215</td>
+  <td class="num">$35.8333</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0327</td>
+</tr>
+<tr data-cooling="air">
+  <td>Avalon Mini3 37.5T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Avalon — air">catalog</td>
+  <td class="num">37.5</td>
+  <td class="num">$819</td>
+  <td class="num">$21.84</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.02</td>
+</tr>
+<tr data-cooling="air">
+  <td>Avalon Q 90T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Avalon — air">catalog</td>
+  <td class="num">90</td>
+  <td class="num">$1,365</td>
+  <td class="num">$15.1667</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0139</td>
+</tr>
+<tr data-cooling="air">
+  <td>Gamma 601, 1.2T 18W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">1.2</td>
+  <td class="num">$55</td>
+  <td class="num">$45.8333</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0419</td>
+</tr>
+<tr data-cooling="air">
+  <td>Gamma 601 Max 1.9T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">1.9</td>
+  <td class="num">$69</td>
+  <td class="num">$36.3158</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0332</td>
+</tr>
+<tr data-cooling="air">
+  <td>GT801 2.4T 40W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">2.4</td>
+  <td class="num">$95</td>
+  <td class="num">$39.5833</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0362</td>
+</tr>
+<tr data-cooling="air">
+  <td>Supra Hex 702,4.2T 90W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">4.2</td>
+  <td class="num">$135</td>
+  <td class="num">$32.1429</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0294</td>
+</tr>
+<tr data-cooling="air">
+  <td>Nerd Qaxe++4.8TH/s 75W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">4.8</td>
+  <td class="num">$145</td>
+  <td class="num">$30.2083</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0276</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>NerdQaxe++Hydro 4.8T 100W</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">4.8</td>
+  <td class="num">$160</td>
+  <td class="num">$33.3333</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0183</td>
+</tr>
+<tr data-cooling="air">
+  <td>NerdQaxe++Rev6.1 6T 100W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">6</td>
+  <td class="num">$189</td>
+  <td class="num">$31.5</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0288</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>NerdQaxe++Hydro Rev6.1 6T 100W</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">6</td>
+  <td class="num">$195</td>
+  <td class="num">$32.5</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0178</td>
+</tr>
+<tr data-cooling="air">
+  <td>NerdOCTaxe 9.6T 160W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">9.6</td>
+  <td class="num">$245</td>
+  <td class="num">$25.5208</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0233</td>
+</tr>
+<tr data-cooling="air">
+  <td>NerdOCTaxe 12T 200W</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Bitaxe/Nerd solo — air">catalog</td>
+  <td class="num">12</td>
+  <td class="num">$289</td>
+  <td class="num">$24.0833</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.022</td>
+</tr>
+<tr data-cooling="hydro">
+  <td>NerdOCTaxe Hydro 13.8T 190w</td>
+  <td class="c-hydro">hydro</td>
+  <td class="src src-label" title="From message section/label">label</td>
+  <td class="num">13.8</td>
+  <td class="num">$343</td>
+  <td class="num">$24.8551</td>
+  <td class="num">60m</td>
+  <td class="num strong">$0.0136</td>
+</tr>
+<tr data-cooling="air">
+  <td>Avalon Q 90T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Avalon — air">catalog</td>
+  <td class="num">90</td>
+  <td class="num">$1,299</td>
+  <td class="num">$14.4333</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0132</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21++ 235T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Antminer S-series air (default)">catalog</td>
+  <td class="num">235</td>
+  <td class="num">$1,856.5</td>
+  <td class="num">$7.9</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0072</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21++ 225T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Antminer S-series air (default)">catalog</td>
+  <td class="num">225</td>
+  <td class="num">$1,732.5</td>
+  <td class="num">$7.7</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.007</td>
+</tr>
+<tr data-cooling="air">
+  <td>S21++ 216T</td>
+  <td class="c-air">air</td>
+  <td class="src src-catalog" title="Antminer S-series air (default)">catalog</td>
+  <td class="num">216</td>
+  <td class="num">$1,641.6</td>
+  <td class="num">$7.6</td>
+  <td class="num">36m</td>
+  <td class="num strong">$0.0069</td>
+</tr></tbody>
+  </table>
+<script>
+  const tbody = document.querySelector('#t tbody');
+  const rows = [...tbody.rows];
+  document.querySelectorAll('.filters button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.filters button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const f = b.dataset.f;
+    rows.forEach(r => r.style.display = (f === 'all' || r.dataset.cooling === f) ? '' : 'none');
+  });
+  let asc = {};
+  document.querySelectorAll('th').forEach((th, i) => th.onclick = () => {
+    asc[i] = !asc[i];
+    const visible = rows.filter(r => r.style.display !== 'none');
+    visible.sort((a, b) => {
+      const x = a.cells[i].textContent.replace(/[^0-9.-]/g, ''), y = b.cells[i].textContent.replace(/[^0-9.-]/g, '');
+      const nx = parseFloat(x), ny = parseFloat(y);
+      const cmp = (!isNaN(nx) && !isNaN(ny)) ? nx - ny : a.cells[i].textContent.localeCompare(b.cells[i].textContent);
+      return asc[i] ? cmp : -cmp;
+    });
+    visible.forEach(r => tbody.appendChild(r));
+  });
+</script>
+</body></html>

@@ -56,6 +56,24 @@ const styles = {
     // Icon
     '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
   ],
+  insetRing: [
+    // White bg with inset ring (shadow-xs)
+    'bg-white text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 border-transparent',
+    // Dark mode variants
+    'dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20',
+    // Fully rounded
+    'rounded-full',
+  ],
+  iconOnly: [
+    // Circular icon-only buttons with accent background
+    'rounded-full shadow-xs text-zinc-950 bg-(--btn-bg)',
+    // Dark mode logic (no shadow, specific hover)
+    'dark:shadow-none dark:text-zinc-900',
+    // We remove the default pseudo-elements for solid buttons when used as iconOnly
+    'before:hidden after:hidden border-transparent',
+    // Force icon color to match text
+    '[--btn-icon:currentColor] data-active:[--btn-icon:currentColor] data-hover:[--btn-icon:currentColor]',
+  ],
   colors: {
     'dark/zinc': [
       'text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10',
@@ -159,22 +177,35 @@ const styles = {
 }
 
 type ButtonProps = (
-  | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
-  | { color?: never; outline: true; plain?: never }
-  | { color?: never; outline?: never; plain: true }
+  | { color?: keyof typeof styles.colors; outline?: never; plain?: never; insetRing?: never; iconOnly?: never }
+  | { color?: never; outline: true; plain?: never; insetRing?: never; iconOnly?: never }
+  | { color?: never; outline?: never; plain: true; insetRing?: never; iconOnly?: never }
+  | { color?: never; outline?: never; plain?: never; insetRing: true; iconOnly?: never }
+  | { color?: keyof typeof styles.colors; outline?: never; plain?: never; insetRing?: never; iconOnly: true }
 ) & { className?: string; children: React.ReactNode } & (
     | ({ href?: never } & Omit<Headless.ButtonProps, 'as' | 'className'>)
     | ({ href: string } & Omit<React.ComponentPropsWithoutRef<typeof Link>, 'className'>)
   )
 
 export const Button = forwardRef(function Button(
-  { color, outline, plain, className, children, ...props }: ButtonProps,
+  { color, outline, plain, insetRing, iconOnly, className, children, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   let classes = cn(
     className,
-    styles.base,
-    outline ? styles.outline : plain ? styles.plain : cn(styles.solid, styles.colors[color ?? 'dark/zinc'])
+    // When using insetRing or iconOnly, we bypass styles.base which forces rounded-lg and hardcoded paddings
+    (insetRing || iconOnly) ? '' : styles.base,
+    // Add base interactivity classes for custom buttons
+    (insetRing || iconOnly) ? 'relative inline-flex items-center justify-center focus:outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2' : '',
+    outline 
+      ? styles.outline 
+      : plain 
+      ? styles.plain 
+      : insetRing 
+      ? styles.insetRing 
+      : iconOnly
+      ? cn(styles.iconOnly, styles.colors[color ?? 'dark/zinc'])
+      : cn(styles.solid, styles.colors[color ?? 'dark/zinc'])
   )
 
   return typeof props.href === 'string' ? (

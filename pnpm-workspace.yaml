@@ -53,6 +53,7 @@ allowBuilds:
   bufferutil: set this to true or false
   core-js: set this to true or false
   electron-winstaller: set this to true or false
+  es5-ext: set this to true or false
   esbuild: set this to true or false
   keccak: set this to true or false
   prisma: set this to true or false

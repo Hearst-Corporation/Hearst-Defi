@@ -283,6 +283,8 @@ code,
 /* ── Density B: compact single line (~40px), no-scroll preserving ─────────── */
 .app-footer--compact {
   min-height: var(--app-footer-h);
+  /* Descend le footer compact de 16px vers le bas. */
+  margin-top: 16px;
   /* Grid calé sur les colonnes du shell : [rail gauche] [centre] [rail droit].
      Les liens (col centrale) sont ainsi centrés sur la SECTION DU MILIEU
      (.ct-page-area), pas sur la fenêtre entière. brand collé à gauche, status à

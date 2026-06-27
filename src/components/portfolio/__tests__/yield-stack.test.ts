@@ -185,11 +185,13 @@ describe("BUCKET_COLOR token contract", () => {
     }
   });
 
-  it("mining uses --ct-status-success (live yield)", () => {
-    expect(BUCKET_COLOR.mining).toBe("var(--ct-status-success)");
+  it("mining uses --ct-accent (brightest)", () => {
+    expect(BUCKET_COLOR.mining).toBe("var(--ct-accent)");
   });
 
-  it("btc_tactical uses --ct-status-warning (orange — volatile)", () => {
-    expect(BUCKET_COLOR.btc_tactical).toBe("var(--ct-status-warning)");
+  it("btc_tactical uses color-mix with 46% accent (medium muted)", () => {
+    expect(BUCKET_COLOR.btc_tactical).toBe(
+      "color-mix(in srgb, var(--ct-accent) 46%, var(--ct-text-neutral))",
+    );
   });
 });

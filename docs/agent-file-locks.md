@@ -88,6 +88,11 @@ Files:
     existing fields)
 - src/lib/circuit-breaker.ts (additive `reset()` method only — test isolation;
     zero runtime behavior change, benefits the existing defillama.ts breaker too)
+- src/app/admin/marketplace/page.tsx (NEW read-only admin page consuming the loaders)
+- src/components/nav/product-nav-items.ts (additive "Marketplace" tab under the
+    Strategy section only — one line, no edits to other sections)
+- src/components/nav/product-rail-intra.tsx (additive TrendingUp icon import +
+    ICON_MAP entry only — needed so the Marketplace nav icon renders)
 
 ---
 
