@@ -60,10 +60,12 @@ describe("Product rail intra (fixed column)", () => {
     const html = renderToStaticMarkup(<InvestorRailIntra />);
 
     expect(html).toContain('data-testid="investor-rail-intra"');
+    // Positional shell hooks kept; nav items are bento Tailwind now.
     expect(html).toContain("ct-rail-intra");
     expect(html).toContain("ct-rail-intra__stack");
-    expect(html).toContain("ct-rail-item");
-    expect(html).toContain("ct-rail-item-tooltip");
+    expect(html).toContain('aria-label="Portfolio"');
+    expect(html).toContain('aria-label="Vaults"');
+    expect(html).not.toContain("ct-rail-item");
     expect(html).not.toContain("ct-rail-toggle");
     expect(html).not.toContain("Collapse navigation");
     expect(html).not.toContain("Expand navigation");
@@ -75,7 +77,9 @@ describe("Product rail intra (fixed column)", () => {
     expect(html).toContain('data-testid="admin-rail-intra"');
     expect(html).toContain("ct-rail-intra");
     expect(html).toContain("ct-rail-intra__stack");
-    expect(html).toContain("ct-rail-item");
+    // Bento nav items rendered (at least one admin section link).
+    expect(html).toMatch(/aria-label="[^"]+"/);
+    expect(html).not.toContain("ct-rail-item");
     expect(html).not.toContain("ct-rail-toggle");
     expect(html).not.toContain("Collapse navigation");
   });

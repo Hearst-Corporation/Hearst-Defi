@@ -110,7 +110,7 @@ function RailSeparator() {
   return (
     <hr
       aria-hidden="true"
-      className="ct-rail-sep"
+      className="my-1 w-8 border-0 border-t border-white/10"
     />
   );
 }
@@ -133,10 +133,24 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       aria-label={item.label}
       aria-current={isActive ? "page" : undefined}
       title={item.label}
-      className={cn("ct-rail-item", isActive && "ct-rail-item-active")}
+      className={cn(
+        "group flex w-full flex-col items-center gap-1.5 rounded-xl py-2 transition-colors duration-150",
+        isActive ? "text-[#A7FB90]" : "text-zinc-500 hover:text-zinc-200",
+      )}
     >
-      {Icon ? <Icon className="ct-rail-icon" strokeWidth={1.8} /> : null}
-      <span className="ct-rail-item-tooltip">{item.railLabel ?? item.label}</span>
+      <span
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-150",
+          isActive
+            ? "border-[#A7FB90]/30 bg-[#A7FB90]/10"
+            : "border-transparent group-hover:border-white/10 group-hover:bg-white/5",
+        )}
+      >
+        {Icon ? <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} /> : null}
+      </span>
+      <span className="text-[10px] font-medium tracking-wide">
+        {item.railLabel ?? item.label}
+      </span>
     </Link>
   );
 }
