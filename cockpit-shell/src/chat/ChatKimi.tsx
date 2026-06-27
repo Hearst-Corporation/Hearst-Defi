@@ -356,9 +356,9 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
       >
         {isConversationEmpty && !streaming && (
           <div className="m-auto flex w-full flex-col gap-4">
-            {/* Assistant panel — hero premium + contexte, un seul panneau bento */}
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-sm">
-              <div className="flex flex-col items-center gap-3 px-5 pb-5 pt-7 text-center">
+            {/* Assistant panel — hero premium, un seul panneau bento */}
+            <div className="rounded-2xl border border-white/10 bg-black p-6 shadow-sm">
+              <div className="flex flex-col items-center gap-3 text-center">
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[#A7FB90]">
                   <HearstMark size={26} />
                 </span>
@@ -367,35 +367,6 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
                   <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
                     Your institutional co-pilot for portfolio insights and vault analysis.
                   </p>
-                </div>
-              </div>
-
-              <div className="border-t border-white/5 px-5 py-4">
-                <div className={cn("mb-3 flex items-center gap-2", MICRO_LABEL)}>
-                  <svg className="h-3 w-3 text-[#A7FB90]" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                    <path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                  </svg>
-                  <span>Current Context</span>
-                </div>
-                <div className="flex flex-col gap-2.5">
-                  {productName ? (
-                    <div className="flex items-center gap-2.5 text-[13px] text-zinc-200">
-                      <span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ background: productColor ?? "#A7FB90" }}
-                      />
-                      <span>{productName}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2.5 text-[13px] text-zinc-200">
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A7FB90]" />
-                      <span>General Portfolio</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2.5 text-[13px] text-zinc-200">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-600" />
-                    <span>Verified Data Feeds</span>
-                  </div>
                 </div>
               </div>
             </div>
