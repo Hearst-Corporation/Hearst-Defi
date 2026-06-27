@@ -95,8 +95,16 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           <span className="size-1.5 rounded-full bg-[#A7FB90]" />
           Deposit confirmed
         </span>
-        <h1 className="mt-3 text-[28px] font-medium text-white leading-none tracking-tight">
-          {amount !== "—" ? `${amount} deposited` : "Deposit recorded"}
+        <h1 className="mt-3 text-[24px] font-semibold text-white leading-none tracking-tight">
+          {amount !== "—" ? (
+            <>
+              {amount} <span className="text-[#A7FB90]">deposited</span>
+            </>
+          ) : (
+            <>
+              Deposit <span className="text-[#A7FB90]">recorded</span>
+            </>
+          )}
         </h1>
         <p className="mt-3 max-w-md text-[13px] text-zinc-400 leading-relaxed">
           {hasOnChainProof

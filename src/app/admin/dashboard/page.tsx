@@ -40,13 +40,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
-        {/* HEADER */}
-        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
-          <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">
-            Admin <span className="text-[#A7FB90]">Command Center</span>
-          </h1>
-          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
-            {activeTicker} · Admin Command
+        {/* HEADER — canon bento: kicker micro + H1 24px bicolore */}
+        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              {activeTicker} · Admin Command
+            </span>
+            <h1 className="text-[24px] font-semibold tracking-tight text-white">
+              Admin <span className="text-[#A7FB90]">Command Center</span>
+            </h1>
           </div>
         </div>
 
