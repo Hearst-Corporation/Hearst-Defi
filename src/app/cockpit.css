@@ -380,26 +380,6 @@ body {
   font-size: 16px;
 }
 
-.dashboard-merged-card {
-  /* Radius + bevel alignés sur les surfaces fusionnées (ops/lower) et la
-     readiness → une seule famille de surfaces, bords moins durs. */
-  border-radius: var(--ct-radius-xl);
-  overflow: hidden;
-  /* Fond charcoal sur la carte composite — ses enfants sont transparents,
-     le fond vient donc du conteneur lui-même. */
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  box-shadow: none;
-}
-
-.dashboard-merged-card>* {
-  border-radius: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  backdrop-filter: none !important;
-}
-
 /* ── HELPERS sémantiques status (utilitaires Cockpit) ── */
 .ct-status-success { color: var(--ct-status-success); }
 .ct-status-warning { color: var(--ct-status-warning); }
@@ -658,10 +638,6 @@ body {
   container-type: inline-size;
 }
 
-.projection-studio-shell {
-  container-name: projection-shell;
-}
-
 .scenario-lab-shell {
   container-name: lab-shell;
   display: flex;
@@ -674,12 +650,6 @@ body {
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-doc-flow-stack-gap);
-}
-
-.projection-studio-shell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-gap);
 }
 
 /* Toolbar row: Scenario/Backtest (left) · Single/Compare (right, scenario tab). */
@@ -876,29 +846,6 @@ body {
   }
 }
 
-/* Projection Studio preset button primitive (not shared with Scenario Lab). */
-.projection-studio-preset-button__label {
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
-}
-
-/* Projection Studio keeps its original single-line ellipsis (unchanged). */
-.projection-studio-preset-button__description {
-  display: -webkit-box;
-  max-width: none;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  color: var(--ct-text-body);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  line-height: var(--ct-leading-tight);
-  opacity: var(--ct-opacity-68);
-  text-overflow: unset;
-  white-space: normal;
-}
-
 .projection-studio-range {
   width: 100%;
   height: var(--ct-space-2);
@@ -1065,13 +1012,6 @@ body {
   padding: var(--ct-space-4) var(--ct-space-5);
 }
 
-.scenario-lab-output-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
 .scenario-lab-output-idle {
   flex: 1 1 auto;
   display: flex;
@@ -1089,14 +1029,6 @@ body {
   flex-direction: column;
   align-items: center;
   gap: var(--ct-space-3);
-}
-
-.scenario-lab-input-footer {
-  flex: none;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  border-top: 1px solid var(--ct-border-soft);
-  background: var(--ct-graphite-subtle-bg);
-  box-shadow: 0 -12px 24px color-mix(in srgb, var(--ct-bg-deep) 28%, transparent);
 }
 
 @keyframes ct-scenario-central-flow-appear {
@@ -1145,84 +1077,6 @@ body {
   }
 }
 
-/* Mining cash-flow evidence — pending calibration rail (awaiting attestation).
-   Warning-tinted dashes = pending listen, not brand accent or danger. */
-.mining-coverage-calibration {
-  position: relative;
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-2);
-  overflow: hidden;
-}
-.mining-coverage-calibration__bar {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--ct-status-warning) 32%, transparent) 0 6px,
-    transparent 6px 12px
-  );
-  animation: ct-scenario-central-soft-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .mining-coverage-calibration__bar { animation: none; }
-}
-
-/* ── Scenario-Lab-style vertical flow: config block on top, full-width result below.
-   Inputs are flat (no own surface) — the scenario-lab-box is the single surface. ── */
-.projection-studio-config {
-  width: 100%;
-  min-width: 0;
-}
-
-/* Slider columns — two columns on wide containers, single below. */
-.projection-studio-input-cols {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  gap: var(--ct-space-6);
-  align-items: start;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-@container projection-shell (min-width: 44rem) {
-  .projection-studio-input-cols {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--ct-space-8);
-  }
-}
-
-/* Result continuum — full-width, directly below the config, separated by a top
-   hairline (mirrors .scenario-lab-result). No right-hand column. */
-.projection-studio-result {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  width: 100%;
-  min-width: 0;
-  padding-top: var(--ct-space-6);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-/* Compact toolbar strip — replaces the full Card for the preset section. */
-.projection-studio-preset-strip {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  padding-bottom: var(--ct-space-4);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.projection-studio-preset-strip__head {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-2) var(--ct-space-4);
-}
-
 .scenario-compare-shell {
   display: flex;
   flex-direction: column;
@@ -1260,84 +1114,11 @@ body {
   }
 }
 
-/* Presets fill the full strip width — equal columns, no horizontal scroll.
-   auto-fit collapses to fewer columns (then a single column) as the box narrows. */
-.projection-studio-preset-strip__items {
-  display: grid;
-  width: 100%;
-  max-width: 100%;
-  gap: var(--ct-space-3);
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-}
-
-.projection-studio-preset-strip__items > * {
-  min-width: 0;
-}
-
-.projection-studio-preset-button {
-  width: 100%;
-  min-width: 0;
-  height: auto;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ct-space-1);
-  padding-block: var(--ct-space-3);
-  white-space: normal;
-  /* Override ct-pill defaults for this multi-line use case */
-  text-align: left;
-  line-height: var(--ct-leading-snug);
-}
-
-/* Sober active state: subtle accent border, no glow, not competing with Run button
-   Specificity 0,2,0 to beat .ct-pill.accent (0,2,0) which comes later in file */
-.projection-studio-preset-button[aria-pressed="true"].projection-studio-preset-button {
-  border-color: var(--ct-border-accent);
-  background: var(--ct-surface-1);
-  box-shadow: none;
-}
-
-.projection-studio-preset-button[aria-pressed="true"] .projection-studio-preset-button__label {
-  color: var(--ct-accent);
-}
-
-.projection-studio-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.projection-studio-output-placeholder {
-  text-align: left;
-  justify-content: flex-start;
-  gap: var(--ct-space-5);
-  min-height: 0;
-  padding: 0 0 var(--ct-space-5);
-}
-
 .scene-placeholder-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ct-space-4);
   padding-inline: var(--ct-space-5);
-}
-
-.scene-placeholder-metrics__cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
-}
-
-.scene-placeholder-metrics__skeleton--label {
-  height: var(--ct-space-3);
-  width: var(--ct-space-20);
-}
-
-.scene-placeholder-metrics__skeleton--value {
-  margin-top: var(--ct-space-2);
-  height: var(--ct-space-9);
-  width: 100%;
-  max-width: var(--ct-space-32);
 }
 
 @container projection-shell (max-width: 41.999rem) {
@@ -1346,23 +1127,10 @@ body {
   }
 }
 
-/* Result content — full-width flat flow (no card padding, the box already pads). */
-.projection-studio-output-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-  width: 100%;
-  min-width: 0;
-}
-
 @media (max-width: 47.999rem) {
   .scenario-preset-bar,
   .backtest-period-rail {
     padding-bottom: var(--ct-space-3);
-  }
-
-  .projection-studio-preset-strip {
-    padding: var(--ct-space-4) 0;
   }
 
   .scenario-preset-bar__head {
@@ -1373,25 +1141,6 @@ body {
     flex: 0 0 8.75rem;
     width: 8.75rem;
   }
-}
-
-/* Admin dashboard command board — dense bento, CSS-only visuals (no SVG). */
-.dashboard-command-board {
-  min-width: 0;
-  /* Reflow from board width — admin rails eat ~500px of viewport. */
-  container-type: inline-size;
-  container-name: dash-board;
-  --ct-dashboard-kpi-cell-min-height: 4.5rem;
-  --ct-dashboard-orbit-size: 11.75rem;
-  --ct-dashboard-orbit-max-width: 13rem;
-  --ct-dashboard-hero-min-height: 13.5rem;
-  --ct-dashboard-hero-min-height-wide: 14.5rem;
-  --ct-dashboard-orbit-stroke-track: 1.5;
-  --ct-dashboard-orbit-stroke-segment: 2;
-}
-
-.dashboard-page-header .admin-page-header__main {
-  max-width: 42rem;
 }
 
 /* Admin cards — same padding tier as LP (.ct-card global rule). */
@@ -1430,35 +1179,6 @@ body {
   grid-template-columns: 1fr !important;
 }
 
-.dashboard-overview-pane .dashboard-kpi-strip__label {
-  /* Short labels stay on one line; long ones wrap on word boundaries, never per-char. */
-  overflow-wrap: normal;
-  white-space: normal;
-}
-
-/* Stacked rows (1 colonne, overview-pane) : la hairline bas de chaque cellule
-   sépare les KPI empilés ; la hairline droite déborde et est clippée par
-   l'overflow:hidden de la strip. Aucune règle spécifique nécessaire. */
-
-.dashboard-kpi-strip__label-row {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-kpi-strip__label {
-  min-width: 0;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.dashboard-kpi-strip__value {
-  margin-top: var(--ct-space-1);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
 /* Desktop cockpit KPI presence — see doc-flow-typography.css for H1/H2.
    Overrides admin-doc .stat-value demotion (lg) for strip cells only. */
 @media (min-width: 80rem) {
@@ -1475,10 +1195,6 @@ body {
     font-weight: var(--ct-font-bold);
     letter-spacing: var(--ct-tracking-tighter);
   }
-}
-
-.dashboard-kpi-strip__meta {
-  margin-top: auto;
 }
 
 /* Dot-only provenance in dense admin surfaces — label in tooltip + aria-label. */
@@ -1524,28 +1240,6 @@ body {
   min-height: var(--ct-dashboard-hero-min-height);
 }
 
-.dashboard-hero-card__analytics {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-surface-1) 32%, transparent) 0%,
-      transparent 100%
-    );
-}
-
-.dashboard-hero-card__slot {
-  min-width: 0;
-  padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-5);
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.dashboard-hero-card__slot--nav {
-  flex: 1 1 auto;
-  border-top: 1px solid var(--ct-border-soft);
-}
-
 .dashboard-hero-card__slot--nav .dashboard-command-slot--nav,
 .dashboard-hero-card__slot--nav .dashboard-nav-slot {
   flex: 1 1 auto;
@@ -1558,10 +1252,6 @@ body {
   min-height: 7.5rem;
   height: auto;
   margin-top: 0;
-}
-
-.dashboard-hero-card__slot--allocation {
-  border-bottom: 1px solid var(--ct-border-soft);
 }
 
 .dashboard-command-slot {
@@ -1579,12 +1269,6 @@ body {
   border-color: var(--ct-graphite-border-nested);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-}
-
-.dashboard-command-slot--allocation {
-  display: flex;
-  justify-content: center;
-  min-width: 0;
 }
 
 .dashboard-command-slot--allocation .dashboard-orbit-card {
@@ -1645,12 +1329,6 @@ body {
   background: var(--ct-surface-0);
 }
 
-.dashboard-panel-table-scroll {
-  overflow-x: auto;
-  margin-inline: calc(-1 * var(--ct-space-5));
-  padding-inline: var(--ct-space-5);
-}
-
 /* ── SCROLLBARS COCKPIT — invisibles par défaut ──────────────────────────────
    Règle DS commune (réutilise le pattern déjà en place sur les doc-flow
    tablists). Le scroll interne reste fonctionnel (molette/trackpad/touch),
@@ -1698,27 +1376,6 @@ body {
   box-shadow: none;
 }
 
-.dashboard-command-divide-stack {
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-command-divide-stack > * + * {
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-.dashboard-command-row-c {
-  display: grid;
-  gap: var(--ct-space-8);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: stretch;
-  margin-top: var(--ct-space-6);
-}
-
-.dashboard-audit-zone {
-  margin-top: var(--ct-space-8);
-}
-
 .dashboard-audit-zone .ct-card {
   border-color: color-mix(in srgb, var(--ct-border-soft) 82%, transparent);
 }
@@ -1727,174 +1384,10 @@ body {
   min-width: 0;
 }
 
-/* Live metrics — reflow metric grid from card width, not viewport. */
-.dashboard-live-metrics {
-  container-type: inline-size;
-  container-name: live-metrics;
-  min-width: 0;
-}
-
-.dashboard-live-metrics__grid {
-  display: grid;
-  gap: var(--ct-space-1);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  min-width: 0;
-}
-
-.dashboard-awaiting-analytics {
-  padding: var(--ct-space-3) var(--ct-space-4) var(--ct-space-4);
-}
-
-.dashboard-live-metrics__grid > * {
-  min-width: 0;
-}
-
-@container live-metrics (max-width: 14rem) {
-  .dashboard-live-metrics__vault-head {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .dashboard-live-metrics__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@container live-metrics (max-width: 9rem) {
-  .dashboard-live-metrics__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Live ops sections — padding replaces inline py-4 / mb-2 / m-0 hardcodes */
-.dashboard-live-ops-section {
-  padding-top: var(--ct-space-2);
-  padding-bottom: var(--ct-space-3);
-}
-.dashboard-live-ops-section:first-child { padding-top: 0; }
-.dashboard-live-ops-section:last-child  { padding-bottom: 0; }
-.dashboard-live-ops-section__title {
-  display: block;
-  margin: 0 0 var(--ct-space-1_5);
-  font-size: var(--ct-text-nano);
-  font-weight: 700;
-  color: var(--ct-text-faint);
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
-}
-
-/* Action queue rows — padding replaces py-3 first:pt-0 last:pb-0 */
-.dashboard-action-row {
-  padding-top: var(--ct-space-1_5);
-  padding-bottom: var(--ct-space-2);
-  gap: var(--ct-space-3);
-}
-.dashboard-action-row:first-child { padding-top: 0; }
-.dashboard-action-row:last-child  { padding-bottom: 0; }
-
-.dashboard-action-row--critical {
-  border-left: 2px solid var(--ct-status-danger);
-  padding-left: var(--ct-space-3);
-}
-
-.dashboard-action-copy {
-  gap: var(--ct-space-2);
-}
-
-.dashboard-action-title {
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.dashboard-action-context {
-  max-width: 32ch;
-}
-
-/* Inngest job row — padding replaces py-2 first:pt-0 last:pb-0 */
-.dashboard-inngest-row {
-  padding-top: var(--ct-space-1);
-  padding-bottom: var(--ct-space-1);
-  gap: var(--ct-space-3);
-}
-.dashboard-inngest-row:first-child { padding-top: 0; }
-.dashboard-inngest-row:last-child  { padding-bottom: 0; }
-
-/* On-chain event row — padding replaces py-1.5 first:pt-0 last:pb-0 */
-.dashboard-event-row {
-  padding-top: var(--ct-space-2);
-  padding-bottom: var(--ct-space-2);
-  gap: var(--ct-space-3);
-}
-.dashboard-event-row:first-child { padding-top: 0; }
-.dashboard-event-row:last-child  { padding-bottom: 0; }
-
-/* Inngest / generic status dot — replaces h-2 w-2 rounded-full */
-.dashboard-status-dot {
-  display: inline-block;
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
-}
-
-/* Severity pill — replaces w-8 h-5 rounded-sm inline-flex items-center justify-center */
-.dashboard-severity-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: var(--ct-space-8);
-  height: var(--ct-space-5);
-  border-radius: var(--ct-radius-sm);
-  border: 1px solid;
-}
-
-/* Action CTA — replaces rounded-sm px-3 py-1 body-xs font-medium border */
-.dashboard-action-cta {
-  flex-shrink: 0;
-  border-radius: var(--ct-radius-sm);
-  padding: var(--ct-space-1) var(--ct-space-3);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  border: 1px solid;
-  background: transparent;
-  transition: background-color var(--ct-dur-fast), border-color var(--ct-dur-fast), color var(--ct-dur-fast);
-}
-.dashboard-action-cta--danger {
-  border-color: var(--ct-status-danger-border);
-  color: var(--ct-status-danger);
-}
-.dashboard-action-cta--danger:hover {
-  border-color: color-mix(in srgb, var(--ct-status-danger) 58%, transparent);
-  background: color-mix(in srgb, var(--ct-status-danger) 10%, transparent);
-  color: color-mix(in srgb, var(--ct-status-danger) 82%, var(--ct-text-strong));
-}
-.dashboard-action-cta--neutral {
-  border-color: color-mix(in srgb, var(--ct-border-accent) 54%, var(--ct-border-soft));
-  background: color-mix(in srgb, var(--ct-accent) 5%, transparent);
-  color: color-mix(in srgb, var(--ct-accent) 86%, var(--ct-text-primary));
-}
-.dashboard-action-cta--neutral:hover {
-  border-color: var(--ct-border-accent);
-  background: color-mix(in srgb, var(--ct-accent) 9%, transparent);
-  color: var(--ct-accent);
-}
-
 @container dash-board (min-width: 44rem) {
   .dashboard-command-row-a--hero {
     grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.35fr);
     align-items: stretch;
-  }
-
-  .dashboard-hero-card__slot--allocation {
-    border-right: 1px solid var(--ct-border-soft);
-    border-bottom: 0;
-    justify-content: center;
-    min-width: 16rem;
-  }
-
-  .dashboard-hero-card__slot--nav {
-    border-top: 0;
-    border-left: 1px solid var(--ct-border-soft);
   }
 
   .dashboard-hero-card__slot--nav .dashboard-nav-bars {
@@ -1903,19 +1396,6 @@ body {
 
   .dashboard-command-row-a--hero .dashboard-orbit {
     justify-self: center;
-  }
-
-  .dashboard-risk-summary__body {
-    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .dashboard-risk-summary__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-command-row-c--ops {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -2019,120 +1499,6 @@ body {
 
 .dashboard-orbit__legend li > :last-child {
   color: var(--ct-text-strong);
-}
-
-/* ── Risk zone (full-width waterfall below ops) ─────────────────────────────── */
-.dashboard-risk-zone {
-  margin-top: var(--ct-space-6);
-}
-
-.dashboard-risk-summary {
-  min-width: 0;
-}
-
-.dashboard-risk-summary__body {
-  display: grid;
-  gap: var(--ct-space-5);
-}
-
-.dashboard-risk-summary__overview {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.dashboard-risk-summary__hero {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-  margin-bottom: var(--ct-space-5);
-}
-
-.dashboard-risk-summary__headline {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.dashboard-risk-summary__headline-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-risk-summary__value {
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.dashboard-risk-summary__blurb {
-  max-width: 32rem;
-  line-height: var(--ct-leading-relaxed);
-}
-
-.dashboard-risk-summary__grid {
-  display: grid;
-  gap: var(--ct-space-3);
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-}
-
-.dashboard-risk-summary__item {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-3_5);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-xl);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ct-surface-1) 20%, transparent) 0%,
-      transparent 100%
-    );
-}
-
-.dashboard-risk-summary__item-top {
-  display: flex;
-  min-width: 0;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
-
-.dashboard-risk-summary__item-copy {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.dashboard-risk-summary__score {
-  flex-shrink: 0;
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-none);
-}
-
-.dashboard-risk-summary__progress {
-  height: var(--ct-space-2);
-}
-
-.dashboard-risk-summary__footnote {
-  max-width: 32rem;
-  padding-top: var(--ct-space-4);
-  border-top: 1px solid color-mix(in srgb, var(--ct-border-soft) 72%, transparent);
-}
-
-.dashboard-risk-summary__empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-4) 0 var(--ct-space-2);
 }
 
 /* CSS bar chart for NAV series. */
@@ -2265,33 +1631,7 @@ body {
   outline: none;
 }
 
-/* Le nombre de colonnes est désormais géré par `auto-fit` sur .dashboard-kpi-strip
-   (voir plus haut) — les anciens paliers fixes repeat(3/4/8) ont été retirés car
-   ils forçaient une grille rigide qui cassait en 2×2 sur panels étroits. Les
-   règles de BORDURES ci-dessous keyent toujours sur la largeur du board. */
-
-/* Séparateurs KPI strip : gérés par gap:1px + fond ghost posés sur
-   .dashboard-kpi-strip (bloc de base) + fond opaque par cellule. Avec la grille
-   auto-fit le nombre de colonnes est inconnu en CSS, donc impossible de cibler
-   la dernière de chaque ligne avec :nth-child — la technique du gap coloré
-   produit les hairlines automatiquement, en uni-colonne comme en multi. */
-
-@container dash-board (min-width: 30rem) {
-  .dashboard-command-row-c {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@container dash-board (min-width: 44rem) {
-  .dashboard-command-row-c {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (min-width: 64rem) {
-  .dashboard-hero-card__slot {
-    padding: var(--ct-space-5);
-  }
 
   .dashboard-command-row-a--hero {
     min-height: var(--ct-dashboard-hero-min-height-wide);
@@ -2357,9 +1697,6 @@ body {
 /* Row 1 (platform overview fused surface) — single cell, panes handled internally. */
 .dashboard-cockpit-row--overview { grid-template-columns: 1fr; }
 
-/* Row 2 (KPI + charts) — single column. */
-.dashboard-cockpit-row--kpi    { grid-template-columns: 1fr; }
-
 /* Row 3 (ops fused surface) — single cell, panes handled internally. */
 .dashboard-cockpit-row--ops    { grid-template-columns: 1fr; }
 
@@ -2401,14 +1738,6 @@ body {
     gap: var(--ct-space-5);
   }
 
-  /* Le board lui-même : hauteur naturelle, gaps de FAMILLE entre rows. */
-  .dashboard-cockpit--fit {
-    height: auto;
-    overflow: visible;
-    gap: var(--ct-space-5);
-    --ct-dashboard-panel-gap: var(--ct-space-3);
-  }
-
   .dashboard-cockpit--fit .dashboard-cockpit-row {
     gap: var(--ct-space-4);
   }
@@ -2433,15 +1762,6 @@ body {
   .dashboard-cockpit--fit .dashboard-command-row-a--hero .dashboard-hero-card__slot {
     min-height: 0;
   }
-}
-
-/* Proof reste sur SA propre gate (proof-cockpit--fit), inchangé : ces scrolls
-   internes-là sont volontaires et restent câblés via ses propres règles. */
-
-/* ── Toutes tailles : rows à hauteur de contenu (le board ne se pin plus). ── */
-.dashboard-cockpit--fit {
-  height: auto;
-  overflow: visible;
 }
 
 .dashboard-cockpit--fit .dashboard-cockpit-row--readiness,
@@ -2533,22 +1853,6 @@ body {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
-/* ── Panel header — matches pf-cockpit-panel__header rhythm. ── */
-/* micro uppercase title (left) + trailing leaf link slot (right), baseline-aligned. */
-.dashboard-cockpit-panel__header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--ct-space-1) var(--ct-space-2);
-  margin: 0 0 var(--ct-space-3);
-}
-
-.dashboard-cockpit-panel__header-main {
-  flex: 1 1 10rem;
-  min-width: 0;
-}
-
 :is(.dashboard-cockpit-panel__header-trail, .pf-cockpit-panel__header-trail) {
   display: flex;
   flex-wrap: wrap;
@@ -2557,10 +1861,6 @@ body {
   flex: 0 0 auto;
   margin-left: auto;
   max-width: 100%;
-}
-
-.dashboard-cockpit-panel__header-trail {
-  align-items: center;
 }
 
 .pf-cockpit-panel__header-trail {
@@ -2608,132 +1908,15 @@ body {
   border-color: color-mix(in srgb, var(--ct-text-strong) 6%, var(--ct-graphite-border-nested));
 }
 
-/* Ops: 3 equal columns by default stacked on mobile */
-.dashboard-ops-surface {
-  flex-direction: column;
-}
-
-/* Lower: 2 columns by default stacked on mobile */
-.dashboard-lower-surface {
-  flex-direction: column;
-}
-
 /* Overview: 4 equal clusters by default stacked on mobile */
 .dashboard-overview-surface {
   flex-direction: column;
-}
-
-/* Individual panes — transparent, padding only */
-.dashboard-ops-pane,
-.dashboard-lower-pane,
-.dashboard-overview-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  gap: var(--ct-space-3);
-}
-
-/* Ops trio : ratios DÉSÉGALISÉS pour casser l'effet mécanique 3-colonnes.
-   Operator queue la plus large (1.3 — plus actionnable), Vault health médiane (1.0),
-   Platform status la plus étroite (0.85 — signaux moins denses). */
-.dashboard-ops-pane {
-  flex: 1 1 0;
-}
-
-.dashboard-ops-pane:nth-child(1) { flex: 1.3 1 0; }  /* Operator queue — widest (most actionable) */
-.dashboard-ops-pane:nth-child(2) { flex: 1.0 1 0; }  /* Vault health   */
-.dashboard-ops-pane:nth-child(3) { flex: 0.85 1 0; } /* Platform status — narrowest */
-
-.dashboard-lower-pane {
-  flex: 1 1 0;
-}
-
-/* Risk pane gets slightly more weight (denser content) */
-.dashboard-lower-pane--risk {
-  flex: 1.25 1 0;
-}
-
-/* Overview quartet : 4 clusters of equal weight (Capital | Clients | Governance | Exposure). */
-.dashboard-overview-pane {
-  flex: 1 1 0;
-}
-
-/* Hairline divider between panes — top by default (mobile stacked) */
-.dashboard-ops-pane--divider,
-.dashboard-lower-pane--divider,
-.dashboard-overview-pane--divider {
-  border-top: 1px solid var(--ct-border-ghost);
-}
-
-/* ── Wide layout: horizontal split for ops trio (≥44rem container — aligned with hero) */
-@container dash-board (min-width: 44rem) {
-  .dashboard-ops-surface {
-    flex-direction: row;
-  }
-
-  /* Vertical dividers replace horizontal ones */
-  .dashboard-ops-pane--divider {
-    border-top: none;
-    border-left: 1px solid var(--ct-border-ghost);
-  }
-  /* Plus de scroll interne forcé dans les panes ops : hauteur naturelle. */
-}
-
-/* ── Wide layout: horizontal split for lower duo (≥44rem container — unified threshold) */
-@container dash-board (min-width: 44rem) {
-  .dashboard-lower-surface {
-    flex-direction: row;
-  }
-
-  .dashboard-lower-pane--divider {
-    border-top: none;
-    border-left: 1px solid var(--ct-border-ghost);
-  }
-  /* Plus de scroll interne forcé dans les panes lower : hauteur naturelle. */
 }
 
 /* ── Wide layout: horizontal split for overview quartet (≥44rem — same threshold) */
 @container dash-board (min-width: 44rem) {
   .dashboard-overview-surface {
     flex-direction: row;
-  }
-
-  .dashboard-overview-pane--divider {
-    border-top: none;
-    border-left: 1px solid var(--ct-border-ghost);
-  }
-}
-
-/* ── Wide+tall : panes RESPIRENT (plus de compression pour gagner des pixels).
-   Padding généreux, gap de lecture — console premium, pas fiche technique. ── */
-@media (min-width: 80rem) and (min-height: 52rem) {
-  .dashboard-ops-pane,
-  .dashboard-lower-pane,
-  .dashboard-overview-pane {
-    padding: var(--ct-space-5) var(--ct-space-5);
-    gap: var(--ct-space-3_5);
-  }
-}
-
-/* ── GRAND ÉCRAN : empêcher les panes de devenir des tunnels horizontaux.
-   Au-delà d'une largeur de board confortable, le contenu de chaque pane est
-   cadré à une largeur de lecture et aligné en haut-gauche. La pane garde sa
-   part de surface (le cadre centré global tient l'ensemble), mais son CONTENU
-   ne s'étire plus jusqu'au bord — fini la « table vide étirée » / le pane qui
-   flotte. Container query sur le board réel, pas sur le viewport. ── */
-@container dash-board (min-width: 78rem) {
-  /* Audit trail : la table ne doit pas s'étaler — on la cadre à gauche. */
-  .dashboard-lower-pane--audit > * {
-    max-width: 44rem;
-  }
-
-  /* Operator queue + Vault health : contenu cadré pour ne pas flotter dans un
-     pane large (Platform status, plus dense, reste libre). */
-  .dashboard-ops-pane:nth-child(1) > *,
-  .dashboard-ops-pane:nth-child(2) > * {
-    max-width: 30rem;
   }
 }
 
@@ -3028,28 +2211,6 @@ body {
     transparent 1px
   );
   background-size: 32px 32px;
-}
-
-.ct-product-section__header {
-  border-bottom: 1px solid var(--ct-border-soft);
-  padding-bottom: var(--ct-space-4);
-}
-
-.ct-product-section__preview-head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.ct-product-section__preview-lead {
-  max-width: 52ch;
-}
-
-.ct-product-section__content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
 }
 
 .ct-product-section__content > div {
@@ -3990,52 +3151,11 @@ button.ct-choice-card {
   text-overflow: ellipsis;
 }
 
-.connect-rail-identity__wallet {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--ct-space-1);
-}
-
-.connect-rail-identity__badge {
-  width: 100%;
-  justify-content: center;
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-0);
-  padding: var(--ct-space-1) var(--ct-space-1_5);
-  color: var(--ct-text-body);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
 .connect-rail-identity__badge .tabular {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
-}
-
-.connect-rail-identity__dot {
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  flex-shrink: 0;
-  border-radius: var(--ct-radius-full);
-  background: currentColor;
-  opacity: var(--ct-opacity-60);
-}
-
-.connect-rail-identity__button {
-  width: 100%;
-  min-height: var(--ct-space-6);
-  justify-content: center;
-  border-radius: var(--ct-radius-sm);
-}
-
-.connect-rail-identity__button--ghost {
-  color: var(--ct-text-faint);
 }
 
 /* ── Shell padding overrides — restore tokens.css values that get reset to 0
@@ -4689,33 +3809,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   }
 }
 
-/* Admin dashboard ambient orbs (replaces inline glow styles) */
-.dash-ambient-orb {
-  position: absolute;
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-}
-
-.dash-ambient-orb--primary {
-  width: 60vw;
-  height: 60vw;
-  top: 20%;
-  left: 30%;
-  transform: translate(-50%, -50%);
-  filter: var(--ct-blur-glow-lg);
-  opacity: var(--ct-opacity-4);
-}
-
-.dash-ambient-orb--secondary {
-  width: 50vw;
-  height: 50vw;
-  bottom: 10%;
-  right: 10%;
-  transform: translate(50%, 50%);
-  filter: var(--ct-blur-glow-lg);
-  opacity: var(--ct-opacity-3);
-}
-
 /* ════════════════════════════════════════════════════════════════════════
    COMPACT VIEWPORT — repli responsive du shell desktop          [QA P1 fix]
    ──────────────────────────────────────────────────────────────────────────
@@ -4829,10 +3922,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .wizard-step-progress__connector--done {
   background: var(--ct-border-strong);
-}
-
-.wizard-step-progress__connector--active {
-  background: color-mix(in srgb, var(--ct-accent) 32%, var(--ct-border-soft));
 }
 
 .wizard-step-progress__connector--pending {
@@ -5031,19 +4120,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   transition: transform var(--ct-dur-base) var(--ct-ease), opacity var(--ct-dur-base) var(--ct-ease);
 }
 
-.vault-flow-flat-section--hidden {
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-  max-height: 0;
-  overflow: hidden;
-  margin: 0 !important;
-  transition: max-height var(--ct-dur-base) var(--ct-ease), 
-              opacity var(--ct-dur-base) var(--ct-ease), 
-              transform var(--ct-dur-base) var(--ct-ease),
-              margin var(--ct-dur-base) var(--ct-ease);
-}
-
 .vault-flow-flat-section + .vault-flow-flat-section {
   padding-top: var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
@@ -5062,30 +4138,9 @@ main#main-content>.admin-doc.admin-doc-shell {
   border-bottom: none;
 }
 
-.vault-panel-row__stack {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-}
-
 .vault-panel-inset-block {
   padding: var(--ct-space-2_5) 0;
   border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.vault-panel-inset-block__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  margin-bottom: var(--ct-space-2);
-}
-
-.vault-chart-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
 }
 
 .ct-copy-chip {
@@ -5153,12 +4208,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   min-width: 0;
 }
 
-.vault-disclaimer-inset {
-  margin: var(--ct-space-2) var(--ct-space-4) var(--ct-space-4);
-  padding-top: var(--ct-space-3);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
 /* Allocation bar segment (width driven by JS data) */
 .ct-alloc-bar-segment {
   height: 100%;
@@ -5194,17 +4243,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   min-width: 0;
 }
 
-/* Actions stay vertically centered — the buttons read as a balanced affordance
-   rather than pinned to the top edge of the tall identity column. */
-.admin-vaults-list__actions {
-  align-self: center;
-}
-
-.admin-vaults-list__header {
-  padding: var(--ct-space-2) var(--ct-space-5);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
 .admin-vaults-list__row {
   padding: var(--ct-space-3) var(--ct-space-5);
   transition: background var(--ct-dur-fast) var(--ct-ease);
@@ -5219,68 +4257,15 @@ main#main-content>.admin-doc.admin-doc-shell {
   background: var(--ct-surface-3);
 }
 
-.admin-vaults-list__identity {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  min-width: 0;
-}
-
-.admin-vaults-list__status {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  white-space: nowrap;
-}
-
-.admin-vaults-list__metrics {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.admin-vaults-list__apy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  white-space: nowrap;
-}
-
-.admin-vaults-list__actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--ct-space-1_5);
-  flex-wrap: nowrap;
-}
-
 /* Narrow list (chat-compressed centre or mobile): stack each row into a card.
    Container query → fires on the list's own width, not the viewport. */
 @container vaults-list (max-width: 48rem) {
-  .admin-vaults-list__header {
-    display: none;
-  }
 
   .admin-vaults-list__row {
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
     gap: var(--ct-space-2) var(--ct-space-3);
     padding: var(--ct-space-4);
-  }
-
-  .admin-vaults-list__identity { grid-column: 1; grid-row: 1; }
-  .admin-vaults-list__status   { grid-column: 2; grid-row: 1; justify-content: flex-end; }
-  .admin-vaults-list__metrics  { grid-column: 1; grid-row: 2; }
-  .admin-vaults-list__apy      { grid-column: 2; grid-row: 2; align-items: flex-end; }
-  .admin-vaults-list__actions  {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    padding-top: var(--ct-space-1);
-    border-top: 1px solid var(--ct-border-soft);
   }
 }
 

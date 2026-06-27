@@ -327,18 +327,6 @@ code,
   gap: var(--ct-space-2);
 }
 
-.app-footer__item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-}
-
-.app-footer__status {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-}
-
 /* ── Density A: full plinth — four columns + sub-footer ───────────────────── */
 .app-footer--full {
   padding-block: var(--ct-space-10) var(--ct-space-6);
@@ -375,10 +363,6 @@ code,
   margin-inline: auto;
   padding-block-start: var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
-}
-
-.app-footer__sub-note {
-  color: var(--ct-text-muted);
 }
 
 @media (max-width: 64rem) {

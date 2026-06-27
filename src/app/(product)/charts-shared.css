@@ -1,16 +1,4 @@
-/*
- * Shared chart / donut / legend widgets — Dashboard, Portfolio, Scenario.
- * Imported by dashboard.css and portfolio/page.tsx. Tokens only (--ct-*).
- */
 
-.dash-chart-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  height: var(--ct-donut-size);
-  margin-top: var(--ct-space-1);
-}
 
 .dash-chart-svg {
   transform: rotate(-90deg);
@@ -31,60 +19,11 @@
 .dash-chart-circle.color-soft { stroke: var(--ct-status-info); }
 .dash-chart-circle.color-muted { stroke: var(--ct-status-warning); }
 
-.donut-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: none;
-  z-index: var(--ct-z-base);
-}
-
-.donut-val {
-  font-size: var(--ct-text-display-fixed); /* 24 → 32px hero tier */
-  font-weight: var(--ct-font-extrabold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-none);
-  font-variant-numeric: tabular-nums;
-}
-
-.donut-lbl {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-  margin-top: var(--ct-space-1);
-}
-
 .dash-legend {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1_5);
   margin-top: var(--ct-space-2);
-}
-
-.dash-legend-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-xs);
-}
-
-.dash-legend-left {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ct-text-body);
 }
 
 .dash-legend-dot {
@@ -102,53 +41,14 @@
 .dash-legend-dot.dot-soft { background: var(--ct-status-info); }
 .dash-legend-dot.dot-muted { background: var(--ct-status-warning); }
 
-.dash-legend-val {
-  color: var(--ct-text-primary);
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--ct-font-semibold);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* SVG axis labels — token-sized (viewBox-relative charts) */
-.dash-chart-svg-text-axis {
-  font-family: var(--font-mono);
-  font-weight: var(--ct-font-medium);
-  fill: var(--ct-text-muted);
-}
-
-.dash-chart-svg-text-axis-unit {
-  font-family: var(--font-mono);
-  font-weight: var(--ct-font-bold);
-  fill: var(--ct-text-muted);
-  letter-spacing: var(--ct-tracking-wider);
-  text-transform: uppercase;
-}
-
 .dash-chart-svg-text-tick {
   font-family: var(--font-mono);
   fill: var(--ct-text-muted);
 }
 
-.dash-chart-svg-text-tick-accent {
-  font-family: var(--font-mono);
-  font-weight: var(--ct-font-semibold);
-}
-
 .dash-chart-svg-text-tick-sans {
   font-family: var(--font-sans);
   fill: var(--ct-text-muted);
-}
-
-.dash-chart-svg-text-tick-faint {
-  font-family: var(--font-sans);
-  fill: var(--ct-text-faint);
-}
-
-.dash-chart-svg-text-tick-warning {
-  font-family: var(--font-sans);
-  font-weight: var(--ct-font-semibold);
-  fill: var(--ct-status-warning);
 }
 
 :is(

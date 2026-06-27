@@ -88,19 +88,6 @@
   --pf-panel-pad-y: var(--ct-space-4);
 }
 
-/* =============================================================================
-   2. GREETING (instrument strip)
-   ============================================================================= */
-
-/* Accent hairline between greeting and hero — portfolio-premium.html */
-.pf-hairline {
-  flex: 0 0 auto;
-  height: 1px;
-  background: var(--ct-accent);
-  opacity: var(--ct-opacity-20);
-  margin: var(--ct-space-4) 0 var(--ct-space-6);
-}
-
 .pf-greeting {
   display: flex;
   flex-wrap: wrap;
@@ -110,13 +97,6 @@
   flex: 0 0 auto;
   margin-bottom: 0;
   padding-bottom: 0;
-}
-
-.pf-greeting__lead {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
 }
 
 .pf-greeting__lead .h1 {
@@ -136,32 +116,6 @@
   .ct-page-area .pf-container .pf-greeting__lead .h1 {
     font-size: var(--ct-text-2xl-fixed); /* keep the calmed 20px on wide screens too */
   }
-}
-
-.pf-greeting-name {
-  color: var(--ct-accent);
-  font-weight: var(--ct-font-semibold);
-}
-
-/* Subtitle — Hearst Flow uppercase micro label + accent hairline dot. */
-.pf-greeting__sub {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  margin-top: var(--ct-space-1);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-secondary);
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
-}
-
-.pf-greeting__sub-dot {
-  width: var(--ct-space-2);
-  height: 1px;
-  flex-shrink: 0;
-  background: var(--ct-accent);
-  border-radius: 0;
 }
 
 /* =============================================================================
@@ -192,7 +146,6 @@
 
 /* Default (below the gate): each row is a single column, content-sized. */
 .pf-cockpit-row--chart { grid-template-columns: 1fr; }
-.pf-cockpit-row--pair  { grid-template-columns: 1fr; }
 .pf-cockpit-row--deck  { grid-template-columns: 1fr; }
 
 /* Positions content (embedded) — the master PfCockpitPanel owns the surface;
@@ -210,22 +163,6 @@
 
 .pf-hero-grid {
   display: grid;
-  min-width: 0;
-  min-height: 0;
-}
-
-/* =============================================================================
-   DECK GRID — internal 2-cell split (calendar | activity) inside ONE master
-   PfCockpitPanel. Mirrors .pf-hero-grid: ONE grammar = one master surface per row.
-   MOBILE-FIRST: 1 column by default (base), so the stacked state is the default and
-   never gets overridden by source order. The 2-column split is applied ONLY inside
-   @container pf (min-width: 53rem) — same rule as the hero (see section 14). Both
-   children render as flat .pf-embedded-pane (no surface of their own); a single
-   1px hairline separates them — TOP edge when stacked, LEFT edge when 2-col.
-   ============================================================================= */
-.pf-deck-grid {
-  display: grid;
-  grid-template-columns: 1fr;
   min-width: 0;
   min-height: 0;
 }
@@ -259,7 +196,6 @@
     grid-template-columns: 1fr;
   }
 }
-
 
 /* ---- SCROLL NATURALLY: all viewports, no viewport-lock ---- */
 .pf-container--fit,
@@ -563,27 +499,6 @@
   }
 }
 
-.pf-main-chart-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  background: transparent;
-}
-
-.pf-main-chart-wrapper::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-text-strong) 3%, transparent),
-    transparent 22%
-  );
-  pointer-events: none;
-}
-
 /* ---- ValueChart ---- */
 .pf-value-chart {
   display: flex;
@@ -778,24 +693,11 @@
   background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-2));
 }
 
-.pf-vc-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-1_5);
-  align-items: center;
-  margin-top: var(--ct-space-2);
-}
-
 .pf-vc-header__provenance {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-medium);
   letter-spacing: var(--ct-tracking-wide);
   text-transform: uppercase;
-  color: var(--ct-text-tertiary);
-}
-
-.pf-positions-empty__hint,
-.pf-activity__empty-hint {
   color: var(--ct-text-tertiary);
 }
 
@@ -899,31 +801,6 @@
   background: color-mix(in srgb, var(--ct-accent) 70%, transparent);
 }
 
-.pf-activity__empty-hint {
-  color: var(--ct-text-tertiary);
-}
-
-/* Rail metrics hover states */
-.pf-status-row {
-  transition: all var(--ct-dur-base) var(--ct-ease);
-  cursor: default;
-}
-
-.pf-status-row:hover {
-  background: transparent;
-  transform: none;
-  box-shadow: none;
-}
-
-.pf-status-row:hover .pf-status-row__label {
-  color: var(--ct-text-primary);
-}
-
-.pf-status-row:hover .pf-status-row__value {
-  color: var(--ct-accent-light);
-}
-
-
 /* Welded into the hero body right slot — flat graphite, no surface of its own. */
 .pf-status-panel {
   flex: 1 1 auto;
@@ -940,85 +817,6 @@
 .pf-status-panel .pf-cockpit-panel__header {
   padding: 0;
   margin-bottom: 0;
-}
-
-
-/* icon · label · (value / meta) — value+meta right-aligned. FLAT rows: no
-   mini-box (no radius, no per-row plate). Items are separated by a single
-   hairline so the panel reads as ONE surface, never box-in-box. */
-.pf-status-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--ct-space-3);
-  flex: 0 0 auto;
-  min-height: 0; /* let content determine row height */
-  padding: var(--ct-space-1_5) 0;
-  border-radius: 0;
-}
-
-.pf-status-row + .pf-status-row {
-  margin-top: 0;
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-/* Status rows lead with a fine vertical marker - institutional style. */
-.pf-status-row__dot {
-  width: 2px;
-  height: var(--ct-space-4);
-  flex: 0 0 auto;
-  border-radius: 1px;
-  background: var(--ct-accent);
-  opacity: var(--ct-opacity-40);
-  align-self: center;
-  transition: all var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-status-row:hover .pf-status-row__dot {
-  opacity: 1;
-  height: var(--ct-space-6);
-}
-
-.pf-status-row__label {
-  margin: 0;
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-secondary);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pf-status-row__trail {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--ct-space-0_5);
-  margin: 0;
-  text-align: right;
-  min-width: 0;
-}
-
-.pf-status-row__value {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
-  color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-  white-space: nowrap;
-}
-
-.pf-status-row__value--accent {
-  color: var(--ct-accent);
-}
-
-.pf-status-row__meta {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  line-height: var(--ct-leading-tight);
-  white-space: nowrap;
 }
 
 /* Status-row leading icon — lucide default is 24px ; clamp it to the dense
@@ -1129,32 +927,6 @@
   flex: 1 1 auto;
   min-height: 0;
   padding: var(--ct-space-4) var(--ct-space-3);
-}
-
-.pf-positions-empty__lead,
-.pf-activity__empty-lead {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-strong);
-}
-
-.pf-positions-empty__hint,
-.pf-activity__empty-hint {
-  font-size: var(--ct-text-xs);
-  line-height: var(--ct-leading-snug);
-  max-width: 28ch;
-}
-
-.pf-positions-empty-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  font-size: var(--ct-text-xs);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-accent);
-  text-decoration: none;
-  border-radius: var(--ct-radius-sm);
-  transition: color var(--ct-dur-fast) var(--ct-ease);
 }
 
 .pf-positions-view-all {
@@ -1311,10 +1083,6 @@
   line-height: 1;
 }
 
-.cy-v5-metric__value--accent {
-  color: var(--ct-accent);
-}
-
 .cy-v5-metric__apy-block {
   display: flex;
   flex-direction: column;
@@ -1395,11 +1163,6 @@
 /* ── Tier 2 — visual zone: donut + legend ── */
 .cy-v5-visual {
   display: contents;
-}
-
-.cy-v5-visual__col--donut {
-  display: flex;
-  justify-content: center;
 }
 
 .cy-v5-donut {
@@ -1612,15 +1375,6 @@
     flex: 1 1 100%;
   }
 
-  .cy-v5-metric__apy-row {
-    flex-wrap: wrap;
-    gap: var(--ct-space-2);
-  }
-
-  .cy-v5-apy--inline {
-    width: 8.5rem;
-  }
-
   .cy-v5-visual {
     flex-direction: column;
     align-items: center;
@@ -1830,10 +1584,6 @@
   min-height: 0;
 }
 
-.pf-activity--single {
-  justify-content: center;
-}
-
 .pf-activity__row {
   display: flex;
   align-items: center;
@@ -1844,21 +1594,6 @@
   position: relative;
   z-index: 1; /* Ensure row is above pane hover wash */
   animation: pf-activity-entry 0.6s var(--ct-ease) both;
-}
-
-.pf-activity__row--hero {
-  padding: var(--ct-space-5) var(--ct-space-4);
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--ct-surface-1) 80%, transparent),
-    transparent
-  );
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-}
-
-.pf-activity__glyph-wrapper {
-  flex: 0 0 auto;
 }
 
 .pf-activity__glyph {
@@ -1890,46 +1625,6 @@
   flex-direction: column;
   gap: var(--ct-space-0_5);
   min-width: 0;
-}
-
-.pf-activity__type-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-1_5);
-  min-width: 0;
-}
-
-.pf-activity__type {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.pf-activity__row--hero .pf-activity__type {
-  font-size: var(--ct-text-base);
-}
-
-.pf-activity__vault {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-tertiary);
-  font-weight: var(--ct-font-medium);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pf-activity__date {
-  font-size: var(--ct-text-nano);
-  color: var(--ct-text-tertiary);
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-.pf-activity__amt-wrapper {
-  flex: 0 0 auto;
-  text-align: right;
 }
 
 .pf-activity__amt {
@@ -2032,18 +1727,6 @@
   justify-content: flex-start;
 }
 
-.pf-deck-grid .pf-activity--empty {
-  flex: 1 1 auto;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--ct-space-4) var(--ct-space-3);
-}
-
-.pf-deck-grid .pf-activity__empty-hint {
-  max-width: 32ch;
-}
-
 .pf-deck-grid .pf-trust-compact--embedded .pf-trust-compact-kpis {
   /* Two KPIs side-by-side in the deck pane: halves the block height so the
      Proof-status KPI no longer clips under the no-scroll gate (was stacked). */
@@ -2061,8 +1744,6 @@
   background: var(--ct-text-muted);
   flex: 0 0 auto;
 }
-
-.pf-status-dot--default { background: var(--ct-text-muted); }
 .pf-status-dot--active {
   background: var(--ct-status-success);
   box-shadow: none;
@@ -2120,14 +1801,6 @@
 
 .pf-inline-row--tight {
   gap: var(--ct-space-2);
-}
-
-/* ---- Footnote ---- */
-.pf-panel-footnote {
-  margin: 0;
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  line-height: var(--ct-leading-snug);
 }
 
 /* ---- Proof rows (provenance / attestation lines) ---- */
@@ -2214,51 +1887,6 @@
   50% { opacity: var(--ct-opacity-80); }
 }
 
-.pf-skeleton-greeting-title,
-.pf-skeleton-greeting-ticker,
-.pf-skeleton-widget,
-.pf-skeleton-sidebar {
-  border-radius: var(--ct-radius-xl);
-  background: linear-gradient(
-    100deg,
-    color-mix(in srgb, var(--ct-graphite-subtle-bg) 80%, transparent) 30%,
-    color-mix(in srgb, var(--ct-graphite-subtle-bg) 60%, transparent) 50%,
-    color-mix(in srgb, var(--ct-graphite-subtle-bg) 80%, transparent) 70%
-  );
-  background-size: 200% 100%;
-  animation:
-    pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite,
-    pf-shimmer var(--ct-dur-shimmer) linear infinite;
-}
-
-.pf-skeleton-greeting-title {
-  width: 18rem;
-  max-width: 60%;
-  height: var(--ct-space-7);
-}
-
-.pf-skeleton-greeting-ticker {
-  width: min(100%, 36rem);
-  height: var(--ct-space-8);
-}
-
-.pf-skeleton-widget {
-  width: 100%;
-  height: 100%;
-  min-height: var(--ct-space-8);
-  flex: 1 1 auto;
-}
-
-.pf-skeleton-widget--md {
-  min-height: 0;
-}
-
-.pf-skeleton-sidebar {
-  width: 100%;
-  height: 100%;
-  flex: 0 0 auto;
-}
-
 /* =============================================================================
    13. ZERO-STATE OVERRIDES
    -----------------------------------------------------------------------------
@@ -2271,16 +1899,6 @@
   from { opacity: 0; transform: translateX(-8px); }
   to { opacity: 1; transform: translateX(0); }
 }
-
-.pf-status-row {
-  animation: pf-status-row-entry 0.6s var(--ct-ease) both;
-}
-
-.pf-status-row:nth-child(1) { animation-delay: 0.05s; }
-.pf-status-row:nth-child(2) { animation-delay: 0.1s; }
-.pf-status-row:nth-child(3) { animation-delay: 0.15s; }
-.pf-status-row:nth-child(4) { animation-delay: 0.2s; }
-.pf-status-row:nth-child(5) { animation-delay: 0.25s; }
 
 /* Center placeholder content inside each plate. */
 .pf-container--zero .pf-positions-empty,
@@ -2469,10 +2087,6 @@
 }
 
 @container pf (min-width: 60rem) {
-  /* Deck welded grid split — 2 columns: Calendar | Activity (doc gate 60rem). */
-  .pf-deck-grid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
-  }
   .pf-deck-grid > .pf-embedded-pane + .pf-embedded-pane {
     border-top: none;
     border-left: 1px solid var(--ct-graphite-border-nested);
@@ -2610,15 +2224,6 @@
 
 .pf-fused-surface--deck {
   min-height: 12rem;
-}
-
-.pf-fused-surface__pane {
-  min-width: 0;
-  min-height: 0;
-}
-
-.pf-fused-surface__pane + .pf-fused-surface__pane {
-  border-top: 1px solid var(--ct-graphite-border-nested);
 }
 
 .pf-fused-surface__pane > .pf-embedded-pane {
@@ -2790,7 +2395,6 @@
   100% { background-position: -200% 0; transform: translateX(100%); }
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .pf-container *,
   .pf-container *::before,
@@ -2799,16 +2403,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-}
-
-/* =============================================================================
-   15. TAX PREVIEW LEAF
-   ============================================================================= */
-
-.pf-tax-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
 }
 
 .pf-tax-preview {
@@ -2852,44 +2446,6 @@
   gap: var(--ct-space-2);
 }
 
-/* ── Zero-state skeleton primitives — muted placeholder bars/dots shared by
-   Positions, Recent Activity and the Capital & Yield ledger. They render the
-   widget's structural frame while no real data exists, then disappear as the
-   real rows fill in. No invented values, no "no data yet" phrase. ── */
-.pf-skeleton-bar,
-.pf-skeleton-glyph,
-.pf-skeleton-dot {
-  display: inline-block;
-  border-radius: var(--ct-radius-sm);
-  background: color-mix(in srgb, var(--ct-graphite-subtle-bg) 90%, var(--ct-text-strong) 10%);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-
-.pf-skeleton-glyph {
-  width: var(--ct-space-7);
-  height: var(--ct-space-7);
-  border-radius: var(--ct-radius-md);
-  flex-shrink: 0;
-}
-
-.pf-skeleton-dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
-}
-
-.pf-skeleton-bar { height: var(--ct-space-2_5); }
-.pf-skeleton-bar--label { width: 42%; }
-.pf-skeleton-bar--meta { width: 26%; margin-top: var(--ct-space-1); opacity: var(--ct-opacity-60); }
-.pf-skeleton-bar--amt { width: var(--ct-space-10); }
-.pf-skeleton-bar--vault { width: 55%; }
-.pf-skeleton-bar--num { width: 70%; }
-
-.pf-positions__row--skeleton .pf-skeleton-bar--num { margin-left: auto; }
-.pf-activity__row--skeleton,
-.pf-positions__row--skeleton { pointer-events: none; }
-
 /* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
 
 /* =============================================================================
@@ -2917,175 +2473,9 @@
   width: 100%;
 }
 
-.pf-position-card {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  min-height: 5.5rem;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  text-decoration: none;
-  transition: 
-    background var(--ct-dur-base) var(--ct-ease),
-    border-color var(--ct-dur-slow) var(--ct-ease),
-    transform var(--ct-dur-base) var(--ct-ease),
-    box-shadow var(--ct-dur-base) var(--ct-ease);
-  overflow: hidden;
-  box-shadow: none;
-  animation: pf-card-entry 0.5s var(--ct-ease) both;
-}
-
 @keyframes pf-card-entry {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-.pf-position-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
-    transparent 60%
-  );
-  mask: linear-gradient(var(--ct-text-strong) 0 0) content-box, linear-gradient(var(--ct-text-strong) 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.pf-position-card:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
-}
-
-.pf-position-card--active {
-  background: var(--ct-surface-1);
-  border-color: color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
-}
-
-.pf-position-card--active::after {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 2px;
-  background: var(--ct-accent);
-  border-radius: 2px 0 0 2px;
-  pointer-events: none;
-}
-
-
-.pf-position-card__content {
-  flex: 1 1 auto;
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr auto;
-  align-items: center;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  gap: var(--ct-space-5);
-  min-width: 0;
-}
-
-.pf-position-card__main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
-}
-
-.pf-position-card__name {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.pf-position-card__status {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--ct-space-px) var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-}
-
-.pf-position-card__status--active {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 22%, transparent);
-}
-
-.pf-position-card__metrics {
-  display: contents; /* Let children participate in the grid */
-}
-
-.pf-position-card__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.pf-position-card__label {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-/* Position value — uses text-strong (a dollar amount, not a status signal) */
-.pf-position-card__value {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-extrabold);
-  color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-}
-
-/* APY range — accent because it IS the yield signal */
-.pf-position-card__apy {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-accent);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-}
-
-.pf-position-card__action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-8);
-  height: var(--ct-space-8);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  color: var(--ct-text-tertiary);
-  transition:
-    transform var(--ct-dur-fast) var(--ct-ease),
-    color var(--ct-dur-fast) var(--ct-ease),
-    border-color var(--ct-dur-fast) var(--ct-ease),
-    background var(--ct-dur-fast) var(--ct-ease);
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.pf-position-card:hover .pf-position-card__action {
-  transform: translateX(3px);
-  color: var(--ct-accent);
-  border-color: color-mix(in srgb, var(--ct-accent) 25%, transparent);
-  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
 }
 
 /* Empty state CTA helpers */
@@ -3168,48 +2558,6 @@
   color: var(--ct-text-secondary);
 }
 
-@container pf (max-width: 48rem) {
-  .pf-position-card__content {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--ct-space-4);
-  }
-  .pf-position-card__main {
-    grid-column: 1 / -1;
-  }
-  .pf-position-card__action {
-    display: none;
-  }
-}
-
-@container pf (max-width: 30rem) {
-  .pf-position-card__content {
-    grid-template-columns: 1fr;
-    gap: var(--ct-space-4);
-  }
-}
-
-/* Pane-scoped compaction — position cards in a narrow niveau-2 pane (pfpane)
-   drop to a 2-row layout (name over metrics, chevron hidden), keyed to the pane
-   width so the row split never crushes the 4-column grid. */
-@container pfpane (max-width: 34rem) {
-  .pf-position-card__content {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--ct-space-4);
-  }
-  .pf-position-card__main {
-    grid-column: 1 / -1;
-  }
-  .pf-position-card__action {
-    display: none;
-  }
-}
-
-@container pfpane (max-width: 22rem) {
-  .pf-position-card__content {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* =============================================================================
    17. FIT-TO-VIEWPORT — distribution de la hauteur
    -----------------------------------------------------------------------------
@@ -3244,7 +2592,6 @@
 /* Rows : hauteur NATURELLE (scroll relâché). Le min-height reste un plancher
    de stabilité visuelle, mais considérablement réduit pour densifier l'UI. */
 .pf-cockpit-row--chart { flex: 0 0 auto; min-height: 0; }
-.pf-cockpit-row--pair  { flex: 0 0 auto; min-height: auto; }
 .pf-cockpit-row--deck  { flex: 0 0 auto; min-height: 12rem; }
 
 /* Les plates prennent leur hauteur naturelle : on neutralise les aspect-ratios
@@ -3276,26 +2623,6 @@
   flex: 1 1 auto;
   padding: var(--ct-space-2) var(--ct-space-4); /* Reduced padding */
   text-align: center;
-}
-
-.pf-activity-zero__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-4);
-  max-width: 20rem;
-}
-
-.pf-activity-zero__icon-shell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-12);
-  height: var(--ct-space-12);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-soft);
-  box-shadow: var(--ct-glass-bevel);
 }
 
 .pf-activity-zero__label {
@@ -3408,835 +2735,11 @@
   border-color: color-mix(in srgb, var(--ct-accent) 15%, transparent);
 }
 
-/* Active accent bar — left edge on active position cards */
-.pf-position-card__accent-bar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: color-mix(in srgb, var(--ct-accent) 55%, transparent);
-  border-radius: var(--ct-radius-full) 0 0 var(--ct-radius-full);
-}
-
-/* Position status chip (replaces Badge in position cards) */
-.pf-position-status-chip {
-  display: inline-flex;
-  align-items: center;
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  background: color-mix(in srgb, var(--ct-surface-2) 70%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 25%, transparent);
-  border-radius: var(--ct-radius-sm);
-  padding: var(--ct-space-0_5) var(--ct-space-1_5);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.pf-position-status-chip--active {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 8%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 20%, transparent);
-}
-
-/* =============================================================================
-   LEAF PAGES — /portfolio/yield | /distributions | /activity | /positions
-   Shared layout primitives for all "View full" detail pages.
-   ============================================================================= */
-
-.pf-leaf-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  width: 100%;
-  min-width: 0;
-  padding: var(--ct-space-6) 0 var(--ct-space-12);
-}
-
-/* ── Back breadcrumb ── */
-.pf-leaf-back-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-}
-
-.pf-leaf-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  color: var(--ct-text-secondary);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: var(--ct-tracking-wide);
-  text-decoration: none;
-  transition: color var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-leaf-back-link:hover { color: var(--ct-accent); }
-.pf-leaf-back-sep { color: var(--ct-text-muted); opacity: var(--ct-opacity-50); }
-.pf-leaf-back-current {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-primary);
-  font-weight: var(--ct-font-medium);
-}
-
-/* ── Page header ── */
-.pf-leaf-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-4);
-  flex-wrap: wrap;
-}
-
-.pf-leaf-header__left {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-  min-width: 0;
-}
-
-.pf-leaf-header__badge {
-  flex: 0 0 auto;
-  padding-top: var(--ct-space-1);
-}
-
-.pf-leaf-eyebrow {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-secondary);
-}
-
-.pf-leaf-title {
-  font-size: var(--ct-text-3xl-fixed);
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
-  letter-spacing: var(--ct-tracking-tight);
-  color: var(--ct-text-strong);
-  margin: 0;
-}
-
-.pf-leaf-desc {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-relaxed);
-  max-width: 64ch;
-  margin: 0;
-}
-
-/* ── Hero KPI row ── */
-.pf-leaf-hero-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: var(--ct-space-3);
-}
-
-.pf-leaf-kpi-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-4) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: var(--ct-glass-bevel);
-  min-width: 0;
-}
-
-.pf-leaf-kpi-card--accent {
-  border-color: color-mix(in srgb, var(--ct-accent) 25%, transparent);
-  background: color-mix(in srgb, var(--ct-accent) 5%, var(--ct-graphite-subtle-bg));
-}
-
-.pf-leaf-kpi-label {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-}
-
-.pf-leaf-kpi-value {
-  font-size: var(--ct-text-xl-fixed);
-  font-weight: var(--ct-font-bold);
-  line-height: var(--ct-leading-none);
-  color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}
-
-.pf-leaf-kpi-value--accent { color: var(--ct-accent); }
-.pf-leaf-kpi-value--dim { color: var(--ct-text-muted); }
-
-.pf-leaf-kpi-sub {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Section wrapper ── */
-.pf-leaf-section { display: flex; flex-direction: column; gap: var(--ct-space-3); }
-
-.pf-leaf-section__card {
-  padding: var(--ct-space-5) var(--ct-space-6);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: var(--ct-glass-bevel);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.pf-leaf-section__card--chart {
-  padding: var(--ct-space-4) var(--ct-space-5);
-}
-
-.pf-leaf-section__card--notice {
-  flex-direction: row;
-  align-items: flex-start;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-4) var(--ct-space-5);
-  border-color: color-mix(in srgb, var(--ct-accent) 20%, var(--ct-graphite-border-nested));
-  background: color-mix(in srgb, var(--ct-accent) 4%, var(--ct-graphite-subtle-bg));
-}
-
-.pf-leaf-section__card--empty {
-  align-items: center;
-  text-align: center;
-  padding: var(--ct-space-10) var(--ct-space-6);
-}
-
-.pf-leaf-section__head {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-3);
-  flex-wrap: wrap;
-  padding-bottom: var(--ct-space-2);
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
-}
-
-.pf-leaf-section-title {
-  font-size: var(--ct-text-2xl);            /* canon .h2 — 18→22px (était base 16px) */
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);             /* canon .h2 — blanc (était accent vert) */
-  margin: 0;
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.pf-leaf-section-subtitle {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-}
-
-/* ── Notice ── */
-.pf-leaf-notice-dot {
-  flex: 0 0 auto;
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: 50%;
-  background: var(--ct-accent);
-  margin-top: var(--ct-space-1);
-  opacity: var(--ct-opacity-80);
-}
-
-.pf-leaf-notice-title {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
-  margin: 0 0 var(--ct-space-1);
-}
-
-.pf-leaf-notice-text {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-relaxed);
-  margin: 0;
-  max-width: 56ch;
-}
-
-/* ── Empty state ── */
-.pf-leaf-empty-title {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
-  margin: 0;
-}
-
-.pf-leaf-empty-text {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-secondary);
-  line-height: var(--ct-leading-relaxed);
-  margin: 0;
-  max-width: 48ch;
-}
-
-/* ── APY band (yield page) ── */
-.pf-leaf-apy-visual {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-}
-
-.pf-leaf-apy-anchor {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-secondary);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.pf-leaf-apy-anchor--high { color: var(--ct-accent); }
-
-.pf-leaf-apy-track {
-  flex: 1 1 auto;
-  height: var(--ct-space-2);
-  border-radius: 99px;
-  background: color-mix(in srgb, var(--ct-surface-3) 60%, transparent);
-  position: relative;
-  overflow: hidden;
-}
-
-.pf-leaf-apy-fill {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, var(--ct-accent) 0%, color-mix(in srgb, var(--ct-accent) 70%, transparent) 100%);
-  border-radius: 99px;
-}
-
-.pf-leaf-apy-stress {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  margin: 0;
-}
-
-/* ── Allocation bar (yield page) ── */
-.pf-leaf-alloc-bar-track {
-  display: flex;
-  height: var(--ct-space-2_5);
-  border-radius: 99px;
-  overflow: hidden;
-  gap: var(--ct-space-0_5);
-}
-
-.pf-leaf-alloc-bar-seg {
-  flex: 0 0 auto;
-  height: 100%;
-  border-radius: 2px;
-  transition: opacity var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-leaf-alloc-bar-seg:hover { opacity: var(--ct-opacity-80); }
-
-/* ── Bucket table ── */
-.pf-leaf-bucket-table { display: flex; flex-direction: column; gap: 0; }
-
-.pf-leaf-bucket-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-2_5) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
-  align-items: center;
-}
-
-.pf-leaf-bucket-row:last-child { border-bottom: 0; }
-
-.pf-leaf-bucket-row--head {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-muted);
-  padding: var(--ct-space-2) 0;
-}
-
-.pf-leaf-bucket-label-cell {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-primary);
-}
-
-.pf-leaf-bucket-dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: 50%;
-  flex: 0 0 auto;
-}
-
-.pf-leaf-bucket-num {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-body);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}
-
-.pf-leaf-contrib--positive { color: var(--ct-accent); }
-.pf-leaf-contrib--volatile { color: var(--ct-text-muted); }
-
-/* ── Model grid (metadata rows) ── */
-.pf-leaf-model-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  gap: var(--ct-space-4) var(--ct-space-8);
-}
-
-.pf-leaf-model-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  padding: var(--ct-space-3) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
-}
-
-.pf-leaf-model-item__label {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-muted);
-}
-
-.pf-leaf-model-item__value {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-strong);
-}
-
-/* ── Proof strip ── */
-.pf-leaf-proof-strip {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-secondary);
-  padding: var(--ct-space-3) var(--ct-space-4);
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 50%, transparent);
-}
-
-.pf-leaf-proof-status { font-weight: var(--ct-font-semibold); color: var(--ct-text-muted); }
-.pf-leaf-proof-status--live { color: var(--ct-accent); }
-.pf-leaf-proof-date { margin-left: auto; color: var(--ct-text-muted); }
-
-/* ── Disclaimer ── */
-.pf-leaf-disclaimer {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  opacity: var(--ct-opacity-70);
-  line-height: var(--ct-leading-relaxed);
-  margin: 0;
-  max-width: 72ch;
-}
-
-/* ── Distrib chart wrapper (distributions page) ── */
-.pf-leaf-distrib-chart-wrapper {
-  margin: calc(-1 * var(--ct-space-4)) calc(-1 * var(--ct-space-5));
-  border-radius: 0 0 var(--ct-radius-xl) var(--ct-radius-xl);
-  overflow: hidden;
-}
-
 .pf-leaf-distrib-chart-wrapper .pf-cockpit-panel,
 .pf-leaf-distrib-chart-wrapper .pf-embedded-pane {
   border: none;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-}
-
-/* ── Transaction ledger (activity page) ── */
-.pf-leaf-tx-ledger {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-}
-
-.pf-leaf-tx-group { display: flex; flex-direction: column; gap: 0; }
-
-.pf-leaf-tx-date-header {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-2) 0;
-  margin-bottom: var(--ct-space-1);
-}
-
-.pf-leaf-tx-date-label {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-muted);
-  white-space: nowrap;
-}
-
-.pf-leaf-tx-date-line {
-  flex: 1 1 auto;
-  height: 1px;
-  background: color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
-}
-
-.pf-leaf-tx-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: var(--ct-space-3);
-  align-items: center;
-  padding: var(--ct-space-3) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 30%, transparent);
-  transition: background var(--ct-dur-base) var(--ct-ease);
-  border-radius: var(--ct-radius-sm);
-}
-
-.pf-leaf-tx-row:last-child { border-bottom: 0; }
-
-.pf-leaf-tx-icon {
-  width: var(--ct-space-8);
-  height: var(--ct-space-8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  flex: 0 0 auto;
-}
-
-.pf-leaf-tx-icon--in {
-  background: color-mix(in srgb, var(--ct-accent) 12%, transparent);
-  color: var(--ct-accent);
-}
-
-.pf-leaf-tx-icon--out {
-  background: color-mix(in srgb, var(--ct-text-muted) 15%, transparent);
-  color: var(--ct-text-muted);
-}
-
-.pf-leaf-tx-icon__svg { width: var(--ct-icon-tx); height: var(--ct-icon-tx); }
-
-.pf-leaf-tx-main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  min-width: 0;
-}
-
-.pf-leaf-tx-type {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-primary);
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-}
-
-.pf-leaf-tx-vault {
-  font-weight: var(--ct-font-normal);
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-xs);
-}
-
-.pf-leaf-tx-time {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  opacity: var(--ct-opacity-70);
-}
-
-.pf-leaf-tx-amount {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-  white-space: nowrap;
-}
-
-.pf-leaf-tx-amount--in { color: var(--ct-accent); }
-.pf-leaf-tx-amount--out { color: var(--ct-text-secondary); }
-
-.pf-leaf-tx-hash {
-  font-size: var(--ct-text-nano);
-  color: var(--ct-text-muted);
-  opacity: var(--ct-opacity-50);
-  letter-spacing: var(--ct-tracking-tight);
-  white-space: nowrap;
-}
-
-/* Empty state ghost rows */
-.pf-leaf-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-4);
-  padding: var(--ct-space-8) 0;
-}
-
-.pf-leaf-empty-icon { width: 100%; }
-
-.pf-leaf-empty-ghost-row {
-  display: grid;
-  grid-template-columns: 2rem 1fr 5rem;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-3) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 20%, transparent);
-  opacity: var(--ct-opacity-25);
-}
-
-.pf-leaf-empty-ghost-icon {
-  width: var(--ct-space-7);
-  height: var(--ct-space-7);
-  border-radius: 50%;
-  background: var(--ct-surface-3);
-}
-
-.pf-leaf-empty-ghost-bar {
-  height: var(--ct-space-3);
-  background: var(--ct-surface-3);
-  border-radius: var(--ct-radius-sm);
-  align-self: center;
-}
-
-.pf-leaf-empty-ghost-amt {
-  width: 4rem;
-  height: var(--ct-space-3);
-  background: var(--ct-surface-3);
-  border-radius: var(--ct-radius-sm);
-  align-self: center;
-  justify-self: end;
-}
-
-/* ── Position cards (positions page) ── */
-.pf-leaf-positions-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.pf-leaf-position-card {
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: var(--ct-glass-bevel);
-  padding: var(--ct-space-5) var(--ct-space-6);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-  transition: border-color var(--ct-dur-base) var(--ct-ease);
-}
-
-.pf-leaf-position-card:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 20%, var(--ct-graphite-border-nested));
-}
-
-.pf-leaf-pos-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
-
-.pf-leaf-pos-header__left {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-}
-
-.pf-leaf-pos-name {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
-  margin: 0;
-  line-height: var(--ct-leading-tight);
-}
-
-.pf-leaf-pos-status {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-muted);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-.pf-leaf-pos-detail-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-secondary);
-  text-decoration: none;
-  letter-spacing: var(--ct-tracking-wide);
-  transition: color var(--ct-dur-base) var(--ct-ease);
-  white-space: nowrap;
-}
-
-.pf-leaf-pos-detail-link:hover { color: var(--ct-accent); }
-
-.pf-leaf-pos-kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
-  gap: var(--ct-space-4);
-}
-
-.pf-leaf-pos-kpi {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-}
-
-.pf-leaf-pos-kpi__label {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-muted);
-}
-
-.pf-leaf-pos-kpi__value {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  line-height: var(--ct-leading-none);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}
-
-.pf-leaf-pos-kpi__value--dim { color: var(--ct-text-muted); font-weight: var(--ct-font-normal); }
-
-.pf-leaf-pos-kpi__sub {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.pf-leaf-pos-kpi__sub--positive { color: var(--ct-accent); }
-.pf-leaf-pos-kpi__sub--negative { color: color-mix(in srgb, var(--ct-text-muted) 70%, red 30%); }
-
-.pf-leaf-pos-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-6);
-  flex-wrap: wrap;
-  padding-top: var(--ct-space-3);
-  border-top: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 50%, transparent);
-}
-
-.pf-leaf-pos-footer__item { display: flex; align-items: center; gap: var(--ct-space-2); }
-
-.pf-leaf-pos-footer__label {
-  font-size: var(--ct-text-micro);
-  color: var(--ct-text-muted);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-.pf-leaf-pos-footer__value {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-medium);
-  color: var(--ct-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Position skeleton */
-.pf-leaf-pos-skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  width: 100%;
-  opacity: var(--ct-opacity-20);
-}
-
-.pf-leaf-pos-skeleton-row {
-  display: grid;
-  grid-template-columns: var(--ct-space-3) 1fr 6rem 6rem;
-  gap: var(--ct-space-3);
-  align-items: center;
-  padding: var(--ct-space-3) 0;
-}
-
-.pf-leaf-pos-skeleton-dot {
-  width: var(--ct-space-3);
-  height: var(--ct-space-3);
-  border-radius: 50%;
-  background: var(--ct-surface-3);
-}
-
-.pf-leaf-pos-skeleton-bar {
-  height: var(--ct-space-3);
-  background: var(--ct-surface-3);
-  border-radius: var(--ct-radius-sm);
-}
-
-.pf-leaf-pos-skeleton-bar--name { width: 70%; }
-.pf-leaf-pos-skeleton-bar--num { width: 80%; }
-
-/* Position summary table */
-.pf-leaf-pos-table { display: flex; flex-direction: column; gap: 0; }
-
-.pf-leaf-pos-table-row {
-  display: grid;
-  grid-template-columns: 1fr repeat(4, auto);
-  gap: var(--ct-space-6);
-  align-items: center;
-  padding: var(--ct-space-3) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 30%, transparent);
-}
-
-.pf-leaf-pos-table-row:last-child { border-bottom: 0; }
-
-.pf-leaf-pos-table-row--head {
-  font-size: var(--ct-text-nano);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-muted);
-  padding-bottom: var(--ct-space-2);
-}
-
-.pf-leaf-pos-table-vault {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  min-width: 0;
-}
-
-.pf-leaf-pos-table-num {
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}
-
-/* ── Responsive ── */
-@container pf (max-width: 44rem) {
-  .pf-leaf-hero-row { grid-template-columns: 1fr 1fr; }
-  .pf-leaf-model-grid { grid-template-columns: 1fr 1fr; }
-  .pf-leaf-pos-kpis { grid-template-columns: 1fr 1fr; }
-  .pf-leaf-pos-table-row { grid-template-columns: 1fr 1fr; gap: var(--ct-space-3); }
-  .pf-leaf-pos-table-row--head { display: none; }
-  .pf-leaf-tx-row { grid-template-columns: auto 1fr auto; }
-  .pf-leaf-tx-hash { display: none; }
-}
-
-@container pf (max-width: 28rem) {
-  .pf-leaf-hero-row { grid-template-columns: 1fr; }
-  .pf-leaf-model-grid { grid-template-columns: 1fr; }
-  .pf-leaf-pos-kpis { grid-template-columns: 1fr; }
-  .pf-leaf-bucket-row { grid-template-columns: 1fr auto; }
-  .pf-leaf-bucket-row .pf-leaf-bucket-num:last-child { display: none; }
-  .pf-leaf-bucket-row--head .pf-leaf-bucket-num:last-child { display: none; }
 }
 

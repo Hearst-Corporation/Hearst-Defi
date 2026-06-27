@@ -125,13 +125,6 @@
   gap: var(--ct-space-4);
 }
 
-.auth-form-success {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-  text-align: center;
-}
-
 /* Field label/value stack — tight intra-group gap (canon var(--ct-space-1)).
    Replaces inline `flex flex-col gap-1` (Tailwind default scale) in auth JSX. */
 .auth-field {

@@ -254,20 +254,6 @@
   }
 }
 
-/* Inset surface inside a Card (chart wrapper, heatmap stage, disclaimer box…).
-   NO own fill — the inset shares the card's graphite so there is ZERO surface
-   layering (uniform black, no lighter/darker rectangle). A hairline border
-   alone delineates the grouped content / chart frame. */
-.admin-doc-inset {
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-border-soft);
-  /* Surface élevée (sous-panneau / form dépliable) — était `transparent`,
-     ce qui laissait les forms « Add prospect » & co flotter sans fond sur la
-     page. Aligné sur la surface graphite des panneaux. */
-  background: var(--ct-surface-1);
-  padding: var(--ct-space-3) var(--ct-space-4);
-}
-
 /* Decision-gate lane label column (Proceed / Hold / Reject). */
 .admin-doc .admin-doc-lane-label {
   flex-shrink: 0;
@@ -346,18 +332,6 @@
   margin-top: var(--ct-space-1_5);
   border-radius: var(--ct-radius-full);
   background: var(--ct-accent);
-}
-
-/* Divider section — border-top + top padding, for flat sub-sections inside a Card */
-.admin-doc-divider-section {
-  border-top: 1px solid var(--ct-border-soft);
-  padding-top: var(--ct-space-4);
-}
-
-/* Label + content block inside a divider section */
-.admin-doc-divider-section__label {
-  display: block;
-  margin-bottom: var(--ct-space-3);
 }
 
 .admin-doc .admin-doc-spec-loading {
