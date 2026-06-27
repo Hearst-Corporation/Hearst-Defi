@@ -9,10 +9,10 @@ interface AuditTrailRollingProps {
 
 /**
  * Cockpit Admin — Recent admin activity (rolling 20 AdminAudit rows).
- * Content-only: no panel wrapper/header — provided by parent cell.
+ * Content-only: no panel wrapper/header — provided by parent BentoPanel cell.
  *
  * Table rendering of AdminAudit rows: time, actor wallet (truncated),
- * action, entity type + id.
+ * action, entity type + id. Bento Tailwind (Portfolio Positions canon).
  * Graceful empty state.
  */
 export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
@@ -24,41 +24,39 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
         variant="inline"
         message="No admin activity recorded yet."
         ariaLabel="Audit trail"
-        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
+        className="flex-1 flex items-center justify-center py-8"
       />
     );
   }
 
   return (
-    <div aria-label="Audit trail" className="dashboard-audit-trail">
-      <div className="overflow-hidden border border-[var(--ct-border-ghost)] rounded-(--ct-radius-sm)">
-        <table className="w-full table-fixed body-sm" aria-label="Audit trail">
-          <thead>
-            <tr className="bg-[color:color-mix(in_srgb,var(--ct-bg-soft)_30%,transparent)]">
-              <th className="cockpit-col-time text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)]">
-                Time
-              </th>
-              <th className="cockpit-col-actor text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)]">
-                Actor
-              </th>
-              <th className="cockpit-col-action text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)]">
-                Action
-              </th>
-              <th className="hidden cockpit-col-entity text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)] md:table-cell">
-                Entity
-              </th>
-              <th className="hidden cockpit-col-entity-id text-left px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-label-xs border-b border-[var(--ct-border-ghost)] lg:table-cell">
-                Entity ID
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--ct-border-ghost)]">
-            {entries.map((entry) => (
-              <AuditRow key={entry.id} entry={entry} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div aria-label="Audit trail" className="overflow-x-auto">
+      <table className="w-full table-fixed" aria-label="Audit trail">
+        <thead>
+          <tr className="border-b border-white/5">
+            <th className="text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Time
+            </th>
+            <th className="text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Actor
+            </th>
+            <th className="text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              Action
+            </th>
+            <th className="hidden text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 md:table-cell">
+              Entity
+            </th>
+            <th className="hidden text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 lg:table-cell">
+              Entity ID
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => (
+            <AuditRow key={entry.id} entry={entry} />
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -70,20 +68,20 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="cockpit-hover-row cursor-default group transition-colors">
-      <td className="px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-value-xs text-left">
+    <tr className="group border-b border-white/5 last:border-b-0 cursor-default transition-colors hover:bg-white/[0.02]">
+      <td className="px-3 py-2 text-left text-[13px] text-zinc-300 tabular-nums">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>
-      <td className="px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-value-xs text-left mono opacity-80 group-hover:opacity-100">
+      <td className="px-3 py-2 text-left text-[13px] font-mono text-zinc-500 group-hover:text-zinc-400">
         {wallet}
       </td>
-      <td className="px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-value-sm text-left uppercase truncate">
+      <td className="px-3 py-2 text-left text-[13px] text-zinc-300 uppercase truncate">
         {entry.action}
       </td>
-      <td className="hidden px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-value-sm text-left md:table-cell uppercase opacity-70">
+      <td className="hidden px-3 py-2 text-left text-[13px] text-zinc-400 uppercase md:table-cell">
         {entry.entityType}
       </td>
-      <td className="hidden px-[var(--ct-space-2)] py-[var(--ct-space-1_5)] cockpit-value-xs text-left lg:table-cell mono opacity-60">
+      <td className="hidden px-3 py-2 text-left text-[13px] font-mono text-zinc-500 lg:table-cell">
         {entityId}
       </td>
     </tr>
