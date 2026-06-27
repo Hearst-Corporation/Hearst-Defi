@@ -130,7 +130,6 @@
   --ct-status-info-soft: rgba(96, 165, 250, 0.10);
   --ct-status-info-border: rgba(96, 165, 250, 0.20);
 
-
   /* Radius tokens (alignés sur le DS) */
   --ct-radius-xs: 0.125rem; /* 2px — chart legend swatch, micro chips */
   --ct-radius-sm: 0.5rem;   /* 6 → 8px */
@@ -432,16 +431,11 @@ body {
 .ct-status-dot-danger  { background: var(--ct-status-danger);  box-shadow: none; }
 .ct-status-dot-info    { background: var(--ct-status-info);    box-shadow: none; }
 
-.ct-status-glow-success { color: var(--ct-status-success); filter: none; }
-.ct-status-glow-warning { color: var(--ct-status-warning); filter: none; }
-.ct-status-glow-danger  { color: var(--ct-status-danger);  filter: none; }
-
 /* ── HELPERS texte/surface (utilitaires Cockpit pour purge tokens) ── */
 .ct-text-primary { color: var(--ct-text-primary); }
 .ct-text-body    { color: var(--ct-text-body); }
 .ct-text-muted     { color: var(--ct-text-muted); }
 .ct-text-faint     { color: var(--ct-text-faint); }
-.ct-text-secondary { color: var(--ct-text-secondary); }
 .ct-text-tertiary  { color: var(--ct-text-tertiary); }
 .ct-text-neutral   { color: var(--ct-text-neutral); }
 .ct-text-strong    { color: var(--ct-text-strong); }
@@ -459,19 +453,8 @@ body {
   text-decoration-color: color-mix(in srgb, var(--ct-accent) 45%, transparent);
 }
 
-.ct-prose-narrow {
-  max-width: 34ch;
-  margin-inline: auto;
-}
-
 .ct-prose-md { max-width: var(--ct-prose-md); }
 .ct-prose-lg { max-width: var(--ct-prose-lg); }
-.ct-prose-xl { max-width: var(--ct-prose-xl); }
-
-.ct-panel-inset {
-  background: var(--ct-surface-0);
-  border: 1px solid var(--ct-border-soft);
-}
 
 /* ── Error / not-found shell (admin + product + global-error) ─────────────── */
 
@@ -657,42 +640,6 @@ body {
 
 .ct-overlay-backdrop {
   background: color-mix(in srgb, var(--ct-bg-deep) 60%, transparent);
-}
-
-.ct-separator-v {
-  width: var(--ct-space-px);
-  height: var(--ct-space-3);
-  background: var(--ct-border-soft);
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.ct-projection-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: var(--ct-z-dropdown);
-  width: 100%;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: var(--ct-graphite-subtle-bg);
-  border-top: 1px solid var(--ct-border-soft);
-  padding: var(--ct-space-4) var(--ct-space-6);
-}
-
-.ct-projection-footer-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ct-space-2) var(--ct-space-6);
-  max-width: 75rem;
-  margin-inline: auto;
-}
-
-.ct-kpi-auto-grid {
-  display: grid;
-  gap: var(--ct-space-4);
-  align-items: start;
-  grid-template-columns: repeat(auto-fill, minmax(var(--ct-card-min-w), 1fr));
 }
 
 /* Scenario Lab / Projection Studio layout shells.
@@ -2815,7 +2762,6 @@ body {
    is the single internal scroll region. Natural scroll below the gate + phone.
    Height floor aligned with portfolio/dashboard/proof (52rem). ── */
 
-
 /* ── Scroll naturel à toutes les tailles — l'ancien fit-pin no-scroll a été
    SUPPRIMÉ. Le lab shell prend sa hauteur de contenu, main#main-content scrolle. ── */
 @media all {
@@ -2885,24 +2831,11 @@ body {
 .ct-surface-1    { background: var(--ct-surface-1); }
 .ct-surface-2    { background: var(--ct-surface-2); }
 .ct-surface-3    { background: var(--ct-surface-3); }
-.ct-hover-surface:hover { background: var(--ct-surface-2); }
-
-/* Donut/ring segment hover affordance — token-based stroke wash (replaces the
-   `hover:stroke-white/20` Tailwind arbitrary in vault-allocation-display). */
-.ct-donut-seg {
-  cursor: help;
-  transition: stroke var(--ct-dur-base) var(--ct-ease);
-}
-.ct-donut-seg:hover {
-  stroke: color-mix(in srgb, var(--ct-text-strong) 20%, transparent);
-}
 
 .ct-border-soft   { border: 1px solid var(--ct-border-soft); }
-.ct-border-base   { border: 1px solid var(--ct-border); }
 .ct-border-strong { border: 1px solid var(--ct-border-strong); }
 
 .ct-divide-soft > * + * { border-top: 1px solid var(--ct-border-soft); }
-.ct-divide-base > * + * { border-top: 1px solid var(--ct-border); }
 
 /* Shadow utilities */
 .ct-shadow-soft { box-shadow: var(--ct-shadow-soft); }
@@ -2916,7 +2849,6 @@ body {
 .ct-bg-accent { background-color: var(--ct-accent); }
 .ct-bg-accent.ct-text-deep { color: var(--ct-text-on-accent); }
 .ct-bg-accent-strong-hover:hover { background-color: var(--ct-accent-strong); }
-.ct-text-deep { color: var(--ct-bg-deep); }
 .ct-glow-accent { box-shadow: none; }
 .ct-focus-ring:focus-visible { box-shadow: var(--ct-shadow-focus-ring); }
 .ct-press:active { transform: scale(0.98); }
@@ -2934,8 +2866,6 @@ body {
 /* Lueur verte retirée des titres/metrics des box centrales (rayonnait dans les
    cartes blanches). Classe neutralisée — no-op, réversible. */
 .ct-drop-glow-subtle { filter: none; }
-.ct-leading-none { line-height: var(--ct-leading-none); }
-.ct-leading-relaxed { line-height: var(--ct-leading-relaxed); }
 .ct-tracking-wide { letter-spacing: var(--ct-tracking-wide); }
 .ct-tracking-wider { letter-spacing: var(--ct-tracking-wider); }
 .ct-text-micro-size { font-size: var(--ct-text-micro); }
@@ -2946,10 +2876,6 @@ body {
   width: var(--ct-icon-sm);
   height: var(--ct-icon-sm);
   flex-shrink: 0;
-}
-
-.ct-icon-sm--offset-top {
-  margin-top: var(--ct-space-0_5);
 }
 .ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-0), transparent); }
 .ct-overlay-accent5 { background-image: linear-gradient(to bottom right, color-mix(in srgb, var(--ct-accent) 5%, transparent), transparent); }
@@ -2962,18 +2888,6 @@ body {
 .ct-bc-success { border-color: var(--ct-status-success-border); }
 .ct-bc-warning { border-color: var(--ct-status-warning-border); }
 .ct-bc-danger { border-color: var(--ct-status-danger-border); }
-.ct-ring-warning:focus-visible { outline: 3px solid var(--ct-status-warning); outline-offset: 2px; }
-
-/* ── UTILITAIRES RÉCURRENTS (factorise les patterns dupliqués) ── */
-
-/* dashed is reserved for dropzones — not generic empty states (DS §9) */
-.ct-dropzone {
-  border-radius: var(--ct-radius-md);
-  border: 1px dashed var(--ct-border);
-  padding: var(--ct-space-8) var(--ct-space-4);
-  text-align: center;
-  color: var(--ct-text-muted);
-}
 
 /* ── DS §9 — canonical empty / awaiting surfaces ─────────────────────────── */
 .ct-empty-surface {
@@ -3077,18 +2991,6 @@ body {
   padding: var(--ct-space-5) 0;
 }
 
-/* Sticky phase band — keeps sprint context while scrolling long roadmap */
-.ct-roadmap-phase-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--ct-z-raised);
-  margin-bottom: var(--ct-space-1);
-  padding: var(--ct-space-2) 0 var(--ct-space-3);
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
 /* Accent rail (border-l only) — highlighted inline row inside a parent card */
 .ct-panel-status-accent {
   display: flex;
@@ -3103,22 +3005,6 @@ body {
 
 .ct-empty-surface--round {
   border-radius: var(--ct-radius-full);
-}
-
-/* Legacy alias — no dashed; same material as inline empty */
-.ct-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ct-space-1);
-  text-align: center;
-  padding: var(--ct-space-6) var(--ct-space-4);
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  color: var(--ct-text-muted);
-  font-size: var(--ct-text-sm);
 }
 
 /* Label de formulaire — uppercase, muted, tracked */
@@ -3142,22 +3028,6 @@ body {
     transparent 1px
   );
   background-size: 32px 32px;
-}
-
-/* Layout-preview section frame — quieter than active Card */
-.ct-section-preview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  padding: var(--ct-space-6);
-  border-radius: var(--ct-radius-lg);  /* quieter than the xl module default; material from canonical rule */
-}
-
-.ct-product-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-6);
-  min-height: auto !important;
 }
 
 .ct-product-section__header {
@@ -3185,7 +3055,6 @@ body {
 .ct-product-section__content > div {
   height: 100%;
 }
-
 
 /* Card hover wash disabled — keeps graphite calm over cockpit bg */
 .ct-card .ct-overlay-surface0 {
@@ -3347,19 +3216,6 @@ pre.ct-surface-1.rounded-md {
   line-height: var(--ct-leading-normal);
   color: var(--ct-text-muted);
 }
-
-/* ── TABLE CELL utilitaires ── */
-.ct-table-cell {
-  padding: var(--ct-space-2) var(--ct-space-3);
-}
-.ct-table-header {
-  padding: var(--ct-space-2) var(--ct-space-3);
-  color: var(--ct-text-muted);
-  font-weight: var(--ct-font-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-}
-
 
 /* ── PILL utilitaire (badges/tags heritage) ── */
 .ct-pill {
@@ -3581,14 +3437,6 @@ button.ct-choice-card {
   display: none !important;
 }
 
-.ct-bottom-bar-inner {
-  position: relative;
-  z-index: var(--ct-z-base);
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-5);
-}
-
 .ct-seg-track {
   display: flex;
   align-items: center;
@@ -3755,16 +3603,6 @@ button.ct-choice-card {
 }
 .ct-rail-right-btn {
   border-color: var(--ct-border-on-dark);
-}
-
-/* Chat icon scale — one coherent, tokenised render size for the chat-rail SVGs
-   (toolbar: history / settings / width-toggle + the send arrow). Drives the
-   RENDER size only; each SVG keeps its own internal viewBox/paths. Replaces the
-   heterogeneous raw px attributes (13 / 16 / 18) that used to live in the JSX. */
-.ct-chat-icon {
-  width: var(--ct-icon-sm);  /* 16px */
-  height: var(--ct-icon-sm);
-  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4027,7 +3865,6 @@ button.ct-choice-card {
   border-color: transparent;
 }
 
-
 /* Bouton nav : icône au-dessus + label dessous, visibles en permanence.
    Centré sur le même axe que le badge H (38×38) du launcher. */
 .ct-rail-item {
@@ -4053,11 +3890,6 @@ button.ct-choice-card {
     box-shadow var(--ct-dur-base) var(--ct-ease);
 }
 
-.ct-rail-icon {
-  width: 1.75rem; /* 28px */
-  height: 1.75rem;
-}
-
 /* No box around rail icons (admin + base): hover tints color only, no surface
    fill or border. Active = accent color + left accent bar only. */
 .ct-rail-item:hover {
@@ -4066,60 +3898,6 @@ button.ct-choice-card {
   border-color: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-}
-
-.ct-rail-item-active {
-  color: var(--ct-accent);
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.ct-rail-item-active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  /* Trait centré verticalement sur l'item ENTIER (icône + label), hauteur
-     fixe — l'inset % couvrait l'icône seule et coupait avant le label. */
-  top: 50%;
-  transform: translateY(-50%);
-  height: 60%;
-  width: var(--ct-rail-active-bar-w);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-}
-
-.ct-rail-item-active:hover {
-  color: var(--ct-accent);
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-/* Permanent rail label under the icon. Tous les labels tiennent désormais sur
-   UNE ligne (Portfolio/Vaults/Proofs/Admin) → plus de réserve 2-lignes (qui
-   laissait un espace fantôme en bas de chaque item et décalait le rythme). */
-.ct-rail-item-tooltip {
-  min-height: 0;
-  display: -webkit-box;
-  font-size: var(--ct-text-xs); /* 13px — fixed */
-  font-weight: var(--ct-font-semibold);
-  line-height: var(--ct-leading-tight);
-  letter-spacing: var(--ct-tracking-tight);
-  color: inherit;
-  text-align: center;
-  text-wrap: balance;
-  max-width: 100%;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: var(--ct-z-rail-tooltip);
-  position: relative;
-  opacity: 1;
-  transition: opacity 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              font-size 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              max-height 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  max-height: 2em;
 }
 
 /* Rail fixe — seul le mark H reste visible dans le header (nom produit masqué). */
@@ -4144,15 +3922,6 @@ button.ct-choice-card {
   display: none !important;
 }
 
-/* Section separator — thin rule between nav groups in the rail. */
-.ct-rail-sep {
-  width: calc(100% - var(--ct-space-4));
-  border: none;
-  border-top: 1px solid var(--ct-border-soft);
-  margin: var(--ct-space-1) 0;
-  flex-shrink: 0;
-}
-
 .ct-rail-investor-dot {
   display: flex;
   align-items: center;
@@ -4174,18 +3943,6 @@ button.ct-choice-card {
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Page wrappers (.ct-section utilisé par /admin/roadmap,
-   /admin/spec/[slug], /scenario-lab et leur loading.tsx).
-   Le shell Cockpit fournit déjà le padding horizontal du viewport ;
-   .ct-section ajoute uniquement l'espacement vertical de la page.
-   ────────────────────────────────────────────────────────────── */
-.ct-section {
-  display: block;
-  width: 100%;
-  padding-block: 3rem;
-}
-
-/* ──────────────────────────────────────────────────────────────
    Prose container — wrapper pour le rendu Markdown des specs
    (src/components/admin/markdown.tsx). Le composant style chaque
    élément enfant explicitement ; .prose-spec ne fournit que la
@@ -4196,10 +3953,6 @@ button.ct-choice-card {
   max-width: 72ch;
   line-height: 1.65;
 }
-
-/* ── Hub bottom bar — the shell's native HubBottomBar is suppressed; navigation
-   now lives entirely in the left rail via InvestorRailIntra / AdminRailIntra. ── */
-.ct-hub-bar { display: none; }
 
 /* ── Identity slot docked in the left rail (Section 1) ──
    Wallet connect / identity chrome, moved out of the
@@ -4296,50 +4049,6 @@ button.ct-choice-card {
 .ct-rail-left                              { padding: var(--ct-space-5) 0; align-items: center; }
 .ct-rail-left.launcher                     { padding: clamp(12px, 1.4vh, 18px) 12px; }
 
-/* Badge user recentré sur l'axe du rail (`--ct-rail-left`) — sans override il dérive de
-   ~10px vers la gauche dans la largeur réduite. */
-.ct-avatar {
-  margin: 0 auto;
-  width: 3rem !important; /* 48px — fixed */
-  height: 3rem !important;
-  font-size: 0.875rem !important; /* 14px — fixed */
-  /* Badge profil stylé : anneau accent vert sur tout le tour + halo doux,
-     fond sombre translucide, glyphe/initiales teintés accent. */
-  position: relative;
-  border-radius: var(--ct-radius-full) !important; /* rond, pas carré */
-  margin-bottom: var(--ct-space-5); /* remonte le badge, plus collé au bas */
-  color: var(--ct-accent) !important;
-  font-weight: var(--ct-font-bold) !important;
-  letter-spacing: var(--ct-tracking-wide);
-  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-1)) !important;
-  border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent) !important;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--ct-accent) 18%, transparent),
-    0 0 12px -2px color-mix(in srgb, var(--ct-accent) 35%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 12%, transparent);
-  transition:
-    border-color var(--ct-dur-base) var(--ct-ease),
-    box-shadow var(--ct-dur-base) var(--ct-ease),
-    background var(--ct-dur-base) var(--ct-ease);
-}
-
-.ct-avatar:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 70%, transparent) !important;
-  background: color-mix(in srgb, var(--ct-accent) 16%, var(--ct-surface-1)) !important;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--ct-accent) 30%, transparent),
-    0 0 18px -2px color-mix(in srgb, var(--ct-accent) 50%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--ct-accent) 18%, transparent);
-}
-
-.ct-avatar:focus-visible {
-  outline: none;
-  border-color: var(--ct-accent) !important;
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ct-accent) 55%, transparent),
-    0 0 18px -2px color-mix(in srgb, var(--ct-accent) 50%, transparent);
-}
-
 /* Stack identité : badge profil seul (le sign-out s'affiche DANS le badge). */
 .ct-rail-identity-stack {
   display: flex;
@@ -4422,16 +4131,7 @@ button.ct-choice-card {
   cursor: default;
 }
 .ct-rail-list                              { padding: var(--ct-space-1_5) 0; }
-.ct-rail-row                               { padding: clamp(10px, 1.3vh, 16px) 14px; }
-
-/* Logout hero */
-.ct-logout-hero                            { padding: var(--ct-space-5) var(--ct-space-4); }
-
-/* Hub bar (currently display:none — nav lives in the left rail) */
-.ct-hub-bar                                { padding: var(--ct-space-2_5) var(--ct-space-4); }
-.ct-hub-bar-label                          { padding-left: var(--ct-space-1); }
-.ct-hub-bar-track                          { padding: var(--ct-space-1); }        /* was 3px → nearest scale token (4px) */
-.ct-hub-bar-seg                            { padding: var(--ct-space-1_5) var(--ct-space-4); } /* 14px → nearest scale token (16px) */
+.ct-rail-row                               { padding: clamp(10px, 1.3vh, 16px) 14px; } /* 14px → nearest scale token (16px) */
 
 /* Centre — page area & embed (global density calibration)
    Contrat shell authentifié : colonne flex, main scroll, footer pin. */
@@ -4563,9 +4263,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   display: flex;
   flex-direction: column;
 }
-.ct-embed-overlay                          { padding: var(--ct-space-6); }
-.ct-embed-sub code                         { padding: 1px 6px; }
-.ct-embed-btn                              { padding: var(--ct-space-2_5) var(--ct-space-5); } /* 10px≈9px vertical — token-snapped */
+.ct-embed-sub code                         { padding: 1px 6px; } /* 10px≈9px vertical — token-snapped */
 
 /* Rail droit — header & body (density calibration)
    Top padding lifted to --ct-space-5 (18px) so the two-tier "Hairline Marque"
@@ -4604,13 +4302,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-card--compact {
   padding: var(--ct-space-3) var(--ct-space-4);
 }
-
-/* Cockpit chat rail — density calibration.
-   escape: vendored chrome — the sub-token chat px below (2px/7px/3px/8px/1px/4px/
-   6px/14px chip + button + input density) are package-derived and sit deliberately
-   between scale steps for tight chat density; not accidental drift, do not snap to scale. */
-.ct-chat-actionbar                         { display: flex; align-items: center; gap: var(--ct-space-2); padding-bottom: var(--ct-space-1); }
-.ct-chat-newbtn                            { padding: 3px 8px; font-size: 0.6875rem; /* 10px → 11px */ margin-left: auto; }
 /* Messages start from the BOTTOM and grow upward (chat-app convention): when the
    thread is short it sits on the input, not floating at the top. flex-end pushes
    the column down; once it overflows, overflow-y:auto (from tokens.css) + the
@@ -4648,39 +4339,12 @@ main#main-content>.admin-doc.admin-doc-shell {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.ct-chat-msg                               { 
-  display: flex; 
-  flex-direction: column; 
-  padding: var(--ct-space-2) 0;
-  font-size: var(--ct-text-sm); /* 15px — fixed */
-  animation: ct-chat-msg-fade-in 0.4s var(--ct-ease) forwards;
-}
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: 0.875rem; }
-
-/* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails.
-   flex:1 + min-width:0 are REQUIRED for the ellipsis to fire: the package header is a
-   flex row (justify-content:space-between, the 4 toolbar btns are flex-shrink:0). Without
-   min-width:0 the title keeps its default min-width:auto, refuses to shrink, and at the
-   intermediate ~1024px width it clips ("Assist…") and crowds the icons instead of ellipsing. */
-.ct-rail-right-title {
-  flex: 1 1 auto;
-  min-width: 0;
-  text-transform: none;
-  letter-spacing: var(--ct-tracking-tight);
-  font-weight: var(--ct-font-semibold);
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 /* The product-context suffix ("· Hearst Connect") is secondary: hide it on the
    intermediate viewport band where the shell compresses the chat rail (~1024px),
    so the primary "Assistant" label keeps its full glyphs instead of ellipsing to
    "Assist…". Restored at >=1280px where the rail is back to its full width. */
 @media (max-width: 1279.98px) {
-  .ct-chat-ctx-name { display: none; }
   /* Compressed-rail crowding fix. The title row ("Assistant" + the "READY" tag)
      shares the header with four non-shrinkable 28px buttons (136px). On the
      narrow rail (~226px) that left the title only ~44px, crushing "Assistant"
@@ -4697,109 +4361,11 @@ main#main-content>.admin-doc.admin-doc-shell {
   .ct-rail-right-header .ct-chat-status-tag { display: none; }
 }
 
-/* ============================================================================
-   CHAT RAIL HEADER — "Hairline Marque"  (Institutional minimal — FINAL)
-   A two-tier Swiss masthead: "Assistant" in real weight over a quiet product
-   sub-label. The product dot is the ONLY resting indicator; a hairline accent
-   rule under the identity is INVISIBLE at rest and lights green ONLY while the
-   assistant streams — so brand identity and live cue resolve to ONE green
-   moment, not two competing pieces of furniture. No fills, no glow, no card,
-   no monogram. Confidence by restraint.
-
-   Layer: src/app/cockpit.css (OVERRIDE) over cockpit-shell/tokens.css (BASE).
-   The title type override at cockpit.css:4641 stays as-is for ellipsis safety;
-   this block restructures the IDENTITY STACK that lives inside that flex item.
-
-   Grafted from "Anchor Bar" (#2): fuse the live cue INTO the identity mark so
-   the header carries a single accent moment. Here the fusion is achieved by
-   suppressing the resting hairline (no second resting accent vs. the dot) and
-   letting the rule exist only as the streaming verb.
-   ============================================================================ */
-
-/* The identity is a 2-line stack instead of one inline run. The title element
-   stays the flex:1 / min-width:0 / overflow shrinker (its base override at
-   :4641 supplies that); we only switch its cross-axis to align the dot against
-   the top line of the stack. */
-.ct-rail-right-id {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2);            /* 8px — dot ↔ text rhythm */
-  position: relative;
-  /* the live hairline rule lives on ::after so it never reflows the row */
-  padding-bottom: var(--ct-space-1); /* 4px — room for the hairline under the stack */
-}
-
-/* Two-tier type column. min-width:0 must propagate so the sub-label ellipsizes
-   instead of forcing the toolbar buttons off the rail. */
-.ct-rail-right-id-stack {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--ct-space-0_5);          /* 2px — tight masthead lockup */
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* TIER 1 — "Assistant": the real weight/size moment. White, semibold, tight. */
-.ct-rail-right-id-name {
-  font-size: var(--ct-text-sm);      /* 15px — primary */
-  font-weight: var(--ct-font-semibold);
-  letter-spacing: var(--ct-tracking-tight);
-  line-height: var(--ct-leading-none);
-  color: var(--ct-text-strong);      /* #fff — earns its hierarchy */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-/* TIER 2 — quiet product sub-label. The base .ct-chat-ctx-name (tokens.css:389)
-   carries nowrap + ellipsis + min-width:0; we restyle it as an eyebrow caption
-   and drop the "·" prefix (now structural, not a glyph). Colour stays at the
-   muted tier (55%) — recessive under the title but still legible at 11px on
-   dark glass; the timid 40% faint tier was rejected as past the legibility
-   floor. Its display:none below 1280px (cockpit.css:4658) stays intact as the
-   escape valve — on the compressed rail only "Assistant" survives. */
-.ct-rail-right-id .ct-chat-ctx-name {
-  font-size: var(--ct-text-micro);   /* 11px — caption tier */
-  font-weight: var(--ct-font-medium);
-  letter-spacing: var(--ct-tracking-wide);  /* 0.04em — Swiss caption air */
-  line-height: var(--ct-leading-none);
-  color: var(--ct-text-muted);       /* 55% — recedes under the title, stays legible */
-}
-
-/* THE SINGLE ACCENT STROKE — a hairline rule under the identity.
-   INVISIBLE at rest (transparent), so it never competes with the product dot
-   as resting furniture: idle state shows exactly ONE indicator, the dot.
-   STREAMING: the rule becomes the one green stroke + a slow breathe, fusing the
-   live cue into the identity mark. Present only as a verb, never as decoration. */
-.ct-rail-right-id::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  /* span only under the type stack, not the dot gutter — a marked underscore.
-     fully tokenized: dot box (--ct-space-2 = 8px, matches the base 8px dot) +
-     its gap (--ct-space-2). No magic literal. */
-  width: calc(100% - (var(--ct-space-2) + var(--ct-space-2)));
-  height: 1px;
-  background: transparent;            /* idle: no second resting accent */
-  transition: background var(--ct-dur-base) var(--ct-ease);
-}
-.ct-rail-right-id--live::after {
-  background: var(--ct-accent);       /* THE single green, only when live */
-  animation: ct-rail-id-rule 1.4s var(--ct-ease) infinite;
-}
-
 /* Breathe the live rule in lockstep with the existing dot pulse (1.4s/--ct-ease)
    so the two accent moments read as one heartbeat, not two timers. */
 @keyframes ct-rail-id-rule {
   0%, 100% { opacity: var(--ct-opacity-55); }
   50%      { opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* Hold the lit green rule (still clearly "live") but stop the motion. */
-  .ct-rail-right-id--live::after { animation: none; opacity: 1; }
 }
 
 /* COLLAPSED 48px handle — the {open && …} blocks (incl. this identity stack) are
@@ -4837,37 +4403,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   max-width: 100%;
 }
 
-/* Badge d'expéditeur en tête de bulle — distinction agent/user par le badge +
-   l'alignement (le corps du texte reste dans ses couleurs lisibles). */
-.ct-chat-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  margin-bottom: var(--ct-space-1);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  line-height: 1;
-}
-/* Agent — simple green label + dot, NO pill (no fill, no border). Bubbles are
-   gone; the green badge stays a discreet text anchor above each reply. */
-.ct-chat-badge--agent {
-  color: var(--ct-accent);
-}
-.ct-chat-badge--agent::before {
-  content: "";
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-}
-/* User — gris discret, aligné à droite (la bulle user est déjà flex-end). */
-.ct-chat-badge--user {
-  color: var(--ct-text-muted);
-  align-self: flex-end;
-}
-
 /* Zero-state — center the intro placeholder directly (margin:auto on the element
    itself), independent of the brittle :has() chain. The placeholder only exists
    when the list is empty (React renders it on messages.length===0), so this never
@@ -4877,132 +4412,9 @@ main#main-content>.admin-doc.admin-doc-shell {
   margin: auto;
   max-width: 90%;
 }
-
-/* Empty-state wrapper — holds the intro placeholder + the quick-action preset
-   chips, centered together (the placeholder is no longer a direct child of the
-   list, so it inherits centering from here instead of the rule above). */
-.ct-chat-empty {
-  margin: auto;
-  max-width: 90%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-4);
-}
 .ct-chat-empty > .ct-placeholder {
   margin: 0;
   text-align: center;
-}
-
-/* Quick-action preset chips (agent-canvas presets). Flat, token-driven; wrap so
-   2–3 chips never overflow the chat rail. */
-.ct-chat-presets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--ct-space-2);
-}
-.ct-chat-preset-chip {
-  padding: var(--ct-space-2) var(--ct-space-3);
-  font-size: var(--ct-text-xs);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-2);
-  color: var(--ct-text-strong);
-  cursor: pointer;
-  transition: border-color var(--ct-dur-fast) var(--ct-ease), background var(--ct-dur-fast) var(--ct-ease);
-}
-.ct-chat-preset-chip:hover {
-  border-color: var(--ct-accent);
-  background: var(--ct-surface-3);
-}
-.ct-chat-preset-chip--disabled,
-.ct-chat-preset-chip:disabled {
-  opacity: var(--ct-opacity-35);
-  cursor: not-allowed;
-}
-
-/* Send button — guarantee a PERFECT circle regardless of content (arrow SVG,
-   streaming dots) or disabled overrides. width===height (token) + aspect-ratio
-   filet + full radius + flex-shrink so the form's flex row never stretches it. */
-.ct-chat-send {
-  flex-shrink: 0;
-  width: var(--ct-space-9);  /* 36px */
-  height: var(--ct-space-9);
-  aspect-ratio: 1;
-  border-radius: var(--ct-radius-full);
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-/* Send — disabled feedback: subtle outline + opacity, not a flat grey fill.
-   Keeps the circle (radius + aspect) — only the fill/border change. */
-.ct-chat-send:disabled {
-  opacity: var(--ct-opacity-45);
-  background: transparent;
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-muted);
-  box-shadow: none;
-}
-
-/* Queued prompt indicator — a prompt typed while a reply is streaming waits
-   here (honest: NOT sent yet). Discreet, single line, truncates long prompts. */
-.ct-chat-queued {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  margin-top: var(--ct-space-2);
-  padding: var(--ct-space-1_5) var(--ct-space-2_5);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-md);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-secondary);
-  min-width: 0;
-}
-.ct-chat-queued-dot {
-  flex-shrink: 0;
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  animation: ct-chat-send-pulse 1s var(--ct-ease) infinite;
-}
-.ct-chat-queued-text {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ct-text-primary);
-}
-.ct-chat-queued-hint {
-  flex-shrink: 0;
-  color: var(--ct-text-muted);
-}
-@media (prefers-reduced-motion: reduce) {
-  .ct-chat-queued-dot { animation: none; }
-}
-
-/* Input — taller default (3 lines) + auto-grow. The textarea height is driven in
-   JS (ChatKimi resizes on input up to a cap); this caps it visually too and gives
-   it room to breathe so multi-line messages stay comfortable. min-height matches
-   ~3 rows of the 13px body; max-height = the JS cap (168px), after which it
-   scrolls internally instead of pushing the message list. */
-.ct-chat-input {
-  min-height: 4.5rem;   /* ~3 lines at 13px / 1.5 */
-  max-height: 10.5rem;  /* 168px — JS auto-grow cap */
-  overflow-y: auto;
-}
-
-/* Header context dot — "live" pulse while the assistant is streaming a reply.
-   A soft accent halo breathes around the product pastille so the rail header
-   signals an in-progress turn without adding chrome. The base dot already
-   carries `box-shadow: 0 0 8px currentColor`; we layer an animated accent ring
-   on top via box-shadow keyframes. */
-.ct-chat-ctx-dot--live {
-  animation: ct-chat-ctx-pulse 1.4s var(--ct-ease) infinite;
 }
 @keyframes ct-chat-ctx-pulse {
   0%, 100% {
@@ -5013,17 +4425,6 @@ main#main-content>.admin-doc.admin-doc-shell {
     box-shadow: 0 0 10px currentColor,
                 0 0 0 4px color-mix(in srgb, var(--ct-accent) 0%, transparent);
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ct-chat-ctx-dot--live { animation: none; }
-}
-
-/* Markdown body — Swiss Design refinements.
-   Tight heading scale, generous line-height, and refined code blocks.
-   No halos, no glows — just typography and spacing. */
-.ct-chat-msg-md {
-  line-height: 1.65;
-  color: var(--ct-text-body);
 }
 .ct-chat-msg-md h1,
 .ct-chat-msg-md h2,
@@ -5084,225 +4485,18 @@ main#main-content>.admin-doc.admin-doc-shell {
   color: var(--ct-text-body);
 }
 
-/* Formulaire de chat - on enlève la lourdeur du package */
-.ct-chat-form {
-  padding: var(--ct-space-2) var(--ct-space-2) var(--ct-space-2) var(--ct-space-3);
-  background: var(--ct-surface-1) !important;
-  border: 1px solid var(--ct-border-soft) !important;
-}
-.ct-chat-form:focus-within {
-  border-color: var(--ct-border-accent) !important;
-  box-shadow: 0 0 0 1px var(--ct-border-accent) !important;
-}
-
-.ct-chat-input {
-  padding: var(--ct-space-1_5) 0;
-  outline: none !important;
-  background: transparent !important;
-  border: none !important;
-}
-.ct-chat-input:focus {
-  outline: none !important;
-}
-
 @keyframes ct-chat-thinking-pulse {
   0%, 100% { opacity: var(--ct-opacity-40); transform: scale(0.92); }
   50% { opacity: 1; transform: scale(1.08); }
-}
-
-.ct-chat-thinking {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: var(--ct-space-3) 0;
-  opacity: 0;
-  transition: opacity 0.3s var(--ct-ease);
 }
 .ct-chat-thinking.active {
   opacity: 1;
   animation: ct-chat-thinking-pulse 2s var(--ct-ease) infinite;
 }
 
-/* Chat Chart Card — Flat integration.
-   Refined cards that sit comfortably in the bubble-less flow. */
-.ct-chat-chart {
-  background: color-mix(in srgb, var(--ct-surface-1) 30%, transparent);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-md);
-  padding: var(--ct-space-3);
-  margin-top: var(--ct-space-2);
-  transition: border-color 0.2s var(--ct-ease);
-}
-.ct-chat-chart:hover {
-  border-color: var(--ct-border);
-}
-.ct-chat-chart-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--ct-space-2);
-}
-.ct-chat-chart-title {
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-bold);
-  letter-spacing: var(--ct-tracking-wide);
-  text-transform: uppercase;
-  color: var(--ct-text-muted);
-}
-.ct-chat-chart-metric {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
-}
-.ct-chat-chart-badge {
-  font-size: var(--ct-text-nano);
-  padding: 1px 4px;
-  border-radius: var(--ct-radius-xs);
-  background: var(--ct-surface-2);
-  color: var(--ct-text-faint);
-  text-transform: uppercase;
-}
-
-/* --- New Chat Panel UI Embellishments --- */
-
-/* Header Status */
-.ct-rail-right-id-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-}
-
-.ct-chat-status-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  padding: 1px 6px;
-  border-radius: var(--ct-radius-full);
-  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
-  color: var(--ct-accent);
-  font-size: var(--ct-text-deci);
-  font-weight: var(--ct-font-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.ct-chat-status-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--ct-accent);
-}
-
-/* Welcome Message */
-.ct-chat-welcome {
-  text-align: center;
-  padding: var(--ct-space-4) 0;
-}
-
-.ct-chat-welcome-icon {
-  color: var(--ct-accent);
-  margin-bottom: var(--ct-space-3);
-  display: flex;
-  justify-content: center;
-}
-
-.ct-chat-welcome-title {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-semibold);
-  color: var(--ct-text-strong);
-  margin-bottom: var(--ct-space-1);
-}
-
-.ct-chat-welcome-text {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-muted);
-  line-height: var(--ct-leading-relaxed);
-  max-width: 240px;
-  margin: 0 auto;
-}
-
-/* Context Card */
-.ct-chat-context-card {
-  width: 100%;
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-md);
-  padding: var(--ct-space-3);
-  margin-bottom: var(--ct-space-4);
-}
-
-.ct-chat-context-card-header {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-muted);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  margin-bottom: var(--ct-space-2);
-}
-
-.ct-chat-context-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1_5);
-}
-
-.ct-chat-context-item {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-body);
-}
-
-.ct-chat-context-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ct-text-faint);
-}
-
-.ct-chat-suggestions-label {
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-faint);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  margin-bottom: var(--ct-space-2);
-  align-self: flex-start;
-}
-
-/* Composer Refinements */
-.ct-chat-composer-wrap {
-  margin-top: auto;
-  padding-top: var(--ct-space-2);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.ct-chat-composer-hint {
-  font-size: var(--ct-text-deci);
-  color: var(--ct-text-faint);
-  text-align: center;
-  font-style: italic;
-}
-
-.ct-chat-form {
-  border-radius: var(--ct-radius-lg) !important;
-  transition: border-color var(--ct-dur-base), box-shadow var(--ct-dur-base);
-}
-
-.ct-chat-input {
-  min-height: 2.5rem !important; /* Start smaller */
-  font-size: var(--ct-text-sm) !important;
-  line-height: 1.5 !important;
-}
-
 /* Chat settings */
 .ct-chat-settings                          { padding: var(--ct-space-1) var(--ct-space-0_5); }
 .ct-chat-settings-section                  { padding: var(--ct-space-4) 0; }
-.ct-chat-settings-product                  { padding: var(--ct-space-2_5) var(--ct-space-3); }
 .ct-chat-settings-label {
   margin-bottom: var(--ct-space-2);
   color: var(--ct-text-muted);
@@ -5345,20 +4539,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   color: var(--ct-bg-deep);
   background: var(--ct-accent);
 }
-
-/* Chat history */
-.ct-chat-history                           { padding: var(--ct-space-1) var(--ct-space-0_5); }
-.ct-chat-history-actions                   { padding-bottom: var(--ct-space-2); }
-/* Le package pose color:var(--ct-text-strong) (blanc) sur background:var(--ct-accent).
-   Avec l'accent vert clair (#A7FB90) le texte blanc est illisible → texte noir.
-   Le package fixe aussi border-radius:10px ; on l'aligne sur --ct-radius-full
-   (pilule) comme tous les autres boutons de l'app.
-   cockpit.css est unlayered + importé en dernier → gagne sans !important. */
-.ct-chat-history-newbtn                    { padding: var(--ct-space-2) var(--ct-space-3); color: var(--ct-bg-deep); border-radius: var(--ct-radius-full); }
-.ct-chat-history-clearbtn                  { padding: var(--ct-space-2) var(--ct-space-2_5); border-radius: var(--ct-radius-full); }
-.ct-chat-history-list                      { padding: 0; }
-.ct-chat-history-item-main                 { padding: var(--ct-space-2) var(--ct-space-2_5); }
-.ct-chat-history-delete                    { padding: 0 var(--ct-space-2); }
 
 /* ── LOGIN SPLIT — bare marketing + sign-in (no ConnectShell) ── */
 .login-split {
@@ -5598,17 +4778,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   min-height: clamp(3.75rem, 3.75rem + (100vw - 75rem) / (90rem - 75rem) * 1.75rem, 5.5rem);
 }
 
-/* ── DEBUG / PORTFOLIO FULL — KPI card glass pattern ────────────────────────
-   Same recipe used across all 4 KPI articles in the debug portfolio view. */
-.ct-kpi-glass {
-  background: var(--ct-graphite-subtle-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background-image: none;
-}
-
 /* ── INLINE STYLE REPLACEMENTS ───────────────────────────────────────────────
    Small compositional helpers to replace static inline style={{}} patterns.
    NO new --ct-* tokens. --------------------------------------------------------- */
@@ -5617,149 +4786,11 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-donut-slice-glow {
   filter: drop-shadow(0 0 2px color-mix(in srgb, var(--ct-bg-deep) 50%, transparent));
 }
-.ct-donut-inner-glow {
-  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--ct-bg-deep) 30%, transparent));
-}
-
-/* Composite score bar glow */
-.ct-score-bar-glow {
-  box-shadow: 0 0 12px var(--ct-accent-glow, color-mix(in srgb, var(--ct-accent) 45%, transparent));
-}
-
-/* Waterfall chart cursor */
-.ct-chart-bar-group {
-  cursor: pointer;
-}
-
-/* Legend dot / swatch (inline background comes from JS data; only structural props here) */
-.ct-legend-dot {
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--ct-radius-sm);
-  flex-shrink: 0;
-  opacity: var(--ct-opacity-85);
-}
-
-/* Forbidden-words chip — danger tint */
-.ct-forbidden-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: var(--ct-radius-sm);
-  font-size: var(--ct-text-xs);
-  font-weight: 500;
-  line-height: 1;
-  color: var(--ct-status-danger);
-  background: color-mix(in srgb, var(--ct-status-danger) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-status-danger) 30%, transparent);
-}
-
-/* Squiggle (forbidden words) */
-.ct-squiggle {
-  display: inline-block;
-  width: 0.65em;
-  height: 0.5em;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 3'%3E%3Cpath d='M0 3 Q1.5 0 3 3 Q4.5 6 6 3' stroke='%23ba3f1d' stroke-width='1' fill='none'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-size: 6px 3px;
-}
-
-/* Progress bar — accent bar fill with glow */
-.ct-progress-accent-fill {
-  background: var(--ct-accent);
-  box-shadow: 0 0 8px var(--ct-accent);
-}
 
 /* chart SVG min-width */
 .ct-waterfall-svg {
   min-width: 240px;
   height: auto;
-}
-
-/* Chart container with fixed height, overflow hidden */
-.ct-chart-box-160 {
-  position: relative;
-  width: 100%;
-  border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-soft);
-  overflow: hidden;
-  height: 160px;
-}
-
-/* Empty state chart with fixed height */
-.ct-chart-empty-box {
-  height: 160px;
-  width: 100%;
-  border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
-  border: 1px dashed var(--ct-border-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Iframe min-height for signing ceremony */
-.ct-iframe-signing {
-  min-height: 640px;
-  height: 80vh;
-}
-
-/* Signature avatar — circular initial badge */
-.ct-sig-avatar {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--ct-text-xs);
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.ct-sig-avatar--approve {
-  background: var(--ct-status-success-soft);
-  color: var(--ct-status-success);
-}
-.ct-sig-avatar--reject {
-  background: var(--ct-status-danger-soft);
-  color: var(--ct-status-danger);
-}
-.ct-sig-avatar--neutral {
-  background: var(--ct-surface-2);
-  color: var(--ct-text-muted);
-}
-
-/* Soft-lock progress bar track */
-.ct-lock-track {
-  height: 6px;
-  background: var(--ct-surface-2);
-  border-radius: var(--ct-radius-full);
-  overflow: hidden;
-  width: 100%;
-}
-
-/* Entity badge color — driven by data, only structural part is here */
-.ct-entity-badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border);
-  background: var(--ct-surface-1);
-  padding: 0.125rem 0.5rem;
-  font-size: var(--ct-text-micro);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-}
-
-/* Vertical separator in product-select-card */
-.ct-card-divider-v {
-  border-left: 1px solid var(--ct-border-soft);
-  align-self: stretch;
-  flex-shrink: 0;
 }
 
 /* Wizard step progress — crisp dots, no glow (invest + onboarding) */
@@ -5993,26 +5024,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   font-weight: var(--ct-font-semibold);
 }
 
-/* Checklist dot — onboarding requirements (mirrors wizard-step done/pending) */
-.ct-checklist-dot {
-  margin-top: var(--ct-space-0_5);
-  display: inline-flex;
-  height: var(--ct-space-4);
-  width: var(--ct-space-4);
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-muted);
-}
-
-.ct-checklist-dot--done {
-  border-color: var(--ct-border-accent);
-  background: var(--ct-accent);
-  color: var(--ct-bg-deep);
-}
-
 /* Vault invest flow — panel chrome (header + padded body) */
 /* Invest / vault flow — flat sections (no NestedPanel graphite shell). */
 .vault-flow-flat-section {
@@ -6148,19 +5159,10 @@ main#main-content>.admin-doc.admin-doc-shell {
   border-top: 1px solid var(--ct-border-soft);
 }
 
-.ct-cell-note-max {
-  max-width: var(--ct-cell-note-max);
-}
-
 /* Allocation bar segment (width driven by JS data) */
 .ct-alloc-bar-segment {
   height: 100%;
   background: currentColor;
-}
-
-/* fontVariantNumeric tabular helper (avoids repeated style attr) */
-.ct-tabular-nums {
-  font-variant-numeric: tabular-nums;
 }
 
 /* ─── Admin Vaults — dense deployment list ──────────────────────────────── */
@@ -6635,29 +5637,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   background: transparent;
 }
 
-/* ── Tier override picker (directory) ──────────────────────── */
-.ct-outreach-tier-picker {
-  display: inline-flex;
-  gap: var(--ct-space-1);
-  align-items: center;
-}
-.ct-outreach-tier-option {
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding: 0 var(--ct-space-2);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-1);
-  color: var(--ct-text-body);
-  font-size: var(--ct-text-micro);
-  font-weight: 700;
-  cursor: pointer;
-}
-.ct-outreach-tier-option:hover:not(:disabled) {
-  background: var(--ct-surface-3);
-  color: var(--ct-text-strong);
-}
-
 /* ===========================================================================
    Agent Canvas Workspace — the central page the chat agent writes into.
    SCROLLABLE: .ct-canvas is the scroll container (the shell .ct-page-area is
@@ -6679,151 +5658,12 @@ main#main-content>.admin-doc.admin-doc-shell {
   gap: var(--ct-space-5);
   padding-bottom: var(--ct-space-8);
 }
-.ct-canvas-disclaimer {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  font-style: italic;
-  line-height: 1.5;
-  margin: 0;
-}
-.ct-canvas-sections {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-.ct-canvas-sections--offline {
-  opacity: var(--ct-opacity-60);
-}
 .ct-canvas-empty {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-}
-
-/* Section card */
-.ct-canvas-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-}
-.ct-canvas-section--building {
-  opacity: var(--ct-opacity-70);
-}
-.ct-canvas-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
-/* Marker only — typography comes from canon `.h3` (vert accent, lg) applied on
-   the element. Card title hierarchy aligned on portfolio canon (doc-flow-typography). */
-.ct-canvas-section-title {
-  margin: 0;
-}
-.ct-canvas-section-status {
-  font-size: var(--ct-text-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide, 0.04em);
-  color: var(--ct-text-muted);
-}
-.ct-canvas-section-intro {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-body);
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Fields */
-.ct-canvas-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--ct-space-3);
-  margin: 0;
-}
-.ct-canvas-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  padding: var(--ct-space-3);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
-}
-.ct-canvas-field-label {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide, 0.04em);
-  color: var(--ct-text-muted);
-  margin: 0;
-}
-.ct-canvas-field-value {
-  font-size: var(--ct-text-sm);
-  color: var(--ct-text-strong);
-  margin: 0;
-}
-.ct-canvas-field-note {
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-muted);
-  margin: 0;
-}
-
-/* Options (prefill chat / set field) */
-.ct-canvas-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-2);
-}
-
-/* HITL action proposals */
-.ct-canvas-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-}
-.ct-canvas-action {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-4);
-  border: 1px solid var(--ct-border);
-  border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-2);
-}
-.ct-canvas-action-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-}
-.ct-canvas-action-label {
-  font-size: var(--ct-text-sm);
-  font-weight: 600;
-  color: var(--ct-text-strong);
-}
-.ct-canvas-action-risk {
-  font-size: var(--ct-text-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide, 0.04em);
-  padding: var(--ct-space-0_5) var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-muted);
-}
-.ct-canvas-action-risk--high {
-  color: var(--ct-status-danger, var(--ct-text-strong));
-  border-color: var(--ct-bc-danger, var(--ct-border));
-}
-.ct-canvas-ptai {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: var(--ct-space-1) var(--ct-space-3);
-  margin: 0;
-  font-size: var(--ct-text-xs);
 }
 .ct-canvas-ptai > div {
   display: contents;
@@ -6838,36 +5678,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   color: var(--ct-text-body);
   margin: 0;
 }
-.ct-canvas-willnotdo {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-muted);
-}
 .ct-canvas-willnotdo li::before {
   content: "— ";
-}
-.ct-canvas-action-confirm {
-  display: flex;
-  gap: var(--ct-space-2);
-  align-items: center;
-}
-.ct-canvas-action-feedback {
-  font-size: var(--ct-text-2xs);
-  color: var(--ct-text-muted);
-  margin: 0;
-}
-.ct-canvas-action-done {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-status-success, var(--ct-accent));
-  margin: 0;
-}
-.ct-canvas-action-error {
-  font-size: var(--ct-text-xs);
-  color: var(--ct-status-danger, var(--ct-text-strong));
-  margin: 0;
 }
