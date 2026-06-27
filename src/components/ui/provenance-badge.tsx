@@ -52,14 +52,14 @@ const variants: Record<
 };
 
 const stripDotTone: Record<Provenance, string> = {
-  live: "ct-status-success",
-  oracle: "ct-text-strong",
-  attested: "ct-text-strong",
-  estimated: "ct-text-muted",
-  partial: "ct-text-muted",
-  manual: "ct-text-muted",
-  stale: "ct-text-muted opacity-[var(--ct-opacity-60)]",
-  simulated: "ct-text-muted",
+  live: "text-[#A7FB90]",
+  oracle: "text-white",
+  attested: "text-white",
+  estimated: "text-zinc-500",
+  partial: "text-zinc-500",
+  manual: "text-zinc-500",
+  stale: "text-zinc-500 opacity-60",
+  simulated: "text-zinc-500",
 };
 
 const compactDotTone: Record<Provenance, string> = stripDotTone;

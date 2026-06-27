@@ -4,25 +4,21 @@ import { cn } from "@/lib/cn";
 
 export type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
 
+// Bento chip (Portfolio canon) — tinted border + fill + text per status.
+// Single accent green (#A7FB90) for success/accent; amber for warning; red for
+// danger; neutral zinc for default/brand. API unchanged (28 consumers).
 const badgeVariants = cva(
-  "inline-flex items-center gap-[var(--ct-space-1_5)] rounded-full border px-[var(--ct-space-2_5)] py-[var(--ct-space-1)] ct-text-micro-size font-bold uppercase ct-tracking-wide ct-leading-none transition-colors ease-[var(--ct-ease)] whitespace-nowrap",
+  "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider leading-none transition-colors whitespace-nowrap",
   {
     variants: {
       variant: {
-        default:
-          "ct-bc-base ct-surface-1 ct-text-muted ct-shadow-soft",
-        success:
-          "ct-bc-success ct-status-success-bg ct-status-success ct-shadow-soft",
-        warning:
-          "ct-bc-warning ct-status-warning-bg ct-status-warning ct-shadow-soft",
-        danger:
-          "ct-bc-danger ct-status-danger-bg ct-status-danger ct-shadow-soft",
-        accent:
-          "ct-bc-strong ct-surface-2 ct-text-strong ct-shadow-soft",
-        brand:
-          "ct-bc-strong ct-surface-2 ct-text-strong ct-shadow-soft",
-        flat:
-          "border-transparent bg-transparent shadow-none backdrop-blur-none font-medium normal-case tracking-normal px-0 py-0 gap-[var(--ct-space-1)]",
+        default: "border-white/10 bg-white/5 text-zinc-400",
+        success: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+        warning: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+        danger: "border-red-400/30 bg-red-400/10 text-red-400",
+        accent: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+        brand: "border-white/10 bg-white/5 text-zinc-200",
+        flat: "border-transparent bg-transparent shadow-none backdrop-blur-none font-medium normal-case tracking-normal px-0 py-0 gap-1",
       },
     },
     defaultVariants: {
