@@ -69,7 +69,8 @@ describe("ProjectionReportView", () => {
 
   it("a v0 artifact renders no Methodology v2 section", () => {
     expect(html).not.toContain("Methodology v2");
-    expect(html).not.toContain("projpv-band");
+    // No percentile band visual for v0 (bento marker: the band legend text).
+    expect(html).not.toContain("p5–p95 band");
     // The literal v2 chart type never leaks as a string either.
     expect(html).not.toContain("percentile_band");
   });
@@ -100,7 +101,8 @@ describe("ProjectionReportView — Methodology v2", () => {
   });
 
   it("renders the percentile band visual", () => {
-    expect(html).toContain("projpv-band");
+    // Bento markers: the band's accessible label + legend keys.
+    expect(html).toContain("Projection band over");
     expect(html).toContain("p5–p95 band");
     expect(html).toContain("p50 median");
   });

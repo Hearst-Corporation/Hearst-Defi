@@ -6,10 +6,15 @@
  * client-rendered function of the artifact. APY is shown only as a range; nothing
  * is framed as guaranteed; provenance and disclaimers are always visible.
  *
+ * Bento Tailwind (Portfolio canon): graphite-opaque panels, neutral borders
+ * everywhere, single green accent (#A7FB90) reserved for emphasised VALUES/text —
+ * never as a tile/scenario border.
+ *
  * Scope note: this lot renders the deterministic v0 artifact. The Methodology v2
  * distribution (p5/p50/p95) is intentionally NOT rendered here yet.
  */
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 import type {
   ProjectionReportArtifact,
@@ -21,6 +26,9 @@ function fmtRange(r?: { min: number; max: number; unit: string }): string | null
   if (!r) return null;
   return `${r.min}–${r.max}${r.unit === "%" ? "%" : ` ${r.unit}`}`;
 }
+
+const PANEL = "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col";
+const SUBTILE = "rounded-xl border border-white/10 bg-[#15191C]";
 
 function Block({
   title,
@@ -34,21 +42,32 @@ function Block({
   className?: string;
 }) {
   return (
-    <section className={cn("projpv-block rounded-2xl border border-white/10 bg-black shadow-sm", className)}>
-      <header className="projpv-block-head">
-        <h3 className="projpv-block-title">{title}</h3>
-        {hint ? <span className="projpv-block-hint">{hint}</span> : null}
+    <section className={cn(PANEL, className)}>
+      <header className="flex items-end justify-between gap-3 p-5 border-b border-white/5">
+        <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">{title}</h3>
+        {hint ? <span className="text-[11px] text-zinc-500 tracking-wide text-right">{hint}</span> : null}
       </header>
-      {children}
+      <div className="p-5 flex flex-col gap-4 min-w-0">{children}</div>
     </section>
   );
 }
 
 function MissingNote({ label }: { label: string }) {
-  return <p className="projpv-missing">Missing input — {label}</p>;
+  return <p className="text-[13px] text-amber-400 m-0">Missing input — {label}</p>;
+}
+
+function SourceChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+      {children}
+    </span>
+  );
 }
 
 /* ── Chart renderers (CSS-only, no chart library, no fabricated data) ─────── */
+
+const SEG_FILLS = ["bg-[#A7FB90]", "bg-[#A7FB90]/70", "bg-[#A7FB90]/40", "bg-white/20"] as const;
+const DOT_FILLS = ["bg-[#A7FB90]", "bg-[#A7FB90]/70", "bg-[#A7FB90]/40", "bg-white/20"] as const;
 
 function RangeBandChart({ data }: { data: unknown }) {
   const d = data as { apy?: { min: number; max: number; unit: string }; horizonMonths?: number };
@@ -59,11 +78,18 @@ function RangeBandChart({ data }: { data: unknown }) {
   const left = (d.apy.min / axisMax) * 100;
   const width = (span / axisMax) * 100;
   return (
-    <div className="projpv-rangeband" role="img" aria-label={`APY range ${d.apy.min} to ${d.apy.max} percent`}>
-      <div className="projpv-rangeband-track">
-        <div className="projpv-rangeband-fill" style={{ left: `${left}%`, width: `${width}%` }} />
+    <div
+      className="flex flex-col gap-1.5"
+      role="img"
+      aria-label={`APY range ${d.apy.min} to ${d.apy.max} percent`}
+    >
+      <div className="relative h-2.5 rounded-full bg-[#15191C] border border-white/5 overflow-hidden">
+        <div
+          className="absolute top-0 bottom-0 bg-[#A7FB90] rounded-full"
+          style={{ left: `${left}%`, width: `${width}%` }}
+        />
       </div>
-      <div className="projpv-rangeband-scale">
+      <div className="flex justify-between text-[11px] font-mono text-zinc-500">
         <span>{d.apy.min}%</span>
         <span>{d.apy.max}%</span>
       </div>
@@ -77,24 +103,24 @@ function AllocationMixChart({ data }: { data: unknown }) {
     : [];
   if (rows.length === 0) return <MissingNote label="no allocation provided" />;
   return (
-    <div className="projpv-alloc">
-      <div className="projpv-alloc-bar">
+    <div className="flex flex-col gap-3">
+      <div className="flex h-3 rounded-full overflow-hidden bg-[#15191C] border border-white/5">
         {rows.map((r, i) => (
           <div
             key={r.label}
-            className={cn("projpv-alloc-seg", `projpv-alloc-seg--${(i % 4) + 1}`)}
+            className={cn("h-full", SEG_FILLS[i % SEG_FILLS.length])}
             style={{ width: `${r.weightPct}%` }}
             title={`${r.label} — ${r.weightPct}%`}
           />
         ))}
       </div>
-      <ul className="projpv-alloc-legend">
+      <ul className="list-none m-0 p-0 flex flex-col gap-1.5">
         {rows.map((r, i) => (
-          <li key={r.label}>
-            <span className={cn("projpv-alloc-dot", `projpv-alloc-seg--${(i % 4) + 1}`)} />
-            <span className="projpv-alloc-label">{r.label}</span>
-            <span className="projpv-alloc-weight">{r.weightPct}%</span>
-            <span className="projpv-badge projpv-badge--source">{r.source}</span>
+          <li key={r.label} className="flex items-center gap-2 text-[12px] text-zinc-400">
+            <span className={cn("size-2 rounded-full flex-none", DOT_FILLS[i % DOT_FILLS.length])} />
+            <span className="flex-1 min-w-0">{r.label}</span>
+            <span className="font-mono text-white tabular-nums">{r.weightPct}%</span>
+            <SourceChip>{r.source}</SourceChip>
           </li>
         ))}
       </ul>
@@ -108,13 +134,16 @@ function ScenarioCompareChart({ data }: { data: unknown }) {
     : [];
   if (rows.length === 0) return <MissingNote label="no scenarios to compare" />;
   return (
-    <div className="projpv-compare">
+    <div className="flex gap-3">
       {rows.map((s) => {
         const apy = s.metrics.find((m) => m.range)?.range;
         return (
-          <div key={s.id} className="projpv-compare-col">
-            <span className="projpv-compare-name">{s.id}</span>
-            <span className="projpv-compare-val">{apy ? fmtRange(apy) : "—"}</span>
+          <div
+            key={s.id}
+            className={cn(SUBTILE, "flex-1 flex flex-col gap-1 p-3 text-center")}
+          >
+            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{s.id}</span>
+            <span className="text-[13px] font-medium text-[#A7FB90] tabular-nums">{apy ? fmtRange(apy) : "—"}</span>
           </div>
         );
       })}
@@ -151,27 +180,27 @@ export function ProjectionReportView({
   const renderableCharts = artifact.charts.filter((c) => c.type !== "percentile_band");
 
   return (
-    <div className="projpv" data-testid="projection-report">
+    <div className="flex flex-col gap-4 min-w-0" data-testid="projection-report">
       {/* Hero summary */}
-      <section className="projpv-hero rounded-2xl border border-white/10 bg-black shadow-sm">
-        <div className="projpv-hero-top">
-          <div className="projpv-hero-id">
-            <h2 className="projpv-hero-name">{artifact.product.name}</h2>
-            <span className="projpv-badge projpv-badge--type">{artifact.product.type}</span>
-            <span className="projpv-badge projpv-badge--version">{artifact.version}</span>
+      <section className={cn(PANEL, "gap-3 p-5")}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
+            <h2 className="text-[18px] font-semibold text-white tracking-tight m-0">{artifact.product.name}</h2>
+            <Badge variant="default" className="font-mono normal-case tracking-normal">{artifact.product.type}</Badge>
+            <Badge variant="default" className="font-mono normal-case tracking-normal">{artifact.version}</Badge>
           </div>
-          <div className="projpv-hero-flags">
-            {previewBadge ? <span className="projpv-badge projpv-badge--preview">Preview input</span> : null}
-            <span className="projpv-badge projpv-badge--read">Read-only</span>
-            <span className="projpv-badge projpv-badge--ok">No side effects</span>
-            <span className="projpv-badge projpv-badge--conf">Confidence: {artifact.confidence}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            {previewBadge ? <Badge variant="accent">Preview input</Badge> : null}
+            <Badge variant="accent">Read-only</Badge>
+            <Badge variant="accent">No side effects</Badge>
+            <Badge variant="default">Confidence: {artifact.confidence}</Badge>
           </div>
         </div>
-        <p className="projpv-hero-summary">{artifact.summary}</p>
+        <p className="text-[13px] text-zinc-400 m-0 max-w-[80ch]">{artifact.summary}</p>
       </section>
 
       {/* Headline metrics */}
-      <div className="projpv-metrics">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard
           label="Capital base"
           value={capitalMetric?.value ?? null}
@@ -190,6 +219,7 @@ export function ProjectionReportView({
           value={fmtRange(yieldMetric?.range)}
           missing={yieldMetric?.range ? null : "needs apyRange + capitalBase"}
           provenance={yieldMetric?.provenance}
+          accent
         />
         <MetricCard
           label="Horizon"
@@ -200,16 +230,16 @@ export function ProjectionReportView({
 
       {/* Scenarios */}
       <Block title="Scenarios" hint="Conditional framings — not forecasts or targets">
-        <div className="projpv-scenarios">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {artifact.scenarios.map((s) => {
             const apy = s.metrics.find((m) => m.range)?.range;
             return (
-              <article key={s.id} className={cn("projpv-scenario", `projpv-scenario--${s.id}`)}>
-                <header className="projpv-scenario-head">
-                  <span className="projpv-scenario-tag">{s.label}</span>
-                  <span className="projpv-scenario-apy">{apy ? fmtRange(apy) : "—"}</span>
+              <article key={s.id} className={cn(SUBTILE, "flex flex-col gap-2 p-4")}>
+                <header className="flex items-baseline justify-between gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{s.label}</span>
+                  <span className="text-[15px] font-medium text-[#A7FB90] tabular-nums">{apy ? fmtRange(apy) : "—"}</span>
                 </header>
-                <p className="projpv-scenario-desc">{s.description}</p>
+                <p className="text-[12px] text-zinc-400 m-0">{s.description}</p>
               </article>
             );
           })}
@@ -220,15 +250,15 @@ export function ProjectionReportView({
       {artifact.version === "v2" ? <MethodologyV2Section artifact={artifact} /> : null}
 
       {/* Charts + assumptions */}
-      <div className="projpv-row">
-        <Block title="Charts" className="projpv-col-grow">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4">
+        <Block title="Charts">
           {renderableCharts.length === 0 ? (
             <MissingNote label="no chart data available for this input" />
           ) : (
-            <div className="projpv-charts">
+            <div className="flex flex-col gap-5">
               {renderableCharts.map((c) => (
-                <div key={c.id} className="projpv-chart">
-                  <span className="projpv-chart-title">{c.title}</span>
+                <div key={c.id} className="flex flex-col gap-2">
+                  <span className="text-[11px] text-zinc-500 tracking-wide">{c.title}</span>
                   <ChartRenderer chart={c} />
                 </div>
               ))}
@@ -236,16 +266,16 @@ export function ProjectionReportView({
           )}
         </Block>
 
-        <Block title="Assumptions" className="projpv-col-side">
+        <Block title="Assumptions">
           {artifact.assumptions.length === 0 ? (
             <MissingNote label="no assumptions provided" />
           ) : (
-            <ul className="projpv-assumptions">
+            <ul className="list-none m-0 p-0 flex flex-col gap-2">
               {artifact.assumptions.map((a) => (
-                <li key={a.key}>
-                  <span className="projpv-assumption-key">{a.key}</span>
-                  <span className="projpv-assumption-val">{a.value}</span>
-                  <span className="projpv-badge projpv-badge--source">{a.source}</span>
+                <li key={a.key} className="flex items-center gap-2 text-[12px] text-zinc-400">
+                  <span className="font-mono text-white min-w-0">{a.key}</span>
+                  <span className="flex-1 min-w-0">{a.value}</span>
+                  <SourceChip>{a.source}</SourceChip>
                 </li>
               ))}
             </ul>
@@ -254,27 +284,27 @@ export function ProjectionReportView({
       </div>
 
       {/* Risks + provenance */}
-      <div className="projpv-row">
-        <Block title="Risks" className="projpv-col-grow">
-          <ul className="projpv-risks">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4">
+        <Block title="Risks">
+          <ul className="list-none m-0 p-0 flex flex-col gap-3">
             {artifact.risks.map((r) => (
-              <li key={r.id} className="projpv-risk">
-                <span className={cn("projpv-sev", `projpv-sev--${r.severity}`)}>{r.severity}</span>
-                <div className="projpv-risk-body">
-                  <span className="projpv-risk-label">{r.label}</span>
-                  <span className="projpv-risk-note">{r.note}</span>
+              <li key={r.id} className="flex gap-3 items-start">
+                <SeverityChip severity={r.severity} />
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-[13px] text-white">{r.label}</span>
+                  <span className="text-[12px] text-zinc-400">{r.note}</span>
                 </div>
               </li>
             ))}
           </ul>
         </Block>
 
-        <Block title="Provenance" className="projpv-col-side">
-          <ul className="projpv-provenance">
+        <Block title="Provenance">
+          <ul className="list-none m-0 p-0 flex flex-col gap-2">
             {artifact.provenance.map((p) => (
-              <li key={p.metricId}>
-                <span className="projpv-prov-metric">{p.metricId}</span>
-                <span className="projpv-badge projpv-badge--source">{p.source}</span>
+              <li key={p.metricId} className="flex items-center gap-2 text-[12px] text-zinc-400">
+                <span className="font-mono text-white min-w-0">{p.metricId}</span>
+                <SourceChip>{p.source}</SourceChip>
               </li>
             ))}
           </ul>
@@ -284,18 +314,20 @@ export function ProjectionReportView({
       {/* Missing inputs */}
       {artifact.missingInputs.length > 0 ? (
         <Block title="Missing inputs" hint="Surfaced, never fabricated">
-          <ul className="projpv-missing-list">
+          <ul className="list-none m-0 p-0 flex flex-row flex-wrap gap-2">
             {artifact.missingInputs.map((m) => (
-              <li key={m} className="projpv-badge projpv-badge--missing">{m}</li>
+              <li key={m}>
+                <Badge variant="warning" className="font-mono normal-case tracking-normal">{m}</Badge>
+              </li>
             ))}
           </ul>
         </Block>
       ) : null}
 
       {/* Disclaimers */}
-      <section className="projpv-disclaimers">
+      <section className="rounded-xl border border-white/10 bg-[#15191C] p-4 flex flex-col gap-1.5">
         {artifact.disclaimers.map((d) => (
-          <p key={d} className="projpv-disclaimer">{d}</p>
+          <p key={d} className="text-[11px] text-zinc-500 m-0">{d}</p>
         ))}
       </section>
     </div>
@@ -316,14 +348,16 @@ function MetricCard({
   accent?: boolean;
 }) {
   return (
-    <div className={cn("projpv-metric rounded-xl border border-white/10 bg-[#15191C]", accent && "projpv-metric--accent")}>
-      <span className="projpv-metric-label">{label}</span>
+    <div className={cn(SUBTILE, "flex flex-col gap-2 p-5 min-w-0")}>
+      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{label}</span>
       {value ? (
-        <span className="projpv-metric-value">{value}</span>
+        <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[#A7FB90]" : "text-white")}>
+          {value}
+        </span>
       ) : (
-        <span className="projpv-metric-missing">{missing ?? "—"}</span>
+        <span className="text-[13px] text-amber-400">{missing ?? "—"}</span>
       )}
-      {provenance ? <span className="projpv-metric-prov">{provenance}</span> : null}
+      {provenance ? <span className="text-[10px] text-zinc-500 font-mono">{provenance}</span> : null}
     </div>
   );
 }
@@ -350,39 +384,43 @@ function MethodologyV2Section({ artifact }: { artifact: ProjectionReportArtifact
 
   const { p5, p50, p95 } = dist.percentiles;
   return (
-    <section className="projpv-v2 rounded-2xl border border-white/10 bg-black shadow-sm">
-      <header className="projpv-v2-head">
-        <div className="projpv-v2-title">
-          <h3 className="projpv-block-title">Methodology v2</h3>
-          <span className="projpv-block-hint">Seeded scenario distribution — p5 / p50 / p95</span>
+    <section className={PANEL}>
+      <header className="flex flex-wrap items-start justify-between gap-3 p-5 border-b border-white/5">
+        <div className="flex flex-col gap-1 min-w-0">
+          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Methodology v2</h3>
+          <span className="text-[11px] text-zinc-500 tracking-wide">Seeded scenario distribution — p5 / p50 / p95</span>
         </div>
-        <div className="projpv-v2-meta">
-          <span className="projpv-badge projpv-badge--source">seed: {method.seed}</span>
-          <span className="projpv-badge projpv-badge--source">iterations: {method.iterations}</span>
-          <span className="projpv-badge projpv-badge--source">{method.model}</span>
+        <div className="flex flex-wrap gap-2">
+          <SourceChip>seed: {method.seed}</SourceChip>
+          <SourceChip>iterations: {method.iterations}</SourceChip>
+          <SourceChip>{method.model}</SourceChip>
         </div>
       </header>
 
-      <div className="projpv-v2-percentiles">
-        <PercentileCard label="p5" caption="Low band" pct={p5.apyPct} yieldVal={p5.projectedYield} />
-        <PercentileCard label="p50" caption="Median scenario" pct={p50.apyPct} yieldVal={p50.projectedYield} accent />
-        <PercentileCard label="p95" caption="High band" pct={p95.apyPct} yieldVal={p95.projectedYield} />
+      <div className="p-5 flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <PercentileCard label="p5" caption="Low band" pct={p5.apyPct} yieldVal={p5.projectedYield} />
+          <PercentileCard label="p50" caption="Median scenario" pct={p50.apyPct} yieldVal={p50.projectedYield} accent />
+          <PercentileCard label="p95" caption="High band" pct={p95.apyPct} yieldVal={p95.projectedYield} />
+        </div>
+
+        <p className="text-[12px] text-zinc-400 m-0 max-w-[80ch]">
+          p50 is the median of a conditional distribution under the stated assumptions — it is not an
+          expected return or a target. p5 and p95 frame a projection band, not a fixed outcome.
+        </p>
+
+        <PercentileBand bands={dist.bands} />
+
+        {dist.methodology.limitations.length > 0 ? (
+          <ul className="list-none m-0 p-0 flex flex-col gap-1">
+            {dist.methodology.limitations.map((l) => (
+              <li key={l} className="relative pl-3 text-[12px] text-zinc-500 before:content-['—'] before:absolute before:left-0 before:text-zinc-500">
+                {l}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
-
-      <p className="projpv-v2-note">
-        p50 is the median of a conditional distribution under the stated assumptions — it is not an
-        expected return or a target. p5 and p95 frame a projection band, not a fixed outcome.
-      </p>
-
-      <PercentileBand bands={dist.bands} />
-
-      {dist.methodology.limitations.length > 0 ? (
-        <ul className="projpv-v2-limits">
-          {dist.methodology.limitations.map((l) => (
-            <li key={l} className="projpv-v2-limit">{l}</li>
-          ))}
-        </ul>
-      ) : null}
     </section>
   );
 }
@@ -401,16 +439,37 @@ function PercentileCard({
   accent?: boolean;
 }) {
   return (
-    <div className={cn("projpv-pcard", accent && "projpv-pcard--accent")}>
-      <span className="projpv-pcard-label">{label}</span>
-      <span className="projpv-pcard-caption">{caption}</span>
-      <span className="projpv-pcard-apy">{Number.isFinite(pct) ? `${fmtNum(pct)}%` : "—"}</span>
+    <div className={cn(SUBTILE, "flex flex-col gap-1 p-4")}>
+      <span className="text-[10px] uppercase tracking-[0.15em] font-mono text-zinc-500">{label}</span>
+      <span className="text-[12px] text-zinc-400">{caption}</span>
+      <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[#A7FB90]" : "text-white")}>
+        {Number.isFinite(pct) ? `${fmtNum(pct)}%` : "—"}
+      </span>
       {yieldVal ? (
-        <span className="projpv-pcard-yield">
+        <span className="text-[11px] text-zinc-500 font-mono">
           {fmtNum(yieldVal.value)} {yieldVal.unit}
         </span>
       ) : null}
     </div>
+  );
+}
+
+function SeverityChip({ severity }: { severity: "low" | "medium" | "high" }) {
+  const tone =
+    severity === "high"
+      ? "border-red-400/30 bg-red-400/10 text-red-400"
+      : severity === "medium"
+        ? "border-amber-400/30 bg-amber-400/10 text-amber-400"
+        : "border-white/10 bg-white/5 text-zinc-400";
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] font-bold leading-none flex-none",
+        tone,
+      )}
+    >
+      {severity}
+    </span>
   );
 }
 
@@ -433,28 +492,40 @@ function PercentileBand({ bands }: { bands: ProjectionDistribution["bands"] }) {
 
   return (
     <figure
-      className="projpv-band"
+      className="m-0 flex flex-col gap-2"
       role="img"
       aria-label={`Projection band over ${last.horizonMonth} months: p5 ${fmtNum(finite[0]!.p5)} to p95 ${fmtNum(last.p95)} ${unit}`}
     >
-      <div className="projpv-band-plot">
+      <div className="flex items-end gap-1 h-[132px] pt-2">
         {finite.map((b, i) => (
-          <div className="projpv-band-col" key={b.horizonMonth} title={`m${b.horizonMonth}: p5 ${fmtNum(b.p5)} · p50 ${fmtNum(b.p50)} · p95 ${fmtNum(b.p95)} ${unit}`}>
-            <div className="projpv-band-track">
+          <div
+            className="flex-1 min-w-0 flex flex-col items-center gap-1 h-full"
+            key={b.horizonMonth}
+            title={`m${b.horizonMonth}: p5 ${fmtNum(b.p5)} · p50 ${fmtNum(b.p50)} · p95 ${fmtNum(b.p95)} ${unit}`}
+          >
+            <div className="relative w-full max-w-[18px] flex-1 rounded-sm bg-[#15191C] border border-white/5">
               <div
-                className="projpv-band-fill"
+                className="absolute left-0 right-0 rounded-sm bg-[#A7FB90]/15 border border-[#A7FB90]/30"
                 style={{ bottom: pos(b.p5), top: `calc(100% - ${pos(b.p95)})` }}
               />
-              <div className="projpv-band-median" style={{ bottom: pos(b.p50) }} />
+              <div className="absolute -left-px -right-px h-0.5 bg-[#A7FB90]" style={{ bottom: pos(b.p50) }} />
             </div>
-            <span className="projpv-band-x">{i % labelEvery === 0 || i === finite.length - 1 ? `${b.horizonMonth}m` : ""}</span>
+            <span className="text-[10px] text-zinc-500 font-mono h-3">
+              {i % labelEvery === 0 || i === finite.length - 1 ? `${b.horizonMonth}m` : ""}
+            </span>
           </div>
         ))}
       </div>
-      <figcaption className="projpv-band-legend">
-        <span className="projpv-band-key projpv-band-key--band">p5–p95 band</span>
-        <span className="projpv-band-key projpv-band-key--median">p50 median</span>
-        <span className="projpv-band-axis">axis 0 – {fmtNum(axisMax)} {unit}</span>
+      <figcaption className="flex items-center gap-3 flex-wrap text-[11px] text-zinc-500">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-2.5 rounded-sm bg-[#A7FB90]/15 border border-[#A7FB90]/30" />
+          p5–p95 band
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="w-3 h-0.5 bg-[#A7FB90]" />
+          p50 median
+        </span>
+        <span className="font-mono">axis 0 – {fmtNum(axisMax)} {unit}</span>
       </figcaption>
     </figure>
   );
