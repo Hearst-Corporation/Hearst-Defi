@@ -6,6 +6,13 @@ import Link from "next/link";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 
 import { cn } from "@/lib/cn";
+import {
+  BentoPanel,
+  BentoHeader,
+  BentoLabel,
+  BENTO_PRIMARY_BTN,
+  BENTO_SECONDARY_BTN,
+} from "@/components/ui/bento";
 import { ApyRange } from "@/components/ui/apy-range";
 import { Ptai } from "@/components/ui/ptai";
 import { kycLabel } from "@/lib/profile/kyc-display";
@@ -100,72 +107,6 @@ interface InvestFormProps {
   investor: Investor | null;
   session: SessionUser | null;
 }
-
-/* ── bento primitives (Portfolio-style, pure Tailwind) ─────────────── */
-
-function BentoPanel({
-  children,
-  className,
-  ...rest
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      {...rest}
-      className={cn(
-        "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-function BentoHeader({
-  title,
-  subtitle,
-  trailing,
-}: {
-  title: string;
-  subtitle?: string;
-  trailing?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-end justify-between p-5 border-b border-white/5">
-      <div className="flex flex-col gap-1.5">
-        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
-          {title}
-        </h2>
-        {subtitle ? (
-          <p className="text-[12px] text-zinc-500 tracking-wide">{subtitle}</p>
-        ) : null}
-      </div>
-      {trailing ? <div className="shrink-0 pb-0.5">{trailing}</div> : null}
-    </div>
-  );
-}
-
-function FieldLabel({
-  htmlFor,
-  children,
-}: {
-  htmlFor?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
-    >
-      {children}
-    </label>
-  );
-}
-
-const PRIMARY_BTN =
-  "inline-flex items-center justify-center bg-[#A7FB90] text-zinc-900 font-bold rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-[#A7FB90]/90 disabled:opacity-50 disabled:cursor-not-allowed";
-const SECONDARY_BTN =
-  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed";
 
 function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
   const mgmtFee = vault.fees.mgmtBps / 100;
@@ -409,7 +350,7 @@ function AmountSection({
       />
       <div className="p-5 flex flex-col gap-5">
         <div className="flex flex-col gap-3">
-          <FieldLabel htmlFor={inputId}>Allocation amount</FieldLabel>
+          <BentoLabel htmlFor={inputId}>Allocation amount</BentoLabel>
           <AmountLedger
             isCalculating={isCalculating}
             isValid={amount === 0 || amountValid}
@@ -540,10 +481,10 @@ function InvestFormUnconfigured({
           <InvestHelpLinks />
 
           <div className="flex items-center justify-between gap-3">
-            <Link href={investProductPath(vault.id)} className={SECONDARY_BTN}>
+            <Link href={investProductPath(vault.id)} className={BENTO_SECONDARY_BTN}>
               ← Back
             </Link>
-            <button type="button" disabled className={PRIMARY_BTN}>
+            <button type="button" disabled className={BENTO_PRIMARY_BTN}>
               Connect a wallet to continue
             </button>
           </div>
@@ -885,7 +826,7 @@ function InvestFormLive({
                     type="button"
                     onClick={handleCancelConfirm}
                     disabled={depositing}
-                    className={SECONDARY_BTN}
+                    className={BENTO_SECONDARY_BTN}
                   >
                     Cancel
                   </button>
@@ -893,7 +834,7 @@ function InvestFormLive({
                     type="button"
                     onClick={() => void handleConfirm()}
                     disabled={!ctaEnabled || depositing}
-                    className={PRIMARY_BTN}
+                    className={BENTO_PRIMARY_BTN}
                   >
                     {depositing
                       ? "Confirming…"
@@ -908,7 +849,7 @@ function InvestFormLive({
                 <div className="flex items-center justify-between gap-3">
                   <Link
                     href={investProductPath(vault.id)}
-                    className={SECONDARY_BTN}
+                    className={BENTO_SECONDARY_BTN}
                   >
                     ← Back
                   </Link>
@@ -918,7 +859,7 @@ function InvestFormLive({
                     onClick={handleReview}
                     disabled={!ctaEnabled}
                     aria-disabled={!ctaEnabled}
-                    className={PRIMARY_BTN}
+                    className={BENTO_PRIMARY_BTN}
                   >
                     {ctaLabel(currentCtaState, amount)}
                   </button>
