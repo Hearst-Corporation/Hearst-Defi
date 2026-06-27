@@ -3042,11 +3042,6 @@ body {
   justify-content: center;
 }
 
-/* Table empty row — typography only, no nested box. */
-.ct-table-surface tbody td .ct-panel-status {
-  padding: var(--ct-space-4) 0;
-}
-
 /* Inline status inside a parent surface — no nested box (DS §9.3) */
 .ct-panel-status {
   display: flex;
@@ -4605,21 +4600,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: var(--ct-space-3) var(--ct-space-4);
 }
 
-/* Vault selector card — compact density without crushing module title / KPI. */
-.ct-card--compact .vault-select-card               { gap: var(--ct-space-3); }
-.ct-card--compact .vault-select-card__main         { gap: var(--ct-space-3); }
-.ct-card--compact .vault-select-card__meta         { gap: var(--ct-space-2); }
-.ct-card--compact .vault-select-card .h3           { font-size: var(--ct-text-lg); }
-.ct-card--compact .vault-select-card .stat-value   {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-extrabold);
-}
-
-@container product-doc (min-width: 40rem) {
-  .ct-card--compact .vault-select-card             { gap: var(--ct-space-3); }
-  .ct-card--compact .vault-select-card__meta       { min-width: 15rem; width: 15rem; }
-}
-
 /* Cockpit chat rail — density calibration.
    escape: vendored chrome — the sub-token chat px below (2px/7px/3px/8px/1px/4px/
    6px/14px chip + button + input density) are package-derived and sit deliberately
@@ -6053,35 +6033,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   border-top: 1px solid var(--ct-border-soft);
 }
 
-.vault-flow-flat-section .vault-panel-header {
-  border-bottom: none;
-  padding: 0 0 var(--ct-space-3);
-}
-
-.vault-flow-flat-section .vault-panel-body {
-  padding: 0;
-}
-
-.vault-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  border-bottom: 1px solid var(--ct-border-soft);
-  padding: var(--ct-space-3) var(--ct-space-4);
-}
-
-.vault-panel-header__stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-0_5);
-  min-width: 0;
-}
-
-.vault-panel-body {
-  padding: var(--ct-space-4);
-}
-
 .vault-panel-row {
   display: flex;
   align-items: flex-start;
@@ -6192,11 +6143,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   border-top: 1px solid var(--ct-border-soft);
 }
 
-.vault-panel-body .vault-disclaimer-inset {
-  margin-inline: 0;
-  margin-bottom: 0;
-}
-
 .ct-cell-note-max {
   max-width: var(--ct-cell-note-max);
 }
@@ -6210,36 +6156,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* fontVariantNumeric tabular helper (avoids repeated style attr) */
 .ct-tabular-nums {
   font-variant-numeric: tabular-nums;
-}
-
-/* Admin table shell — shared headers/cells */
-.ct-table-surface {
-  overflow-x: auto;
-  border-radius: var(--ct-radius-lg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-nested-bg);
-}
-
-.ct-table-surface table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.ct-table-surface thead tr {
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-.ct-table-surface tbody tr {
-  border-bottom: 1px solid color-mix(in srgb, var(--ct-border-soft) 65%, transparent);
-}
-
-.ct-table-surface tbody tr:hover {
-  background: var(--ct-surface-0);
-}
-
-.ct-table-surface tbody tr:last-child {
-  border-bottom: none;
 }
 
 /* ─── Admin Vaults — dense deployment list ──────────────────────────────── */

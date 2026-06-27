@@ -1,12 +1,7 @@
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { Card } from "@/components/ui/card";
 import { PanelStatus } from "@/components/ui/panel-status";
-import { Metric } from "@/components/ui/metric";
-import { MetricGrid } from "@/components/ui/nested-panel";
 import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
 import type { CustodySnapshot } from "@/lib/data/custody";
-import { sectionDividerClass } from "@/lib/ui/surface-classes";
-import { cn } from "@/lib/cn";
 
 import { formatNestedTimestamp, formatUsdCompact, isOlderThan24h } from "./formatters";
 
@@ -26,10 +21,37 @@ const CUSTODY_EMPTY = {
     "Fireblocks reserve scope must be pinned and a fresh snapshot posted before USDC reserves are shown here.",
 } as const;
 
+/** Bento KPI tile — label + value, matching the Portfolio / vaults flow. */
+function BentoKpi({
+  label,
+  value,
+  sublabel,
+}: {
+  label: string;
+  value: string;
+  sublabel?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        {label}
+      </span>
+      <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+        {value}
+      </span>
+      {sublabel ? (
+        <span className="text-[10px] text-zinc-500 tracking-wide font-mono">
+          {sublabel}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
   if (custodyProvenance(custody) !== "stale") return null;
   return (
-    <p className="proof-note body-xs ct-status-warning">
+    <p className="text-[11px] leading-relaxed text-(--ct-status-warning)">
       {custody.provenance === "live" && !custody.configured
         ? "Reserve scope is not yet configured by operations — badge shows Stale."
         : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
@@ -40,46 +62,44 @@ function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
 function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
   const snapshotTs = formatNestedTimestamp(new Date(custody.asOf));
   return (
-    <>
-      <MetricGrid columns={3}>
-        <Metric
-          variant="nested"
+    <div className="flex flex-col gap-5">
+      {/* ct-nested-kpi-grid marker retained for proof-center contract tests */}
+      <div className="ct-nested-kpi-grid grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+        <BentoKpi
           label="USDC reserves"
           value={formatUsdCompact(custody.totalUsdcReserves)}
         />
-        <Metric
-          variant="nested"
+        <BentoKpi
           label="Vault accounts"
           value={custody.accountsCount.toString()}
         />
-        <Metric
-          variant="nested"
+        <BentoKpi
           label="Snapshot at"
           value={snapshotTs.value}
           sublabel={snapshotTs.sublabel}
         />
-      </MetricGrid>
+      </div>
       <CustodyStaleNote custody={custody} />
-    </>
+    </div>
   );
 }
 
 function CustodyCard({ custody }: { custody: CustodySnapshot }) {
   return (
-    <Card>
+    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
         tone="primary"
       />
       <CustodyKpis custody={custody} />
-    </Card>
+    </div>
   );
 }
 
 function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className={cn(sectionDividerClass, "proof-article-separated")}>
+    <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
@@ -105,7 +125,7 @@ export function CustodySection({
 
   if (nested) {
     return (
-      <div className={cn(sectionDividerClass, "proof-article-separated")}>
+      <div className="mt-8 pt-6 border-t border-white/10">
         <PanelStatus {...CUSTODY_EMPTY} />
       </div>
     );

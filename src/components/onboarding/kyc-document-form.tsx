@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { submitKycDocument } from "@/lib/onboarding/actions";
 import { cn } from "@/lib/cn";
 
@@ -65,6 +64,15 @@ type FormState =
   | { status: "success" }
   | { status: "error"; message: string };
 
+const FIELD_LABEL =
+  "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+const SELECT_INPUT =
+  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+const PRIMARY_BTN =
+  "inline-flex items-center justify-center w-full rounded-lg bg-[#A7FB90] text-zinc-900 font-bold px-4 py-2.5 text-[13px] transition-colors hover:bg-[#A7FB90]/90 disabled:opacity-50 disabled:cursor-not-allowed";
+const SECONDARY_BTN =
+  "inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white font-medium px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed";
+
 export interface KycDocumentFormProps {
   /** Called after a successful submission (e.g. navigate to the next step). */
   onSuccess?: () => void;
@@ -105,14 +113,23 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
   return (
     <form
       action={handleAction}
-      className={cn("product-doc-stack", className)}
+      className={cn(
+        "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col",
+        className,
+      )}
       aria-label="Identity document upload"
       data-testid="kyc-document-form"
     >
-      <div className="product-doc-stack--actions">
+      <div className="p-5 border-b border-white/5">
+        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
+          Identity document
+        </h2>
+      </div>
+
+      <div className="p-5 flex flex-col gap-5">
         {/* Document type */}
-        <div className="flex flex-col">
-          <label htmlFor="kyc-doc-type" className="ct-form-label">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="kyc-doc-type" className={FIELD_LABEL}>
             Document type
           </label>
           <select
@@ -121,7 +138,7 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
             defaultValue="PASSPORT"
             required
             disabled={submitting || succeeded}
-            className="ct-select body-sm"
+            className={SELECT_INPUT}
           >
             {DOCUMENT_TYPES.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -132,8 +149,8 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
         </div>
 
         {/* Issuing country (ISO3) */}
-        <div className="flex flex-col">
-          <label htmlFor="kyc-country" className="ct-form-label">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="kyc-country" className={FIELD_LABEL}>
             Issuing country
           </label>
           <select
@@ -142,7 +159,7 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
             defaultValue="GBR"
             required
             disabled={submitting || succeeded}
-            className="ct-select body-sm"
+            className={SELECT_INPUT}
           >
             {COUNTRIES.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -153,8 +170,8 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
         </div>
 
         {/* Document file */}
-        <div className="flex flex-col">
-          <span className="ct-form-label" id="kyc-file-label">
+        <div className="flex flex-col gap-2">
+          <span className={FIELD_LABEL} id="kyc-file-label">
             Document image
           </span>
           <input
@@ -169,54 +186,51 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
             aria-labelledby="kyc-file-label"
             className="sr-only"
           />
-          <div className="flex items-center gap-(--ct-space-3)">
-            <Button
+          <div className="flex items-center gap-3">
+            <button
               type="button"
-              variant="secondary"
-              size="md"
               disabled={submitting || succeeded}
               onClick={() => fileInputRef.current?.click()}
+              className={SECONDARY_BTN}
             >
               Choose document
-            </Button>
+            </button>
             <span
               className={cn(
-                "body-xs m-0 truncate",
-                fileName ? "ct-text-muted" : "ct-text-faint",
+                "text-[12px] m-0 truncate",
+                fileName ? "text-zinc-400" : "text-zinc-600",
               )}
               aria-live="polite"
             >
               {fileName ?? "No file selected"}
             </span>
           </div>
-          <p className="body-xs ct-text-faint m-0 onb-kyc-file-hint">
+          <p className="text-[11px] text-zinc-600 leading-relaxed m-0">
             JPEG, PNG or PDF · max 10 MB. Document only — no selfie required.
           </p>
         </div>
+
+        <button
+          type="submit"
+          className={PRIMARY_BTN}
+          disabled={submitting || succeeded}
+        >
+          {submitting ? "Uploading…" : "Submit for verification"}
+        </button>
+
+        {succeeded ? (
+          <p className="text-[12px] text-[#A7FB90] m-0" role="status">
+            Document submitted — verification in progress. You will be notified
+            by email once your identity has been verified.
+          </p>
+        ) : null}
+
+        {state.status === "error" ? (
+          <p className="text-[12px] text-red-400 m-0" role="alert">
+            {state.message}
+          </p>
+        ) : null}
       </div>
-
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        className="w-full"
-        disabled={submitting || succeeded}
-      >
-        {submitting ? "Uploading…" : "Submit for verification"}
-      </Button>
-
-      {succeeded ? (
-        <p className="body-xs ct-status-success m-0" role="status">
-          Document submitted — verification in progress. You will be notified by
-          email once your identity has been verified.
-        </p>
-      ) : null}
-
-      {state.status === "error" ? (
-        <p className="body-xs ct-status-danger m-0" role="alert">
-          {state.message}
-        </p>
-      ) : null}
     </form>
   );
 }

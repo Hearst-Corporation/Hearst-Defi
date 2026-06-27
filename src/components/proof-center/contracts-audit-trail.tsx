@@ -1,8 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ProofRow } from "@/components/ui/nested-panel";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import type { ReactNode } from "react";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { FileText, ShieldCheck, ExternalLink, Link as LinkIcon } from "lucide-react";
 import { getDeployment } from "@/lib/chain/deployments";
 import {
@@ -12,7 +9,6 @@ import {
   getPoRRegistryAddress,
 } from "@/lib/chain/client";
 import { abbreviateAddress } from "@/lib/onchain";
-import { explorerLinkClass, sectionDividerClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";
 
 export interface PlatformAddressEntry {
@@ -101,12 +97,78 @@ function auditBadgeLabel(entry: AuditEntry): string {
   return "Pending";
 }
 
+/** Bento panel header in the Portfolio / vaults converted style. */
+function PanelHeader({
+  title,
+  subtitle,
+  trailing,
+}: {
+  title: string;
+  subtitle?: string;
+  trailing?: ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-3 p-5 border-b border-white/5">
+      <div className="flex flex-col gap-1.5 min-w-0">
+        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          {title}
+        </h2>
+        {subtitle ? (
+          <p className="text-[12px] text-zinc-500 tracking-wide">{subtitle}</p>
+        ) : null}
+      </div>
+      {trailing ? (
+        <div className="flex shrink-0 items-center gap-2 pb-0.5">{trailing}</div>
+      ) : null}
+    </div>
+  );
+}
+
+const MICRO_LABEL = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+
+/** Single on-chain reference row (label + monospace value / explorer link). */
+function ProofRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-3 border-b border-white/5 last:border-b-0">
+      <span className="text-[13px] text-zinc-400">{label}</span>
+      <span className="min-w-0 text-right">{children}</span>
+    </div>
+  );
+}
+
+/** BaseScan / explorer external link — accent green, monospace hash. */
+function ExplorerLink({
+  href,
+  value,
+  title,
+  ariaLabel,
+}: {
+  href: string;
+  value: string;
+  title: string;
+  ariaLabel: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="inline-flex items-center gap-1 font-mono text-[13px] text-[#A7FB90] hover:underline"
+      title={title}
+      aria-label={ariaLabel}
+    >
+      <span className="truncate">{value}</span>
+      <ExternalLink className="w-3 h-3 opacity-50 shrink-0" aria-hidden="true" />
+    </a>
+  );
+}
+
 interface ProofArticleProps {
   title: string;
   description?: string;
   icon: React.ElementType;
   separated: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function ProofArticle({
@@ -119,18 +181,25 @@ function ProofArticle({
   return (
     <article
       className={cn(
-        "proof-dataroom-item",
-        separated && cn(sectionDividerClass, "proof-article-separated"),
+        "px-5 py-5",
+        separated && "border-t border-white/5",
       )}
     >
-      <div className="flex items-start gap-(--ct-space-3)">
-        <div className="proof-dataroom-icon-box" aria-hidden="true">
-          <Icon className="w-4 h-4 ct-text-muted" />
+      <div className="flex items-start gap-3">
+        <div
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]"
+          aria-hidden="true"
+        >
+          <Icon className="w-4 h-4 text-zinc-400" />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="h4 proof-article-title">{title}</h4>
+          <h4 className="text-[14px] font-semibold text-white leading-snug">
+            {title}
+          </h4>
           {description && (
-            <p className="body-sm proof-article-lede">{description}</p>
+            <p className="mt-1 text-[12px] text-zinc-500 leading-relaxed">
+              {description}
+            </p>
           )}
           {children}
         </div>
@@ -153,31 +222,29 @@ function PlatformAddressRow({
       icon={LinkIcon}
       separated={separated}
     >
-      <ProofRow label={entry.rowLabel ?? "Address"}>
-        {entry.address ? (
-          entry.href ? (
-            <a
-              href={entry.href}
-              target="_blank"
-              rel="noreferrer noopener"
-              className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-              title={entry.address}
-              aria-label={`View address ${entry.address} on explorer`}
-            >
-              <span className="ct-proof-row__truncate">
+      <div className="mt-3">
+        <ProofRow label={entry.rowLabel ?? "Address"}>
+          {entry.address ? (
+            entry.href ? (
+              <ExplorerLink
+                href={entry.href}
+                value={abbreviateAddress(entry.address)}
+                title={entry.address}
+                ariaLabel={`View address ${entry.address} on explorer`}
+              />
+            ) : (
+              <span
+                title={entry.address}
+                className="font-mono text-[13px] text-white truncate"
+              >
                 {abbreviateAddress(entry.address)}
               </span>
-              <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
-            </a>
+            )
           ) : (
-            <span title={entry.address} className="ct-proof-row__truncate">
-              {abbreviateAddress(entry.address)}
-            </span>
-          )
-        ) : (
-          <span className="ct-text-muted">Not available</span>
-        )}
-      </ProofRow>
+            <span className="text-[13px] text-zinc-600">Not available</span>
+          )}
+        </ProofRow>
+      </div>
     </ProofArticle>
   );
 }
@@ -196,61 +263,61 @@ function DeployedContractCard({
       icon={ShieldCheck}
       separated={separated}
     >
-      <ProofRow label="Contract address">
+      <div className="mt-3">
+        <ProofRow label="Contract address">
+          <ExplorerLink
+            href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
+            value={abbreviateAddress(contract.address)}
+            title={contract.address}
+            ariaLabel={`View contract ${contract.name} at ${contract.address} on explorer`}
+          />
+        </ProofRow>
+        <ProofRow label="Deploy tx">
+          {contract.deployTxHash ? (
+            <ExplorerLink
+              href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
+              value={abbreviateAddress(contract.deployTxHash)}
+              title={contract.deployTxHash}
+              ariaLabel={`View deployment transaction ${contract.deployTxHash} on explorer`}
+            />
+          ) : (
+            <span className="text-[13px] text-zinc-600">Pending</span>
+          )}
+        </ProofRow>
+        <ProofRow label="Deploy block">
+          <span className="font-mono text-[13px] text-white">
+            {contract.deployBlock || "Pending"}
+          </span>
+        </ProofRow>
+        <ProofRow label="Network">
+          <span className="text-[13px] text-zinc-300">
+            Test network (chain id 84532)
+          </span>
+        </ProofRow>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        {contract.sourceVerified ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-1 text-[11px] font-medium text-[#A7FB90]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#A7FB90]" aria-hidden="true" />
+            Source-verified @ commit
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-zinc-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden="true" />
+            Deployment provenance unverified
+          </span>
+        )}
         <a
           href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
           target="_blank"
           rel="noreferrer noopener"
-          className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-          title={contract.address}
-          aria-label={`View contract ${contract.name} at ${contract.address} on explorer`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12px] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
+          aria-label={`View ${contract.name} on Basescan`}
         >
-          <span className="ct-proof-row__truncate">
-            {abbreviateAddress(contract.address)}
-          </span>
-          <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
+          View on Basescan
+          <ExternalLink className="w-3.5 h-3.5 text-[#A7FB90]" aria-hidden="true" />
         </a>
-      </ProofRow>
-      <ProofRow label="Deploy tx">
-        {contract.deployTxHash ? (
-          <a
-            href={`${EXPLORER_TX_BASE}${contract.deployTxHash}`}
-            target="_blank"
-            rel="noreferrer noopener"
-            className={cn(explorerLinkClass, "inline-flex items-center gap-1")}
-            title={contract.deployTxHash}
-            aria-label={`View deployment transaction ${contract.deployTxHash} on explorer`}
-          >
-            <span className="ct-proof-row__truncate">
-              {abbreviateAddress(contract.deployTxHash)}
-            </span>
-            <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />
-          </a>
-        ) : (
-          <span className="ct-text-muted">Pending</span>
-        )}
-      </ProofRow>
-      <ProofRow label="Deploy block">{contract.deployBlock || "Pending"}</ProofRow>
-      <ProofRow label="Network">Test network (chain id 84532)</ProofRow>
-
-      <div className="proof-actions-row product-doc-inline-row">
-        <Badge variant={contract.sourceVerified ? "success" : "warning"}>
-          {contract.sourceVerified
-            ? "Source-verified @ commit"
-            : "Deployment provenance unverified"}
-        </Badge>
-        <Button asChild variant="secondary" size="md">
-          <a
-            href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center gap-2"
-            aria-label={`View ${contract.name} on Basescan`}
-          >
-            View on Basescan
-            <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-          </a>
-        </Button>
       </div>
     </ProofArticle>
   );
@@ -260,16 +327,18 @@ export function ContractsAuditTrail({
   platformAddresses = [],
 }: ContractsAuditTrailProps) {
   const deploymentsVerified = DEPLOYED_CONTRACTS.every((c) => c.sourceVerified);
+  const deploymentsProvenance: Provenance = deploymentsVerified
+    ? "attested"
+    : "manual";
 
   return (
-    <div className="product-doc-stack product-doc-stack--roomy">
+    <div className="dark flex flex-col gap-y-5">
       {platformAddresses.length > 0 ? (
-        <Card material="flat">
-          <DashboardPanelHeader
-            eyebrow="On-chain addresses"
-            title="Vault, manager & custody scope"
-            provenance="manual"
-            tone="primary"
+        <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+          <PanelHeader
+            title="On-chain addresses"
+            subtitle="Vault, manager & custody scope"
+            trailing={<ProvenanceBadge kind="manual" />}
           />
           <div>
             {platformAddresses.map((entry, idx) => (
@@ -280,59 +349,91 @@ export function ContractsAuditTrail({
               />
             ))}
           </div>
-        </Card>
+        </section>
       ) : null}
 
-      <Card material="flat">
-        <DashboardPanelHeader
-          eyebrow="Deployed contracts · test network"
-          title="Configured deployment addresses"
-          provenance={deploymentsVerified ? "attested" : "manual"}
-          tone="primary"
+      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+        <PanelHeader
+          title="Deployed contracts · test network"
+          subtitle="Configured deployment addresses"
+          trailing={<ProvenanceBadge kind={deploymentsProvenance} />}
         />
         <div>
           {DEPLOYED_CONTRACTS.map((contract, idx) => (
-            <DeployedContractCard key={contract.address} contract={contract} separated={idx > 0} />
+            <DeployedContractCard
+              key={contract.address}
+              contract={contract}
+              separated={idx > 0}
+            />
           ))}
         </div>
-      </Card>
+      </section>
 
-      <Card material="flat">
-        <DashboardPanelHeader
-          eyebrow="Contract audit trail"
-          title="Review status"
-          provenance="manual"
-          tone="quiet"
+      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+        <PanelHeader
+          title="Contract audit trail"
+          subtitle="Review status"
+          trailing={<ProvenanceBadge kind="manual" />}
         />
 
-        <ul className="divide-y divide-(--ct-border-soft)">
-          {AUDIT_ENTRIES.map((entry) => (
-            <li key={entry.label} className="proof-list-row product-doc-section__head">
-              <div className="flex items-start gap-(--ct-space-3) w-full">
-                <div className="proof-dataroom-icon-box mt-0.5">
-                  <FileText className="w-4 h-4 ct-text-muted" />
+        <ul>
+          {AUDIT_ENTRIES.map((entry, idx) => (
+            <li
+              key={entry.label}
+              className={cn(
+                "px-5 py-4",
+                idx > 0 && "border-t border-white/5",
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]"
+                  aria-hidden="true"
+                >
+                  <FileText className="w-4 h-4 text-zinc-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-(--ct-space-3)">
-                    <div className="product-doc-stack--compact">
-                      <span className="body-sm font-medium ct-text-primary">{entry.label}</span>
-                      <span className="body-xs">{entry.status}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-[13px] font-medium text-white">
+                        {entry.label}
+                      </span>
+                      <span className="text-[12px] text-zinc-500">
+                        {entry.status}
+                      </span>
                     </div>
-                    <div className="product-doc-inline-row shrink-0">
-                      <Badge variant={entry.variant}>{auditBadgeLabel(entry)}</Badge>
+                    <div className="flex shrink-0 items-center gap-2.5">
+                      {entry.variant === "success" ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-1 text-[11px] font-medium text-[#A7FB90]">
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-[#A7FB90]"
+                            aria-hidden="true"
+                          />
+                          {auditBadgeLabel(entry)}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-zinc-400">
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-zinc-500"
+                            aria-hidden="true"
+                          />
+                          {auditBadgeLabel(entry)}
+                        </span>
+                      )}
                       {entry.href !== null ? (
-                        <Button asChild variant="secondary" size="md">
-                          <a
-                            href={entry.href}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="inline-flex items-center gap-2"
-                            aria-label={`View document for ${entry.label}`}
-                          >
-                            View document
-                            <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-                          </a>
-                        </Button>
+                        <a
+                          href={entry.href}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12px] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
+                          aria-label={`View document for ${entry.label}`}
+                        >
+                          View document
+                          <ExternalLink
+                            className="w-3.5 h-3.5 text-[#A7FB90]"
+                            aria-hidden="true"
+                          />
+                        </a>
                       ) : null}
                     </div>
                   </div>
@@ -342,16 +443,16 @@ export function ContractsAuditTrail({
           ))}
         </ul>
 
-        <div className="proof-release-gate product-doc-stack product-doc-stack--tight">
-          <p className="stat-label m-0">Release gate</p>
-          <p className="body-xs ct-text-muted m-0">
+        <div className="border-t border-white/5 px-5 py-4 flex flex-col gap-1.5">
+          <p className={cn(MICRO_LABEL, "m-0")}>Release gate</p>
+          <p className="text-[12px] text-zinc-500 leading-relaxed m-0">
             Production (mainnet) deployment requires completion of an
             independent third-party security audit. The methodology remains
             fixed until a formal approval and investor notification process is
             completed.
           </p>
         </div>
-      </Card>
+      </section>
     </div>
   );
 }

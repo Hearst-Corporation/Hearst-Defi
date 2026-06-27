@@ -26,26 +26,29 @@ export function OnboardingShell({
       checklist={state.checklist}
       irContact={irContact}
     >
-      <div className="onboarding-shell" data-testid="onboarding-shell">
-        <div className="onboarding-shell__frame">
-          <header className="onboarding-shell__header">
+      <div
+        className="dark flex min-h-screen w-full justify-center bg-black px-4 py-10 sm:px-6 lg:py-16"
+        data-testid="onboarding-shell"
+      >
+        <div className="flex w-full max-w-2xl flex-col gap-6">
+          <header className="flex justify-center">
             <Image
               src="/logos/hearst-connect-dark.svg"
               alt="Hearst Connect"
               width={160}
               height={48}
-              className="onboarding-shell__logo"
+              className="h-12 w-auto"
               priority
             />
           </header>
 
           {state.checklist.length > 0 && (
-            <div className="onboarding-shell__stepper">
+            <div className="rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
               <OnboardingChecklistRail items={state.checklist} />
             </div>
           )}
 
-          <div className="onboarding-shell__stage product-doc product-doc-shell">
+          <div className="product-doc product-doc-shell flex flex-col gap-y-5">
             {children}
           </div>
         </div>

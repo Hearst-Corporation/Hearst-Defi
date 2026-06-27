@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 
-import { Button } from "@/components/ui/button";
 import { unbindWallet } from "@/lib/onboarding/actions";
 
 /**
@@ -37,13 +36,13 @@ export function WalletDisconnectButton() {
   }
 
   return (
-    <Button
-      variant="secondary"
-      size="md"
+    <button
+      type="button"
       onClick={onDisconnect}
       disabled={isPending}
+      className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-white/5 px-4 py-2.5 text-[13px] font-bold text-red-400 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {isPending ? "Disconnecting…" : "Disconnect / change wallet"}
-    </Button>
+    </button>
   );
 }

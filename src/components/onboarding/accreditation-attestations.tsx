@@ -92,38 +92,49 @@ export function AccreditationAttestationFields({
   const { allChecked, attestError, toggle, isChecked } = state;
 
   return (
-    <div className="product-doc-stack">
-      <fieldset
-        className="border-none p-0 m-0"
-        aria-label="Accreditation attestations"
-      >
-        <legend className="eyebrow ct-text-muted onb-attest-legend">
-          Please confirm all three attestations to proceed
-        </legend>
+    <div className="flex flex-col gap-4">
+      <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+        <fieldset
+          className="border-none p-0 m-0"
+          aria-label="Accreditation attestations"
+        >
+          <legend className="float-left w-full p-5 border-b border-white/5 text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+            Please confirm all three attestations to proceed
+          </legend>
 
-        <div className="product-doc-stack--actions">
-          {ATTESTATIONS.map(({ id, label }) => (
-            <Checkbox
-              key={id}
-              id={`attest-${id}`}
-              name={id}
-              checked={isChecked(id)}
-              onChange={() => toggle(id)}
-              labelClassName="leading-relaxed"
-            >
-              {label}
-            </Checkbox>
-          ))}
-        </div>
-      </fieldset>
+          <div className="flex flex-col px-5">
+            {ATTESTATIONS.map(({ id, label }) => (
+              <Checkbox
+                key={id}
+                id={`attest-${id}`}
+                name={id}
+                checked={isChecked(id)}
+                onChange={() => toggle(id)}
+                className="items-start gap-3 py-4 border-b border-white/5 last:border-b-0"
+                labelClassName="text-[13px] leading-relaxed text-zinc-200"
+              >
+                {label}
+              </Checkbox>
+            ))}
+          </div>
+        </fieldset>
+      </div>
 
-      <div className="onboarding-chamber__status" aria-live="polite">
+      <div aria-live="polite">
         {!allChecked ? (
-          <p className="body-xs ct-text-faint m-0" role="status">
+          <p
+            className="m-0 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-zinc-500"
+            role="status"
+          >
+            <span aria-hidden className="size-1 rounded-full bg-zinc-500" />
             All three attestations are required to continue.
           </p>
         ) : (
-          <p className="body-xs ct-text-faint m-0 invisible" aria-hidden>
+          <p
+            className="m-0 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-[#A7FB90] invisible"
+            aria-hidden
+          >
+            <span aria-hidden className="size-1 rounded-full bg-[#A7FB90]" />
             Ready to continue.
           </p>
         )}
@@ -131,7 +142,7 @@ export function AccreditationAttestationFields({
 
       {attestError ? (
         <p
-          className="body-xs ct-status-danger m-0"
+          className="m-0 text-[12px] text-red-400"
           aria-live="assertive"
           role="alert"
         >

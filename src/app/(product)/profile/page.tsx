@@ -1,9 +1,6 @@
-import "./profile.css";
-
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
-import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProfileSecurityRow } from "@/components/profile/profile-security-row";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getInvestor } from "@/lib/auth/session";
@@ -15,15 +12,6 @@ import { formatProfileDate } from "@/lib/profile/format-date";
 import { eligibilityVerdict, kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Metric } from "@/components/ui/metric";
-import {
-  DataRow,
-  LegalMetadataRow,
-  MetricGrid,
-} from "@/components/ui/nested-panel";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 import { WalletDisconnectButton } from "@/components/profile/wallet-disconnect-button";
@@ -66,137 +54,168 @@ export default async function ProfilePage() {
   });
 
   return (
-    <div className="product-doc-stack" data-testid="profile-page">
-      <ProductPageHeader
-        titleLead="Welcome back,"
-        titleAccent={profileDisplayName(session.email)}
-        contextLabel="Investor Profile"
-        actions={
-          <Badge variant={session.role === "admin" ? "default" : "accent"}>
-            {session.role === "admin" ? "Admin" : "Investor"}
-          </Badge>
-        }
-        media={
-          <div className="prof-avatar" aria-hidden="true">
-            {session.email.charAt(0).toUpperCase()}
-          </div>
-        }
-      />
+    <div
+      className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8"
+      data-testid="profile-page"
+    >
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
-      <p
-        className={cn(
-          "body-sm prof-verdict",
-          verdict.eligible ? "ct-text-accent" : "ct-text-faint",
-        )}
-        data-testid="profile-eligibility-verdict"
-      >
-        {verdict.label}
-      </p>
-
-      <div className="prof-grid">
-        <Card aria-labelledby="prof-account-label" hoverOverlay={false}>
-          <DashboardPanelHeader
-            id="prof-account-label"
-            title="Identity"
-            titleLevel="section"
-            tone="quiet"
-          />
-
-          <div>
-            <DataRow label="Member since">
-              {investor ? formatProfileDate(investor.createdAt) : "—"}
-            </DataRow>
-            <DataRow label="Wallet">
-              {session.walletAddress
-                ? abbreviateAddress(session.walletAddress)
-                : <span className="ct-text-faint italic">Not connected</span>}
-            </DataRow>
-            <LegalMetadataRow label="KYC status">
-              {investor ? (
-                <Badge variant={kycBadgeVariant(investor.kycStatus)}>
-                  {kycLabel(investor.kycStatus)}
-                </Badge>
-              ) : "—"}
-            </LegalMetadataRow>
-            <LegalMetadataRow label="Accreditation">
-              {investor?.accreditationAttestedAt ? (
-                <>Attested {formatProfileDate(investor.accreditationAttestedAt)}</>
-              ) : (
-                <Button variant="secondary" size="sm" asChild>
-                  <Link href="/onboarding/accreditation">Attest now →</Link>
-                </Button>
-              )}
-            </LegalMetadataRow>
+        {/* HERO */}
+        <section className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-center justify-between pb-3 border-b border-white/10 gap-4">
+            <h1 className="text-[13px] font-semibold text-white uppercase tracking-wider">Investor Profile</h1>
+            <Badge variant={session.role === "admin" ? "default" : "accent"}>
+              {session.role === "admin" ? "Admin" : "Investor"}
+            </Badge>
           </div>
 
-          <div className="doc-page-disclaimer">
-            <p className="body-xs ct-text-faint prof-disclaimer">
-              Product eligibility depends on accreditation, KYC approval, and
-              jurisdictional restrictions.
-            </p>
-          </div>
-        </Card>
-
-        <Card aria-labelledby="prof-summary-label" hoverOverlay={false}>
-          {hasPositions ? (
-            <>
-              <DashboardPanelHeader
-                id="prof-summary-label"
-                title="Investment summary"
-                titleLevel="section"
-                provenance="live"
-                tone="primary"
-              />
-
-              <MetricGrid columns={2}>
-                <Metric variant="nested" label="Active positions" value={positions.length} />
-                <Metric
-                  variant="nested"
-                  label="Total deployed"
-                  value={formatUsdCompact(totalDeployed)}
-                />
-                <Metric
-                  variant="nested"
-                  label="First subscription"
-                  value={
-                    firstSubAt ? formatProfileDate(firstSubAt) : "Awaiting subscription"
-                  }
-                />
-              </MetricGrid>
-            </>
-          ) : (
-            <>
-              <DashboardPanelHeader
-                id="prof-summary-label"
-                title="Investment summary"
-                titleLevel="section"
-                tone="quiet"
-              />
-              <EmptySurface
-                variant="inline"
-                className="h-full"
-                message="Your investment summary starts after your first active position."
-                detail="Once a deposit is confirmed, deployed capital and subscription history appear here."
+          <div className="flex flex-wrap items-center gap-4">
+            <div
+              className="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black text-[20px] font-semibold text-[#A7FB90]"
+              aria-hidden="true"
+            >
+              {session.email.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex flex-col gap-1 min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Welcome back</div>
+              <div className="text-[22px] font-medium text-white leading-none tracking-tight truncate">
+                {profileDisplayName(session.email)}
+              </div>
+              <p
+                className={cn(
+                  "text-[12px] font-medium tracking-wide mt-1",
+                  verdict.eligible ? "text-[#A7FB90]" : "text-zinc-500",
+                )}
+                data-testid="profile-eligibility-verdict"
               >
-                <Button variant="secondary" size="md" asChild className="prof-summary-cta">
+                {verdict.label}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+          {/* IDENTITY PANEL */}
+          <section
+            className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+            aria-labelledby="prof-account-label"
+          >
+            <div className="p-5 border-b border-white/5">
+              <h2 id="prof-account-label" className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+                Identity
+              </h2>
+            </div>
+
+            <div className="px-5 flex flex-col">
+              <div className="flex items-center justify-between py-3 border-b border-white/5">
+                <span className="text-[13px] text-zinc-400">Member since</span>
+                <span className="text-[13px] font-medium text-white">
+                  {investor ? formatProfileDate(investor.createdAt) : "—"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-white/5">
+                <span className="text-[13px] text-zinc-400">Wallet</span>
+                <span className="text-[13px] font-medium text-white">
+                  {session.walletAddress
+                    ? abbreviateAddress(session.walletAddress)
+                    : <span className="text-zinc-500 italic font-normal">Not connected</span>}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-white/5">
+                <span className="text-[13px] text-zinc-400">KYC status</span>
+                <span className="text-[13px] font-medium text-white">
+                  {investor ? (
+                    <Badge variant={kycBadgeVariant(investor.kycStatus)}>
+                      {kycLabel(investor.kycStatus)}
+                    </Badge>
+                  ) : "—"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-white/5">
+                <span className="text-[13px] text-zinc-400">Accreditation</span>
+                <span className="text-[13px] font-medium text-white">
+                  {investor?.accreditationAttestedAt ? (
+                    <>Attested {formatProfileDate(investor.accreditationAttestedAt)}</>
+                  ) : (
+                    <Button variant="secondary" size="sm" asChild>
+                      <Link href="/onboarding/accreditation">Attest now →</Link>
+                    </Button>
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-5 mt-auto">
+              <p className="text-[11px] text-zinc-500 leading-relaxed">
+                Product eligibility depends on accreditation, KYC approval, and
+                jurisdictional restrictions.
+              </p>
+            </div>
+          </section>
+
+          {/* INVESTMENT SUMMARY PANEL */}
+          <section
+            className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+            aria-labelledby="prof-summary-label"
+          >
+            <div className="flex items-end justify-between p-5 border-b border-white/5">
+              <h2 id="prof-summary-label" className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+                Investment summary
+              </h2>
+              {hasPositions ? (
+                <Badge variant="success">Live</Badge>
+              ) : null}
+            </div>
+
+            {hasPositions ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-white/5 bg-[#15191C]">
+                <div className="flex flex-col gap-2 p-5 sm:px-6 border-b sm:border-b-0 sm:border-r border-white/5">
+                  <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Active positions</div>
+                  <div className="text-[22px] font-medium text-white leading-none tracking-tight">{positions.length}</div>
+                </div>
+                <div className="flex flex-col gap-2 p-5 sm:px-6 border-b sm:border-b-0 border-white/5">
+                  <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Total deployed</div>
+                  <div className="text-[22px] font-medium text-white leading-none tracking-tight">{formatUsdCompact(totalDeployed)}</div>
+                </div>
+                <div className="flex flex-col gap-2 p-5 sm:px-6 sm:col-span-2 sm:border-t border-white/5">
+                  <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">First subscription</div>
+                  <div className="text-[22px] font-medium text-white leading-none tracking-tight">
+                    {firstSubAt ? formatProfileDate(firstSubAt) : "Awaiting subscription"}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
+                <p className="text-[13px] font-medium text-zinc-300">
+                  Your investment summary starts after your first active position.
+                </p>
+                <p className="text-[12px] text-zinc-500 leading-relaxed max-w-sm">
+                  Once a deposit is confirmed, deployed capital and subscription history appear here.
+                </p>
+                <Button variant="secondary" size="md" asChild className="mt-2">
                   <Link href="/vaults" aria-label="Explore the vault">
                     Explore the vault
                   </Link>
                 </Button>
-              </EmptySurface>
-            </>
-          )}
-        </Card>
+              </div>
+            )}
+          </section>
+        </div>
 
-        <Card className="prof-security-card" aria-labelledby="prof-security-label" hoverOverlay={false}>
-          <DashboardPanelHeader
-            id="prof-security-label"
-            title="Security"
-            titleLevel="section"
-            tone="quiet"
-          />
+        {/* SECURITY PANEL */}
+        <section
+          className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+          aria-labelledby="prof-security-label"
+        >
+          <div className="p-5 border-b border-white/5">
+            <h2 id="prof-security-label" className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+              Security
+            </h2>
+          </div>
 
-          <div className="ct-divide-soft" role="list">
+          <div className="divide-y divide-white/5" role="list">
             <ProfileSecurityRow
               status="ok"
               title="Email / password"
@@ -254,12 +273,12 @@ export default async function ProfilePage() {
             />
           </div>
 
-          <div className="prof-signout">
+          <div className="flex justify-end p-5 border-t border-white/5">
             <SignOutButton />
           </div>
-        </Card>
-      </div>
+        </section>
 
+      </div>
     </div>
   );
 }

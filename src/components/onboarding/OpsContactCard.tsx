@@ -2,8 +2,6 @@
  * OpsContactCard — Investor Relations representative (env-configured data only).
  */
 
-import { Card } from "@/components/ui/card";
-
 interface OpsContactCardProps {
   name: string;
   title: string;
@@ -18,48 +16,58 @@ export function OpsContactCard({
   calendlyHref,
 }: OpsContactCardProps) {
   return (
-    <Card
-      className="w-full product-doc-stack--actions"
+    <section
+      className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
       role="complementary"
       aria-label="Investor Relations contact"
     >
-      <span className="eyebrow ct-text-muted">Your IR contact</span>
+      <div className="flex items-end justify-between p-5 border-b border-white/5">
+        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          Your IR Contact
+        </h2>
+      </div>
 
-      <div className="product-doc-inline-row product-doc-inline-row--loose">
+      <div className="flex items-center gap-4 p-5">
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center onb-ops-avatar ct-status-success-bg ct-text-accent body-sm font-semibold"
+          className="inline-flex items-center justify-center size-11 shrink-0 rounded-full border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[15px] font-semibold text-[#A7FB90]"
         >
           {name.charAt(0)}
         </span>
 
-        <div className="product-doc-stack--compact min-w-0">
-          <span className="body-sm ct-text-strong truncate font-semibold tracking-tight">
+        <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+          <span className="text-[14px] font-semibold text-white tracking-tight truncate">
             {name}
           </span>
-          <span className="body-xs ct-text-muted truncate">{title}</span>
+          <span className="text-[12px] text-zinc-500 truncate">{title}</span>
         </div>
       </div>
 
-      <div className="product-doc-stack--tight">
+      <div className="flex flex-col">
         <a
           href={`mailto:${email}`}
-          className="body-xs ct-link-accent truncate hover:underline"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[#A7FB90] hover:text-white transition-colors truncate"
           aria-label={`Email ${name} at ${email}`}
         >
-          {email}
+          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            Email
+          </span>
+          <span className="truncate">{email}</span>
         </a>
 
         <a
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="product-doc-inline-row product-doc-inline-row--dense body-xs ct-link-accent hover:underline"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[#A7FB90] hover:text-white transition-colors"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
-          Book a call ↗
+          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            Schedule
+          </span>
+          <span>Book a call ↗</span>
         </a>
       </div>
-    </Card>
+    </section>
   );
 }

@@ -12,11 +12,11 @@ import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflo
 import { freshEvent } from "./fixtures";
 
 describe("Proof Center — DS patterns", () => {
-  it("EventTimeline: active events use ProofRow (ct-proof-row), not ad-hoc dl grid", () => {
+  it("EventTimeline: active events render labelled meta rows (bento) with live provenance", () => {
     const html = renderToStaticMarkup(<EventTimeline events={[freshEvent()]} />);
-    expect(html).toContain("ct-proof-row");
+    // Bento meta rows (Portfolio canon) instead of the legacy ct-proof-row DS.
+    expect(html).not.toContain("ct-proof-row");
     expect(html).toContain("Timestamp");
-    expect(html).not.toMatch(/<dl[^>]*grid-cols/);
     expect(html).toContain(">Live</span>");
   });
 
@@ -54,7 +54,8 @@ describe("Proof Center — DS patterns", () => {
         }}
       />,
     );
-    expect(html).toContain("ct-nested-kpi-grid--4");
+    // Bento KPI grid (Portfolio canon) carries the live provenance + coverage value.
+    expect(html).toContain("bg-[#15191C]");
     expect(html).toContain(">Live</span>");
     expect(html).toContain("1.12×");
   });

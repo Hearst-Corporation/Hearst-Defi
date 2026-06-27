@@ -1645,90 +1645,6 @@
   }
 }
 
-/* Product select card */
-.product-doc .ct-card:has(.vault-select-card) {
-  display: flex;
-  flex-direction: column;
-}
-
-.product-doc .vault-select-card {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--ct-doc-flow-inner-gap);
-  min-height: 100%;
-}
-
-.product-doc .vault-select-card__main {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: var(--ct-space-5);
-}
-
-.product-doc .vault-select-card__meta {
-  display: flex;
-  width: 100%;
-  flex-shrink: 0;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-  min-width: 0;
-}
-
-/* Terms — flat label↔value rows split by hairlines (no nested KPI surfaces). */
-.product-doc .vault-select-card__terms {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
-
-.product-doc .vault-select-card__term-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  gap: var(--ct-space-3);
-  padding-block: var(--ct-space-2_5);
-}
-
-/* Value column right-aligned so all four values form one clean edge. */
-.product-doc .vault-select-card__term-row > dd {
-  text-align: right;
-}
-
-.product-doc .vault-select-card__term-row + .vault-select-card__term-row {
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-.product-doc .vault-select-card__divider-h {
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-.product-doc .vault-select-card__divider-v {
-  display: none;
-}
-
-@container product-doc (min-width: 40rem) {
-  .product-doc .vault-select-card {
-    flex-direction: row;
-    gap: var(--ct-space-8);
-  }
-
-  .product-doc .vault-select-card__meta {
-    width: var(--ct-vault-card-min-w);
-    min-height: 100%;
-  }
-
-  .product-doc .vault-select-card__divider-h {
-    display: none;
-  }
-
-  .product-doc .vault-select-card__divider-v {
-    display: block;
-  }
-}
-
 /* Deposit form — single-column centered checkout flow */
 .product-doc .vault-invest-form-container {
   display: flex;
@@ -1761,95 +1677,8 @@
   margin-top: var(--ct-space-2);
 }
 
-.product-doc .vault-invest-form-main .vault-panel-body--stack {
-  gap: var(--ct-space-8); /* Increased from space-6 */
-}
-
 .product-doc .vault-invest-grid__rail {
   display: none;
-}
-
-/* ── Deposit summary — graphical principal ↔ yield split ─────────────────── */
-.product-doc .vault-deposit-summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.product-doc .vault-deposit-summary__headline {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.product-doc .vault-deposit-summary__total {
-  font-size: var(--ct-text-2xl);
-  font-weight: var(--ct-font-extrabold);
-  letter-spacing: var(--ct-tracking-tighter);
-  color: var(--ct-text-strong);
-}
-
-.product-doc .vault-deposit-summary__bar {
-  display: flex;
-  width: 100%;
-  height: var(--ct-space-3);
-  border-radius: var(--ct-radius-full);
-  overflow: hidden;
-  background: var(--ct-surface-2);
-}
-
-.product-doc .vault-deposit-summary__seg {
-  height: 100%;
-  min-width: 2px;
-}
-
-.product-doc .vault-deposit-summary__seg--principal {
-  background: var(--ct-text-faint);
-}
-
-.product-doc .vault-deposit-summary__seg--yield {
-  background: var(--ct-accent);
-  border-left: 2px solid var(--ct-bg-deep);
-}
-
-.product-doc .vault-deposit-summary__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ct-space-2) var(--ct-space-5);
-}
-
-.product-doc .vault-deposit-summary__legend-item {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-}
-
-.product-doc .vault-deposit-summary__swatch {
-  width: var(--ct-space-2_5);
-  height: var(--ct-space-2_5);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
-}
-
-.product-doc .vault-deposit-summary__swatch--principal {
-  background: var(--ct-text-faint);
-}
-
-.product-doc .vault-deposit-summary__swatch--yield {
-  background: var(--ct-accent);
-}
-
-.product-doc .vault-deposit-summary__kpis {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ct-space-3) var(--ct-space-5);
-  margin: 0;
-  padding-top: var(--ct-space-3);
-  border-top: 1px solid var(--ct-border-soft);
-}
-
-.product-doc .vault-deposit-summary__kpis dt {
-  margin-bottom: var(--ct-space-0_5);
 }
 
 .product-doc .vault-confirm-panel {
@@ -2351,33 +2180,7 @@
 }
 
 /* ── vault-panel-* — shared primitives for term-sheet panels ────────────────
-   Used by VaultPanelHeader, VaultDetailRow, VaultKpiCell, VaultPanelInsetBlock
-   across all vault pages (/vaults/[id], /vaults/[id]/invest, /admin/vaults/*). */
-
-.product-doc .vault-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-3);
-  margin-bottom: var(--ct-space-4);
-}
-
-.product-doc .vault-panel-header__stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
-}
-
-.product-doc .vault-panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-4);
-}
-
-.product-doc .vault-panel-body--stack {
-  gap: var(--ct-space-6);
-}
+   Used by VaultDetailRow / VaultPanelInsetBlock on the S9 confirmation flow. */
 
 .product-doc .vault-panel-row {
   display: flex;
@@ -2413,23 +2216,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
-}
-
-/* Vault selector — override global ct-card--compact crush inside product-doc */
-.product-doc .ct-card--compact:has(.vault-select-card) {
-  padding: var(--ct-space-5) var(--ct-space-6);
-}
-
-.product-doc .ct-card--compact .vault-select-card {
-  gap: var(--ct-doc-flow-inner-gap);
-}
-
-.product-doc .ct-card--compact .vault-select-card__main {
-  gap: var(--ct-space-5);
-}
-
-.product-doc .ct-card--compact .vault-select-card__meta {
-  gap: var(--ct-space-4);
 }
 
 /* ── Position detail (/portfolio/[positionId]) ───────────────────────────── */

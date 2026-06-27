@@ -9,9 +9,9 @@ import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
  */
 export function ProvenanceFooter() {
   return (
-    <footer className="proof-provenance-block">
+    <footer className="proof-provenance-block flex flex-col gap-3">
       <DashboardPanelHeader eyebrow="Read path" title="Data provenance" tone="quiet" />
-      <p className="body-xs ct-prose-md ct-text-muted">
+      <p className="max-w-prose text-[12px] leading-relaxed text-zinc-500">
         On-chain entries are read from the configured network (testnet until mainnet
         deployment). Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
         Vault state is fetched fresh on every request.

@@ -31,12 +31,14 @@ export default function AccreditationPage() {
       crown={
         <>
           <StepProgressBar active="accreditation" />
-          <div className="product-doc-stack--tight">
-            <p className="eyebrow ct-text-muted m-0">
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
               Onboarding · Step 1 of 3
             </p>
-            <h1 className="h1 m-0">Investor accreditation</h1>
-            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
+            <h1 className="text-[22px] font-medium text-white leading-none tracking-tight">
+              Investor accreditation
+            </h1>
+            <p className="text-[13px] text-zinc-400 leading-relaxed text-pretty">
               Hearst Yield Vault is offered exclusively to accredited investors
               under SEC Rule 506(c) and eligible participants under Cayman
               Islands law. Please confirm each statement below.
