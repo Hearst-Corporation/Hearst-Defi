@@ -16,29 +16,6 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
-### fix/nav-augmented-profile-guard
-Owner: Opus — Navigation P0 Repair (Augmented Nav + Profile Guard)
-Branch: fix/nav-augmented-profile-guard
-Worktree: /private/tmp/claude-501/wt-nav-p0
-Started: 2026-06-28
-Status: active
-
-Scope:
-- src/lib/agentic/intent-router.ts (verb-gate resolveAugmentedNav + bug-report guard)
-- src/lib/agentic/intent-router-rules.ts (projection/product confusion guard if needed)
-- src/lib/llm/product-workspace-intent.ts (exclude projection/scenario from product intent)
-- src/app/api/cockpit-chat/route.ts (fast-path profile guard — real profile, not key prefix)
-- src/lib/agentic/__tests__/intent-router.test.ts (P0 FP + allowed + projection tests)
-- src/lib/llm/__tests__/* (parity / profile-guard tests as needed)
-
-Notes:
-- P0 only: close augmented-nav false positives (bare dashboard/control tower/
-  outreach/campaign), bug-report→no-nav, LP→admin-route leak, projection≠product.
-- Forbidden paths untouched: Portfolio/chart, Projection calculations, Outreach
-  draft, output guard, Prisma, Catalyst/UI.
-
----
-
 > NOTE 2026-06-27 : locks fantômes portfolio/vault purgés (agents finis sur main,
 > aucun worktree/branche dédiée vivante). Le chantier "recode des surfaces A→Z"
 > (Catalyst + DS) reprend la main sur portfolio/vaults. Locks retirés :
@@ -120,6 +97,37 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### fix/nav-augmented-profile-guard
+Owner: Opus — Navigation P0 Repair (Augmented Nav + Profile Guard)
+Branch: fix/nav-augmented-profile-guard
+Merged PR: #143 (merge 0f91caa9)
+Released: 2026-06-28
+Status: merged
+
+Result:
+- Verb-gated resolveAugmentedNav (intent-router.ts): bare mentions no longer
+  navigate (control tower / outreach / campaign nus, dashboard/proof-center
+  mentions). Control tower / admin home are admin surfaces → LP gesture resolves
+  nothing (no lying portfolio fallback). Realigns augmented↔legacy/client layers.
+- Bug-report guard (broken/wrong/cassé/confusing/marche pas) → skips the whole nav
+  block: "dashboard is broken", "le dashboard est cassé", "projection is wrong"
+  never navigate.
+- Fast-path profile guard (route.ts): destination scoped to the REAL user, not the
+  routeKey prefix. LP → only LP surfaces (admin-* dropped → closes the leak where
+  open outreach/product workspace/campaign published an admin route to an LP);
+  admin keeps both admin AND LP pages; NavTrace profile reflects resolved space.
+- Projection/product confusion (product-workspace-intent.ts): a bare creation verb
+  only signals PRODUCT creation when paired with a product/vault noun, so "create
+  projection" / "make a forecast" no longer open the Product Workspace; a genuine
+  simulation keeps its Scenario Lab routing (demo-plan depends on it).
+- New nav-p0-augmented-profile.test.ts (51 cases: FP, allowed, profile guard,
+  projection≠product, faisons-un-nouveau-produit, client/server parity, 10×
+  determinism) + updated intent-router nav tests to the verb-gated contract.
+  Mandated suite 202/202, agentic+llm 931/931, typecheck green, gitleaks clean.
+  Smoke on merged main 239/239. Forbidden paths (Portfolio/chart, Projection calc,
+  Outreach draft, output guard, Prisma, Catalyst/UI) untouched. Out-of-scope red:
+  chronic Lint & Typecheck (28 pre-existing eslint errors in unrelated files).
 
 ### fix/chat-nav-guard-safety
 Owner: Opus — Chat Rail Safety + Deterministic Nav Repair
