@@ -37,21 +37,29 @@ describe("router — navigation positive", () => {
     expect(d.negated).toBe(false);
   });
 
-  it("open outreach → navigation admin-outreach", () => {
-    const d = r("open outreach");
+  it("open outreach → navigation admin-outreach (admin, verb-gated)", () => {
+    const d = r("open outreach", { isAdmin: true });
     expect(d.kind).toBe("navigation");
     expect(d.routeKey).toBe("admin-outreach");
   });
 
-  it("dashboard → navigation (admin-dashboard for admin)", () => {
-    expect(r("dashboard", { isAdmin: true }).routeKey).toBe("admin-dashboard");
-    expect(r("dashboard").routeKey).toBe("portfolio");
+  // P0: a VERB-LED dashboard gesture navigates; a BARE mention does not.
+  it("dashboard navigation is verb-gated (admin-dashboard / portfolio)", () => {
+    // verb-led → navigates per profile
+    expect(r("ouvre dashboard", { isAdmin: true }).routeKey).toBe("admin-dashboard");
+    expect(r("ouvre dashboard").routeKey).toBe("portfolio");
+    // bare mention → NOT a navigation (P0 false-positive fix)
+    expect(r("dashboard", { isAdmin: true }).kind).not.toBe("navigation");
+    expect(r("dashboard").kind).not.toBe("navigation");
   });
 
-  it("product workspace → navigation admin-product-workspace", () => {
-    const d = r("product workspace");
-    expect(d.kind).toBe("navigation");
-    expect(d.routeKey).toBe("admin-product-workspace");
+  it("product workspace navigation is verb-gated", () => {
+    // verb-led → navigates (admin surface)
+    expect(r("open product workspace", { isAdmin: true }).routeKey).toBe(
+      "admin-product-workspace",
+    );
+    // bare mention → NOT a navigation
+    expect(r("product workspace").kind).not.toBe("navigation");
   });
 });
 
