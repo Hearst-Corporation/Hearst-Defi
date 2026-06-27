@@ -114,6 +114,15 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     ],
   },
   {
+    id: "marketplace",
+    label: "Marketplace",
+    icon: "TrendingUp",
+    href: "/admin/marketplace",
+    tabs: [
+      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
+    ],
+  },
+  {
     id: "vaults",
     label: "Vaults",
     icon: "Vault",

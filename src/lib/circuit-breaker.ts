@@ -72,4 +72,16 @@ export class CircuitBreaker {
   getStatus(): { state: State; failureCount: number } {
     return { state: this.state, failureCount: this.failureCount };
   }
+
+  /**
+   * Force the breaker back to its initial closed state. Intended for tests
+   * that share a module-level breaker across cases (a failure-path case can
+   * otherwise leave the breaker OPEN and poison later cases). No effect on
+   * runtime behavior — production code never calls this.
+   */
+  reset(): void {
+    this.state = "closed";
+    this.failureCount = 0;
+    this.lastFailureTime = 0;
+  }
 }

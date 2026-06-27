@@ -21,6 +21,7 @@ import {
   Send,
   Settings2,
   ShieldCheck,
+  TrendingUp,
   Users,
   Workflow,
   Zap,
@@ -97,6 +98,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Bot,
   ClipboardCheck,
   Send,
+  TrendingUp,
   Workflow,
   ArrowLeft,
 };

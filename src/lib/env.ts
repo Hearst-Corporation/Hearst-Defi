@@ -66,6 +66,28 @@ const serverEnvSchema = z.object({
   // so NOT NEXT_PUBLIC_. When unset, the BTC loader skips the oracle and serves
   // CoinGecko `live` — provenance is honest either way.
   CHAINLINK_RPC_URL: z.string().url().optional(),
+  // ── DeFi market-data loaders (free, no-key) ──────────────────────────────
+  // Ethereum-mainnet RPC used to read Chainlink stablecoin USD aggregators
+  // (USDC/USDT/DAI) for src/lib/data/stablecoin-prices.ts. Canonical name;
+  // when unset, that loader also honors CHAINLINK_RPC_URL (above) so a single
+  // mainnet RPC powers every on-chain oracle read. When NEITHER is set, the
+  // stablecoin loader skips Chainlink and serves the DefiLlama aggregated price
+  // (`live`) — provenance stays honest (never falsely "oracle"). Free public
+  // RPCs work (e.g. https://eth.llamarpc.com). Server-only (may embed a key).
+  ETH_RPC_URL: z.string().url().optional(),
+  // Binance spot REST base URL override (src/lib/data/binance-price.ts).
+  // Defaults to the read-only market-data mirror https://data-api.binance.vision.
+  // Override for tests or a self-hosted proxy. No key — public market data.
+  BINANCE_API_BASE_URL: z.string().url().optional(),
+  // DefiLlama base-URL overrides (all free, no key). When unset, each loader
+  // uses its public default. `DEFILLAMA_BASE_URL` is the broad fallback honored
+  // by the yields + tvl loaders; the specific names take precedence.
+  //   - yields  → https://yields.llama.fi   (lending-yields.ts)
+  //   - tvl     → https://api.llama.fi       (protocol-tvl.ts)
+  //   - coins   → https://coins.llama.fi     (stablecoin-prices.ts)
+  DEFILLAMA_YIELDS_BASE_URL: z.string().url().optional(),
+  DEFILLAMA_TVL_BASE_URL: z.string().url().optional(),
+  DEFILLAMA_COINS_BASE_URL: z.string().url().optional(),
   // Mining energy cost override (USD per kWh). When unset, the loader falls
   // back to the industry default 0.05 USD/kWh and surfaces a `Manual`
   // provenance badge. Methodology v1.0 promises a partner-attested feed
