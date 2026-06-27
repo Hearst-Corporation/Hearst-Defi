@@ -57,9 +57,9 @@ interface OnboardingChamberProps {
  * Single premium surface — Crown · Body · Sole.
  *
  * Pure Tailwind bento — matches the Portfolio page and the converted vault term
- * sheet: `rounded-2xl border border-white/10 bg-black`, section borders in
- * `border-white/5`. The crown/body/sole zones keep their distinct padding and
- * the optional split (`aside`) stacks below `md` and goes side-by-side above it.
+ * sheet: `rounded-2xl border border-white/10 bg-black`, uniform `p-5` zones and
+ * section borders in `border-white/5` (Portfolio rhythm — no `sm:` overrides).
+ * The optional split (`aside`) stacks below `md` and goes side-by-side above it.
  */
 export function OnboardingChamber({
   crown,
@@ -71,16 +71,16 @@ export function OnboardingChamber({
 }: OnboardingChamberProps) {
   const stack = (
     <>
-      <header className="flex flex-col gap-6 px-5 pt-6 pb-5 sm:px-8 sm:pt-10 sm:pb-6">
+      <header className="flex flex-col gap-4 p-5">
         {crown}
       </header>
-      <div className="flex flex-col gap-6 px-5 pt-2 pb-6 border-t border-white/5 sm:px-8 sm:pb-8">
+      <div className="flex flex-col gap-5 p-5 border-t border-white/5">
         {body}
       </div>
       <footer
         className={cn(
-          "px-5 pt-5 pb-6 sm:px-8 sm:pt-6 sm:pb-8",
-          aside ? "[&>*]:pt-5 sm:[&>*]:pt-6 [&>*]:border-t [&>*]:border-white/5" : "border-t border-white/5 bg-[#15191C]",
+          "p-5",
+          aside ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-white/5" : "border-t border-white/5 bg-[#15191C]",
         )}
       >
         {sole}

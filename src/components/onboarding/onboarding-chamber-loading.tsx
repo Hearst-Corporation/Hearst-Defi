@@ -7,7 +7,7 @@ export function OnboardingChamberLoading() {
       aria-label="Loading onboarding step"
     >
       {/* CROWN */}
-      <div className="flex flex-col gap-6 px-5 pt-6 pb-5 sm:px-8 sm:pt-10 sm:pb-6">
+      <div className="flex flex-col gap-4 p-5">
         <div className="h-10 w-full max-w-[var(--ct-prose-sm)] animate-pulse rounded bg-[#15191C]" />
         <div className="flex flex-col gap-5">
           <div className="h-3 w-40 animate-pulse rounded bg-[#15191C]" />
@@ -18,7 +18,7 @@ export function OnboardingChamberLoading() {
       </div>
 
       {/* BODY */}
-      <div className="flex flex-col gap-6 px-5 pt-2 pb-6 border-t border-white/5 sm:px-8 sm:pb-8">
+      <div className="flex flex-col gap-5 p-5 border-t border-white/5">
         {[0, 1].map((index) => (
           <div
             key={index}
@@ -35,7 +35,7 @@ export function OnboardingChamberLoading() {
       </div>
 
       {/* SOLE */}
-      <div className="px-5 pt-5 pb-6 border-t border-white/5 bg-[#15191C] sm:px-8 sm:pt-6 sm:pb-8">
+      <div className="p-5 border-t border-white/5 bg-[#15191C]">
         <div className="h-12 w-full animate-pulse rounded bg-black/40" />
       </div>
     </article>

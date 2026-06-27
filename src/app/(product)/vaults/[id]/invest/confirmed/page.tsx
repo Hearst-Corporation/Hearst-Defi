@@ -83,7 +83,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const lockPct = Math.round((currentDay / LOCK_DAYS) * 100);
 
   return (
-    <div className="dark flex flex-col gap-y-5 mx-auto w-full max-w-2xl mb-8">
+    <div className="dark flex flex-col gap-y-5 mx-auto w-full max-w-2xl rounded-2xl border border-white/10 bg-zinc-900 p-5 lg:p-6 mb-8">
 
       {/* STEP PROGRESS — funnel step 4 (Confirmed) */}
       <StepProgress active="confirmed" />
