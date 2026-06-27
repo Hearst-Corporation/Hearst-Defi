@@ -123,7 +123,7 @@ export function ChatPresets({
   const presets = role === "admin" ? ADMIN_PRESETS : LP_PRESETS;
 
   return (
-    <div className="ct-chat-presets" role="group" aria-label="Quick actions">
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Quick actions">
       {presets.map((preset) => (
         <button
           key={preset.id}
@@ -131,8 +131,8 @@ export function ChatPresets({
           disabled={!masterAgentEnabled}
           onClick={() => onPick(preset.prompt)}
           className={cn(
-            "ct-chat-preset-chip",
-            !masterAgentEnabled && "ct-chat-preset-chip--disabled",
+            "rounded-full border border-white/10 bg-[#15191C] px-3 py-2 text-[13px] text-zinc-300 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.06] hover:text-white",
+            !masterAgentEnabled && "cursor-not-allowed opacity-35 hover:border-white/10 hover:bg-[#15191C] hover:text-zinc-300",
           )}
         >
           {preset.label}
