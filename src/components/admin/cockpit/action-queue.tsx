@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { EmptySurface } from "@/components/ui/empty-surface";
 import { cn } from "@/lib/cn";
 import type { ActionQueueItem, ActionSeverity } from "@/lib/data/cockpit";
 
@@ -24,24 +23,28 @@ const ACTION_LABELS: Record<string, string> = {
 /**
  * Cockpit Admin — Action Queue content (no panel wrapper/header — provided by parent cell).
  *
- * Lists pending operator actions sorted P0 → P1 → P2 with severity pills.
+ * Lists pending operator actions sorted P0 → P1 → P2 with severity dots.
  * Each row has a CTA button linking to the relevant admin page.
  * Graceful empty state when there are no queued items.
+ *
+ * Bento markup (Portfolio canon) — flat divided rows, semantic danger/warn tones,
+ * single accent green reserved for the product accent (never used here).
  */
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
-      <EmptySurface
-        variant="inline"
-        message="All clear — no operator actions queued."
-        ariaLabel="Operator queue"
-        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
-      />
+      <div
+        role="status"
+        aria-label="Operator queue"
+        className="flex flex-1 items-center justify-center py-8 text-center text-[13px] text-zinc-400"
+      >
+        All clear — no operator actions queued.
+      </div>
     );
   }
 
   return (
-    <ul className="dashboard-command-divide-stack" role="list" aria-label="Operator queue">
+    <ul role="list" aria-label="Operator queue" className="flex flex-col">
       {items.map((item) => (
         <ActionRow key={item.id} item={item} />
       ))}
@@ -51,21 +54,20 @@ export function ActionQueue({ items }: ActionQueueProps) {
 
 function ActionRow({ item }: { item: ActionQueueItem }) {
   const actionLabel = ACTION_LABELS[item.type] ?? item.type;
-  const isCritical = item.severity === "P0";
+  const tone = SEVERITY_TONES[item.severity];
 
   return (
     <li
-      className={cn(
-        "admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--start admin-doc-inline-row--actions dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default py-(--ct-space-1_5)",
-        isCritical && "dashboard-action-row--critical",
-      )}
+      className="flex items-center justify-between gap-3 border-b border-white/5 py-3 transition-colors last:border-b-0 hover:bg-white/[0.02]"
       aria-label={`${item.severity} — ${item.title}`}
     >
-      <div className="admin-doc-inline-row admin-doc-inline-row--start flex-nowrap min-w-0 flex-1 dashboard-action-copy gap-(--ct-space-2)">
-        <SeverityPill severity={item.severity} />
-        <div className="admin-doc-stack admin-doc-stack--micro flex-1 min-w-0 gap-0">
-          <span className="cockpit-value-md truncate block">{item.title}</span>
-          <span className="cockpit-label-sm truncate block opacity-70">
+      <div className="flex min-w-0 flex-1 items-start gap-2.5">
+        <SeverityDot severity={item.severity} />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="block truncate text-[13px] font-medium text-zinc-200">
+            {item.title}
+          </span>
+          <span className="block truncate text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
             {item.context}
           </span>
         </div>
@@ -75,10 +77,8 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "dashboard-action-cta cockpit-label-xs py-[var(--ct-space-0_5)] px-[var(--ct-space-1_5)] rounded-(--ct-radius-sm) border border-transparent transition-colors",
-            item.severity === "P0"
-              ? "ct-status-danger bg-[color:color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] border-[color:color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)]"
-              : "ct-text-muted bg-(--ct-bg-soft) border-(--ct-border-ghost) hover:text-(--ct-text-strong) hover:border-(--ct-border-muted)",
+            "shrink-0 rounded-md border px-2 py-1 text-[10px] uppercase tracking-[0.12em] font-bold transition-colors",
+            tone.cta,
           )}
           aria-label={`${actionLabel} — ${item.title}`}
         >
@@ -89,19 +89,39 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
   );
 }
 
-function SeverityPill({ severity }: { severity: ActionSeverity }) {
-  const styles: Record<ActionSeverity, string> = {
-    P0: "cockpit-severity--p0",
-    P1: "cockpit-severity--p1",
-    P2: "cockpit-severity--p2",
-  };
+function SeverityDot({ severity }: { severity: ActionSeverity }) {
+  const tone = SEVERITY_TONES[severity];
 
   return (
     <span
-      className={cn("stat-label dashboard-severity-pill", styles[severity])}
+      className="mt-0.5 inline-flex shrink-0 items-center gap-1.5"
       aria-label={`Priority ${severity}`}
     >
-      {severity}
+      <span className={cn("size-1.5 rounded-full", tone.dot)} aria-hidden />
+      <span className={cn("text-[10px] font-bold tracking-[0.12em]", tone.text)}>
+        {severity}
+      </span>
     </span>
   );
 }
+
+const SEVERITY_TONES: Record<
+  ActionSeverity,
+  { dot: string; text: string; cta: string }
+> = {
+  P0: {
+    dot: "bg-red-400",
+    text: "text-red-400",
+    cta: "border-red-400/20 bg-red-400/10 text-red-400 hover:bg-red-400/20",
+  },
+  P1: {
+    dot: "bg-amber-400",
+    text: "text-amber-400",
+    cta: "border-amber-400/20 bg-amber-400/10 text-amber-400 hover:bg-amber-400/20",
+  },
+  P2: {
+    dot: "bg-zinc-500",
+    text: "text-zinc-500",
+    cta: "border-white/5 bg-white/5 text-zinc-400 hover:border-white/10 hover:text-zinc-200",
+  },
+};

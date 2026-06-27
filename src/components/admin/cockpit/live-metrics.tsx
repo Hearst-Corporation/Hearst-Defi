@@ -21,8 +21,8 @@ const usdCompact = new Intl.NumberFormat("en-US", {
 /**
  * Cockpit Admin — Live Metrics content (no panel wrapper/header — provided by parent cell).
  *
- * Compact table rows per vault: TVL, mining margin, risk score,
- * oracle delay, BTC posture.
+ * Compact bento rows per vault: TVL, mining margin, risk score,
+ * oracle delay, BTC posture. Bento Tailwind (Portfolio canon).
  */
 export function LiveMetrics({ vaults }: LiveMetricsProps) {
   if (vaults.length === 0) {
@@ -31,14 +31,14 @@ export function LiveMetrics({ vaults }: LiveMetricsProps) {
         variant="inline"
         message="No vault telemetry yet."
         ariaLabel="Vault health"
-        className="flex-1 flex items-center justify-center py-(--ct-space-8)"
+        className="flex-1 flex items-center justify-center py-8"
       />
     );
   }
 
   return (
-    <div aria-label="Vault health" className="dashboard-live-metrics">
-      <div className="dashboard-command-divide-stack">
+    <div aria-label="Vault health" className="@container min-w-0">
+      <div className="flex flex-col">
         {vaults.map((vault) => (
           <VaultMetricRow key={vault.vaultId} vault={vault} />
         ))}
@@ -58,41 +58,41 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   const marginColor =
     vault.miningMarginScore < 15
-      ? "ct-status-danger"
+      ? "text-red-400"
       : vault.miningMarginScore < 40
-        ? "ct-status-warning"
-        : "ct-status-success";
+        ? "text-amber-400"
+        : "text-[#A7FB90]";
 
   const riskColor =
     vault.riskScore > 70
-      ? "ct-status-danger"
+      ? "text-red-400"
       : vault.riskScore > 45
-        ? "ct-status-warning"
-        : "ct-status-success";
+        ? "text-amber-400"
+        : "text-[#A7FB90]";
 
   return (
     <div
-      className="dashboard-action-row cockpit-hover-row cockpit-hover-row--inset cursor-default py-(--ct-space-1_5)"
+      className="cursor-default border-b border-white/5 py-3 last:border-b-0"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
-      <div
-        className="dashboard-live-metrics__vault-head admin-doc-inline-row admin-doc-inline-row--between admin-doc-inline-row--actions min-w-0 cockpit-metric-head mb-(--ct-space-1)"
-      >
+      <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
         <Link
           href={vault.href}
-          className="cockpit-value-md cockpit-metric-link uppercase"
+          className="truncate text-[13px] font-medium uppercase text-white transition-colors hover:text-[#A7FB90]"
         >
           {vault.vaultName}
         </Link>
         {vault.hasTimelineData ? (
           <VaultStatusPill status={vault.status} className="shrink-0 scale-75 origin-right" />
         ) : (
-          <span className="shrink-0 cockpit-label-xs">No telemetry</span>
+          <span className="shrink-0 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            No telemetry
+          </span>
         )}
       </div>
 
       {vault.hasTimelineData ? (
-        <div className="dashboard-live-metrics__grid mt-(--ct-space-1) py-(--ct-space-1) gap-(--ct-space-2) border-t border-(--ct-border-ghost)">
+        <div className="grid grid-cols-2 gap-2 border-t border-white/5 pt-2 @[14rem]:grid-cols-3 @[22rem]:grid-cols-5">
           <MetricCell
             label="TVL"
             value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
@@ -114,20 +114,22 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           <MetricCellWithTooltip
             label="Oracle"
             value={oracleLabel}
-            valueClassName={oracleStale ? "ct-status-danger" : undefined}
+            valueClassName={oracleStale ? "text-red-400" : undefined}
             tooltipTitle="Oracle Delay"
             tooltipDesc="Time since last price feed update. >6h considered stale. Updated every block."
           />
           <MetricCellWithTooltip
             label="BTC"
             value={formatBtcPostureLabel(vault.btcPosture)}
-            valueClassName={vault.btcPosture === null ? "ct-text-muted" : undefined}
+            valueClassName={vault.btcPosture === null ? "text-zinc-500" : undefined}
             tooltipTitle="BTC Posture"
             tooltipDesc="Current Bitcoin exposure strategy: Long, Hedge, Neutral, or Accumulation."
           />
         </div>
       ) : (
-        <p className="cockpit-label-sm m-0 opacity-60">Awaiting first telemetry close</p>
+        <p className="m-0 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 opacity-60">
+          Awaiting first telemetry close
+        </p>
       )}
     </div>
   );
@@ -143,13 +145,13 @@ function MetricCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="admin-doc-stack admin-doc-stack--micro min-w-0 gap-0">
-      <span className="cockpit-label-xs opacity-70 truncate">
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <span className="truncate text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
         {label}
       </span>
       <span
         className={cn(
-          "cockpit-value-sm truncate",
+          "truncate text-[13px] font-medium text-white tabular-nums",
           valueClassName,
         )}
       >
@@ -189,4 +191,3 @@ function MetricCellWithTooltip({
     </Tooltip>
   );
 }
-

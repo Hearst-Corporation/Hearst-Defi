@@ -1,5 +1,3 @@
-import "./risk-summary-responsive.css";
-import "./system-readiness.css";
 import "./dashboard.css";
 
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
