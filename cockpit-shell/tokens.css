@@ -256,7 +256,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   overflow: hidden;
   padding: 32px 40px var(--ct-space-3);
 }
-@keyframes ct-spin { to { transform: rotate(360deg); } }
+
 .ct-embed-sub code {
   background: var(--ct-surface-2); padding: 1px 6px; border-radius: 5px;
   font-size: var(--ct-text-micro); color: var(--ct-text-body);
@@ -387,10 +387,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 .ct-chat-msg.assistant { background: var(--ct-surface-1); color: var(--ct-text-body); align-self: flex-start; max-width: 95%; border: 1px solid var(--ct-border-soft); }
 .ct-chat-msg.assistant code { background: rgba(0,0,0,0.35); padding: 1px 5px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: var(--ct-text-2xs); }
 .ct-chat-chart-progress span { display: block; height: 100%; border-radius: inherit; background: var(--ct-accent); transition: width var(--ct-dur-base) var(--ct-ease); }
-@keyframes ct-chat-chart-loading {
-  0% { background-position: 120% 0; }
-  100% { background-position: -80% 0; }
-}
+
 .ct-chat-send-dots span {
   width: 4px; height: 4px; border-radius: 50%;
   background: currentColor;
@@ -401,10 +398,6 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 @keyframes ct-chat-send-pulse {
   0%, 100% { opacity: 0.3; transform: scale(0.85); }
   50% { opacity: 1; transform: scale(1); }
-}
-@keyframes ct-chat-thinking-breathe {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 1; }
 }
 
 /* ── CHAT SETTINGS (vue réglages du rail droit) ── */
@@ -468,10 +461,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   accent-color: var(--ct-accent);
   width: 14px; height: 14px; cursor: pointer; flex-shrink: 0;
 }
-@keyframes ct-chat-cursor-pulse {
-  0%, 100% { opacity: 1; transform: scaleY(1); }
-  50% { opacity: 0.3; transform: scaleY(0.8); }
-}
+
 .ct-chat-error p {
   margin: 0;
   font-size: var(--ct-text-2xs-plus);

@@ -1882,10 +1882,6 @@
 }
 
 /* ---- Skeletons (loading.tsx) ---- */
-@keyframes pf-skeleton-pulse {
-  0%, 100% { opacity: var(--ct-opacity-45); }
-  50% { opacity: var(--ct-opacity-80); }
-}
 
 /* =============================================================================
    13. ZERO-STATE OVERRIDES
@@ -1895,10 +1891,6 @@
    ============================================================================= */
 
 /* Staggered entry for status rows */
-@keyframes pf-status-row-entry {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
-}
 
 /* Center placeholder content inside each plate. */
 .pf-container--zero .pf-positions-empty,
@@ -2390,11 +2382,6 @@
    MOTION KEYFRAMES + reduced-motion freeze
    ============================================================================= */
 
-@keyframes pf-shimmer {
-  0% { background-position: 200% 0; transform: translateX(-100%); }
-  100% { background-position: -200% 0; transform: translateX(100%); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pf-container *,
   .pf-container *::before,
@@ -2471,11 +2458,6 @@
   padding: 6px var(--ct-space-2) var(--ct-space-2);
   min-width: 0;
   width: 100%;
-}
-
-@keyframes pf-card-entry {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Empty state CTA helpers */

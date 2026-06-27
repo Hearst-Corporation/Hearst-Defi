@@ -3455,10 +3455,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-chat-list::-webkit-scrollbar-track     { background: transparent; }
 .ct-chat-list::-webkit-scrollbar-thumb     { background: var(--ct-border-soft); border-radius: var(--ct-radius-full); }
 
-@keyframes ct-chat-msg-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: 0.875rem; }
 /* The product-context suffix ("· Hearst Connect") is secondary: hide it on the
    intermediate viewport band where the shell compresses the chat rail (~1024px),
@@ -3483,10 +3479,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 /* Breathe the live rule in lockstep with the existing dot pulse (1.4s/--ct-ease)
    so the two accent moments read as one heartbeat, not two timers. */
-@keyframes ct-rail-id-rule {
-  0%, 100% { opacity: var(--ct-opacity-55); }
-  50%      { opacity: 1; }
-}
 
 /* COLLAPSED 48px handle — the {open && …} blocks (incl. this identity stack) are
    not rendered, so nothing here can leak. Belt-and-braces: hard-suppress the
@@ -3536,16 +3528,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   margin: 0;
   text-align: center;
 }
-@keyframes ct-chat-ctx-pulse {
-  0%, 100% {
-    box-shadow: 0 0 6px currentColor,
-                0 0 0 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 10px currentColor,
-                0 0 0 4px color-mix(in srgb, var(--ct-accent) 0%, transparent);
-  }
-}
+
 .ct-chat-msg-md h1,
 .ct-chat-msg-md h2,
 .ct-chat-msg-md h3 {

@@ -384,11 +384,6 @@ code,
 /* Glass panel utility — definitive version lives in cockpit.css against
    --ct-… tokens. Kept here only as a no-op safety net for legacy bundles. */
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
 /* a11y — respecte la préférence système de mouvement réduit */
 @media (prefers-reduced-motion: reduce) {
   *,
