@@ -17,6 +17,37 @@ describe("matchesNavPath", () => {
   });
 });
 
+describe("strategy sub-nav — projection menu simplification", () => {
+  const strategy = ADMIN_SECTIONS.find((s) => s.id === "strategy");
+
+  it("Projection stays a visible sub-nav destination", () => {
+    const visible = visibleSubNavTabs(strategy!.tabs).map((t) => t.id);
+    expect(visible).toContain("projection");
+  });
+
+  it("Projection Preview is hidden from the sub-nav (route kept reachable)", () => {
+    const visible = visibleSubNavTabs(strategy!.tabs).map((t) => t.id);
+    expect(visible).not.toContain("projection-preview");
+    // route still defined (not deleted)
+    const tab = strategy!.tabs.find((t) => t.id === "projection-preview");
+    expect(tab?.href).toBe("/admin/projection/preview");
+    expect(tab?.hideFromSubNav).toBe(true);
+  });
+
+  it("Scenario Lab is sandbox/internal — hidden from sub-nav, route kept", () => {
+    const visible = visibleSubNavTabs(strategy!.tabs).map((t) => t.id);
+    expect(visible).not.toContain("scenario-lab");
+    const tab = strategy!.tabs.find((t) => t.id === "scenario-lab");
+    expect(tab?.href).toBe("/admin/scenario-lab");
+    expect(tab?.hideFromSubNav).toBe(true);
+  });
+
+  it("Preview label is clearly a demo, not a normal product page", () => {
+    const tab = strategy!.tabs.find((t) => t.id === "projection-preview");
+    expect(tab?.label.toLowerCase()).toContain("demo");
+  });
+});
+
 describe("adminSectionToNavItem", () => {
   it("derives the admin rail entry shape from a section", () => {
     const strategy = ADMIN_SECTIONS.find((section) => section.id === "strategy");
