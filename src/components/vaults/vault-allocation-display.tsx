@@ -1,5 +1,3 @@
-import { Progress } from "@/components/ui/progress";
-import { allocationStrokeFor } from "@/lib/allocation-colors";
 import {
   ALLOCATION_ADMIN_LABELS,
   ALLOCATION_BUCKETS,
@@ -10,28 +8,63 @@ import {
   type VaultAllocationFacts,
 } from "@/lib/vaults/vault-detail-facts";
 
+// Bento accent tiers — a single green (#A7FB90) stepped down by opacity so the
+// donut + dots read as one colour family (matches the Portfolio Capital & Yield
+// bento). Index 0 = full accent, then 50%, 25%, 12% for any further sleeves.
+const ACCENT = "#A7FB90";
+const ACCENT_STROKES = [
+  "#A7FB90",
+  "rgba(167,251,144,0.5)",
+  "rgba(167,251,144,0.25)",
+  "rgba(167,251,144,0.12)",
+] as const;
+const ACCENT_DOT_CLASSES = [
+  "bg-[#A7FB90]",
+  "bg-[#A7FB90]/50",
+  "bg-[#A7FB90]/25",
+  "bg-[#A7FB90]/12",
+] as const;
+
+function accentStrokeFor(index: number): string {
+  return ACCENT_STROKES[index] ?? ACCENT;
+}
+
+function accentDotClassFor(index: number): string {
+  return ACCENT_DOT_CLASSES[index] ?? ACCENT_DOT_CLASSES[0];
+}
+
 export function VaultAllocationAdminRows({
   facts,
 }: {
   facts: VaultAllocationFacts;
 }) {
+  const rows = ALLOCATION_BUCKETS.map((bucket, index) => ({
+    bucket,
+    label: ALLOCATION_ADMIN_LABELS[bucket],
+    bps: allocationBps(facts, bucket),
+    index,
+  }));
+
   return (
-    <div className="mt-(--ct-space-4) admin-doc-stack admin-doc-stack--relaxed">
-      {ALLOCATION_BUCKETS.map((bucket) => {
-        const bps = allocationBps(facts, bucket);
-        const label = ALLOCATION_ADMIN_LABELS[bucket];
-        return (
-          <div key={bucket} className="admin-doc-stack admin-doc-stack--compact">
-            <div className="admin-doc-row-spread">
-              <span className="stat-label">{label}</span>
-              <span className="mono tabular body-sm ct-text-primary">
-                {bpsToPercent(bps)}%
-              </span>
-            </div>
-            <Progress value={bps} max={10000} label={`${label} allocation`} />
-          </div>
-        );
-      })}
+    <div className="mt-5 flex flex-col gap-4">
+      {rows.map((row) => (
+        <div
+          key={row.bucket}
+          className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-white/5 last:border-b-0 last:pb-0"
+        >
+          <div
+            className={`size-2.5 rounded-full border-2 border-[#15191C] ${accentDotClassFor(
+              row.index,
+            )}`}
+          />
+          <span className="text-[13px] font-medium text-zinc-200">
+            {row.label}
+          </span>
+          <span className="text-sm font-bold text-white tabular-nums">
+            {bpsToPercent(row.bps)}%
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -41,23 +74,33 @@ export function VaultAllocationInvestorList({
 }: {
   facts: VaultAllocationFacts;
 }) {
-  const segments = ALLOCATION_BUCKETS.map((bucket) => ({
+  const segments = ALLOCATION_BUCKETS.map((bucket, sourceIndex) => ({
     bucket,
     bps: allocationBps(facts, bucket),
-    color: allocationStrokeFor(bucket),
+    sourceIndex,
   })).filter((s) => s.bps > 0);
 
-  // Donut chart calculations
-  const radius = 40;
-  const strokeWidth = 12;
-  const normalizedRadius = radius - strokeWidth / 2;
-  const circumference = normalizedRadius * 2 * Math.PI;
+  // Bento donut geometry (matches Portfolio Capital & Yield): viewBox 0 0 160
+  // 160, cx/cy 80, r 66, strokeWidth 16. The wrapper carries the -rotate-90 so
+  // each segment's `rotation` is measured clockwise from 12 o'clock.
+  const cx = 80;
+  const cy = 80;
+  const radius = 66;
+  const strokeWidth = 16;
+  const circumference = radius * 2 * Math.PI;
 
   // Precompute each segment's cumulative rotation before render so we never
   // mutate a variable during the JSX map (react-hooks/immutability).
   const donutSegments = segments.reduce<
-    Array<{ bucket: (typeof segments)[number]["bucket"]; color: string; bps: number; strokeDasharray: string; rotation: number }>
-  >((acc, s) => {
+    Array<{
+      bucket: (typeof segments)[number]["bucket"];
+      stroke: string;
+      bps: number;
+      strokeDasharray: string;
+      rotation: number;
+      index: number;
+    }>
+  >((acc, s, index) => {
     const precedingBps = acc.reduce((sum, prev) => sum + prev.bps, 0);
     const pct = s.bps / 10000;
     // Canonical donut dasharray (DESIGN_SYSTEM §5): `${arc} ${C - arc}` — the gap
@@ -66,65 +109,74 @@ export function VaultAllocationInvestorList({
     const arc = pct * circumference;
     acc.push({
       bucket: s.bucket,
-      color: s.color,
+      stroke: accentStrokeFor(index),
       bps: s.bps,
       strokeDasharray: `${arc} ${circumference - arc}`,
       rotation: (precedingBps / 10000) * 360,
+      index,
     });
     return acc;
   }, []);
 
   return (
-    <div className="vault-alloc-chart-circular">
-      <div className="vault-alloc-donut">
-        <svg
-          viewBox={`0 0 ${radius * 2} ${radius * 2}`}
-          className="vault-alloc-donut__svg"
-        >
+    <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-8">
+      <div className="relative size-[160px] shrink-0 mx-auto md:mx-0">
+        <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
+          <circle
+            cx={cx}
+            cy={cy}
+            r={radius}
+            fill="none"
+            stroke="#15191C"
+            strokeWidth={strokeWidth}
+          />
           {donutSegments.map((s) => (
             <circle
               key={s.bucket}
-              cx={radius}
-              cy={radius}
-              r={normalizedRadius}
-              fill="transparent"
-              stroke={s.color}
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill="none"
+              stroke={s.stroke}
               strokeWidth={strokeWidth}
               strokeDasharray={s.strokeDasharray}
-              strokeDashoffset={0}
-              transform={`rotate(${s.rotation - 90} ${radius} ${radius})`}
-              className="ct-donut-seg"
+              strokeLinecap="round"
+              transform={`rotate(${s.rotation} ${cx} ${cy})`}
             />
           ))}
         </svg>
-        <div className="vault-alloc-donut__center">
-          <span className="body-xs ct-text-muted uppercase tracking-widest">Target</span>
-          <span className="body-lg font-bold ct-text-strong">100%</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">
+            Target
+          </span>
+          <span className="text-[22px] font-medium text-white leading-none">
+            100%
+          </span>
         </div>
       </div>
 
-      <div className="vault-alloc-legend">
-        {segments.map((s) => (
-          <div key={s.bucket} className="vault-alloc-legend__item group/item">
-            <div className="flex items-center gap-(--ct-space-3)">
-              <span
-                className="w-2 h-2 rounded-full shrink-0 transition-transform duration-300 group-hover/item:scale-125"
-                style={{ background: s.color }}
-              />
-              <div className="flex flex-col">
-                <div className="flex items-baseline gap-(--ct-space-2)">
-                  <span className="body-sm font-semibold ct-text-strong group-hover/item:ct-text-primary">
-                    {ALLOCATION_INVESTOR_LABELS[s.bucket]}
-                  </span>
-                  <span className="body-xs mono ct-text-accent">
-                    {bpsToPercent(s.bps, 0)}%
-                  </span>
-                </div>
-                <p className="body-xs ct-text-faint leading-tight mt-0.5">
-                  {ALLOCATION_DESCRIPTIONS[s.bucket]}
-                </p>
-              </div>
+      <div className="flex flex-col gap-4 min-w-0">
+        {donutSegments.map((s) => (
+          <div
+            key={s.bucket}
+            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-white/5 last:border-b-0 last:pb-0"
+          >
+            <div
+              className={`size-2.5 rounded-full border-2 border-[#15191C] ${accentDotClassFor(
+                s.index,
+              )}`}
+            />
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[13px] font-medium text-zinc-200">
+                {ALLOCATION_INVESTOR_LABELS[s.bucket]}
+              </span>
+              <p className="text-[12px] text-zinc-500 leading-tight">
+                {ALLOCATION_DESCRIPTIONS[s.bucket]}
+              </p>
             </div>
+            <span className="text-sm font-bold text-white tabular-nums self-start">
+              {bpsToPercent(s.bps, 0)}%
+            </span>
           </div>
         ))}
       </div>

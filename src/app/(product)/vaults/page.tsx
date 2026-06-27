@@ -29,7 +29,7 @@ export default async function VaultsPage() {
             detail="Products appear here once a vault is live on Base Sepolia with a confirmed deployment address."
           />
         ) : (
-          <div className="product-doc-stack">
+          <div className="flex flex-col gap-5">
             {vaults.map((vault) => (
               <ProductSelectCard key={vault.id} vault={vault} />
             ))}

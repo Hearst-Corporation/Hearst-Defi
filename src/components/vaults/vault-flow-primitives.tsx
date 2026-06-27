@@ -11,10 +11,16 @@ export function VaultPanelHeader({
   trailing?: ReactNode;
 }) {
   return (
-    <div className="vault-panel-header">
-      <div className="vault-panel-header__stack">
-        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-        <h3 className="h3">{title}</h3>
+    <div className="flex items-start justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-1.5">
+        {eyebrow ? (
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h3 className="text-[13px] font-semibold uppercase tracking-wider text-white">
+          {title}
+        </h3>
       </div>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
     </div>
@@ -31,13 +37,13 @@ export function VaultKpiCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="ct-metric-nested">
-      <span className="stat-label text-(--ct-text-nano) uppercase tracking-widest ct-text-muted">
+    <div className="flex flex-col gap-2 rounded-lg border border-white/5 bg-[#15191C] p-4">
+      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
         {label}
       </span>
       <span
         className={cn(
-          "h4 tabular mono ct-text-strong ct-metric-nested__value",
+          "text-[18px] font-medium leading-none tracking-tight text-white tabular-nums",
           valueClassName,
         )}
       >
@@ -57,10 +63,14 @@ export function VaultDetailRow({
   action?: ReactNode;
 }) {
   return (
-    <div className="vault-panel-row">
-      <div className="vault-panel-row__stack">
-        <span className="eyebrow ct-text-muted">{label}</span>
-        <span className="body-sm tabular mono ct-text-primary">{value}</span>
+    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+          {label}
+        </span>
+        <span className="text-[13px] font-medium text-white tabular-nums">
+          {value}
+        </span>
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
@@ -78,7 +88,7 @@ export function VaultPanelLink({
       {...rest}
       href={href}
       className={cn(
-        "body-xs ct-text-accent-strong font-medium no-underline hover:underline",
+        "text-[12px] font-medium text-[#A7FB90] no-underline transition-colors hover:underline",
         className,
       )}
     >
@@ -94,5 +104,14 @@ export function VaultPanelInsetBlock({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("vault-panel-inset-block", className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "rounded-lg border border-white/5 bg-[#15191C] p-4",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }

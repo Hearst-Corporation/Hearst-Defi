@@ -52,12 +52,12 @@ export default async function InvestDepositPage({ params }: PageProps) {
       titleLead="Allocate"
       titleAccent="capital"
       description={
-        <span className="body-sm ct-text-muted">
+        <span className="text-[13px] text-zinc-400">
           {vault.name} · {vault.ticker} · institutional subscription checkout on Base Sepolia testnet
         </span>
       }
       headerBelowStepper={
-        <p className="body-xs ct-text-muted vault-invest-step-context">
+        <p className="text-[11px] uppercase tracking-[0.1em] text-zinc-500">
           Step 3 of 4 · Review allocation amount, wallet readiness, and confirm deposit
         </p>
       }
