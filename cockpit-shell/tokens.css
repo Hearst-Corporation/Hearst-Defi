@@ -170,8 +170,6 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   color: var(--ct-accent-strong);
 }
 
-
-
 /* ── LOGOUT HERO (page profil) ── */
 .ct-logout-hero {
   appearance: none; font: inherit; cursor: pointer;
@@ -369,40 +367,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   overflow: hidden;
   padding: 32px 40px var(--ct-space-3);
 }
-.ct-product-frame { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--ct-bg-deep); }
-.ct-product-host { position: absolute; inset: 0; }
-.ct-product-embed { width: 100%; height: 100%; border: 0; display: block; background: var(--ct-bg-deep); position: absolute; inset: 0; }
 
-/* ── EMBED — overlay chargement / non démarré ── */
-.ct-embed-overlay {
-  position: absolute; inset: 0; z-index: 2;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 14px; padding: 40px;
-  text-align: center;
-  background:
-    radial-gradient(420px 280px at 50% 38%, color-mix(in srgb, var(--pc) 16%, transparent), transparent 70%),
-    var(--ct-bg-deep);
-}
-.ct-embed-spinner {
-  width: 34px; height: 34px; border-radius: 50%;
-  border: 3px solid var(--ct-border);
-  border-top-color: var(--pc, var(--ct-accent-strong));
-  animation: ct-spin 0.8s linear infinite;
-}
-@keyframes ct-spin { to { transform: rotate(360deg); } }
-.ct-embed-badge {
-  width: 48px; height: 48px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: var(--ct-text-sm); font-weight: 800; letter-spacing: 0.04em;
-  color: var(--pc);
-  background: color-mix(in srgb, var(--pc) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--pc) 55%, transparent);
-}
-.ct-embed-title { font-size: var(--ct-text-sm); font-weight: 600; color: var(--ct-text-strong); }
-.ct-embed-sub {
-  font-size: var(--ct-text-2xs-plus); color: var(--ct-text-muted); max-width: 460px; line-height: 1.6;
-}
 .ct-embed-sub code {
   background: var(--ct-surface-2); padding: 1px 6px; border-radius: 5px;
   font-size: var(--ct-text-micro); color: var(--ct-text-body);
@@ -626,69 +591,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 .ct-chat-chart-foot { display: flex; justify-content: space-between; font-size: var(--ct-text-deci); color: var(--ct-text-muted); }
 .ct-chat-chart-progress { height: 3px; margin-top: 5px; border-radius: 999px; background: var(--ct-surface-3); overflow: hidden; }
 .ct-chat-chart-progress span { display: block; height: 100%; border-radius: inherit; background: var(--ct-accent); transition: width var(--ct-dur-base) var(--ct-ease); }
-.ct-chat-chart-note { margin: 7px 0 0; font-size: var(--ct-text-deci); line-height: 1.45; color: var(--ct-text-muted); }
-@keyframes ct-chat-chart-loading {
-  0% { background-position: 120% 0; }
-  100% { background-position: -80% 0; }
-}
-.ct-chat-form {
-  display: flex; align-items: flex-end; gap: 8px;
-  padding: 10px 10px 10px 14px;
-  margin-top: 12px;
-  background: var(--ct-surface-2);
-  border: 1px solid var(--ct-border-strong);
-  border-radius: 20px;
-  box-shadow: var(--ct-shadow-depth);
-  transition: border-color var(--ct-dur-base) var(--ct-ease),
-              box-shadow var(--ct-dur-base) var(--ct-ease);
-}
-.ct-chat-form:focus-within {
-  border-color: var(--ct-border-accent);
-  box-shadow: 0 0 0 3px var(--ct-accent-soft), var(--ct-shadow-depth);
-}
-.ct-chat-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--ct-text-primary);
-  padding: 6px 0;
-  font-size: var(--ct-text-xs); font-family: inherit; line-height: 1.5;
-  resize: none;
-  outline: none;
-  outline: none;
-}
-.ct-chat-input::placeholder { color: var(--ct-text-muted); }
-.ct-chat-send {
-  flex-shrink: 0;
-  width: 36px; height: 36px;
-  background: var(--ct-accent);
-  color: var(--ct-text-strong);
-  border: none;
-  border-radius: 50%;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: var(--ct-text-deca); font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--ct-accent) 40%, transparent);
-  transition: transform var(--ct-dur-base) var(--ct-ease),
-              box-shadow var(--ct-dur-base) var(--ct-ease),
-              background var(--ct-dur-base) var(--ct-ease);
-}
-.ct-chat-send:hover:not(:disabled) {
-  transform: translateY(-1px);
-  background: var(--ct-accent-strong);
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--ct-accent) 55%, transparent);
-}
-.ct-chat-send:active:not(:disabled) { transform: translateY(0); }
-.ct-chat-send:disabled {
-  opacity: 0.4;
-  cursor: default;
-  background: var(--ct-surface-3);
-  box-shadow: none;
-}
-.ct-chat-send-dots {
-  display: inline-flex; gap: 3px; align-items: center;
-}
+
 .ct-chat-send-dots span {
   width: 4px; height: 4px; border-radius: 50%;
   background: currentColor;
@@ -699,21 +602,6 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
 @keyframes ct-chat-send-pulse {
   0%, 100% { opacity: 0.3; transform: scale(0.85); }
   50% { opacity: 1; transform: scale(1); }
-}
-
-/* ── INDICATEUR DE RÉFLEXION (logo H sous la bulle assistant pendant le streaming) ── */
-.ct-chat-thinking {
-  display: inline-flex; align-items: center;
-  align-self: flex-start;
-  padding-left: 14px;
-  margin-top: -4px;
-  pointer-events: none;
-  opacity: 0.55;
-  animation: ct-chat-thinking-breathe 1.8s var(--ct-ease) infinite;
-}
-@keyframes ct-chat-thinking-breathe {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 1; }
 }
 
 /* ── CHAT SETTINGS (vue réglages du rail droit) ── */
@@ -792,51 +680,7 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   accent-color: var(--ct-accent);
   width: 14px; height: 14px; cursor: pointer; flex-shrink: 0;
 }
-.ct-chat-settings-product {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px;
-  background: var(--ct-surface-1);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: 10px;
-}
-.ct-chat-settings-product-name {
-  font-size: var(--ct-text-xs); font-weight: 600;
-  color: var(--ct-text-primary);
-}
-.ct-chat-ctx-dot--accent {
-  background: var(--ct-accent);
-}
-.ct-chat-msg-plain {
-  margin: 0;
-  white-space: pre-wrap;
-}
-/* ── CHAT CURSOR (streaming feedback) ── */
-.ct-chat-cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1.1em;
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  background: var(--ct-accent);
-  box-shadow: 0 0 8px var(--ct-accent);
-  animation: ct-chat-cursor-pulse 0.8s ease-in-out infinite;
-}
-@keyframes ct-chat-cursor-pulse {
-  0%, 100% { opacity: 1; transform: scaleY(1); }
-  50% { opacity: 0.3; transform: scaleY(0.8); }
-}
 
-/* ── CHAT ERROR & RETRY ── */
-.ct-chat-error {
-  margin: 16px 0;
-  padding: 12px 16px;
-  background: color-mix(in srgb, var(--ct-status-warning, #FFD02B) 8%, var(--ct-surface-1));
-  border: 1px solid color-mix(in srgb, var(--ct-status-warning, #FFD02B) 20%, transparent);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 .ct-chat-error p {
   margin: 0;
   font-size: var(--ct-text-2xs-plus);
@@ -1050,7 +894,6 @@ button, a, input, textarea, select, [role="button"], .ct-product-host {
   color: var(--ct-status-warning, #FFD02B);
   background: color-mix(in srgb, var(--ct-status-warning, #FFD02B) 10%, transparent);
 }
-
 
 /* Scrollbars */
 ::-webkit-scrollbar { width: 8px; height: 8px; }

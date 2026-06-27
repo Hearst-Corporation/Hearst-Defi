@@ -130,7 +130,6 @@
   --ct-status-info-soft: rgba(96, 165, 250, 0.10);
   --ct-status-info-border: rgba(96, 165, 250, 0.20);
 
-
   /* Radius tokens (alignés sur le DS) */
   --ct-radius-xs: 0.125rem; /* 2px — chart legend swatch, micro chips */
   --ct-radius-sm: 0.5rem;   /* 6 → 8px */
@@ -2815,7 +2814,6 @@ body {
    is the single internal scroll region. Natural scroll below the gate + phone.
    Height floor aligned with portfolio/dashboard/proof (52rem). ── */
 
-
 /* ── Scroll naturel à toutes les tailles — l'ancien fit-pin no-scroll a été
    SUPPRIMÉ. Le lab shell prend sa hauteur de contenu, main#main-content scrolle. ── */
 @media all {
@@ -3186,7 +3184,6 @@ body {
   height: 100%;
 }
 
-
 /* Card hover wash disabled — keeps graphite calm over cockpit bg */
 .ct-card .ct-overlay-surface0 {
   display: none;
@@ -3359,7 +3356,6 @@ pre.ct-surface-1.rounded-md {
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wide);
 }
-
 
 /* ── PILL utilitaire (badges/tags heritage) ── */
 .ct-pill {
@@ -4027,7 +4023,6 @@ button.ct-choice-card {
   border-color: transparent;
 }
 
-
 /* Bouton nav : icône au-dessus + label dessous, visibles en permanence.
    Centré sur le même axe que le badge H (38×38) du launcher. */
 .ct-rail-item {
@@ -4644,18 +4639,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 .ct-chat-list::-webkit-scrollbar-track     { background: transparent; }
 .ct-chat-list::-webkit-scrollbar-thumb     { background: var(--ct-border-soft); border-radius: var(--ct-radius-full); }
 
-@keyframes ct-chat-msg-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.ct-chat-msg                               { 
-  display: flex; 
-  flex-direction: column; 
-  padding: var(--ct-space-2) 0;
-  font-size: var(--ct-text-sm); /* 15px — fixed */
-  animation: ct-chat-msg-fade-in 0.4s var(--ct-ease) forwards;
-}
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: 0.875rem; }
 
 /* Header title — Title Case (drop the package uppercase), single-line ellipsis on narrow rails.
@@ -4793,14 +4776,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 /* Breathe the live rule in lockstep with the existing dot pulse (1.4s/--ct-ease)
    so the two accent moments read as one heartbeat, not two timers. */
-@keyframes ct-rail-id-rule {
-  0%, 100% { opacity: var(--ct-opacity-55); }
-  50%      { opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* Hold the lit green rule (still clearly "live") but stop the motion. */
-  .ct-rail-right-id--live::after { animation: none; opacity: 1; }
-}
 
 /* COLLAPSED 48px handle — the {open && …} blocks (incl. this identity stack) are
    not rendered, so nothing here can leak. Belt-and-braces: hard-suppress the
@@ -4894,137 +4869,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   text-align: center;
 }
 
-/* Quick-action preset chips (agent-canvas presets). Flat, token-driven; wrap so
-   2–3 chips never overflow the chat rail. */
-.ct-chat-presets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--ct-space-2);
-}
-.ct-chat-preset-chip {
-  padding: var(--ct-space-2) var(--ct-space-3);
-  font-size: var(--ct-text-xs);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-2);
-  color: var(--ct-text-strong);
-  cursor: pointer;
-  transition: border-color var(--ct-dur-fast) var(--ct-ease), background var(--ct-dur-fast) var(--ct-ease);
-}
-.ct-chat-preset-chip:hover {
-  border-color: var(--ct-accent);
-  background: var(--ct-surface-3);
-}
-.ct-chat-preset-chip--disabled,
-.ct-chat-preset-chip:disabled {
-  opacity: var(--ct-opacity-35);
-  cursor: not-allowed;
-}
-
-/* Send button — guarantee a PERFECT circle regardless of content (arrow SVG,
-   streaming dots) or disabled overrides. width===height (token) + aspect-ratio
-   filet + full radius + flex-shrink so the form's flex row never stretches it. */
-.ct-chat-send {
-  flex-shrink: 0;
-  width: var(--ct-space-9);  /* 36px */
-  height: var(--ct-space-9);
-  aspect-ratio: 1;
-  border-radius: var(--ct-radius-full);
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-/* Send — disabled feedback: subtle outline + opacity, not a flat grey fill.
-   Keeps the circle (radius + aspect) — only the fill/border change. */
-.ct-chat-send:disabled {
-  opacity: var(--ct-opacity-45);
-  background: transparent;
-  border: 1px solid var(--ct-border-soft);
-  color: var(--ct-text-muted);
-  box-shadow: none;
-}
-
-/* Queued prompt indicator — a prompt typed while a reply is streaming waits
-   here (honest: NOT sent yet). Discreet, single line, truncates long prompts. */
-.ct-chat-queued {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1_5);
-  margin-top: var(--ct-space-2);
-  padding: var(--ct-space-1_5) var(--ct-space-2_5);
-  border: 1px solid var(--ct-border-soft);
-  border-radius: var(--ct-radius-md);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-secondary);
-  min-width: 0;
-}
-.ct-chat-queued-dot {
-  flex-shrink: 0;
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-accent);
-  animation: ct-chat-send-pulse 1s var(--ct-ease) infinite;
-}
-.ct-chat-queued-text {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ct-text-primary);
-}
-.ct-chat-queued-hint {
-  flex-shrink: 0;
-  color: var(--ct-text-muted);
-}
-@media (prefers-reduced-motion: reduce) {
-  .ct-chat-queued-dot { animation: none; }
-}
-
-/* Input — taller default (3 lines) + auto-grow. The textarea height is driven in
-   JS (ChatKimi resizes on input up to a cap); this caps it visually too and gives
-   it room to breathe so multi-line messages stay comfortable. min-height matches
-   ~3 rows of the 13px body; max-height = the JS cap (168px), after which it
-   scrolls internally instead of pushing the message list. */
-.ct-chat-input {
-  min-height: 4.5rem;   /* ~3 lines at 13px / 1.5 */
-  max-height: 10.5rem;  /* 168px — JS auto-grow cap */
-  overflow-y: auto;
-}
-
-/* Header context dot — "live" pulse while the assistant is streaming a reply.
-   A soft accent halo breathes around the product pastille so the rail header
-   signals an in-progress turn without adding chrome. The base dot already
-   carries `box-shadow: 0 0 8px currentColor`; we layer an animated accent ring
-   on top via box-shadow keyframes. */
-.ct-chat-ctx-dot--live {
-  animation: ct-chat-ctx-pulse 1.4s var(--ct-ease) infinite;
-}
-@keyframes ct-chat-ctx-pulse {
-  0%, 100% {
-    box-shadow: 0 0 6px currentColor,
-                0 0 0 0 color-mix(in srgb, var(--ct-accent) 55%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 10px currentColor,
-                0 0 0 4px color-mix(in srgb, var(--ct-accent) 0%, transparent);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ct-chat-ctx-dot--live { animation: none; }
-}
-
-/* Markdown body — Swiss Design refinements.
-   Tight heading scale, generous line-height, and refined code blocks.
-   No halos, no glows — just typography and spacing. */
-.ct-chat-msg-md {
-  line-height: 1.65;
-  color: var(--ct-text-body);
-}
 .ct-chat-msg-md h1,
 .ct-chat-msg-md h2,
 .ct-chat-msg-md h3 {

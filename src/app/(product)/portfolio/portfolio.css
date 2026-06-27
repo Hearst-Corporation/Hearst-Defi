@@ -260,7 +260,6 @@
   }
 }
 
-
 /* ---- SCROLL NATURALLY: all viewports, no viewport-lock ---- */
 .pf-container--fit,
 .pf-container--zero { height: auto; overflow: visible; }
@@ -923,7 +922,6 @@
   color: var(--ct-accent-light);
 }
 
-
 /* Welded into the hero body right slot — flat graphite, no surface of its own. */
 .pf-status-panel {
   flex: 1 1 auto;
@@ -941,7 +939,6 @@
   padding: 0;
   margin-bottom: 0;
 }
-
 
 /* icon · label · (value / meta) — value+meta right-aligned. FLAT rows: no
    mini-box (no radius, no per-row plate). Items are separated by a single
@@ -2209,10 +2206,6 @@
 }
 
 /* ---- Skeletons (loading.tsx) ---- */
-@keyframes pf-skeleton-pulse {
-  0%, 100% { opacity: var(--ct-opacity-45); }
-  50% { opacity: var(--ct-opacity-80); }
-}
 
 .pf-skeleton-greeting-title,
 .pf-skeleton-greeting-ticker,
@@ -2267,10 +2260,6 @@
    ============================================================================= */
 
 /* Staggered entry for status rows */
-@keyframes pf-status-row-entry {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
-}
 
 .pf-status-row {
   animation: pf-status-row-entry 0.6s var(--ct-ease) both;
@@ -2785,12 +2774,6 @@
    MOTION KEYFRAMES + reduced-motion freeze
    ============================================================================= */
 
-@keyframes pf-shimmer {
-  0% { background-position: 200% 0; transform: translateX(-100%); }
-  100% { background-position: -200% 0; transform: translateX(100%); }
-}
-
-
 @media (prefers-reduced-motion: reduce) {
   .pf-container *,
   .pf-container *::before,
@@ -2915,177 +2898,6 @@
   padding: 6px var(--ct-space-2) var(--ct-space-2);
   min-width: 0;
   width: 100%;
-}
-
-.pf-position-card {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  min-height: 5.5rem;
-  background: var(--ct-graphite-subtle-bg);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-xl);
-  text-decoration: none;
-  transition: 
-    background var(--ct-dur-base) var(--ct-ease),
-    border-color var(--ct-dur-slow) var(--ct-ease),
-    transform var(--ct-dur-base) var(--ct-ease),
-    box-shadow var(--ct-dur-base) var(--ct-ease);
-  overflow: hidden;
-  box-shadow: none;
-  animation: pf-card-entry 0.5s var(--ct-ease) both;
-}
-
-@keyframes pf-card-entry {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.pf-position-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ct-text-strong) 4%, transparent),
-    transparent 60%
-  );
-  mask: linear-gradient(var(--ct-text-strong) 0 0) content-box, linear-gradient(var(--ct-text-strong) 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.pf-position-card:hover {
-  border-color: color-mix(in srgb, var(--ct-accent) 15%, var(--ct-graphite-border-nested));
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--ct-surface-0) 80%, transparent);
-}
-
-.pf-position-card--active {
-  background: var(--ct-surface-1);
-  border-color: color-mix(in srgb, var(--ct-graphite-border-nested) 60%, transparent);
-}
-
-.pf-position-card--active::after {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 2px;
-  background: var(--ct-accent);
-  border-radius: 2px 0 0 2px;
-  pointer-events: none;
-}
-
-
-.pf-position-card__content {
-  flex: 1 1 auto;
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr auto;
-  align-items: center;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  gap: var(--ct-space-5);
-  min-width: 0;
-}
-
-.pf-position-card__main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  min-width: 0;
-}
-
-.pf-position-card__name {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.pf-position-card__status {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--ct-space-px) var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-tertiary);
-  background: color-mix(in srgb, var(--ct-surface-2) 60%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-}
-
-.pf-position-card__status--active {
-  color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-accent) 10%, transparent);
-  border-color: color-mix(in srgb, var(--ct-accent) 22%, transparent);
-}
-
-.pf-position-card__metrics {
-  display: contents; /* Let children participate in the grid */
-}
-
-.pf-position-card__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.pf-position-card__label {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-1);
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-}
-
-/* Position value — uses text-strong (a dollar amount, not a status signal) */
-.pf-position-card__value {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-extrabold);
-  color: var(--ct-text-strong);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-}
-
-/* APY range — accent because it IS the yield signal */
-.pf-position-card__apy {
-  font-size: var(--ct-text-lg);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-accent);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-}
-
-.pf-position-card__action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--ct-space-8);
-  height: var(--ct-space-8);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  color: var(--ct-text-tertiary);
-  transition:
-    transform var(--ct-dur-fast) var(--ct-ease),
-    color var(--ct-dur-fast) var(--ct-ease),
-    border-color var(--ct-dur-fast) var(--ct-ease),
-    background var(--ct-dur-fast) var(--ct-ease);
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.pf-position-card:hover .pf-position-card__action {
-  transform: translateX(3px);
-  color: var(--ct-accent);
-  border-color: color-mix(in srgb, var(--ct-accent) 25%, transparent);
-  background: color-mix(in srgb, var(--ct-accent) 6%, transparent);
 }
 
 /* Empty state CTA helpers */
