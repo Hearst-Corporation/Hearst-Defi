@@ -79,14 +79,12 @@ export function formatPeriod(period: string, refYear: number): string {
 // These are viewBox coordinate values, not CSS spacing tokens.
 
 const VB_W = 560;
-const VB_H = 180;
-const BAR_AREA_TOP = 32;
-const BAR_AREA_BOT = 140;  // bottom of bars (label zone below)
+const VB_H = 168;
+const BAR_AREA_TOP = 20;
+const BAR_AREA_BOT = 138;  // bottom of bars (label zone below)
 const BAR_AREA_H = BAR_AREA_BOT - BAR_AREA_TOP;
-const LABEL_Y = BAR_AREA_BOT + 14;
-const AMOUNT_Y = BAR_AREA_BOT + 28;
-const BAR_FILL = "color-mix(in srgb, var(--ct-surface-3) 92%, var(--ct-text-strong) 8%)";
-const BAR_STROKE = "color-mix(in srgb, var(--ct-text-strong) 10%, transparent)";
+const LABEL_Y = BAR_AREA_BOT + 13;
+const AMOUNT_Y = BAR_AREA_BOT + 26;
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -109,6 +107,33 @@ const COMPACT_LABEL_INDICES = [0, 3, 6, 9] as const;
 
 export function shouldShowCompactPeriodLabel(index: number): boolean {
   return (COMPACT_LABEL_INDICES as readonly number[]).includes(index);
+}
+
+const MONTHS_ON_AXIS = 12;
+
+/**
+ * Always render a fixed 12-month axis ending at the current month, so the bars
+ * stay a consistent (narrow) width whether the investor has 1 payout or 12 —
+ * never a few giant bars stretched across the panel. Months without a payout
+ * become empty slots (amount 0): label only, no bar. Real entries (and the
+ * forecast) are placed in their month; anything outside the window is dropped.
+ */
+export function buildTwelveMonthAxis(
+  entries: DistribEntry[],
+  now: Date,
+): DistribEntry[] {
+  const byPeriod = new Map(entries.map((e) => [e.period, e]));
+  const y = now.getUTCFullYear();
+  const m = now.getUTCMonth();
+  const axis: DistribEntry[] = [];
+  for (let i = MONTHS_ON_AXIS - 1; i >= 0; i--) {
+    const d = new Date(Date.UTC(y, m - i, 1));
+    const period = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    axis.push(
+      byPeriod.get(period) ?? { period, amountUsdc: 0, paidAt: d },
+    );
+  }
+  return axis;
 }
 
 // ── SVG component ─────────────────────────────────────────────────────────────
@@ -134,6 +159,7 @@ function BarChart({
   const totalGaps = (n - 1) * GAP;
   const BAR_W = Math.floor((VB_W - totalGaps) / n);
   const forecastPatternId = `${uid}-forecast-hatch`;
+  const barGradId = `${uid}-bar-grad`;
   const titleId = `${uid}-title`;
 
   const maxAmount = Math.max(...entries.map((e) => e.amountUsdc), 1);
@@ -142,7 +168,7 @@ function BarChart({
     <div className="relative w-full h-full">
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
-        preserveAspectRatio="xMidYMax meet"
+        preserveAspectRatio="xMidYMid meet"
         className="pf-distrib-chart block h-full w-full"
         role="img"
         aria-labelledby={titleId}
@@ -153,7 +179,13 @@ function BarChart({
         <title id={titleId}>{`Payout calendar — ${n} periods`}</title>
 
         <defs>
-          {/* Diagonal hatch pattern for forecast bar */}
+          {/* Accent-green bar fill — bright top edge fading down into the panel. */}
+          <linearGradient id={barGradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--ct-accent)" stopOpacity="0.7" />
+            <stop offset="55%" stopColor="var(--ct-accent)" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="var(--ct-accent)" stopOpacity="0.07" />
+          </linearGradient>
+          {/* Diagonal hatch pattern for forecast bar — accent-tinted */}
           <pattern
             id={forecastPatternId}
             patternUnits="userSpaceOnUse"
@@ -166,7 +198,7 @@ function BarChart({
               y1="0"
               x2="0"
               y2="6"
-              stroke="var(--ct-text-muted)"
+              stroke="var(--ct-accent)"
               strokeWidth="2"
               style={{ strokeOpacity: "var(--ct-opacity-50)" }}
             />
@@ -182,6 +214,25 @@ function BarChart({
           const periodLabel = formatPeriod(entry.period, refYear);
           const amountLabel = isForecast ? "~" + formatUsdFull(entry.amountUsdc) : formatUsdFull(entry.amountUsdc);
           const cx = bx + BAR_W / 2;
+
+          // Empty month slot (no payout that month) — render just the month
+          // label so the 12-month axis stays consistent without a giant bar.
+          if (!isForecast && entry.amountUsdc <= 0) {
+            return (
+              <g key={i} className="pf-distrib-chart__group">
+                <text
+                  x={cx}
+                  y={LABEL_Y}
+                  textAnchor="middle"
+                  fill="var(--ct-text-muted)"
+                  className="pf-distrib-chart__period pf-distrib-chart__period--empty"
+                  aria-hidden="true"
+                >
+                  {periodLabel}
+                </text>
+              </g>
+            );
+          }
 
           const barEl = isForecast ? (
             // Forecast: dashed-border rect + hatch fill
@@ -234,11 +285,12 @@ function BarChart({
                 y={by}
                 width={BAR_W}
                 height={bh}
-                fill={BAR_FILL}
-                stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
-                strokeWidth={isCurrent ? "1.5" : "0.75"}
-                style={{ opacity: 1 }}
+                fill={`url(#${barGradId})`}
+                stroke="var(--ct-accent)"
+                strokeWidth={isCurrent ? "1.5" : "1"}
+                style={{ opacity: isCurrent ? 1 : 0.92 }}
                 rx="2"
+                className="pf-distrib-bar"
               />
             </a>
           ) : (
@@ -249,13 +301,13 @@ function BarChart({
               y={by}
               width={BAR_W}
               height={bh}
-              fill={BAR_FILL}
-              stroke={isCurrent ? "var(--ct-accent)" : BAR_STROKE}
-              strokeWidth={isCurrent ? "1.5" : "0.75"}
+              fill={`url(#${barGradId})`}
+              stroke="var(--ct-accent)"
+              strokeWidth={isCurrent ? "1.5" : "1"}
               rx="2"
               aria-label={`${periodLabel} distribution ${amountLabel}`}
-              className="pf-distrib-chart__bar-group"
-              style={{ opacity: 1, "--index": i } as React.CSSProperties}
+              className="pf-distrib-chart__bar-group pf-distrib-bar"
+              style={{ opacity: isCurrent ? 1 : 0.92, "--index": i } as React.CSSProperties}
             />
           );
 
@@ -462,7 +514,7 @@ export function DistribCalendar({
       {header}
       <div className="pf-distrib-chart-shell">
         <BarChart
-          entries={entries}
+          entries={buildTwelveMonthAxis(entries, now)}
           refYear={refYear}
           currentPeriod={currentPeriod}
         />

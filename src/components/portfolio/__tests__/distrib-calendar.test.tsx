@@ -127,7 +127,7 @@ describe("DistribCalendar — single entry", () => {
 
   it("barHeight for single entry == BAR_AREA_H (max bar, clamped at 100%)", () => {
     // When amount === maxAmount → ratio = 1 → full height
-    const BAR_AREA_H = 140 - 32; // matches constants in component (BAR_AREA_BOT - BAR_AREA_TOP)
+    const BAR_AREA_H = 138 - 20; // matches constants in component (BAR_AREA_BOT - BAR_AREA_TOP)
     const h = barHeight(2310, 2310);
     expect(h).toBe(BAR_AREA_H);
   });

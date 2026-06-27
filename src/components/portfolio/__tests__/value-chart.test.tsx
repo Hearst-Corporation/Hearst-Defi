@@ -81,7 +81,7 @@ describe("ValueChart", () => {
     expect(html).not.toContain("Positions");
   });
 
-  it("renders the SVG chart when ledger data is present", () => {
+  it("renders the canvas plot when ledger data is present", () => {
     const html = renderToStaticMarkup(
       <ValueChart
         positions={[
@@ -108,7 +108,8 @@ describe("ValueChart", () => {
       />,
     );
 
-    expect(html).toContain("<svg");
+    expect(html).toContain("<canvas");
+    expect(html).toContain("pf-vc-plot");
     expect(html).toContain("Ledger-based");
   });
 
@@ -144,7 +145,7 @@ describe("ValueChart", () => {
     );
 
     expect(html).toContain("Hourly NAV prints");
-    expect(html).toContain("<path");
+    expect(html).toContain("pf-vc-plot__canvas");
     expect(html).not.toContain("Ledger-based");
   });
 

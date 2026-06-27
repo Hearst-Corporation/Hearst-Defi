@@ -1,17 +1,24 @@
 {
-  "iterations": 10300,
-  "repeats": 10,
-  "corpusSize": 1030,
-  "positiveCorpusSize": 1008,
+  "iterations": 11312,
+  "repeats": 8,
+  "corpusSize": 1414,
+  "positiveCorpusSize": 1392,
   "negativeCorpusSize": 22,
-  "positiveMatches": 1008,
+  "positiveMatches": 1392,
   "matchRatePct": 100,
   "falsePositives": 1,
   "falsePositivesSensitive": 0,
   "falsePositivesBenign": 1,
   "falseNegatives": 0,
-  "determinismBreaks": 0,
+  "determinismBreaks": 168,
   "sampleFailures": [
-    "[FP conversational] \"peux-tu m'expliquer la preuve de réserve\" expected null got=proof-center (lp=proof-center admin=null)"
+    "[FP conversational] \"peux-tu m'expliquer la preuve de réserve\" expected null got=proof-center (lp=proof-center admin=null)",
+    "[NONDETERMINISTIC lp] \"ouvre dashboard\" pass0=admin-dashboard pass1=portfolio",
+    "[NONDETERMINISTIC lp] \"va sur dashboard\" pass0=admin-dashboard pass1=portfolio",
+    "[NONDETERMINISTIC lp] \"montre-moi dashboard\" pass0=admin-dashboard pass1=portfolio",
+    "[NONDETERMINISTIC lp] \"go to dashboard\" pass0=admin-dashboard pass1=portfolio",
+    "[NONDETERMINISTIC lp] \"show dashboard\" pass0=admin-dashboard pass1=portfolio",
+    "[NONDETERMINISTIC lp] \"affiche dashboard\" pass0=admin-dashboard pass1=portfolio",
+    "[NONDETERMINISTIC lp] \"open dashboard\" pass0=admin-dashboard pass1=portfolio"
   ]
 }

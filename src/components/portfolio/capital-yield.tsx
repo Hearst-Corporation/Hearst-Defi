@@ -2,7 +2,7 @@ import {
   PfCockpitPanel,
   PfCockpitPanelHeader,
 } from "@/components/portfolio/pf-cockpit-panel";
-import type { YieldSource } from "@/components/portfolio/yield-stack";
+import { BUCKET_COLOR, type YieldSource } from "@/components/portfolio/yield-stack";
 import type { AllocationBucketSlice } from "@/lib/data/portfolio";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
@@ -53,17 +53,6 @@ export interface CapitalYieldProps {
    */
   hasActivePosition?: boolean;
 }
-
-/**
- * Monochrome-green bucket palette — single accent, graded by mixing toward a
- * neutral. No raw hex/rgb in TSX (derivations via color-mix tokens).
- */
-const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
-  mining: "var(--ct-accent)",
-  usdc_base: "color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-neutral))",
-  btc_tactical: "color-mix(in srgb, var(--ct-accent) 46%, var(--ct-text-neutral))",
-  stable_reserve: "color-mix(in srgb, var(--ct-accent) 28%, var(--ct-text-neutral))",
-};
 
 /* ── Donut geometry — canonical convention (radius − stroke/2, rotate −90) ── */
 const DONUT_RADIUS = 80;

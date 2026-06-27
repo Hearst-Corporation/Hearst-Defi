@@ -1,21 +1,23 @@
 /**
- * TODO: Update this component to use your client-side framework's link
- * component. We've provided examples of how to do this for Next.js, Remix, and
- * Inertia.js in the Catalyst documentation:
- *
- * https://catalyst.tailwindui.com/docs#client-side-router-integration
+ * Catalyst Link — wired to the Next.js App Router `next/link` (per Catalyst docs
+ * "client-side router integration"). The shipped default rendered a bare <a>,
+ * which violates this project's "next/link, never <a href>" rule. All Catalyst
+ * components that render links (Button-as-link, Dropdown items, Pagination,
+ * Sidebar/Navbar items…) funnel through THIS component, so wiring it once makes
+ * the whole kit route-correct.
  */
 
-import * as Headless from '@headlessui/react'
-import React, { forwardRef } from 'react'
+import * as Headless from "@headlessui/react";
+import NextLink, { type LinkProps } from "next/link";
+import React, { forwardRef } from "react";
 
 export const Link = forwardRef(function Link(
-  props: { href: string } & React.ComponentPropsWithoutRef<'a'>,
-  ref: React.ForwardedRef<HTMLAnchorElement>
+  props: LinkProps & React.ComponentPropsWithoutRef<"a">,
+  ref: React.ForwardedRef<HTMLAnchorElement>,
 ) {
   return (
     <Headless.DataInteractive>
-      <a {...props} ref={ref} />
+      <NextLink {...props} ref={ref} />
     </Headless.DataInteractive>
-  )
-})
+  );
+});

@@ -51,77 +51,80 @@ export function PortfolioStatusPanel({
         : "Reference snapshot";
 
   return (
-    <PfCockpitPanel
-      variant="wide"
-      chrome={embedded ? "embedded" : "panel"}
-      aria-label="Portfolio status"
-      className="pf-status-panel p-0!"
-    >
-      <div className="pf-sp2-body">
-        <div className="pf-sp2-tiles">
-          <div className="pf-sp2-tile">
-            <div className="pf-sp2-tile__icon">
-              <ArrowDownToLine size={13} strokeWidth={2.2} aria-hidden />
+    <div className="pf-status-panel pf-embedded-pane p-0!" aria-label="Portfolio status">
+      <div className="pf-status-body">
+        <div className="pf-status-tiles">
+          <div className="pf-status-tile">
+            <div className="pf-status-tile__top">
+              <span className="pf-status-tile__icon">
+                <ArrowDownToLine size={13} strokeWidth={2.2} aria-hidden />
+              </span>
+              <span className="pf-status-tile__label">Principal</span>
             </div>
-            <span className="pf-sp2-tile__label">Principal</span>
-            <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
+            <span className={cn("pf-status-tile__value tabular", !hasPositions && "pf-status-tile__value--dim")}>
               {hasPositions ? formatUsdCompact(deployedUsdc) : DASH}
             </span>
-            <span className="pf-sp2-tile__sub">Net deposits</span>
+            <span className="pf-status-tile__sub">Net deposits</span>
           </div>
 
-          <div className="pf-sp2-tile">
-            <div className="pf-sp2-tile__icon">
-              <Wallet size={13} strokeWidth={2.2} aria-hidden />
+          <div className="pf-status-tile">
+            <div className="pf-status-tile__top">
+              <span className="pf-status-tile__icon">
+                <Wallet size={13} strokeWidth={2.2} aria-hidden />
+              </span>
+              <span className="pf-status-tile__label">Positions</span>
             </div>
-            <span className="pf-sp2-tile__label">Positions</span>
-            <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
+            <span className={cn("pf-status-tile__value tabular", !hasPositions && "pf-status-tile__value--dim")}>
               {hasPositions ? String(positionsCount) : DASH}
             </span>
-            <span className="pf-sp2-tile__sub">{hasPositions ? "Active" : "None yet"}</span>
+            <span className="pf-status-tile__sub">{hasPositions ? "Active" : "None yet"}</span>
           </div>
 
-          <div className="pf-sp2-tile">
-            <div className="pf-sp2-tile__icon">
-              <Layers size={13} strokeWidth={2.2} aria-hidden />
+          <div className="pf-status-tile">
+            <div className="pf-status-tile__top">
+              <span className="pf-status-tile__icon">
+                <Layers size={13} strokeWidth={2.2} aria-hidden />
+              </span>
+              <span className="pf-status-tile__label">Deployed</span>
             </div>
-            <span className="pf-sp2-tile__label">Deployed</span>
-            <span className={cn("pf-sp2-tile__value tabular", !hasPositions && "pf-sp2-tile__value--dim")}>
+            <span className={cn("pf-status-tile__value tabular", !hasPositions && "pf-status-tile__value--dim")}>
               {hasPositions ? `${deploymentPct.toFixed(0)}%` : DASH}
             </span>
-            <span className="pf-sp2-tile__sub">Of total capital</span>
+            <span className="pf-status-tile__sub">Of total capital</span>
           </div>
 
-          <div className="pf-sp2-tile pf-sp2-tile--yield">
-            <div className="pf-sp2-tile__icon pf-sp2-tile__icon--accent">
-              <TrendingUp size={13} strokeWidth={2.2} aria-hidden />
+          <div className="pf-status-tile pf-status-tile--yield">
+            <div className="pf-status-tile__top">
+              <span className="pf-status-tile__icon pf-status-tile__icon--accent">
+                <TrendingUp size={13} strokeWidth={2.2} aria-hidden />
+              </span>
+              <span className="pf-status-tile__label">Accrued yield</span>
             </div>
-            <span className="pf-sp2-tile__label">Accrued yield</span>
             <span
               className={cn(
-                "pf-sp2-tile__value tabular",
-                hasPositions ? "pf-sp2-tile__value--accent" : "pf-sp2-tile__value--dim",
+                "pf-status-tile__value tabular",
+                hasPositions ? "pf-status-tile__value--accent" : "pf-status-tile__value--dim",
               )}
             >
               {hasPositions ? formatUsdCompact(accruedYieldUsdc) : DASH}
             </span>
-            <span className="pf-sp2-tile__sub">Since inception</span>
+            <span className="pf-status-tile__sub">Since inception</span>
           </div>
         </div>
 
-        <div className={cn("pf-sp2-proof", isLive && "pf-sp2-proof--live")}>
-          <div className={cn("pf-sp2-proof__icon", isLive && "pf-sp2-proof__icon--live")}>
+        <div className={cn("pf-status-proof", isLive && "pf-status-proof--live")}>
+          <div className={cn("pf-status-proof__icon", isLive && "pf-status-proof__icon--live")}>
             <ShieldCheck size={13} strokeWidth={2} aria-hidden />
           </div>
-          <div className="pf-sp2-proof__body">
-            <span className="pf-sp2-proof__name">Underlying proof</span>
-            <span className={cn("pf-sp2-proof__status", isLive && "pf-sp2-proof__status--live")}>
+          <div className="pf-status-proof__body">
+            <span className="pf-status-proof__name">Underlying proof</span>
+            <span className={cn("pf-status-proof__status", isLive && "pf-status-proof__status--live")}>
               {proofStatus}
             </span>
           </div>
-          <span className="pf-sp2-proof__date">{proofMeta}</span>
+          <span className="pf-status-proof__date">{proofMeta}</span>
         </div>
       </div>
-    </PfCockpitPanel>
+    </div>
   );
 }
