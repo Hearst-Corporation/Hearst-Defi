@@ -71,7 +71,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
           <label
             id={labelId}
             htmlFor={`${labelId}-reason`}
-            className="block text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500"
+            className="ct-bento-label block"
           >
             Reason{" "}
             <span className="text-zinc-600">

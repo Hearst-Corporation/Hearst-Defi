@@ -66,7 +66,7 @@ function statusPillClass(status: string): string {
   return STATUS_PILL[status] ?? "border-white/10 bg-white/5 text-zinc-400";
 }
 
-const microLabel = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+const microLabel = "ct-bento-label";
 
 interface RebalancingEventsPanelProps extends ProofCenterSectionLedProps {
   events: ReadonlyArray<ProofCenterRebalanceRow>;
@@ -124,7 +124,7 @@ export function RebalancingEventsPanel({
             </p>
           </div>
           <span
-            className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+            className="flex items-center gap-1.5 ct-bento-label"
             role="status"
             aria-label={`Data provenance: ${PROVENANCE_LABEL[panelProvenance]}`}
           >
@@ -161,7 +161,7 @@ export function RebalancingEventsPanel({
                   </span>
                 </div>
                 <span
-                  className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 shrink-0"
+                  className="flex items-center gap-1.5 ct-bento-label shrink-0"
                   role="status"
                   aria-label={`Data provenance: ${PROVENANCE_LABEL[eventProvenance]}`}
                 >

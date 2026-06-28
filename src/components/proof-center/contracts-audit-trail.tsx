@@ -124,7 +124,7 @@ function PanelHeader({
   );
 }
 
-const MICRO_LABEL = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+const MICRO_LABEL = "ct-bento-label";
 
 /** Single on-chain reference row (label + monospace value / explorer link). */
 function ProofRow({ label, children }: { label: string; children: ReactNode }) {

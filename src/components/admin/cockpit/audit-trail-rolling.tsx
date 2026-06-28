@@ -34,19 +34,19 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
       <table className="w-full table-fixed" aria-label="Audit trail">
         <thead>
           <tr className="border-b border-white/5">
-            <th className="text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            <th className="text-left px-3 py-2 ct-bento-label">
               Time
             </th>
-            <th className="text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            <th className="text-left px-3 py-2 ct-bento-label">
               Actor
             </th>
-            <th className="text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            <th className="text-left px-3 py-2 ct-bento-label">
               Action
             </th>
-            <th className="hidden text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 md:table-cell">
+            <th className="hidden text-left px-3 py-2 ct-bento-label md:table-cell">
               Entity
             </th>
-            <th className="hidden text-left px-3 py-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 lg:table-cell">
+            <th className="hidden text-left px-3 py-2 ct-bento-label lg:table-cell">
               Entity ID
             </th>
           </tr>

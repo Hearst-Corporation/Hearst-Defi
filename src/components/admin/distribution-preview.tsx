@@ -55,13 +55,13 @@ export function DistributionPreview({
         <table className="w-full table-fixed text-left text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
             <tr className="border-b border-white/5">
-              <th className="w-[42%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              <th className="w-[42%] px-5 py-3 text-left ct-bento-label">
                 Investor wallet
               </th>
-              <th className="w-[18%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              <th className="w-[18%] px-5 py-3 text-right ct-bento-label">
                 Share %
               </th>
-              <th className="w-[40%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              <th className="w-[40%] px-5 py-3 text-right ct-bento-label">
                 Payout (USDC)
               </th>
             </tr>

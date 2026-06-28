@@ -31,7 +31,7 @@ export function NavSlot({
     <div className="dashboard-command-slot dashboard-command-slot--nav dashboard-nav-slot">
       <div className="dashboard-nav-slot__header flex items-end justify-between">
         <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] leading-none">
+          <span className="ct-bento-label leading-none">
             Analytics
           </span>
           <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
@@ -42,11 +42,11 @@ export function NavSlot({
       </div>
       <div className="dashboard-nav-slot__value-row">
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 mb-1">Current NAV</span>
+          <span className="ct-bento-label mb-1">Current NAV</span>
           <p className="dashboard-nav-slot__value tabular-nums m-0 flex items-baseline gap-[var(--ct-space-1)]">
               {lastNav !== null ? (
                 <>
-                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">USD</span>
+                  <span className="ct-bento-label">USD</span>
                   <span className="text-[24px] font-medium leading-none tracking-tight text-[var(--ct-text-strong)]">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
@@ -57,7 +57,7 @@ export function NavSlot({
 
         {navDelta !== null ? (
           <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 mb-1">30d Change</span>
+            <span className="ct-bento-label mb-1">30d Change</span>
             <p
               className={cn(
                 "dashboard-nav-slot__delta m-0 text-[length:var(--ct-text-xs)] font-semibold tabular-nums",

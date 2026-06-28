@@ -65,7 +65,7 @@ function KpiCell({
 }) {
   return (
     <div className={cn("flex flex-col gap-2 p-5", className)}>
-      <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <dt className="ct-bento-label">
         {label}
       </dt>
       <dd
@@ -76,7 +76,7 @@ function KpiCell({
       >
         {value}
       </dd>
-      <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 m-0">
+      <p className="ct-bento-label m-0">
         {sublabel}
       </p>
     </div>

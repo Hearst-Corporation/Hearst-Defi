@@ -30,43 +30,43 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
             <tr className="border-b border-white/10">
               <th
                 scope="col"
-                className="pl-5 pr-4 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="pl-5 pr-4 py-3 text-left ct-bento-label"
               >
                 Regime
               </th>
               <th
                 scope="col"
-                className="hidden md:table-cell px-4 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="hidden md:table-cell px-4 py-3 text-left ct-bento-label"
               >
                 Scenario
               </th>
               <th
                 scope="col"
-                className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="px-4 py-3 text-left ct-bento-label"
               >
                 APY range
               </th>
               <th
                 scope="col"
-                className="px-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="px-4 py-3 text-right ct-bento-label"
               >
                 Min
               </th>
               <th
                 scope="col"
-                className="px-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="px-4 py-3 text-right ct-bento-label"
               >
                 BTC
               </th>
               <th
                 scope="col"
-                className="px-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="px-4 py-3 text-right ct-bento-label"
               >
                 USDC
               </th>
               <th
                 scope="col"
-                className="pr-5 pl-4 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500"
+                className="pr-5 pl-4 py-3 text-right ct-bento-label"
               >
                 Res
               </th>

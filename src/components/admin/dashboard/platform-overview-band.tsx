@@ -49,7 +49,7 @@ export function PlatformOverviewBand({
                 className="flex items-center justify-between gap-4 border-b border-[var(--ct-border-soft)] py-2 last:border-b-0"
               >
                 <div className="flex min-w-0 flex-col">
-                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                  <span className="ct-bento-label">
                     {kpi.label}
                   </span>
                   <span className="mt-px truncate text-[10px] text-zinc-600">
@@ -76,7 +76,7 @@ export function PlatformOverviewBand({
           {cluster.label === "Capital" && (
             <div className="mt-5 pt-4 border-t border-[var(--ct-border-soft)]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                <span className="ct-bento-label">
                   Capacity usage
                 </span>
                 <span className="text-[12px] font-medium tabular-nums text-zinc-400">
@@ -101,7 +101,7 @@ export function PlatformOverviewBand({
           {cluster.label === "Exposure" && exposureClusterHasDist > 0 && (
             <div className="mt-5 pt-4 border-t border-[var(--ct-border-soft)]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                <span className="ct-bento-label">
                   Distribution
                 </span>
                 <span className="text-[12px] font-medium tabular-nums text-zinc-400">

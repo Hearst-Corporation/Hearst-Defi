@@ -102,7 +102,7 @@ export function AllocationOrbit({
     >
       <div className="flex items-end justify-between mb-4">
         <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] leading-none">
+          <span className="ct-bento-label leading-none">
             Balance sheet
           </span>
           <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
@@ -115,13 +115,13 @@ export function AllocationOrbit({
         <div className="dashboard-orbit__visual">
           <SvgDonut allocations={allocations} />
           <div className="dashboard-orbit__core">
-            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">AUM Total</span>
+            <span className="ct-bento-label">AUM Total</span>
             <strong className="text-[18px] font-medium leading-none tracking-tight tabular-nums text-white mt-1">
               {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
             <div className="dashboard-orbit__core-meta mt-1">
               <span className="text-[length:var(--ct-text-xs)] font-semibold tabular-nums text-[var(--ct-accent)]">{allocationTotal.toFixed(0)}%</span>
-              <span className="text-[10px] uppercase tracking-[0.15em] text-zinc-500 ml-1">Mapped</span>
+              <span className="ct-bento-label ml-1">Mapped</span>
             </div>
           </div>
         </div>

@@ -14,7 +14,7 @@ export function VaultPanelHeader({
     <div className="flex items-start justify-between gap-4">
       <div className="flex min-w-0 flex-col gap-1.5">
         {eyebrow ? (
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+          <p className="ct-bento-label">
             {eyebrow}
           </p>
         ) : null}
@@ -38,7 +38,7 @@ export function VaultKpiCell({
 }) {
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-white/5 bg-surface-inset p-4">
-      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+      <span className="ct-bento-label">
         {label}
       </span>
       <span
@@ -65,7 +65,7 @@ export function VaultDetailRow({
   return (
     <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+        <span className="ct-bento-label">
           {label}
         </span>
         <span className="text-[13px] font-medium text-white tabular-nums">

@@ -104,7 +104,7 @@ function SectionCard({ section }: { section: ReportingCrewSectionData }) {
                 key={m.id}
                 className="flex min-w-[7rem] flex-1 flex-col gap-1.5 bg-surface-inset p-3"
               >
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                <span className="ct-bento-label">
                   {m.label}
                 </span>
                 <span className="text-[14px] font-medium leading-none text-white tabular-nums">
@@ -193,7 +193,7 @@ export function ReportingCrewSection({
           }
         />
         <div className="p-5">
-          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+          <span className="ct-bento-label">
             Executive summary
           </span>
           <p className="mt-2 max-w-[80ch] text-[13px] leading-relaxed text-zinc-300">

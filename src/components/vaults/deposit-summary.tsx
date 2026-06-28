@@ -46,7 +46,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
 
       {/* Headline projected total */}
       <div className="flex items-end justify-between gap-4 p-5 border-b border-white/5">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 max-w-[55%]">
+        <span className="ct-bento-label max-w-[55%]">
           {hasAmount
             ? "Projected at soft close (gross)"
             : "Allocation preview — enter amount"}
@@ -112,7 +112,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       {/* KPI grid */}
       <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-white/5 bg-surface-inset">
         <div className="flex flex-col gap-2 p-5 border-b sm:border-r border-white/5">
-          <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <dt className="ct-bento-label">
             Target APY
           </dt>
           <dd>
@@ -125,7 +125,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           </dd>
         </div>
         <div className="flex flex-col gap-2 p-5 border-b border-white/5">
-          <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <dt className="ct-bento-label">
             Est. gross yield (p.a.)
           </dt>
           <dd className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
@@ -133,7 +133,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           </dd>
         </div>
         <div className="flex flex-col gap-2 p-5 sm:border-r border-white/5">
-          <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <dt className="ct-bento-label">
             Lock-up
           </dt>
           <dd className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
@@ -141,7 +141,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           </dd>
         </div>
         <div className="flex flex-col gap-2 p-5">
-          <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <dt className="ct-bento-label">
             Fees
           </dt>
           <dd className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">

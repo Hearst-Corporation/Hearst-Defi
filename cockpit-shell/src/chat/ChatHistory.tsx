@@ -89,7 +89,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
         {chats.length > 0 && (
           <button
             type="button"
-            className="ml-auto rounded-md border border-white/10 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 transition-colors duration-150 hover:text-white hover:border-white/20"
+            className="ml-auto rounded-md border border-white/10 px-2.5 py-1.5 ct-bento-label transition-colors duration-150 hover:text-white hover:border-white/20"
             onClick={clearAll}
             title="Clear all"
           >

@@ -43,7 +43,7 @@ function BentoKpi({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <span className="ct-bento-label">
         {label}
       </span>
       <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">

@@ -29,7 +29,7 @@ export function VaultAdminKpiStrip({
       {/* Target APY */}
       <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="ct-bento-label">
             Target APY
           </span>
           <ProvenanceBadge kind="estimated" />
@@ -47,7 +47,7 @@ export function VaultAdminKpiStrip({
 
       {/* Fees */}
       <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <span className="ct-bento-label">
           Fees
         </span>
         <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
@@ -58,7 +58,7 @@ export function VaultAdminKpiStrip({
 
       {/* Lock-up */}
       <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <span className="ct-bento-label">
           Lock-up
         </span>
         <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
@@ -71,7 +71,7 @@ export function VaultAdminKpiStrip({
       {showAumCard ? (
         <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            <span className="ct-bento-label">
               AUM
             </span>
             <ProvenanceBadge

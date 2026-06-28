@@ -224,7 +224,7 @@ function MetricCell({ label, value, tone }: MetricCellProps) {
 
   return (
     <div className="flex flex-col gap-1.5 bg-surface-inset p-4">
-      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <span className="ct-bento-label">
         {label}
       </span>
       <span className={valueClass}>{value}%</span>

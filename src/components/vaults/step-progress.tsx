@@ -91,7 +91,7 @@ export function StepProgress({ active }: StepProgressProps) {
               </span>
               <span
                 className={cn(
-                  "hidden text-[10px] font-bold uppercase tracking-[0.15em] transition-colors sm:block",
+                  "ct-bento-label hidden transition-colors sm:block",
                   isActive && "text-[var(--ct-text-strong)]",
                   isDone && "text-[var(--ct-accent)]",
                   !isActive && !isDone && "text-[var(--ct-text-faint)]",
