@@ -556,7 +556,7 @@ window.CARTO_DATA = {
     "typographyArbitraryPx": 9,
     "typographyTokenDriven": 341,
     "catalystBlueResidual": 1,
-    "dsGuardsGreen": 7,
+    "dsGuardsGreen": 8,
     "dsGuardsRed": 0,
     "ciLintGreen": true,
     "preferConstErrors": 0,
@@ -1536,6 +1536,11 @@ window.CARTO_DATA = {
       "date": "2026-06-28",
       "ref": "Mission #049 lot9",
       "note": "Last typography debt + GREEN CI. 24 text-[18px]→text-[length:var(--ct-text-xl-fixed)] (18px token exists, pixel-identical) across 15 admin/vaults/proof-center surfaces — arbitrary text-[Npx] 33→9 (the 9 left are 7/20/24/28/32px, no exact token). 29 prefer-const errors fixed in catalyst/* primitives (let→const, scoped eslint --fix) + 1 react-compiler reassign-after-render in HcWaterfall (folded to reduce) → `eslint src` now 0 errors, CI Lint & Typecheck GREEN at last. ds-convergence-guard extended to ban text-[18px] regression. 28 files via a 2-worktree workflow fan-out (typo + CI), integrated serially. Zero behavior change."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot10",
+      "note": "Neutral surface tokenization at scale — 16-agent fan-out (10 disjoint zones in isolated worktrees, integrated serially). Raw bg/border/text-zinc, bg-white/N overlays, and #15191C surfaces → --ct-surface-*/--ct-border*/--ct-text-* across admin/vaults/proof-center/nav (~30 swaps). Portfolio yield-stack bucket colours → dedicated --ct-bucket-* tokens (BUCKET_COLOR now var(--ct-*) only → portfolio bucket-colour contract GREEN). ds-convergence-guard gained a 4th rule (surface-hex: bans raw #15191C / bg-zinc-9xx on product surfaces). text-white on accent/dark surfaces deliberately kept (legit contrast). Only the MOCK badge tinted-zinc sibling remains (no pixel-identical token). eslint 0 errors, typecheck clean, all DS guards green, 88 touched-area tests pass. Zero behaviour change."
     }
   ]
 };

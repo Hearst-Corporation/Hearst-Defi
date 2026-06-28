@@ -54,7 +54,7 @@ export function VaultAllocationAdminRows({
           className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-[var(--ct-border-soft)] last:border-b-0 last:pb-0"
         >
           <div
-            className={`size-2.5 rounded-full border-2 border-[#15191C] ${accentDotClassFor(
+            className={`size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] ${accentDotClassFor(
               row.index,
             )}`}
           />
@@ -128,7 +128,7 @@ export function VaultAllocationInvestorList({
             cy={cy}
             r={radius}
             fill="none"
-            stroke="#15191C"
+            stroke="var(--ct-surface-inset)"
             strokeWidth={strokeWidth}
           />
           {donutSegments.map((s) => (
@@ -163,7 +163,7 @@ export function VaultAllocationInvestorList({
             className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-[var(--ct-border-soft)] last:border-b-0 last:pb-0"
           >
             <div
-              className={`size-2.5 rounded-full border-2 border-[#15191C] ${accentDotClassFor(
+              className={`size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] ${accentDotClassFor(
                 s.index,
               )}`}
             />

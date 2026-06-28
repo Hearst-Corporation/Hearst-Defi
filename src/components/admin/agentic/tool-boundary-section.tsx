@@ -120,7 +120,7 @@ function Th({ children, className }: { children: ReactNode; className?: string }
 
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
-    <tr className="border-b border-[var(--ct-border-soft)] align-top transition-colors last:border-b-0 hover:bg-white/[0.02]">
+    <tr className="border-b border-[var(--ct-border-soft)] align-top transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
       <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
         {tool.id}
       </td>

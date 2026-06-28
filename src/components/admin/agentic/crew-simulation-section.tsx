@@ -39,7 +39,7 @@ const DOT_CLASS: Record<Tone, string> = {
   ok: "bg-[var(--ct-accent)]",
   warn: "bg-amber-400/80",
   danger: "bg-red-400/80",
-  muted: "bg-zinc-600",
+  muted: "bg-[var(--ct-text-faint)]",
 };
 
 const TAG_CLASS: Record<Tone, string> = {

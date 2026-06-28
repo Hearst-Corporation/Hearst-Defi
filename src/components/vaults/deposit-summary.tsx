@@ -86,7 +86,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-opacity duration-150">
-            <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[var(--ct-accent)]" />
+            <span className="size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] bg-[var(--ct-accent)]" />
             <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">Principal</span>
             <span className="text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums">
               {hasAmount ? `${formatUsdFull(amount)} USDC` : "—"}
@@ -98,7 +98,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
               !hasAmount && "opacity-40",
             )}
           >
-            <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" />
+            <span className="size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" />
             <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
               Est. gross yield · {vault.softLockupDays}d
             </span>

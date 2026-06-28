@@ -68,7 +68,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="group border-b border-[var(--ct-border-soft)] last:border-b-0 cursor-default transition-colors hover:bg-white/[0.02]">
+    <tr className="group border-b border-[var(--ct-border-soft)] last:border-b-0 cursor-default transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
       <td className="px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] tabular-nums">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>

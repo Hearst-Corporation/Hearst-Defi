@@ -5,7 +5,7 @@
     "head": "<lot9-pending>",
     "originMain": "c463155c",
     "status": "DONE",
-    "lastPR": "lot9 typo 18px→xl-fixed + prefer-const green CI (fix/catalyst-lot9)",
+    "lastPR": "lot10 neutral tokenization (zinc/white/#15191C → --ct-*) + portfolio bucket tokens (fix/catalyst-lot10)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -39,7 +39,7 @@
     "typographyArbitraryPx": 9,
     "typographyTokenDriven": 341,
     "catalystBlueResidual": 1,
-    "dsGuardsGreen": 7,
+    "dsGuardsGreen": 8,
     "dsGuardsRed": 0,
     "ciLintGreen": true,
     "borderWhiteRaw": 0,
@@ -49,7 +49,9 @@
     "typographyArbitraryPxNonCatalyst": 9,
     "textZincRawNonCatalyst": 1,
     "convergenceGuardActive": true,
-    "preferConstErrors": 0
+    "preferConstErrors": 0,
+    "surfaceHexRaw": 0,
+    "neutralRawRemaining": 1
   },
   "openPRs": [
     {
@@ -1019,6 +1021,11 @@
       "date": "2026-06-28",
       "ref": "Mission #049 lot9",
       "note": "Last typography debt + green CI. 24 text-[18px]→text-[length:var(--ct-text-xl-fixed)] (18px token exists, pixel-identical) across 15 admin/vaults/proof-center surfaces — arbitrary text-[Npx] 33→9 (the 9 left are 7/20/24/28/32px, no exact token). 29 prefer-const errors fixed in catalyst/* primitives (let→const via scoped eslint --fix) + 1 react-compiler reassign-after-render in HcWaterfall (folded to reduce) → `eslint src` now 0 errors, CI Lint & Typecheck GREEN at last. ds-convergence-guard extended to ban text-[18px] regression. 28 files, 2 isolated worktrees (typo + CI), fan-out via workflow. typecheck clean, all DS guards green, zero behavior change."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot10",
+      "note": "Neutral surface tokenization at scale — 16-agent fan-out (10 disjoint zones in isolated worktrees, integrated serially). Raw bg/border/text-zinc, bg-white/N overlays, and #15191C surfaces → --ct-surface-*/--ct-border*/--ct-text-* across admin/vaults/proof-center/nav surfaces (~30 swaps). Portfolio yield-stack bucket colours → dedicated --ct-bucket-* tokens (BUCKET_COLOR now var(--ct-*) only → portfolio bucket-colour contract GREEN). ds-convergence-guard gained a 4th rule (surface-hex: bans raw #15191C / bg-zinc-9xx on product surfaces). text-white on accent/dark surfaces deliberately kept (legit contrast). Only the MOCK badge tinted-zinc sibling remains (no pixel-identical token). eslint 0 errors, typecheck clean, all DS guards green, 88 touched-area tests pass. Zero behaviour change."
     }
   ]
 }

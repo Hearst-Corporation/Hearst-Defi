@@ -48,8 +48,8 @@ const PROVENANCE_LABEL: Record<RebalanceProvenance, string> = {
 
 const PROVENANCE_DOT: Record<RebalanceProvenance, string> = {
   live: "bg-[var(--ct-accent)]",
-  manual: "bg-zinc-500",
-  stale: "bg-zinc-600",
+  manual: "bg-[var(--ct-text-muted)]",
+  stale: "bg-[var(--ct-text-faint)]",
 };
 
 // Status pill — accent for the executed (terminal/healthy) state, quiet zinc

@@ -57,7 +57,7 @@ export function ProjectionSourceSummary({
   const outputs = summary.rows.filter((r) => r.kind === "output");
 
   return (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-[#15191C] p-4">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-[length:var(--ct-text-micro)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]">
           Source truth

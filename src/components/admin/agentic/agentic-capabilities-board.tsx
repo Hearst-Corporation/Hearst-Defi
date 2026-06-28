@@ -116,7 +116,7 @@ export function AgenticCapabilitiesBoard({
               return (
                 <tr
                   key={c.tier}
-                  className="border-b border-[var(--ct-border-soft)] align-middle transition-colors last:border-b-0 hover:bg-white/[0.02]"
+                  className="border-b border-[var(--ct-border-soft)] align-middle transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
                 >
                   <td className="px-4 py-3 text-right font-medium text-white tabular-nums">
                     {count}

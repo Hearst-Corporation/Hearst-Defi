@@ -78,7 +78,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
         <Link
           href={vault.href}
-          className="truncate text-[length:var(--ct-text-xs)] font-medium uppercase text-white transition-colors hover:text-[var(--ct-accent)]"
+          className="truncate text-[length:var(--ct-text-xs)] font-medium uppercase text-[var(--ct-text-strong)] transition-colors hover:text-[var(--ct-accent)]"
         >
           {vault.vaultName}
         </Link>
@@ -151,7 +151,7 @@ function MetricCell({
       </span>
       <span
         className={cn(
-          "truncate text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums",
+          "truncate text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums",
           valueClassName,
         )}
       >

@@ -4,7 +4,7 @@ import type { VaultProduct } from "@/lib/data/vaults";
 
 const TONE_DOT: Record<StressRegime["tone"], string> = {
   success: "bg-[var(--ct-accent)]",
-  danger: "bg-zinc-600",
+  danger: "bg-[var(--ct-text-faint)]",
 };
 
 const TONE_LABEL: Record<StressRegime["tone"], string> = {
@@ -76,7 +76,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
             {regimes.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-[var(--ct-border-soft)] last:border-b-0 hover:bg-white/[0.02] transition-colors"
+                className="border-b border-[var(--ct-border-soft)] last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)] transition-colors"
               >
                 <td className="pl-5 pr-4 py-4 align-top">
                   <div className="flex items-start gap-3">

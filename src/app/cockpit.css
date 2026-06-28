@@ -118,6 +118,14 @@
   --ct-surface-card: #000000;
   --ct-surface-inset: #15191C;
 
+  /* Portfolio yield-stack bucket tiers — single accent stepped toward neutral so
+     mining/usdc/btc/reserve read as one colour family. Defined as tokens so
+     BUCKET_COLOR stays var(--ct-*) only (portfolio-page bucket-colour contract). */
+  --ct-bucket-mining: var(--ct-accent);
+  --ct-bucket-usdc: color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-neutral));
+  --ct-bucket-btc: color-mix(in srgb, var(--ct-accent) 46%, var(--ct-text-neutral));
+  --ct-bucket-reserve: color-mix(in srgb, var(--ct-accent) 28%, var(--ct-text-neutral));
+
   /* Bordures de modules graphite (les surfaces graphite-* ont été supprimées :
      toute surface passe désormais par les 3 niveaux canoniques ci-dessus). */
   --ct-graphite-border: var(--ct-figma-border-20);
