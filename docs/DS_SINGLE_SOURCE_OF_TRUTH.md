@@ -5,6 +5,16 @@
 > such as `hearst-ds-premium-v4-visual-upgrade.html`) must be absorbed into the
 > canonical code layers below — never maintained as a parallel active reference.
 
+> **Component-authority decision (2026-06-28 — see `README_DESIGN_SYSTEM.md`):**
+> The canonical **UI component** layer is **`src/components/catalyst/`**, branded
+> with the cockpit `--ct-*` tokens. `src/components/ui/*` (Layer 3 below) is the
+> **legacy / deprecated** homegrown layer being migrated toward Catalyst — it is
+> still listed because it is still consumed broadly, **not** because it is the
+> component authority. Do **not** add new visual primitives to `src/components/ui/`,
+> and do **not** describe Catalyst as the intruder or migrate away from it. This
+> banner concerns the *component layer* only; the token / cascade hierarchy below
+> is unchanged.
+
 ---
 
 ## 1. The hierarchy (in cascading order)
@@ -13,7 +23,7 @@
 |---|---|---|
 | **1 — Token values** | Every raw value: colours, sizes, spacing, radius, motion, opacity, z | `cockpit-shell/tokens.css` (base) → `src/app/cockpit.css` (11 runtime overrides) |
 | **2 — Tailwind aliases** | `--color-*`, `--text-*`, `--font-*`, `--tracking-*`, `--leading-*` mirrored 1:1 from `--ct-*` | `src/app/globals.css` `@theme` block |
-| **3 — Primitive components** | `Button`, `Card`, `Badge`, `ProvenanceBadge`, `Metric`, `MetricGrid`, `EmptySurface`, `PanelStatus`, `Skeleton`, `NestedPanel`, `DataRow`, `ProofRow`, `DashboardPanelHeader`, `SegmentedControl`, `ApyRange`, `Ptai`, `Progress`, `Tooltip`, `ConfirmDialog`, `Modal`, `Checkbox`, `ChoiceCard`, `WizardStepProgress`, `ChartTimeSelector`, `PresetPicker` | `src/components/ui/*.tsx` |
+| **3 — Primitive components** _(legacy — migrating to Catalyst)_ | `Button`, `Card`, `Badge`, `ProvenanceBadge`, `Metric`, `MetricGrid`, `EmptySurface`, `PanelStatus`, `Skeleton`, `NestedPanel`, `DataRow`, `ProofRow`, `DashboardPanelHeader`, `SegmentedControl`, `ApyRange`, `Ptai`, `Progress`, `Tooltip`, `ConfirmDialog`, `Modal`, `Checkbox`, `ChoiceCard`, `WizardStepProgress`, `ChartTimeSelector`, `PresetPicker` | `src/components/ui/*.tsx` _(deprecated; new primitives go to `src/components/catalyst/`)_ |
 | **4 — Shell primitives** | Title, KpiGrid, KpiCard, Eyebrow, Sub — shell-scoped display wrappers | `cockpit-shell/src/primitives/index.tsx` |
 | **5 — Pattern CSS** | Surface nesting rules, chart patterns, doc-flow, portfolio density mode, cockpit dense mode | `src/app/cockpit.css`, `src/app/doc-flow.css`, `src/app/(product)/portfolio/portfolio.css` |
 | **6 — Living documentation** | Rendered reference (open before any UI work). Text description of every layer above. | `src/app/admin/design-system/` (route), `docs/DESIGN_SYSTEM.md`, `docs/CSS_INDEX.md`, **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** (protected — mandatory read for shell/portfolio layout), `docs/DS_SHELL_CONTRACT.md`, `docs/DS_CONFORMANCE_PROMPT.md` |
