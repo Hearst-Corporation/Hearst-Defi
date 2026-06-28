@@ -180,9 +180,17 @@ const serverEnvSchema = z.object({
     .string()
     .min(1)
     .default("MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"),
-  /** Semantic guard kill-switch. "1"/"shadow" = run in shadow (log divergences
-   *  vs keyword guard, never block). "enforce" = block on semantic violation.
-   *  Default OFF (absent) = guard not invoked at all. */
+  /** Semantic compliance guard (paraphrase defense-in-depth behind the keyword
+   *  output guard). WIRED into the chat engine (chat-agent.ts) but gated by this
+   *  env and OFF by default:
+   *    - absent / "0"   → not invoked at all (default; current production state).
+   *    - "1" / "shadow" → run, LOG divergences vs the keyword guard, never block.
+   *    - "enforce"      → a positive semantic verdict blocks persistence of a
+   *                       paraphrased return-promise the keyword guard missed.
+   *  Network-bound (HuggingFace zero-shot, see semantic-guard.ts) and FAIL-SAFE:
+   *  on HF outage / no token / error it returns null → the keyword guard remains
+   *  the hard guarantee, so enabling it can only ADD a block, never relax one. NOT
+   *  enabled here — flip to "enforce" in the deployment env to turn it on. */
   SEMANTIC_GUARD: z.enum(["0", "1", "shadow", "enforce"]).optional(),
   // Sentry observability — all optional, project boots without them (no-op fallback)
   SENTRY_DSN: z.string().url().optional(),

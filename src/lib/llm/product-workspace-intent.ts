@@ -9,12 +9,15 @@ const MAX_OBJECTIVE_LEN = 220;
 const PRODUCT_CREATION_PHRASE_RE =
   /\b(nouveau produit|nouveau vault|nouvelle offre|new product|new vault|product creation|lancer un produit|lancement produit|go to market|go-to-market)\b/i;
 
-// Bare creation verbs ("créer", "create", "monter"…). These are AMBIGUOUS alone
-// ("create projection", "create a scenario") so they only signal a PRODUCT
-// creation when paired with product context (PRODUCT_CONTEXT_RE) — see
+// Bare creation verbs ("créer", "crée", "create", "monter"…). These are
+// AMBIGUOUS alone ("create projection", "create a scenario") so they only signal
+// a PRODUCT creation when paired with product context (PRODUCT_CONTEXT_RE) — see
 // `hasCreation` below.
+// NOTE on accents: the matcher is not accent-folded, so each inflection is listed
+// explicitly. "crée" (accented 3rd-person/imperative, no trailing -r) was missing
+// — "créer"/"création" were present but a bare "crée un produit" fell through.
 const PRODUCT_CREATION_VERB_RE =
-  /\b(créer|cree|creer|create|creation|création|construire|monter|structurer)\b/i;
+  /\b(créer|crée|cree|creer|create|creation|création|construire|monter|structurer)\b/i;
 
 const PRODUCT_FRAMING_INTENT_RE =
   /\b(cadrer|cadrage|frame|framing|thesis|thèse|strategie|stratégie|strategy|modeling|modelling|modélisation|modeliser|modéliser)\b/i;
