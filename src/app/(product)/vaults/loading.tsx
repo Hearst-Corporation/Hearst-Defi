@@ -31,7 +31,7 @@ export default function VaultsLoading() {
                 </div>
                 <div className="h-6 w-20 bg-surface-inset animate-pulse rounded-full shrink-0" />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-[var(--ct-border-soft)] bg-[#15191C]/40">
+              <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]/40">
                 {[0, 1, 2, 3].map((kpi) => (
                   <div
                     key={kpi}

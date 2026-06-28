@@ -69,8 +69,9 @@ function eventDotClass(kind: EventKind): string {
   if (kind === "Distribution" || kind === "AttestationPublished") {
     return "bg-[var(--ct-accent)] ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]";
   }
-  if (kind === "ModeChange") return "bg-white/30 ring-white/10";
-  return "bg-white/60 ring-white/10";
+  if (kind === "ModeChange")
+    return "bg-[color-mix(in_srgb,var(--ct-text-strong)_30%,transparent)] ring-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
+  return "bg-[color-mix(in_srgb,var(--ct-text-strong)_60%,transparent)] ring-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
 }
 
 function EventMetaRow({

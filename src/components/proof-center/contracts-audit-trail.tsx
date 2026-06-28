@@ -187,7 +187,7 @@ function ProofArticle({
     >
       <div className="flex items-start gap-3">
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-white/[0.02]"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
           aria-hidden="true"
         >
           <Icon className="w-4 h-4 text-[var(--ct-text-muted)]" />
@@ -303,8 +303,8 @@ function DeployedContractCard({
             Source-verified @ commit
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--ct-text-muted)]" aria-hidden="true" />
             Deployment provenance unverified
           </span>
         )}
@@ -312,7 +312,7 @@ function DeployedContractCard({
           href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
           target="_blank"
           rel="noreferrer noopener"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-white/[0.06] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)] transition-colors"
           aria-label={`View ${contract.name} on Basescan`}
         >
           View on Basescan
@@ -387,7 +387,7 @@ export function ContractsAuditTrail({
             >
               <div className="flex items-start gap-3">
                 <div
-                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-white/[0.02]"
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
                   aria-hidden="true"
                 >
                   <FileText className="w-4 h-4 text-[var(--ct-text-muted)]" />
@@ -412,9 +412,9 @@ export function ContractsAuditTrail({
                           {auditBadgeLabel(entry)}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
                           <span
-                            className="h-1.5 w-1.5 rounded-full bg-zinc-500"
+                            className="h-1.5 w-1.5 rounded-full bg-[var(--ct-text-muted)]"
                             aria-hidden="true"
                           />
                           {auditBadgeLabel(entry)}
@@ -425,7 +425,7 @@ export function ContractsAuditTrail({
                           href={entry.href}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-white/[0.06] transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)] transition-colors"
                           aria-label={`View document for ${entry.label}`}
                         >
                           View document

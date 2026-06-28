@@ -49,7 +49,7 @@ export function AdminTable<T>({
             {data.map((item, i) => (
               <tr
                 key={i}
-                className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-white/[0.02]"
+                className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
               >
                 {renderRow(item)}
               </tr>

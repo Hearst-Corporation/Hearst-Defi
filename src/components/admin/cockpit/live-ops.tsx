@@ -148,7 +148,7 @@ const STATUS_DOT: Record<InngestJobStatus, string> = {
   ok: "bg-[var(--ct-accent)]",
   err: "bg-red-400",
   pending: "bg-amber-400",
-  unknown: "bg-zinc-600",
+  unknown: "bg-[var(--ct-text-faint)]",
 };
 
 const STATUS_LABEL: Record<InngestJobStatus, string> = {
@@ -173,7 +173,7 @@ function SentryCounter({
       <span
         className={cn(
           "text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums leading-none",
-          alert && count > 0 ? "text-red-400" : "text-white",
+          alert && count > 0 ? "text-red-400" : "text-[var(--ct-text-strong)]",
         )}
       >
         {count}
@@ -218,7 +218,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
         href={explorerTxUrl(event.txHash)}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn(rowClassName, "transition-colors hover:bg-white/[0.02]")}
+        className={cn(rowClassName, "transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]")}
       >
         {content}
       </Link>

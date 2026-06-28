@@ -25,7 +25,7 @@ export function ProfileSecurityRow({
             "mt-1.5 size-2 shrink-0 rounded-full",
             status === "ok" && "bg-[var(--ct-accent)]",
             status === "warn" && "bg-amber-400",
-            status === "off" && "bg-zinc-600",
+            status === "off" && "bg-[var(--ct-text-faint)]",
           )}
         />
         <div className="flex min-w-0 flex-col gap-1">

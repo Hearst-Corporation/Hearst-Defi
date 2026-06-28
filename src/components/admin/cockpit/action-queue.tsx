@@ -58,7 +58,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
 
   return (
     <li
-      className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 transition-colors last:border-b-0 hover:bg-white/[0.02]"
+      className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
       aria-label={`${item.severity} — ${item.title}`}
     >
       <div className="flex min-w-0 flex-1 items-start gap-2.5">
@@ -120,7 +120,7 @@ const SEVERITY_TONES: Record<
     cta: "border-amber-400/20 bg-amber-400/10 text-amber-400 hover:bg-amber-400/20",
   },
   P2: {
-    dot: "bg-zinc-500",
+    dot: "bg-[var(--ct-text-faint)]",
     text: "text-[var(--ct-text-faint)]",
     cta: "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:border-[var(--ct-border)] hover:text-[var(--ct-text-body)]",
   },

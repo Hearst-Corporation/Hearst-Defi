@@ -134,6 +134,22 @@ for (const abs of walk(SRC)) {
         fix: "text-[length:var(--ct-text-{octa|nano|deci|micro|2xs|xs|deca|sm|xl-fixed})] (8/9/10/11/12/13/14/15/18px).",
       });
     }
+
+    // Guard 4 — raw surface hex / opaque zinc surfaces on scoped product/admin
+    // surfaces. The 3 canonical surfaces are page/card/inset; nothing should
+    // re-hardcode #15191C or bg-zinc-9xx. (Tinted-chip neutrals like
+    // bg-zinc-500/10 keep an opacity suffix and are NOT matched here.)
+    if (pxScoped && (/#15191[Cc]\b/.test(line) || /\bbg-zinc-9\d0\b/.test(line))) {
+      const m = line.match(/#15191[Cc]|bg-zinc-9\d0/);
+      violations.push({
+        guard: "surface-hex",
+        file: rel,
+        lineNo: i + 1,
+        text: line.trim(),
+        reason: `Raw surface ${m[0]} — use a canonical --ct-surface-* token.`,
+        fix: "bg-[var(--ct-surface-inset)] (#15191C) / bg-[var(--ct-surface-card)] / bg-[var(--ct-surface-page)]; SVG paints use var(--ct-surface-inset).",
+      });
+    }
   }
 }
 

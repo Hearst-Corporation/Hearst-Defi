@@ -50,7 +50,7 @@ export default function ProfileLoading() {
             <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
               <div className="h-3 w-36 bg-surface-inset animate-pulse rounded" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-[var(--ct-border-soft)] bg-[#15191C]/40">
+            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]/40">
               {[0, 1].map((i) => (
                 <div key={i} className="flex flex-col gap-2 p-5 sm:px-6 border-b sm:border-b-0 sm:border-r border-[var(--ct-border-soft)]">
                   <div className="h-2.5 w-24 bg-surface-inset animate-pulse rounded" />

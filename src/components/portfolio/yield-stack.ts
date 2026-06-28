@@ -22,10 +22,10 @@ export interface YieldStackProps {
 
 /** CSS custom property for each bucket's bar colour (monochrome green scale). */
 export const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
-  mining: "var(--ct-accent)",
-  usdc_base: "color-mix(in srgb, var(--ct-accent) 68%, var(--ct-text-neutral))",
-  btc_tactical: "color-mix(in srgb, var(--ct-accent) 46%, var(--ct-text-neutral))",
-  stable_reserve: "color-mix(in srgb, var(--ct-accent) 28%, var(--ct-text-neutral))",
+  mining: "var(--ct-bucket-mining)",
+  usdc_base: "var(--ct-bucket-usdc)",
+  btc_tactical: "var(--ct-bucket-btc)",
+  stable_reserve: "var(--ct-bucket-reserve)",
 };
 
 /** Compute bar width as a percentage of the maximum absolute contribution. */
