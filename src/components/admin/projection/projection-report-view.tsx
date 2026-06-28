@@ -27,8 +27,8 @@ function fmtRange(r?: { min: number; max: number; unit: string }): string | null
   return `${r.min}–${r.max}${r.unit === "%" ? "%" : ` ${r.unit}`}`;
 }
 
-const PANEL = "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col";
-const SUBTILE = "rounded-xl border border-white/10 bg-[#15191C]";
+const PANEL = "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col";
+const SUBTILE = "rounded-xl border border-white/10 bg-surface-inset";
 
 function Block({
   title,
@@ -83,7 +83,7 @@ function RangeBandChart({ data }: { data: unknown }) {
       role="img"
       aria-label={`APY range ${d.apy.min} to ${d.apy.max} percent`}
     >
-      <div className="relative h-2.5 rounded-full bg-[#15191C] border border-white/5 overflow-hidden">
+      <div className="relative h-2.5 rounded-full bg-surface-inset border border-white/5 overflow-hidden">
         <div
           className="absolute top-0 bottom-0 bg-[#A7FB90] rounded-full"
           style={{ left: `${left}%`, width: `${width}%` }}
@@ -104,7 +104,7 @@ function AllocationMixChart({ data }: { data: unknown }) {
   if (rows.length === 0) return <MissingNote label="no allocation provided" />;
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex h-3 rounded-full overflow-hidden bg-[#15191C] border border-white/5">
+      <div className="flex h-3 rounded-full overflow-hidden bg-surface-inset border border-white/5">
         {rows.map((r, i) => (
           <div
             key={r.label}
@@ -325,7 +325,7 @@ export function ProjectionReportView({
       ) : null}
 
       {/* Disclaimers */}
-      <section className="rounded-xl border border-white/10 bg-[#15191C] p-4 flex flex-col gap-1.5">
+      <section className="rounded-xl border border-white/10 bg-surface-inset p-4 flex flex-col gap-1.5">
         {artifact.disclaimers.map((d) => (
           <p key={d} className="text-[11px] text-zinc-500 m-0">{d}</p>
         ))}
@@ -503,7 +503,7 @@ function PercentileBand({ bands }: { bands: ProjectionDistribution["bands"] }) {
             key={b.horizonMonth}
             title={`m${b.horizonMonth}: p5 ${fmtNum(b.p5)} · p50 ${fmtNum(b.p50)} · p95 ${fmtNum(b.p95)} ${unit}`}
           >
-            <div className="relative w-full max-w-[18px] flex-1 rounded-sm bg-[#15191C] border border-white/5">
+            <div className="relative w-full max-w-[18px] flex-1 rounded-sm bg-surface-inset border border-white/5">
               <div
                 className="absolute left-0 right-0 rounded-sm bg-[#A7FB90]/15 border border-[#A7FB90]/30"
                 style={{ bottom: pos(b.p5), top: `calc(100% - ${pos(b.p95)})` }}

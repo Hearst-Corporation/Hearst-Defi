@@ -28,7 +28,7 @@
   padding: var(--ct-space-1_5) var(--ct-space-3);
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-muted);
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-semibold);
@@ -154,7 +154,7 @@
 
 /* Border specimens — show the line, not a fill. */
 .admin-doc .ds-swatch__chip--line {
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
   border-width: 2px;
 }
 
@@ -193,7 +193,7 @@
   padding: var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
 }
 
 .admin-doc .ds-text-row {
@@ -281,7 +281,7 @@
 .admin-doc .ds-radius-chip {
   height: var(--ct-space-12);
   border: 1px solid var(--ct-border);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
 }
 
 .admin-doc .ds-radius-chip--sm { border-radius: var(--ct-radius-sm); }
@@ -301,7 +301,7 @@
   padding: var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
 }
 
 .admin-doc .ds-specimen__stage {
@@ -384,7 +384,7 @@
   gap: var(--ct-space-1);
   border-radius: var(--ct-radius-md);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   text-align: center;
   padding: var(--ct-space-2);
 }
@@ -425,7 +425,7 @@
   padding: var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
 }
 
 .admin-doc .ds-dodont__head {
@@ -462,7 +462,7 @@
   padding: var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
 }
 
 .admin-doc .ds-anti-card__head {
@@ -515,7 +515,7 @@
   color: var(--ct-text-muted);
   padding: var(--ct-space-0_5) var(--ct-space-1_5);
   border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-soft);
 }
 
@@ -573,7 +573,7 @@
   gap: var(--ct-space-3);
   padding: var(--ct-space-2) var(--ct-space-3);
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-soft);
 }
 

@@ -117,7 +117,7 @@ export function AgenticAgentsOverview({
           return (
             <div
               key={domain}
-              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl border border-white/5 bg-[#15191C]"
+              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl border border-white/5 bg-surface-inset"
             >
               <div className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3">
                 <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-400">

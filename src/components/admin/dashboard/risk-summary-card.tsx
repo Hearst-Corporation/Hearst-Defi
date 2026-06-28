@@ -77,7 +77,7 @@ export function DashboardRiskSummaryCard({
   return (
     <div className="flex flex-col gap-4" data-risk-provenance={provenance}>
       {/* Overview hero — composite score + band + five-factor caption. */}
-      <div className="flex items-start justify-between gap-4 rounded-lg border border-white/5 bg-[#15191C] p-3">
+      <div className="flex items-start justify-between gap-4 rounded-lg border border-white/5 bg-surface-inset p-3">
         <div className="flex flex-col gap-1">
           <Tooltip
             content={
@@ -128,7 +128,7 @@ export function DashboardRiskSummaryCard({
         {data.dimensions.map((dimension) => (
           <article
             key={dimension.id}
-            className="group rounded-md border border-transparent bg-[#15191C] p-2 transition-colors hover:border-white/10"
+            className="group rounded-md border border-transparent bg-surface-inset p-2 transition-colors hover:border-white/10"
             aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
           >
             <div className="mb-1.5 flex items-center justify-between">
@@ -163,7 +163,7 @@ export function DashboardRiskSummaryCard({
                 SEVERITY_FILL[dimension.severity],
                 "transition-all duration-500",
               )}
-              className="h-1 rounded-full bg-black"
+              className="h-1 rounded-full bg-surface-card"
               label={`${dimension.label} risk score ${dimension.score} of 100`}
             />
           </article>

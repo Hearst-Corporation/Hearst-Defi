@@ -6,7 +6,7 @@ import { safeUrl } from "@/lib/safe-url";
 /**
  * Markdown renderer — Portfolio bento prose canon.
  * Headings + body in zinc/white, accent-green (#A7FB90) links, inline/block
- * code on the `bg-[#15191C]` sub-surface, hairline table + rules. Pure render —
+ * code on the `bg-surface-inset` sub-surface, hairline table + rules. Pure render —
  * the `content` / `demoteH1` API is unchanged.
  */
 export function Markdown({
@@ -68,13 +68,13 @@ export function Markdown({
               );
             }
             return (
-              <code className="rounded-sm bg-[#15191C] px-1 py-0.5 font-mono text-[12px] text-[#A7FB90]">
+              <code className="rounded-sm bg-surface-inset px-1 py-0.5 font-mono text-[12px] text-[#A7FB90]">
                 {children}
               </code>
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-[#15191C] p-4 text-[12px]">
+            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-surface-inset p-4 text-[12px]">
               {children}
             </pre>
           ),

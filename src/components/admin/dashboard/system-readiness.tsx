@@ -75,7 +75,7 @@ export function SystemReadinessModule({
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 rounded-md bg-[#15191C] px-2 py-1">
+          <div className="flex items-center gap-1.5 rounded-md bg-surface-inset px-2 py-1">
             <BentoLabel className="text-[10px]">Uptime</BentoLabel>
             <span className="text-[11px] font-medium tabular-nums text-[#A7FB90]">
               99.98%
@@ -124,7 +124,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
   return (
     <div
       role="listitem"
-      className="flex flex-col gap-1.5 bg-black p-4"
+      className="flex flex-col gap-1.5 bg-surface-card p-4"
       aria-label={`${stat.label}: ${stat.value}`}
     >
       <div className="flex min-w-0 items-center justify-between gap-2">

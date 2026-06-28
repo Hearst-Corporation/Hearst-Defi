@@ -117,7 +117,7 @@ function isValidSigner(raw: string): boolean {
 // Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
 // accent (#A7FB90) focus ring. One source for every native control in the form.
 const BENTO_INPUT =
-  "w-full rounded-lg border border-white/10 bg-[#15191C] px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none";
+  "w-full rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none";
 const BENTO_FIELD_HINT = "text-[12px] text-zinc-600";
 const BENTO_LABEL =
   "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
@@ -409,7 +409,7 @@ export function VaultForm(props: VaultFormProps) {
                       "border-[#A7FB90] bg-[#A7FB90] text-zinc-900",
                     !isActive &&
                       !isCompleted &&
-                      "border-white/10 bg-[#15191C] text-zinc-600",
+                      "border-white/10 bg-surface-inset text-zinc-600",
                   )}
                 >
                   {i + 1}
@@ -637,7 +637,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </FieldGrid>
 
-            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
               <span className={BENTO_LABEL}>APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
@@ -837,7 +837,7 @@ export function VaultForm(props: VaultFormProps) {
 
               {/* Admin identity helper */}
               {props.adminId && (
-                <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+                <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
                   <span className="text-[12px] text-zinc-400">
                     Your current admin identity:
                   </span>
@@ -924,7 +924,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="flex flex-col gap-5">
             <StepHeader title="Review & Simulate" />
 
-            <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+            <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-surface-inset p-5">
               <FieldGrid columns={2} className="pb-4">
                 <RecapRow label="Ticker">
                   <span className="font-mono text-[13px] tabular-nums text-white">{form.ticker}</span>
@@ -1043,7 +1043,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="flex flex-col gap-5">
             <StepHeader title="Sign & Deploy" />
 
-            <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+            <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5">
               <p className="text-[13px] text-zinc-400">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
@@ -1067,7 +1067,7 @@ export function VaultForm(props: VaultFormProps) {
 
             {/* Signer whitelist recap — surfaces malformed entries and whether
                 THIS admin can sign later (cf. signApproval actorWallet). */}
-            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
               <span className={BENTO_LABEL}>Signers whitelist</span>
               {filledSigners.length === 0 ? (
                 <span className="text-[12px] text-red-400">

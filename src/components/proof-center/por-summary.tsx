@@ -211,7 +211,7 @@ export function PorSummary({
   return bare ? (
     inner
   ) : (
-    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col p-5 lg:p-6">
+    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col p-5 lg:p-6">
       {inner}
     </div>
   );

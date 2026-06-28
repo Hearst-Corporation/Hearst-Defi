@@ -19,7 +19,7 @@ export default async function MonitoringPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER */}

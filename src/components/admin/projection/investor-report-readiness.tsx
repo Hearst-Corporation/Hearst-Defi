@@ -7,7 +7,7 @@ import type { ProjectionInvestorReportViewModel } from "@/lib/projection/investo
  * VALIDATED_ADMIN run is NEVER labelled investor-ready.
  */
 
-const PANEL = "rounded-2xl border border-white/10 bg-[#15191C] p-4";
+const PANEL = "rounded-2xl border border-white/10 bg-surface-inset p-4";
 
 const MODE_LABEL: Record<ProjectionInvestorReportViewModel["mode"], string> = {
   NO_RUN: "No run",

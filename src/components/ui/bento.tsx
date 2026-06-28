@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
  * Shared bento primitives — token-backed surfaces for product + admin pages.
  *
  * Uses cockpit tokens (--ct-*) and .ct-glass-panel for module chrome instead of
- * ad-hoc bg-black / border-white/* hardcodes. Typography via .ct-bento-* classes
+ * ad-hoc bg-surface-card / border-white/* hardcodes. Typography via .ct-bento-* classes
  * in doc-flow.css.
  */
 
@@ -173,7 +173,7 @@ export function BentoDetailRow({
  * 1→N responsive grid on the page-surface grey, tiles separated by hairlines,
  * micro-label + 22px value (Portfolio canon). Fully tokenized: surface =
  * --ct-surface-1, dividers = --ct-border-soft, label = .ct-bento-label.
- * Use this instead of hand-rolling a `grid bg-[#15191C] border-white/5` block.
+ * Use this instead of hand-rolling a `grid bg-surface-inset border-white/5` block.
  */
 export interface BentoKpiItem {
   label: ReactNode;
@@ -184,10 +184,15 @@ export interface BentoKpiItem {
 
 export function BentoKpiStrip({
   items,
+  title,
+  subtitle,
   className,
   ariaLabel,
 }: {
   items: BentoKpiItem[];
+  /** Optional header above the strip (Portfolio "Capital & Yield" canon). */
+  title?: ReactNode;
+  subtitle?: ReactNode;
   className?: string;
   ariaLabel?: string;
 }) {
@@ -199,36 +204,48 @@ export function BentoKpiStrip({
         : items.length === 2
           ? "md:grid-cols-2"
           : "md:grid-cols-1";
+
+  // Header + strip soudés, ZÉRO marge externe : le bloc se colle au header en
+  // haut et au contenu (tableau/donut) en bas. Bordure basse = soudure au tableau.
   return (
-    <div
-      aria-label={ariaLabel}
-      className={cn(
-        "grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]",
-        cols,
-        className,
-      )}
-    >
-      {items.map((item, i) => (
-        <div
-          key={i}
-          className={cn(
-            "flex flex-col gap-2 p-5 md:px-6",
-            // Hairline between tiles: bottom on stacked mobile, right on desktop.
-            i < items.length - 1 &&
-              "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
-          )}
-        >
-          <div className="ct-bento-label">{item.label}</div>
+    <div className={cn("flex flex-col bg-[var(--ct-surface-inset)]", className)}>
+      {title ? (
+        <div className="flex flex-col gap-1.5 border-b border-[var(--ct-border-soft)] p-5 md:px-6">
+          <div className="ct-bento-label">{title}</div>
+          {subtitle ? (
+            <div className="text-[12px] ct-text-muted">{subtitle}</div>
+          ) : null}
+        </div>
+      ) : null}
+      <div
+        aria-label={ariaLabel}
+        className={cn(
+          "grid grid-cols-1 border-b border-[var(--ct-border-soft)]",
+          cols,
+        )}
+      >
+        {items.map((item, i) => (
           <div
+            key={i}
             className={cn(
-              "text-[22px] font-medium leading-none tracking-tight",
-              item.accent ? "ct-text-accent" : "ct-text-strong",
+              "flex flex-col gap-2 p-5 md:px-6",
+              // Hairline between tiles: bottom on stacked mobile, right on desktop.
+              i < items.length - 1 &&
+                "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
             )}
           >
-            {item.value}
+            <div className="ct-bento-label">{item.label}</div>
+            <div
+              className={cn(
+                "text-[22px] font-medium leading-none tracking-tight",
+                item.accent ? "ct-text-accent" : "ct-text-strong",
+              )}
+            >
+              {item.value}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

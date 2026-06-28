@@ -61,7 +61,7 @@ export function TierBadge({
   if (open) {
     return (
       <span
-        className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-[#15191C] p-1"
+        className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-surface-inset p-1"
         role="group"
         aria-label="Choose tier"
       >

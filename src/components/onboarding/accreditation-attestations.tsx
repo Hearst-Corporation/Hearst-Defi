@@ -93,7 +93,7 @@ export function AccreditationAttestationFields({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <fieldset
           className="border-none p-0 m-0"
           aria-label="Accreditation attestations"

@@ -22,7 +22,7 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 
   return (
     <div
-      className="rounded-2xl border border-white/10 bg-black shadow-sm"
+      className="rounded-2xl border border-white/10 bg-surface-card shadow-sm"
       aria-label="Live vault projection"
     >
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5">

@@ -51,7 +51,7 @@ export function Progress({
         style={{ width: `${pct}%` }}
       >
         {!isPlain ? (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--ct-surface-3)] to-transparent w-full h-full animate-[shimmer_var(--ct-dur-shimmer)_infinite]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--ct-surface-inset)] to-transparent w-full h-full animate-[shimmer_var(--ct-dur-shimmer)_infinite]" />
         ) : null}
       </div>
     </div>

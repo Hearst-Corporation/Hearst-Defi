@@ -9,7 +9,7 @@ import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 
 const SELECT_INPUT =
-  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface SelectDef {
   name: keyof QualificationProfile & string;

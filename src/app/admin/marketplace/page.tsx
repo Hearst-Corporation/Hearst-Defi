@@ -55,7 +55,7 @@ export default async function MarketplacePage() {
   ]);
 
   return (
-    <div className="dark mb-8 flex flex-col rounded-2xl border border-white/10 bg-zinc-900">
+    <div className="dark mb-8 flex flex-col rounded-2xl border border-white/10 bg-surface-page">
       <div className="flex flex-col gap-y-5 p-5 lg:p-6">
         <AdminPageHeader
           titleLead="DeFi"
@@ -85,7 +85,7 @@ export default async function MarketplacePage() {
                     <ProvenanceBadge kind={t.provenance} compact />
                   </span>
                 }
-                className="bg-black"
+                className="bg-surface-card"
               />
             ))}
           </div>
@@ -164,7 +164,7 @@ export default async function MarketplacePage() {
                   />
                 }
                 sub={`${p.poolCount} pool${p.poolCount > 1 ? "s" : ""} · ${formatUsdCompact(p.tvlUsd)} TVL`}
-                className="bg-black"
+                className="bg-surface-card"
               />
             ))}
           </div>
@@ -220,7 +220,7 @@ export default async function MarketplacePage() {
                     <ProvenanceBadge kind={p.provenance} compact />
                   </span>
                 }
-                className="bg-black"
+                className="bg-surface-card"
               />
             ))}
           </div>

@@ -119,7 +119,7 @@
 
 .legal-body .legal-stub {
   border: 1px dashed var(--ct-border-strong);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   padding: var(--ct-space-4) var(--ct-space-5);
   border-radius: var(--ct-radius-md);
   margin: var(--ct-space-4) 0;
@@ -145,7 +145,7 @@
   padding: var(--ct-space-5);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   text-decoration: none;
   color: var(--ct-text-body);
   transition: border-color var(--ct-dur-fast), color var(--ct-dur-fast);

@@ -106,7 +106,7 @@ function AllocationDonut({
           cy={DONUT_RADIUS}
           r={DONUT_NORM_R}
           fill="transparent"
-          stroke="var(--ct-surface-1)"
+          stroke="var(--ct-surface-inset)"
           strokeWidth={DONUT_STROKE}
           className="cy-v5-donut__track"
         />
@@ -149,7 +149,7 @@ function PendingDonut() {
           cy={DONUT_RADIUS}
           r={DONUT_NORM_R}
           fill="transparent"
-          stroke="var(--ct-surface-1)"
+          stroke="var(--ct-surface-inset)"
           strokeWidth={DONUT_STROKE}
           className="cy-v5-donut__track"
         />

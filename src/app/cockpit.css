@@ -87,51 +87,46 @@
      border). Points to the soft border so the alias resolves. */
   --ct-border-subtle: var(--ct-border-soft);
 
-  /* Aliases référencés par des surfaces existantes (action-queue, autonomy-panel,
-     chat code blocks, admin-strategy) mais jamais définis → résolvaient à vide. */
-  --ct-bg-soft: var(--ct-surface-1);
+  /* Aliases référencés par des surfaces existantes mais jamais définis ailleurs. */
   --ct-border-muted: var(--ct-border);
   --ct-bc-warning: color-mix(in srgb, var(--ct-status-warning) 28%, transparent);
   --ct-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
-  /* ── FONDS DE SURFACES — TOUT EN NOIR (direction Adrien) ──────────────────────
-     Le shell (fond du centre + rails menu/chat) ET les boxes partagent le MÊME
-     noir profond, porté par le token --ct-bg-deep (défini #060708 dans tokens.css).
-     Aucun hex hardcodé dans les usages : les rails + --ct-graphite-subtle-bg
-     pointent sur var(--ct-bg-deep). surface-1 reste le gris réservé aux chips,
-     hovers, insets nichés et états actifs (relief subtil sur le noir). */
-  --ct-surface-0: color-mix(in oklch, #060708, var(--ct-accent) 0%);
-  --ct-surface-1: color-mix(in oklch, #1C1D21, var(--ct-accent) 0%);
-  --ct-surface-1-hi: color-mix(in oklch, #202228, var(--ct-accent) 0%); /* intermediate tier — subtle-bg gradient stop (between surface-1 and -2) */
-  --ct-surface-2: color-mix(in oklch, #26272D, var(--ct-accent) 0%);
-  --ct-surface-3: color-mix(in oklch, #2E3038, var(--ct-accent) 0%);
+  /* ═══════════════════════════════════════════════════════════════════════════
+     NOYAU SURFACES — RÉÉCRIT DE ZÉRO, calqué 1:1 sur Portfolio (LE standard).
 
-  /* Fond gris des PANELS DE PAGE (le grand wrapper bento qui contient une page
-     admin/produit). Token officiel = le gris zinc-900 (#18181b) que Portfolio
-     porte historiquement en dur via bg-zinc-900. Une seule source : changer ici
-     change le fond de toutes les pages en BentoPageShell / .ct-bento-page. */
+     UNE seule hiérarchie de fonds. Tout le produit se branche sur ces 3 niveaux ;
+     plus aucune divergence noir/gris, plus de bg-[#15191C]/bg-black/bg-zinc-900
+     hardcodés. Les anciens noms (graphite-*, surface-0..3, bg-soft) sont conservés
+     comme ALIAS des 3 niveaux pour ne rien casser — ils ne portent plus de valeur
+     propre divergente.
+
+       NIVEAU 1  --ct-surface-page  #18181b  Shell de page / grand wrapper
+                                             (Portfolio: bg-zinc-900)
+       NIVEAU 2  --ct-surface-card  #000000  Cards & panels dans la page
+                                             (Portfolio: bg-black)
+       NIVEAU 3  --ct-surface-inset #15191C  Sous-surfaces: KPI strips, mini-zones,
+                                             chips, hovers (Portfolio: bg-[#15191C])
+
+     Bordures : --ct-border (white/10, liserés page/card) · --ct-border-soft
+     (white/5, hairlines internes). Accent unique : --ct-accent (#A7FB90).
+     Changer un niveau ICI = tout le produit suit, depuis une source unique.
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Les 3 niveaux canoniques (la SEULE vérité de surface du produit) — */
   --ct-surface-page: #18181b;
-
-  /* Gris des SOUS-SURFACES / insets (KPI strips, mini-panels internes, barres de
-     metrics). Token officiel = #15191C, le gris omniprésent en dur dans le code
-     (bg-[#15191C]). Source unique pour BentoKpiStrip + sous-surfaces. */
+  --ct-surface-card: #000000;
   --ct-surface-inset: #15191C;
 
-  /* Canvas central (body) — un cran PLUS CLAIR que le noir des boxes/rails, pour
-     que les boxes noires se détachent comme des dalles. Porte aussi le dot-grid
-     (déplacé des rails). Token DS — aucun hex hardcodé dans les usages. */
-  --ct-bg-center: #191B22;
-
-  /* Graphite module surfaces — solid black plates (no gradient, no glass).
-     L1 box = var(--ct-bg-deep) : MÊME noir que le shell (tout en noir), la
-     séparation vient des liserés (--ct-graphite-border-nested) ; état actif =
-     surface-1 (gris) en relief ; nested inset = surface-2. */
-  --ct-graphite-active-bg: var(--ct-surface-1);
-  --ct-graphite-subtle-bg: var(--ct-bg-deep);
-  --ct-graphite-nested-bg: var(--ct-surface-2);
+  /* Bordures de modules graphite (les surfaces graphite-* ont été supprimées :
+     toute surface passe désormais par les 3 niveaux canoniques ci-dessus). */
   --ct-graphite-border: var(--ct-figma-border-20);
   --ct-graphite-border-nested: var(--ct-figma-border-10);
   --ct-graphite-blur: none;
+
+  /* Canvas central (body) — un cran PLUS CLAIR que le noir des boxes, pour que
+     les cards noires se détachent comme des dalles. Porte le dot-grid. */
+  --ct-bg-center: #191B22;
   /* Bevel — rim light en haut des cards (1px blanc semi-transparent). */
   --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --ct-glass-bevel-hover: inset 0 1px 0 rgba(255, 255, 255, 0.14);
@@ -253,7 +248,7 @@
   --ct-blur-glow-lg: blur(9.375rem);  /* radial brand glow (150px) */
 
   /* Gradients */
-  --ct-gradient-surface: linear-gradient(135deg, var(--ct-surface-3), var(--ct-surface-1));
+  --ct-gradient-surface: linear-gradient(135deg, var(--ct-surface-inset), var(--ct-surface-inset));
 
   /* Spacing scale (rem-based, mirrors Tailwind v4 — adopté comme source de
      vérité Cockpit pour gaps/paddings/margins/positionnement). */
@@ -416,7 +411,7 @@ body {
   overflow: hidden;
   /* Fond charcoal sur la carte composite — ses enfants sont transparents,
      le fond vient donc du conteneur lui-même. */
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   box-shadow: none;
 }
@@ -497,7 +492,7 @@ body {
 .ct-prose-xl { max-width: var(--ct-prose-xl); }
 
 .ct-panel-inset {
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-border-soft);
 }
 
@@ -561,7 +556,7 @@ body {
 }
 
 .ct-nested-panel {
-  background: var(--ct-graphite-nested-bg);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   padding: var(--ct-space-2) var(--ct-space-4);
@@ -618,7 +613,7 @@ body {
 }
 
 .ct-nested-callout {
-  background: var(--ct-graphite-nested-bg);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   padding: var(--ct-space-3) var(--ct-space-4);
@@ -702,7 +697,7 @@ body {
   width: 100%;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border-top: 1px solid var(--ct-border-soft);
   padding: var(--ct-space-4) var(--ct-space-6);
 }
@@ -886,12 +881,12 @@ body {
 }
 
 .scenario-preset-bar__button:hover:not(:disabled):not([aria-checked="true"]) {
-  background: color-mix(in srgb, var(--ct-surface-1) 28%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 28%, transparent);
   color: var(--ct-text-primary);
 }
 
 .scenario-preset-bar__button[aria-checked="true"] {
-  background: color-mix(in srgb, var(--ct-surface-1) 44%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 44%, transparent);
   border-color: color-mix(in srgb, var(--ct-accent) 24%, var(--ct-border-soft));
   color: var(--ct-accent);
   box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ct-accent) 72%, transparent);
@@ -991,7 +986,7 @@ body {
     linear-gradient(
       90deg,
       color-mix(in srgb, var(--ct-accent) 78%, transparent) 0%,
-      color-mix(in srgb, var(--ct-accent) 42%, var(--ct-surface-1)) 100%
+      color-mix(in srgb, var(--ct-accent) 42%, var(--ct-surface-inset)) 100%
     );
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--ct-border-soft) 78%, transparent),
@@ -1075,11 +1070,11 @@ body {
   min-height: var(--ct-scenario-central-console-min-h);
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
 }
 
 .scenario-central-flow-terminal {
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-md);
   padding: var(--ct-space-3);
@@ -1176,7 +1171,7 @@ body {
   flex: none;
   padding: var(--ct-space-4) var(--ct-space-5);
   border-top: 1px solid var(--ct-border-soft);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   box-shadow: 0 -12px 24px color-mix(in srgb, var(--ct-bg-deep) 28%, transparent);
 }
 
@@ -1232,7 +1227,7 @@ body {
   position: relative;
   height: var(--ct-space-1_5);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   overflow: hidden;
 }
 .mining-coverage-calibration__bar {
@@ -1373,7 +1368,7 @@ body {
    Specificity 0,2,0 to beat .ct-pill.accent (0,2,0) which comes later in file */
 .projection-studio-preset-button[aria-pressed="true"].projection-studio-preset-button {
   border-color: var(--ct-border-accent);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   box-shadow: none;
 }
 
@@ -1609,7 +1604,7 @@ body {
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-surface-1) 32%, transparent) 0%,
+      color-mix(in srgb, var(--ct-surface-inset) 32%, transparent) 0%,
       transparent 100%
     );
 }
@@ -1656,7 +1651,7 @@ body {
 }
 
 .dashboard-command-slot--nav.ct-card {
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border-color: var(--ct-graphite-border-nested);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1723,7 +1718,7 @@ body {
 }
 
 .dashboard-command-board .ct-card tbody tr:hover {
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
 }
 
 .dashboard-panel-table-scroll {
@@ -2171,7 +2166,7 @@ body {
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--ct-surface-1) 20%, transparent) 0%,
+      color-mix(in srgb, var(--ct-surface-inset) 20%, transparent) 0%,
       transparent 100%
     );
 }
@@ -2229,7 +2224,7 @@ body {
   border-radius: var(--ct-radius-lg);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ct-surface-0) 22%, transparent),
+    color-mix(in srgb, var(--ct-surface-card) 22%, transparent),
     transparent 100%
   );
   position: relative;
@@ -2561,7 +2556,7 @@ body {
 .dashboard-cockpit .ct-card table { background: transparent; }
 .dashboard-cockpit .ct-card thead tr { border-color: var(--ct-border-soft); }
 .dashboard-cockpit .ct-card tbody tr { border-color: color-mix(in srgb, var(--ct-border-soft) 65%, transparent); }
-.dashboard-cockpit .ct-card tbody tr:hover { background: var(--ct-surface-0); }
+.dashboard-cockpit .ct-card tbody tr:hover { background: var(--ct-surface-card); }
 
 /* ── "View full →" leaf link — dashboard + portfolio hub panels. ── */
 :is(.dashboard-cockpit-leaf-link, .pf-panel-leaf-link) {
@@ -2584,7 +2579,7 @@ body {
 
 /* ── Panel wrapper — solid black surface matching pf-cockpit-panel. ── */
 /* Material shared via the canonical rule:
-   background: var(--ct-graphite-subtle-bg)
+   background: var(--ct-surface-card)
    border: 1px solid var(--ct-graphite-border-nested)
    box-shadow: none
    The rule that applies those properties to .pf-cockpit-panel in cockpit.css
@@ -2600,7 +2595,7 @@ body {
   /* Surface — identical to pf-cockpit-panel */
   padding: var(--ct-space-4) var(--ct-space-5);
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -2676,7 +2671,7 @@ body {
   min-height: 0;
   flex: 1 1 auto;
   border-radius: var(--ct-radius-xl);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   box-shadow: none;
   transition: border-color var(--ct-dur-base) var(--ct-ease);
@@ -2909,11 +2904,11 @@ body {
   -webkit-backdrop-filter: none;
 }
 
-.ct-surface-0    { background: var(--ct-surface-0); }
-.ct-surface-1    { background: var(--ct-surface-1); }
-.ct-surface-2    { background: var(--ct-surface-2); }
-.ct-surface-3    { background: var(--ct-surface-3); }
-.ct-hover-surface:hover { background: var(--ct-surface-2); }
+.ct-surface-0    { background: var(--ct-surface-card); }
+.ct-surface-1    { background: var(--ct-surface-inset); }
+.ct-surface-2    { background: var(--ct-surface-inset); }
+.ct-surface-3    { background: var(--ct-surface-inset); }
+.ct-hover-surface:hover { background: var(--ct-surface-inset); }
 
 /* Donut/ring segment hover affordance — token-based stroke wash (replaces the
    `hover:stroke-white/20` Tailwind arbitrary in vault-allocation-display). */
@@ -2979,7 +2974,7 @@ body {
 .ct-icon-sm--offset-top {
   margin-top: var(--ct-space-0_5);
 }
-.ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-0), transparent); }
+.ct-overlay-surface0 { background-image: linear-gradient(to bottom right, var(--ct-surface-card), transparent); }
 .ct-overlay-accent5 { background-image: linear-gradient(to bottom right, color-mix(in srgb, var(--ct-accent) 5%, transparent), transparent); }
 .ct-bc-base { border-color: var(--ct-border); }
 .ct-bc-soft { border-color: var(--ct-border-soft); }
@@ -3012,7 +3007,7 @@ body {
   gap: var(--ct-space-1);
   text-align: center;
   padding: var(--ct-space-8) var(--ct-space-5);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   min-height: 8rem;
@@ -3024,7 +3019,7 @@ body {
   width: 100%;
   min-height: unset;
   padding-inline: var(--ct-space-4);
-  background: var(--ct-graphite-nested-bg);
+  background: var(--ct-surface-inset);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -3112,7 +3107,7 @@ body {
   z-index: var(--ct-z-raised);
   margin-bottom: var(--ct-space-1);
   padding: var(--ct-space-2) 0 var(--ct-space-3);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -3142,7 +3137,7 @@ body {
   gap: var(--ct-space-1);
   text-align: center;
   padding: var(--ct-space-6) var(--ct-space-4);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
   color: var(--ct-text-muted);
@@ -3227,7 +3222,7 @@ div.ct-surface-1.rounded-xl,
 article.ct-surface-1.rounded-md,
 li.ct-surface-1.rounded-md,
 pre.ct-surface-1.rounded-md {
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-color: var(--ct-graphite-border-nested);
@@ -3240,7 +3235,7 @@ pre.ct-surface-1.rounded-md {
 .ct-glass-panel,
 .ct-section-preview,
 .pf-cockpit-panel {
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -3249,6 +3244,11 @@ pre.ct-surface-1.rounded-md {
 
 .ct-glass-panel {
   border-radius: var(--ct-radius-xl);
+  /* Surface canonique d'une card/panel (= Portfolio bg-black + border-white/10).
+     Branche la primitive sur les tokens au lieu de laisser le panel transparent
+     (qui laissait voir le noir du shell et cassait les KPI strips admin). */
+  background: var(--ct-surface-card);
+  border: 1px solid var(--ct-border);
 }
 
 :is(.ct-glass-panel:not(.ct-glass-panel--flat), .ct-section-preview, .pf-cockpit-panel):hover {
@@ -3267,7 +3267,7 @@ pre.ct-surface-1.rounded-md {
    PAS créer deux surfaces divergentes (flat #060708 vs graphite #1C1D21) sur une
    même page — c'était la cause du conflit de surface Proof Center. */
 .ct-glass-panel--flat {
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
@@ -3399,14 +3399,14 @@ pre.ct-surface-1.rounded-md {
   font-size: var(--ct-text-xs);
   font-weight: var(--ct-font-bold);
   letter-spacing: var(--ct-tracking-wide);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border);
   color: var(--ct-text-body);
   white-space: nowrap;
 }
 
 .ct-pill.accent {
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   border-color: var(--ct-border);
   color: var(--ct-text-strong);
   box-shadow: none;
@@ -3417,7 +3417,7 @@ pre.ct-surface-1.rounded-md {
 [role="tablist"] .ct-pill.accent[aria-current="page"] {
   color: var(--ct-accent);
   border-color: var(--ct-border-accent);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
 }
 
 /* Focus ring only fires on focusable pills (button/link/tabindex); static badge
@@ -3444,7 +3444,7 @@ button.ct-choice-card {
   width: 100%;
   border-radius: var(--ct-radius-sm);
   border: 1px solid var(--ct-border-strong);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-primary);
   padding: 0.375rem 0.5rem;
   font-size: var(--ct-text-sm);
@@ -3459,7 +3459,7 @@ button.ct-choice-card {
   outline: 2px solid var(--ct-border-accent);
   outline-offset: 2px;
   border-color: var(--ct-border-accent);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
 }
 
 .ct-input:focus-visible,
@@ -3517,7 +3517,7 @@ button.ct-choice-card {
   padding: var(--ct-space-3) var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 40%, transparent);
   color: var(--ct-text-primary);
   font-size: var(--ct-text-sm);
   line-height: var(--ct-leading-relaxed);
@@ -3531,13 +3531,13 @@ button.ct-choice-card {
 
 .ct-choice-card:hover {
   border-color: var(--ct-border);
-  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 80%, transparent);
   color: var(--ct-text-strong);
 }
 
 .ct-choice-card--selected {
   border-color: var(--ct-accent);
-  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 80%, transparent);
   color: var(--ct-text-strong);
 }
 
@@ -3596,7 +3596,7 @@ button.ct-choice-card {
   border-radius: var(--ct-radius-full);
   /* Dark shell : footer/menu flottant = charcoal opaque (un cran plus clair
      pour se détacher du centre), liseré clair pour le relief sur le fond. */
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-on-dark);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -3648,7 +3648,7 @@ button.ct-choice-card {
 }
 
 .ct-seg-btn:hover {
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-primary);
 }
 
@@ -3692,7 +3692,7 @@ button.ct-choice-card {
 
 /* ── SONNER TOAST — Cockpit dark theme ── */
 [data-sonner-toaster] [data-sonner-toast] {
-  background: var(--ct-surface-2) !important;
+  background: var(--ct-surface-inset) !important;
   border: 1px solid var(--ct-border) !important;
   color: var(--ct-text-primary) !important;
 }
@@ -4278,7 +4278,7 @@ button.ct-choice-card {
   justify-content: center;
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
   padding: var(--ct-space-1) var(--ct-space-1_5);
   color: var(--ct-text-body);
   font-size: var(--ct-text-micro);
@@ -4339,7 +4339,7 @@ button.ct-choice-card {
   color: var(--ct-accent) !important;
   font-weight: var(--ct-font-bold) !important;
   letter-spacing: var(--ct-tracking-wide);
-  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-1)) !important;
+  background: color-mix(in srgb, var(--ct-accent) 10%, var(--ct-surface-inset)) !important;
   border: 1px solid color-mix(in srgb, var(--ct-accent) 45%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--ct-accent) 18%, transparent),
@@ -4353,7 +4353,7 @@ button.ct-choice-card {
 
 .ct-avatar:hover {
   border-color: color-mix(in srgb, var(--ct-accent) 70%, transparent) !important;
-  background: color-mix(in srgb, var(--ct-accent) 16%, var(--ct-surface-1)) !important;
+  background: color-mix(in srgb, var(--ct-accent) 16%, var(--ct-surface-inset)) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--ct-accent) 30%, transparent),
     0 0 18px -2px color-mix(in srgb, var(--ct-accent) 50%, transparent),
@@ -4384,7 +4384,7 @@ button.ct-choice-card {
    (aucun décalage — seule la couleur change). */
 .ct-avatar.active {
   color: var(--ct-status-danger) !important;
-  background: color-mix(in srgb, var(--ct-status-danger) 12%, var(--ct-surface-1)) !important;
+  background: color-mix(in srgb, var(--ct-status-danger) 12%, var(--ct-surface-inset)) !important;
   border-color: color-mix(in srgb, var(--ct-status-danger) 55%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--ct-status-danger) 25%, transparent),
@@ -4935,14 +4935,14 @@ main#main-content>.admin-doc.admin-doc-shell {
   font-size: var(--ct-text-xs);
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-strong);
   cursor: pointer;
   transition: border-color var(--ct-dur-fast) var(--ct-ease), background var(--ct-dur-fast) var(--ct-ease);
 }
 .ct-chat-preset-chip:hover {
   border-color: var(--ct-accent);
-  background: var(--ct-surface-3);
+  background: var(--ct-surface-inset);
 }
 .ct-chat-preset-chip--disabled,
 .ct-chat-preset-chip:disabled {
@@ -4984,7 +4984,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: var(--ct-space-1_5) var(--ct-space-2_5);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-md);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 50%, transparent);
   font-size: var(--ct-text-xs);
   color: var(--ct-text-secondary);
   min-width: 0;
@@ -5115,7 +5115,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Formulaire de chat - on enlève la lourdeur du package */
 .ct-chat-form {
   padding: var(--ct-space-2) var(--ct-space-2) var(--ct-space-2) var(--ct-space-3);
-  background: var(--ct-surface-1) !important;
+  background: var(--ct-surface-inset) !important;
   border: 1px solid var(--ct-border-soft) !important;
 }
 .ct-chat-form:focus-within {
@@ -5154,7 +5154,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Chat Chart Card — Flat integration.
    Refined cards that sit comfortably in the bubble-less flow. */
 .ct-chat-chart {
-  background: color-mix(in srgb, var(--ct-surface-1) 30%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 30%, transparent);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-md);
   padding: var(--ct-space-3);
@@ -5186,7 +5186,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   font-size: var(--ct-text-nano);
   padding: 1px 4px;
   border-radius: var(--ct-radius-xs);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-faint);
   text-transform: uppercase;
 }
@@ -5252,7 +5252,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Context Card */
 .ct-chat-context-card {
   width: 100%;
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 40%, transparent);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-md);
   padding: var(--ct-space-3);
@@ -5367,7 +5367,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 .ct-chat-settings-segment:hover {
   color: var(--ct-text-strong);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
 }
 .ct-chat-settings-segment[aria-checked="true"] {
   color: var(--ct-bg-deep);
@@ -5472,7 +5472,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: var(--ct-space-2) var(--ct-space-4);
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
 }
 
 .login-split__apy-dot {
@@ -5640,7 +5640,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* ── DEBUG / PORTFOLIO FULL — KPI card glass pattern ────────────────────────
    Same recipe used across all 4 KPI articles in the debug portfolio view. */
 .ct-kpi-glass {
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-radius: var(--ct-radius-xl);
@@ -5722,7 +5722,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   position: relative;
   width: 100%;
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-soft);
   overflow: hidden;
   height: 160px;
@@ -5733,7 +5733,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   height: 160px;
   width: 100%;
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px dashed var(--ct-border-soft);
   display: flex;
   align-items: center;
@@ -5767,14 +5767,14 @@ main#main-content>.admin-doc.admin-doc-shell {
   color: var(--ct-status-danger);
 }
 .ct-sig-avatar--neutral {
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-muted);
 }
 
 /* Soft-lock progress bar track */
 .ct-lock-track {
   height: 6px;
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   border-radius: var(--ct-radius-full);
   overflow: hidden;
   width: 100%;
@@ -5786,7 +5786,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   align-items: center;
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-border);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   padding: 0.125rem 0.5rem;
   font-size: var(--ct-text-micro);
   font-weight: 500;
@@ -5875,14 +5875,14 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .wizard-step-progress__dot--active {
   border-color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-border));
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-strong);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
 }
 
 .wizard-step-progress__dot--pending {
   border-color: var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-muted);
 }
 
@@ -5964,7 +5964,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 /* Active dot — ringed + soft accent halo, the visual "you are here". */
 .wizard-step-progress--rail .wizard-step-progress__dot--active {
   border-color: color-mix(in srgb, var(--ct-accent) 70%, var(--ct-border));
-  background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-1));
+  background: color-mix(in srgb, var(--ct-accent) 12%, var(--ct-surface-inset));
   color: var(--ct-text-strong);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 40%, transparent),
@@ -5982,7 +5982,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .wizard-step-progress--rail .wizard-step-progress__dot--pending {
   border-color: var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-muted);
 }
 
@@ -6154,7 +6154,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   height: var(--ct-space-5);
   border-radius: var(--ct-radius-sm);
   border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   transition:
     border-color var(--ct-dur-base) var(--ct-ease),
     background-color var(--ct-dur-base) var(--ct-ease);
@@ -6210,7 +6210,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   overflow: hidden;
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   /* Panel opaque (surface-2) — pas de frost. */
   /* Reflow on the list's OWN width (compressed by the open chat), not the
      viewport — a viewport media query misses chat-compressed admin centre. */
@@ -6253,7 +6253,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .admin-vaults-list__row:hover {
   /* Hover = un cran au-dessus du panel (surface-2) → surface-3, profondeur. */
-  background: var(--ct-surface-3);
+  background: var(--ct-surface-inset);
 }
 
 .admin-vaults-list__identity {
@@ -6419,7 +6419,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .cp-trigger:hover {
   color: var(--ct-text-primary);
-  background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 80%, transparent);
   border-color: var(--ct-border-soft);
 }
 
@@ -6454,7 +6454,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   max-height: 70vh;
   display: flex;
   flex-direction: column;
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-lg);
   box-shadow: var(--ct-dialog-shadow), var(--ct-dialog-ring);
@@ -6522,7 +6522,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .cp-input-row__close:hover {
   color: var(--ct-text-primary);
-  background: color-mix(in srgb, var(--ct-surface-2) 80%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 80%, transparent);
   border-color: var(--ct-border-soft);
 }
 
@@ -6686,14 +6686,14 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: 0 var(--ct-space-2);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-sm);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-body);
   font-size: var(--ct-text-micro);
   font-weight: 700;
   cursor: pointer;
 }
 .ct-outreach-tier-option:hover:not(:disabled) {
-  background: var(--ct-surface-3);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-strong);
 }
 
@@ -6788,7 +6788,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: var(--ct-space-3);
   border: 1px solid var(--ct-border-soft);
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
 }
 .ct-canvas-field-label {
   display: flex;
@@ -6831,7 +6831,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding: var(--ct-space-4);
   border: 1px solid var(--ct-border);
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
 }
 .ct-canvas-action-head {
   display: flex;

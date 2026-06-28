@@ -66,7 +66,7 @@ export function OutreachAutonomyPanel({
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
       {/* Left: Status & Mode Summary */}
-      <BentoPanel className="bg-[#15191C] p-5">
+      <BentoPanel className="bg-surface-inset p-5">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

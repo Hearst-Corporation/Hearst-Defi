@@ -98,7 +98,7 @@ export function RebalancingEventsPanel({
     return bare ? (
       empty
     ) : (
-      <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
         {empty}
       </div>
     );
@@ -173,7 +173,7 @@ export function RebalancingEventsPanel({
               </div>
 
               {/* Meta block — nested bento sub-panel */}
-              <dl className="grid grid-cols-1 gap-2.5 rounded-lg bg-[#15191C] p-4">
+              <dl className="grid grid-cols-1 gap-2.5 rounded-lg bg-surface-inset p-4">
                 <div className="flex items-baseline justify-between gap-3">
                   <dt className={microLabel}>Triggered</dt>
                   <dd className="text-[12px] font-mono text-zinc-300 text-right tabular-nums">
@@ -228,7 +228,7 @@ export function RebalancingEventsPanel({
   return bare ? (
     inner
   ) : (
-    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
       {inner}
     </div>
   );

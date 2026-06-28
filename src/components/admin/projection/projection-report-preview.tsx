@@ -45,7 +45,7 @@ type FieldErrors = Partial<Record<ProjectionDraftField, string>>;
 
 const alloc = PREVIEW_PROJECTION_INPUT.allocation ?? [];
 
-const PANEL = "rounded-2xl border border-white/10 bg-black shadow-sm";
+const PANEL = "rounded-2xl border border-white/10 bg-surface-card shadow-sm";
 
 export function ProjectionReportPreview() {
   const [mode, setMode] = useState<Mode>("v0");
@@ -273,8 +273,8 @@ export function ProjectionReportPreview() {
       {state.kind === "loading" ? (
         <div className={cn(PANEL, "p-5 flex flex-col gap-2")} aria-busy="true">
           <p className="text-[13px] font-semibold text-white m-0">Building projection…</p>
-          <div className="h-3 w-2/5 rounded-sm bg-[#15191C] animate-pulse" />
-          <div className="h-3 w-3/4 rounded-sm bg-[#15191C] animate-pulse" />
+          <div className="h-3 w-2/5 rounded-sm bg-surface-inset animate-pulse" />
+          <div className="h-3 w-3/4 rounded-sm bg-surface-inset animate-pulse" />
         </div>
       ) : null}
 
@@ -344,7 +344,7 @@ function DraftField({
         id={id}
         name={field}
         className={cn(
-          "w-full min-w-0 box-border rounded-md border bg-[#15191C] text-white font-mono text-[13px] px-3 py-2 transition-colors outline-none focus:border-[#A7FB90]/40",
+          "w-full min-w-0 box-border rounded-md border bg-surface-inset text-white font-mono text-[13px] px-3 py-2 transition-colors outline-none focus:border-[#A7FB90]/40",
           error ? "border-red-400/50" : "border-white/10",
         )}
         value={value}

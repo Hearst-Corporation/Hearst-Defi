@@ -57,7 +57,7 @@ function riskColor(score: number): "green" | "amber" | "red" {
 
 // Portfolio-canon field chrome: dark sub-surface, hairline border, accent focus.
 const FIELD =
-  "w-full rounded-lg border border-white/10 bg-[#15191C] px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
+  "w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
 const FIELD_COMPACT =
   "w-full rounded-lg border border-white/10 bg-[#0F1316] px-3 py-2 text-[12px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
 
@@ -161,7 +161,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
         <BentoPanel aria-label="Allowlist entries">
           <BentoHeader title="Allowlist entries" />
           <div className="p-5 lg:p-6">
-            <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-8 text-center">
+            <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-surface-inset p-8 text-center">
               <p className="text-[13px] font-medium text-zinc-300">
                 No addresses on the allowlist yet.
               </p>

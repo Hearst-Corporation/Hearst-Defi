@@ -51,7 +51,7 @@ export function DistributionPreview({
       </div>
 
       {/* Recipients table */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#15191C]">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-surface-inset">
         <table className="w-full table-fixed text-left text-[13px] tabular-nums">
           <thead>
             <tr className="border-b border-white/5">

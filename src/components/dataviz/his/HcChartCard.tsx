@@ -66,7 +66,7 @@ export function HcChartCard({
       data-state={state}
       className="relative flex flex-col"
       style={{
-        background: "var(--ct-surface-1)",
+        background: "var(--ct-surface-inset)",
         border: "1px solid var(--ct-border)",
         borderRadius: "var(--ct-radius-xl)",
         boxShadow: "var(--ct-shadow-depth)",
@@ -140,7 +140,7 @@ export function HcChartCard({
         {state === "loading" ? (
           <div
             className="h-full w-full animate-pulse"
-            style={{ borderRadius: "var(--ct-radius-md)", background: "var(--ct-surface-2)" }}
+            style={{ borderRadius: "var(--ct-radius-md)", background: "var(--ct-surface-inset)" }}
           />
         ) : state === "empty" ? (
           <HcEmptySurface />

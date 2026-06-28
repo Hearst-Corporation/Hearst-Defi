@@ -114,7 +114,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
 
   return (
     <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/5 bg-white/5">
-      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+      <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
           Target APY
         </dt>
@@ -127,7 +127,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
           />
         </dd>
       </div>
-      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+      <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
           Lock-up
         </dt>
@@ -135,7 +135,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
           {vault.softLockupDays}d soft
         </dd>
       </div>
-      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+      <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
           Min ticket
         </dt>
@@ -143,7 +143,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
           {formatUsdAmount(vault.minTicketUsdc, true)}
         </dd>
       </div>
-      <div className="flex flex-col gap-1.5 p-4 bg-[#15191C]">
+      <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
           Fees (gross)
         </dt>
@@ -171,7 +171,7 @@ function AmountLedger({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-[#15191C] transition-colors",
+        "rounded-lg border bg-surface-inset transition-colors",
         isValid ? "border-white/10" : "border-red-500/40",
         isCalculating && "opacity-80",
       )}
@@ -456,7 +456,7 @@ function InvestFormUnconfigured({
         <div className="p-5 flex flex-col gap-5">
           <div>
             <label className="flex items-start gap-3 cursor-default opacity-60">
-              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-white/15 bg-[#15191C]" />
+              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-white/15 bg-surface-inset" />
               <span className="text-[13px] text-zinc-300 leading-snug">
                 I have reviewed and accept the term sheet for {vault.name}.
               </span>
@@ -467,7 +467,7 @@ function InvestFormUnconfigured({
             </p>
           </div>
 
-          <div className="rounded-lg border border-white/5 bg-[#15191C] p-4">
+          <div className="rounded-lg border border-white/5 bg-surface-inset p-4">
             <p className="text-[13px] text-zinc-400 m-0">
               Wallet connection will be enabled for your account before deposit
               signing.
@@ -712,7 +712,7 @@ function InvestFormLive({
                       "flex size-4 items-center justify-center rounded border transition-colors",
                       agreedToTermSheet
                         ? "border-[#A7FB90] bg-[#A7FB90]"
-                        : "border-white/15 bg-[#15191C]",
+                        : "border-white/15 bg-surface-inset",
                     )}
                   >
                     {agreedToTermSheet ? (
@@ -762,7 +762,7 @@ function InvestFormLive({
 
             {awaitingConfirm ? (
               <div
-                className="rounded-lg border border-white/10 bg-[#15191C] p-5 flex flex-col gap-4"
+                className="rounded-lg border border-white/10 bg-surface-inset p-5 flex flex-col gap-4"
                 aria-label="Confirm your deposit"
               >
                 <div className="flex items-baseline justify-between">

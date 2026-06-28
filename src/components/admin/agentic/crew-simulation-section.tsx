@@ -79,7 +79,7 @@ function KpiCell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 bg-[#15191C] p-4">
+    <div className="flex flex-col gap-2 bg-surface-inset p-4">
       <Label>{label}</Label>
       <div className="flex items-center">{children}</div>
     </div>
@@ -107,7 +107,7 @@ export function CrewSimulationSection({
           ({ scenario, summary, requiredGates, blockedActions }) => {
             const showRisk = scenario.risk !== "low" && scenario.risk !== "none";
             return (
-              <BentoPanel key={scenario.id} className="bg-[#15191C]">
+              <BentoPanel key={scenario.id} className="bg-surface-inset">
                 <div className="flex flex-col gap-1.5 p-5">
                   <h3 className="text-[14px] font-semibold leading-tight text-white">
                     {scenario.label}
@@ -117,7 +117,7 @@ export function CrewSimulationSection({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-white/5 bg-black">
+                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-white/5 bg-surface-card">
                   <KpiCell label="Risk">
                     {showRisk ? (
                       <Tag tone={riskTone(scenario.risk)}>{scenario.risk}</Tag>

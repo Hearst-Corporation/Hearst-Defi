@@ -30,7 +30,7 @@ const FIELD_LABEL =
 
 /** Native input/select/textarea chrome — bento canon. */
 const FIELD_CONTROL =
-  "w-full bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 focus:outline-none rounded-lg px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600";
+  "w-full bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 focus:outline-none rounded-lg px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600";
 
 /** Neutral badge pill used in the persona summary + base-agent echo. */
 function Pill({
@@ -107,7 +107,7 @@ export function AgentTemplateForm({
     >
       {/* Selected base agent — echoes the catalog card you arrived from. */}
       {entry && (
-        <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+        <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5">
           <span
             aria-hidden
             className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"

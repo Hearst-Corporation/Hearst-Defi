@@ -334,7 +334,7 @@ export function ContractsAuditTrail({
   return (
     <div className="dark flex flex-col gap-y-5">
       {platformAddresses.length > 0 ? (
-        <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <PanelHeader
             title="On-chain addresses"
             subtitle="Vault, manager & custody scope"
@@ -352,7 +352,7 @@ export function ContractsAuditTrail({
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <PanelHeader
           title="Deployed contracts · test network"
           subtitle="Configured deployment addresses"
@@ -369,7 +369,7 @@ export function ContractsAuditTrail({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <PanelHeader
           title="Contract audit trail"
           subtitle="Review status"

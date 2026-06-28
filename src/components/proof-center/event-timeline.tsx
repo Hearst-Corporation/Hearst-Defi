@@ -129,7 +129,7 @@ function EventTimelineItem({
           </span>
         </div>
 
-        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-white/10 bg-black p-4 shadow-sm">
+        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-white/10 bg-surface-card p-4 shadow-sm">
           <EventMetaRow label="Timestamp">
             {dateFmt.format(event.timestamp)} UTC
           </EventMetaRow>

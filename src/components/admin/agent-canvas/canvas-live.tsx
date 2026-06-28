@@ -142,7 +142,7 @@ export function CanvasLive({
 
   if (!state) {
     return (
-      <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-white/10 bg-black px-6 py-12 text-center">
+      <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-white/10 bg-surface-card px-6 py-12 text-center">
         <p className="text-[13px] leading-relaxed text-zinc-500">
           The agent is opening this workspace…
           <br />

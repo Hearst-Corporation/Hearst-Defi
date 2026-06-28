@@ -92,7 +92,7 @@ function AllocationDiffTable({
   if (buckets.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#15191C]">
+    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-surface-inset">
       <table className="w-full table-fixed text-left text-[13px] tabular-nums">
         <thead>
           <tr className="border-b border-white/5">
@@ -356,7 +356,7 @@ export function RebalanceCard({
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Rejection reason…"
-                  className="flex-1 rounded-lg border border-white/10 bg-[#15191C] px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
+                  className="flex-1 rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
                   disabled={isPending}
                 />
                 <Button

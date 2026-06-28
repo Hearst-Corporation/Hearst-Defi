@@ -46,7 +46,7 @@
   width: var(--ct-space-16);
   height: var(--ct-space-16);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-3);
+  background: var(--ct-surface-inset);
   border: var(--ct-space-px) solid var(--ct-border-strong);
   display: flex;
   align-items: center;

@@ -17,7 +17,7 @@ export function OpsContactCard({
 }: OpsContactCardProps) {
   return (
     <section
-      className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+      className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
       role="complementary"
       aria-label="Investor Relations contact"
     >

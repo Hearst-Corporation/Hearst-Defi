@@ -43,7 +43,7 @@ function WalletSurface({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden p-6",
+        "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden p-6",
         className,
       )}
       {...props}
@@ -134,7 +134,7 @@ function PrivyConnectInner({
           Wallet linked
         </span>
 
-        <p className="m-0 rounded-lg border border-white/5 bg-[#15191C] px-4 py-2.5 font-mono text-[13px] tabular-nums text-white">
+        <p className="m-0 rounded-lg border border-white/5 bg-surface-inset px-4 py-2.5 font-mono text-[13px] tabular-nums text-white">
           {abbreviateAddress(address)}
         </p>
 
@@ -190,7 +190,7 @@ export function PrivyWalletConnect({
     return (
       <div
         role="note"
-        className="rounded-2xl border border-white/10 bg-black p-6 text-center shadow-sm"
+        className="rounded-2xl border border-white/10 bg-surface-card p-6 text-center shadow-sm"
       >
         <p className="m-0 text-[13px] font-medium text-white">
           Wallet connection is not yet available for your account

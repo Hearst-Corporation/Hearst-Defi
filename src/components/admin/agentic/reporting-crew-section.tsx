@@ -102,7 +102,7 @@ function SectionCard({ section }: { section: ReportingCrewSectionData }) {
             {section.metrics.map((m) => (
               <div
                 key={m.id}
-                className="flex min-w-[7rem] flex-1 flex-col gap-1.5 bg-[#15191C] p-3"
+                className="flex min-w-[7rem] flex-1 flex-col gap-1.5 bg-surface-inset p-3"
               >
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                   {m.label}

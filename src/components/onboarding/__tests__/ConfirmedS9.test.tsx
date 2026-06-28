@@ -147,7 +147,7 @@ describe("S9 ConfirmedPage — all required elements present", () => {
     expect(html).not.toMatch(/eyebrow[^>]*>Invest · Step/);
     // Bento panels (Portfolio canon), not the legacy product-doc / vault-panel DS.
     expect(html).toContain("rounded-2xl");
-    expect(html).toContain("bg-black");
+    expect(html).toContain("bg-surface-card");
     expect(html).not.toContain("vault-panel-row");
     expect(html).not.toContain("vault-panel-inset-block");
     expect(html).toContain("Add to calendar");

@@ -61,7 +61,7 @@ export function HcCompositionRing({
           cy={cy}
           r={r}
           fill="none"
-          stroke="var(--ct-surface-2)"
+          stroke="var(--ct-surface-inset)"
           strokeWidth={strokeWidth}
           data-hc-ring="track"
         />

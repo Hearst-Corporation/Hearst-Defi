@@ -26,7 +26,7 @@
   height: var(--ct-space-3);
   width: var(--ct-space-3);
   border-radius: var(--ct-radius-full);
-  border: 2px solid var(--ct-surface-2);
+  border: 2px solid var(--ct-surface-inset);
 }
 
 /* timeline item leaf rhythm — folded off the JSX (was mt-1 ×4). Token spacing
@@ -199,7 +199,7 @@
   width: var(--ct-space-8);
   height: var(--ct-space-8);
   border-radius: var(--ct-radius-md);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-soft);
   flex-shrink: 0;
 }

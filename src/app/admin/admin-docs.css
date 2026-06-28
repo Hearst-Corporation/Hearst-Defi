@@ -52,7 +52,7 @@
 }
 
 .admin-doc .admin-doc-spec-link.is-active {
-  background: var(--ct-graphite-nested-bg);
+  background: var(--ct-surface-inset);
   color: var(--ct-text-primary);
 }
 
@@ -180,7 +180,7 @@
   padding: var(--ct-space-2) var(--ct-space-4);
   border-radius: var(--ct-radius-full);
   border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   color: var(--ct-text-primary);
   font-weight: var(--ct-font-medium);
   text-decoration: none;
@@ -213,7 +213,7 @@
   border: 1px solid var(--ct-graphite-border-nested);
   border-left-width: var(--ct-space-0_5);
   border-radius: var(--ct-radius-lg);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
 }
 .agentic-statusline[data-health="healthy"] { border-left-color: var(--ct-status-success); }
 .agentic-statusline[data-health="watch"]   { border-left-color: var(--ct-status-warning); }
@@ -275,7 +275,7 @@
 .agentic-group {
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-lg);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   overflow: clip;
 }
 .agentic-group + .agentic-group { margin-top: 0; }
@@ -291,7 +291,7 @@
   transition: background var(--ct-dur-base) var(--ct-ease);
 }
 .agentic-group-summary::-webkit-details-marker { display: none; }
-.agentic-group-summary:hover { background: var(--ct-graphite-nested-bg); }
+.agentic-group-summary:hover { background: var(--ct-surface-inset); }
 .agentic-group-summary:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 1px var(--ct-accent);
@@ -354,7 +354,7 @@
   text-transform: uppercase;
   letter-spacing: var(--ct-tracking-wider);
   color: var(--ct-text-muted);
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border-bottom: 1px solid var(--ct-border-strong);
   white-space: nowrap;
 }
@@ -369,7 +369,7 @@
 .agentic-table tbody tr {
   transition: background var(--ct-dur-base) var(--ct-ease);
 }
-.agentic-table tbody tr:hover { background: var(--ct-graphite-nested-bg); }
+.agentic-table tbody tr:hover { background: var(--ct-surface-inset); }
 
 /* Left tier/tone accent rail on a row, driven by data-tone. */
 .agentic-table tbody td:first-child { border-left: var(--ct-space-0_5) solid transparent; }
@@ -583,7 +583,7 @@ tr[data-tone="accent"]   td:first-child { border-left-color: var(--ct-accent); }
   right: var(--ct-space-4);
   width: 20rem;
   border-radius: var(--ct-radius-lg);
-  background: var(--ct-surface-2);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-border-subtle);
   box-shadow: var(--ct-shadow-lg);
 }

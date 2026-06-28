@@ -37,7 +37,7 @@ export function VaultKpiCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-white/5 bg-[#15191C] p-4">
+    <div className="flex flex-col gap-2 rounded-lg border border-white/5 bg-surface-inset p-4">
       <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
         {label}
       </span>
@@ -107,7 +107,7 @@ export function VaultPanelInsetBlock({
   return (
     <div
       className={cn(
-        "rounded-lg border border-white/5 bg-[#15191C] p-4",
+        "rounded-lg border border-white/5 bg-surface-inset p-4",
         className,
       )}
     >

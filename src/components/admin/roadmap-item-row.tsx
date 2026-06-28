@@ -28,7 +28,7 @@ const STATUSES: RoadmapStatus[] = [
 ];
 
 const INPUT_CLASS =
-  "mt-2 w-full rounded-lg border border-white/10 bg-[#15191C] px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
+  "mt-2 w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
 
 const GHOST_BTN =
   "rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";

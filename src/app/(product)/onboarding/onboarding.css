@@ -214,7 +214,7 @@ body:has([data-testid="apply-shell"]) {
 .onboarding-chamber__sole {
   padding: var(--ct-space-5) var(--ct-space-5) var(--ct-space-6);
   border-top: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-0);
+  background: var(--ct-surface-card);
 }
 
 /* Split funnel: sole tracks the prose-sm column — no full-band footer that
@@ -346,7 +346,7 @@ body:has([data-testid="apply-shell"]) {
   padding: var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 60%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 60%, transparent);
 }
 
 .ct-apply-assistant-mark {
@@ -391,7 +391,7 @@ body:has([data-testid="apply-shell"]) {
   padding: var(--ct-space-3) var(--ct-space-4);
   border-radius: var(--ct-radius-lg);
   border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 40%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 40%, transparent);
   color: var(--ct-text-primary);
   font-size: var(--ct-text-sm);
   text-align: left;
@@ -408,7 +408,7 @@ body:has([data-testid="apply-shell"]) {
 
 .ct-apply-assistant-suggestion:hover:not(:disabled) {
   border-color: var(--ct-border);
-  background: color-mix(in srgb, var(--ct-surface-1) 80%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 80%, transparent);
   color: var(--ct-text-strong);
 }
 
@@ -446,7 +446,7 @@ body:has([data-testid="apply-shell"]) {
   padding: var(--ct-space-3) var(--ct-space-3) var(--ct-space-3) var(--ct-space-4);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-border-soft);
-  background: color-mix(in srgb, var(--ct-surface-1) 50%, transparent);
+  background: color-mix(in srgb, var(--ct-surface-inset) 50%, transparent);
   text-align: left;
   font: inherit;
   cursor: default;

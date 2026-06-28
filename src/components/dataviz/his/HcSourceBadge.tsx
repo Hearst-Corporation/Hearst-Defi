@@ -67,7 +67,7 @@ export function HcSourceBadge({ status, dotOnly = false, title }: HcSourceBadgeP
         padding: dotOnly ? 0 : "2px 8px",
         borderRadius: "var(--ct-radius-full)",
         border: dotOnly ? "none" : `1px solid ${c.border}`,
-        background: dotOnly ? "transparent" : "var(--ct-surface-2)",
+        background: dotOnly ? "transparent" : "var(--ct-surface-inset)",
       }}
     >
       <span

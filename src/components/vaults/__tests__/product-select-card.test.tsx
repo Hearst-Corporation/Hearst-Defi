@@ -44,7 +44,7 @@ describe("ProductSelectCard — DS layout + provenance", () => {
     // Bento panel chrome (Portfolio canon), not the legacy vault-select-card DS.
     expect(html).toContain("rounded-2xl");
     expect(html).toContain("border-white/10");
-    expect(html).toContain("bg-black");
+    expect(html).toContain("bg-surface-card");
     expect(html).not.toContain("vault-select-card");
     // Flat term rows still present.
     expect(html).toContain("Min. ticket");

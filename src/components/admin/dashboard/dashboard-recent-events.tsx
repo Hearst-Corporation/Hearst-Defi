@@ -48,7 +48,7 @@ export function DashboardRecentEvents({
               </div>
             )}
 
-            <div className="relative flex size-6 flex-none items-center justify-center rounded-full bg-black ring-1 ring-white/5">
+            <div className="relative flex size-6 flex-none items-center justify-center rounded-full bg-surface-card ring-1 ring-white/5">
               {isLatest ? (
                 <div className="size-2 rounded-full bg-[#A7FB90] ring-4 ring-[#111417]" />
               ) : (

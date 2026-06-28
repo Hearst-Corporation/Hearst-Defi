@@ -67,7 +67,7 @@ const DEFAULT_2D_Y_VALUES = [0.05, 0.085, 0.12];
 // ─── Bento style tokens (Portfolio canon) ────────────────────────────────────
 
 // Nested sub-surface inside a black bento panel.
-const SUB_SURFACE = "rounded-lg border border-white/10 bg-[#15191C]";
+const SUB_SURFACE = "rounded-lg border border-white/10 bg-surface-inset";
 // Micro uppercase eyebrow label.
 const EYEBROW = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
 
@@ -244,17 +244,17 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
       {xAxis && (
         <div className="flex select-none items-center gap-2 text-[12px] text-zinc-400">
           <span className={EYEBROW}>Axis</span>
-          <span className="rounded border border-white/10 bg-[#15191C] px-1 font-mono text-zinc-300">{xAxis}</span>
+          <span className="rounded border border-white/10 bg-surface-inset px-1 font-mono text-zinc-300">{xAxis}</span>
           {yAxis && (
             <>
               <span className="text-zinc-600">×</span>
-              <span className="rounded border border-white/10 bg-[#15191C] px-1 font-mono text-zinc-300">{yAxis}</span>
+              <span className="rounded border border-white/10 bg-surface-inset px-1 font-mono text-zinc-300">{yAxis}</span>
             </>
           )}
         </div>
       )}
       <div
-        className="rounded-xl border border-white/10 bg-black p-1"
+        className="rounded-xl border border-white/10 bg-surface-card p-1"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
@@ -504,7 +504,7 @@ export function ProjectionStudio() {
                   "flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors disabled:opacity-50",
                   active
                     ? "border-[#A7FB90]/40 bg-[#A7FB90]/10"
-                    : "border-white/10 bg-[#15191C] hover:border-white/20",
+                    : "border-white/10 bg-surface-inset hover:border-white/20",
                 )}
               >
                 <span
@@ -735,7 +735,7 @@ export function ProjectionStudio() {
                   {/* Single run: KPI grid */}
                   {result.runIds.length === 1 && selectedCell && (
                     <div className={cn("grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3", SUB_SURFACE)}>
-                      <div className="bg-[#15191C] p-4">
+                      <div className="bg-surface-inset p-4">
                         <Metric
                           label="APY Range"
                           provenance="estimated"
@@ -744,7 +744,7 @@ export function ProjectionStudio() {
                           }
                         />
                       </div>
-                      <div className="bg-[#15191C] p-4">
+                      <div className="bg-surface-inset p-4">
                         <Metric
                           label="Risk Score"
                           provenance="estimated"
@@ -755,7 +755,7 @@ export function ProjectionStudio() {
                           }
                         />
                       </div>
-                      <div className="bg-[#15191C] p-4">
+                      <div className="bg-surface-inset p-4">
                         <Metric
                           label="Confidence"
                           provenance="estimated"
@@ -797,7 +797,7 @@ export function ProjectionStudio() {
                   {/* Selected cell detail (batch) */}
                   {result.runIds.length > 1 && selectedCell && (
                     <div className={cn("grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3", SUB_SURFACE)}>
-                      <div className="bg-[#15191C] p-4">
+                      <div className="bg-surface-inset p-4">
                         <Metric
                           label="Selected APY Range"
                           provenance="estimated"
@@ -806,7 +806,7 @@ export function ProjectionStudio() {
                           }
                         />
                       </div>
-                      <div className="bg-[#15191C] p-4">
+                      <div className="bg-surface-inset p-4">
                         <Metric
                           label="Risk Score"
                           provenance="estimated"
@@ -817,7 +817,7 @@ export function ProjectionStudio() {
                           }
                         />
                       </div>
-                      <div className="bg-[#15191C] p-4">
+                      <div className="bg-surface-inset p-4">
                         <Metric
                           label="Confidence"
                           provenance="estimated"

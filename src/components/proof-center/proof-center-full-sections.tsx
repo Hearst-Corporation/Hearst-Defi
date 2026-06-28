@@ -140,7 +140,7 @@ export function ProofCenterFullSections({
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-[#15191C] px-6 py-10 text-center">
+          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-surface-inset px-6 py-10 text-center">
             <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
               Governance queue
             </div>

@@ -4,7 +4,7 @@
 export default function ProofCenterLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8"
+      className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label="Loading proof center"
     >
@@ -13,11 +13,11 @@ export default function ProofCenterLoading() {
         {/* HEADER */}
         <div className="flex flex-wrap items-end justify-between gap-4 pb-3 border-b border-white/10">
           <div className="flex flex-col gap-2 min-w-0">
-            <div className="h-3 w-36 bg-[#15191C] animate-pulse rounded" />
-            <div className="h-8 w-48 bg-[#15191C] animate-pulse rounded" />
-            <div className="h-4 w-full max-w-2xl bg-[#15191C] animate-pulse rounded" />
+            <div className="h-3 w-36 bg-surface-inset animate-pulse rounded" />
+            <div className="h-8 w-48 bg-surface-inset animate-pulse rounded" />
+            <div className="h-4 w-full max-w-2xl bg-surface-inset animate-pulse rounded" />
           </div>
-          <div className="h-8 w-32 bg-[#15191C] animate-pulse rounded-full shrink-0" />
+          <div className="h-8 w-32 bg-surface-inset animate-pulse rounded-full shrink-0" />
         </div>
 
         {/* PANEL GRID */}
@@ -25,23 +25,23 @@ export default function ProofCenterLoading() {
           {[0, 1, 2, 3].map((panel) => (
             <section
               key={panel}
-              className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+              className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
             >
               <div className="flex items-center justify-between gap-4 p-5 border-b border-white/5">
                 <div className="flex flex-col gap-2 min-w-0">
-                  <div className="h-2.5 w-24 bg-[#15191C] animate-pulse rounded" />
-                  <div className="h-5 w-40 bg-[#15191C] animate-pulse rounded" />
+                  <div className="h-2.5 w-24 bg-surface-inset animate-pulse rounded" />
+                  <div className="h-5 w-40 bg-surface-inset animate-pulse rounded" />
                 </div>
-                <div className="h-5 w-16 bg-[#15191C] animate-pulse rounded-full shrink-0" />
+                <div className="h-5 w-16 bg-surface-inset animate-pulse rounded-full shrink-0" />
               </div>
               <div className="flex flex-col gap-4 p-5">
                 {[0, 1, 2].map((row) => (
                   <div key={row} className="flex items-start gap-3">
-                    <div className="size-8 shrink-0 bg-[#15191C] animate-pulse rounded-md" />
+                    <div className="size-8 shrink-0 bg-surface-inset animate-pulse rounded-md" />
                     <div className="flex-1 flex flex-col gap-2 min-w-0">
-                      <div className="h-3.5 w-1/3 bg-[#15191C] animate-pulse rounded" />
-                      <div className="h-3 w-full bg-[#15191C] animate-pulse rounded" />
-                      <div className="h-3 w-2/3 bg-[#15191C] animate-pulse rounded" />
+                      <div className="h-3.5 w-1/3 bg-surface-inset animate-pulse rounded" />
+                      <div className="h-3 w-full bg-surface-inset animate-pulse rounded" />
+                      <div className="h-3 w-2/3 bg-surface-inset animate-pulse rounded" />
                     </div>
                   </div>
                 ))}

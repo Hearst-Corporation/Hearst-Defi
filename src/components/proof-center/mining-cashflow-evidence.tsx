@@ -18,7 +18,7 @@ const HEADER = {
 } as const;
 
 const PANEL_CLASS =
-  "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col";
+  "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col";
 
 /** Bento section header — title (h3) + subtitle + provenance badge. */
 function BentoHeader({
@@ -141,7 +141,7 @@ export function MiningCashFlowEvidence({
         {MINING_CASHFLOW_COPY[provenance]}
       </p>
 
-      <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-[#15191C]">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-surface-inset">
         <KpiCell
           label="Distribution coverage"
           value={ratioLabel}

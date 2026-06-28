@@ -17,7 +17,7 @@ export default function ComposeEmailPage() {
   const configured = Boolean(process.env.RESEND_API_KEY);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Compose"

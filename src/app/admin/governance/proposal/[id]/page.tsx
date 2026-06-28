@@ -95,7 +95,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const executeAction = handleExecute.bind(null, proposal.id);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Proposal"
@@ -134,12 +134,12 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             <BentoKpiTile
               label="Proposed by"
               value={<span className="font-mono text-[14px] break-all">{proposal.proposedBy}</span>}
-              className="bg-black"
+              className="bg-surface-card"
             />
             <BentoKpiTile
               label="Required signers"
               value={proposal.requiredSigners}
-              className="bg-black"
+              className="bg-surface-card"
             />
             <BentoKpiTile
               label="Created"
@@ -148,7 +148,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                   {formatGovernanceTimestamp(proposal.createdAt)}
                 </span>
               }
-              className="bg-black"
+              className="bg-surface-card"
             />
             <BentoKpiTile
               label="ETA (timelock)"
@@ -157,7 +157,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                   {formatGovernanceTimestamp(proposal.etaAt)}
                 </span>
               }
-              className="bg-black"
+              className="bg-surface-card"
             />
             {proposal.executedAt ? (
               <BentoKpiTile
@@ -167,7 +167,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                     {formatGovernanceTimestamp(proposal.executedAt)}
                   </span>
                 }
-                className="bg-black"
+                className="bg-surface-card"
               />
             ) : null}
             {proposal.cancelledAt ? (
@@ -178,14 +178,14 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                     {formatGovernanceTimestamp(proposal.cancelledAt)}
                   </span>
                 }
-                className="bg-black"
+                className="bg-surface-card"
               />
             ) : null}
           </div>
 
           {proposal.state === "TIMELOCK" && proposal.etaAt ? (
             <div className="p-5 lg:p-6 border-t border-white/5">
-              <div className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-[#15191C] p-4">
+              <div className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-surface-inset p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                   Timelock countdown
                 </p>
@@ -255,7 +255,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 {proposal.signatures.map((sig) => (
                   <div
                     key={sig.id}
-                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-[#15191C] p-3"
+                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-surface-inset p-3"
                   >
                     <div
                       className={cn(

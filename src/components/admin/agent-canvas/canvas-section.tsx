@@ -57,7 +57,7 @@ export function CanvasSectionView({
             {section.fields.map((field) => (
               <div
                 key={field.key}
-                className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-[#15191C] p-4"
+                className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-surface-inset p-4"
               >
                 <dt className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                   {field.label}

@@ -44,7 +44,7 @@ export default async function AgentsPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Agent"
@@ -123,7 +123,7 @@ export default async function AgentsPage() {
                         aria-label={`New persona template from ${entry.label}`}
                         className="group block h-full"
                       >
-                        <div className="h-full min-h-[13rem] flex flex-col gap-4 rounded-2xl border border-white/10 bg-[#15191C] p-5 transition-colors hover:border-[#A7FB90]/40">
+                        <div className="h-full min-h-[13rem] flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5 transition-colors hover:border-[#A7FB90]/40">
                           {/* Header row: accent icon tile + scope badge */}
                           <div className="flex items-center gap-3">
                             <span
@@ -186,7 +186,7 @@ export default async function AgentsPage() {
 
           {templates.length === 0 ? (
             <div className="p-5 lg:p-6">
-              <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-8 text-center">
+              <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-surface-inset p-8 text-center">
                 <p className="text-[13px] font-medium text-zinc-300">
                   No persona templates yet.
                 </p>

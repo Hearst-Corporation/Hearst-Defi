@@ -83,13 +83,13 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const lockPct = Math.round((currentDay / LOCK_DAYS) * 100);
 
   return (
-    <div className="dark flex flex-col gap-y-5 mx-auto w-full max-w-2xl rounded-2xl border border-white/10 bg-zinc-900 p-5 lg:p-6 mb-8">
+    <div className="dark flex flex-col gap-y-5 mx-auto w-full max-w-2xl rounded-2xl border border-white/10 bg-surface-page p-5 lg:p-6 mb-8">
 
       {/* STEP PROGRESS — funnel step 4 (Confirmed) */}
       <StepProgress active="confirmed" />
 
       {/* CONFIRMATION HERO */}
-      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col items-center text-center p-8">
+      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col items-center text-center p-8">
         <DepositSuccessIcon />
         <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-[#A7FB90]">
           <span className="size-1.5 rounded-full bg-[#A7FB90]" />
@@ -114,7 +114,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </section>
 
       {/* POSITION DETAILS */}
-      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <div className="flex items-end justify-between p-5 border-b border-white/5">
           <div className="flex flex-col gap-1.5">
             <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
@@ -184,7 +184,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           ) : null}
 
           {/* Soft-lock progress */}
-          <div className="flex flex-col gap-3 px-5 py-4 border-b border-white/5 bg-[#15191C]">
+          <div className="flex flex-col gap-3 px-5 py-4 border-b border-white/5 bg-surface-inset">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
                 Soft-lock
@@ -199,7 +199,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
               aria-valuemin={0}
               aria-valuemax={LOCK_DAYS}
               aria-label={`Soft-lock: day ${currentDay} of ${LOCK_DAYS}`}
-              className="relative h-2 rounded-full border border-white/5 bg-black overflow-hidden"
+              className="relative h-2 rounded-full border border-white/5 bg-surface-card overflow-hidden"
             >
               <div
                 className="absolute inset-y-0 left-0 rounded-full bg-[#A7FB90]"
@@ -232,7 +232,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </section>
 
       {/* NEXT STEPS */}
-      <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <div className="flex items-end justify-between p-5 border-b border-white/5">
           <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
             Next Steps

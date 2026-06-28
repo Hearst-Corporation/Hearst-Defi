@@ -20,7 +20,7 @@ export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   if (items.length === 0) {
     return (
       <div className="p-5 lg:p-6">
-        <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-8 text-center">
+        <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-surface-inset p-8 text-center">
           <p className="text-[13px] font-medium text-zinc-300">
             No feedback logged yet.
           </p>

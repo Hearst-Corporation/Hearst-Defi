@@ -188,7 +188,7 @@ export function ToolBoundarySection({
           {COUNT_TIERS.map((tier) => (
             <BentoKpiTile
               key={tier}
-              className="bg-black"
+              className="bg-surface-card"
               label={TIER_LABEL[tier]}
               value={counts[tier]}
               accent={tier === "read_only"}

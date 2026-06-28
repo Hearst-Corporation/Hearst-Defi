@@ -55,7 +55,7 @@ describe("Proof Center — DS patterns", () => {
       />,
     );
     // Bento KPI grid (Portfolio canon) carries the live provenance + coverage value.
-    expect(html).toContain("bg-[#15191C]");
+    expect(html).toContain("bg-surface-inset");
     expect(html).toContain(">Live</span>");
     expect(html).toContain("1.12×");
   });

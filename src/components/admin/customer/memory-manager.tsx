@@ -18,7 +18,7 @@ function fmtDate(d: Date): string {
 }
 
 const SELECT_INPUT =
-  "bg-[#15191C] border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 // Kind chip — accent when the fact is on the prompt (active), neutral when off.
 const KIND_CHIP_ACTIVE =
   "inline-flex items-center rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A7FB90]";

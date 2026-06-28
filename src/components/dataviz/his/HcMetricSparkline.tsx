@@ -46,7 +46,7 @@ export function HcMetricSparkline({
           width,
           height,
           borderRadius: "var(--ct-radius-sm)",
-          background: "var(--ct-surface-2)",
+          background: "var(--ct-surface-inset)",
         }}
       />
     );

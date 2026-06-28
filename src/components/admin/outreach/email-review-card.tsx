@@ -213,7 +213,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
         title={`Preview — ${email.toEmail}`}
         className="max-w-2xl"
       >
-        <div className="overflow-hidden rounded-lg border border-white/10 bg-[#15191C]">
+        <div className="overflow-hidden rounded-lg border border-white/10 bg-surface-inset">
           <iframe
             title="Email preview"
             srcDoc={renderPreviewHtml(body)}

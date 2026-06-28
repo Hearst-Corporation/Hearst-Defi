@@ -29,7 +29,7 @@ export const metadata = {
 export default function PortfolioTaxPage() {
   return (
     <main
-      className="dark min-h-dvh bg-zinc-900 px-8 py-10 text-zinc-100"
+      className="dark min-h-dvh bg-surface-page px-8 py-10 text-zinc-100"
     >
       <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-semibold text-white">Tax preview</h1>

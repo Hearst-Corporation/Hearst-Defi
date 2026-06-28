@@ -250,7 +250,7 @@ export function DashboardAssetsBoard({
         </section>
 
         {showVaultAnalytics ? (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-[#15191C]">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-surface-inset">
             <div className="flex flex-col p-5 lg:px-6 border-b border-white/5 lg:border-b-0 lg:border-r">
               <AllocationOrbit
                 allocations={allocation}
@@ -287,7 +287,7 @@ export function DashboardAssetsBoard({
         ) : (
           <section
             aria-label="Vault analytics awaiting live data"
-            className="flex items-center justify-center px-8 py-10 text-center bg-[#15191C]"
+            className="flex items-center justify-center px-8 py-10 text-center bg-surface-inset"
           >
             <p className="max-w-[45ch] text-[13px] leading-relaxed text-zinc-400" role="status">
               Capital allocation and NAV trends appear once a live vault snapshot

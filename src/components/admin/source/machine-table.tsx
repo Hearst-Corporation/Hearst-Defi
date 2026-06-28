@@ -88,7 +88,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#15191C]">
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-surface-inset">
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-white/5">

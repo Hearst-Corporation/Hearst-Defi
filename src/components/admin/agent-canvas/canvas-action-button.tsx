@@ -167,7 +167,7 @@ export function CanvasActionButton({
   const busy = phase === "proposing" || phase === "executing";
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#15191C] p-4">
+    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-surface-inset p-4">
       <div className="flex items-center justify-between gap-3">
         <span className="text-[13px] font-semibold text-white">{proposal.label}</span>
         <span

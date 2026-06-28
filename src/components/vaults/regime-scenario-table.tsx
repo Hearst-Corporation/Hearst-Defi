@@ -23,7 +23,7 @@ interface RegimeScenarioTableProps {
 export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
   const regimes = deriveStressRegimes(vault);
   return (
-    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>

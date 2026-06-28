@@ -30,7 +30,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const hasAmount = amount > 0;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+    <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-end justify-between p-5 border-b border-white/5">
         <div className="flex flex-col gap-1.5">
@@ -64,7 +64,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       {/* Principal / Yield split bar + legend */}
       <div className="flex flex-col gap-4 p-5 border-b border-white/5">
         <div
-          className="relative h-2 flex overflow-hidden rounded-full border border-white/5 bg-[#15191C]"
+          className="relative h-2 flex overflow-hidden rounded-full border border-white/5 bg-surface-inset"
           role="img"
           aria-label={
             hasAmount
@@ -110,7 +110,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       </div>
 
       {/* KPI grid */}
-      <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-white/5 bg-[#15191C]">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-white/5 bg-surface-inset">
         <div className="flex flex-col gap-2 p-5 border-b sm:border-r border-white/5">
           <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
             Target APY

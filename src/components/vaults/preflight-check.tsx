@@ -178,7 +178,7 @@ export function PreFlightCheck({
       </div>
 
       {vaultStale ? (
-        <div className="flex flex-col gap-2 mb-3 rounded-xl border border-[#A7FB90]/20 bg-[#15191C] p-3">
+        <div className="flex flex-col gap-2 mb-3 rounded-xl border border-[#A7FB90]/20 bg-surface-inset p-3">
           <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[#A7FB90] bg-[#A7FB90]/10 border border-[#A7FB90]/20 rounded-full px-2.5 py-1">
             Testnet contract
           </span>
@@ -249,7 +249,7 @@ export function PreFlightCheck({
   );
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
       <div className="flex flex-col gap-1.5 p-5 border-b border-white/5">
         <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
           Pre-flight check

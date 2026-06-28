@@ -35,7 +35,7 @@ export function RebalancePtaiModalTrigger({
           {/* PTAI — Projection → Trigger → Action → Impact (non-negotiable).
               Rendered inside a nested bento sub-panel; the 4-section structure
               lives in the <Ptai> component and is preserved verbatim. */}
-          <div className="rounded-lg bg-[#15191C] p-4">
+          <div className="rounded-lg bg-surface-inset p-4">
             <Ptai
               variant="flat"
               projection={event.projection || "No projection recorded for this event."}

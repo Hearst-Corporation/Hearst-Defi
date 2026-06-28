@@ -47,7 +47,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
           <h3 className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">LLM Health</h3>
           <span className="text-[10px] uppercase tracking-widest text-zinc-600">24h Window</span>
         </header>
-        <div className="flex items-stretch gap-3 bg-[#15191C] rounded-lg p-4">
+        <div className="flex items-stretch gap-3 bg-surface-inset rounded-lg p-4">
           <Tooltip
             content={(
               <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">

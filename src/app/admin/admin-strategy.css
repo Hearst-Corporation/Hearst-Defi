@@ -114,7 +114,7 @@
   width: var(--ct-space-6);
   height: var(--ct-space-6);
   border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-1);
+  background: var(--ct-surface-inset);
   border: 1px solid var(--ct-graphite-border-nested);
   color: var(--ct-text-faint);
   font-family: var(--ct-font-mono);
@@ -194,7 +194,7 @@
 /* Summary panel adaptation when in the sidebar */
 .admin-strategy-wizard__aside .ct-projection-footer {
   position: static;
-  background: var(--ct-graphite-subtle-bg);
+  background: var(--ct-surface-card);
   border: 1px solid var(--ct-graphite-border-nested);
   border-radius: var(--ct-radius-xl);
   padding: var(--ct-space-6);

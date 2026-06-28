@@ -108,7 +108,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       <section
         role="region"
         aria-label="Key terms and next action"
-        className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+        className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
       >
         {/* Identity header */}
         <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-white/5">
@@ -133,7 +133,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </div>
 
         {/* Metrics strip */}
-        <dl className="grid grid-cols-1 md:grid-cols-3 border-b border-white/5 bg-[#15191C]">
+        <dl className="grid grid-cols-1 md:grid-cols-3 border-b border-white/5 bg-surface-inset">
           <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
             <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
               Target APY range

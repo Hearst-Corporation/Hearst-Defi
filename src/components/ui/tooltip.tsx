@@ -44,7 +44,7 @@ export function Tooltip({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
               "absolute z-50 px-[var(--ct-space-3)] py-[var(--ct-space-1_5)] body-xs ct-text-strong",
-              "bg-[var(--ct-surface-3)] border border-[var(--ct-border-soft)] rounded-md shadow-[var(--ct-shadow-soft)]",
+              "bg-[var(--ct-surface-inset)] border border-[var(--ct-border-soft)] rounded-md shadow-[var(--ct-shadow-soft)]",
               "whitespace-nowrap pointer-events-none",
               sideStyles[side],
               className
@@ -54,7 +54,7 @@ export function Tooltip({
             {/* Arrow */}
             <div
               className={cn(
-                "absolute w-2 h-2 bg-[var(--ct-surface-3)] border-b border-r border-[var(--ct-border-soft)] rotate-45",
+                "absolute w-2 h-2 bg-[var(--ct-surface-inset)] border-b border-r border-[var(--ct-border-soft)] rotate-45",
                 side === "top" && "bottom-[-5px] left-1/2 -translate-x-1/2 border-t-0 border-l-0",
                 side === "bottom" && "top-[-5px] left-1/2 -translate-x-1/2 border-b-0 border-r-0 border-t border-l",
                 side === "left" && "right-[-5px] top-1/2 -translate-y-1/2 border-t border-l-0 border-b-0 border-r",

@@ -16,7 +16,7 @@ export function Toaster() {
       richColors
       toastOptions={{
         style: {
-          background: "var(--ct-surface-2)",
+          background: "var(--ct-surface-inset)",
           color: "var(--ct-text-primary)",
           border: "1px solid var(--ct-border)",
           backdropFilter: "blur(40px) saturate(110%)",

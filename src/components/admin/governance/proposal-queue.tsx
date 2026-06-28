@@ -39,7 +39,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
           aria-label={`Open proposal ${proposal.actionType}`}
           className="group block"
         >
-          <div className="rounded-2xl border border-white/10 bg-[#15191C] p-5 transition-colors hover:border-[#A7FB90]/40">
+          <div className="rounded-2xl border border-white/10 bg-surface-inset p-5 transition-colors hover:border-[#A7FB90]/40">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">

@@ -166,7 +166,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Vault"
@@ -353,7 +353,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           }
         >
           {vault.status === "review" && (
-            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#15191C] p-5">
+            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
               <span className="text-[12px] text-zinc-400">
                 Your signer identity (must be in the whitelist for &quot;Sign
                 Approval&quot; to appear):

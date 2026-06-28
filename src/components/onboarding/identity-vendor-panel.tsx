@@ -5,7 +5,7 @@
 export function IdentityVendorPanel({ isProduction }: { isProduction: boolean }) {
   return (
     <div
-      className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col"
+      className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
       role="region"
       aria-label="Identity verification unavailable"
     >

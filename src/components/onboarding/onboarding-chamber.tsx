@@ -57,7 +57,7 @@ interface OnboardingChamberProps {
  * Single premium surface — Crown · Body · Sole.
  *
  * Pure Tailwind bento — matches the Portfolio page and the converted vault term
- * sheet: `rounded-2xl border border-white/10 bg-black`, uniform `p-5` zones and
+ * sheet: `rounded-2xl border border-white/10 bg-surface-card`, uniform `p-5` zones and
  * section borders in `border-white/5` (Portfolio rhythm — no `sm:` overrides).
  * The optional split (`aside`) stacks below `md` and goes side-by-side above it.
  */
@@ -80,7 +80,7 @@ export function OnboardingChamber({
       <footer
         className={cn(
           "p-5",
-          aside ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-white/5" : "border-t border-white/5 bg-[#15191C]",
+          aside ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-white/5" : "border-t border-white/5 bg-surface-inset",
         )}
       >
         {sole}
@@ -91,7 +91,7 @@ export function OnboardingChamber({
   return (
     <article
       className={cn(
-        "dark relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-black shadow-sm",
+        "dark relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-card shadow-sm",
         aside && "md:flex-row md:items-stretch",
         className,
       )}
@@ -130,7 +130,7 @@ export function OnboardingRequirementsList({
                 "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border",
                 item.done
                   ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
-                  : "border-white/10 bg-[#15191C] text-transparent",
+                  : "border-white/10 bg-surface-inset text-transparent",
               )}
             >
               {item.done ? (

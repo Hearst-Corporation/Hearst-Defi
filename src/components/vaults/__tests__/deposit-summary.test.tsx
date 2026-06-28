@@ -37,7 +37,7 @@ describe("DepositSummary — vault panel DS patterns", () => {
 
     // Bento panel chrome (Portfolio canon), not the legacy vault-panel DS.
     expect(html).toContain("rounded-2xl");
-    expect(html).toContain("bg-black");
+    expect(html).toContain("bg-surface-card");
     expect(html).not.toContain("vault-panel-header");
     expect(html).toContain("Deposit Summary");
     expect(html).toContain("Data provenance: Estimated");

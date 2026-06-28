@@ -89,7 +89,7 @@ export function PlatformOverviewBand({
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label="Capacity usage"
-                className="h-1.5 w-full overflow-hidden rounded-full bg-[#15191C]"
+                className="h-1.5 w-full overflow-hidden rounded-full bg-surface-inset"
               >
                 <div
                   className="h-full rounded-full bg-[#A7FB90] transition-[width] duration-300 ease-out"

@@ -87,7 +87,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Missing audit report, incorrect fee structure…"
-            className="w-full resize-none rounded-lg border border-white/10 bg-[#15191C] px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
+            className="w-full resize-none rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
           />
         </div>
 

@@ -40,7 +40,7 @@ export default async function AdminSecurityPage() {
   const totpEnabled = await isTotpEnabled(userId);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER */}
@@ -82,7 +82,7 @@ export default async function AdminSecurityPage() {
                   className="flex items-start gap-4 border-b border-white/5 p-5 last:border-b-0"
                 >
                   <span
-                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#15191C]"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-surface-inset"
                     aria-hidden="true"
                   >
                     <item.icon className="size-4 text-[#A7FB90]" />

@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function PortfolioPage() {
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 [--gutter:theme(spacing.8)] mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
@@ -35,7 +35,7 @@ export default function PortfolioPage() {
           </div>
 
           {/* Chart Panel */}
-          <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col overflow-hidden">
+          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col overflow-hidden">
             <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
               <div className="flex flex-col gap-1.5 min-w-0">
                 <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">Portfolio Value <span className="text-zinc-600 normal-case tracking-normal">(demo)</span></h2>
@@ -69,7 +69,7 @@ export default function PortfolioPage() {
           </div>
 
           {/* Status Tiles */}
-          <div className="rounded-2xl border border-white/10 bg-black shadow-sm p-6 flex flex-col justify-center">
+          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-6 flex flex-col justify-center">
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-1.5">
                 <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Principal</div>
@@ -96,7 +96,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* CAPITAL & YIELD SECTION */}
-        <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <div className="p-5 border-b border-white/5">
             <div className="flex flex-col gap-1.5">
               <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Capital & Yield</h2>
@@ -164,7 +164,7 @@ export default function PortfolioPage() {
               <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Target APY Range</span>
               <span className="text-[18px] font-medium text-[#A7FB90] leading-none">9.4—12.8%</span>
             </div>
-            <div className="relative h-2 bg-[#15191C] rounded-full border border-white/5 mb-3">
+            <div className="relative h-2 bg-surface-inset rounded-full border border-white/5 mb-3">
               <div className="absolute top-0 bottom-0 left-0 right-0 bg-[#A7FB90] rounded-full"></div>
               <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 size-3 rounded-full bg-white border-2 border-[#15191C]"></div>
               <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 size-3 rounded-full bg-white border-2 border-[#15191C]"></div>
@@ -184,7 +184,7 @@ export default function PortfolioPage() {
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
           {/* Calendar Panel */}
-          <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col">
+          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col">
             <div className="p-5 border-b border-white/5">
               <div className="flex flex-col gap-1.5">
                 <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Distribution Calendar</h2>
@@ -200,7 +200,7 @@ export default function PortfolioPage() {
           </div>
 
           {/* Activity Panel */}
-          <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col">
+          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col">
             <div className="p-5 border-b border-white/5">
               <div className="flex flex-col gap-1.5">
                 <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Recent Activity</h2>
@@ -214,7 +214,7 @@ export default function PortfolioPage() {
                   <div className="absolute top-0 -bottom-5 left-0 flex w-6 justify-center">
                     <div className="w-px bg-white/10"></div>
                   </div>
-                  <div className="relative flex size-6 flex-none items-center justify-center bg-black ring-1 ring-white/5 rounded-full">
+                  <div className="relative flex size-6 flex-none items-center justify-center bg-surface-card ring-1 ring-white/5 rounded-full">
                     <div className="size-2 rounded-full bg-[#A7FB90] ring-4 ring-[#111417]"></div>
                   </div>
                   <div className="flex-auto py-0.5">
@@ -234,7 +234,7 @@ export default function PortfolioPage() {
                   <div className="absolute top-0 -bottom-5 left-0 flex w-6 justify-center">
                     <div className="w-px bg-white/10"></div>
                   </div>
-                  <div className="relative flex size-6 flex-none items-center justify-center bg-black ring-1 ring-white/5 rounded-full">
+                  <div className="relative flex size-6 flex-none items-center justify-center bg-surface-card ring-1 ring-white/5 rounded-full">
                     <div className="size-1.5 rounded-full bg-white/20"></div>
                   </div>
                   <div className="flex-auto py-0.5">
@@ -257,7 +257,7 @@ export default function PortfolioPage() {
                   <div className="absolute top-0 left-0 flex h-6 w-6 justify-center">
                     <div className="w-px bg-white/10"></div>
                   </div>
-                  <div className="relative flex size-6 flex-none items-center justify-center bg-black ring-1 ring-white/5 rounded-full">
+                  <div className="relative flex size-6 flex-none items-center justify-center bg-surface-card ring-1 ring-white/5 rounded-full">
                     <div className="size-1.5 rounded-full bg-white/20"></div>
                   </div>
                   <div className="flex-auto py-0.5">
@@ -281,7 +281,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* POSITIONS SECTION */}
-        <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
+        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <div className="flex items-center gap-4 p-5 border-b border-white/5">
             <div className="flex flex-col gap-1.5">
               <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Active Positions</h2>
