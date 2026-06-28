@@ -168,7 +168,7 @@ export function PreFlightCheck({
   ) : (
     <>
       <div className="flex items-center justify-between pb-3 mb-1 border-b border-[var(--ct-border-soft)]">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+        <span className="ct-bento-label">
           Readiness
         </span>
         <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
@@ -256,7 +256,7 @@ export function PreFlightCheck({
         <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
           Pre-flight check
         </h2>
-        <p className="text-[10px] text-[var(--ct-text-faint)] uppercase tracking-[0.15em] font-bold">
+        <p className="ct-bento-label">
           Wallet · network · allowance · epoch
         </p>
       </div>

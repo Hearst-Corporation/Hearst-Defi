@@ -67,7 +67,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
           <span className="block truncate text-[13px] font-medium text-zinc-200">
             {item.title}
           </span>
-          <span className="block truncate text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="ct-bento-label block truncate">
             {item.context}
           </span>
         </div>

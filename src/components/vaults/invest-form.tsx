@@ -113,7 +113,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
   return (
     <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-[var(--ct-border-soft)] bg-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+        <dt className="ct-bento-label text-[var(--ct-text-faint)]">
           Target APY
         </dt>
         <dd>
@@ -126,7 +126,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+        <dt className="ct-bento-label text-[var(--ct-text-faint)]">
           Lock-up
         </dt>
         <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
@@ -134,7 +134,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+        <dt className="ct-bento-label text-[var(--ct-text-faint)]">
           Min ticket
         </dt>
         <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
@@ -142,7 +142,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+        <dt className="ct-bento-label text-[var(--ct-text-faint)]">
           Mgmt / Perf
         </dt>
         <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
@@ -175,7 +175,7 @@ function AmountLedger({
       )}
     >
       <div className="flex items-center justify-between px-4 pt-3">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+        <span className="ct-bento-label text-[var(--ct-text-faint)]">
           {label}
         </span>
         <span className="text-[10px] text-[var(--ct-text-faint)] tabular-nums">{currency}</span>
@@ -765,7 +765,7 @@ function InvestFormLive({
                 aria-label="Confirm your deposit"
               >
                 <div className="flex items-baseline justify-between">
-                  <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)] m-0">
+                  <p className="ct-bento-label text-[var(--ct-text-faint)] m-0">
                     Confirm allocation
                   </p>
                   <span className="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--ct-accent)]">

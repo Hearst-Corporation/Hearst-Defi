@@ -82,7 +82,7 @@ function EventMetaRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+      <span className="shrink-0 ct-bento-label">
         {label}
       </span>
       <span className="min-w-0 truncate text-right text-[12px] font-medium tabular-nums text-zinc-300">

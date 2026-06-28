@@ -97,13 +97,13 @@ export function AgenticCapabilitiesBoard({
         <table className="min-w-full text-left text-[13px]">
           <thead>
             <tr className="border-b border-white/5">
-              <th className="bg-transparent px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 whitespace-nowrap">
+              <th className="ct-bento-label bg-transparent px-4 py-3 text-right whitespace-nowrap">
                 Count
               </th>
-              <th className="bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              <th className="ct-bento-label bg-transparent px-4 py-3">
                 Tier
               </th>
-              <th className="bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+              <th className="ct-bento-label bg-transparent px-4 py-3">
                 Meaning
               </th>
             </tr>
