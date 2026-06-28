@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { Badge } from "@/components/catalyst/badge";
 import { BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
@@ -44,12 +45,13 @@ const QUAL_SOURCE_LABEL: Record<string, string> = {
   manual: "Admin entry",
 };
 
-// Bento chip chrome — neutral pill used for calibration meta (style/language/
-// detail/vault). Accent variant marks the active preset.
-const META_CHIP =
-  "inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-zinc-300";
-const ACCENT_CHIP =
-  "inline-flex items-center rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#A7FB90]";
+// Calibration meta uses the Catalyst <Badge> primitive (zinc = neutral meta,
+// green = active preset/segment) — the two local chip recipes that recreated a
+// badge with hardcoded #A7FB90 / border-white / text-zinc were removed.
+
+// Tokenized table-cell classes (canon roles) — no inline text-[Npx]/text-zinc-*.
+const CELL = "px-5 py-3 ct-metric-caption";
+const CELL_STRONG = "px-5 py-3 ct-metric-value";
 
 export default async function CustomerDetailPage({
   params,
@@ -67,7 +69,7 @@ export default async function CustomerDetailPage({
   const applied = detail.agentProfile;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           title={detail.email}
@@ -76,7 +78,7 @@ export default async function CustomerDetailPage({
           lead={
             <Link
               href="/admin/customers"
-              className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
             >
               ← Investors
             </Link>
@@ -93,11 +95,13 @@ export default async function CustomerDetailPage({
           <AdminDetailSection label="Identity" title="Investor profile">
             <AdminDetailGrid>
               <AdminDetailItem label="Email">
-                <span className="font-medium text-white">{detail.email}</span>
+                <span className="font-medium text-[var(--ct-text-strong)]">
+                  {detail.email}
+                </span>
               </AdminDetailItem>
               <AdminDetailItem label="Role">{detail.role}</AdminDetailItem>
               <AdminDetailItem label="Wallet">
-                <span className="font-mono text-zinc-500">
+                <span className="font-mono text-[var(--ct-text-muted)]">
                   {detail.walletAddress ?? "—"}
                 </span>
               </AdminDetailItem>
@@ -107,7 +111,7 @@ export default async function CustomerDetailPage({
             </AdminDetailGrid>
             <BentoPanel className="p-5">
               <div className="flex flex-col gap-3">
-                <p className="m-0 text-[12px] leading-relaxed text-zinc-500">
+                <p className="ct-metric-caption m-0 leading-relaxed">
                   Account sign-in. Auto-created and admin-provisioned investors start
                   with no usable password — they log in via a one-time activation
                   link. Generate a fresh link here if the welcome email never reached
@@ -133,16 +137,16 @@ export default async function CustomerDetailPage({
                 colWidths={["40%", "25%", "20%", "15%"]}
                 renderRow={(p) => (
                   <>
-                    <td className="px-5 py-3 font-mono text-[13px] text-zinc-300">
+                    <td className={`${CELL} font-mono text-[var(--ct-text-body)]`}>
                       {p.vaultKey}
                     </td>
-                    <td className="px-5 py-3 text-[13px] text-zinc-500">
+                    <td className={CELL}>
                       {POSITION_STATUS_LABEL[p.status] ?? p.status}
                     </td>
-                    <td className="px-5 py-3 text-right text-[13px] font-medium tabular-nums text-white">
+                    <td className={`${CELL_STRONG} text-right`}>
                       {formatUsdFull(p.principalUsdc)}
                     </td>
-                    <td className="px-5 py-3 text-right text-[13px] text-zinc-500">
+                    <td className={`${CELL} text-right`}>
                       {formatAdminDate(p.subscribedAt)}
                     </td>
                   </>
@@ -189,21 +193,19 @@ export default async function CustomerDetailPage({
             {persona && (
               <BentoPanel className="p-6">
                 <div className="flex flex-col gap-4">
-                  <h3 className="text-[13px] font-semibold uppercase tracking-wider text-white">
-                    Recommended
-                  </h3>
+                  <h3 className="ct-bento-label">Recommended</h3>
                   <div className="flex flex-wrap items-center gap-2">
                     {persona.segments.map((s) => (
-                      <span key={s} className={ACCENT_CHIP}>
+                      <Badge key={s} color="green" className="uppercase">
                         {s}
-                      </span>
+                      </Badge>
                     ))}
-                    <span className={META_CHIP}>Style: {persona.tone}</span>
-                    <span className={META_CHIP}>Language: {persona.language}</span>
-                    <span className={META_CHIP}>Detail: {persona.verbosity}</span>
-                    <span className={META_CHIP}>vault: {persona.suggestedVault}</span>
+                    <Badge color="zinc">Style: {persona.tone}</Badge>
+                    <Badge color="zinc">Language: {persona.language}</Badge>
+                    <Badge color="zinc">Detail: {persona.verbosity}</Badge>
+                    <Badge color="zinc">vault: {persona.suggestedVault}</Badge>
                   </div>
-                  <p className="text-[13px] leading-relaxed text-zinc-400">
+                  <p className="ct-metric-caption leading-relaxed">
                     {persona.customInstructions}
                   </p>
                 </div>
@@ -212,25 +214,25 @@ export default async function CustomerDetailPage({
 
             <BentoPanel className="p-6">
               <div className="flex flex-col gap-4">
-                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-white">
-                  Current
-                </h3>
+                <h3 className="ct-bento-label">Current</h3>
                 {applied ? (
                   <div className="flex flex-wrap items-center gap-2">
                     {applied.template && (
-                      <span className={ACCENT_CHIP}>Preset: {applied.template.label}</span>
+                      <Badge color="green" className="uppercase">
+                        Preset: {applied.template.label}
+                      </Badge>
                     )}
-                    <span className={META_CHIP}>Style: {applied.tone ?? "—"}</span>
-                    <span className={META_CHIP}>Language: {applied.language ?? "—"}</span>
-                    <span className={META_CHIP}>Detail: {applied.verbosity ?? "—"}</span>
+                    <Badge color="zinc">Style: {applied.tone ?? "—"}</Badge>
+                    <Badge color="zinc">Language: {applied.language ?? "—"}</Badge>
+                    <Badge color="zinc">Detail: {applied.verbosity ?? "—"}</Badge>
                   </div>
                 ) : (
-                  <p className="text-[13px] leading-relaxed text-zinc-400">
+                  <p className="ct-metric-caption leading-relaxed">
                     No profile is applied yet. Refresh from intake answers or assign a reusable template.
                   </p>
                 )}
                 {applied?.customInstructions && (
-                  <p className="text-[13px] leading-relaxed text-zinc-400">
+                  <p className="ct-metric-caption leading-relaxed">
                     {applied.customInstructions}
                   </p>
                 )}
@@ -280,13 +282,13 @@ export default async function CustomerDetailPage({
                 colWidths={["50%", "25%", "25%"]}
                 renderRow={(c) => (
                   <>
-                    <td className="px-5 py-3 truncate text-[13px] text-zinc-300">
+                    <td className={`${CELL} truncate text-[var(--ct-text-body)]`}>
                       {c.title ?? "(untitled)"}
                     </td>
-                    <td className="px-5 py-3 text-right text-[13px] tabular-nums text-zinc-500">
+                    <td className={`${CELL} text-right tabular-nums`}>
                       {c.messageCount}
                     </td>
-                    <td className="px-5 py-3 text-right text-[13px] text-zinc-500">
+                    <td className={`${CELL} text-right`}>
                       {formatAdminDate(c.updatedAt)}
                     </td>
                   </>

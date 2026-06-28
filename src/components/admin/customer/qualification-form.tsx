@@ -8,8 +8,10 @@ import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 
-const SELECT_INPUT =
-  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
+// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
+// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[13px]).
+const SELECT_INPUT = "ct-select";
 
 interface SelectDef {
   name: keyof QualificationProfile & string;

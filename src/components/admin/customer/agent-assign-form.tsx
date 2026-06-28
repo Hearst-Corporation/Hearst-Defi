@@ -11,8 +11,10 @@ import {
 import { assignTemplate, recalibrateAgent } from "@/app/admin/customers/[id]/actions";
 import type { AgentTemplate } from "@prisma/client";
 
-const SELECT_INPUT =
-  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
+// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
+// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[13px]).
+const SELECT_INPUT = "ct-select";
 
 /**
  * Assigns the AgentTemplate a customer's cockpit-chat inherits, plus a button
@@ -118,7 +120,7 @@ export function AgentAssignForm({
           Recalibrate from questionnaire
         </button>
         {!canRecalibrate && (
-          <p className="mt-2 text-[12px] text-zinc-500">
+          <p className="ct-metric-caption mt-2">
             No questionnaire answers yet — fill the qualification above first.
           </p>
         )}

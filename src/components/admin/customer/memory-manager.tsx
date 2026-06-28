@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/catalyst/badge";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
@@ -17,13 +18,13 @@ function fmtDate(d: Date): string {
   return new Date(d).toISOString().slice(0, 10);
 }
 
-const SELECT_INPUT =
-  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-// Kind chip — accent when the fact is on the prompt (active), neutral when off.
-const KIND_CHIP_ACTIVE =
-  "inline-flex items-center rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A7FB90]";
-const KIND_CHIP_OFF =
-  "inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400";
+// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
+// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
+// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[13px]).
+const SELECT_INPUT = "ct-select";
+// Kind chip uses the Catalyst <Badge> primitive: green = active (fact on the
+// prompt), zinc = off. Replaces two local pill recipes hardcoding #A7FB90 /
+// border-white / text-zinc.
 
 /**
  * Admin curation of a customer's accumulating agent memory: facts auto-distilled
@@ -109,22 +110,24 @@ export function MemoryManager({
           {memory.map((m) => (
             <li
               key={m.id}
-              className="flex items-start justify-between gap-4 border-b border-white/5 py-3 last:border-0"
+              className="flex items-start justify-between gap-4 border-b border-[var(--ct-border-soft)] py-3 last:border-0"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={m.active ? KIND_CHIP_ACTIVE : KIND_CHIP_OFF}>
+                  <Badge color={m.active ? "green" : "zinc"} className="uppercase">
                     {m.kind}
-                  </span>
-                  <span className="font-mono text-[12px] text-zinc-600">{m.source}</span>
-                  <span className="text-[12px] text-zinc-600 tabular-nums">
+                  </Badge>
+                  <span className="ct-metric-caption font-mono">{m.source}</span>
+                  <span className="ct-metric-caption tabular-nums">
                     {fmtDate(m.updatedAt)}
                   </span>
                 </div>
                 <p
                   className={cn(
-                    "mt-1.5 text-[13px] leading-snug",
-                    m.active ? "text-zinc-300" : "text-zinc-600 line-through",
+                    "mt-1.5 text-[length:var(--ct-text-xs)] leading-snug",
+                    m.active
+                      ? "text-[var(--ct-text-body)]"
+                      : "text-[var(--ct-text-faint)] line-through",
                   )}
                 >
                   {m.content}
@@ -134,7 +137,7 @@ export function MemoryManager({
                 <button
                   type="button"
                   disabled={isPending}
-                  className="text-[12px] text-zinc-500 transition-colors hover:text-white disabled:opacity-50"
+                  className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)] disabled:opacity-50"
                   onClick={() => {
                     const fd = new FormData();
                     fd.set("id", m.id);
@@ -147,7 +150,7 @@ export function MemoryManager({
                 <button
                   type="button"
                   disabled={isPending}
-                  className="text-[12px] text-red-400 transition-colors hover:underline disabled:opacity-50"
+                  className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)] transition-colors hover:underline disabled:opacity-50"
                   onClick={() => {
                     const fd = new FormData();
                     fd.set("id", m.id);

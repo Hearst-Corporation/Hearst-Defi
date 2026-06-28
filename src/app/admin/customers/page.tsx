@@ -32,7 +32,15 @@ export const metadata = {
   title: "Investors — Hearst Connect",
 };
 
+// Shared table class literals — centralized so the two list tables (Investor
+// Directory + Pending submissions) stay in lockstep instead of repeating the
+// same strings inline. Pure de-duplication, zero rendering change.
 const TABLE_HEAD = "bg-transparent ct-bento-label";
+// Wrapper keeps Catalyst's own overflow-x-auto → table scrolls LOCALLY in the
+// card when the assistant rail narrows the slot (no global overflow, no bleed).
+const TABLE_WRAP = "max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 export default async function CustomersPage({
   searchParams,
@@ -100,17 +108,7 @@ export default async function CustomersPage({
               </div>
             </EmptySurface>
           ) : (
-            // Slot-aware contract: the Catalyst wrapper keeps its own
-            // `overflow-x-auto`, so when the assistant rail is open and the
-            // center slot is narrow the table scrolls LOCALLY instead of
-            // bleeding under the rail. `bleed` dropped so the wrapper's
-            // `-mx-(--gutter)` no longer pulls the edges past the card. No
-            // `overflow-x-visible!` (it defeated the local scroll), no
-            // `[&_table]:w-full` (it fought the table's intrinsic min width).
-            <Table
-              dense
-              className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
-            >
+            <Table dense className={TABLE_WRAP}>
               <TableHead>
                 <TableRow>
                   <TableHeader className={`${TABLE_HEAD} pl-5`}>
@@ -141,22 +139,21 @@ export default async function CustomersPage({
               </TableHead>
               <TableBody>
                 {customers.map((c) => (
-                  <TableRow
-                    key={c.id}
-                    className="border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
-                  >
+                  <TableRow key={c.id} className={ROW}>
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-3">
                         <InvestorAccentBar />
                         <Link
                           href={`/admin/customers/${c.id}`}
-                          className="min-w-0 truncate text-sm font-medium text-[var(--ct-text-strong)] hover:underline"
+                          className="ct-metric-value min-w-0 truncate hover:underline"
                         >
                           {c.email}
                         </Link>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-center font-mono text-[13px] text-[var(--ct-text-muted)] lg:table-cell">
+                    <TableCell
+                      className={`ct-metric-caption hidden text-center font-mono lg:table-cell`}
+                    >
                       {truncateWallet(c.walletAddress)}
                     </TableCell>
                     <TableCell>
@@ -165,13 +162,17 @@ export default async function CustomersPage({
                         <KycAction investorId={c.id} status={c.kycStatus} />
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-center text-[13px] tabular-nums text-[var(--ct-text-body)] md:table-cell">
+                    <TableCell
+                      className={`ct-metric-caption hidden text-center tabular-nums md:table-cell`}
+                    >
                       {c.activePositions}
                     </TableCell>
                     <TableCell className="ct-metric-value text-center">
                       {formatUsdFull(c.totalPrincipalUsdc)}
                     </TableCell>
-                    <TableCell className="hidden pr-5 text-center text-[13px] text-[var(--ct-text-muted)] lg:table-cell">
+                    <TableCell
+                      className={`ct-metric-caption hidden pr-5 text-center lg:table-cell`}
+                    >
                       {formatAdminDate(c.joinedAt)}
                     </TableCell>
                   </TableRow>
@@ -209,10 +210,7 @@ export default async function CustomersPage({
                 Provision an account with the matching email to link it.
               </p>
             </div>
-            <Table
-              dense
-              className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
-            >
+            <Table dense className={TABLE_WRAP}>
               <TableHead>
                 <TableRow>
                   <TableHeader className={`${TABLE_HEAD} pl-5`}>
@@ -233,20 +231,17 @@ export default async function CustomersPage({
               </TableHead>
               <TableBody>
                 {orphanSubmissions.map((s) => (
-                  <TableRow
-                    key={s.id}
-                    className="border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
-                  >
-                    <TableCell className="pl-5 truncate text-[13px] font-medium text-[var(--ct-text-strong)]">
+                  <TableRow key={s.id} className={ROW}>
+                    <TableCell className="ct-metric-value pl-5 truncate">
                       {s.email ?? "—"}
                     </TableCell>
-                    <TableCell className="truncate text-center text-[13px] text-[var(--ct-text-muted)]">
+                    <TableCell className="ct-metric-caption truncate text-center">
                       {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
                     </TableCell>
-                    <TableCell className="hidden text-center text-[13px] text-[var(--ct-text-muted)] md:table-cell">
+                    <TableCell className="ct-metric-caption hidden text-center md:table-cell">
                       {s.source}
                     </TableCell>
-                    <TableCell className="pr-5 text-center text-[13px] text-[var(--ct-text-muted)]">
+                    <TableCell className="ct-metric-caption pr-5 text-center">
                       {formatAdminDate(s.submittedAt)}
                     </TableCell>
                   </TableRow>

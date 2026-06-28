@@ -6,8 +6,10 @@ import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
 
-const SELECT_INPUT =
-  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
+// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
+// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[13px]).
+const SELECT_INPUT = "ct-select";
 
 /**
  * Admin "Deploy position" form — creates an off-chain position for a specific
@@ -42,7 +44,7 @@ export function DeployPositionForm({
   return (
     <div className="flex flex-col gap-3">
       {blocked && (
-        <p className="text-[12px] text-amber-400">
+        <p className="ct-metric-caption text-[var(--ct-status-warning)]">
           KYC must be approved before deploying a position. Use the Approve button
           above first.
         </p>
@@ -94,7 +96,14 @@ export function DeployPositionForm({
       </form>
 
       {result !== null && (
-        <p className={cn("text-[12px]", result.ok ? "text-[#A7FB90]" : "text-red-400")}>
+        <p
+          className={cn(
+            "ct-metric-caption",
+            result.ok
+              ? "text-[var(--ct-status-success)]"
+              : "text-[var(--ct-status-danger)]",
+          )}
+        >
           {result.ok
             ? `Position deployed — id ${result.positionId}`
             : `Error: ${result.error}`}
