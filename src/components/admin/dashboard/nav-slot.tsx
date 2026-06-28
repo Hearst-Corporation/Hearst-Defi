@@ -137,13 +137,13 @@ function NavBarChartShell({
           ))}
         </div>
         {caption ? (
-          <p className="dashboard-nav-bars__caption text-[10px] uppercase tracking-widest text-[var(--ct-text-faint)] m-0">{caption}</p>
+          <p className="dashboard-nav-bars__caption text-[length:var(--ct-text-deci)] uppercase tracking-widest text-[var(--ct-text-faint)] m-0">{caption}</p>
         ) : null}
       </div>
       {monthLabels ? (
         <div className="dashboard-nav-bars__months" aria-hidden>
           {monthLabels.map((label, index) => (
-            <span key={`${label}-${index}`} className="text-[10px] uppercase tracking-widest text-[var(--ct-text-faint)]">{label}</span>
+            <span key={`${label}-${index}`} className="text-[length:var(--ct-text-deci)] uppercase tracking-widest text-[var(--ct-text-faint)]">{label}</span>
           ))}
         </div>
       ) : null}

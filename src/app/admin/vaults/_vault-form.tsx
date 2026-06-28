@@ -120,7 +120,7 @@ const BENTO_INPUT =
   "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 const BENTO_FIELD_HINT = "text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]";
 const BENTO_LABEL =
-  "text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]";
+  "text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]";
 
 function inputClass(extra?: string) {
   return extra ? `${BENTO_INPUT} ${extra}` : BENTO_INPUT;
@@ -406,7 +406,7 @@ export function VaultForm(props: VaultFormProps) {
                     isActive &&
                       "border-[var(--ct-accent)] text-[var(--ct-accent)] ring-2 ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]",
                     isCompleted &&
-                      "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-zinc-900",
+                      "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
                     !isActive &&
                       !isCompleted &&
                       "border-[var(--ct-border)] bg-surface-inset text-[var(--ct-text-faint)]",
@@ -490,7 +490,7 @@ export function VaultForm(props: VaultFormProps) {
                   className={inputClass()}
                   value={form.colorTag}
                   onChange={(e) => set("colorTag", e.target.value)}
-                  placeholder="e.g. accent, #A7FB90"
+                  placeholder="e.g. accent, emerald"
                   maxLength={32}
                 />
                 <span className={BENTO_FIELD_HINT}>

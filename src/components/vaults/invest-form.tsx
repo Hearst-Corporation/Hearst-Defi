@@ -178,7 +178,7 @@ function AmountLedger({
         <span className="ct-bento-label text-[var(--ct-text-faint)]">
           {label}
         </span>
-        <span className="text-[10px] text-[var(--ct-text-faint)] tabular-nums">{currency}</span>
+        <span className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tabular-nums">{currency}</span>
       </div>
       <div className="px-4 pb-3 pt-1">{children}</div>
     </div>
@@ -252,7 +252,7 @@ function EligibilityChecklist({
         <EligibilityRow label="KYC status">
           <span
             className={cn(
-              "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+              "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-wider",
               kycChipClass,
             )}
           >
@@ -768,7 +768,7 @@ function InvestFormLive({
                   <p className="ct-bento-label text-[var(--ct-text-faint)] m-0">
                     Confirm allocation
                   </p>
-                  <span className="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--ct-accent)]">
+                  <span className="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] px-2.5 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-wider text-[var(--ct-accent)]">
                     Review mode
                   </span>
                 </div>

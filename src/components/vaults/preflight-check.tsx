@@ -157,7 +157,7 @@ export function PreFlightCheck({
     </p>
   ) : !vaultConfigured ? (
     <div className="flex flex-col gap-2 py-2">
-      <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
+      <span className="self-start text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
         Configuration pending
       </span>
       <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">
@@ -181,7 +181,7 @@ export function PreFlightCheck({
 
       {vaultStale ? (
         <div className="flex flex-col gap-2 mb-3 rounded-xl border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-surface-inset p-3">
-          <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
+          <span className="self-start text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
             Testnet contract
           </span>
           <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">

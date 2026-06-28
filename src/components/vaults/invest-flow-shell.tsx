@@ -120,7 +120,7 @@ export function InvestFlowShell({
         </div>
 
         {contextLabel ? (
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ct-text-faint)]">
+          <p className="text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.2em] text-[var(--ct-text-faint)]">
             {contextLabel}
           </p>
         ) : null}

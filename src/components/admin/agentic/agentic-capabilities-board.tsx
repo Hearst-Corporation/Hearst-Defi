@@ -31,7 +31,7 @@ function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap",
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-wider whitespace-nowrap",
         CHIP_TONE[tone],
       )}
     >

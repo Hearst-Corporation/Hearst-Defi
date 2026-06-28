@@ -152,13 +152,13 @@ export function CrewSimulationSection({
                           key={step.id}
                           className="flex items-center gap-3 rounded-lg border border-[var(--ct-border-soft)] bg-black/40 px-3 py-2"
                         >
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[10px] font-bold tabular-nums text-[var(--ct-text-muted)]">
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[length:var(--ct-text-deci)] font-bold tabular-nums text-[var(--ct-text-muted)]">
                             {i + 1}
                           </span>
                           <span className="flex-1 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                             {step.label}
                           </span>
-                          <span className="text-[10px] uppercase tracking-[0.1em] font-bold text-[var(--ct-text-faint)]">
+                          <span className="text-[length:var(--ct-text-deci)] uppercase tracking-[0.1em] font-bold text-[var(--ct-text-faint)]">
                             {MODE_LABEL[step.mode]}
                           </span>
                         </li>

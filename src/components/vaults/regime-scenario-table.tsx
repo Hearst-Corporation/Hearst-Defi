@@ -90,7 +90,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                       >
                         {row.label}
                       </span>
-                      <span className="md:hidden text-[10px] text-[var(--ct-text-faint)] leading-tight">
+                      <span className="md:hidden text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] leading-tight">
                         {row.scenario}
                       </span>
                     </div>

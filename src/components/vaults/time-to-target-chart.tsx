@@ -14,7 +14,8 @@ interface TimeToTargetChartProps {
 const CHART_MONTHS = 24;
 const TARGET_CUMULATIVE_PCT = 10; // 10% cumulative yield as "milestone"
 
-const ACCENT = "#A7FB90";
+// Inline SVG paints resolve CSS vars (unlike 2d-canvas charts) — use the token.
+const ACCENT = "var(--ct-accent)";
 const GRID_STROKE = "rgba(255,255,255,0.04)";
 
 const VB_W = 300;
@@ -66,7 +67,7 @@ function ChartFrame({
   return (
     <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
       <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
-        <h2 className="text-[10px] font-bold text-[var(--ct-text-faint)] tracking-[0.2em] uppercase">
+        <h2 className="text-[length:var(--ct-text-deci)] font-bold text-[var(--ct-text-faint)] tracking-[0.2em] uppercase">
           {title}
         </h2>
         <ProvenanceBadge kind="estimated" />
@@ -97,7 +98,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
             className="h-full justify-center"
           />
         </ChartFrame>
-        <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
+        <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
           Conditional projection — not a projection of future returns. Methodology v1.0.
         </p>
       </div>
@@ -127,7 +128,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
             className="h-full justify-center"
           />
         </ChartFrame>
-        <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
+        <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
           Conditional projection — not a projection of future returns. Methodology v1.0.
         </p>
       </div>
@@ -311,12 +312,12 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
       </ChartFrame>
 
       {months10pct !== null && (
-        <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
+        <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
           +{TARGET_CUMULATIVE_PCT}% cumulative yield milestone at month {months10pct}
         </p>
       )}
 
-      <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
+      <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
         Conditional projection — not a projection of future returns. Methodology v1.0.
       </p>
     </div>

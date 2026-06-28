@@ -124,7 +124,7 @@ function EventTimelineItem({
       <div className="min-w-0 flex-1 pb-6">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Badge variant={KIND_VARIANT[event.kind]}>{KIND_LABEL[event.kind]}</Badge>
-          <span className="text-[10px] font-medium uppercase tracking-widest text-[var(--ct-text-faint)]">
+          <span className="text-[length:var(--ct-text-deci)] font-medium uppercase tracking-widest text-[var(--ct-text-faint)]">
             Event #{event.eventId.toString()}
           </span>
         </div>

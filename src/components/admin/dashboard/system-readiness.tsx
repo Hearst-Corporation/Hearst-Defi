@@ -76,12 +76,12 @@ export function SystemReadinessModule({
           </div>
 
           <div className="flex items-center gap-1.5 rounded-md bg-surface-inset px-2 py-1">
-            <BentoLabel className="text-[10px]">Uptime</BentoLabel>
+            <BentoLabel className="text-[length:var(--ct-text-deci)]">Uptime</BentoLabel>
             <span className="text-[length:var(--ct-text-micro)] font-medium tabular-nums text-[var(--ct-accent)]">
               99.98%
             </span>
             <span aria-hidden className="h-2 w-px bg-[var(--ct-border)]" />
-            <BentoLabel className="text-[10px]">Last scan</BentoLabel>
+            <BentoLabel className="text-[length:var(--ct-text-deci)]">Last scan</BentoLabel>
             <span className="text-[length:var(--ct-text-micro)] font-medium tabular-nums text-[var(--ct-text-secondary)]">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",

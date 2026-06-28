@@ -11,12 +11,13 @@ import {
 // Bento accent tiers — a single green (#A7FB90) stepped down by opacity so the
 // donut + dots read as one colour family (matches the Portfolio Capital & Yield
 // bento). Index 0 = full accent, then 50%, 25%, 12% for any further sleeves.
-const ACCENT = "#A7FB90";
+// Inline SVG paints resolve CSS vars — token + color-mix mirror the dot classes.
+const ACCENT = "var(--ct-accent)";
 const ACCENT_STROKES = [
-  "#A7FB90",
-  "rgba(167,251,144,0.5)",
-  "rgba(167,251,144,0.25)",
-  "rgba(167,251,144,0.12)",
+  "var(--ct-accent)",
+  "color-mix(in srgb, var(--ct-accent) 50%, transparent)",
+  "color-mix(in srgb, var(--ct-accent) 25%, transparent)",
+  "color-mix(in srgb, var(--ct-accent) 12%, transparent)",
 ] as const;
 const ACCENT_DOT_CLASSES = [
   "bg-[var(--ct-accent)]",
@@ -57,7 +58,7 @@ export function VaultAllocationAdminRows({
               row.index,
             )}`}
           />
-          <span className="text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
+          <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">
             {row.label}
           </span>
           <span className="text-sm font-bold text-white tabular-nums">
@@ -146,7 +147,7 @@ export function VaultAllocationInvestorList({
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--ct-text-faint)]">
+          <span className="text-[length:var(--ct-text-deci)] uppercase tracking-[0.2em] font-bold text-[var(--ct-text-faint)]">
             Target
           </span>
           <span className="text-[length:var(--ct-text-2xl)] font-medium text-white leading-none">
@@ -167,7 +168,7 @@ export function VaultAllocationInvestorList({
               )}`}
             />
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
+              <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">
                 {ALLOCATION_INVESTOR_LABELS[s.bucket]}
               </span>
               <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-tight">

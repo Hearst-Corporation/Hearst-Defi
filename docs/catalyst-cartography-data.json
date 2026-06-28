@@ -5,11 +5,11 @@
     "head": "467d3b94",
     "originMain": "467d3b94",
     "status": "DONE",
-    "lastPR": "#185 cartography (merged); convergence complete (lot5+lot6+lot7)",
+    "lastPR": "lot8 typo/zinc tokenization + convergence guard (fix/catalyst-typo-guards)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
-    "note": "CONVERGENCE COMPLETE — Catalyst is the single UI source; ui/ reduced to 3 files (provenance-badge + 2 helpers); 24 dead façades deleted; 165 consumers import catalyst directly"
+    "note": "CONVERGENCE COMPLETE — Catalyst is the single UI source; ui/ reduced to 3 files (provenance-badge + 2 helpers); 24 dead façades deleted; 165 consumers import catalyst directly | lot8: 44 text-[Npx]+13 zinc→token, 3 missing guards shipped."
   },
   "summary": {
     "pagesTotal": 72,
@@ -32,20 +32,23 @@
     "uiHelpersRemaining": 2,
     "uiHelperNonVisual": 2,
     "accentHardcodesTotal": 39,
-    "accentHardcodesTsx": 31,
+    "accentHardcodesTsx": 21,
     "accentDefinitions": 6,
     "accentRemovedThisLot": 2,
     "accentRemovedTotal": 98,
-    "typographyArbitraryPx": 180,
+    "typographyArbitraryPx": 33,
     "typographyTokenDriven": 341,
     "catalystBlueResidual": 1,
-    "dsGuardsGreen": 4,
+    "dsGuardsGreen": 7,
     "dsGuardsRed": 0,
     "ciLintGreen": true,
     "borderWhiteRaw": 0,
-    "textZincRaw": 44,
+    "textZincRaw": 31,
     "uiFacadesDeleted": 24,
-    "convergenceComplete": true
+    "convergenceComplete": true,
+    "typographyArbitraryPxNonCatalyst": 33,
+    "textZincRawNonCatalyst": 1,
+    "convergenceGuardActive": true
   },
   "openPRs": [
     {
@@ -881,12 +884,15 @@
       "file": "scripts/ds-hardcode-guard.mjs",
       "enforces": "8 guarded files: no raw hex/zinc/text-[Npx]/tracking-[]",
       "status": "active, scoped to 8 files only"
+    },
+    {
+      "name": "ds-convergence-guard (script)",
+      "file": "scripts/ds-convergence-guard.mjs",
+      "enforces": "repo-wide: ui/* sealed to 3 helpers · no raw #A7FB90 in tsx (allowlist: canvas/SVG fallbacks + brand-constants) · no exact-token text-[Npx] on product/vaults/proof-center/admin",
+      "status": "GREEN 0 hits — `pnpm ds:guard:convergence` / `ds:guard:all`"
     }
   ],
   "guardsMissing": [
-    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (33 tsx occurrences unguarded — canvas/SVG/theme fallbacks)",
-    "No guard enforcing ui/* → catalyst delegation direction (new autonomous ui/* could accumulate)",
-    "No guard for text-[Npx] across product/vaults/proof-center tsx (362 occurrences, only customers guarded)",
     "No guard preventing source='live' bound to a <2-point/fallback series outside HcValueChart",
     "No guard pinning cockpit token version / asset versioning"
   ],
@@ -995,6 +1001,11 @@
       "date": "2026-06-28",
       "ref": "Mission #049 lot6+7",
       "note": "CONVERGENCE COMPLETE — migrated 165 consumers from ui/* to catalyst/* direct, then DELETED the 24 dead ui/* façades. src/components/ui/ now holds only 3 files (provenance-badge + toaster + client-toaster). Catalyst is the single UI source. typecheck clean, 61/61 guards green, zero deletion of real functionality."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot8",
+      "note": "Targeted typography/neutral debt + the 3 missing guards. 44 exact-match text-[Npx]→text-[length:var(--ct-text-*)] and 13 text-zinc-*→var(--ct-text-*) across vaults/proof-center/admin/nav/profile surfaces (catalyst/* primitives untouched — zinc is their Headless-UI default). 4 SVG accent paints #A7FB90→var(--ct-accent)/color-mix (inline SVG resolves vars). NEW scripts/ds-convergence-guard.mjs seals the convergence repo-wide: ui/* limited to 3 helpers · raw accent hex banned (canvas/brand fallbacks allowlisted) · exact-token px banned on product surfaces. typecheck clean, all DS guards green (25/25 contract tests). Zero deletion."
     }
   ]
 }
