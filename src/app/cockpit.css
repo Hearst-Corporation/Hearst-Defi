@@ -5563,21 +5563,32 @@ main#main-content>.admin-doc.admin-doc-shell {
    Les breakpoints ci-dessous ne touchent plus à --ct-rail-left.
    Seuls le chat rail et le masquage tablette restent en media query. */
 
+/* Laptop large / narrow desktop (1201–1440px) : chat ouvert à 24rem, et l'état
+   user-"expanded" plafonné à la même largeur — au-delà, le slot produit tombe
+   sous le seuil cockpit lisible (mesuré : 1280 expanded → slot 697px). Desktop
+   large (>1440px) garde l'expanded confortable (token base 30rem). */
 @media (max-width: 90rem) and (min-width: 75.0625rem) {
   .ct-root {
     --ct-rail-right: 24rem;
-    --ct-rail-right-expanded: 30rem;
+    --ct-rail-right-expanded: 24rem;
   }
 }
 
-@media (max-width: 74.999rem) and (min-width: 64rem) {
+/* Laptop 13–14" (1024.01–1199px) : chat ouvert resserré à son plancher, et
+   l'état user-"expanded" est ramené au même plancher — sur un slot déjà étroit,
+   un chat élargi écraserait le centre produit (mesuré : slot ~583px). Le centre
+   garde ainsi une largeur cockpit lisible quel que soit l'état chat. */
+@media (max-width: 74.999rem) and (min-width: 64.001rem) {
   .ct-root {
     --ct-rail-right: 20rem;
-    --ct-rail-right-expanded: 22rem;
+    --ct-rail-right-expanded: 20rem;
   }
 }
 
-@media (max-width: 63.999rem) {
+/* Tablette / petit laptop (≤1024px) : le chat se masque. Seuil ≤64rem INCLUS —
+   l'ancien ≤63.999rem laissait passer 1024px pile (chat visible, slot écrasé à
+   ~583px). La règle owner : à 1024 le cockpit est full-width, chat fermé. */
+@media (max-width: 64rem) {
   .ct-rail-right { display: none !important; }
 }
 
