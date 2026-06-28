@@ -4,6 +4,30 @@ This repository uses a strict multi-agent workflow.
 
 These rules are mandatory for every agent, every task, and every code change.
 
+## RULE 0 — NO COMMIT, NO PUSH BY WORKER AGENTS (overrides everything below)
+
+A single **integration orchestrator** owns ALL git write operations into the
+history. Every other agent is a **worker**: it produces changes and STOPS.
+
+- Worker agents are **FORBIDDEN** to run: `git commit`, `git push`, `git merge`,
+  `git rebase`, `git pull`, `git reset`, `git stash pop`, `git tag`, `git add`
+  (for the purpose of committing), or any command that mutates a branch tip or
+  the remote. This holds **even when the user says "commit", "push", "ship"** to
+  a worker — the worker reports "done, ready for integration" and stops.
+- A worker's deliverable is its **edited files left in its own isolated worktree**,
+  clean of any commit it made itself. It reserves its files in
+  `docs/agent-file-locks.md` (read-only inspection is fine), edits, and reports:
+  branch/worktree path, files changed, what it validated. Nothing more.
+- The **orchestrator alone** decides when work is mergeable (no conflict with
+  `origin/main`, no single-owner collision, `pnpm typecheck` green) and is the
+  only actor allowed to commit, push the branch, open the PR, and merge to `main`.
+- If a worker believes it must integrate, it **asks the orchestrator/user** and
+  waits. It never self-merges. Rule 0 supersedes core rules 3 and 10 below for
+  worker agents (those describe the orchestrator's job, not theirs).
+
+This lets the user run many parallel agents / remotes with zero merge conflict:
+workers only ever write files; one orchestrator serializes all integration.
+
 Core rules:
 1. One agent = one isolated git worktree.
 2. One task = one short-lived branch.
