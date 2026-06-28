@@ -1,5 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AgentBriefLive } from "@/components/admin/product-workspace/agent-brief-live";
+import { PageShell } from "@/components/catalyst/layout/page-shell";
 import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -52,46 +53,44 @@ export default async function ProductWorkspacePage({
       : null;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Product"
-          titleAccent="Workspace"
-          contextLabel="Strategy"
+    <PageShell>
+      <AdminPageHeader
+        titleLead="Product"
+        titleAccent="Workspace"
+        contextLabel="Strategy"
+      />
+
+      <BentoPanel>
+        <BentoHeader title="Objective" />
+        <div className="flex flex-col gap-2 p-5">
+          {/* display value — intentionally p, not a document heading */}
+          <p
+            className={cn(
+              "text-[22px] font-medium leading-tight tracking-tight text-balance",
+              objective ? "text-white" : "italic text-zinc-500",
+            )}
+          >
+            {objective ?? "Awaiting objective from cockpit agent"}
+          </p>
+          <p className="text-[13px] leading-relaxed text-zinc-400">
+            Framing and documentation only — no vault creation, allocations, or
+            approvals from this surface.
+          </p>
+        </div>
+      </BentoPanel>
+
+      <BentoPanel aria-labelledby="pw-agent-brief-heading">
+        <BentoHeader
+          title={<span id="pw-agent-brief-heading">Agent framing brief</span>}
         />
-
-        <BentoPanel>
-          <BentoHeader title="Objective" />
-          <div className="flex flex-col gap-2 p-5">
-            {/* display value — intentionally p, not a document heading */}
-            <p
-              className={cn(
-                "text-[22px] font-medium leading-tight tracking-tight text-balance",
-                objective ? "text-white" : "italic text-zinc-500",
-              )}
-            >
-              {objective ?? "Awaiting objective from cockpit agent"}
-            </p>
-            <p className="text-[13px] leading-relaxed text-zinc-400">
-              Framing and documentation only — no vault creation, allocations, or
-              approvals from this surface.
-            </p>
-          </div>
-        </BentoPanel>
-
-        <BentoPanel aria-labelledby="pw-agent-brief-heading">
-          <BentoHeader
-            title={<span id="pw-agent-brief-heading">Agent framing brief</span>}
+        <div className="p-5">
+          <AgentBriefLive
+            objective={objective ?? null}
+            autostart={autostart}
+            initialBrief={initialBrief}
           />
-          <div className="p-5">
-            <AgentBriefLive
-              objective={objective ?? null}
-              autostart={autostart}
-              initialBrief={initialBrief}
-            />
-          </div>
-        </BentoPanel>
-      </div>
-    </div>
+        </div>
+      </BentoPanel>
+    </PageShell>
   );
 }
