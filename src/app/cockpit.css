@@ -60,6 +60,23 @@
   --ct-chart-curve-color: var(--ct-accent);
   --ct-chart-area-top: var(--ct-figma-accent-area-top);
   --ct-chart-area-bottom: var(--ct-figma-accent-area-bottom);
+  /* ── HIS — Hearst Instrument System (data-viz primitives, HC-9268) ──────────
+     Tokens ADDITIFS uniquement. Aucune valeur existante modifiée ni renommée.
+     Doctrine : encodage par LUMINANCE (rampe d'un seul accent) + position, jamais
+     par teinte arbitraire — préserve l'invariant un-seul-vert (--ct-accent). La
+     couleur ne porte que du sens (positif/négatif/alerte/source), pas de déco. */
+  /* Rampe de séries — un seul accent, 4 paliers d'opacité, puis graphite neutre. */
+  --ct-chart-series-1: var(--ct-accent);
+  --ct-chart-series-2: color-mix(in srgb, var(--ct-accent) 64%, transparent);
+  --ct-chart-series-3: color-mix(in srgb, var(--ct-accent) 38%, transparent);
+  --ct-chart-series-4: color-mix(in srgb, var(--ct-accent) 20%, transparent);
+  --ct-chart-neutral: var(--ct-figma-neutral); /* #747575 — segment "autre/idle" */
+  /* Bande de projection p5–p95 — info teinté (jamais vert, jamais "garanti"). */
+  --ct-chart-band-fill: color-mix(in srgb, var(--ct-status-info) 14%, transparent);
+  --ct-chart-band-stroke: color-mix(in srgb, var(--ct-status-info) 40%, transparent);
+  /* États non-production — jamais confondus avec du live (hachure / pointillé). */
+  --ct-chart-mock: var(--ct-status-warning);
+  --ct-chart-configured: var(--ct-text-faint);
   /* Chrome sombre — overlays blancs Figma (remplace les color-mix approximatifs). */
   --ct-border-soft: var(--ct-figma-border-5);
   --ct-border: var(--ct-figma-border-10);

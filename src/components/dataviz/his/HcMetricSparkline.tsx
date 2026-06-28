@@ -1,0 +1,96 @@
+/**
+ * HcMetricSparkline — inline mini line/area for KPI cards and dense rows.
+ *
+ * Pure SVG, no axes, no tooltip. Renders a flat empty surface when there are
+ * fewer than two points so an empty series never paints a misleading trend.
+ */
+
+import { extent, project, polyline, pathD, type PlotBox } from "./geometry";
+import type { HcPoint } from "./types";
+
+export type HcSparklineTone = "accent" | "warning" | "danger";
+
+export interface HcMetricSparklineProps {
+  values: readonly number[];
+  width?: number;
+  height?: number;
+  /** Fill the area under the curve (accent tone only). */
+  area?: boolean;
+  tone?: HcSparklineTone;
+  "aria-label": string;
+}
+
+const STROKE: Record<HcSparklineTone, string> = {
+  accent: "var(--ct-chart-curve-color)",
+  warning: "var(--ct-status-warning)",
+  danger: "var(--ct-status-danger)",
+};
+
+export function HcMetricSparkline({
+  values,
+  width = 160,
+  height = 56,
+  area = true,
+  tone = "accent",
+  ...rest
+}: HcMetricSparklineProps) {
+  const ariaLabel = rest["aria-label"];
+
+  if (values.length < 2) {
+    return (
+      <div
+        role="img"
+        aria-label={ariaLabel}
+        data-hc-empty="true"
+        style={{
+          width,
+          height,
+          borderRadius: "var(--ct-radius-sm)",
+          background: "var(--ct-surface-2)",
+        }}
+      />
+    );
+  }
+
+  const box: PlotBox = { width, height, padX: 2, padY: 6 };
+  const yDomain = extent(values);
+  const xDomain: readonly [number, number] = [0, values.length - 1];
+  const pts: HcPoint[] = values.map((v, i) =>
+    project({ x: i, y: v }, xDomain, yDomain, box),
+  );
+  const last = pts[pts.length - 1]!;
+  const first = pts[0]!;
+  const baseY = height - box.padY;
+  const areaD = `${pathD(pts)} L${last.x.toFixed(2)} ${baseY.toFixed(2)} L${first.x.toFixed(2)} ${baseY.toFixed(2)} Z`;
+
+  return (
+    <svg
+      role="img"
+      aria-label={ariaLabel}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+    >
+      {area && tone === "accent" && (
+        <>
+          <defs>
+            <linearGradient id="hc-spark-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--ct-chart-area-top)" />
+              <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" />
+            </linearGradient>
+          </defs>
+          <path d={areaD} fill="url(#hc-spark-fill)" />
+        </>
+      )}
+      <polyline
+        points={polyline(pts)}
+        fill="none"
+        stroke={STROKE[tone]}
+        strokeWidth={2.2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx={last.x} cy={last.y} r={3} fill={STROKE[tone]} />
+    </svg>
+  );
+}
