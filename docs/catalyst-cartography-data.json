@@ -2,8 +2,8 @@
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "467d3b94",
-    "originMain": "467d3b94",
+    "head": "c463155c",
+    "originMain": "c463155c",
     "status": "DONE",
     "lastPR": "lot8 typo/zinc tokenization + convergence guard (fix/catalyst-typo-guards)",
     "subAgents": 7,
@@ -41,14 +41,15 @@
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 7,
     "dsGuardsRed": 0,
-    "ciLintGreen": true,
+    "ciLintGreen": false,
     "borderWhiteRaw": 0,
     "textZincRaw": 31,
     "uiFacadesDeleted": 24,
     "convergenceComplete": true,
     "typographyArbitraryPxNonCatalyst": 33,
     "textZincRawNonCatalyst": 1,
-    "convergenceGuardActive": true
+    "convergenceGuardActive": true,
+    "ciLintNote": "Lint & Typecheck red on main (29 pre-existing prefer-const errors in catalyst/* primitives, inherited — not introduced by lot8). typecheck itself passes."
   },
   "openPRs": [
     {
@@ -421,6 +422,13 @@
       "status": "CANON_ACTIVE",
       "tokenClean": true,
       "wrapper": "← ui/bento (#049 lot3)"
+    },
+    {
+      "name": "choice-checkbox.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": null
     }
   ],
   "uiWrappers": [

@@ -157,7 +157,7 @@
   <p class="sub">Convergence is <b style="color:var(--ct-accent)">DONE — Catalyst is the single UI source</b>. The 24 dead <code>ui/*</code> façades have been deleted; <code>src/components/ui/</code> now holds only <b>3 files</b> (provenance-badge + 2 Sonner helpers) and all 165 consumers import <code>@/components/catalyst/*</code> directly.</p>
   <div class="meta-row">
     <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-28 · Mission #049</span>
-    <span class="chip"><b>head</b> <code>467d3b94</code> · status <code>DONE</code></span>
+    <span class="chip"><b>head</b> <code>c463155c</code> · status <code>DONE</code></span>
     <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 31)</span>
     <span class="chip"><span class="dot green"></span><b>52</b> catalyst files</span>
     <span class="chip"><span class="dot green"></span>all UI Catalyst-direct</span>
@@ -446,7 +446,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-28 by Mission #049 (lot8) · head <code class="mono">467d3b94</code> · status <code class="mono">DONE</code> — convergence complete (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-28 by Mission #049 (lot8) · head <code class="mono">c463155c</code> · status <code class="mono">DONE</code> — convergence complete (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -519,8 +519,8 @@ window.CARTO_DATA = {
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "467d3b94",
-    "originMain": "467d3b94",
+    "head": "c463155c",
+    "originMain": "c463155c",
     "status": "DONE",
     "lastPR": "lot8 typo/zinc tokenization + convergence guard (fix/catalyst-typo-guards)",
     "subAgents": 7,
@@ -558,7 +558,8 @@ window.CARTO_DATA = {
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 7,
     "dsGuardsRed": 0,
-    "ciLintGreen": true,
+    "ciLintGreen": false,
+    "ciLintNote": "Lint & Typecheck red on main (29 pre-existing prefer-const errors in catalyst/* primitives, inherited — not introduced by lot8). typecheck itself passes.",
     "borderWhiteRaw": 0,
     "textZincRaw": 31,
     "uiFacadesDeleted": 24,
@@ -938,6 +939,13 @@ window.CARTO_DATA = {
       "status": "CANON_ACTIVE",
       "tokenClean": true,
       "wrapper": "← ui/bento (#049 lot3)"
+    },
+    {
+      "name": "choice-checkbox.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/checkbox"
     }
   ],
   "uiWrappers": [
@@ -1590,10 +1598,14 @@ function renderUi(){
   const d=window.CARTO_DATA.uiWrappers.slice().sort((a,b)=>b.imports-a.imports);
   document.getElementById('ui-body').innerHTML=d.map(w=>{
     const m={WRAPPED_TO_CATALYST:["b-ready","WRAPPED"],LEGACY_AUTONOMOUS:["b-legacy","AUTONOMOUS"],HELPER_NON_VISUAL:["b-scope","HELPER"],NEEDS_CATALYST_TARGET:["b-partial","NEEDS TARGET"]}[w.status]||["b-scope",w.status];
+    const gone=w.facadeDeleted===true;
+    const badge=gone?'<span class="b b-scope" style="opacity:.7">DELETED</span>':'<span class="b '+m[0]+'">'+m[1]+'</span>';
     const del=w.wrapsCatalyst===true?'<span class="pill ok">yes</span>':(w.wrapsCatalyst?('<span class="pill">'+w.wrapsCatalyst+'</span>'):'<span class="pill hot">no</span>');
-    return '<tr data-status="'+w.status+'"><td><code>'+w.name+'</code></td><td style="font-variant-numeric:tabular-nums">'+w.imports+'</td><td><span class="b '+m[0]+'">'+m[1]+'</span></td><td>'+del+'</td><td style="color:var(--text-muted)">'+w.target+'</td><td>'+pri(w.priority==='done'?null:w.priority)+(w.priority==='done'?'<span class="pill ok">done</span>':'')+'</td></tr>';
+    const nameCell=gone?'<code style="text-decoration:line-through;color:var(--text-faint)">'+w.name+'</code>':'<code>'+w.name+'</code>';
+    return '<tr data-status="'+w.status+'" style="'+(gone?'opacity:.6':'')+'"><td>'+nameCell+'</td><td style="font-variant-numeric:tabular-nums">'+w.imports+'</td><td>'+badge+'</td><td>'+del+'</td><td style="color:var(--text-muted)">'+w.target+'</td><td>'+pri(w.priority==='done'?null:w.priority)+(w.priority==='done'?'<span class="pill ok">done</span>':'')+'</td></tr>';
   }).join('');
-  document.getElementById('ucount').textContent=d.length+' wrappers';
+  const liveN=d.filter(w=>!w.facadeDeleted).length, goneN=d.length-liveN;
+  document.getElementById('ucount').textContent=liveN+' live · '+goneN+' deleted';
 }
 // accent
 function renderAccent(){
