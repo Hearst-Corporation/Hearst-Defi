@@ -123,12 +123,13 @@ export default async function CustomersPage({
             </EmptySurface>
           ) : (
             <Table
+              bleed
               dense
-              className="[&_td]:whitespace-normal [&_th]:whitespace-normal"
+              className="overflow-x-visible! whitespace-normal [&_table]:w-full [&_td]:whitespace-normal [&_th]:whitespace-normal"
             >
               <TableHead>
                 <TableRow>
-                  <TableHeader className="pl-5 bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  <TableHeader className="bg-transparent pl-5 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     Investor
                   </TableHeader>
                   <TableHeader className="hidden bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
@@ -137,13 +138,13 @@ export default async function CustomersPage({
                   <TableHeader className="bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     KYC
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:table-cell">
+                  <TableHeader className="hidden bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:table-cell">
                     Positions
                   </TableHeader>
                   <TableHeader className="bg-transparent text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     Total principal
                   </TableHeader>
-                  <TableHeader className="hidden pr-5 bg-transparent text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
+                  <TableHeader className="hidden bg-transparent pr-5 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
                     Joined
                   </TableHeader>
                 </TableRow>
@@ -181,7 +182,7 @@ export default async function CustomersPage({
                         <KycAction investorId={c.id} status={c.kycStatus} />
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-right text-[13px] tabular-nums text-zinc-300 md:table-cell">
+                    <TableCell className="hidden text-[13px] tabular-nums text-zinc-300 md:table-cell">
                       {c.activePositions}
                     </TableCell>
                     <TableCell className="text-right text-[14px] font-medium tabular-nums text-white">
