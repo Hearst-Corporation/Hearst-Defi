@@ -30,18 +30,18 @@ export default async function YieldPage() {
   ]);
   const { accruedYieldUsdc, totalYieldYtdUsdc, deployedUsdc } = data;
 
+  // No fabricated fallback: when there is no allocation data yet, render the four
+  // canonical buckets at a REAL zero (0%) so the ring widget stays visually
+  // present (grey track + legend rows at 0%) without inventing a 60/25/10/5 split.
   const allocSegments =
     allocationDonutProps.buckets.length > 0
       ? allocationDonutProps.buckets.map((b) => ({
           label: BUCKET_LABEL[b.bucket] ?? b.bucket,
           value: b.valueUsdc,
         }))
-      : [
-          { label: BUCKET_LABEL.mining!, value: 60 },
-          { label: BUCKET_LABEL.btc_tactical!, value: 25 },
-          { label: BUCKET_LABEL.usdc_base!, value: 10 },
-          { label: BUCKET_LABEL.stable_reserve!, value: 5 },
-        ];
+      : (["mining", "btc_tactical", "usdc_base", "stable_reserve"] as const).map(
+          (bucket) => ({ label: BUCKET_LABEL[bucket]!, value: 0 }),
+        );
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">

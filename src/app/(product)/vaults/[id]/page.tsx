@@ -54,7 +54,7 @@ function InvestCta({
     return (
       <Link
         href={investHref}
-        className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#A7FB90] px-5 py-3 text-[13px] font-bold uppercase tracking-[0.1em] text-zinc-900 shadow-sm transition-colors hover:bg-[#A7FB90]/90"
+        className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--ct-accent)] px-5 py-3 text-[length:var(--ct-text-xs)] font-bold uppercase tracking-[0.1em] text-[var(--ct-bg-deep)] shadow-sm transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_90%,transparent)]"
       >
         Continue to deposit
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="size-4">
@@ -67,7 +67,7 @@ function InvestCta({
   return (
     <Link
       href={INVEST_SELECT_PATH}
-      className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-[13px] font-bold uppercase tracking-[0.1em] text-zinc-200 transition-colors hover:bg-white/10 hover:text-white"
+      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-5 py-3 text-[length:var(--ct-text-xs)] font-bold uppercase tracking-[0.1em] text-[var(--ct-text-body)] transition-colors hover:text-[var(--ct-text-strong)]"
     >
       Browse other products
     </Link>
@@ -84,7 +84,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const investHref = investDepositPath(id);
 
   const nameParts = vault.name.trim().split(/\s+/);
-  const titleAccent = nameParts.length > 1 ? nameParts.pop()! : vault.name;
+  const titleAccent = nameParts.length > 1 ? nameParts.pop() : vault.name;
   const titleLead = nameParts.length ? nameParts.join(" ") : undefined;
 
   return (
@@ -108,24 +108,26 @@ export default async function VaultDetailPage({ params }: PageProps) {
       <section
         role="region"
         aria-label="Key terms and next action"
-        className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
+        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
       >
         {/* Identity header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-white/5">
-          <span className="text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-400 tabular-nums">
-            {vault.ticker}
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
+          <span className="ct-bento-label tabular-nums">{vault.ticker}</span>
           <span
             className={cn(
-              "inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold",
-              isLive ? "text-[#A7FB90]" : "text-zinc-400",
+              "ct-bento-label inline-flex items-center gap-2",
+              isLive
+                ? "text-[var(--ct-accent)]"
+                : "text-[var(--ct-text-muted)]",
             )}
           >
             <span
               aria-hidden="true"
               className={cn(
                 "size-2 rounded-full",
-                isLive ? "bg-[#A7FB90]" : "bg-zinc-500",
+                isLive
+                  ? "bg-[var(--ct-accent)]"
+                  : "bg-[var(--ct-text-faint)]",
               )}
             />
             {vaultStatusLabel(vault.status)}
@@ -133,33 +135,27 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </div>
 
         {/* Metrics strip */}
-        <dl className="grid grid-cols-1 md:grid-cols-3 border-b border-white/5 bg-surface-inset">
-          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
-            <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-              Target APY range
-            </dt>
+        <dl className="grid grid-cols-1 md:grid-cols-3 border-b border-[var(--ct-border-soft)] bg-surface-inset">
+          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-[var(--ct-border-soft)]">
+            <dt className="ct-bento-label">Target APY range</dt>
             <dd>
               <ApyRange
                 low={vault.apyLow}
                 high={vault.apyHigh}
                 precision={1}
-                className="text-[22px] font-medium text-[#A7FB90] leading-none tracking-tight tabular-nums"
+                className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-accent)] leading-none tracking-tight tabular-nums"
               />
             </dd>
           </div>
-          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
-            <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-              Min subscription
-            </dt>
-            <dd className="text-[22px] font-medium text-white leading-none tracking-tight tabular-nums">
+          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-[var(--ct-border-soft)]">
+            <dt className="ct-bento-label">Min subscription</dt>
+            <dd className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
               {formatMinTicketUsdc(vault.minTicketUsdc)}
             </dd>
           </div>
           <div className="flex flex-col gap-2 p-5 md:px-6">
-            <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-              Soft lock-up
-            </dt>
-            <dd className="text-[22px] font-medium text-white leading-none tracking-tight tabular-nums">
+            <dt className="ct-bento-label">Soft lock-up</dt>
+            <dd className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
               {vault.softLockupDays} days
             </dd>
           </div>
@@ -168,14 +164,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {/* CTA block */}
         <div className="flex flex-col gap-3 p-5 md:p-6">
           {!isLive ? (
-            <p className="text-[12px] text-zinc-500 tracking-wide">
-              {nonLiveNote(vault.status)}
-            </p>
+            <p className="ct-metric-caption">{nonLiveNote(vault.status)}</p>
           ) : null}
           <InvestCta isLive={isLive} investHref={investHref} />
-          <p className="text-[12px] text-zinc-500 tracking-wide">
-            {ctaSupportLine(isLive)}
-          </p>
+          <p className="ct-metric-caption">{ctaSupportLine(isLive)}</p>
         </div>
       </section>
 

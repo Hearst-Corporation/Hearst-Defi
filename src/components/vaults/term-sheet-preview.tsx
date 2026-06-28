@@ -25,8 +25,11 @@ interface TermSheetPreviewProps {
 
 /** LP term sheet body for step 2 (`/vaults/[id]`). Pure Tailwind bento — matches the Portfolio page. */
 export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
+  // AUM comes from a VaultSnapshot aggregate (seed/computed), NOT a live
+  // on-chain read — so it is "estimated", never "live". Audit #032 P0: badging
+  // it Live on a seed snapshot was misleading. "manual" when there's no AUM yet.
   const aumProvenance =
-    vault.currentAumUsdc > 0 ? ("live" as const) : ("manual" as const);
+    vault.currentAumUsdc > 0 ? ("estimated" as const) : ("manual" as const);
   const legalFacts = toVaultLegalFacts(vault);
   const allocationFacts = toVaultAllocationFacts(vault);
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
@@ -34,7 +37,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   return (
     <div className="dark flex flex-col gap-y-5">
       {/* HEADLINE TERM TILES */}
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <BentoHeader
           title="Term Sheet"
           subtitle={`${vault.ticker} · ${strategyLabel}`}
@@ -48,39 +51,39 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
             value={
               <span className="flex items-baseline gap-1.5">
                 {vault.apyLow.toFixed(1)}
-                <span className="text-base text-zinc-500 font-normal mx-0.5">
+                <span className="text-base text-[var(--ct-text-muted)] font-normal mx-0.5">
                   —
                 </span>
                 {vault.apyHigh.toFixed(1)}
-                <span className="text-base text-zinc-500 font-normal">%</span>
+                <span className="text-base text-[var(--ct-text-muted)] font-normal">%</span>
               </span>
             }
             sub="Target projection — not guaranteed"
-            className="md:px-6 border-b border-white/5 sm:border-r md:border-b-0"
+            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-r md:border-b-0"
           />
           <BentoKpiTile
             label="Min Ticket"
             value={formatMinTicketUsdc(vault.minTicketUsdc)}
             sub="USDC"
-            className="md:px-6 border-b border-white/5 md:border-r"
+            className="md:px-6 border-b border-[var(--ct-border-soft)] md:border-r"
           />
           <BentoKpiTile
             label="Soft Lock-up"
             value={`${vault.softLockupDays}d`}
             sub="Redemption queue"
-            className="md:px-6 border-b border-white/5 sm:border-r sm:border-b-0 md:border-r-0"
+            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-r sm:border-b-0 md:border-r-0"
           />
           <BentoKpiTile
             label="Mgmt / Perf"
             value={formatFeeLine(vault.fees)}
             sub="Fee schedule"
-            className="md:px-6 border-b border-white/5 sm:border-r md:border-b-0"
+            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-r md:border-b-0"
           />
           <BentoKpiTile
             label="Capacity"
             value={formatUsdCompact(vault.capacityUsdc)}
             sub="Hard cap"
-            className="md:px-6 border-b border-white/5 sm:border-b-0 md:border-r"
+            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-b-0 md:border-r"
           />
           <BentoKpiTile
             label="Current AUM"
@@ -96,7 +99,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       </section>
 
       {/* TARGET ALLOCATION */}
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <BentoHeader
           title="Target Allocation"
           subtitle="Sleeve mix at inception"
@@ -107,15 +110,15 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       </section>
 
       {/* REGIME SCENARIOS */}
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <BentoHeader
           title="Regime Scenarios"
           subtitle="Conditional stress postures · Methodology v1.0"
         />
         <RegimeScenarioTable vault={vault} />
         <div className="px-5 pb-5">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-zinc-500">
-            <div className="size-1 bg-zinc-500 rounded-full" />
+          <div className="flex items-center gap-2 ct-bento-label">
+            <div className="size-1 bg-[var(--ct-text-faint)] rounded-full" />
             Conditional stress postures — not a projection of future returns
           </div>
         </div>
@@ -123,14 +126,14 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
       {/* LEGAL & STRUCTURE */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <BentoHeader title="Legal &amp; Structure" subtitle="SPV terms" />
           <div className="p-6 flex flex-col gap-3">
             <VaultLegalProofRows facts={legalFacts} variant="investor" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <BentoHeader
             title="Vault Metrics"
             subtitle="Fees · capacity · AUM"
@@ -147,12 +150,12 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
             <BentoKpiTile
               label="Mgmt / Perf"
               value={formatFeeLine(vault.fees)}
-              className="md:px-6 border-b border-r border-white/5"
+              className="md:px-6 border-b border-r border-[var(--ct-border-soft)]"
             />
             <BentoKpiTile
               label="Capacity"
               value={formatUsdCompact(vault.capacityUsdc)}
-              className="md:px-6 border-b border-white/5"
+              className="md:px-6 border-b border-[var(--ct-border-soft)]"
             />
             <BentoKpiTile
               label="Current AUM"
@@ -161,7 +164,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                   ? formatUsdCompact(vault.currentAumUsdc)
                   : "Pending"
               }
-              className="md:px-6 border-r border-white/5"
+              className="md:px-6 border-r border-[var(--ct-border-soft)]"
             />
             <BentoKpiTile
               label="Risk Level"
@@ -173,7 +176,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       </section>
 
       {/* DISCLAIMER */}
-      <p className="text-[12px] text-zinc-500 leading-relaxed">
+      <p className="ct-metric-caption leading-relaxed">
         {vault.disclaimers} {APY_DISCLAIMER_SUFFIX}
       </p>
     </div>
