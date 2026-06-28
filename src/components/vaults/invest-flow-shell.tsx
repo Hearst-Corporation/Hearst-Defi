@@ -128,7 +128,7 @@ export function InvestFlowShell({
         {description ? (
           <div
             className={cn(
-              "text-[13px] text-[var(--ct-text-muted)]",
+              "text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]",
               centered && "mx-auto",
             )}
           >
@@ -154,7 +154,7 @@ export function InvestFlowShell({
         {children}
 
         {footer ? (
-          <footer className="border-t border-[var(--ct-border-soft)] pt-5 text-[11px] text-[var(--ct-text-faint)]">
+          <footer className="border-t border-[var(--ct-border-soft)] pt-5 text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">
             {footer}
           </footer>
         ) : null}

@@ -18,7 +18,7 @@ export function VaultPanelHeader({
             {eyebrow}
           </p>
         ) : null}
-        <h3 className="text-[13px] font-semibold uppercase tracking-wider text-white">
+        <h3 className="text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-wider text-white">
           {title}
         </h3>
       </div>
@@ -68,7 +68,7 @@ export function VaultDetailRow({
         <span className="ct-bento-label">
           {label}
         </span>
-        <span className="text-[13px] font-medium text-white tabular-nums">
+        <span className="text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums">
           {value}
         </span>
       </div>
@@ -88,7 +88,7 @@ export function VaultPanelLink({
       {...rest}
       href={href}
       className={cn(
-        "text-[12px] font-medium text-[var(--ct-accent)] no-underline transition-colors hover:underline",
+        "text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-accent)] no-underline transition-colors hover:underline",
         className,
       )}
     >

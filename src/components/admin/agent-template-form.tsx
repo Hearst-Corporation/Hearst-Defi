@@ -116,7 +116,7 @@ export function AgentTemplateForm({
           </span>
           <span className="min-w-0 flex-1">
             <span className={cn("block", FIELD_LABEL)}>Base agent</span>
-            <span className="block text-[14px] font-semibold text-white">
+            <span className="block text-[length:var(--ct-text-14)] font-semibold text-white">
               {entry.label}
             </span>
             <span className="block text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">

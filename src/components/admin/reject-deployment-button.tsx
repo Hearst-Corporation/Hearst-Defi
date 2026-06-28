@@ -62,7 +62,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         title="Reject this deployment?"
         className="max-w-md"
       >
-        <p className="mb-4 text-[13px] text-[var(--ct-text-muted)]">
+        <p className="mb-4 text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           Pushes the vault back to draft. Requires a written reason for the
           audit log.
         </p>
@@ -87,14 +87,14 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Missing audit report, incorrect fee structure…"
-            className="w-full resize-none rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none"
+            className="w-full resize-none rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none"
           />
         </div>
 
         {error && (
           <div
             role="alert"
-            className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[13px] text-red-400"
+            className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[length:var(--ct-text-xs)] text-red-400"
           >
             {error}
           </div>

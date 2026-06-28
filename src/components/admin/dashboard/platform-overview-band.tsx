@@ -59,7 +59,7 @@ export function PlatformOverviewBand({
                 <div className="flex shrink-0 flex-col items-end">
                   <span
                     className={cn(
-                      "text-[14px] font-medium leading-none tracking-tight tabular-nums",
+                      "text-[length:var(--ct-text-14)] font-medium leading-none tracking-tight tabular-nums",
                       kpi.alert
                         ? "text-[var(--ct-status-danger)]"
                         : kpi.accent
@@ -79,7 +79,7 @@ export function PlatformOverviewBand({
                 <span className="ct-bento-label">
                   Capacity usage
                 </span>
-                <span className="text-[12px] font-medium tabular-nums text-[var(--ct-text-muted)]">
+                <span className="text-[length:var(--ct-text-2xs)] font-medium tabular-nums text-[var(--ct-text-muted)]">
                   {capacityUsedRaw}
                 </span>
               </div>
@@ -104,7 +104,7 @@ export function PlatformOverviewBand({
                 <span className="ct-bento-label">
                   Distribution
                 </span>
-                <span className="text-[12px] font-medium tabular-nums text-[var(--ct-text-muted)]">
+                <span className="text-[length:var(--ct-text-2xs)] font-medium tabular-nums text-[var(--ct-text-muted)]">
                   {exposureClusterHasDist} buckets
                 </span>
               </div>

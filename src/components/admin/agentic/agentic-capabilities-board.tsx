@@ -94,7 +94,7 @@ export function AgenticCapabilitiesBoard({
         }
       />
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-[13px]">
+        <table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
           <thead>
             <tr className="border-b border-[var(--ct-border-soft)]">
               <th className="ct-bento-label bg-transparent px-4 py-3 text-right whitespace-nowrap">

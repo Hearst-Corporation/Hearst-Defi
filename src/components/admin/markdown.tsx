@@ -18,7 +18,7 @@ export function Markdown({
   demoteH1?: boolean;
 }) {
   return (
-    <div className="prose-spec text-[14px] text-[var(--ct-text-body)]">
+    <div className="prose-spec text-[length:var(--ct-text-14)] text-[var(--ct-text-body)]">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         urlTransform={safeUrl}
@@ -44,21 +44,21 @@ export function Markdown({
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-3 text-[14px] leading-relaxed text-[var(--ct-text-body)]">
+            <p className="my-3 text-[length:var(--ct-text-14)] leading-relaxed text-[var(--ct-text-body)]">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-3 list-disc space-y-1.5 pl-5 text-[14px] text-[var(--ct-text-body)] marker:text-[var(--ct-text-faint)]">
+            <ul className="my-3 list-disc space-y-1.5 pl-5 text-[length:var(--ct-text-14)] text-[var(--ct-text-body)] marker:text-[var(--ct-text-faint)]">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-3 list-decimal space-y-1.5 pl-5 text-[14px] text-[var(--ct-text-body)] marker:text-[var(--ct-text-faint)]">
+            <ol className="my-3 list-decimal space-y-1.5 pl-5 text-[length:var(--ct-text-14)] text-[var(--ct-text-body)] marker:text-[var(--ct-text-faint)]">
               {children}
             </ol>
           ),
-          li: ({ children }) => <li className="text-[14px] leading-relaxed">{children}</li>,
+          li: ({ children }) => <li className="text-[length:var(--ct-text-14)] leading-relaxed">{children}</li>,
           code: ({ children, className }) => {
             if (className?.startsWith("language-")) {
               return (
@@ -109,7 +109,7 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-2 border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] pl-4 text-[14px] italic text-[var(--ct-text-muted)]">
+            <blockquote className="my-4 border-l-2 border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] pl-4 text-[length:var(--ct-text-14)] italic text-[var(--ct-text-muted)]">
               {children}
             </blockquote>
           ),

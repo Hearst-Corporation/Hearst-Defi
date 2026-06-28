@@ -73,7 +73,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
         title="Trigger a test signal"
         className="max-w-md"
       >
-        <p className="mb-4 text-[13px] leading-relaxed text-[var(--ct-text-muted)]">
+        <p className="mb-4 text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-muted)]">
           Dev only. Seeds a pending rebalance signal with placeholder PTAI text
           so the approve / reject flow can be exercised without the Inngest Dev
           Server.
@@ -87,7 +87,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
             disabled={isPending}
             value={ruleId}
             onChange={(e) => setRuleId(e.target.value)}
-            className="w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[13px] text-white transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none disabled:opacity-50"
           >
             {RULE_IDS.map((r) => (
               <option key={r} value={r}>
@@ -100,7 +100,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
         {error && (
           <div
             role="alert"
-            className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2.5 text-[13px] text-red-300"
+            className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2.5 text-[length:var(--ct-text-xs)] text-red-300"
           >
             {error}
           </div>

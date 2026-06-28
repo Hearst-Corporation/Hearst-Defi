@@ -762,7 +762,7 @@ export function ProjectionStudio() {
                           value={
                             <span
                               className={cn(
-                                "text-[12px] uppercase tracking-wider",
+                                "text-[length:var(--ct-text-2xs)] uppercase tracking-wider",
                                 selectedCell.confidence === "high"
                                   ? "text-[var(--ct-accent)]"
                                   : selectedCell.confidence === "medium"
@@ -824,7 +824,7 @@ export function ProjectionStudio() {
                           value={
                             <span
                               className={cn(
-                                "text-[12px] uppercase tracking-wider",
+                                "text-[length:var(--ct-text-2xs)] uppercase tracking-wider",
                                 selectedCell.confidence === "high"
                                   ? "text-[var(--ct-accent)]"
                                   : selectedCell.confidence === "medium"

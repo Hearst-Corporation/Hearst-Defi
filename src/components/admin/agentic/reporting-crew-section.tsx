@@ -83,7 +83,7 @@ function SignalRow({ signal }: { signal: ReportingCrewSignal }) {
   return (
     <li className="flex items-start gap-2.5">
       <Chip tone={severityTone(signal.severity)}>{signal.severity}</Chip>
-      <span className="flex-1 text-[13px] leading-snug">
+      <span className="flex-1 text-[length:var(--ct-text-xs)] leading-snug">
         <span className="font-medium text-white">{signal.title}</span>
         <span className="text-[var(--ct-text-muted)]"> — {signal.detail}</span>
         <span className="text-[var(--ct-text-faint)]"> ({signal.source})</span>
@@ -107,7 +107,7 @@ function SectionCard({ section }: { section: ReportingCrewSectionData }) {
                 <span className="ct-bento-label">
                   {m.label}
                 </span>
-                <span className="text-[14px] font-medium leading-none text-white tabular-nums">
+                <span className="text-[length:var(--ct-text-14)] font-medium leading-none text-white tabular-nums">
                   {m.value}
                 </span>
                 {m.detail && (
@@ -143,7 +143,7 @@ function NoteList({
         {notes.map((n) => (
           <li
             key={n}
-            className="flex gap-2 text-[12px] leading-snug text-[var(--ct-text-faint)]"
+            className="flex gap-2 text-[length:var(--ct-text-2xs)] leading-snug text-[var(--ct-text-faint)]"
           >
             <span aria-hidden className="select-none text-[var(--ct-text-faint)]">
               ·
@@ -196,7 +196,7 @@ export function ReportingCrewSection({
           <span className="ct-bento-label">
             Executive summary
           </span>
-          <p className="mt-2 max-w-[80ch] text-[13px] leading-relaxed text-[var(--ct-text-body)]">
+          <p className="mt-2 max-w-[80ch] text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-body)]">
             {executiveSummary}
           </p>
         </div>

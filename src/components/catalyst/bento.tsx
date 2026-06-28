@@ -217,7 +217,7 @@ export function BentoKpiStrip({
         <div className="flex flex-col gap-1.5 border-b border-[var(--ct-border-soft)] p-5 md:px-6">
           <div className="ct-bento-label">{title}</div>
           {subtitle ? (
-            <div className="text-[12px] ct-text-muted">{subtitle}</div>
+            <div className="text-[length:var(--ct-text-2xs)] ct-text-muted">{subtitle}</div>
           ) : null}
         </div>
       ) : null}
@@ -241,7 +241,7 @@ export function BentoKpiStrip({
             <div className="ct-bento-label">{item.label}</div>
             <div
               className={cn(
-                "text-[22px] font-medium leading-none tracking-tight",
+                "text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight",
                 item.accent ? "ct-text-accent" : "ct-text-strong",
               )}
             >
@@ -260,4 +260,4 @@ export const BENTO_PRIMARY_BTN =
 
 /** Neutral secondary CTA class string. */
 export const BENTO_SECONDARY_BTN =
-  "inline-flex items-center justify-center rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[13px] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-50";

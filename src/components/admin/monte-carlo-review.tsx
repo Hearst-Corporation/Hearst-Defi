@@ -160,7 +160,7 @@ export function MonteCarloReview({
         }
         trailing={
           <span
-            className="rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-1 text-[11px] font-medium text-[var(--ct-text-muted)]"
+            className="rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]"
             title="Methodology v2.0 — optional companion to the rule-based engine"
           >
             Estimated
@@ -180,7 +180,7 @@ export function MonteCarloReview({
         </div>
 
         {/* Tail-risk line */}
-        <p className="text-[12px] text-[var(--ct-text-muted)]">
+        <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
           P(APY &lt; 8%) ={" "}
           <span className="font-semibold tabular-nums text-white">
             {(result.probBelowFloor * 100).toFixed(1)}%
@@ -192,7 +192,7 @@ export function MonteCarloReview({
         </p>
 
         {/* Mandatory disclaimer — CLAUDE.md #10 */}
-        <p className="border-t border-[var(--ct-border-soft)] pt-3 text-[12px] leading-relaxed text-[var(--ct-text-faint)]">
+        <p className="border-t border-[var(--ct-border-soft)] pt-3 text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-faint)]">
           Projections — not guaranteed. Methodology v2.0. Simulated paths
           assume BTC GBM (μ&nbsp;=&nbsp;10%/yr, σ&nbsp;=&nbsp;60%/yr) and a
           mean-reverting network difficulty model. Assumptions and results are
@@ -217,10 +217,10 @@ interface MetricCellProps {
 function MetricCell({ label, value, tone }: MetricCellProps) {
   const valueClass =
     tone === "accent"
-      ? "tabular-nums text-[16px] font-medium text-[var(--ct-accent)]"
+      ? "tabular-nums text-[length:var(--ct-text-base)] font-medium text-[var(--ct-accent)]"
       : tone === "primary"
-        ? "tabular-nums text-[16px] font-medium text-white"
-        : "tabular-nums text-[16px] font-medium text-[var(--ct-text-muted)]";
+        ? "tabular-nums text-[length:var(--ct-text-base)] font-medium text-white"
+        : "tabular-nums text-[length:var(--ct-text-base)] font-medium text-[var(--ct-text-muted)]";
 
   return (
     <div className="flex flex-col gap-1.5 bg-surface-inset p-4">

@@ -58,7 +58,7 @@ export function DashboardRecentEvents({
 
             <div className="min-w-0 flex-auto py-0.5">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 truncate text-[13px] text-[var(--ct-text-secondary)]">
+                <p className="min-w-0 truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-secondary)]">
                   <span className="font-medium text-[var(--ct-text-strong)]">{event.actionText}</span>
                   {event.impactText ? (
                     <span className="ml-2 text-[var(--ct-text-muted)]">{event.impactText}</span>

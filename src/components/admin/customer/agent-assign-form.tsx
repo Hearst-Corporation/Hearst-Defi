@@ -13,7 +13,7 @@ import type { AgentTemplate } from "@prisma/client";
 
 // Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
 // (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[13px]).
+// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
 const SELECT_INPUT = "ct-select";
 
 /**

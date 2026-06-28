@@ -193,7 +193,7 @@ function ProofArticle({
           <Icon className="w-4 h-4 text-[var(--ct-text-muted)]" />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-[14px] font-semibold text-white leading-snug">
+          <h4 className="text-[length:var(--ct-text-14)] font-semibold text-white leading-snug">
             {title}
           </h4>
           {description && (

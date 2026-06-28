@@ -104,14 +104,14 @@ export function AgenticSafetyBoundary({
                 {r.pillar}
               </span>
               <span
-                className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium tabular-nums ${TAG_CLASS[r.tone]}`}
+                className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium tabular-nums ${TAG_CLASS[r.tone]}`}
               >
                 {r.value}
               </span>
             </div>
 
             {r.note ? (
-              <p className="text-[12px] leading-relaxed text-[var(--ct-text-muted)]">
+              <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-muted)]">
                 {r.note}
               </p>
             ) : null}
@@ -129,7 +129,7 @@ export function AgenticSafetyBoundary({
                   {r.detail.items.map((it) => (
                     <span
                       key={it}
-                      className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-black/40 px-2 py-0.5 text-[11px] text-[var(--ct-text-muted)]"
+                      className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-black/40 px-2 py-0.5 text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)]"
                     >
                       {it}
                     </span>

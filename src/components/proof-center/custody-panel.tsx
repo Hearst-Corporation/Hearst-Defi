@@ -51,7 +51,7 @@ function BentoKpi({
 function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
   if (custodyProvenance(custody) !== "stale") return null;
   return (
-    <p className="text-[11px] leading-relaxed text-(--ct-status-warning)">
+    <p className="text-[length:var(--ct-text-micro)] leading-relaxed text-(--ct-status-warning)">
       {custody.provenance === "live" && !custody.configured
         ? "Reserve scope is not yet configured by operations — badge shows Stale."
         : "Custody snapshot is unverified or older than 24h — badge shows Stale."}

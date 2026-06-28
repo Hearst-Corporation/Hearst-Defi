@@ -85,7 +85,7 @@ function EventMetaRow({
       <span className="shrink-0 ct-bento-label">
         {label}
       </span>
-      <span className="min-w-0 truncate text-right text-[12px] font-medium tabular-nums text-[var(--ct-text-body)]">
+      <span className="min-w-0 truncate text-right text-[length:var(--ct-text-2xs)] font-medium tabular-nums text-[var(--ct-text-body)]">
         {children}
       </span>
     </div>
@@ -164,14 +164,14 @@ function EventTimelineItem({
               href={payloadHref}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[12px] font-medium text-white no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
+              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
             >
               View payload (IPFS)
             </a>
           </div>
         ) : hasPayload ? (
           <div className="mt-3">
-            <span className="text-[12px] font-medium text-[var(--ct-text-faint)]">
+            <span className="text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-faint)]">
               View payload (IPFS)
             </span>
           </div>
