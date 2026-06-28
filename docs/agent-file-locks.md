@@ -62,29 +62,24 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-### feat/projection-input-draft-from-chat
-Owner: Claude Opus — MISSION HC-7631 Chat-guided projection input draft
-Branch: feat/projection-input-draft-from-chat
-Worktree: principal (integration tree)
-Started: 2026-06-28
-Status: active
-
-Goal: turn the handoff objective into a READABLE, NON-EXECUTED Projection input
-draft. A pure keyword parser derives a coarse product type + buckets + notes from
-the objective; the handoff block surfaces them. NO LLM, NO fetch, NO DB, NO
-business numbers invented, NO auto-run. The admin still clicks Run Study.
-
-Scope:
-- src/lib/projection/product-objective-draft.ts (new pure parser/view-model)
-- src/components/admin/projection/projection-handoff.tsx (render draft suggestions)
-- tests under src/lib/projection/__tests__ + src/app/admin/projection/__tests__
-
-STOP: never touches engine/data/telegram/prisma/portfolio/payments/vaults/outreach/
-chat-guard. Never invents a business number. Never adds an auto-run. No migration.
+> Aucun lock actif. Dernière intégration : HC-7631 (PR #198) mergée.
 
 ---
 
 ## RELEASED LOCKS
+
+### feat/projection-input-draft-from-chat (terminé — PR #198 MERGED)
+Owner: Claude Opus — MISSION HC-7631 Chat-guided projection input draft
+Branch: feat/projection-input-draft-from-chat
+Released: 2026-06-28
+Status: released (merged)
+Reason: PR #198 « derive input draft from product workspace objective » MERGED
+  (squash cb7aed3e). Pure keyword parser product-objective-draft.ts + handoff block
+  rendering product type / buckets / notes — no business number invented, no
+  auto-run. Branche supprimée au merge. NOTE: des modifs DS portfolio préexistantes
+  (cockpit.css + portfolio/yield-stack.ts bucket tokens) happées par un stash pop
+  ont été remises de côté dans `git stash` (hors scope chat) — à reprendre par un
+  chantier DS pour verdir les 2 tests portfolio bucket-colour.
 
 ### fix/chat-product-projection-handoff (terminé — PR #196 MERGED)
 Owner: Claude Opus — MISSION HC-4196 Chat → Projection handoff prefill
