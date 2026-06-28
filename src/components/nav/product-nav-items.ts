@@ -149,7 +149,11 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     id: "proof-system",
     label: "Proof & System",
     icon: "ShieldCheck",
-    href: "/admin/proof-center",
+    // Sub-nav contract: a section's href MUST equal its first tab's href so the
+    // leading tab lights up on landing. The first tab is Proofs (/admin/proofs);
+    // the old /admin/proof-center landing broke the highlight. /admin/proof-center
+    // stays reachable via the chat whitelist + the /full deep view.
+    href: "/admin/proofs",
     tabs: [
       { id: "proofs", label: "Proofs", href: "/admin/proofs", icon: "FileCheck" },
       { id: "monitoring", label: "Monitoring", href: "/admin/monitoring", icon: "Settings2" },

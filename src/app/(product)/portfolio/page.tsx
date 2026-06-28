@@ -23,6 +23,10 @@ export default function PortfolioPage() {
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">HYV · Investor Cockpit</span>
               <h1 className="text-[24px] font-semibold tracking-tight text-white">Portfolio <span className="text-[#A7FB90]">Cockpit</span></h1>
+              {/* Honesty: these figures are illustrative placeholders, not a live
+                  position feed. Surfaced as demo data until the portfolio loader is
+                  wired (see docs/PORTFOLIO_ZERO_CONTRACT.md). */}
+              <Badge color="amber" className="mt-1 w-fit text-[10px]! uppercase tracking-widest">Demo data · pending live portfolio wiring</Badge>
             </div>
             <div className="text-xs font-medium text-zinc-400">
               Welcome back, <span className="text-[#A7FB90]">Investor</span>
@@ -33,7 +37,7 @@ export default function PortfolioPage() {
           <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col overflow-hidden">
             <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
               <div className="flex flex-col gap-1.5 min-w-0">
-                <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">Live Portfolio Value</h2>
+                <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">Portfolio Value <span className="text-zinc-600 normal-case tracking-normal">(demo)</span></h2>
                 <div className="flex items-baseline gap-1">
                   <span className="text-base font-medium text-zinc-500">$</span>
                   <span className="text-[32px] font-medium text-white tracking-tight leading-none">509,800.00</span>

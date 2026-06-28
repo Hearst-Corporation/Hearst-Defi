@@ -233,16 +233,10 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
 export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   // LP
   portfolio: ["portefeuille", "portfolio", "portofolio", "allocation", "tableau de bord", "dashboard", "dashbord", "my dashboard", "mon dashboard", "ma page", "my page"],
-  "portfolio-positions": ["positions", "mes lignes", "détail des positions", "my positions", "mes positions"],
-  "portfolio-activity": ["activité", "historique", "mouvements", "activity"],
-  "portfolio-distributions": [
-    "distributions",
-    "distribution",
-    "versements",
-    "coupons",
-  ],
-  "portfolio-yield": ["rendement", "yield", "performance", "mes gains", "intérêts", "open yield"],
-  "portfolio-tax": ["fiscalité", "fiscal", "fiscaux", "impôts", "tax", "settings fiscal"],
+  // Portfolio sub-leaves (positions / activity / distributions / yield / tax) are
+  // intentionally NOT chat-navigable: the leaf pages are unwired stubs and the chat
+  // must not route investors to blank surfaces. Removed from the LP whitelist +
+  // NAV_CANONICAL_MATRIX too. Re-add keywords once a leaf renders real data.
   vaults: ["vaults", "vault", "vaultes", "produits", "offres", "souscrire", "investir", "product page", "page produit", "products"],
   "proof-center": ["proof center", "preuve de réserve", "attestations", "réserves"],
   "proof-center-full": ["proof center complet", "toutes les preuves", "preuves complètes"],
@@ -290,6 +284,8 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "admin-security": ["sécurité", "security", "contrôle d'accès"],
   "admin-signals": ["signals", "signaux", "indicateurs"],
   "admin-spec": ["specs", "spécifications", "spec produit"],
+  "admin-source": ["source", "sources", "data source", "sources de données", "ingestion"],
+  "admin-agentic": ["agentic", "agentic console", "console agentique", "agentique"],
 };
 
 export interface CanonicalNavMatrixRow {
@@ -344,46 +340,11 @@ export const NAV_CANONICAL_MATRIX: readonly CanonicalNavMatrixRow[] = [
     requiredPermissions: "lp",
     safe: true,
   },
-  {
-    canonicalDestination: "positions",
-    destinationKey: "portfolio-positions",
-    route: "/portfolio/positions",
-    aliasesFr: ["positions", "mes positions"],
-    aliasesEn: ["positions", "my positions"],
-    typos: [],
-    requiredPermissions: "lp",
-    safe: true,
-  },
-  {
-    canonicalDestination: "activity",
-    destinationKey: "portfolio-activity",
-    route: "/portfolio/activity",
-    aliasesFr: ["activité"],
-    aliasesEn: ["activity"],
-    typos: [],
-    requiredPermissions: "lp",
-    safe: true,
-  },
-  {
-    canonicalDestination: "distributions",
-    destinationKey: "portfolio-distributions",
-    route: "/portfolio/distributions",
-    aliasesFr: ["distributions"],
-    aliasesEn: ["distributions"],
-    typos: [],
-    requiredPermissions: "lp",
-    safe: true,
-  },
-  {
-    canonicalDestination: "yield",
-    destinationKey: "portfolio-yield",
-    route: "/portfolio/yield",
-    aliasesFr: ["rendement"],
-    aliasesEn: ["yield"],
-    typos: [],
-    requiredPermissions: "lp",
-    safe: true,
-  },
+  // Portfolio sub-leaves (positions / activity / distributions / yield) removed from
+  // the canonical matrix in lockstep with the LP whitelist + NAV_KEYWORDS — the leaf
+  // pages are unwired stubs, so they are not chat-navigable destinations. The
+  // module-load guard below stays consistent (no matrix row references a key that is
+  // absent from the whitelist).
   {
     canonicalDestination: "settings/profile",
     destinationKey: "profile",

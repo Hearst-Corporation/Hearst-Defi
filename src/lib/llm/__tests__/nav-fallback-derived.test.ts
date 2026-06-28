@@ -26,25 +26,23 @@ describe("nav-fallback derived rules (regex covers the whole site)", () => {
     expect(missingKeywords).toEqual([]);
   });
 
-  it("opens new LP sub-pages without touching the LLM", () => {
-    expect(resolveLpNavDestinationKey("ouvre mes distributions")).toBe(
-      "portfolio-distributions",
-    );
-    expect(resolveLpNavDestinationKey("va sur ma fiscalité")).toBe(
-      "portfolio-tax",
-    );
-    expect(resolveLpNavDestinationKey("montre-moi mon rendement")).toBe(
-      "portfolio-yield",
-    );
-    expect(resolveLpNavDestinationKey("ouvre mes positions")).toBe(
-      "portfolio-positions",
-    );
-    expect(resolveLpNavDestinationKey("consulte mon activité")).toBe(
-      "portfolio-activity",
-    );
+  it("opens wired LP sub-pages, never the blank portfolio leaves", () => {
+    // A wired LP destination still resolves LLM-free.
     expect(resolveLpNavDestinationKey("ouvre les mentions légales")).toBe(
       "legal",
     );
+    // The portfolio sub-leaves were removed from the whitelist (unwired stubs), so
+    // the regex no longer resolves them — even behind an explicit nav verb. The
+    // chat can never route an investor to a blank surface.
+    for (const phrase of [
+      "ouvre mes distributions",
+      "va sur ma fiscalité",
+      "montre-moi mon rendement",
+      "ouvre mes positions",
+      "consulte mon activité",
+    ]) {
+      expect(resolveLpNavDestinationKey(phrase)).toBeNull();
+    }
   });
 
   it("opens new admin pages without touching the LLM", () => {
