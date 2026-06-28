@@ -2,6 +2,10 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 import { PreviewSourceBanner } from "@/components/admin/projection/preview-source-banner";
 import { getLatestProjectionStudyRun } from "@/lib/projection/latest-study-run";
+import {
+  defaultRunValidationContext,
+  validateProjectionRun,
+} from "@/lib/projection/run-validation";
 
 import "../../admin-strategy.css";
 
@@ -23,6 +27,10 @@ export const metadata = {
  */
 export default async function ProjectionPreviewPage() {
   const latestRun = await getLatestProjectionStudyRun();
+  const validation = validateProjectionRun(
+    latestRun,
+    defaultRunValidationContext(!latestRun),
+  );
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
@@ -32,7 +40,7 @@ export default async function ProjectionPreviewPage() {
           titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
           contextLabel="Strategy"
         />
-        <PreviewSourceBanner latestRun={latestRun} />
+        <PreviewSourceBanner latestRun={latestRun} validation={validation} />
         <ProjectionReportPreview />
       </div>
     </div>
