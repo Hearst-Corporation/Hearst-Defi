@@ -50,13 +50,14 @@ function round2(v: number): number {
 /**
  * Deterministically reconstruct an investor's NAV value path from REAL position
  * anchors, for the chart when no/sparse hourly prints exist yet (fresh account,
- * dev, or pre-cron migration). Per active/matured position the value rises from
- * `principal` at `subscribedAt` to `principal + accruedYieldUsdc` — its current
- * real NAV contribution (same definition as {@link computeInvestorNavUsdc}) — by
- * straight-line accrual. No yield rate is invented: BOTH endpoints are real and
- * the reconstruction is fully deterministic. A position contributes 0 before its
- * subscription date (capital not deployed yet), so deposits read as honest
- * step-ups.
+ * dev, or pre-cron migration). Per active/matured position the value climbs from
+ * 0 at `subscribedAt` (capital just deployed) to `principal + accruedYieldUsdc` —
+ * its current real NAV contribution (same definition as {@link
+ * computeInvestorNavUsdc}) — at `now`, by a straight line. So the portfolio reads
+ * as a real climb from ZERO up to its current value (0 → $11, 0 → $500k), which
+ * pairs with the chart's zero-baseline y-axis. The current value is real; the
+ * ramp between is the estimate. A position contributes 0 before its subscription
+ * date (capital not deployed yet).
  *
  * Returns `[]` when the investor has no contributing position — zero stays zero.
  * This is a DERIVED series (not a live print): callers should treat NAV
@@ -88,7 +89,8 @@ export async function reconstructInvestorNavSeries(
       if (tMs < a.start) return sum; // capital not deployed yet
       const denom = nowMs - a.start;
       const ratio = denom <= 0 ? 1 : Math.min(1, Math.max(0, (tMs - a.start) / denom));
-      return sum + a.principal + a.accrued * ratio;
+      // Climb from 0 at subscription to the full current contribution at now.
+      return sum + (a.principal + a.accrued) * ratio;
     }, 0);
 
   // Degenerate range (all subscriptions at/after `now`, or window collapsed):
