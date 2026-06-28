@@ -40,6 +40,73 @@ export async function computeInvestorNavUsdc(investorId: string): Promise<number
   );
 }
 
+const DAY_MS = 24 * HOUR_MS;
+const RECONSTRUCT_MAX_POINTS = 366;
+
+function round2(v: number): number {
+  return Math.round(v * 100) / 100;
+}
+
+/**
+ * Deterministically reconstruct an investor's NAV value path from REAL position
+ * anchors, for the chart when no/sparse hourly prints exist yet (fresh account,
+ * dev, or pre-cron migration). Per active/matured position the value rises from
+ * `principal` at `subscribedAt` to `principal + accruedYieldUsdc` — its current
+ * real NAV contribution (same definition as {@link computeInvestorNavUsdc}) — by
+ * straight-line accrual. No yield rate is invented: BOTH endpoints are real and
+ * the reconstruction is fully deterministic. A position contributes 0 before its
+ * subscription date (capital not deployed yet), so deposits read as honest
+ * step-ups.
+ *
+ * Returns `[]` when the investor has no contributing position — zero stays zero.
+ * This is a DERIVED series (not a live print): callers should treat NAV
+ * provenance as estimated, never live.
+ */
+export async function reconstructInvestorNavSeries(
+  investorId: string,
+  since: Date,
+  now: Date = new Date(),
+): Promise<HourlyValueSnapshot[]> {
+  const positions = await prisma.position.findMany({
+    where: { investorId, status: { in: ["active", "matured"] } },
+    select: { principalUsdc: true, accruedYieldUsdc: true, subscribedAt: true },
+  });
+  if (positions.length === 0) return [];
+
+  const anchors = positions.map((p) => ({
+    principal: toNumber(p.principalUsdc),
+    accrued: toNumber(p.accruedYieldUsdc),
+    start: p.subscribedAt.getTime(),
+  }));
+
+  const nowMs = now.getTime();
+  const earliestStart = Math.min(...anchors.map((a) => a.start));
+  const startMs = Math.max(since.getTime(), earliestStart);
+
+  const valueAt = (tMs: number): number =>
+    anchors.reduce((sum, a) => {
+      if (tMs < a.start) return sum; // capital not deployed yet
+      const denom = nowMs - a.start;
+      const ratio = denom <= 0 ? 1 : Math.min(1, Math.max(0, (tMs - a.start) / denom));
+      return sum + a.principal + a.accrued * ratio;
+    }, 0);
+
+  // Degenerate range (all subscriptions at/after `now`, or window collapsed):
+  // emit a single honest point at the current real NAV.
+  if (startMs >= nowMs) {
+    return [{ at: new Date(nowMs), valueUsdc: round2(valueAt(nowMs)) }];
+  }
+
+  const spanMs = nowMs - startMs;
+  const steps = Math.min(RECONSTRUCT_MAX_POINTS, Math.max(2, Math.ceil(spanMs / DAY_MS)));
+  const series: HourlyValueSnapshot[] = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const tMs = startMs + (spanMs * i) / steps;
+    series.push({ at: new Date(Math.round(tMs)), valueUsdc: round2(valueAt(tMs)) });
+  }
+  return series;
+}
+
 export type CaptureNavResult =
   | { skipped: true; reason: "no_positions" }
   | { snapshotId: string; valueUsdc: number; takenAt: Date };

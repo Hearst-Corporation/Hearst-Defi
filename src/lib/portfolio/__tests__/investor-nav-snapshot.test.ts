@@ -25,6 +25,7 @@ import {
   captureInvestorNavSnapshot,
   computeInvestorNavUsdc,
   loadHourlyValueSnapshots,
+  reconstructInvestorNavSeries,
   truncateToUtcHour,
 } from "../investor-nav-snapshot";
 
@@ -140,5 +141,65 @@ describe("loadHourlyValueSnapshots", () => {
     const rows = await loadHourlyValueSnapshots("inv-1", new Date("2026-06-01T00:00:00Z"));
 
     expect(rows).toEqual([]);
+  });
+});
+
+describe("reconstructInvestorNavSeries", () => {
+  const NOW = new Date("2026-06-28T00:00:00Z");
+  const SINCE = new Date("2025-06-28T00:00:00Z"); // 1 year before NOW
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns [] when the investor has no contributing position (zero stays zero)", async () => {
+    positionFindManyMock.mockResolvedValue([]);
+    await expect(reconstructInvestorNavSeries("inv-1", SINCE, NOW)).resolves.toEqual([]);
+  });
+
+  it("rises deterministically from real principal to the real current NAV", async () => {
+    const subscribedAt = new Date("2026-03-30T00:00:00Z"); // ~90d before NOW
+    positionFindManyMock.mockResolvedValue([
+      { principalUsdc: 500000, accruedYieldUsdc: 9800, subscribedAt },
+    ]);
+
+    const series = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
+
+    expect(series.length).toBeGreaterThanOrEqual(2);
+    // Starts at the deposit: principal only (accrued 0).
+    expect(series[0]?.valueUsdc).toBe(500000);
+    // Ends at the current real NAV: principal + accrued.
+    expect(series[series.length - 1]?.valueUsdc).toBe(509800);
+    // Monotonic non-decreasing, never above the real current NAV.
+    for (let i = 1; i < series.length; i += 1) {
+      expect(series[i]!.valueUsdc).toBeGreaterThanOrEqual(series[i - 1]!.valueUsdc);
+      expect(series[i]!.valueUsdc).toBeLessThanOrEqual(509800);
+    }
+  });
+
+  it("is deterministic — identical inputs produce an identical series", async () => {
+    const subscribedAt = new Date("2026-03-30T00:00:00Z");
+    const row = { principalUsdc: 500000, accruedYieldUsdc: 9800, subscribedAt };
+
+    positionFindManyMock.mockResolvedValue([row]);
+    const a = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
+    positionFindManyMock.mockResolvedValue([row]);
+    const b = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
+
+    expect(a).toEqual(b);
+  });
+
+  it("treats a later deposit as an honest step-up (0 before its subscription)", async () => {
+    positionFindManyMock.mockResolvedValue([
+      { principalUsdc: 100, accruedYieldUsdc: 10, subscribedAt: new Date("2025-12-28T00:00:00Z") },
+      { principalUsdc: 50, accruedYieldUsdc: 5, subscribedAt: new Date("2026-05-28T00:00:00Z") },
+    ]);
+
+    const series = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
+
+    // Earliest point reflects only the first deposit (100), not 150.
+    expect(series[0]?.valueUsdc).toBe(100);
+    // Final point = both positions fully accrued: 110 + 55 = 165.
+    expect(series[series.length - 1]?.valueUsdc).toBe(165);
   });
 });
