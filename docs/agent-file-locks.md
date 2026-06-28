@@ -62,31 +62,38 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-### fix/chat-product-projection-handoff
-Owner: Claude Opus — MISSION HC-4196 Chat → Projection handoff prefill
-Branch: fix/chat-product-projection-handoff
+### feat/projection-input-draft-from-chat
+Owner: Claude Opus — MISSION HC-7631 Chat-guided projection input draft
+Branch: feat/projection-input-draft-from-chat
 Worktree: principal (integration tree)
 Started: 2026-06-28
 Status: active
 
-Goal: bridge the chat→product→projection discontinuity found by HC-7748 WITHOUT
-any auto-execution. Honest chat ack, a Product Workspace → Projection CTA, and a
-Projection handoff context block that reads query params and prefills nothing that
-runs. No auto-run, no auto-create, no auto-promote, no swarm.
+Goal: turn the handoff objective into a READABLE, NON-EXECUTED Projection input
+draft. A pure keyword parser derives a coarse product type + buckets + notes from
+the objective; the handoff block surfaces them. NO LLM, NO fetch, NO DB, NO
+business numbers invented, NO auto-run. The admin still clicks Run Study.
 
 Scope:
-- src/app/api/cockpit-chat/route.ts (PRODUCT_WORKSPACE_CHAT_ACK wording only)
-- src/app/admin/product-workspace/page.tsx (CTA section)
-- src/app/admin/projection/page.tsx (read searchParams + handoff block)
-- src/components/admin/projection/projection-handoff.tsx (new context block)
-- tests under the above __tests__ dirs
+- src/lib/projection/product-objective-draft.ts (new pure parser/view-model)
+- src/components/admin/projection/projection-handoff.tsx (render draft suggestions)
+- tests under src/lib/projection/__tests__ + src/app/admin/projection/__tests__
 
 STOP: never touches engine/data/telegram/prisma/portfolio/payments/vaults/outreach/
-chat-guard. Never adds an auto-run or auto-create. Never imposes a migration.
+chat-guard. Never invents a business number. Never adds an auto-run. No migration.
 
 ---
 
 ## RELEASED LOCKS
+
+### fix/chat-product-projection-handoff (terminé — PR #196 MERGED)
+Owner: Claude Opus — MISSION HC-4196 Chat → Projection handoff prefill
+Branch: fix/chat-product-projection-handoff
+Released: 2026-06-28
+Status: released (merged)
+Reason: PR #196 « hand off product creation to projection prefill » MERGED (squash
+  b23a67f9). Honest chat ack + Product Workspace → Projection CTA + context-only
+  handoff block. Branche supprimée au merge.
 
 ### fix/catalyst-absorption (terminé — PR #184 MERGED)
 Owner: Claude Opus — MISSION #043 Catalyst Absorption Migration
