@@ -1,4 +1,6 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { ProjectionSourceSummary } from "@/components/admin/projection/source-truth-badge";
+import { loadSourceTruthSummary } from "@/lib/projection/source-truth-summary";
 import { ProjectionStudio } from "./studio";
 
 import "../admin-strategy.css";
@@ -10,6 +12,9 @@ export const metadata = {
 };
 
 export default async function ProjectionPage() {
+  // Server-resolved provenance of every input/output → source-truth badges.
+  const sourceTruth = await loadSourceTruthSummary();
+
   return (
     <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
@@ -18,6 +23,8 @@ export default async function ProjectionPage() {
           titleAccent="Projection"
           contextLabel="Strategy"
         />
+
+        <ProjectionSourceSummary summary={sourceTruth} />
 
         <ProjectionStudio />
       </div>
