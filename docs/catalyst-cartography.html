@@ -157,13 +157,13 @@
   <p class="sub">Living page-by-page map of the convergence toward <b style="color:var(--ct-accent)">ONE design system — Catalyst canon</b>. <code>ui/*</code> is a shrinking compatibility façade that delegates to Catalyst, then disappears. Updated each migration lot.</p>
   <div class="meta-row">
     <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-28 · Mission #049</span>
-    <span class="chip"><b>base</b> <code>31879c53</code> → lot <code>fix/catalyst-exec-lot1</code></span>
-    <span class="chip"><span class="dot green"></span><b>7</b> sub-agents · execution lot</span>
-    <span class="chip"><span class="dot green"></span><b>11</b> ui wrappers → Catalyst (was 5)</span>
-    <span class="chip"><span class="dot green"></span><b>53</b> #A7FB90 removed · all DS guards green</span>
+    <span class="chip"><b>base</b> <code>31879c53</code> → lot <code>fix/catalyst-exec-lot2</code></span>
+    <span class="chip"><span class="dot green"></span><b>7</b> sub-agents · execution lot2</span>
+    <span class="chip"><span class="dot green"></span><b>23</b> ui wrappers → Catalyst (was 11)</span>
+    <span class="chip"><span class="dot green"></span><b>74</b> #A7FB90 removed · <b>51</b> catalyst files · all DS guards green</span>
     <span class="chip"><span class="dot amber"></span>PR <b>#146</b> parked · PR <b>#81</b> conflicting</span>
   </div>
-  <p class="note"><b>Mission #049 = execution</b> (not read-only): +6 wrappers absorbed (nested-panel, panel-status, progress, metric, tooltip, segmented-control), 53 inline <code>#A7FB90</code> → <code>var(--ct-accent)</code>, CI <code>Date.now()</code> lint fix, 2 pre-existing <code>bento-ds-contract</code> reds resolved. 17 files + 6 new canon primitives. Zero deletion. <code>#146</code> untouched.</p>
+  <p class="note"><b>Mission #049 lot2 = execution</b> (not read-only): +13 more wrappers absorbed (apy-range, dashboard-panel-header, ptai, skeleton, checkbox, choice-card, wizard-step-progress, chart-disclaimer-underlay, chart-provenance-corner, chart-time-selector, preset-picker, modal, confirm-dialog) → 23 total delegating; 51 catalyst files; <code>#A7FB90</code> 137→63; <code>text-[Npx]</code> 541→494 (token-driven 58→105); all DS guards green. The big remaining wrapper is <code>bento.tsx</code> (58 importers). Zero deletion. <code>#146</code> untouched.</p>
 </div></header>
 
 <nav class="toc"><div class="wrap">
@@ -199,11 +199,11 @@
     <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">Legacy autonomous</div><div class="h">none — clean post #184</div></div>
     <div class="stat"><div class="v" style="color:#d9b3f0">3</div><div class="l">Mixed layout</div><div class="h">divergent shells (justified)</div></div>
     <div class="stat"><div class="v">6</div><div class="l">Blocked by scope</div><div class="h">layouts / calc / redirects</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">13<span style="font-size:16px;color:var(--text-muted)">/39</span></div><div class="l">Catalyst canon active</div><div class="h">+6 new canon this lot</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">11</div><div class="l">ui wrappers converted</div><div class="h">+6 this lot (was 5)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">13</div><div class="l">ui wrappers remaining</div><div class="h">autonomous (bento leads)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">76</div><div class="l">#A7FB90 in tsx</div><div class="h">53 removed this lot (was 129)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">541</div><div class="l">text-[Npx] arbitrary</div><div class="h">58 already token-driven</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">25<span style="font-size:16px;color:var(--text-muted)">/51</span></div><div class="l">Catalyst canon active</div><div class="h">+13 new canon this lot</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">23</div><div class="l">ui wrappers converted</div><div class="h">+13 this lot (was 11)</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">6</div><div class="l">ui wrappers remaining</div><div class="h">autonomous (bento leads)</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">55</div><div class="l">#A7FB90 in tsx</div><div class="h">74 removed total (was 137)</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">494</div><div class="l">text-[Npx] arbitrary</div><div class="h">105 already token-driven</div></div>
   </div>
 
   <h3>Page status distribution</h3>
@@ -517,13 +517,14 @@ window.CARTO_DATA = {
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "31879c53 (base) → lot fix/catalyst-exec-lot1",
+    "head": "31879c53 (base) → lot fix/catalyst-exec-lot2",
     "originMain": "31879c53",
-    "status": "EXECUTION lot — single-DS convergence (Catalyst canon). 17 files changed + 6 new canon primitives.",
-    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot1",
+    "status": "EXECUTION lot2 — single-DS convergence (Catalyst canon). 23 ui/* wrappers now delegate to Catalyst.",
+    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot2",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
-    "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed."
+    "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed.",
+    "note": "lot2 — 23 wrappers now delegate"
   },
   "summary": {
     "pagesTotal": 72,
@@ -538,18 +539,19 @@ window.CARTO_DATA = {
     "uiImporterFiles": 188,
     "catalystImporterFiles": 33,
     "uiFilesTotal": 31,
-    "catalystFilesTotal": 39,
-    "catalystCanonActive": 13,
+    "catalystFilesTotal": 51,
+    "catalystCanonActive": 25,
     "catalystCanonReserve": 24,
-    "uiWrappedToCatalyst": 11,
-    "uiLegacyAutonomous": 13,
+    "uiWrappedToCatalyst": 23,
+    "uiLegacyAutonomous": 6,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 84,
-    "accentHardcodesTsx": 76,
+    "accentHardcodesTotal": 63,
+    "accentHardcodesTsx": 55,
     "accentDefinitions": 6,
-    "accentRemovedThisLot": 53,
-    "typographyArbitraryPx": 541,
-    "typographyTokenDriven": 58,
+    "accentRemovedThisLot": 21,
+    "accentRemovedTotal": 74,
+    "typographyArbitraryPx": 494,
+    "typographyTokenDriven": 105,
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 4,
     "dsGuardsRed": 0,
@@ -642,13 +644,6 @@ window.CARTO_DATA = {
     },
     {
       "name": "textarea.tsx",
-      "used": 0,
-      "status": "CANON_RESERVE",
-      "tokenClean": true,
-      "wrapper": null
-    },
-    {
-      "name": "checkbox.tsx",
       "used": 0,
       "status": "CANON_RESERVE",
       "tokenClean": true,
@@ -835,12 +830,103 @@ window.CARTO_DATA = {
       "status": "CANON_ACTIVE",
       "tokenClean": true,
       "wrapper": "← ui/segmented-control (#049)"
+    },
+    {
+      "name": "apy-range.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/apy-range (#049 lot2)"
+    },
+    {
+      "name": "dashboard-panel-header.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/dashboard-panel-header (#049 lot2)"
+    },
+    {
+      "name": "ptai.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/ptai (#049 lot2)"
+    },
+    {
+      "name": "skeleton.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/skeleton (#049 lot2)"
+    },
+    {
+      "name": "checkbox.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/checkbox (#049 lot2)"
+    },
+    {
+      "name": "choice-card.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/choice-card (#049 lot2)"
+    },
+    {
+      "name": "wizard-step-progress.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/wizard-step-progress (#049 lot2)"
+    },
+    {
+      "name": "chart-disclaimer-underlay.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/chart-disclaimer-underlay (#049 lot2)"
+    },
+    {
+      "name": "chart-provenance-corner.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/chart-provenance-corner (#049 lot2)"
+    },
+    {
+      "name": "chart-time-selector.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/chart-time-selector (#049 lot2)"
+    },
+    {
+      "name": "preset-picker.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/preset-picker (#049 lot2)"
+    },
+    {
+      "name": "modal.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/modal (#049 lot2)"
+    },
+    {
+      "name": "confirm-dialog.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/confirm-dialog (#049 lot2)"
     }
   ],
   "uiWrappers": [
     {
       "name": "bento.tsx",
-      "imports": 57,
+      "imports": 58,
       "status": "LEGACY_AUTONOMOUS",
       "wrapsCatalyst": false,
       "target": "none yet (page-shell + section primitives)",
@@ -889,10 +975,10 @@ window.CARTO_DATA = {
     {
       "name": "modal.tsx",
       "imports": 11,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "catalyst/dialog",
-      "priority": "P1"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/modal",
+      "priority": "done"
     },
     {
       "name": "nested-panel.tsx",
@@ -905,10 +991,10 @@ window.CARTO_DATA = {
     {
       "name": "apy-range.tsx",
       "imports": 11,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none (formatter)",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/apy-range",
+      "priority": "done"
     },
     {
       "name": "panel-status.tsx",
@@ -937,18 +1023,18 @@ window.CARTO_DATA = {
     {
       "name": "dashboard-panel-header.tsx",
       "imports": 7,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none yet",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/dashboard-panel-header",
+      "priority": "done"
     },
     {
       "name": "ptai.tsx",
       "imports": 6,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none (PTAI grid)",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/ptai",
+      "priority": "done"
     },
     {
       "name": "metric.tsx",
@@ -961,18 +1047,18 @@ window.CARTO_DATA = {
     {
       "name": "confirm-dialog.tsx",
       "imports": 4,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "catalyst/dialog",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/confirm-dialog",
+      "priority": "done"
     },
     {
       "name": "skeleton.tsx",
       "imports": 4,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": "uses catalyst/card",
-      "target": "none yet",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/skeleton",
+      "priority": "done"
     },
     {
       "name": "segmented-control.tsx",
@@ -985,50 +1071,50 @@ window.CARTO_DATA = {
     {
       "name": "chart-disclaimer-underlay.tsx",
       "imports": 2,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none (chart)",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/chart-disclaimer-underlay",
+      "priority": "done"
     },
     {
       "name": "chart-provenance-corner.tsx",
       "imports": 2,
-      "status": "NEEDS_CATALYST_TARGET",
-      "wrapsCatalyst": "composes provenance-badge",
-      "target": "catalyst composite",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/chart-provenance-corner",
+      "priority": "done"
     },
     {
       "name": "wizard-step-progress.tsx",
       "imports": 2,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none yet",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/wizard-step-progress",
+      "priority": "done"
     },
     {
       "name": "checkbox.tsx",
       "imports": 1,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
       "target": "catalyst/checkbox",
-      "priority": "P2"
+      "priority": "done"
     },
     {
       "name": "choice-card.tsx",
       "imports": 1,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none yet",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/choice-card",
+      "priority": "done"
     },
     {
       "name": "preset-picker.tsx",
       "imports": 1,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "catalyst/listbox",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/preset-picker",
+      "priority": "done"
     },
     {
       "name": "client-toaster.tsx",
@@ -1049,10 +1135,10 @@ window.CARTO_DATA = {
     {
       "name": "chart-time-selector.tsx",
       "imports": 0,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none (reserve)",
-      "priority": "P2"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/chart-time-selector",
+      "priority": "done"
     }
   ],
   "hardcodesTop": [
@@ -1075,24 +1161,6 @@ window.CARTO_DATA = {
       "fix": "SVG donut canvas — document as chart fallback"
     },
     {
-      "file": "src/components/proof-center/contracts-audit-trail.tsx",
-      "count": 7,
-      "class": "VIOLATION",
-      "fix": "ct-status-live / ct-badge-accent classes"
-    },
-    {
-      "file": "src/components/vaults/deposit-summary.tsx",
-      "count": 5,
-      "class": "VIOLATION",
-      "fix": ".ct-progress-fill / .ct-status-indicator"
-    },
-    {
-      "file": "src/components/proof-center/rebalancing-events-panel.tsx",
-      "count": 5,
-      "class": "VIOLATION",
-      "fix": "ct-badge-live / ct-badge-executed"
-    },
-    {
       "file": "src/components/admin/agent-template-form.tsx",
       "count": 5,
       "class": "VIOLATION",
@@ -1109,12 +1177,6 @@ window.CARTO_DATA = {
       "count": 4,
       "class": "VIOLATION",
       "fix": "[--ct-active-accent:var(--ct-accent)] utilities"
-    },
-    {
-      "file": "src/components/proof-center/event-timeline.tsx",
-      "count": 3,
-      "class": "VIOLATION",
-      "fix": ".ct-timeline-live / .ct-timeline-link"
     },
     {
       "file": "src/components/onboarding/OpsContactCard.tsx",
@@ -1301,9 +1363,9 @@ window.CARTO_DATA = {
     }
   ],
   "guardsMissing": [
-    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (129 tsx occurrences unguarded)",
+    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (55 tsx occurrences unguarded)",
     "No guard enforcing ui/* → catalyst delegation direction (new autonomous ui/* could accumulate)",
-    "No guard for text-[Npx] across product/vaults/proof-center tsx (541 occurrences, only customers guarded)",
+    "No guard for text-[Npx] across product/vaults/proof-center tsx (494 occurrences, only customers guarded)",
     "No guard preventing source='live' bound to a <2-point/fallback series outside HcValueChart",
     "No guard pinning cockpit token version / asset versioning"
   ],
@@ -1311,9 +1373,9 @@ window.CARTO_DATA = {
     {
       "lot": "A",
       "title": "Wrappers remaining → Catalyst",
-      "scope": "bento.tsx (57), modal→catalyst/dialog (11), nested-panel (11), panel-status→catalyst/alert (10)",
+      "scope": "bento.tsx (58) is the big one remaining; modal/nested-panel/panel-status/apy-range/ptai/skeleton/checkbox/choice-card/preset-picker/+charts already delegate",
       "risk": "medium (bento is high-fanout)",
-      "result": "ui/* fully delegating; legacy-autonomous count → near 0",
+      "result": "ui/* nearly all delegating — 23 wrappers wrapped; only bento + non-visual helpers remain",
       "tests": "ds-authority-lock + per-wrapper render"
     },
     {
@@ -1327,15 +1389,15 @@ window.CARTO_DATA = {
     {
       "lot": "C",
       "title": "Accent pass — main nests",
-      "scope": "ChatKimi (19), _vault-form (11), contracts-audit-trail (7), markdown (4), RailRight (4) → var(--ct-accent) + semantic classes",
+      "scope": "ChatKimi (19), _vault-form (11), agent-template-form (5), markdown (4), RailRight (4) → var(--ct-accent) + semantic classes",
       "risk": "low-medium (chat visual)",
-      "result": "129 tsx #A7FB90 → near 0; only documented chart/print fallbacks remain",
+      "result": "55 tsx #A7FB90 → near 0; only documented chart/print fallbacks remain",
       "tests": "extend ds-hardcode-guard scope"
     },
     {
       "lot": "D",
       "title": "Admin advanced pages",
-      "scope": "admin/customers/[id] AdminTable→Catalyst Table; admin/governance/propose hand-rolled select/textarea→Catalyst; admin/audit+dashboard→BentoPageShell (fixes 2 RED guards)",
+      "scope": "admin/customers/[id] AdminTable→Catalyst Table; admin/governance/propose hand-rolled select/textarea→Catalyst; admin/audit+dashboard→BentoPageShell (guards now GREEN, keep aligned)",
       "risk": "low",
       "result": "bento-ds-contract GREEN; admin tables/forms canon",
       "tests": "bento-ds-contract"
@@ -1351,9 +1413,9 @@ window.CARTO_DATA = {
     {
       "lot": "F",
       "title": "Typography long tail",
-      "scope": "541 text-[Npx] → token classes (ct-bento-label/ct-text-micro/2xs/xs/section-title); keep SVG/chart labels",
+      "scope": "494 text-[Npx] → token classes (ct-bento-label/ct-text-micro/2xs/xs/section-title); keep SVG/chart labels",
       "risk": "low",
-      "result": "~70% reduction (≈380), 8 semantic sizes",
+      "result": "~70% reduction, 8 semantic sizes (105 already token-driven)",
       "tests": "typography-canon-contract extended to product/vaults"
     },
     {
@@ -1387,6 +1449,11 @@ window.CARTO_DATA = {
       "date": "2026-06-28",
       "ref": "Mission #049",
       "note": "EXECUTION lot (fix/catalyst-exec-lot1) — single-DS convergence: +6 ui/* wrappers absorbed into Catalyst (nested-panel, panel-status, progress, metric, tooltip, segmented-control) → 11 total delegating; 53 inline #A7FB90 → var(--ct-accent) across chat/rail/proof-center/vaults (137→84); CI Date.now() impure-render fix (lint green); 2 pre-existing bento-ds-contract reds resolved by aligning the guard to the AdminPageShell canon → all DS guards green. 17 files + 6 new canon primitives. Zero deletion, zero code-behavior change."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot2",
+      "note": "+13 more ui/* wrappers absorbed into Catalyst → 23 total delegating; 51 catalyst files; #A7FB90 137→63; text-[Npx] 541→494 (token-driven 58→105); all DS guards green. The big remaining wrapper is bento.tsx (58 importers). Zero deletion."
     }
   ]
 };

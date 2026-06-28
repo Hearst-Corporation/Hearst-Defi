@@ -30,7 +30,7 @@ export function OpsContactCard({
       <div className="flex items-center gap-4 p-5">
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center size-11 shrink-0 rounded-full border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[15px] font-semibold text-[#A7FB90]"
+          className="inline-flex items-center justify-center size-11 shrink-0 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[15px] font-semibold text-[var(--ct-accent)]"
         >
           {name.charAt(0)}
         </span>
@@ -46,7 +46,7 @@ export function OpsContactCard({
       <div className="flex flex-col">
         <a
           href={`mailto:${email}`}
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[#A7FB90] hover:text-white transition-colors truncate"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
           aria-label={`Email ${name} at ${email}`}
         >
           <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
@@ -59,7 +59,7 @@ export function OpsContactCard({
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[#A7FB90] hover:text-white transition-colors"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[var(--ct-accent)] hover:text-white transition-colors"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
           <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">

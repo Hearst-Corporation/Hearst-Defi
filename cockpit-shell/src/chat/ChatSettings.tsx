@@ -35,10 +35,10 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
     <div className="flex flex-col gap-3 rounded-lg bg-black p-3">
       <section className="rounded-lg border border-white/10 bg-[#15191C] p-4">
         <div className={MICRO_LABEL}>LLM infra</div>
-        <div className="mt-2 text-[13px] font-medium text-zinc-200">
+        <div className="mt-2 text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
           OpenAI · server
         </div>
-        <p className="mt-2 text-[12px] leading-relaxed text-zinc-500">
+        <p className="mt-2 text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-500">
           Key and model are configured server-side (
           <span className="font-mono text-zinc-400">OPENAI_API_KEY</span> /{" "}
           <span className="font-mono text-zinc-400">OPENAI_MODEL</span>). No
@@ -49,7 +49,7 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
       <section className="rounded-lg border border-white/10 bg-[#15191C] p-4">
         <div className={MICRO_LABEL}>Display</div>
         <label className="mt-2 flex cursor-pointer items-center justify-between py-3 border-b border-white/5">
-          <span className="text-[13px] text-zinc-200">Markdown rendering</span>
+          <span className="text-[length:var(--ct-text-xs)] text-zinc-200">Markdown rendering</span>
           <span className="relative inline-flex">
             <input
               type="checkbox"
@@ -62,7 +62,7 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
           </span>
         </label>
         {!markdown ? (
-          <p className="mt-2 text-[12px] leading-relaxed text-zinc-500">
+          <p className="mt-2 text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-500">
             Responses render as plain text.
           </p>
         ) : null}
@@ -72,11 +72,11 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
         <div className={MICRO_LABEL}>Product context</div>
         <div className="mt-2 flex items-center gap-2 rounded-lg border border-white/5 bg-black px-3 py-2.5">
           <span className="h-2 w-2 shrink-0 rounded-full bg-[#A7FB90] shadow-[0_0_8px_#A7FB90]" />
-          <span className="truncate text-[13px] font-medium text-zinc-200">
+          <span className="truncate text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
             {productName ?? "—"}
           </span>
         </div>
-        <p className="mt-2 text-[12px] leading-relaxed text-zinc-500">
+        <p className="mt-2 text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-500">
           The assistant knows this product automatically and tailors its
           answers.
         </p>

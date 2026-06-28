@@ -61,14 +61,14 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       ? "text-red-400"
       : vault.miningMarginScore < 40
         ? "text-amber-400"
-        : "text-[#A7FB90]";
+        : "text-[var(--ct-accent)]";
 
   const riskColor =
     vault.riskScore > 70
       ? "text-red-400"
       : vault.riskScore > 45
         ? "text-amber-400"
-        : "text-[#A7FB90]";
+        : "text-[var(--ct-accent)]";
 
   return (
     <div
@@ -78,14 +78,14 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
         <Link
           href={vault.href}
-          className="truncate text-[13px] font-medium uppercase text-white transition-colors hover:text-[#A7FB90]"
+          className="truncate text-[length:var(--ct-text-xs)] font-medium uppercase text-white transition-colors hover:text-[var(--ct-accent)]"
         >
           {vault.vaultName}
         </Link>
         {vault.hasTimelineData ? (
           <VaultStatusPill status={vault.status} className="shrink-0 scale-75 origin-right" />
         ) : (
-          <span className="shrink-0 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="shrink-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">
             No telemetry
           </span>
         )}
@@ -127,7 +127,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           />
         </div>
       ) : (
-        <p className="m-0 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 opacity-60">
+        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500 opacity-60">
           Awaiting first telemetry close
         </p>
       )}
@@ -146,12 +146,12 @@ function MetricCell({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="truncate text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <span className="truncate text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">
         {label}
       </span>
       <span
         className={cn(
-          "truncate text-[13px] font-medium text-white tabular-nums",
+          "truncate text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums",
           valueClassName,
         )}
       >
