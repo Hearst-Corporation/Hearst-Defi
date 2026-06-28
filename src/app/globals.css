@@ -298,10 +298,15 @@ code,
      (.ct-page-area), pas sur la fenêtre entière. brand collé à gauche, status à
      droite. --ct-rail-right-eff suit l'état du chat (collapsed/expanded). */
   display: grid;
+  /* Col 3 (brand, sous le chat) = au MOINS la largeur intrinsèque du brand,
+     sinon la largeur du rail. Quand le chat est FERMÉ --ct-rail-right-eff vaut
+     0px → sans le max-content la col 3 s'effondrait à 0 et « ◆ Hearst Yield
+     Vault » wrappait sur 4 lignes (le bug « ça casse »). max-content garantit
+     que le brand tient toujours sur une ligne, rail ouvert comme fermé. */
   grid-template-columns:
     var(--ct-rail-left)
     minmax(0, 1fr)
-    var(--ct-rail-right-eff, var(--ct-rail-right));
+    minmax(max-content, var(--ct-rail-right-eff, var(--ct-rail-right)));
   align-items: center;
   gap: var(--ct-space-3);
   padding-block: var(--ct-space-2_5);
@@ -322,6 +327,8 @@ code,
   display: inline-flex;
   align-items: center;
   gap: var(--ct-space-1_5);
+  /* Le brand reste sur UNE ligne (jamais 2-4 lignes wrappées). */
+  white-space: nowrap;
 }
 
 .app-footer__diamond {

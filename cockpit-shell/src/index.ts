@@ -10,6 +10,7 @@ export { CockpitShell } from "./shell/CockpitShell";
 export { RailLeft } from "./shell/RailLeft";
 export { CenterPanel } from "./shell/CenterPanel";
 export { RailRight } from "./shell/RailRight";
+export { ChatRailToggle } from "./shell/ChatRailToggle";
 export { ThemeAccent } from "./shell/ThemeAccent";
 export { HearstMark } from "./shell/HearstMark";
 export { useCockpit } from "./shell/context";

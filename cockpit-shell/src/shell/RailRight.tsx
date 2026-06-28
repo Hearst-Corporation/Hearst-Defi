@@ -146,24 +146,35 @@ export function RailRight() {
             >
               <WidthIcon expanded={expanded} />
             </button>
+            {/* Close (collapse) the assistant entirely — the matching "open"
+                control lives OUTSIDE the rail, next to the other top-right
+                controls (ChatRailToggle in the dock). When closed there is NO
+                leftover handle; this button only exists while open. */}
+            <button
+              type="button"
+              className={`${TOOLBAR_BTN} text-[15px] leading-none`}
+              onClick={toggle}
+              aria-label="Close assistant"
+              aria-expanded={open}
+              title="Close"
+            >
+              ›
+            </button>
           </>
         )}
-        <button
-          type="button"
-          className={`${TOOLBAR_BTN} text-[15px] leading-none`}
-          onClick={toggle}
-          aria-label={open ? "Collapse chat panel" : "Expand chat panel"}
-          aria-expanded={open}
-          title={open ? "Collapse" : "Expand"}
-        >
-          {open ? "›" : "‹"}
-        </button>
       </div>
-      <div className="ct-rail-right-body flex min-h-0 flex-1 flex-col">
-        {view === "settings" && <ChatSettings productName={product.name} />}
-        {view === "history" && <ChatHistory productColor={product.color} />}
-        {view === "chat" && <ChatKimi productName={product.name} productColor={product.color} />}
-      </div>
+      {/* Body only when open. Collapsed = a 48px handle (just the header toggle).
+          Rendering the chat body inside the squeezed handle made its content bleed
+          past the 48px width (scrollWidth > clientWidth) — the visible "collapse
+          doesn't fully close / overflows" bug. Gating the render here is the root
+          fix; cockpit.css also hides it as a CSS-side belt-and-braces. */}
+      {open && (
+        <div className="ct-rail-right-body flex min-h-0 flex-1 flex-col">
+          {view === "settings" && <ChatSettings productName={product.name} />}
+          {view === "history" && <ChatHistory productColor={product.color} />}
+          {view === "chat" && <ChatKimi productName={product.name} productColor={product.color} />}
+        </div>
+      )}
     </aside>
   );
 }
