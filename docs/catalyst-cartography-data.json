@@ -9,7 +9,7 @@
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
     "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed.",
-    "note": "lot3 — bento absorbed, 25 wrappers delegate, deep token pass"
+    "note": "lot4 — micro-labels → ct-bento-label, all visual ui wrappers absorbed"
   },
   "summary": {
     "pagesTotal": 72,
@@ -28,15 +28,16 @@
     "catalystCanonActive": 27,
     "catalystCanonReserve": 24,
     "uiWrappedToCatalyst": 25,
-    "uiLegacyAutonomous": 4,
+    "uiLegacyAutonomous": 0,
+    "uiHelpersRemaining": 2,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 41,
-    "accentHardcodesTsx": 33,
+    "accentHardcodesTotal": 39,
+    "accentHardcodesTsx": 31,
     "accentDefinitions": 6,
-    "accentRemovedThisLot": 22,
-    "accentRemovedTotal": 96,
-    "typographyArbitraryPx": 362,
-    "typographyTokenDriven": 237,
+    "accentRemovedThisLot": 2,
+    "accentRemovedTotal": 98,
+    "typographyArbitraryPx": 180,
+    "typographyTokenDriven": 341,
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 4,
     "dsGuardsRed": 0,
@@ -951,6 +952,11 @@
       "date": "2026-06-28",
       "ref": "Mission #049 lot3",
       "note": "bento.tsx (58 importers, the headline wrapper) + wizard-step-progress absorbed into Catalyst → 25 total delegating, 53 catalyst files; deep token pass — #A7FB90 137→41 (96 removed, rest are canvas/SVG/theme fallbacks), arbitrary text-[Npx] 541→362 with token-driven 58→237; all DS guards green (bento-ds-contract BENTO_SRC repointed to the canon). Zero deletion."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot4",
+      "note": "127 text-[10px] micro-labels converted to the canonical ct-bento-label class (now 213 usages) → arbitrary text-[Npx] 258→180; all VISUAL ui/* wrappers now delegate to Catalyst (only 2 non-visual helpers — toaster/client-toaster — remain). #A7FB90 down to 39 (98 removed, rest are canvas/SVG/theme fallbacks). Zero deletion."
     }
   ]
 }
