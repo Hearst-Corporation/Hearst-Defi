@@ -43,7 +43,7 @@ export function VaultKpiCell({
       </span>
       <span
         className={cn(
-          "text-[18px] font-medium leading-none tracking-tight text-white tabular-nums",
+          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight text-white tabular-nums",
           valueClassName,
         )}
       >

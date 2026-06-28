@@ -553,13 +553,13 @@ window.CARTO_DATA = {
     "accentDefinitions": 6,
     "accentRemovedThisLot": 2,
     "accentRemovedTotal": 98,
-    "typographyArbitraryPx": 33,
+    "typographyArbitraryPx": 9,
     "typographyTokenDriven": 341,
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 7,
     "dsGuardsRed": 0,
-    "ciLintGreen": false,
-    "ciLintNote": "Lint & Typecheck red on main (29 pre-existing prefer-const errors in catalyst/* primitives, inherited — not introduced by lot8). typecheck itself passes.",
+    "ciLintGreen": true,
+    "preferConstErrors": 0,
     "borderWhiteRaw": 0,
     "textZincRaw": 31,
     "uiFacadesDeleted": 24,
@@ -1531,6 +1531,11 @@ window.CARTO_DATA = {
       "date": "2026-06-28",
       "ref": "Mission #049 lot8",
       "note": "Targeted typography/neutral debt + the 3 missing guards. 44 exact-match text-[Npx]→text-[length:var(--ct-text-*)] and 13 text-zinc-*→var(--ct-text-*) across vaults/proof-center/admin/nav/profile surfaces (catalyst/* primitives untouched — zinc is their Headless-UI default). 4 SVG accent paints #A7FB90→var(--ct-accent)/color-mix (inline SVG resolves vars). NEW scripts/ds-convergence-guard.mjs seals the convergence repo-wide: ui/* limited to 3 helpers · raw accent hex banned (canvas/brand fallbacks allowlisted) · exact-token px banned on product surfaces. typecheck clean, all DS guards green (25/25 contract tests). Zero deletion."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot9",
+      "note": "Last typography debt + GREEN CI. 24 text-[18px]→text-[length:var(--ct-text-xl-fixed)] (18px token exists, pixel-identical) across 15 admin/vaults/proof-center surfaces — arbitrary text-[Npx] 33→9 (the 9 left are 7/20/24/28/32px, no exact token). 29 prefer-const errors fixed in catalyst/* primitives (let→const, scoped eslint --fix) + 1 react-compiler reassign-after-render in HcWaterfall (folded to reduce) → `eslint src` now 0 errors, CI Lint & Typecheck GREEN at last. ds-convergence-guard extended to ban text-[18px] regression. 28 files via a 2-worktree workflow fan-out (typo + CI), integrated serially. Zero behavior change."
     }
   ]
 };

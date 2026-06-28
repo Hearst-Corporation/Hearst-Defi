@@ -40,7 +40,7 @@ export function DistributionPreview({
           <h3 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-white">
             Distribution preview
           </h3>
-          <p className="text-[18px] font-medium leading-none tracking-tight tabular-nums text-white">
+          <p className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums text-white">
             {formatUsdDetailed(totalUsdc)} USDC
           </p>
         </div>

@@ -70,7 +70,7 @@ function KpiCell({
       </dt>
       <dd
         className={cn(
-          "text-[18px] font-medium leading-none tracking-tight tabular-nums m-0",
+          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums m-0",
           accent ? "text-[var(--ct-accent)]" : "text-white",
         )}
       >

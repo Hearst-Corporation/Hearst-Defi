@@ -191,7 +191,7 @@ export const Button = forwardRef(function Button(
   { color, outline, plain, insetRing, iconOnly, className, children, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
-  let classes = cn(
+  const classes = cn(
     className,
     // When using insetRing or iconOnly, we bypass styles.base which forces rounded-lg and hardcoded paddings
     (insetRing || iconOnly) ? '' : styles.base,

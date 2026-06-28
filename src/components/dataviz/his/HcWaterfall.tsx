@@ -60,14 +60,20 @@ export function HcWaterfall({
   const padBottom = 28;
   const innerH = height - padTop - padBottom;
 
-  // Graphical running cumulative — purely for bar placement.
-  let running = 0;
-  const layout: LaidOutStep[] = steps.map((s) => {
-    const start = s.kind === "total" ? 0 : running;
-    const end = s.kind === "total" ? s.value : running + s.value;
-    running = s.kind === "total" ? s.value : running + s.value;
-    return { ...s, start, end };
-  });
+  // Graphical running cumulative — purely for bar placement. Folded (no
+  // render-time reassignment) so it satisfies the react-compiler lint rule.
+  const layout: LaidOutStep[] = steps.reduce<{
+    rows: LaidOutStep[];
+    running: number;
+  }>(
+    (acc, s) => {
+      const start = s.kind === "total" ? 0 : acc.running;
+      const end = s.kind === "total" ? s.value : acc.running + s.value;
+      acc.rows.push({ ...s, start, end });
+      return { rows: acc.rows, running: end };
+    },
+    { rows: [], running: 0 },
+  ).rows;
 
   const maxLevel = Math.max(1, ...layout.map((l) => Math.max(l.start, l.end)));
   const yOf = (v: number): number => padTop + innerH * (1 - v / maxLevel);

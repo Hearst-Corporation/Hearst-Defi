@@ -172,7 +172,7 @@ function SentryCounter({
       <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">{label}</span>
       <span
         className={cn(
-          "text-[18px] font-medium tabular-nums leading-none",
+          "text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums leading-none",
           alert && count > 0 ? "text-red-400" : "text-white",
         )}
       >

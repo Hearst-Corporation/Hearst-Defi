@@ -78,7 +78,7 @@ export const BadgeButton = forwardRef(function BadgeButton(
     ),
   ref: React.ForwardedRef<HTMLElement>
 ) {
-  let classes = cn(
+  const classes = cn(
     className,
     // Focus ring = accent token (canon Hearst), never the raw Tailwind blue.
     'group relative inline-flex rounded-md focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:[outline-color:var(--ct-accent)]'

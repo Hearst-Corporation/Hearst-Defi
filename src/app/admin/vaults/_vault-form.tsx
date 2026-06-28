@@ -643,7 +643,7 @@ export function VaultForm(props: VaultFormProps) {
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
                 precision={1}
-                className="text-[18px] font-medium tabular-nums text-[var(--ct-accent)]"
+                className="text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums text-[var(--ct-accent)]"
               />
             </div>
           </div>
