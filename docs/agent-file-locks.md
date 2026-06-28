@@ -71,21 +71,7 @@ git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
 
 ## ACTIVE LOCKS
 
-### fix/ds-hardcoded-ui-cleanup
-Owner: Cursor Composer 2.5 — MISSION #015 DS hardening
-Branch: fix/ds-hardcoded-ui-cleanup
-Worktree: `../connect-ds-hardening`
-Status: **active**
-Files:
-- `src/app/doc-flow.css`
-- `src/components/ui/bento.tsx`
-- `src/components/admin/admin-page-header.tsx`
-- `src/app/(product)/profile/page.tsx`
-- `src/app/admin/dashboard/page.tsx`
-- `src/app/admin/audit/page.tsx`
-- `src/app/admin/projection/preview/page.tsx`
-- `src/components/admin/projection/preview-source-banner.tsx`
-- `src/components/ui/__tests__/bento-ds-contract.test.tsx`
+_(aucun lock actif)_
 
 ---
 
@@ -170,6 +156,18 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### fix/ds-hardcoded-ui-cleanup (lock fantôme — retiré sur accord owner)
+Owner: Cursor Composer 2.5 — MISSION #015 DS hardening
+Branch: fix/ds-hardcoded-ui-cleanup
+Released: 2026-06-28
+Status: released (ghost lock)
+Reason: aucun travail vivant — worktree `../connect-ds-hardening` inexistant,
+  branche locale/distante absente, aucune PR ouverte. Owner a explicitement
+  autorisé le retrait ("on tue unlock") pour débloquer la propagation du canon
+  typographique. Si #015 reprend, re-réserver les fichiers.
+
+---
 
 ### fix/surface-menu-cleanup
 Owner: Opus Orchestrateur — Product Surface / Menu / Whitelist Cleanup
