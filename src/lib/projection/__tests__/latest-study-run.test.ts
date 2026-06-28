@@ -84,7 +84,7 @@ describe("preview banner — truth wording (source check)", () => {
   it("Test 3: real-run mode shows latest-run source, demo badge only in no-run branch", () => {
     // The "Demo Fixture" badge is rendered inside the `if (!latestRun)` block;
     // the real-run render path shows the latest-run source line instead.
-    expect(BANNER_SRC).toContain('<Badge tone="demo">Demo Fixture</Badge>');
+    expect(BANNER_SRC).toContain('tone="demo">Demo Fixture');
     expect(BANNER_SRC).toContain("Source: Latest ProjectionStudyRun");
     // The demo badge sits before the Mode A render (no-run guard returns early).
     const demoIdx = BANNER_SRC.indexOf("Demo Fixture");

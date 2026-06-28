@@ -2,6 +2,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 import { PreviewSourceBanner } from "@/components/admin/projection/preview-source-banner";
 import { InvestorReportReadiness } from "@/components/admin/projection/investor-report-readiness";
+import { BentoPageShell } from "@/components/ui/bento";
 import { getLatestProjectionStudyRun } from "@/lib/projection/latest-study-run";
 import {
   defaultRunValidationContext,
@@ -36,17 +37,15 @@ export default async function ProjectionPreviewPage() {
   const report = buildInvestorReportViewModel(latestRun, validation);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Investor Report Preview"
-          titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
-          contextLabel="Strategy"
-        />
-        <PreviewSourceBanner latestRun={latestRun} validation={validation} />
-        <InvestorReportReadiness report={report} />
-        <ProjectionReportPreview />
-      </div>
-    </div>
+    <BentoPageShell>
+      <AdminPageHeader
+        titleLead="Investor Report Preview"
+        titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
+        contextLabel="Strategy"
+      />
+      <PreviewSourceBanner latestRun={latestRun} validation={validation} />
+      <InvestorReportReadiness report={report} />
+      <ProjectionReportPreview />
+    </BentoPageShell>
   );
 }

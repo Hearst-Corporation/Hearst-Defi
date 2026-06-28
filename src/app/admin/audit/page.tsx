@@ -5,9 +5,9 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
+import { BentoPageShell, BentoPanel, BentoHeader, BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { getAdminAuditLog } from "@/lib/admin/audit";
 import { AdminTable } from "@/components/admin/admin-table-layout";
-import { BentoPanel, BentoHeader, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { buildAuditKpiStrip } from "@/lib/admin/audit-kpi-strip";
 import { cn } from "@/lib/cn";
 import { truncateWallet } from "@/lib/wallet-display";
@@ -55,13 +55,11 @@ function AuditActionLabel({ action }: { action: string }) {
 function DiffBlock({ label, value, muted }: { label: string; value: unknown; muted?: boolean }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-        {label}
-      </p>
+      <p className="ct-bento-label">{label}</p>
       <pre
         className={cn(
-          "max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-md border border-white/10 bg-[#15191C] p-2 font-mono text-[12px] leading-relaxed",
-          muted ? "text-zinc-500" : "text-zinc-300",
+          "ct-bento-code-block",
+          muted && "ct-bento-code-block--muted",
         )}
       >
         {value === null ? "null" : JSON.stringify(value, null, 2)}
@@ -95,58 +93,51 @@ export default async function AuditLogPage({
   const kpiStrip = buildAuditKpiStrip(entries);
 
   return (
-    <div className="dark mb-8 flex flex-col rounded-2xl border border-white/10 bg-zinc-900">
-      <div className="flex flex-col gap-y-5 p-5 lg:p-6">
-        <AdminPageHeader
-          titleLead="Audit"
-          titleAccent="Log"
-          contextLabel="Compliance"
-        />
+    <BentoPageShell>
+      <AdminPageHeader
+        titleLead="Audit"
+        titleAccent="Log"
+        contextLabel="Compliance"
+      />
 
-        {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
+      {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
 
-        {/* Filter bar — plain GET form, zero client JS */}
-        <BentoPanel aria-label="Filters">
-          <BentoHeader title="Filter audit log" />
-          <form method="get" className="flex flex-wrap items-end gap-3 p-5">
-            <fieldset className="contents">
-              <legend className="sr-only">Filter audit log</legend>
+      {/* Filter bar — plain GET form, zero client JS */}
+      <BentoPanel aria-label="Filters">
+        <BentoHeader title="Filter audit log" />
+        <form method="get" className="flex flex-wrap items-end gap-3 p-5">
+          <fieldset className="contents">
+            <legend className="sr-only">Filter audit log</legend>
 
-              <label className="flex min-w-[12rem] flex-1 flex-col gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                  Entity type
-                </span>
-                <input
-                  name="entityType"
-                  defaultValue={entityType ?? ""}
-                  placeholder="e.g. VaultDeployment"
-                  className="h-9 rounded-lg border border-white/10 bg-[#15191C] px-3 text-[13px] text-zinc-200 placeholder:text-zinc-600 focus:border-white/25 focus:outline-none"
-                />
-              </label>
+            <label className="flex min-w-[12rem] flex-1 flex-col gap-1.5">
+              <BentoLabel>Entity type</BentoLabel>
+              <input
+                name="entityType"
+                defaultValue={entityType ?? ""}
+                placeholder="e.g. VaultDeployment"
+                className="ct-bento-input"
+              />
+            </label>
 
-              <label className="flex min-w-[12rem] flex-1 flex-col gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                  Actor wallet
-                </span>
-                <input
-                  name="actor"
-                  defaultValue={actor ?? ""}
-                  placeholder="0x…"
-                  className="h-9 rounded-lg border border-white/10 bg-[#15191C] px-3 font-mono text-[13px] text-zinc-200 placeholder:text-zinc-600 focus:border-white/25 focus:outline-none"
-                />
-              </label>
+            <label className="flex min-w-[12rem] flex-1 flex-col gap-1.5">
+              <BentoLabel>Actor wallet</BentoLabel>
+              <input
+                name="actor"
+                defaultValue={actor ?? ""}
+                placeholder="0x…"
+                className="ct-bento-input font-mono"
+              />
+            </label>
 
-              <label className="flex min-w-[12rem] flex-1 flex-col gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                  Action
-                </span>
-                <input
-                  name="action"
-                  defaultValue={action ?? ""}
-                  placeholder="e.g. vault.approve"
-                  className="h-9 rounded-lg border border-white/10 bg-[#15191C] px-3 text-[13px] text-zinc-200 placeholder:text-zinc-600 focus:border-white/25 focus:outline-none"
-                />
-              </label>
+            <label className="flex min-w-[12rem] flex-1 flex-col gap-1.5">
+              <BentoLabel>Action</BentoLabel>
+              <input
+                name="action"
+                defaultValue={action ?? ""}
+                placeholder="e.g. vault.approve"
+                className="ct-bento-input"
+              />
+            </label>
 
               <button type="submit" className={BENTO_SECONDARY_BTN}>
                 Filter
@@ -264,11 +255,9 @@ export default async function AuditLogPage({
             />
           )}
 
-          <div className="flex flex-col gap-1 border-t border-white/5 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-              Audit retention
-            </p>
-            <p className="text-[12px] text-zinc-500">
+          <div className="flex flex-col gap-1 border-t p-4 ct-bento-divider">
+            <p className="ct-bento-label">Audit retention</p>
+            <p className="text-[12px] ct-text-muted">
               Showing up to 200 entries per query. Entries written by{" "}
               <code className="font-mono text-zinc-300">recordAdminAudit()</code>{" "}
               are append-only; export directly from the database for formal
@@ -276,7 +265,6 @@ export default async function AuditLogPage({
             </p>
           </div>
         </section>
-      </div>
-    </div>
+    </BentoPageShell>
   );
 }

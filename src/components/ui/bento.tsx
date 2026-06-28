@@ -3,20 +3,32 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * Shared bento primitives — the Portfolio canon, pure Tailwind.
+ * Shared bento primitives — token-backed surfaces for product + admin pages.
  *
- * One source of truth for the panel chrome the product surfaces repeat
- * (vaults flow, onboarding, profile, proof-center): black panel +
- * hairline border, micro uppercase labels, accent-green (#A7FB90) CTAs.
- *
- * Extracted from the per-file copies the bento conversion left behind
- * (BentoPanel / BentoHeader / SectionHeader / TermTile / KpiCell /
- * FieldLabel / PRIMARY_BTN / SECONDARY_BTN). Keep these classes byte-identical
- * to the Portfolio page (src/app/(product)/portfolio/page.tsx) — they are the
- * canon other surfaces are checked against.
+ * Uses cockpit tokens (--ct-*) and .ct-glass-panel for module chrome instead of
+ * ad-hoc bg-black / border-white/* hardcodes. Typography via .ct-bento-* classes
+ * in doc-flow.css.
  */
 
-/** Panel surface: rounded-2xl black card with a hairline border. */
+/** Outer page shell: graphite surface + padded body stack. */
+export function BentoPageShell({
+  children,
+  className,
+  testId,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { testId?: string }) {
+  return (
+    <div
+      {...rest}
+      className={cn("ct-bento-page dark", className)}
+      data-testid={testId}
+    >
+      <div className="ct-bento-page__body">{children}</div>
+    </div>
+  );
+}
+
+/** Panel surface: ct-glass-panel card with overflow clip. */
 export function BentoPanel({
   children,
   className,
@@ -26,7 +38,7 @@ export function BentoPanel({
     <div
       {...rest}
       className={cn(
-        "rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col",
+        "ct-glass-panel flex flex-col overflow-hidden shadow-none",
         className,
       )}
     >
@@ -42,27 +54,23 @@ export function BentoHeader({
   trailing,
   as: Heading = "h2",
   className,
+  id,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   trailing?: ReactNode;
-  /** Heading level for the title (default h2). */
   as?: "h2" | "h3";
   className?: string;
+  id?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex items-end justify-between p-5 border-b border-white/5",
-        className,
-      )}
-    >
-      <div className="flex flex-col gap-1.5">
-        <Heading className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+    <div className={cn("ct-bento-panel-header", className)}>
+      <div className="flex min-w-0 flex-col">
+        <Heading id={id} className="ct-bento-card-title">
           {title}
         </Heading>
         {subtitle ? (
-          <p className="text-[12px] text-zinc-500 tracking-wide">{subtitle}</p>
+          <p className="ct-bento-card-subtitle">{subtitle}</p>
         ) : null}
       </div>
       {trailing ? (
@@ -82,10 +90,7 @@ export function BentoLabel({
   children: ReactNode;
   className?: string;
 }) {
-  const cls = cn(
-    "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500",
-    className,
-  );
+  const cls = cn("ct-bento-label", className);
   return htmlFor ? (
     <label htmlFor={htmlFor} className={cls}>
       {children}
@@ -121,14 +126,12 @@ export function BentoKpiTile({
   const SubTag = dl ? "p" : "div";
   return (
     <div className={cn("flex flex-col gap-2 p-5", className)}>
-      <LabelTag className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-        {label}
-      </LabelTag>
+      <LabelTag className="ct-bento-label">{label}</LabelTag>
       <ValueTag
         className={cn(
-          "text-[18px] font-medium leading-none tracking-tight tabular-nums",
+          "ct-bento-metric",
           dl && "m-0",
-          accent ? "text-[#A7FB90]" : "text-white",
+          accent && "ct-bento-metric--accent",
         )}
       >
         {value}
@@ -136,7 +139,7 @@ export function BentoKpiTile({
       {sub ? (
         <SubTag
           className={cn(
-            "text-[10px] text-zinc-500 tracking-wide",
+            "text-[length:var(--ct-text-nano)] ct-text-muted tracking-wide",
             dl && "m-0",
           )}
         >
@@ -158,24 +161,17 @@ export function BentoDetailRow({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex items-center justify-between gap-3 border-b border-white/5 py-3 last:border-b-0",
-        className,
-      )}
-    >
-      <span className="text-[13px] text-zinc-400">{label}</span>
-      <span className="text-[13px] font-medium text-white tabular-nums">
-        {children}
-      </span>
+    <div className={cn("ct-bento-detail-row", className)}>
+      <span className="ct-bento-detail-row__label">{label}</span>
+      <span className="ct-bento-detail-row__value">{children}</span>
     </div>
   );
 }
 
 /** Accent-green primary CTA class string. */
 export const BENTO_PRIMARY_BTN =
-  "inline-flex items-center justify-center bg-[#A7FB90] text-zinc-900 font-bold rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-[#A7FB90]/90 disabled:opacity-50 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center rounded-lg bg-[var(--ct-accent)] px-4 py-2.5 text-[13px] font-bold text-zinc-900 transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
 
 /** Neutral secondary CTA class string. */
 export const BENTO_SECONDARY_BTN =
-  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[13px] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-50";

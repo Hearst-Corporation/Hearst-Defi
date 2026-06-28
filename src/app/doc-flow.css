@@ -2494,3 +2494,151 @@
 .product-doc.legal-shell .legal-body h2 {
   margin: var(--ct-space-6) 0 var(--ct-space-2);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BENTO SURFACE PRIMITIVES — shared product + admin (token-backed)
+   Replaces ad-hoc bg-black / bg-zinc-900 / bg-[#15191C] / border-white/* on
+   primary surfaces. Pair with .ct-glass-panel for inner cards.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ct-bento-page {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--ct-space-8);
+  border-radius: var(--ct-radius-xl);
+  border: 1px solid var(--ct-graphite-border-nested);
+  background: var(--ct-graphite-subtle-bg);
+}
+
+.ct-bento-page__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5);
+  padding: var(--ct-space-5);
+}
+
+@media (min-width: 64rem) {
+  .ct-bento-page__body {
+    padding: var(--ct-space-6);
+  }
+}
+
+.ct-bento-panel-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ct-space-4);
+  padding: var(--ct-space-5);
+  border-bottom: 1px solid var(--ct-border-subtle);
+}
+
+.ct-bento-card-title {
+  margin: 0;
+  font-size: var(--ct-text-xs);
+  font-weight: var(--ct-font-bold);
+  line-height: 1;
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ct-text-secondary);
+}
+
+.ct-bento-card-subtitle {
+  margin: var(--ct-space-1_5) 0 0;
+  font-size: var(--ct-text-sm);
+  letter-spacing: var(--ct-tracking-wide);
+  color: var(--ct-text-muted);
+}
+
+.ct-bento-label {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-bold);
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+}
+
+.ct-bento-metric {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-medium);
+  line-height: 1;
+  letter-spacing: var(--ct-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+}
+
+.ct-bento-metric--accent {
+  color: var(--ct-accent);
+}
+
+.ct-bento-inset-band {
+  background: var(--ct-surface-0);
+  border-color: var(--ct-border-soft);
+}
+
+.ct-bento-divider {
+  border-color: var(--ct-border-subtle);
+}
+
+.ct-bento-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ct-space-3);
+  padding-block: var(--ct-space-3);
+  border-bottom: 1px solid var(--ct-border-subtle);
+}
+
+.ct-bento-detail-row:last-child {
+  border-bottom: none;
+}
+
+.ct-bento-detail-row__label {
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-secondary);
+}
+
+.ct-bento-detail-row__value {
+  font-size: var(--ct-text-sm);
+  font-weight: var(--ct-font-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--ct-text-strong);
+}
+
+.ct-bento-input {
+  height: 2.25rem;
+  width: 100%;
+  border-radius: var(--ct-radius-lg);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-0);
+  padding-inline: var(--ct-space-3);
+  font-size: var(--ct-text-sm);
+  color: var(--ct-text-primary);
+}
+
+.ct-bento-input::placeholder {
+  color: var(--ct-text-faint);
+}
+
+.ct-bento-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--ct-text-strong) 25%, var(--ct-border-soft));
+}
+
+.ct-bento-code-block {
+  max-height: 10rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border-radius: var(--ct-radius-md);
+  border: 1px solid var(--ct-border-soft);
+  background: var(--ct-surface-0);
+  padding: var(--ct-space-2);
+  font-family: var(--ct-font-mono, ui-monospace, monospace);
+  font-size: var(--ct-text-sm);
+  line-height: var(--ct-leading-relaxed);
+  color: var(--ct-text-body);
+}
+
+.ct-bento-code-block--muted {
+  color: var(--ct-text-muted);
+}
