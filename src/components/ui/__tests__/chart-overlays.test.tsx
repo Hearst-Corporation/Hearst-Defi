@@ -12,20 +12,20 @@ import { describe, it, expect, vi } from "vitest";
 import {
   ChartProvenanceCorner,
   type ChartProvenanceCornerProps,
-} from "@/components/ui/chart-provenance-corner";
+} from "@/components/catalyst/chart-provenance-corner";
 
 // ── ChartTimeSelector ─────────────────────────────────────────────────────────
 import {
   ChartTimeSelector,
   type TimeRange,
   type ChartTimeSelectorProps,
-} from "@/components/ui/chart-time-selector";
+} from "@/components/catalyst/chart-time-selector";
 
 // ── ChartDisclaimerUnderlay ───────────────────────────────────────────────────
 import {
   ChartDisclaimerUnderlay,
   type ChartDisclaimerUnderlayProps,
-} from "@/components/ui/chart-disclaimer-underlay";
+} from "@/components/catalyst/chart-disclaimer-underlay";
 
 // Helper: extract class names from JSX output by calling the component as a
 // plain function (valid because Server Components are plain functions).
