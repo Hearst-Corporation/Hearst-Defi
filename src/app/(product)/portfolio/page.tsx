@@ -104,12 +104,23 @@ export default async function PortfolioPage() {
   const heroState: "ready" | "fallback" =
     source === "fallback" ? "fallback" : "ready";
 
-  // Real allocation buckets (vault snapshot) → composition ring segments. At zero
-  // the ring renders its empty track (honest placeholder), never hidden.
-  const allocSegments = allocationDonutProps.buckets.map((b) => ({
-    label: BUCKET_LABEL[b.bucket] ?? b.bucket,
-    value: b.valueUsdc,
-  }));
+  // Allocation ring is ALWAYS populated. Use the real vault-snapshot buckets
+  // when present; otherwise fall back to the Hearst Yield Vault strategy targets
+  // (Mining 60 / BTC 25 / USDC 10 / Stable 5) so the ring always shows segments
+  // and is never an empty track. The source badge still tells the truth (live vs
+  // stale) — only the geometry is guaranteed non-empty.
+  const allocSegments =
+    allocationDonutProps.buckets.length > 0
+      ? allocationDonutProps.buckets.map((b) => ({
+          label: BUCKET_LABEL[b.bucket] ?? b.bucket,
+          value: b.valueUsdc,
+        }))
+      : [
+          { label: BUCKET_LABEL.mining!, value: 60 },
+          { label: BUCKET_LABEL.btc_tactical!, value: 25 },
+          { label: BUCKET_LABEL.usdc_base!, value: 10 },
+          { label: BUCKET_LABEL.stable_reserve!, value: 5 },
+        ];
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
