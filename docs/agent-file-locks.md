@@ -78,42 +78,6 @@ git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
 > agentic-tower-table-console (vault flow), capital-yield-dimension-cleanup,
 > portfolio-value-chart-rebuild.
 
-### fix/surface-menu-cleanup
-Owner: Opus Orchestrateur — Product Surface / Menu / Whitelist Cleanup
-Branch: fix/surface-menu-cleanup
-Worktree: .claude/worktrees/menu-route-surface-fixes
-Started: 2026-06-28
-Status: active
-
-Scope:
-- src/app/catalyst-preview/** (DELETED — public ungated demo, closed)
-- src/lib/llm/navigate-tool.ts (remove 5 blank portfolio leaf LP destinations;
-    add admin-source + admin-agentic admin destinations)
-- src/lib/llm/nav-fallback-intent.ts (sync: drop the 5 leaf NAV_KEYWORDS + their
-    NAV_CANONICAL_MATRIX rows so the module-load guard stays consistent; add
-    admin-source + admin-agentic keywords — STRICTLY the whitelist sync, no regex audit)
-- src/app/(product)/portfolio/page.tsx (honesty: visible "Demo data" badge +
-    de-claim "Live Portfolio Value" — NO redesign, NO chart/layout change)
-- src/lib/llm/__tests__/navigate-tool.test.ts
-- src/lib/llm/__tests__/nav-global-hardening.test.ts
-- src/lib/llm/__tests__/nav-fallback-derived.test.ts
-- src/lib/__tests__/product-routes.test.ts
-- src/components/nav/__tests__/admin-section-href-contract.test.ts (NEW)
-- src/app/(product)/portfolio/__tests__/portfolio-honesty.test.tsx (NEW)
-- docs/agent-file-locks.md
-
-Coordination:
-- src/components/nav/product-nav-items.ts is locked by `feat/defi-market-data`
-    (scope = Marketplace tab under the Strategy section). I touch ONLY the
-    `proof-system` section `href` (/admin/proof-center → /admin/proofs, a DIFFERENT
-    section) to fix the sub-nav contract — zero overlap with the Marketplace work.
-    Optional design-system hide DEFERRED to avoid extra edits on the contended file.
-
-Notes:
-- Remove dead/misleading surfaces from menus + chat whitelist; close a public demo
-  route; stop the chat routing investors to blank portfolio leaves. No regex audit,
-  no nav P0 rework, no Prisma/schema, no output/chat guard, no UI redesign.
-
 ### fix/outreach-draft-continuity
 Owner: Opus Orchestrateur — Outreach Regex Router / Campaign Continuity
 Branch: fix/outreach-draft-continuity
@@ -188,6 +152,33 @@ Files:
 ---
 
 ## RELEASED LOCKS
+
+### fix/surface-menu-cleanup
+Owner: Opus Orchestrateur — Product Surface / Menu / Whitelist Cleanup
+Branch: fix/surface-menu-cleanup
+Merged PR: #149 (merge 163e75f2)
+Released: 2026-06-28
+Status: merged
+
+Result:
+- Closed dead/misleading surfaces + made navigation honest. Deleted the public,
+  ungated /catalyst-preview internal demo (guard test added). /portfolio now shows
+  a visible "Demo data · pending live portfolio wiring" badge + de-claimed the
+  "Live Portfolio Value" headline (no redesign/chart/layout change). Removed the 5
+  unwired portfolio sub-leaves (positions/activity/distributions/yield/tax) from the
+  LP chat whitelist so the chat no longer routes investors to blank pages — routes
+  kept; pruned the matching NAV_KEYWORDS + NAV_CANONICAL_MATRIX rows so the
+  module-load guard stays consistent (strictly the whitelist sync, no regex audit).
+  Fixed the Proof & System sub-nav contract (section href → first tab /admin/proofs).
+  Wired /admin/source + /admin/agentic into ADMIN_NAV_DESTINATIONS.
+- product-nav-items.ts: ONLY the proof-system href line touched — coordinated around
+  the active feat/defi-market-data Marketplace lock (different section, zero overlap).
+- New guards: admin section-href contract + portfolio demo-honesty. Synced
+  product-routes EXPECTED_ROUTES to the real tree (pre-existing marketplace /
+  projection-preview / source). 365/365 targeted tests PASS, tsc 0 errors, gitleaks
+  clean. No Prisma/schema, no output/chat guard, no UI redesign, no regex/nav-P0 rework.
+- DEFERRED (decisions left untouched): Design-System hide, Proof & System rename,
+  Marketplace folding, wiring the 5 portfolio leaves.
 
 ### fix/nav-augmented-profile-guard
 Owner: Opus — Navigation P0 Repair (Augmented Nav + Profile Guard)
