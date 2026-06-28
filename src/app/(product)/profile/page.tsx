@@ -86,7 +86,7 @@ export default async function ProfilePage() {
           <div className="ct-bento-metric">{profileDisplayName(session.email)}</div>
           <p
             className={cn(
-              "text-[12px] font-medium tracking-wide",
+              "ct-metric-caption",
               verdict.eligible ? "ct-text-accent" : "ct-text-muted",
             )}
             data-testid="profile-eligibility-verdict"
@@ -129,7 +129,7 @@ export default async function ProfilePage() {
               )}
             </BentoDetailRow>
           </div>
-          <p className="p-5 pt-0 text-[11px] leading-relaxed ct-text-muted">
+          <p className="ct-metric-caption p-5 pt-0 leading-relaxed">
             Product eligibility depends on accreditation, KYC approval, and
             jurisdictional restrictions.
           </p>
@@ -159,10 +159,10 @@ export default async function ProfilePage() {
             </div>
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-              <p className="text-[13px] font-medium ct-text-body">
+              <p className="ct-section-title">
                 Your investment summary starts after your first active position.
               </p>
-              <p className="max-w-sm text-[12px] leading-relaxed ct-text-muted">
+              <p className="ct-metric-caption max-w-sm leading-relaxed">
                 Once a deposit is confirmed, deployed capital and subscription history appear here.
               </p>
               <Button variant="secondary" size="md" asChild className="mt-2">
