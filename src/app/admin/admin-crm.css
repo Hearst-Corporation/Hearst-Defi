@@ -111,8 +111,11 @@
   align-items: center;
   text-align: center;
 }
-/* Label row : ne plus étaler label↔dot (justify-between) — les grouper centrés. */
-.admin-kpi-strip-panel .dashboard-kpi-strip [class*="justify-between"] {
+/* Toutes les lignes flex internes de la cellule (label↔dot row + ligne
+   sous-titre/delta) doivent être centrées, sinon elles se calent à gauche
+   dans la cellule centrée. La cellule = wrapper flex-col dont les enfants
+   directs flex sont la label-row et la meta-row. */
+.admin-kpi-strip-panel .dashboard-kpi-strip > div > div > * {
   justify-content: center;
 }
 /* Séparateurs : le trait inline dans le wrapper colle au contenu de gauche →
