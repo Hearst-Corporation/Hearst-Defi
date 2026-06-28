@@ -170,10 +170,10 @@ export default async function CustomersPage({
                       {truncateWallet(c.walletAddress)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col items-start gap-2">
+                      <div className="flex items-center gap-2.5">
                         <span
                           className={cn(
-                            "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                            "inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                             KYC_CHIP[c.kycStatus],
                           )}
                         >
