@@ -1,4 +1,5 @@
 import type { LatestStudyRunSummary } from "@/lib/projection/latest-study-run";
+import type { ProjectionRunValidationResult } from "@/lib/projection/run-validation";
 
 /**
  * Honest source banner for /admin/projection/preview.
@@ -40,10 +41,40 @@ function Badge({
   );
 }
 
+/** Validation status line — eligibility + reasons/warnings. Always ADMIN ONLY. */
+function ValidationLine({
+  validation,
+}: {
+  validation: ProjectionRunValidationResult;
+}) {
+  return (
+    <div className="mt-3 border-t border-white/5 pt-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone="neutral">Validation: {validation.status}</Badge>
+        <Badge tone={validation.investorEligible ? "configured" : "unaudited"}>
+          {validation.investorEligible
+            ? "Investor-eligible"
+            : "Investor-blocked"}
+        </Badge>
+        <Badge tone="neutral">GO ADMIN ONLY</Badge>
+      </div>
+      {validation.warnings.length > 0 ? (
+        <ul className="mt-2 flex flex-col gap-1 text-[11px] text-zinc-500">
+          {validation.warnings.map((w) => (
+            <li key={w}>• {w}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function PreviewSourceBanner({
   latestRun,
+  validation,
 }: {
   latestRun: LatestStudyRunSummary | null;
+  validation?: ProjectionRunValidationResult;
 }) {
   if (!latestRun) {
     // Mode B — demo fixture
@@ -59,6 +90,7 @@ export function PreviewSourceBanner({
           rapport — ne reflète pas une projection réelle. Lance une étude depuis
           /admin/projection pour brancher l’aperçu sur un vrai run.
         </p>
+        {validation ? <ValidationLine validation={validation} /> : null}
       </div>
     );
   }
@@ -100,6 +132,7 @@ export function PreviewSourceBanner({
         Aperçu admin — projection, non garantie. Statut GO ADMIN ONLY :
         assumptions configurées non validées, risk baselines pré-audit.
       </p>
+      {validation ? <ValidationLine validation={validation} /> : null}
     </div>
   );
 }
