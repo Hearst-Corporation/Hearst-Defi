@@ -132,7 +132,8 @@ export function ProofCenterHub({
       className={cn(
         variant === "product" ? "product-doc-stack" : "admin-doc-stack admin-doc-stack--roomy",
         // Grey body container (Portfolio canon) — both investor and admin surfaces.
-        "rounded-2xl border border-white/10 bg-surface-page p-5 lg:p-6 mb-8",
+        // Border token = var(--ct-border), identical to portfolio's root plate.
+        "rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6 mb-8",
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >
@@ -141,14 +142,14 @@ export function ProofCenterHub({
           titleLead="Proof"
           titleAccent="Center"
           contextLabel="Vault Proof System"
-          className="mb-(--ct-space-8)"
+          className="mb-(--ct-space-5)"
         />
       ) : (
         <AdminPageHeader
           titleLead="Proof Operations"
           titleAccent={vaultSuffix}
           contextLabel={`Operator Proof Hub · ${vaultSuffix}`}
-          className="mb-(--ct-space-8)"
+          className="mb-(--ct-space-5)"
         />
       )}
 
