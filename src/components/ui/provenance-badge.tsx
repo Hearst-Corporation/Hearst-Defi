@@ -1,4 +1,6 @@
-import { Badge } from "@/components/ui/badge";
+// Specialized provenance chip — delegates its chrome to the canonical Catalyst
+// BentoBadge (imported directly, not via the ui/badge compat shim). Token-only.
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
 

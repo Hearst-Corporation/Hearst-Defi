@@ -5,8 +5,8 @@ import { cn } from "@/lib/cn";
  * Quiet "View full →" link for a bento panel header trail (the `trailing`
  * slot of BentoHeader / DashboardPanelHeader). Inline, not corner.
  *
- * Bento canon: micro zinc label that warms to accent-green (#A7FB90) on hover.
- * Pure Tailwind — no CSS-file dependency.
+ * Bento canon: micro muted label that warms to the accent green on hover.
+ * Token-only (no raw zinc / no inline hex) — colours via `--ct-*`.
  */
 export function AdminLeafLink({
   href,
@@ -21,7 +21,7 @@ export function AdminLeafLink({
     <Link
       href={href}
       className={cn(
-        "group inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-500 transition-colors hover:text-[#A7FB90]",
+        "group inline-flex items-center gap-1 text-[length:var(--ct-text-micro)] font-medium uppercase tracking-[0.15em] text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-accent)]",
         className,
       )}
     >

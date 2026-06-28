@@ -80,7 +80,8 @@ export const BadgeButton = forwardRef(function BadgeButton(
 ) {
   let classes = cn(
     className,
-    'group relative inline-flex rounded-md focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500'
+    // Focus ring = accent token (canon Hearst), never the raw Tailwind blue.
+    'group relative inline-flex rounded-md focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:[outline-color:var(--ct-accent)]'
   )
 
   return typeof props.href === 'string' ? (

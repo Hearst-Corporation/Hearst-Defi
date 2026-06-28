@@ -1,60 +1,15 @@
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+/**
+ * Legacy compatibility wrapper. New usage should import from
+ * `@/components/catalyst/cockpit-button`.
+ *
+ * The canonical Hearst cockpit button now lives in Catalyst as `CockpitButton`;
+ * this module re-exports it under the historical `Button` name so the ~37
+ * existing `@/components/ui/button` call sites keep working unchanged during the
+ * Catalyst absorption migration (MISSION #043). No autonomous visual component
+ * lives here anymore.
+ */
 
-import { cn } from "@/lib/cn";
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-[var(--ct-space-2)] rounded-full text-sm font-medium ct-transition-base disabled:opacity-[var(--ct-opacity-50)] disabled:cursor-not-allowed focus-visible:outline-none ct-focus-ring ct-press",
-  {
-    variants: {
-      variant: {
-                    primary:
-                      "font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover",
-        secondary:
-          "ct-surface-0 border ct-bc-soft ct-text-primary hover:ct-surface-2 ct-bc-strong-hover hover:ct-text-strong",
-        ghost:
-          "ct-text-muted hover:ct-surface-1 hover:ct-text-strong",
-        danger:
-          "border ct-bc-danger ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
-      },
-      size: {
-        sm: "h-5 px-[var(--ct-space-2)] ct-text-micro-size",
-        md: "h-7 px-[var(--ct-space-3)] ct-text-xs-size",
-        lg: "h-9 px-[var(--ct-space-4)] text-sm",
-      },
-    },
-    defaultVariants: {
-      variant: "secondary",
-      size: "md",
-    },
-  },
-);
-
-interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
-
-export function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  disabled,
-  "aria-disabled": ariaDisabledProp,
-  ...rest
-}: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
-  // Propagate aria-disabled so AT (NVDA/JAWS/VoiceOver) reliably announce the
-  // disabled state. An explicit aria-disabled from the caller takes precedence.
-  const ariaDisabled = ariaDisabledProp ?? (disabled ? true : undefined);
-  return (
-    <Comp
-      className={cn(buttonVariants({ variant, size }), className)}
-      disabled={disabled}
-      aria-disabled={ariaDisabled}
-      {...rest}
-    />
-  );
-}
+export {
+  CockpitButton as Button,
+  cockpitButtonVariants as buttonVariants,
+} from "@/components/catalyst/cockpit-button";

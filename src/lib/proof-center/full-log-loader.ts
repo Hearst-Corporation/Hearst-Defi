@@ -1,3 +1,5 @@
+import "server-only";
+
 import { fetchOnChainEvents } from "@/lib/chain/event-logger";
 import { loadCustody } from "@/lib/data/custody";
 import { getProofs } from "@/lib/data/proofs";

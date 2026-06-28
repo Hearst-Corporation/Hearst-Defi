@@ -31,13 +31,9 @@ export function AdminDetailSection({
       aria-label={label}
       id={id}
     >
-      {title && (
-        <h2 className="text-[15px] font-semibold tracking-tight text-white">
-          {title}
-        </h2>
-      )}
+      {title && <h2 className="ct-section-title">{title}</h2>}
       {description && (
-        <div className="text-[12px] leading-relaxed text-zinc-500">
+        <div className="text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-muted)]">
           {description}
         </div>
       )}
@@ -87,10 +83,10 @@ export function AdminDetailItem({
 }: AdminDetailItemProps) {
   return (
     <div className={cn("flex flex-col gap-1.5", fullWidth && "md:col-span-2", className)}>
-      <dt className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-        {label}
-      </dt>
-      <dd className="m-0 text-[13px] leading-snug text-zinc-200">{children}</dd>
+      <dt className="ct-bento-label">{label}</dt>
+      <dd className="m-0 text-[length:var(--ct-text-xs)] leading-snug text-[var(--ct-text-body)]">
+        {children}
+      </dd>
     </div>
   );
 }
