@@ -37,7 +37,7 @@ export function DistributionPreview({
       {/* Summary */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <h3 className="text-[15px] font-semibold tracking-tight text-white">
+          <h3 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-white">
             Distribution preview
           </h3>
           <p className="text-[18px] font-medium leading-none tracking-tight tabular-nums text-white">
@@ -45,14 +45,14 @@ export function DistributionPreview({
           </p>
         </div>
         <div className="flex flex-col items-end gap-1.5 text-right">
-          <p className="text-[12px] text-zinc-500">Period</p>
-          <p className="font-mono text-[13px] font-medium text-white">{period}</p>
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">Period</p>
+          <p className="font-mono text-[length:var(--ct-text-xs)] font-medium text-white">{period}</p>
         </div>
       </div>
 
       {/* Recipients table */}
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-surface-inset">
-        <table className="w-full table-fixed text-left text-[13px] tabular-nums">
+        <table className="w-full table-fixed text-left text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
             <tr className="border-b border-white/5">
               <th className="w-[42%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
@@ -69,7 +69,7 @@ export function DistributionPreview({
           <tbody>
             {recipients.map((r) => (
               <tr key={r.investorId} className="border-b border-white/5 last:border-0">
-                <td className="truncate px-5 py-3 font-mono text-[12px] text-zinc-300">
+                <td className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-300">
                   {abbrWallet(r.walletAddress)}
                 </td>
                 <td className="px-5 py-3 text-right text-zinc-400">
@@ -83,10 +83,10 @@ export function DistributionPreview({
           </tbody>
           <tfoot>
             <tr className="border-t border-white/10">
-              <td className="px-5 py-3 text-[12px] text-zinc-400">
+              <td className="px-5 py-3 text-[length:var(--ct-text-2xs)] text-zinc-400">
                 Total ({recipients.length} recipients)
               </td>
-              <td className="px-5 py-3 text-right text-[12px] text-zinc-400">
+              <td className="px-5 py-3 text-right text-[length:var(--ct-text-2xs)] text-zinc-400">
                 100%
               </td>
               <td className="px-5 py-3 text-right font-medium text-white">
@@ -98,7 +98,7 @@ export function DistributionPreview({
       </div>
 
       {/* Disclaimer — CLAUDE.md #10 */}
-      <p className="text-[12px] text-zinc-600">
+      <p className="text-[length:var(--ct-text-2xs)] text-zinc-600">
         This is a dry-run preview. Amounts shown are indicative and subject to
         rounding. Final confirmation requires multisig approval. Distributions
         are not a commitment to any future return.

@@ -10,7 +10,7 @@ import type {
  */
 
 const TONE: Record<SourceTruthStatus, string> = {
-  LIVE: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  LIVE: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   FALLBACK: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   CONFIGURED: "border-sky-400/30 bg-sky-400/10 text-sky-300",
   MOCK: "border-zinc-500/30 bg-zinc-500/10 text-zinc-400",
@@ -59,7 +59,7 @@ export function ProjectionSourceSummary({
   return (
     <div className="rounded-2xl border border-white/10 bg-[#15191C] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+        <div className="text-[length:var(--ct-text-micro)] font-bold uppercase tracking-[0.15em] text-zinc-500">
           Source truth
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -75,7 +75,7 @@ export function ProjectionSourceSummary({
         <SourceColumn title="Outputs" rows={outputs} />
       </div>
 
-      <p className="mt-3 border-t border-white/5 pt-3 text-[11px] italic text-zinc-600">
+      <p className="mt-3 border-t border-white/5 pt-3 text-[length:var(--ct-text-micro)] italic text-zinc-600">
         Projection methodology : live inputs + configured assumptions. Not
         guaranteed. Admin validation required — {summary.verdict}.
       </p>
@@ -98,13 +98,13 @@ function SourceColumn({
       <ul className="flex flex-col gap-1.5">
         {rows.map((r) => (
           <li key={r.label} className="flex items-center justify-between gap-2">
-            <span className="text-[12px] text-zinc-300">
+            <span className="text-[length:var(--ct-text-2xs)] text-zinc-300">
               {r.label}
               {r.detail ? (
                 <span className="ml-1.5 tabular-nums text-zinc-500">{r.detail}</span>
               ) : null}
               {r.reason ? (
-                <span className="ml-1.5 text-[11px] italic text-zinc-600">
+                <span className="ml-1.5 text-[length:var(--ct-text-micro)] italic text-zinc-600">
                   ({r.reason})
                 </span>
               ) : null}

@@ -69,19 +69,19 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
 
   return (
     <tr className="group border-b border-white/5 last:border-b-0 cursor-default transition-colors hover:bg-white/[0.02]">
-      <td className="px-3 py-2 text-left text-[13px] text-zinc-300 tabular-nums">
+      <td className="px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-zinc-300 tabular-nums">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>
-      <td className="px-3 py-2 text-left text-[13px] font-mono text-zinc-500 group-hover:text-zinc-400">
+      <td className="px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-zinc-500 group-hover:text-zinc-400">
         {wallet}
       </td>
-      <td className="px-3 py-2 text-left text-[13px] text-zinc-300 uppercase truncate">
+      <td className="px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-zinc-300 uppercase truncate">
         {entry.action}
       </td>
-      <td className="hidden px-3 py-2 text-left text-[13px] text-zinc-400 uppercase md:table-cell">
+      <td className="hidden px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-zinc-400 uppercase md:table-cell">
         {entry.entityType}
       </td>
-      <td className="hidden px-3 py-2 text-left text-[13px] font-mono text-zinc-500 lg:table-cell">
+      <td className="hidden px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-zinc-500 lg:table-cell">
         {entityId}
       </td>
     </tr>

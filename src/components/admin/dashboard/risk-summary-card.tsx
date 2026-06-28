@@ -103,7 +103,7 @@ export function DashboardRiskSummaryCard({
                 >
                   {data.composite}
                 </span>
-                <span className="text-[12px] font-bold tabular-nums text-zinc-600">
+                <span className="text-[length:var(--ct-text-2xs)] font-bold tabular-nums text-zinc-600">
                   / 100
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function DashboardRiskSummaryCard({
           </Badge>
         </div>
 
-        <p className="m-0 ml-4 max-w-[200px] flex-1 text-[11px] uppercase leading-tight tracking-tight text-zinc-500">
+        <p className="m-0 ml-4 max-w-[200px] flex-1 text-[length:var(--ct-text-micro)] uppercase leading-tight tracking-tight text-zinc-500">
           Five-factor operator view: contract, mining, counterparties, market,
           liquidity.
         </p>
@@ -133,7 +133,7 @@ export function DashboardRiskSummaryCard({
           >
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="min-w-[100px] text-[13px] font-medium uppercase tracking-tight text-zinc-200">
+                <span className="min-w-[100px] text-[length:var(--ct-text-xs)] font-medium uppercase tracking-tight text-zinc-200">
                   {dimension.label}
                 </span>
                 <Badge
@@ -142,13 +142,13 @@ export function DashboardRiskSummaryCard({
                 >
                   {dimension.status}
                 </Badge>
-                <p className="m-0 text-[11px] leading-none text-zinc-500 opacity-70 transition-opacity group-hover:opacity-100">
+                <p className="m-0 text-[length:var(--ct-text-micro)] leading-none text-zinc-500 opacity-70 transition-opacity group-hover:opacity-100">
                   {dimension.detail}
                 </p>
               </div>
               <span
                 className={cn(
-                  "text-[13px] font-medium tabular-nums",
+                  "text-[length:var(--ct-text-xs)] font-medium tabular-nums",
                   SEVERITY_TEXT[dimension.severity],
                 )}
               >

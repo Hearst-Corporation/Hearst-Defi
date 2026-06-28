@@ -38,11 +38,11 @@ function BentoHeader({
         {/* sectionLed: the visible page <h2> owns the section title; the panel
             shows only its h3 subtitle + provenance. */}
         {!sectionLed ? (
-          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none m-0">
+          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none m-0">
             {eyebrow}
           </h3>
         ) : null}
-        <p className="text-[12px] text-zinc-500 tracking-wide m-0">{title}</p>
+        <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 tracking-wide m-0">{title}</p>
       </div>
       <ProvenanceBadge kind={provenance} />
     </div>
@@ -71,7 +71,7 @@ function KpiCell({
       <dd
         className={cn(
           "text-[18px] font-medium leading-none tracking-tight tabular-nums m-0",
-          accent ? "text-[#A7FB90]" : "text-white",
+          accent ? "text-[var(--ct-accent)]" : "text-white",
         )}
       >
         {value}
@@ -107,7 +107,7 @@ export function MiningCashFlowEvidence({
             provenance={BADGE[provenance]}
           />
         )}
-        <p className="p-5 text-[13px] leading-relaxed text-zinc-400 m-0" role="status">
+        <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-zinc-400 m-0" role="status">
           {MINING_CASHFLOW_COPY[provenance]}
         </p>
       </>
@@ -137,7 +137,7 @@ export function MiningCashFlowEvidence({
         />
       )}
 
-      <p className="p-5 text-[13px] leading-relaxed text-zinc-400 border-b border-white/5 m-0">
+      <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-zinc-400 border-b border-white/5 m-0">
         {MINING_CASHFLOW_COPY[provenance]}
       </p>
 

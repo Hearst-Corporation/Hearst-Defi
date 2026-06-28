@@ -30,27 +30,27 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
           Projected APY range
         </span>
 
-        <span className="whitespace-nowrap text-[15px] font-semibold tabular-nums text-[#A7FB90]">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-sm)] font-semibold tabular-nums text-[var(--ct-accent)]">
           {projection.apyRangeLabel}
         </span>
 
         <Separator />
 
-        <span className="whitespace-nowrap text-[13px] text-zinc-400">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-zinc-400">
           Lockup:&nbsp;
           <span className="font-medium text-white">{projection.lockupDays}d</span>
         </span>
 
         <Separator />
 
-        <span className="whitespace-nowrap text-[13px] text-zinc-400">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-zinc-400">
           M-of-N:&nbsp;
           <span className="font-medium text-white">{projection.quorum}</span>
         </span>
 
         <span className="flex-1" />
 
-        <p className="m-0 text-right text-[11px] text-zinc-500">
+        <p className="m-0 text-right text-[length:var(--ct-text-micro)] text-zinc-500">
           Live estimate — not guaranteed. Final terms after deployment.
         </p>
       </div>

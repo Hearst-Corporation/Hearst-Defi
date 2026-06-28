@@ -41,8 +41,8 @@ function CheckRow({
         )}
       />
       <div className="flex flex-col gap-0.5 min-w-0 flex-auto">
-        <span className="text-[13px] font-medium text-[var(--ct-text-strong)]">{label}</span>
-        <span className="text-[12px] text-[var(--ct-text-faint)] tracking-wide truncate">
+        <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">{label}</span>
+        <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide truncate">
           {detail}
         </span>
       </div>
@@ -152,7 +152,7 @@ export function PreFlightCheck({
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
   const panelBody = !ready ? (
-    <p className="text-[12px] text-[var(--ct-text-faint)] animate-pulse py-4 text-center">
+    <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] animate-pulse py-4 text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
@@ -160,7 +160,7 @@ export function PreFlightCheck({
       <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
         Configuration pending
       </span>
-      <p className="text-[12px] text-[var(--ct-text-faint)] tracking-wide">
+      <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">
         On-chain configuration is being finalized. Please contact Investor
         Relations.
       </p>
@@ -171,7 +171,7 @@ export function PreFlightCheck({
         <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Readiness
         </span>
-        <span className="text-[12px] text-[var(--ct-text-muted)]">
+        <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
           <span className="font-semibold text-[var(--ct-text-strong)] tabular-nums font-mono">
             {checksComplete}
           </span>
@@ -184,7 +184,7 @@ export function PreFlightCheck({
           <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
             Testnet contract
           </span>
-          <p className="text-[12px] text-[var(--ct-text-faint)] tracking-wide">
+          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">
             This vault is a testnet build with no emergency pause or guardian
             and a $1,000 minimum — not the audited production contract.
           </p>
@@ -224,7 +224,7 @@ export function PreFlightCheck({
               onClick={() => void handleApprove()}
               disabled={approving || !networkOk}
               className={cn(
-                "rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--ct-accent)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
+                "rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-micro)] font-bold uppercase tracking-wider text-[var(--ct-accent)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
                 "disabled:cursor-not-allowed disabled:opacity-50",
                 approving && "cursor-wait opacity-70",
               )}
@@ -253,7 +253,7 @@ export function PreFlightCheck({
   return (
     <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
       <div className="flex flex-col gap-1.5 p-5 border-b border-[var(--ct-border-soft)]">
-        <h2 className="text-[11px] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
+        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
           Pre-flight check
         </h2>
         <p className="text-[10px] text-[var(--ct-text-faint)] uppercase tracking-[0.15em] font-bold">

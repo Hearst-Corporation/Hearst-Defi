@@ -68,8 +68,8 @@ function BentoProofRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3 last:border-b-0">
-      <span className="text-[13px] text-zinc-400">{label}</span>
-      <span className="text-[13px] font-medium text-white font-mono tabular-nums">
+      <span className="text-[length:var(--ct-text-xs)] text-zinc-400">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] font-medium text-white font-mono tabular-nums">
         {children}
       </span>
     </div>
@@ -80,7 +80,7 @@ const explorerLinkClass =
   "text-zinc-400 hover:text-white transition-colors duration-150";
 
 const bentoLinkButtonClass =
-  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[13px] transition-colors hover:bg-white/10";
+  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] transition-colors hover:bg-white/10";
 
 export function PorSummary({
   attestation,
@@ -185,20 +185,20 @@ export function PorSummary({
               View evidence (IPFS)
             </a>
           ) : attestation.evidenceCid.length > 0 ? (
-            <span className="text-[13px] text-zinc-500">View evidence (IPFS)</span>
+            <span className="text-[length:var(--ct-text-xs)] text-zinc-500">View evidence (IPFS)</span>
           ) : (
-            <span className="text-[13px] text-zinc-500">No evidence CID available</span>
+            <span className="text-[length:var(--ct-text-xs)] text-zinc-500">No evidence CID available</span>
           );
         })()}
       </div>
 
       {stale ? (
-        <p className="text-[11px] leading-relaxed text-(--ct-status-warning)">
+        <p className="text-[length:var(--ct-text-micro)] leading-relaxed text-(--ct-status-warning)">
           Last attestation is older than 24h — badge shows Stale. A fresh
           attestation is expected each period close.
         </p>
       ) : !verified ? (
-        <p className="text-[11px] leading-relaxed text-(--ct-status-warning)">
+        <p className="text-[length:var(--ct-text-micro)] leading-relaxed text-(--ct-status-warning)">
           Attestation signer is not yet verified against the allowlist — badge
           shows Stale until the signature is confirmed.
         </p>

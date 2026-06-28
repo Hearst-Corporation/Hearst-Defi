@@ -62,7 +62,7 @@ function Label({ children }: { children: React.ReactNode }) {
 function Tag({ tone, children }: { tone: Tone; children: React.ReactNode }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium ${TAG_CLASS[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium ${TAG_CLASS[tone]}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[tone]}`} aria-hidden />
       {children}
@@ -112,7 +112,7 @@ export function CrewSimulationSection({
                   <h3 className="text-[14px] font-semibold leading-tight text-white">
                     {scenario.label}
                   </h3>
-                  <p className="text-[12px] leading-relaxed text-zinc-400">
+                  <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-400">
                     {summary}
                   </p>
                 </div>
@@ -122,7 +122,7 @@ export function CrewSimulationSection({
                     {showRisk ? (
                       <Tag tone={riskTone(scenario.risk)}>{scenario.risk}</Tag>
                     ) : (
-                      <span className="text-[13px] text-zinc-600">—</span>
+                      <span className="text-[length:var(--ct-text-xs)] text-zinc-600">—</span>
                     )}
                   </KpiCell>
                   <KpiCell label="Mode">
@@ -155,7 +155,7 @@ export function CrewSimulationSection({
                           <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/5 text-[10px] font-bold tabular-nums text-zinc-400">
                             {i + 1}
                           </span>
-                          <span className="flex-1 text-[12px] text-zinc-300">
+                          <span className="flex-1 text-[length:var(--ct-text-2xs)] text-zinc-300">
                             {step.label}
                           </span>
                           <span className="text-[10px] uppercase tracking-[0.1em] font-bold text-zinc-500">
@@ -172,7 +172,7 @@ export function CrewSimulationSection({
                           {blockedActions.map((action) => (
                             <span
                               key={action}
-                              className="inline-flex items-center gap-1.5 rounded-md border border-red-400/20 bg-red-400/5 px-2 py-0.5 text-[11px] text-red-300/90"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-red-400/20 bg-red-400/5 px-2 py-0.5 text-[length:var(--ct-text-micro)] text-red-300/90"
                             >
                               <span
                                 className="h-1 w-1 rounded-full bg-red-400/70"

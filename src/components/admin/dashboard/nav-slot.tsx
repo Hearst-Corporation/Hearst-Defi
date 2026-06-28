@@ -34,7 +34,7 @@ export function NavSlot({
           <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] leading-none">
             Analytics
           </span>
-          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
             NAV trend · 30d
           </h3>
         </div>
@@ -50,7 +50,7 @@ export function NavSlot({
                   <span className="text-[24px] font-medium leading-none tracking-tight text-[var(--ct-text-strong)]">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
-                <span className="text-[13px] text-zinc-500">Awaiting data</span>
+                <span className="text-[length:var(--ct-text-xs)] text-zinc-500">Awaiting data</span>
               )}
           </p>
         </div>
@@ -60,7 +60,7 @@ export function NavSlot({
             <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 mb-1">30d Change</span>
             <p
               className={cn(
-                "dashboard-nav-slot__delta m-0 text-[13px] font-semibold tabular-nums",
+                "dashboard-nav-slot__delta m-0 text-[length:var(--ct-text-xs)] font-semibold tabular-nums",
                 navDelta >= 0 ? "text-[var(--ct-accent)]" : "text-[var(--ct-status-danger)]",
               )}
             >

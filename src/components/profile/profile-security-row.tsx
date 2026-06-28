@@ -23,7 +23,7 @@ export function ProfileSecurityRow({
           aria-hidden
           className={cn(
             "mt-1.5 size-2 shrink-0 rounded-full",
-            status === "ok" && "bg-[#A7FB90]",
+            status === "ok" && "bg-[var(--ct-accent)]",
             status === "warn" && "bg-amber-400",
             status === "off" && "bg-zinc-600",
           )}
