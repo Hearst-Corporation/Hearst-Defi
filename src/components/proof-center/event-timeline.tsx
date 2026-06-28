@@ -60,14 +60,14 @@ function eventTimelineCardTitle(
 }
 
 /**
- * Bento dot tone — accent #A7FB90 for positive on-chain proofs, white tints for
+ * Bento dot tone — accent var(--ct-accent) for positive on-chain proofs, white tints for
  * neutral/state changes, never any non-canonical green.
  */
 function eventDotClass(kind: EventKind): string {
   if (kind === "GuardrailBreach") return "bg-red-400 ring-red-400/15";
   if (kind === "TriggerArmed") return "bg-amber-300 ring-amber-300/15";
   if (kind === "Distribution" || kind === "AttestationPublished") {
-    return "bg-[#A7FB90] ring-[#A7FB90]/15";
+    return "bg-[var(--ct-accent)] ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]";
   }
   if (kind === "ModeChange") return "bg-white/30 ring-white/10";
   return "bg-white/60 ring-white/10";
@@ -144,7 +144,7 @@ function EventTimelineItem({
               href={`${EXPLORER_TX_BASE}${event.txHash}`}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-[#A7FB90] no-underline transition-colors hover:underline"
+              className="text-[var(--ct-accent)] no-underline transition-colors hover:underline"
               title={event.txHash}
               aria-label={`View transaction ${event.txHash} on explorer`}
             >

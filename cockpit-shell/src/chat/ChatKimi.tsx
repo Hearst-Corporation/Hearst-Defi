@@ -135,9 +135,9 @@ const MARKDOWN_PROSE = cn(
   "[&_strong]:font-bold [&_strong]:text-white [&_em]:italic [&_em]:opacity-90",
   // Lists
   "[&_ul]:my-2 [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:my-1",
-  "[&_li]:marker:text-[#A7FB90]",
+  "[&_li]:marker:text-[var(--ct-accent)]",
   // Code
-  "[&_code]:rounded [&_code]:bg-black/40 [&_code]:px-[5px] [&_code]:py-[2px] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[#A7FB90]",
+  "[&_code]:rounded [&_code]:bg-black/40 [&_code]:px-[5px] [&_code]:py-[2px] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[var(--ct-accent)]",
   "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/60 [&_pre]:p-3 [&_pre]:text-[12px] [&_pre]:font-mono",
   "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-zinc-300",
 );
@@ -342,7 +342,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           onClick={newConversation}
           title="New chat"
           aria-label="Start new conversation"
-          className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-[3px] text-[11px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[#A7FB90]/40 hover:text-white"
+          className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-[3px] text-[11px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-white"
         >
           + New
         </button>
@@ -359,7 +359,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
             {/* Assistant panel — hero premium, un seul panneau bento */}
             <div className="rounded-2xl border border-white/10 bg-black p-6 shadow-sm">
               <div className="flex flex-col items-center gap-3 text-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[#A7FB90]">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]">
                   <HearstMark size={26} />
                 </span>
                 <div className="flex flex-col gap-1.5">
@@ -418,7 +418,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         {/* Indicateur de réflexion : logo H sous la dernière bulle assistant pendant le streaming */}
         {streaming && (
           <div
-            className="flex animate-pulse items-center justify-start py-3 text-[#A7FB90]"
+            className="flex animate-pulse items-center justify-start py-3 text-[var(--ct-accent)]"
             aria-label="The assistant is thinking"
           >
             <HearstMark size={18} />
@@ -431,7 +431,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
             <button
               type="button"
               onClick={retryLast}
-              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[12px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[#A7FB90]/40 hover:text-[#A7FB90]"
+              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[12px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-accent)]"
               aria-label="Retry last message"
             >
               ↻ Retry
@@ -451,7 +451,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           aria-live="polite"
         >
           <span
-            className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#A7FB90]"
+            className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[var(--ct-accent)]"
             aria-hidden="true"
           />
           <span className="min-w-0 flex-1 truncate text-white">Queued · {queued}</span>
@@ -469,7 +469,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           Drafts are prepared in review mode. Nothing sends without confirmation.
         </div>
         <form
-          className="flex items-end gap-2 rounded-xl border border-white/10 bg-[#15191C] py-2 pl-3.5 pr-2 shadow-sm transition-colors duration-150 focus-within:border-[#A7FB90]/40"
+          className="flex items-end gap-2 rounded-xl border border-white/10 bg-[#15191C] py-2 pl-3.5 pr-2 shadow-sm transition-colors duration-150 focus-within:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]"
           onSubmit={(e) => {
             e.preventDefault();
             handleSend(input);
@@ -558,7 +558,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
             "mb-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase leading-none tracking-[0.12em]",
             isUser
               ? "self-end text-zinc-500"
-              : "text-[#A7FB90] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#A7FB90] before:content-['']",
+              : "text-[var(--ct-accent)] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[var(--ct-accent)] before:content-['']",
           )}
         >
           {isUser ? "You" : "Assistant"}
@@ -566,9 +566,9 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
       ) : null}
       {isEmpty ? (
         <div className="inline-flex items-center gap-[3px]">
-          <span className="h-1 w-1 animate-pulse rounded-full bg-[#A7FB90]" />
-          <span className="h-1 w-1 animate-pulse rounded-full bg-[#A7FB90] [animation-delay:0.15s]" />
-          <span className="h-1 w-1 animate-pulse rounded-full bg-[#A7FB90] [animation-delay:0.3s]" />
+          <span className="h-1 w-1 animate-pulse rounded-full bg-[var(--ct-accent)]" />
+          <span className="h-1 w-1 animate-pulse rounded-full bg-[var(--ct-accent)] [animation-delay:0.15s]" />
+          <span className="h-1 w-1 animate-pulse rounded-full bg-[var(--ct-accent)] [animation-delay:0.3s]" />
         </div>
       ) : isUser ? (
         <p className="m-0 whitespace-pre-wrap italic text-white/90">{msg.content}</p>
@@ -602,7 +602,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
 /** Curseur de streaming — barre accent qui pulse en fin de texte. */
 function StreamCursor() {
   return (
-    <span className="ml-0.5 inline-block h-[1.1em] w-0.5 animate-pulse bg-[#A7FB90] align-text-bottom shadow-[0_0_8px_#A7FB90]" />
+    <span className="ml-0.5 inline-block h-[1.1em] w-0.5 animate-pulse bg-[var(--ct-accent)] align-text-bottom shadow-[0_0_8px_var(--ct-accent)]" />
   );
 }
 
@@ -639,7 +639,7 @@ function ChatChartCard({ chart }: { chart: ChatChart }) {
       </div>
       <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-white/10" aria-hidden="true">
         <span
-          className="block h-full rounded-[inherit] bg-[#A7FB90] transition-[width] duration-150"
+          className="block h-full rounded-[inherit] bg-[var(--ct-accent)] transition-[width] duration-150"
           style={{ width: `${Math.max(4, Math.min(100, chart.progress))}%` }}
         />
       </div>
@@ -661,7 +661,7 @@ function ChartVisual({ chart }: { chart: ChatChart }) {
 /** Skeleton de chargement d'un chart — barre balayée par un gradient accent. */
 function ChartSkeleton() {
   return (
-    <div className="mt-1.5 h-[76px] animate-pulse rounded-lg bg-gradient-to-r from-transparent via-[#A7FB90]/15 to-transparent bg-white/5" />
+    <div className="mt-1.5 h-[76px] animate-pulse rounded-lg bg-gradient-to-r from-transparent via-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] to-transparent bg-white/5" />
   );
 }
 
@@ -710,7 +710,7 @@ function DistributionRange({ chart }: { chart: ChatChart }) {
     .join(" ");
   return (
     <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
-      <polyline points={highs} fill="none" className="stroke-[#A7FB90] [stroke-width:2.2]" />
+      <polyline points={highs} fill="none" className="stroke-[var(--ct-accent)] [stroke-width:2.2]" />
       <polyline points={lows} fill="none" className="stroke-[#60a5fa] [stroke-width:2.2]" />
       <line x1="18" y1="58" x2="238" y2="58" className="stroke-white/10 [stroke-width:1]" />
       <text x="18" y="70" className="fill-zinc-500 text-[8px]">M1</text>
@@ -736,7 +736,7 @@ function StressCorridor({ chart }: { chart: ChatChart }) {
           cx={20 + index * 70}
           cy={70 - (point.value ?? 0) * 0.7}
           r="3.5"
-          className="fill-[#A7FB90]"
+          className="fill-[var(--ct-accent)]"
         />
       ))}
     </svg>

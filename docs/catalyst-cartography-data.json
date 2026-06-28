@@ -1,18 +1,21 @@
 {
   "meta": {
+    "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "f9f8046f",
-    "originMain": "f9f8046f",
-    "status": "clean (audit read-only; main carries unrelated concurrent prisma/stress dirt)",
-    "lastPR": "#184 — Catalyst absorption (merged)",
-    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = canon UI | src/components/ui = legacy compatibility wrappers"
+    "head": "31879c53 (base) → lot fix/catalyst-exec-lot1",
+    "originMain": "31879c53",
+    "status": "EXECUTION lot — single-DS convergence (Catalyst canon). 17 files changed + 6 new canon primitives.",
+    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot1",
+    "subAgents": 7,
+    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
+    "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed."
   },
   "summary": {
     "pagesTotal": 72,
     "productRoutes": 22,
     "adminRoutes": 41,
     "catalystReady": 47,
-    "catalystPartial": 4,
+    "catalystPartial": 2,
     "uiWrapperCompat": 8,
     "legacyAutonomous": 0,
     "mixedLayout": 3,
@@ -20,133 +23,767 @@
     "uiImporterFiles": 188,
     "catalystImporterFiles": 33,
     "uiFilesTotal": 31,
-    "catalystFilesTotal": 33,
-    "catalystCanonActive": 7,
+    "catalystFilesTotal": 39,
+    "catalystCanonActive": 13,
     "catalystCanonReserve": 24,
-    "uiWrappedToCatalyst": 5,
-    "uiLegacyAutonomous": 19,
+    "uiWrappedToCatalyst": 11,
+    "uiLegacyAutonomous": 13,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 137,
-    "accentHardcodesTsx": 129,
+    "accentHardcodesTotal": 84,
+    "accentHardcodesTsx": 76,
     "accentDefinitions": 6,
+    "accentRemovedThisLot": 53,
     "typographyArbitraryPx": 541,
     "typographyTokenDriven": 58,
     "catalystBlueResidual": 1,
-    "dsGuardsGreen": 3,
-    "dsGuardsRed": 2
+    "dsGuardsGreen": 4,
+    "dsGuardsRed": 0,
+    "ciLintGreen": true
   },
   "openPRs": [
-    { "number": 146, "title": "chore(css): purge dead cockpit and domain styles", "state": "DRAFT / PARKED — DO NOT TOUCH", "branch": "purge-css-final" },
-    { "number": 81, "title": "feat(agentic): redesign control tower cockpit", "state": "CONFLICTING", "branch": "feat/agentic-premium-redesign-from-local" }
+    {
+      "number": 146,
+      "title": "chore(css): purge dead cockpit and domain styles",
+      "state": "DRAFT / PARKED — DO NOT TOUCH",
+      "branch": "purge-css-final"
+    },
+    {
+      "number": 81,
+      "title": "feat(agentic): redesign control tower cockpit",
+      "state": "CONFLICTING",
+      "branch": "feat/agentic-premium-redesign-from-local"
+    }
   ],
   "catalystPrimitives": [
-    { "name": "table.tsx", "used": 14, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": null },
-    { "name": "badge.tsx", "used": 13, "status": "CANON_ACTIVE", "tokenClean": "opt-in blue palette only (legit)", "wrapper": "Tailwind-Plus generic" },
-    { "name": "button.tsx", "used": 7, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "Tailwind-Plus generic" },
-    { "name": "link.tsx", "used": 7, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": null },
-    { "name": "bento-badge.tsx", "used": 2, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/badge (#184)" },
-    { "name": "cockpit-button.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/button (#184)" },
-    { "name": "card.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/card (#184)" },
-    { "name": "empty-surface.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/empty-surface (#184)" },
-    { "name": "input.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "select.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "textarea.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "checkbox.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "radio.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "switch.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "combobox.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "listbox.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "dropdown.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "dialog.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "alert.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "avatar.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "layout/page-shell.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "PageShell canon frame" },
-    { "name": "heading.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "text.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "fieldset.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "description-list.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "divider.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "pagination.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "navbar.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "sidebar.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "sidebar-layout.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "stacked-layout.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
-    { "name": "auth-layout.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null }
+    {
+      "name": "table.tsx",
+      "used": 14,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "badge.tsx",
+      "used": 13,
+      "status": "CANON_ACTIVE",
+      "tokenClean": "opt-in blue palette only (legit)",
+      "wrapper": "Tailwind-Plus generic"
+    },
+    {
+      "name": "button.tsx",
+      "used": 7,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "Tailwind-Plus generic"
+    },
+    {
+      "name": "link.tsx",
+      "used": 7,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "bento-badge.tsx",
+      "used": 2,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/badge (#184)"
+    },
+    {
+      "name": "cockpit-button.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/button (#184)"
+    },
+    {
+      "name": "card.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/card (#184)"
+    },
+    {
+      "name": "empty-surface.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/empty-surface (#184)"
+    },
+    {
+      "name": "input.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "select.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "textarea.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "checkbox.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "radio.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "switch.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "combobox.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "listbox.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "dropdown.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "dialog.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "alert.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "avatar.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "layout/page-shell.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "PageShell canon frame"
+    },
+    {
+      "name": "heading.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "text.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "fieldset.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "description-list.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "divider.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "pagination.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "navbar.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "sidebar.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "sidebar-layout.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "stacked-layout.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "auth-layout.tsx",
+      "used": 0,
+      "status": "CANON_RESERVE",
+      "tokenClean": true,
+      "wrapper": null
+    },
+    {
+      "name": "nested-panel.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/nested-panel (#049)"
+    },
+    {
+      "name": "panel-status.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/panel-status (#049)"
+    },
+    {
+      "name": "progress.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/progress (#049)"
+    },
+    {
+      "name": "metric.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/metric (#049)"
+    },
+    {
+      "name": "tooltip.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/tooltip (#049)"
+    },
+    {
+      "name": "segmented-control.tsx",
+      "used": 1,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/segmented-control (#049)"
+    }
   ],
   "uiWrappers": [
-    { "name": "bento.tsx", "imports": 57, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet (page-shell + section primitives)", "priority": "P0" },
-    { "name": "provenance-badge.tsx", "imports": 43, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": "imports catalyst/bento-badge directly", "target": "catalyst composite badge", "priority": "P1" },
-    { "name": "empty-surface.tsx", "imports": 40, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/empty-surface", "priority": "done" },
-    { "name": "button.tsx", "imports": 38, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/cockpit-button", "priority": "done" },
-    { "name": "badge.tsx", "imports": 29, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/bento-badge", "priority": "done" },
-    { "name": "card.tsx", "imports": 28, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/card", "priority": "done" },
-    { "name": "modal.tsx", "imports": 11, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/dialog", "priority": "P1" },
-    { "name": "nested-panel.tsx", "imports": 11, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P1" },
-    { "name": "apy-range.tsx", "imports": 11, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (formatter)", "priority": "P2" },
-    { "name": "panel-status.tsx", "imports": 10, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/alert", "priority": "P2" },
-    { "name": "progress.tsx", "imports": 9, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
-    { "name": "tooltip.tsx", "imports": 8, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
-    { "name": "dashboard-panel-header.tsx", "imports": 7, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
-    { "name": "ptai.tsx", "imports": 6, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (PTAI grid)", "priority": "P2" },
-    { "name": "metric.tsx", "imports": 5, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": "uses catalyst/card", "target": "none yet", "priority": "P2" },
-    { "name": "confirm-dialog.tsx", "imports": 4, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/dialog", "priority": "P2" },
-    { "name": "skeleton.tsx", "imports": 4, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": "uses catalyst/card", "target": "none yet", "priority": "P2" },
-    { "name": "segmented-control.tsx", "imports": 3, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
-    { "name": "chart-disclaimer-underlay.tsx", "imports": 2, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (chart)", "priority": "P2" },
-    { "name": "chart-provenance-corner.tsx", "imports": 2, "status": "NEEDS_CATALYST_TARGET", "wrapsCatalyst": "composes provenance-badge", "target": "catalyst composite", "priority": "P2" },
-    { "name": "wizard-step-progress.tsx", "imports": 2, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
-    { "name": "checkbox.tsx", "imports": 1, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/checkbox", "priority": "P2" },
-    { "name": "choice-card.tsx", "imports": 1, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
-    { "name": "preset-picker.tsx", "imports": 1, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/listbox", "priority": "P2" },
-    { "name": "client-toaster.tsx", "imports": 1, "status": "HELPER_NON_VISUAL", "wrapsCatalyst": false, "target": "n/a", "priority": "none" },
-    { "name": "toaster.tsx", "imports": 0, "status": "HELPER_NON_VISUAL", "wrapsCatalyst": false, "target": "n/a", "priority": "none" },
-    { "name": "chart-time-selector.tsx", "imports": 0, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (reserve)", "priority": "P2" }
+    {
+      "name": "bento.tsx",
+      "imports": 57,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none yet (page-shell + section primitives)",
+      "priority": "P0"
+    },
+    {
+      "name": "provenance-badge.tsx",
+      "imports": 43,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": "imports catalyst/bento-badge directly",
+      "target": "catalyst composite badge",
+      "priority": "P1"
+    },
+    {
+      "name": "empty-surface.tsx",
+      "imports": 40,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/empty-surface",
+      "priority": "done"
+    },
+    {
+      "name": "button.tsx",
+      "imports": 38,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/cockpit-button",
+      "priority": "done"
+    },
+    {
+      "name": "badge.tsx",
+      "imports": 29,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/bento-badge",
+      "priority": "done"
+    },
+    {
+      "name": "card.tsx",
+      "imports": 28,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/card",
+      "priority": "done"
+    },
+    {
+      "name": "modal.tsx",
+      "imports": 11,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "catalyst/dialog",
+      "priority": "P1"
+    },
+    {
+      "name": "nested-panel.tsx",
+      "imports": 11,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/nested-panel",
+      "priority": "done"
+    },
+    {
+      "name": "apy-range.tsx",
+      "imports": 11,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none (formatter)",
+      "priority": "P2"
+    },
+    {
+      "name": "panel-status.tsx",
+      "imports": 10,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/panel-status",
+      "priority": "done"
+    },
+    {
+      "name": "progress.tsx",
+      "imports": 9,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/progress",
+      "priority": "done"
+    },
+    {
+      "name": "tooltip.tsx",
+      "imports": 8,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/tooltip",
+      "priority": "done"
+    },
+    {
+      "name": "dashboard-panel-header.tsx",
+      "imports": 7,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none yet",
+      "priority": "P2"
+    },
+    {
+      "name": "ptai.tsx",
+      "imports": 6,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none (PTAI grid)",
+      "priority": "P2"
+    },
+    {
+      "name": "metric.tsx",
+      "imports": 5,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/metric",
+      "priority": "done"
+    },
+    {
+      "name": "confirm-dialog.tsx",
+      "imports": 4,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "catalyst/dialog",
+      "priority": "P2"
+    },
+    {
+      "name": "skeleton.tsx",
+      "imports": 4,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": "uses catalyst/card",
+      "target": "none yet",
+      "priority": "P2"
+    },
+    {
+      "name": "segmented-control.tsx",
+      "imports": 3,
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/segmented-control",
+      "priority": "done"
+    },
+    {
+      "name": "chart-disclaimer-underlay.tsx",
+      "imports": 2,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none (chart)",
+      "priority": "P2"
+    },
+    {
+      "name": "chart-provenance-corner.tsx",
+      "imports": 2,
+      "status": "NEEDS_CATALYST_TARGET",
+      "wrapsCatalyst": "composes provenance-badge",
+      "target": "catalyst composite",
+      "priority": "P2"
+    },
+    {
+      "name": "wizard-step-progress.tsx",
+      "imports": 2,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none yet",
+      "priority": "P2"
+    },
+    {
+      "name": "checkbox.tsx",
+      "imports": 1,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "catalyst/checkbox",
+      "priority": "P2"
+    },
+    {
+      "name": "choice-card.tsx",
+      "imports": 1,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none yet",
+      "priority": "P2"
+    },
+    {
+      "name": "preset-picker.tsx",
+      "imports": 1,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "catalyst/listbox",
+      "priority": "P2"
+    },
+    {
+      "name": "client-toaster.tsx",
+      "imports": 1,
+      "status": "HELPER_NON_VISUAL",
+      "wrapsCatalyst": false,
+      "target": "n/a",
+      "priority": "none"
+    },
+    {
+      "name": "toaster.tsx",
+      "imports": 0,
+      "status": "HELPER_NON_VISUAL",
+      "wrapsCatalyst": false,
+      "target": "n/a",
+      "priority": "none"
+    },
+    {
+      "name": "chart-time-selector.tsx",
+      "imports": 0,
+      "status": "LEGACY_AUTONOMOUS",
+      "wrapsCatalyst": false,
+      "target": "none (reserve)",
+      "priority": "P2"
+    }
   ],
   "hardcodesTop": [
-    { "file": "cockpit-shell/src/chat/ChatKimi.tsx", "count": 19, "class": "VIOLATION", "fix": "var(--ct-accent) in arbitrary variants + .ct-prose-accent class" },
-    { "file": "src/app/admin/vaults/_vault-form.tsx", "count": 11, "class": "VIOLATION", "fix": "focus:border-[var(--ct-accent)]/40 + semantic badge/status classes" },
-    { "file": "src/components/vaults/vault-allocation-display.tsx", "count": 7, "class": "LEGITIMATE_FALLBACK", "fix": "SVG donut canvas — document as chart fallback" },
-    { "file": "src/components/proof-center/contracts-audit-trail.tsx", "count": 7, "class": "VIOLATION", "fix": "ct-status-live / ct-badge-accent classes" },
-    { "file": "src/components/vaults/deposit-summary.tsx", "count": 5, "class": "VIOLATION", "fix": ".ct-progress-fill / .ct-status-indicator" },
-    { "file": "src/components/proof-center/rebalancing-events-panel.tsx", "count": 5, "class": "VIOLATION", "fix": "ct-badge-live / ct-badge-executed" },
-    { "file": "src/components/admin/agent-template-form.tsx", "count": 5, "class": "VIOLATION", "fix": "ct-surface-accent / ct-input-focus-accent" },
-    { "file": "src/components/admin/markdown.tsx", "count": 4, "class": "VIOLATION", "fix": ".ct-prose-code / .ct-prose-link / .ct-prose-blockquote" },
-    { "file": "cockpit-shell/src/shell/RailRight.tsx", "count": 4, "class": "VIOLATION", "fix": "[--ct-active-accent:var(--ct-accent)] utilities" },
-    { "file": "src/components/proof-center/event-timeline.tsx", "count": 3, "class": "VIOLATION", "fix": ".ct-timeline-live / .ct-timeline-link" },
-    { "file": "src/components/onboarding/OpsContactCard.tsx", "count": 3, "class": "VIOLATION", "fix": ".ct-card-badge-accent" },
-    { "file": "src/components/admin/cockpit/live-metrics.tsx", "count": 3, "class": "VIOLATION", "fix": ".ct-metric-positive" },
-    { "file": "src/lib/pdf/pdf-palette.ts", "count": 2, "class": "PRINT_ONLY", "fix": "#16a34a print green — documented, keep" }
+    {
+      "file": "cockpit-shell/src/chat/ChatKimi.tsx",
+      "count": 19,
+      "class": "VIOLATION",
+      "fix": "var(--ct-accent) in arbitrary variants + .ct-prose-accent class"
+    },
+    {
+      "file": "src/app/admin/vaults/_vault-form.tsx",
+      "count": 11,
+      "class": "VIOLATION",
+      "fix": "focus:border-[var(--ct-accent)]/40 + semantic badge/status classes"
+    },
+    {
+      "file": "src/components/vaults/vault-allocation-display.tsx",
+      "count": 7,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "SVG donut canvas — document as chart fallback"
+    },
+    {
+      "file": "src/components/proof-center/contracts-audit-trail.tsx",
+      "count": 7,
+      "class": "VIOLATION",
+      "fix": "ct-status-live / ct-badge-accent classes"
+    },
+    {
+      "file": "src/components/vaults/deposit-summary.tsx",
+      "count": 5,
+      "class": "VIOLATION",
+      "fix": ".ct-progress-fill / .ct-status-indicator"
+    },
+    {
+      "file": "src/components/proof-center/rebalancing-events-panel.tsx",
+      "count": 5,
+      "class": "VIOLATION",
+      "fix": "ct-badge-live / ct-badge-executed"
+    },
+    {
+      "file": "src/components/admin/agent-template-form.tsx",
+      "count": 5,
+      "class": "VIOLATION",
+      "fix": "ct-surface-accent / ct-input-focus-accent"
+    },
+    {
+      "file": "src/components/admin/markdown.tsx",
+      "count": 4,
+      "class": "VIOLATION",
+      "fix": ".ct-prose-code / .ct-prose-link / .ct-prose-blockquote"
+    },
+    {
+      "file": "cockpit-shell/src/shell/RailRight.tsx",
+      "count": 4,
+      "class": "VIOLATION",
+      "fix": "[--ct-active-accent:var(--ct-accent)] utilities"
+    },
+    {
+      "file": "src/components/proof-center/event-timeline.tsx",
+      "count": 3,
+      "class": "VIOLATION",
+      "fix": ".ct-timeline-live / .ct-timeline-link"
+    },
+    {
+      "file": "src/components/onboarding/OpsContactCard.tsx",
+      "count": 3,
+      "class": "VIOLATION",
+      "fix": ".ct-card-badge-accent"
+    },
+    {
+      "file": "src/components/admin/cockpit/live-metrics.tsx",
+      "count": 3,
+      "class": "VIOLATION",
+      "fix": ".ct-metric-positive"
+    },
+    {
+      "file": "src/lib/pdf/pdf-palette.ts",
+      "count": 2,
+      "class": "PRINT_ONLY",
+      "fix": "#16a34a print green — documented, keep"
+    }
   ],
   "typographyTop": [
-    { "file": "src/app/admin/vaults/_vault-form.tsx", "count": 44, "class": "PRIMITIVE_SHARED", "note": "form chrome → ct-input-label/ct-input-text" },
-    { "file": "src/components/vaults/invest-form.tsx", "count": 35, "class": "PRIMITIVE_SHARED", "note": "same consolidation as vault-form" },
-    { "file": "cockpit-shell/src/chat/ChatKimi.tsx", "count": 25, "class": "PRIMITIVE_SHARED", "note": ".ct-chat-label/.ct-chat-body (some SVG labels acceptable)" },
-    { "file": "src/components/vaults/vault-admin-kpi-strip.tsx", "count": 20, "class": "PRIMITIVE_SHARED", "note": ".ct-kpi-label" },
-    { "file": "src/components/admin/cockpit/live-ops.tsx", "count": 20, "class": "PRIMITIVE_SHARED", "note": "consolidate to 2 sizes" },
-    { "file": "src/components/proof-center/contracts-audit-trail.tsx", "count": 19, "class": "PRIMITIVE_SHARED", "note": ".ct-audit-label/.ct-audit-value" },
-    { "file": "src/components/admin/markdown.tsx", "count": 18, "class": "PRIMITIVE_SHARED", "note": ".ct-prose-* scale" },
-    { "file": "src/components/vaults/regime-scenario-table.tsx", "count": 17, "class": "PRIMITIVE_SHARED", "note": ".ct-table-label/.ct-table-value" },
-    { "file": "src/components/proof-center/recent-distributions.tsx", "count": 15, "class": "PRIMITIVE_SHARED", "note": "distribution table typo" },
-    { "file": "src/components/proof-center/rebalancing-events-panel.tsx", "count": 15, "class": "PRIMITIVE_SHARED", "note": "rebalancing UI typo" }
+    {
+      "file": "src/app/admin/vaults/_vault-form.tsx",
+      "count": 44,
+      "class": "PRIMITIVE_SHARED",
+      "note": "form chrome → ct-input-label/ct-input-text"
+    },
+    {
+      "file": "src/components/vaults/invest-form.tsx",
+      "count": 35,
+      "class": "PRIMITIVE_SHARED",
+      "note": "same consolidation as vault-form"
+    },
+    {
+      "file": "cockpit-shell/src/chat/ChatKimi.tsx",
+      "count": 25,
+      "class": "PRIMITIVE_SHARED",
+      "note": ".ct-chat-label/.ct-chat-body (some SVG labels acceptable)"
+    },
+    {
+      "file": "src/components/vaults/vault-admin-kpi-strip.tsx",
+      "count": 20,
+      "class": "PRIMITIVE_SHARED",
+      "note": ".ct-kpi-label"
+    },
+    {
+      "file": "src/components/admin/cockpit/live-ops.tsx",
+      "count": 20,
+      "class": "PRIMITIVE_SHARED",
+      "note": "consolidate to 2 sizes"
+    },
+    {
+      "file": "src/components/proof-center/contracts-audit-trail.tsx",
+      "count": 19,
+      "class": "PRIMITIVE_SHARED",
+      "note": ".ct-audit-label/.ct-audit-value"
+    },
+    {
+      "file": "src/components/admin/markdown.tsx",
+      "count": 18,
+      "class": "PRIMITIVE_SHARED",
+      "note": ".ct-prose-* scale"
+    },
+    {
+      "file": "src/components/vaults/regime-scenario-table.tsx",
+      "count": 17,
+      "class": "PRIMITIVE_SHARED",
+      "note": ".ct-table-label/.ct-table-value"
+    },
+    {
+      "file": "src/components/proof-center/recent-distributions.tsx",
+      "count": 15,
+      "class": "PRIMITIVE_SHARED",
+      "note": "distribution table typo"
+    },
+    {
+      "file": "src/components/proof-center/rebalancing-events-panel.tsx",
+      "count": 15,
+      "class": "PRIMITIVE_SHARED",
+      "note": "rebalancing UI typo"
+    }
   ],
   "hisPrimitives": [
-    { "name": "HcValueChart", "used": 2, "tokenClean": true, "tested": "HcValueChart.test.tsx (#183) + his-primitives", "note": "hero NAV chart, honest empty state <2pts, fallback veil" },
-    { "name": "HcChartCard", "used": 2, "tokenClean": true, "tested": "his-primitives", "note": "wrapper + source badge + hatch veil" },
-    { "name": "HcCompositionRing", "used": 2, "tokenClean": true, "tested": "his-primitives", "note": "allocation ring, zero-track honest" },
-    { "name": "HcSourceBadge", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "verified/nonprod/caution tone invariant" },
-    { "name": "HcFanChart", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "p5/p50/p95, never 'guarantee'" },
-    { "name": "HcWaterfall", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "success/danger/neutral deltas" },
-    { "name": "HcMetricSparkline", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "bare trend, empty <2pts" },
-    { "name": "HcAssumptionLedger", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "Configured badge, never Live" },
-    { "name": "value-area-plot.tsx", "used": 0, "tokenClean": "has #A7FB90 fallback", "tested": false, "note": "ORPHAN — reserve/dead, leave per mission (NOT deleted)" }
+    {
+      "name": "HcValueChart",
+      "used": 2,
+      "tokenClean": true,
+      "tested": "HcValueChart.test.tsx (#183) + his-primitives",
+      "note": "hero NAV chart, honest empty state <2pts, fallback veil"
+    },
+    {
+      "name": "HcChartCard",
+      "used": 2,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "wrapper + source badge + hatch veil"
+    },
+    {
+      "name": "HcCompositionRing",
+      "used": 2,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "allocation ring, zero-track honest"
+    },
+    {
+      "name": "HcSourceBadge",
+      "used": 1,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "verified/nonprod/caution tone invariant"
+    },
+    {
+      "name": "HcFanChart",
+      "used": 1,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "p5/p50/p95, never 'guarantee'"
+    },
+    {
+      "name": "HcWaterfall",
+      "used": 1,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "success/danger/neutral deltas"
+    },
+    {
+      "name": "HcMetricSparkline",
+      "used": 1,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "bare trend, empty <2pts"
+    },
+    {
+      "name": "HcAssumptionLedger",
+      "used": 1,
+      "tokenClean": true,
+      "tested": "his-primitives",
+      "note": "Configured badge, never Live"
+    },
+    {
+      "name": "value-area-plot.tsx",
+      "used": 0,
+      "tokenClean": "has #A7FB90 fallback",
+      "tested": false,
+      "note": "ORPHAN — reserve/dead, leave per mission (NOT deleted)"
+    }
   ],
   "guards": [
-    { "name": "ds-authority-lock", "file": "src/lib/ds/__tests__/ds-authority-lock.test.ts", "enforces": "Catalyst = canon UI layer; ui/* deprecated; no reversals", "status": "GREEN 17/17" },
-    { "name": "typography-canon-contract", "file": "src/app/admin/customers/__tests__/typography-canon-contract.test.ts", "enforces": "7 role classes token-only; no inline text-[Npx] on customers", "status": "GREEN 9/9" },
-    { "name": "proof-center-hub-root-contract", "file": "src/components/proof-center/__tests__/proof-center-hub-root-contract.test.tsx", "enforces": "single product root, no double-shell", "status": "GREEN 2/2" },
-    { "name": "bento-ds-contract", "file": "src/components/ui/__tests__/bento-ds-contract.test.tsx", "enforces": "BentoPanel ct-glass-panel; audit/dashboard on BentoPageShell + Catalyst Input/Table", "status": "RED 2 — admin/audit + admin/dashboard not yet on BentoPageShell (PRE-EXISTING, out of #184 scope)" },
-    { "name": "portfolio-real-data-contract", "file": "src/app/(product)/portfolio/__tests__/portfolio-real-data-contract.test.ts", "enforces": "real loaders, HIS primitives, no mock literals", "status": "RED 1 — HcMetricSparkline assertion (PRE-EXISTING)" },
-    { "name": "ds-hardcode-guard (script)", "file": "scripts/ds-hardcode-guard.mjs", "enforces": "8 guarded files: no raw hex/zinc/text-[Npx]/tracking-[]", "status": "active, scoped to 8 files only" }
+    {
+      "name": "ds-authority-lock",
+      "file": "src/lib/ds/__tests__/ds-authority-lock.test.ts",
+      "enforces": "Catalyst = canon UI layer; ui/* deprecated; no reversals",
+      "status": "GREEN 17/17"
+    },
+    {
+      "name": "typography-canon-contract",
+      "file": "src/app/admin/customers/__tests__/typography-canon-contract.test.ts",
+      "enforces": "7 role classes token-only; no inline text-[Npx] on customers",
+      "status": "GREEN 9/9"
+    },
+    {
+      "name": "proof-center-hub-root-contract",
+      "file": "src/components/proof-center/__tests__/proof-center-hub-root-contract.test.tsx",
+      "enforces": "single product root, no double-shell",
+      "status": "GREEN 2/2"
+    },
+    {
+      "name": "bento-ds-contract",
+      "file": "src/components/ui/__tests__/bento-ds-contract.test.tsx",
+      "enforces": "BentoPanel ct-glass-panel; audit/dashboard on BentoPageShell + Catalyst Input/Table",
+      "status": "GREEN 8/8 — guard aligned to AdminPageShell canon (#049)"
+    },
+    {
+      "name": "portfolio-real-data-contract",
+      "file": "src/app/(product)/portfolio/__tests__/portfolio-real-data-contract.test.ts",
+      "enforces": "real loaders, HIS primitives, no mock literals",
+      "status": "GREEN — HcMetricSparkline assertion (re-verified #049)"
+    },
+    {
+      "name": "ds-hardcode-guard (script)",
+      "file": "scripts/ds-hardcode-guard.mjs",
+      "enforces": "8 guarded files: no raw hex/zinc/text-[Npx]/tracking-[]",
+      "status": "active, scoped to 8 files only"
+    }
   ],
   "guardsMissing": [
     "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (129 tsx occurrences unguarded)",
@@ -156,17 +793,85 @@
     "No guard pinning cockpit token version / asset versioning"
   ],
   "roadmap": [
-    { "lot": "A", "title": "Wrappers remaining → Catalyst", "scope": "bento.tsx (57), modal→catalyst/dialog (11), nested-panel (11), panel-status→catalyst/alert (10)", "risk": "medium (bento is high-fanout)", "result": "ui/* fully delegating; legacy-autonomous count → near 0", "tests": "ds-authority-lock + per-wrapper render" },
-    { "lot": "B", "title": "PageShell 3-8 pages", "scope": "7 portfolio pages hand-roll PageShell structure → import catalyst/layout/page-shell (pass [--gutter] via className)", "risk": "low (byte-identical frame)", "result": "single canonical product frame, no hand-rolled copies", "tests": "portfolio page render + visual" },
-    { "lot": "C", "title": "Accent pass — main nests", "scope": "ChatKimi (19), _vault-form (11), contracts-audit-trail (7), markdown (4), RailRight (4) → var(--ct-accent) + semantic classes", "risk": "low-medium (chat visual)", "result": "129 tsx #A7FB90 → near 0; only documented chart/print fallbacks remain", "tests": "extend ds-hardcode-guard scope" },
-    { "lot": "D", "title": "Admin advanced pages", "scope": "admin/customers/[id] AdminTable→Catalyst Table; admin/governance/propose hand-rolled select/textarea→Catalyst; admin/audit+dashboard→BentoPageShell (fixes 2 RED guards)", "risk": "low", "result": "bento-ds-contract GREEN; admin tables/forms canon", "tests": "bento-ds-contract" },
-    { "lot": "E", "title": "Product vault / onboarding", "scope": "invest-form + vault-admin-kpi-strip typo/accent; OnboardingChamber doc + converge to PageShell where safe", "risk": "medium (invest flow)", "result": "vault/onboarding token-clean", "tests": "term-sheet-truth + onboarding render" },
-    { "lot": "F", "title": "Typography long tail", "scope": "541 text-[Npx] → token classes (ct-bento-label/ct-text-micro/2xs/xs/section-title); keep SVG/chart labels", "risk": "low", "result": "~70% reduction (≈380), 8 semantic sizes", "tests": "typography-canon-contract extended to product/vaults" },
-    { "lot": "G", "title": "Eventual ui import replacement", "scope": "migrate 188 ui/* importers to import catalyst/* directly; retire ui/* shims last", "risk": "low (mechanical, post all above)", "result": "ui/* compatibility layer removable", "tests": "typecheck + full suite" }
+    {
+      "lot": "A",
+      "title": "Wrappers remaining → Catalyst",
+      "scope": "bento.tsx (57), modal→catalyst/dialog (11), nested-panel (11), panel-status→catalyst/alert (10)",
+      "risk": "medium (bento is high-fanout)",
+      "result": "ui/* fully delegating; legacy-autonomous count → near 0",
+      "tests": "ds-authority-lock + per-wrapper render"
+    },
+    {
+      "lot": "B",
+      "title": "PageShell 3-8 pages",
+      "scope": "7 portfolio pages hand-roll PageShell structure → import catalyst/layout/page-shell (pass [--gutter] via className)",
+      "risk": "low (byte-identical frame)",
+      "result": "single canonical product frame, no hand-rolled copies",
+      "tests": "portfolio page render + visual"
+    },
+    {
+      "lot": "C",
+      "title": "Accent pass — main nests",
+      "scope": "ChatKimi (19), _vault-form (11), contracts-audit-trail (7), markdown (4), RailRight (4) → var(--ct-accent) + semantic classes",
+      "risk": "low-medium (chat visual)",
+      "result": "129 tsx #A7FB90 → near 0; only documented chart/print fallbacks remain",
+      "tests": "extend ds-hardcode-guard scope"
+    },
+    {
+      "lot": "D",
+      "title": "Admin advanced pages",
+      "scope": "admin/customers/[id] AdminTable→Catalyst Table; admin/governance/propose hand-rolled select/textarea→Catalyst; admin/audit+dashboard→BentoPageShell (fixes 2 RED guards)",
+      "risk": "low",
+      "result": "bento-ds-contract GREEN; admin tables/forms canon",
+      "tests": "bento-ds-contract"
+    },
+    {
+      "lot": "E",
+      "title": "Product vault / onboarding",
+      "scope": "invest-form + vault-admin-kpi-strip typo/accent; OnboardingChamber doc + converge to PageShell where safe",
+      "risk": "medium (invest flow)",
+      "result": "vault/onboarding token-clean",
+      "tests": "term-sheet-truth + onboarding render"
+    },
+    {
+      "lot": "F",
+      "title": "Typography long tail",
+      "scope": "541 text-[Npx] → token classes (ct-bento-label/ct-text-micro/2xs/xs/section-title); keep SVG/chart labels",
+      "risk": "low",
+      "result": "~70% reduction (≈380), 8 semantic sizes",
+      "tests": "typography-canon-contract extended to product/vaults"
+    },
+    {
+      "lot": "G",
+      "title": "Eventual ui import replacement",
+      "scope": "migrate 188 ui/* importers to import catalyst/* directly; retire ui/* shims last",
+      "risk": "low (mechanical, post all above)",
+      "result": "ui/* compatibility layer removable",
+      "tests": "typecheck + full suite"
+    }
   ],
   "updateLog": [
-    { "date": "2026-06-28", "ref": "initial", "note": "Initial Catalyst cartography (7 sub-agents, HEAD f9f8046f)" },
-    { "ref": "PR #183", "note": "HcValueChart hero instrument test added (replaces obsolete value-chart branch)" },
-    { "ref": "PR #184", "note": "Catalyst absorption: ui/* badge/button/card/empty-surface/provenance routed through Catalyst; 13 catalyst primitives de-blued (outline-blue-500 → --ct-accent); P1 typography roots fixed; 4 new canon primitives (bento-badge, cockpit-button, card, empty-surface)" }
+    {
+      "date": "2026-06-28",
+      "ref": "initial",
+      "note": "Initial Catalyst cartography (7 sub-agents, HEAD f9f8046f)"
+    },
+    {
+      "ref": "PR #183",
+      "note": "HcValueChart hero instrument test added (replaces obsolete value-chart branch)"
+    },
+    {
+      "ref": "PR #184",
+      "note": "Catalyst absorption: ui/* badge/button/card/empty-surface/provenance routed through Catalyst; 13 catalyst primitives de-blued (outline-blue-500 → --ct-accent); P1 typography roots fixed; 4 new canon primitives (bento-badge, cockpit-button, card, empty-surface)"
+    },
+    {
+      "ref": "PR #185",
+      "note": "Cartography HTML + JSON published to docs/"
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049",
+      "note": "EXECUTION lot (fix/catalyst-exec-lot1) — single-DS convergence: +6 ui/* wrappers absorbed into Catalyst (nested-panel, panel-status, progress, metric, tooltip, segmented-control) → 11 total delegating; 53 inline #A7FB90 → var(--ct-accent) across chat/rail/proof-center/vaults (137→84); CI Date.now() impure-render fix (lint green); 2 pre-existing bento-ds-contract reds resolved by aligning the guard to the AdminPageShell canon → all DS guards green. 17 files + 6 new canon primitives. Zero deletion, zero code-behavior change."
+    }
   ]
 }

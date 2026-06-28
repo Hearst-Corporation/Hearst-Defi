@@ -80,7 +80,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       select: { subscribedAt: true },
     });
     if (position) {
-      const elapsed = Math.floor((Date.now() - position.subscribedAt.getTime()) / MS_PER_DAY);
+      const elapsed = Math.floor((new Date().getTime() - position.subscribedAt.getTime()) / MS_PER_DAY);
       currentDay = Math.min(LOCK_DAYS, Math.max(0, elapsed));
     }
   }

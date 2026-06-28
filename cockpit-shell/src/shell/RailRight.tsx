@@ -39,7 +39,7 @@ const TITLES: Record<string, string> = {
 // Bento toolbar button — shared treatment for history / settings / width / collapse.
 const TOOLBAR_BTN =
   "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/10 text-zinc-400 transition-colors duration-150 hover:text-white hover:border-white/20";
-const TOOLBAR_BTN_ACTIVE = "text-[#A7FB90] border-[#A7FB90]/30";
+const TOOLBAR_BTN_ACTIVE = "text-[var(--ct-accent)] border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)]";
 
 function toolbarBtnClass(active: boolean): string {
   return active ? `${TOOLBAR_BTN} ${TOOLBAR_BTN_ACTIVE}` : TOOLBAR_BTN;
@@ -86,7 +86,7 @@ export function RailRight() {
       <div className="ct-rail-right-header flex items-center gap-2 border-b border-white/10">
         {open && (
           <span className="flex min-w-0 flex-1 items-center gap-2.5">
-            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#A7FB90]/20 bg-[#A7FB90]/10 text-[#A7FB90]">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]">
               <HearstMark size={16} />
               <span
                 className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0B0E10]${streaming ? " animate-pulse" : ""}`}
@@ -99,8 +99,8 @@ export function RailRight() {
                 <span className="truncate text-[15px] font-medium leading-none text-white">
                   {TITLES[view] ?? "Assistant"}
                 </span>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded border border-[#A7FB90]/20 bg-[#A7FB90]/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-[#A7FB90]">
-                  <span className="h-1 w-1 rounded-full bg-[#A7FB90]" />
+                <span className="inline-flex shrink-0 items-center gap-1 rounded border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-widest text-[var(--ct-accent)]">
+                  <span className="h-1 w-1 rounded-full bg-[var(--ct-accent)]" />
                   Ready
                 </span>
               </span>

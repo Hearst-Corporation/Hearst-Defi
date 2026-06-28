@@ -122,7 +122,7 @@ export function RecentDistributions({
                   </span>
                   <ProvenanceBadge variant="strip" kind={provenance} />
                 </div>
-                <span className="text-[13px] font-medium text-[#A7FB90] tabular-nums">
+                <span className="text-[13px] font-medium text-[var(--ct-accent)] tabular-nums">
                   {formatUsdCompact(d.amountUsdc)}
                 </span>
               </div>
@@ -149,7 +149,7 @@ export function RecentDistributions({
                       target="_blank"
                       rel="noreferrer noopener"
                       className={cn(
-                        "inline-flex items-center gap-1 text-[13px] font-medium text-[#A7FB90] transition-colors duration-150 hover:text-[#A7FB90]/80",
+                        "inline-flex items-center gap-1 text-[13px] font-medium text-[var(--ct-accent)] transition-colors duration-150 hover:text-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)]",
                       )}
                       title={d.txHash}
                       aria-label={`View transaction ${d.txHash} on explorer`}

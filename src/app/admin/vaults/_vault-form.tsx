@@ -117,7 +117,7 @@ function isValidSigner(raw: string): boolean {
 // Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
 // accent (#A7FB90) focus ring. One source for every native control in the form.
 const BENTO_INPUT =
-  "w-full rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none";
+  "w-full rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 const BENTO_FIELD_HINT = "text-[12px] text-zinc-600";
 const BENTO_LABEL =
   "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
@@ -404,9 +404,9 @@ export function VaultForm(props: VaultFormProps) {
                   className={cn(
                     "flex size-7 items-center justify-center rounded-full border font-mono text-[12px] transition-colors",
                     isActive &&
-                      "border-[#A7FB90] text-[#A7FB90] ring-2 ring-[#A7FB90]/15",
+                      "border-[var(--ct-accent)] text-[var(--ct-accent)] ring-2 ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]",
                     isCompleted &&
-                      "border-[#A7FB90] bg-[#A7FB90] text-zinc-900",
+                      "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-zinc-900",
                     !isActive &&
                       !isCompleted &&
                       "border-white/10 bg-surface-inset text-zinc-600",
@@ -643,7 +643,7 @@ export function VaultForm(props: VaultFormProps) {
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
                 precision={1}
-                className="text-[18px] font-medium tabular-nums text-[#A7FB90]"
+                className="text-[18px] font-medium tabular-nums text-[var(--ct-accent)]"
               />
             </div>
           </div>
@@ -658,7 +658,7 @@ export function VaultForm(props: VaultFormProps) {
               <span
                 className={cn(
                   "font-semibold",
-                  allocTotal() === 10000 ? "text-[#A7FB90]" : "text-red-400",
+                  allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-red-400",
                 )}
               >
                 {allocTotal()} / 10 000
@@ -688,7 +688,7 @@ export function VaultForm(props: VaultFormProps) {
                     step={50}
                     value={form[key]}
                     onChange={(e) => setAllocationBps(key, e.target.value)}
-                    className="w-full accent-[#A7FB90]"
+                    className="w-full accent-[var(--ct-accent)]"
                     aria-label={`${label} allocation`}
                   />
                   <Progress value={form[key]} max={10000} label={`${label} allocation`} className="h-1" />
@@ -901,7 +901,7 @@ export function VaultForm(props: VaultFormProps) {
                         className={cn(
                           "rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors",
                           active
-                            ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
+                            ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
                             : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10",
                           disabled && "cursor-not-allowed opacity-40",
                         )}
@@ -961,7 +961,7 @@ export function VaultForm(props: VaultFormProps) {
                     low={form.targetApyLowBps / 100}
                     high={form.targetApyHighBps / 100}
                     precision={1}
-                    className="text-[13px] tabular-nums text-[#A7FB90]"
+                    className="text-[13px] tabular-nums text-[var(--ct-accent)]"
                   />
                 </RecapRow>
               </FieldGrid>
@@ -995,7 +995,7 @@ export function VaultForm(props: VaultFormProps) {
                   <span
                     className={cn(
                       "font-mono text-[13px] font-semibold tabular-nums",
-                      allocTotal() === 10000 ? "text-[#A7FB90]" : "text-red-400",
+                      allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-red-400",
                     )}
                   >
                     {pct(allocTotal())}%

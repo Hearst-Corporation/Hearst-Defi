@@ -39,7 +39,7 @@ export function VaultAdminKpiStrip({
             low={facts.apyLow}
             high={facts.apyHigh}
             precision={1}
-            className="font-medium text-[#A7FB90]"
+            className="font-medium text-[var(--ct-accent)]"
           />
         </div>
         <p className="text-[10px] text-zinc-500 tracking-wide">Not guaranteed — estimated</p>
