@@ -11,7 +11,7 @@ import { generateActivationLink } from "@/app/admin/customers/[id]/actions";
 // the table/list density).
 const SECONDARY_SM = cn(
   BENTO_SECONDARY_BTN,
-  "px-3 py-1.5 text-[12px]",
+  "px-3 py-1.5 text-[length:var(--ct-text-2xs)]",
 );
 
 /**
@@ -58,12 +58,14 @@ export function ActivationLinkButton({ investorId }: { investorId: string }) {
       </button>
       {link && (
         <div className="flex flex-col gap-2">
-          <p className="m-0 text-[12px] text-zinc-500">
+          <p className="ct-metric-caption m-0">
             Share this one-time link so the investor can set a password and log
             in. Valid 7 days.
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            <code className="break-all font-mono text-[12px] text-zinc-300">{link}</code>
+            <code className="ct-metric-caption break-all font-mono text-[var(--ct-text-body)]">
+              {link}
+            </code>
             <button type="button" className={SECONDARY_SM} onClick={copy}>
               Copy
             </button>
