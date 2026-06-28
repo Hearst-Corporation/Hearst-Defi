@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hearst Connect — Catalyst Migration Cartography</title>
+<style>
+  :root{
+    --ct-accent:#A7FB90;
+    --bg-deep:#0a0c0d;
+    --bg-1:#101314;
+    --bg-2:#161a1c;
+    --bg-card:#13181a;
+    --border:#23292c;
+    --border-soft:#1b2023;
+    --text-strong:#f3f6f4;
+    --text:#c3cbc7;
+    --text-muted:#7e8a85;
+    --text-faint:#586460;
+    --green:#A7FB90;
+    --amber:#f4c674;
+    --red:#f08a8a;
+    --blue:#7fb0e8;
+    --radius:14px;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg-deep);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent,#A7FB90);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+  /* ---- layout shell ---- */
+  header.cover{padding:56px 0 40px;border-bottom:1px solid var(--border);background:
+     radial-gradient(900px 380px at 78% -8%, color-mix(in srgb, var(--ct-accent) 9%, transparent), transparent 70%),
+     linear-gradient(180deg, var(--bg-1), var(--bg-deep));}
+  .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ct-accent);font-weight:700;margin:0 0 14px}
+  h1{font-size:34px;line-height:1.1;margin:0 0 6px;color:var(--text-strong);font-weight:700;letter-spacing:-.02em}
+  h1 .lite{color:var(--ct-accent)}
+  .sub{color:var(--text-muted);font-size:15px;max-width:720px;margin:10px 0 0}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--bg-2);border:1px solid var(--border);border-radius:999px;padding:6px 13px;font-size:12px;color:var(--text)}
+  .chip b{color:var(--text-strong);font-weight:600}
+  .chip code{font-family:var(--mono);color:var(--ct-accent);font-size:11.5px}
+  .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .dot.green{background:var(--green)} .dot.amber{background:var(--amber)} .dot.red{background:var(--red)} .dot.blue{background:var(--blue)} .dot.muted{background:var(--text-faint)}
+  /* ---- nav ---- */
+  nav.toc{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg-deep) 92%, transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:11px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap}
+  nav.toc a{font-size:12px;color:var(--text-muted);padding:5px 10px;border-radius:8px;border:1px solid transparent;white-space:nowrap}
+  nav.toc a:hover{color:var(--text-strong);background:var(--bg-2);border-color:var(--border-soft);text-decoration:none}
+  /* ---- sections ---- */
+  section{padding:42px 0;border-bottom:1px solid var(--border-soft)}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin:0 0 22px}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--ct-accent);border:1px solid color-mix(in srgb,var(--ct-accent) 35%,transparent);border-radius:7px;padding:3px 8px}
+  h2{font-size:21px;margin:0;color:var(--text-strong);font-weight:650;letter-spacing:-.01em}
+  h3{font-size:15px;color:var(--text-strong);margin:26px 0 12px;font-weight:600}
+  p.lead{color:var(--text-muted);margin:0 0 18px;max-width:760px}
+  /* ---- cards/grid ---- */
+  .grid{display:grid;gap:14px}
+  .g-auto{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+  .g-2{grid-template-columns:repeat(2,1fr)} .g-3{grid-template-columns:repeat(3,1fr)} .g-4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:880px){.g-2,.g-3,.g-4{grid-template-columns:1fr}}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+  .stat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 17px;position:relative;overflow:hidden}
+  .stat .v{font-size:30px;font-weight:700;color:var(--text-strong);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted);margin-top:9px;font-weight:600}
+  .stat .h{font-size:11.5px;color:var(--text-faint);margin-top:4px}
+  .stat.accent .v{color:var(--ct-accent)}
+  .stat .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--ct-accent);opacity:.55}
+  /* ---- progress ---- */
+  .prog{height:10px;border-radius:999px;background:var(--bg-2);overflow:hidden;border:1px solid var(--border);display:flex}
+  .prog>span{display:block;height:100%}
+  .prog .s-green{background:var(--green)} .prog .s-amber{background:var(--amber)} .prog .s-blue{background:var(--blue)} .prog .s-red{background:var(--red)} .prog .s-muted{background:var(--text-faint)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px;color:var(--text-muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  /* ---- tables ---- */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{text-align:left;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-faint);font-weight:700;padding:9px 10px;border-bottom:1px solid var(--border);position:sticky;top:47px;background:var(--bg-deep);z-index:5}
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--border-soft);vertical-align:top;color:var(--text)}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:color-mix(in srgb,var(--text-strong) 2.5%,transparent)}
+  td code,.mono{font-family:var(--mono);font-size:11.5px;color:var(--text-muted)}
+  /* tables flow flat in the page — no bordered box, no inner scroll */
+  .tbl-wrap{overflow-x:auto}
+  .tbl-scroll{overflow:visible}
+  /* ---- badges ---- */
+  .b{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap;border:1px solid transparent}
+  .b-ready{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);border-color:color-mix(in srgb,var(--green) 30%,transparent)}
+  .b-partial{color:var(--amber);background:color-mix(in srgb,var(--amber) 12%,transparent);border-color:color-mix(in srgb,var(--amber) 30%,transparent)}
+  .b-compat{color:var(--blue);background:color-mix(in srgb,var(--blue) 12%,transparent);border-color:color-mix(in srgb,var(--blue) 28%,transparent)}
+  .b-legacy{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);border-color:color-mix(in srgb,var(--red) 30%,transparent)}
+  .b-mixed{color:#d9b3f0;background:color-mix(in srgb,#d9b3f0 12%,transparent);border-color:color-mix(in srgb,#d9b3f0 28%,transparent)}
+  .b-scope{color:var(--text-muted);background:var(--bg-2);border-color:var(--border)}
+  .b-active{color:var(--green);background:color-mix(in srgb,var(--green) 10%,transparent);border-color:color-mix(in srgb,var(--green) 26%,transparent)}
+  .b-reserve{color:var(--text-muted);background:var(--bg-2);border-color:var(--border)}
+  .b-p0{color:var(--red);font-weight:800}.b-p1{color:var(--amber)}.b-p2{color:var(--text-muted)}
+  .pill{font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:6px;background:var(--bg-2);border:1px solid var(--border-soft);color:var(--text-muted)}
+  .pill.hot{color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,transparent)}
+  .pill.ok{color:var(--green);border-color:color-mix(in srgb,var(--green) 28%,transparent)}
+  /* ---- filters ---- */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;align-items:center}
+  .filters input{background:var(--bg-2);border:1px solid var(--border);border-radius:9px;color:var(--text-strong);padding:7px 11px;font-size:12.5px;min-width:220px;font-family:var(--sans)}
+  .filters input::placeholder{color:var(--text-faint)}
+  .fbtn{font-size:11.5px;color:var(--text-muted);background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;cursor:pointer;font-family:var(--sans)}
+  .fbtn:hover{color:var(--text-strong);border-color:var(--border)}
+  .fbtn.on{color:var(--bg-deep);background:var(--ct-accent);border-color:var(--ct-accent);font-weight:700}
+  .count-note{font-size:11.5px;color:var(--text-faint);margin-left:auto}
+  /* ---- doctrine diagram ---- */
+  .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12.5px;color:var(--text);margin:6px 0}
+  .node{background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:8px 13px;font-weight:600;color:var(--text-strong)}
+  .node.accent{border-color:color-mix(in srgb,var(--ct-accent) 40%,transparent);color:var(--ct-accent)}
+  .node.legacy{border-color:color-mix(in srgb,var(--blue) 35%,transparent);color:var(--blue)}
+  .arr{color:var(--text-faint);font-size:16px}
+  /* ---- collapsible ---- */
+  details{border:1px solid var(--border);border-radius:var(--radius);margin:12px 0;background:var(--bg-card);overflow:hidden}
+  details>summary{cursor:pointer;padding:14px 18px;font-weight:600;color:var(--text-strong);list-style:none;display:flex;align-items:center;gap:10px}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary::before{content:"▸";color:var(--ct-accent);font-size:12px}
+  details[open]>summary::before{content:"▾"}
+  details .body{padding:0 18px 16px}
+  /* ---- heatmap ---- */
+  .heat{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .cell{width:max-content;font-family:var(--mono);font-size:10.5px;padding:4px 8px;border-radius:6px;border:1px solid var(--border-soft);color:var(--text-muted)}
+  .h1n{background:color-mix(in srgb,var(--red) 22%,transparent);color:#ffd6d6;border-color:transparent}
+  .h2n{background:color-mix(in srgb,var(--red) 13%,transparent);color:#f6b4b4;border-color:transparent}
+  .h3n{background:color-mix(in srgb,var(--amber) 13%,transparent);color:#f3d199;border-color:transparent}
+  .h4n{background:color-mix(in srgb,var(--ct-accent) 10%,transparent);color:#cdeec0;border-color:transparent}
+  /* ---- roadmap ---- */
+  .lot{display:grid;grid-template-columns:46px 1fr;gap:14px;padding:15px 0;border-bottom:1px solid var(--border-soft)}
+  .lot .tag{font-family:var(--mono);font-weight:800;font-size:15px;color:var(--ct-accent);background:var(--bg-2);border:1px solid var(--border);border-radius:9px;height:38px;display:flex;align-items:center;justify-content:center}
+  .lot h4{margin:0 0 5px;font-size:14px;color:var(--text-strong)}
+  .lot .d{font-size:12.5px;color:var(--text-muted)}
+  .lot .d b{color:var(--text)}
+  .risk{font-size:10.5px;padding:1px 7px;border-radius:6px;font-weight:700}
+  .risk.low{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent)}
+  .risk.med{color:var(--amber);background:color-mix(in srgb,var(--amber) 12%,transparent)}
+  /* ---- update log ---- */
+  .log{position:relative;padding-left:22px}
+  .log::before{content:"";position:absolute;left:5px;top:4px;bottom:4px;width:1px;background:var(--border)}
+  .log .ev{position:relative;padding:0 0 16px}
+  .log .ev::before{content:"";position:absolute;left:-20px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--ct-accent);border:2px solid var(--bg-deep)}
+  .log .ev .r{font-family:var(--mono);font-size:11px;color:var(--ct-accent)}
+  .log .ev .n{font-size:12.5px;color:var(--text);margin-top:2px}
+  footer{padding:34px 0 60px;color:var(--text-faint);font-size:11.5px}
+  .note{font-size:11.5px;color:var(--text-faint);font-style:italic;margin-top:8px}
+  hr.soft{border:0;border-top:1px solid var(--border-soft);margin:22px 0}
+  @media print{nav.toc{display:none}body{background:#fff;color:#000}.card,.stat,.tbl-wrap{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="cover"><div class="wrap">
+  <p class="kicker">Hearst Connect · Design System</p>
+  <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
+  <p class="sub">Living page-by-page map of the Catalyst absorption — where every product &amp; admin surface stands, which primitives are canon, which <code>ui/*</code> wrappers already delegate, and the token/typography debt that remains. Updated each migration lot.</p>
+  <div class="meta-row">
+    <span class="chip"><span class="dot green"></span><b>Audit</b> 2026-06-28</span>
+    <span class="chip"><b>HEAD</b> <code>f9f8046f</code></span>
+    <span class="chip"><b>origin/main</b> <code>f9f8046f</code></span>
+    <span class="chip"><span class="dot green"></span>post <b>PR&nbsp;#184</b> (Catalyst absorption)</span>
+    <span class="chip"><span class="dot amber"></span>PR <b>#146</b> parked · PR <b>#81</b> conflicting</span>
+    <span class="chip"><b>worktrees</b> main + docs only</span>
+  </div>
+  <p class="note">Read-only cartography produced by 7 parallel sub-agents. No <code>src/</code>, <code>cockpit-shell/</code>, Prisma, CSS-runtime, branch, PR or <code>#146</code> change. The only writes are these <code>docs/catalyst-cartography.*</code> files.</p>
+</div></header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#dashboard">Dashboard</a>
+  <a href="#doctrine">Doctrine</a>
+  <a href="#matrix">Page matrix</a>
+  <a href="#product">Product</a>
+  <a href="#admin">Admin</a>
+  <a href="#primitives">Catalyst primitives</a>
+  <a href="#wrappers">ui/* wrappers</a>
+  <a href="#layout">Layout</a>
+  <a href="#accent">Accent debt</a>
+  <a href="#typo">Typography</a>
+  <a href="#charts">Charts / HIS</a>
+  <a href="#truth">Data truth</a>
+  <a href="#guards">Guards</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#log">Update log</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- ===================== 2. DASHBOARD ===================== -->
+<section id="dashboard">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Catalyst migration dashboard</h2></div>
+  <p class="lead">72 routes audited (22 product · 41 admin · others). Catalyst is the canonical UI layer; <code>src/components/ui</code> is a temporary compatibility façade. After PR&nbsp;#184 there are <b>zero legacy-autonomous pages</b> — every page either imports Catalyst directly or via a wrapper that already delegates to Catalyst.</p>
+
+  <div class="grid g-4">
+    <div class="stat accent"><div class="v">72</div><div class="l">Pages total</div><div class="h">22 product · 41 admin · 9 other</div><span class="bar" style="width:100%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--green)">47</div><div class="l">Catalyst-ready</div><div class="h">direct or via converted wrapper</div><span class="bar" style="width:65%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">4</div><div class="l">Catalyst-partial</div><div class="h">keeps a few legacy bits</div><span class="bar s-amber" style="width:6%;background:var(--amber)"></span></div>
+    <div class="stat"><div class="v" style="color:var(--blue)">8</div><div class="l">UI wrapper compat</div><div class="h">ui/* façade — acceptable</div><span class="bar" style="width:11%;background:var(--blue)"></span></div>
+    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">Legacy autonomous</div><div class="h">none — clean post #184</div></div>
+    <div class="stat"><div class="v" style="color:#d9b3f0">3</div><div class="l">Mixed layout</div><div class="h">divergent shells (justified)</div></div>
+    <div class="stat"><div class="v">6</div><div class="l">Blocked by scope</div><div class="h">layouts / calc / redirects</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">7<span style="font-size:16px;color:var(--text-muted)">/31</span></div><div class="l">Catalyst canon active</div><div class="h">24 reserve primitives</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">5</div><div class="l">ui wrappers converted</div><div class="h">badge·button·card·empty·prov</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">19</div><div class="l">ui wrappers remaining</div><div class="h">autonomous (bento leads)</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">129</div><div class="l">#A7FB90 in tsx</div><div class="h">+6 legit defs · ~49 violation files</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">541</div><div class="l">text-[Npx] arbitrary</div><div class="h">58 already token-driven</div></div>
+  </div>
+
+  <h3>Page status distribution</h3>
+  <div class="prog" title="Catalyst-ready 47 · compat 8 · scope 6 · partial 4 · mixed 3">
+    <span class="s-green" style="width:65.3%"></span>
+    <span class="s-blue" style="width:11.1%"></span>
+    <span class="s-muted" style="width:8.3%"></span>
+    <span class="s-amber" style="width:5.6%"></span>
+    <span style="width:4.2%;background:#d9b3f0"></span>
+    <span class="s-muted" style="width:5.5%;opacity:.4"></span>
+  </div>
+  <div class="legend">
+    <span><span class="dot green"></span>Catalyst-ready 47</span>
+    <span><span class="dot blue"></span>UI wrapper compat 8</span>
+    <span><span class="dot muted"></span>Blocked by scope 6</span>
+    <span><span class="dot amber"></span>Partial 4</span>
+    <span><span class="dot" style="background:#d9b3f0"></span>Mixed layout 3</span>
+  </div>
+
+  <h3>ui/* wrapper conversion</h3>
+  <div class="prog" title="converted 5 · helper 2 · autonomous 19">
+    <span class="s-green" style="width:19.2%"></span>
+    <span class="s-blue" style="width:7.7%"></span>
+    <span class="s-amber" style="width:73.1%"></span>
+  </div>
+  <div class="legend">
+    <span><span class="dot green"></span>Wrapped → Catalyst 5</span>
+    <span><span class="dot blue"></span>Helper / non-visual 2</span>
+    <span><span class="dot amber"></span>Legacy autonomous 19</span>
+  </div>
+</section>
+
+<!-- ===================== 3. DOCTRINE ===================== -->
+<section id="doctrine">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Architecture doctrine</h2></div>
+  <div class="grid g-3">
+    <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">cockpit-shell/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Global 3-column shell (RailLeft · CenterPanel · RailRight chat) + layout + the <code>--ct-*</code> token source. CockpitShell wraps every product surface; page shells mount inside CenterPanel.</p></div>
+    <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">src/components/catalyst/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Canonical UI components — Button, Badge, Table, Input, Card, BentoBadge, CockpitButton, EmptySurface, PageShell. All tokenized via <code>--ct-*</code>; focus rings de-blued to <code>--ct-accent</code> (#184).</p></div>
+    <div class="card"><h3 style="margin-top:0;color:var(--blue)">src/components/ui/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Temporary legacy compatibility layer. 188 files still import it; 5 primitives already re-export Catalyst, 19 remain autonomous (migrating by lot). No new autonomous visual component should land here.</p></div>
+  </div>
+  <h3>Render paths</h3>
+  <div class="flow"><span class="node">Pages</span><span class="arr">→</span><span class="node legacy">ui/* wrapper (compat)</span><span class="arr">→</span><span class="node accent">Catalyst</span><span class="arr">→</span><span class="node">--ct-* tokens</span></div>
+  <div class="flow"><span class="node">Pages</span><span class="arr">→</span><span class="node accent">Catalyst direct</span><span class="arr">→</span><span class="node">--ct-* tokens</span></div>
+  <div class="flow"><span class="node accent">cockpit-shell</span><span class="arr">→</span><span class="node">layout rails + tokens</span></div>
+  <p class="note">Decision: nothing is deleted brutally; everything migrates progressively; <code>ui/*</code> becomes a façade; pages migrate by lot.</p>
+</section>
+
+<!-- ===================== 4. PAGE MATRIX ===================== -->
+<section id="matrix">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Page-by-page matrix</h2></div>
+  <p class="lead">Filterable. <b>STATUS</b> ∈ CATALYST_READY · CATALYST_PARTIAL · UI_WRAPPER_COMPAT · MIXED_LAYOUT · BLOCKED_BY_SCOPE. A page importing the converted wrappers (<code>ui/{badge,button,card,empty-surface}</code>) is <span class="b b-compat">COMPAT</span> — acceptable transitional.</p>
+  <div class="filters">
+    <input id="mfilter" type="text" placeholder="Filter route / file / shell…" oninput="filterMatrix()" />
+    <button class="fbtn on" data-z="all" onclick="zoneMatrix(this,'all')">All</button>
+    <button class="fbtn" data-z="Product" onclick="zoneMatrix(this,'Product')">Product</button>
+    <button class="fbtn" data-z="Admin" onclick="zoneMatrix(this,'Admin')">Admin</button>
+    <span class="count-note" id="mcount"></span>
+  </div>
+  <div class="tbl-wrap"><div class="tbl-scroll"><table id="matrix-tbl">
+    <thead><tr><th>Zone</th><th>Route</th><th>Shell</th><th>Catalyst</th><th>ui/*</th><th>Charts</th><th>Hard</th><th>Status</th><th>Pri</th><th>Next action</th></tr></thead>
+    <tbody id="matrix-body"></tbody>
+  </table></div></div>
+</section>
+
+<!-- ===================== 5. PRODUCT DETAIL ===================== -->
+<section id="product">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Product pages detail</h2></div>
+  <div class="grid g-3">
+    <div class="card"><h3 style="margin-top:0">Portfolio <span class="b b-ready">READY</span></h3><p style="font-size:12px;color:var(--text-muted)">7 leaf pages on the inline <code>bg-surface-page</code> frame (structurally = PageShell). Hero = <b>HcValueChart</b> (real NAV, honest empty). Catalyst Badge + Table direct. Token-clean.<br><b style="color:var(--text)">Next:</b> import PageShell component (Lot B).</p></div>
+    <div class="card"><h3 style="margin-top:0">Profile <span class="b b-compat">COMPAT</span></h3><p style="font-size:12px;color:var(--text-muted)">BentoPageShell + <code>ui/{badge,button}</code> façades (→ Catalyst). No hardcodes.<br><b style="color:var(--text)">Next:</b> verify grid token alignment.</p></div>
+    <div class="card"><h3 style="margin-top:0">Vaults <span class="b b-mixed">MIXED</span></h3><p style="font-size:12px;color:var(--text-muted)">InvestFlowShell (capped width + step bar). <code>/vaults/[id]</code> uses catalyst/button direct. invest-form carries the heaviest typo/accent debt.<br><b style="color:var(--text)">Next:</b> Lot E.</p></div>
+    <div class="card"><h3 style="margin-top:0">Proof center <span class="b b-partial">PARTIAL</span></h3><p style="font-size:12px;color:var(--text-muted)">Hub + full-log + cold layouts (Card grid / multi-section). server-only loader fixed (#184). Several #A7FB90 nests in trail/timeline panels.<br><b style="color:var(--text)">Next:</b> Lot C accent pass.</p></div>
+    <div class="card"><h3 style="margin-top:0">Onboarding <span class="b b-compat">COMPAT</span></h3><p style="font-size:12px;color:var(--text-muted)">OnboardingShell (max-w-2xl) + chamber surfaces. <code>ui/button</code> + <code>ui/empty-surface</code> façades. OpsContactCard has 3 #A7FB90.<br><b style="color:var(--text)">Next:</b> Lot E.</p></div>
+    <div class="card"><h3 style="margin-top:0">Tax / Yield / Activity <span class="b b-ready">READY</span></h3><p style="font-size:12px;color:var(--text-muted)">Portfolio leaves on the canonical inline frame; yield renders HcCompositionRing. Token-clean.<br><b style="color:var(--text)">Next:</b> fold into Lot B.</p></div>
+  </div>
+</section>
+
+<!-- ===================== 6. ADMIN DETAIL ===================== -->
+<section id="admin">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Admin pages detail</h2></div>
+  <p class="lead"><b>100% AdminPageShell adoption</b> across all admin routes; AdminSectionCard welded into ~27 pages (no card-in-card). 36 ready, a few partials around hand-rolled tables/forms.</p>
+  <div class="grid g-4">
+    <div class="card"><h3 style="margin-top:0;font-size:14px">Ready (36) <span class="b b-ready">READY</span></h3><p style="font-size:11.5px;color:var(--text-muted)">dashboard · agents · audit · customers · outreach · vaults · governance · distributions · signals · monitoring · roadmap · spec · security · source · proofs · feedback · investor-memo · product-workspace …</p></div>
+    <div class="card"><h3 style="margin-top:0;font-size:14px">customers/[id] <span class="b b-partial">PARTIAL</span></h3><p style="font-size:11.5px;color:var(--text-muted)">Hand-rolled AdminTable → migrate to Catalyst Table.<br><b style="color:var(--text)">Lot D.</b></p></div>
+    <div class="card"><h3 style="margin-top:0;font-size:14px">governance/propose <span class="b b-compat">COMPAT</span></h3><p style="font-size:11.5px;color:var(--text-muted)">Hand-rolled <code>&lt;select&gt;/&lt;textarea&gt;</code> → Catalyst Select/Textarea (reserve, ready).<br><b style="color:var(--text)">Lot D.</b></p></div>
+    <div class="card"><h3 style="margin-top:0;font-size:14px">audit + dashboard <span class="b b-partial">GUARD</span></h3><p style="font-size:11.5px;color:var(--text-muted)">bento-ds-contract RED — not yet on BentoPageShell / Catalyst Input+Table. Pre-existing, out of #184 scope.<br><b style="color:var(--text)">Lot D fixes it.</b></p></div>
+    <div class="card"><h3 style="margin-top:0;font-size:14px">projection · scenario-lab <span class="b b-scope">SCOPE</span></h3><p style="font-size:11.5px;color:var(--text-muted)">Layout on AdminPageShell ✓ — financial calculation display is <b>BLOCKED_BY_SCOPE</b> (do not touch math).</p></div>
+    <div class="card"><h3 style="margin-top:0;font-size:14px">marketplace <span class="b b-compat">COMPAT</span></h3><p style="font-size:11.5px;color:var(--text-muted)">Custom MarketKpiTile + apy-range/provenance wrappers; catalyst/table for grid.<br><b style="color:var(--text)">Lot D/F.</b></p></div>
+  </div>
+</section>
+
+<!-- ===================== 7. CATALYST PRIMITIVES ===================== -->
+<section id="primitives">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Catalyst primitives</h2></div>
+  <p class="lead">33 files. <b>7 CANON_ACTIVE</b> (imported by real surfaces) · <b>24 CANON_RESERVE</b> (Tailwind-Plus primitives kept ready). Residual color debt ≈ 0 — the only <code>blue-*</code> left is the opt-in <code>color="blue"</code> badge palette (never the default, never a focus ring).</p>
+  <div class="filters">
+    <input id="pfilter" type="text" placeholder="Filter primitive…" oninput="filterTable('cat-tbl','pfilter','pcount')" />
+    <button class="fbtn on" onclick="rowToggle('cat-tbl',this,'all')">All</button>
+    <button class="fbtn" onclick="rowToggle('cat-tbl',this,'CANON_ACTIVE')">Active</button>
+    <button class="fbtn" onclick="rowToggle('cat-tbl',this,'CANON_RESERVE')">Reserve</button>
+    <span class="count-note" id="pcount"></span>
+  </div>
+  <div class="tbl-wrap"><div class="tbl-scroll"><table id="cat-tbl">
+    <thead><tr><th>Primitive</th><th>Imports</th><th>Status</th><th>Token-clean</th><th>Wrapper relation</th></tr></thead>
+    <tbody id="cat-body"></tbody>
+  </table></div></div>
+</section>
+
+<!-- ===================== 8. UI WRAPPERS ===================== -->
+<section id="wrappers">
+  <div class="sec-head"><span class="sec-num">07</span><h2>ui/* legacy wrappers</h2></div>
+  <p class="lead">31 files. Highest leverage next targets by import-count: <b>bento.tsx (57)</b>, provenance-badge (43), modal/nested-panel (11). Sorted by import-count.</p>
+  <div class="filters">
+    <input id="ufilter" type="text" placeholder="Filter wrapper…" oninput="filterTable('ui-tbl','ufilter','ucount')" />
+    <button class="fbtn on" onclick="rowToggle('ui-tbl',this,'all')">All</button>
+    <button class="fbtn" onclick="rowToggle('ui-tbl',this,'WRAPPED_TO_CATALYST')">Wrapped</button>
+    <button class="fbtn" onclick="rowToggle('ui-tbl',this,'LEGACY_AUTONOMOUS')">Autonomous</button>
+    <span class="count-note" id="ucount"></span>
+  </div>
+  <div class="tbl-wrap"><div class="tbl-scroll"><table id="ui-tbl">
+    <thead><tr><th>ui/ file</th><th>Imports</th><th>Status</th><th>Delegates?</th><th>Catalyst target</th><th>Pri</th></tr></thead>
+    <tbody id="ui-body"></tbody>
+  </table></div></div>
+</section>
+
+<!-- ===================== 9. LAYOUT ===================== -->
+<section id="layout">
+  <div class="sec-head"><span class="sec-num">08</span><h2>Layout cartography</h2></div>
+  <div class="grid g-2">
+    <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">Canonical frames</h3>
+      <ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--text-muted)">
+        <li><b>CockpitShell</b> — global 3-col (rails + chat). <code>cockpit-shell/src/shell/</code></li>
+        <li><b>PageShell</b> — product page frame. <code>catalyst/layout/page-shell.tsx</code></li>
+        <li><b>AdminPageShell + AdminSectionCard</b> — admin grammar (26+ pages). <code>admin/admin-page-shell.tsx</code></li>
+      </ul>
+    </div>
+    <div class="card"><h3 style="margin-top:0;color:var(--blue)">Divergent / legacy frames</h3>
+      <ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--text-muted)">
+        <li><b>Portfolio inline ×7</b> — hand-rolls PageShell (token-clean) → componentize (Lot B)</li>
+        <li><b>InvestFlowShell</b> — capped width + step bar (justified)</li>
+        <li><b>OnboardingShell / Chamber</b> — narrow funnel + premium surface (justified)</li>
+        <li><b>ProofCenter Hub / FullLog / Cold</b> — specialized data views (justified)</li>
+        <li><b>BentoPageShell</b> — legacy, 1 import → deprecate toward PageShell</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">All page shells are cockpit-agnostic (mount inside CenterPanel; chat RailRight independent). No forced convergence for the justified divergent frames — only the 7 portfolio hand-rolls should converge to PageShell.</p>
+</section>
+
+<!-- ===================== 10. ACCENT DEBT ===================== -->
+<section id="accent">
+  <div class="sec-head"><span class="sec-num">09</span><h2>Accent / token debt</h2></div>
+  <p class="lead"><b>137</b> total <code>#A7FB90</code> (129 in tsx, 6 token definitions). Catalyst is blue-clean (1 opt-in palette entry). Worst nests below — fix = <code>var(--ct-accent)</code> + semantic classes.</p>
+  <h3>Top files by #A7FB90 (heatmap)</h3>
+  <div class="heat" id="accent-heat"></div>
+  <div class="tbl-wrap" style="margin-top:18px"><div class="tbl-scroll"><table id="acc-tbl">
+    <thead><tr><th>File</th><th>Count</th><th>Class</th><th>Safe replacement</th></tr></thead>
+    <tbody id="acc-body"></tbody>
+  </table></div></div>
+  <p class="note">LEGITIMATE_FALLBACK (vault-allocation SVG donut, pdf-palette print green) and the 6 token definitions are NOT violations. ~49 tsx files carry real inline-hex violations to migrate.</p>
+</section>
+
+<!-- ===================== 11. TYPOGRAPHY ===================== -->
+<section id="typo">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Typography debt</h2></div>
+  <p class="lead"><b>541</b> arbitrary <code>text-[Npx]</code> · <b>58</b> already token-driven (<code>text-[length:var()]</code>). Consolidating to ~8 semantic classes removes ≈70%.</p>
+  <div class="grid g-2">
+    <div class="card"><h3 style="margin-top:0">Top files by arbitrary px</h3>
+      <div class="tbl-wrap" style="border:0"><table id="typo-tbl"><thead><tr><th>File</th><th>Count</th><th>Class</th></tr></thead><tbody id="typo-body"></tbody></table></div>
+    </div>
+    <div class="card"><h3 style="margin-top:0">px → token replacement</h3>
+      <table><thead><tr><th>Arbitrary</th><th>Canon</th></tr></thead><tbody style="font-family:var(--mono);font-size:11.5px">
+        <tr><td>text-[10px]</td><td><span class="pill ok">ct-bento-label</span> / ct-text-nano (9px)</td></tr>
+        <tr><td>text-[11px]</td><td><span class="pill ok">--ct-text-micro</span></td></tr>
+        <tr><td>text-[12px]</td><td><span class="pill ok">--ct-text-2xs</span></td></tr>
+        <tr><td>text-[13px]</td><td><span class="pill ok">--ct-text-xs</span></td></tr>
+        <tr><td>text-[15px]</td><td><span class="pill ok">--ct-text-sm</span> / ct-section-title</td></tr>
+        <tr><td>text-[7-9px]</td><td><span class="pill">SVG/chart — acceptable</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 12. CHARTS / HIS ===================== -->
+<section id="charts">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Charts / HIS state</h2></div>
+  <p class="lead">9 HIS primitives — all token-clean &amp; tested. <b>HcValueChart</b> wired into <code>/portfolio</code>, fed by InvestorNavSnapshot → reconstructInvestorNavSeries, dedicated test since PR&nbsp;#183.</p>
+  <div class="tbl-wrap"><table id="his-tbl">
+    <thead><tr><th>Primitive</th><th>Imports</th><th>Token-clean</th><th>Test</th><th>Note</th></tr></thead>
+    <tbody id="his-body"></tbody>
+  </table></div>
+  <p class="note"><b>value-area-plot.tsx</b> = orphan (0 importers), pre-HIS canvas sparkline — classified RESERVE/DEAD, <b>left in place per mission</b> (no deletion).</p>
+</section>
+
+<!-- ===================== 13. DATA TRUTH ===================== -->
+<section id="truth">
+  <div class="sec-head"><span class="sec-num">12</span><h2>Data truth / provenance</h2></div>
+  <div class="grid g-2">
+    <div class="card"><h3 style="margin-top:0">No-false-live safeguards <span class="b b-ready">VERIFIED</span></h3>
+      <ul style="margin:0;padding-left:18px;font-size:12.5px;color:var(--text-muted)">
+        <li><b>Empty state:</b> HcValueChart <code>&lt;2 points → data-hc-empty</code>, never a fabricated line.</li>
+        <li><b>Fallback veil:</b> HcChartCard <code>state="fallback"</code> → 45° hatch overlay; fallback can't read as live.</li>
+        <li><b>Zero baseline:</b> y-axis always baselines at 0 (true climb).</li>
+        <li><b>Tone invariant:</b> live/oracle/attested = accent; mock/demo/unaudited = warning; estimated/stale = neutral.</li>
+      </ul>
+    </div>
+    <div class="card"><h3 style="margin-top:0">Provenance surfaces</h3>
+      <p style="font-size:12.5px;color:var(--text-muted);margin:0">ProvenanceBadge (43 importers, delegates to catalyst/bento-badge) + HcSourceBadge across portfolio value/allocation, yield, proof-center attestation tiles, vault invest-confirmed. 9 provenance kinds tracked (live · oracle · attested · estimated · partial · manual · stale · simulated · fallback).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 14. GUARDS ===================== -->
+<section id="guards">
+  <div class="sec-head"><span class="sec-num">13</span><h2>DS guards / tests</h2></div>
+  <p class="lead"><b>3 GREEN · 2 RED</b> (both pre-existing, out of #184 scope). Plus the <code>ds-hardcode-guard.mjs</code> script (scoped to 8 files).</p>
+  <div class="tbl-wrap"><table id="guard-tbl">
+    <thead><tr><th>Guard</th><th>Enforces</th><th>Status</th></tr></thead>
+    <tbody id="guard-body"></tbody>
+  </table></div>
+  <h3>Guards missing (next to add)</h3>
+  <ol style="font-size:12.5px;color:var(--text-muted);margin:0;padding-left:18px" id="guard-missing"></ol>
+</section>
+
+<!-- ===================== 15. ROADMAP ===================== -->
+<section id="roadmap">
+  <div class="sec-head"><span class="sec-num">14</span><h2>Migration roadmap</h2></div>
+  <div id="roadmap-body"></div>
+</section>
+
+<!-- ===================== 16. UPDATE LOG ===================== -->
+<section id="log">
+  <div class="sec-head"><span class="sec-num">15</span><h2>History / update log</h2></div>
+  <div class="log" id="log-body"></div>
+  <p class="note">Keep this file updated at each DS lot: re-run the 7-agent cartography, refresh the JSON, append an event here.</p>
+</section>
+
+</main>
+
+<footer class="wrap">
+  Hearst Connect · Catalyst Migration Cartography · generated 2026-06-28 · HEAD <code class="mono">f9f8046f</code> · read-only audit, no code touched.
+  Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
+</footer>
+
+<script>
+// ============ EMBEDDED DATA (mirror of catalyst-cartography-data.json) ============
+window.CARTO = {
+  pages: [
+    // PRODUCT
+    ["Product","/portfolio","inline bg-surface-page","Badge·Table","—","HcValueChart·Ring","0","CATALYST_READY","P1","Import PageShell (Lot B)"],
+    ["Product","/portfolio/[positionId]","inline bg-surface-page","Badge·Table","—","—","0","CATALYST_READY","P1","Verify status badge tones"],
+    ["Product","/portfolio/activity","inline bg-surface-page","—","—","—","0","CATALYST_READY","P1","RecentActivity alignment"],
+    ["Product","/portfolio/distributions","inline bg-surface-page","Badge·Table","—","—","0","CATALYST_READY","P1","Empty-state check"],
+    ["Product","/portfolio/positions","inline bg-surface-page","Badge·Table","—","—","0","CATALYST_READY","P1","Link styling"],
+    ["Product","/portfolio/tax","inline bg-surface-page","—","—","—","0","CATALYST_READY","P2","Token-clean"],
+    ["Product","/portfolio/yield","inline bg-surface-page","—","—","HcCompositionRing","0","CATALYST_READY","P2","Zero-alloc render"],
+    ["Product","/profile","BentoPageShell","—","badge·button (façade)","—","0","UI_WRAPPER_COMPAT","P1","Grid token alignment"],
+    ["Product","/vaults","InvestFlowShell","—","empty-surface (façade)","—","0","MIXED_LAYOUT","P1","Lot E"],
+    ["Product","/vaults/[id]","InvestFlowShell","Button","—","—","0","CATALYST_READY","P1","Term sheet check"],
+    ["Product","/vaults/[id]/invest","InvestFlowShell","—","—","—","heavy","MIXED_LAYOUT","P1","invest-form typo/accent (Lot E/F)"],
+    ["Product","/vaults/[id]/invest/confirmed","InvestFlowShell","—","ProvenanceBadge","—","0","MIXED_LAYOUT","P1","ProvenanceBadge bridge"],
+    ["Product","/proof-center","ProofCenterHubLayout","—","—","—","0","CATALYST_PARTIAL","P1","Lot C accent"],
+    ["Product","/proof-center/full","ProofCenterFullLogLayout","—","—","—","0","CATALYST_PARTIAL","P1","server-only ✓; accent pass"],
+    ["Product","/onboarding/accreditation","OnboardingChamber","—","button (façade)","—","0","UI_WRAPPER_COMPAT","P1","Lot E"],
+    ["Product","/onboarding/identity","IdentityChamber","—","—","—","0","CATALYST_READY","P2","Sumsub native"],
+    ["Product","/onboarding/wallet","WalletChamber","—","empty-surface (façade)","—","0","UI_WRAPPER_COMPAT","P2","Fallback state"],
+    ["Product","/apply","OnboardingChamber","—","—","—","0","BLOCKED_BY_SCOPE","none","Privy flow"],
+    ["Product","/login","split-screen","—","—","—","0","BLOCKED_BY_SCOPE","none","Wallet connect"],
+    // ADMIN
+    ["Admin","/admin/dashboard","AdminPageShell","—","—","—","0","CATALYST_PARTIAL","P0","bento-ds-contract RED → BentoPageShell (Lot D)"],
+    ["Admin","/admin/audit","AdminPageShell+SectionCard","badge·button·input·table","bento·empty-surface","—","0","CATALYST_PARTIAL","P0","bento-ds-contract RED (Lot D)"],
+    ["Admin","/admin/customers","AdminPageShell","badge·table","empty-surface","—","0","CATALYST_READY","P0","Complete"],
+    ["Admin","/admin/customers/[id]","AdminPageShell","badge","bento·empty-surface","—","0","CATALYST_PARTIAL","P0","AdminTable → Catalyst Table (Lot D)"],
+    ["Admin","/admin/agents","AdminPageShell+SectionCard","badge·table","bento","—","0","CATALYST_READY","P0","Complete"],
+    ["Admin","/admin/agents/new","AdminPageShell+SectionCard","—","—","—","0","CATALYST_READY","P1","AgentTemplateForm (5 #A7FB90)"],
+    ["Admin","/admin/agents/[id]","AdminPageShell","—","bento","—","0","CATALYST_READY","P1","Form only"],
+    ["Admin","/admin/agentic","AdminPageShell","—","—","—","0","CATALYST_READY","P1","Custom control tower"],
+    ["Admin","/admin/vaults","AdminPageShell+SectionCard","—","apy-range·bento·empty·progress·provenance","catalyst/table","0","CATALYST_READY","P0","Complete"],
+    ["Admin","/admin/vaults/new","AdminPageShell","—","—","—","0","CATALYST_READY","P0","VaultWizard"],
+    ["Admin","/admin/vaults/[id]","AdminPageShell","—","bento·panel-status","catalyst/table","0","CATALYST_READY","P0","Complete"],
+    ["Admin","/admin/vaults/[id]/edit","AdminPageShell","—","—","—","high","CATALYST_PARTIAL","P0","_vault-form: 11 #A7FB90, 44 px (Lot C/F)"],
+    ["Admin","/admin/governance","AdminPageShell+SectionCard","button","—","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/governance/propose","AdminPageShell+SectionCard","button","bento·empty-surface","—","1","UI_WRAPPER_COMPAT","P1","Hand-rolled select/textarea → Catalyst (Lot D)"],
+    ["Admin","/admin/governance/allowlist","AdminPageShell","—","—","—","0","CATALYST_READY","P1","Custom board"],
+    ["Admin","/admin/governance/proposal/[id]","AdminPageShell+SectionCard","badge","bento·ptai","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/distributions","AdminPageShell+SectionCard","—","apy-range·empty·provenance","catalyst/table","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/outreach","AdminPageShell+SectionCard","button·table","badge·empty-surface","—","0","CATALYST_READY","P0","Complete"],
+    ["Admin","/admin/outreach/compose","AdminPageShell+SectionCard","—","badge","—","0","CATALYST_READY","P1","DirectSendForm"],
+    ["Admin","/admin/outreach/[campaignId]","AdminPageShell+SectionCard","—","badge·empty-surface","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/outreach/prospects/[id]","AdminPageShell+SectionCard","table","badge·empty-surface","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/marketplace","AdminPageShell+SectionCard","—","apy-range·provenance","catalyst/table+grid","0","UI_WRAPPER_COMPAT","P1","MarketKpiTile custom (Lot D/F)"],
+    ["Admin","/admin/monitoring","AdminPageShell","—","—","—","0","CATALYST_READY","P1","Custom board"],
+    ["Admin","/admin/signals","AdminPageShell","—","empty-surface","—","0","CATALYST_READY","P1","Custom cards"],
+    ["Admin","/admin/roadmap","AdminPageShell","—","—","—","0","CATALYST_READY","P1","Custom board"],
+    ["Admin","/admin/security","AdminPageShell+SectionCard","—","—","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/source","AdminPageShell+SectionCard","—","bento","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/proofs","AdminPageShell+SectionCard","—","—","—","0","CATALYST_READY","P1","ProofList"],
+    ["Admin","/admin/proof-center","ProofCenterHubLayout","—","—","—","0","CATALYST_READY","P1","Delegated"],
+    ["Admin","/admin/spec","AdminPageShell","—","empty-surface","—","0","CATALYST_READY","P1","Empty state"],
+    ["Admin","/admin/spec/[slug]","AdminPageShell+SectionCard","—","—","—","4","CATALYST_PARTIAL","P1","markdown.tsx 4 #A7FB90 (Lot C)"],
+    ["Admin","/admin/feedback","AdminPageShell+SectionCard","—","—","—","0","CATALYST_READY","P1","Complete"],
+    ["Admin","/admin/investor-memo","AdminPageShell","—","—","—","0","CATALYST_READY","P1","MemoShell custom"],
+    ["Admin","/admin/product-workspace","AdminPageShell+SectionCard","heading","—","—","0","CATALYST_READY","P1","h2 fixed (a111eb82)"],
+    ["Admin","/admin/projection","AdminPageShell","—","—","—","0","BLOCKED_BY_SCOPE","P1","Layout ✓; calc do-not-touch"],
+    ["Admin","/admin/scenario-lab","AdminPageShell","—","—","—","0","BLOCKED_BY_SCOPE","P1","Layout ✓; calc do-not-touch"],
+    ["Admin","/admin/design-system","AdminPageShell+SectionCard","—","—","—","0","CATALYST_READY","P0","Reference page"]
+  ]
+};
+// catalyst / ui / accent / typo / his / guards / roadmap / log pulled from inline JSON below
+window.CARTO_DATA = {
+  "meta": {
+    "generatedAt": "2026-06-28",
+    "head": "f9f8046f",
+    "originMain": "f9f8046f",
+    "status": "clean (audit read-only; main carries unrelated concurrent prisma/stress dirt)",
+    "lastPR": "#184 — Catalyst absorption (merged)",
+    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = canon UI | src/components/ui = legacy compatibility wrappers"
+  },
+  "summary": {
+    "pagesTotal": 72,
+    "productRoutes": 22,
+    "adminRoutes": 41,
+    "catalystReady": 47,
+    "catalystPartial": 4,
+    "uiWrapperCompat": 8,
+    "legacyAutonomous": 0,
+    "mixedLayout": 3,
+    "blockedByScope": 6,
+    "uiImporterFiles": 188,
+    "catalystImporterFiles": 33,
+    "uiFilesTotal": 31,
+    "catalystFilesTotal": 33,
+    "catalystCanonActive": 7,
+    "catalystCanonReserve": 24,
+    "uiWrappedToCatalyst": 5,
+    "uiLegacyAutonomous": 19,
+    "uiHelperNonVisual": 2,
+    "accentHardcodesTotal": 137,
+    "accentHardcodesTsx": 129,
+    "accentDefinitions": 6,
+    "typographyArbitraryPx": 541,
+    "typographyTokenDriven": 58,
+    "catalystBlueResidual": 1,
+    "dsGuardsGreen": 3,
+    "dsGuardsRed": 2
+  },
+  "openPRs": [
+    { "number": 146, "title": "chore(css): purge dead cockpit and domain styles", "state": "DRAFT / PARKED — DO NOT TOUCH", "branch": "purge-css-final" },
+    { "number": 81, "title": "feat(agentic): redesign control tower cockpit", "state": "CONFLICTING", "branch": "feat/agentic-premium-redesign-from-local" }
+  ],
+  "catalystPrimitives": [
+    { "name": "table.tsx", "used": 14, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": null },
+    { "name": "badge.tsx", "used": 13, "status": "CANON_ACTIVE", "tokenClean": "opt-in blue palette only (legit)", "wrapper": "Tailwind-Plus generic" },
+    { "name": "button.tsx", "used": 7, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "Tailwind-Plus generic" },
+    { "name": "link.tsx", "used": 7, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": null },
+    { "name": "bento-badge.tsx", "used": 2, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/badge (#184)" },
+    { "name": "cockpit-button.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/button (#184)" },
+    { "name": "card.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/card (#184)" },
+    { "name": "empty-surface.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "← ui/empty-surface (#184)" },
+    { "name": "input.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "select.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "textarea.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "checkbox.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "radio.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "switch.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "combobox.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "listbox.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "dropdown.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "dialog.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "alert.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "avatar.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "layout/page-shell.tsx", "used": 1, "status": "CANON_ACTIVE", "tokenClean": true, "wrapper": "PageShell canon frame" },
+    { "name": "heading.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "text.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "fieldset.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "description-list.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "divider.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "pagination.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "navbar.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "sidebar.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "sidebar-layout.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "stacked-layout.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null },
+    { "name": "auth-layout.tsx", "used": 0, "status": "CANON_RESERVE", "tokenClean": true, "wrapper": null }
+  ],
+  "uiWrappers": [
+    { "name": "bento.tsx", "imports": 57, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet (page-shell + section primitives)", "priority": "P0" },
+    { "name": "provenance-badge.tsx", "imports": 43, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": "imports catalyst/bento-badge directly", "target": "catalyst composite badge", "priority": "P1" },
+    { "name": "empty-surface.tsx", "imports": 40, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/empty-surface", "priority": "done" },
+    { "name": "button.tsx", "imports": 38, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/cockpit-button", "priority": "done" },
+    { "name": "badge.tsx", "imports": 29, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/bento-badge", "priority": "done" },
+    { "name": "card.tsx", "imports": 28, "status": "WRAPPED_TO_CATALYST", "wrapsCatalyst": true, "target": "catalyst/card", "priority": "done" },
+    { "name": "modal.tsx", "imports": 11, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/dialog", "priority": "P1" },
+    { "name": "nested-panel.tsx", "imports": 11, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P1" },
+    { "name": "apy-range.tsx", "imports": 11, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (formatter)", "priority": "P2" },
+    { "name": "panel-status.tsx", "imports": 10, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/alert", "priority": "P2" },
+    { "name": "progress.tsx", "imports": 9, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
+    { "name": "tooltip.tsx", "imports": 8, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
+    { "name": "dashboard-panel-header.tsx", "imports": 7, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
+    { "name": "ptai.tsx", "imports": 6, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (PTAI grid)", "priority": "P2" },
+    { "name": "metric.tsx", "imports": 5, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": "uses catalyst/card", "target": "none yet", "priority": "P2" },
+    { "name": "confirm-dialog.tsx", "imports": 4, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/dialog", "priority": "P2" },
+    { "name": "skeleton.tsx", "imports": 4, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": "uses catalyst/card", "target": "none yet", "priority": "P2" },
+    { "name": "segmented-control.tsx", "imports": 3, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
+    { "name": "chart-disclaimer-underlay.tsx", "imports": 2, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (chart)", "priority": "P2" },
+    { "name": "chart-provenance-corner.tsx", "imports": 2, "status": "NEEDS_CATALYST_TARGET", "wrapsCatalyst": "composes provenance-badge", "target": "catalyst composite", "priority": "P2" },
+    { "name": "wizard-step-progress.tsx", "imports": 2, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
+    { "name": "checkbox.tsx", "imports": 1, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/checkbox", "priority": "P2" },
+    { "name": "choice-card.tsx", "imports": 1, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none yet", "priority": "P2" },
+    { "name": "preset-picker.tsx", "imports": 1, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "catalyst/listbox", "priority": "P2" },
+    { "name": "client-toaster.tsx", "imports": 1, "status": "HELPER_NON_VISUAL", "wrapsCatalyst": false, "target": "n/a", "priority": "none" },
+    { "name": "toaster.tsx", "imports": 0, "status": "HELPER_NON_VISUAL", "wrapsCatalyst": false, "target": "n/a", "priority": "none" },
+    { "name": "chart-time-selector.tsx", "imports": 0, "status": "LEGACY_AUTONOMOUS", "wrapsCatalyst": false, "target": "none (reserve)", "priority": "P2" }
+  ],
+  "hardcodesTop": [
+    { "file": "cockpit-shell/src/chat/ChatKimi.tsx", "count": 19, "class": "VIOLATION", "fix": "var(--ct-accent) in arbitrary variants + .ct-prose-accent class" },
+    { "file": "src/app/admin/vaults/_vault-form.tsx", "count": 11, "class": "VIOLATION", "fix": "focus:border-[var(--ct-accent)]/40 + semantic badge/status classes" },
+    { "file": "src/components/vaults/vault-allocation-display.tsx", "count": 7, "class": "LEGITIMATE_FALLBACK", "fix": "SVG donut canvas — document as chart fallback" },
+    { "file": "src/components/proof-center/contracts-audit-trail.tsx", "count": 7, "class": "VIOLATION", "fix": "ct-status-live / ct-badge-accent classes" },
+    { "file": "src/components/vaults/deposit-summary.tsx", "count": 5, "class": "VIOLATION", "fix": ".ct-progress-fill / .ct-status-indicator" },
+    { "file": "src/components/proof-center/rebalancing-events-panel.tsx", "count": 5, "class": "VIOLATION", "fix": "ct-badge-live / ct-badge-executed" },
+    { "file": "src/components/admin/agent-template-form.tsx", "count": 5, "class": "VIOLATION", "fix": "ct-surface-accent / ct-input-focus-accent" },
+    { "file": "src/components/admin/markdown.tsx", "count": 4, "class": "VIOLATION", "fix": ".ct-prose-code / .ct-prose-link / .ct-prose-blockquote" },
+    { "file": "cockpit-shell/src/shell/RailRight.tsx", "count": 4, "class": "VIOLATION", "fix": "[--ct-active-accent:var(--ct-accent)] utilities" },
+    { "file": "src/components/proof-center/event-timeline.tsx", "count": 3, "class": "VIOLATION", "fix": ".ct-timeline-live / .ct-timeline-link" },
+    { "file": "src/components/onboarding/OpsContactCard.tsx", "count": 3, "class": "VIOLATION", "fix": ".ct-card-badge-accent" },
+    { "file": "src/components/admin/cockpit/live-metrics.tsx", "count": 3, "class": "VIOLATION", "fix": ".ct-metric-positive" },
+    { "file": "src/lib/pdf/pdf-palette.ts", "count": 2, "class": "PRINT_ONLY", "fix": "#16a34a print green — documented, keep" }
+  ],
+  "typographyTop": [
+    { "file": "src/app/admin/vaults/_vault-form.tsx", "count": 44, "class": "PRIMITIVE_SHARED", "note": "form chrome → ct-input-label/ct-input-text" },
+    { "file": "src/components/vaults/invest-form.tsx", "count": 35, "class": "PRIMITIVE_SHARED", "note": "same consolidation as vault-form" },
+    { "file": "cockpit-shell/src/chat/ChatKimi.tsx", "count": 25, "class": "PRIMITIVE_SHARED", "note": ".ct-chat-label/.ct-chat-body (some SVG labels acceptable)" },
+    { "file": "src/components/vaults/vault-admin-kpi-strip.tsx", "count": 20, "class": "PRIMITIVE_SHARED", "note": ".ct-kpi-label" },
+    { "file": "src/components/admin/cockpit/live-ops.tsx", "count": 20, "class": "PRIMITIVE_SHARED", "note": "consolidate to 2 sizes" },
+    { "file": "src/components/proof-center/contracts-audit-trail.tsx", "count": 19, "class": "PRIMITIVE_SHARED", "note": ".ct-audit-label/.ct-audit-value" },
+    { "file": "src/components/admin/markdown.tsx", "count": 18, "class": "PRIMITIVE_SHARED", "note": ".ct-prose-* scale" },
+    { "file": "src/components/vaults/regime-scenario-table.tsx", "count": 17, "class": "PRIMITIVE_SHARED", "note": ".ct-table-label/.ct-table-value" },
+    { "file": "src/components/proof-center/recent-distributions.tsx", "count": 15, "class": "PRIMITIVE_SHARED", "note": "distribution table typo" },
+    { "file": "src/components/proof-center/rebalancing-events-panel.tsx", "count": 15, "class": "PRIMITIVE_SHARED", "note": "rebalancing UI typo" }
+  ],
+  "hisPrimitives": [
+    { "name": "HcValueChart", "used": 2, "tokenClean": true, "tested": "HcValueChart.test.tsx (#183) + his-primitives", "note": "hero NAV chart, honest empty state <2pts, fallback veil" },
+    { "name": "HcChartCard", "used": 2, "tokenClean": true, "tested": "his-primitives", "note": "wrapper + source badge + hatch veil" },
+    { "name": "HcCompositionRing", "used": 2, "tokenClean": true, "tested": "his-primitives", "note": "allocation ring, zero-track honest" },
+    { "name": "HcSourceBadge", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "verified/nonprod/caution tone invariant" },
+    { "name": "HcFanChart", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "p5/p50/p95, never 'guarantee'" },
+    { "name": "HcWaterfall", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "success/danger/neutral deltas" },
+    { "name": "HcMetricSparkline", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "bare trend, empty <2pts" },
+    { "name": "HcAssumptionLedger", "used": 1, "tokenClean": true, "tested": "his-primitives", "note": "Configured badge, never Live" },
+    { "name": "value-area-plot.tsx", "used": 0, "tokenClean": "has #A7FB90 fallback", "tested": false, "note": "ORPHAN — reserve/dead, leave per mission (NOT deleted)" }
+  ],
+  "guards": [
+    { "name": "ds-authority-lock", "file": "src/lib/ds/__tests__/ds-authority-lock.test.ts", "enforces": "Catalyst = canon UI layer; ui/* deprecated; no reversals", "status": "GREEN 17/17" },
+    { "name": "typography-canon-contract", "file": "src/app/admin/customers/__tests__/typography-canon-contract.test.ts", "enforces": "7 role classes token-only; no inline text-[Npx] on customers", "status": "GREEN 9/9" },
+    { "name": "proof-center-hub-root-contract", "file": "src/components/proof-center/__tests__/proof-center-hub-root-contract.test.tsx", "enforces": "single product root, no double-shell", "status": "GREEN 2/2" },
+    { "name": "bento-ds-contract", "file": "src/components/ui/__tests__/bento-ds-contract.test.tsx", "enforces": "BentoPanel ct-glass-panel; audit/dashboard on BentoPageShell + Catalyst Input/Table", "status": "RED 2 — admin/audit + admin/dashboard not yet on BentoPageShell (PRE-EXISTING, out of #184 scope)" },
+    { "name": "portfolio-real-data-contract", "file": "src/app/(product)/portfolio/__tests__/portfolio-real-data-contract.test.ts", "enforces": "real loaders, HIS primitives, no mock literals", "status": "RED 1 — HcMetricSparkline assertion (PRE-EXISTING)" },
+    { "name": "ds-hardcode-guard (script)", "file": "scripts/ds-hardcode-guard.mjs", "enforces": "8 guarded files: no raw hex/zinc/text-[Npx]/tracking-[]", "status": "active, scoped to 8 files only" }
+  ],
+  "guardsMissing": [
+    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (129 tsx occurrences unguarded)",
+    "No guard enforcing ui/* → catalyst delegation direction (new autonomous ui/* could accumulate)",
+    "No guard for text-[Npx] across product/vaults/proof-center tsx (541 occurrences, only customers guarded)",
+    "No guard preventing source='live' bound to a <2-point/fallback series outside HcValueChart",
+    "No guard pinning cockpit token version / asset versioning"
+  ],
+  "roadmap": [
+    { "lot": "A", "title": "Wrappers remaining → Catalyst", "scope": "bento.tsx (57), modal→catalyst/dialog (11), nested-panel (11), panel-status→catalyst/alert (10)", "risk": "medium (bento is high-fanout)", "result": "ui/* fully delegating; legacy-autonomous count → near 0", "tests": "ds-authority-lock + per-wrapper render" },
+    { "lot": "B", "title": "PageShell 3-8 pages", "scope": "7 portfolio pages hand-roll PageShell structure → import catalyst/layout/page-shell (pass [--gutter] via className)", "risk": "low (byte-identical frame)", "result": "single canonical product frame, no hand-rolled copies", "tests": "portfolio page render + visual" },
+    { "lot": "C", "title": "Accent pass — main nests", "scope": "ChatKimi (19), _vault-form (11), contracts-audit-trail (7), markdown (4), RailRight (4) → var(--ct-accent) + semantic classes", "risk": "low-medium (chat visual)", "result": "129 tsx #A7FB90 → near 0; only documented chart/print fallbacks remain", "tests": "extend ds-hardcode-guard scope" },
+    { "lot": "D", "title": "Admin advanced pages", "scope": "admin/customers/[id] AdminTable→Catalyst Table; admin/governance/propose hand-rolled select/textarea→Catalyst; admin/audit+dashboard→BentoPageShell (fixes 2 RED guards)", "risk": "low", "result": "bento-ds-contract GREEN; admin tables/forms canon", "tests": "bento-ds-contract" },
+    { "lot": "E", "title": "Product vault / onboarding", "scope": "invest-form + vault-admin-kpi-strip typo/accent; OnboardingChamber doc + converge to PageShell where safe", "risk": "medium (invest flow)", "result": "vault/onboarding token-clean", "tests": "term-sheet-truth + onboarding render" },
+    { "lot": "F", "title": "Typography long tail", "scope": "541 text-[Npx] → token classes (ct-bento-label/ct-text-micro/2xs/xs/section-title); keep SVG/chart labels", "risk": "low", "result": "~70% reduction (≈380), 8 semantic sizes", "tests": "typography-canon-contract extended to product/vaults" },
+    { "lot": "G", "title": "Eventual ui import replacement", "scope": "migrate 188 ui/* importers to import catalyst/* directly; retire ui/* shims last", "risk": "low (mechanical, post all above)", "result": "ui/* compatibility layer removable", "tests": "typecheck + full suite" }
+  ],
+  "updateLog": [
+    { "date": "2026-06-28", "ref": "initial", "note": "Initial Catalyst cartography (7 sub-agents, HEAD f9f8046f)" },
+    { "ref": "PR #183", "note": "HcValueChart hero instrument test added (replaces obsolete value-chart branch)" },
+    { "ref": "PR #184", "note": "Catalyst absorption: ui/* badge/button/card/empty-surface/provenance routed through Catalyst; 13 catalyst primitives de-blued (outline-blue-500 → --ct-accent); P1 typography roots fixed; 4 new canon primitives (bento-badge, cockpit-button, card, empty-surface)" }
+  ]
+};
+
+// ============ RENDER ============
+function badge(status){
+  const m={CATALYST_READY:["b-ready","READY"],CATALYST_PARTIAL:["b-partial","PARTIAL"],UI_WRAPPER_COMPAT:["b-compat","COMPAT"],LEGACY_UI_AUTONOMOUS:["b-legacy","LEGACY"],MIXED_LAYOUT:["b-mixed","MIXED"],BLOCKED_BY_SCOPE:["b-scope","SCOPE"],UNKNOWN:["b-scope","?"]};
+  const x=m[status]||["b-scope",status];return '<span class="b '+x[0]+'">'+x[1]+'</span>';
+}
+function pri(p){if(!p||p==='none')return '<span class="b-p2">—</span>';if(p==='P0')return '<span class="b-p0">P0</span>';if(p==='P1')return '<span class="b-p1">P1</span>';return '<span class="b-p2">'+p+'</span>';}
+function hard(h){if(h==='0')return '<span class="pill ok">0</span>';if(h==='heavy'||h==='high')return '<span class="pill hot">'+h+'</span>';return '<span class="pill hot">'+h+'</span>';}
+
+// page matrix
+function renderMatrix(){
+  const tb=document.getElementById('matrix-body');
+  tb.innerHTML=window.CARTO.pages.map(p=>
+    '<tr data-zone="'+p[0]+'" data-blob="'+(p.join(' ').toLowerCase().replace(/"/g,''))+'">'+
+    '<td><span class="pill">'+p[0]+'</span></td>'+
+    '<td><code>'+p[1]+'</code></td>'+
+    '<td style="color:var(--text-muted)">'+p[2]+'</td>'+
+    '<td>'+(p[3]==='—'?'<span style="color:var(--text-faint)">—</span>':'<span style="color:var(--green)">'+p[3]+'</span>')+'</td>'+
+    '<td style="color:var(--text-muted)">'+p[4]+'</td>'+
+    '<td style="color:var(--text-muted)">'+p[5]+'</td>'+
+    '<td>'+hard(p[6])+'</td>'+
+    '<td>'+badge(p[7])+'</td>'+
+    '<td>'+pri(p[8])+'</td>'+
+    '<td style="color:var(--text-muted)">'+p[9]+'</td></tr>').join('');
+  updMcount();
+}
+let mzone='all';
+function zoneMatrix(btn,z){mzone=z;document.querySelectorAll('[data-z]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');filterMatrix();}
+function filterMatrix(){
+  const q=document.getElementById('mfilter').value.toLowerCase();
+  document.querySelectorAll('#matrix-body tr').forEach(tr=>{
+    const okZ=mzone==='all'||tr.dataset.zone===mzone;
+    const okQ=!q||tr.dataset.blob.includes(q);
+    tr.style.display=(okZ&&okQ)?'':'none';
+  });updMcount();
+}
+function updMcount(){const n=[...document.querySelectorAll('#matrix-body tr')].filter(t=>t.style.display!=='none').length;document.getElementById('mcount').textContent=n+' / '+window.CARTO.pages.length+' routes';}
+
+// generic table filters
+function filterTable(tid,fid,cid){
+  const q=document.getElementById(fid).value.toLowerCase();
+  let n=0;document.querySelectorAll('#'+tid+' tbody tr').forEach(tr=>{const ok=tr.textContent.toLowerCase().includes(q);tr.style.display=ok?'':'none';if(ok)n++;});
+  if(cid)document.getElementById(cid).textContent=n+' rows';
+}
+function rowToggle(tid,btn,status){
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  document.querySelectorAll('#'+tid+' tbody tr').forEach(tr=>{tr.style.display=(status==='all'||tr.dataset.status===status)?'':'none';});
+}
+
+// catalyst primitives
+function renderCatalyst(){
+  const d=window.CARTO_DATA.catalystPrimitives.slice().sort((a,b)=>b.used-a.used);
+  document.getElementById('cat-body').innerHTML=d.map(p=>{
+    const st=p.status==='CANON_ACTIVE'?'<span class="b b-active">ACTIVE</span>':'<span class="b b-reserve">RESERVE</span>';
+    const tc=p.tokenClean===true?'<span class="pill ok">clean</span>':'<span class="pill">'+p.tokenClean+'</span>';
+    return '<tr data-status="'+p.status+'"><td><code>'+p.name+'</code></td><td style="font-variant-numeric:tabular-nums">'+p.used+'</td><td>'+st+'</td><td>'+tc+'</td><td style="color:var(--text-muted)">'+(p.wrapper||'—')+'</td></tr>';
+  }).join('');
+  document.getElementById('pcount').textContent=d.length+' primitives';
+}
+// ui wrappers
+function renderUi(){
+  const d=window.CARTO_DATA.uiWrappers.slice().sort((a,b)=>b.imports-a.imports);
+  document.getElementById('ui-body').innerHTML=d.map(w=>{
+    const m={WRAPPED_TO_CATALYST:["b-ready","WRAPPED"],LEGACY_AUTONOMOUS:["b-legacy","AUTONOMOUS"],HELPER_NON_VISUAL:["b-scope","HELPER"],NEEDS_CATALYST_TARGET:["b-partial","NEEDS TARGET"]}[w.status]||["b-scope",w.status];
+    const del=w.wrapsCatalyst===true?'<span class="pill ok">yes</span>':(w.wrapsCatalyst?('<span class="pill">'+w.wrapsCatalyst+'</span>'):'<span class="pill hot">no</span>');
+    return '<tr data-status="'+w.status+'"><td><code>'+w.name+'</code></td><td style="font-variant-numeric:tabular-nums">'+w.imports+'</td><td><span class="b '+m[0]+'">'+m[1]+'</span></td><td>'+del+'</td><td style="color:var(--text-muted)">'+w.target+'</td><td>'+pri(w.priority==='done'?null:w.priority)+(w.priority==='done'?'<span class="pill ok">done</span>':'')+'</td></tr>';
+  }).join('');
+  document.getElementById('ucount').textContent=d.length+' wrappers';
+}
+// accent
+function renderAccent(){
+  const d=window.CARTO_DATA.hardcodesTop;
+  document.getElementById('accent-heat').innerHTML=d.map(h=>{
+    const c=h.count>=11?'h1n':h.count>=6?'h2n':h.count>=3?'h3n':'h4n';
+    const f=h.file.split('/').pop();
+    return '<span class="cell '+c+'" title="'+h.file+'">'+f+' · '+h.count+'</span>';
+  }).join('');
+  document.getElementById('acc-body').innerHTML=d.map(h=>{
+    const cl=h.class==='VIOLATION'?'<span class="pill hot">VIOLATION</span>':h.class==='LEGITIMATE_FALLBACK'?'<span class="pill ok">FALLBACK</span>':'<span class="pill">'+h.class+'</span>';
+    return '<tr><td><code>'+h.file+'</code></td><td style="font-variant-numeric:tabular-nums">'+h.count+'</td><td>'+cl+'</td><td style="color:var(--text-muted)">'+h.fix+'</td></tr>';
+  }).join('');
+}
+// typo
+function renderTypo(){
+  document.getElementById('typo-body').innerHTML=window.CARTO_DATA.typographyTop.map(t=>
+    '<tr><td><code>'+t.file.split('/').slice(-2).join('/')+'</code></td><td style="font-variant-numeric:tabular-nums">'+t.count+'</td><td><span class="pill">'+t.class.replace('PRIMITIVE_SHARED','shared').replace('PAGE_LEVEL','page')+'</span></td></tr>').join('');
+}
+// his
+function renderHis(){
+  document.getElementById('his-body').innerHTML=window.CARTO_DATA.hisPrimitives.map(h=>{
+    const tc=h.tokenClean===true?'<span class="pill ok">clean</span>':'<span class="pill hot">'+h.tokenClean+'</span>';
+    const tt=h.tested?'<span class="pill ok">'+h.tested.split(' ')[0]+'</span>':'<span class="pill hot">none</span>';
+    const orphan=h.used===0;
+    return '<tr'+(orphan?' style="opacity:.7"':'')+'><td><code>'+h.name+'</code></td><td style="font-variant-numeric:tabular-nums">'+h.used+'</td><td>'+tc+'</td><td>'+tt+'</td><td style="color:var(--text-muted)">'+h.note+'</td></tr>';
+  }).join('');
+}
+// guards
+function renderGuards(){
+  document.getElementById('guard-body').innerHTML=window.CARTO_DATA.guards.map(g=>{
+    const green=g.status.indexOf('GREEN')>=0||g.status.indexOf('active')>=0;
+    const st=g.status.indexOf('GREEN')>=0?'<span class="pill ok">'+g.status+'</span>':g.status.indexOf('RED')>=0?'<span class="pill hot">'+g.status+'</span>':'<span class="pill">'+g.status+'</span>';
+    return '<tr><td><code>'+g.name+'</code></td><td style="color:var(--text-muted)">'+g.enforces+'</td><td>'+st+'</td></tr>';
+  }).join('');
+  document.getElementById('guard-missing').innerHTML=window.CARTO_DATA.guardsMissing.map(m=>'<li>'+m+'</li>').join('');
+}
+// roadmap
+function renderRoadmap(){
+  document.getElementById('roadmap-body').innerHTML=window.CARTO_DATA.roadmap.map(l=>{
+    const rk=l.risk.indexOf('low')>=0?'<span class="risk low">'+l.risk+'</span>':'<span class="risk med">'+l.risk+'</span>';
+    return '<div class="lot"><div class="tag">'+l.lot+'</div><div><h4>'+l.title+' '+rk+'</h4>'+
+      '<div class="d"><b>Scope:</b> '+l.scope+'</div>'+
+      '<div class="d"><b>Result:</b> '+l.result+'</div>'+
+      '<div class="d" style="color:var(--text-faint)"><b>Tests:</b> '+l.tests+'</div></div></div>';
+  }).join('');
+}
+// log
+function renderLog(){
+  document.getElementById('log-body').innerHTML=window.CARTO_DATA.updateLog.map(e=>
+    '<div class="ev"><div class="r">'+(e.date?e.date+' · ':'')+(e.ref||'')+'</div><div class="n">'+e.note+'</div></div>').join('');
+}
+
+renderMatrix();renderCatalyst();renderUi();renderAccent();renderTypo();renderHis();renderGuards();renderRoadmap();renderLog();
+</script>
+</body>
+</html>
