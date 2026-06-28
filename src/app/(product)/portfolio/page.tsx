@@ -1,7 +1,34 @@
+// Investor Portfolio — bound to REAL data via loadPortfolioView() (MISSION #034),
+// rendered entirely on the Hearst Instrument System (HIS) data-viz primitives
+// (src/components/dataviz/his — PR #160). Server Component, gated by the product
+// layout. Replaces the former 100% static mock ($509,800 / $500,000 / $9,800 /
+// $8,380 demo activity) so the investor sees the SAME truth as /profile and
+// /admin/customers (e.g. the real $11 account). No data-layer rewrite — this page
+// only BINDS the existing loader + HIS primitives. HIS guarantees honesty:
+// non-live data can never read as "Live" (source badge + fallback hatch veil).
+
+import Link from "next/link";
+
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/catalyst/table";
-import { BentoKpiStrip } from "@/components/ui/bento";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
+import {
+  HcChartCard,
+  HcCompositionRing,
+  HcMetricSparkline,
+  type HcSourceStatus,
+} from "@/components/dataviz/his";
+import { RecentActivity } from "@/components/portfolio/recent-activity";
+import { loadPortfolioView } from "@/lib/data/portfolio-view";
+import { POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
+import { formatApyRange } from "@/lib/format/apy";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
@@ -10,326 +37,281 @@ export const metadata = {
   description: "Your positions and distributions",
 };
 
-export default function PortfolioPage() {
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+
+const BUCKET_LABEL: Record<string, string> = {
+  mining: "Mining cashflow",
+  usdc_base: "USDC base yield",
+  btc_tactical: "BTC tactical",
+  stable_reserve: "Stable reserve",
+};
+
+function apyLabel(low: number | null, high: number | null): string {
+  if (low === null || high === null) return "—";
+  return formatApyRange({ low, high });
+}
+
+/** Loader source → HIS truth status (drives the badge tone + honesty veil). */
+function hcSource(source: "live" | "fallback"): HcSourceStatus {
+  return source === "live" ? "live" : "fallback";
+}
+
+export default async function PortfolioPage() {
+  const { data, hasPositions, allocationDonutProps } = await loadPortfolioView();
+  const {
+    positions,
+    totalValueUsdc,
+    deployedUsdc,
+    accruedYieldUsdc,
+    nextDistributionAt,
+    recentTransactions,
+    hourlyValueSnapshots,
+    source,
+    updatedAt,
+  } = data;
+
+  const activeCount = positions.filter((p) => p.status === "active").length;
+  const deployedPct =
+    totalValueUsdc > 0
+      ? `${((deployedUsdc / totalValueUsdc) * 100).toFixed(1)}%`
+      : "—";
+
+  // Real value series for the hero sparkline (hourly investor NAV prints).
+  // Owner rule: ALWAYS show the widget, even at zero — render a real flat-zero
+  // line rather than hiding the plot. Sparkline needs ≥2 points, so a zero/empty
+  // series falls back to a flat [0,0] baseline (honest: badge still reflects
+  // truth). The card stays "ready" so the instrument is always present; only a
+  // fallback-source run gets the hatch veil so it can't read as live.
+  const realSpark = hourlyValueSnapshots.map((s) => s.valueUsdc);
+  const sparkValues = realSpark.length >= 2 ? realSpark : [0, 0];
+  const heroState: "ready" | "fallback" =
+    source === "fallback" ? "fallback" : "ready";
+
+  // Real allocation buckets (vault snapshot) → composition ring segments. At zero
+  // the ring renders its empty track (honest placeholder), never hidden.
+  const allocSegments = allocationDonutProps.buckets.map((b) => ({
+    label: BUCKET_LABEL[b.bucket] ?? b.bucket,
+    value: b.valueUsdc,
+  }));
+
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8">
-      
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        {/* HEADER */}
+        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[var(--ct-border-soft)] gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="ct-bento-label">HYV · Investor Cockpit</span>
+            <h1 className="h1 shrink-0">
+              Portfolio <span className="h1-accent">Cockpit</span>
+            </h1>
+          </div>
+        </div>
 
-        {/* HERO SECTION */}
+        {/* HERO — value instrument (HIS) + status tiles */}
         <section className="grid grid-cols-1 lg:grid-cols-[1.8fr_minmax(300px,1fr)] gap-5">
+          <HcChartCard
+            title="Portfolio value"
+            subtitle="Net asset value · last 12 months"
+            metric={formatUsdFull(totalValueUsdc)}
+            source={hcSource(source)}
+            state={heroState}
+            height={200}
+            aria-label="Portfolio value over time"
+          >
+            <HcMetricSparkline
+              values={sparkValues}
+              width={640}
+              height={200}
+              area
+              tone="accent"
+              aria-label="Portfolio value trend"
+            />
+          </HcChartCard>
 
-          {/* Top Bar (spans full width of hero) */}
-          <div className="lg:col-span-2 flex flex-wrap items-center justify-between pb-3 border-b border-white/10 mb-1 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">HYV · Investor Cockpit</span>
-              <h1 className="text-[24px] font-semibold tracking-tight text-white">Portfolio <span className="text-[#A7FB90]">Cockpit</span></h1>
-              {/* Honesty: these figures are illustrative placeholders, not a live
-                  position feed. Surfaced as demo data until the portfolio loader is
-                  wired (see docs/PORTFOLIO_ZERO_CONTRACT.md). */}
-              <Badge color="amber" className="mt-1 w-fit text-[10px]! uppercase tracking-widest">Demo data · pending live portfolio wiring</Badge>
-            </div>
-            <div className="text-xs font-medium text-zinc-400">
-              Welcome back, <span className="text-[#A7FB90]">Investor</span>
-            </div>
-          </div>
-
-          {/* Chart Panel */}
-          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col overflow-hidden">
-            <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
-              <div className="flex flex-col gap-1.5 min-w-0">
-                <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">Portfolio Value <span className="text-zinc-600 normal-case tracking-normal">(demo)</span></h2>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-base font-medium text-zinc-500">$</span>
-                  <span className="text-[32px] font-medium text-white tracking-tight leading-none">509,800.00</span>
-                </div>
-              </div>
-              <div className="flex gap-1 p-1 rounded-lg bg-white/5 border border-white/10 shrink-0">
-                <button className="px-3 py-1.5 text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors rounded-md">24H</button>
-                <button className="px-3 py-1.5 text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors rounded-md">7D</button>
-                <button className="px-3 py-1.5 text-[10px] font-bold text-zinc-900 bg-white shadow-sm rounded-md">30D</button>
-                <button className="px-3 py-1.5 text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors rounded-md">ALL</button>
-              </div>
-            </div>
-
-            <div className="flex-1 min-h-[200px] flex items-center justify-center relative">
-               <svg viewBox="0 0 600 200" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-60">
-                 <path d="M0,150 C100,150 200,100 300,120 C400,140 500,60 600,40 L600,200 L0,200 Z" fill="url(#chart-gradient)" />
-                 <path d="M0,150 C100,150 200,100 300,120 C400,140 500,60 600,40" fill="none" stroke="#A7FB90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                 <circle cx="600" cy="40" r="4" fill="#181D21" stroke="#A7FB90" strokeWidth="2" />
-                 <defs>
-                   <linearGradient id="chart-gradient" x1="0" x2="0" y1="0" y2="1">
-                     <stop offset="0%" stopColor="#A7FB90" stopOpacity="0.15" />
-                     <stop offset="100%" stopColor="#A7FB90" stopOpacity="0" />
-                   </linearGradient>
-                 </defs>
-               </svg>
-               <span className="text-sm text-zinc-500 font-medium relative z-10">[ Chart Placeholder ]</span>
-            </div>
-          </div>
-
-          {/* Status Tiles */}
-          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-6 flex flex-col justify-center">
+          {/* Status tiles — real aggregates (single numbers, not charts). */}
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-6 flex flex-col justify-center">
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-1.5">
-                <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Principal</div>
-                <div className="text-[18px] font-medium text-white leading-none tracking-tight">$500,000</div>
-                <div className="text-[10px] text-zinc-500 tracking-wide mt-0.5">Net deposits</div>
+                <div className="ct-bento-label">Principal</div>
+                <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
+                  {formatUsdFull(deployedUsdc)}
+                </div>
+                <div className="ct-metric-caption">Net deposits</div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Positions</div>
-                <div className="text-[18px] font-medium text-white leading-none tracking-tight">1</div>
-                <div className="text-[10px] text-zinc-500 tracking-wide mt-0.5">Active Vaults</div>
+                <div className="ct-bento-label">Positions</div>
+                <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
+                  {activeCount}
+                </div>
+                <div className="ct-metric-caption">Active vaults</div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Deployed</div>
-                <div className="text-[18px] font-medium text-white leading-none tracking-tight">98.0%</div>
-                <div className="text-[10px] text-zinc-500 tracking-wide mt-0.5">Capital Efficiency</div>
+                <div className="ct-bento-label">Deployed</div>
+                <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
+                  {deployedPct}
+                </div>
+                <div className="ct-metric-caption">Capital efficiency</div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-white">Accrued Yield</div>
-                <div className="text-[18px] font-medium text-[#A7FB90] leading-none tracking-tight">+$9,800</div>
-                <div className="text-[10px] text-zinc-500 tracking-wide mt-0.5">Since inception</div>
+                <div className="ct-bento-label">Accrued yield</div>
+                <div className="ct-metric-value text-[length:var(--ct-text-2xl)] text-[var(--ct-accent)]">
+                  {accruedYieldUsdc > 0
+                    ? `+${formatUsdFull(accruedYieldUsdc)}`
+                    : formatUsdFull(accruedYieldUsdc)}
+                </div>
+                <div className="ct-metric-caption">Since inception</div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CAPITAL & YIELD SECTION */}
-        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-          <div className="p-5 border-b border-white/5">
-            <div className="flex flex-col gap-1.5">
-              <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Capital & Yield</h2>
-              <p className="text-[12px] text-zinc-500 tracking-wide">Active capital · 12m forward yield</p>
-            </div>
+        {/* CAPITAL & YIELD — allocation ring (HIS) */}
+        <HcChartCard
+          title="Capital & yield"
+          subtitle="Strategy allocation by bucket"
+          source={allocationDonutProps.source === "live" ? "live" : "stale"}
+          state="ready"
+          height={180}
+          aria-label="Strategy allocation"
+        >
+          <div className="flex h-full items-center">
+            <HcCompositionRing
+              segments={allocSegments}
+              centerLabel="Capital"
+              centerValue={
+                allocationDonutProps.aumUsdc
+                  ? formatUsdFull(allocationDonutProps.aumUsdc)
+                  : formatUsdFull(deployedUsdc)
+              }
+              aria-label="Allocation composition ring"
+            />
           </div>
+        </HcChartCard>
 
-          <BentoKpiStrip
-            ariaLabel="Portfolio headline metrics"
-            items={[
-              { label: "Capital Active", value: "$250K" },
-              {
-                label: "Target APY",
-                value: (
-                  <span className="flex items-baseline gap-1.5">
-                    9.4{" "}
-                    <span className="text-base ct-text-muted font-normal mx-0.5">—</span>{" "}
-                    12.8{" "}
-                    <span className="text-base ct-text-muted font-normal">%</span>
-                  </span>
-                ),
-              },
-              { label: "Forward Horizon", value: "12m" },
-            ]}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-8 p-6">
-            <div className="relative size-[160px] shrink-0 mx-auto md:mx-0">
-              <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
-                <circle cx="80" cy="80" r="66" fill="none" stroke="#15191C" strokeWidth="16" />
-                <circle cx="80" cy="80" r="66" fill="none" stroke="#A7FB90" strokeWidth="16" strokeDasharray="228 186" strokeLinecap="round" />
-                <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(167,251,144,0.5)" strokeWidth="16" strokeDasharray="124 290" strokeLinecap="round" transform="rotate(108 80 80)" />
-                <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(167,251,144,0.25)" strokeWidth="16" strokeDasharray="62 352" strokeLinecap="round" transform="rotate(216 80 80)" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">Capital</span>
-                <span className="text-[22px] font-medium text-white leading-none">$250K</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 min-w-0">
-              <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 pb-3 border-b border-white/5">
-                <div className="size-2.5 rounded-full border-2 border-[#15191C] bg-[#A7FB90]"></div>
-                <span className="text-[13px] font-medium text-zinc-200">Mining Operations</span>
-                <span className="text-sm font-bold text-white tabular-nums">55%</span>
-                <span className="text-[13px] font-mono text-zinc-500 w-12 text-right tabular-nums">±8.5%</span>
-              </div>
-              <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 pb-3 border-b border-white/5">
-                <div className="size-2.5 rounded-full border-2 border-[#15191C] bg-[#A7FB90]/50"></div>
-                <span className="text-[13px] font-medium text-zinc-200">USDC Base Yield</span>
-                <span className="text-sm font-bold text-white tabular-nums">30%</span>
-                <span className="text-[13px] font-mono text-[#A7FB90] w-12 text-right tabular-nums">+3.8%</span>
-              </div>
-              <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4">
-                <div className="size-2.5 rounded-full border-2 border-[#15191C] bg-[#A7FB90]/25"></div>
-                <span className="text-[13px] font-medium text-zinc-200">BTC Tactical</span>
-                <span className="text-sm font-bold text-white tabular-nums">15%</span>
-                <span className="text-[13px] font-mono text-zinc-500 w-12 text-right tabular-nums">±1.6%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-6 pb-6">
-            <div className="flex justify-between items-end mb-3">
-              <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Target APY Range</span>
-              <span className="text-[18px] font-medium text-[#A7FB90] leading-none">9.4—12.8%</span>
-            </div>
-            <div className="relative h-2 bg-surface-inset rounded-full border border-white/5 mb-3">
-              <div className="absolute top-0 bottom-0 left-0 right-0 bg-[#A7FB90] rounded-full"></div>
-              <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 size-3 rounded-full bg-white border-2 border-[#15191C]"></div>
-              <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 size-3 rounded-full bg-white border-2 border-[#15191C]"></div>
-            </div>
-            <div className="flex justify-between text-[12px] font-mono text-zinc-500 tracking-wide">
-              <span>9.4%</span>
-              <span>12.8%</span>
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-zinc-500">
-              <div className="size-1 bg-zinc-500 rounded-full"></div>
-              Conditional projection — not guaranteed · v1.0
-            </div>
-          </div>
-        </section>
-
-        {/* DECK SECTION (Calendar + Activity) */}
+        {/* DECK — Distribution calendar + Recent activity (real) */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-          {/* Calendar Panel */}
-          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col">
-            <div className="p-5 border-b border-white/5">
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col">
+            <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex flex-col gap-1.5">
-                <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Distribution Calendar</h2>
-                <p className="text-[12px] text-zinc-500 tracking-wide">Upcoming payouts</p>
+                <h2 className="ct-section-title">Distribution calendar</h2>
+                <p className="ct-metric-caption">Upcoming payouts</p>
               </div>
             </div>
-            <div className="p-6 flex flex-col items-center justify-center min-h-[220px]">
-              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 mb-3">Next Distribution</div>
-              <div className="text-[32px] font-medium text-white leading-none tracking-tight mb-2">Jun 30</div>
-              <div className="text-[13px] text-[#A7FB90] font-medium">Estimated ~$8,400</div>
-              <div className="mt-6 text-[10px] text-zinc-500 uppercase tracking-widest">Monthly USDC · T+5 settlement</div>
+            <div className="p-6 flex flex-col items-center justify-center min-h-[180px]">
+              <div className="ct-bento-label mb-3">Next distribution</div>
+              <div className="h1 mb-2">
+                {nextDistributionAt.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </div>
+              <div className="ct-metric-caption">
+                Monthly USDC · T+5 settlement
+              </div>
             </div>
           </div>
 
-          {/* Activity Panel */}
-          <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col">
-            <div className="p-5 border-b border-white/5">
-              <div className="flex flex-col gap-1.5">
-                <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Recent Activity</h2>
-                <p className="text-[12px] text-zinc-500 tracking-wide">Deposits & payouts</p>
-              </div>
-            </div>
-            
-            <div className="p-6">
-              <ul role="list" className="space-y-5">
-                <li className="relative flex gap-x-4">
-                  <div className="absolute top-0 -bottom-5 left-0 flex w-6 justify-center">
-                    <div className="w-px bg-white/10"></div>
-                  </div>
-                  <div className="relative flex size-6 flex-none items-center justify-center bg-surface-card ring-1 ring-white/5 rounded-full">
-                    <div className="size-2 rounded-full bg-[#A7FB90] ring-4 ring-[#111417]"></div>
-                  </div>
-                  <div className="flex-auto py-0.5">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[13px] text-zinc-400">
-                        <span className="font-medium text-white">Distribution</span> (Estimated)
-                      </p>
-                      <time dateTime="2026-06-30" className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
-                        ~Jun 30
-                      </time>
-                    </div>
-                    <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest">Hearst Yield Vault</p>
-                  </div>
-                </li>
-
-                <li className="relative flex gap-x-4">
-                  <div className="absolute top-0 -bottom-5 left-0 flex w-6 justify-center">
-                    <div className="w-px bg-white/10"></div>
-                  </div>
-                  <div className="relative flex size-6 flex-none items-center justify-center bg-surface-card ring-1 ring-white/5 rounded-full">
-                    <div className="size-1.5 rounded-full bg-white/20"></div>
-                  </div>
-                  <div className="flex-auto py-0.5">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[13px] text-zinc-400">
-                        <span className="font-medium text-white">Deposit</span>
-                      </p>
-                      <span className="text-[13px] font-semibold text-[#A7FB90]">+$11.00</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Hearst Yield Vault</p>
-                      <time dateTime="2026-06-24" className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
-                        3 days ago
-                      </time>
-                    </div>
-                  </div>
-                </li>
-
-                <li className="relative flex gap-x-4">
-                  <div className="absolute top-0 left-0 flex h-6 w-6 justify-center">
-                    <div className="w-px bg-white/10"></div>
-                  </div>
-                  <div className="relative flex size-6 flex-none items-center justify-center bg-surface-card ring-1 ring-white/5 rounded-full">
-                    <div className="size-1.5 rounded-full bg-white/20"></div>
-                  </div>
-                  <div className="flex-auto py-0.5">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[13px] text-zinc-400">
-                        <span className="font-medium text-white">Yield Distribution</span>
-                      </p>
-                      <span className="text-[13px] font-semibold text-white">+$8,380.00</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Hearst Yield Vault</p>
-                      <time dateTime="2026-05-31" className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
-                        May 31, 2026
-                      </time>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
+          {/* Real recent activity — empty state is honest ("No transactions yet") */}
+          <RecentActivity
+            transactions={recentTransactions}
+            source={source}
+            updatedAt={updatedAt}
+          />
         </section>
 
-        {/* POSITIONS SECTION */}
-        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-          <div className="flex items-center gap-4 p-5 border-b border-white/5">
+        {/* POSITIONS — real rows */}
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+          aria-label="Active positions"
+        >
+          <div className="flex items-center gap-4 p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Active Positions</h2>
-              <p className="text-[12px] text-zinc-500 tracking-wide">Your deployed capital</p>
+              <h2 className="ct-section-title">Active positions</h2>
+              <p className="ct-metric-caption">Your deployed capital</p>
             </div>
-            <Badge color="zinc" className="text-[10px]! uppercase tracking-widest bg-white/5 shrink-0 self-start mt-0.5">1 active</Badge>
+            {activeCount > 0 ? (
+              <Badge color="zinc" className="shrink-0 self-start uppercase">
+                {activeCount} active
+              </Badge>
+            ) : null}
           </div>
 
-          <div className="overflow-x-auto">
-            <Table className="min-w-full text-sm">
+          {hasPositions ? (
+            <Table
+              dense
+              className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+            >
               <TableHead>
                 <TableRow>
-                  <TableHeader className="pl-5 bg-transparent text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Vault Name</TableHeader>
-                  <TableHeader className="bg-transparent text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Status</TableHeader>
-                  <TableHeader className="bg-transparent text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Position</TableHeader>
-                  <TableHeader className="bg-transparent text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Target APY</TableHeader>
-                  <TableHeader className="pr-5 bg-transparent"><span className="sr-only">Details</span></TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} pl-5`}>
+                    Vault
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} text-center`}>
+                    Status
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} text-right`}>
+                    Position
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
+                    Target APY
+                  </TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow className="hover:bg-white/[0.02] transition-colors border-transparent">
-                  <TableCell className="pl-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-9 rounded-full bg-[#A7FB90]"></div>
-                      <div>
-                        <div className="font-medium text-white text-[14px]">Hearst Yield Vault</div>
-                        <div className="mt-1 text-zinc-500 text-[10px] uppercase tracking-wider">Monthly USDC Distributions</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <Badge color="green" className="text-[10px]! uppercase tracking-widest">Active</Badge>
-                  </TableCell>
-                  <TableCell className="text-right py-4">
-                    <div className="text-[15px] font-medium text-white">$509,800.00</div>
-                  </TableCell>
-                  <TableCell className="text-right py-4">
-                    <div className="text-[15px] font-medium text-[#A7FB90]">9.4 <span className="text-zinc-500 mx-0.5">—</span> 12.8 <span className="text-zinc-500">%</span></div>
-                  </TableCell>
-                  <TableCell className="text-right pr-5 py-4">
-                    <span className="sr-only">Details unavailable in demo layout</span>
-                  </TableCell>
-                </TableRow>
+                {positions.map((p) => {
+                  const statusCfg = POSITION_STATUS_CONFIG[p.status];
+                  return (
+                    <TableRow key={p.id} className={ROW}>
+                      <TableCell className="pl-5">
+                        <div className="flex items-center gap-3">
+                          <div
+                            aria-hidden="true"
+                            className="h-7 w-1 shrink-0 rounded-full bg-[var(--ct-accent)]"
+                          />
+                          <Link
+                            href={`/portfolio/${p.id}`}
+                            className="ct-metric-value min-w-0 truncate hover:underline"
+                          >
+                            {p.vaultName ?? "Hearst Yield Vault"}
+                          </Link>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          color={
+                            p.status === "active"
+                              ? "green"
+                              : p.status === "matured"
+                                ? "amber"
+                                : "zinc"
+                          }
+                          className="uppercase"
+                        >
+                          {statusCfg.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="ct-metric-value text-right">
+                        {formatUsdFull(p.valueUsdc)}
+                      </TableCell>
+                      <TableCell className="ct-metric-value text-right text-[var(--ct-accent)]">
+                        {apyLabel(p.apyLow, p.apyHigh)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
-          </div>
+          ) : (
+            <div className="p-10 text-center">
+              <p className="ct-metric-caption">
+                No active positions yet. Once you subscribe to a vault, your
+                deployed capital appears here.
+              </p>
+            </div>
+          )}
         </section>
-
       </div>
     </div>
   );
