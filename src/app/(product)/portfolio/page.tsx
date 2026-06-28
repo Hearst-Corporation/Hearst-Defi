@@ -59,6 +59,18 @@ function apyLabel(low: number | null, high: number | null): string {
   return formatApyRange({ low, high });
 }
 
+/** Canon "See more →" link to a portfolio leaf page (token-only). */
+function SeeMore({ href }: { href: string }) {
+  return (
+    <Link
+      href={href}
+      className="ct-bento-label inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
+    >
+      See more <span aria-hidden="true">→</span>
+    </Link>
+  );
+}
+
 /** Loader source → HIS truth status (drives the badge tone + honesty veil). */
 function hcSource(source: "live" | "fallback"): HcSourceStatus {
   return source === "live" ? "live" : "fallback";
@@ -200,6 +212,7 @@ export default async function PortfolioPage() {
           source={allocationDonutProps.source === "live" ? "live" : "stale"}
           state="ready"
           height={180}
+          actions={<SeeMore href="/portfolio/yield" />}
           aria-label="Strategy allocation"
         >
           <div className="flex h-full items-center">
@@ -220,11 +233,12 @@ export default async function PortfolioPage() {
         {/* DECK — Distribution calendar + Recent activity (real) */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col">
-            <div className="p-5 border-b border-[var(--ct-border-soft)]">
+            <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex flex-col gap-1.5">
                 <h2 className="ct-section-title">Distribution calendar</h2>
                 <p className="ct-metric-caption">Upcoming payouts</p>
               </div>
+              <SeeMore href="/portfolio/distributions" />
             </div>
             <div className="p-6 flex flex-col items-center justify-center min-h-[180px]">
               <div className="ct-bento-label mb-3">Next distribution</div>
@@ -245,6 +259,7 @@ export default async function PortfolioPage() {
             transactions={recentTransactions}
             source={source}
             updatedAt={updatedAt}
+            leafHref="/portfolio/activity"
           />
         </section>
 
@@ -258,11 +273,14 @@ export default async function PortfolioPage() {
               <h2 className="ct-section-title">Active positions</h2>
               <p className="ct-metric-caption">Your deployed capital</p>
             </div>
-            {activeCount > 0 ? (
-              <Badge color="zinc" className="shrink-0 self-start uppercase">
-                {activeCount} active
-              </Badge>
-            ) : null}
+            <div className="ml-auto flex shrink-0 items-center gap-3">
+              {activeCount > 0 ? (
+                <Badge color="zinc" className="uppercase">
+                  {activeCount} active
+                </Badge>
+              ) : null}
+              <SeeMore href="/portfolio/positions" />
+            </div>
           </div>
 
           {hasPositions ? (
