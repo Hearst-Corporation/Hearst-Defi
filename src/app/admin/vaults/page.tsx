@@ -1,8 +1,12 @@
 import Link from "next/link";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  TABLE_HEAD,
+  ROW,
+} from "@/components/admin/admin-page-shell";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import {
   Table,
   TableBody,
@@ -28,13 +32,9 @@ import { pauseVault, resumeVault } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-// Shared table chrome — mirrors the customers canon (head = micro nano label,
-// rows = transparent border + faint hover wash). Centralized so the columns
-// stay in lockstep with the other admin list tables.
-const TABLE_HEAD = "bg-transparent ct-bento-label";
+// Local table wrap — keep Catalyst's overflow-x-auto LOCAL to the card (no
+// horizontal bleed). TABLE_HEAD / ROW come from the shell (customers canon).
 const TABLE_WRAP = "max-w-full [&_th]:whitespace-nowrap";
-const ROW =
-  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 const FILTER_TABS = [
   { key: "all", label: "All" },
@@ -85,49 +85,45 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   }));
   const portfolioKpis = buildVaultsKpiStrip(kpiInputs);
 
+  const statusFilter = (
+    <AdminUrlTabFilter
+      ariaLabel="Filter vaults by status"
+      activeKey={activeFilter}
+      tabs={FILTER_TABS.map((tab) => ({
+        key: tab.key,
+        label: tab.label,
+        href:
+          tab.key === "all"
+            ? "/admin/vaults"
+            : `/admin/vaults?filter=${tab.key}`,
+      }))}
+    />
+  );
+
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Vault"
-          titleAccent="Portfolio"
-          contextLabel="Vault Portfolio"
-          filters={
-            <AdminUrlTabFilter
-              ariaLabel="Filter vaults by status"
-              activeKey={activeFilter}
-              tabs={FILTER_TABS.map((tab) => ({
-                key: tab.key,
-                label: tab.label,
-                href:
-                  tab.key === "all"
-                    ? "/admin/vaults"
-                    : `/admin/vaults?filter=${tab.key}`,
-              }))}
-            />
-          }
-          actions={
-            <Link href="/admin/vaults/new" className={BENTO_PRIMARY_BTN}>
-              + New deployment
-            </Link>
-          }
-        />
-
-        {/* List — header (KPI strip) → Catalyst table soudés dans UNE box card
-            (pattern Portfolio / customers canon). */}
-        <section
-          className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-          aria-label="Vault deployments"
+    <AdminPageShell
+      titleLead="Vault"
+      titleAccent="Portfolio"
+      contextLabel="Vault Portfolio"
+      headerActions={
+        <Link href="/admin/vaults/new" className={BENTO_PRIMARY_BTN}>
+          + New deployment
+        </Link>
+      }
+    >
+        {/* List — KPI strip → status filter sub-header → Catalyst table soudés
+            dans UNE box card (pattern Portfolio / customers canon). The status
+            tabs live in the section header (right slot); the "New deployment"
+            CTA stays on the page title line. */}
+        <AdminSectionCard
+          ariaLabel="Vault deployments"
+          kpis={portfolioKpis.length > 0 ? portfolioKpis : undefined}
+          kpiTitle="Vault Portfolio"
+          kpiSubtitle={`${vaults.length} ${vaults.length === 1 ? "deployment" : "deployments"} in view`}
+          title="Deployments"
+          subtitle="Filter by lifecycle status"
+          headerTrailing={statusFilter}
         >
-          {portfolioKpis.length > 0 && (
-            <AdminKpiStripPanel
-              kpis={portfolioKpis}
-              title="Vault Portfolio"
-              subtitle={`${vaults.length} ${vaults.length === 1 ? "deployment" : "deployments"} in view`}
-              embedded
-            />
-          )}
-
           {vaults.length === 0 ? (
             <EmptySurface
               variant="widget"
@@ -280,8 +276,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
               </TableBody>
             </Table>
           )}
-        </section>
-      </div>
-    </div>
+        </AdminSectionCard>
+    </AdminPageShell>
   );
 }

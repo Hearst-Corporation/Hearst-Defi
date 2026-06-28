@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminPageShell,
+  TABLE_HEAD,
+  ROW,
+} from "@/components/admin/admin-page-shell";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
@@ -42,12 +46,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-// Shared Catalyst table chrome (customers canon) — micro nano head label,
-// transparent rows + faint hover wash. Reused by both detail tables.
-const TABLE_HEAD = "bg-transparent ct-bento-label";
+// Local table wrap — keeps Catalyst's overflow-x-auto LOCAL to the card.
+// TABLE_HEAD / ROW come from the shell (customers canon). Reused by both
+// detail tables (Approvals + Subscribers).
 const TABLE_WRAP = "max-w-full [&_th]:whitespace-nowrap";
-const ROW =
-  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -180,14 +182,12 @@ export default async function VaultDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Vault"
-          titleAccent={vault.ticker}
-          contextLabel={vault.name}
-          actions={
-            <div className="flex flex-wrap items-center gap-2">
+    <AdminPageShell
+      titleLead="Vault"
+      titleAccent={vault.ticker}
+      contextLabel={vault.name}
+      headerActions={
+        <div className="flex flex-wrap items-center gap-2">
               {vault.status === "draft" && (
                 <>
                   <Link
@@ -335,9 +335,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 </>
               )}
             </div>
-          }
-        />
-
+      }
+    >
         <VaultAdminKpiStrip
           facts={kpiFacts}
           showAumCard={vault.status === "live"}
@@ -523,7 +522,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </p>
           </BentoPanel>
         </AdminDetailSection>
-      </div>
-    </div>
+    </AdminPageShell>
   );
 }

@@ -62,25 +62,35 @@ export default async function OutreachPage() {
     <AdminPageShell
       titleLead="Outreach"
       titleAccent="Console"
+      contextLabel="Distribution Engine"
       headerActions={
-        <div className="flex flex-wrap items-center gap-4">
-          <OutreachStatsCards stats={stats} />
-          <div className="hidden h-8 w-px bg-[var(--ct-border)] lg:block" />
-          <Button href="/admin/outreach/compose" className={CATALYST_ACCENT_BTN}>
-            Compose email
-          </Button>
-        </div>
+        <Button href="/admin/outreach/compose" className={CATALYST_ACCENT_BTN}>
+          Compose email
+        </Button>
       }
     >
-        {/* Primary Control: Autonomy & Readiness Strip */}
-        <section aria-label="Outreach status">
-          <OutreachAutonomyPanel status={autonomy} />
-        </section>
+        {/* Autonomy posture + engagement stats — welded into one shell card.
+            Engagement stats live in the section header (right slot), the
+            autonomy / readiness panel forms the body. The "Compose email" CTA
+            stays on the page title line; nothing crowds it here. */}
+        <AdminSectionCard
+          ariaLabel="Outreach status"
+          title="Autonomy & engagement"
+          subtitle="Send posture, run readiness, and recent delivery signals."
+          headerTrailing={<OutreachStatsCards stats={stats} />}
+        >
+          <div className="p-5">
+            <OutreachAutonomyPanel status={autonomy} />
+          </div>
+        </AdminSectionCard>
 
-        {/* Main Cockpit: Two-column layout for Prospects and Lead Engine */}
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.8fr_minmax(300px,1fr)]">
+        {/* Main Cockpit: Two-column layout for Prospects and Lead Engine.
+            min-w-0 on the grid + both tracks defeats the CSS "grid blowout":
+            without it, the wide prospect table refuses to shrink below its
+            intrinsic width and pushes the whole page into horizontal scroll. */}
+        <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)]">
           {/* Left: Primary Operator Content */}
-          <div className="flex flex-col gap-5">
+          <div className="flex min-w-0 flex-col gap-5">
             {/* Prospect directory */}
             <AdminSectionCard
               ariaLabel="Prospects"
@@ -243,22 +253,29 @@ export default async function OutreachPage() {
             </AdminSectionCard>
           </div>
 
-          {/* Right: Lead Engine Sidebar */}
-          <aside className="flex flex-col">
-            <section className="flex flex-col gap-4" aria-label="Lead engine">
-              <div className="flex flex-col gap-1">
-                <h2 className="ct-section-title">Lead engine</h2>
-                <span className="ct-metric-caption">
-                  Source &amp; tier leads from ICP.
-                </span>
+          {/* Right: Lead Engine Sidebar — mounted on the same shell card so its
+              header (title + caption left, "Define ICP" action right) matches
+              the Prospects / Campaigns sections exactly. */}
+          <aside className="flex min-w-0 flex-col">
+            <AdminSectionCard
+              ariaLabel="Lead engine"
+              title="Lead engine"
+              subtitle={<>Source &amp; tier leads from ICP.</>}
+              headerTrailing={<IcpForm />}
+            >
+              <div className="p-5">
+                {icps.length === 0 ? (
+                  <EmptySurface
+                    variant="widget"
+                    message="No ICP defined yet."
+                    detail="Define a distributor ICP to source and tier leads. Sourcing finds, scores, and tiers prospects — it never sends."
+                    className="min-h-32"
+                  />
+                ) : (
+                  <IcpList icps={icps} />
+                )}
               </div>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <IcpForm />
-                </div>
-                <IcpList icps={icps} />
-              </div>
-            </section>
+            </AdminSectionCard>
           </aside>
         </div>
     </AdminPageShell>

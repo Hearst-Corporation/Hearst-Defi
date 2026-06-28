@@ -1,4 +1,4 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { resolveVault } from "@/lib/vaults/resolver";
 import { cloneFormValues } from "@/lib/vaults/clone";
@@ -98,30 +98,26 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
   const applyResumeForm = resumeAcknowledged ? resumeForm : undefined;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader titleLead="New" titleAccent="Vault Deployment" />
-
-        {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (
-          <ResumeDraftBanner
-            ticker={
-              typeof resumeForm.ticker === "string" && resumeForm.ticker.length > 0
-                ? resumeForm.ticker
-                : undefined
-            }
-            stepLabel={stepLabel}
-            stepNumber={stepNumber}
-            updatedAt={draftUpdatedAt}
-          />
-        ) : (
-          <VaultWizard
-            resumeStep={applyResume}
-            resumeForm={applyResumeForm}
-            cloneValues={cloneValues}
-            adminId={adminId}
-          />
-        )}
-      </div>
-    </div>
+    <AdminPageShell titleLead="New" titleAccent="Vault Deployment">
+      {showGate && resumeForm && draftUpdatedAt && stepLabel && stepNumber ? (
+        <ResumeDraftBanner
+          ticker={
+            typeof resumeForm.ticker === "string" && resumeForm.ticker.length > 0
+              ? resumeForm.ticker
+              : undefined
+          }
+          stepLabel={stepLabel}
+          stepNumber={stepNumber}
+          updatedAt={draftUpdatedAt}
+        />
+      ) : (
+        <VaultWizard
+          resumeStep={applyResume}
+          resumeForm={applyResumeForm}
+          cloneValues={cloneValues}
+          adminId={adminId}
+        />
+      )}
+    </AdminPageShell>
   );
 }

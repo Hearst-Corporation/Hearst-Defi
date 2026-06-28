@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
@@ -65,23 +65,20 @@ export default async function EditVaultPage({ params }: PageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          lead={
-            <Link
-              href={`/admin/vaults/${id}`}
-              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
-            >
-              ← {vault.ticker}
-            </Link>
-          }
-          titleLead="Edit"
-          titleAccent="Vault Draft"
-        />
-
-        <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="Edit"
+      titleAccent="Vault Draft"
+      contextLabel={vault.ticker}
+      headerActions={
+        <Link
+          href={`/admin/vaults/${id}`}
+          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+        >
+          ← {vault.ticker}
+        </Link>
+      }
+    >
+      <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
+    </AdminPageShell>
   );
 }

@@ -2,14 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Button } from "@/components/catalyst/button";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import {
-  BentoPanel,
-  BentoHeader,
-  BentoLabel,
-  BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
 import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
@@ -77,8 +73,7 @@ export default async function ProposePage() {
           }
         />
 
-        <BentoPanel aria-label="Proposal form">
-          <BentoHeader title="Proposal details" />
+        <AdminSectionCard ariaLabel="Proposal form" title="Proposal details">
           <div className="p-5 lg:p-6">
             <form action={handlePropose} className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
@@ -168,7 +163,7 @@ export default async function ProposePage() {
               </p>
             </form>
           </div>
-        </BentoPanel>
+        </AdminSectionCard>
       </div>
     </div>
   );

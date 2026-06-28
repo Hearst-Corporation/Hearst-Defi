@@ -2,9 +2,12 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { MachineTable } from "@/components/admin/source/machine-table";
-import { BentoPanel, BentoHeader } from "@/components/ui/bento";
+import { BentoPanel } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
@@ -128,145 +131,139 @@ export default async function SourcePage({
   ).length;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Sources de"
-          titleAccent="données"
-          contextLabel="Strategy"
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {BRICKS.map((brick) => {
-            const chip = STATUS_CHIP[brick.status];
-            return (
-              <BentoPanel key={brick.id}>
-                <div className="flex h-full flex-col gap-2 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="ct-panel-title">{brick.title}</h3>
-                    <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
-                  </div>
-                  <p className="ct-metric-caption">{brick.detail}</p>
+    <AdminPageShell
+      titleLead="Sources de"
+      titleAccent="données"
+      contextLabel="Strategy"
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {BRICKS.map((brick) => {
+          const chip = STATUS_CHIP[brick.status];
+          return (
+            <BentoPanel key={brick.id}>
+              <div className="flex h-full flex-col gap-2 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="ct-panel-title">{brick.title}</h3>
+                  <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
                 </div>
-              </BentoPanel>
-            );
-          })}
+                <p className="ct-metric-caption">{brick.detail}</p>
+              </div>
+            </BentoPanel>
+          );
+        })}
+      </div>
+
+      <AdminSectionCard
+        title={`Prix machines — ${market.channel}`}
+        subtitle={
+          <>
+            Liste {market.listDate ?? "n/a"} · {market.rows.length} machines ·{" "}
+            {profitable} rentables · Énergie {market.energyUsdPerKwh * 100} ¢/kWh
+            · Landed = ex-works + port ${FREIGHT_USD_PER_UNIT} + douane{" "}
+            {CUSTOMS_DUTY_PCT[destination]}% ({COUNTRY_LABELS[destination]})
+          </>
+        }
+        headerTrailing={
+          <div className="text-right">
+            <div className="ct-bento-label">Revenu (hashprice live)</div>
+            <div className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
+              ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
+              {market.hashpriceStale ? " (stale)" : ""}
+            </div>
+            <div className="ct-metric-caption tabular-nums">
+              BTC ${market.btcPriceUsd.toLocaleString()}
+            </div>
+          </div>
+        }
+        ariaLabel="Prix machines"
+      >
+        <div className="flex flex-col gap-5 p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="ct-bento-label">Destination</span>
+            {COUNTRY_ORDER.map((c) => (
+              <Link
+                key={c}
+                href={
+                  c === DEFAULT_DESTINATION
+                    ? "/admin/source"
+                    : `/admin/source?dest=${c}`
+                }
+                className={cn(
+                  "ct-metric-caption rounded-lg border px-3 py-1 transition-colors",
+                  destination === c
+                    ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                    : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)]",
+                )}
+              >
+                {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
+              </Link>
+            ))}
+          </div>
+
+          {!market.configured ? (
+            <p className="ct-metric-caption">
+              Telegram non configuré. Renseignez TELEGRAM_API_ID /
+              TELEGRAM_API_HASH / TELEGRAM_SESSION dans .env.local (login via{" "}
+              <code className="font-mono text-[var(--ct-text-secondary)]">
+                node scripts/telegram-login.mjs
+              </code>
+              ).
+            </p>
+          ) : market.error ? (
+            <p className="ct-metric-caption text-[var(--ct-status-danger)]">
+              Lecture Telegram impossible : {market.error}
+            </p>
+          ) : market.rows.length === 0 ? (
+            <p className="ct-metric-caption">
+              Aucune liste de prix exploitable dans les derniers messages.
+            </p>
+          ) : (
+            <MachineTable rows={market.rows} />
+          )}
         </div>
+      </AdminSectionCard>
 
-        <BentoPanel>
-          <BentoHeader
-            title={`Prix machines — ${market.channel}`}
-            subtitle={
-              <>
-                Liste {market.listDate ?? "n/a"} · {market.rows.length} machines
-                · {profitable} rentables · Énergie{" "}
-                {market.energyUsdPerKwh * 100} ¢/kWh · Landed = ex-works + port $
-                {FREIGHT_USD_PER_UNIT} + douane {CUSTOMS_DUTY_PCT[destination]}% (
-                {COUNTRY_LABELS[destination]})
-              </>
-            }
-            trailing={
-              <div className="text-right">
-                <div className="ct-bento-label">Revenu (hashprice live)</div>
-                <div className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
-                  ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
-                  {market.hashpriceStale ? " (stale)" : ""}
+      <AdminSectionCard
+        title="APY range par vault"
+        subtitle={
+          <>
+            Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}% (
+            {apy.usdcSource}) · BTC scénario {apy.btcReturn.bear}/
+            {apy.btcReturn.base}/+{apy.btcReturn.bull}% · allocation dérivée
+            risk-adjusted
+          </>
+        }
+        ariaLabel="APY range par vault"
+      >
+        <div className="flex flex-col gap-4 p-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {apy.vaults.map((v) => (
+              <div
+                key={v.id}
+                className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-4"
+              >
+                <div className="ct-panel-title">{v.label}</div>
+                <div className="stat-value mt-1 tabular-nums">
+                  {v.apyLow}% — {v.apyHigh}%
                 </div>
-                <div className="ct-metric-caption tabular-nums">
-                  BTC ${market.btcPriceUsd.toLocaleString()}
+                <div className="ct-metric-caption mt-2">
+                  mining {v.allocation.miningPct}% · BTC {v.allocation.btcPct}% ·
+                  USDC {v.allocation.usdcPct}%
+                </div>
+                <div className="ct-metric-caption">
+                  drag emprunt −{v.borrowDragPct}%
                 </div>
               </div>
-            }
-          />
-
-          <div className="flex flex-col gap-5 p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="ct-bento-label">Destination</span>
-              {COUNTRY_ORDER.map((c) => (
-                <Link
-                  key={c}
-                  href={
-                    c === DEFAULT_DESTINATION
-                      ? "/admin/source"
-                      : `/admin/source?dest=${c}`
-                  }
-                  className={cn(
-                    "ct-metric-caption rounded-lg border px-3 py-1 transition-colors",
-                    destination === c
-                      ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                      : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)]",
-                  )}
-                >
-                  {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
-                </Link>
-              ))}
-            </div>
-
-            {!market.configured ? (
-              <p className="ct-metric-caption">
-                Telegram non configuré. Renseignez TELEGRAM_API_ID /
-                TELEGRAM_API_HASH / TELEGRAM_SESSION dans .env.local (login via{" "}
-                <code className="font-mono text-[var(--ct-text-secondary)]">
-                  node scripts/telegram-login.mjs
-                </code>
-                ).
-              </p>
-            ) : market.error ? (
-              <p className="ct-metric-caption text-[var(--ct-status-danger)]">
-                Lecture Telegram impossible : {market.error}
-              </p>
-            ) : market.rows.length === 0 ? (
-              <p className="ct-metric-caption">
-                Aucune liste de prix exploitable dans les derniers messages.
-              </p>
-            ) : (
-              <MachineTable rows={market.rows} />
-            )}
+            ))}
           </div>
-        </BentoPanel>
-
-        <BentoPanel>
-          <BentoHeader
-            title="APY range par vault"
-            subtitle={
-              <>
-                Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}% (
-                {apy.usdcSource}) · BTC scénario {apy.btcReturn.bear}/
-                {apy.btcReturn.base}/+{apy.btcReturn.bull}% · allocation dérivée
-                risk-adjusted
-              </>
-            }
-          />
-          <div className="flex flex-col gap-4 p-5">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {apy.vaults.map((v) => (
-                <div
-                  key={v.id}
-                  className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-4"
-                >
-                  <div className="ct-panel-title">{v.label}</div>
-                  <div className="stat-value mt-1 tabular-nums">
-                    {v.apyLow}% — {v.apyHigh}%
-                  </div>
-                  <div className="ct-metric-caption mt-2">
-                    mining {v.allocation.miningPct}% · BTC {v.allocation.btcPct}%
-                    · USDC {v.allocation.usdcPct}%
-                  </div>
-                  <div className="ct-metric-caption">
-                    drag emprunt −{v.borrowDragPct}%
-                  </div>
-                </div>
-              ))}
-            </div>
-            <ul className="ct-metric-caption flex flex-col gap-1">
-              {apy.assumptions.map((a) => (
-                <li key={a}>• {a}</li>
-              ))}
-            </ul>
-            <p className="ct-metric-caption italic">{apy.disclaimer}</p>
-          </div>
-        </BentoPanel>
-      </div>
-    </div>
+          <ul className="ct-metric-caption flex flex-col gap-1">
+            {apy.assumptions.map((a) => (
+              <li key={a}>• {a}</li>
+            ))}
+          </ul>
+          <p className="ct-metric-caption italic">{apy.disclaimer}</p>
+        </div>
+      </AdminSectionCard>
+    </AdminPageShell>
   );
 }

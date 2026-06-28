@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { ManualSignalTrigger } from "@/components/admin/manual-signal-trigger";
@@ -107,65 +107,61 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Vault"
-          titleAccent="Rebalancing"
-          contextLabel="Vaults"
-          actions={
-            isDev ? (
-              <ManualSignalTrigger action={manualSignalAction} vaultId={vaultId} />
-            ) : undefined
-          }
+    <AdminPageShell
+      titleLead="Vault"
+      titleAccent="Rebalancing"
+      contextLabel="Vaults"
+      headerActions={
+        isDev ? (
+          <ManualSignalTrigger action={manualSignalAction} vaultId={vaultId} />
+        ) : undefined
+      }
+    >
+      {/* Signal KPI summary — suppressed when no signals exist */}
+      {signalKpis.length > 0 && <AdminKpiStripPanel kpis={signalKpis} />}
+
+      <AdminUrlTabFilter
+        ariaLabel="Signal status filter"
+        activeKey={activeStatus}
+        tabs={TABS.map((tab) => {
+          const count =
+            tab.value === "all"
+              ? Object.values(countMap).reduce((a, b) => a + b, 0)
+              : (countMap[tab.value] ?? 0);
+
+          return {
+            key: tab.value,
+            label: (
+              <>
+                {tab.label}
+                {count > 0 ? <span className="tabular">{count}</span> : null}
+              </>
+            ),
+            href: withAdminVaultQuery("/admin/signals", vaultQuery, {
+              status: tab.value,
+            }),
+          };
+        })}
+      />
+
+      {/* Event list */}
+      {events.length === 0 ? (
+        <EmptySurface
+          variant="widget"
+          message={`No rebalance signals with status "${activeStatus}".`}
+          detail="Signals for the selected vault are created automatically by the Inngest rebalancing-signal function when engine rules fire."
+          className="min-h-32"
         />
-
-        {/* Signal KPI summary — suppressed when no signals exist */}
-        {signalKpis.length > 0 && <AdminKpiStripPanel kpis={signalKpis} />}
-
-        <AdminUrlTabFilter
-          ariaLabel="Signal status filter"
-          activeKey={activeStatus}
-          tabs={TABS.map((tab) => {
-            const count =
-              tab.value === "all"
-                ? Object.values(countMap).reduce((a, b) => a + b, 0)
-                : (countMap[tab.value] ?? 0);
-
-            return {
-              key: tab.value,
-              label: (
-                <>
-                  {tab.label}
-                  {count > 0 ? <span className="tabular">{count}</span> : null}
-                </>
-              ),
-              href: withAdminVaultQuery("/admin/signals", vaultQuery, {
-                status: tab.value,
-              }),
-            };
-          })}
-        />
-
-        {/* Event list */}
-        {events.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message={`No rebalance signals with status "${activeStatus}".`}
-            detail="Signals for the selected vault are created automatically by the Inngest rebalancing-signal function when engine rules fire."
-            className="min-h-32"
-          />
-        ) : (
-          <section className="flex flex-col gap-y-5">
-            <p className="ct-bento-label">
-              {events.length} signal{events.length !== 1 ? "s" : ""}
-            </p>
-            {events.map((event) => (
-              <RebalanceCard key={event.id} event={event} requiredSigners={2} />
-            ))}
-          </section>
-        )}
-      </div>
-    </div>
+      ) : (
+        <section className="flex flex-col gap-y-5">
+          <p className="ct-bento-label">
+            {events.length} signal{events.length !== 1 ? "s" : ""}
+          </p>
+          {events.map((event) => (
+            <RebalanceCard key={event.id} event={event} requiredSigners={2} />
+          ))}
+        </section>
+      )}
+    </AdminPageShell>
   );
 }

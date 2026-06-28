@@ -1,10 +1,21 @@
 import Link from "next/link";
 
 import { prisma } from "@/lib/db";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { AdminTable } from "@/components/admin/admin-table-layout";
-import { BentoPanel } from "@/components/ui/bento";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  TABLE_HEAD,
+  TABLE_WRAP,
+  ROW,
+} from "@/components/admin/admin-page-shell";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
@@ -59,141 +70,144 @@ export default async function DistributionsPage({
   const distributionKpis = buildDistributionsKpiStrip(history);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Vault"
-          titleAccent="Distributions"
-          contextLabel="Vaults"
-        />
+    <AdminPageShell
+      titleLead="Vault"
+      titleAccent="Distributions"
+      contextLabel="Vaults"
+    >
+      {/* Compute + confirm form (client) */}
+      <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />
 
-        {/* Distribution KPI summary — suppressed when no history */}
-        {distributionKpis.length > 0 && (
-          <AdminKpiStripPanel kpis={distributionKpis} />
-        )}
-
-        {/* Compute + confirm form (client) */}
-        <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />
-
-        {/* Distribution history */}
-        <section className="flex flex-col gap-4">
-          <h2 className="ct-section-title">
-            History ({activeVaultLabel})
-          </h2>
-
-          {history.length === 0 ? (
-            <EmptySurface
-              variant="widget"
-              message={`No distributions yet for ${activeVaultLabel}.`}
-              detail="Confirmed distributions for this vault will appear here after multisig approval."
-              className="min-h-32"
-            />
-          ) : (
-          <AdminTable
-            data={history}
-            headers={[
-              "Vault",
-              "Period",
-              <span key="amount" className="text-right">Amount (USDC)</span>,
-              <span key="recipients" className="hidden md:inline text-right">Recipients</span>,
-              <span key="distributed" className="text-right">Distributed at</span>,
-              <span key="tx" className="hidden xl:inline text-right">Tx hash</span>,
-              <span key="source" className="hidden lg:inline text-right">Source</span>,
-            ]}
-            colWidths={[
-              "w-[28%]",
-              "w-[16%]",
-              "w-[22%] text-right",
-              "hidden w-[12%] text-right md:table-cell",
-              "w-[34%] text-right md:w-[22%]",
-              "hidden text-right xl:table-cell",
-              "hidden text-right lg:table-cell",
-            ]}
-            renderRow={(d) => {
-              const slug = d.vaultRef;
-              const label = slug
-                ? (LEGACY_VAULT_LABELS[slug] ?? vaultLabelBySlug.get(slug) ?? slug)
-                : null;
-
-              const vaultHref = slug
-                ? slug === "yield" || slug === "defensive" || slug === "btc-plus"
-                  ? `/admin/dashboard${slug !== "yield" ? `?vault=${slug}` : ""}`
-                  : `/admin/vaults/${slug}`
-                : null;
-
-              return (
-                <>
-                  <td className="ct-metric-value truncate px-5 py-4 align-top">
-                    {vaultHref && label ? (
-                      <Link
-                        href={vaultHref}
-                        className="block max-w-full truncate text-[var(--ct-accent)] hover:underline"
-                      >
-                        {label}
-                      </Link>
-                    ) : label ? (
-                      <span className="text-[var(--ct-text-secondary)]">{label}</span>
-                    ) : (
-                      <span className="text-[var(--ct-text-muted)]">—</span>
-                    )}
-                  </td>
-                  <td className="ct-metric-caption px-5 py-4 align-top font-mono">
-                    {d.period}
-                  </td>
-                  <td className="ct-metric-value px-5 py-4 text-right align-top tabular-nums">
-                    {formatUsdDetailed(d.amountUsdc.toNumber())}
-                  </td>
-                  <td className="ct-metric-caption hidden px-5 py-4 text-right align-top tabular-nums md:table-cell">
-                    {d.recipientsCount}
-                  </td>
-                  <td className="ct-metric-caption px-5 py-4 text-right align-top">
-                    {formatAdminDate(new Date(d.distributedAt))}
-                  </td>
-                  <td className="ct-metric-caption hidden px-5 py-4 text-right align-top font-mono xl:table-cell">
-                    {d.txHash ? (
-                      d.txHash.startsWith("0xMOCK") ? (
-                        <span className="text-[var(--ct-text-muted)]">simulated</span>
-                      ) : (
-                        `${d.txHash.slice(0, 8)}…`
-                      )
-                    ) : (
-                      <span className="text-[var(--ct-text-muted)]">—</span>
-                    )}
-                  </td>
-                  <td className="hidden px-5 py-4 text-right align-top lg:table-cell">
-                    <span className="inline-flex justify-end">
-                      <ProvenanceBadge
-                        variant="strip"
-                        kind={
-                          d.txHash
-                            ? d.txHash.startsWith("0xMOCK")
-                              ? "estimated"
-                              : "attested"
-                            : "manual"
-                        }
-                      />
-                    </span>
-                  </td>
-                </>
-              );
-            }}
+      {/* Distribution history — welded card: optional KPI strip → header → table */}
+      <AdminSectionCard
+        kpis={distributionKpis}
+        kpiTitle="Distribution summary"
+        kpiSubtitle={`${history.length} confirmed ${history.length === 1 ? "distribution" : "distributions"}`}
+        title={`History (${activeVaultLabel})`}
+        subtitle="Confirmed distributions for this vault"
+        ariaLabel="Distribution history"
+      >
+        {history.length === 0 ? (
+          <EmptySurface
+            variant="widget"
+            message={`No distributions yet for ${activeVaultLabel}.`}
+            detail="Confirmed distributions for this vault will appear here after multisig approval."
+            className="min-h-32"
           />
-          )}
+        ) : (
+          <Table dense className={TABLE_WRAP}>
+            <TableHead>
+              <TableRow>
+                <TableHeader className={`${TABLE_HEAD} pl-5`}>Vault</TableHeader>
+                <TableHeader className={TABLE_HEAD}>Period</TableHeader>
+                <TableHeader className={`${TABLE_HEAD} text-right`}>
+                  Amount (USDC)
+                </TableHeader>
+                <TableHeader
+                  className={`${TABLE_HEAD} hidden text-right md:table-cell`}
+                >
+                  Recipients
+                </TableHeader>
+                <TableHeader className={`${TABLE_HEAD} text-right`}>
+                  Distributed at
+                </TableHeader>
+                <TableHeader
+                  className={`${TABLE_HEAD} hidden text-right xl:table-cell`}
+                >
+                  Tx hash
+                </TableHeader>
+                <TableHeader
+                  className={`${TABLE_HEAD} hidden pr-5 text-right lg:table-cell`}
+                >
+                  Source
+                </TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {history.map((d) => {
+                const slug = d.vaultRef;
+                const label = slug
+                  ? (LEGACY_VAULT_LABELS[slug] ??
+                    vaultLabelBySlug.get(slug) ??
+                    slug)
+                  : null;
 
-          <BentoPanel>
-            <div className="flex flex-col gap-2 p-5">
-              <h3 className="ct-metric-value">
-                Historical record
-              </h3>
-              <p className="ct-metric-caption max-w-prose">
-                Distributions shown above are historical records only. They are
-                not a commitment to any future distribution. Past distributions
-                are not a reliable indicator of future performance or yield.
-              </p>
-            </div>
-          </BentoPanel>
-        </section>
-      </div>
-    </div>
+                const vaultHref = slug
+                  ? slug === "yield" || slug === "defensive" || slug === "btc-plus"
+                    ? `/admin/dashboard${slug !== "yield" ? `?vault=${slug}` : ""}`
+                    : `/admin/vaults/${slug}`
+                  : null;
+
+                return (
+                  <TableRow key={d.id} className={ROW}>
+                    <TableCell className="ct-metric-value truncate pl-5">
+                      {vaultHref && label ? (
+                        <Link
+                          href={vaultHref}
+                          className="block max-w-full truncate text-[var(--ct-accent)] hover:underline"
+                        >
+                          {label}
+                        </Link>
+                      ) : label ? (
+                        <span className="text-[var(--ct-text-secondary)]">
+                          {label}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--ct-text-muted)]">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption font-mono">
+                      {d.period}
+                    </TableCell>
+                    <TableCell className="ct-metric-value text-right tabular-nums">
+                      {formatUsdDetailed(d.amountUsdc.toNumber())}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden text-right tabular-nums md:table-cell">
+                      {d.recipientsCount}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption text-right">
+                      {formatAdminDate(new Date(d.distributedAt))}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden text-right font-mono xl:table-cell">
+                      {d.txHash ? (
+                        d.txHash.startsWith("0xMOCK") ? (
+                          <span className="text-[var(--ct-text-muted)]">
+                            simulated
+                          </span>
+                        ) : (
+                          `${d.txHash.slice(0, 8)}…`
+                        )
+                      ) : (
+                        <span className="text-[var(--ct-text-muted)]">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden pr-5 text-right lg:table-cell">
+                      <span className="inline-flex justify-end">
+                        <ProvenanceBadge
+                          variant="strip"
+                          kind={
+                            d.txHash
+                              ? d.txHash.startsWith("0xMOCK")
+                                ? "estimated"
+                                : "attested"
+                              : "manual"
+                          }
+                        />
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </AdminSectionCard>
+
+      <AdminSectionCard
+        title="Historical record"
+        subtitle="Distributions shown above are historical records only. They are not a commitment to any future distribution. Past distributions are not a reliable indicator of future performance or yield."
+        ariaLabel="Historical record disclaimer"
+      />
+    </AdminPageShell>
   );
 }

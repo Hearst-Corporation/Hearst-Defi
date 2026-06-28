@@ -2,14 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { Badge } from "@/components/catalyst/badge";
 import { Ptai } from "@/components/ui/ptai";
-import {
-  BentoPanel,
-  BentoHeader,
-  BentoKpiTile,
-} from "@/components/ui/bento";
+import { BentoKpiTile } from "@/components/ui/bento";
 import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
 import {
   extractPtaiFromCalldata,
@@ -114,23 +111,23 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         />
 
         {/* ── Proposal meta ─────────────────────────────────────────────── */}
-        <BentoPanel aria-label="Proposal meta">
-          <BentoHeader
-            title="Proposal meta"
-            trailing={
-              <div className="flex items-center gap-2">
-                <Badge color="green" className="font-mono uppercase">
-                  {proposal.vaultTicker}
-                </Badge>
-                <Badge
-                  color={STATE_BADGE_COLOR[proposalStateVariant(proposal.state)]}
-                  className="uppercase"
-                >
-                  {proposalStateLabel(proposal.state)}
-                </Badge>
-              </div>
-            }
-          />
+        <AdminSectionCard
+          ariaLabel="Proposal meta"
+          title="Proposal meta"
+          headerTrailing={
+            <>
+              <Badge color="green" className="font-mono uppercase">
+                {proposal.vaultTicker}
+              </Badge>
+              <Badge
+                color={STATE_BADGE_COLOR[proposalStateVariant(proposal.state)]}
+                className="uppercase"
+              >
+                {proposalStateLabel(proposal.state)}
+              </Badge>
+            </>
+          }
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <BentoKpiTile
               label="Proposed by"
@@ -178,15 +175,15 @@ export default async function ProposalDetailPage({ params }: PageProps) {
               </div>
             </div>
           ) : null}
-        </BentoPanel>
+        </AdminSectionCard>
 
         {/* ── PTAI ──────────────────────────────────────────────────────── */}
         {ptai ? (
-          <BentoPanel aria-label="PTAI">
-            <BentoHeader
-              title="PTAI"
-              subtitle="Projection · Trigger · Action · Impact"
-            />
+          <AdminSectionCard
+            ariaLabel="PTAI"
+            title="PTAI"
+            subtitle="Projection · Trigger · Action · Impact"
+          >
             <div className="p-5 lg:p-6 flex flex-col gap-3">
               <Ptai
                 projection={ptai.projection}
@@ -198,38 +195,36 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 Conditional projection — not guaranteed. Methodology v1.0.
               </p>
             </div>
-          </BentoPanel>
+          </AdminSectionCard>
         ) : null}
 
         {/* ── Justification ─────────────────────────────────────────────── */}
-        <BentoPanel aria-label="Justification">
-          <BentoHeader title="Justification" />
+        <AdminSectionCard ariaLabel="Justification" title="Justification">
           <div className="p-5 lg:p-6">
             <p className="body-sm whitespace-pre-wrap leading-relaxed text-[var(--ct-text-body)]">
               {proposal.justification}
             </p>
           </div>
-        </BentoPanel>
+        </AdminSectionCard>
 
         {/* ── Calldata ──────────────────────────────────────────────────── */}
         {proposal.calldata ? (
-          <BentoPanel aria-label="Calldata">
-            <BentoHeader title="Calldata" />
+          <AdminSectionCard ariaLabel="Calldata" title="Calldata">
             <div className="p-5 lg:p-6">
               <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4 font-mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-body)]">
                 {formatProposalCalldata(proposal.calldata)}
               </pre>
             </div>
-          </BentoPanel>
+          </AdminSectionCard>
         ) : null}
 
         {/* ── Signatures ────────────────────────────────────────────────── */}
-        <BentoPanel aria-label="Signatures">
-          <BentoHeader
-            title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
-              proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
-            }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
-          />
+        <AdminSectionCard
+          ariaLabel="Signatures"
+          title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
+            proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
+          }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
+        >
           <div className="p-5 lg:p-6">
             {proposal.signatures.length === 0 ? (
               <p className="ct-metric-caption">No signatures yet.</p>
@@ -268,12 +263,11 @@ export default async function ProposalDetailPage({ params }: PageProps) {
               </div>
             )}
           </div>
-        </BentoPanel>
+        </AdminSectionCard>
 
         {/* ── Actions ───────────────────────────────────────────────────── */}
         {!isTerminal ? (
-          <BentoPanel aria-label="Actions">
-            <BentoHeader title="Actions" />
+          <AdminSectionCard ariaLabel="Actions" title="Actions">
             <div className="p-5 lg:p-6 flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 {canSign ? (
@@ -341,7 +335,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 Actions are recorded on-chain mock only — no Solidity calls at this stage.
               </p>
             </div>
-          </BentoPanel>
+          </AdminSectionCard>
         ) : null}
       </div>
     </div>
