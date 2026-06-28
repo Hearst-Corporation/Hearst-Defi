@@ -68,13 +68,29 @@ export async function investorHasKycInquiry(userId: string): Promise<boolean> {
 }
 
 /**
- * Resolves whether wallet binding may proceed when Sumsub is configured.
- * Caller must still skip this entirely when Sumsub is not configured.
+ * Resolves whether wallet binding / capital allocation may proceed when Sumsub
+ * is configured. Caller must still skip this entirely when Sumsub is not
+ * configured.
+ *
+ * Approval precedence: an investor whose KYC is already `approved` (the final
+ * canonical state on `Investor.kycStatus`, set by webhook ingest OR by an admin)
+ * has cleared identity verification and must NEVER be bounced back to the
+ * identity step — even if no `KycInquiry` row exists for them (manual approval,
+ * seed data, or a legacy path that did not create the inquiry row). Only when
+ * the investor is not yet approved do we fall back to the started-inquiry check.
  */
 export async function resolveKycWalletGate(
   userId: string,
 ): Promise<KycWalletGateStatus> {
   try {
+    const investor = await prisma.investor.findUnique({
+      where: { userId },
+      select: { kycStatus: true },
+    });
+    if (investor?.kycStatus === "approved") {
+      return "passed";
+    }
+
     const startedKyc = await prisma.kycInquiry.findFirst({
       where: { userId },
       select: { inquiryId: true },

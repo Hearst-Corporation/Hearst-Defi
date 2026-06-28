@@ -3,10 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const findFirstMock = vi.hoisted(() => vi.fn());
+const investorFindUniqueMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/db", () => ({
   prisma: {
     kycInquiry: { findFirst: findFirstMock },
+    investor: { findUnique: investorFindUniqueMock },
   },
 }));
 
@@ -57,6 +59,9 @@ describe("investorHasKycInquiry", () => {
 describe("resolveKycWalletGate", () => {
   beforeEach(() => {
     findFirstMock.mockReset();
+    investorFindUniqueMock.mockReset();
+    // Default: investor not yet approved → fall through to the inquiry check.
+    investorFindUniqueMock.mockResolvedValue({ kycStatus: "pending" });
     vi.mocked(logger.warn).mockReset();
     vi.mocked(logger.error).mockReset();
     vi.stubEnv("NODE_ENV", "development");
@@ -64,6 +69,15 @@ describe("resolveKycWalletGate", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+  });
+
+  it("returns passed when investor kycStatus is approved (no inquiry needed)", async () => {
+    investorFindUniqueMock.mockResolvedValue({ kycStatus: "approved" });
+    // Even with no started inquiry, an approved investor must not be bounced.
+    findFirstMock.mockResolvedValue(null);
+    await expect(resolveKycWalletGate("user-1")).resolves.toBe("passed");
+    // Approval short-circuits before the inquiry lookup runs.
+    expect(findFirstMock).not.toHaveBeenCalled();
   });
 
   it("returns passed when a KycInquiry row exists", async () => {
