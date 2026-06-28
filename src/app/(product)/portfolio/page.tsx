@@ -130,8 +130,10 @@ export default async function PortfolioPage() {
             />
           </HcChartCard>
 
-          {/* Status tiles — real aggregates (single numbers, not charts). */}
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-6 flex flex-col justify-center">
+          {/* Status tiles — written KPIs sit on the GREY inset surface (not the
+              black chart-card surface): owner rule = charts on black, written
+              KPIs on grey. */}
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] shadow-sm p-6 flex flex-col justify-center">
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-1.5">
                 <div className="ct-bento-label">Principal</div>
