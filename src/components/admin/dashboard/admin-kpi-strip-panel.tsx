@@ -56,15 +56,9 @@ export function AdminKpiStripPanel({
       {hasHeader ? (
         <div className="flex items-center justify-between gap-4 border-b border-[var(--ct-border-soft)] p-5">
           <div className="flex min-w-0 flex-col gap-1">
-            {title ? (
-              <h2 className="ct-bento-label">
-                {title}
-              </h2>
-            ) : null}
+            {title ? <h2 className="ct-section-title">{title}</h2> : null}
             {subtitle ? (
-              <p className="text-[12px] tracking-wide text-[var(--ct-text-muted)]">
-                {subtitle}
-              </p>
+              <p className="ct-metric-caption">{subtitle}</p>
             ) : null}
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
