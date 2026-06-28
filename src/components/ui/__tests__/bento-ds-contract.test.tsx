@@ -79,8 +79,13 @@ describe("primary pages — no ad-hoc surface hardcodes in patched files", () =>
     expect(DASHBOARD_SRC).not.toContain("text-[#A7FB90]");
   });
 
-  it("audit page uses ct-bento-input, not bg-[#15191C] inputs", () => {
-    expect(AUDIT_SRC).toContain("ct-bento-input");
+  it("audit page uses Catalyst primitives (Table/Input), not ad-hoc Tailwind", () => {
+    // Catalyst is the visual authority: the page composes the purchased
+    // primitives instead of hand-rolled inputs/tables. (Supersedes the prior
+    // ct-bento-input contract — that surface is now a Catalyst Input.)
+    expect(AUDIT_SRC).toContain("@/components/catalyst/input");
+    expect(AUDIT_SRC).toContain("@/components/catalyst/table");
+    expect(AUDIT_SRC).not.toContain("ct-bento-input");
     expect(AUDIT_SRC).not.toContain("bg-[#15191C]");
     expect(AUDIT_SRC).toContain("BentoPageShell");
   });
