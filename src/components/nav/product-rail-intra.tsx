@@ -110,7 +110,7 @@ function RailSeparator() {
   return (
     <hr
       aria-hidden="true"
-      className="my-1 w-8 border-0 border-t border-white/10"
+      className="my-1 w-8 border-0 border-t border-[var(--ct-border)]"
     />
   );
 }
@@ -135,7 +135,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       title={item.label}
       className={cn(
         "group flex w-full flex-col items-center gap-1.5 rounded-xl py-2 transition-colors duration-150",
-        isActive ? "text-[var(--ct-accent)]" : "text-zinc-500 hover:text-zinc-200",
+        isActive ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-faint)] hover:text-zinc-200",
       )}
     >
       <span
@@ -143,7 +143,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
           "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-150",
           isActive
             ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
-            : "border-transparent group-hover:border-white/10 group-hover:bg-white/5",
+            : "border-transparent group-hover:border-[var(--ct-border)] group-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]",
         )}
       >
         {Icon ? <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} /> : null}

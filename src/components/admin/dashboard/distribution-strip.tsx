@@ -12,7 +12,7 @@ export function DistributionStrip({ allocations, className }: DistributionStripP
   if (total <= 0) return null;
 
   return (
-    <div className={cn("flex h-1 w-full overflow-hidden rounded-full bg-white/10", className)}>
+    <div className={cn("flex h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]", className)}>
       {allocations.map((a) => (
         <div
           key={a.bucket}

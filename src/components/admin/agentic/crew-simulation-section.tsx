@@ -46,7 +46,7 @@ const TAG_CLASS: Record<Tone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   danger: "border-red-400/25 bg-red-400/10 text-red-300",
-  muted: "border-white/10 bg-white/5 text-zinc-400",
+  muted: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
 };
 
 /** Micro uppercase label. */
@@ -112,17 +112,17 @@ export function CrewSimulationSection({
                   <h3 className="text-[14px] font-semibold leading-tight text-white">
                     {scenario.label}
                   </h3>
-                  <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-400">
+                  <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-muted)]">
                     {summary}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-white/5 bg-surface-card">
+                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-[var(--ct-border-soft)] bg-surface-card">
                   <KpiCell label="Risk">
                     {showRisk ? (
                       <Tag tone={riskTone(scenario.risk)}>{scenario.risk}</Tag>
                     ) : (
-                      <span className="text-[length:var(--ct-text-xs)] text-zinc-600">—</span>
+                      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">—</span>
                     )}
                   </KpiCell>
                   <KpiCell label="Mode">
@@ -139,7 +139,7 @@ export function CrewSimulationSection({
 
                 <div className="flex flex-col gap-3 p-5">
                   <details className="group">
-                    <summary className="ct-bento-label flex cursor-pointer list-none items-center gap-2 transition-colors hover:text-zinc-300">
+                    <summary className="ct-bento-label flex cursor-pointer list-none items-center gap-2 transition-colors hover:text-[var(--ct-text-body)]">
                       <span
                         className="inline-block h-1.5 w-1.5 rotate-45 border-b border-r border-current transition-transform group-open:rotate-[225deg]"
                         aria-hidden
@@ -150,15 +150,15 @@ export function CrewSimulationSection({
                       {scenario.steps.map((step, i) => (
                         <li
                           key={step.id}
-                          className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/40 px-3 py-2"
+                          className="flex items-center gap-3 rounded-lg border border-[var(--ct-border-soft)] bg-black/40 px-3 py-2"
                         >
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/5 text-[10px] font-bold tabular-nums text-zinc-400">
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[10px] font-bold tabular-nums text-[var(--ct-text-muted)]">
                             {i + 1}
                           </span>
-                          <span className="flex-1 text-[length:var(--ct-text-2xs)] text-zinc-300">
+                          <span className="flex-1 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                             {step.label}
                           </span>
-                          <span className="text-[10px] uppercase tracking-[0.1em] font-bold text-zinc-500">
+                          <span className="text-[10px] uppercase tracking-[0.1em] font-bold text-[var(--ct-text-faint)]">
                             {MODE_LABEL[step.mode]}
                           </span>
                         </li>

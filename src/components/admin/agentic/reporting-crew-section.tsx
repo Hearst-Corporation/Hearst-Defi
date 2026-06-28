@@ -30,7 +30,7 @@ const CHIP_TONE: Record<ChipTone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   danger: "border-red-400/30 bg-red-400/10 text-red-400",
-  neutral: "border-white/10 bg-white/5 text-zinc-400",
+  neutral: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
 };
 
 function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
@@ -85,8 +85,8 @@ function SignalRow({ signal }: { signal: ReportingCrewSignal }) {
       <Chip tone={severityTone(signal.severity)}>{signal.severity}</Chip>
       <span className="flex-1 text-[13px] leading-snug">
         <span className="font-medium text-white">{signal.title}</span>
-        <span className="text-zinc-400"> — {signal.detail}</span>
-        <span className="text-zinc-600"> ({signal.source})</span>
+        <span className="text-[var(--ct-text-muted)]"> — {signal.detail}</span>
+        <span className="text-[var(--ct-text-faint)]"> ({signal.source})</span>
       </span>
     </li>
   );
@@ -98,7 +98,7 @@ function SectionCard({ section }: { section: ReportingCrewSectionData }) {
       <BentoHeader title={section.title} subtitle={section.summary} as="h3" />
       <div className="flex flex-1 flex-col gap-4 p-5">
         {section.metrics.length > 0 && (
-          <div className="flex flex-wrap gap-px overflow-hidden rounded-lg bg-white/5">
+          <div className="flex flex-wrap gap-px overflow-hidden rounded-lg bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]">
             {section.metrics.map((m) => (
               <div
                 key={m.id}
@@ -111,7 +111,7 @@ function SectionCard({ section }: { section: ReportingCrewSectionData }) {
                   {m.value}
                 </span>
                 {m.detail && (
-                  <span className="text-[10px] text-zinc-600">{m.detail}</span>
+                  <span className="text-[10px] text-[var(--ct-text-faint)]">{m.detail}</span>
                 )}
               </div>
             ))}
@@ -143,9 +143,9 @@ function NoteList({
         {notes.map((n) => (
           <li
             key={n}
-            className="flex gap-2 text-[12px] leading-snug text-zinc-500"
+            className="flex gap-2 text-[12px] leading-snug text-[var(--ct-text-faint)]"
           >
-            <span aria-hidden className="select-none text-zinc-600">
+            <span aria-hidden className="select-none text-[var(--ct-text-faint)]">
               ·
             </span>
             <span className="flex-1">{n}</span>
@@ -196,7 +196,7 @@ export function ReportingCrewSection({
           <span className="ct-bento-label">
             Executive summary
           </span>
-          <p className="mt-2 max-w-[80ch] text-[13px] leading-relaxed text-zinc-300">
+          <p className="mt-2 max-w-[80ch] text-[13px] leading-relaxed text-[var(--ct-text-body)]">
             {executiveSummary}
           </p>
         </div>

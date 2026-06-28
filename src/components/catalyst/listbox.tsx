@@ -43,7 +43,7 @@ export function Listbox<T>({
         <Headless.ListboxSelectedOption
           as="span"
           options={options}
-          placeholder={placeholder && <span className="block truncate text-zinc-500">{placeholder}</span>}
+          placeholder={placeholder && <span className="block truncate text-[var(--ct-text-faint)]">{placeholder}</span>}
           className={cn([
             // Basic layout
             'relative block w-full appearance-none rounded-lg py-[calc(--spacing(2.5)-1px)] sm:py-[calc(--spacing(1.5)-1px)]',
@@ -52,15 +52,15 @@ export function Listbox<T>({
             // Horizontal padding
             'pr-[calc(--spacing(7)-1px)] pl-[calc(--spacing(3.5)-1px)] sm:pl-[calc(--spacing(3)-1px)]',
             // Typography
-            'text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white forced-colors:text-[CanvasText]',
+            'text-left text-base/6 text-zinc-950 placeholder:text-[var(--ct-text-faint)] sm:text-sm/6 dark:text-white forced-colors:text-[CanvasText]',
             // Border
-            'border border-zinc-950/10 group-data-active:border-zinc-950/20 group-data-hover:border-zinc-950/20 dark:border-white/10 dark:group-data-active:border-white/20 dark:group-data-hover:border-white/20',
+            'border border-zinc-950/10 group-data-active:border-zinc-950/20 group-data-hover:border-zinc-950/20 dark:border-[var(--ct-border)] dark:group-data-active:border-[var(--ct-border-strong)] dark:group-data-hover:border-[var(--ct-border-strong)]',
             // Background color
-            'bg-transparent dark:bg-white/5',
+            'bg-transparent dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
             // Invalid state
             'group-data-invalid:border-red-500 group-data-hover:group-data-invalid:border-red-500 dark:group-data-invalid:border-red-600 dark:data-hover:group-data-invalid:border-red-600',
             // Disabled state
-            'group-data-disabled:border-zinc-950/20 group-data-disabled:opacity-100 dark:group-data-disabled:border-white/15 dark:group-data-disabled:bg-white/2.5 dark:group-data-disabled:data-hover:border-white/15',
+            'group-data-disabled:border-zinc-950/20 group-data-disabled:opacity-100 dark:group-data-disabled:border-[var(--ct-border-strong)] dark:group-data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:group-data-disabled:data-hover:border-[var(--ct-border-strong)]',
           ])}
         />
         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -114,7 +114,7 @@ export function ListboxOption<T>({
     'flex min-w-0 items-center',
     // Icons
     '*:data-[slot=icon]:size-5 *:data-[slot=icon]:shrink-0 sm:*:data-[slot=icon]:size-4',
-    '*:data-[slot=icon]:text-zinc-500 group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-zinc-400',
+    '*:data-[slot=icon]:text-[var(--ct-text-faint)] group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-[var(--ct-text-muted)]',
     'forced-colors:*:data-[slot=icon]:text-[CanvasText] forced-colors:group-data-focus/option:*:data-[slot=icon]:text-[Canvas]',
     // Avatars
     '*:data-[slot=avatar]:-mx-0.5 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:size-5'
@@ -168,7 +168,7 @@ export function ListboxDescription({ className, children, ...props }: React.Comp
       {...props}
       className={cn(
         className,
-        'flex flex-1 overflow-hidden text-zinc-500 group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-zinc-400'
+        'flex flex-1 overflow-hidden text-[var(--ct-text-faint)] group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-[var(--ct-text-muted)]'
       )}
     >
       <span className="flex-1 truncate">{children}</span>

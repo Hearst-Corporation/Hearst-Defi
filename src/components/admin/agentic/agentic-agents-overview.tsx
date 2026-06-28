@@ -117,21 +117,21 @@ export function AgenticAgentsOverview({
           return (
             <div
               key={domain}
-              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl border border-white/5 bg-surface-inset"
+              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset"
             >
-              <div className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3">
+              <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-4 py-3">
                 <span className="ct-bento-label">
                   {DOMAIN_LABEL[domain] ?? domain}
                 </span>
-                <span className="text-[11px] font-bold tabular-nums text-zinc-500">
+                <span className="text-[11px] font-bold tabular-nums text-[var(--ct-text-faint)]">
                   {items.length}
                 </span>
               </div>
               <div className="flex flex-col px-4">
                 {items.map((item) => (
                   <Fragment key={item.id}>
-                    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3 last:border-b-0">
-                      <span className="text-[13px] text-zinc-300">
+                    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
+                      <span className="text-[13px] text-[var(--ct-text-body)]">
                         {item.name}
                       </span>
                       <CapabilityTag item={item} />

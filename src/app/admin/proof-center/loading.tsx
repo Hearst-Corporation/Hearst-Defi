@@ -4,14 +4,14 @@
 export default function ProofCenterLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8"
+      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label="Loading proof center"
     >
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER */}
-        <div className="flex flex-wrap items-end justify-between gap-4 pb-3 border-b border-white/10">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-3 border-b border-[var(--ct-border)]">
           <div className="flex flex-col gap-2 min-w-0">
             <div className="h-3 w-36 bg-surface-inset animate-pulse rounded" />
             <div className="h-8 w-48 bg-surface-inset animate-pulse rounded" />
@@ -25,9 +25,9 @@ export default function ProofCenterLoading() {
           {[0, 1, 2, 3].map((panel) => (
             <section
               key={panel}
-              className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
+              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
             >
-              <div className="flex items-center justify-between gap-4 p-5 border-b border-white/5">
+              <div className="flex items-center justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="flex flex-col gap-2 min-w-0">
                   <div className="h-2.5 w-24 bg-surface-inset animate-pulse rounded" />
                   <div className="h-5 w-40 bg-surface-inset animate-pulse rounded" />

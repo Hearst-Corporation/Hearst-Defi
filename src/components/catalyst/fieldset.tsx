@@ -72,7 +72,7 @@ export function Description({
     <Headless.Description
       data-slot="description"
       {...props}
-      className={cn(className, 'text-base/6 text-zinc-500 data-disabled:opacity-50 sm:text-sm/6 dark:text-zinc-400')}
+      className={cn(className, 'text-base/6 text-[var(--ct-text-faint)] data-disabled:opacity-50 sm:text-sm/6 dark:text-[var(--ct-text-muted)]')}
     />
   )
 }

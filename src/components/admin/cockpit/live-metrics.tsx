@@ -72,7 +72,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   return (
     <div
-      className="cursor-default border-b border-white/5 py-3 last:border-b-0"
+      className="cursor-default border-b border-[var(--ct-border-soft)] py-3 last:border-b-0"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
@@ -85,14 +85,14 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         {vault.hasTimelineData ? (
           <VaultStatusPill status={vault.status} className="shrink-0 scale-75 origin-right" />
         ) : (
-          <span className="shrink-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="shrink-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
             No telemetry
           </span>
         )}
       </div>
 
       {vault.hasTimelineData ? (
-        <div className="grid grid-cols-2 gap-2 border-t border-white/5 pt-2 @[14rem]:grid-cols-3 @[22rem]:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 border-t border-[var(--ct-border-soft)] pt-2 @[14rem]:grid-cols-3 @[22rem]:grid-cols-5">
           <MetricCell
             label="TVL"
             value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}
@@ -121,13 +121,13 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           <MetricCellWithTooltip
             label="BTC"
             value={formatBtcPostureLabel(vault.btcPosture)}
-            valueClassName={vault.btcPosture === null ? "text-zinc-500" : undefined}
+            valueClassName={vault.btcPosture === null ? "text-[var(--ct-text-faint)]" : undefined}
             tooltipTitle="BTC Posture"
             tooltipDesc="Current Bitcoin exposure strategy: Long, Hedge, Neutral, or Accumulation."
           />
         </div>
       ) : (
-        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500 opacity-60">
+        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)] opacity-60">
           Awaiting first telemetry close
         </p>
       )}
@@ -146,7 +146,7 @@ function MetricCell({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="truncate text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <span className="truncate text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
         {label}
       </span>
       <span

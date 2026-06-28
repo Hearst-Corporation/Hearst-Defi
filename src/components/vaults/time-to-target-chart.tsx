@@ -64,9 +64,9 @@ function ChartFrame({
   ariaLabel?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col overflow-hidden">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
       <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
-        <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">
+        <h2 className="text-[10px] font-bold text-[var(--ct-text-faint)] tracking-[0.2em] uppercase">
           {title}
         </h2>
         <ProvenanceBadge kind="estimated" />
@@ -97,7 +97,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
             className="h-full justify-center"
           />
         </ChartFrame>
-        <p className="text-[10px] text-zinc-500 text-center tracking-wide">
+        <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
           Conditional projection — not a projection of future returns. Methodology v1.0.
         </p>
       </div>
@@ -127,7 +127,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
             className="h-full justify-center"
           />
         </ChartFrame>
-        <p className="text-[10px] text-zinc-500 text-center tracking-wide">
+        <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
           Conditional projection — not a projection of future returns. Methodology v1.0.
         </p>
       </div>
@@ -311,12 +311,12 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
       </ChartFrame>
 
       {months10pct !== null && (
-        <p className="text-[10px] text-zinc-500 text-center tracking-wide">
+        <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
           +{TARGET_CUMULATIVE_PCT}% cumulative yield milestone at month {months10pct}
         </p>
       )}
 
-      <p className="text-[10px] text-zinc-500 text-center tracking-wide">
+      <p className="text-[10px] text-[var(--ct-text-faint)] text-center tracking-wide">
         Conditional projection — not a projection of future returns. Methodology v1.0.
       </p>
     </div>

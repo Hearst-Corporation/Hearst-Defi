@@ -28,10 +28,10 @@ const STATUSES: RoadmapStatus[] = [
 ];
 
 const INPUT_CLASS =
-  "mt-2 w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+  "mt-2 w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-[var(--ct-text-faint)] transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 
 const GHOST_BTN =
-  "rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-50";
 
 export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   const [open, setOpen] = useState(false);
@@ -81,7 +81,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               {item.label}
             </span>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+              <span className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--ct-text-muted)]">
                 {item.owner}
               </span>
               {item.evidenceUrl ? (
@@ -101,7 +101,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               ) : null}
             </div>
             {item.validatedBy && !open ? (
-              <p className="m-0 text-[length:var(--ct-text-2xs)] text-zinc-500">
+              <p className="m-0 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
                 Validated by {item.validatedBy}
                 {item.validatedAt
                   ? ` · ${item.validatedAt.toISOString().slice(0, 10)}`
@@ -122,8 +122,8 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md border transition-colors disabled:cursor-default",
                   item.status === s
-                    ? "border-white/10 bg-white/10"
-                    : "border-transparent text-zinc-500 hover:border-white/10 hover:bg-white/5",
+                    ? "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
+                    : "border-transparent text-[var(--ct-text-faint)] hover:border-[var(--ct-border)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]",
                 )}
                 title={statusLabel(s)}
                 aria-label={`Set status to ${statusLabel(s)}`}
@@ -165,7 +165,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         >
           <input type="hidden" name="itemId" value={item.id} />
 
-          <p className="m-0 font-mono text-[length:var(--ct-text-2xs)] text-zinc-500">
+          <p className="m-0 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
             {item.id}
             {item.spec_ref ? ` · ${item.spec_ref}` : ""}
           </p>

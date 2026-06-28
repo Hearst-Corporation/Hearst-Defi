@@ -17,7 +17,7 @@ export function SidebarHeader({ className, ...props }: React.ComponentPropsWitho
       {...props}
       className={cn(
         className,
-        'flex flex-col border-b border-zinc-950/5 p-4 dark:border-white/5 [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
+        'flex flex-col border-b border-zinc-950/5 p-4 dark:border-[var(--ct-border-soft)] [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
       )}
     />
   )
@@ -41,7 +41,7 @@ export function SidebarFooter({ className, ...props }: React.ComponentPropsWitho
       {...props}
       className={cn(
         className,
-        'flex flex-col border-t border-zinc-950/5 p-4 dark:border-white/5 [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
+        'flex flex-col border-t border-zinc-950/5 p-4 dark:border-[var(--ct-border-soft)] [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
       )}
     />
   )
@@ -58,7 +58,7 @@ export function SidebarSection({ className, ...props }: React.ComponentPropsWith
 }
 
 export function SidebarDivider({ className, ...props }: React.ComponentPropsWithoutRef<'hr'>) {
-  return <hr {...props} className={cn(className, 'my-4 border-t border-zinc-950/5 lg:-mx-4 dark:border-white/5')} />
+  return <hr {...props} className={cn(className, 'my-4 border-t border-zinc-950/5 lg:-mx-4 dark:border-[var(--ct-border-soft)]')} />
 }
 
 export function SidebarSpacer({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
@@ -67,7 +67,7 @@ export function SidebarSpacer({ className, ...props }: React.ComponentPropsWitho
 
 export function SidebarHeading({ className, ...props }: React.ComponentPropsWithoutRef<'h3'>) {
   return (
-    <h3 {...props} className={cn(className, 'mb-1 px-2 text-xs/6 font-medium text-zinc-500 dark:text-zinc-400')} />
+    <h3 {...props} className={cn(className, 'mb-1 px-2 text-xs/6 font-medium text-[var(--ct-text-faint)] dark:text-[var(--ct-text-muted)]')} />
   )
 }
 
@@ -100,8 +100,8 @@ export const SidebarItem = forwardRef(function SidebarItem(
     'data-current:*:data-[slot=icon]:fill-zinc-950',
     // Dark mode
     'dark:text-white dark:*:data-[slot=icon]:fill-zinc-400',
-    'dark:data-hover:bg-white/5 dark:data-hover:*:data-[slot=icon]:fill-white',
-    'dark:data-active:bg-white/5 dark:data-active:*:data-[slot=icon]:fill-white',
+    'dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:*:data-[slot=icon]:fill-white',
+    'dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-active:*:data-[slot=icon]:fill-white',
     'dark:data-current:*:data-[slot=icon]:fill-white'
   )
 

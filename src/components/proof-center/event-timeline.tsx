@@ -85,7 +85,7 @@ function EventMetaRow({
       <span className="shrink-0 ct-bento-label">
         {label}
       </span>
-      <span className="min-w-0 truncate text-right text-[12px] font-medium tabular-nums text-zinc-300">
+      <span className="min-w-0 truncate text-right text-[12px] font-medium tabular-nums text-[var(--ct-text-body)]">
         {children}
       </span>
     </div>
@@ -111,7 +111,7 @@ function EventTimelineItem({
           showConnector ? "-bottom-6" : "h-6",
         )}
       >
-        <span aria-hidden="true" className="w-px bg-white/10" />
+        <span aria-hidden="true" className="w-px bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]" />
       </div>
       <span
         aria-hidden="true"
@@ -124,12 +124,12 @@ function EventTimelineItem({
       <div className="min-w-0 flex-1 pb-6">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Badge variant={KIND_VARIANT[event.kind]}>{KIND_LABEL[event.kind]}</Badge>
-          <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-[var(--ct-text-faint)]">
             Event #{event.eventId.toString()}
           </span>
         </div>
 
-        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-white/10 bg-surface-card p-4 shadow-sm">
+        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-[var(--ct-border)] bg-surface-card p-4 shadow-sm">
           <EventMetaRow label="Timestamp">
             {dateFmt.format(event.timestamp)} UTC
           </EventMetaRow>
@@ -152,7 +152,7 @@ function EventTimelineItem({
             </a>
           </EventMetaRow>
           <EventMetaRow label="Context hash">
-            <span title={event.contextHash} className="text-zinc-500">
+            <span title={event.contextHash} className="text-[var(--ct-text-faint)]">
               {abbreviateAddress(event.contextHash)}
             </span>
           </EventMetaRow>
@@ -164,14 +164,14 @@ function EventTimelineItem({
               href={payloadHref}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white no-underline transition-colors hover:border-white/20 hover:bg-white/10"
+              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[12px] font-medium text-white no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
             >
               View payload (IPFS)
             </a>
           </div>
         ) : hasPayload ? (
           <div className="mt-3">
-            <span className="text-[12px] font-medium text-zinc-500">
+            <span className="text-[12px] font-medium text-[var(--ct-text-faint)]">
               View payload (IPFS)
             </span>
           </div>

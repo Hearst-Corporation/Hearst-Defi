@@ -22,7 +22,7 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 
   return (
     <div
-      className="rounded-2xl border border-white/10 bg-surface-card shadow-sm"
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
       aria-label="Live vault projection"
     >
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5">
@@ -36,21 +36,21 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 
         <Separator />
 
-        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-zinc-400">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           Lockup:&nbsp;
           <span className="font-medium text-white">{projection.lockupDays}d</span>
         </span>
 
         <Separator />
 
-        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-zinc-400">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           M-of-N:&nbsp;
           <span className="font-medium text-white">{projection.quorum}</span>
         </span>
 
         <span className="flex-1" />
 
-        <p className="m-0 text-right text-[length:var(--ct-text-micro)] text-zinc-500">
+        <p className="m-0 text-right text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">
           Live estimate — not guaranteed. Final terms after deployment.
         </p>
       </div>
@@ -59,5 +59,5 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 }
 
 function Separator() {
-  return <span aria-hidden className="h-4 w-px bg-white/10" />;
+  return <span aria-hidden className="h-4 w-px bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]" />;
 }

@@ -35,7 +35,7 @@ export function Table({
 }
 
 export function TableHead({ className, ...props }: React.ComponentPropsWithoutRef<'thead'>) {
-  return <thead {...props} className={cn(className, 'text-zinc-500 dark:text-zinc-400')} />
+  return <thead {...props} className={cn(className, 'text-[var(--ct-text-faint)] dark:text-[var(--ct-text-muted)]')} />
 }
 
 export function TableBody(props: React.ComponentPropsWithoutRef<'tbody'>) {
@@ -64,10 +64,10 @@ export function TableRow({
         className={cn(
           className,
           href &&
-            'has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:[outline-color:var(--ct-accent)] dark:focus-within:bg-white/2.5',
-          striped && 'even:bg-zinc-950/2.5 dark:even:bg-white/2.5',
-          href && striped && 'hover:bg-zinc-950/5 dark:hover:bg-white/5',
-          href && !striped && 'hover:bg-zinc-950/2.5 dark:hover:bg-white/2.5'
+            'has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:[outline-color:var(--ct-accent)] dark:focus-within:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]',
+          striped && 'even:bg-zinc-950/2.5 dark:even:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]',
+          href && striped && 'hover:bg-zinc-950/5 dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+          href && !striped && 'hover:bg-zinc-950/2.5 dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]'
         )}
       />
     </TableRowContext.Provider>
@@ -102,7 +102,7 @@ export function TableCell({ className, children, ...props }: React.ComponentProp
       className={cn(
         className,
         'relative px-4 first:pl-(--gutter,--spacing(2)) last:pr-(--gutter,--spacing(2))',
-        !striped && 'border-b border-zinc-950/5 dark:border-white/5',
+        !striped && 'border-b border-zinc-950/5 dark:border-[var(--ct-border-soft)]',
         grid && 'border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5',
         dense ? 'py-2.5' : 'py-4',
         !bleed && 'sm:first:pl-1 sm:last:pr-1'

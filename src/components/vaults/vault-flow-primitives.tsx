@@ -37,7 +37,7 @@ export function VaultKpiCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-white/5 bg-surface-inset p-4">
+    <div className="flex flex-col gap-2 rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset p-4">
       <span className="ct-bento-label">
         {label}
       </span>
@@ -63,7 +63,7 @@ export function VaultDetailRow({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
+    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3">
       <div className="flex min-w-0 flex-col gap-1">
         <span className="ct-bento-label">
           {label}
@@ -107,7 +107,7 @@ export function VaultPanelInsetBlock({
   return (
     <div
       className={cn(
-        "rounded-lg border border-white/5 bg-surface-inset p-4",
+        "rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset p-4",
         className,
       )}
     >

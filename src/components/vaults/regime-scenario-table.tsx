@@ -9,7 +9,7 @@ const TONE_DOT: Record<StressRegime["tone"], string> = {
 
 const TONE_LABEL: Record<StressRegime["tone"], string> = {
   success: "text-white",
-  danger: "text-zinc-400",
+  danger: "text-[var(--ct-text-muted)]",
 };
 
 function PctCell({ value }: { value: number }) {
@@ -23,11 +23,11 @@ interface RegimeScenarioTableProps {
 export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
   const regimes = deriveStressRegimes(vault);
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-[var(--ct-border)]">
               <th
                 scope="col"
                 className="pl-5 pr-4 py-3 text-left ct-bento-label"
@@ -76,7 +76,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
             {regimes.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition-colors"
+                className="border-b border-[var(--ct-border-soft)] last:border-b-0 hover:bg-white/[0.02] transition-colors"
               >
                 <td className="pl-5 pr-4 py-4 align-top">
                   <div className="flex items-start gap-3">
@@ -90,19 +90,19 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                       >
                         {row.label}
                       </span>
-                      <span className="md:hidden text-[10px] text-zinc-500 leading-tight">
+                      <span className="md:hidden text-[10px] text-[var(--ct-text-faint)] leading-tight">
                         {row.scenario}
                       </span>
                     </div>
                   </div>
                 </td>
-                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[length:var(--ct-text-2xs)] text-zinc-400 leading-relaxed">
+                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] leading-relaxed">
                   {row.scenario}
                 </td>
                 <td className="px-4 py-4 align-top">
                   <span className="text-[14px] font-medium text-[var(--ct-accent)] tabular-nums whitespace-nowrap">
-                    {row.apyLow.toFixed(1)} <span className="text-zinc-500 mx-0.5">—</span>{" "}
-                    {row.apyHigh.toFixed(1)} <span className="text-zinc-500">%</span>
+                    {row.apyLow.toFixed(1)} <span className="text-[var(--ct-text-faint)] mx-0.5">—</span>{" "}
+                    {row.apyHigh.toFixed(1)} <span className="text-[var(--ct-text-faint)]">%</span>
                   </span>
                 </td>
                 <td className="px-4 py-4 align-top text-right">

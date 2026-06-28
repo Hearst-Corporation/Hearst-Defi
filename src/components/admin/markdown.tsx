@@ -18,7 +18,7 @@ export function Markdown({
   demoteH1?: boolean;
 }) {
   return (
-    <div className="prose-spec text-[14px] text-zinc-300">
+    <div className="prose-spec text-[14px] text-[var(--ct-text-body)]">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         urlTransform={safeUrl}
@@ -44,17 +44,17 @@ export function Markdown({
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-3 text-[14px] leading-relaxed text-zinc-300">
+            <p className="my-3 text-[14px] leading-relaxed text-[var(--ct-text-body)]">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-3 list-disc space-y-1.5 pl-5 text-[14px] text-zinc-300 marker:text-zinc-600">
+            <ul className="my-3 list-disc space-y-1.5 pl-5 text-[14px] text-[var(--ct-text-body)] marker:text-[var(--ct-text-faint)]">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-3 list-decimal space-y-1.5 pl-5 text-[14px] text-zinc-300 marker:text-zinc-600">
+            <ol className="my-3 list-decimal space-y-1.5 pl-5 text-[14px] text-[var(--ct-text-body)] marker:text-[var(--ct-text-faint)]">
               {children}
             </ol>
           ),
@@ -74,24 +74,24 @@ export function Markdown({
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-surface-inset p-4 text-[length:var(--ct-text-2xs)]">
+            <pre className="my-4 overflow-x-auto rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4 text-[length:var(--ct-text-2xs)]">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-4 overflow-x-auto rounded-lg border border-white/10">
+            <div className="my-4 overflow-x-auto rounded-lg border border-[var(--ct-border)]">
               <table className="w-full border-collapse text-[length:var(--ct-text-2xs)]">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-white/10 px-3 py-2 text-left text-[length:var(--ct-text-nano)] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            <th className="border-b border-[var(--ct-border)] px-3 py-2 text-left text-[length:var(--ct-text-nano)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-white/5 px-3 py-2 align-top text-zinc-300">
+            <td className="border-b border-[var(--ct-border-soft)] px-3 py-2 align-top text-[var(--ct-text-body)]">
               {children}
             </td>
           ),
@@ -109,11 +109,11 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-2 border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] pl-4 text-[14px] italic text-zinc-400">
+            <blockquote className="my-4 border-l-2 border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] pl-4 text-[14px] italic text-[var(--ct-text-muted)]">
               {children}
             </blockquote>
           ),
-          hr: () => <hr className="my-8 border-t border-white/10" />,
+          hr: () => <hr className="my-8 border-t border-[var(--ct-border)]" />,
           strong: ({ children }) => (
             <strong className="font-semibold text-white">{children}</strong>
           ),

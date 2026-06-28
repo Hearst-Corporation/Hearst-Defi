@@ -68,17 +68,17 @@ export function Combobox<T>({
             // Horizontal padding
             'pr-[calc(--spacing(10)-1px)] pl-[calc(--spacing(3.5)-1px)] sm:pr-[calc(--spacing(9)-1px)] sm:pl-[calc(--spacing(3)-1px)]',
             // Typography
-            'text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white',
+            'text-base/6 text-zinc-950 placeholder:text-[var(--ct-text-faint)] sm:text-sm/6 dark:text-white',
             // Border
-            'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-white/10 dark:data-hover:border-white/20',
+            'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-[var(--ct-border)] dark:data-hover:border-[var(--ct-border-strong)]',
             // Background color
-            'bg-transparent dark:bg-white/5',
+            'bg-transparent dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
             // Hide default focus styles
             'focus:outline-hidden',
             // Invalid state
             'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-500 dark:data-invalid:data-hover:border-red-500',
             // Disabled state
-            'data-disabled:border-zinc-950/20 dark:data-disabled:border-white/15 dark:data-disabled:bg-white/2.5 dark:data-hover:data-disabled:border-white/15',
+            'data-disabled:border-zinc-950/20 dark:data-disabled:border-[var(--ct-border-strong)] dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:data-hover:data-disabled:border-[var(--ct-border-strong)]',
             // System icons
             'dark:scheme-dark',
           ])}
@@ -134,7 +134,7 @@ export function ComboboxOption<T>({
     'flex min-w-0 items-center',
     // Icons
     '*:data-[slot=icon]:size-5 *:data-[slot=icon]:shrink-0 sm:*:data-[slot=icon]:size-4',
-    '*:data-[slot=icon]:text-zinc-500 group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-zinc-400',
+    '*:data-[slot=icon]:text-[var(--ct-text-faint)] group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-[var(--ct-text-muted)]',
     'forced-colors:*:data-[slot=icon]:text-[CanvasText] forced-colors:group-data-focus/option:*:data-[slot=icon]:text-[Canvas]',
     // Avatars
     '*:data-[slot=avatar]:-mx-0.5 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:size-5'
@@ -179,7 +179,7 @@ export function ComboboxDescription({ className, children, ...props }: React.Com
       {...props}
       className={cn(
         className,
-        'flex flex-1 overflow-hidden text-zinc-500 group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-zinc-400'
+        'flex flex-1 overflow-hidden text-[var(--ct-text-faint)] group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-[var(--ct-text-muted)]'
       )}
     >
       <span className="flex-1 truncate">{children}</span>

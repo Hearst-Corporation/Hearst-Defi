@@ -4,14 +4,14 @@
 export default function WalletLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8"
+      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label="Loading onboarding step"
     >
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* CROWN */}
-        <div className="flex flex-col gap-4 pb-3 border-b border-white/10">
+        <div className="flex flex-col gap-4 pb-3 border-b border-[var(--ct-border)]">
           <div className="h-2 w-full max-w-xs bg-surface-inset animate-pulse rounded-full" />
           <div className="h-3 w-40 bg-surface-inset animate-pulse rounded" />
           <div className="h-8 w-64 bg-surface-inset animate-pulse rounded" />
@@ -23,9 +23,9 @@ export default function WalletLoading() {
           {[0, 1].map((block) => (
             <section
               key={block}
-              className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
+              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
             >
-              <div className="p-5 border-b border-white/5">
+              <div className="p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="h-5 w-1/3 bg-surface-inset animate-pulse rounded" />
               </div>
               <div className="flex flex-col gap-4 p-5">
@@ -40,7 +40,7 @@ export default function WalletLoading() {
         </div>
 
         {/* SOLE */}
-        <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5">
+        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5">
           <div className="h-12 w-full bg-surface-inset animate-pulse rounded-lg" />
         </div>
 

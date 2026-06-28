@@ -160,7 +160,7 @@ export function MonteCarloReview({
         }
         trailing={
           <span
-            className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-medium text-zinc-400"
+            className="rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-1 text-[11px] font-medium text-[var(--ct-text-muted)]"
             title="Methodology v2.0 — optional companion to the rule-based engine"
           >
             Estimated
@@ -171,7 +171,7 @@ export function MonteCarloReview({
       <div className="flex flex-col gap-4 p-5">
         {/* Percentile row — p5 · p50 · p95 */}
         <div
-          className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-surface-inset"
+          className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-[var(--ct-border)] bg-surface-inset"
           aria-label={`p5: ${fmtPct(p5)}%, p50: ${fmtPct(p50)}%, p95: ${fmtPct(p95)}%`}
         >
           <MetricCell label="p5" value={fmtPct(p5)} tone="muted" />
@@ -180,7 +180,7 @@ export function MonteCarloReview({
         </div>
 
         {/* Tail-risk line */}
-        <p className="text-[12px] text-zinc-400">
+        <p className="text-[12px] text-[var(--ct-text-muted)]">
           P(APY &lt; 8%) ={" "}
           <span className="font-semibold tabular-nums text-white">
             {(result.probBelowFloor * 100).toFixed(1)}%
@@ -192,7 +192,7 @@ export function MonteCarloReview({
         </p>
 
         {/* Mandatory disclaimer — CLAUDE.md #10 */}
-        <p className="border-t border-white/5 pt-3 text-[12px] leading-relaxed text-zinc-500">
+        <p className="border-t border-[var(--ct-border-soft)] pt-3 text-[12px] leading-relaxed text-[var(--ct-text-faint)]">
           Projections — not guaranteed. Methodology v2.0. Simulated paths
           assume BTC GBM (μ&nbsp;=&nbsp;10%/yr, σ&nbsp;=&nbsp;60%/yr) and a
           mean-reverting network difficulty model. Assumptions and results are
@@ -220,7 +220,7 @@ function MetricCell({ label, value, tone }: MetricCellProps) {
       ? "tabular-nums text-[16px] font-medium text-[var(--ct-accent)]"
       : tone === "primary"
         ? "tabular-nums text-[16px] font-medium text-white"
-        : "tabular-nums text-[16px] font-medium text-zinc-400";
+        : "tabular-nums text-[16px] font-medium text-[var(--ct-text-muted)]";
 
   return (
     <div className="flex flex-col gap-1.5 bg-surface-inset p-4">

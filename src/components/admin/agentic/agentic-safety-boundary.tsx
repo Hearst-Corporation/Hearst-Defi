@@ -93,7 +93,7 @@ export function AgenticSafetyBoundary({
         {rows.map((r) => (
           <div
             key={r.id}
-            className="flex flex-col gap-3 rounded-xl border border-white/5 bg-surface-inset p-4"
+            className="flex flex-col gap-3 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset p-4"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="ct-bento-label flex items-center gap-2">
@@ -111,14 +111,14 @@ export function AgenticSafetyBoundary({
             </div>
 
             {r.note ? (
-              <p className="text-[12px] leading-relaxed text-zinc-400">
+              <p className="text-[12px] leading-relaxed text-[var(--ct-text-muted)]">
                 {r.note}
               </p>
             ) : null}
 
             {r.detail && r.detail.items.length > 0 ? (
               <details className="group">
-                <summary className="ct-bento-label flex cursor-pointer list-none items-center gap-2 transition-colors hover:text-zinc-300">
+                <summary className="ct-bento-label flex cursor-pointer list-none items-center gap-2 transition-colors hover:text-[var(--ct-text-body)]">
                   <span
                     className="inline-block h-1.5 w-1.5 rotate-45 border-b border-r border-current transition-transform group-open:rotate-[225deg]"
                     aria-hidden
@@ -129,7 +129,7 @@ export function AgenticSafetyBoundary({
                   {r.detail.items.map((it) => (
                     <span
                       key={it}
-                      className="inline-flex items-center rounded-md border border-white/10 bg-black/40 px-2 py-0.5 text-[11px] text-zinc-400"
+                      className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-black/40 px-2 py-0.5 text-[11px] text-[var(--ct-text-muted)]"
                     >
                       {it}
                     </span>

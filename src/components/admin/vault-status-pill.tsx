@@ -15,9 +15,9 @@ const STATUS_MAP: Record<VaultStatus, { label: string }> = {
 // amber for the in-flight review/paused states, red for closed, neutral zinc for
 // draft/deployed. Colours drive both the dot (bg-current) and the label.
 const STATUS_TONE: Record<VaultStatus, string> = {
-  draft: "text-zinc-400",
+  draft: "text-[var(--ct-text-muted)]",
   review: "text-amber-300",
-  deployed: "text-zinc-300",
+  deployed: "text-[var(--ct-text-body)]",
   live: "text-[var(--ct-accent)]",
   paused: "text-amber-300",
   closed: "text-red-400",
@@ -32,7 +32,7 @@ interface VaultStatusPillProps {
 export function VaultStatusPill({ status, className }: VaultStatusPillProps) {
   const key = status as VaultStatus;
   const config = STATUS_MAP[key] ?? { label: status };
-  const tone = STATUS_TONE[key] ?? "text-zinc-400";
+  const tone = STATUS_TONE[key] ?? "text-[var(--ct-text-muted)]";
 
   return (
     <span

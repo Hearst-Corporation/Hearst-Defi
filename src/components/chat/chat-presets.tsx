@@ -131,8 +131,8 @@ export function ChatPresets({
           disabled={!masterAgentEnabled}
           onClick={() => onPick(preset.prompt)}
           className={cn(
-            "rounded-full border border-white/10 bg-surface-inset px-3 py-2 text-[13px] text-zinc-300 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.06] hover:text-white",
-            !masterAgentEnabled && "cursor-not-allowed opacity-35 hover:border-white/10 hover:bg-surface-inset hover:text-zinc-300",
+            "rounded-full border border-[var(--ct-border)] bg-surface-inset px-3 py-2 text-[13px] text-[var(--ct-text-body)] transition-colors duration-150 hover:border-[var(--ct-border-strong)] hover:bg-white/[0.06] hover:text-white",
+            !masterAgentEnabled && "cursor-not-allowed opacity-35 hover:border-[var(--ct-border)] hover:bg-surface-inset hover:text-[var(--ct-text-body)]",
           )}
         >
           {preset.label}

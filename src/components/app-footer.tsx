@@ -50,7 +50,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
   if (variant === "compact") {
     return (
       <footer
-        className="app-footer app-footer--compact border-t border-white/5"
+        className="app-footer app-footer--compact border-t border-[var(--ct-border-soft)]"
         aria-label="Legal"
       >
         <nav
@@ -69,14 +69,14 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
               ) : null}
               <Link
                 href={link.href}
-                className="text-zinc-500 transition-colors hover:text-zinc-300"
+                className="text-[var(--ct-text-faint)] transition-colors hover:text-[var(--ct-text-body)]"
               >
                 {link.label}
               </Link>
             </span>
           ))}
         </nav>
-        <span className="app-footer__brand text-[length:var(--ct-text-2xs)] text-zinc-500">
+        <span className="app-footer__brand text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
           <span aria-hidden className="app-footer__diamond text-[var(--ct-accent)]">
             ◆
           </span>
@@ -88,28 +88,28 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
 
   return (
     <footer
-      className="app-footer app-footer--full border-t border-white/5"
+      className="app-footer app-footer--full border-t border-[var(--ct-border-soft)]"
       aria-label="Site footer"
     >
       <div className="app-footer__grid">
         <section className="app-footer__col">
-          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-400">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-[var(--ct-text-muted)]">
             Hearst Yield Vault
           </p>
-          <p className="app-footer__lede text-[length:var(--ct-text-xs)] text-zinc-500">
+          <p className="app-footer__lede text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
             Mining-backed structured yield. Cayman SPV.
           </p>
         </section>
 
         <nav className="app-footer__col" aria-label="Platform">
-          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-500">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-[var(--ct-text-faint)]">
             Platform
           </p>
           {PLATFORM_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-[length:var(--ct-text-xs)] text-zinc-400 transition-colors hover:text-zinc-300"
+              className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-body)]"
             >
               {link.label}
             </Link>
@@ -117,14 +117,14 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
         </nav>
 
         <nav className="app-footer__col" aria-label="Legal">
-          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-500">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-[var(--ct-text-faint)]">
             Legal
           </p>
           {LEGAL_LINKS.map((link, i) => (
             <Link
               key={`${link.href}-${i}`}
               href={link.href}
-              className="text-[length:var(--ct-text-xs)] text-zinc-400 transition-colors hover:text-zinc-300"
+              className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-body)]"
             >
               {link.label}
             </Link>
@@ -132,24 +132,24 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
         </nav>
 
         <section className="app-footer__col" aria-label="Status">
-          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-500">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-[var(--ct-text-faint)]">
             Status
           </p>
-          <span className="inline-flex items-center gap-2 text-[length:var(--ct-text-xs)] text-zinc-400">
+          <span className="inline-flex items-center gap-2 text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
             <ProvenanceBadge kind="live" variant="strip" />
             Vault live
           </span>
-          <span className="text-[length:var(--ct-text-xs)] text-zinc-400">{APY_RANGE}</span>
-          <span className="text-[length:var(--ct-text-xs)] text-zinc-500">Base · testnet</span>
+          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{APY_RANGE}</span>
+          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Base · testnet</span>
         </section>
       </div>
 
-      <div className="app-footer__sub text-[length:var(--ct-text-2xs)] text-zinc-500">
+      <div className="app-footer__sub text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
         <span>
           © 2026 Hearst · Qualified investors only · Cayman SPV · $250k min ·
           60-day soft lock-up.
         </span>
-        <span className="text-zinc-400">not guaranteed · capital at risk</span>
+        <span className="text-[var(--ct-text-muted)]">not guaranteed · capital at risk</span>
       </div>
     </footer>
   );

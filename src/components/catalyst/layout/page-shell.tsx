@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn'
  *
  * Collapses the duplicated inline page wrapper that admin/product surfaces hand-roll:
  *
- *   <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+ *   <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
  *     <div className="p-5 lg:p-6 flex flex-col gap-y-5">{children}</div>
  *   </div>
  *
@@ -29,7 +29,7 @@ export function PageShell({
     <div
       {...rest}
       className={cn(
-        'dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8',
+        'dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8',
         className,
       )}
     >

@@ -34,7 +34,7 @@ export function NavSlot({
           <span className="ct-bento-label leading-none">
             Analytics
           </span>
-          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
             NAV trend · 30d
           </h3>
         </div>
@@ -50,7 +50,7 @@ export function NavSlot({
                   <span className="text-[24px] font-medium leading-none tracking-tight text-[var(--ct-text-strong)]">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
-                <span className="text-[length:var(--ct-text-xs)] text-zinc-500">Awaiting data</span>
+                <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Awaiting data</span>
               )}
           </p>
         </div>
@@ -137,13 +137,13 @@ function NavBarChartShell({
           ))}
         </div>
         {caption ? (
-          <p className="dashboard-nav-bars__caption text-[10px] uppercase tracking-widest text-zinc-500 m-0">{caption}</p>
+          <p className="dashboard-nav-bars__caption text-[10px] uppercase tracking-widest text-[var(--ct-text-faint)] m-0">{caption}</p>
         ) : null}
       </div>
       {monthLabels ? (
         <div className="dashboard-nav-bars__months" aria-hidden>
           {monthLabels.map((label, index) => (
-            <span key={`${label}-${index}`} className="text-[10px] uppercase tracking-widest text-zinc-500">{label}</span>
+            <span key={`${label}-${index}`} className="text-[10px] uppercase tracking-widest text-[var(--ct-text-faint)]">{label}</span>
           ))}
         </div>
       ) : null}

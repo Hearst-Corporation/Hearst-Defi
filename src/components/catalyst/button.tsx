@@ -28,7 +28,7 @@ const styles = {
     // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
     'dark:before:hidden',
     // Dark mode: Subtle white outline is applied using a border
-    'dark:border-white/5',
+    'dark:border-[var(--ct-border-soft)]',
     // Shim/overlay, inset to match button foreground and used for hover state + highlight shadow
     'after:absolute after:inset-0 after:-z-10 after:rounded-[calc(var(--radius-lg)-1px)]',
     // Inner highlight shadow
@@ -44,7 +44,7 @@ const styles = {
     // Base
     'border-zinc-950/10 text-zinc-950 data-active:bg-zinc-950/2.5 data-hover:bg-zinc-950/2.5',
     // Dark mode
-    'dark:border-white/15 dark:text-white dark:[--btn-bg:transparent] dark:data-active:bg-white/5 dark:data-hover:bg-white/5',
+    'dark:border-[var(--ct-border-strong)] dark:text-white dark:[--btn-bg:transparent] dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
     // Icon
     '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
   ],
@@ -52,7 +52,7 @@ const styles = {
     // Base
     'border-transparent text-zinc-950 data-active:bg-zinc-950/5 data-hover:bg-zinc-950/5',
     // Dark mode
-    'dark:text-white dark:data-active:bg-white/10 dark:data-hover:bg-white/10',
+    'dark:text-white dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]',
     // Icon
     '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
   ],
@@ -60,7 +60,7 @@ const styles = {
     // White bg with inset ring (shadow-xs)
     'bg-white text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 border-transparent',
     // Dark mode variants
-    'dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20',
+    'dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]',
     // Fully rounded
     'rounded-full',
   ],

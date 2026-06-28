@@ -40,7 +40,7 @@ function BentoKpi({
         {value}
       </span>
       {sublabel ? (
-        <span className="text-[10px] text-zinc-500 tracking-wide font-mono">
+        <span className="text-[10px] text-[var(--ct-text-faint)] tracking-wide font-mono">
           {sublabel}
         </span>
       ) : null}
@@ -86,7 +86,7 @@ function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
 
 function CustodyCard({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
@@ -99,7 +99,7 @@ function CustodyCard({ custody }: { custody: CustodySnapshot }) {
 
 function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-5">
+    <div className="mt-8 pt-6 border-t border-[var(--ct-border)] flex flex-col gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
@@ -125,7 +125,7 @@ export function CustodySection({
 
   if (nested) {
     return (
-      <div className="mt-8 pt-6 border-t border-white/10">
+      <div className="mt-8 pt-6 border-t border-[var(--ct-border)]">
         <PanelStatus {...CUSTODY_EMPTY} />
       </div>
     );

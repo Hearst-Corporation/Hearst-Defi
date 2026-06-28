@@ -4,21 +4,21 @@
 export default function FeedbackLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8"
+      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label="Loading feedback"
     >
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER */}
-        <div className="flex flex-col gap-2 pb-3 border-b border-white/10">
+        <div className="flex flex-col gap-2 pb-3 border-b border-[var(--ct-border)]">
           <div className="h-3 w-24 bg-surface-inset animate-pulse rounded" />
           <div className="h-7 w-48 bg-surface-inset animate-pulse rounded" />
           <div className="h-4 w-72 bg-surface-inset animate-pulse rounded" />
         </div>
 
         {/* FORM PANEL */}
-        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-4">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-4">
           <div className="h-5 w-1/3 bg-surface-inset animate-pulse rounded" />
           <div className="h-24 w-full bg-surface-inset animate-pulse rounded" />
           <div className="flex gap-3">
@@ -33,7 +33,7 @@ export default function FeedbackLoading() {
           {[0, 1, 2, 3].map((card) => (
             <section
               key={card}
-              className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-3"
+              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-3"
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="h-4 w-40 bg-surface-inset animate-pulse rounded" />

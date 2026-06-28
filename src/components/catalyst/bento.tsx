@@ -177,7 +177,7 @@ export function BentoDetailRow({
  * 1→N responsive grid on the page-surface grey, tiles separated by hairlines,
  * micro-label + 22px value (Portfolio canon). Fully tokenized: surface =
  * --ct-surface-1, dividers = --ct-border-soft, label = .ct-bento-label.
- * Use this instead of hand-rolling a `grid bg-surface-inset border-white/5` block.
+ * Use this instead of hand-rolling a `grid bg-surface-inset border-[var(--ct-border-soft)]` block.
  */
 export interface BentoKpiItem {
   label: ReactNode;

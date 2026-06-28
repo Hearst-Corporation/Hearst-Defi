@@ -96,7 +96,7 @@ export function AgenticCapabilitiesBoard({
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-[13px]">
           <thead>
-            <tr className="border-b border-white/5">
+            <tr className="border-b border-[var(--ct-border-soft)]">
               <th className="ct-bento-label bg-transparent px-4 py-3 text-right whitespace-nowrap">
                 Count
               </th>
@@ -116,7 +116,7 @@ export function AgenticCapabilitiesBoard({
               return (
                 <tr
                   key={c.tier}
-                  className="border-b border-white/5 align-middle transition-colors last:border-b-0 hover:bg-white/[0.02]"
+                  className="border-b border-[var(--ct-border-soft)] align-middle transition-colors last:border-b-0 hover:bg-white/[0.02]"
                 >
                   <td className="px-4 py-3 text-right font-medium text-white tabular-nums">
                     {count}
@@ -124,7 +124,7 @@ export function AgenticCapabilitiesBoard({
                   <td className="px-4 py-3">
                     <Chip tone={c.tone}>{c.title}</Chip>
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">{c.meaning}</td>
+                  <td className="px-4 py-3 text-[var(--ct-text-muted)]">{c.meaning}</td>
                 </tr>
               );
             })}

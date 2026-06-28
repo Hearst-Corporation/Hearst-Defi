@@ -81,7 +81,7 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
   it("uses vault product primitives in legal section (not proof-center rows)", () => {
     // VaultDetailRow now renders as a bento proof row (border-b py-3 / tabular-nums)
     // instead of the legacy .vault-panel-row chrome.
-    expect(html).toContain("border-b border-white/5 py-3");
+    expect(html).toContain("border-b border-[var(--ct-border-soft)] py-3");
     expect(html).toContain("text-[13px] font-medium text-white tabular-nums");
     expect(html).not.toContain("ct-proof-row");
   });

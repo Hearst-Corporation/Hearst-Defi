@@ -27,7 +27,7 @@ export function VaultAdminKpiStrip({
       )}
     >
       {/* Target APY */}
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <span className="ct-bento-label">
             Target APY
@@ -42,34 +42,34 @@ export function VaultAdminKpiStrip({
             className="font-medium text-[var(--ct-accent)]"
           />
         </div>
-        <p className="text-[10px] text-zinc-500 tracking-wide">Not guaranteed — estimated</p>
+        <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">Not guaranteed — estimated</p>
       </div>
 
       {/* Fees */}
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <span className="ct-bento-label">
           Fees
         </span>
         <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
           {bpsToPercent(facts.mgmtFeeBps)}% / {bpsToPercent(facts.perfFeeBps)}%
         </span>
-        <p className="text-[10px] text-zinc-500 tracking-wide">Mgmt / Perf</p>
+        <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">Mgmt / Perf</p>
       </div>
 
       {/* Lock-up */}
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <span className="ct-bento-label">
           Lock-up
         </span>
         <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
           {facts.softLockupDays}d
         </span>
-        <p className="text-[10px] text-zinc-500 tracking-wide">Soft lock-up</p>
+        <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">Soft lock-up</p>
       </div>
 
       {/* AUM */}
       {showAumCard ? (
-        <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <span className="ct-bento-label">
               AUM
@@ -84,7 +84,7 @@ export function VaultAdminKpiStrip({
           <div className="mt-1">
             <Progress value={aumPct} label="AUM vs capacity" />
           </div>
-          <p className="text-[10px] text-zinc-500 tracking-wide">
+          <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">
             / {formatUsdFull(facts.capacityUsdc)} capacity
           </p>
         </div>
