@@ -153,6 +153,68 @@
   letter-spacing: var(--ct-tracking-wide);
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   CANON TYPOGRAPHY ROLES (extraits de /admin/customers + portfolio).
+   Source unique pour les 7 rôles : on ne répète plus `text-[11px]`,
+   `text-[12px]`, `text-[13px]`, `text-[18px]`, `tracking-[0.15em]` inline
+   dans les pages. Chaque rôle = une classe centrale, 100% tokens --ct-*.
+
+   1. Page title .............. .h1 / .h1-accent   (ci-dessus)
+   2. Page kicker ............. .page-canon-kicker  (ci-dessus)
+   3. Section title ........... .ct-section-title   (ci-dessous)
+   4. Panel title ............. .ct-panel-title     (ci-dessous, = chrome accent)
+   5. Micro label ............. .ct-bento-label     (cockpit.css — uppercase nano)
+   6. Metric value ............ .ct-metric-value    (ci-dessous)
+   7. Metric caption .......... .ct-metric-caption  (ci-dessous)
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* 3. SECTION TITLE — titre d'une section/bloc dans une page (« Investor
+   Directory », « Investor Base », « Pending submissions »). DISTINCT du
+   micro-label `.ct-bento-label` (qui est un nano uppercase muted) : c'est un
+   vrai titre lisible, sobre, blanc fort. Remplace les `<h2 class="ct-bento-label
+   …">` détournés et les `text-[11px] tracking-[0.15em]` inline. */
+:is(.product-doc, .admin-doc) .ct-section-title {
+  font-size: var(--ct-text-sm);              /* 15px — lisible, pas un micro-label */
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-text-strong);
+}
+
+/* 4. PANEL TITLE — titre d'une card/panel. Centralise le chrome de panneau
+   (mirror de .h3 / .section-panel__title) : accent vert, signature portfolio.
+   Classe nommée pour éviter de re-déclarer la couleur accent page par page. */
+:is(.product-doc, .admin-doc) .ct-panel-title {
+  font-size: var(--ct-text-lg);              /* 15 → 17 */
+  font-weight: var(--ct-font-medium);
+  letter-spacing: var(--ct-tracking-normal);
+  line-height: var(--ct-leading-snug);
+  color: var(--ct-accent);
+}
+
+/* 6. METRIC VALUE — valeur chiffrée d'une cellule/inline (« $500,000 »,
+   compteurs de table). Tabular, blanc fort. Remplace les `text-[18px]` /
+   `text-sm font-medium tabular-nums` répétés. NB : les GROS KPI de strip
+   gardent `.stat-value` (lg bold accent) — c'est un rôle distinct, plus fort. */
+:is(.product-doc, .admin-doc) .ct-metric-value {
+  font-size: var(--ct-text-sm);              /* 15px */
+  font-weight: var(--ct-font-semibold);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 7. METRIC CAPTION — sous-ligne descriptive sous un titre/valeur (« All
+   registered accounts », sous-texte de cellule). Remplace les
+   `text-[12px]/[13px] text-[var(--ct-text-muted)]` répétés. */
+:is(.product-doc, .admin-doc) .ct-metric-caption {
+  font-size: var(--ct-text-2xs);             /* 12px */
+  font-weight: var(--ct-font-normal, 400);
+  letter-spacing: var(--ct-tracking-wide);
+  line-height: var(--ct-leading-normal);
+  color: var(--ct-text-muted);
+}
+
 /* Page header lead copy — sits below eyebrow/title with consistent inset */
 :is(.product-doc, .admin-doc)
   :is(.admin-page-header, .product-page-header)

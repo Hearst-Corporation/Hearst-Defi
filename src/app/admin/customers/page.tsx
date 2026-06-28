@@ -80,12 +80,8 @@ export default async function CustomersPage({
 
           <div className="flex items-center gap-4 border-b border-[var(--ct-border-soft)] p-5">
             <div className="flex flex-col gap-1">
-              <h2 className="ct-bento-label text-[var(--ct-text-body)]">
-                Investor Directory
-              </h2>
-              <p className="text-[12px] tracking-wide text-[var(--ct-text-muted)]">
-                All registered accounts
-              </p>
+              <h2 className="ct-section-title">Investor Directory</h2>
+              <p className="ct-metric-caption">All registered accounts</p>
             </div>
             <Badge color="zinc" className="mt-0.5 shrink-0 self-start uppercase">
               {total} total
@@ -172,7 +168,7 @@ export default async function CustomersPage({
                     <TableCell className="hidden text-center text-[13px] tabular-nums text-[var(--ct-text-body)] md:table-cell">
                       {c.activePositions}
                     </TableCell>
-                    <TableCell className="text-center text-sm font-medium tabular-nums text-[var(--ct-text-strong)]">
+                    <TableCell className="ct-metric-value text-center">
                       {formatUsdFull(c.totalPrincipalUsdc)}
                     </TableCell>
                     <TableCell className="hidden pr-5 text-center text-[13px] text-[var(--ct-text-muted)] lg:table-cell">
@@ -204,10 +200,10 @@ export default async function CustomersPage({
             aria-label="Pending submissions"
           >
             <div className="flex flex-col gap-1.5 border-b border-[var(--ct-border-soft)] p-5">
-              <h2 className="ct-bento-label text-[var(--ct-text-body)]">
+              <h2 className="ct-section-title">
                 Pending submissions ({orphanSubmissions.length})
               </h2>
-              <p className="text-[12px] leading-relaxed text-[var(--ct-text-muted)]">
+              <p className="ct-metric-caption leading-relaxed">
                 Qualification forms submitted but not yet linked to an account —
                 filled before sign-up, or an auto-create that did not complete.
                 Provision an account with the matching email to link it.
