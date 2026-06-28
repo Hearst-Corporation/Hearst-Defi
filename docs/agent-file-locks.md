@@ -71,6 +71,18 @@ git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
 
 ## ACTIVE LOCKS
 
+### fix/composer-final-cleanup
+Owner: Cursor Composer 2.5 — MISSION #011 final surface alignment
+Branch: fix/composer-final-cleanup
+Worktree: `../connect-composer-final-cleanup`
+Status: **active**
+Files:
+- `src/app/(product)/portfolio/page.tsx`
+- `src/app/(product)/portfolio/__tests__/portfolio-honesty.test.tsx`
+- `src/components/nav/__tests__/product-nav-items.test.ts`
+
+---
+
 > NOTE 2026-06-27 : locks fantômes portfolio/vault purgés (agents finis sur main,
 > aucun worktree/branche dédiée vivante). Le chantier "recode des surfaces A→Z"
 > (Catalyst + DS) reprend la main sur portfolio/vaults. Locks retirés :

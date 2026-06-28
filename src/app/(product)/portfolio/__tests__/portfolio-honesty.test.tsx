@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 // The portfolio route page imports catalyst client components. We never RENDER
 // them (no DOM needed) — we only call the page function to obtain its element
@@ -50,5 +51,10 @@ describe("portfolio page — product honesty", () => {
 
   it("does not headline the fixture figure as a 'Live Portfolio Value'", () => {
     expect(portfolioText()).not.toContain("Live Portfolio Value");
+  });
+
+  it("does not ship placeholder href=\"#\" CTAs (unwired leaf pages stay unreachable)", () => {
+    const html = renderToStaticMarkup(PortfolioPage());
+    expect(html).not.toContain('href="#"');
   });
 });
