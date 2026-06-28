@@ -32,10 +32,7 @@ export function ProofCenterSection({
   // toolbar row on the right. Stays a real <h2> carrying the id so the section's
   // aria-labelledby contract holds.
   const heading = (
-    <h2
-      id={id}
-      className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none m-0"
-    >
+    <h2 id={id} className="ct-bento-label leading-none m-0">
       {title}
     </h2>
   );
