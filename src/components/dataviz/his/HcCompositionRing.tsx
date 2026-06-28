@@ -55,7 +55,7 @@ export function HcCompositionRing({
   let acc = 0; // preceding fraction → rotation start
 
   return (
-    <div className="flex items-center gap-4">
+    <div className={`flex items-center gap-4${bars ? " w-full" : ""}`}>
       <svg
         role="img"
         aria-label={ariaLabel}
@@ -141,17 +141,20 @@ export function HcCompositionRing({
                   background: color,
                 }}
               />
-              <span className={bars ? "shrink-0" : "min-w-0 truncate"}>
+              <span
+                className="truncate"
+                style={bars ? { width: 116, flexShrink: 0 } : { minWidth: 0 }}
+              >
                 {s.label}
               </span>
               {bars && (
+                // Identical-size gauge on every row: same start X (after the
+                // fixed-width label) and same end X (before the fixed % column).
+                // The track spans the full remaining width; only the fill varies.
                 <span
                   aria-hidden="true"
-                  className="ml-auto"
                   style={{
-                    flex: "1 1 auto",
-                    minWidth: 48,
-                    maxWidth: 120,
+                    flex: "1 1 0%",
                     height: 4,
                     borderRadius: "var(--ct-radius-full)",
                     background: "var(--ct-surface-inset)",
@@ -172,7 +175,8 @@ export function HcCompositionRing({
               <span
                 style={{
                   marginLeft: bars ? undefined : "auto",
-                  width: bars ? 32 : undefined,
+                  width: bars ? 36 : undefined,
+                  flexShrink: 0,
                   textAlign: "right",
                   fontVariantNumeric: "tabular-nums",
                   color: "var(--ct-text-primary)",
