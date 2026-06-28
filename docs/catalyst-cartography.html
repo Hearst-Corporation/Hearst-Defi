@@ -152,19 +152,19 @@
 <body>
 
 <header class="cover"><div class="wrap">
-  <p class="kicker">Hearst Connect · Design System · <span style="color:var(--ct-accent)">Last updated by Mission #049</span></p>
+  <p class="kicker">Hearst Connect · Design System · <span style="color:var(--ct-accent)">Mission #049 — CONVERGENCE COMPLETE</span></p>
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
-  <p class="sub">Living page-by-page map of the convergence toward <b style="color:var(--ct-accent)">ONE design system — Catalyst canon</b>. <code>ui/*</code> is a shrinking compatibility façade that delegates to Catalyst, then disappears. Updated each migration lot.</p>
+  <p class="sub">Convergence is <b style="color:var(--ct-accent)">DONE — Catalyst is the single UI source</b>. The 24 dead <code>ui/*</code> façades have been deleted; <code>src/components/ui/</code> now holds only <b>3 files</b> (provenance-badge + 2 Sonner helpers) and all 165 consumers import <code>@/components/catalyst/*</code> directly.</p>
   <div class="meta-row">
     <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-28 · Mission #049</span>
-    <span class="chip"><b>base</b> <code>31879c53</code> → lot <code>fix/catalyst-exec-lot3</code></span>
-    <span class="chip"><span class="dot green"></span><b>7</b> sub-agents · execution lot3</span>
-    <span class="chip"><span class="dot green"></span>all visual ui wrappers → Catalyst</span>
-    <span class="chip"><span class="dot green"></span><b>180</b> arbitrary typo (was 541) · <b>341</b> token-driven</span>
-    <span class="chip"><span class="dot green"></span><b>98</b> #A7FB90 removed · <b>53</b> catalyst files · all DS guards green</span>
+    <span class="chip"><b>head</b> <code>467d3b94</code> · status <code>DONE</code></span>
+    <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 31)</span>
+    <span class="chip"><span class="dot green"></span><b>52</b> catalyst files</span>
+    <span class="chip"><span class="dot green"></span>all UI Catalyst-direct</span>
+    <span class="chip"><span class="dot green"></span><b>border-white 0</b> (was 365) · <code>#A7FB90</code> <b>39</b> (was 137)</span>
     <span class="chip"><span class="dot amber"></span>PR <b>#146</b> parked · PR <b>#81</b> conflicting</span>
   </div>
-  <p class="note"><b>Mission #049 lot4 = execution</b> (not read-only): <b>127</b> <code>text-[10px]</code> micro-labels converted to the canonical <code>ct-bento-label</code> class (now <b>213</b> usages) → arbitrary <code>text-[Npx]</code> 258→<b>180</b> with token-driven up to <b>341</b>; all <b>visual</b> <code>ui/*</code> wrappers now delegate to Catalyst (only 2 non-visual helpers — <code>toaster</code>/<code>client-toaster</code> — remain), so effectively every visual wrapper is absorbed. <code>#A7FB90</code> down to <b>39</b> (<b>98</b> removed, the rest are canvas/SVG chart fallbacks + dynamic theme defaults + doc comments); <b>53</b> catalyst files; all DS guards green. Zero deletion. <code>#146</code> untouched.</p>
+  <p class="note"><b>Mission #049 = CONVERGENCE COMPLETE.</b> Neutral token pass (lot5): <code>border-white</code> 365→<b>0</b> (→ <code>--ct-border*</code>), <code>text-zinc</code> 313→<b>44</b> (→ <code>--ct-text-*</code>), <code>bg-white</code> overlays → <code>color-mix</code> — 737 pixel-identical swaps. Then (lot6+7) <b>165</b> consumers were migrated from <code>ui/*</code> to <code>catalyst/*</code> direct and the <b>24</b> dead <code>ui/*</code> façades were DELETED. <code>src/components/ui/</code> now holds only <b>3 files</b> — <code>provenance-badge</code> + <code>toaster</code> + <code>client-toaster</code>. Catalyst is the single UI source. <b>52</b> catalyst files; <code>#A7FB90</code> <b>39</b> (rest are canvas/SVG/theme fallbacks); typecheck clean, all DS guards green. Zero deletion of real functionality. <code>#146</code> untouched.</p>
 </div></header>
 
 <nav class="toc"><div class="wrap">
@@ -190,21 +190,23 @@
 <!-- ===================== 2. DASHBOARD ===================== -->
 <section id="dashboard">
   <div class="sec-head"><span class="sec-num">01</span><h2>Catalyst migration dashboard</h2></div>
-  <p class="lead">72 routes audited (22 product · 41 admin · others). Catalyst is the canonical UI layer; <code>src/components/ui</code> is a temporary compatibility façade. After PR&nbsp;#184 there are <b>zero legacy-autonomous pages</b> — every page either imports Catalyst directly or via a wrapper that already delegates to Catalyst.</p>
+  <p class="lead">72 routes audited (22 product · 41 admin · others). <b>Convergence complete:</b> Catalyst is the single UI source. <code>src/components/ui/</code> is down to <b>3 files</b> (provenance-badge + 2 Sonner helpers); the 24 dead façades were deleted and <b>182</b> files now import <code>catalyst/*</code> directly.</p>
 
   <div class="grid g-4">
     <div class="stat accent"><div class="v">72</div><div class="l">Pages total</div><div class="h">22 product · 41 admin · 9 other</div><span class="bar" style="width:100%"></span></div>
-    <div class="stat"><div class="v" style="color:var(--green)">47</div><div class="l">Catalyst-ready</div><div class="h">direct or via converted wrapper</div><span class="bar" style="width:65%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--green)">47</div><div class="l">Catalyst-ready</div><div class="h">direct Catalyst imports</div><span class="bar" style="width:65%"></span></div>
     <div class="stat"><div class="v" style="color:var(--amber)">2</div><div class="l">Catalyst-partial</div><div class="h">2 fewer (guards green)</div><span class="bar s-amber" style="width:3%;background:var(--amber)"></span></div>
-    <div class="stat"><div class="v" style="color:var(--blue)">8</div><div class="l">UI wrapper compat</div><div class="h">ui/* façade — acceptable</div><span class="bar" style="width:11%;background:var(--blue)"></span></div>
-    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">Legacy autonomous</div><div class="h">none — clean post #184</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">182</div><div class="l">Catalyst-direct files</div><div class="h">all UI imports catalyst/*</div><span class="bar" style="width:100%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">Legacy autonomous</div><div class="h">none — convergence done</div></div>
     <div class="stat"><div class="v" style="color:#d9b3f0">3</div><div class="l">Mixed layout</div><div class="h">divergent shells (justified)</div></div>
     <div class="stat"><div class="v">6</div><div class="l">Blocked by scope</div><div class="h">layouts / calc / redirects</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">27<span style="font-size:16px;color:var(--text-muted)">/53</span></div><div class="l">Catalyst canon active</div><div class="h">+bento canon this lot</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">25</div><div class="l">ui wrappers converted</div><div class="h">all visual wrappers absorbed</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">2 helpers</div><div class="l">ui wrappers remaining</div><div class="h">toaster/client-toaster (non-visual)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">31</div><div class="l">#A7FB90 in tsx</div><div class="h">98 removed total (was 137)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">180</div><div class="l">text-[Npx] arbitrary</div><div class="h">341 already token-driven</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">52</div><div class="l">Catalyst files</div><div class="h">the single UI source</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">3<span style="font-size:16px;color:var(--text-muted)"> (was 31)</span></div><div class="l">ui/ files</div><div class="h">provenance-badge + 2 helpers</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">24</div><div class="l">ui/* façades deleted</div><div class="h">dead compat layer removed</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">39</div><div class="l">#A7FB90 in tsx</div><div class="h">was 137 · rest are fallbacks</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">border-white raw</div><div class="h">was 365 · → --ct-border*</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">180</div><div class="l">text-[Npx] arbitrary</div><div class="h">was 541 · 341 token-driven</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">44</div><div class="l">text-zinc raw</div><div class="h">was 313 · light-mode contextual</div></div>
   </div>
 
   <h3>Page status distribution</h3>
@@ -224,16 +226,14 @@
     <span><span class="dot" style="background:#d9b3f0"></span>Mixed layout 3</span>
   </div>
 
-  <h3>ui/* wrapper conversion</h3>
-  <div class="prog" title="converted 25 · helper 2 · autonomous 4">
-    <span class="s-green" style="width:83%"></span>
-    <span class="s-blue" style="width:6.5%"></span>
-    <span class="s-amber" style="width:10.5%"></span>
+  <h3>ui/* convergence — DONE</h3>
+  <div class="prog" title="catalyst-direct (24 façades deleted) · 3 files kept">
+    <span class="s-green" style="width:89%"></span>
+    <span class="s-blue" style="width:11%"></span>
   </div>
   <div class="legend">
-    <span><span class="dot green"></span>Wrapped → Catalyst 25</span>
-    <span><span class="dot blue"></span>Helper 2</span>
-    <span><span class="dot amber"></span>Legacy autonomous 4</span>
+    <span><span class="dot green"></span>24 façades deleted → Catalyst-direct</span>
+    <span><span class="dot blue"></span>3 files kept (provenance-badge + 2 helpers)</span>
   </div>
 </section>
 
@@ -243,13 +243,13 @@
   <div class="grid g-3">
     <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">cockpit-shell/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Global 3-column shell (RailLeft · CenterPanel · RailRight chat) + layout + the <code>--ct-*</code> token source. CockpitShell wraps every product surface; page shells mount inside CenterPanel.</p></div>
     <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">src/components/catalyst/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Canonical UI components — Button, Badge, Table, Input, Card, BentoBadge, CockpitButton, EmptySurface, PageShell. All tokenized via <code>--ct-*</code>; focus rings de-blued to <code>--ct-accent</code> (#184).</p></div>
-    <div class="card"><h3 style="margin-top:0;color:var(--blue)">src/components/ui/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Temporary legacy compatibility layer. 188 files still import it; 25 primitives already re-export Catalyst, only 4 small helpers/edge remain autonomous (bento absorbed #049 lot3). No new autonomous visual component should land here.</p></div>
+    <div class="card"><h3 style="margin-top:0;color:var(--blue)">src/components/ui/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Convergence done — now just <b>3 files</b>: <code>provenance-badge</code> (a real composite component) + <code>toaster</code> + <code>client-toaster</code> (Sonner helpers). The 24 dead façades were deleted; every consumer imports <code>catalyst/*</code> directly. Catalyst is the single source — nothing else belongs here.</p></div>
   </div>
   <h3>Render paths</h3>
-  <div class="flow"><span class="node">Pages</span><span class="arr">→</span><span class="node legacy">ui/* wrapper (compat)</span><span class="arr">→</span><span class="node accent">Catalyst</span><span class="arr">→</span><span class="node">--ct-* tokens</span></div>
   <div class="flow"><span class="node">Pages</span><span class="arr">→</span><span class="node accent">Catalyst direct</span><span class="arr">→</span><span class="node">--ct-* tokens</span></div>
+  <div class="flow"><span class="node">Pages</span><span class="arr">→</span><span class="node">ui/provenance-badge</span><span class="arr">→</span><span class="node accent">catalyst/bento-badge</span><span class="arr">→</span><span class="node">--ct-* tokens</span></div>
   <div class="flow"><span class="node accent">cockpit-shell</span><span class="arr">→</span><span class="node">layout rails + tokens</span></div>
-  <p class="note">Decision: nothing is deleted brutally; everything migrates progressively; <code>ui/*</code> becomes a façade; pages migrate by lot.</p>
+  <p class="note">Convergence complete: the migration progressed by lot, then the 24 dead <code>ui/*</code> façades were deleted once their 165 consumers were repointed to <code>catalyst/*</code>. Catalyst is now the single UI source; only provenance-badge + 2 Sonner helpers remain under <code>ui/</code>.</p>
 </section>
 
 <!-- ===================== 4. PAGE MATRIX ===================== -->
@@ -445,7 +445,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-28 by Mission #049 · base <code class="mono">31879c53</code> · execution lot, code changed (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-28 by Mission #049 · head <code class="mono">467d3b94</code> · status <code class="mono">DONE</code> — convergence complete (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -518,14 +518,14 @@ window.CARTO_DATA = {
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "31879c53 (base) → lot fix/catalyst-exec-lot3",
-    "originMain": "31879c53",
-    "status": "EXECUTION lot3 — single-DS convergence (Catalyst canon). 25 ui/* wrappers now delegate to Catalyst; bento.tsx absorbed.",
-    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot3",
+    "head": "467d3b94",
+    "originMain": "467d3b94",
+    "status": "DONE",
+    "lastPR": "#185 cartography (merged); convergence complete (lot5+lot6+lot7)",
     "subAgents": 7,
-    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
-    "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed.",
-    "note": "lot4 — micro-labels → ct-bento-label, all visual ui wrappers absorbed"
+    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
+    "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
+    "note": "CONVERGENCE COMPLETE — Catalyst is the single UI source; ui/ reduced to 3 files (provenance-badge + 2 helpers); 24 dead façades deleted; 165 consumers import catalyst directly"
   },
   "summary": {
     "pagesTotal": 72,
@@ -538,9 +538,9 @@ window.CARTO_DATA = {
     "mixedLayout": 3,
     "blockedByScope": 6,
     "uiImporterFiles": 188,
-    "catalystImporterFiles": 33,
-    "uiFilesTotal": 31,
-    "catalystFilesTotal": 53,
+    "catalystImporterFiles": 182,
+    "uiFilesTotal": 3,
+    "catalystFilesTotal": 52,
     "catalystCanonActive": 27,
     "catalystCanonReserve": 24,
     "uiWrappedToCatalyst": 25,
@@ -557,7 +557,11 @@ window.CARTO_DATA = {
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 4,
     "dsGuardsRed": 0,
-    "ciLintGreen": true
+    "ciLintGreen": true,
+    "borderWhiteRaw": 0,
+    "textZincRaw": 44,
+    "uiFacadesDeleted": 24,
+    "convergenceComplete": true
   },
   "openPRs": [
     {
@@ -937,6 +941,7 @@ window.CARTO_DATA = {
       "name": "bento.tsx",
       "imports": 58,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/bento",
       "priority": "done"
@@ -953,6 +958,7 @@ window.CARTO_DATA = {
       "name": "empty-surface.tsx",
       "imports": 40,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/empty-surface",
       "priority": "done"
@@ -961,6 +967,7 @@ window.CARTO_DATA = {
       "name": "button.tsx",
       "imports": 38,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/cockpit-button",
       "priority": "done"
@@ -969,6 +976,7 @@ window.CARTO_DATA = {
       "name": "badge.tsx",
       "imports": 29,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/bento-badge",
       "priority": "done"
@@ -977,6 +985,7 @@ window.CARTO_DATA = {
       "name": "card.tsx",
       "imports": 28,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/card",
       "priority": "done"
@@ -985,6 +994,7 @@ window.CARTO_DATA = {
       "name": "modal.tsx",
       "imports": 11,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/modal",
       "priority": "done"
@@ -993,6 +1003,7 @@ window.CARTO_DATA = {
       "name": "nested-panel.tsx",
       "imports": 11,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/nested-panel",
       "priority": "done"
@@ -1001,6 +1012,7 @@ window.CARTO_DATA = {
       "name": "apy-range.tsx",
       "imports": 11,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/apy-range",
       "priority": "done"
@@ -1009,6 +1021,7 @@ window.CARTO_DATA = {
       "name": "panel-status.tsx",
       "imports": 10,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/panel-status",
       "priority": "done"
@@ -1017,6 +1030,7 @@ window.CARTO_DATA = {
       "name": "progress.tsx",
       "imports": 9,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/progress",
       "priority": "done"
@@ -1025,6 +1039,7 @@ window.CARTO_DATA = {
       "name": "tooltip.tsx",
       "imports": 8,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/tooltip",
       "priority": "done"
@@ -1033,6 +1048,7 @@ window.CARTO_DATA = {
       "name": "dashboard-panel-header.tsx",
       "imports": 7,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/dashboard-panel-header",
       "priority": "done"
@@ -1041,6 +1057,7 @@ window.CARTO_DATA = {
       "name": "ptai.tsx",
       "imports": 6,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/ptai",
       "priority": "done"
@@ -1049,6 +1066,7 @@ window.CARTO_DATA = {
       "name": "metric.tsx",
       "imports": 5,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/metric",
       "priority": "done"
@@ -1057,6 +1075,7 @@ window.CARTO_DATA = {
       "name": "confirm-dialog.tsx",
       "imports": 4,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/confirm-dialog",
       "priority": "done"
@@ -1065,6 +1084,7 @@ window.CARTO_DATA = {
       "name": "skeleton.tsx",
       "imports": 4,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/skeleton",
       "priority": "done"
@@ -1073,6 +1093,7 @@ window.CARTO_DATA = {
       "name": "segmented-control.tsx",
       "imports": 3,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/segmented-control",
       "priority": "done"
@@ -1081,6 +1102,7 @@ window.CARTO_DATA = {
       "name": "chart-disclaimer-underlay.tsx",
       "imports": 2,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/chart-disclaimer-underlay",
       "priority": "done"
@@ -1089,6 +1111,7 @@ window.CARTO_DATA = {
       "name": "chart-provenance-corner.tsx",
       "imports": 2,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/chart-provenance-corner",
       "priority": "done"
@@ -1097,6 +1120,7 @@ window.CARTO_DATA = {
       "name": "wizard-step-progress.tsx",
       "imports": 2,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/wizard-step-progress",
       "priority": "done"
@@ -1105,6 +1129,7 @@ window.CARTO_DATA = {
       "name": "checkbox.tsx",
       "imports": 1,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/checkbox",
       "priority": "done"
@@ -1113,6 +1138,7 @@ window.CARTO_DATA = {
       "name": "choice-card.tsx",
       "imports": 1,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/choice-card",
       "priority": "done"
@@ -1121,6 +1147,7 @@ window.CARTO_DATA = {
       "name": "preset-picker.tsx",
       "imports": 1,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/preset-picker",
       "priority": "done"
@@ -1145,6 +1172,7 @@ window.CARTO_DATA = {
       "name": "chart-time-selector.tsx",
       "imports": 0,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/chart-time-selector",
       "priority": "done"
@@ -1473,6 +1501,16 @@ window.CARTO_DATA = {
       "date": "2026-06-28",
       "ref": "Mission #049 lot4",
       "note": "127 text-[10px] micro-labels converted to the canonical ct-bento-label class (now 213 usages) → arbitrary text-[Npx] 258→180; all VISUAL ui/* wrappers now delegate to Catalyst (only 2 non-visual helpers — toaster/client-toaster — remain). #A7FB90 down to 39 (98 removed, rest are canvas/SVG/theme fallbacks). Zero deletion."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot5",
+      "note": "Neutral token pass: border-white 365→0 (→ --ct-border*), text-zinc 313→44 (→ --ct-text-*), bg-white overlays → color-mix. 737 swaps, pixel-identical."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot6+7",
+      "note": "CONVERGENCE COMPLETE — migrated 165 consumers from ui/* to catalyst/* direct, then DELETED the 24 dead ui/* façades. src/components/ui/ now holds only 3 files (provenance-badge + toaster + client-toaster). Catalyst is the single UI source. typecheck clean, 61/61 guards green, zero deletion of real functionality."
     }
   ]
 };

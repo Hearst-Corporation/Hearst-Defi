@@ -2,14 +2,14 @@
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "31879c53 (base) → lot fix/catalyst-exec-lot3",
-    "originMain": "31879c53",
-    "status": "EXECUTION lot3 — single-DS convergence (Catalyst canon). 25 ui/* wrappers now delegate to Catalyst; bento.tsx absorbed.",
-    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot3",
+    "head": "467d3b94",
+    "originMain": "467d3b94",
+    "status": "DONE",
+    "lastPR": "#185 cartography (merged); convergence complete (lot5+lot6+lot7)",
     "subAgents": 7,
-    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
-    "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed.",
-    "note": "lot4 — micro-labels → ct-bento-label, all visual ui wrappers absorbed"
+    "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
+    "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
+    "note": "CONVERGENCE COMPLETE — Catalyst is the single UI source; ui/ reduced to 3 files (provenance-badge + 2 helpers); 24 dead façades deleted; 165 consumers import catalyst directly"
   },
   "summary": {
     "pagesTotal": 72,
@@ -22,9 +22,9 @@
     "mixedLayout": 3,
     "blockedByScope": 6,
     "uiImporterFiles": 188,
-    "catalystImporterFiles": 33,
-    "uiFilesTotal": 31,
-    "catalystFilesTotal": 53,
+    "catalystImporterFiles": 182,
+    "uiFilesTotal": 3,
+    "catalystFilesTotal": 52,
     "catalystCanonActive": 27,
     "catalystCanonReserve": 24,
     "uiWrappedToCatalyst": 25,
@@ -41,7 +41,11 @@
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 4,
     "dsGuardsRed": 0,
-    "ciLintGreen": true
+    "ciLintGreen": true,
+    "borderWhiteRaw": 0,
+    "textZincRaw": 44,
+    "uiFacadesDeleted": 24,
+    "convergenceComplete": true
   },
   "openPRs": [
     {
@@ -421,6 +425,7 @@
       "name": "bento.tsx",
       "imports": 58,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/bento",
       "priority": "done"
@@ -437,6 +442,7 @@
       "name": "empty-surface.tsx",
       "imports": 40,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/empty-surface",
       "priority": "done"
@@ -445,6 +451,7 @@
       "name": "button.tsx",
       "imports": 38,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/cockpit-button",
       "priority": "done"
@@ -453,6 +460,7 @@
       "name": "badge.tsx",
       "imports": 29,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/bento-badge",
       "priority": "done"
@@ -461,6 +469,7 @@
       "name": "card.tsx",
       "imports": 28,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/card",
       "priority": "done"
@@ -469,6 +478,7 @@
       "name": "modal.tsx",
       "imports": 11,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/modal",
       "priority": "done"
@@ -477,6 +487,7 @@
       "name": "nested-panel.tsx",
       "imports": 11,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/nested-panel",
       "priority": "done"
@@ -485,6 +496,7 @@
       "name": "apy-range.tsx",
       "imports": 11,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/apy-range",
       "priority": "done"
@@ -493,6 +505,7 @@
       "name": "panel-status.tsx",
       "imports": 10,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/panel-status",
       "priority": "done"
@@ -501,6 +514,7 @@
       "name": "progress.tsx",
       "imports": 9,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/progress",
       "priority": "done"
@@ -509,6 +523,7 @@
       "name": "tooltip.tsx",
       "imports": 8,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/tooltip",
       "priority": "done"
@@ -517,6 +532,7 @@
       "name": "dashboard-panel-header.tsx",
       "imports": 7,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/dashboard-panel-header",
       "priority": "done"
@@ -525,6 +541,7 @@
       "name": "ptai.tsx",
       "imports": 6,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/ptai",
       "priority": "done"
@@ -533,6 +550,7 @@
       "name": "metric.tsx",
       "imports": 5,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/metric",
       "priority": "done"
@@ -541,6 +559,7 @@
       "name": "confirm-dialog.tsx",
       "imports": 4,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/confirm-dialog",
       "priority": "done"
@@ -549,6 +568,7 @@
       "name": "skeleton.tsx",
       "imports": 4,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/skeleton",
       "priority": "done"
@@ -557,6 +577,7 @@
       "name": "segmented-control.tsx",
       "imports": 3,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/segmented-control",
       "priority": "done"
@@ -565,6 +586,7 @@
       "name": "chart-disclaimer-underlay.tsx",
       "imports": 2,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/chart-disclaimer-underlay",
       "priority": "done"
@@ -573,6 +595,7 @@
       "name": "chart-provenance-corner.tsx",
       "imports": 2,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/chart-provenance-corner",
       "priority": "done"
@@ -581,6 +604,7 @@
       "name": "wizard-step-progress.tsx",
       "imports": 2,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/wizard-step-progress",
       "priority": "done"
@@ -589,6 +613,7 @@
       "name": "checkbox.tsx",
       "imports": 1,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/checkbox",
       "priority": "done"
@@ -597,6 +622,7 @@
       "name": "choice-card.tsx",
       "imports": 1,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/choice-card",
       "priority": "done"
@@ -605,6 +631,7 @@
       "name": "preset-picker.tsx",
       "imports": 1,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/preset-picker",
       "priority": "done"
@@ -629,6 +656,7 @@
       "name": "chart-time-selector.tsx",
       "imports": 0,
       "status": "WRAPPED_TO_CATALYST",
+      "facadeDeleted": true,
       "wrapsCatalyst": true,
       "target": "catalyst/chart-time-selector",
       "priority": "done"
@@ -957,6 +985,16 @@
       "date": "2026-06-28",
       "ref": "Mission #049 lot4",
       "note": "127 text-[10px] micro-labels converted to the canonical ct-bento-label class (now 213 usages) → arbitrary text-[Npx] 258→180; all VISUAL ui/* wrappers now delegate to Catalyst (only 2 non-visual helpers — toaster/client-toaster — remain). #A7FB90 down to 39 (98 removed, rest are canvas/SVG/theme fallbacks). Zero deletion."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot5",
+      "note": "Neutral token pass: border-white 365→0 (→ --ct-border*), text-zinc 313→44 (→ --ct-text-*), bg-white overlays → color-mix. 737 swaps, pixel-identical."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot6+7",
+      "note": "CONVERGENCE COMPLETE — migrated 165 consumers from ui/* to catalyst/* direct, then DELETED the 24 dead ui/* façades. src/components/ui/ now holds only 3 files (provenance-badge + toaster + client-toaster). Catalyst is the single UI source. typecheck clean, 61/61 guards green, zero deletion of real functionality."
     }
   ]
 }
