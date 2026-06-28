@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { MemoShell } from "@/components/memo/memo-shell";
 import { VAULTS } from "@/lib/engine/vaults";
 import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
@@ -17,16 +17,15 @@ export default async function InvestorMemoPage({
   const vault = VAULTS[vaultId];
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Investor"
-          titleAccent="Memo"
-          contextLabel="Operations"
-        />
-
-        <MemoShell vaultId={vaultId} vaultName={vault.label} />
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="Investor"
+      titleAccent="Memo"
+      contextLabel="Operations"
+    >
+      {/* MemoShell owns its toolbar + per-section Cards (its own surfaces).
+          The page shell only provides the canon box/header — no extra card
+          wrapper here, which would nest a card inside a card (anti-cage). */}
+      <MemoShell vaultId={vaultId} vaultName={vault.label} />
+    </AdminPageShell>
   );
 }

@@ -2,13 +2,17 @@
 // Server Component — gated by admin layout (session.role).
 // Filterable via plain GET <form>; no client JS required.
 //
-// Presentation built on the purchased Catalyst / Tailwind Plus primitives
-// (Table, Input, Button, Badge) — NOT free ad-hoc Tailwind. Pages compose
-// components; the dark theme + accent live inside the Catalyst components.
+// Mounted on the canonical admin shell (AdminPageShell + AdminSectionCard) so
+// the page surface, header grammar, and welded section cards match /customers.
+// Tables use the shared Catalyst chrome (TABLE_HEAD / TABLE_WRAP / ROW).
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { BentoPageShell, BentoPanel, BentoHeader, BentoLabel } from "@/components/ui/bento";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  TABLE_HEAD,
+  TABLE_WRAP,
+  ROW,
+} from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { Input } from "@/components/catalyst/input";
@@ -20,6 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
+import { BentoLabel } from "@/components/ui/bento";
+import { EmptySurface } from "@/components/ui/empty-surface";
 import { getAdminAuditLog } from "@/lib/admin/audit";
 import { buildAuditKpiStrip } from "@/lib/admin/audit-kpi-strip";
 import { cn } from "@/lib/cn";
@@ -51,7 +57,15 @@ function AuditActionLabel({ action }: { action: string }) {
   );
 }
 
-function DiffBlock({ label, value, muted }: { label: string; value: unknown; muted?: boolean }) {
+function DiffBlock({
+  label,
+  value,
+  muted,
+}: {
+  label: string;
+  value: unknown;
+  muted?: boolean;
+}) {
   return (
     <div className="flex flex-col gap-1">
       <p className="ct-bento-label">{label}</p>
@@ -92,18 +106,17 @@ export default async function AuditLogPage({
   const kpiStrip = buildAuditKpiStrip(entries);
 
   return (
-    <BentoPageShell>
-      <AdminPageHeader
-        titleLead="Audit"
-        titleAccent="Log"
-        contextLabel="Compliance"
-      />
-
-      {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
-
+    <AdminPageShell
+      titleLead="Audit"
+      titleAccent="Log"
+      contextLabel="Compliance"
+    >
       {/* Filter bar — plain GET form, zero client JS. Catalyst Input + Button. */}
-      <BentoPanel aria-label="Filters">
-        <BentoHeader title="Filter audit log" />
+      <AdminSectionCard
+        title="Filter audit log"
+        subtitle="Narrow the log by entity, actor, or action — server-rendered GET, no client JS."
+        ariaLabel="Filters"
+      >
         <form method="get" className="flex flex-wrap items-end gap-3 p-5">
           <fieldset className="contents">
             <legend className="sr-only">Filter audit log</legend>
@@ -147,114 +160,134 @@ export default async function AuditLogPage({
             )}
           </fieldset>
         </form>
-      </BentoPanel>
+      </AdminSectionCard>
 
-      {/* Results */}
-      <section className="flex flex-col gap-4" aria-label="Audit entries">
-        <h2 className="text-[13px] font-semibold tracking-tight ct-text-strong">
-          {hasFilters ? "Filtered results" : "Recent events"}{" "}
-          <span className="ct-text-muted tabular-nums">({entries.length})</span>
-        </h2>
-
+      {/* Results — welded card: KPI strip → header → Catalyst table (edge-to-edge). */}
+      <AdminSectionCard
+        kpis={kpiStrip}
+        kpiTitle="Audit activity"
+        kpiSubtitle={`${entries.length} ${entries.length === 1 ? "event" : "events"} in view`}
+        title={hasFilters ? "Filtered results" : "Recent events"}
+        subtitle={
+          hasFilters
+            ? "Entries matching the current filter"
+            : "Latest admin activity (up to 200 per query)"
+        }
+        headerTrailing={
+          <Badge color="zinc" className="uppercase tabular-nums">
+            {entries.length} total
+          </Badge>
+        }
+        ariaLabel="Audit entries"
+      >
         {entries.length === 0 ? (
-          <BentoPanel className="items-center justify-center px-5 py-12 text-center">
-            <p className="text-[13px] ct-text-secondary">
-              {hasFilters
+          <EmptySurface
+            variant="widget"
+            message={
+              hasFilters
                 ? "No admin activity matches the current filter."
-                : "No admin activity recorded yet."}
-            </p>
-            {hasFilters ? (
-              <p className="mt-1.5 max-w-sm text-[12px] ct-text-faint">
-                Adjust the criteria above or clear all filters to see the full
-                log.
-              </p>
-            ) : null}
-          </BentoPanel>
+                : "No admin activity recorded yet."
+            }
+            detail={
+              hasFilters
+                ? "Adjust the criteria above or clear all filters to see the full log."
+                : "Admin actions are written append-only by recordAdminAudit()."
+            }
+            className="min-h-32"
+          />
         ) : (
-          <BentoPanel className="px-5 [--gutter:--spacing(5)]">
-            <Table dense grid aria-label="Audit entries">
-              <TableHead>
-                <TableRow>
-                  <TableHeader>When</TableHeader>
-                  <TableHeader>Actor</TableHeader>
-                  <TableHeader>Action</TableHeader>
-                  <TableHeader className="hidden lg:table-cell">Entity</TableHeader>
-                  <TableHeader>Details</TableHeader>
+          <Table dense className={TABLE_WRAP}>
+            <TableHead>
+              <TableRow>
+                <TableHeader className={`${TABLE_HEAD} pl-5`}>When</TableHeader>
+                <TableHeader className={TABLE_HEAD}>Actor</TableHeader>
+                <TableHeader className={TABLE_HEAD}>Action</TableHeader>
+                <TableHeader
+                  className={`${TABLE_HEAD} hidden lg:table-cell`}
+                >
+                  Entity
+                </TableHeader>
+                <TableHeader className={`${TABLE_HEAD} pr-5`}>
+                  Details
+                </TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {entries.map((entry) => (
+                <TableRow key={entry.id} className={ROW}>
+                  {/* When */}
+                  <TableCell className="ct-metric-caption pl-5 align-top font-mono">
+                    {formatAdminAuditTimestamp(entry.occurredAt)}
+                  </TableCell>
+
+                  {/* Actor */}
+                  <TableCell className="align-top">
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className="ct-metric-caption font-mono text-[var(--ct-text-body)]"
+                        title={entry.actorWallet}
+                      >
+                        {truncateWallet(entry.actorWallet)}
+                      </span>
+                      {entry.ip ? (
+                        <span className="ct-metric-caption">{entry.ip}</span>
+                      ) : null}
+                    </div>
+                  </TableCell>
+
+                  {/* Action */}
+                  <TableCell className="align-top">
+                    <AuditActionLabel action={entry.action} />
+                  </TableCell>
+
+                  {/* Entity */}
+                  <TableCell className="hidden align-top lg:table-cell">
+                    <div className="flex flex-col gap-1">
+                      <span className="ct-metric-value">
+                        {entry.entityType}
+                      </span>
+                      <span className="ct-metric-caption font-mono">
+                        {entry.entityId}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  {/* Details — before/after diff in a native <details> */}
+                  <TableCell className="pr-5 align-top whitespace-normal">
+                    <details className="group flex flex-col gap-1.5">
+                      <summary className="ct-metric-caption cursor-pointer select-none list-none hover:text-[var(--ct-text-body)]">
+                        <span className="group-open:hidden">Show diff</span>
+                        <span className="hidden group-open:inline">
+                          Hide diff
+                        </span>
+                      </summary>
+                      <DiffBlock label="Before" value={entry.before} muted />
+                      <DiffBlock label="After" value={entry.after} />
+                      {entry.userAgent ? (
+                        <p className="ct-metric-caption truncate">
+                          UA: {entry.userAgent}
+                        </p>
+                      ) : null}
+                    </details>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {entries.map((entry) => (
-                  <TableRow key={entry.id}>
-                    {/* When */}
-                    <TableCell className="align-top font-mono text-[12px] ct-text-muted">
-                      {formatAdminAuditTimestamp(entry.occurredAt)}
-                    </TableCell>
-
-                    {/* Actor */}
-                    <TableCell className="align-top">
-                      <div className="flex flex-col gap-1">
-                        <span
-                          className="font-mono text-[12px] ct-text-body"
-                          title={entry.actorWallet}
-                        >
-                          {truncateWallet(entry.actorWallet)}
-                        </span>
-                        {entry.ip ? (
-                          <span className="text-[12px] ct-text-muted">{entry.ip}</span>
-                        ) : null}
-                      </div>
-                    </TableCell>
-
-                    {/* Action */}
-                    <TableCell className="align-top">
-                      <AuditActionLabel action={entry.action} />
-                    </TableCell>
-
-                    {/* Entity */}
-                    <TableCell className="hidden align-top lg:table-cell">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[12px] font-medium ct-text-strong">
-                          {entry.entityType}
-                        </span>
-                        <span className="font-mono text-[12px] ct-text-muted">
-                          {entry.entityId}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    {/* Details — before/after diff in a native <details> */}
-                    <TableCell className="align-top whitespace-normal">
-                      <details className="group flex flex-col gap-1.5">
-                        <summary className="cursor-pointer select-none list-none text-[12px] ct-text-muted hover:ct-text-body">
-                          <span className="group-open:hidden">Show diff</span>
-                          <span className="hidden group-open:inline">Hide diff</span>
-                        </summary>
-                        <DiffBlock label="Before" value={entry.before} muted />
-                        <DiffBlock label="After" value={entry.after} />
-                        {entry.userAgent ? (
-                          <p className="truncate text-[12px] ct-text-muted">
-                            UA: {entry.userAgent}
-                          </p>
-                        ) : null}
-                      </details>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </BentoPanel>
+              ))}
+            </TableBody>
+          </Table>
         )}
 
-        <div className="flex flex-col gap-1 border-t p-4 ct-bento-divider">
+        <div className="flex flex-col gap-1 border-t border-[var(--ct-border-soft)] p-5">
           <p className="ct-bento-label">Audit retention</p>
-          <p className="text-[12px] ct-text-muted">
+          <p className="ct-metric-caption">
             Showing up to 200 entries per query. Entries written by{" "}
-            <code className="font-mono ct-text-body">recordAdminAudit()</code>{" "}
+            <code className="font-mono text-[var(--ct-text-body)]">
+              recordAdminAudit()
+            </code>{" "}
             are append-only — export directly from the database for formal
             compliance reporting.
           </p>
         </div>
-      </section>
-    </BentoPageShell>
+      </AdminSectionCard>
+    </AdminPageShell>
   );
 }

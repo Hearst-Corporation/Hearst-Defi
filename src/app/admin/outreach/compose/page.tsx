@@ -5,8 +5,8 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/ui/badge";
-import { BentoPanel } from "@/components/ui/bento";
 import { DirectSendForm } from "@/components/admin/outreach/direct-send-form";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,10 @@ export default function ComposeEmailPage() {
           titleAccent="email"
           contextLabel="Outreach · One-off send"
           lead={
-            <Link href="/admin/outreach" className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]">
+            <Link
+              href="/admin/outreach"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+            >
               ← Outreach
             </Link>
           }
@@ -37,19 +40,27 @@ export default function ComposeEmailPage() {
           }
         />
 
-        <section className="flex flex-col gap-4" aria-label="Compose">
-          <p className="body-sm leading-relaxed text-[var(--ct-text-body)]">
-            Send one tracked email to a single address — no campaign required. Draft
-            it yourself or let the agent prepare it (institutional cold-email persona,
-            forbidden-words guarded, qualification-funnel CTA). Review before sending;
-            nothing leaves until you click{" "}
-            <strong className="font-semibold text-[var(--ct-text-strong)]">Send now</strong>.
-          </p>
-
-          <BentoPanel className="p-6">
+        {/* Single welded section — header + form fused in one bg-surface-card box.
+            No BentoPanel-in-section cage. */}
+        <AdminSectionCard
+          ariaLabel="Compose"
+          title="One-off tracked email"
+          subtitle="No campaign required — draft yourself or let the agent prepare it."
+        >
+          <div className="flex flex-col gap-5 p-5">
+            <p className="body-sm leading-relaxed text-[var(--ct-text-body)]">
+              Send one tracked email to a single address. Draft it yourself or let
+              the agent prepare it (institutional cold-email persona, forbidden-words
+              guarded, qualification-funnel CTA). Review before sending; nothing
+              leaves until you click{" "}
+              <strong className="font-semibold text-[var(--ct-text-strong)]">
+                Send now
+              </strong>
+              .
+            </p>
             <DirectSendForm />
-          </BentoPanel>
-        </section>
+          </div>
+        </AdminSectionCard>
       </div>
     </div>
   );

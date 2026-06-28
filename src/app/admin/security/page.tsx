@@ -1,7 +1,6 @@
 import { ShieldCheck, KeyRound, LifeBuoy } from "lucide-react";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isTotpEnabled } from "@/lib/auth/totp";
 
@@ -41,60 +40,58 @@ export default async function AdminSecurityPage() {
   const totpEnabled = await isTotpEnabled(userId);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Security"
-          titleAccent="Center"
-          contextLabel="Account Security"
-        />
+    <AdminPageShell
+      titleLead="Security"
+      titleAccent="Center"
+      contextLabel="Account Security"
+    >
+      {/* ANTI-TROU : enrolment (interactif, hauteur variable) vs guidance (liste
+          de 3 lignes) sont des volumes très inégaux. Tracks asymétriques avec
+          items-start au lieu d'un grid-cols-2 rigide qui creuserait un trou sous
+          la colonne courte. */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <AdminSectionCard
+          title="Two-factor sign-in (TOTP)"
+          subtitle="Required once enrolled"
+          ariaLabel="Two-factor sign-in"
+        >
+          <div className="flex min-w-0 flex-col gap-4 p-5">
+            <p className="ct-metric-caption leading-relaxed">
+              Use an authenticator app (Google Authenticator, Authy, 1Password)
+              to generate a time-based code at login. Required once enrolled.
+            </p>
+            <TotpEnrolmentClient initialEnabled={totpEnabled} />
+          </div>
+        </AdminSectionCard>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <BentoPanel>
-            <BentoHeader
-              title="Two-factor sign-in (TOTP)"
-              subtitle="Required once enrolled"
-            />
-            <div className="flex flex-col gap-4 p-5">
-              <p className="ct-metric-caption leading-relaxed">
-                Use an authenticator app (Google Authenticator, Authy, 1Password)
-                to generate a time-based code at login. Required once enrolled.
-              </p>
-              <TotpEnrolmentClient initialEnabled={totpEnabled} />
-            </div>
-          </BentoPanel>
-
-          <BentoPanel>
-            <BentoHeader
-              title="Account protection"
-              subtitle="Guidance & recovery"
-            />
-            <ul className="flex flex-col">
-              {PROTECTIONS.map((item) => (
-                <li
-                  key={item.title}
-                  className="flex items-start gap-4 border-b border-[var(--ct-border-soft)] p-5 last:border-b-0"
+        <AdminSectionCard
+          title="Account protection"
+          subtitle="Guidance & recovery"
+          ariaLabel="Account protection"
+        >
+          <ul className="flex flex-col">
+            {PROTECTIONS.map((item) => (
+              <li
+                key={item.title}
+                className="flex items-start gap-4 border-b border-[var(--ct-border-soft)] p-5 last:border-b-0"
+              >
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--ct-border)] bg-surface-inset"
+                  aria-hidden="true"
                 >
-                  <span
-                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--ct-border)] bg-surface-inset"
-                    aria-hidden="true"
-                  >
-                    <item.icon className="size-4 text-[var(--ct-accent)]" />
+                  <item.icon className="size-4 text-[var(--ct-accent)]" />
+                </span>
+                <span className="flex min-w-0 flex-col gap-1.5">
+                  <span className="ct-metric-value">{item.title}</span>
+                  <span className="ct-metric-caption leading-relaxed">
+                    {item.detail}
                   </span>
-                  <span className="flex min-w-0 flex-col gap-1.5">
-                    <span className="ct-metric-value">
-                      {item.title}
-                    </span>
-                    <span className="ct-metric-caption leading-relaxed">
-                      {item.detail}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </BentoPanel>
-        </div>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </AdminSectionCard>
       </div>
-    </div>
+    </AdminPageShell>
   );
 }

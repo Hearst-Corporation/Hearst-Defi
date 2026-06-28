@@ -1,4 +1,7 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { SectionAntiPatterns } from "@/components/admin/design-system/section-anti-patterns";
 import { SectionComponents } from "@/components/admin/design-system/section-components";
 import { SectionFoundations } from "@/components/admin/design-system/section-foundations";
@@ -20,6 +23,11 @@ export const metadata = {
  *
  * Pure static reference. No product data, no API/DB, no behaviour change. The
  * admin layout already gates the route (`session.role === "admin"`).
+ *
+ * Shell migrated to AdminPageShell + an intro AdminSectionCard (description +
+ * section index). The six showcase `Section*` blocks render their own
+ * `.ds-section` chrome and stay untouched below — wrapping each in a card would
+ * be a card-in-card cage, so they flow directly in the shell stack instead.
  */
 
 const INDEX = [
@@ -33,29 +41,36 @@ const INDEX = [
 
 export default function AdminDesignSystemPage() {
   return (
-    <div className="admin-doc-stack admin-doc-stack--roomy">
-      <AdminPageHeader
-        titleLead="Design"
-        titleAccent="System"
-        contextLabel="Internal reference"
-        description="Living reference for Hearst Connect — open before any UI work. Opaque graphite panels (not frosted glass), real primitives from src/components/ui, anti-patterns in section F. When this page and markdown disagree, this page wins."
-      />
+    <AdminPageShell
+      titleLead="Design"
+      titleAccent="System"
+      contextLabel="Internal reference"
+    >
+      <AdminSectionCard
+        ariaLabel="Design system overview"
+        title="Living reference"
+        subtitle="Open before any UI work. Opaque graphite panels (not frosted glass), real primitives from src/components/ui, anti-patterns in section F. When this page and markdown disagree, this page wins."
+      >
+        <div className="px-5 pb-5">
+          <nav aria-label="Design system sections" className="ds-index">
+            {INDEX.map((s) => (
+              <a key={s.id} href={`#${s.id}`} className="ds-index__link">
+                <span className="ds-index__key">{s.key}</span>
+                {s.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </AdminSectionCard>
 
-      <nav aria-label="Design system sections" className="ds-index">
-        {INDEX.map((s) => (
-          <a key={s.id} href={`#${s.id}`} className="ds-index__link">
-            <span className="ds-index__key">{s.key}</span>
-            {s.label}
-          </a>
-        ))}
-      </nav>
-
+      {/* Showcase sections — each renders its own `.ds-section` chrome; kept
+          intact (no card wrapper) to avoid a card-in-card cage. */}
       <SectionFoundations />
       <SectionLayout />
       <SectionComponents />
       <SectionPatterns />
       <SectionStates />
       <SectionAntiPatterns />
-    </div>
+    </AdminPageShell>
   );
 }

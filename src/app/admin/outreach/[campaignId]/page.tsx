@@ -6,18 +6,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/ui/badge";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { EmailReviewCard } from "@/components/admin/outreach/email-review-card";
 import { DraftCampaignButton } from "@/components/admin/outreach/draft-campaign-button";
 import { SendCampaignButton } from "@/components/admin/outreach/send-campaign-button";
-import { BentoPanel } from "@/components/ui/bento";
 import { loadCampaignDetail } from "@/lib/data/outreach";
-import {
-  AdminDetailSection,
-  AdminDetailGrid,
-  AdminDetailItem,
-} from "@/components/admin/admin-detail-layout";
+import { AdminDetailItem } from "@/components/admin/admin-detail-layout";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 import { CAMPAIGN_VARIANT } from "@/lib/outreach/status-variants";
 
@@ -56,6 +52,8 @@ export default async function CampaignDetailPage({
   const deliverySummary = buildDeliverySummary(detail.statusCounts);
 
   return (
+    // Back-link is load-bearing → keep AdminPageHeader + lead for the shell;
+    // the inner sections migrate to the AdminSectionCard canon.
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
@@ -78,19 +76,25 @@ export default async function CampaignDetailPage({
           }
         />
 
-        {/* Meta */}
-        <AdminDetailSection
-          label="Campaign"
+        {/* Campaign brief — detail grid lives INSIDE the welded card body (no
+            BentoPanel-in-section cage). items-start so the full-width brief never
+            stretches its short neighbours. */}
+        <AdminSectionCard
+          ariaLabel="Campaign"
           title="Campaign brief"
-          description="Approved campaign inputs and sender context used across the drafting run."
+          subtitle="Approved campaign inputs and sender context used across the drafting run."
         >
-          <AdminDetailGrid>
+          <dl className="grid grid-cols-1 items-start gap-x-8 gap-y-5 p-5 md:grid-cols-2">
             <AdminDetailItem label="Kind">{detail.kind}</AdminDetailItem>
             <AdminDetailItem label="Status">{detail.status}</AdminDetailItem>
             <AdminDetailItem label="From">
-              <span className="font-mono text-[var(--ct-text-body)]">{detail.fromEmail ?? "default"}</span>
+              <span className="break-all font-mono text-[var(--ct-text-body)]">
+                {detail.fromEmail ?? "default"}
+              </span>
             </AdminDetailItem>
-            <AdminDetailItem label="Created">{formatAdminDate(detail.createdAt)}</AdminDetailItem>
+            <AdminDetailItem label="Created">
+              {formatAdminDate(detail.createdAt)}
+            </AdminDetailItem>
             <AdminDetailItem label="Subject template" fullWidth>
               {detail.subjectTemplate ?? "—"}
             </AdminDetailItem>
@@ -99,52 +103,58 @@ export default async function CampaignDetailPage({
                 {detail.bodyTemplate ?? "—"}
               </span>
             </AdminDetailItem>
-          </AdminDetailGrid>
-        </AdminDetailSection>
+          </dl>
+        </AdminSectionCard>
 
         {/* Draft via agent */}
-        <AdminDetailSection
-          label="Draft"
+        <AdminSectionCard
+          ariaLabel="Draft"
           title="Draft generation"
-          description="Generate one tailored draft per recipient from the approved brief and, when enabled, prospect qualification context. Output lands below in the review queue and remains unsent until an operator approves each email."
+          subtitle="One tailored draft per recipient — lands in the review queue, unsent until approved."
         >
-          <div className="flex flex-wrap items-center gap-2">
-            <DraftCampaignButton campaignId={detail.id} />
+          <div className="flex flex-col gap-4 p-5">
+            <p className="ct-metric-caption leading-relaxed">
+              Generate one tailored draft per recipient from the approved brief and,
+              when enabled, prospect qualification context. Output lands below in the
+              review queue and remains unsent until an operator approves each email.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <DraftCampaignButton campaignId={detail.id} />
+            </div>
           </div>
-        </AdminDetailSection>
+        </AdminSectionCard>
 
         {/* Delivery summary — visible once emails start being dispatched */}
         {deliverySummary && (
-          <AdminDetailSection label="Delivery summary" title="Delivery">
-            <BentoPanel className="p-6">
+          <AdminSectionCard ariaLabel="Delivery summary" title="Delivery">
+            <div className="p-5">
               <p className="ct-metric-value font-mono">{deliverySummary}</p>
-            </BentoPanel>
-          </AdminDetailSection>
+            </div>
+          </AdminSectionCard>
         )}
 
         {/* Release — shown only when campaign is sendable (draft|review + ≥1 approved email) */}
         {canRelease && (
-          <AdminDetailSection
-            label="Release"
-            title="Release"
-            description={
-              <>
+          <AdminSectionCard ariaLabel="Release" title="Release">
+            <div className="flex flex-col gap-4 p-5">
+              <p className="ct-metric-caption leading-relaxed">
                 Dispatch all approved emails. The campaign switches to{" "}
-                <span className="font-mono">sending</span> and Inngest fans out delivery
-                over each approved recipient.
-              </>
-            }
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <SendCampaignButton
-                campaignId={detail.id}
-                approvedCount={approvedCount}
-              />
+                <span className="font-mono">sending</span> and Inngest fans out
+                delivery over each approved recipient.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <SendCampaignButton
+                  campaignId={detail.id}
+                  approvedCount={approvedCount}
+                />
+              </div>
             </div>
-          </AdminDetailSection>
+          </AdminSectionCard>
         )}
 
-        {/* Emails */}
+        {/* Emails — review queue. The card list is its own surface stack (each
+            EmailReviewCard is a panel), so the section header sits above a flat
+            list, not a card-in-card. */}
         <section className="flex flex-col gap-4" aria-label="Emails">
           <h2 className="ct-section-title">
             Recipient review queue ({detail.emails.length})

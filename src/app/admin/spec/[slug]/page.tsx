@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Markdown } from "@/components/admin/markdown";
-import { BentoPanel, BentoHeader } from "@/components/ui/bento";
 import { cn } from "@/lib/cn";
 import { getSpecDoc, getSpecIndex } from "@/lib/spec";
 
@@ -26,59 +25,62 @@ export default async function SpecPage({
   }
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Spec"
-          titleAccent={doc.title}
-          contextLabel="Operations"
-          description="Reference specification for product, operations, or methodology review."
-        />
-
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(220px,260px)_1fr]">
-          <BentoPanel className="lg:self-start">
-            <BentoHeader title="Documents" />
-            <nav
-              className="flex flex-col p-2"
-              aria-label="Spec documents"
-            >
-              {index.map((entry) => {
-                const active = entry.slug === slug;
-                return (
-                  <Link
-                    key={entry.slug}
-                    href={`/admin/spec/${entry.slug}`}
+    <AdminPageShell
+      titleLead="Spec"
+      titleAccent={doc.title}
+      contextLabel="Operations"
+    >
+      {/* ANTI-TROU : la nav (liste courte) et le contenu (markdown long) sont
+          des volumes très inégaux. Tracks asymétriques minmax + items-start →
+          la nav se cale en haut (self-start) sans creuser un trou sous elle. */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)]">
+        <AdminSectionCard
+          title="Documents"
+          ariaLabel="Spec documents"
+          className="lg:self-start"
+        >
+          <nav className="flex min-w-0 flex-col p-2" aria-label="Spec documents">
+            {index.map((entry) => {
+              const active = entry.slug === slug;
+              return (
+                <Link
+                  key={entry.slug}
+                  href={`/admin/spec/${entry.slug}`}
+                  className={cn(
+                    "ct-metric-value flex min-w-0 items-center gap-2.5 rounded-lg px-3 py-2 font-normal transition-colors",
+                    active
+                      ? "bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                      : "text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] hover:text-[var(--ct-text-strong)]",
+                  )}
+                >
+                  <span
                     className={cn(
-                      "ct-metric-value flex items-center gap-2.5 rounded-lg px-3 py-2 font-normal transition-colors",
+                      "ct-metric-caption font-mono tabular-nums",
                       active
-                        ? "bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                        : "text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] hover:text-[var(--ct-text-strong)]",
+                        ? "text-[var(--ct-accent)]"
+                        : "text-[var(--ct-text-muted)]",
                     )}
                   >
-                    <span
-                      className={cn(
-                        "ct-metric-caption font-mono tabular-nums",
-                        active
-                          ? "text-[var(--ct-accent)]"
-                          : "text-[var(--ct-text-muted)]",
-                      )}
-                    >
-                      {String(entry.order).padStart(2, "0")}
-                    </span>
-                    {entry.title}
-                  </Link>
-                );
-              })}
-            </nav>
-          </BentoPanel>
+                    {String(entry.order).padStart(2, "0")}
+                  </span>
+                  <span className="min-w-0 truncate">{entry.title}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </AdminSectionCard>
 
-          <BentoPanel className="min-w-0">
-            <div className="p-5 lg:p-6">
-              <Markdown content={doc.content} demoteH1 />
-            </div>
-          </BentoPanel>
-        </div>
+        <AdminSectionCard
+          title={doc.title}
+          subtitle="Reference specification for product, operations, or methodology review."
+          ariaLabel={doc.title}
+          className="min-w-0"
+        >
+          <div className="min-w-0 p-5 lg:p-6">
+            <Markdown content={doc.content} demoteH1 />
+          </div>
+        </AdminSectionCard>
       </div>
-    </div>
+    </AdminPageShell>
   );
 }

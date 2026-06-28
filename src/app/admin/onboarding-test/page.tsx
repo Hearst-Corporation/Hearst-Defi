@@ -5,8 +5,10 @@
 
 import Link from "next/link";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { BentoPanel } from "@/components/ui/bento";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { OnboardingForm } from "./onboarding-form";
 
 export const dynamic = "force-dynamic";
@@ -15,41 +17,31 @@ export const metadata = { title: "Onboarding test — Hearst Connect" };
 
 export default function OnboardingTestPage() {
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Onboarding"
-          titleAccent="test"
-          contextLabel="Operations · Pilot tool"
-          description="Pilot test tool — runs a controlled submission through the production intake path. It creates a real investor account and qualification record; the welcome email and HubSpot sync stay opt-in (off by default)."
-          lead={
-            <Link
-              href="/admin/customers"
-              className="text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)]"
-            >
-              ← Investors
-            </Link>
-          }
-        />
-
-        <section className="flex flex-col gap-4" aria-label="Simulator">
-          <h2 className="ct-section-title">
-            Create real pilot investor record
-          </h2>
-          <p className="ct-metric-caption leading-relaxed">
-            Not a dry run — submitting creates a real investor account and
-            qualification record, and applies assistant settings. You confirm
-            before it runs. The welcome email and HubSpot contact are opt-in
-            below — both off by default.
-          </p>
-
-          <BentoPanel>
-            <div className="p-5 lg:p-6">
-              <OnboardingForm />
-            </div>
-          </BentoPanel>
-        </section>
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="Onboarding"
+      titleAccent="test"
+      contextLabel="Operations · Pilot tool"
+      headerActions={
+        <Link
+          href="/admin/customers"
+          className="text-[13px] text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)]"
+        >
+          ← Investors
+        </Link>
+      }
+    >
+      {/* Single welded section card — title + the long pilot caveat live in the
+          card sub-header; the form sits directly in the padded body (no
+          BentoPanel-in-section cage). */}
+      <AdminSectionCard
+        ariaLabel="Simulator"
+        title="Create real pilot investor record"
+        subtitle="Not a dry run — submitting creates a real investor account and qualification record, and applies assistant settings. You confirm before it runs. The welcome email and HubSpot contact are opt-in below — both off by default."
+      >
+        <div className="p-5 lg:p-6">
+          <OnboardingForm />
+        </div>
+      </AdminSectionCard>
+    </AdminPageShell>
   );
 }

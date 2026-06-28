@@ -1,8 +1,7 @@
 import "./dashboard.css";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
-import { BentoPageShell } from "@/components/ui/bento";
 import { resolveDashboardPageInputs } from "@/lib/admin/dashboard-page-view";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
 import { loadCockpitPayload } from "@/lib/data/cockpit";
@@ -39,29 +38,27 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     "HYV";
 
   return (
-    <BentoPageShell>
-      <AdminPageHeader
-        titleLead="Admin"
-        titleAccent="Command Center"
-        contextLabel={`${activeTicker} · Admin Command`}
-      />
-
+    <AdminPageShell
+      titleLead="Admin"
+      titleAccent="Command Center"
+      contextLabel={`${activeTicker} · Admin Command`}
+    >
       <DashboardAssetsBoard
-          data={page.data}
-          risk={risk}
-          proof={overview.proof}
-          capitalUsdc={page.capitalUsdc}
-          headlineApy={page.headlineApy}
-          hasLiveKpis={page.hasLiveKpis}
-          hasSeedPreview={page.hasSeedPreview}
-          showVaultAnalytics={page.showVaultAnalytics}
-          simulated={page.simulated}
-          yieldPosture={page.yieldPosture}
-          proofFresh={page.proofFresh}
-          cockpit={cockpit}
-          platformTotals={totals}
-          overviewClusters={overviewClusters}
+        data={page.data}
+        risk={risk}
+        proof={overview.proof}
+        capitalUsdc={page.capitalUsdc}
+        headlineApy={page.headlineApy}
+        hasLiveKpis={page.hasLiveKpis}
+        hasSeedPreview={page.hasSeedPreview}
+        showVaultAnalytics={page.showVaultAnalytics}
+        simulated={page.simulated}
+        yieldPosture={page.yieldPosture}
+        proofFresh={page.proofFresh}
+        cockpit={cockpit}
+        platformTotals={totals}
+        overviewClusters={overviewClusters}
       />
-    </BentoPageShell>
+    </AdminPageShell>
   );
 }

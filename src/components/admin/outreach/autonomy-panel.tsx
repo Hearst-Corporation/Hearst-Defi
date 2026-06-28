@@ -8,7 +8,6 @@
 // sends nothing.
 
 import { Badge } from "@/components/ui/badge";
-import { BentoPanel } from "@/components/ui/bento";
 import type {
   OutreachAutonomyStatus,
   ReadinessRule,
@@ -68,54 +67,58 @@ export function OutreachAutonomyPanel({
   status: OutreachAutonomyStatus;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      {/* Left: Status & Mode Summary */}
-      <BentoPanel className="bg-surface-inset p-5">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="ct-bento-label">Autonomy</span>
-              <Badge variant={MODE_VARIANT[status.mode]} className="font-bold">{status.mode}</Badge>
-            </div>
-            <span className="ct-bento-label tabular-nums">
-              {status.forbiddenWordCount} guards active
-            </span>
+    // Stacked full-width — no columns, no holes. A compact autonomy strip on
+    // top, then the readiness ledger full-width below (rules in a 2-col grid so
+    // it doesn't run too tall). Two side-by-side columns of unequal height were
+    // what created the black hole; stacking removes it by construction.
+    <div className="flex flex-col gap-5">
+      {/* Autonomy strip — one compact horizontal row: mode + guards + chips. */}
+      <div className="rounded-2xl border border-[var(--ct-border-soft)] bg-surface-inset p-5">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="flex items-center gap-2">
+            <span className="ct-bento-label">Autonomy</span>
+            <Badge variant={MODE_VARIANT[status.mode]} className="font-bold">
+              {status.mode}
+            </Badge>
           </div>
 
-          <p className="ct-metric-caption max-w-[48ch] leading-relaxed text-[var(--ct-text-body)]">
-            {status.modeDescription}
-          </p>
+          <span className="ct-bento-label tabular-nums">
+            {status.forbiddenWordCount} guards active
+          </span>
 
-          {status.liveSendWarning && (
-            <div className="rounded-lg border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-2 py-1">
-              <p className="ct-bento-label text-[var(--ct-status-warning)]">
-                Live sending active (Resend OK)
-              </p>
-            </div>
-          )}
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--ct-border-soft)] pt-2">
+          {/* Capability chips inline, pushed to the right on wide screens. */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:ml-auto">
             <CapabilityChip label="Auto-send" on={status.autoSendActive} />
             <CapabilityChip label="Follow-ups" on={status.followUpsActive} />
             <CapabilityChip label="Tier A Safe" on={status.tierAProtected} />
           </div>
         </div>
-      </BentoPanel>
 
-      {/* Right: Readiness Ledger */}
-      <BentoPanel className="p-5">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <span className="ct-bento-label">Readiness Ledger</span>
-            <span className="ct-bento-label">System Check</span>
+        <p className="ct-metric-caption mt-3 max-w-[72ch] leading-relaxed text-[var(--ct-text-body)]">
+          {status.modeDescription}
+        </p>
+
+        {status.liveSendWarning && (
+          <div className="mt-3 inline-flex rounded-lg border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-2 py-1">
+            <p className="ct-bento-label text-[var(--ct-status-warning)]">
+              Live sending active (Resend OK)
+            </p>
           </div>
-          <ul className="m-0 list-none p-0">
-            {status.rules.map((rule) => (
-              <ReadinessRow key={rule.label} rule={rule} />
-            ))}
-          </ul>
+        )}
+      </div>
+
+      {/* Readiness ledger — full width, rules in a 2-col grid to stay compact. */}
+      <div className="rounded-2xl border border-[var(--ct-border-soft)] p-5">
+        <div className="flex items-center justify-between">
+          <span className="ct-bento-label">Readiness Ledger</span>
+          <span className="ct-bento-label">System Check</span>
         </div>
-      </BentoPanel>
+        <ul className="m-0 mt-2 grid list-none grid-cols-1 gap-x-8 p-0 lg:grid-cols-2">
+          {status.rules.map((rule) => (
+            <ReadinessRow key={rule.label} rule={rule} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

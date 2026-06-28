@@ -1,4 +1,4 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProofList } from "@/components/admin/proof-list";
 import { prisma } from "@/lib/db";
@@ -16,32 +16,32 @@ export default async function ProofsPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Proof"
-          titleAccent="Library"
-          contextLabel="Proof & System"
-          actions={
-            <AdminLeafLink
-              href="/admin/proof-center/full"
-              label="View in Proof Center"
-            />
-          }
+    <AdminPageShell
+      titleLead="Proof"
+      titleAccent="Library"
+      contextLabel="Proof & System"
+      headerActions={
+        <AdminLeafLink
+          href="/admin/proof-center/full"
+          label="View in Proof Center"
         />
-
-        <section className="flex flex-col gap-4" aria-label="Published evidence">
-          {items.length > 0 ? (
-            <h2 className="ct-section-title">
-              Published evidence{" "}
-              <span className="ct-metric-caption tabular-nums">
-                ({items.length})
-              </span>
-            </h2>
-          ) : null}
-          <ProofList items={items} />
-        </section>
-      </div>
-    </div>
+      }
+    >
+      {/* ANTI-CAGE : chaque preuve est DÉJÀ une carte (BentoPanel) dans
+          ProofList. On ne re-wrap PAS la liste dans une AdminSectionCard (ça
+          ferait carte-dans-carte). Le titre vit en sur-header léger, les
+          row-cards restent une pile à plat dessous. */}
+      <section className="flex min-w-0 flex-col gap-4" aria-label="Published evidence">
+        {items.length > 0 ? (
+          <h2 className="ct-section-title">
+            Published evidence{" "}
+            <span className="ct-metric-caption tabular-nums">
+              ({items.length})
+            </span>
+          </h2>
+        ) : null}
+        <ProofList items={items} />
+      </section>
+    </AdminPageShell>
   );
 }

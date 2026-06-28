@@ -9,6 +9,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminSectionCard,
+  TABLE_HEAD,
+  TABLE_WRAP,
+  ROW,
+} from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -19,13 +25,8 @@ import {
   TableRow,
 } from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/ui/empty-surface";
-import { BentoPanel } from "@/components/ui/bento";
 import { loadProspectDetail } from "@/lib/data/outreach";
-import {
-  AdminDetailSection,
-  AdminDetailGrid,
-  AdminDetailItem,
-} from "@/components/admin/admin-detail-layout";
+import { AdminDetailItem } from "@/components/admin/admin-detail-layout";
 import { lifecycleFor, type LifecycleKind } from "@/lib/outreach/lifecycle";
 import { getMailboxReadiness } from "@/lib/outreach/mailbox-readiness";
 import {
@@ -111,6 +112,10 @@ function extraApolloRows(
   return rows;
 }
 
+// Detail grid inside a welded card body — items-start so short fields never
+// stretch to match the tall full-width ones (anti-trou).
+const DETAIL_GRID = "grid grid-cols-1 items-start gap-x-8 gap-y-5 p-5 md:grid-cols-2";
+
 export default async function ProspectDetailPage({
   params,
 }: {
@@ -130,6 +135,8 @@ export default async function ProspectDetailPage({
   const mailbox = getMailboxReadiness();
 
   return (
+    // Back-link is load-bearing → keep AdminPageHeader + lead for the shell;
+    // the inner sections migrate to the AdminSectionCard canon.
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
@@ -166,10 +173,10 @@ export default async function ProspectDetailPage({
         />
 
         {/* Identity */}
-        <AdminDetailSection label="Identity" title="Identity">
-          <AdminDetailGrid>
+        <AdminSectionCard ariaLabel="Identity" title="Identity">
+          <dl className={DETAIL_GRID}>
             <AdminDetailItem label="Email">
-              <span className="font-mono text-[var(--ct-text-strong)]">
+              <span className="break-all font-mono text-[var(--ct-text-strong)]">
                 <a href={`mailto:${p.email}`} className="hover:underline">
                   {p.email}
                 </a>
@@ -192,17 +199,17 @@ export default async function ProspectDetailPage({
             <AdminDetailItem label="Last contacted">
               {p.lastContactedAt ? formatAdminDate(p.lastContactedAt) : "—"}
             </AdminDetailItem>
-          </AdminDetailGrid>
-        </AdminDetailSection>
+          </dl>
+        </AdminSectionCard>
 
         {/* Apollo enrichment */}
-        <AdminDetailSection
-          label="Apollo enrichment"
+        <AdminSectionCard
+          ariaLabel="Apollo enrichment"
           title="Apollo enrichment"
-          description="The person/org detail captured from Apollo at source time."
+          subtitle="The person/org detail captured from Apollo at source time."
         >
           {isApolloSourced || p.linkedinUrl || p.companyDomain || p.industry ? (
-            <AdminDetailGrid>
+            <dl className={DETAIL_GRID}>
               <AdminDetailItem label="LinkedIn">
                 {p.linkedinUrl ? (
                   <a
@@ -242,20 +249,22 @@ export default async function ProspectDetailPage({
                   <span className="break-words">{r.value}</span>
                 </AdminDetailItem>
               ))}
-            </AdminDetailGrid>
+            </dl>
           ) : (
-            <EmptySurface
-              variant="widget"
-              message="No Apollo enrichment."
-              detail="This prospect was added manually, so there is no Apollo person/org snapshot. Apollo-sourced prospects carry LinkedIn, domain, industry, and the raw enrichment payload."
-              className="min-h-24"
-            />
+            <div className="p-5">
+              <EmptySurface
+                variant="widget"
+                message="No Apollo enrichment."
+                detail="This prospect was added manually, so there is no Apollo person/org snapshot. Apollo-sourced prospects carry LinkedIn, domain, industry, and the raw enrichment payload."
+                className="min-h-24"
+              />
+            </div>
           )}
-        </AdminDetailSection>
+        </AdminSectionCard>
 
         {/* Qualification */}
-        <AdminDetailSection label="Qualification" title="Qualification">
-          <AdminDetailGrid>
+        <AdminSectionCard ariaLabel="Qualification" title="Qualification">
+          <dl className={DETAIL_GRID}>
             <AdminDetailItem label="Lifecycle stage" fullWidth>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
@@ -276,149 +285,144 @@ export default async function ProspectDetailPage({
             <AdminDetailItem label="Sequence step">
               <span className="tabular-nums">{p.sequenceStep}</span>
             </AdminDetailItem>
-          </AdminDetailGrid>
-        </AdminDetailSection>
+          </dl>
+        </AdminSectionCard>
 
-        {/* Engagement — emails */}
-        <section className="flex flex-col gap-4" aria-label="Emails">
-          <h2 className="ct-section-title">Emails ({p.emails.length})</h2>
-          {/* Honest sending posture — no mailbox is connected today; this never
-              implies anything was sent. Drafts are always safe. */}
-          <p className="ct-metric-caption">Sending: {mailbox.statusLabel}</p>
+        {/* Engagement — emails. Table lives directly inside the welded card (no
+            BentoPanel cage); shared TABLE_* chrome keeps it in lockstep. */}
+        <AdminSectionCard
+          ariaLabel="Emails"
+          title={`Emails (${p.emails.length})`}
+          subtitle={`Sending: ${mailbox.statusLabel}`}
+        >
           {p.emails.length === 0 ? (
-            <EmptySurface
-              variant="widget"
-              message="No emails yet."
-              detail="No outreach email has been queued or sent to this prospect. Drafts appear here once a campaign drafts to this recipient."
-              className="min-h-24"
-            />
+            <div className="p-5">
+              <EmptySurface
+                variant="widget"
+                message="No emails yet."
+                detail="No outreach email has been queued or sent to this prospect. Drafts appear here once a campaign drafts to this recipient."
+                className="min-h-24"
+              />
+            </div>
           ) : (
-            <BentoPanel>
-              <Table
-                dense
-                className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableHeader className="ct-bento-label pl-5">Subject</TableHeader>
-                    <TableHeader className="ct-bento-label hidden md:table-cell">
-                      Campaign
-                    </TableHeader>
-                    <TableHeader className="ct-bento-label">Status</TableHeader>
-                    <TableHeader className="ct-bento-label hidden lg:table-cell">
-                      Last event
-                    </TableHeader>
-                    <TableHeader className="ct-bento-label hidden pr-5 lg:table-cell">
-                      Sent
-                    </TableHeader>
+            <Table dense className={TABLE_WRAP}>
+              <TableHead>
+                <TableRow>
+                  <TableHeader className={`${TABLE_HEAD} pl-5`}>Subject</TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} hidden md:table-cell`}>
+                    Campaign
+                  </TableHeader>
+                  <TableHeader className={TABLE_HEAD}>Status</TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} hidden lg:table-cell`}>
+                    Last event
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} hidden pr-5 lg:table-cell`}>
+                    Sent
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {p.emails.map((e) => (
+                  <TableRow key={e.id} className={ROW}>
+                    <TableCell className="pl-5">
+                      <Link
+                        href={`/admin/outreach/${e.campaignId}`}
+                        className="ct-metric-value min-w-0 truncate hover:underline"
+                      >
+                        {e.subject}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden min-w-0 truncate md:table-cell">
+                      {e.campaignName ?? "—"}
+                    </TableCell>
+                    <TableCell className="ct-metric-value">
+                      {e.status}
+                      {e.draftedByAgent ? (
+                        <span className="ct-metric-caption"> · agent</span>
+                      ) : null}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden lg:table-cell">
+                      {e.latestEventType ?? "—"}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden pr-5 lg:table-cell">
+                      {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {p.emails.map((e) => (
-                    <TableRow
-                      key={e.id}
-                      className="border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
-                    >
-                      <TableCell className="pl-5">
-                        <Link
-                          href={`/admin/outreach/${e.campaignId}`}
-                          className="ct-metric-value min-w-0 truncate hover:underline"
-                        >
-                          {e.subject}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="ct-metric-caption hidden truncate md:table-cell">
-                        {e.campaignName ?? "—"}
-                      </TableCell>
-                      <TableCell className="ct-metric-value">
-                        {e.status}
-                        {e.draftedByAgent ? (
-                          <span className="ct-metric-caption"> · agent</span>
-                        ) : null}
-                      </TableCell>
-                      <TableCell className="ct-metric-caption hidden lg:table-cell">
-                        {e.latestEventType ?? "—"}
-                      </TableCell>
-                      <TableCell className="ct-metric-caption hidden pr-5 lg:table-cell">
-                        {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </BentoPanel>
+                ))}
+              </TableBody>
+            </Table>
           )}
-        </section>
+        </AdminSectionCard>
 
-        {/* Engagement — replies */}
-        <section className="flex flex-col gap-4" aria-label="Replies">
-          <h2 className="ct-section-title">Replies ({p.replies.length})</h2>
+        {/* Engagement — replies. Each reply is an inset row inside ONE welded card
+            (anti-cage: no BentoPanel-per-reply stack). */}
+        <AdminSectionCard ariaLabel="Replies" title={`Replies (${p.replies.length})`}>
           {p.replies.length === 0 ? (
-            <EmptySurface
-              variant="widget"
-              message="No replies yet."
-              detail="Inbound replies matched to this prospect appear here, classified by intent once the reply handler processes them."
-              className="min-h-24"
-            />
+            <div className="p-5">
+              <EmptySurface
+                variant="widget"
+                message="No replies yet."
+                detail="Inbound replies matched to this prospect appear here, classified by intent once the reply handler processes them."
+                className="min-h-24"
+              />
+            </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 p-5">
               {p.replies.map((r) => (
-                <BentoPanel key={r.id} className="p-5">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {r.intent ? (
-                        <Badge variant={INTENT_VARIANT[r.intent] ?? "default"}>
-                          {r.intent}
-                        </Badge>
-                      ) : (
-                        <Badge variant="default">unclassified</Badge>
-                      )}
-                      {r.actionTaken ? (
-                        <span className="ct-metric-caption">→ {r.actionTaken}</span>
-                      ) : null}
-                      {r.confidence != null ? (
-                        <span className="ct-metric-caption">
-                          {r.confidence}% confidence
-                        </span>
-                      ) : null}
-                      <span className="ct-metric-caption">
-                        {formatAdminDate(r.createdAt)}
-                      </span>
-                    </div>
-                    {r.subject ? (
-                      <p className="ct-metric-value m-0">{r.subject}</p>
+                <div
+                  key={r.id}
+                  className="flex flex-col gap-2 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    {r.intent ? (
+                      <Badge variant={INTENT_VARIANT[r.intent] ?? "default"}>
+                        {r.intent}
+                      </Badge>
+                    ) : (
+                      <Badge variant="default">unclassified</Badge>
+                    )}
+                    {r.actionTaken ? (
+                      <span className="ct-metric-caption">→ {r.actionTaken}</span>
                     ) : null}
-                    <p className="ct-metric-caption m-0 whitespace-pre-wrap">{r.body}</p>
+                    {r.confidence != null ? (
+                      <span className="ct-metric-caption">
+                        {r.confidence}% confidence
+                      </span>
+                    ) : null}
+                    <span className="ct-metric-caption">
+                      {formatAdminDate(r.createdAt)}
+                    </span>
                   </div>
-                </BentoPanel>
+                  {r.subject ? (
+                    <p className="ct-metric-value m-0">{r.subject}</p>
+                  ) : null}
+                  <p className="ct-metric-caption m-0 whitespace-pre-wrap">{r.body}</p>
+                </div>
               ))}
             </div>
           )}
-        </section>
+        </AdminSectionCard>
 
         {/* Notes & tags */}
         {(p.notes || p.tags.length > 0) && (
-          <section className="flex flex-col gap-4" aria-label="Notes">
-            <h2 className="ct-section-title">Notes &amp; tags</h2>
-            <BentoPanel className="p-6">
-              <div className="flex flex-col gap-2">
-                {p.tags.length > 0 ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {p.tags.map((t) => (
-                      <Badge key={t} variant="default">
-                        {t}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : null}
-                {p.notes ? (
-                  <p className="body-sm m-0 whitespace-pre-wrap text-[var(--ct-text-body)]">
-                    {p.notes}
-                  </p>
-                ) : null}
-              </div>
-            </BentoPanel>
-          </section>
+          <AdminSectionCard ariaLabel="Notes" title="Notes & tags">
+            <div className="flex flex-col gap-2 p-5">
+              {p.tags.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {p.tags.map((t) => (
+                    <Badge key={t} variant="default">
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
+              {p.notes ? (
+                <p className="body-sm m-0 whitespace-pre-wrap text-[var(--ct-text-body)]">
+                  {p.notes}
+                </p>
+              ) : null}
+            </div>
+          </AdminSectionCard>
         )}
       </div>
     </div>

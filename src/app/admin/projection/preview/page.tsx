@@ -1,8 +1,7 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 import { PreviewSourceBanner } from "@/components/admin/projection/preview-source-banner";
 import { InvestorReportReadiness } from "@/components/admin/projection/investor-report-readiness";
-import { BentoPageShell } from "@/components/ui/bento";
 import { getLatestProjectionStudyRun } from "@/lib/projection/latest-study-run";
 import {
   defaultRunValidationContext,
@@ -37,15 +36,17 @@ export default async function ProjectionPreviewPage() {
   const report = buildInvestorReportViewModel(latestRun, validation);
 
   return (
-    <BentoPageShell>
-      <AdminPageHeader
-        titleLead="Investor Report Preview"
-        titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
-        contextLabel="Strategy"
-      />
+    // Banner → readiness → interactive report, each its own surface, stacked
+    // directly inside the canon shell. No nesting of these self-contained
+    // panels in an extra card (anti-cage).
+    <AdminPageShell
+      titleLead="Investor Report Preview"
+      titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
+      contextLabel="Strategy"
+    >
       <PreviewSourceBanner latestRun={latestRun} validation={validation} />
       <InvestorReportReadiness report={report} />
       <ProjectionReportPreview />
-    </BentoPageShell>
+    </AdminPageShell>
   );
 }

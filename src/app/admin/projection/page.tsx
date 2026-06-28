@@ -1,4 +1,4 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { ProjectionSourceSummary } from "@/components/admin/projection/source-truth-badge";
 import { loadSourceTruthSummary } from "@/lib/projection/source-truth-summary";
 import { ProjectionStudio } from "./studio";
@@ -16,18 +16,17 @@ export default async function ProjectionPage() {
   const sourceTruth = await loadSourceTruthSummary();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Engine"
-          titleAccent="Projection"
-          contextLabel="Strategy"
-        />
+    // Source-truth summary (own banner surface) + ProjectionStudio (own
+    // BentoPanels) stack directly under the canon shell. No extra card wrapper
+    // around either → no card-in-card (anti-cage).
+    <AdminPageShell
+      titleLead="Engine"
+      titleAccent="Projection"
+      contextLabel="Strategy"
+    >
+      <ProjectionSourceSummary summary={sourceTruth} />
 
-        <ProjectionSourceSummary summary={sourceTruth} />
-
-        <ProjectionStudio />
-      </div>
-    </div>
+      <ProjectionStudio />
+    </AdminPageShell>
   );
 }

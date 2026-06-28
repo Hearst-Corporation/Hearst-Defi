@@ -1,4 +1,4 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { RoadmapBoard } from "@/components/admin/roadmap-board";
 import { getRoadmap } from "@/lib/roadmap";
 
@@ -12,15 +12,14 @@ export default async function RoadmapPage() {
   const { phases } = await getRoadmap();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Product"
-          titleAccent="Roadmap"
-          contextLabel="Operations"
-        />
-        <RoadmapBoard phases={phases} />
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="Product"
+      titleAccent="Roadmap"
+      contextLabel="Operations"
+    >
+      {/* RoadmapBoard rend ses propres BentoPanel — pas de re-wrap en
+          AdminSectionCard (anti-cage). On migre la coque + le header. */}
+      <RoadmapBoard phases={phases} />
+    </AdminPageShell>
   );
 }
