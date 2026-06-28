@@ -54,7 +54,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
         aria-label="Legal"
       >
         <nav
-          className="app-footer__links text-[12px]"
+          className="app-footer__links text-[length:var(--ct-text-2xs)]"
           aria-label="Legal links"
         >
           {LEGAL_LINKS.slice(0, 3).map((link, i) => (
@@ -76,7 +76,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
             </span>
           ))}
         </nav>
-        <span className="app-footer__brand text-[12px] text-zinc-500">
+        <span className="app-footer__brand text-[length:var(--ct-text-2xs)] text-zinc-500">
           <span aria-hidden className="app-footer__diamond text-[var(--ct-accent)]">
             ◆
           </span>
@@ -93,23 +93,23 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
     >
       <div className="app-footer__grid">
         <section className="app-footer__col">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-400">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-400">
             Hearst Yield Vault
           </p>
-          <p className="app-footer__lede text-[13px] text-zinc-500">
+          <p className="app-footer__lede text-[length:var(--ct-text-xs)] text-zinc-500">
             Mining-backed structured yield. Cayman SPV.
           </p>
         </section>
 
         <nav className="app-footer__col" aria-label="Platform">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-500">
             Platform
           </p>
           {PLATFORM_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-[13px] text-zinc-400 transition-colors hover:text-zinc-300"
+              className="text-[length:var(--ct-text-xs)] text-zinc-400 transition-colors hover:text-zinc-300"
             >
               {link.label}
             </Link>
@@ -117,14 +117,14 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
         </nav>
 
         <nav className="app-footer__col" aria-label="Legal">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-500">
             Legal
           </p>
           {LEGAL_LINKS.map((link, i) => (
             <Link
               key={`${link.href}-${i}`}
               href={link.href}
-              className="text-[13px] text-zinc-400 transition-colors hover:text-zinc-300"
+              className="text-[length:var(--ct-text-xs)] text-zinc-400 transition-colors hover:text-zinc-300"
             >
               {link.label}
             </Link>
@@ -132,19 +132,19 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
         </nav>
 
         <section className="app-footer__col" aria-label="Status">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+          <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-zinc-500">
             Status
           </p>
-          <span className="inline-flex items-center gap-2 text-[13px] text-zinc-400">
+          <span className="inline-flex items-center gap-2 text-[length:var(--ct-text-xs)] text-zinc-400">
             <ProvenanceBadge kind="live" variant="strip" />
             Vault live
           </span>
-          <span className="text-[13px] text-zinc-400">{APY_RANGE}</span>
-          <span className="text-[13px] text-zinc-500">Base · testnet</span>
+          <span className="text-[length:var(--ct-text-xs)] text-zinc-400">{APY_RANGE}</span>
+          <span className="text-[length:var(--ct-text-xs)] text-zinc-500">Base · testnet</span>
         </section>
       </div>
 
-      <div className="app-footer__sub text-[12px] text-zinc-500">
+      <div className="app-footer__sub text-[length:var(--ct-text-2xs)] text-zinc-500">
         <span>
           © 2026 Hearst · Qualified investors only · Cayman SPV · $250k min ·
           60-day soft lock-up.

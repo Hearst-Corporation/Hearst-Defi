@@ -83,16 +83,16 @@ export function RebalancingEventsPanel({
         {!bare && (
           <div className="flex items-end justify-between p-5 border-b border-white/5">
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+              <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
                 Rebalancing events
               </h2>
-              <p className="text-[12px] text-zinc-500 tracking-wide">Awaiting first rebalance</p>
+              <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 tracking-wide">Awaiting first rebalance</p>
             </div>
           </div>
         )}
         <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
-          <p className="text-[13px] font-medium text-zinc-300">{REBALANCING_EVENTS_EMPTY.message}</p>
-          <p className="text-[12px] text-zinc-500 max-w-sm">{REBALANCING_EVENTS_EMPTY.detail}</p>
+          <p className="text-[length:var(--ct-text-xs)] font-medium text-zinc-300">{REBALANCING_EVENTS_EMPTY.message}</p>
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 max-w-sm">{REBALANCING_EVENTS_EMPTY.detail}</p>
         </div>
       </>
     );
@@ -114,10 +114,10 @@ export function RebalancingEventsPanel({
       {!bare && (
         <div className="flex items-end justify-between p-5 border-b border-white/5">
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+            <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
               {sectionLed ? "Rebalancing events" : "Vault operations"}
             </h2>
-            <p className="text-[12px] text-zinc-500 tracking-wide">
+            <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 tracking-wide">
               {sectionLed
                 ? `Last ${events.length} rule-triggered events (PTAI)`
                 : "Rule-triggered events"}
@@ -148,7 +148,7 @@ export function RebalancingEventsPanel({
               {/* Top row — rule + status pills, provenance dot */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded border border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 font-mono text-[11px] font-medium text-[var(--ct-accent)]">
+                  <span className="inline-flex items-center rounded border border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 font-mono text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-accent)]">
                     {event.ruleId}
                   </span>
                   <span
@@ -177,21 +177,21 @@ export function RebalancingEventsPanel({
               <dl className="grid grid-cols-1 gap-2.5 rounded-lg bg-surface-inset p-4">
                 <div className="flex items-baseline justify-between gap-3">
                   <dt className={microLabel}>Triggered</dt>
-                  <dd className="text-[12px] font-mono text-zinc-300 text-right tabular-nums">
+                  <dd className="text-[length:var(--ct-text-2xs)] font-mono text-zinc-300 text-right tabular-nums">
                     {dateFmt.format(event.triggeredAt)} UTC
                   </dd>
                 </div>
                 {event.status === "executed" ? (
                   <div className="flex items-baseline justify-between gap-3">
                     <dt className={microLabel}>Executed</dt>
-                    <dd className="text-[12px] font-mono text-zinc-300 text-right tabular-nums">
+                    <dd className="text-[length:var(--ct-text-2xs)] font-mono text-zinc-300 text-right tabular-nums">
                       {dateFmt.format(event.executedAt)} UTC
                     </dd>
                   </div>
                 ) : null}
                 <div className="flex flex-col gap-1">
                   <dt className={microLabel}>Trigger summary</dt>
-                  <dd className="text-[13px] text-zinc-300 leading-snug line-clamp-2">
+                  <dd className="text-[length:var(--ct-text-xs)] text-zinc-300 leading-snug line-clamp-2">
                     {cleanRebalanceTriggerText(event.triggerText)}
                   </dd>
                 </div>
@@ -203,14 +203,14 @@ export function RebalancingEventsPanel({
                         href={`${EXPLORER_TX_BASE}${event.txHash}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="inline-flex items-center gap-1 font-mono text-[12px] text-zinc-400 hover:text-white transition-colors"
+                        className="inline-flex items-center gap-1 font-mono text-[length:var(--ct-text-2xs)] text-zinc-400 hover:text-white transition-colors"
                         title={event.txHash}
                         aria-label={`View transaction ${event.txHash} on explorer`}
                       >
                         {abbreviateAddress(event.txHash)}
                       </a>
                     ) : (
-                      <span className="text-[12px] text-zinc-500">Pending execution</span>
+                      <span className="text-[length:var(--ct-text-2xs)] text-zinc-500">Pending execution</span>
                     )}
                   </dd>
                 </div>

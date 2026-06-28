@@ -34,10 +34,10 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       {/* Header */}
       <div className="flex items-end justify-between p-5 border-b border-white/5">
         <div className="flex flex-col gap-1.5">
-          <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
             Deposit Summary
           </h2>
-          <p className="text-[12px] text-zinc-500 tracking-wide">
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 tracking-wide">
             Projected allocation outcome
           </p>
         </div>
@@ -87,8 +87,8 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-opacity duration-150">
             <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[var(--ct-accent)]" />
-            <span className="text-[13px] text-zinc-400">Principal</span>
-            <span className="text-[13px] font-medium text-white tabular-nums">
+            <span className="text-[length:var(--ct-text-xs)] text-zinc-400">Principal</span>
+            <span className="text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums">
               {hasAmount ? `${formatUsdFull(amount)} USDC` : "—"}
             </span>
           </div>
@@ -99,10 +99,10 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
             )}
           >
             <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" />
-            <span className="text-[13px] text-zinc-400">
+            <span className="text-[length:var(--ct-text-xs)] text-zinc-400">
               Est. gross yield · {vault.softLockupDays}d
             </span>
-            <span className="text-[13px] font-medium text-white tabular-nums">
+            <span className="text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums">
               {yieldAtClose !== null ? `~${formatUsdFull(yieldAtClose)}` : "—"}
             </span>
           </div>
@@ -152,7 +152,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       </dl>
 
       {/* Disclaimer */}
-      <p className="p-5 text-[11px] leading-relaxed text-zinc-500">
+      <p className="p-5 text-[length:var(--ct-text-micro)] leading-relaxed text-zinc-500">
         Figures shown are gross (before fees). Net yield after management and
         performance fees will be lower. Uses APY range midpoint — not a
         commitment of future returns. Methodology v1.0.

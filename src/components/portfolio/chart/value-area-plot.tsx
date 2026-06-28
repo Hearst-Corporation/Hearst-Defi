@@ -127,7 +127,9 @@ export function ValueAreaPlot({ geometry, className }: ValueAreaPlotProps) {
       if (!ctx) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      // canvas fallback — CSS var unavailable in 2d context
       const accent = readCssColor(canvas, "--ct-accent", "#A7FB90");
+      // canvas fallback — CSS var unavailable in 2d context
       const accentSoft = readCssColor(
         canvas,
         "--ct-chart-area-top",

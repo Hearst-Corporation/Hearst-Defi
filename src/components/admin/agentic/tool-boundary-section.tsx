@@ -121,7 +121,7 @@ function Th({ children, className }: { children: ReactNode; className?: string }
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
     <tr className="border-b border-white/5 align-top transition-colors last:border-b-0 hover:bg-white/[0.02]">
-      <td className="break-all px-4 py-3 font-mono text-[12px] text-zinc-300">
+      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-300">
         {tool.id}
       </td>
       <td className="px-4 py-3">
@@ -130,16 +130,16 @@ function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
       <td className="px-4 py-3">
         <Chip tone={riskTone(tool.riskLevel)}>{tool.riskLevel}</Chip>
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[12px] tabular-nums text-zinc-500">
+      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-zinc-500">
         {tool.humanGateRequired ? "HITL" : "—"}
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[12px] tabular-nums text-zinc-500">
+      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-zinc-500">
         {tool.autonomousAllowed ? "yes" : "no"}
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[12px] text-zinc-500">
+      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] text-zinc-500">
         {tool.runtimeStatus}
       </td>
-      <td className="break-all px-4 py-3 font-mono text-[12px] text-zinc-600">
+      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-600">
         {tool.source}
       </td>
     </tr>
@@ -212,7 +212,7 @@ export function ToolBoundarySection({
         />
         <div className="p-5">
           {consistencyIssues.length === 0 ? (
-            <p className="m-0 text-[13px] leading-snug text-zinc-400">
+            <p className="m-0 text-[length:var(--ct-text-xs)] leading-snug text-zinc-400">
               The static Control Center boundary matches the real registry — no
               missing, stale, or misclassified tools.
             </p>
@@ -226,7 +226,7 @@ export function ToolBoundarySection({
                   <Chip tone={severityTone(issue.severity)}>
                     {issue.severity}
                   </Chip>
-                  <span className="flex-1 text-[13px] leading-snug text-zinc-400">
+                  <span className="flex-1 text-[length:var(--ct-text-xs)] leading-snug text-zinc-400">
                     {issue.message}
                   </span>
                 </li>
@@ -244,7 +244,7 @@ export function ToolBoundarySection({
           as="h3"
         />
         <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-[13px]">
+          <table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
             <thead>
               <tr className="border-b border-white/5">
                 {["Tool", "Tier", "Risk", "Gate", "Autonomous", "Runtime", "Source"].map(
@@ -276,7 +276,7 @@ export function ToolBoundarySection({
           {forbiddenActions.map((a) => (
             <li
               key={a.id}
-              className="border-b border-white/5 py-3 text-[13px] leading-snug last:border-b-0"
+              className="border-b border-white/5 py-3 text-[length:var(--ct-text-xs)] leading-snug last:border-b-0"
             >
               <span className="font-medium text-white">{a.name}</span>
               <span className="text-zinc-500"> — {a.notes}</span>
@@ -292,7 +292,7 @@ export function ToolBoundarySection({
           {safetyNotes.map((note) => (
             <li
               key={note}
-              className="flex gap-2 text-[12px] leading-snug text-zinc-500"
+              className="flex gap-2 text-[length:var(--ct-text-2xs)] leading-snug text-zinc-500"
             >
               <span aria-hidden className="select-none text-zinc-600">
                 ·

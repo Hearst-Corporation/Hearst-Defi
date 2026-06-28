@@ -121,7 +121,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
             low={vault.apyLow}
             high={vault.apyHigh}
             precision={1}
-            className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums"
+            className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums"
           />
         </dd>
       </div>
@@ -129,7 +129,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Lock-up
         </dt>
-        <dd className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">
+        <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
           {vault.softLockupDays}d soft
         </dd>
       </div>
@@ -137,7 +137,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Min ticket
         </dt>
-        <dd className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">
+        <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
           {formatUsdAmount(vault.minTicketUsdc, true)}
         </dd>
       </div>
@@ -145,7 +145,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
         <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Mgmt / Perf
         </dt>
-        <dd className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">
+        <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
           {formatFeeLine(vault.fees)}
         </dd>
       </div>
@@ -187,7 +187,7 @@ function AmountLedger({
 
 function InvestHelpLinks() {
   return (
-    <div className="flex items-center gap-2 text-[12px]">
+    <div className="flex items-center gap-2 text-[length:var(--ct-text-2xs)]">
       <Link
         href="/proof-center"
         className="font-medium text-[var(--ct-accent)] hover:underline"
@@ -216,8 +216,8 @@ function EligibilityRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2.5 border-b border-[var(--ct-border-soft)] last:border-b-0">
-      <span className="text-[12px] text-[var(--ct-text-faint)]">{label}</span>
-      <span className="text-[13px] tabular-nums">{children}</span>
+      <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] tabular-nums">{children}</span>
     </div>
   );
 }
@@ -273,7 +273,7 @@ function EligibilityChecklist({
             <span className="text-[var(--ct-text-faint)]">Connection pending</span>
           )}
         </EligibilityRow>
-        <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed mt-4">
+        <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed mt-4">
           Subscription is restricted to verified qualified investors. All status
           flags must be green before final execution.
         </p>
@@ -387,7 +387,7 @@ function AmountSection({
           <p
             id={helperId}
             className={cn(
-              "text-[12px] px-1",
+              "text-[length:var(--ct-text-2xs)] px-1",
               helper.variant === "ok" && "text-[var(--ct-accent)]",
               helper.variant === "warn" && "text-amber-400",
               helper.variant === "neutral" && "text-[var(--ct-text-faint)]",
@@ -455,22 +455,22 @@ function InvestFormUnconfigured({
           <div>
             <label className="flex items-start gap-3 cursor-default opacity-60">
               <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-[var(--ct-border)] bg-surface-inset" />
-              <span className="text-[13px] text-[var(--ct-text-body)] leading-snug">
+              <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] leading-snug">
                 I have reviewed and accept the term sheet for {vault.name}.
               </span>
             </label>
-            <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
+            <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
               Structured product exclusively for qualified investors. Review the
               full subscription agreement before proceeding.
             </p>
           </div>
 
           <div className="rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset p-4">
-            <p className="text-[13px] text-[var(--ct-text-muted)] m-0">
+            <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] m-0">
               Wallet connection will be enabled for your account before deposit
               signing.
             </p>
-            <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed m-0 mt-1.5">
+            <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed m-0 mt-1.5">
               You can review the subscription path, assumptions, and checks now,
               then continue once wallet access is provisioned.
             </p>
@@ -731,7 +731,7 @@ function InvestFormLive({
                     ) : null}
                   </span>
                 </span>
-                <span className="text-[13px] text-[var(--ct-text-body)] leading-snug">
+                <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] leading-snug">
                   I have reviewed and accept the{" "}
                   <Link
                     href={investProductPath(vault.id)}
@@ -744,7 +744,7 @@ function InvestFormLive({
                   for {vault.name}.
                 </span>
               </label>
-              <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
+              <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
                 Structured product exclusively for qualified investors. Review
                 the full subscription agreement before proceeding.
               </p>
@@ -755,7 +755,7 @@ function InvestFormLive({
                 role="alert"
                 className="rounded-lg border border-red-500/30 bg-red-500/10 p-4"
               >
-                <p className="text-[12px] text-red-400 m-0">{depositError}</p>
+                <p className="text-[length:var(--ct-text-2xs)] text-red-400 m-0">{depositError}</p>
               </div>
             ) : null}
 
@@ -773,47 +773,47 @@ function InvestFormLive({
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Vault</span>
                     <span className="text-[var(--ct-text-strong)] font-semibold">{vault.name}</span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Share class</span>
                     <span className="text-[var(--ct-text-strong)] tabular-nums">
                       Class {shareClassCode(vault.shareClass)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Amount</span>
                     <span className="text-[var(--ct-text-strong)] font-semibold tabular-nums">
                       {formatUsdAmount(amount)} USDC
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Target APY</span>
                     <ApyRange
                       low={vault.apyLow}
                       high={vault.apyHigh}
                       precision={1}
-                      className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums"
+                      className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums"
                     />
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Lock-up</span>
                     <span className="text-[var(--ct-text-strong)] tabular-nums">
                       {vault.softLockupDays}d soft
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Network</span>
                     <span className="text-[var(--ct-text-strong)]">Base Sepolia (testnet)</span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 text-[13px]">
+                  <div className="flex items-center justify-between gap-4 py-2 text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Action</span>
                     <span className="text-[var(--ct-text-strong)]">Deposit</span>
                   </div>
                 </div>
-                <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed m-0">
+                <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed m-0">
                   Base Sepolia testnet transaction — for pilot testing only.
                   Irreversible once submitted. Subject to{" "}
                   {vault.softLockupDays}-day soft lock-up. Target APY shown as a
