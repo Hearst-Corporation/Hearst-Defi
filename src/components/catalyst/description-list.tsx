@@ -18,7 +18,7 @@ export function DescriptionTerm({ className, ...props }: React.ComponentPropsWit
       {...props}
       className={cn(
         className,
-        'col-start-1 border-t border-zinc-950/5 pt-3 text-zinc-500 first:border-none sm:border-t sm:border-zinc-950/5 sm:py-3 dark:border-[var(--ct-border-soft)] dark:text-zinc-400 sm:dark:border-[var(--ct-border-soft)]'
+        'col-start-1 border-t border-zinc-950/5 pt-3 text-[var(--ct-text-faint)] first:border-none sm:border-t sm:border-zinc-950/5 sm:py-3 dark:border-[var(--ct-border-soft)] dark:text-[var(--ct-text-muted)] sm:dark:border-[var(--ct-border-soft)]'
       )}
     />
   )

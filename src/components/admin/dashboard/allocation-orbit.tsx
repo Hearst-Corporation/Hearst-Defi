@@ -105,7 +105,7 @@ export function AllocationOrbit({
           <span className="ct-bento-label leading-none">
             Balance sheet
           </span>
-          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
             Capital allocation
           </h3>
         </div>

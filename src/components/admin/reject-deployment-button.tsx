@@ -62,7 +62,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
         title="Reject this deployment?"
         className="max-w-md"
       >
-        <p className="mb-4 text-[13px] text-zinc-400">
+        <p className="mb-4 text-[13px] text-[var(--ct-text-muted)]">
           Pushes the vault back to draft. Requires a written reason for the
           audit log.
         </p>
@@ -74,7 +74,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
             className="ct-bento-label block"
           >
             Reason{" "}
-            <span className="text-zinc-600">
+            <span className="text-[var(--ct-text-faint)]">
               ({trimmed.length}/{MAX_REASON_CHARS})
             </span>
           </label>
@@ -87,7 +87,7 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Missing audit report, incorrect fee structure…"
-            className="w-full resize-none rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none"
+            className="w-full resize-none rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none"
           />
         </div>
 

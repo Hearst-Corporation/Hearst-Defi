@@ -61,7 +61,7 @@ export function RecentDistributions({
           <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
               <MicroLabel>Latest distributions</MicroLabel>
-              <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+              <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
                 Awaiting first distribution
               </h3>
             </div>
@@ -91,7 +91,7 @@ export function RecentDistributions({
             <MicroLabel>
               {sectionLed ? "Latest distributions" : "Payout history"}
             </MicroLabel>
-            <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+            <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
               {sectionLed
                 ? `Last ${distributions.length} USDC distributions`
                 : "USDC Distributions"}
@@ -131,13 +131,13 @@ export function RecentDistributions({
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <div className="flex flex-col gap-1">
                   <MicroLabel>Recipients</MicroLabel>
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-400 tabular-nums">
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
                     {d.recipientsCount.toString()}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <MicroLabel>Distributed</MicroLabel>
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-400 tabular-nums">
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
                     {dateFmt.format(d.distributedAt)} UTC
                   </span>
                 </div>
@@ -157,11 +157,11 @@ export function RecentDistributions({
                       <span className="truncate">{abbreviateAddress(d.txHash)}</span>
                     </a>
                   ) : d.txHash ? (
-                    <span className="truncate text-[length:var(--ct-text-xs)] text-zinc-500">
+                    <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
                       Simulated (testnet fixture)
                     </span>
                   ) : (
-                    <span className="text-[length:var(--ct-text-xs)] text-zinc-500">Pending broadcast</span>
+                    <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Pending broadcast</span>
                   )}
                 </div>
               </div>

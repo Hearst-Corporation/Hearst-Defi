@@ -12,7 +12,7 @@ export function Navbar({ className, ...props }: React.ComponentPropsWithoutRef<'
 }
 
 export function NavbarDivider({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  return <div aria-hidden="true" {...props} className={cn(className, 'h-6 w-px bg-zinc-950/10 dark:bg-white/10')} />
+  return <div aria-hidden="true" {...props} className={cn(className, 'h-6 w-px bg-zinc-950/10 dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]')} />
 }
 
 export function NavbarSection({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
@@ -56,8 +56,8 @@ export const NavbarItem = forwardRef(function NavbarItem(
     'data-active:bg-zinc-950/5 data-active:*:data-[slot=icon]:fill-zinc-950',
     // Dark mode
     'dark:text-white dark:*:data-[slot=icon]:fill-zinc-400',
-    'dark:data-hover:bg-white/5 dark:data-hover:*:data-[slot=icon]:fill-white',
-    'dark:data-active:bg-white/5 dark:data-active:*:data-[slot=icon]:fill-white'
+    'dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:*:data-[slot=icon]:fill-white',
+    'dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-active:*:data-[slot=icon]:fill-white'
   )
 
   return (

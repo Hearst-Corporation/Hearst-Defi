@@ -123,7 +123,7 @@ export function AgenticAgentsOverview({
                 <span className="ct-bento-label">
                   {DOMAIN_LABEL[domain] ?? domain}
                 </span>
-                <span className="text-[11px] font-bold tabular-nums text-zinc-500">
+                <span className="text-[11px] font-bold tabular-nums text-[var(--ct-text-faint)]">
                   {items.length}
                 </span>
               </div>
@@ -131,7 +131,7 @@ export function AgenticAgentsOverview({
                 {items.map((item) => (
                   <Fragment key={item.id}>
                     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
-                      <span className="text-[13px] text-zinc-300">
+                      <span className="text-[13px] text-[var(--ct-text-body)]">
                         {item.name}
                       </span>
                       <CapabilityTag item={item} />

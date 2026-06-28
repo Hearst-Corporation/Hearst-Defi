@@ -124,7 +124,7 @@ export function AgenticCapabilitiesBoard({
                   <td className="px-4 py-3">
                     <Chip tone={c.tone}>{c.title}</Chip>
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">{c.meaning}</td>
+                  <td className="px-4 py-3 text-[var(--ct-text-muted)]">{c.meaning}</td>
                 </tr>
               );
             })}

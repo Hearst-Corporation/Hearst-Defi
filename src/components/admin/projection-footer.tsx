@@ -36,21 +36,21 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 
         <Separator />
 
-        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-zinc-400">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           Lockup:&nbsp;
           <span className="font-medium text-white">{projection.lockupDays}d</span>
         </span>
 
         <Separator />
 
-        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-zinc-400">
+        <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           M-of-N:&nbsp;
           <span className="font-medium text-white">{projection.quorum}</span>
         </span>
 
         <span className="flex-1" />
 
-        <p className="m-0 text-right text-[length:var(--ct-text-micro)] text-zinc-500">
+        <p className="m-0 text-right text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">
           Live estimate — not guaranteed. Final terms after deployment.
         </p>
       </div>
@@ -59,5 +59,5 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 }
 
 function Separator() {
-  return <span aria-hidden className="h-4 w-px bg-white/10" />;
+  return <span aria-hidden className="h-4 w-px bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]" />;
 }

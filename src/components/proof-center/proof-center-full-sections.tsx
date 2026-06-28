@@ -59,12 +59,12 @@ function BentoSection({
         <div className="flex flex-col gap-1.5">
           <h2
             id={id}
-            className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none m-0"
+            className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none m-0"
           >
             {title}
           </h2>
           {subtitle ? (
-            <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 tracking-wide">{subtitle}</p>
+            <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">{subtitle}</p>
           ) : null}
         </div>
         {actions ? (
@@ -147,7 +147,7 @@ export function ProofCenterFullSections({
             <div className="text-[length:var(--ct-text-sm)] font-medium text-white">
               No pending timelocks
             </div>
-            <p className="max-w-sm text-[length:var(--ct-text-2xs)] text-zinc-500 leading-relaxed">
+            <p className="max-w-sm text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
               No proposals are currently waiting on a timelock. Queued governance
               actions will appear here before execution.
             </p>

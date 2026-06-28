@@ -146,7 +146,7 @@ export function VaultAllocationInvestorList({
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--ct-text-faint)]">
             Target
           </span>
           <span className="text-[22px] font-medium text-white leading-none">
@@ -170,7 +170,7 @@ export function VaultAllocationInvestorList({
               <span className="text-[13px] font-medium text-zinc-200">
                 {ALLOCATION_INVESTOR_LABELS[s.bucket]}
               </span>
-              <p className="text-[12px] text-zinc-500 leading-tight">
+              <p className="text-[12px] text-[var(--ct-text-faint)] leading-tight">
                 {ALLOCATION_DESCRIPTIONS[s.bucket]}
               </p>
             </div>

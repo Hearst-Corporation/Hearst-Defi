@@ -85,7 +85,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
         {vault.hasTimelineData ? (
           <VaultStatusPill status={vault.status} className="shrink-0 scale-75 origin-right" />
         ) : (
-          <span className="shrink-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="shrink-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
             No telemetry
           </span>
         )}
@@ -121,13 +121,13 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           <MetricCellWithTooltip
             label="BTC"
             value={formatBtcPostureLabel(vault.btcPosture)}
-            valueClassName={vault.btcPosture === null ? "text-zinc-500" : undefined}
+            valueClassName={vault.btcPosture === null ? "text-[var(--ct-text-faint)]" : undefined}
             tooltipTitle="BTC Posture"
             tooltipDesc="Current Bitcoin exposure strategy: Long, Hedge, Neutral, or Accumulation."
           />
         </div>
       ) : (
-        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500 opacity-60">
+        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)] opacity-60">
           Awaiting first telemetry close
         </p>
       )}
@@ -146,7 +146,7 @@ function MetricCell({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="truncate text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <span className="truncate text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
         {label}
       </span>
       <span

@@ -13,11 +13,11 @@ const TONE: Record<SourceTruthStatus, string> = {
   LIVE: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   FALLBACK: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   CONFIGURED: "border-sky-400/30 bg-sky-400/10 text-sky-300",
-  MOCK: "border-zinc-500/30 bg-zinc-500/10 text-zinc-400",
+  MOCK: "border-zinc-500/30 bg-zinc-500/10 text-[var(--ct-text-muted)]",
   DEMO: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   UNAUDITED: "border-rose-400/30 bg-rose-400/10 text-rose-400",
   PARTIAL: "border-sky-400/30 bg-sky-400/10 text-sky-300",
-  MIXED: "border-[var(--ct-border-strong)] bg-white/5 text-zinc-300",
+  MIXED: "border-[var(--ct-border-strong)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-body)]",
 };
 
 export function SourceTruthBadge({
@@ -59,7 +59,7 @@ export function ProjectionSourceSummary({
   return (
     <div className="rounded-2xl border border-[var(--ct-border)] bg-[#15191C] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[length:var(--ct-text-micro)] font-bold uppercase tracking-[0.15em] text-zinc-500">
+        <div className="text-[length:var(--ct-text-micro)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]">
           Source truth
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -75,7 +75,7 @@ export function ProjectionSourceSummary({
         <SourceColumn title="Outputs" rows={outputs} />
       </div>
 
-      <p className="mt-3 border-t border-[var(--ct-border-soft)] pt-3 text-[length:var(--ct-text-micro)] italic text-zinc-600">
+      <p className="mt-3 border-t border-[var(--ct-border-soft)] pt-3 text-[length:var(--ct-text-micro)] italic text-[var(--ct-text-faint)]">
         Projection methodology : live inputs + configured assumptions. Not
         guaranteed. Admin validation required — {summary.verdict}.
       </p>
@@ -92,19 +92,19 @@ function SourceColumn({
 }) {
   return (
     <div>
-      <div className="mb-1 text-[10px] uppercase tracking-wider text-zinc-600">
+      <div className="mb-1 text-[10px] uppercase tracking-wider text-[var(--ct-text-faint)]">
         {title}
       </div>
       <ul className="flex flex-col gap-1.5">
         {rows.map((r) => (
           <li key={r.label} className="flex items-center justify-between gap-2">
-            <span className="text-[length:var(--ct-text-2xs)] text-zinc-300">
+            <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
               {r.label}
               {r.detail ? (
-                <span className="ml-1.5 tabular-nums text-zinc-500">{r.detail}</span>
+                <span className="ml-1.5 tabular-nums text-[var(--ct-text-faint)]">{r.detail}</span>
               ) : null}
               {r.reason ? (
-                <span className="ml-1.5 text-[length:var(--ct-text-micro)] italic text-zinc-600">
+                <span className="ml-1.5 text-[length:var(--ct-text-micro)] italic text-[var(--ct-text-faint)]">
                   ({r.reason})
                 </span>
               ) : null}

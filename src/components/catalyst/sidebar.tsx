@@ -67,7 +67,7 @@ export function SidebarSpacer({ className, ...props }: React.ComponentPropsWitho
 
 export function SidebarHeading({ className, ...props }: React.ComponentPropsWithoutRef<'h3'>) {
   return (
-    <h3 {...props} className={cn(className, 'mb-1 px-2 text-xs/6 font-medium text-zinc-500 dark:text-zinc-400')} />
+    <h3 {...props} className={cn(className, 'mb-1 px-2 text-xs/6 font-medium text-[var(--ct-text-faint)] dark:text-[var(--ct-text-muted)]')} />
   )
 }
 
@@ -100,8 +100,8 @@ export const SidebarItem = forwardRef(function SidebarItem(
     'data-current:*:data-[slot=icon]:fill-zinc-950',
     // Dark mode
     'dark:text-white dark:*:data-[slot=icon]:fill-zinc-400',
-    'dark:data-hover:bg-white/5 dark:data-hover:*:data-[slot=icon]:fill-white',
-    'dark:data-active:bg-white/5 dark:data-active:*:data-[slot=icon]:fill-white',
+    'dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:*:data-[slot=icon]:fill-white',
+    'dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-active:*:data-[slot=icon]:fill-white',
     'dark:data-current:*:data-[slot=icon]:fill-white'
   )
 

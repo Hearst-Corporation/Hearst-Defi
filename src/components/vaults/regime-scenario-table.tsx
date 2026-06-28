@@ -9,7 +9,7 @@ const TONE_DOT: Record<StressRegime["tone"], string> = {
 
 const TONE_LABEL: Record<StressRegime["tone"], string> = {
   success: "text-white",
-  danger: "text-zinc-400",
+  danger: "text-[var(--ct-text-muted)]",
 };
 
 function PctCell({ value }: { value: number }) {
@@ -90,19 +90,19 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                       >
                         {row.label}
                       </span>
-                      <span className="md:hidden text-[10px] text-zinc-500 leading-tight">
+                      <span className="md:hidden text-[10px] text-[var(--ct-text-faint)] leading-tight">
                         {row.scenario}
                       </span>
                     </div>
                   </div>
                 </td>
-                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[length:var(--ct-text-2xs)] text-zinc-400 leading-relaxed">
+                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] leading-relaxed">
                   {row.scenario}
                 </td>
                 <td className="px-4 py-4 align-top">
                   <span className="text-[14px] font-medium text-[var(--ct-accent)] tabular-nums whitespace-nowrap">
-                    {row.apyLow.toFixed(1)} <span className="text-zinc-500 mx-0.5">—</span>{" "}
-                    {row.apyHigh.toFixed(1)} <span className="text-zinc-500">%</span>
+                    {row.apyLow.toFixed(1)} <span className="text-[var(--ct-text-faint)] mx-0.5">—</span>{" "}
+                    {row.apyHigh.toFixed(1)} <span className="text-[var(--ct-text-faint)]">%</span>
                   </span>
                 </td>
                 <td className="px-4 py-4 align-top text-right">

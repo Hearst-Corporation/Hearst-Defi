@@ -91,7 +91,7 @@ export function SystemReadinessModule({
           </div>
         </div>
 
-        <p className="m-0 max-w-[60ch] text-[length:var(--ct-text-xs)] leading-snug text-zinc-400">
+        <p className="m-0 max-w-[60ch] text-[length:var(--ct-text-xs)] leading-snug text-[var(--ct-text-muted)]">
           {view.postureBlurb}
         </p>
 
@@ -141,7 +141,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       >
         {stat.value}
       </span>
-      <span className="truncate text-[length:var(--ct-text-micro)] text-zinc-500">{stat.detail}</span>
+      <span className="truncate text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">{stat.detail}</span>
     </div>
   );
 }

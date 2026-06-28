@@ -103,7 +103,7 @@ export function DashboardRiskSummaryCard({
                 >
                   {data.composite}
                 </span>
-                <span className="text-[length:var(--ct-text-2xs)] font-bold tabular-nums text-zinc-600">
+                <span className="text-[length:var(--ct-text-2xs)] font-bold tabular-nums text-[var(--ct-text-faint)]">
                   / 100
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function DashboardRiskSummaryCard({
           </Badge>
         </div>
 
-        <p className="m-0 ml-4 max-w-[200px] flex-1 text-[length:var(--ct-text-micro)] uppercase leading-tight tracking-tight text-zinc-500">
+        <p className="m-0 ml-4 max-w-[200px] flex-1 text-[length:var(--ct-text-micro)] uppercase leading-tight tracking-tight text-[var(--ct-text-faint)]">
           Five-factor operator view: contract, mining, counterparties, market,
           liquidity.
         </p>
@@ -142,7 +142,7 @@ export function DashboardRiskSummaryCard({
                 >
                   {dimension.status}
                 </Badge>
-                <p className="m-0 text-[length:var(--ct-text-micro)] leading-none text-zinc-500 opacity-70 transition-opacity group-hover:opacity-100">
+                <p className="m-0 text-[length:var(--ct-text-micro)] leading-none text-[var(--ct-text-faint)] opacity-70 transition-opacity group-hover:opacity-100">
                   {dimension.detail}
                 </p>
               </div>

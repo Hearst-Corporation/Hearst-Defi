@@ -34,7 +34,7 @@ const CHIP_TONE: Record<ChipTone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   danger: "border-red-400/30 bg-red-400/10 text-red-400",
-  neutral: "border-[var(--ct-border)] bg-white/5 text-zinc-400",
+  neutral: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
 };
 
 function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
@@ -121,7 +121,7 @@ function Th({ children, className }: { children: ReactNode; className?: string }
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
     <tr className="border-b border-[var(--ct-border-soft)] align-top transition-colors last:border-b-0 hover:bg-white/[0.02]">
-      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-300">
+      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
         {tool.id}
       </td>
       <td className="px-4 py-3">
@@ -130,16 +130,16 @@ function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
       <td className="px-4 py-3">
         <Chip tone={riskTone(tool.riskLevel)}>{tool.riskLevel}</Chip>
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-zinc-500">
+      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-[var(--ct-text-faint)]">
         {tool.humanGateRequired ? "HITL" : "—"}
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-zinc-500">
+      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-[var(--ct-text-faint)]">
         {tool.autonomousAllowed ? "yes" : "no"}
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] text-zinc-500">
+      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
         {tool.runtimeStatus}
       </td>
-      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-600">
+      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
         {tool.source}
       </td>
     </tr>
@@ -184,7 +184,7 @@ export function ToolBoundarySection({
         />
 
         {/* Per-tier counts */}
-        <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-px bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] sm:grid-cols-3 lg:grid-cols-5">
           {COUNT_TIERS.map((tier) => (
             <BentoKpiTile
               key={tier}
@@ -212,7 +212,7 @@ export function ToolBoundarySection({
         />
         <div className="p-5">
           {consistencyIssues.length === 0 ? (
-            <p className="m-0 text-[length:var(--ct-text-xs)] leading-snug text-zinc-400">
+            <p className="m-0 text-[length:var(--ct-text-xs)] leading-snug text-[var(--ct-text-muted)]">
               The static Control Center boundary matches the real registry — no
               missing, stale, or misclassified tools.
             </p>
@@ -226,7 +226,7 @@ export function ToolBoundarySection({
                   <Chip tone={severityTone(issue.severity)}>
                     {issue.severity}
                   </Chip>
-                  <span className="flex-1 text-[length:var(--ct-text-xs)] leading-snug text-zinc-400">
+                  <span className="flex-1 text-[length:var(--ct-text-xs)] leading-snug text-[var(--ct-text-muted)]">
                     {issue.message}
                   </span>
                 </li>
@@ -279,7 +279,7 @@ export function ToolBoundarySection({
               className="border-b border-[var(--ct-border-soft)] py-3 text-[length:var(--ct-text-xs)] leading-snug last:border-b-0"
             >
               <span className="font-medium text-white">{a.name}</span>
-              <span className="text-zinc-500"> — {a.notes}</span>
+              <span className="text-[var(--ct-text-faint)]"> — {a.notes}</span>
             </li>
           ))}
         </ul>
@@ -292,9 +292,9 @@ export function ToolBoundarySection({
           {safetyNotes.map((note) => (
             <li
               key={note}
-              className="flex gap-2 text-[length:var(--ct-text-2xs)] leading-snug text-zinc-500"
+              className="flex gap-2 text-[length:var(--ct-text-2xs)] leading-snug text-[var(--ct-text-faint)]"
             >
-              <span aria-hidden className="select-none text-zinc-600">
+              <span aria-hidden className="select-none text-[var(--ct-text-faint)]">
                 ·
               </span>
               <span className="flex-1">{note}</span>

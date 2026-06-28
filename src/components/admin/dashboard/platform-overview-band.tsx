@@ -52,7 +52,7 @@ export function PlatformOverviewBand({
                   <span className="ct-bento-label">
                     {kpi.label}
                   </span>
-                  <span className="mt-px truncate text-[10px] text-zinc-600">
+                  <span className="mt-px truncate text-[10px] text-[var(--ct-text-faint)]">
                     {kpi.sublabel}
                   </span>
                 </div>
@@ -79,7 +79,7 @@ export function PlatformOverviewBand({
                 <span className="ct-bento-label">
                   Capacity usage
                 </span>
-                <span className="text-[12px] font-medium tabular-nums text-zinc-400">
+                <span className="text-[12px] font-medium tabular-nums text-[var(--ct-text-muted)]">
                   {capacityUsedRaw}
                 </span>
               </div>
@@ -104,7 +104,7 @@ export function PlatformOverviewBand({
                 <span className="ct-bento-label">
                   Distribution
                 </span>
-                <span className="text-[12px] font-medium tabular-nums text-zinc-400">
+                <span className="text-[12px] font-medium tabular-nums text-[var(--ct-text-muted)]">
                   {exposureClusterHasDist} buckets
                 </span>
               </div>

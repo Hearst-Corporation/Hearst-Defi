@@ -45,7 +45,7 @@ export function DistributionPreview({
           </p>
         </div>
         <div className="flex flex-col items-end gap-1.5 text-right">
-          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">Period</p>
+          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">Period</p>
           <p className="font-mono text-[length:var(--ct-text-xs)] font-medium text-white">{period}</p>
         </div>
       </div>
@@ -69,10 +69,10 @@ export function DistributionPreview({
           <tbody>
             {recipients.map((r) => (
               <tr key={r.investorId} className="border-b border-[var(--ct-border-soft)] last:border-0">
-                <td className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-300">
+                <td className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                   {abbrWallet(r.walletAddress)}
                 </td>
-                <td className="px-5 py-3 text-right text-zinc-400">
+                <td className="px-5 py-3 text-right text-[var(--ct-text-muted)]">
                   {r.sharesPct.toFixed(4)}%
                 </td>
                 <td className="px-5 py-3 text-right font-medium text-white">
@@ -83,10 +83,10 @@ export function DistributionPreview({
           </tbody>
           <tfoot>
             <tr className="border-t border-[var(--ct-border)]">
-              <td className="px-5 py-3 text-[length:var(--ct-text-2xs)] text-zinc-400">
+              <td className="px-5 py-3 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                 Total ({recipients.length} recipients)
               </td>
-              <td className="px-5 py-3 text-right text-[length:var(--ct-text-2xs)] text-zinc-400">
+              <td className="px-5 py-3 text-right text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                 100%
               </td>
               <td className="px-5 py-3 text-right font-medium text-white">
@@ -98,7 +98,7 @@ export function DistributionPreview({
       </div>
 
       {/* Disclaimer — CLAUDE.md #10 */}
-      <p className="text-[length:var(--ct-text-2xs)] text-zinc-600">
+      <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
         This is a dry-run preview. Amounts shown are indicative and subject to
         rounding. Final confirmation requires multisig approval. Distributions
         are not a commitment to any future return.

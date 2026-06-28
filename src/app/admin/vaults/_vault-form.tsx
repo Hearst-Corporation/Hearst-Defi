@@ -117,10 +117,10 @@ function isValidSigner(raw: string): boolean {
 // Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
 // accent (#A7FB90) focus ring. One source for every native control in the form.
 const BENTO_INPUT =
-  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
-const BENTO_FIELD_HINT = "text-[length:var(--ct-text-2xs)] text-zinc-600";
+  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+const BENTO_FIELD_HINT = "text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]";
 const BENTO_LABEL =
-  "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
+  "text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]";
 
 function inputClass(extra?: string) {
   return extra ? `${BENTO_INPUT} ${extra}` : BENTO_INPUT;
@@ -409,7 +409,7 @@ export function VaultForm(props: VaultFormProps) {
                       "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-zinc-900",
                     !isActive &&
                       !isCompleted &&
-                      "border-[var(--ct-border)] bg-surface-inset text-zinc-600",
+                      "border-[var(--ct-border)] bg-surface-inset text-[var(--ct-text-faint)]",
                   )}
                 >
                   {i + 1}
@@ -420,8 +420,8 @@ export function VaultForm(props: VaultFormProps) {
                     isActive
                       ? "text-white"
                       : isCompleted
-                        ? "text-zinc-400"
-                        : "text-zinc-600",
+                        ? "text-[var(--ct-text-muted)]"
+                        : "text-[var(--ct-text-faint)]",
                   )}
                 >
                   {s.label}
@@ -653,7 +653,7 @@ export function VaultForm(props: VaultFormProps) {
         {step === "allocations" && (
           <div className="flex flex-col gap-5">
             <StepHeader title="Allocation Targets" />
-            <p className="text-[length:var(--ct-text-xs)] text-zinc-400">
+            <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
               Must sum to exactly 10 000 bps (100%). Currently:{" "}
               <span
                 className={cn(
@@ -838,7 +838,7 @@ export function VaultForm(props: VaultFormProps) {
               {/* Admin identity helper */}
               {props.adminId && (
                 <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
-                  <span className="text-[length:var(--ct-text-2xs)] text-zinc-400">
+                  <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                     Your current admin identity:
                   </span>
                   <div className="flex items-center justify-between gap-3">
@@ -902,7 +902,7 @@ export function VaultForm(props: VaultFormProps) {
                           "rounded-lg border px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium transition-colors",
                           active
                             ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                            : "border-[var(--ct-border)] bg-white/5 text-zinc-300 hover:bg-white/10",
+                            : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-body)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]",
                           disabled && "cursor-not-allowed opacity-40",
                         )}
                       >
@@ -930,31 +930,31 @@ export function VaultForm(props: VaultFormProps) {
                   <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-white">{form.ticker}</span>
                 </RecapRow>
                 <RecapRow label="Name">
-                  <span className="truncate text-[length:var(--ct-text-xs)] text-zinc-300" title={form.name}>{form.name}</span>
+                  <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]" title={form.name}>{form.name}</span>
                 </RecapRow>
                 <RecapRow label="Strategy">
-                  <span className="text-[length:var(--ct-text-xs)] capitalize text-zinc-300">{form.strategy.replace(/_/g, " ")}</span>
+                  <span className="text-[length:var(--ct-text-xs)] capitalize text-[var(--ct-text-body)]">{form.strategy.replace(/_/g, " ")}</span>
                 </RecapRow>
                 <RecapRow label="UI Theme">
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-300">{form.colorTag}</span>
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">{form.colorTag}</span>
                 </RecapRow>
               </FieldGrid>
 
               <FieldGrid columns={2} className="py-4">
                 <RecapRow label="Min Ticket">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{formatUsdFull(form.minTicketUsdc)}</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{formatUsdFull(form.minTicketUsdc)}</span>
                 </RecapRow>
                 <RecapRow label="Capacity">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{formatUsdFull(form.capacityUsdc)}</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{formatUsdFull(form.capacityUsdc)}</span>
                 </RecapRow>
                 <RecapRow label="Fees">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
                     {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
                     {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
                   </span>
                 </RecapRow>
                 <RecapRow label="Lockup">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{form.softLockupDays} days</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{form.softLockupDays} days</span>
                 </RecapRow>
                 <RecapRow label="Target APY">
                   <ApyRange
@@ -968,28 +968,28 @@ export function VaultForm(props: VaultFormProps) {
 
               <FieldGrid columns={3} className="py-4">
                 <RecapRow label="SPV">
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-300">{form.spvJurisdiction}</span>
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">{form.spvJurisdiction}</span>
                 </RecapRow>
                 <RecapRow label="Share Class">
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-300">{form.shareClass}</span>
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">{form.shareClass}</span>
                 </RecapRow>
                 <RecapRow label="Reg Exemption">
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-300">{form.regExemption}</span>
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">{form.regExemption}</span>
                 </RecapRow>
               </FieldGrid>
 
               <FieldGrid columns={2} className="py-4">
                 <RecapRow label="Mining">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{pct(form.targetMiningBps)}%</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetMiningBps)}%</span>
                 </RecapRow>
                 <RecapRow label="BTC Tactical">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{pct(form.targetBtcTacticalBps)}%</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetBtcTacticalBps)}%</span>
                 </RecapRow>
                 <RecapRow label="USDC Base">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{pct(form.targetUsdcBaseBps)}%</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetUsdcBaseBps)}%</span>
                 </RecapRow>
                 <RecapRow label="Stable Reserve">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">{pct(form.targetStableReserveBps)}%</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetStableReserveBps)}%</span>
                 </RecapRow>
                 <RecapRow label="Total">
                   <span
@@ -1005,12 +1005,12 @@ export function VaultForm(props: VaultFormProps) {
 
               <FieldGrid columns={2} className="pt-4">
                 <RecapRow label="Signers">
-                  <span className="text-[length:var(--ct-text-xs)] text-zinc-300">
+                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">
                     {form.signersWhitelist.filter((s) => s.trim().length > 0).length} whitelisted
                   </span>
                 </RecapRow>
                 <RecapRow label="Required Quorum">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
                     {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
                   </span>
                 </RecapRow>
@@ -1030,7 +1030,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="border-t border-[var(--ct-border)] pt-4 text-[length:var(--ct-text-2xs)] text-zinc-600">
+            <p className="border-t border-[var(--ct-border)] pt-4 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -1044,11 +1044,11 @@ export function VaultForm(props: VaultFormProps) {
             <StepHeader title="Sign & Deploy" />
 
             <div className="flex flex-col gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
-              <p className="text-[length:var(--ct-text-xs)] text-zinc-400">
+              <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
               </p>
-              <p className="text-[length:var(--ct-text-xs)] text-zinc-300">
+              <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">
                 Click <strong className="font-semibold text-white">Submit for Review</strong> below to enter the multisig queue.
               </p>
               <div className="flex flex-col gap-2 border-t border-[var(--ct-border-soft)] pt-3">
@@ -1058,7 +1058,7 @@ export function VaultForm(props: VaultFormProps) {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className={BENTO_LABEL}>Required signers</span>
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-zinc-300">
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
                     {form.requiredSigners} of {filledSigners.length}
                   </span>
                 </div>
@@ -1085,10 +1085,10 @@ export function VaultForm(props: VaultFormProps) {
                         key={`${s}-${i}`}
                         className="flex items-center justify-between gap-3"
                       >
-                        <code className="break-all font-mono text-[length:var(--ct-text-2xs)] text-zinc-400">
+                        <code className="break-all font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                           {s.trim()}
                           {isMe && (
-                            <span className="text-zinc-600"> (you)</span>
+                            <span className="text-[var(--ct-text-faint)]"> (you)</span>
                           )}
                         </code>
                         {!valid && (
@@ -1119,7 +1119,7 @@ export function VaultForm(props: VaultFormProps) {
               </div>
             )}
 
-            <p className="text-[length:var(--ct-text-2xs)] text-zinc-600">
+            <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
               Target APY range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%.
               Not guaranteed. Subject to market conditions.
             </p>

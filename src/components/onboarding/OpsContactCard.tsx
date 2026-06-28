@@ -22,7 +22,7 @@ export function OpsContactCard({
       aria-label="Investor Relations contact"
     >
       <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
-        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
           Your IR Contact
         </h2>
       </div>
@@ -39,7 +39,7 @@ export function OpsContactCard({
           <span className="text-[14px] font-semibold text-white tracking-tight truncate">
             {name}
           </span>
-          <span className="text-[length:var(--ct-text-2xs)] text-zinc-500 truncate">{title}</span>
+          <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] truncate">{title}</span>
         </div>
       </div>
 

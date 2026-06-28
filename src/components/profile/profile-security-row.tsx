@@ -30,7 +30,7 @@ export function ProfileSecurityRow({
         />
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-[13px] font-medium text-zinc-200">{title}</span>
-          <span className="text-[12px] text-zinc-500">{description}</span>
+          <span className="text-[12px] text-[var(--ct-text-faint)]">{description}</span>
         </div>
       </div>
       <div className="shrink-0">{action}</div>

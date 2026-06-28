@@ -110,11 +110,11 @@ function PanelHeader({
   return (
     <div className="flex items-end justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5 min-w-0">
-        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
           {title}
         </h2>
         {subtitle ? (
-          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 tracking-wide">{subtitle}</p>
+          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">{subtitle}</p>
         ) : null}
       </div>
       {trailing ? (
@@ -130,7 +130,7 @@ const MICRO_LABEL = "ct-bento-label";
 function ProofRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3 border-b border-[var(--ct-border-soft)] last:border-b-0">
-      <span className="text-[length:var(--ct-text-xs)] text-zinc-400">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{label}</span>
       <span className="min-w-0 text-right">{children}</span>
     </div>
   );
@@ -190,14 +190,14 @@ function ProofArticle({
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-white/[0.02]"
           aria-hidden="true"
         >
-          <Icon className="w-4 h-4 text-zinc-400" />
+          <Icon className="w-4 h-4 text-[var(--ct-text-muted)]" />
         </div>
         <div className="min-w-0 flex-1">
           <h4 className="text-[14px] font-semibold text-white leading-snug">
             {title}
           </h4>
           {description && (
-            <p className="mt-1 text-[length:var(--ct-text-2xs)] text-zinc-500 leading-relaxed">
+            <p className="mt-1 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
               {description}
             </p>
           )}
@@ -241,7 +241,7 @@ function PlatformAddressRow({
               </span>
             )
           ) : (
-            <span className="text-[length:var(--ct-text-xs)] text-zinc-600">Not available</span>
+            <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Not available</span>
           )}
         </ProofRow>
       </div>
@@ -281,7 +281,7 @@ function DeployedContractCard({
               ariaLabel={`View deployment transaction ${contract.deployTxHash} on explorer`}
             />
           ) : (
-            <span className="text-[length:var(--ct-text-xs)] text-zinc-600">Pending</span>
+            <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Pending</span>
           )}
         </ProofRow>
         <ProofRow label="Deploy block">
@@ -290,7 +290,7 @@ function DeployedContractCard({
           </span>
         </ProofRow>
         <ProofRow label="Network">
-          <span className="text-[length:var(--ct-text-xs)] text-zinc-300">
+          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">
             Test network (chain id 84532)
           </span>
         </ProofRow>
@@ -303,7 +303,7 @@ function DeployedContractCard({
             Source-verified @ commit
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-zinc-400">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
             <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden="true" />
             Deployment provenance unverified
           </span>
@@ -390,7 +390,7 @@ export function ContractsAuditTrail({
                   className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-white/[0.02]"
                   aria-hidden="true"
                 >
-                  <FileText className="w-4 h-4 text-zinc-400" />
+                  <FileText className="w-4 h-4 text-[var(--ct-text-muted)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -398,7 +398,7 @@ export function ContractsAuditTrail({
                       <span className="text-[length:var(--ct-text-xs)] font-medium text-white">
                         {entry.label}
                       </span>
-                      <span className="text-[length:var(--ct-text-2xs)] text-zinc-500">
+                      <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
                         {entry.status}
                       </span>
                     </div>
@@ -412,7 +412,7 @@ export function ContractsAuditTrail({
                           {auditBadgeLabel(entry)}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-zinc-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
                           <span
                             className="h-1.5 w-1.5 rounded-full bg-zinc-500"
                             aria-hidden="true"
@@ -445,7 +445,7 @@ export function ContractsAuditTrail({
 
         <div className="border-t border-[var(--ct-border-soft)] px-5 py-4 flex flex-col gap-1.5">
           <p className={cn(MICRO_LABEL, "m-0")}>Release gate</p>
-          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 leading-relaxed m-0">
+          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed m-0">
             Production (mainnet) deployment requires completion of an
             independent third-party security audit. The methodology remains
             fixed until a formal approval and investor notification process is

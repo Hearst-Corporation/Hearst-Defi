@@ -55,7 +55,7 @@ const base = [
   // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
   'dark:before:hidden',
   // Background color applied to control in dark mode
-  'dark:bg-white/5 dark:group-data-checked:bg-(--radio-checked-bg)',
+  'dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:group-data-checked:bg-(--radio-checked-bg)',
   // Border
   'border border-zinc-950/15 group-data-checked:border-transparent group-data-hover:group-data-checked:border-transparent group-data-hover:border-zinc-950/30 group-data-checked:bg-(--radio-checked-border)',
   'dark:border-[var(--ct-border-strong)] dark:group-data-checked:border-[var(--ct-border-soft)] dark:group-data-hover:group-data-checked:border-[var(--ct-border-soft)] dark:group-data-hover:border-[var(--ct-border-strong)]',
@@ -71,7 +71,7 @@ const base = [
   // Disabled state
   'group-data-disabled:opacity-50',
   'group-data-disabled:border-zinc-950/25 group-data-disabled:bg-zinc-950/5 group-data-disabled:[--radio-checked-indicator:var(--color-zinc-950)]/50 group-data-disabled:before:bg-transparent',
-  'dark:group-data-disabled:border-[var(--ct-border-strong)] dark:group-data-disabled:bg-white/2.5 dark:group-data-disabled:[--radio-checked-indicator:var(--color-white)]/50 dark:group-data-checked:group-data-disabled:after:hidden',
+  'dark:group-data-disabled:border-[var(--ct-border-strong)] dark:group-data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:group-data-disabled:[--radio-checked-indicator:var(--color-white)]/50 dark:group-data-checked:group-data-disabled:after:hidden',
 ]
 
 const colors = {

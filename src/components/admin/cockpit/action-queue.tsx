@@ -36,7 +36,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
       <div
         role="status"
         aria-label="Operator queue"
-        className="flex flex-1 items-center justify-center py-8 text-center text-[13px] text-zinc-400"
+        className="flex flex-1 items-center justify-center py-8 text-center text-[13px] text-[var(--ct-text-muted)]"
       >
         All clear — no operator actions queued.
       </div>
@@ -121,7 +121,7 @@ const SEVERITY_TONES: Record<
   },
   P2: {
     dot: "bg-zinc-500",
-    text: "text-zinc-500",
-    cta: "border-[var(--ct-border-soft)] bg-white/5 text-zinc-400 hover:border-[var(--ct-border)] hover:text-zinc-200",
+    text: "text-[var(--ct-text-faint)]",
+    cta: "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:border-[var(--ct-border)] hover:text-zinc-200",
   },
 };

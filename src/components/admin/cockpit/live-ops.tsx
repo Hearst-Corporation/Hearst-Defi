@@ -31,8 +31,8 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
       {/* INNGEST JOBS */}
       <section className="flex flex-col">
         <header className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">Inngest Jobs</h3>
-          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-zinc-600">Real-time</span>
+          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">Inngest Jobs</h3>
+          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">Real-time</span>
         </header>
         <div className="flex flex-col">
           {inngestJobs.map((job) => (
@@ -44,15 +44,15 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
       {/* LLM HEALTH */}
       <section className="flex flex-col">
         <header className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">LLM Health</h3>
-          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-zinc-600">24h Window</span>
+          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">LLM Health</h3>
+          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">24h Window</span>
         </header>
         <div className="flex items-stretch gap-3 bg-surface-inset rounded-lg p-4">
           <Tooltip
             content={(
               <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">
                 <div className="text-[length:var(--ct-text-2xs)] font-medium text-white">Sentry Errors</div>
-                <div className="text-[length:var(--ct-text-micro)] text-zinc-400 leading-snug">Critical exceptions captured in the last 24 hours across all services.</div>
+                <div className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] leading-snug">Critical exceptions captured in the last 24 hours across all services.</div>
               </div>
             )}
           >
@@ -64,12 +64,12 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
               />
             </div>
           </Tooltip>
-          <div className="w-px self-stretch bg-white/5" />
+          <div className="w-px self-stretch bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]" />
           <Tooltip
             content={(
               <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">
                 <div className="text-[length:var(--ct-text-2xs)] font-medium text-white">Sentry Warnings</div>
-                <div className="text-[length:var(--ct-text-micro)] text-zinc-400 leading-snug">Non-critical warnings captured in the last 24 hours.</div>
+                <div className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] leading-snug">Non-critical warnings captured in the last 24 hours.</div>
               </div>
             )}
           >
@@ -87,11 +87,11 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
       {/* CHAIN ACTIVITY */}
       <section className="flex flex-col">
         <header className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">Chain Activity</h3>
-          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-zinc-600">Live Feed</span>
+          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">Chain Activity</h3>
+          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">Live Feed</span>
         </header>
         {onChainEvents.length === 0 ? (
-          <p className="text-[length:var(--ct-text-xs)] text-zinc-400 py-2" role="status">No recent on-chain events.</p>
+          <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] py-2" role="status">No recent on-chain events.</p>
         ) : (
           <ul className="flex flex-col" role="list">
             {onChainEvents.map((ev) => (
@@ -117,7 +117,7 @@ function InngestRow({ job }: { job: InngestJob }) {
       className="flex items-center justify-between gap-3 py-2.5 border-b border-[var(--ct-border-soft)] last:border-b-0"
       aria-label={`${job.name}: ${label}`}
     >
-      <span className="text-[length:var(--ct-text-xs)] text-zinc-300 truncate uppercase">{job.name}</span>
+      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] truncate uppercase">{job.name}</span>
       <div className="flex items-center gap-1.5 shrink-0">
         <span
           aria-hidden
@@ -134,7 +134,7 @@ function InngestRow({ job }: { job: InngestJob }) {
               ? "text-[var(--ct-accent)]"
               : job.status === "err"
                 ? "text-red-400"
-                : "text-zinc-500",
+                : "text-[var(--ct-text-faint)]",
           )}
         >
           {label}
@@ -169,7 +169,7 @@ function SentryCounter({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500">{label}</span>
+      <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">{label}</span>
       <span
         className={cn(
           "text-[18px] font-medium tabular-nums leading-none",
@@ -198,13 +198,13 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
     <>
       <span
         aria-hidden
-        className="shrink-0 text-zinc-600 text-[length:var(--ct-text-nano)] font-bold w-4 text-center mt-px"
+        className="shrink-0 text-[var(--ct-text-faint)] text-[length:var(--ct-text-nano)] font-bold w-4 text-center mt-px"
       >
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <span className="text-[length:var(--ct-text-xs)] text-zinc-300 truncate block uppercase">{event.label}</span>
-        <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-zinc-600">{ago}</span>
+        <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] truncate block uppercase">{event.label}</span>
+        <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">{ago}</span>
       </div>
     </>
   );
