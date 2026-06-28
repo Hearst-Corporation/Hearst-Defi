@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 
-import { validateProjectionRun } from "../run-validation";
+import { validateProjectionRun, defaultRunValidationContext } from "../run-validation";
 import type { LatestStudyRunSummary } from "../latest-study-run";
 
 const RUN: LatestStudyRunSummary = {
@@ -112,11 +112,19 @@ describe("validateProjectionRun", () => {
     const r = validateProjectionRun(RUN);
     expect(r.investorEligible).toBe(false);
   });
+
+  it("defaultRunValidationContext mirrors assumptions-config (CONFIGURED → blocked)", () => {
+    const r = validateProjectionRun(RUN, defaultRunValidationContext(false));
+    expect(r.status).toBe("VALIDATED_ADMIN");
+    expect(r.investorEligible).toBe(false);
+    expect(r.warnings.join(" ")).toMatch(/CONFIGURED/);
+  });
 });
 
 describe("preview wiring", () => {
   it("Test 8: page computes validation and passes it to the banner", () => {
     expect(PAGE_SRC).toContain("validateProjectionRun");
+    expect(PAGE_SRC).toContain("defaultRunValidationContext");
     expect(PAGE_SRC).toContain("validation={validation}");
   });
 

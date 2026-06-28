@@ -17,6 +17,7 @@
  */
 
 import type { LatestStudyRunSummary } from "./latest-study-run";
+import { getDefaultProjectionAssumptionsConfig } from "./assumptions-config";
 
 export type ProjectionRunValidationStatus =
   | "NO_RUN"
@@ -73,6 +74,25 @@ const DEFAULT_CONTEXT: Required<Omit<RunValidationContext, "percentiles">> & {
   hasUnjustifiedFallback: false,
   percentiles: null,
 };
+
+/**
+ * Build validation context from the central assumptions config (CONFIGURED today).
+ * Keeps preview eligibility aligned with assumptions-config provenance — no DB migration.
+ */
+export function defaultRunValidationContext(
+  isDemoFixture: boolean,
+): RunValidationContext {
+  const cfg = getDefaultProjectionAssumptionsConfig();
+  const preAudit = cfg.status !== "AUDITED";
+  return {
+    isDemoFixture,
+    assumptionsConfigured: preAudit,
+    riskUnaudited: preAudit,
+    hasMockSource: false,
+    hasUnjustifiedFallback: false,
+    percentiles: null,
+  };
+}
 
 /**
  * Derive a validation result for a (possibly null) latest run + truth context.

@@ -2,7 +2,10 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 import { PreviewSourceBanner } from "@/components/admin/projection/preview-source-banner";
 import { getLatestProjectionStudyRun } from "@/lib/projection/latest-study-run";
-import { validateProjectionRun } from "@/lib/projection/run-validation";
+import {
+  defaultRunValidationContext,
+  validateProjectionRun,
+} from "@/lib/projection/run-validation";
 
 import "../../admin-strategy.css";
 
@@ -24,11 +27,10 @@ export const metadata = {
  */
 export default async function ProjectionPreviewPage() {
   const latestRun = await getLatestProjectionStudyRun();
-  // Derived validation (no DB status column). Defaults encode current truth:
-  // assumptions CONFIGURED + risk UNAUDITED → never investor-eligible today.
-  const validation = validateProjectionRun(latestRun, {
-    isDemoFixture: !latestRun,
-  });
+  const validation = validateProjectionRun(
+    latestRun,
+    defaultRunValidationContext(!latestRun),
+  );
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
