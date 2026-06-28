@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/catalyst/badge";
 import { BentoPanel } from "@/components/ui/bento";
 import { EmptySurface } from "@/components/ui/empty-surface";
@@ -69,27 +69,25 @@ export default async function CustomerDetailPage({
   const applied = detail.agentProfile;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          title={detail.email}
-          eyebrow={`investor · ${detail.userId}`}
-          description="Identity, qualification, assistant settings, saved notes, and recent activity."
-          lead={
-            <Link
-              href="/admin/customers"
-              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
-            >
-              ← Investors
-            </Link>
-          }
-          actions={
-            <KycAction
-              investorId={detail.investorId}
-              status={detail.kycStatus as "pending" | "approved" | "rejected"}
-            />
-          }
+    <AdminPageShell
+      title={detail.email}
+      eyebrow={`investor · ${detail.userId}`}
+      description="Identity, qualification, assistant settings, saved notes, and recent activity."
+      lead={
+        <Link
+          href="/admin/customers"
+          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+        >
+          ← Investors
+        </Link>
+      }
+      actions={
+        <KycAction
+          investorId={detail.investorId}
+          status={detail.kycStatus as "pending" | "approved" | "rejected"}
         />
+      }
+    >
 
           {/* Identity + positions */}
           <AdminDetailSection label="Identity" title="Investor profile">
@@ -296,7 +294,6 @@ export default async function CustomerDetailPage({
               />
             )}
           </AdminDetailSection>
-        </div>
-      </div>
+    </AdminPageShell>
   );
 }

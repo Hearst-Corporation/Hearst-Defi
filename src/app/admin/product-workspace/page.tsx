@@ -3,6 +3,7 @@ import {
   AdminSectionCard,
 } from "@/components/admin/admin-page-shell";
 import { AgentBriefLive } from "@/components/admin/product-workspace/agent-brief-live";
+import { Heading } from "@/components/catalyst/heading";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProductWorkspaceDraft } from "@/lib/product-workspace/draft";
@@ -62,17 +63,16 @@ export default async function ProductWorkspacePage({
       <AdminSectionCard ariaLabel="Objective" title="Objective">
         <div className="flex flex-col gap-2 p-5">
           {/* display value — intentionally p, not a document heading */}
-          <p
+          <Heading
+            level={3}
             className={cn(
-              "text-[22px] font-medium leading-tight tracking-tight text-balance",
-              objective
-                ? "text-[var(--ct-text-strong)]"
-                : "italic text-[var(--ct-text-faint)]",
+              "text-balance",
+              !objective && "italic opacity-40",
             )}
           >
             {objective ?? "Awaiting objective from cockpit agent"}
-          </p>
-          <p className="text-[13px] leading-relaxed text-[var(--ct-text-muted)]">
+          </Heading>
+          <p className="ct-metric-caption leading-relaxed">
             Framing and documentation only — no vault creation, allocations, or
             approvals from this surface.
           </p>

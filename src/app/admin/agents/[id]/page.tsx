@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
 import { BentoPanel } from "@/components/ui/bento";
 import { loadAgentTemplate } from "@/lib/data/agent-templates";
@@ -22,28 +22,25 @@ export default async function EditAgentTemplatePage({
   if (!template) notFound();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Edit agent"
-          titleAccent="template"
-          contextLabel={template.label}
-          description="Review and refine the reusable profile applied to investor-facing agent experiences."
-          lead={
-            <Link
-              href="/admin/agents"
-              className="ct-metric-caption hover:text-[var(--ct-text-strong)]"
-            >
-              ← Agents
-            </Link>
-          }
-        />
-        <BentoPanel aria-label="Edit template">
-          <div className="p-5 lg:p-6">
-            <AgentTemplateForm template={template} />
-          </div>
-        </BentoPanel>
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="Edit agent"
+      titleAccent="template"
+      contextLabel={template.label}
+      description="Review and refine the reusable profile applied to investor-facing agent experiences."
+      lead={
+        <Link
+          href="/admin/agents"
+          className="ct-metric-caption hover:text-[var(--ct-text-strong)]"
+        >
+          ← Agents
+        </Link>
+      }
+    >
+      <BentoPanel aria-label="Edit template">
+        <div className="p-5 lg:p-6">
+          <AgentTemplateForm template={template} />
+        </div>
+      </BentoPanel>
+    </AdminPageShell>
   );
 }

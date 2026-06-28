@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSectionCard } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { Badge } from "@/components/catalyst/badge";
 import { Ptai } from "@/components/ui/ptai";
@@ -93,22 +92,20 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const executeAction = handleExecute.bind(null, proposal.id);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Proposal"
-          titleAccent={proposal.actionType}
-          contextLabel="Governance · Proposal"
-          lead={
-            <Link
-              href="/admin/governance"
-              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
-              aria-label="Back to governance"
-            >
-              ← Governance
-            </Link>
-          }
-        />
+    <AdminPageShell
+      titleLead="Proposal"
+      titleAccent={proposal.actionType}
+      contextLabel="Governance · Proposal"
+      lead={
+        <Link
+          href="/admin/governance"
+          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+          aria-label="Back to governance"
+        >
+          ← Governance
+        </Link>
+      }
+    >
 
         {/* ── Proposal meta ─────────────────────────────────────────────── */}
         <AdminSectionCard
@@ -337,7 +334,6 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             </div>
           </AdminSectionCard>
         ) : null}
-      </div>
-    </div>
+    </AdminPageShell>
   );
 }

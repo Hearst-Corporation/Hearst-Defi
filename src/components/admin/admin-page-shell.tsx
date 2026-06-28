@@ -33,21 +33,36 @@ export const ROW =
  * Outer admin page box + canonical header. Every admin page wraps its body in
  * this so the page surface, padding rhythm, and title grammar are identical.
  *
- * Header API mirrors AdminPageHeader: `titleLead` + `titleAccent` +
- * `contextLabel` (canon). Pass `headerActions` for a right-aligned CTA/slot.
+ * Canon API: `titleLead` + `titleAccent` + `contextLabel` + `headerActions`.
+ * Legacy/detail API: `title` + `eyebrow` + `description` + `lead` + `actions`
+ * (forwarded to AdminPageHeader for detail pages that need a back-link or a
+ * single-string title — keeps those pages on the canonical shell, not a custom div).
  */
 export function AdminPageShell({
   titleLead,
   titleAccent,
   contextLabel,
   headerActions,
+  title,
+  eyebrow,
+  description,
+  lead,
+  actions,
   children,
   className,
 }: {
-  titleLead: string;
+  titleLead?: string;
   titleAccent?: string;
   contextLabel?: string;
   headerActions?: ReactNode;
+  /** Legacy single-string title (detail pages). */
+  title?: string;
+  eyebrow?: string;
+  description?: ReactNode;
+  /** Back-link or slot rendered above the title. */
+  lead?: ReactNode;
+  /** Right-aligned actions below the rule (legacy). */
+  actions?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
@@ -63,6 +78,11 @@ export function AdminPageShell({
           titleLead={titleLead}
           titleAccent={titleAccent}
           contextLabel={contextLabel}
+          title={title}
+          eyebrow={eyebrow}
+          description={description}
+          lead={lead}
+          actions={actions}
           // CTA on the SAME line as the title (right-aligned), not below the rule.
           titleRowEnd={headerActions}
         />

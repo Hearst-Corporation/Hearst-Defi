@@ -8,8 +8,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
+  AdminPageShell,
   AdminSectionCard,
   TABLE_HEAD,
   TABLE_WRAP,
@@ -135,42 +135,38 @@ export default async function ProspectDetailPage({
   const mailbox = getMailboxReadiness();
 
   return (
-    // Back-link is load-bearing → keep AdminPageHeader + lead for the shell;
-    // the inner sections migrate to the AdminSectionCard canon.
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Prospect"
-          titleAccent={displayName}
-          contextLabel={`Outreach · ${p.source}`}
-          description="Identity, the Apollo enrichment snapshot, qualification tier, and the full engagement record for this prospect."
-          lead={
-            <Link
-              href="/admin/outreach"
+    <AdminPageShell
+      titleLead="Prospect"
+      titleAccent={displayName}
+      contextLabel={`Outreach · ${p.source}`}
+      description="Identity, the Apollo enrichment snapshot, qualification tier, and the full engagement record for this prospect."
+      lead={
+        <Link
+          href="/admin/outreach"
+          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+        >
+          ← Outreach
+        </Link>
+      }
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"}>{p.status}</Badge>
+          {p.tier ? (
+            <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
+          ) : null}
+          {p.hubspotContactId ? (
+            <a
+              href={`https://app-eu1.hubspot.com/contacts/contact/${p.hubspotContactId}`}
+              target="_blank"
+              rel="noreferrer"
               className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
             >
-              ← Outreach
-            </Link>
-          }
-          actions={
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"}>{p.status}</Badge>
-              {p.tier ? (
-                <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
-              ) : null}
-              {p.hubspotContactId ? (
-                <a
-                  href={`https://app-eu1.hubspot.com/contacts/contact/${p.hubspotContactId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
-                >
-                  HubSpot ↗
-                </a>
-              ) : null}
-            </div>
-          }
-        />
+              HubSpot ↗
+            </a>
+          ) : null}
+        </div>
+      }
+    >
 
         {/* Identity */}
         <AdminSectionCard ariaLabel="Identity" title="Identity">
@@ -424,7 +420,6 @@ export default async function ProspectDetailPage({
             </div>
           </AdminSectionCard>
         )}
-      </div>
-    </div>
+    </AdminPageShell>
   );
 }

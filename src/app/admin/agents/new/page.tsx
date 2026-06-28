@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSectionCard } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
 import {
   BASE_AGENTS,
@@ -27,28 +26,25 @@ export default async function NewAgentTemplatePage({
     : undefined;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="New agent"
-          titleAccent="template"
-          contextLabel="Agent Operations"
-          description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
-          lead={
-            <Link
-              href="/admin/agents"
-              className="ct-metric-caption hover:text-[var(--ct-text-strong)]"
-            >
-              ← Agents
-            </Link>
-          }
-        />
-        <AdminSectionCard ariaLabel="New template" title="Template details">
-          <div className="p-5 lg:p-6">
-            <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
-          </div>
-        </AdminSectionCard>
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="New agent"
+      titleAccent="template"
+      contextLabel="Agent Operations"
+      description="Define a reusable operator profile for investor-facing agent behavior, language, and register."
+      lead={
+        <Link
+          href="/admin/agents"
+          className="ct-metric-caption hover:text-[var(--ct-text-strong)]"
+        >
+          ← Agents
+        </Link>
+      }
+    >
+      <AdminSectionCard ariaLabel="New template" title="Template details">
+        <div className="p-5 lg:p-6">
+          <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
+        </div>
+      </AdminSectionCard>
+    </AdminPageShell>
   );
 }

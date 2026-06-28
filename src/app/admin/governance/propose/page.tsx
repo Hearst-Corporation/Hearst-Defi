@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSectionCard } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Button } from "@/components/catalyst/button";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
@@ -56,22 +55,20 @@ export default async function ProposePage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="New"
-          titleAccent="Proposal"
-          contextLabel="Governance · Proposal"
-          lead={
-            <Link
-              href="/admin/governance"
-              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
-              aria-label="Back to governance"
-            >
-              ← Governance
-            </Link>
-          }
-        />
+    <AdminPageShell
+      titleLead="New"
+      titleAccent="Proposal"
+      contextLabel="Governance · Proposal"
+      lead={
+        <Link
+          href="/admin/governance"
+          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+          aria-label="Back to governance"
+        >
+          ← Governance
+        </Link>
+      }
+    >
 
         <AdminSectionCard ariaLabel="Proposal form" title="Proposal details">
           <div className="p-5 lg:p-6">
@@ -164,7 +161,6 @@ export default async function ProposePage() {
             </form>
           </div>
         </AdminSectionCard>
-      </div>
-    </div>
+    </AdminPageShell>
   );
 }
