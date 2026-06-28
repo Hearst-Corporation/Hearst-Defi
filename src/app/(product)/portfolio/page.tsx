@@ -211,6 +211,7 @@ export default async function PortfolioPage() {
                   ? formatUsdFull(allocationDonutProps.aumUsdc)
                   : formatUsdFull(deployedUsdc)
               }
+              bars
               aria-label="Allocation composition ring"
             />
           </div>
