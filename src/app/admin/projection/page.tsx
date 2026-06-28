@@ -1,4 +1,5 @@
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import { ProjectionHandoff } from "@/components/admin/projection/projection-handoff";
 import { ProjectionSourceSummary } from "@/components/admin/projection/source-truth-badge";
 import { loadSourceTruthSummary } from "@/lib/projection/source-truth-summary";
 import { ProjectionStudio } from "./studio";
@@ -11,9 +12,31 @@ export const metadata = {
   title: "Projection Studio — Hearst Connect",
 };
 
-export default async function ProjectionPage() {
+const MAX_OBJECTIVE_LEN = 220;
+
+function sanitizeObjective(raw: string | undefined): string | undefined {
+  const cleaned = raw?.replace(/[\x00-\x1F\x7F]/g, "").trim();
+  return cleaned ? cleaned.slice(0, MAX_OBJECTIVE_LEN) : undefined;
+}
+
+interface ProjectionPageProps {
+  searchParams: Promise<{
+    objective?: string;
+    from?: string;
+  }>;
+}
+
+export default async function ProjectionPage({
+  searchParams,
+}: ProjectionPageProps) {
   // Server-resolved provenance of every input/output → source-truth badges.
   const sourceTruth = await loadSourceTruthSummary();
+
+  // Product Workspace handoff: a CONTEXT-ONLY block. Reading these params never
+  // runs a study — the studio's "Run Study" button is the only path to a run.
+  const params = await searchParams;
+  const fromWorkspace = params.from === "product-workspace";
+  const objective = sanitizeObjective(params.objective);
 
   return (
     // Source-truth summary (own banner surface) + ProjectionStudio (own
@@ -24,6 +47,10 @@ export default async function ProjectionPage() {
       titleAccent="Projection"
       contextLabel="Strategy"
     >
+      {fromWorkspace ? (
+        <ProjectionHandoff objective={objective ?? null} />
+      ) : null}
+
       <ProjectionSourceSummary summary={sourceTruth} />
 
       <ProjectionStudio />

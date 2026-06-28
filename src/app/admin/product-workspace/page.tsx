@@ -1,8 +1,11 @@
+import Link from "next/link";
+
 import {
   AdminPageShell,
   AdminSectionCard,
 } from "@/components/admin/admin-page-shell";
 import { AgentBriefLive } from "@/components/admin/product-workspace/agent-brief-live";
+import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
 import { Heading } from "@/components/catalyst/heading";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -89,6 +92,45 @@ export default async function ProductWorkspacePage({
             autostart={autostart}
             initialBrief={initialBrief}
           />
+        </div>
+      </AdminSectionCard>
+
+      {/* Handoff CTA — the next step is Projection, where the admin reviews the
+          configured assumptions and runs the study MANUALLY. This link never
+          runs a study, creates a vault, or promotes a draft: it only carries the
+          objective so Projection can show a context block. When no objective was
+          received the CTA is disabled with an honest message. */}
+      <AdminSectionCard
+        ariaLabel="Continue to Projection"
+        title="Next step — Projection"
+      >
+        <div className="flex flex-col gap-3 p-5">
+          <p className="ct-metric-caption leading-relaxed">
+            Admin only · manual run required · projection, not guaranteed.
+            Continue to Projection to review the configured assumptions, then run
+            the study yourself. Nothing runs from this page.
+          </p>
+          {objective ? (
+            <Link
+              href={`/admin/projection?objective=${encodeURIComponent(objective)}&from=product-workspace`}
+              className={cn(
+                cockpitButtonVariants({ variant: "primary", size: "lg" }),
+                "self-start",
+              )}
+            >
+              Continue to Projection
+            </Link>
+          ) : (
+            <span
+              aria-disabled="true"
+              className={cn(
+                cockpitButtonVariants({ variant: "secondary", size: "lg" }),
+                "self-start cursor-not-allowed opacity-40",
+              )}
+            >
+              Continue to Projection — objective required
+            </span>
+          )}
         </div>
       </AdminSectionCard>
     </AdminPageShell>
