@@ -109,7 +109,7 @@ export function CrewSimulationSection({
             return (
               <BentoPanel key={scenario.id} className="bg-surface-inset">
                 <div className="flex flex-col gap-1.5 p-5">
-                  <h3 className="text-[14px] font-semibold leading-tight text-white">
+                  <h3 className="text-[length:var(--ct-text-14)] font-semibold leading-tight text-white">
                     {scenario.label}
                   </h3>
                   <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-muted)]">
@@ -131,7 +131,7 @@ export function CrewSimulationSection({
                     </Tag>
                   </KpiCell>
                   <KpiCell label="Gates">
-                    <span className="text-[14px] font-medium tabular-nums text-white">
+                    <span className="text-[length:var(--ct-text-14)] font-medium tabular-nums text-white">
                       {requiredGates.length || "—"}
                     </span>
                   </KpiCell>

@@ -72,7 +72,7 @@ function CapabilityTag({ item }: { item: AgenticInventoryItem }) {
   const tone = capabilityTone(item);
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium ${TAG_CLASS[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium ${TAG_CLASS[tone]}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[tone]}`} aria-hidden />
       {capability(item)}
@@ -123,7 +123,7 @@ export function AgenticAgentsOverview({
                 <span className="ct-bento-label">
                   {DOMAIN_LABEL[domain] ?? domain}
                 </span>
-                <span className="text-[11px] font-bold tabular-nums text-[var(--ct-text-faint)]">
+                <span className="text-[length:var(--ct-text-micro)] font-bold tabular-nums text-[var(--ct-text-faint)]">
                   {items.length}
                 </span>
               </div>
@@ -131,7 +131,7 @@ export function AgenticAgentsOverview({
                 {items.map((item) => (
                   <Fragment key={item.id}>
                     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
-                      <span className="text-[13px] text-[var(--ct-text-body)]">
+                      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">
                         {item.name}
                       </span>
                       <CapabilityTag item={item} />

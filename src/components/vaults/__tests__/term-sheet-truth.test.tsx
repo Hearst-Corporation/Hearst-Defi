@@ -82,7 +82,10 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
     // VaultDetailRow now renders as a bento proof row (border-b py-3 / tabular-nums)
     // instead of the legacy .vault-panel-row chrome.
     expect(html).toContain("border-b border-[var(--ct-border-soft)] py-3");
-    expect(html).toContain("text-[13px] font-medium text-white tabular-nums");
+    // Type size is the --ct-text-xs token (13px) now, not the raw arbitrary class.
+    expect(html).toContain(
+      "text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums",
+    );
     expect(html).not.toContain("ct-proof-row");
   });
 

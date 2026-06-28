@@ -57,7 +57,7 @@ export function VaultAllocationAdminRows({
               row.index,
             )}`}
           />
-          <span className="text-[13px] font-medium text-zinc-200">
+          <span className="text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
             {row.label}
           </span>
           <span className="text-sm font-bold text-white tabular-nums">
@@ -149,7 +149,7 @@ export function VaultAllocationInvestorList({
           <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--ct-text-faint)]">
             Target
           </span>
-          <span className="text-[22px] font-medium text-white leading-none">
+          <span className="text-[length:var(--ct-text-2xl)] font-medium text-white leading-none">
             100%
           </span>
         </div>
@@ -167,10 +167,10 @@ export function VaultAllocationInvestorList({
               )}`}
             />
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[13px] font-medium text-zinc-200">
+              <span className="text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
                 {ALLOCATION_INVESTOR_LABELS[s.bucket]}
               </span>
-              <p className="text-[12px] text-[var(--ct-text-faint)] leading-tight">
+              <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-tight">
                 {ALLOCATION_DESCRIPTIONS[s.bucket]}
               </p>
             </div>

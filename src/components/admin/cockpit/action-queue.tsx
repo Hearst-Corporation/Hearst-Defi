@@ -36,7 +36,7 @@ export function ActionQueue({ items }: ActionQueueProps) {
       <div
         role="status"
         aria-label="Operator queue"
-        className="flex flex-1 items-center justify-center py-8 text-center text-[13px] text-[var(--ct-text-muted)]"
+        className="flex flex-1 items-center justify-center py-8 text-center text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]"
       >
         All clear — no operator actions queued.
       </div>
@@ -64,7 +64,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
       <div className="flex min-w-0 flex-1 items-start gap-2.5">
         <SeverityDot severity={item.severity} />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="block truncate text-[13px] font-medium text-zinc-200">
+          <span className="block truncate text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
             {item.title}
           </span>
           <span className="ct-bento-label block truncate">

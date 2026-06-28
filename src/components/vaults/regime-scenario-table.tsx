@@ -13,7 +13,7 @@ const TONE_LABEL: Record<StressRegime["tone"], string> = {
 };
 
 function PctCell({ value }: { value: number }) {
-  return <span className="text-[14px] font-medium text-white tabular-nums">{value}%</span>;
+  return <span className="text-[length:var(--ct-text-14)] font-medium text-white tabular-nums">{value}%</span>;
 }
 
 interface RegimeScenarioTableProps {
@@ -84,7 +84,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                     <div className="flex flex-col gap-1">
                       <span
                         className={cn(
-                          "text-[14px] font-medium uppercase tracking-wide",
+                          "text-[length:var(--ct-text-14)] font-medium uppercase tracking-wide",
                           TONE_LABEL[row.tone],
                         )}
                       >
@@ -100,7 +100,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                   {row.scenario}
                 </td>
                 <td className="px-4 py-4 align-top">
-                  <span className="text-[14px] font-medium text-[var(--ct-accent)] tabular-nums whitespace-nowrap">
+                  <span className="text-[length:var(--ct-text-14)] font-medium text-[var(--ct-accent)] tabular-nums whitespace-nowrap">
                     {row.apyLow.toFixed(1)} <span className="text-[var(--ct-text-faint)] mx-0.5">—</span>{" "}
                     {row.apyHigh.toFixed(1)} <span className="text-[var(--ct-text-faint)]">%</span>
                   </span>

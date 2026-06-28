@@ -20,7 +20,7 @@ function fmtDate(d: Date): string {
 
 // Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
 // (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[13px]).
+// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
 const SELECT_INPUT = "ct-select";
 // Kind chip uses the Catalyst <Badge> primitive: green = active (fact on the
 // prompt), zinc = off. Replaces two local pill recipes hardcoding #A7FB90 /

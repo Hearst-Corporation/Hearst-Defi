@@ -24,7 +24,7 @@ export default function OnboardingTestPage() {
       headerActions={
         <Link
           href="/admin/customers"
-          className="text-[13px] text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)]"
+          className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)]"
         >
           ← Investors
         </Link>

@@ -84,7 +84,7 @@ function MarketKpiTile({
       <div className="ct-bento-label">{label}</div>
       <div
         className={cn(
-          "text-[22px] font-medium leading-none tracking-tight tabular-nums",
+          "text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums",
           accent ? "text-[var(--ct-accent)]" : "ct-text-strong",
         )}
       >
@@ -347,7 +347,7 @@ function Trend({
   const glyph =
     trend.direction === "up" ? "↑" : trend.direction === "down" ? "↓" : "→";
   return (
-    <span className={cn("font-mono text-[11px] font-medium tabular-nums", tone)}>
+    <span className={cn("font-mono text-[length:var(--ct-text-micro)] font-medium tabular-nums", tone)}>
       {glyph} {trend.text}
     </span>
   );

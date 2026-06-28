@@ -40,7 +40,7 @@ export function WalletDisconnectButton() {
       type="button"
       onClick={onDisconnect}
       disabled={isPending}
-      className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[13px] font-bold text-red-400 transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-bold text-red-400 transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {isPending ? "Disconnecting…" : "Disconnect / change wallet"}
     </button>

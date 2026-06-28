@@ -344,7 +344,7 @@ function DraftField({
         id={id}
         name={field}
         className={cn(
-          "w-full min-w-0 box-border rounded-md border bg-surface-inset text-[var(--ct-text-strong)] font-mono text-[13px] px-3 py-2 transition-colors outline-none focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]",
+          "w-full min-w-0 box-border rounded-md border bg-surface-inset text-[var(--ct-text-strong)] font-mono text-[length:var(--ct-text-xs)] px-3 py-2 transition-colors outline-none focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]",
           error ? "border-[color-mix(in_srgb,var(--ct-status-danger)_50%,transparent)]" : "border-[var(--ct-border)]",
         )}
         value={value}
