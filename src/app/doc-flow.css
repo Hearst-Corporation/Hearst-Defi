@@ -2507,7 +2507,9 @@
   margin-bottom: var(--ct-space-8);
   border-radius: var(--ct-radius-xl);
   border: 1px solid var(--ct-graphite-border-nested);
-  background: var(--ct-graphite-subtle-bg);
+  /* Fond gris de page (token officiel = gris zinc-900 de Portfolio), au lieu du
+     noir profond --ct-graphite-subtle-bg. Source unique : --ct-surface-page. */
+  background: var(--ct-surface-page);
 }
 
 .ct-bento-page__body {

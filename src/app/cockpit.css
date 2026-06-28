@@ -106,6 +106,12 @@
   --ct-surface-2: color-mix(in oklch, #26272D, var(--ct-accent) 0%);
   --ct-surface-3: color-mix(in oklch, #2E3038, var(--ct-accent) 0%);
 
+  /* Fond gris des PANELS DE PAGE (le grand wrapper bento qui contient une page
+     admin/produit). Token officiel = le gris zinc-900 (#18181b) que Portfolio
+     porte historiquement en dur via bg-zinc-900. Une seule source : changer ici
+     change le fond de toutes les pages en BentoPageShell / .ct-bento-page. */
+  --ct-surface-page: #18181b;
+
   /* Canvas central (body) — un cran PLUS CLAIR que le noir des boxes/rails, pour
      que les boxes noires se détachent comme des dalles. Porte aussi le dot-grid
      (déplacé des rails). Token DS — aucun hex hardcodé dans les usages. */

@@ -151,20 +151,20 @@ export default async function AuditLogPage({
 
       {/* Results */}
       <section className="flex flex-col gap-4" aria-label="Audit entries">
-        <h2 className="text-[13px] font-semibold tracking-tight text-white">
+        <h2 className="text-[13px] font-semibold tracking-tight ct-text-strong">
           {hasFilters ? "Filtered results" : "Recent events"}{" "}
-          <span className="text-zinc-500 tabular-nums">({entries.length})</span>
+          <span className="ct-text-muted tabular-nums">({entries.length})</span>
         </h2>
 
         {entries.length === 0 ? (
           <BentoPanel className="items-center justify-center px-5 py-12 text-center">
-            <p className="text-[13px] text-zinc-400">
+            <p className="text-[13px] ct-text-secondary">
               {hasFilters
                 ? "No admin activity matches the current filter."
                 : "No admin activity recorded yet."}
             </p>
             {hasFilters ? (
-              <p className="mt-1.5 max-w-sm text-[12px] text-zinc-600">
+              <p className="mt-1.5 max-w-sm text-[12px] ct-text-faint">
                 Adjust the criteria above or clear all filters to see the full
                 log.
               </p>
@@ -186,7 +186,7 @@ export default async function AuditLogPage({
                 {entries.map((entry) => (
                   <TableRow key={entry.id}>
                     {/* When */}
-                    <TableCell className="align-top font-mono text-[12px] text-zinc-500">
+                    <TableCell className="align-top font-mono text-[12px] ct-text-muted">
                       {formatAdminAuditTimestamp(entry.occurredAt)}
                     </TableCell>
 
@@ -194,13 +194,13 @@ export default async function AuditLogPage({
                     <TableCell className="align-top">
                       <div className="flex flex-col gap-1">
                         <span
-                          className="font-mono text-[12px] text-zinc-300"
+                          className="font-mono text-[12px] ct-text-body"
                           title={entry.actorWallet}
                         >
                           {truncateWallet(entry.actorWallet)}
                         </span>
                         {entry.ip ? (
-                          <span className="text-[12px] text-zinc-500">{entry.ip}</span>
+                          <span className="text-[12px] ct-text-muted">{entry.ip}</span>
                         ) : null}
                       </div>
                     </TableCell>
@@ -213,10 +213,10 @@ export default async function AuditLogPage({
                     {/* Entity */}
                     <TableCell className="hidden align-top lg:table-cell">
                       <div className="flex flex-col gap-1">
-                        <span className="text-[12px] font-medium text-white">
+                        <span className="text-[12px] font-medium ct-text-strong">
                           {entry.entityType}
                         </span>
-                        <span className="font-mono text-[12px] text-zinc-500">
+                        <span className="font-mono text-[12px] ct-text-muted">
                           {entry.entityId}
                         </span>
                       </div>
@@ -225,14 +225,14 @@ export default async function AuditLogPage({
                     {/* Details — before/after diff in a native <details> */}
                     <TableCell className="align-top whitespace-normal">
                       <details className="group flex flex-col gap-1.5">
-                        <summary className="cursor-pointer select-none list-none text-[12px] text-zinc-500 hover:text-zinc-300">
+                        <summary className="cursor-pointer select-none list-none text-[12px] ct-text-muted hover:ct-text-body">
                           <span className="group-open:hidden">Show diff</span>
                           <span className="hidden group-open:inline">Hide diff</span>
                         </summary>
                         <DiffBlock label="Before" value={entry.before} muted />
                         <DiffBlock label="After" value={entry.after} />
                         {entry.userAgent ? (
-                          <p className="truncate text-[12px] text-zinc-500">
+                          <p className="truncate text-[12px] ct-text-muted">
                             UA: {entry.userAgent}
                           </p>
                         ) : null}
@@ -249,8 +249,8 @@ export default async function AuditLogPage({
           <p className="ct-bento-label">Audit retention</p>
           <p className="text-[12px] ct-text-muted">
             Showing up to 200 entries per query. Entries written by{" "}
-            <code className="font-mono text-zinc-300">recordAdminAudit()</code>{" "}
-            are append-only; export directly from the database for formal
+            <code className="font-mono ct-text-body">recordAdminAudit()</code>{" "}
+            are append-only — export directly from the database for formal
             compliance reporting.
           </p>
         </div>
