@@ -57,7 +57,7 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
               onChange={(e) => setChatMarkdownEnabled(e.target.checked)}
               className="peer sr-only"
             />
-            <span className="h-5 w-9 rounded-full border border-white/10 bg-[#15191C] transition-colors duration-150 peer-checked:border-[#A7FB90] peer-checked:bg-[#A7FB90]" />
+            <span className="h-5 w-9 rounded-full border border-white/10 bg-[#15191C] transition-colors duration-150 peer-checked:border-[var(--ct-accent)] peer-checked:bg-[var(--ct-accent)]" />
             <span className="pointer-events-none absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-zinc-400 transition-transform duration-150 peer-checked:translate-x-4 peer-checked:bg-black" />
           </span>
         </label>
@@ -71,7 +71,7 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
       <section className="rounded-lg border border-white/10 bg-[#15191C] p-4">
         <div className={MICRO_LABEL}>Product context</div>
         <div className="mt-2 flex items-center gap-2 rounded-lg border border-white/5 bg-black px-3 py-2.5">
-          <span className="h-2 w-2 shrink-0 rounded-full bg-[#A7FB90] shadow-[0_0_8px_#A7FB90]" />
+          <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--ct-accent)] shadow-[0_0_8px_var(--ct-accent)]" />
           <span className="truncate text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
             {productName ?? "—"}
           </span>

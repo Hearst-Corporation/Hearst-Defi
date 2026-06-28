@@ -10,7 +10,7 @@ import type {
  */
 
 const TONE: Record<SourceTruthStatus, string> = {
-  LIVE: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  LIVE: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   FALLBACK: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   CONFIGURED: "border-sky-400/30 bg-sky-400/10 text-sky-300",
   MOCK: "border-zinc-500/30 bg-zinc-500/10 text-zinc-400",

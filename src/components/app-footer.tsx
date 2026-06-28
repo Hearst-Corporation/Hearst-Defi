@@ -77,7 +77,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
           ))}
         </nav>
         <span className="app-footer__brand text-[12px] text-zinc-500">
-          <span aria-hidden className="app-footer__diamond text-[#A7FB90]">
+          <span aria-hidden className="app-footer__diamond text-[var(--ct-accent)]">
             ◆
           </span>
           Hearst Yield Vault

@@ -88,7 +88,7 @@ export function VaultPanelLink({
       {...rest}
       href={href}
       className={cn(
-        "text-[12px] font-medium text-[#A7FB90] no-underline transition-colors hover:underline",
+        "text-[12px] font-medium text-[var(--ct-accent)] no-underline transition-colors hover:underline",
         className,
       )}
     >

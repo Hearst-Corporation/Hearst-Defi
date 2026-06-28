@@ -6,8 +6,9 @@ import { describe, expect, it } from "vitest";
 
 import { BentoPageShell, BentoPanel } from "@/components/ui/bento";
 
+// Bento canon now lives in catalyst/; ui/bento.tsx is a thin re-export façade.
 const BENTO_SRC = readFileSync(
-  join(process.cwd(), "src/components/ui/bento.tsx"),
+  join(process.cwd(), "src/components/catalyst/bento.tsx"),
   "utf8",
 );
 

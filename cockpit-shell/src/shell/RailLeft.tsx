@@ -139,14 +139,14 @@ function UserBadge({ appId }: { appId: string }) {
           délibéré, donc aucun clic involontaire ne peut signer out. */}
       <button
         type="button"
-        className="group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#15191C] text-[12px] font-semibold tracking-wide text-zinc-200 transition-colors duration-150 hover:border-[#A7FB90]/40 hover:text-white"
+        className="group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#15191C] text-[12px] font-semibold tracking-wide text-zinc-200 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-white"
         title="Profile & settings"
         aria-label="Profile & settings"
         onClick={() => router.push("/profile")}
       >
         {display}
         <span
-          className="absolute -bottom-0.5 -right-0.5 block h-3 w-3 rounded-full bg-[#A7FB90] ring-2 ring-[#0B0E10]"
+          className="absolute -bottom-0.5 -right-0.5 block h-3 w-3 rounded-full bg-[var(--ct-accent)] ring-2 ring-[#0B0E10]"
           aria-hidden="true"
         />
       </button>

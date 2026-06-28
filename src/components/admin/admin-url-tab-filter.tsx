@@ -42,7 +42,7 @@ export function AdminUrlTabFilter({
             className={cn(
               "inline-flex items-center rounded-lg border px-3 py-1.5 text-[12px] font-medium tracking-wide transition-colors",
               isActive
-                ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+                ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
                 : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
             )}
           >

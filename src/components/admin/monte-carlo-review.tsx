@@ -186,7 +186,7 @@ export function MonteCarloReview({
             {(result.probBelowFloor * 100).toFixed(1)}%
           </span>
           &ensp;·&ensp;range:{" "}
-          <span className="font-semibold tabular-nums text-[#A7FB90]">
+          <span className="font-semibold tabular-nums text-[var(--ct-accent)]">
             {fmtPct(p5)}%&ndash;{fmtPct(p95)}%
           </span>
         </p>
@@ -217,7 +217,7 @@ interface MetricCellProps {
 function MetricCell({ label, value, tone }: MetricCellProps) {
   const valueClass =
     tone === "accent"
-      ? "tabular-nums text-[16px] font-medium text-[#A7FB90]"
+      ? "tabular-nums text-[16px] font-medium text-[var(--ct-accent)]"
       : tone === "primary"
         ? "tabular-nums text-[16px] font-medium text-white"
         : "tabular-nums text-[16px] font-medium text-zinc-400";

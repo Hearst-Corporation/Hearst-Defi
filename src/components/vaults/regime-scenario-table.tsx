@@ -3,7 +3,7 @@ import { deriveStressRegimes, type StressRegime } from "@/lib/constants/vault";
 import type { VaultProduct } from "@/lib/data/vaults";
 
 const TONE_DOT: Record<StressRegime["tone"], string> = {
-  success: "bg-[#A7FB90]",
+  success: "bg-[var(--ct-accent)]",
   danger: "bg-zinc-600",
 };
 
@@ -100,7 +100,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                   {row.scenario}
                 </td>
                 <td className="px-4 py-4 align-top">
-                  <span className="text-[14px] font-medium text-[#A7FB90] tabular-nums whitespace-nowrap">
+                  <span className="text-[14px] font-medium text-[var(--ct-accent)] tabular-nums whitespace-nowrap">
                     {row.apyLow.toFixed(1)} <span className="text-zinc-500 mx-0.5">—</span>{" "}
                     {row.apyHigh.toFixed(1)} <span className="text-zinc-500">%</span>
                   </span>

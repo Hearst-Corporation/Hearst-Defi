@@ -19,10 +19,10 @@ const ACCENT_STROKES = [
   "rgba(167,251,144,0.12)",
 ] as const;
 const ACCENT_DOT_CLASSES = [
-  "bg-[#A7FB90]",
-  "bg-[#A7FB90]/50",
-  "bg-[#A7FB90]/25",
-  "bg-[#A7FB90]/12",
+  "bg-[var(--ct-accent)]",
+  "bg-[color-mix(in_srgb,var(--ct-accent)_50%,transparent)]",
+  "bg-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)]",
+  "bg-[color-mix(in_srgb,var(--ct-accent)_12%,transparent)]",
 ] as const;
 
 function accentStrokeFor(index: number): string {

@@ -100,7 +100,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
 
       {loading && (
         <div className="flex flex-col items-center gap-3 py-8">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#A7FB90]" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[var(--ct-accent)]" />
           <p className="text-[12px] text-zinc-500">Loading history…</p>
         </div>
       )}

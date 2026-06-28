@@ -30,7 +30,7 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
           Projected APY range
         </span>
 
-        <span className="whitespace-nowrap text-[15px] font-semibold tabular-nums text-[#A7FB90]">
+        <span className="whitespace-nowrap text-[15px] font-semibold tabular-nums text-[var(--ct-accent)]">
           {projection.apyRangeLabel}
         </span>
 
