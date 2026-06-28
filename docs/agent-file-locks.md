@@ -17,217 +17,74 @@ Agents must reserve files here before editing.
 
 ---
 
-## WORKTREE & BRANCH STATE — SNAPSHOT 2026-06-28
+## WORKTREE & BRANCH STATE — SNAPSHOT 2026-06-28 (rafraîchi)
 
 > Vue de coordination des worktrees / branches / PRs réellement vivants. À tenir
-> à jour quand un worktree naît ou meurt. `origin/main` HEAD = `3dd02518`
-> (PR #144 — projection truth source — mergée).
+> à jour quand un worktree naît ou meurt. `origin/main` HEAD = `a5d05fb1`
+> (PR #183 — HcValueChart test — mergée).
 
-### Worktrees vivants
+### Worktrees vivants (vérité `git worktree list`)
 
 | Worktree | Branche | vs origin/main | Statut | Action |
 |---|---|---|---|---|
-| `connect — Hearst Defi/` (principal) | `fix/projection-truth-source-clean` | ahead 0 (mergé via #144) | ⚠️ tree principal sur branche mergée | **ne pas dev ici** — `git switch main` recommandé |
-| `connect-defi-market-data` | `feat/defi-market-data` | ahead 3 | **active** (lock posé) | garder — data-layer en cours |
-| `connect-outreach-regex` | `fix/outreach-regex-continuity` | ahead 1 | **ready-pr** — PR #114 ouverte | garder jusqu'au merge #114 |
-| `/private/tmp/claude-501/wt-nav-p0` | `fix/nav-augmented-profile-guard` | ahead 0 (mergé #143) | **stale** | retirer après confirmation no-agent-actif |
-| `/private/tmp/claude-501/wt-chat-catalyst` | `feat/chat-catalyst-primitives` | ahead 0 (mergé) | **stale** | retirer après confirmation no-agent-actif |
-| `connect-outreach-draft-fix` | `fix/outreach-draft-continuity` | ahead 0 (mergé #116) | **stale** | retirer après confirmation no-agent-actif |
+| `connect — Hearst Defi/` (principal) | `main` | aligné | propre | tree d'intégration / orchestrateur |
+| `connect-catalyst-absorption` | `fix/catalyst-absorption` | ahead (en cours) | **active** (lock posé) | MISSION #043 Catalyst absorption |
+
+> Tous les autres worktrees référencés dans les snapshots précédents (connect-ds-canon,
+> connect-ds-authority-lock, connect-defi-market-data, wt-nav-p0, wt-chat-catalyst,
+> connect-outreach-draft-fix, connect-outreach-regex) **n'existent plus physiquement** —
+> retirés ou jamais recréés. `git worktree list` ne connaît que les deux ci-dessus.
 
 ### PRs ouvertes
 
-- **#114** — `fix/outreach-regex-continuity` — outreach regex workflow.
-- **#81** — `feat/agentic-premium-redesign-from-local` — agentic control tower redesign.
+- **#146** — `purge-css-final` — purge CSS finale, **DRAFT / PARKED**, ne pas toucher.
+- **#81** — `feat/agentic-premium-redesign-from-local` — agentic redesign, `CONFLICTING`.
 
 ### Branches parquées / à statuer (NE PAS merger dans une passe docs)
 
-- **`purge-css-final`** (ahead 3) — purge CSS finale **parquée**. **Ne pas merger
-  maintenant. Ne pas rebase** tant que le menu projection n'est pas stable.
-- `chore/purge-dead-ds-css` (ahead 1) — résolution de marqueurs de conflit CSS ;
-  vérifier si superseded par les purges DS déjà sur `main` avant de décider.
-- `purge-dead-css-iso` (ahead 0) — entièrement sur `main`, branche stale.
-- `fix/projection-truth-source` (ahead 2) — contenu intégré via #144 ; à clôturer.
-- `chore/simplify-projection-menu` (ahead 0) — mergé (#142), branche stale.
+- **`purge-css-final`** (#146) — purge CSS finale **parquée**. **Ne pas merger, ne pas rebase.**
+- `feat/agentic-premium-redesign-from-local` (#81) — `CONFLICTING`, l'agent rebasera.
 
-### Nettoyage stale (À EXÉCUTER UNIQUEMENT après confirmation qu'aucun agent n'y tourne)
+### Branches obsolètes confirmées (remote présent mais entièrement sur main)
 
-```bash
-# Worktrees dont la branche est entièrement sur main (ahead 0) :
-git worktree remove /private/tmp/claude-501/wt-nav-p0
-git worktree remove /private/tmp/claude-501/wt-chat-catalyst
-git worktree remove "../connect-outreach-draft-fix"
-# Tree principal : revenir sur main (working tree clean, rien à perdre) :
-#   cd "connect — Hearst Defi" && git switch main && git pull --ff-only
-# Branches locales entièrement mergées :
-git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
-              fix/outreach-draft-continuity purge-dead-css-iso \
-              chore/simplify-projection-menu fix/projection-truth-source-clean
-```
-
-> `purge-css-final`, `feat/defi-market-data`, `fix/outreach-regex-continuity` (#114),
-> `feat/agentic-premium-redesign-from-local` (#81) sont **vivantes** — ne pas toucher.
+- `feat/ds-canon-propagation` — mergée dans main (commit `a505985e`). Lock retiré.
+- `feat/kimi-deterministic-intent-router-v2`, `feat/nav-deterministic-backfill`,
+  `fix/projection-truth-source` — `CONFLICT_REBASE` (cf. rapport orchestrateur) ;
+  contenu partiellement/intégralement dépassé par main. À rebaser par leurs agents ou clôturer.
 
 ---
 
 ## ACTIVE LOCKS
 
-### feat/ds-canon-propagation
-Owner: Claude Opus — DS Canon Propagation (admin + auth/legal + onboarding)
-Branch: feat/ds-canon-propagation
-Worktree: ../connect-ds-canon
+> NOTE 2026-06-28 : tous les locks « actifs » précédents (feat/ds-canon-propagation —
+> mergé dans main ; fix/ds-authority-lock, fix/outreach-draft-continuity,
+> squad/portfolio-premium-foundations, feat/defi-market-data — sans remote ni worktree
+> vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
+> ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
+
+### fix/catalyst-absorption
+Owner: Claude Opus — MISSION #043 Catalyst Absorption Migration
+Branch: fix/catalyst-absorption
+Worktree: ../connect-catalyst-absorption
 Started: 2026-06-28
 Status: active
 
-Goal: propagate the rendered canon (Catalyst structure + --ct-* tokens, portfolio
-typographic source of truth) to the surfaces NOT owned by the concurrent
-fix/investor-registry-catalyst-ds worktree. Delete the bad: hardcoded hex/rgba,
-non-token greens, deprecated surfaces (.ct-system-panel/.glass-panel*), duplicated
-inline primitives. Canon reference page = /admin/customers.
+Goal: migrate the DS toward Catalyst by ABSORPTION (no brutal deletion). Turn
+src/components/ui primitives into temporary compatibility wrappers that delegate
+to src/components/catalyst. Fix the typography debt roots that propagate hardcodes.
 
-Scope (ONLY these — admin pages NOT owned elsewhere + auth/legal + onboarding):
-- src/app/admin/dashboard/page.tsx
-- src/app/admin/governance/** (page, allowlist, propose, proposal/[id])
-- src/app/admin/outreach/** (page, compose, [campaignId], prospects/[id])
-- src/app/admin/signals/page.tsx
-- src/app/admin/monitoring/page.tsx
-- src/app/admin/security/page.tsx
-- src/app/admin/distributions/page.tsx
-- src/app/admin/feedback/page.tsx
-- src/app/admin/audit/page.tsx
-- src/app/admin/agents/** (page, new, [id])
-- src/app/admin/agent-canvas/[canvasId]/page.tsx
-- src/app/admin/investor-memo/page.tsx
-- src/app/admin/projection/** (page, preview) — visual only, no calc
-- src/app/admin/proofs/page.tsx
-- src/app/admin/proof-center/** (page, full)
-- src/app/admin/roadmap/page.tsx
-- src/app/admin/scenario-lab/page.tsx
-- src/app/admin/source/page.tsx
-- src/app/admin/spec/** (page, [slug])
-- src/app/admin/vaults/** (admin vault list/detail/edit/new — NOT product /vaults)
-- src/app/admin/onboarding-test/page.tsx
-- src/app/(product)/onboarding/** (page, identity, accreditation, wallet)
-- src/app/login/page.tsx, forgot-password, reset-password, totp-challenge
-- src/app/legal/** (page, terms, privacy, disclaimer)
-- src/app/apply/** (page, confirmed)
-- Page-local + admin-scoped components consumed ONLY by the above pages.
+Scope (wrappers + roots only — no page-mass rewrite, no deletion):
+- src/components/ui/badge.tsx, button.tsx, card.tsx, bento.tsx, empty-surface.tsx,
+  provenance-badge.tsx (→ Catalyst-delegating wrappers)
+- src/components/catalyst/* (complete only the primitives needed to absorb ui/*)
+- src/components/admin/admin-detail-layout.tsx, admin-table-layout.tsx,
+  cockpit-panel-header.tsx (typography roots)
+- src/app/admin/product-workspace/page.tsx (semantic h2)
+- src/lib/proof-center/full-log-loader.ts (server-only)
 
-EXCLUSIONS (owned by other live worktrees — DO NOT TOUCH):
-- ALL portfolio (page, positions, activity, distributions, tax, yield, [positionId]),
-  ALL product invest/vault flow (/vaults/[id], invest, confirmed), profile,
-  customers (page + [id]) → fix/investor-registry-catalyst-ds.
-- src/app/admin/marketplace/page.tsx, nav files → feat/defi-market-data.
-- Shared DS-sensitive files: src/app/cockpit.css, doc-flow.css, doc-flow-typography.css,
-  globals.css, CATALYST_CANON_REFERENCE.md, DS_SINGLE_SOURCE_OF_TRUTH.md,
-  .cursor/rules/design-system.mdc, scripts/ds-hardcode-guard.mjs, package.json,
-  cockpit-shell/** — all being edited by fix/investor-registry-catalyst-ds.
-- src/components/catalyst/*.tsx, src/components/ui/*.tsx — #037 primitives lock
-  LIFTED BY USER for this mission, but coordinate: edit a primitive only if no
-  page-level fix suffices, and never in lockstep with the registry worktree's open edits.
-
-### fix/ds-authority-lock
-Owner: Claude Opus — DS Authority Lock (Mission #037)
-Branch: fix/ds-authority-lock
-Worktree: ../connect-ds-authority-lock
-Started: 2026-06-28
-Status: active
-
-Scope (net-new files only — zero edit-overlap with active DS worktrees):
-- README_DESIGN_SYSTEM.md
-- src/components/catalyst/README.md
-- src/components/ui/README.md
-- src/lib/ds/__tests__/ds-authority-lock.test.ts
-
-Notes:
-- Lock Catalyst as canonical UI component layer; mark src/components/ui legacy
-  (no brutal delete). Cockpit-shell stays shell/tokens.
-- DELIBERATELY NOT touching the contested DS files owned by other live worktrees:
-  .cursor/rules/design-system.mdc, docs/CATALYST_CANON_REFERENCE.md,
-  scripts/ds-hardcode-guard.mjs, src/components/catalyst/*.tsx, src/components/ui/*.tsx,
-  src/components/dataviz/his/* (charts agent).
-- No charts/dataviz/Prisma/projection/chat/nav/outreach. #146 untouched.
-
-_(aucun autre lock actif)_
-
----
-
-> NOTE 2026-06-27 : locks fantômes portfolio/vault purgés (agents finis sur main,
-> aucun worktree/branche dédiée vivante). Le chantier "recode des surfaces A→Z"
-> (Catalyst + DS) reprend la main sur portfolio/vaults. Locks retirés :
-> portfolio-status-ds-absorption, value-chart-recode, portfolio-rhythm-realignment,
-> agentic-tower-table-console (vault flow), capital-yield-dimension-cleanup,
-> portfolio-value-chart-rebuild.
-
-### fix/outreach-draft-continuity
-Owner: Opus Orchestrateur — Outreach Regex Router / Campaign Continuity
-Branch: fix/outreach-draft-continuity
-Merged PR: #116 (merge a86218b2)
-Released: 2026-06-26
-Status: merged
-
-Result:
-- Regex-only outreach campaign workflow: intent detection (5 patterns), slot extraction
-  (campaignName + campaignType, 3-priority parser), correction "tu m'as déjà demandé",
-  campaign navigation (7 patterns, sourcing blocked), sourcing gate (gated/confirmed only).
-- Workflow state (none|prepared|created), draftStatus never promoted without real campaignId.
-- resolveOutreachCampaignRoute: campaign_detail → /admin/outreach/campaigns/${id},
-  campaign_draft → /admin/outreach?name=...&kind=..., outreach_workspace fallback.
-- Hardcoded response templates: slot ack, correction recap, nav ack, sourcing gate.
-- "I can guide and analyze, not transact" supprimé du flow Outreach.
-- 32/32 tests PASS. typecheck PASS. smoke exact PASS.
-- No Prisma, no UI redesign, no autonomous sourcing/send, no LLM routing for outreach.
-
----
-
-### squad/portfolio-premium-foundations
-Owner: Agent — Portfolio Premium Foundations (DS tokens + DOM cleanup)
-Branch: main (worktree shared)
-Released: 2026-06-26
-Status: merged
-Files:
-- src/app/cockpit.css (DS tokens foundations)
-- src/app/(product)/portfolio/page.tsx (DOM cleanup, flat modules)
-- src/app/(product)/portfolio/portfolio.css (flat modules styles)
-- scripts/ds-token-allowlist.json (allowlist update)
-- docs/DESIGN_SYSTEM.md (doc update)
-- docs/DS_SINGLE_SOURCE_OF_TRUTH.md (doc update)
-
-Result:
-- Updated DS tokens for premium fintech look (tinted surfaces, softened text, fine hairlines).
-- Portfolio cleanup: support modules passed to flat rendering, cage-in-cage removed, hairlines added.
-- PositionCards remains the primary opaque surface.
-- Quality gate findings (185 clones, 10 dead code) are pre-existing in unrelated agentic modules.
-
----
-
-### feat/defi-market-data
-Owner: Agent — DeFi Market Data Loaders (free APIs)
-Branch: feat/defi-market-data (worktree ../connect-defi-market-data)
-Reserved: 2026-06-27
-Note: NEW data-layer module — free crypto/DeFi market feeds (Binance REST price,
-      Chainlink on-chain stablecoin prices + DefiLlama fallback, DefiLlama lending
-      yields per protocol, DefiLlama protocol TVL). All files are new except the
-      env.ts additions (additive optional env vars only). Does NOT touch the locked
-      src/lib/data/portfolio.ts or any portfolio/vault UI under squad locks.
-Files:
-- src/lib/data/binance-price.ts
-- src/lib/data/stablecoin-prices.ts
-- src/lib/data/lending-yields.ts
-- src/lib/data/protocol-tvl.ts
-- src/lib/data/__tests__/binance-price.test.ts
-- src/lib/data/__tests__/stablecoin-prices.test.ts
-- src/lib/data/__tests__/lending-yields.test.ts
-- src/lib/data/__tests__/protocol-tvl.test.ts
-- src/lib/env.ts (additive optional vars only: ETH_RPC_URL, Chainlink stablecoin
-    aggregator overrides, BINANCE_API_BASE_URL, DEFILLAMA_* base URLs — no edits to
-    existing fields)
-- src/lib/circuit-breaker.ts (additive `reset()` method only — test isolation;
-    zero runtime behavior change, benefits the existing defillama.ts breaker too)
-- src/app/admin/marketplace/page.tsx (NEW read-only admin page consuming the loaders)
-- src/components/nav/product-nav-items.ts (additive "Marketplace" tab under the
-    Strategy section only — one line, no edits to other sections)
-- src/components/nav/product-rail-intra.tsx (additive TrendingUp icon import +
-    ICON_MAP entry only — needed so the Marketplace nav icon renders)
+STOP: never touches Prisma/migrations/engine/projection-calc/chat-nav/outreach/#146,
+never restores the deleted value-chart.test.tsx, never touches HcValueChart unless
+typecheck forces it.
 
 ---
 
