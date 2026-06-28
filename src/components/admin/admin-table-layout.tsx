@@ -36,7 +36,7 @@ export function AdminTable<T>({
                 <th
                   key={i}
                   className={cn(
-                    "px-5 py-3 text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap text-zinc-500",
+                    "ct-bento-label px-5 py-3 whitespace-nowrap",
                     colWidths?.[i],
                   )}
                 >
@@ -81,7 +81,7 @@ export function AdminPagination({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 py-4">
-      <p className="text-[12px] text-zinc-500 tabular-nums">
+      <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] tabular-nums">
         Showing {start}-{end} of {total}
       </p>
       <div className="flex items-center gap-2">
