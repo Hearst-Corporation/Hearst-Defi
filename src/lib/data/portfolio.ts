@@ -332,12 +332,16 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     loadHourlyValueSnapshots(investor.id, chartStart),
   ]);
 
-  // Prefer real persisted hourly prints. When history is sparse (<2 points —
-  // fresh account, dev, or pre-cron), reconstruct the value path deterministically
-  // from the real position anchors so the chart shows the account's actual
-  // trajectory instead of a flat line. Zero accounts reconstruct to [] (stay empty).
+  // Prefer real persisted hourly prints, but only when they actually VARY. The
+  // cron records principal + *current* accrued at every hour, so a static
+  // position back-fills as a flat constant series (every past row shows today's
+  // total) — that reads as a dead-flat line and misrepresents history. When the
+  // persisted series has <2 distinct values (sparse OR constant), reconstruct the
+  // value path deterministically from the real position anchors instead. Zero
+  // accounts reconstruct to [] (stay empty).
+  const distinctValues = new Set(navSnapshots.map((s) => s.valueUsdc)).size;
   const valueSeries =
-    navSnapshots.length >= 2
+    distinctValues >= 2
       ? navSnapshots
       : await reconstructInvestorNavSeries(investor.id, chartStart);
 
