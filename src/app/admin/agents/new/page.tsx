@@ -3,8 +3,8 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
-import { BentoPanel } from "@/components/ui/bento";
 import {
   BASE_AGENTS,
   type BaseAgent,
@@ -43,11 +43,11 @@ export default async function NewAgentTemplatePage({
             </Link>
           }
         />
-        <BentoPanel aria-label="New template">
+        <AdminSectionCard ariaLabel="New template" title="Template details">
           <div className="p-5 lg:p-6">
             <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
           </div>
-        </BentoPanel>
+        </AdminSectionCard>
       </div>
     </div>
   );
