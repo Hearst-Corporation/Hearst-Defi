@@ -5,7 +5,13 @@
 
 import Link from "next/link";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  TABLE_HEAD,
+  TABLE_WRAP,
+  ROW,
+} from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/catalyst/button";
 import {
@@ -42,12 +48,6 @@ export const metadata = {
   title: "Outreach — Hearst Connect",
 };
 
-// Shared Catalyst table chrome (mirrors /admin/customers canon).
-const TABLE_HEAD = "bg-transparent ct-bento-label";
-const TABLE_WRAP = "max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap";
-const ROW =
-  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
-
 export default async function OutreachPage() {
   const [stats, prospects, campaigns, icps] = await Promise.all([
     computeOutreachStats(),
@@ -59,22 +59,19 @@ export default async function OutreachPage() {
   const autonomy = getOutreachAutonomyStatus();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Outreach"
-          titleAccent="Console"
-          actions={
-            <div className="flex flex-wrap items-center gap-4">
-              <OutreachStatsCards stats={stats} />
-              <div className="hidden h-8 w-px bg-[var(--ct-border)] lg:block" />
-              <Button href="/admin/outreach/compose" className={CATALYST_ACCENT_BTN}>
-                Compose email
-              </Button>
-            </div>
-          }
-        />
-
+    <AdminPageShell
+      titleLead="Outreach"
+      titleAccent="Console"
+      headerActions={
+        <div className="flex flex-wrap items-center gap-4">
+          <OutreachStatsCards stats={stats} />
+          <div className="hidden h-8 w-px bg-[var(--ct-border)] lg:block" />
+          <Button href="/admin/outreach/compose" className={CATALYST_ACCENT_BTN}>
+            Compose email
+          </Button>
+        </div>
+      }
+    >
         {/* Primary Control: Autonomy & Readiness Strip */}
         <section aria-label="Outreach status">
           <OutreachAutonomyPanel status={autonomy} />
@@ -85,25 +82,23 @@ export default async function OutreachPage() {
           {/* Left: Primary Operator Content */}
           <div className="flex flex-col gap-5">
             {/* Prospect directory */}
-            <section
-              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-              aria-label="Prospects"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] p-5">
-                <div className="flex min-w-0 flex-col gap-1">
-                  <h2 className="ct-section-title">
-                    Prospect directory{" "}
-                    <span className="font-normal tabular-nums text-[var(--ct-text-muted)]">
-                      ({prospects.total})
-                    </span>
-                  </h2>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
+            <AdminSectionCard
+              ariaLabel="Prospects"
+              title={
+                <>
+                  Prospect directory{" "}
+                  <span className="font-normal tabular-nums text-[var(--ct-text-muted)]">
+                    ({prospects.total})
+                  </span>
+                </>
+              }
+              headerTrailing={
+                <>
                   <ProspectAddForm />
                   <ProspectImportForm />
-                </div>
-              </div>
-
+                </>
+              }
+            >
               {prospects.rows.length === 0 ? (
                 <EmptySurface
                   variant="widget"
@@ -172,28 +167,22 @@ export default async function OutreachPage() {
                   </TableBody>
                 </Table>
               )}
-            </section>
+            </AdminSectionCard>
 
             {/* Campaigns */}
-            <section
-              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-              aria-label="Campaigns"
+            <AdminSectionCard
+              ariaLabel="Campaigns"
+              title={
+                <>
+                  Campaign queue{" "}
+                  <span className="font-normal tabular-nums text-[var(--ct-text-muted)]">
+                    ({campaigns.length})
+                  </span>
+                </>
+              }
+              subtitle="Define mandates, monitor drafting, and review recipient workflows."
+              headerTrailing={<CampaignForm />}
             >
-              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--ct-border-soft)] p-5">
-                <div className="flex min-w-0 flex-col gap-1">
-                  <h2 className="ct-section-title">
-                    Campaign queue{" "}
-                    <span className="font-normal tabular-nums text-[var(--ct-text-muted)]">
-                      ({campaigns.length})
-                    </span>
-                  </h2>
-                  <p className="ct-metric-caption">
-                    Define mandates, monitor drafting, and review recipient workflows.
-                  </p>
-                </div>
-                <CampaignForm />
-              </div>
-
               {campaigns.length === 0 ? (
                 <EmptySurface
                   variant="widget"
@@ -251,7 +240,7 @@ export default async function OutreachPage() {
                   </TableBody>
                 </Table>
               )}
-            </section>
+            </AdminSectionCard>
           </div>
 
           {/* Right: Lead Engine Sidebar */}
@@ -272,7 +261,6 @@ export default async function OutreachPage() {
             </section>
           </aside>
         </div>
-      </div>
-    </div>
+    </AdminPageShell>
   );
 }

@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/catalyst/badge";
 import {
@@ -60,18 +60,15 @@ export default async function CustomersPage({
   const kpiCells = buildCustomersKpiStrip(customers, total);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Investor"
-          titleAccent="Registry"
-          contextLabel="Investor Base"
-        />
-
-        {/* Header noir (titre + bouton) → KPI plats → tableau Catalyst, tout
-            soudé dans UNE box card (pattern Portfolio "Capital & Yield" /
-            "Active Positions"). Composants Catalyst (Table/Badge), zéro scroll
-            horizontal — colonnes full-width de gauche à droite. */}
+    <AdminPageShell
+      titleLead="Investor"
+      titleAccent="Registry"
+      contextLabel="Investor Base"
+      headerActions={<CreateInvestorButton />}
+    >
+        {/* Header noir (KPI) → sous-header → tableau Catalyst, tout soudé dans
+            UNE box card (pattern Portfolio "Capital & Yield" / "Active
+            Positions"). Le CTA "New investor" vit dans le header de page. */}
         <section
           className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
           aria-label="Investors"
@@ -81,7 +78,6 @@ export default async function CustomersPage({
               kpis={kpiCells}
               title="Investor Base"
               subtitle={`${total} registered ${total === 1 ? "account" : "accounts"}`}
-              action={<CreateInvestorButton />}
               embedded
             />
           )}
@@ -250,7 +246,6 @@ export default async function CustomersPage({
             </Table>
           </section>
         )}
-      </div>
-    </div>
+    </AdminPageShell>
   );
 }

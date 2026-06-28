@@ -1,12 +1,12 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { FeedbackForm } from "@/components/admin/feedback-form";
 import { FeedbackList } from "@/components/admin/feedback-list";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { BentoPanel, BentoHeader } from "@/components/ui/bento";
 import { prisma } from "@/lib/db";
 import { buildFeedbackKpiStrip } from "@/lib/admin/feedback-kpi-strip";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = { title: "Feedback — Hearst Connect" };
 
 export default async function FeedbackPage() {
   const items = await prisma.feedback.findMany({
@@ -17,31 +17,33 @@ export default async function FeedbackPage() {
   const kpis = buildFeedbackKpiStrip(items);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Feedback"
-          titleAccent="Review"
-          contextLabel="Feedback Review"
-        />
+    <AdminPageShell
+      titleLead="Feedback"
+      titleAccent="Review"
+      contextLabel="Feedback Review"
+    >
+      {/* Submit + KPI welded into one card (the /customers "Investor Base" shape). */}
+      <AdminSectionCard
+        kpis={kpis}
+        kpiTitle="Feedback Base"
+        kpiSubtitle={`${items.length} ${items.length === 1 ? "entry" : "entries"} logged`}
+        title="Submit feedback"
+        subtitle="Capture what changed, what feels off, and what should happen next."
+        ariaLabel="Submit feedback"
+      >
+        <div className="p-5 lg:p-6">
+          <FeedbackForm />
+        </div>
+      </AdminSectionCard>
 
-        {kpis.length > 0 && <AdminKpiStripPanel kpis={kpis} />}
-
-        <BentoPanel aria-label="Submit feedback">
-          <BentoHeader
-            title="Submit feedback"
-            subtitle="Capture what changed, what feels off, and what should happen next."
-          />
-          <div className="p-5 lg:p-6">
-            <FeedbackForm />
-          </div>
-        </BentoPanel>
-
-        <BentoPanel aria-label="Feedback log">
-          <BentoHeader title={`Feedback log (${items.length})`} />
-          <FeedbackList items={items} />
-        </BentoPanel>
-      </div>
-    </div>
+      {/* Feedback log — its own welded section card. */}
+      <AdminSectionCard
+        title={`Feedback log (${items.length})`}
+        subtitle="Most recent first; resolved items sink to the bottom."
+        ariaLabel="Feedback log"
+      >
+        <FeedbackList items={items} />
+      </AdminSectionCard>
+    </AdminPageShell>
   );
 }

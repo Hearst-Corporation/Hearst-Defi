@@ -4,9 +4,14 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  TABLE_HEAD,
+  TABLE_WRAP,
+  ROW,
+} from "@/components/admin/admin-page-shell";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/catalyst/badge";
 import {
   Table,
@@ -20,8 +25,6 @@ import { loadAgentGraphViews } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
 import {
-  BentoPanel,
-  BentoHeader,
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
 } from "@/components/ui/bento";
@@ -36,14 +39,6 @@ import { buildAgentsKpiStrip } from "@/lib/admin/agents-kpi-strip";
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Agents — Hearst Connect" };
-
-// Shared Catalyst table class literals — same grammar as the canon page
-// (/admin/customers): nano label heads, local horizontal scroll inside the card,
-// hairline rows with a faint hover.
-const TABLE_HEAD = "bg-transparent ct-bento-label";
-const TABLE_WRAP = "max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap";
-const ROW =
-  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 export default async function AgentsPage() {
   const [templates, agentGraphViews] = await Promise.all([
@@ -61,64 +56,61 @@ export default async function AgentsPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Agent"
-          titleAccent="Operations"
-          contextLabel="Agent Operations"
-          actions={
-            <Link href="/admin/agents/new" className={BENTO_PRIMARY_BTN}>
-              New template
-            </Link>
-          }
-        />
-
-        {kpiStrip.length > 0 && <AdminKpiStripPanel kpis={kpiStrip} />}
-
-        {/* ── Agent orchestration ───────────────────────────────────────── */}
-        <BentoPanel aria-label="Agent orchestration">
-          <BentoHeader
-            title="Agent orchestration"
-            subtitle="Live wiring across orchestration, the Master Agent chat pipeline, and every bounded instrument it can call. Particles flow on edges that just ran; bound surfaces pulse by live state. Auto-refreshes."
-            trailing={
-              <div className="flex flex-wrap items-center gap-3 ct-metric-caption">
-                <span className="inline-flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full bg-[var(--ct-accent)]"
-                    aria-hidden
-                  />
-                  Active
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full bg-[var(--ct-text-faint)]"
-                    aria-hidden
-                  />
-                  Idle
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full bg-[var(--ct-status-danger)]"
-                    aria-hidden
-                  />
-                  Failed
-                </span>
-              </div>
-            }
-          />
-          <div className="p-5 lg:p-6">
-            <AgentGraphCanvas initialViews={agentGraphViews} />
+    <AdminPageShell
+      titleLead="Agent"
+      titleAccent="Operations"
+      contextLabel="Agent Operations"
+      headerActions={
+        <Link href="/admin/agents/new" className={BENTO_PRIMARY_BTN}>
+          New template
+        </Link>
+      }
+    >
+      {/* ── Agent orchestration ───────────────────────────────────────── */}
+      <AdminSectionCard
+        kpis={kpiStrip}
+        kpiTitle="Agent Base"
+        title="Agent orchestration"
+        subtitle="Live wiring across orchestration, the Master Agent chat pipeline, and every bounded instrument it can call. Particles flow on edges that just ran; bound surfaces pulse by live state. Auto-refreshes."
+        headerTrailing={
+          <div className="flex flex-wrap items-center gap-3 ct-metric-caption">
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full bg-[var(--ct-accent)]"
+                aria-hidden
+              />
+              Active
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full bg-[var(--ct-text-faint)]"
+                aria-hidden
+              />
+              Idle
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full bg-[var(--ct-status-danger)]"
+                aria-hidden
+              />
+              Failed
+            </span>
           </div>
-        </BentoPanel>
+        }
+        ariaLabel="Agent orchestration"
+      >
+        <div className="p-5 lg:p-6">
+          <AgentGraphCanvas initialViews={agentGraphViews} />
+        </div>
+      </AdminSectionCard>
 
-        {/* ── Base agents ───────────────────────────────────────────────── */}
-        <BentoPanel aria-label="Base agents">
-          <BentoHeader
-            title="Base agents"
-            subtitle="The code agents running across the platform. Pick one to start a new persona template on top of it — without changing the agent itself."
-          />
-          <div className="p-5 lg:p-6 flex flex-col gap-y-6">
+      {/* ── Base agents ───────────────────────────────────────────────── */}
+      <AdminSectionCard
+        title="Base agents"
+        subtitle="The code agents running across the platform. Pick one to start a new persona template on top of it — without changing the agent itself."
+        ariaLabel="Base agents"
+      >
+        <div className="p-5 lg:p-6 flex flex-col gap-y-6">
             {catalogGroups.map((group) => (
               <div key={group.scope} className="flex flex-col gap-y-3">
                 <div className="flex items-center gap-3">
@@ -188,15 +180,14 @@ export default async function AgentsPage() {
               </div>
             ))}
           </div>
-        </BentoPanel>
+      </AdminSectionCard>
 
-        {/* ── Persona templates ─────────────────────────────────────────── */}
-        <BentoPanel aria-label="Persona templates">
-          <BentoHeader
-            title={`Persona templates (${templates.length})`}
-            subtitle="Reusable persona profiles layered on top of a base agent — assignable across investor accounts. Customer-level overrides still take precedence when set."
-          />
-
+      {/* ── Persona templates ─────────────────────────────────────────── */}
+      <AdminSectionCard
+        title={`Persona templates (${templates.length})`}
+        subtitle="Reusable persona profiles layered on top of a base agent — assignable across investor accounts. Customer-level overrides still take precedence when set."
+        ariaLabel="Persona templates"
+      >
           {templates.length === 0 ? (
             <div className="p-5 lg:p-6">
               <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-8 text-center">
@@ -283,8 +274,7 @@ export default async function AgentsPage() {
               </TableBody>
             </Table>
           )}
-        </BentoPanel>
-      </div>
-    </div>
+      </AdminSectionCard>
+    </AdminPageShell>
   );
 }

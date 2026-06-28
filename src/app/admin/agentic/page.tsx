@@ -6,7 +6,7 @@
 // observability, safety boundary). It executes no tool, creates no confirmation
 // token, performs no write, and runs no LLM.
 
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AgenticControlTower } from "@/components/admin/agentic/agentic-control-tower";
 import { getAgenticControlCenterData } from "@/lib/agentic/control-center";
 import {
@@ -38,21 +38,17 @@ export default async function AgenticControlTowerPage({
   const crewSimulations = getCrewSimulations();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead="Agentic"
-          titleAccent="Control Tower"
-          contextLabel={`registry ${controlCenter.version} · read-only`}
-        />
-
-        <AgenticControlTower
-          controlCenter={controlCenter}
-          observability={observability}
-          actionReadiness={actionReadiness}
-          crewSimulations={crewSimulations}
-        />
-      </div>
-    </div>
+    <AdminPageShell
+      titleLead="Agentic"
+      titleAccent="Control Tower"
+      contextLabel={`registry ${controlCenter.version} · read-only`}
+    >
+      <AgenticControlTower
+        controlCenter={controlCenter}
+        observability={observability}
+        actionReadiness={actionReadiness}
+        crewSimulations={crewSimulations}
+      />
+    </AdminPageShell>
   );
 }
