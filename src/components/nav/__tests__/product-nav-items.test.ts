@@ -4,10 +4,30 @@ import {
   ADMIN_JUMP_NAV,
   ADMIN_SECTIONS,
   INVESTOR_VIEW_NAV,
+  PRODUCT_NAV,
   adminSectionToNavItem,
   matchesNavPath,
   visibleSubNavTabs,
 } from "@/components/nav/product-nav-items";
+
+const UNWIRED_PORTFOLIO_LEAVES = [
+  "/portfolio/positions",
+  "/portfolio/activity",
+  "/portfolio/distributions",
+  "/portfolio/yield",
+  "/portfolio/tax",
+] as const;
+
+describe("PRODUCT_NAV — unwired portfolio leaves", () => {
+  it("does not expose blank portfolio sub-leaves in the investor rail", () => {
+    for (const item of PRODUCT_NAV) {
+      for (const leaf of UNWIRED_PORTFOLIO_LEAVES) {
+        expect(item.href).not.toBe(leaf);
+        expect(item.href.startsWith(`${leaf}/`)).toBe(false);
+      }
+    }
+  });
+});
 
 describe("matchesNavPath", () => {
   it("matches exact and nested admin routes only", () => {

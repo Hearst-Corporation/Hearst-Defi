@@ -96,14 +96,10 @@ export default function PortfolioPage() {
 
         {/* CAPITAL & YIELD SECTION */}
         <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
-          <div className="flex items-end justify-between p-5 border-b border-white/5">
+          <div className="p-5 border-b border-white/5">
             <div className="flex flex-col gap-1.5">
               <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Capital & Yield</h2>
               <p className="text-[12px] text-zinc-500 tracking-wide">Active capital · 12m forward yield</p>
-            </div>
-            <div className="flex items-center gap-5 pb-0.5">
-              <a href="#" className="text-[12px] font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">View full →</a>
-              <span className="text-zinc-600">•</span>
             </div>
           </div>
 
@@ -186,14 +182,10 @@ export default function PortfolioPage() {
 
           {/* Calendar Panel */}
           <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col">
-            <div className="flex items-end justify-between p-5 border-b border-white/5">
+            <div className="p-5 border-b border-white/5">
               <div className="flex flex-col gap-1.5">
                 <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Distribution Calendar</h2>
                 <p className="text-[12px] text-zinc-500 tracking-wide">Upcoming payouts</p>
-              </div>
-              <div className="flex items-center gap-5 pb-0.5">
-                <a href="#" className="text-[12px] font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Full schedule →</a>
-                <span className="text-zinc-600">•</span>
               </div>
             </div>
             <div className="p-6 flex flex-col items-center justify-center min-h-[220px]">
@@ -206,14 +198,10 @@ export default function PortfolioPage() {
 
           {/* Activity Panel */}
           <div className="rounded-2xl border border-white/10 bg-black shadow-sm flex flex-col">
-            <div className="flex items-end justify-between p-5 border-b border-white/5">
+            <div className="p-5 border-b border-white/5">
               <div className="flex flex-col gap-1.5">
                 <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Recent Activity</h2>
                 <p className="text-[12px] text-zinc-500 tracking-wide">Deposits & payouts</p>
-              </div>
-              <div className="flex items-center gap-5 pb-0.5">
-                <a href="#" className="text-[13px] font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">View all →</a>
-                <span className="text-zinc-600">•</span>
               </div>
             </div>
             
@@ -291,18 +279,12 @@ export default function PortfolioPage() {
 
         {/* POSITIONS SECTION */}
         <section className="rounded-2xl border border-white/10 bg-black shadow-sm overflow-hidden flex flex-col">
-          <div className="flex items-end justify-between p-5 border-b border-white/5">
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-1.5">
-                <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Active Positions</h2>
-                <p className="text-[12px] text-zinc-500 tracking-wide">Your deployed capital</p>
-              </div>
-              <Badge color="zinc" className="text-[10px]! uppercase tracking-widest bg-white/5 shrink-0 self-start mt-0.5">1 active</Badge>
+          <div className="flex items-center gap-4 p-5 border-b border-white/5">
+            <div className="flex flex-col gap-1.5">
+              <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Active Positions</h2>
+              <p className="text-[12px] text-zinc-500 tracking-wide">Your deployed capital</p>
             </div>
-            <div className="flex items-center gap-5 pb-0.5">
-              <a href="#" className="text-[12px] font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">View all →</a>
-              <span className="text-zinc-600">•</span>
-            </div>
+            <Badge color="zinc" className="text-[10px]! uppercase tracking-widest bg-white/5 shrink-0 self-start mt-0.5">1 active</Badge>
           </div>
 
           <div className="overflow-x-auto">
@@ -337,9 +319,7 @@ export default function PortfolioPage() {
                     <div className="text-[15px] font-medium text-[#A7FB90]">9.4 <span className="text-zinc-500 mx-0.5">—</span> 12.8 <span className="text-zinc-500">%</span></div>
                   </TableCell>
                   <TableCell className="text-right pr-5 py-4">
-                    <a href="#" className="text-zinc-400 hover:text-white transition-colors">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="size-5 inline-block"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-                    </a>
+                    <span className="sr-only">Details unavailable in demo layout</span>
                   </TableCell>
                 </TableRow>
               </TableBody>
