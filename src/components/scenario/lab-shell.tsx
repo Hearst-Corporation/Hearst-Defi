@@ -66,14 +66,14 @@ export function LabShell({
         </div>
 
         {stableYield ? (
-          <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+          <p className="ct-bento-label">
             Stable yield :{" "}
             {stableYield.source === "live" ? (
-              <span className="text-[#A7FB90]">
+              <span className="text-[var(--ct-accent)]">
                 live {stableYield.apyPct?.toFixed(2)}% (DeFiLlama)
               </span>
             ) : (
-              <span className="text-amber-400">
+              <span className="text-[var(--ct-status-warning)]">
                 fallback 4.5%{" "}
                 {stableYield.fallbackReason ? `(${stableYield.fallbackReason})` : ""}
               </span>

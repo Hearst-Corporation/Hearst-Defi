@@ -56,7 +56,7 @@ export default async function CampaignDetailPage({
   const deliverySummary = buildDeliverySummary(detail.statusCounts);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Campaign"
@@ -66,7 +66,7 @@ export default async function CampaignDetailPage({
           lead={
             <Link
               href="/admin/outreach"
-              className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
             >
               ← Outreach
             </Link>
@@ -88,14 +88,14 @@ export default async function CampaignDetailPage({
             <AdminDetailItem label="Kind">{detail.kind}</AdminDetailItem>
             <AdminDetailItem label="Status">{detail.status}</AdminDetailItem>
             <AdminDetailItem label="From">
-              <span className="font-mono text-zinc-400">{detail.fromEmail ?? "default"}</span>
+              <span className="font-mono text-[var(--ct-text-body)]">{detail.fromEmail ?? "default"}</span>
             </AdminDetailItem>
             <AdminDetailItem label="Created">{formatAdminDate(detail.createdAt)}</AdminDetailItem>
             <AdminDetailItem label="Subject template" fullWidth>
               {detail.subjectTemplate ?? "—"}
             </AdminDetailItem>
             <AdminDetailItem label="Base brief" fullWidth>
-              <span className="whitespace-pre-wrap text-zinc-400">
+              <span className="whitespace-pre-wrap text-[var(--ct-text-body)]">
                 {detail.bodyTemplate ?? "—"}
               </span>
             </AdminDetailItem>
@@ -117,7 +117,7 @@ export default async function CampaignDetailPage({
         {deliverySummary && (
           <AdminDetailSection label="Delivery summary" title="Delivery">
             <BentoPanel className="p-6">
-              <p className="font-mono text-[13px] text-zinc-400">{deliverySummary}</p>
+              <p className="ct-metric-value font-mono">{deliverySummary}</p>
             </BentoPanel>
           </AdminDetailSection>
         )}
@@ -146,7 +146,7 @@ export default async function CampaignDetailPage({
 
         {/* Emails */}
         <section className="flex flex-col gap-4" aria-label="Emails">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+          <h2 className="ct-section-title">
             Recipient review queue ({detail.emails.length})
           </h2>
           {detail.emails.length === 0 ? (

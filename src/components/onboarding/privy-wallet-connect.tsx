@@ -19,6 +19,7 @@ import {
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
+import { Button } from "@/components/ui/button";
 import { abbreviateAddress } from "@/lib/onchain";
 import { bindWallet } from "@/lib/onboarding/actions";
 import { cn } from "@/lib/cn";
@@ -43,7 +44,7 @@ function WalletSurface({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden p-6",
+        "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden p-6",
         className,
       )}
       {...props}
@@ -107,10 +108,10 @@ function PrivyConnectInner({
         aria-busy="true"
         aria-label="Loading wallet connection"
       >
-        <div className="flex items-center justify-center gap-2 py-4 text-[12px] text-zinc-500">
+        <div className="body-xs flex items-center justify-center gap-2 py-4">
           <span
             aria-hidden="true"
-            className="size-1.5 rounded-full bg-[#A7FB90] animate-pulse"
+            className="size-1.5 rounded-full bg-[var(--ct-accent)] animate-pulse"
           />
           Loading wallet connection…
         </div>
@@ -126,19 +127,19 @@ function PrivyConnectInner({
         role="region"
         aria-label="Wallet connected"
       >
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#A7FB90]">
+        <span className="ct-bento-label inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-3 py-1 ct-text-accent">
           <span
             aria-hidden="true"
-            className="size-1.5 rounded-full bg-[#A7FB90]"
+            className="size-1.5 rounded-full bg-[var(--ct-accent)]"
           />
           Wallet linked
         </span>
 
-        <p className="m-0 rounded-lg border border-white/5 bg-surface-inset px-4 py-2.5 font-mono text-[13px] tabular-nums text-white">
+        <p className="mono body-sm m-0 rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset px-4 py-2.5 ct-text-strong">
           {abbreviateAddress(address)}
         </p>
 
-        <p className="m-0 max-w-prose text-pretty text-[12px] leading-relaxed text-zinc-500">
+        <p className="body-xs m-0 max-w-prose text-pretty">
           This wallet will receive your monthly USDC distributions and act as
           the signing key for on-chain position management.
         </p>
@@ -148,32 +149,34 @@ function PrivyConnectInner({
 
   return (
     <WalletSurface surface={surface} className={shellClass}>
-      <p className="m-0 max-w-prose text-pretty text-[13px] leading-relaxed text-zinc-400">
+      <p className="body-sm m-0 max-w-prose text-pretty">
         Link the wallet address that will receive your USDC distributions.
         Compatible with major wallets including MetaMask, Ledger, and Coinbase Wallet.
       </p>
 
-      <button
+      <Button
         type="button"
-        className="w-full rounded-lg bg-[#A7FB90] px-4 py-2.5 text-[13px] font-bold text-zinc-900 transition-colors hover:bg-[#A7FB90]/90"
+        variant="primary"
+        size="lg"
+        className="w-full"
         onClick={() => {
           setError(null);
           void connectWallet();
         }}
       >
         Connect wallet
-      </button>
+      </Button>
 
       {error ? (
         <p
           role="alert"
-          className="m-0 max-w-prose text-pretty text-[12px] leading-relaxed text-red-400"
+          className="body-xs ct-status-danger m-0 max-w-prose text-pretty"
         >
           {error}
         </p>
       ) : null}
 
-      <p className="m-0 max-w-prose text-pretty text-[12px] leading-relaxed text-zinc-500">
+      <p className="body-xs m-0 max-w-prose text-pretty">
         Wallet binding is used solely for on-chain distribution delivery.
         No private keys are stored or transmitted.
       </p>
@@ -190,12 +193,12 @@ export function PrivyWalletConnect({
     return (
       <div
         role="note"
-        className="rounded-2xl border border-white/10 bg-surface-card p-6 text-center shadow-sm"
+        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card p-6 text-center shadow-sm"
       >
-        <p className="m-0 text-[13px] font-medium text-white">
+        <p className="body-sm ct-text-strong m-0 font-medium">
           Wallet connection is not yet available for your account
         </p>
-        <p className="m-0 mt-1.5 text-[12px] leading-relaxed text-zinc-500">
+        <p className="body-xs m-0 mt-1.5">
           You can continue onboarding now and link a wallet later from Profile
           once it becomes available.
         </p>
@@ -227,13 +230,9 @@ export function WalletChamber({
         <>
           <StepProgressBar active="wallet" />
           <div className="flex flex-col gap-2">
-            <p className="m-0 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-              Onboarding · Step 3 of 3
-            </p>
-            <h1 className="m-0 text-[24px] font-medium leading-tight tracking-tight text-white">
-              Connect your wallet
-            </h1>
-            <p className="m-0 max-w-prose text-pretty text-[13px] leading-relaxed text-zinc-400">
+            <p className="ct-bento-label m-0">Onboarding · Step 3 of 3</p>
+            <h1 className="h1 m-0">Connect your wallet</h1>
+            <p className="body-sm m-0 max-w-prose text-pretty">
               Link the wallet address that will receive your USDC distributions.
               This wallet will also be the signing key for on-chain position
               management.
@@ -250,10 +249,7 @@ export function WalletChamber({
           compliance={
             <>
               You can update your distribution wallet after onboarding via your{" "}
-              <Link
-                href="/profile"
-                className="font-medium text-[#A7FB90] hover:underline"
-              >
+              <Link href="/profile" className="ct-link-accent">
                 Profile
               </Link>{" "}
               settings. Hearst Connect does not custody funds between deposit
@@ -262,29 +258,24 @@ export function WalletChamber({
           }
           actions={
             <div className="flex flex-col gap-3">
-              <p className="m-0 text-pretty text-center text-[13px] leading-relaxed text-zinc-500">
+              <p className="body-sm m-0 text-pretty text-center">
                 Wallet binding is optional during onboarding. Connect above now
                 or link one later from{" "}
-                <Link
-                  href="/profile"
-                  className="font-medium text-[#A7FB90] hover:underline"
-                >
+                <Link href="/profile" className="ct-link-accent">
                   Profile
                 </Link>
                 .
               </p>
-              <Link
-                href="/portfolio"
-                className="w-full rounded-lg bg-[#A7FB90] px-4 py-2.5 text-center text-[13px] font-bold text-zinc-900 transition-colors hover:bg-[#A7FB90]/90"
-              >
-                {walletBound ? "Continue to portfolio" : "Continue without wallet"}
-              </Link>
-              <Link
-                href="/onboarding/identity"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-center text-[13px] font-medium text-white transition-colors hover:bg-white/10"
-              >
-                ← Back
-              </Link>
+              <Button variant="primary" size="lg" asChild className="w-full">
+                <Link href="/portfolio">
+                  {walletBound
+                    ? "Continue to portfolio"
+                    : "Continue without wallet"}
+                </Link>
+              </Button>
+              <Button variant="secondary" size="lg" asChild className="w-full">
+                <Link href="/onboarding/identity">← Back</Link>
+              </Button>
             </div>
           }
         />

@@ -40,9 +40,13 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       >
         {stats.runsByAgent.map((row) => (
           <Tr key={row.agentName}>
-            <Td className="pl-5 font-medium text-white">{row.agentName}</Td>
-            <Td className="text-right tabular-nums text-zinc-300">{row.count}</Td>
-            <Td className="pr-5 text-right tabular-nums text-zinc-300">
+            <Td className="pl-5 font-medium text-[var(--ct-text-strong)]">
+              {row.agentName}
+            </Td>
+            <Td className="text-right tabular-nums text-[var(--ct-text-secondary)]">
+              {row.count}
+            </Td>
+            <Td className="pr-5 text-right tabular-nums text-[var(--ct-text-secondary)]">
               ${row.costUsd.toFixed(4)}
             </Td>
           </Tr>
@@ -79,26 +83,30 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       >
         {stats.recentRuns.map((run) => (
           <Tr key={run.id}>
-            <Td className="pl-5 font-medium text-white">{run.agentName}</Td>
-            <Td className="text-zinc-300">{run.model}</Td>
+            <Td className="pl-5 font-medium text-[var(--ct-text-strong)]">
+              {run.agentName}
+            </Td>
+            <Td className="text-[var(--ct-text-secondary)]">{run.model}</Td>
             <Td className="whitespace-nowrap">
               <RunStatusBadge status={run.status} />
               {run.errorType ? (
-                <span className="ml-2 text-zinc-500">{run.errorType}</span>
+                <span className="ml-2 text-[var(--ct-text-muted)]">
+                  {run.errorType}
+                </span>
               ) : null}
             </Td>
-            <Td className="text-right tabular-nums whitespace-nowrap text-zinc-300">
+            <Td className="text-right tabular-nums whitespace-nowrap text-[var(--ct-text-secondary)]">
               {run.inputTokens === null || run.outputTokens === null
                 ? "—"
                 : `${run.inputTokens} / ${run.outputTokens}`}
             </Td>
-            <Td className="text-right tabular-nums text-zinc-300">
+            <Td className="text-right tabular-nums text-[var(--ct-text-secondary)]">
               {run.latencyMs ? `${run.latencyMs}ms` : "—"}
             </Td>
-            <Td className="text-right tabular-nums text-zinc-300">
+            <Td className="text-right tabular-nums text-[var(--ct-text-secondary)]">
               {run.costUsd ? `$${run.costUsd.toFixed(4)}` : "—"}
             </Td>
-            <Td className="pr-5 text-right text-zinc-500">
+            <Td className="pr-5 text-right text-[var(--ct-text-muted)]">
               {formatAdminDateTime(run.createdAt)}
             </Td>
           </Tr>
@@ -133,16 +141,20 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       >
         {stats.recentNavTraces.map((trace) => (
           <Tr key={trace.id}>
-            <Td className="pl-5 whitespace-nowrap font-medium text-white">
+            <Td className="pl-5 whitespace-nowrap font-medium text-[var(--ct-text-strong)]">
               {trace.profile}
             </Td>
-            <Td className="whitespace-nowrap text-zinc-300">{trace.mode}</Td>
-            <Td className="text-zinc-300">{trace.destinationKey ?? "—"}</Td>
+            <Td className="whitespace-nowrap text-[var(--ct-text-secondary)]">
+              {trace.mode}
+            </Td>
+            <Td className="text-[var(--ct-text-secondary)]">
+              {trace.destinationKey ?? "—"}
+            </Td>
             <Td className="whitespace-nowrap">
               <RunStatusBadge status={trace.status} />
             </Td>
-            <Td className="text-zinc-500">{trace.reason ?? "—"}</Td>
-            <Td className="pr-5 text-right text-zinc-500">
+            <Td className="text-[var(--ct-text-muted)]">{trace.reason ?? "—"}</Td>
+            <Td className="pr-5 text-right text-[var(--ct-text-muted)]">
               {formatAdminDateTime(trace.createdAt)}
             </Td>
           </Tr>
@@ -175,13 +187,19 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
       >
         {stats.recentToolRuns.map((run) => (
           <Tr key={run.id}>
-            <Td className="pl-5 font-medium text-white">{run.toolId}</Td>
-            <Td className="whitespace-nowrap text-zinc-300">{run.toolKind}</Td>
+            <Td className="pl-5 font-medium text-[var(--ct-text-strong)]">
+              {run.toolId}
+            </Td>
+            <Td className="whitespace-nowrap text-[var(--ct-text-secondary)]">
+              {run.toolKind}
+            </Td>
             <Td className="whitespace-nowrap">
               <RunStatusBadge status={run.status} />
             </Td>
-            <Td className="text-zinc-500">{run.errorMessage ?? "—"}</Td>
-            <Td className="pr-5 text-right text-zinc-500">
+            <Td className="text-[var(--ct-text-muted)]">
+              {run.errorMessage ?? "—"}
+            </Td>
+            <Td className="pr-5 text-right text-[var(--ct-text-muted)]">
               {formatAdminDateTime(run.createdAt)}
             </Td>
           </Tr>
@@ -213,19 +231,19 @@ function MonitoringPanel({
     <BentoPanel>
       <BentoHeader title={title} subtitle={subtitle} as="h3" />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-[13px]">
+        <table className="min-w-full table-fixed">
           {colgroup}
           <thead>
-            <tr className="border-b border-white/5">{header}</tr>
+            <tr className="border-b border-[var(--ct-border-soft)]">{header}</tr>
           </thead>
           <tbody>
             {isEmpty ? (
               <tr>
                 <td colSpan={colSpan} className="px-5 py-8 text-center">
-                  <p className="text-[13px] font-medium text-zinc-400">
+                  <p className="ct-metric-value text-[var(--ct-text-secondary)]">
                     {EMPTY_COPY.message}
                   </p>
-                  <p className="mt-1 text-[12px] text-zinc-500">
+                  <p className="ct-metric-caption mt-1">
                     {EMPTY_COPY.detail}
                   </p>
                 </td>
@@ -250,7 +268,7 @@ function Th({
   return (
     <th
       className={cn(
-        "bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500",
+        "ct-bento-label bg-transparent px-4 py-3 text-left",
         className,
       )}
     >
@@ -261,7 +279,7 @@ function Th({
 
 function Tr({ children }: { children: ReactNode }) {
   return (
-    <tr className="border-b border-white/5 transition-colors last:border-b-0 hover:bg-white/[0.02]">
+    <tr className="border-b border-[var(--ct-border-soft)] transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
       {children}
     </tr>
   );
@@ -274,30 +292,43 @@ function Td({
   children: ReactNode;
   className?: string;
 }) {
-  return <td className={cn("px-4 py-3 align-middle", className)}>{children}</td>;
+  return (
+    <td className={cn("ct-metric-caption px-4 py-3 align-middle", className)}>
+      {children}
+    </td>
+  );
 }
 
 /**
- * Status pill — bento color map.
- * success/published = accent green #A7FB90, failed = red-400,
- * timeout/blocked = amber-400, queued/confirmation_required = zinc.
+ * Status pill — single-accent color map (--ct-* tokens, ADR-013).
+ * success/published = accent (--ct-accent), failed = danger,
+ * timeout/blocked = warning, queued/confirmation_required = neutral.
  */
+const ACCENT_TONE =
+  "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]";
+const DANGER_TONE =
+  "border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)]";
+const WARNING_TONE =
+  "border-[color-mix(in_srgb,var(--ct-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)] text-[var(--ct-status-warning)]";
+const NEUTRAL_TONE =
+  "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-secondary)]";
+
 function RunStatusBadge({ status }: { status: string }) {
   const toneMap: Record<string, string> = {
-    success: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
-    published: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
-    failed: "border-red-400/30 bg-red-400/10 text-red-400",
-    timeout: "border-amber-400/30 bg-amber-400/10 text-amber-400",
-    blocked: "border-amber-400/30 bg-amber-400/10 text-amber-400",
-    queued: "border-white/10 bg-white/5 text-zinc-400",
-    confirmation_required: "border-white/10 bg-white/5 text-zinc-400",
+    success: ACCENT_TONE,
+    published: ACCENT_TONE,
+    failed: DANGER_TONE,
+    timeout: WARNING_TONE,
+    blocked: WARNING_TONE,
+    queued: NEUTRAL_TONE,
+    confirmation_required: NEUTRAL_TONE,
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-        toneMap[status] ?? "border-white/10 bg-white/5 text-zinc-400",
+        "ct-bento-label inline-flex items-center rounded-md border px-2 py-0.5",
+        toneMap[status] ?? NEUTRAL_TONE,
       )}
     >
       {status}

@@ -47,7 +47,7 @@ export function NavSlot({
               {lastNav !== null ? (
                 <>
                   <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">USD</span>
-                  <span className="text-[24px] font-medium leading-none tracking-tight text-white">{dashboardUsdCompact.format(lastNav)}</span>
+                  <span className="text-[24px] font-medium leading-none tracking-tight text-[var(--ct-text-strong)]">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
                 <span className="text-[13px] text-zinc-500">Awaiting data</span>
@@ -61,7 +61,7 @@ export function NavSlot({
             <p
               className={cn(
                 "dashboard-nav-slot__delta m-0 text-[13px] font-semibold tabular-nums",
-                navDelta >= 0 ? "text-[#A7FB90]" : "text-[var(--ct-status-danger)]",
+                navDelta >= 0 ? "text-[var(--ct-accent)]" : "text-[var(--ct-status-danger)]",
               )}
             >
               {navDelta >= 0 ? "+" : ""}

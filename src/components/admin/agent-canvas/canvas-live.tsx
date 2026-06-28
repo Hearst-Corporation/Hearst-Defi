@@ -142,8 +142,8 @@ export function CanvasLive({
 
   if (!state) {
     return (
-      <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-white/10 bg-surface-card px-6 py-12 text-center">
-        <p className="text-[13px] leading-relaxed text-zinc-500">
+      <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-[var(--ct-border)] bg-surface-card px-6 py-12 text-center">
+        <p className="ct-metric-caption leading-relaxed">
           The agent is opening this workspace…
           <br />
           Ask in the chat to fill it.
@@ -154,7 +154,7 @@ export function CanvasLive({
 
   return (
     <>
-      <p className="text-[12px] italic leading-relaxed text-zinc-500">
+      <p className="ct-metric-caption italic leading-relaxed">
         {state.disclaimer}
       </p>
       <div

@@ -77,12 +77,12 @@ export function SystemReadinessModule({
 
           <div className="flex items-center gap-1.5 rounded-md bg-surface-inset px-2 py-1">
             <BentoLabel className="text-[10px]">Uptime</BentoLabel>
-            <span className="text-[11px] font-medium tabular-nums text-[#A7FB90]">
+            <span className="text-[11px] font-medium tabular-nums text-[var(--ct-accent)]">
               99.98%
             </span>
-            <span aria-hidden className="h-2 w-px bg-white/10" />
+            <span aria-hidden className="h-2 w-px bg-[var(--ct-border)]" />
             <BentoLabel className="text-[10px]">Last scan</BentoLabel>
-            <span className="text-[11px] font-medium tabular-nums text-zinc-300">
+            <span className="text-[11px] font-medium tabular-nums text-[var(--ct-text-secondary)]">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -97,7 +97,7 @@ export function SystemReadinessModule({
 
         {/* ≤2 unique stats: Vault mode + Oracle freshness */}
         <div
-          className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/5 bg-white/5 sm:grid-cols-2"
+          className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] sm:grid-cols-2"
           role="list"
         >
           {view.stats.map((stat) => (
@@ -107,7 +107,7 @@ export function SystemReadinessModule({
 
         {/* Compact dot strip — replaces the 5-row matrix (detail lives in Row-3 risk card) */}
         <div
-          className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/5 pt-4"
+          className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-[var(--ct-border-soft)] pt-4"
           role="list"
           aria-label="Readiness factors"
         >
@@ -171,20 +171,20 @@ function ReadinessFactorDot({ factor }: { factor: ReadinessFactor }) {
   );
 }
 
-/** Bento tone → dot background. Single green #A7FB90 for ok; amber/red/zinc otherwise. */
+/** Bento tone → dot background. Single accent for ok; warning/danger/muted otherwise. */
 const TONE_DOT: Record<ReadinessTone, string> = {
-  ok: "bg-[#A7FB90]",
-  watch: "bg-amber-400",
-  alert: "bg-red-400",
-  idle: "bg-zinc-600",
+  ok: "bg-[var(--ct-accent)]",
+  watch: "bg-[var(--ct-status-warning)]",
+  alert: "bg-[var(--ct-status-danger)]",
+  idle: "bg-[var(--ct-text-muted)]",
 };
 
 /** Bento tone → text color. */
 const TONE_TEXT: Record<ReadinessTone, string> = {
-  ok: "text-[#A7FB90]",
-  watch: "text-amber-400",
-  alert: "text-red-400",
-  idle: "text-zinc-500",
+  ok: "text-[var(--ct-accent)]",
+  watch: "text-[var(--ct-status-warning)]",
+  alert: "text-[var(--ct-status-danger)]",
+  idle: "text-[var(--ct-text-muted)]",
 };
 
 function toneDot(tone: ReadinessTone): string {

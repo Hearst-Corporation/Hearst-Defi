@@ -31,7 +31,7 @@ export function PlatformOverviewBand({
   return (
     <div
       aria-label="Platform overview"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-white/5 sm:divide-y-0 sm:divide-x"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-[var(--ct-border-soft)] sm:divide-y-0 sm:divide-x"
     >
       {view.clusters.map((cluster, index) => (
         <div key={cluster.label} className="flex flex-col p-5">
@@ -46,7 +46,7 @@ export function PlatformOverviewBand({
             {cluster.kpis.map((kpi) => (
               <div
                 key={kpi.label}
-                className="flex items-center justify-between gap-4 border-b border-white/5 py-2 last:border-b-0"
+                className="flex items-center justify-between gap-4 border-b border-[var(--ct-border-soft)] py-2 last:border-b-0"
               >
                 <div className="flex min-w-0 flex-col">
                   <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
@@ -61,10 +61,10 @@ export function PlatformOverviewBand({
                     className={cn(
                       "text-[14px] font-medium leading-none tracking-tight tabular-nums",
                       kpi.alert
-                        ? "text-red-400"
+                        ? "text-[var(--ct-status-danger)]"
                         : kpi.accent
-                          ? "text-[#A7FB90]"
-                          : "text-white",
+                          ? "text-[var(--ct-accent)]"
+                          : "text-[var(--ct-text-strong)]",
                     )}
                   >
                     {kpi.value}
@@ -74,7 +74,7 @@ export function PlatformOverviewBand({
             ))}
           </div>
           {cluster.label === "Capital" && (
-            <div className="mt-5 pt-4 border-t border-white/5">
+            <div className="mt-5 pt-4 border-t border-[var(--ct-border-soft)]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
                   Capacity usage
@@ -92,14 +92,14 @@ export function PlatformOverviewBand({
                 className="h-1.5 w-full overflow-hidden rounded-full bg-surface-inset"
               >
                 <div
-                  className="h-full rounded-full bg-[#A7FB90] transition-[width] duration-300 ease-out"
+                  className="h-full rounded-full bg-[var(--ct-accent)] transition-[width] duration-300 ease-out"
                   style={{ width: `${Math.min(100, Math.max(0, capacityPct))}%` }}
                 />
               </div>
             </div>
           )}
           {cluster.label === "Exposure" && exposureClusterHasDist > 0 && (
-            <div className="mt-5 pt-4 border-t border-white/5">
+            <div className="mt-5 pt-4 border-t border-[var(--ct-border-soft)]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
                   Distribution

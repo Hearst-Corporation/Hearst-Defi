@@ -1,3 +1,4 @@
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { MonitoringBoard } from "@/components/admin/monitoring/monitoring-board";
 import { getMonitoringStats } from "@/lib/data/monitoring";
@@ -19,20 +20,13 @@ export default async function MonitoringPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-
-        {/* HEADER */}
-        <div className="flex flex-wrap items-end justify-between pb-3 border-b border-white/10 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-              System Health
-            </span>
-            <h1 className="text-[24px] font-semibold tracking-tight text-white">
-              Monitoring <span className="text-[#A7FB90]">Console</span>
-            </h1>
-          </div>
-        </div>
+        <AdminPageHeader
+          titleLead="Monitoring"
+          titleAccent="Console"
+          contextLabel="System Health"
+        />
 
         {/* Health KPI strip — suppressed when no runs recorded yet */}
         {monitoringKpis.length > 0 && (

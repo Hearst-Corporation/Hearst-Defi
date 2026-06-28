@@ -65,10 +65,9 @@ type FormState =
   | { status: "success" }
   | { status: "error"; message: string };
 
-const FIELD_LABEL =
-  "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+const FIELD_LABEL = "ct-bento-label";
 const SELECT_INPUT =
-  "bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 text-white rounded-lg px-4 py-2.5 text-[13px] outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "body-sm bg-surface-inset border border-[var(--ct-border)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] ct-text-strong rounded-lg px-4 py-2.5 outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 // Shared bento CTA chrome (single source of truth in @/components/ui/bento).
 // The submit button keeps `w-full` (full-width on its own row); the shared
 // BENTO_PRIMARY_BTN has the identical chrome otherwise.
@@ -116,16 +115,14 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
     <form
       action={handleAction}
       className={cn(
-        "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col",
+        "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col",
         className,
       )}
       aria-label="Identity document upload"
       data-testid="kyc-document-form"
     >
-      <div className="p-5 border-b border-white/5">
-        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
-          Identity document
-        </h2>
+      <div className="p-5 border-b border-[var(--ct-border-soft)]">
+        <h2 className="ct-bento-label">Identity document</h2>
       </div>
 
       <div className="p-5 flex flex-col gap-5">
@@ -199,15 +196,15 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
             </button>
             <span
               className={cn(
-                "text-[12px] m-0 truncate",
-                fileName ? "text-zinc-400" : "text-zinc-600",
+                "body-xs m-0 truncate",
+                fileName ? "ct-text-body" : "ct-text-faint",
               )}
               aria-live="polite"
             >
               {fileName ?? "No file selected"}
             </span>
           </div>
-          <p className="text-[11px] text-zinc-600 leading-relaxed m-0">
+          <p className="body-xs ct-text-faint leading-relaxed m-0">
             JPEG, PNG or PDF · max 10 MB. Document only — no selfie required.
           </p>
         </div>
@@ -221,14 +218,14 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
         </button>
 
         {succeeded ? (
-          <p className="text-[12px] text-[#A7FB90] m-0" role="status">
+          <p className="body-xs ct-text-accent m-0" role="status">
             Document submitted — verification in progress. You will be notified
             by email once your identity has been verified.
           </p>
         ) : null}
 
         {state.status === "error" ? (
-          <p className="text-[12px] text-red-400 m-0" role="alert">
+          <p className="body-xs ct-status-danger m-0" role="alert">
             {state.message}
           </p>
         ) : null}

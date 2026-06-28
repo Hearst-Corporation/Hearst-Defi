@@ -18,15 +18,15 @@ export function IcpList({ icps }: { icps: IcpRow[] }) {
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[13px] font-medium text-white">{icp.name}</span>
+                <span className="ct-metric-value">{icp.name}</span>
                 <Badge variant={icp.active ? "success" : "default"}>
                   {icp.persona}
                 </Badge>
-                <span className="text-[12px] text-zinc-400">
+                <span className="ct-metric-caption">
                   {icp.prospectCount} sourced
                 </span>
               </div>
-              <p className="m-0 text-[12px] text-zinc-400">
+              <p className="ct-metric-caption m-0">
                 {[
                   icp.titles.length > 0 ? icp.titles.join(", ") : null,
                   icp.locations.length > 0 ? icp.locations.join(", ") : null,
@@ -34,7 +34,7 @@ export function IcpList({ icps }: { icps: IcpRow[] }) {
                   .filter(Boolean)
                   .join(" · ") || "No filters set"}
               </p>
-              <p className="m-0 text-[12px] text-zinc-400">
+              <p className="ct-metric-caption m-0">
                 Tiers — Prime ≥ {icp.tierAMin} · Warm ≥ {icp.tierBMin} · Cold ≥{" "}
                 {icp.tierCMin} · {icp.language.toUpperCase()}
               </p>

@@ -5,7 +5,7 @@
 // Gates below. No hardcoded values. Pure component.
 //
 // Bento canon (Portfolio): black BentoPanel + hairline border, micro uppercase
-// labels, single accent green #A7FB90. Tier renders as a colored chip —
+// labels, single accent green (--ct-accent). Tier renders as a colored chip —
 // autonomous/read-only=accent green, draft/gated=amber, never-autonomous=red.
 
 import type { ReactNode } from "react";
@@ -20,9 +20,9 @@ import type {
 /** Bento chip tone — drives the border/bg/text triplet only. */
 type ChipTone = "ok" | "warn" | "danger";
 
-/** Single green #A7FB90 for autonomous; amber for gated, red for never-autonomous. */
+/** Single green (--ct-accent) for autonomous; amber for gated, red for never-autonomous. */
 const CHIP_TONE: Record<ChipTone, string> = {
-  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   danger: "border-red-400/30 bg-red-400/10 text-red-400",
 };

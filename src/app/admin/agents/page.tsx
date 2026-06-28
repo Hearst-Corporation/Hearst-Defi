@@ -7,6 +7,15 @@ import { ArrowRight } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
+import { Badge } from "@/components/catalyst/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { loadAgentGraphViews } from "@/lib/data/agent-graph";
 import { loadAgentTemplates } from "@/lib/data/agent-templates";
 import { ArchiveTemplateButton } from "@/components/admin/archive-template-button";
@@ -28,6 +37,14 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Agents — Hearst Connect" };
 
+// Shared Catalyst table class literals — same grammar as the canon page
+// (/admin/customers): nano label heads, local horizontal scroll inside the card,
+// hairline rows with a faint hover.
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const TABLE_WRAP = "max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+
 export default async function AgentsPage() {
   const [templates, agentGraphViews] = await Promise.all([
     loadAgentTemplates(),
@@ -44,7 +61,7 @@ export default async function AgentsPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Agent"
@@ -65,24 +82,24 @@ export default async function AgentsPage() {
             title="Agent orchestration"
             subtitle="Live wiring across orchestration, the Master Agent chat pipeline, and every bounded instrument it can call. Particles flow on edges that just ran; bound surfaces pulse by live state. Auto-refreshes."
             trailing={
-              <div className="flex flex-wrap items-center gap-3 text-[11px] text-zinc-500">
+              <div className="flex flex-wrap items-center gap-3 ct-metric-caption">
                 <span className="inline-flex items-center gap-1.5">
                   <span
-                    className="h-2 w-2 rounded-full bg-[#A7FB90]"
+                    className="h-2 w-2 rounded-full bg-[var(--ct-accent)]"
                     aria-hidden
                   />
                   Active
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <span
-                    className="h-2 w-2 rounded-full bg-zinc-600"
+                    className="h-2 w-2 rounded-full bg-[var(--ct-text-faint)]"
                     aria-hidden
                   />
                   Idle
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <span
-                    className="h-2 w-2 rounded-full bg-red-400"
+                    className="h-2 w-2 rounded-full bg-[var(--ct-status-danger)]"
                     aria-hidden
                   />
                   Failed
@@ -105,10 +122,8 @@ export default async function AgentsPage() {
             {catalogGroups.map((group) => (
               <div key={group.scope} className="flex flex-col gap-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-                    {group.scopeLabel}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-600 tabular-nums">
+                  <span className="ct-bento-label">{group.scopeLabel}</span>
+                  <span className="ct-bento-label tabular-nums">
                     {group.entries.length}
                   </span>
                 </div>
@@ -123,12 +138,12 @@ export default async function AgentsPage() {
                         aria-label={`New persona template from ${entry.label}`}
                         className="group block h-full"
                       >
-                        <div className="h-full min-h-[13rem] flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5 transition-colors hover:border-[#A7FB90]/40">
+                        <div className="h-full min-h-[13rem] flex flex-col gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5 transition-colors hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]">
                           {/* Header row: accent icon tile + scope badge */}
                           <div className="flex items-center gap-3">
                             <span
                               aria-hidden
-                              className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+                              className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
                             >
                               <Icon className="size-6" strokeWidth={2} />
                             </span>
@@ -136,8 +151,8 @@ export default async function AgentsPage() {
                             <span
                               className={
                                 entry.scope === "platform"
-                                  ? "inline-flex items-center rounded-md border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A7FB90]"
-                                  : "inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400"
+                                  ? "ct-bento-label inline-flex items-center rounded-md border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 text-[var(--ct-accent)]"
+                                  : "ct-bento-label inline-flex items-center rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-0.5"
                               }
                             >
                               {entry.scopeLabel}
@@ -146,20 +161,18 @@ export default async function AgentsPage() {
 
                           {/* Title + surface */}
                           <div className="flex flex-col gap-1">
-                            <h3 className="text-[15px] font-medium text-white m-0">
+                            <h3 className="ct-panel-title m-0 text-[var(--ct-text-strong)]">
                               {entry.label}
                             </h3>
-                            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-                              {entry.surface}
-                            </span>
+                            <span className="ct-bento-label">{entry.surface}</span>
                           </div>
 
-                          <p className="text-[12px] text-zinc-400 leading-relaxed grow">
+                          <p className="ct-metric-caption leading-relaxed grow">
                             {entry.description}
                           </p>
 
                           {/* Footer affordance — quiet at rest, lights up on hover */}
-                          <span className="inline-flex items-center gap-2 text-[12px] font-semibold text-zinc-600 transition-colors group-hover:text-[#A7FB90]">
+                          <span className="ct-metric-caption inline-flex items-center gap-2 font-semibold transition-colors group-hover:text-[var(--ct-accent)]">
                             New template
                             <ArrowRight
                               className="size-4 transition-transform group-hover:translate-x-0.5"
@@ -186,95 +199,89 @@ export default async function AgentsPage() {
 
           {templates.length === 0 ? (
             <div className="p-5 lg:p-6">
-              <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-surface-inset p-8 text-center">
-                <p className="text-[13px] font-medium text-zinc-300">
-                  No persona templates yet.
-                </p>
-                <p className="text-[12px] text-zinc-500">
+              <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-8 text-center">
+                <p className="ct-metric-value">No persona templates yet.</p>
+                <p className="ct-metric-caption">
                   Pick a base agent above to create your first reusable persona —
                   tone, language, and register.
                 </p>
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/5">
-                    <th className="px-5 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 w-[28%]">
-                      Label
-                    </th>
-                    <th className="hidden px-5 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 md:table-cell md:w-[20%]">
-                      Base agent
-                    </th>
-                    <th className="hidden px-5 py-3 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 lg:table-cell lg:w-[22%]">
-                      Register
-                    </th>
-                    <th className="px-5 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 w-[12%]">
-                      Used by
-                    </th>
-                    <th className="px-5 py-3 text-right text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 w-[18%]">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {templates.map((t) => (
-                    <tr
-                      key={t.id}
-                      className="border-b border-white/5 last:border-b-0 transition-colors hover:bg-white/[0.02]"
-                    >
-                      <td className="px-5 py-4 align-top text-white">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/admin/agents/${t.id}`}
-                            className="text-[13px] font-medium text-white hover:underline"
-                          >
-                            {t.label}
-                          </Link>
-                          {t.archived && (
-                            <span className="inline-flex items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                              Archived
-                            </span>
-                          )}
-                        </div>
-                        {t.description && (
-                          <p className="text-[12px] text-zinc-500 truncate">
-                            {t.description}
-                          </p>
+            <Table dense className={TABLE_WRAP}>
+              <TableHead>
+                <TableRow>
+                  <TableHeader className={`${TABLE_HEAD} pl-5 w-[28%]`}>
+                    Label
+                  </TableHeader>
+                  <TableHeader
+                    className={`${TABLE_HEAD} hidden md:table-cell md:w-[20%]`}
+                  >
+                    Base agent
+                  </TableHeader>
+                  <TableHeader
+                    className={`${TABLE_HEAD} hidden lg:table-cell lg:w-[22%]`}
+                  >
+                    Register
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} text-right w-[12%]`}>
+                    Used by
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} pr-5 text-right w-[18%]`}>
+                    Actions
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {templates.map((t) => (
+                  <TableRow key={t.id} className={ROW}>
+                    <TableCell className="pl-5 align-top">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/admin/agents/${t.id}`}
+                          className="ct-metric-value hover:underline"
+                        >
+                          {t.label}
+                        </Link>
+                        {t.archived && (
+                          <Badge color="amber" className="uppercase">
+                            Archived
+                          </Badge>
                         )}
-                      </td>
-                      <td className="hidden px-5 py-4 align-top text-[13px] text-zinc-400 md:table-cell">
-                        {BASE_AGENT_LABELS[t.baseAgent as BaseAgent] ??
-                          t.baseAgent}
-                      </td>
-                      <td className="hidden px-5 py-4 align-top text-[13px] text-zinc-300 lg:table-cell">
-                        {[t.tone, t.language, t.verbosity]
-                          .filter(Boolean)
-                          .join(" · ") || "—"}
-                      </td>
-                      <td className="px-5 py-4 align-top text-right text-[13px] tabular-nums text-zinc-300">
-                        {t.usageCount}
-                      </td>
-                      <td className="px-5 py-4 align-top text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/admin/agents/${t.id}`}
-                            className={BENTO_SECONDARY_BTN}
-                          >
-                            Edit
-                          </Link>
-                          <ArchiveTemplateButton
-                            id={t.id}
-                            archived={t.archived}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                      {t.description && (
+                        <p className="ct-metric-caption truncate">
+                          {t.description}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden align-top md:table-cell">
+                      {BASE_AGENT_LABELS[t.baseAgent as BaseAgent] ??
+                        t.baseAgent}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption hidden align-top lg:table-cell">
+                      {[t.tone, t.language, t.verbosity]
+                        .filter(Boolean)
+                        .join(" · ") || "—"}
+                    </TableCell>
+                    <TableCell className="ct-metric-value align-top text-right tabular-nums">
+                      {t.usageCount}
+                    </TableCell>
+                    <TableCell className="pr-5 align-top text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/agents/${t.id}`}
+                          className={BENTO_SECONDARY_BTN}
+                        >
+                          Edit
+                        </Link>
+                        <ArchiveTemplateButton id={t.id} archived={t.archived} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </BentoPanel>
       </div>

@@ -7,7 +7,7 @@ import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/ui/bento";
 import { postFeedback } from "@/app/admin/feedback/actions";
 
 const INPUT_CLASS =
-  "mt-2 w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
+  "ct-metric-value mt-2 w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 placeholder:text-[var(--ct-text-muted)] transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 
 export function FeedbackForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -79,10 +79,7 @@ export function FeedbackForm() {
           className={`${INPUT_CLASS} resize-y leading-relaxed`}
           aria-describedby="feedback-hint"
         />
-        <span
-          id="feedback-hint"
-          className="mt-2 block text-[12px] text-zinc-500"
-        >
+        <span id="feedback-hint" className="ct-metric-caption mt-2 block">
           Capture what changed, what feels off, and what should happen next.
         </span>
       </label>

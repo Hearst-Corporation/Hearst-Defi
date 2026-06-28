@@ -59,7 +59,7 @@ export default async function DistributionsPage({
   const distributionKpis = buildDistributionsKpiStrip(history);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Vault"
@@ -77,7 +77,7 @@ export default async function DistributionsPage({
 
         {/* Distribution history */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+          <h2 className="ct-section-title">
             History ({activeVaultLabel})
           </h2>
 
@@ -123,41 +123,41 @@ export default async function DistributionsPage({
 
               return (
                 <>
-                  <td className="truncate px-5 py-4 align-top text-[13px] text-zinc-300">
+                  <td className="ct-metric-value truncate px-5 py-4 align-top">
                     {vaultHref && label ? (
                       <Link
                         href={vaultHref}
-                        className="block max-w-full truncate text-[#A7FB90] hover:underline"
+                        className="block max-w-full truncate text-[var(--ct-accent)] hover:underline"
                       >
                         {label}
                       </Link>
                     ) : label ? (
-                      <span className="text-zinc-400">{label}</span>
+                      <span className="text-[var(--ct-text-secondary)]">{label}</span>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-[var(--ct-text-muted)]">—</span>
                     )}
                   </td>
-                  <td className="px-5 py-4 align-top font-mono text-[12px] text-zinc-300">
+                  <td className="ct-metric-caption px-5 py-4 align-top font-mono">
                     {d.period}
                   </td>
-                  <td className="px-5 py-4 text-right align-top font-medium tabular-nums text-white">
+                  <td className="ct-metric-value px-5 py-4 text-right align-top tabular-nums">
                     {formatUsdDetailed(d.amountUsdc.toNumber())}
                   </td>
-                  <td className="hidden px-5 py-4 text-right align-top tabular-nums text-zinc-400 md:table-cell">
+                  <td className="ct-metric-caption hidden px-5 py-4 text-right align-top tabular-nums md:table-cell">
                     {d.recipientsCount}
                   </td>
-                  <td className="px-5 py-4 text-right align-top text-zinc-400">
+                  <td className="ct-metric-caption px-5 py-4 text-right align-top">
                     {formatAdminDate(new Date(d.distributedAt))}
                   </td>
-                  <td className="hidden px-5 py-4 text-right align-top font-mono text-[12px] text-zinc-600 xl:table-cell">
+                  <td className="ct-metric-caption hidden px-5 py-4 text-right align-top font-mono xl:table-cell">
                     {d.txHash ? (
                       d.txHash.startsWith("0xMOCK") ? (
-                        <span className="text-zinc-600">simulated</span>
+                        <span className="text-[var(--ct-text-muted)]">simulated</span>
                       ) : (
                         `${d.txHash.slice(0, 8)}…`
                       )
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-[var(--ct-text-muted)]">—</span>
                     )}
                   </td>
                   <td className="hidden px-5 py-4 text-right align-top lg:table-cell">
@@ -182,10 +182,10 @@ export default async function DistributionsPage({
 
           <BentoPanel>
             <div className="flex flex-col gap-2 p-5">
-              <h3 className="text-[13px] font-semibold text-white">
+              <h3 className="ct-metric-value">
                 Historical record
               </h3>
-              <p className="max-w-prose text-[12px] text-zinc-600">
+              <p className="ct-metric-caption max-w-prose">
                 Distributions shown above are historical records only. They are
                 not a commitment to any future distribution. Past distributions
                 are not a reliable indicator of future performance or yield.

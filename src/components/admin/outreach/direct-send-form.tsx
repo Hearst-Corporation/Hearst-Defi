@@ -141,7 +141,7 @@ export function DirectSendForm() {
           </button>
           {sentId && <Badge variant="success">Sent · tracked</Badge>}
         </div>
-        <p className="text-[12px] text-zinc-400">
+        <p className="ct-metric-caption">
           Sent from the dedicated outreach address with open/click tracking. Recorded
           under the “Direct sends” campaign so it appears in your stats.
         </p>

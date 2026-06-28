@@ -27,10 +27,10 @@ export function OnboardingShell({
       irContact={irContact}
     >
       <div
-        className="dark flex min-h-screen w-full justify-center"
+        className="flex min-h-screen w-full justify-center"
         data-testid="onboarding-shell"
       >
-        <div className="dark flex w-full max-w-2xl flex-col rounded-2xl border border-white/10 bg-surface-page p-5 lg:p-6 mb-8 gap-y-5">
+        <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6 mb-8 gap-y-5">
           <header className="flex justify-center">
             <Image
               src="/logos/hearst-connect-dark.svg"
@@ -43,7 +43,7 @@ export function OnboardingShell({
           </header>
 
           {state.checklist.length > 0 && (
-            <div className="rounded-2xl border border-white/10 bg-surface-card p-5 shadow-sm">
+            <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card p-5 shadow-sm">
               <OnboardingChecklistRail items={state.checklist} />
             </div>
           )}

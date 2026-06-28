@@ -27,8 +27,8 @@ function fmtRange(r?: { min: number; max: number; unit: string }): string | null
   return `${r.min}–${r.max}${r.unit === "%" ? "%" : ` ${r.unit}`}`;
 }
 
-const PANEL = "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col";
-const SUBTILE = "rounded-xl border border-white/10 bg-surface-inset";
+const PANEL = "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col";
+const SUBTILE = "rounded-xl border border-[var(--ct-border)] bg-surface-inset";
 
 function Block({
   title,
@@ -43,9 +43,9 @@ function Block({
 }) {
   return (
     <section className={cn(PANEL, className)}>
-      <header className="flex items-end justify-between gap-3 p-5 border-b border-white/5">
-        <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">{title}</h3>
-        {hint ? <span className="text-[11px] text-zinc-500 tracking-wide text-right">{hint}</span> : null}
+      <header className="flex items-end justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
+        <h3 className="ct-bento-label leading-none">{title}</h3>
+        {hint ? <span className="ct-metric-caption text-right">{hint}</span> : null}
       </header>
       <div className="p-5 flex flex-col gap-4 min-w-0">{children}</div>
     </section>
@@ -53,21 +53,26 @@ function Block({
 }
 
 function MissingNote({ label }: { label: string }) {
-  return <p className="text-[13px] text-amber-400 m-0">Missing input — {label}</p>;
+  return <p className="ct-metric-caption m-0 text-[var(--ct-status-warning)]">Missing input — {label}</p>;
 }
 
 function SourceChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+    <span className="ct-bento-label inline-flex items-center rounded-full border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-0.5 font-mono whitespace-nowrap">
       {children}
     </span>
   );
 }
 
 /* ── Chart renderers (CSS-only, no chart library, no fabricated data) ─────── */
-
-const SEG_FILLS = ["bg-[#A7FB90]", "bg-[#A7FB90]/70", "bg-[#A7FB90]/40", "bg-white/20"] as const;
-const DOT_FILLS = ["bg-[#A7FB90]", "bg-[#A7FB90]/70", "bg-[#A7FB90]/40", "bg-white/20"] as const;
+// Accent segment fills — single green via color-mix tints, last bucket neutral.
+const SEG_FILLS = [
+  "bg-[var(--ct-accent)]",
+  "bg-[color-mix(in_srgb,var(--ct-accent)_70%,transparent)]",
+  "bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]",
+  "bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]",
+] as const;
+const DOT_FILLS = SEG_FILLS;
 
 function RangeBandChart({ data }: { data: unknown }) {
   const d = data as { apy?: { min: number; max: number; unit: string }; horizonMonths?: number };
@@ -83,13 +88,13 @@ function RangeBandChart({ data }: { data: unknown }) {
       role="img"
       aria-label={`APY range ${d.apy.min} to ${d.apy.max} percent`}
     >
-      <div className="relative h-2.5 rounded-full bg-surface-inset border border-white/5 overflow-hidden">
+      <div className="relative h-2.5 rounded-full bg-surface-inset border border-[var(--ct-border-soft)] overflow-hidden">
         <div
-          className="absolute top-0 bottom-0 bg-[#A7FB90] rounded-full"
+          className="absolute top-0 bottom-0 bg-[var(--ct-accent)] rounded-full"
           style={{ left: `${left}%`, width: `${width}%` }}
         />
       </div>
-      <div className="flex justify-between text-[11px] font-mono text-zinc-500">
+      <div className="ct-metric-caption flex justify-between font-mono">
         <span>{d.apy.min}%</span>
         <span>{d.apy.max}%</span>
       </div>
@@ -104,7 +109,7 @@ function AllocationMixChart({ data }: { data: unknown }) {
   if (rows.length === 0) return <MissingNote label="no allocation provided" />;
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex h-3 rounded-full overflow-hidden bg-surface-inset border border-white/5">
+      <div className="flex h-3 rounded-full overflow-hidden bg-surface-inset border border-[var(--ct-border-soft)]">
         {rows.map((r, i) => (
           <div
             key={r.label}
@@ -116,10 +121,10 @@ function AllocationMixChart({ data }: { data: unknown }) {
       </div>
       <ul className="list-none m-0 p-0 flex flex-col gap-1.5">
         {rows.map((r, i) => (
-          <li key={r.label} className="flex items-center gap-2 text-[12px] text-zinc-400">
+          <li key={r.label} className="ct-metric-caption flex items-center gap-2">
             <span className={cn("size-2 rounded-full flex-none", DOT_FILLS[i % DOT_FILLS.length])} />
             <span className="flex-1 min-w-0">{r.label}</span>
-            <span className="font-mono text-white tabular-nums">{r.weightPct}%</span>
+            <span className="ct-metric-value font-mono">{r.weightPct}%</span>
             <SourceChip>{r.source}</SourceChip>
           </li>
         ))}
@@ -142,8 +147,8 @@ function ScenarioCompareChart({ data }: { data: unknown }) {
             key={s.id}
             className={cn(SUBTILE, "flex-1 flex flex-col gap-1 p-3 text-center")}
           >
-            <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{s.id}</span>
-            <span className="text-[13px] font-medium text-[#A7FB90] tabular-nums">{apy ? fmtRange(apy) : "—"}</span>
+            <span className="ct-bento-label">{s.id}</span>
+            <span className="ct-metric-value font-medium text-[var(--ct-accent)]">{apy ? fmtRange(apy) : "—"}</span>
           </div>
         );
       })}
@@ -185,7 +190,7 @@ export function ProjectionReportView({
       <section className={cn(PANEL, "gap-3 p-5")}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 min-w-0">
-            <h2 className="text-[18px] font-semibold text-white tracking-tight m-0">{artifact.product.name}</h2>
+            <h2 className="ct-section-title m-0">{artifact.product.name}</h2>
             <Badge variant="default" className="font-mono normal-case tracking-normal">{artifact.product.type}</Badge>
             <Badge variant="default" className="font-mono normal-case tracking-normal">{artifact.version}</Badge>
           </div>
@@ -196,7 +201,7 @@ export function ProjectionReportView({
             <Badge variant="default">Confidence: {artifact.confidence}</Badge>
           </div>
         </div>
-        <p className="text-[13px] text-zinc-400 m-0 max-w-[80ch]">{artifact.summary}</p>
+        <p className="ct-metric-caption m-0 max-w-[80ch]">{artifact.summary}</p>
       </section>
 
       {/* Headline metrics */}
@@ -236,10 +241,10 @@ export function ProjectionReportView({
             return (
               <article key={s.id} className={cn(SUBTILE, "flex flex-col gap-2 p-4")}>
                 <header className="flex items-baseline justify-between gap-2">
-                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{s.label}</span>
-                  <span className="text-[15px] font-medium text-[#A7FB90] tabular-nums">{apy ? fmtRange(apy) : "—"}</span>
+                  <span className="ct-bento-label">{s.label}</span>
+                  <span className="ct-metric-value font-medium text-[var(--ct-accent)]">{apy ? fmtRange(apy) : "—"}</span>
                 </header>
-                <p className="text-[12px] text-zinc-400 m-0">{s.description}</p>
+                <p className="ct-metric-caption m-0">{s.description}</p>
               </article>
             );
           })}
@@ -258,7 +263,7 @@ export function ProjectionReportView({
             <div className="flex flex-col gap-5">
               {renderableCharts.map((c) => (
                 <div key={c.id} className="flex flex-col gap-2">
-                  <span className="text-[11px] text-zinc-500 tracking-wide">{c.title}</span>
+                  <span className="ct-metric-caption">{c.title}</span>
                   <ChartRenderer chart={c} />
                 </div>
               ))}
@@ -272,8 +277,8 @@ export function ProjectionReportView({
           ) : (
             <ul className="list-none m-0 p-0 flex flex-col gap-2">
               {artifact.assumptions.map((a) => (
-                <li key={a.key} className="flex items-center gap-2 text-[12px] text-zinc-400">
-                  <span className="font-mono text-white min-w-0">{a.key}</span>
+                <li key={a.key} className="ct-metric-caption flex items-center gap-2">
+                  <span className="ct-metric-value min-w-0 font-mono">{a.key}</span>
                   <span className="flex-1 min-w-0">{a.value}</span>
                   <SourceChip>{a.source}</SourceChip>
                 </li>
@@ -291,8 +296,8 @@ export function ProjectionReportView({
               <li key={r.id} className="flex gap-3 items-start">
                 <SeverityChip severity={r.severity} />
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="text-[13px] text-white">{r.label}</span>
-                  <span className="text-[12px] text-zinc-400">{r.note}</span>
+                  <span className="ct-metric-value">{r.label}</span>
+                  <span className="ct-metric-caption">{r.note}</span>
                 </div>
               </li>
             ))}
@@ -302,8 +307,8 @@ export function ProjectionReportView({
         <Block title="Provenance">
           <ul className="list-none m-0 p-0 flex flex-col gap-2">
             {artifact.provenance.map((p) => (
-              <li key={p.metricId} className="flex items-center gap-2 text-[12px] text-zinc-400">
-                <span className="font-mono text-white min-w-0">{p.metricId}</span>
+              <li key={p.metricId} className="ct-metric-caption flex items-center gap-2">
+                <span className="ct-metric-value min-w-0 font-mono">{p.metricId}</span>
                 <SourceChip>{p.source}</SourceChip>
               </li>
             ))}
@@ -325,9 +330,9 @@ export function ProjectionReportView({
       ) : null}
 
       {/* Disclaimers */}
-      <section className="rounded-xl border border-white/10 bg-surface-inset p-4 flex flex-col gap-1.5">
+      <section className="rounded-xl border border-[var(--ct-border)] bg-surface-inset p-4 flex flex-col gap-1.5">
         {artifact.disclaimers.map((d) => (
-          <p key={d} className="text-[11px] text-zinc-500 m-0">{d}</p>
+          <p key={d} className="ct-metric-caption m-0">{d}</p>
         ))}
       </section>
     </div>
@@ -349,15 +354,15 @@ function MetricCard({
 }) {
   return (
     <div className={cn(SUBTILE, "flex flex-col gap-2 p-5 min-w-0")}>
-      <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">{label}</span>
+      <span className="ct-bento-label">{label}</span>
       {value ? (
-        <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[#A7FB90]" : "text-white")}>
+        <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]")}>
           {value}
         </span>
       ) : (
-        <span className="text-[13px] text-amber-400">{missing ?? "—"}</span>
+        <span className="ct-metric-caption text-[var(--ct-status-warning)]">{missing ?? "—"}</span>
       )}
-      {provenance ? <span className="text-[10px] text-zinc-500 font-mono">{provenance}</span> : null}
+      {provenance ? <span className="ct-bento-label font-mono normal-case">{provenance}</span> : null}
     </div>
   );
 }
@@ -385,10 +390,10 @@ function MethodologyV2Section({ artifact }: { artifact: ProjectionReportArtifact
   const { p5, p50, p95 } = dist.percentiles;
   return (
     <section className={PANEL}>
-      <header className="flex flex-wrap items-start justify-between gap-3 p-5 border-b border-white/5">
+      <header className="flex flex-wrap items-start justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
         <div className="flex flex-col gap-1 min-w-0">
-          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">Methodology v2</h3>
-          <span className="text-[11px] text-zinc-500 tracking-wide">Seeded scenario distribution — p5 / p50 / p95</span>
+          <h3 className="ct-bento-label leading-none">Methodology v2</h3>
+          <span className="ct-metric-caption">Seeded scenario distribution — p5 / p50 / p95</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <SourceChip>seed: {method.seed}</SourceChip>
@@ -404,7 +409,7 @@ function MethodologyV2Section({ artifact }: { artifact: ProjectionReportArtifact
           <PercentileCard label="p95" caption="High band" pct={p95.apyPct} yieldVal={p95.projectedYield} />
         </div>
 
-        <p className="text-[12px] text-zinc-400 m-0 max-w-[80ch]">
+        <p className="ct-metric-caption m-0 max-w-[80ch]">
           p50 is the median of a conditional distribution under the stated assumptions — it is not an
           expected return or a target. p5 and p95 frame a projection band, not a fixed outcome.
         </p>
@@ -414,7 +419,7 @@ function MethodologyV2Section({ artifact }: { artifact: ProjectionReportArtifact
         {dist.methodology.limitations.length > 0 ? (
           <ul className="list-none m-0 p-0 flex flex-col gap-1">
             {dist.methodology.limitations.map((l) => (
-              <li key={l} className="relative pl-3 text-[12px] text-zinc-500 before:content-['—'] before:absolute before:left-0 before:text-zinc-500">
+              <li key={l} className="ct-metric-caption relative pl-3 before:content-['—'] before:absolute before:left-0 before:text-[var(--ct-text-muted)]">
                 {l}
               </li>
             ))}
@@ -440,13 +445,13 @@ function PercentileCard({
 }) {
   return (
     <div className={cn(SUBTILE, "flex flex-col gap-1 p-4")}>
-      <span className="text-[10px] uppercase tracking-[0.15em] font-mono text-zinc-500">{label}</span>
-      <span className="text-[12px] text-zinc-400">{caption}</span>
-      <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[#A7FB90]" : "text-white")}>
+      <span className="ct-bento-label font-mono">{label}</span>
+      <span className="ct-metric-caption">{caption}</span>
+      <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]")}>
         {Number.isFinite(pct) ? `${fmtNum(pct)}%` : "—"}
       </span>
       {yieldVal ? (
-        <span className="text-[11px] text-zinc-500 font-mono">
+        <span className="ct-metric-caption font-mono">
           {fmtNum(yieldVal.value)} {yieldVal.unit}
         </span>
       ) : null}
@@ -457,14 +462,14 @@ function PercentileCard({
 function SeverityChip({ severity }: { severity: "low" | "medium" | "high" }) {
   const tone =
     severity === "high"
-      ? "border-red-400/30 bg-red-400/10 text-red-400"
+      ? "border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)]"
       : severity === "medium"
-        ? "border-amber-400/30 bg-amber-400/10 text-amber-400"
-        : "border-white/10 bg-white/5 text-zinc-400";
+        ? "border-[color-mix(in_srgb,var(--ct-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)] text-[var(--ct-status-warning)]"
+        : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]";
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] font-bold leading-none flex-none",
+        "ct-bento-label inline-flex items-center rounded-full border px-2 py-0.5 leading-none flex-none",
         tone,
       )}
     >
@@ -503,26 +508,26 @@ function PercentileBand({ bands }: { bands: ProjectionDistribution["bands"] }) {
             key={b.horizonMonth}
             title={`m${b.horizonMonth}: p5 ${fmtNum(b.p5)} · p50 ${fmtNum(b.p50)} · p95 ${fmtNum(b.p95)} ${unit}`}
           >
-            <div className="relative w-full max-w-[18px] flex-1 rounded-sm bg-surface-inset border border-white/5">
+            <div className="relative w-full max-w-[18px] flex-1 rounded-sm bg-surface-inset border border-[var(--ct-border-soft)]">
               <div
-                className="absolute left-0 right-0 rounded-sm bg-[#A7FB90]/15 border border-[#A7FB90]/30"
+                className="absolute left-0 right-0 rounded-sm bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)]"
                 style={{ bottom: pos(b.p5), top: `calc(100% - ${pos(b.p95)})` }}
               />
-              <div className="absolute -left-px -right-px h-0.5 bg-[#A7FB90]" style={{ bottom: pos(b.p50) }} />
+              <div className="absolute -left-px -right-px h-0.5 bg-[var(--ct-accent)]" style={{ bottom: pos(b.p50) }} />
             </div>
-            <span className="text-[10px] text-zinc-500 font-mono h-3">
+            <span className="ct-metric-caption font-mono h-3">
               {i % labelEvery === 0 || i === finite.length - 1 ? `${b.horizonMonth}m` : ""}
             </span>
           </div>
         ))}
       </div>
-      <figcaption className="flex items-center gap-3 flex-wrap text-[11px] text-zinc-500">
+      <figcaption className="ct-metric-caption flex items-center gap-3 flex-wrap">
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-2.5 rounded-sm bg-[#A7FB90]/15 border border-[#A7FB90]/30" />
+          <span className="size-2.5 rounded-sm bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)]" />
           p5–p95 band
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-0.5 bg-[#A7FB90]" />
+          <span className="w-3 h-0.5 bg-[var(--ct-accent)]" />
           p50 median
         </span>
         <span className="font-mono">axis 0 – {fmtNum(axisMax)} {unit}</span>

@@ -107,7 +107,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Vault"
@@ -157,7 +157,7 @@ export default async function SignalsPage({ searchParams }: SignalsPageProps) {
           />
         ) : (
           <section className="flex flex-col gap-y-5">
-            <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            <p className="ct-bento-label">
               {events.length} signal{events.length !== 1 ? "s" : ""}
             </p>
             {events.map((event) => (

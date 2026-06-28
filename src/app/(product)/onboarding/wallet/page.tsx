@@ -19,17 +19,13 @@ export default async function WalletPage() {
   if (gateStatus === "db_unavailable") {
     return (
       <section
-        className="dark rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col mx-auto w-full max-w-2xl"
+        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col mx-auto w-full max-w-2xl"
         data-testid="onboarding-wallet"
       >
-        <div className="flex flex-col gap-2 p-5 border-b border-white/5">
-          <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-            Onboarding · Step 3 of 3
-          </p>
-          <h1 className="text-[22px] font-medium text-white leading-none tracking-tight">
-            Connect your wallet
-          </h1>
-          <p className="text-[13px] text-zinc-400 leading-relaxed text-pretty">
+        <div className="flex flex-col gap-2 p-5 border-b border-[var(--ct-border-soft)]">
+          <p className="ct-bento-label">Onboarding · Step 3 of 3</p>
+          <h1 className="h1">Connect your wallet</h1>
+          <p className="body-sm text-pretty">
             Identity verification is temporarily unavailable. Please try again
             later or contact support.
           </p>

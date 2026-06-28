@@ -25,7 +25,8 @@ import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
-// One green: #A7FB90. Governance display variant → Catalyst Badge color.
+// One green (--ct-accent via Catalyst dark "green"). Governance display variant
+// → Catalyst Badge color.
 const STATE_BADGE_COLOR: Record<
   ReturnType<typeof proposalStateVariant>,
   "zinc" | "amber" | "green" | "red"
@@ -95,7 +96,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const executeAction = handleExecute.bind(null, proposal.id);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Proposal"
@@ -104,7 +105,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           lead={
             <Link
               href="/admin/governance"
-              className="text-[#A7FB90] transition-colors hover:text-[#A7FB90]/80"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
               aria-label="Back to governance"
             >
               ← Governance
@@ -118,22 +119,22 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             title="Proposal meta"
             trailing={
               <div className="flex items-center gap-2">
-                <Badge color="green" className="font-mono text-[10px]! uppercase tracking-wider">
+                <Badge color="green" className="font-mono uppercase">
                   {proposal.vaultTicker}
                 </Badge>
                 <Badge
                   color={STATE_BADGE_COLOR[proposalStateVariant(proposal.state)]}
-                  className="text-[10px]! uppercase tracking-widest"
+                  className="uppercase"
                 >
                   {proposalStateLabel(proposal.state)}
                 </Badge>
               </div>
             }
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <BentoKpiTile
               label="Proposed by"
-              value={<span className="font-mono text-[14px] break-all">{proposal.proposedBy}</span>}
+              value={<span className="font-mono break-all">{proposal.proposedBy}</span>}
               className="bg-surface-card"
             />
             <BentoKpiTile
@@ -143,53 +144,35 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             />
             <BentoKpiTile
               label="Created"
-              value={
-                <span className="text-[14px]">
-                  {formatGovernanceTimestamp(proposal.createdAt)}
-                </span>
-              }
+              value={formatGovernanceTimestamp(proposal.createdAt)}
               className="bg-surface-card"
             />
             <BentoKpiTile
               label="ETA (timelock)"
-              value={
-                <span className="text-[14px]">
-                  {formatGovernanceTimestamp(proposal.etaAt)}
-                </span>
-              }
+              value={formatGovernanceTimestamp(proposal.etaAt)}
               className="bg-surface-card"
             />
             {proposal.executedAt ? (
               <BentoKpiTile
                 label="Executed at"
-                value={
-                  <span className="text-[14px]">
-                    {formatGovernanceTimestamp(proposal.executedAt)}
-                  </span>
-                }
+                value={formatGovernanceTimestamp(proposal.executedAt)}
                 className="bg-surface-card"
               />
             ) : null}
             {proposal.cancelledAt ? (
               <BentoKpiTile
                 label="Cancelled at"
-                value={
-                  <span className="text-[14px]">
-                    {formatGovernanceTimestamp(proposal.cancelledAt)}
-                  </span>
-                }
+                value={formatGovernanceTimestamp(proposal.cancelledAt)}
                 className="bg-surface-card"
               />
             ) : null}
           </div>
 
           {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-            <div className="p-5 lg:p-6 border-t border-white/5">
-              <div className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-surface-inset p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                  Timelock countdown
-                </p>
-                <p className="font-mono text-[14px] text-white">
+            <div className="p-5 lg:p-6 border-t border-[var(--ct-border-soft)]">
+              <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4">
+                <p className="ct-bento-label">Timelock countdown</p>
+                <p className="ct-metric-value font-mono">
                   {timelockCountdown(proposal.etaAt)}
                 </p>
               </div>
@@ -211,7 +194,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 action={ptai.action}
                 impact={ptai.impact}
               />
-              <p className="text-[11px] italic text-zinc-500">
+              <p className="ct-metric-caption italic">
                 Conditional projection — not guaranteed. Methodology v1.0.
               </p>
             </div>
@@ -222,7 +205,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         <BentoPanel aria-label="Justification">
           <BentoHeader title="Justification" />
           <div className="p-5 lg:p-6">
-            <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-zinc-200">
+            <p className="body-sm whitespace-pre-wrap leading-relaxed text-[var(--ct-text-body)]">
               {proposal.justification}
             </p>
           </div>
@@ -233,7 +216,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           <BentoPanel aria-label="Calldata">
             <BentoHeader title="Calldata" />
             <div className="p-5 lg:p-6">
-              <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-white/10 bg-[#0F1316] p-4 font-mono text-[11px] text-zinc-400">
+              <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4 font-mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-body)]">
                 {formatProposalCalldata(proposal.calldata)}
               </pre>
             </div>
@@ -249,35 +232,35 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           />
           <div className="p-5 lg:p-6">
             {proposal.signatures.length === 0 ? (
-              <p className="text-[13px] text-zinc-500">No signatures yet.</p>
+              <p className="ct-metric-caption">No signatures yet.</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {proposal.signatures.map((sig) => (
                   <div
                     key={sig.id}
-                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-surface-inset p-3"
+                    className="flex items-center gap-3 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-3"
                   >
                     <div
                       className={cn(
-                        "flex size-7 shrink-0 items-center justify-center rounded-full border text-[12px] font-bold",
+                        "flex size-7 shrink-0 items-center justify-center rounded-full border text-[length:var(--ct-text-2xs)] font-bold",
                         sig.decision === "approve"
-                          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+                          ? "border-[var(--ct-status-success-border)] bg-[var(--ct-status-success-soft)] text-[var(--ct-accent)]"
                           : sig.decision === "reject"
-                            ? "border-red-400/30 bg-red-400/10 text-red-400"
-                            : "border-white/10 bg-white/5 text-zinc-400",
+                            ? "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]"
+                            : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
                       )}
                     >
                       {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="font-mono text-[12px] text-zinc-200">
+                      <span className="font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                         {sig.signerAddress}
                       </span>
                       {sig.reason ? (
-                        <p className="truncate text-[11px] text-zinc-500">{sig.reason}</p>
+                        <p className="ct-metric-caption truncate">{sig.reason}</p>
                       ) : null}
                     </div>
-                    <span className="shrink-0 text-[11px] tabular-nums text-zinc-500">
+                    <span className="ct-metric-caption shrink-0 tabular-nums">
                       {formatGovernanceTimestamp(sig.signedAt)}
                     </span>
                   </div>
@@ -354,7 +337,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                   />
                 ) : null}
               </div>
-              <p className="text-[12px] text-zinc-500">
+              <p className="ct-metric-caption">
                 Actions are recorded on-chain mock only — no Solidity calls at this stage.
               </p>
             </div>

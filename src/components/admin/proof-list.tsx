@@ -40,10 +40,10 @@ function ProofChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        "ct-bento-label inline-flex items-center rounded-full border px-2.5 py-0.5",
         accent
-          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
-          : "border-white/10 bg-white/5 text-zinc-400",
+          ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+          : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
       )}
     >
       {children}
@@ -96,37 +96,39 @@ function AdminProofRow({ item }: { item: ProofItem }) {
     <BentoPanel>
       <div className="flex flex-wrap items-start justify-between gap-4 p-5">
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2 text-[12px] text-zinc-500">
+          <div className="ct-metric-caption flex flex-wrap items-center gap-2">
             <ProofChip accent>{item.proofType}</ProofChip>
             {item.period ? <ProofChip>{item.period}</ProofChip> : null}
-            <time className="font-mono text-zinc-500">{postedAtDisplay}</time>
-            <span className="font-mono text-zinc-300">
+            <time className="font-mono text-[var(--ct-text-muted)]">
+              {postedAtDisplay}
+            </time>
+            <span className="font-mono text-[var(--ct-text-secondary)]">
               by {abbreviateAddress(item.postedBy)}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-zinc-500">
+          <div className="ct-metric-caption flex flex-wrap items-center gap-x-5 gap-y-2">
             <span>
-              <span className="text-zinc-500">hash </span>
-              <span className="font-mono text-zinc-300">
+              <span className="text-[var(--ct-text-muted)]">hash </span>
+              <span className="font-mono text-[var(--ct-text-secondary)]">
                 {abbreviateAddress(item.hash)}
               </span>
             </span>
             <span>
-              <span className="text-zinc-500">uri </span>
+              <span className="text-[var(--ct-text-muted)]">uri </span>
               <a
                 href={safeHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-[#A7FB90] underline decoration-[#A7FB90]/30 underline-offset-2 hover:decoration-[#A7FB90]"
+                className="font-mono text-[var(--ct-accent)] underline decoration-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] underline-offset-2 hover:decoration-[var(--ct-accent)]"
               >
                 {uriDisplay} ↗
               </a>
             </span>
             {item.txHash ? (
               <span>
-                <span className="text-zinc-500">tx </span>
-                <span className="font-mono text-zinc-300">
+                <span className="text-[var(--ct-text-muted)]">tx </span>
+                <span className="font-mono text-[var(--ct-text-secondary)]">
                   {abbreviateAddress(item.txHash)}
                 </span>
               </span>
@@ -134,7 +136,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           </div>
 
           {item.notes ? (
-            <p className="text-[12px] italic text-zinc-500">{item.notes}</p>
+            <p className="ct-metric-caption italic">{item.notes}</p>
           ) : null}
         </div>
 
@@ -148,7 +150,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
             disabled={isPending}
             className={cn(
               BENTO_SECONDARY_BTN,
-              "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20",
+              "border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)] hover:bg-[color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)]",
             )}
           >
             {isPending ? "Deleting…" : "Delete"}

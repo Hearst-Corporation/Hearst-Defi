@@ -2,14 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { Button } from "@/components/catalyst/button";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import {
   BentoPanel,
   BentoHeader,
   BentoLabel,
-  BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
 } from "@/components/ui/bento";
+import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { proposeAction } from "@/lib/governance/actions";
@@ -30,7 +31,7 @@ const ACTION_TYPES = [
 
 // Portfolio-canon field chrome: dark sub-surface, hairline border, accent focus.
 const FIELD =
-  "w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[#A7FB90]/40 focus:outline-none";
+  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-sm)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] transition-colors focus:border-[var(--ct-border-accent)] focus:outline-none";
 
 async function handlePropose(formData: FormData) {
   "use server";
@@ -59,7 +60,7 @@ export default async function ProposePage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="New"
@@ -68,7 +69,7 @@ export default async function ProposePage() {
           lead={
             <Link
               href="/admin/governance"
-              className="text-[#A7FB90] transition-colors hover:text-[#A7FB90]/80"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
               aria-label="Back to governance"
             >
               ← Governance
@@ -91,7 +92,7 @@ export default async function ProposePage() {
                   >
                     <Link
                       href="/admin/vaults/new"
-                      className="text-[#A7FB90] underline underline-offset-2"
+                      className="text-[var(--ct-accent)] underline underline-offset-2"
                     >
                       Create a vault first.
                     </Link>
@@ -144,23 +145,23 @@ export default async function ProposePage() {
                   placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
                   className={cn(FIELD, "resize-y")}
                 />
-                <span className="text-[11px] text-zinc-500">Min 80 characters.</span>
+                <span className="ct-metric-caption">Min 80 characters.</span>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <button
+                <Button
                   type="submit"
-                  className={BENTO_PRIMARY_BTN}
+                  className={CATALYST_ACCENT_BTN}
                   disabled={vaults.length === 0}
                 >
                   Submit proposal
-                </button>
+                </Button>
                 <Link href="/admin/governance" className={BENTO_SECONDARY_BTN}>
                   Cancel
                 </Link>
               </div>
 
-              <p className="text-[12px] text-zinc-500">
+              <p className="ct-metric-caption">
                 Submitting moves the proposal directly to SIGNING state. The
                 proposer&apos;s own approval is not automatically counted — sign
                 explicitly in the detail view.

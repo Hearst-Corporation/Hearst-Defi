@@ -44,9 +44,7 @@ export function CanvasSectionView({
         {...(section.intro ? { subtitle: section.intro } : {})}
         trailing={
           section.status === "building" ? (
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-              Composing…
-            </span>
+            <span className="ct-bento-label">Composing…</span>
           ) : undefined
         }
       />
@@ -57,15 +55,15 @@ export function CanvasSectionView({
             {section.fields.map((field) => (
               <div
                 key={field.key}
-                className="flex flex-col gap-1.5 rounded-lg border border-white/10 bg-surface-inset p-4"
+                className="flex flex-col gap-1.5 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4"
               >
-                <dt className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                <dt className="ct-bento-label flex items-center gap-2">
                   {field.label}
                   <ProvenanceBadge kind={toBadgeProvenance(field.provenance)} compact />
                 </dt>
-                <dd className="m-0 text-[13px] font-medium text-white">{field.value}</dd>
+                <dd className="ct-metric-value m-0">{field.value}</dd>
                 {field.note && (
-                  <dd className="m-0 text-[10px] tracking-wide text-zinc-500">{field.note}</dd>
+                  <dd className="ct-metric-caption m-0">{field.note}</dd>
                 )}
               </div>
             ))}

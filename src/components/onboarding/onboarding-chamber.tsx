@@ -74,13 +74,15 @@ export function OnboardingChamber({
       <header className="flex flex-col gap-4 p-5">
         {crown}
       </header>
-      <div className="flex flex-col gap-5 p-5 border-t border-white/5">
+      <div className="flex flex-col gap-5 p-5 border-t border-[var(--ct-border-soft)]">
         {body}
       </div>
       <footer
         className={cn(
           "p-5",
-          aside ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-white/5" : "border-t border-white/5 bg-surface-inset",
+          aside
+            ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-[var(--ct-border-soft)]"
+            : "border-t border-[var(--ct-border-soft)] bg-surface-inset",
         )}
       >
         {sole}
@@ -91,7 +93,7 @@ export function OnboardingChamber({
   return (
     <article
       className={cn(
-        "dark relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-card shadow-sm",
+        "relative flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
         aside && "md:flex-row md:items-stretch",
         className,
       )}
@@ -100,7 +102,7 @@ export function OnboardingChamber({
       {aside ? (
         <>
           <div className="flex min-w-0 flex-col md:flex-1">{stack}</div>
-          <div className="flex min-w-0 border-t border-white/5 md:w-[var(--ct-rail-right)] md:shrink-0 md:border-t-0 md:border-l">
+          <div className="flex min-w-0 border-t border-[var(--ct-border-soft)] md:w-[var(--ct-rail-right)] md:shrink-0 md:border-t-0 md:border-l">
             {aside}
           </div>
         </>
@@ -118,9 +120,7 @@ export function OnboardingRequirementsList({
 }) {
   return (
     <div aria-label="Onboarding requirements" className="flex flex-col gap-3">
-      <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-        Requirements
-      </p>
+      <p className="ct-bento-label">Requirements</p>
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {items.map((item) => (
           <li key={item.id} className="flex items-start gap-3">
@@ -129,8 +129,8 @@ export function OnboardingRequirementsList({
               className={cn(
                 "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border",
                 item.done
-                  ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
-                  : "border-white/10 bg-surface-inset text-transparent",
+                  ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] ct-text-accent"
+                  : "border-[var(--ct-border)] bg-surface-inset text-transparent",
               )}
             >
               {item.done ? (
@@ -152,10 +152,10 @@ export function OnboardingRequirementsList({
                 </svg>
               ) : null}
             </span>
-            <span className="text-[13px] text-zinc-200">
+            <span className="body-sm ct-text-primary">
               {item.label}
               {item.optional ? (
-                <span className="ml-2 align-middle text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+                <span className="ct-bento-label ml-2 align-middle">
                   Optional
                 </span>
               ) : null}
@@ -180,17 +180,12 @@ export function OnboardingChamberSole({
     <div className="flex flex-col gap-5">
       {actions}
 
-      <p className="m-0 text-pretty text-center text-[12px] leading-relaxed text-zinc-500">
-        {compliance}
-      </p>
+      <p className="body-xs m-0 text-pretty text-center">{compliance}</p>
 
       {irContact ? (
-        <p className="m-0 text-pretty text-center text-[12px] leading-relaxed text-zinc-500">
+        <p className="body-xs m-0 text-pretty text-center">
           Questions?{" "}
-          <a
-            href={`mailto:${irContact.email}`}
-            className="font-medium text-[#A7FB90] hover:underline"
-          >
+          <a href={`mailto:${irContact.email}`} className="ct-link-accent">
             {irContact.name}
           </a>
           {irContact.calendlyHref ? (
@@ -200,7 +195,7 @@ export function OnboardingChamberSole({
                 href={irContact.calendlyHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-[#A7FB90] hover:underline"
+                className="ct-link-accent"
               >
                 Schedule a call
               </a>

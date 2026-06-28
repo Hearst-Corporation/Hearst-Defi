@@ -45,7 +45,7 @@ type FieldErrors = Partial<Record<ProjectionDraftField, string>>;
 
 const alloc = PREVIEW_PROJECTION_INPUT.allocation ?? [];
 
-const PANEL = "rounded-2xl border border-white/10 bg-surface-card shadow-sm";
+const PANEL = "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm";
 
 export function ProjectionReportPreview() {
   const [mode, setMode] = useState<Mode>("v0");
@@ -135,17 +135,17 @@ export function ProjectionReportPreview() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div
-            className="inline-flex rounded-lg border border-white/10 bg-white/5 overflow-hidden"
+            className="inline-flex rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] overflow-hidden"
             role="group"
             aria-label="Projection methodology"
           >
             <button
               type="button"
               className={cn(
-                "px-3 py-1.5 text-[11px] font-bold tracking-wide whitespace-nowrap transition-colors",
+                "ct-metric-caption px-3 py-1.5 font-bold whitespace-nowrap transition-colors",
                 mode === "v0"
-                  ? "bg-[#A7FB90]/10 text-[#A7FB90]"
-                  : "text-zinc-500 hover:text-zinc-300",
+                  ? "bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                  : "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-body)]",
               )}
               aria-pressed={mode === "v0"}
               onClick={() => selectMode("v0")}
@@ -155,10 +155,10 @@ export function ProjectionReportPreview() {
             <button
               type="button"
               className={cn(
-                "px-3 py-1.5 text-[11px] font-bold tracking-wide whitespace-nowrap transition-colors border-l border-white/10",
+                "ct-metric-caption px-3 py-1.5 font-bold whitespace-nowrap transition-colors border-l border-[var(--ct-border)]",
                 mode === "v2"
-                  ? "bg-[#A7FB90]/10 text-[#A7FB90]"
-                  : "text-zinc-500 hover:text-zinc-300",
+                  ? "bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                  : "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-body)]",
               )}
               aria-pressed={mode === "v2"}
               onClick={() => selectMode("v2")}
@@ -168,7 +168,7 @@ export function ProjectionReportPreview() {
           </div>
           <button
             type="button"
-            className="px-3 py-1.5 rounded-lg border border-white/10 text-[13px] font-medium text-zinc-400 hover:text-white hover:border-white/20 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ct-metric-value px-3 py-1.5 rounded-lg border border-[var(--ct-border)] font-medium text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] hover:border-[var(--ct-border-strong)] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={reset}
             disabled={isLoading}
           >
@@ -177,8 +177,8 @@ export function ProjectionReportPreview() {
           <button
             type="button"
             className={cn(
-              "px-4 py-1.5 rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[13px] font-semibold text-[#A7FB90] transition-colors whitespace-nowrap hover:bg-[#A7FB90] hover:text-black",
-              isLoading && "opacity-60 cursor-progress hover:bg-[#A7FB90]/10 hover:text-[#A7FB90]",
+              "ct-metric-value px-4 py-1.5 rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] font-semibold text-[var(--ct-accent)] transition-colors whitespace-nowrap hover:bg-[var(--ct-accent)] hover:text-[var(--ct-bg-deep)]",
+              isLoading && "opacity-60 cursor-progress hover:bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] hover:text-[var(--ct-accent)]",
             )}
             onClick={() => run(mode)}
             disabled={isLoading}
@@ -239,21 +239,21 @@ export function ProjectionReportPreview() {
             />
           ) : null}
         </div>
-        <p className="text-[11px] text-zinc-500 m-0">
+        <p className="ct-metric-caption m-0">
           Allocation: {alloc.map((a) => `${a.weightPct}%`).join(" / ")} preview fixture (not editable). Inputs are
           draft-only — nothing is stored, and APY is always a range.
         </p>
         {localError ? (
-          <p className="text-[13px] text-red-400 m-0" role="alert">{localError}</p>
+          <p className="ct-metric-value m-0 text-[var(--ct-status-danger)]" role="alert">{localError}</p>
         ) : null}
       </section>
 
       {state.kind === "idle" ? (
         <div className={cn(PANEL, "p-5 flex flex-col gap-2")}>
-          <p className="text-[13px] font-semibold text-white m-0">
+          <p className="ct-metric-value m-0">
             {mode === "v2" ? "Methodology v2 — seeded distribution" : "Read-only projection preview"}
           </p>
-          <p className="text-[13px] text-zinc-400 m-0 max-w-[64ch]">
+          <p className="ct-metric-caption m-0 max-w-[64ch]">
             {mode === "v2" ? (
               <>
                 Run to render a seeded p5 / p50 / p95 distribution for the input above. The seed is visible
@@ -272,7 +272,7 @@ export function ProjectionReportPreview() {
 
       {state.kind === "loading" ? (
         <div className={cn(PANEL, "p-5 flex flex-col gap-2")} aria-busy="true">
-          <p className="text-[13px] font-semibold text-white m-0">Building projection…</p>
+          <p className="ct-metric-value m-0">Building projection…</p>
           <div className="h-3 w-2/5 rounded-sm bg-surface-inset animate-pulse" />
           <div className="h-3 w-3/4 rounded-sm bg-surface-inset animate-pulse" />
         </div>
@@ -280,15 +280,15 @@ export function ProjectionReportPreview() {
 
       {state.kind === "invalid" ? (
         <div className={cn(PANEL, "p-5 flex flex-col gap-2")} role="alert">
-          <p className="text-[13px] font-semibold text-amber-400 m-0">Input not accepted</p>
-          <p className="text-[13px] text-zinc-400 m-0 max-w-[64ch]">{state.message}</p>
+          <p className="ct-metric-value m-0 text-[var(--ct-status-warning)]">Input not accepted</p>
+          <p className="ct-metric-caption m-0 max-w-[64ch]">{state.message}</p>
         </div>
       ) : null}
 
       {state.kind === "error" ? (
         <div className={cn(PANEL, "p-5 flex flex-col gap-2")} role="alert">
-          <p className="text-[13px] font-semibold text-red-400 m-0">Projection unavailable</p>
-          <p className="text-[13px] text-zinc-400 m-0 max-w-[64ch]">{state.message}</p>
+          <p className="ct-metric-value m-0 text-[var(--ct-status-danger)]">Projection unavailable</p>
+          <p className="ct-metric-caption m-0 max-w-[64ch]">{state.message}</p>
         </div>
       ) : null}
 
@@ -296,7 +296,7 @@ export function ProjectionReportPreview() {
         <>
           {stale ? (
             <p
-              className="text-[11px] text-amber-400 m-0 px-3 py-2 rounded-lg border border-amber-400/30 bg-amber-400/5"
+              className="ct-metric-caption m-0 px-3 py-2 rounded-lg border border-[color-mix(in_srgb,var(--ct-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-warning)_5%,transparent)] text-[var(--ct-status-warning)]"
               role="status"
             >
               Inputs changed since this report — run again to refresh.
@@ -311,7 +311,7 @@ export function ProjectionReportPreview() {
 
 function SourceChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+    <span className="ct-bento-label inline-flex items-center rounded-full border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-0.5 font-mono whitespace-nowrap">
       {children}
     </span>
   );
@@ -337,15 +337,15 @@ function DraftField({
   const id = `projpv-field-${field}`;
   return (
     <div className="flex flex-col gap-1 min-w-0">
-      <label className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500" htmlFor={id}>
+      <label className="ct-bento-label" htmlFor={id}>
         {label}
       </label>
       <input
         id={id}
         name={field}
         className={cn(
-          "w-full min-w-0 box-border rounded-md border bg-surface-inset text-white font-mono text-[13px] px-3 py-2 transition-colors outline-none focus:border-[#A7FB90]/40",
-          error ? "border-red-400/50" : "border-white/10",
+          "w-full min-w-0 box-border rounded-md border bg-surface-inset text-[var(--ct-text-strong)] font-mono text-[13px] px-3 py-2 transition-colors outline-none focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]",
+          error ? "border-[color-mix(in_srgb,var(--ct-status-danger)_50%,transparent)]" : "border-[var(--ct-border)]",
         )}
         value={value}
         inputMode={inputMode}
@@ -355,9 +355,9 @@ function DraftField({
         onChange={(e) => onChange(field, e.target.value)}
       />
       {error ? (
-        <span className="text-[10px] font-mono text-red-400">{error}</span>
+        <span className="ct-bento-label font-mono text-[var(--ct-status-danger)]">{error}</span>
       ) : hint ? (
-        <span className="text-[10px] font-mono text-zinc-500">{hint}</span>
+        <span className="ct-bento-label font-mono">{hint}</span>
       ) : null}
     </div>
   );

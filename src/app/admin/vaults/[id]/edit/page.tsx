@@ -65,13 +65,13 @@ export default async function EditVaultPage({ params }: PageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           lead={
             <Link
               href={`/admin/vaults/${id}`}
-              className="text-[12px] text-zinc-400 transition-colors hover:text-white"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
             >
               ← {vault.ticker}
             </Link>

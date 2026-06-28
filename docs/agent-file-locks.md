@@ -71,6 +71,60 @@ git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
 
 ## ACTIVE LOCKS
 
+### feat/ds-canon-propagation
+Owner: Claude Opus — DS Canon Propagation (admin + auth/legal + onboarding)
+Branch: feat/ds-canon-propagation
+Worktree: ../connect-ds-canon
+Started: 2026-06-28
+Status: active
+
+Goal: propagate the rendered canon (Catalyst structure + --ct-* tokens, portfolio
+typographic source of truth) to the surfaces NOT owned by the concurrent
+fix/investor-registry-catalyst-ds worktree. Delete the bad: hardcoded hex/rgba,
+non-token greens, deprecated surfaces (.ct-system-panel/.glass-panel*), duplicated
+inline primitives. Canon reference page = /admin/customers.
+
+Scope (ONLY these — admin pages NOT owned elsewhere + auth/legal + onboarding):
+- src/app/admin/dashboard/page.tsx
+- src/app/admin/governance/** (page, allowlist, propose, proposal/[id])
+- src/app/admin/outreach/** (page, compose, [campaignId], prospects/[id])
+- src/app/admin/signals/page.tsx
+- src/app/admin/monitoring/page.tsx
+- src/app/admin/security/page.tsx
+- src/app/admin/distributions/page.tsx
+- src/app/admin/feedback/page.tsx
+- src/app/admin/audit/page.tsx
+- src/app/admin/agents/** (page, new, [id])
+- src/app/admin/agent-canvas/[canvasId]/page.tsx
+- src/app/admin/investor-memo/page.tsx
+- src/app/admin/projection/** (page, preview) — visual only, no calc
+- src/app/admin/proofs/page.tsx
+- src/app/admin/proof-center/** (page, full)
+- src/app/admin/roadmap/page.tsx
+- src/app/admin/scenario-lab/page.tsx
+- src/app/admin/source/page.tsx
+- src/app/admin/spec/** (page, [slug])
+- src/app/admin/vaults/** (admin vault list/detail/edit/new — NOT product /vaults)
+- src/app/admin/onboarding-test/page.tsx
+- src/app/(product)/onboarding/** (page, identity, accreditation, wallet)
+- src/app/login/page.tsx, forgot-password, reset-password, totp-challenge
+- src/app/legal/** (page, terms, privacy, disclaimer)
+- src/app/apply/** (page, confirmed)
+- Page-local + admin-scoped components consumed ONLY by the above pages.
+
+EXCLUSIONS (owned by other live worktrees — DO NOT TOUCH):
+- ALL portfolio (page, positions, activity, distributions, tax, yield, [positionId]),
+  ALL product invest/vault flow (/vaults/[id], invest, confirmed), profile,
+  customers (page + [id]) → fix/investor-registry-catalyst-ds.
+- src/app/admin/marketplace/page.tsx, nav files → feat/defi-market-data.
+- Shared DS-sensitive files: src/app/cockpit.css, doc-flow.css, doc-flow-typography.css,
+  globals.css, CATALYST_CANON_REFERENCE.md, DS_SINGLE_SOURCE_OF_TRUTH.md,
+  .cursor/rules/design-system.mdc, scripts/ds-hardcode-guard.mjs, package.json,
+  cockpit-shell/** — all being edited by fix/investor-registry-catalyst-ds.
+- src/components/catalyst/*.tsx, src/components/ui/*.tsx — #037 primitives lock
+  LIFTED BY USER for this mission, but coordinate: edit a primitive only if no
+  page-level fix suffices, and never in lockstep with the registry worktree's open edits.
+
 ### fix/ds-authority-lock
 Owner: Claude Opus — DS Authority Lock (Mission #037)
 Branch: fix/ds-authority-lock

@@ -5,7 +5,7 @@
 // gates · Guards) with a coloured status dot (green = guaranteed, red = the
 // dangerous actions that are never autonomous, amber = gated) and the item list
 // tucked into a nested <details>. No write controls. No hardcoded colour outside
-// the canon (#A7FB90). Pure component.
+// the canon (--ct-accent). Pure component.
 
 import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
@@ -14,13 +14,13 @@ import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types
 type Tone = "ok" | "warn" | "danger";
 
 const DOT_CLASS: Record<Tone, string> = {
-  ok: "bg-[#A7FB90]",
+  ok: "bg-[var(--ct-accent)]",
   warn: "bg-amber-400/80",
   danger: "bg-red-400/80",
 };
 
 const TAG_CLASS: Record<Tone, string> = {
-  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   danger: "border-red-400/25 bg-red-400/10 text-red-300",
 };
