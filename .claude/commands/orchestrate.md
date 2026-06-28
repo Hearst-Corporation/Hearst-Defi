@@ -73,23 +73,37 @@ bash scripts/orchestrator/decide.sh
 - **`REVIEW_SINGLE_OWNER`** → sans conflit mais touche un fichier single-owner → demande Adrien.
 - **`BLOCKED_FORBIDDEN`** → contient un fichier interdit → jamais.
 
-### 3. Gate typecheck (pour chaque `MERGE_CANDIDATE`)
-Le « sans conflit git » ne garantit pas que ça compile. Avant de merger, valide le
-**résultat du merge** dans un worktree jetable :
+### 3. Gates AVANT merge (pour chaque `MERGE_CANDIDATE`) — TOUT read-only, rien n'est écrasé tant que pas validé
+
+**3a. Anti-régression / anti-écrasement** (en PREMIER, le plus important) :
 ```bash
-git fetch origin >/dev/null 2>&1
-TMP="../.orchestrator-validate"
-git worktree add -d "$TMP" origin/main >/dev/null 2>&1
-git -C "$TMP" merge --no-ff --no-commit origin/<BRANCHE> >/dev/null 2>&1   # merge à blanc
-# si le merge à blanc échoue → CONFLICT_REBASE, abandonne ce candidat
-( cd "$TMP" && pnpm install --frozen-lockfile --prefer-offline >/dev/null 2>&1; pnpm typecheck )
-RES=$?
-git -C "$TMP" merge --abort 2>/dev/null
-git worktree remove --force "$TMP" 2>/dev/null
+bash scripts/orchestrator/regression-check.sh origin/<BRANCHE>
 ```
-- `pnpm typecheck` **vert (RES=0)** → étape 4 (merge réel).
-- **rouge** → verdict `BLOCKED_TYPECHECK`, tu ne merges pas, tu rapportes l'erreur tsc
-  (l'agent propriétaire doit corriger). Tu passes au candidat suivant.
+Ce script détecte, **avant tout merge** : (1) les fichiers touchés des deux côtés depuis
+la base (zone de divergence), (2) les fichiers que la branche **supprime** mais présents
+sur main, (3) les fichiers que le merge ferait **reculer à l'état base** (= annule le
+travail récent de main). **Toute ligne `RISK | REVERT` ou `RISK | DELETE`** → verdict
+`REVIEW_REGRESSION` : **tu ne merges PAS**, tu montres à Adrien ce qui serait perdu et
+tu passes au suivant. Un `RISK | OVERLAP` seul (sans REVERT/DELETE) = zone partagée mais
+le merge ne perd rien → tu peux continuer.
+
+**3b. Gate typecheck + tests** sur le **résultat du merge** dans un worktree jetable :
+```bash
+TMP="../.orchestrator-validate"
+git worktree remove --force "$TMP" 2>/dev/null; git worktree prune
+git worktree add -d "$TMP" origin/main >/dev/null 2>&1
+git -C "$TMP" merge --no-ff --no-commit origin/<BRANCHE> >/dev/null 2>&1 || { echo CONFLICT_REBASE; git -C "$TMP" merge --abort; }
+[ -d node_modules ] && [ ! -e "$TMP/node_modules" ] && ln -s "$(pwd)/node_modules" "$TMP/node_modules"
+( cd "$TMP" && pnpm typecheck && pnpm test )   # typecheck PUIS suite de tests complète (vitest)
+RES=$?
+git -C "$TMP" merge --abort 2>/dev/null; rm -f "$TMP/node_modules" 2>/dev/null
+git worktree remove --force "$TMP" 2>/dev/null; git worktree prune
+```
+- `RES=0` (typecheck **et** tests verts) **+ aucun RISK REVERT/DELETE en 3a** → étape 4 (merge réel).
+- typecheck rouge → `BLOCKED_TYPECHECK` ; tests rouges → `BLOCKED_TESTS`. Tu ne merges pas,
+  tu rapportes l'échec (l'agent corrige), tu passes au suivant.
+
+**Règle d'or : au moindre doute sur une perte de travail ou une régression, tu NE merges PAS.**
 
 ### 4. Merge réel (uniquement les candidats verts)
 Préférer le merge GitHub si une PR existe, sinon créer la PR puis merger :
