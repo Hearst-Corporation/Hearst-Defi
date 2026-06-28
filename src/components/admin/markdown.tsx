@@ -25,7 +25,7 @@ export function Markdown({
         components={{
           h1: ({ children }) =>
             demoteH1 ? (
-              <h2 className="mt-8 mb-3 text-[18px] font-semibold tracking-tight text-white first:mt-0">
+              <h2 className="mt-8 mb-3 text-[length:var(--ct-text-xl-fixed)] font-semibold tracking-tight text-white first:mt-0">
                 {children}
               </h2>
             ) : (
@@ -34,7 +34,7 @@ export function Markdown({
               </h1>
             ),
           h2: ({ children }) => (
-            <h2 className="mt-8 mb-3 text-[18px] font-semibold tracking-tight text-white">
+            <h2 className="mt-8 mb-3 text-[length:var(--ct-text-xl-fixed)] font-semibold tracking-tight text-white">
               {children}
             </h2>
           ),

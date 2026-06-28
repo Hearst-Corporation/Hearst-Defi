@@ -10,9 +10,9 @@
  *      the convergence (Catalyst is the single UI source).
  *   2. raw #A7FB90 in tsx outside the legitimate fallback allowlist (canvas/SVG
  *      paints that can't resolve a CSS var, brand-constants source of truth).
- *   3. text-[Npx] with an EXACT --ct-text token, on product/vaults/proof-center/
- *      admin surfaces — the debt just purged. (Non-exact sizes like 18px are
- *      allowed: no clean token exists, tokenizing them would drift pixels.)
+ *   3. text-[Npx] with an EXACT --ct-text token (8/9/10/11/12/13/14/15/18px),
+ *      on product/vaults/proof-center/admin surfaces — the debt purged in lots
+ *      8–9. Non-exact sizes (20/24/28/32px) stay arbitrary: no clean token.
  *
  * Usage:
  *   node scripts/ds-convergence-guard.mjs           # strict, exit 1 on hit
@@ -49,7 +49,7 @@ const ACCENT_FALLBACK_ALLOW = [
 
 // ── Guard 3 — px sizes that HAVE an exact ct-text token (so must be tokenized) ─
 // 16px(base) intentionally omitted: `text-base` is idiomatic and rarely drifts.
-const EXACT_PX = ["8", "9", "10", "11", "12", "13", "14", "15"];
+const EXACT_PX = ["8", "9", "10", "11", "12", "13", "14", "15", "18"];
 const EXACT_PX_RE = new RegExp(`text-\\[(?:${EXACT_PX.join("|")})px\\]`);
 // Scope: surfaces that were cleaned. Catalyst primitives are NOT scoped (their
 // Headless-UI defaults are managed separately).
@@ -131,7 +131,7 @@ for (const abs of walk(SRC)) {
         lineNo: i + 1,
         text: line.trim(),
         reason: `Pixel hardcode ${m[0]} has an exact ct-text token — tokenize it.`,
-        fix: "text-[length:var(--ct-text-{octa|nano|deci|micro|2xs|xs|deca|sm})] (8/9/10/11/12/13/14/15px).",
+        fix: "text-[length:var(--ct-text-{octa|nano|deci|micro|2xs|xs|deca|sm|xl-fixed})] (8/9/10/11/12/13/14/15/18px).",
       });
     }
   }

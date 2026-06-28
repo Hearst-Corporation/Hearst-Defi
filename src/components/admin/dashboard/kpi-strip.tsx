@@ -83,7 +83,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
         </div>
         <span
           className={cn(
-            "text-[18px] font-medium leading-none tracking-tight tabular-nums",
+            "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums",
             kpi.alert
               ? "text-[var(--ct-status-danger)]"
               : kpi.accent

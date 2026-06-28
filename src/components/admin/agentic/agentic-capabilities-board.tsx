@@ -88,7 +88,7 @@ export function AgenticCapabilitiesBoard({
         subtitle="What the platform can do, by how much human oversight it needs."
         as="h3"
         trailing={
-          <span className="text-[18px] font-medium leading-none text-white tabular-nums">
+          <span className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none text-white tabular-nums">
             {CAPABILITIES.length}
           </span>
         }

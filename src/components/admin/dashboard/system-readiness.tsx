@@ -67,7 +67,7 @@ export function SystemReadinessModule({
             />
             <span
               className={cn(
-                "text-[18px] font-bold leading-none tracking-tight",
+                "text-[length:var(--ct-text-xl-fixed)] font-bold leading-none tracking-tight",
                 toneText(view.posture),
               )}
             >
@@ -135,7 +135,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       </div>
       <span
         className={cn(
-          "text-[18px] font-medium leading-none tracking-tight tabular-nums",
+          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums",
           toneText(stat.tone),
         )}
       >

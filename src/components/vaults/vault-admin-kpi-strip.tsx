@@ -34,7 +34,7 @@ export function VaultAdminKpiStrip({
           </span>
           <ProvenanceBadge kind="estimated" />
         </div>
-        <div className="text-[18px] font-medium leading-none tracking-tight tabular-nums">
+        <div className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums">
           <ApyRange
             low={facts.apyLow}
             high={facts.apyHigh}
@@ -50,7 +50,7 @@ export function VaultAdminKpiStrip({
         <span className="ct-bento-label">
           Fees
         </span>
-        <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+        <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
           {bpsToPercent(facts.mgmtFeeBps)}% / {bpsToPercent(facts.perfFeeBps)}%
         </span>
         <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Mgmt / Perf</p>
@@ -61,7 +61,7 @@ export function VaultAdminKpiStrip({
         <span className="ct-bento-label">
           Lock-up
         </span>
-        <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+        <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
           {facts.softLockupDays}d
         </span>
         <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Soft lock-up</p>
@@ -78,7 +78,7 @@ export function VaultAdminKpiStrip({
               kind={facts.currentAumUsdc > 0 ? "live" : "estimated"}
             />
           </div>
-          <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+          <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
             {formatUsdFull(facts.currentAumUsdc)}
           </span>
           <div className="mt-1">

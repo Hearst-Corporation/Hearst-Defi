@@ -120,7 +120,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
               low={vault.apyLow}
               high={vault.apyHigh}
               precision={1}
-              className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums"
+              className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums"
             />
           </dd>
         </div>
@@ -128,7 +128,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           <dt className="ct-bento-label">
             Est. gross yield (p.a.)
           </dt>
-          <dd className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+          <dd className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
             {yearlyYield !== null ? `~${formatUsdFull(yearlyYield)}` : "—"}
           </dd>
         </div>
@@ -136,7 +136,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           <dt className="ct-bento-label">
             Lock-up
           </dt>
-          <dd className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+          <dd className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
             {vault.softLockupDays}d soft
           </dd>
         </div>
@@ -144,7 +144,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           <dt className="ct-bento-label">
             Fees
           </dt>
-          <dd className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+          <dd className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
             {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%
             {hurdleFee ? ` · ${hurdleFee.toFixed(1)}%` : ""}
           </dd>

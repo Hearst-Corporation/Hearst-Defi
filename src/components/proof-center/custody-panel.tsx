@@ -36,7 +36,7 @@ function BentoKpi({
       <span className="ct-bento-label">
         {label}
       </span>
-      <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
+      <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
         {value}
       </span>
       {sublabel ? (

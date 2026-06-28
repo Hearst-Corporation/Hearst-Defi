@@ -356,7 +356,7 @@ function MetricCard({
     <div className={cn(SUBTILE, "flex flex-col gap-2 p-5 min-w-0")}>
       <span className="ct-bento-label">{label}</span>
       {value ? (
-        <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]")}>
+        <span className={cn("text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums leading-none", accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]")}>
           {value}
         </span>
       ) : (
@@ -447,7 +447,7 @@ function PercentileCard({
     <div className={cn(SUBTILE, "flex flex-col gap-1 p-4")}>
       <span className="ct-bento-label font-mono">{label}</span>
       <span className="ct-metric-caption">{caption}</span>
-      <span className={cn("text-[18px] font-medium tabular-nums leading-none", accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]")}>
+      <span className={cn("text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums leading-none", accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]")}>
         {Number.isFinite(pct) ? `${fmtNum(pct)}%` : "—"}
       </span>
       {yieldVal ? (
