@@ -71,7 +71,29 @@ git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
 
 ## ACTIVE LOCKS
 
-_(aucun lock actif)_
+### fix/ds-authority-lock
+Owner: Claude Opus — DS Authority Lock (Mission #037)
+Branch: fix/ds-authority-lock
+Worktree: ../connect-ds-authority-lock
+Started: 2026-06-28
+Status: active
+
+Scope (net-new files only — zero edit-overlap with active DS worktrees):
+- README_DESIGN_SYSTEM.md
+- src/components/catalyst/README.md
+- src/components/ui/README.md
+- src/lib/ds/__tests__/ds-authority-lock.test.ts
+
+Notes:
+- Lock Catalyst as canonical UI component layer; mark src/components/ui legacy
+  (no brutal delete). Cockpit-shell stays shell/tokens.
+- DELIBERATELY NOT touching the contested DS files owned by other live worktrees:
+  .cursor/rules/design-system.mdc, docs/CATALYST_CANON_REFERENCE.md,
+  scripts/ds-hardcode-guard.mjs, src/components/catalyst/*.tsx, src/components/ui/*.tsx,
+  src/components/dataviz/his/* (charts agent).
+- No charts/dataviz/Prisma/projection/chat/nav/outreach. #146 untouched.
+
+_(aucun autre lock actif)_
 
 ---
 
