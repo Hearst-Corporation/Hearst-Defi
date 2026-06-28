@@ -1,6 +1,7 @@
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/catalyst/table";
+import { BentoKpiStrip } from "@/components/ui/bento";
 
 export const dynamic = "force-dynamic";
 
@@ -103,22 +104,24 @@ export default function PortfolioPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/5 bg-[#15191C]">
-            <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
-              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Capital Active</div>
-              <div className="text-[22px] font-medium text-white leading-none tracking-tight">$250K</div>
-            </div>
-            <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-white/5">
-              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Target APY</div>
-              <div className="text-[22px] font-medium text-white leading-none tracking-tight flex items-baseline gap-1.5">
-                9.4 <span className="text-base text-zinc-500 font-normal mx-0.5">—</span> 12.8 <span className="text-base text-zinc-500 font-normal">%</span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 p-5 md:px-6">
-              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">Forward Horizon</div>
-              <div className="text-[22px] font-medium text-white leading-none tracking-tight">12m</div>
-            </div>
-          </div>
+          <BentoKpiStrip
+            ariaLabel="Portfolio headline metrics"
+            items={[
+              { label: "Capital Active", value: "$250K" },
+              {
+                label: "Target APY",
+                value: (
+                  <span className="flex items-baseline gap-1.5">
+                    9.4{" "}
+                    <span className="text-base ct-text-muted font-normal mx-0.5">—</span>{" "}
+                    12.8{" "}
+                    <span className="text-base ct-text-muted font-normal">%</span>
+                  </span>
+                ),
+              },
+              { label: "Forward Horizon", value: "12m" },
+            ]}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-8 p-6">
             <div className="relative size-[160px] shrink-0 mx-auto md:mx-0">

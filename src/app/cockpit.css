@@ -112,6 +112,11 @@
      change le fond de toutes les pages en BentoPageShell / .ct-bento-page. */
   --ct-surface-page: #18181b;
 
+  /* Gris des SOUS-SURFACES / insets (KPI strips, mini-panels internes, barres de
+     metrics). Token officiel = #15191C, le gris omniprésent en dur dans le code
+     (bg-[#15191C]). Source unique pour BentoKpiStrip + sous-surfaces. */
+  --ct-surface-inset: #15191C;
+
   /* Canvas central (body) — un cran PLUS CLAIR que le noir des boxes/rails, pour
      que les boxes noires se détachent comme des dalles. Porte aussi le dot-grid
      (déplacé des rails). Token DS — aucun hex hardcodé dans les usages. */

@@ -168,6 +168,71 @@ export function BentoDetailRow({
   );
 }
 
+/**
+ * Canonical KPI strip — the standard headline-metric bar used across pages.
+ * 1→N responsive grid on the page-surface grey, tiles separated by hairlines,
+ * micro-label + 22px value (Portfolio canon). Fully tokenized: surface =
+ * --ct-surface-1, dividers = --ct-border-soft, label = .ct-bento-label.
+ * Use this instead of hand-rolling a `grid bg-[#15191C] border-white/5` block.
+ */
+export interface BentoKpiItem {
+  label: ReactNode;
+  value: ReactNode;
+  /** Accent-green value (single green) when true. */
+  accent?: boolean;
+}
+
+export function BentoKpiStrip({
+  items,
+  className,
+  ariaLabel,
+}: {
+  items: BentoKpiItem[];
+  className?: string;
+  ariaLabel?: string;
+}) {
+  const cols =
+    items.length >= 4
+      ? "md:grid-cols-4"
+      : items.length === 3
+        ? "md:grid-cols-3"
+        : items.length === 2
+          ? "md:grid-cols-2"
+          : "md:grid-cols-1";
+  return (
+    <div
+      aria-label={ariaLabel}
+      className={cn(
+        "grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]",
+        cols,
+        className,
+      )}
+    >
+      {items.map((item, i) => (
+        <div
+          key={i}
+          className={cn(
+            "flex flex-col gap-2 p-5 md:px-6",
+            // Hairline between tiles: bottom on stacked mobile, right on desktop.
+            i < items.length - 1 &&
+              "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
+          )}
+        >
+          <div className="ct-bento-label">{item.label}</div>
+          <div
+            className={cn(
+              "text-[22px] font-medium leading-none tracking-tight",
+              item.accent ? "ct-text-accent" : "ct-text-strong",
+            )}
+          >
+            {item.value}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** Accent-green primary CTA class string. */
 export const BENTO_PRIMARY_BTN =
   "inline-flex items-center justify-center rounded-lg bg-[var(--ct-accent)] px-4 py-2.5 text-[13px] font-bold text-zinc-900 transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
