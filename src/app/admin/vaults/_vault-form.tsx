@@ -117,7 +117,7 @@ function isValidSigner(raw: string): boolean {
 // Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
 // accent (#A7FB90) focus ring. One source for every native control in the form.
 const BENTO_INPUT =
-  "w-full rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 const BENTO_FIELD_HINT = "text-[length:var(--ct-text-2xs)] text-zinc-600";
 const BENTO_LABEL =
   "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
@@ -409,7 +409,7 @@ export function VaultForm(props: VaultFormProps) {
                       "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-zinc-900",
                     !isActive &&
                       !isCompleted &&
-                      "border-white/10 bg-surface-inset text-zinc-600",
+                      "border-[var(--ct-border)] bg-surface-inset text-zinc-600",
                   )}
                 >
                   {i + 1}
@@ -637,7 +637,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
             </FieldGrid>
 
-            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
+            <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <span className={BENTO_LABEL}>APY Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
@@ -837,7 +837,7 @@ export function VaultForm(props: VaultFormProps) {
 
               {/* Admin identity helper */}
               {props.adminId && (
-                <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
+                <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
                   <span className="text-[length:var(--ct-text-2xs)] text-zinc-400">
                     Your current admin identity:
                   </span>
@@ -882,7 +882,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {/* Required signers — multisig threshold M-of-N */}
-              <div className="flex flex-col gap-2 border-t border-white/10 pt-5">
+              <div className="flex flex-col gap-2 border-t border-[var(--ct-border)] pt-5">
                 <span className={cn(BENTO_LABEL, "mb-1")}>
                   Approval Quorum (M-of-N) *
                 </span>
@@ -902,7 +902,7 @@ export function VaultForm(props: VaultFormProps) {
                           "rounded-lg border px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium transition-colors",
                           active
                             ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                            : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10",
+                            : "border-[var(--ct-border)] bg-white/5 text-zinc-300 hover:bg-white/10",
                           disabled && "cursor-not-allowed opacity-40",
                         )}
                       >
@@ -924,7 +924,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="flex flex-col gap-5">
             <StepHeader title="Review & Simulate" />
 
-            <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-surface-inset p-5">
+            <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <FieldGrid columns={2} className="pb-4">
                 <RecapRow label="Ticker">
                   <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-white">{form.ticker}</span>
@@ -1030,7 +1030,7 @@ export function VaultForm(props: VaultFormProps) {
               runs={1000}
             />
 
-            <p className="border-t border-white/10 pt-4 text-[length:var(--ct-text-2xs)] text-zinc-600">
+            <p className="border-t border-[var(--ct-border)] pt-4 text-[length:var(--ct-text-2xs)] text-zinc-600">
               Assumptions: mining yields, BTC price, network difficulty, energy costs are
               projected based on historical ranges. Target APY is a range, not guaranteed.
               Past performance is not indicative of future results.
@@ -1043,7 +1043,7 @@ export function VaultForm(props: VaultFormProps) {
           <div className="flex flex-col gap-5">
             <StepHeader title="Sign & Deploy" />
 
-            <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5">
+            <div className="flex flex-col gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <p className="text-[length:var(--ct-text-xs)] text-zinc-400">
                 This vault draft will be submitted to the multisig review queue. Once submitted,
                 it requires the configured quorum of signers to approve before deployment.
@@ -1051,7 +1051,7 @@ export function VaultForm(props: VaultFormProps) {
               <p className="text-[length:var(--ct-text-xs)] text-zinc-300">
                 Click <strong className="font-semibold text-white">Submit for Review</strong> below to enter the multisig queue.
               </p>
-              <div className="flex flex-col gap-2 border-t border-white/5 pt-3">
+              <div className="flex flex-col gap-2 border-t border-[var(--ct-border-soft)] pt-3">
                 <div className="flex items-center justify-between gap-3">
                   <span className={BENTO_LABEL}>Vault</span>
                   <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-white">{form.ticker || "—"}</span>
@@ -1067,7 +1067,7 @@ export function VaultForm(props: VaultFormProps) {
 
             {/* Signer whitelist recap — surfaces malformed entries and whether
                 THIS admin can sign later (cf. signApproval actorWallet). */}
-            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
+            <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <span className={BENTO_LABEL}>Signers whitelist</span>
               {filledSigners.length === 0 ? (
                 <span className="text-[length:var(--ct-text-2xs)] text-red-400">
@@ -1136,7 +1136,7 @@ export function VaultForm(props: VaultFormProps) {
           </div>
         ) : null}
 
-        <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/5 pt-5">
+        <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--ct-border-soft)] pt-5">
           <Button
             variant="ghost"
             size="sm"

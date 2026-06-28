@@ -34,7 +34,7 @@ const CHIP_TONE: Record<ChipTone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   danger: "border-red-400/30 bg-red-400/10 text-red-400",
-  neutral: "border-white/10 bg-white/5 text-zinc-400",
+  neutral: "border-[var(--ct-border)] bg-white/5 text-zinc-400",
 };
 
 function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
@@ -120,7 +120,7 @@ function Th({ children, className }: { children: ReactNode; className?: string }
 
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
-    <tr className="border-b border-white/5 align-top transition-colors last:border-b-0 hover:bg-white/[0.02]">
+    <tr className="border-b border-[var(--ct-border-soft)] align-top transition-colors last:border-b-0 hover:bg-white/[0.02]">
       <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-300">
         {tool.id}
       </td>
@@ -246,7 +246,7 @@ export function ToolBoundarySection({
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
             <thead>
-              <tr className="border-b border-white/5">
+              <tr className="border-b border-[var(--ct-border-soft)]">
                 {["Tool", "Tier", "Risk", "Gate", "Autonomous", "Runtime", "Source"].map(
                   (h) => (
                     <Th key={h} className="whitespace-nowrap">
@@ -276,7 +276,7 @@ export function ToolBoundarySection({
           {forbiddenActions.map((a) => (
             <li
               key={a.id}
-              className="border-b border-white/5 py-3 text-[length:var(--ct-text-xs)] leading-snug last:border-b-0"
+              className="border-b border-[var(--ct-border-soft)] py-3 text-[length:var(--ct-text-xs)] leading-snug last:border-b-0"
             >
               <span className="font-medium text-white">{a.name}</span>
               <span className="text-zinc-500"> — {a.notes}</span>

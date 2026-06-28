@@ -50,7 +50,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
   if (variant === "compact") {
     return (
       <footer
-        className="app-footer app-footer--compact border-t border-white/5"
+        className="app-footer app-footer--compact border-t border-[var(--ct-border-soft)]"
         aria-label="Legal"
       >
         <nav
@@ -88,7 +88,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
 
   return (
     <footer
-      className="app-footer app-footer--full border-t border-white/5"
+      className="app-footer app-footer--full border-t border-[var(--ct-border-soft)]"
       aria-label="Site footer"
     >
       <div className="app-footer__grid">

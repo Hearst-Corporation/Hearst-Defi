@@ -31,7 +31,7 @@ export function AdminTable<T>({
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-[13px]">
           <thead>
-            <tr className="border-b border-white/5">
+            <tr className="border-b border-[var(--ct-border-soft)]">
               {headers.map((h, i) => (
                 <th
                   key={i}
@@ -49,7 +49,7 @@ export function AdminTable<T>({
             {data.map((item, i) => (
               <tr
                 key={i}
-                className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.02]"
+                className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-white/[0.02]"
               >
                 {renderRow(item)}
               </tr>
@@ -80,7 +80,7 @@ export function AdminPagination({
   const end = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--ct-border-soft)] py-4">
       <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] tabular-nums">
         Showing {start}-{end} of {total}
       </p>
@@ -88,7 +88,7 @@ export function AdminPagination({
         {page > 1 && (
           <Link
             href={`${basePath}?page=${page - 1}&pageSize=${pageSize}`}
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10"
+            className="rounded-lg border border-[var(--ct-border)] bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10"
           >
             Previous
           </Link>
@@ -96,7 +96,7 @@ export function AdminPagination({
         {hasMore && (
           <Link
             href={`${basePath}?page=${page + 1}&pageSize=${pageSize}`}
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10"
+            className="rounded-lg border border-[var(--ct-border)] bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10"
           >
             Next
           </Link>

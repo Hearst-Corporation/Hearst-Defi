@@ -100,7 +100,7 @@ export function AdminPageShell({
  *   3. the body (a Catalyst table, an empty state, or any content).
  *
  * This is the canonical replacement for the ad-hoc mix of BentoPanel /
- * border-white/10 sections that had started to diverge across admin pages.
+ * border-[var(--ct-border)] sections that had started to diverge across admin pages.
  */
 export function AdminSectionCard({
   kpis,

@@ -114,7 +114,7 @@ function InngestRow({ job }: { job: InngestJob }) {
 
   return (
     <div
-      className="flex items-center justify-between gap-3 py-2.5 border-b border-white/5 last:border-b-0"
+      className="flex items-center justify-between gap-3 py-2.5 border-b border-[var(--ct-border-soft)] last:border-b-0"
       aria-label={`${job.name}: ${label}`}
     >
       <span className="text-[length:var(--ct-text-xs)] text-zinc-300 truncate uppercase">{job.name}</span>
@@ -210,7 +210,7 @@ function OnChainEventRow({ event }: { event: OnChainEvent }) {
   );
 
   const rowClassName =
-    "flex items-start gap-3 py-3 border-b border-white/5 last:border-b-0";
+    "flex items-start gap-3 py-3 border-b border-[var(--ct-border-soft)] last:border-b-0";
 
   const interactiveContent =
     event.txHash && !isPlaceholderTxHash(event.txHash) ? (

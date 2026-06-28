@@ -27,7 +27,7 @@ export function VaultAdminKpiStrip({
       )}
     >
       {/* Target APY */}
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <span className="ct-bento-label">
             Target APY
@@ -46,7 +46,7 @@ export function VaultAdminKpiStrip({
       </div>
 
       {/* Fees */}
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <span className="ct-bento-label">
           Fees
         </span>
@@ -57,7 +57,7 @@ export function VaultAdminKpiStrip({
       </div>
 
       {/* Lock-up */}
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
         <span className="ct-bento-label">
           Lock-up
         </span>
@@ -69,7 +69,7 @@ export function VaultAdminKpiStrip({
 
       {/* AUM */}
       {showAumCard ? (
-        <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm p-5 flex flex-col gap-2">
+        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <span className="ct-bento-label">
               AUM

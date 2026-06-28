@@ -50,7 +50,7 @@ export function VaultAllocationAdminRows({
       {rows.map((row) => (
         <div
           key={row.bucket}
-          className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-white/5 last:border-b-0 last:pb-0"
+          className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-[var(--ct-border-soft)] last:border-b-0 last:pb-0"
         >
           <div
             className={`size-2.5 rounded-full border-2 border-[#15191C] ${accentDotClassFor(
@@ -159,7 +159,7 @@ export function VaultAllocationInvestorList({
         {donutSegments.map((s) => (
           <div
             key={s.bucket}
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-white/5 last:border-b-0 last:pb-0"
+            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-[var(--ct-border-soft)] last:border-b-0 last:pb-0"
           >
             <div
               className={`size-2.5 rounded-full border-2 border-[#15191C] ${accentDotClassFor(

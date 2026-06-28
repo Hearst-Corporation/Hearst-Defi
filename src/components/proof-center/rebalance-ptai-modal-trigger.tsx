@@ -20,7 +20,7 @@ export function RebalancePtaiModalTrigger({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-white/10 transition-colors"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/5 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-white/10 transition-colors"
       >
         View PTAI detail
       </button>

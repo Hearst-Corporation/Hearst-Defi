@@ -28,10 +28,10 @@ const STATUSES: RoadmapStatus[] = [
 ];
 
 const INPUT_CLASS =
-  "mt-2 w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+  "mt-2 w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 
 const GHOST_BTN =
-  "rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-lg border border-[var(--ct-border)] bg-white/5 px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   const [open, setOpen] = useState(false);
@@ -81,7 +81,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               {item.label}
             </span>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+              <span className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                 {item.owner}
               </span>
               {item.evidenceUrl ? (
@@ -122,8 +122,8 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md border transition-colors disabled:cursor-default",
                   item.status === s
-                    ? "border-white/10 bg-white/10"
-                    : "border-transparent text-zinc-500 hover:border-white/10 hover:bg-white/5",
+                    ? "border-[var(--ct-border)] bg-white/10"
+                    : "border-transparent text-zinc-500 hover:border-[var(--ct-border)] hover:bg-white/5",
                 )}
                 title={statusLabel(s)}
                 aria-label={`Set status to ${statusLabel(s)}`}

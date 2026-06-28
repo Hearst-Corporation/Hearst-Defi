@@ -20,7 +20,7 @@ interface VaultLegalProofRowsProps {
 
 function ProofRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
+    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3">
       <span className="text-[13px] text-zinc-400">{label}</span>
       <span className="text-[13px] font-medium text-white tabular-nums">
         {value}

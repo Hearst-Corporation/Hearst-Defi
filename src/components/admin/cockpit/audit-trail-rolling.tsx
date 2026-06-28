@@ -33,7 +33,7 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
     <div aria-label="Audit trail" className="overflow-x-auto">
       <table className="w-full table-fixed" aria-label="Audit trail">
         <thead>
-          <tr className="border-b border-white/5">
+          <tr className="border-b border-[var(--ct-border-soft)]">
             <th className="text-left px-3 py-2 ct-bento-label">
               Time
             </th>
@@ -68,7 +68,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="group border-b border-white/5 last:border-b-0 cursor-default transition-colors hover:bg-white/[0.02]">
+    <tr className="group border-b border-[var(--ct-border-soft)] last:border-b-0 cursor-default transition-colors hover:bg-white/[0.02]">
       <td className="px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-zinc-300 tabular-nums">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </td>

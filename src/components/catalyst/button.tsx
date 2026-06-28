@@ -28,7 +28,7 @@ const styles = {
     // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
     'dark:before:hidden',
     // Dark mode: Subtle white outline is applied using a border
-    'dark:border-white/5',
+    'dark:border-[var(--ct-border-soft)]',
     // Shim/overlay, inset to match button foreground and used for hover state + highlight shadow
     'after:absolute after:inset-0 after:-z-10 after:rounded-[calc(var(--radius-lg)-1px)]',
     // Inner highlight shadow
@@ -44,7 +44,7 @@ const styles = {
     // Base
     'border-zinc-950/10 text-zinc-950 data-active:bg-zinc-950/2.5 data-hover:bg-zinc-950/2.5',
     // Dark mode
-    'dark:border-white/15 dark:text-white dark:[--btn-bg:transparent] dark:data-active:bg-white/5 dark:data-hover:bg-white/5',
+    'dark:border-[var(--ct-border-strong)] dark:text-white dark:[--btn-bg:transparent] dark:data-active:bg-white/5 dark:data-hover:bg-white/5',
     // Icon
     '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
   ],

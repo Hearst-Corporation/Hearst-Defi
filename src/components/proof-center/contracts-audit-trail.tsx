@@ -108,7 +108,7 @@ function PanelHeader({
   trailing?: ReactNode;
 }) {
   return (
-    <div className="flex items-end justify-between gap-3 p-5 border-b border-white/5">
+    <div className="flex items-end justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5 min-w-0">
         <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
           {title}
@@ -129,7 +129,7 @@ const MICRO_LABEL = "ct-bento-label";
 /** Single on-chain reference row (label + monospace value / explorer link). */
 function ProofRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-3 border-b border-white/5 last:border-b-0">
+    <div className="flex items-center justify-between gap-3 py-3 border-b border-[var(--ct-border-soft)] last:border-b-0">
       <span className="text-[length:var(--ct-text-xs)] text-zinc-400">{label}</span>
       <span className="min-w-0 text-right">{children}</span>
     </div>
@@ -182,12 +182,12 @@ function ProofArticle({
     <article
       className={cn(
         "px-5 py-5",
-        separated && "border-t border-white/5",
+        separated && "border-t border-[var(--ct-border-soft)]",
       )}
     >
       <div className="flex items-start gap-3">
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-white/[0.02]"
           aria-hidden="true"
         >
           <Icon className="w-4 h-4 text-zinc-400" />
@@ -303,7 +303,7 @@ function DeployedContractCard({
             Source-verified @ commit
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-zinc-400">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-zinc-400">
             <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden="true" />
             Deployment provenance unverified
           </span>
@@ -312,7 +312,7 @@ function DeployedContractCard({
           href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
           target="_blank"
           rel="noreferrer noopener"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
           aria-label={`View ${contract.name} on Basescan`}
         >
           View on Basescan
@@ -334,7 +334,7 @@ export function ContractsAuditTrail({
   return (
     <div className="dark flex flex-col gap-y-5">
       {platformAddresses.length > 0 ? (
-        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <PanelHeader
             title="On-chain addresses"
             subtitle="Vault, manager & custody scope"
@@ -352,7 +352,7 @@ export function ContractsAuditTrail({
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <PanelHeader
           title="Deployed contracts · test network"
           subtitle="Configured deployment addresses"
@@ -369,7 +369,7 @@ export function ContractsAuditTrail({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <PanelHeader
           title="Contract audit trail"
           subtitle="Review status"
@@ -382,12 +382,12 @@ export function ContractsAuditTrail({
               key={entry.label}
               className={cn(
                 "px-5 py-4",
-                idx > 0 && "border-t border-white/5",
+                idx > 0 && "border-t border-[var(--ct-border-soft)]",
               )}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]"
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-white/[0.02]"
                   aria-hidden="true"
                 >
                   <FileText className="w-4 h-4 text-zinc-400" />
@@ -412,7 +412,7 @@ export function ContractsAuditTrail({
                           {auditBadgeLabel(entry)}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-zinc-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-white/[0.03] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-zinc-400">
                           <span
                             className="h-1.5 w-1.5 rounded-full bg-zinc-500"
                             aria-hidden="true"
@@ -425,7 +425,7 @@ export function ContractsAuditTrail({
                           href={entry.href}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
                           aria-label={`View document for ${entry.label}`}
                         >
                           View document
@@ -443,7 +443,7 @@ export function ContractsAuditTrail({
           ))}
         </ul>
 
-        <div className="border-t border-white/5 px-5 py-4 flex flex-col gap-1.5">
+        <div className="border-t border-[var(--ct-border-soft)] px-5 py-4 flex flex-col gap-1.5">
           <p className={cn(MICRO_LABEL, "m-0")}>Release gate</p>
           <p className="text-[length:var(--ct-text-2xs)] text-zinc-500 leading-relaxed m-0">
             Production (mainnet) deployment requires completion of an

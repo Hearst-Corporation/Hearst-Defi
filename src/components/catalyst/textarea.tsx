@@ -36,7 +36,7 @@ export const Textarea = forwardRef(function Textarea(
           // Typography
           'text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white',
           // Border
-          'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-white/10 dark:data-hover:border-white/20',
+          'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-[var(--ct-border)] dark:data-hover:border-[var(--ct-border-strong)]',
           // Background color
           'bg-transparent dark:bg-white/5',
           // Hide default focus styles
@@ -44,7 +44,7 @@ export const Textarea = forwardRef(function Textarea(
           // Invalid state
           'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-600 dark:data-invalid:data-hover:border-red-600',
           // Disabled state
-          'disabled:border-zinc-950/20 dark:disabled:border-white/15 dark:disabled:bg-white/2.5 dark:data-hover:disabled:border-white/15',
+          'disabled:border-zinc-950/20 dark:disabled:border-[var(--ct-border-strong)] dark:disabled:bg-white/2.5 dark:data-hover:disabled:border-[var(--ct-border-strong)]',
           // Resizable
           resizable ? 'resize-y' : 'resize-none',
         ])}

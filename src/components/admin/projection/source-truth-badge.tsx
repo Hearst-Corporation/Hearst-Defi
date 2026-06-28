@@ -17,7 +17,7 @@ const TONE: Record<SourceTruthStatus, string> = {
   DEMO: "border-amber-400/30 bg-amber-400/10 text-amber-400",
   UNAUDITED: "border-rose-400/30 bg-rose-400/10 text-rose-400",
   PARTIAL: "border-sky-400/30 bg-sky-400/10 text-sky-300",
-  MIXED: "border-white/15 bg-white/5 text-zinc-300",
+  MIXED: "border-[var(--ct-border-strong)] bg-white/5 text-zinc-300",
 };
 
 export function SourceTruthBadge({
@@ -57,7 +57,7 @@ export function ProjectionSourceSummary({
   const outputs = summary.rows.filter((r) => r.kind === "output");
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#15191C] p-4">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-[#15191C] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-[length:var(--ct-text-micro)] font-bold uppercase tracking-[0.15em] text-zinc-500">
           Source truth
@@ -75,7 +75,7 @@ export function ProjectionSourceSummary({
         <SourceColumn title="Outputs" rows={outputs} />
       </div>
 
-      <p className="mt-3 border-t border-white/5 pt-3 text-[length:var(--ct-text-micro)] italic text-zinc-600">
+      <p className="mt-3 border-t border-[var(--ct-border-soft)] pt-3 text-[length:var(--ct-text-micro)] italic text-zinc-600">
         Projection methodology : live inputs + configured assumptions. Not
         guaranteed. Admin validation required — {summary.verdict}.
       </p>

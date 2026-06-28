@@ -18,7 +18,7 @@ const HEADER = {
 } as const;
 
 const PANEL_CLASS =
-  "rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col";
+  "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col";
 
 /** Bento section header — title (h3) + subtitle + provenance badge. */
 function BentoHeader({
@@ -33,7 +33,7 @@ function BentoHeader({
   provenance: "live" | "estimated" | "manual" | "stale";
 }) {
   return (
-    <div className="flex items-end justify-between p-5 border-b border-white/5">
+    <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5">
         {/* sectionLed: the visible page <h2> owns the section title; the panel
             shows only its h3 subtitle + provenance. */}
@@ -137,7 +137,7 @@ export function MiningCashFlowEvidence({
         />
       )}
 
-      <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-zinc-400 border-b border-white/5 m-0">
+      <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-zinc-400 border-b border-[var(--ct-border-soft)] m-0">
         {MINING_CASHFLOW_COPY[provenance]}
       </p>
 
@@ -147,19 +147,19 @@ export function MiningCashFlowEvidence({
           value={ratioLabel}
           sublabel="net mining cash ÷ target"
           accent
-          className="border-b border-white/5 sm:border-r lg:border-r"
+          className="border-b border-[var(--ct-border-soft)] sm:border-r lg:border-r"
         />
         <KpiCell
           label="State"
           value={coverage?.state ?? "invalid"}
           sublabel={coverage?.recommendation.action ?? "—"}
-          className="border-b border-white/5 lg:border-r"
+          className="border-b border-[var(--ct-border-soft)] lg:border-r"
         />
         <KpiCell
           label="Latest revenue period"
           value={coverage?.period ?? "—"}
           sublabel={coverage?.lastUpdated ? "as of attestation" : "awaiting first close"}
-          className="border-b border-white/5 sm:border-r sm:border-b-0 lg:border-r"
+          className="border-b border-[var(--ct-border-soft)] sm:border-r sm:border-b-0 lg:border-r"
         />
         <KpiCell
           label="Attestation status"

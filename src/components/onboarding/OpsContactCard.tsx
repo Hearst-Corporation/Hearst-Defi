@@ -17,11 +17,11 @@ export function OpsContactCard({
 }: OpsContactCardProps) {
   return (
     <section
-      className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
       role="complementary"
       aria-label="Investor Relations contact"
     >
-      <div className="flex items-end justify-between p-5 border-b border-white/5">
+      <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
         <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
           Your IR Contact
         </h2>
@@ -46,7 +46,7 @@ export function OpsContactCard({
       <div className="flex flex-col">
         <a
           href={`mailto:${email}`}
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
           aria-label={`Email ${name} at ${email}`}
         >
           <span className="ct-bento-label">
@@ -59,7 +59,7 @@ export function OpsContactCard({
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
           <span className="ct-bento-label">

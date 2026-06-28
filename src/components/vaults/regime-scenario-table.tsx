@@ -23,11 +23,11 @@ interface RegimeScenarioTableProps {
 export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
   const regimes = deriveStressRegimes(vault);
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-[var(--ct-border)]">
               <th
                 scope="col"
                 className="pl-5 pr-4 py-3 text-left ct-bento-label"
@@ -76,7 +76,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
             {regimes.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition-colors"
+                className="border-b border-[var(--ct-border-soft)] last:border-b-0 hover:bg-white/[0.02] transition-colors"
               >
                 <td className="pl-5 pr-4 py-4 align-top">
                   <div className="flex items-start gap-3">

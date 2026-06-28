@@ -64,7 +64,7 @@ function ChartFrame({
   ariaLabel?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm flex flex-col overflow-hidden">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
       <div className="flex flex-wrap items-start justify-between px-5 pt-5 pb-2 relative z-20 gap-4">
         <h2 className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">
           {title}

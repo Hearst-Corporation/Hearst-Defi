@@ -58,7 +58,7 @@ export function RecentDistributions({
     const empty = (
       <>
         {!bare && (
-          <div className="flex items-end justify-between p-5 border-b border-white/5">
+          <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
               <MicroLabel>Latest distributions</MicroLabel>
               <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
@@ -73,7 +73,7 @@ export function RecentDistributions({
     return bare ? (
       empty
     ) : (
-      <section className="dark rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="dark rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         {empty}
       </section>
     );
@@ -86,7 +86,7 @@ export function RecentDistributions({
   const inner = (
     <>
       {!bare && (
-        <div className="flex items-end justify-between p-5 border-b border-white/5">
+        <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
             <MicroLabel>
               {sectionLed ? "Latest distributions" : "Payout history"}
@@ -112,7 +112,7 @@ export function RecentDistributions({
           return (
             <li
               key={d.id}
-              className="flex flex-col gap-2.5 py-4 border-b border-white/5 last:border-b-0"
+              className="flex flex-col gap-2.5 py-4 border-b border-[var(--ct-border-soft)] last:border-b-0"
             >
               {/* Period + amount headline row */}
               <div className="flex items-center justify-between gap-3">
@@ -175,7 +175,7 @@ export function RecentDistributions({
   return bare ? (
     inner
   ) : (
-    <section className="dark rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <section className="dark rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
       {inner}
     </section>
   );

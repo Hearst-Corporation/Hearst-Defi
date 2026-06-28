@@ -30,7 +30,7 @@ const FIELD_LABEL =
 
 /** Native input/select/textarea chrome — bento canon. */
 const FIELD_CONTROL =
-  "w-full bg-surface-inset border border-white/10 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600";
+  "w-full bg-surface-inset border border-[var(--ct-border)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600";
 
 /** Neutral badge pill used in the persona summary + base-agent echo. */
 function Pill({
@@ -46,7 +46,7 @@ function Pill({
         "inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-nano)] font-bold uppercase tracking-wider",
         accent
           ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-          : "border-white/10 bg-white/5 text-zinc-400",
+          : "border-[var(--ct-border)] bg-white/5 text-zinc-400",
       )}
     >
       {children}
@@ -107,7 +107,7 @@ export function AgentTemplateForm({
     >
       {/* Selected base agent — echoes the catalog card you arrived from. */}
       {entry && (
-        <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5">
+        <div className="flex items-center gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
           <span
             aria-hidden
             className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"

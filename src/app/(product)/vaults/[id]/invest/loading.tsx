@@ -4,14 +4,14 @@
 export default function InvestDepositLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8"
+      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label="Loading invest flow"
     >
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER + STEPPER */}
-        <div className="flex flex-col gap-4 pb-3 border-b border-white/10">
+        <div className="flex flex-col gap-4 pb-3 border-b border-[var(--ct-border)]">
           <div className="flex flex-col gap-2">
             <div className="h-3 w-36 bg-surface-inset animate-pulse rounded" />
             <div className="h-8 w-56 bg-surface-inset animate-pulse rounded" />
@@ -28,9 +28,9 @@ export default function InvestDepositLoading() {
             {[0, 1].map((card) => (
               <section
                 key={card}
-                className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
+                className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
               >
-                <div className="p-5 border-b border-white/5">
+                <div className="p-5 border-b border-[var(--ct-border-soft)]">
                   <div className="h-5 w-40 bg-surface-inset animate-pulse rounded" />
                 </div>
                 <div className="flex flex-col gap-4 p-5">
@@ -44,15 +44,15 @@ export default function InvestDepositLoading() {
           </div>
 
           {/* SUMMARY RAIL */}
-          <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-white/5">
+          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+            <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
             </div>
             <div className="flex flex-col px-5">
               {[0, 1, 2, 3].map((row) => (
                 <div
                   key={row}
-                  className="flex items-center justify-between py-3 border-b border-white/5"
+                  className="flex items-center justify-between py-3 border-b border-[var(--ct-border-soft)]"
                 >
                   <div className="h-3 w-24 bg-surface-inset animate-pulse rounded" />
                   <div className="h-3 w-20 bg-surface-inset animate-pulse rounded" />

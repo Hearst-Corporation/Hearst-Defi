@@ -30,9 +30,9 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const hasAmount = amount > 0;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="flex items-end justify-between p-5 border-b border-white/5">
+      <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
         <div className="flex flex-col gap-1.5">
           <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
             Deposit Summary
@@ -45,7 +45,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       </div>
 
       {/* Headline projected total */}
-      <div className="flex items-end justify-between gap-4 p-5 border-b border-white/5">
+      <div className="flex items-end justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
         <span className="ct-bento-label max-w-[55%]">
           {hasAmount
             ? "Projected at soft close (gross)"
@@ -62,9 +62,9 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       </div>
 
       {/* Principal / Yield split bar + legend */}
-      <div className="flex flex-col gap-4 p-5 border-b border-white/5">
+      <div className="flex flex-col gap-4 p-5 border-b border-[var(--ct-border-soft)]">
         <div
-          className="relative h-2 flex overflow-hidden rounded-full border border-white/5 bg-surface-inset"
+          className="relative h-2 flex overflow-hidden rounded-full border border-[var(--ct-border-soft)] bg-surface-inset"
           role="img"
           aria-label={
             hasAmount
@@ -110,8 +110,8 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       </div>
 
       {/* KPI grid */}
-      <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-white/5 bg-surface-inset">
-        <div className="flex flex-col gap-2 p-5 border-b sm:border-r border-white/5">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-[var(--ct-border-soft)] bg-surface-inset">
+        <div className="flex flex-col gap-2 p-5 border-b sm:border-r border-[var(--ct-border-soft)]">
           <dt className="ct-bento-label">
             Target APY
           </dt>
@@ -124,7 +124,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
             />
           </dd>
         </div>
-        <div className="flex flex-col gap-2 p-5 border-b border-white/5">
+        <div className="flex flex-col gap-2 p-5 border-b border-[var(--ct-border-soft)]">
           <dt className="ct-bento-label">
             Est. gross yield (p.a.)
           </dt>
@@ -132,7 +132,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
             {yearlyYield !== null ? `~${formatUsdFull(yearlyYield)}` : "—"}
           </dd>
         </div>
-        <div className="flex flex-col gap-2 p-5 sm:border-r border-white/5">
+        <div className="flex flex-col gap-2 p-5 sm:border-r border-[var(--ct-border-soft)]">
           <dt className="ct-bento-label">
             Lock-up
           </dt>

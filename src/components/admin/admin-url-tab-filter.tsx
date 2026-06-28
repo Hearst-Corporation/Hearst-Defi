@@ -43,7 +43,7 @@ export function AdminUrlTabFilter({
               "inline-flex items-center rounded-lg border px-3 py-1.5 text-[12px] font-medium tracking-wide transition-colors",
               isActive
                 ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
+                : "border-[var(--ct-border)] bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
             )}
           >
             {tab.label}

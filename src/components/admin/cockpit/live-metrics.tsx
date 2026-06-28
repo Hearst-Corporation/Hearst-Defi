@@ -72,7 +72,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   return (
     <div
-      className="cursor-default border-b border-white/5 py-3 last:border-b-0"
+      className="cursor-default border-b border-[var(--ct-border-soft)] py-3 last:border-b-0"
       aria-label={`Vault ${vault.vaultName} metrics`}
     >
       <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
@@ -92,7 +92,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
       </div>
 
       {vault.hasTimelineData ? (
-        <div className="grid grid-cols-2 gap-2 border-t border-white/5 pt-2 @[14rem]:grid-cols-3 @[22rem]:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 border-t border-[var(--ct-border-soft)] pt-2 @[14rem]:grid-cols-3 @[22rem]:grid-cols-5">
           <MetricCell
             label="TVL"
             value={vault.tvlUsdc > 0 ? usdCompact.format(vault.tvlUsdc) : "—"}

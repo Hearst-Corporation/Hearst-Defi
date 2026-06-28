@@ -16,7 +16,7 @@ export function ProfileSecurityRow({
   return (
     <div
       role="listitem"
-      className="flex items-start justify-between gap-3 py-3 border-b border-white/5"
+      className="flex items-start justify-between gap-3 py-3 border-b border-[var(--ct-border-soft)]"
     >
       <div className="flex min-w-0 items-start gap-3">
         <span

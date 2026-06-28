@@ -93,7 +93,7 @@ export function AgenticSafetyBoundary({
         {rows.map((r) => (
           <div
             key={r.id}
-            className="flex flex-col gap-3 rounded-xl border border-white/5 bg-surface-inset p-4"
+            className="flex flex-col gap-3 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset p-4"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="ct-bento-label flex items-center gap-2">
@@ -129,7 +129,7 @@ export function AgenticSafetyBoundary({
                   {r.detail.items.map((it) => (
                     <span
                       key={it}
-                      className="inline-flex items-center rounded-md border border-white/10 bg-black/40 px-2 py-0.5 text-[11px] text-zinc-400"
+                      className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-black/40 px-2 py-0.5 text-[11px] text-zinc-400"
                     >
                       {it}
                     </span>

@@ -55,7 +55,7 @@ function BentoSection({
 }) {
   return (
     <BentoPanel role="region" aria-labelledby={id}>
-      <div className="flex flex-wrap items-end justify-between gap-4 p-5 border-b border-white/5">
+      <div className="flex flex-wrap items-end justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
         <div className="flex flex-col gap-1.5">
           <h2
             id={id}
@@ -140,7 +140,7 @@ export function ProofCenterFullSections({
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-surface-inset px-6 py-10 text-center">
+          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset px-6 py-10 text-center">
             <div className="ct-bento-label">
               Governance queue
             </div>

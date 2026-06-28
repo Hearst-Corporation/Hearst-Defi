@@ -57,8 +57,8 @@ interface OnboardingChamberProps {
  * Single premium surface — Crown · Body · Sole.
  *
  * Pure Tailwind bento — matches the Portfolio page and the converted vault term
- * sheet: `rounded-2xl border border-white/10 bg-surface-card`, uniform `p-5` zones and
- * section borders in `border-white/5` (Portfolio rhythm — no `sm:` overrides).
+ * sheet: `rounded-2xl border border-[var(--ct-border)] bg-surface-card`, uniform `p-5` zones and
+ * section borders in `border-[var(--ct-border-soft)]` (Portfolio rhythm — no `sm:` overrides).
  * The optional split (`aside`) stacks below `md` and goes side-by-side above it.
  */
 export function OnboardingChamber({

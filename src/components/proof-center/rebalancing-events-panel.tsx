@@ -57,13 +57,13 @@ const PROVENANCE_DOT: Record<RebalanceProvenance, string> = {
 const STATUS_PILL: Record<string, string> = {
   executed:
     "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  approved: "border-white/10 bg-white/5 text-zinc-300",
-  pending: "border-white/10 bg-white/5 text-zinc-400",
-  cancelled: "border-white/10 bg-white/5 text-zinc-500",
+  approved: "border-[var(--ct-border)] bg-white/5 text-zinc-300",
+  pending: "border-[var(--ct-border)] bg-white/5 text-zinc-400",
+  cancelled: "border-[var(--ct-border)] bg-white/5 text-zinc-500",
 };
 
 function statusPillClass(status: string): string {
-  return STATUS_PILL[status] ?? "border-white/10 bg-white/5 text-zinc-400";
+  return STATUS_PILL[status] ?? "border-[var(--ct-border)] bg-white/5 text-zinc-400";
 }
 
 const microLabel = "ct-bento-label";
@@ -81,7 +81,7 @@ export function RebalancingEventsPanel({
     const empty = (
       <>
         {!bare && (
-          <div className="flex items-end justify-between p-5 border-b border-white/5">
+          <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
               <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
                 Rebalancing events
@@ -99,7 +99,7 @@ export function RebalancingEventsPanel({
     return bare ? (
       empty
     ) : (
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         {empty}
       </div>
     );
@@ -112,7 +112,7 @@ export function RebalancingEventsPanel({
   const inner = (
     <>
       {!bare && (
-        <div className="flex items-end justify-between p-5 border-b border-white/5">
+        <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
             <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
               {sectionLed ? "Rebalancing events" : "Vault operations"}
@@ -143,7 +143,7 @@ export function RebalancingEventsPanel({
           return (
             <li
               key={event.id}
-              className="flex flex-col gap-3 px-5 py-4 border-b border-white/5 last:border-b-0"
+              className="flex flex-col gap-3 px-5 py-4 border-b border-[var(--ct-border-soft)] last:border-b-0"
             >
               {/* Top row — rule + status pills, provenance dot */}
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -229,7 +229,7 @@ export function RebalancingEventsPanel({
   return bare ? (
     inner
   ) : (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
       {inner}
     </div>
   );

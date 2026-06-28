@@ -46,7 +46,7 @@ const TAG_CLASS: Record<Tone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   danger: "border-red-400/25 bg-red-400/10 text-red-300",
-  muted: "border-white/10 bg-white/5 text-zinc-400",
+  muted: "border-[var(--ct-border)] bg-white/5 text-zinc-400",
 };
 
 /** Micro uppercase label. */
@@ -117,7 +117,7 @@ export function CrewSimulationSection({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-white/5 bg-surface-card">
+                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-[var(--ct-border-soft)] bg-surface-card">
                   <KpiCell label="Risk">
                     {showRisk ? (
                       <Tag tone={riskTone(scenario.risk)}>{scenario.risk}</Tag>
@@ -150,7 +150,7 @@ export function CrewSimulationSection({
                       {scenario.steps.map((step, i) => (
                         <li
                           key={step.id}
-                          className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/40 px-3 py-2"
+                          className="flex items-center gap-3 rounded-lg border border-[var(--ct-border-soft)] bg-black/40 px-3 py-2"
                         >
                           <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/5 text-[10px] font-bold tabular-nums text-zinc-400">
                             {i + 1}

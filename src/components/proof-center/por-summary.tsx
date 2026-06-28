@@ -67,7 +67,7 @@ function BentoProofRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/5 py-3 last:border-b-0">
+    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
       <span className="text-[length:var(--ct-text-xs)] text-zinc-400">{label}</span>
       <span className="text-[length:var(--ct-text-xs)] font-medium text-white font-mono tabular-nums">
         {children}
@@ -80,7 +80,7 @@ const explorerLinkClass =
   "text-zinc-400 hover:text-white transition-colors duration-150";
 
 const bentoLinkButtonClass =
-  "inline-flex items-center justify-center border border-white/10 bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] transition-colors hover:bg-white/10";
+  "inline-flex items-center justify-center border border-[var(--ct-border)] bg-white/5 text-white font-medium rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] transition-colors hover:bg-white/10";
 
 export function PorSummary({
   attestation,
@@ -211,7 +211,7 @@ export function PorSummary({
   return bare ? (
     inner
   ) : (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col p-5 lg:p-6">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col p-5 lg:p-6">
       {inner}
     </div>
   );

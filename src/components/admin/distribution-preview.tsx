@@ -51,10 +51,10 @@ export function DistributionPreview({
       </div>
 
       {/* Recipients table */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-surface-inset">
+      <div className="overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-inset">
         <table className="w-full table-fixed text-left text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
-            <tr className="border-b border-white/5">
+            <tr className="border-b border-[var(--ct-border-soft)]">
               <th className="w-[42%] px-5 py-3 text-left ct-bento-label">
                 Investor wallet
               </th>
@@ -68,7 +68,7 @@ export function DistributionPreview({
           </thead>
           <tbody>
             {recipients.map((r) => (
-              <tr key={r.investorId} className="border-b border-white/5 last:border-0">
+              <tr key={r.investorId} className="border-b border-[var(--ct-border-soft)] last:border-0">
                 <td className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-zinc-300">
                   {abbrWallet(r.walletAddress)}
                 </td>
@@ -82,7 +82,7 @@ export function DistributionPreview({
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-white/10">
+            <tr className="border-t border-[var(--ct-border)]">
               <td className="px-5 py-3 text-[length:var(--ct-text-2xs)] text-zinc-400">
                 Total ({recipients.length} recipients)
               </td>

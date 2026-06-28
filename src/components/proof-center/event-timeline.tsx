@@ -129,7 +129,7 @@ function EventTimelineItem({
           </span>
         </div>
 
-        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-white/10 bg-surface-card p-4 shadow-sm">
+        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-[var(--ct-border)] bg-surface-card p-4 shadow-sm">
           <EventMetaRow label="Timestamp">
             {dateFmt.format(event.timestamp)} UTC
           </EventMetaRow>
@@ -164,7 +164,7 @@ function EventTimelineItem({
               href={payloadHref}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white no-underline transition-colors hover:border-white/20 hover:bg-white/10"
+              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-white/10"
             >
               View payload (IPFS)
             </a>

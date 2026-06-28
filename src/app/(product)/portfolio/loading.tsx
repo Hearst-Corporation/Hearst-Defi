@@ -9,7 +9,7 @@ export default function PortfolioLoading() {
       <div className="mx-auto max-w-5xl animate-pulse">
         <div className="h-7 w-40 rounded bg-white/10" />
         <div className="mt-3 h-4 w-64 rounded bg-white/5" />
-        <div className="mt-10 h-64 rounded-xl border border-dashed border-white/10" />
+        <div className="mt-10 h-64 rounded-xl border border-dashed border-[var(--ct-border)]" />
       </div>
     </main>
   );

@@ -77,7 +77,7 @@ export function DashboardRiskSummaryCard({
   return (
     <div className="flex flex-col gap-4" data-risk-provenance={provenance}>
       {/* Overview hero — composite score + band + five-factor caption. */}
-      <div className="flex items-start justify-between gap-4 rounded-lg border border-white/5 bg-surface-inset p-3">
+      <div className="flex items-start justify-between gap-4 rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset p-3">
         <div className="flex flex-col gap-1">
           <Tooltip
             content={

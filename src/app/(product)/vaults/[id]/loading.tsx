@@ -4,14 +4,14 @@
 export default function VaultDetailLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8"
+      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label="Loading vault"
     >
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 
         {/* HEADER — lead + title + actions */}
-        <div className="flex flex-wrap items-start justify-between gap-4 pb-3 border-b border-white/10">
+        <div className="flex flex-wrap items-start justify-between gap-4 pb-3 border-b border-[var(--ct-border)]">
           <div className="flex flex-col gap-2 min-w-0">
             <div className="h-4 w-28 bg-surface-inset animate-pulse rounded" />
             <div className="h-3 w-36 bg-surface-inset animate-pulse rounded" />
@@ -25,12 +25,12 @@ export default function VaultDetailLoading() {
         </div>
 
         {/* OVERVIEW HERO BAND */}
-        <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
-          <div className="grid grid-cols-1 sm:grid-cols-3 border-b lg:border-b-0 lg:border-r border-white/5">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 border-b lg:border-b-0 lg:border-r border-[var(--ct-border-soft)]">
             {[0, 1, 2].map((kpi) => (
               <div
                 key={kpi}
-                className="flex flex-col gap-2 p-5 border-r border-white/5 last:border-r-0"
+                className="flex flex-col gap-2 p-5 border-r border-[var(--ct-border-soft)] last:border-r-0"
               >
                 <div className="h-2.5 w-20 bg-surface-inset animate-pulse rounded" />
                 <div className="h-7 w-28 bg-surface-inset animate-pulse rounded" />
@@ -50,9 +50,9 @@ export default function VaultDetailLoading() {
             {[0, 1].map((section) => (
               <section
                 key={section}
-                className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col"
+                className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
               >
-                <div className="p-5 border-b border-white/5">
+                <div className="p-5 border-b border-[var(--ct-border-soft)]">
                   <div className="h-5 w-40 bg-surface-inset animate-pulse rounded" />
                 </div>
                 <div className="flex flex-col gap-3 p-5">
@@ -67,8 +67,8 @@ export default function VaultDetailLoading() {
 
           {/* SECONDARY RAIL */}
           <div className="flex flex-col gap-5">
-            <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-              <div className="p-5 border-b border-white/5">
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+              <div className="p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
               </div>
               <div className="flex items-center gap-5 p-5">
@@ -80,8 +80,8 @@ export default function VaultDetailLoading() {
                 </div>
               </div>
             </section>
-            <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-              <div className="p-5 border-b border-white/5">
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+              <div className="p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
               </div>
               <div className="p-5">

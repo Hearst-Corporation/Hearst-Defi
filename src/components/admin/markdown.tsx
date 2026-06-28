@@ -74,24 +74,24 @@ export function Markdown({
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-surface-inset p-4 text-[length:var(--ct-text-2xs)]">
+            <pre className="my-4 overflow-x-auto rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4 text-[length:var(--ct-text-2xs)]">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-4 overflow-x-auto rounded-lg border border-white/10">
+            <div className="my-4 overflow-x-auto rounded-lg border border-[var(--ct-border)]">
               <table className="w-full border-collapse text-[length:var(--ct-text-2xs)]">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-white/10 px-3 py-2 text-left text-[length:var(--ct-text-nano)] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            <th className="border-b border-[var(--ct-border)] px-3 py-2 text-left text-[length:var(--ct-text-nano)] font-bold uppercase tracking-[0.15em] text-zinc-500">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-white/5 px-3 py-2 align-top text-zinc-300">
+            <td className="border-b border-[var(--ct-border-soft)] px-3 py-2 align-top text-zinc-300">
               {children}
             </td>
           ),
@@ -113,7 +113,7 @@ export function Markdown({
               {children}
             </blockquote>
           ),
-          hr: () => <hr className="my-8 border-t border-white/10" />,
+          hr: () => <hr className="my-8 border-t border-[var(--ct-border)]" />,
           strong: ({ children }) => (
             <strong className="font-semibold text-white">{children}</strong>
           ),
