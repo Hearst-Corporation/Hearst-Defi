@@ -25,7 +25,9 @@ const PARAMS: ScenarioParams = {
 
 describe("Test 1 — no silent hardcoded company assumptions in read-vault-apy", () => {
   it("consumes the assumptions layer, not local numeric constants", () => {
-    expect(READ_VAULT_APY_SRC).toContain("getProjectionCompanyAssumptions");
+    // Consumes the assumptions layer via the centralized config service
+    // (getProjectionAssumptionsConfig wraps getProjectionCompanyAssumptions).
+    expect(READ_VAULT_APY_SRC).toContain("getProjectionAssumptionsConfig");
   });
 
   it("no longer declares the old silent constants", () => {

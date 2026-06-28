@@ -7,7 +7,7 @@ import { parseMachinePriceMessage } from "./parse-machine-price";
 import { getTelegramClient, isTelegramConfigured } from "./client";
 import { fetchHashprice } from "@/lib/data/hashprice";
 import { fetchDefiLlama } from "@/lib/data/defillama";
-import { getProjectionCompanyAssumptions } from "@/lib/projection/company-assumptions";
+import { getProjectionAssumptionsConfig } from "@/lib/projection/assumptions-config";
 import type { DestinationCountry } from "./cost-model";
 
 /**
@@ -56,9 +56,9 @@ export async function loadVaultApy(
   destination: DestinationCountry = "uae",
 ): Promise<VaultApySnapshot> {
   // Company levers now come from an EXPLICIT, traceable layer (status CONFIGURED,
-  // NOT live/validated) instead of silent local constants — see
-  // src/lib/projection/company-assumptions.ts.
-  const company = getProjectionCompanyAssumptions();
+  // NOT live/validated) via the CENTRALIZED config service (single seam for a
+  // future DB/admin source) — see src/lib/projection/assumptions-config.ts.
+  const company = getProjectionAssumptionsConfig().company;
   const MARKUP_PCT = company.markupPct;
   const COMPANY_SHARE_PCT = company.revenueSharePct;
   const BTC_RETURN = {
