@@ -29,7 +29,7 @@ export function ProfileSecurityRow({
           )}
         />
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-[length:var(--ct-text-xs)] font-medium text-zinc-200">{title}</span>
+          <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">{title}</span>
           <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">{description}</span>
         </div>
       </div>

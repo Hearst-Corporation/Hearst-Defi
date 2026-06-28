@@ -121,7 +121,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         >
           {label}
           {isExtreme && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider opacity-80">
+            <span className="ml-1.5 text-[length:var(--ct-text-deci)] uppercase tracking-wider opacity-80">
               (Extreme)
             </span>
           )}
@@ -307,7 +307,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 </span>
                 <span
                   className={cn(
-                    "font-mono text-[10px] uppercase tracking-wider opacity-80",
+                    "font-mono text-[length:var(--ct-text-deci)] uppercase tracking-wider opacity-80",
                     isSelected ? "text-[var(--ct-text-strong)]" : "text-[var(--ct-text-muted)]",
                   )}
                 >

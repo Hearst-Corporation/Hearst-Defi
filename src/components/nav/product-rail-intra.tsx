@@ -135,7 +135,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       title={item.label}
       className={cn(
         "group flex w-full flex-col items-center gap-1.5 rounded-xl py-2 transition-colors duration-150",
-        isActive ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-faint)] hover:text-zinc-200",
+        isActive ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-faint)] hover:text-[var(--ct-text-body)]",
       )}
     >
       <span
@@ -148,7 +148,7 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       >
         {Icon ? <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} /> : null}
       </span>
-      <span className="text-[10px] font-medium tracking-wide">
+      <span className="text-[length:var(--ct-text-deci)] font-medium tracking-wide">
         {item.railLabel ?? item.label}
       </span>
     </Link>

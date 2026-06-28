@@ -111,7 +111,7 @@ export function DashboardRiskSummaryCard({
           </Tooltip>
           <Badge
             variant={BAND_BADGE[data.band]}
-            className="w-fit px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em]"
+            className="w-fit px-2 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em]"
           >
             {data.bandLabel}
           </Badge>
@@ -133,12 +133,12 @@ export function DashboardRiskSummaryCard({
           >
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="min-w-[100px] text-[length:var(--ct-text-xs)] font-medium uppercase tracking-tight text-zinc-200">
+                <span className="min-w-[100px] text-[length:var(--ct-text-xs)] font-medium uppercase tracking-tight text-[var(--ct-text-body)]">
                   {dimension.label}
                 </span>
                 <Badge
                   variant={SEVERITY_BADGE[dimension.severity]}
-                  className="h-3.5 min-w-0 px-1.5 py-0 text-[10px] font-bold uppercase tracking-[0.15em]"
+                  className="h-3.5 min-w-0 px-1.5 py-0 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em]"
                 >
                   {dimension.status}
                 </Badge>

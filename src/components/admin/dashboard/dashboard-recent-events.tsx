@@ -66,12 +66,12 @@ export function DashboardRecentEvents({
                 </p>
                 <time
                   dateTime={event.takenAt.toISOString()}
-                  className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-[var(--ct-text-faint)]"
+                  className="shrink-0 text-[length:var(--ct-text-deci)] font-medium uppercase tracking-wider text-[var(--ct-text-faint)]"
                 >
                   {formatAdminMonthDay(event.takenAt)}
                 </time>
               </div>
-              <p className="m-0 mt-1 truncate text-[10px] uppercase tracking-widest text-[var(--ct-text-faint)]">
+              <p className="m-0 mt-1 truncate text-[length:var(--ct-text-deci)] uppercase tracking-widest text-[var(--ct-text-faint)]">
                 {event.triggerText}
               </p>
             </div>

@@ -52,7 +52,7 @@ export function PlatformOverviewBand({
                   <span className="ct-bento-label">
                     {kpi.label}
                   </span>
-                  <span className="mt-px truncate text-[10px] text-[var(--ct-text-faint)]">
+                  <span className="mt-px truncate text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)]">
                     {kpi.sublabel}
                   </span>
                 </div>

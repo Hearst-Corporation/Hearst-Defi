@@ -153,7 +153,7 @@ export function RebalancingEventsPanel({
                   </span>
                   <span
                     className={cn(
-                      "inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]",
+                      "inline-flex items-center rounded border px-2 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.12em]",
                       statusPillClass(event.status),
                     )}
                   >

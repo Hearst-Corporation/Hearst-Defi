@@ -39,7 +39,7 @@ export function Markdown({
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-6 mb-2 text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-zinc-100">
+            <h3 className="mt-6 mb-2 text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-[var(--ct-text-strong)]">
               {children}
             </h3>
           ),
@@ -62,7 +62,7 @@ export function Markdown({
           code: ({ children, className }) => {
             if (className?.startsWith("language-")) {
               return (
-                <code className="font-mono text-[length:var(--ct-text-2xs)] text-zinc-200">
+                <code className="font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                   {children}
                 </code>
               );

@@ -29,7 +29,7 @@ export function SourceTruthBadge({
 }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${TONE[status]}`}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-wider ${TONE[status]}`}
     >
       {children ?? status}
     </span>
@@ -92,7 +92,7 @@ function SourceColumn({
 }) {
   return (
     <div>
-      <div className="mb-1 text-[10px] uppercase tracking-wider text-[var(--ct-text-faint)]">
+      <div className="mb-1 text-[length:var(--ct-text-deci)] uppercase tracking-wider text-[var(--ct-text-faint)]">
         {title}
       </div>
       <ul className="flex flex-col gap-1.5">

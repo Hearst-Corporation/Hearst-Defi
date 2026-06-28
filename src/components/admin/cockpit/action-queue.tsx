@@ -64,7 +64,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
       <div className="flex min-w-0 flex-1 items-start gap-2.5">
         <SeverityDot severity={item.severity} />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="block truncate text-[length:var(--ct-text-xs)] font-medium text-zinc-200">
+          <span className="block truncate text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">
             {item.title}
           </span>
           <span className="ct-bento-label block truncate">
@@ -77,7 +77,7 @@ function ActionRow({ item }: { item: ActionQueueItem }) {
         <Link
           href={item.href}
           className={cn(
-            "shrink-0 rounded-md border px-2 py-1 text-[10px] uppercase tracking-[0.12em] font-bold transition-colors",
+            "shrink-0 rounded-md border px-2 py-1 text-[length:var(--ct-text-deci)] uppercase tracking-[0.12em] font-bold transition-colors",
             tone.cta,
           )}
           aria-label={`${actionLabel} — ${item.title}`}
@@ -98,7 +98,7 @@ function SeverityDot({ severity }: { severity: ActionSeverity }) {
       aria-label={`Priority ${severity}`}
     >
       <span className={cn("size-1.5 rounded-full", tone.dot)} aria-hidden />
-      <span className={cn("text-[10px] font-bold tracking-[0.12em]", tone.text)}>
+      <span className={cn("text-[length:var(--ct-text-deci)] font-bold tracking-[0.12em]", tone.text)}>
         {severity}
       </span>
     </span>
@@ -122,6 +122,6 @@ const SEVERITY_TONES: Record<
   P2: {
     dot: "bg-zinc-500",
     text: "text-[var(--ct-text-faint)]",
-    cta: "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:border-[var(--ct-border)] hover:text-zinc-200",
+    cta: "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:border-[var(--ct-border)] hover:text-[var(--ct-text-body)]",
   },
 };

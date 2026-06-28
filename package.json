@@ -30,6 +30,8 @@
     "ds:token-drift": "node scripts/ds-token-drift.mjs",
     "ds:guard": "node scripts/ds-hardcode-guard.mjs",
     "ds:guard:warn": "node scripts/ds-hardcode-guard.mjs --warn",
+    "ds:guard:convergence": "node scripts/ds-convergence-guard.mjs",
+    "ds:guard:all": "node scripts/ds-hardcode-guard.mjs && node scripts/ds-convergence-guard.mjs",
     "qa:perf-network": "node scripts/perf/qa-network-guardrails.mjs",
     "typecheck": "tsc --noEmit",
     "pretest": "node scripts/assert-prisma-provider-safe.mjs sqlite && PRISMA_PROVIDER=sqlite node scripts/prisma-provider.mjs && PRISMA_PROVIDER=sqlite prisma generate",

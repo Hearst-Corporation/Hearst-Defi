@@ -42,7 +42,7 @@ export function VaultAdminKpiStrip({
             className="font-medium text-[var(--ct-accent)]"
           />
         </div>
-        <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">Not guaranteed — estimated</p>
+        <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Not guaranteed — estimated</p>
       </div>
 
       {/* Fees */}
@@ -53,7 +53,7 @@ export function VaultAdminKpiStrip({
         <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
           {bpsToPercent(facts.mgmtFeeBps)}% / {bpsToPercent(facts.perfFeeBps)}%
         </span>
-        <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">Mgmt / Perf</p>
+        <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Mgmt / Perf</p>
       </div>
 
       {/* Lock-up */}
@@ -64,7 +64,7 @@ export function VaultAdminKpiStrip({
         <span className="text-[18px] font-medium text-white leading-none tracking-tight tabular-nums">
           {facts.softLockupDays}d
         </span>
-        <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">Soft lock-up</p>
+        <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Soft lock-up</p>
       </div>
 
       {/* AUM */}
@@ -84,7 +84,7 @@ export function VaultAdminKpiStrip({
           <div className="mt-1">
             <Progress value={aumPct} label="AUM vs capacity" />
           </div>
-          <p className="text-[10px] text-[var(--ct-text-faint)] tracking-wide">
+          <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">
             / {formatUsdFull(facts.capacityUsdc)} capacity
           </p>
         </div>

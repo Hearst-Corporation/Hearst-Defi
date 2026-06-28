@@ -50,7 +50,7 @@ function BentoKpi({
         {value}
       </span>
       {sublabel ? (
-        <span className="text-[10px] text-[var(--ct-text-faint)] tracking-wide font-mono">
+        <span className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide font-mono">
           {sublabel}
         </span>
       ) : null}

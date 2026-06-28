@@ -312,7 +312,7 @@ function DeployedContractCard({
           href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
           target="_blank"
           rel="noreferrer noopener"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-white/[0.06] transition-colors"
           aria-label={`View ${contract.name} on Basescan`}
         >
           View on Basescan
@@ -425,7 +425,7 @@ export function ContractsAuditTrail({
                           href={entry.href}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-zinc-200 hover:bg-white/[0.06] transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-white/[0.03] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-white/[0.06] transition-colors"
                           aria-label={`View document for ${entry.label}`}
                         >
                           View document
