@@ -21,7 +21,7 @@ import {
 import {
   HcChartCard,
   HcCompositionRing,
-  HcMetricSparkline,
+  HcValueChart,
   type HcSourceStatus,
 } from "@/components/dataviz/his";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
@@ -103,36 +103,24 @@ export default async function PortfolioPage() {
       ? `${((deployedUsdc / totalValueUsdc) * 100).toFixed(1)}%`
       : "—";
 
-  // Real value series for the hero sparkline (hourly investor NAV prints).
-  // Pass the REAL series untouched — never inject a fake [0,0] baseline (that
-  // made the curve flat-line at $0 while the headline showed the true value,
-  // e.g. the $11 account, and bypassed the primitive's honest empty-state).
-  // For a single real point we duplicate the TRUE value ([v, v]) so the plot is
-  // a flat line at the real level, not at zero. With 0 points the primitive
-  // renders its own empty surface. A fallback-source run still gets the hatch veil.
-  const realSpark = hourlyValueSnapshots.map((s) => s.valueUsdc);
-  const sparkValues =
-    realSpark.length === 1 ? [realSpark[0]!, realSpark[0]!] : realSpark;
+  // Real NAV points (with dates) feed the axed hero chart (HcValueChart). The
+  // series is real and untouched — no fake [0,0] baseline. <2 points → the chart
+  // renders its own honest empty state. A fallback-source run still gets the veil.
+  const valuePoints = hourlyValueSnapshots.map((s) => ({
+    at: s.at,
+    value: s.valueUsdc,
+  }));
   const heroState: "ready" | "fallback" =
     source === "fallback" ? "fallback" : "ready";
 
-  // Allocation ring is ALWAYS populated. Use the real vault-snapshot buckets
-  // when present; otherwise fall back to the Hearst Yield Vault strategy targets
-  // (Mining 60 / BTC 25 / USDC 10 / Stable 5) so the ring always shows segments
-  // and is never an empty track. The source badge still tells the truth (live vs
-  // stale) — only the geometry is guaranteed non-empty.
-  const allocSegments =
-    allocationDonutProps.buckets.length > 0
-      ? allocationDonutProps.buckets.map((b) => ({
-          label: BUCKET_LABEL[b.bucket] ?? b.bucket,
-          value: b.valueUsdc,
-        }))
-      : [
-          { label: BUCKET_LABEL.mining!, value: 60 },
-          { label: BUCKET_LABEL.btc_tactical!, value: 25 },
-          { label: BUCKET_LABEL.usdc_base!, value: 10 },
-          { label: BUCKET_LABEL.stable_reserve!, value: 5 },
-        ];
+  // Allocation ring — REAL vault-snapshot buckets only. No fabricated split: if
+  // there is no real allocation, the ring renders its empty track (zero stays
+  // zero, widget still visible) rather than an invented 60/25/10/5 under a badge.
+  const allocSegments = allocationDonutProps.buckets.map((b) => ({
+    label: BUCKET_LABEL[b.bucket] ?? b.bucket,
+    value: b.valueUsdc,
+  }));
+  const hasAllocation = allocSegments.length > 0;
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
@@ -158,13 +146,9 @@ export default async function PortfolioPage() {
             height={200}
             aria-label="Portfolio value over time"
           >
-            <HcMetricSparkline
-              values={sparkValues}
-              width={640}
+            <HcValueChart
+              points={valuePoints}
               height={200}
-              area
-              tone="accent"
-              responsive
               aria-label="Portfolio value trend"
             />
           </HcChartCard>
@@ -209,7 +193,13 @@ export default async function PortfolioPage() {
         <HcChartCard
           title="Capital & yield"
           subtitle="Strategy allocation by bucket"
-          source={allocationDonutProps.source === "live" ? "live" : "stale"}
+          source={
+            hasAllocation
+              ? allocationDonutProps.source === "live"
+                ? "live"
+                : "stale"
+              : undefined
+          }
           state="ready"
           height={180}
           actions={<SeeMore href="/portfolio/yield" />}

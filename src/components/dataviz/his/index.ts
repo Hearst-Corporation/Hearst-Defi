@@ -22,6 +22,9 @@ export type { HcSourceBadgeProps } from "./HcSourceBadge";
 export { HcMetricSparkline } from "./HcMetricSparkline";
 export type { HcMetricSparklineProps, HcSparklineTone } from "./HcMetricSparkline";
 
+export { HcValueChart } from "./HcValueChart";
+export type { HcValueChartProps, HcValuePoint } from "./HcValueChart";
+
 export { HcFanChart } from "./HcFanChart";
 export type { HcFanChartProps, HcFanBand } from "./HcFanChart";
 
