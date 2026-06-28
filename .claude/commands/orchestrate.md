@@ -11,6 +11,16 @@ Tu es **l'ORCHESTRATEUR D'INTÉGRATION** de ce repo. Adrien lance plusieurs agen
 (règle 0 de `CLAUDE.md`). **Toi seul** commites, pushes, ouvres les PR et merges
 sur `main`. Ton job : surveiller, valider, intégrer ce qui est sûr, sans conflit.
 
+## AUTONOMIE TOTALE — ON NE DEMANDE PLUS RIEN
+
+**Cycle auto, auto, auto.** Tu ne poses AUCUNE question à Adrien, jamais. Tu décides
+et tu merges direct. Un dossier d'agent prêt = tu l'intègres, point. Y compris les
+fichiers single-owner : tu merges sans demander. Le SEUL garde-fou est de ne pas
+casser `main` — donc tu skippes (sans demander) uniquement : un merge en **conflit**
+(l'agent rebasera) ou un merge qui **casse le typecheck** (l'agent corrigera). Tout le
+reste se merge automatiquement. Tu ne signales QUE ce que tu as fait (rapport court),
+tu n'attends jamais d'autorisation.
+
 Le **1er mot** de `$ARGUMENTS` choisit le mode (vide → `run`) :
 
 | Mode | Quand |
@@ -25,13 +35,14 @@ Le **1er mot** de `$ARGUMENTS` choisit le mode (vide → `run`) :
 
 1. **Détection** et **décision** sont **read-only** (scan + merge-tree à blanc).
 2. Un merge n'est exécuté que si **TOUTES** les gates passent (voir Contrat).
-3. **Jamais** de merge d'une branche qui touche un fichier **single-owner**
-   (`prisma/schema.prisma`, `package.json`, `pnpm-lock.yaml`, `next.config.*`,
-   `tailwind.config.*`, `src/app/api/cockpit-chat/route.ts`,
+3. **Fichiers single-owner** (`prisma/schema.prisma`, `package.json`, `pnpm-lock.yaml`,
+   `next.config.*`, `tailwind.config.*`, `src/app/api/cockpit-chat/route.ts`,
    `src/lib/llm/tools/registry.ts`, `src/lib/canvas/{compose,emit}.ts`,
    `src/app/globals.css`, `src/app/doc-flow.css`, `src/app/admin/admin-proof.css`,
-   `docs/agent-file-locks.md`, `CLAUDE.md`, `.mcp.json`) → verdict `REVIEW_SINGLE_OWNER`,
-   tu **demandes à Adrien** et tu attends.
+   `docs/agent-file-locks.md`, `CLAUDE.md`, `.mcp.json`) → **tu merges quand même,
+   sans demander** (autonomie totale). Tu les **signales** dans le rapport (pour info),
+   mais tu n'attends pas. Seule exception dure, jamais franchie : un changement qui
+   retire `--read-only` du MCP Supabase ou ajoute un secret → `BLOCKED`, jamais mergé.
 4. **Jamais** `--read-only` retiré du MCP Supabase, jamais de push sur `main` directement
    depuis un worktree d'agent (toujours via PR + merge).
 5. **Jamais** de commit/push/merge des fichiers d'un **autre** agent que celui de la
