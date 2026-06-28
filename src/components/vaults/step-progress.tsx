@@ -21,10 +21,10 @@ interface StepProgressProps {
 /**
  * Invest funnel step indicator — pure bento (Portfolio canon).
  *
- * Current step: accent #A7FB90 filled circle + white label.
+ * Current step: --ct-accent filled circle + strong label.
  * Done step: accent ring + check, accent caption.
- * Future step: zinc-500 label, border-white/10 circle.
- * Connectors: bg-white/10, accent once crossed.
+ * Future step: faint label, --ct-border circle.
+ * Connectors: soft white-alpha, accent once crossed.
  */
 export function StepProgress({ active }: StepProgressProps) {
   const activeIndex = STEPS.find((s) => s.id === active)?.index ?? 1;
@@ -60,12 +60,12 @@ export function StepProgress({ active }: StepProgressProps) {
                 className={cn(
                   "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold tabular-nums transition-colors",
                   isActive &&
-                    "border-transparent bg-[#A7FB90] text-zinc-900",
+                    "border-transparent bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
                   isDone &&
-                    "border-[#A7FB90] bg-[#A7FB90]/10 text-[#A7FB90]",
+                    "border-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
                   !isActive &&
                     !isDone &&
-                    "border-white/10 bg-white/5 text-zinc-500",
+                    "border-[var(--ct-border)] bg-surface-inset text-[var(--ct-text-faint)]",
                 )}
               >
                 {isDone ? (
@@ -92,9 +92,9 @@ export function StepProgress({ active }: StepProgressProps) {
               <span
                 className={cn(
                   "hidden text-[10px] font-bold uppercase tracking-[0.15em] transition-colors sm:block",
-                  isActive && "text-white",
-                  isDone && "text-[#A7FB90]",
-                  !isActive && !isDone && "text-zinc-500",
+                  isActive && "text-[var(--ct-text-strong)]",
+                  isDone && "text-[var(--ct-accent)]",
+                  !isActive && !isDone && "text-[var(--ct-text-faint)]",
                 )}
               >
                 {step.label}
@@ -106,7 +106,7 @@ export function StepProgress({ active }: StepProgressProps) {
                 aria-hidden="true"
                 className={cn(
                   "h-px min-w-4 flex-1 rounded-full transition-colors",
-                  crossed ? "bg-[#A7FB90]/60" : "bg-white/10",
+                  crossed ? "bg-[color-mix(in_srgb,var(--ct-accent)_60%,transparent)]" : "bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,transparent)]",
                 )}
               />
             ) : null}

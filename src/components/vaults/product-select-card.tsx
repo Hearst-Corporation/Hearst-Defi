@@ -1,10 +1,11 @@
-import Link from "next/link";
-
 import { ApyRange } from "@/components/ui/apy-range";
+import { Button } from "@/components/catalyst/button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
+  AUM_PENDING_LABEL,
   RISK_LABELS,
   STRATEGY_LABELS,
   vaultStatusLabel,
@@ -23,8 +24,8 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
   const href = investProductPath(vault.ticker);
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
 
-  const aumDisplay =
-    vault.currentAumUsdc > 0 ? formatUsdCompact(vault.currentAumUsdc) : "Pending";
+  const hasAum = vault.currentAumUsdc > 0;
+  const aumDisplay = hasAum ? formatUsdCompact(vault.currentAumUsdc) : AUM_PENDING_LABEL;
 
   return (
     <div
@@ -87,35 +88,68 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
           <VaultTermRow label="Min. ticket" value={formatUsdCompact(vault.minTicketUsdc)} />
           <VaultTermRow label="Lock-up" value={`${vault.softLockupDays}d`} />
           <VaultTermRow label="Risk" value={RISK_LABELS[vault.riskLevel]} />
-          <VaultTermRow label="AUM" value={aumDisplay} muted={vault.currentAumUsdc === 0} />
+          <VaultTermRow
+            label="AUM"
+            value={aumDisplay}
+            muted={!hasAum}
+            provenance={hasAum ? "estimated" : undefined}
+          />
         </dl>
 
         {isLive ? (
-          <Link
+          <Button
             href={href}
             aria-label={`View details for ${vault.name}`}
-            className="mt-auto inline-flex items-center justify-center w-full rounded-lg bg-[var(--ct-accent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-bold text-[var(--ct-bg-deep)] hover:bg-[color-mix(in_srgb,var(--ct-accent)_90%,transparent)] transition-colors"
+            className={cn("mt-auto w-full", CATALYST_ACCENT_BTN)}
           >
             View details
-          </Link>
-        ) : null}
+          </Button>
+        ) : (
+          <p className="mt-auto ct-metric-caption leading-relaxed">
+            {nonLiveNote(vault.status)}
+          </p>
+        )}
       </div>
     </div>
   );
+}
+
+/** Honest one-liner for why a non-live product can't take subscriptions yet. */
+function nonLiveNote(status: VaultProduct["status"]): string {
+  switch (status) {
+    case "review":
+      return "In review — subscriptions open once this product goes live.";
+    case "draft":
+      return "Not yet open for subscriptions.";
+    case "paused":
+      return "Subscriptions are temporarily paused.";
+    case "closed":
+      return "Closed to new capital.";
+    default:
+      return "Not yet open for subscriptions.";
+  }
 }
 
 function VaultTermRow({
   label,
   value,
   muted = false,
+  provenance,
 }: {
   label: string;
   value: string;
   muted?: boolean;
+  /** When set, renders a compact provenance badge next to the label. */
+  provenance?: "estimated" | "manual";
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="ct-bento-label">{label}</dt>
+      <div className="flex items-center gap-1.5">
+        <dt className="ct-bento-label">{label}</dt>
+        {provenance ? (
+          <ProvenanceBadge kind={provenance} variant="compact" />
+        ) : null}
+      </div>
       <dd className={cn("text-[length:var(--ct-text-xs)] tabular-nums", muted ? "text-[var(--ct-text-muted)] font-normal" : "text-[var(--ct-text-strong)] font-semibold")}>
         {value}
       </dd>

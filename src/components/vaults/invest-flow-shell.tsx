@@ -31,7 +31,7 @@ interface InvestFlowShellProps {
  * Vertical normal flow: header block (back link → bicolore title + inline step
  * indicator → context kicker / description) then the body. No absolute/sticky
  * positioning, so a downstream sticky CTA can never overlap the header.
- * Accent is the single green #A7FB90.
+ * Accent is the single green --ct-accent.
  *
  * `width` maps to a max-width container; `workspace` widens it for the dense
  * vault-detail layout. All props are preserved — only the rendering changed.
@@ -60,7 +60,7 @@ export function InvestFlowShell({
 
   const shellClasses = cn(
     // Grey body container (Portfolio canon): black panels sit on a zinc-900 surface.
-    "invest-flow-shell mx-auto flex w-full flex-col gap-6 rounded-2xl border border-white/10 bg-surface-page p-5 lg:p-6 mb-8",
+    "invest-flow-shell mx-auto flex w-full flex-col gap-6 rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6 mb-8",
     width === "cap" && "product-doc-shell--cap max-w-5xl",
     width === "narrow" && "product-doc-shell--narrow max-w-2xl",
     width === "full" && "max-w-6xl",
@@ -75,7 +75,7 @@ export function InvestFlowShell({
     <div className={shellClasses}>
       <header
         className={cn(
-          "invest-flow-shell__header flex flex-col gap-4 border-b border-white/5 pb-5",
+          "invest-flow-shell__header flex flex-col gap-4 border-b border-[var(--ct-border-soft)] pb-5",
           centered && "items-center text-center",
           headerClassName,
         )}
@@ -96,14 +96,14 @@ export function InvestFlowShell({
           >
             {media ? <div className="shrink-0">{media}</div> : null}
             {hasTitle ? (
-              <h1 className="text-2xl font-medium tracking-tight text-white">
+              <h1 className="text-2xl font-medium tracking-tight text-[var(--ct-text-strong)]">
                 {titleLead != null || titleAccent != null ? (
                   <>
                     {titleLead}
                     {titleAccent ? (
                       <>
                         {titleLead ? " " : null}
-                        <span className="text-[#A7FB90]">{titleAccent}</span>
+                        <span className="text-[var(--ct-accent)]">{titleAccent}</span>
                       </>
                     ) : null}
                   </>
@@ -120,7 +120,7 @@ export function InvestFlowShell({
         </div>
 
         {contextLabel ? (
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ct-text-faint)]">
             {contextLabel}
           </p>
         ) : null}
@@ -128,7 +128,7 @@ export function InvestFlowShell({
         {description ? (
           <div
             className={cn(
-              "text-[13px] text-zinc-400",
+              "text-[13px] text-[var(--ct-text-muted)]",
               centered && "mx-auto",
             )}
           >
@@ -154,7 +154,7 @@ export function InvestFlowShell({
         {children}
 
         {footer ? (
-          <footer className="border-t border-white/5 pt-5 text-[11px] text-zinc-500">
+          <footer className="border-t border-[var(--ct-border-soft)] pt-5 text-[11px] text-[var(--ct-text-faint)]">
             {footer}
           </footer>
         ) : null}

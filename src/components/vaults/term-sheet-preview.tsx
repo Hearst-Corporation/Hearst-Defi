@@ -5,6 +5,7 @@ import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows"
 import { RegimeScenarioTable } from "@/components/vaults/regime-scenario-table";
 import {
   APY_DISCLAIMER_SUFFIX,
+  AUM_PENDING_LABEL,
   RISK_LABELS,
   STRATEGY_LABELS,
 } from "@/lib/constants/vault";
@@ -23,13 +24,14 @@ interface TermSheetPreviewProps {
   vault: VaultProduct;
 }
 
+/** KPI tile fill — matches the Portfolio canon (gap-px grid + per-tile surface). */
+const TERM_TILE = "bg-surface-inset md:px-6";
+
 /** LP term sheet body for step 2 (`/vaults/[id]`). Pure Tailwind bento — matches the Portfolio page. */
 export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
   // AUM comes from a VaultSnapshot aggregate (seed/computed), NOT a live
-  // on-chain read — so it is "estimated", never "live". Audit #032 P0: badging
-  // it Live on a seed snapshot was misleading. "manual" when there's no AUM yet.
-  const aumProvenance =
-    vault.currentAumUsdc > 0 ? ("estimated" as const) : ("manual" as const);
+  // on-chain read — so it is "estimated", never "live". The "Risk & Provenance"
+  // panel surfaces this sourcing once; the headline grid carries the value.
   const legalFacts = toVaultLegalFacts(vault);
   const allocationFacts = toVaultAllocationFacts(vault);
   const strategyLabel = STRATEGY_LABELS[vault.strategy] ?? vault.strategy;
@@ -44,7 +46,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
           trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 bg-surface-inset">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-px bg-[var(--ct-border-soft)]">
           <BentoKpiTile
             label="Target APY"
             accent
@@ -59,41 +61,45 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
               </span>
             }
             sub="Target projection — not guaranteed"
-            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-r md:border-b-0"
+            className={TERM_TILE}
           />
           <BentoKpiTile
             label="Min Ticket"
             value={formatMinTicketUsdc(vault.minTicketUsdc)}
             sub="USDC"
-            className="md:px-6 border-b border-[var(--ct-border-soft)] md:border-r"
+            className={TERM_TILE}
           />
           <BentoKpiTile
             label="Soft Lock-up"
             value={`${vault.softLockupDays}d`}
             sub="Redemption queue"
-            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-r sm:border-b-0 md:border-r-0"
+            className={TERM_TILE}
           />
           <BentoKpiTile
             label="Mgmt / Perf"
             value={formatFeeLine(vault.fees)}
             sub="Fee schedule"
-            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-r md:border-b-0"
+            className={TERM_TILE}
           />
           <BentoKpiTile
             label="Capacity"
             value={formatUsdCompact(vault.capacityUsdc)}
             sub="Hard cap"
-            className="md:px-6 border-b border-[var(--ct-border-soft)] sm:border-b-0 md:border-r"
+            className={TERM_TILE}
           />
           <BentoKpiTile
             label="Current AUM"
             value={
               vault.currentAumUsdc > 0
                 ? formatUsdCompact(vault.currentAumUsdc)
-                : "Pending"
+                : AUM_PENDING_LABEL
             }
-            sub={RISK_LABELS[vault.riskLevel]}
-            className="md:px-6"
+            sub={
+              vault.currentAumUsdc > 0
+                ? "Estimated — snapshot aggregate"
+                : "No capital yet"
+            }
+            className={TERM_TILE}
           />
         </div>
       </section>
@@ -135,41 +141,26 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
         <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
           <BentoHeader
-            title="Vault Metrics"
-            subtitle="Fees · capacity · AUM"
-            trailing={
-              <>
-                <ProvenanceBadge kind="estimated" variant="compact" />
-                {vault.currentAumUsdc > 0 ? (
-                  <ProvenanceBadge kind={aumProvenance} variant="compact" />
-                ) : null}
-              </>
-            }
+            title="Risk &amp; Provenance"
+            subtitle="Risk band · data sourcing"
+            trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
           />
-          <div className="grid grid-cols-2 bg-surface-inset">
-            <BentoKpiTile
-              label="Mgmt / Perf"
-              value={formatFeeLine(vault.fees)}
-              className="md:px-6 border-b border-r border-[var(--ct-border-soft)]"
-            />
-            <BentoKpiTile
-              label="Capacity"
-              value={formatUsdCompact(vault.capacityUsdc)}
-              className="md:px-6 border-b border-[var(--ct-border-soft)]"
-            />
-            <BentoKpiTile
-              label="Current AUM"
-              value={
-                vault.currentAumUsdc > 0
-                  ? formatUsdCompact(vault.currentAumUsdc)
-                  : "Pending"
-              }
-              className="md:px-6 border-r border-[var(--ct-border-soft)]"
-            />
+          <div className="grid grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <BentoKpiTile
               label="Risk Level"
               value={RISK_LABELS[vault.riskLevel]}
-              className="md:px-6"
+              sub="Methodology band"
+              className={TERM_TILE}
+            />
+            <BentoKpiTile
+              label="AUM Sourcing"
+              value={vault.currentAumUsdc > 0 ? "Estimated" : AUM_PENDING_LABEL}
+              sub={
+                vault.currentAumUsdc > 0
+                  ? "Snapshot aggregate — not on-chain"
+                  : "No capital yet"
+              }
+              className={TERM_TILE}
             />
           </div>
         </div>

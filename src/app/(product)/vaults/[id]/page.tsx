@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
-import { ApyRange } from "@/components/ui/apy-range";
+import { Button } from "@/components/catalyst/button";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
 import { vaultStatusLabel } from "@/lib/constants/vault";
 import { cn } from "@/lib/cn";
-import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
+import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
 export const dynamic = "force-dynamic";
@@ -34,44 +34,6 @@ function nonLiveNote(status: VaultProduct["status"]): string {
     default:
       return "";
   }
-}
-
-/** Single supporting line under the CTA — what the next step actually is. */
-function ctaSupportLine(isLive: boolean): string {
-  return isLive
-    ? "Step 3 — confirm your ticket and funding details next. No funds move yet."
-    : "Browse the other Hearst products while this one finalizes.";
-}
-
-function InvestCta({
-  isLive,
-  investHref,
-}: {
-  isLive: boolean;
-  investHref: string;
-}) {
-  if (isLive) {
-    return (
-      <Link
-        href={investHref}
-        className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--ct-accent)] px-5 py-3 text-[length:var(--ct-text-xs)] font-bold uppercase tracking-[0.1em] text-[var(--ct-bg-deep)] shadow-sm transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_90%,transparent)]"
-      >
-        Continue to deposit
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="size-4">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-        </svg>
-      </Link>
-    );
-  }
-
-  return (
-    <Link
-      href={INVEST_SELECT_PATH}
-      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-5 py-3 text-[length:var(--ct-text-xs)] font-bold uppercase tracking-[0.1em] text-[var(--ct-text-body)] transition-colors hover:text-[var(--ct-text-strong)]"
-    >
-      Browse other products
-    </Link>
-  );
 }
 
 export default async function VaultDetailPage({ params }: PageProps) {
@@ -104,71 +66,44 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </Link>
       }
     >
-      {/* KEY TERMS + NEXT ACTION (bento panel) */}
+      {/* NEXT ACTION — slim CTA bar (the term sheet below carries the numbers) */}
       <section
         role="region"
-        aria-label="Key terms and next action"
-        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+        aria-label="Next action"
+        className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5"
       >
-        {/* Identity header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
-          <span className="ct-bento-label tabular-nums">{vault.ticker}</span>
+        <div className="flex flex-col gap-1.5 min-w-0">
           <span
             className={cn(
               "ct-bento-label inline-flex items-center gap-2",
-              isLive
-                ? "text-[var(--ct-accent)]"
-                : "text-[var(--ct-text-muted)]",
+              isLive ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-muted)]",
             )}
           >
             <span
               aria-hidden="true"
               className={cn(
                 "size-2 rounded-full",
-                isLive
-                  ? "bg-[var(--ct-accent)]"
-                  : "bg-[var(--ct-text-faint)]",
+                isLive ? "bg-[var(--ct-accent)]" : "bg-[var(--ct-text-faint)]",
               )}
             />
-            {vaultStatusLabel(vault.status)}
+            {vault.ticker} · {vaultStatusLabel(vault.status)}
           </span>
+          <p className="ct-metric-caption">
+            {isLive
+              ? "Next: confirm your ticket and funding details. No funds move yet."
+              : nonLiveNote(vault.status)}
+          </p>
         </div>
 
-        {/* Metrics strip */}
-        <dl className="grid grid-cols-1 md:grid-cols-3 border-b border-[var(--ct-border-soft)] bg-surface-inset">
-          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-[var(--ct-border-soft)]">
-            <dt className="ct-bento-label">Target APY range</dt>
-            <dd>
-              <ApyRange
-                low={vault.apyLow}
-                high={vault.apyHigh}
-                precision={1}
-                className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-accent)] leading-none tracking-tight tabular-nums"
-              />
-            </dd>
-          </div>
-          <div className="flex flex-col gap-2 p-5 md:px-6 border-b md:border-b-0 md:border-r border-[var(--ct-border-soft)]">
-            <dt className="ct-bento-label">Min subscription</dt>
-            <dd className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
-              {formatMinTicketUsdc(vault.minTicketUsdc)}
-            </dd>
-          </div>
-          <div className="flex flex-col gap-2 p-5 md:px-6">
-            <dt className="ct-bento-label">Soft lock-up</dt>
-            <dd className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
-              {vault.softLockupDays} days
-            </dd>
-          </div>
-        </dl>
-
-        {/* CTA block */}
-        <div className="flex flex-col gap-3 p-5 md:p-6">
-          {!isLive ? (
-            <p className="ct-metric-caption">{nonLiveNote(vault.status)}</p>
-          ) : null}
-          <InvestCta isLive={isLive} investHref={investHref} />
-          <p className="ct-metric-caption">{ctaSupportLine(isLive)}</p>
-        </div>
+        {isLive ? (
+          <Button href={investHref} className={cn("shrink-0", CATALYST_ACCENT_BTN)}>
+            Continue to deposit
+          </Button>
+        ) : (
+          <Button href={INVEST_SELECT_PATH} outline className="shrink-0">
+            Browse other products
+          </Button>
+        )}
       </section>
 
       <TermSheetPreview vault={vault} />

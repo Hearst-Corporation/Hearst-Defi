@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { StepProgress } from "@/components/vaults/step-progress";
+import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
 import { getIrContact } from "@/lib/ir-contact";
@@ -17,6 +17,7 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { getPublicClient, explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { readNavPerShare, formatNavPerShare, isVaultStale } from "@/lib/onchain/vault";
 import { getVault } from "@/lib/data/vaults";
+import { prisma } from "@/lib/db";
 import { INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,6 @@ interface PageProps {
     tx?: string;
     amount?: string;
     positionId?: string;
-    email?: string;
   }>;
 }
 
@@ -40,16 +40,14 @@ const VAULT_CONTRACT =
   process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS ??
   null;
 
+const MS_PER_DAY = 86_400_000;
+
 export default async function ConfirmedPage({ params, searchParams }: PageProps) {
-  const [{ id }, sp] = await Promise.all([
-    params,
-    searchParams,
-  ]);
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
 
   const txHash = sp.tx ?? null;
   const amount = formatUsdcFromParam(sp.amount);
   const positionId = sp.positionId ?? null;
-  const email = sp.email ?? null;
 
   const hasHash = txHash !== null && !isPlaceholderTxHash(txHash);
   const baseScanHref = hasHash ? explorerTxUrl(txHash) : null;
@@ -71,8 +69,23 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
   const vaultForLock = await getVault(id);
   const LOCK_DAYS = vaultForLock?.softLockupDays ?? 60;
-  const currentDay = 0;
+
+  // Real elapsed lock days from the position's subscription timestamp — never a
+  // fabricated 0%. If the position can't be resolved, we drop the progress bar
+  // entirely rather than render a structurally-pinned 0% (audit I16).
+  let currentDay: number | null = null;
+  if (positionId) {
+    const position = await prisma.position.findUnique({
+      where: { id: positionId },
+      select: { subscribedAt: true },
+    });
+    if (position) {
+      const elapsed = Math.floor((Date.now() - position.subscribedAt.getTime()) / MS_PER_DAY);
+      currentDay = Math.min(LOCK_DAYS, Math.max(0, elapsed));
+    }
+  }
   const unlockDate = daysFromNow(LOCK_DAYS);
+  const lockPct = currentDay !== null ? Math.round((currentDay / LOCK_DAYS) * 100) : 0;
 
   const today = new Date();
   const nextDistrib = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -80,33 +93,39 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
   const hasOnChainProof = hasHash && positionId;
   const irContact = getIrContact();
-  const lockPct = Math.round((currentDay / LOCK_DAYS) * 100);
 
   return (
-    <div className="dark flex flex-col gap-y-5 mx-auto w-full max-w-2xl rounded-2xl border border-white/10 bg-surface-page p-5 lg:p-6 mb-8">
-
-      {/* STEP PROGRESS — funnel step 4 (Confirmed) */}
-      <StepProgress active="confirmed" />
-
+    <InvestFlowShell
+      step="confirmed"
+      width="narrow"
+      titleLead="Deposit"
+      titleAccent="confirmed"
+      contextLabel="Investment Flow"
+      description={
+        <span className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">
+          Your subscription is recorded · Base Sepolia testnet
+        </span>
+      }
+    >
       {/* CONFIRMATION HERO */}
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col items-center text-center p-8">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col items-center text-center p-8">
         <DepositSuccessIcon />
-        <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-[#A7FB90]">
-          <span className="size-1.5 rounded-full bg-[#A7FB90]" />
+        <span className="mt-5 inline-flex items-center gap-1.5 ct-bento-label text-[var(--ct-accent)]">
+          <span className="size-1.5 rounded-full bg-[var(--ct-accent)]" />
           Deposit confirmed
         </span>
-        <h1 className="mt-3 text-[24px] font-semibold text-white leading-none tracking-tight">
+        <h2 className="mt-3 text-[length:var(--ct-text-2xl)] font-semibold text-[var(--ct-text-strong)] leading-none tracking-tight">
           {amount !== "—" ? (
             <>
-              {amount} <span className="text-[#A7FB90]">deposited</span>
+              {amount} <span className="text-[var(--ct-accent)]">deposited</span>
             </>
           ) : (
             <>
-              Deposit <span className="text-[#A7FB90]">recorded</span>
+              Deposit <span className="text-[var(--ct-accent)]">recorded</span>
             </>
           )}
-        </h1>
-        <p className="mt-3 max-w-md text-[13px] text-zinc-400 leading-relaxed">
+        </h2>
+        <p className="mt-3 max-w-md text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)] leading-relaxed">
           {hasOnChainProof
             ? "Your position has been recorded on-chain. Details below."
             : "Your subscription request is recorded. On-chain confirmation may still be pending."}
@@ -114,14 +133,12 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </section>
 
       {/* POSITION DETAILS */}
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-        <div className="flex items-end justify-between p-5 border-b border-white/5">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
-              Position Details
-            </h2>
-            <p className="text-[12px] text-zinc-500 tracking-wide">
-              On-chain & settlement record
+            <h2 className="ct-bento-label">Position Details</h2>
+            <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] tracking-wide">
+              On-chain &amp; settlement record
             </p>
           </div>
           <ProvenanceBadge kind={hasHash ? "manual" : "estimated"} />
@@ -129,10 +146,10 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
         <dl className="flex flex-col">
           {/* Transaction */}
-          <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
-            <dt className="text-[13px] text-zinc-400">Transaction</dt>
+          <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
+            <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Transaction</dt>
             <dd className="flex items-center gap-3 min-w-0">
-              <span className="text-[13px] font-medium text-white tabular-nums truncate">
+              <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums truncate">
                 {hasHash ? abbreviateAddress(txHash) : "Pending confirmation"}
               </span>
               {baseScanHref ? (
@@ -141,7 +158,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View transaction on Base Sepolia (opens in new tab)"
-                  className="shrink-0 text-[12px] font-medium text-[#A7FB90] hover:text-white transition-colors"
+                  className="shrink-0 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] hover:text-[var(--ct-text-strong)] transition-colors"
                 >
                   BaseScan ↗
                 </a>
@@ -151,10 +168,10 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
           {/* Vault contract */}
           {VAULT_CONTRACT ? (
-            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
-              <dt className="text-[13px] text-zinc-400">Vault contract</dt>
+            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
+              <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Vault contract</dt>
               <dd className="flex items-center gap-3 min-w-0">
-                <span className="text-[13px] font-medium text-white tabular-nums truncate">
+                <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums truncate">
                   {abbreviateAddress(VAULT_CONTRACT)}
                 </span>
                 <CopyAddressButton address={VAULT_CONTRACT} />
@@ -163,10 +180,10 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           ) : null}
 
           {/* NAV at entry */}
-          <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
-            <dt className="text-[13px] text-zinc-400">NAV at entry</dt>
+          <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
+            <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">NAV at entry</dt>
             <dd className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-white tabular-nums">
+              <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums">
                 {navDisplay}
               </span>
               <ProvenanceBadge kind={navProvenance} />
@@ -175,54 +192,58 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
           {/* Position ID */}
           {positionId ? (
-            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-white/5">
-              <dt className="text-[13px] text-zinc-400">Position ID</dt>
-              <dd className="text-[13px] font-medium text-white tabular-nums">
+            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
+              <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Position ID</dt>
+              <dd className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums">
                 {positionId}
               </dd>
             </div>
           ) : null}
 
-          {/* Soft-lock progress */}
-          <div className="flex flex-col gap-3 px-5 py-4 border-b border-white/5 bg-surface-inset">
+          {/* Soft-lock progress — only when we have a real elapsed day count */}
+          <div className="flex flex-col gap-3 px-5 py-4 border-b border-[var(--ct-border-soft)] bg-surface-inset">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+              <span className="ct-bento-label text-[var(--ct-text-faint)]">
                 Soft-lock
               </span>
-              <span className="text-[12px] text-zinc-500 tabular-nums">
-                Day {currentDay} of {LOCK_DAYS} · unlock {formatDateGb(unlockDate)}
+              <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] tabular-nums">
+                {currentDay !== null
+                  ? `Day ${currentDay} of ${LOCK_DAYS} · unlock ${formatDateGb(unlockDate)}`
+                  : `${LOCK_DAYS}-day soft lock-up · unlock ${formatDateGb(unlockDate)}`}
               </span>
             </div>
-            <div
-              role="progressbar"
-              aria-valuenow={currentDay}
-              aria-valuemin={0}
-              aria-valuemax={LOCK_DAYS}
-              aria-label={`Soft-lock: day ${currentDay} of ${LOCK_DAYS}`}
-              className="relative h-2 rounded-full border border-white/5 bg-surface-card overflow-hidden"
-            >
+            {currentDay !== null ? (
               <div
-                className="absolute inset-y-0 left-0 rounded-full bg-[#A7FB90]"
-                style={{
-                  width: `${lockPct}%`,
-                  minWidth: currentDay > 0 ? "var(--ct-space-1)" : "0",
-                }}
-              />
-            </div>
+                role="progressbar"
+                aria-valuenow={currentDay}
+                aria-valuemin={0}
+                aria-valuemax={LOCK_DAYS}
+                aria-label={`Soft-lock: day ${currentDay} of ${LOCK_DAYS}`}
+                className="relative h-2 rounded-full border border-[var(--ct-border-soft)] bg-surface-card overflow-hidden"
+              >
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full bg-[var(--ct-accent)]"
+                  style={{
+                    width: `${lockPct}%`,
+                    minWidth: currentDay > 0 ? "var(--ct-space-1)" : "0",
+                  }}
+                />
+              </div>
+            ) : null}
           </div>
 
           {/* Next distribution */}
           <div className="flex items-center justify-between gap-4 px-5 py-4">
-            <dt className="text-[13px] text-zinc-400">Next distribution</dt>
+            <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Next distribution</dt>
             <dd className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-white tabular-nums">
+              <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums">
                 {formatDateGb(nextDistrib)}
               </span>
               <a
                 href={icsUri}
                 download="hearst-distribution.ics"
                 aria-label="Add distribution date to calendar (.ics download)"
-                className="shrink-0 text-[12px] font-medium text-[#A7FB90] hover:text-white transition-colors"
+                className="shrink-0 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] hover:text-[var(--ct-text-strong)] transition-colors"
               >
                 Add to calendar
               </a>
@@ -232,23 +253,21 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </section>
 
       {/* NEXT STEPS */}
-      <section className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-        <div className="flex items-end justify-between p-5 border-b border-white/5">
-          <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
-            Next Steps
-          </h2>
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
+          <h2 className="ct-bento-label">Next Steps</h2>
         </div>
         <ul className="flex flex-col">
-          <li className="flex items-center gap-3 px-5 py-3.5 border-b border-white/5 text-[13px] text-zinc-300">
-            <span className="size-1.5 rounded-full bg-[#A7FB90] shrink-0" />
+          <li className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-sm)] text-[var(--ct-text-body)]">
+            <span className="size-1.5 rounded-full bg-[var(--ct-accent)] shrink-0" />
             Track your position and distributions in Portfolio
           </li>
-          <li className="flex items-center gap-3 px-5 py-3.5 border-b border-white/5 text-[13px] text-zinc-300">
-            <span className="size-1.5 rounded-full bg-[#A7FB90] shrink-0" />
+          <li className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-sm)] text-[var(--ct-text-body)]">
+            <span className="size-1.5 rounded-full bg-[var(--ct-accent)] shrink-0" />
             Review attestations in Proof Center
           </li>
-          <li className="flex items-center gap-3 px-5 py-3.5 text-[13px] text-zinc-300">
-            <span className="size-1.5 rounded-full bg-[#A7FB90] shrink-0" />
+          <li className="flex items-center gap-3 px-5 py-3.5 text-[length:var(--ct-text-sm)] text-[var(--ct-text-body)]">
+            <span className="size-1.5 rounded-full bg-[var(--ct-accent)] shrink-0" />
             Contact IR if you need settlement support
           </li>
         </ul>
@@ -275,11 +294,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         </Button>
       </div>
 
-      <p className="text-[11px] text-zinc-500 text-center">
-        {email
-          ? `Receipt and Methodology v1.0 PDF sent to ${email}`
-          : "Receipt and Methodology v1.0 PDF sent to your registered email"}
+      <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] text-center">
+        A receipt and the Methodology v1.0 PDF will be emailed to your registered address.
       </p>
-    </div>
+    </InvestFlowShell>
   );
 }

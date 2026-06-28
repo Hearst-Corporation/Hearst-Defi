@@ -37,6 +37,7 @@ import type { VaultProduct } from "@/lib/data/vaults";
 import type { Investor } from "@prisma/client";
 import type { SessionUser } from "@/lib/auth/session";
 import {
+  formatFeeLine,
   formatUsdAmount,
   formatUsdcGrouped,
   shareClassCode,
@@ -109,13 +110,10 @@ interface InvestFormProps {
 }
 
 function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
-  const mgmtFee = vault.fees.mgmtBps / 100;
-  const perfFee = vault.fees.perfBps / 100;
-
   return (
-    <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/5 bg-white/5">
+    <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-[var(--ct-border-soft)] bg-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Target APY
         </dt>
         <dd>
@@ -123,32 +121,32 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
             low={vault.apyLow}
             high={vault.apyHigh}
             precision={1}
-            className="text-[13px] font-medium text-white tabular-nums"
+            className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums"
           />
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Lock-up
         </dt>
-        <dd className="text-[13px] font-medium text-white tabular-nums">
+        <dd className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">
           {vault.softLockupDays}d soft
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Min ticket
         </dt>
-        <dd className="text-[13px] font-medium text-white tabular-nums">
+        <dd className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">
           {formatUsdAmount(vault.minTicketUsdc, true)}
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
-        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-          Fees (gross)
+        <dt className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
+          Mgmt / Perf
         </dt>
-        <dd className="text-[13px] font-medium text-white tabular-nums">
-          {mgmtFee.toFixed(2)}% · {perfFee.toFixed(0)}%
+        <dd className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">
+          {formatFeeLine(vault.fees)}
         </dd>
       </div>
     </dl>
@@ -172,15 +170,15 @@ function AmountLedger({
     <div
       className={cn(
         "rounded-lg border bg-surface-inset transition-colors",
-        isValid ? "border-white/10" : "border-red-500/40",
+        isValid ? "border-[var(--ct-border)]" : "border-red-500/40",
         isCalculating && "opacity-80",
       )}
     >
       <div className="flex items-center justify-between px-4 pt-3">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           {label}
         </span>
-        <span className="text-[10px] text-zinc-600 tabular-nums">{currency}</span>
+        <span className="text-[10px] text-[var(--ct-text-faint)] tabular-nums">{currency}</span>
       </div>
       <div className="px-4 pb-3 pt-1">{children}</div>
     </div>
@@ -192,16 +190,16 @@ function InvestHelpLinks() {
     <div className="flex items-center gap-2 text-[12px]">
       <Link
         href="/proof-center"
-        className="font-medium text-[#A7FB90] hover:underline"
+        className="font-medium text-[var(--ct-accent)] hover:underline"
       >
         Proof Center
       </Link>
-      <span className="text-zinc-600" aria-hidden>
+      <span className="text-[var(--ct-text-faint)]" aria-hidden>
         ·
       </span>
       <Link
         href="/docs/methodology/v1.0.md"
-        className="font-medium text-[#A7FB90] hover:underline"
+        className="font-medium text-[var(--ct-accent)] hover:underline"
       >
         Methodology v1.0
       </Link>
@@ -217,8 +215,8 @@ function EligibilityRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-white/5 last:border-b-0">
-      <span className="text-[12px] text-zinc-500">{label}</span>
+    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-[var(--ct-border-soft)] last:border-b-0">
+      <span className="text-[12px] text-[var(--ct-text-faint)]">{label}</span>
       <span className="text-[13px] tabular-nums">{children}</span>
     </div>
   );
@@ -237,12 +235,12 @@ function EligibilityChecklist({
 
   const kycChipClass =
     kycStatus === "approved"
-      ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+      ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
       : kycStatus === "rejected"
         ? "border-red-500/30 bg-red-500/10 text-red-400"
         : kycStatus === "pending"
           ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
-          : "border-white/10 bg-white/5 text-zinc-400";
+          : "border-[var(--ct-border)] bg-surface-inset text-[var(--ct-text-muted)]";
 
   return (
     <BentoPanel>
@@ -263,19 +261,19 @@ function EligibilityChecklist({
         </EligibilityRow>
         <EligibilityRow label="Accreditation">
           {accreditation ? (
-            <span className="text-[#A7FB90]">Attested</span>
+            <span className="text-[var(--ct-accent)]">Attested</span>
           ) : (
-            <span className="text-zinc-500">Pending attestation</span>
+            <span className="text-[var(--ct-text-faint)]">Pending attestation</span>
           )}
         </EligibilityRow>
         <EligibilityRow label="Wallet readiness">
           {walletConnected ? (
-            <span className="text-[#A7FB90]">Linked</span>
+            <span className="text-[var(--ct-accent)]">Linked</span>
           ) : (
-            <span className="text-zinc-500">Connection pending</span>
+            <span className="text-[var(--ct-text-faint)]">Connection pending</span>
           )}
         </EligibilityRow>
-        <p className="text-[11px] text-zinc-600 leading-relaxed mt-4">
+        <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed mt-4">
           Subscription is restricted to verified qualified investors. All status
           flags must be green before final execution.
         </p>
@@ -358,7 +356,7 @@ function AmountSection({
             <div className="flex items-baseline gap-1.5">
               <span
                 aria-hidden
-                className="text-[20px] font-medium text-zinc-500 tabular-nums"
+                className="text-[20px] font-medium text-[var(--ct-text-faint)] tabular-nums"
               >
                 $
               </span>
@@ -378,8 +376,8 @@ function AmountSection({
                 aria-describedby={helperId}
                 aria-invalid={!disabled && amount > 0 && !amountValid}
                 className={cn(
-                  "w-full bg-transparent border-0 p-0 text-[28px] font-medium text-white tabular-nums leading-none outline-none placeholder:text-zinc-600 focus:outline-none",
-                  disabled && "text-zinc-500",
+                  "w-full bg-transparent border-0 p-0 text-[28px] font-medium text-[var(--ct-text-strong)] tabular-nums leading-none outline-none placeholder:text-[var(--ct-text-faint)] focus:outline-none",
+                  disabled && "text-[var(--ct-text-faint)]",
                   !disabled && amount > 0 && !amountValid && "text-red-400",
                 )}
               />
@@ -390,9 +388,9 @@ function AmountSection({
             id={helperId}
             className={cn(
               "text-[12px] px-1",
-              helper.variant === "ok" && "text-[#A7FB90]",
+              helper.variant === "ok" && "text-[var(--ct-accent)]",
               helper.variant === "warn" && "text-amber-400",
-              helper.variant === "neutral" && "text-zinc-500",
+              helper.variant === "neutral" && "text-[var(--ct-text-faint)]",
             )}
           >
             {helper.text}
@@ -456,23 +454,23 @@ function InvestFormUnconfigured({
         <div className="p-5 flex flex-col gap-5">
           <div>
             <label className="flex items-start gap-3 cursor-default opacity-60">
-              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-white/15 bg-surface-inset" />
-              <span className="text-[13px] text-zinc-300 leading-snug">
+              <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-[var(--ct-border)] bg-surface-inset" />
+              <span className="text-[13px] text-[var(--ct-text-body)] leading-snug">
                 I have reviewed and accept the term sheet for {vault.name}.
               </span>
             </label>
-            <p className="text-[11px] text-zinc-600 leading-relaxed mt-2 ml-7">
+            <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
               Structured product exclusively for qualified investors. Review the
               full subscription agreement before proceeding.
             </p>
           </div>
 
-          <div className="rounded-lg border border-white/5 bg-surface-inset p-4">
-            <p className="text-[13px] text-zinc-400 m-0">
+          <div className="rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset p-4">
+            <p className="text-[13px] text-[var(--ct-text-muted)] m-0">
               Wallet connection will be enabled for your account before deposit
               signing.
             </p>
-            <p className="text-[11px] text-zinc-600 leading-relaxed m-0 mt-1.5">
+            <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed m-0 mt-1.5">
               You can review the subscription path, assumptions, and checks now,
               then continue once wallet access is provisioned.
             </p>
@@ -530,7 +528,8 @@ function InvestFormLive({
 
   const amountValid = amount >= vault.minTicketUsdc && amount <= maxAmount;
 
-  const epochIndicative = { status: "ACTIVE" as const, endsInDays: 18 };
+  // Epoch gating is status-only (no real deadline feed) — see preflight-check.
+  const epochIndicative = { status: "ACTIVE" as const };
 
   const preFlightOk = isPreFlightReady(walletAddress, allowanceApproved, epochIndicative);
 
@@ -711,15 +710,15 @@ function InvestFormLive({
                     className={cn(
                       "flex size-4 items-center justify-center rounded border transition-colors",
                       agreedToTermSheet
-                        ? "border-[#A7FB90] bg-[#A7FB90]"
-                        : "border-white/15 bg-surface-inset",
+                        ? "border-[var(--ct-accent)] bg-[var(--ct-accent)]"
+                        : "border-[var(--ct-border)] bg-surface-inset",
                     )}
                   >
                     {agreedToTermSheet ? (
                       <svg
                         viewBox="0 0 12 12"
                         fill="none"
-                        className="size-2.5 text-zinc-900"
+                        className="size-2.5 text-[var(--ct-bg-deep)]"
                       >
                         <path
                           d="M2 6l3 3 5-6"
@@ -732,11 +731,11 @@ function InvestFormLive({
                     ) : null}
                   </span>
                 </span>
-                <span className="text-[13px] text-zinc-300 leading-snug">
+                <span className="text-[13px] text-[var(--ct-text-body)] leading-snug">
                   I have reviewed and accept the{" "}
                   <Link
                     href={investProductPath(vault.id)}
-                    className="underline text-[#A7FB90] hover:text-white"
+                    className="underline text-[var(--ct-accent)] hover:text-[var(--ct-text-strong)]"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -745,7 +744,7 @@ function InvestFormLive({
                   for {vault.name}.
                 </span>
               </label>
-              <p className="text-[11px] text-zinc-600 leading-relaxed mt-2 ml-7">
+              <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
                 Structured product exclusively for qualified investors. Review
                 the full subscription agreement before proceeding.
               </p>
@@ -762,59 +761,59 @@ function InvestFormLive({
 
             {awaitingConfirm ? (
               <div
-                className="rounded-lg border border-white/10 bg-surface-inset p-5 flex flex-col gap-4"
+                className="rounded-lg border border-[var(--ct-border)] bg-surface-inset p-5 flex flex-col gap-4"
                 aria-label="Confirm your deposit"
               >
                 <div className="flex items-baseline justify-between">
-                  <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 m-0">
+                  <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)] m-0">
                     Confirm allocation
                   </p>
-                  <span className="inline-flex items-center rounded-full border border-[#A7FB90]/30 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A7FB90]">
+                  <span className="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--ct-accent)]">
                     Review mode
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
-                    <span className="text-zinc-500">Vault</span>
-                    <span className="text-white font-semibold">{vault.name}</span>
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                    <span className="text-[var(--ct-text-faint)]">Vault</span>
+                    <span className="text-[var(--ct-text-strong)] font-semibold">{vault.name}</span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
-                    <span className="text-zinc-500">Share class</span>
-                    <span className="text-zinc-200 tabular-nums">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                    <span className="text-[var(--ct-text-faint)]">Share class</span>
+                    <span className="text-[var(--ct-text-strong)] tabular-nums">
                       Class {shareClassCode(vault.shareClass)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
-                    <span className="text-zinc-500">Amount</span>
-                    <span className="text-white font-semibold tabular-nums">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                    <span className="text-[var(--ct-text-faint)]">Amount</span>
+                    <span className="text-[var(--ct-text-strong)] font-semibold tabular-nums">
                       {formatUsdAmount(amount)} USDC
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
-                    <span className="text-zinc-500">Target APY</span>
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                    <span className="text-[var(--ct-text-faint)]">Target APY</span>
                     <ApyRange
                       low={vault.apyLow}
                       high={vault.apyHigh}
                       precision={1}
-                      className="text-[13px] font-medium text-white tabular-nums"
+                      className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums"
                     />
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
-                    <span className="text-zinc-500">Lock-up</span>
-                    <span className="text-zinc-200 tabular-nums">
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                    <span className="text-[var(--ct-text-faint)]">Lock-up</span>
+                    <span className="text-[var(--ct-text-strong)] tabular-nums">
                       {vault.softLockupDays}d soft
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 py-2 border-b border-white/5 text-[13px]">
-                    <span className="text-zinc-500">Network</span>
-                    <span className="text-zinc-200">Base Sepolia (testnet)</span>
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[13px]">
+                    <span className="text-[var(--ct-text-faint)]">Network</span>
+                    <span className="text-[var(--ct-text-strong)]">Base Sepolia (testnet)</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2 text-[13px]">
-                    <span className="text-zinc-500">Action</span>
-                    <span className="text-zinc-200">Deposit</span>
+                    <span className="text-[var(--ct-text-faint)]">Action</span>
+                    <span className="text-[var(--ct-text-strong)]">Deposit</span>
                   </div>
                 </div>
-                <p className="text-[11px] text-zinc-500 leading-relaxed m-0">
+                <p className="text-[11px] text-[var(--ct-text-faint)] leading-relaxed m-0">
                   Base Sepolia testnet transaction — for pilot testing only.
                   Irreversible once submitted. Subject to{" "}
                   {vault.softLockupDays}-day soft lock-up. Target APY shown as a

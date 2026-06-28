@@ -1530,6 +1530,15 @@
   padding-bottom: var(--ct-space-12);
 }
 
+/* The body is a flex column purely to stack + scroll — it must NEVER distribute
+   height by shrinking panels. Without this, the first panel (Key terms + the
+   "Continue to deposit" CTA) collapsed to ~2px under the tall term sheet and its
+   overflow:hidden clipped the CTA out of view. Direct children keep intrinsic
+   height and the column simply overflows into the internal scroll. */
+.product-doc .invest-flow-shell--workspace .invest-flow-shell__body > * {
+  flex-shrink: 0;
+}
+
 /* Remove the outer visual surface — keep layout only.
    Override --cap max-width: the cockpit center panel constrains width already.
    Centered narrow box inside a padded area reads as a framed document. */

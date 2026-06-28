@@ -30,19 +30,19 @@ function CheckRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0">
+    <div className="flex items-center gap-3 py-3 border-b border-[var(--ct-border-soft)] last:border-b-0">
       <span
         aria-hidden
         className={cn(
-          "size-2.5 shrink-0 rounded-full border-2 border-[#15191C]",
-          status === "ok" && "bg-[#A7FB90]",
-          status === "action" && "bg-[#A7FB90]/40",
-          status === "pending" && "bg-white/20",
+          "size-2.5 shrink-0 rounded-full border-2 border-[var(--ct-surface-inset)]",
+          status === "ok" && "bg-[var(--ct-accent)]",
+          status === "action" && "bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]",
+          status === "pending" && "bg-[color-mix(in_srgb,var(--ct-text-strong)_16%,transparent)]",
         )}
       />
       <div className="flex flex-col gap-0.5 min-w-0 flex-auto">
-        <span className="text-[13px] font-medium text-zinc-200">{label}</span>
-        <span className="text-[12px] text-zinc-500 tracking-wide truncate">
+        <span className="text-[13px] font-medium text-[var(--ct-text-strong)]">{label}</span>
+        <span className="text-[12px] text-[var(--ct-text-faint)] tracking-wide truncate">
           {detail}
         </span>
       </div>
@@ -139,9 +139,11 @@ export function PreFlightCheck({
     SYNC: "Sync in progress",
   };
 
-  const epochIndicative: { status: EpochStatus; endsInDays: number } = {
+  // Epoch readiness is gated on status only. There is no real on-chain epoch
+  // deadline feed yet, so we never render a fabricated countdown (audit I10) —
+  // the row says "Active · indicative", not a made-up "closes in Nd".
+  const epochIndicative: { status: EpochStatus } = {
     status: "ACTIVE",
-    endsInDays: 18,
   };
 
   const walletOk = resolvedAddress !== null;
@@ -150,27 +152,27 @@ export function PreFlightCheck({
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
   const panelBody = !ready ? (
-    <p className="text-[12px] text-zinc-500 animate-pulse py-4 text-center">
+    <p className="text-[12px] text-[var(--ct-text-faint)] animate-pulse py-4 text-center">
       Loading wallet…
     </p>
   ) : !vaultConfigured ? (
     <div className="flex flex-col gap-2 py-2">
-      <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[#A7FB90] bg-[#A7FB90]/10 border border-[#A7FB90]/20 rounded-full px-2.5 py-1">
+      <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
         Configuration pending
       </span>
-      <p className="text-[12px] text-zinc-500 tracking-wide">
+      <p className="text-[12px] text-[var(--ct-text-faint)] tracking-wide">
         On-chain configuration is being finalized. Please contact Investor
         Relations.
       </p>
     </div>
   ) : (
     <>
-      <div className="flex items-center justify-between pb-3 mb-1 border-b border-white/5">
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+      <div className="flex items-center justify-between pb-3 mb-1 border-b border-[var(--ct-border-soft)]">
+        <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">
           Readiness
         </span>
-        <span className="text-[12px] text-zinc-400">
-          <span className="font-semibold text-white tabular-nums font-mono">
+        <span className="text-[12px] text-[var(--ct-text-muted)]">
+          <span className="font-semibold text-[var(--ct-text-strong)] tabular-nums font-mono">
             {checksComplete}
           </span>
           {" "}of 4 complete
@@ -178,11 +180,11 @@ export function PreFlightCheck({
       </div>
 
       {vaultStale ? (
-        <div className="flex flex-col gap-2 mb-3 rounded-xl border border-[#A7FB90]/20 bg-surface-inset p-3">
-          <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[#A7FB90] bg-[#A7FB90]/10 border border-[#A7FB90]/20 rounded-full px-2.5 py-1">
+        <div className="flex flex-col gap-2 mb-3 rounded-xl border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-surface-inset p-3">
+          <span className="self-start text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
             Testnet contract
           </span>
-          <p className="text-[12px] text-zinc-500 tracking-wide">
+          <p className="text-[12px] text-[var(--ct-text-faint)] tracking-wide">
             This vault is a testnet build with no emergency pause or guardian
             and a $1,000 minimum — not the audited production contract.
           </p>
@@ -222,7 +224,7 @@ export function PreFlightCheck({
               onClick={() => void handleApprove()}
               disabled={approving || !networkOk}
               className={cn(
-                "rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#A7FB90] transition-colors hover:bg-[#A7FB90]/20",
+                "rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--ct-accent)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
                 "disabled:cursor-not-allowed disabled:opacity-50",
                 approving && "cursor-wait opacity-70",
               )}
@@ -243,18 +245,18 @@ export function PreFlightCheck({
       <CheckRow
         label="Epoch"
         status={epochOk ? "ok" : "pending"}
-        detail={`${epochStatusLabel[epochIndicative.status]} · closes in ${epochIndicative.endsInDays}d · indicative`}
+        detail={`${epochStatusLabel[epochIndicative.status]} · indicative`}
       />
     </>
   );
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
-      <div className="flex flex-col gap-1.5 p-5 border-b border-white/5">
-        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <div className="flex flex-col gap-1.5 p-5 border-b border-[var(--ct-border-soft)]">
+        <h2 className="text-[11px] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
           Pre-flight check
         </h2>
-        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold">
+        <p className="text-[10px] text-[var(--ct-text-faint)] uppercase tracking-[0.15em] font-bold">
           Wallet · network · allowance · epoch
         </p>
       </div>

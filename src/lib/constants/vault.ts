@@ -75,6 +75,9 @@ export const VAULT_AUDIT_LABEL = "Spearbit · scheduled";
 /** Appended after vault.disclaimers on the LP term sheet. */
 export const APY_DISCLAIMER_SUFFIX = "APY ranges are target projections — not guaranteed.";
 
+/** Shown wherever a vault has no AUM/capital yet (term sheet, product card). */
+export const AUM_PENDING_LABEL = "Pending";
+
 /** Methodology v1.0 stress regime data — Bull / Bear postures. */
 export interface StressRegime {
   id: string;
