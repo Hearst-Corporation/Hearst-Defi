@@ -1,12 +1,17 @@
-import { ArrowUpRight, ArrowDownLeft, Wallet, Receipt, ArrowDownRight, CircleDollarSign } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowDownLeft,
+  Wallet,
+  Receipt,
+  ArrowDownRight,
+  CircleDollarSign,
+} from "lucide-react";
+
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { relativeTime } from "@/lib/format/time";
-import {
-  PfCockpitPanel,
-  PfCockpitPanelHeader,
-} from "@/components/portfolio/pf-cockpit-panel";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -22,12 +27,11 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 function TransactionIcon({ type, dir }: { type: string; dir: "in" | "out" }) {
-  const className = "w-3.5 h-3.5";
+  const className = "h-3.5 w-3.5";
   if (type === "deposit") return <Wallet className={className} />;
   if (type === "distribution") return <CircleDollarSign className={className} />;
   if (type === "withdraw") return <ArrowDownRight className={className} />;
   if (type === "claim") return <Receipt className={className} />;
-  
   return dir === "in" ? (
     <ArrowUpRight className={className} />
   ) : (
@@ -44,7 +48,6 @@ interface RecentActivityProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   leafHref?: string;
-  embedded?: boolean;
 }
 
 export function RecentActivity({
@@ -52,79 +55,85 @@ export function RecentActivity({
   source,
   updatedAt,
   leafHref,
-  embedded = false,
 }: RecentActivityProps) {
   const displayed = transactions.slice(0, 5);
   const hasTransactions = displayed.length > 0;
-  const provenance = hasTransactions ? resolveProvenance(source, updatedAt) : undefined;
+  const provenance = hasTransactions
+    ? resolveProvenance(source, updatedAt)
+    : undefined;
   const asOf = updatedAt ?? new Date();
-  const trailing = leafHref ? <PortfolioLeafLink href={leafHref} /> : undefined;
 
   return (
-    <PfCockpitPanel
-      variant="wide"
-      chrome={embedded ? "embedded" : "panel"}
+    <section
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col"
       aria-label="Recent account activity"
     >
-      <PfCockpitPanelHeader
-        title="Recent Activity"
-        subtitle={hasTransactions ? "Last 5 transactions" : "Deposits, payouts, and withdrawals"}
-        titleVariant="primary"
-        provenance={hasTransactions ? provenance : undefined}
-        trailing={trailing}
-      />
+      <header className="flex items-start justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <h2 className="ct-section-title">Recent activity</h2>
+          <p className="ct-metric-caption">
+            {hasTransactions
+              ? "Last 5 transactions"
+              : "Deposits, payouts, and withdrawals"}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {provenance ? (
+            <ProvenanceBadge kind={provenance} variant="compact" />
+          ) : null}
+          {leafHref ? <PortfolioLeafLink href={leafHref} /> : null}
+        </div>
+      </header>
+
       {hasTransactions ? (
-        <div className="pf-activity">
-          {displayed.map((tx, idx) => {
+        <ul role="list" className="flex flex-col p-2">
+          {displayed.map((tx) => {
             const dir = flowSign(tx.type);
             return (
-              <div
+              <li
                 key={tx.id}
-                className="pf-activity__row"
-                style={{ animationDelay: `${idx * 0.06}s` }}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
               >
-                <span className="pf-activity__glyph" data-dir={dir} aria-hidden>
+                <span
+                  aria-hidden="true"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] text-[var(--ct-text-muted)]"
+                >
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>
-                <span className="pf-activity__main min-w-0">
-                  <span className="text-(--ct-text-xs) ct-text-primary font-medium tracking-tight truncate">
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="ct-metric-value min-w-0 truncate">
                     {TYPE_LABELS[tx.type] ?? tx.type}
                     {tx.positionVaultName ? (
-                      <span className="ct-text-tertiary font-normal ml-1 text-(length:--ct-text-xs)">· {tx.positionVaultName}</span>
+                      <span className="ct-metric-caption ml-1">
+                        · {tx.positionVaultName}
+                      </span>
                     ) : null}
                   </span>
-                  <span className="stat-label ct-text-tertiary mono truncate opacity-70">
+                  <span className="ct-metric-caption truncate">
                     {relativeTime(tx.occurredAt, asOf)}
                   </span>
                 </span>
-                <span className={`pf-activity__amt tabular text-(--ct-text-xs) font-semibold${dir === "in" ? " ct-text-accent" : ""}`}>
+                <span
+                  className={`ct-metric-value shrink-0 tabular-nums ${
+                    dir === "in" ? "text-[var(--ct-accent)]" : ""
+                  }`}
+                >
                   {dir === "out" ? "−" : "+"}
                   {usdFmt.format(tx.amountUsdc)}
                 </span>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       ) : (
-        /* Premium zero-state — ghost rows + centered message */
-        <div className="pf-activity-zero">
-          <div className="pf-activity-zero__ghost" aria-hidden="true">
-            {[80, 62, 74, 55, 68].map((w, i) => (
-              <div key={i} className="pf-activity-zero__ghost-row">
-                <span className="pf-activity-zero__ghost-icon" />
-                <span className="pf-activity-zero__ghost-bar" style={{ width: `${w}%` }} />
-                <span className="pf-activity-zero__ghost-amt" />
-              </div>
-            ))}
-          </div>
-          <div className="pf-activity-zero__label">
-            <span className="pf-activity-zero__title">No transactions yet</span>
-            <span className="pf-activity-zero__hint">
-              Deposits, payouts, and withdrawals appear here once activity is posted.
-            </span>
-          </div>
+        <div className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+          <span className="ct-section-title">No transactions yet</span>
+          <span className="ct-metric-caption max-w-xs">
+            Deposits, payouts, and withdrawals appear here once activity is
+            posted.
+          </span>
         </div>
       )}
-    </PfCockpitPanel>
+    </section>
   );
 }

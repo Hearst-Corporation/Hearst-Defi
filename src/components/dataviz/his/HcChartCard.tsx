@@ -66,7 +66,10 @@ export function HcChartCard({
       data-state={state}
       className="relative flex flex-col"
       style={{
-        background: "var(--ct-surface-inset)",
+        // Chart cards sit on the BLACK card surface (--ct-surface-card), not the
+        // grey inset — graphs render on black; only the written KPI tiles keep
+        // the grey inset. DS-level decision (owner): every HIS chart card = black.
+        background: "var(--ct-surface-card)",
         border: "1px solid var(--ct-border)",
         borderRadius: "var(--ct-radius-xl)",
         boxShadow: "var(--ct-shadow-depth)",

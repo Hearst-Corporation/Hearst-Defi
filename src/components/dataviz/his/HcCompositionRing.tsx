@@ -18,6 +18,12 @@ export interface HcCompositionRingProps {
   size?: number;
   centerLabel?: string;
   centerValue?: string;
+  /**
+   * Render a horizontal gauge (track + fill sized to the segment's share of the
+   * total) on each legend row, between the label and the % value. Off by default
+   * so dense legends stay text-only.
+   */
+  bars?: boolean;
   "aria-label": string;
 }
 
@@ -34,6 +40,7 @@ export function HcCompositionRing({
   size = 160,
   centerLabel,
   centerValue,
+  bars = false,
   ...rest
 }: HcCompositionRingProps) {
   const ariaLabel = rest["aria-label"];
@@ -48,7 +55,7 @@ export function HcCompositionRing({
   let acc = 0; // preceding fraction → rotation start
 
   return (
-    <div className="flex items-center gap-4">
+    <div className={`flex items-center gap-4${bars ? " w-full" : ""}`}>
       <svg
         role="img"
         aria-label={ariaLabel}
@@ -115,34 +122,71 @@ export function HcCompositionRing({
         )}
       </svg>
 
-      <ul className="flex flex-col gap-1.5">
-        {segments.map((s, i) => (
-          <li
-            key={s.label}
-            className="flex items-center gap-2"
-            style={{ fontSize: "var(--ct-text-2xs)", color: "var(--ct-text-body)" }}
-          >
-            <span
-              aria-hidden="true"
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "var(--ct-radius-xs)",
-                background: RAMP[i % RAMP.length],
-              }}
-            />
-            <span className="min-w-0 truncate">{s.label}</span>
-            <span
-              style={{
-                marginLeft: "auto",
-                fontVariantNumeric: "tabular-nums",
-                color: "var(--ct-text-primary)",
-              }}
+      <ul className={`flex flex-col gap-1.5${bars ? " min-w-0 flex-1" : ""}`}>
+        {segments.map((s, i) => {
+          const pct = total > 0 ? (Math.max(0, s.value) / total) * 100 : 0;
+          const color = RAMP[i % RAMP.length];
+          return (
+            <li
+              key={s.label}
+              className="flex items-center gap-2"
+              style={{ fontSize: "var(--ct-text-2xs)", color: "var(--ct-text-body)" }}
             >
-              {total > 0 ? ((Math.max(0, s.value) / total) * 100).toFixed(0) : "0"}%
-            </span>
-          </li>
-        ))}
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "var(--ct-radius-xs)",
+                  background: color,
+                }}
+              />
+              <span
+                className="truncate"
+                style={bars ? { width: 116, flexShrink: 0 } : { minWidth: 0 }}
+              >
+                {s.label}
+              </span>
+              {bars && (
+                // Identical-size gauge on every row: same start X (after the
+                // fixed-width label) and same end X (before the fixed % column).
+                // The track spans the full remaining width; only the fill varies.
+                <span
+                  aria-hidden="true"
+                  style={{
+                    flex: "1 1 0%",
+                    height: 4,
+                    borderRadius: "var(--ct-radius-full)",
+                    background: "var(--ct-surface-inset)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      width: `${pct.toFixed(1)}%`,
+                      height: "100%",
+                      borderRadius: "var(--ct-radius-full)",
+                      background: color,
+                    }}
+                  />
+                </span>
+              )}
+              <span
+                style={{
+                  marginLeft: bars ? undefined : "auto",
+                  width: bars ? 36 : undefined,
+                  flexShrink: 0,
+                  textAlign: "right",
+                  fontVariantNumeric: "tabular-nums",
+                  color: "var(--ct-text-primary)",
+                }}
+              >
+                {pct.toFixed(0)}%
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -12,11 +12,22 @@ export type HcSparklineTone = "accent" | "warning" | "danger";
 
 export interface HcMetricSparklineProps {
   values: readonly number[];
+  /** Internal viewBox width — the geometry coordinate space. */
   width?: number;
+  /** Internal viewBox height — the geometry coordinate space. */
   height?: number;
   /** Fill the area under the curve (accent tone only). */
   area?: boolean;
   tone?: HcSparklineTone;
+  /**
+   * Fluid mode: the SVG fills its container (width/height 100%,
+   * preserveAspectRatio="none") instead of rendering at the fixed `width`×
+   * `height`. `width`/`height` then only define the viewBox math. Use inside a
+   * sized parent (e.g. HcChartCard's plot slot) so the trend is responsive and
+   * never overflows or leaves dead space. Default false keeps inline KPI-row
+   * sparklines at their fixed pixel size.
+   */
+  responsive?: boolean;
   "aria-label": string;
 }
 
@@ -32,9 +43,15 @@ export function HcMetricSparkline({
   height = 56,
   area = true,
   tone = "accent",
+  responsive = false,
   ...rest
 }: HcMetricSparklineProps) {
   const ariaLabel = rest["aria-label"];
+
+  // Fluid mode fills the parent; fixed mode keeps the pixel size.
+  const svgSize = responsive
+    ? ({ width: "100%", height: "100%" } as const)
+    : ({ width, height } as const);
 
   if (values.length < 2) {
     return (
@@ -43,8 +60,7 @@ export function HcMetricSparkline({
         aria-label={ariaLabel}
         data-hc-empty="true"
         style={{
-          width,
-          height,
+          ...(responsive ? { width: "100%", height: "100%" } : { width, height }),
           borderRadius: "var(--ct-radius-sm)",
           background: "var(--ct-surface-inset)",
         }}
@@ -58,6 +74,7 @@ export function HcMetricSparkline({
   const pts: HcPoint[] = values.map((v, i) =>
     project({ x: i, y: v }, xDomain, yDomain, box),
   );
+  // Safe non-null: the `values.length < 2` guard above guarantees ≥2 points.
   const last = pts[pts.length - 1]!;
   const first = pts[0]!;
   const baseY = height - box.padY;
@@ -67,9 +84,10 @@ export function HcMetricSparkline({
     <svg
       role="img"
       aria-label={ariaLabel}
-      width={width}
-      height={height}
+      {...svgSize}
       viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio={responsive ? "none" : undefined}
+      style={responsive ? { display: "block" } : undefined}
     >
       {area && tone === "accent" && (
         <>
