@@ -1,6 +1,10 @@
 import { METHODOLOGY_BASELINES } from "./methodology";
 import type { ScenarioInputs } from "./types";
 import { calcSharpe, calcSortino, calcVaR } from "./ratios";
+import {
+  DEFAULT_RISK_REFERENCES,
+  type RiskReferenceInputs,
+} from "@/lib/projection/risk-references";
 
 const W_MARKET = 0.3;
 const W_MINING = 0.25;
@@ -20,12 +24,18 @@ export interface RiskBreakdown {
   composite: number;
 }
 
-export function computeRiskBreakdown(inputs: ScenarioInputs): RiskBreakdown {
+export function computeRiskBreakdown(
+  inputs: ScenarioInputs,
+  refs: RiskReferenceInputs = {},
+): RiskBreakdown {
   const market = scoreMarket(inputs);
-  const mining = scoreMining(inputs);
-  const liquidity = scoreLiquidity(inputs);
-  const smart_contract = METHODOLOGY_BASELINES.SMART_CONTRACT_PRE_AUDIT;
-  const counterparty = METHODOLOGY_BASELINES.COUNTERPARTY;
+  const mining = scoreMining(inputs, refs);
+  const liquidity = scoreLiquidity(inputs, refs);
+  // Injected baseline overrides allowed (e.g. post-audit); else pre-audit default.
+  const smart_contract =
+    refs.smartContractRiskScore ?? METHODOLOGY_BASELINES.SMART_CONTRACT_PRE_AUDIT;
+  const counterparty =
+    refs.counterpartyRiskScore ?? METHODOLOGY_BASELINES.COUNTERPARTY;
 
   const composite =
     W_MARKET * market +
@@ -44,8 +54,11 @@ export function computeRiskBreakdown(inputs: ScenarioInputs): RiskBreakdown {
   };
 }
 
-export function computeRiskScore(inputs: ScenarioInputs): number {
-  return computeRiskBreakdown(inputs).composite;
+export function computeRiskScore(
+  inputs: ScenarioInputs,
+  refs: RiskReferenceInputs = {},
+): number {
+  return computeRiskBreakdown(inputs, refs).composite;
 }
 
 function scoreMarket(inputs: ScenarioInputs): number {
@@ -55,19 +68,28 @@ function scoreMarket(inputs: ScenarioInputs): number {
   return clip(20 + drawdown_component + upside_component + vol_component, 1, 100);
 }
 
-function scoreMining(inputs: ScenarioInputs): number {
+function scoreMining(inputs: ScenarioInputs, refs: RiskReferenceInputs): number {
+  const refHashprice =
+    refs.hashpriceUsdPerThDay ?? DEFAULT_RISK_REFERENCES.hashpriceUsdPerThDay;
+  const refEnergy =
+    refs.energyUsdPerKwh ?? DEFAULT_RISK_REFERENCES.energyUsdPerKwh;
   const hashprice_pressure = clip(
-    (0.085 - inputs.hashprice_usd_th_day) * 600,
+    (refHashprice - inputs.hashprice_usd_th_day) * 600,
     -30,
     60,
   );
-  const energy_pressure = clip((inputs.energy_cost_kwh - 0.045) * 800, -10, 50);
+  const energy_pressure = clip(
+    (inputs.energy_cost_kwh - refEnergy) * 800,
+    -10,
+    50,
+  );
   return clip(30 + hashprice_pressure + energy_pressure, 1, 100);
 }
 
-function scoreLiquidity(inputs: ScenarioInputs): number {
+function scoreLiquidity(inputs: ScenarioInputs, refs: RiskReferenceInputs): number {
+  const refStable = refs.stableApyPct ?? DEFAULT_RISK_REFERENCES.stableApyPct;
   const vol_factor = normaliseVol(inputs.vol_index) * 25;
-  const stable_factor = clip((5 - inputs.stable_apy_pct) * 3, -5, 15);
+  const stable_factor = clip((refStable - inputs.stable_apy_pct) * 3, -5, 15);
   return clip(30 + vol_factor + stable_factor, 1, 100);
 }
 
