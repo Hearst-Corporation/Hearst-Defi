@@ -1,18 +1,35 @@
 import type { MiningRevenue, ScenarioInputs } from "./types";
+import {
+  DEFAULT_MINING_COSTS,
+  type MiningCostInputs,
+} from "@/lib/projection/mining-cost-assumptions";
 
-const REFERENCE_EFFICIENCY_KWH_PER_TH_DAY = 0.1;
-const HOSTING_AND_POOL_FEE_USD_TH_DAY = 0.005;
-const TARGET_NET_MARGIN_USD_TH_DAY = 0.04;
-const UPTIME_ASSUMPTION = 0.98;
+/**
+ * Compute mining revenue/margin. Cost inputs are INJECTABLE (a server caller can
+ * pass the real Telegram cost-model figures); omitting them falls back to the
+ * engine defaults (status CONFIGURED) — never a silent hardcode. Existing
+ * call-sites stay byte-identical (the arg is optional, defaults = old constants).
+ */
+export function computeMiningRevenue(
+  inputs: ScenarioInputs,
+  costs: MiningCostInputs = {},
+): MiningRevenue {
+  const efficiency =
+    costs.efficiencyKwhPerThDay ?? DEFAULT_MINING_COSTS.efficiencyKwhPerThDay;
+  const hosting =
+    costs.hostingUsdPerThDay ?? DEFAULT_MINING_COSTS.hostingUsdPerThDay;
+  const target =
+    costs.targetNetMarginUsdPerThDay ??
+    DEFAULT_MINING_COSTS.targetNetMarginUsdPerThDay;
+  const uptime = costs.uptimePct ?? DEFAULT_MINING_COSTS.uptimePct;
 
-export function computeMiningRevenue(inputs: ScenarioInputs): MiningRevenue {
-  const gross = inputs.hashprice_usd_th_day * UPTIME_ASSUMPTION;
-  const energy = inputs.energy_cost_kwh * REFERENCE_EFFICIENCY_KWH_PER_TH_DAY;
-  const operating_costs = energy + HOSTING_AND_POOL_FEE_USD_TH_DAY;
+  const gross = inputs.hashprice_usd_th_day * uptime;
+  const energy = inputs.energy_cost_kwh * efficiency;
+  const operating_costs = energy + hosting;
   const net = gross - operating_costs;
 
   // score = 50 + 50 × (current/target − 1), clipped to [0,100] — see 05-mining-model.mdx
-  const raw_score = 50 + 50 * (net / TARGET_NET_MARGIN_USD_TH_DAY - 1);
+  const raw_score = 50 + 50 * (net / target - 1);
   const margin_score = clip(raw_score, 0, 100);
 
   return {
