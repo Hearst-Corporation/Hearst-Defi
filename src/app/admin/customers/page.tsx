@@ -132,19 +132,19 @@ export default async function CustomersPage({
                   <TableHeader className="bg-transparent pl-5 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     Investor
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
+                  <TableHeader className="hidden bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
                     Wallet
                   </TableHeader>
-                  <TableHeader className="bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  <TableHeader className="bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     KYC
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:table-cell">
+                  <TableHeader className="hidden bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:table-cell">
                     Positions
                   </TableHeader>
-                  <TableHeader className="bg-transparent text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  <TableHeader className="bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
                     Total principal
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent pr-5 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
+                  <TableHeader className="hidden bg-transparent pr-5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
                     Joined
                   </TableHeader>
                 </TableRow>
@@ -166,11 +166,11 @@ export default async function CustomersPage({
                         </Link>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden font-mono text-[13px] text-zinc-500 lg:table-cell">
+                    <TableCell className="hidden text-center font-mono text-[13px] text-zinc-500 lg:table-cell">
                       {truncateWallet(c.walletAddress)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center justify-center gap-2.5">
                         <span
                           className={cn(
                             "inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
@@ -182,13 +182,13 @@ export default async function CustomersPage({
                         <KycAction investorId={c.id} status={c.kycStatus} />
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-[13px] tabular-nums text-zinc-300 md:table-cell">
+                    <TableCell className="hidden text-center text-[13px] tabular-nums text-zinc-300 md:table-cell">
                       {c.activePositions}
                     </TableCell>
-                    <TableCell className="text-right text-[14px] font-medium tabular-nums text-white">
+                    <TableCell className="text-center text-[14px] font-medium tabular-nums text-white">
                       {formatUsdFull(c.totalPrincipalUsdc)}
                     </TableCell>
-                    <TableCell className="hidden pr-5 text-right text-[13px] text-zinc-500 lg:table-cell">
+                    <TableCell className="hidden pr-5 text-center text-[13px] text-zinc-500 lg:table-cell">
                       {formatAdminDate(c.joinedAt)}
                     </TableCell>
                   </TableRow>
