@@ -126,37 +126,41 @@ export default async function PortfolioPage() {
               height={200}
               area
               tone="accent"
+              responsive
               aria-label="Portfolio value trend"
             />
           </HcChartCard>
 
-          {/* Status tiles — written KPIs sit on the GREY inset surface (not the
-              black chart-card surface): owner rule = charts on black, written
-              KPIs on grey. */}
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] shadow-sm p-6 flex flex-col justify-center">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex flex-col gap-1.5">
+          {/* Account key-metrics card — black surface, titled header, responsive
+              KPI grid (1 col on narrow, 2 on wider). */}
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+            <div className="p-5 border-b border-[var(--ct-border-soft)]">
+              <h2 className="ct-section-title">Account</h2>
+              <p className="ct-metric-caption">Key metrics</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)] flex-1">
+              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
                 <div className="ct-bento-label">Principal</div>
                 <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
                   {formatUsdFull(deployedUsdc)}
                 </div>
                 <div className="ct-metric-caption">Net deposits</div>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
                 <div className="ct-bento-label">Positions</div>
                 <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
                   {activeCount}
                 </div>
                 <div className="ct-metric-caption">Active vaults</div>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
                 <div className="ct-bento-label">Deployed</div>
                 <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
                   {deployedPct}
                 </div>
                 <div className="ct-metric-caption">Capital efficiency</div>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
                 <div className="ct-bento-label">Accrued yield</div>
                 <div className="ct-metric-value text-[length:var(--ct-text-2xl)] text-[var(--ct-accent)]">
                   {accruedYieldUsdc > 0
@@ -243,7 +247,11 @@ export default async function PortfolioPage() {
           {hasPositions ? (
             <Table
               dense
-              className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+              // Neutralize the Catalyst wrapper's -mx-(--gutter) bleed (the page
+              // sets --gutter:spacing.8): pin --gutter to 0 so the table aligns
+              // flush inside the card instead of being pulled 32px left/right
+              // (which shifted every column and clipped the Vault name).
+              className="[--gutter:0px] max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
             >
               <TableHead>
                 <TableRow>
