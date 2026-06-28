@@ -23,7 +23,10 @@ import {
 } from "@/lib/portfolio/provenance";
 import { computeYtdYieldUsdc } from "@/lib/portfolio/yield-ytd";
 import type { HourlyValueSnapshot, ValueSeriesTx } from "@/lib/portfolio/value-series";
-import { loadHourlyValueSnapshots } from "@/lib/portfolio/investor-nav-snapshot";
+import {
+  loadHourlyValueSnapshots,
+  reconstructInvestorNavSeries,
+} from "@/lib/portfolio/investor-nav-snapshot";
 
 export { resolveProvenance };
 
@@ -329,6 +332,15 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     loadHourlyValueSnapshots(investor.id, chartStart),
   ]);
 
+  // Prefer real persisted hourly prints. When history is sparse (<2 points —
+  // fresh account, dev, or pre-cron), reconstruct the value path deterministically
+  // from the real position anchors so the chart shows the account's actual
+  // trajectory instead of a flat line. Zero accounts reconstruct to [] (stay empty).
+  const valueSeries =
+    navSnapshots.length >= 2
+      ? navSnapshots
+      : await reconstructInvestorNavSeries(investor.id, chartStart);
+
   const positions: PortfolioPosition[] = rawPositions.map((p) => {
     const principal = toNumber(p.principalUsdc);
     const accrued = toNumber(p.accruedYieldUsdc);
@@ -404,7 +416,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     nextDistributionAt: nextEndOfMonth(),
     recentTransactions,
     valueChartTransactions,
-    hourlyValueSnapshots: navSnapshots,
+    hourlyValueSnapshots: valueSeries,
     pnl,
     source: "live",
     // Snapshot freshness when available; otherwise positions were just read live.
