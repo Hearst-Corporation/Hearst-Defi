@@ -1,5 +1,5 @@
-// Investor Portfolio — bound to REAL data via loadPortfolioView() (MISSION #034),
-// rendered entirely on the Hearst Instrument System (HIS) data-viz primitives
+// Investor Portfolio — bound to REAL data (loadPortfolio + loadAllocationDonut,
+// MISSION #034), rendered entirely on the Hearst Instrument System (HIS) data-viz
 // (src/components/dataviz/his — PR #160). Server Component, gated by the product
 // layout. Replaces the former 100% static mock ($509,800 / $500,000 / $9,800 /
 // $8,380 demo activity) so the investor sees the SAME truth as /profile and
@@ -25,8 +25,11 @@ import {
   type HcSourceStatus,
 } from "@/components/dataviz/his";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { loadPortfolioView } from "@/lib/data/portfolio-view";
-import { POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
+import {
+  loadPortfolio,
+  loadAllocationDonutProps,
+  POSITION_STATUS_CONFIG,
+} from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -40,6 +43,9 @@ export const metadata = {
 const TABLE_HEAD = "bg-transparent ct-bento-label";
 const ROW =
   "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+// One KPI tile in the Account card (hairline-separated cells on the black grid).
+const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
+const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)]";
 
 const BUCKET_LABEL: Record<string, string> = {
   mining: "Mining cashflow",
@@ -59,7 +65,13 @@ function hcSource(source: "live" | "fallback"): HcSourceStatus {
 }
 
 export default async function PortfolioPage() {
-  const { data, hasPositions, allocationDonutProps } = await loadPortfolioView();
+  // Call ONLY the two loaders this page renders (the value/positions data + the
+  // allocation ring). Avoids loadPortfolioView's extra risk/distrib/proof/yield
+  // props that this page doesn't consume — no wasted queries.
+  const [data, allocationDonutProps] = await Promise.all([
+    loadPortfolio(),
+    loadAllocationDonutProps(),
+  ]);
   const {
     positions,
     totalValueUsdc,
@@ -72,6 +84,7 @@ export default async function PortfolioPage() {
     updatedAt,
   } = data;
 
+  const hasPositions = positions.length > 0;
   const activeCount = positions.filter((p) => p.status === "active").length;
   const deployedPct =
     totalValueUsdc > 0
@@ -79,13 +92,15 @@ export default async function PortfolioPage() {
       : "—";
 
   // Real value series for the hero sparkline (hourly investor NAV prints).
-  // Owner rule: ALWAYS show the widget, even at zero — render a real flat-zero
-  // line rather than hiding the plot. Sparkline needs ≥2 points, so a zero/empty
-  // series falls back to a flat [0,0] baseline (honest: badge still reflects
-  // truth). The card stays "ready" so the instrument is always present; only a
-  // fallback-source run gets the hatch veil so it can't read as live.
+  // Pass the REAL series untouched — never inject a fake [0,0] baseline (that
+  // made the curve flat-line at $0 while the headline showed the true value,
+  // e.g. the $11 account, and bypassed the primitive's honest empty-state).
+  // For a single real point we duplicate the TRUE value ([v, v]) so the plot is
+  // a flat line at the real level, not at zero. With 0 points the primitive
+  // renders its own empty surface. A fallback-source run still gets the hatch veil.
   const realSpark = hourlyValueSnapshots.map((s) => s.valueUsdc);
-  const sparkValues = realSpark.length >= 2 ? realSpark : [0, 0];
+  const sparkValues =
+    realSpark.length === 1 ? [realSpark[0]!, realSpark[0]!] : realSpark;
   const heroState: "ready" | "fallback" =
     source === "fallback" ? "fallback" : "ready";
 
@@ -139,30 +154,24 @@ export default async function PortfolioPage() {
               <p className="ct-metric-caption">Key metrics</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)] flex-1">
-              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
+              <div className={KPI_TILE}>
                 <div className="ct-bento-label">Principal</div>
-                <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
-                  {formatUsdFull(deployedUsdc)}
-                </div>
+                <div className={KPI_VALUE}>{formatUsdFull(deployedUsdc)}</div>
                 <div className="ct-metric-caption">Net deposits</div>
               </div>
-              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
+              <div className={KPI_TILE}>
                 <div className="ct-bento-label">Positions</div>
-                <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
-                  {activeCount}
-                </div>
+                <div className={KPI_VALUE}>{activeCount}</div>
                 <div className="ct-metric-caption">Active vaults</div>
               </div>
-              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
+              <div className={KPI_TILE}>
                 <div className="ct-bento-label">Deployed</div>
-                <div className="ct-metric-value text-[length:var(--ct-text-2xl)]">
-                  {deployedPct}
-                </div>
+                <div className={KPI_VALUE}>{deployedPct}</div>
                 <div className="ct-metric-caption">Capital efficiency</div>
               </div>
-              <div className="flex flex-col gap-1.5 bg-surface-card p-5 min-w-0">
+              <div className={KPI_TILE}>
                 <div className="ct-bento-label">Accrued yield</div>
-                <div className="ct-metric-value text-[length:var(--ct-text-2xl)] text-[var(--ct-accent)]">
+                <div className={`${KPI_VALUE} text-[var(--ct-accent)]`}>
                   {accruedYieldUsdc > 0
                     ? `+${formatUsdFull(accruedYieldUsdc)}`
                     : formatUsdFull(accruedYieldUsdc)}

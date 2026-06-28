@@ -48,7 +48,6 @@ interface RecentActivityProps {
   source: "live" | "fallback";
   updatedAt?: Date;
   leafHref?: string;
-  embedded?: boolean;
 }
 
 export function RecentActivity({

@@ -74,6 +74,7 @@ export function HcMetricSparkline({
   const pts: HcPoint[] = values.map((v, i) =>
     project({ x: i, y: v }, xDomain, yDomain, box),
   );
+  // Safe non-null: the `values.length < 2` guard above guarantees ≥2 points.
   const last = pts[pts.length - 1]!;
   const first = pts[0]!;
   const baseY = height - box.padY;

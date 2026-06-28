@@ -25,9 +25,10 @@ const page = stripComments(
 );
 
 describe("portfolio binds real data (no static mock)", () => {
-  it("consumes the real view-model loader", () => {
-    expect(page).toMatch(/loadPortfolioView\(\)/);
+  it("consumes the real data loaders (async page, no static mock)", () => {
     expect(page).toMatch(/export default async function PortfolioPage/);
+    expect(page).toMatch(/loadPortfolio\(\)/);
+    expect(page).toMatch(/loadAllocationDonutProps\(\)/);
   });
 
   it("renders on HIS data-viz primitives (not the legacy mock chart)", () => {
