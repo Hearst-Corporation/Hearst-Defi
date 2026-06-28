@@ -30,6 +30,15 @@ while read -r ref; do
   [ "$(git rev-parse "$ref")" = "$MAIN" ] && continue
   git merge-base --is-ancestor "$ref" "$MAIN" 2>/dev/null && continue
   [ "$(git diff --name-only "$MAIN...$ref" 2>/dev/null | wc -l | tr -d ' ')" -eq 0 ] && continue
+  # Faux candidat: la branche "modifie" des fichiers (3-dot) qui sont en réalité
+  # DÉJÀ IDENTIQUES sur main (doublon d'une PR déjà mergée). Si chaque fichier du
+  # 3-dot a un diff direct (2-dot) vide vs main → rien d'unique à intégrer.
+  uniq_real=0
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    if [ -n "$(git diff "$MAIN" "$ref" -- "$f" 2>/dev/null)" ]; then uniq_real=1; break; fi
+  done < <(git diff --name-only "$MAIN...$ref" 2>/dev/null)
+  [ "$uniq_real" -eq 0 ] && continue
   CANDS+=("$ref")
 done < <(collect | sort -u)
 
