@@ -3,13 +3,13 @@
 import { AssumptionsList } from "@/components/scenario/assumptions-list";
 import { BacktestChart } from "@/components/scenario/backtest-chart";
 import { ScenarioPendingOverlay } from "@/components/scenario/scenario-feedback";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Metric } from "@/components/ui/metric";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { Metric } from "@/components/catalyst/metric";
 import { cn } from "@/lib/cn";
 import type { BacktestOutput } from "@/lib/engine/types";
 
-import { MetricGrid } from "@/components/ui/nested-panel";
+import { MetricGrid } from "@/components/catalyst/nested-panel";
 
 interface BacktestPanelProps {
   output: BacktestOutput;

@@ -3,7 +3,7 @@
 import { useRef, useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/ui/bento";
+import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/catalyst/bento";
 import { postFeedback } from "@/app/admin/feedback/actions";
 
 const INPUT_CLASS =

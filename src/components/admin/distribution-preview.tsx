@@ -1,5 +1,5 @@
 import type { DistributionRecipient } from "@/app/admin/distributions/actions";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { cn } from "@/lib/cn";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
 

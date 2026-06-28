@@ -1,4 +1,4 @@
-import { BentoHeader, BentoKpiTile } from "@/components/ui/bento";
+import { BentoHeader, BentoKpiTile } from "@/components/catalyst/bento";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { VaultAllocationInvestorList } from "@/components/vaults/vault-allocation-display";
 import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";

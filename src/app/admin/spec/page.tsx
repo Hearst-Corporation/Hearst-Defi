@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { getSpecIndex } from "@/lib/spec";
 
 export const dynamic = "force-dynamic";

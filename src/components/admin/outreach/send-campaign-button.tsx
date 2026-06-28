@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { BENTO_PRIMARY_BTN } from "@/components/catalyst/bento";
+import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { sendCampaign } from "@/app/admin/outreach/actions";
 
 interface SendCampaignButtonProps {

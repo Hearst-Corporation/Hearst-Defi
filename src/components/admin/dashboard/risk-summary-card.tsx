@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge";
-import { BentoLabel } from "@/components/ui/bento";
-import { Progress } from "@/components/ui/progress";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Tooltip } from "@/components/ui/tooltip";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { Progress } from "@/components/catalyst/progress";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { resolveRiskProvenance } from "@/lib/admin/dashboard-board-view";
 import { cn } from "@/lib/cn";
 import type {

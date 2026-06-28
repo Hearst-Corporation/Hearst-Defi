@@ -4,15 +4,15 @@ import { useEffect, useRef, useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { ApyRange } from "@/components/ui/apy-range";
+import { ApyRange } from "@/components/catalyst/apy-range";
 import {
   BENTO_PRIMARY_BTN,
   BentoHeader,
   BentoPanel,
-} from "@/components/ui/bento";
-import { Metric } from "@/components/ui/metric";
-import { Ptai } from "@/components/ui/ptai";
-import { Progress } from "@/components/ui/progress";
+} from "@/components/catalyst/bento";
+import { Metric } from "@/components/catalyst/metric";
+import { Ptai } from "@/components/catalyst/ptai";
+import { Progress } from "@/components/catalyst/progress";
 import {
   allocationStrokeFor,
   allocationLabelFor,

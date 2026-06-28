@@ -12,7 +12,7 @@
 
 import type { ReactNode } from "react";
 
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import type {
   ReportingCrewBriefing,

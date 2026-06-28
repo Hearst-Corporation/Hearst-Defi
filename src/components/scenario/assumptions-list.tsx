@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 
 function parseAssumption(line: string): { key: string | null; value: string } {
   const eqIdx = line.indexOf("=");

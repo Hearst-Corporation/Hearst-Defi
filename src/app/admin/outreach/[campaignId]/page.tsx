@@ -6,8 +6,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { Badge } from "@/components/ui/badge";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { EmailReviewCard } from "@/components/admin/outreach/email-review-card";
 import { DraftCampaignButton } from "@/components/admin/outreach/draft-campaign-button";
 import { SendCampaignButton } from "@/components/admin/outreach/send-campaign-button";

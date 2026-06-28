@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { AuthFormShell } from "@/components/auth/auth-form-shell";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 
 export const metadata = {

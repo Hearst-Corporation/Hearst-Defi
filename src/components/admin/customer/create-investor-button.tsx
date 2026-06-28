@@ -3,12 +3,12 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Modal } from "@/components/ui/modal";
+import { Modal } from "@/components/catalyst/modal";
 import {
   BentoLabel,
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { createInvestor } from "@/app/admin/customers/actions";
 
 // Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`

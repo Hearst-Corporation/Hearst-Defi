@@ -14,7 +14,7 @@
  * distribution (p5/p50/p95) is intentionally NOT rendered here yet.
  */
 
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { cn } from "@/lib/cn";
 import type {
   ProjectionReportArtifact,

@@ -1,4 +1,4 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { POR_ATTESTATION_EMPTY } from "@/components/proof/empty-messages";
 import {
   EXPLORER_ADDRESS_BASE,

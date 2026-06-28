@@ -7,9 +7,9 @@ import { describe, expect, it } from "vitest";
 
 import Link from "next/link";
 
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { PanelStatus } from "@/components/ui/panel-status";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 
 describe("Admin vaults — empty state design contract", () => {
   it("vault list empty: EmptySurface only, no active module shell", () => {

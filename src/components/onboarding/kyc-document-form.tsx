@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 import { submitKycDocument } from "@/lib/onboarding/actions";
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 
 // ---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ type FormState =
 const FIELD_LABEL = "ct-bento-label";
 const SELECT_INPUT =
   "body-sm bg-surface-inset border border-[var(--ct-border)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] ct-text-strong rounded-lg px-4 py-2.5 outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-// Shared bento CTA chrome (single source of truth in @/components/ui/bento).
+// Shared bento CTA chrome (single source of truth in @/components/catalyst/bento).
 // The submit button keeps `w-full` (full-width on its own row); the shared
 // BENTO_PRIMARY_BTN has the identical chrome otherwise.
 const PRIMARY_BTN = cn("w-full", BENTO_PRIMARY_BTN);

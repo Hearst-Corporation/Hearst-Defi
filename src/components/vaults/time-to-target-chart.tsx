@@ -3,7 +3,7 @@
 import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface TimeToTargetChartProps {

@@ -3,11 +3,11 @@
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Modal } from "@/components/ui/modal";
+import { Modal } from "@/components/catalyst/modal";
 import {
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,

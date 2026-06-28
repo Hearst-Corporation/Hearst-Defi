@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
-import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { ChartProvenanceCorner } from "@/components/catalyst/chart-provenance-corner";
+import { ChartDisclaimerUnderlay } from "@/components/catalyst/chart-disclaimer-underlay";
 import { ptsToPolyline as pts } from "@/lib/scenario/chart-helpers";
 import type { ScenarioOutput } from "@/lib/engine/types";
 

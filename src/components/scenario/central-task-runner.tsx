@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
 import { cn } from "@/lib/cn";
 import type { ScenarioOutput } from "@/lib/engine/types";
 

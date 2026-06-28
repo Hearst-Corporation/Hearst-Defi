@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
 
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
 

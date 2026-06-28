@@ -12,9 +12,9 @@ import {
   BentoLabel,
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
-import { ApyRange } from "@/components/ui/apy-range";
-import { Ptai } from "@/components/ui/ptai";
+} from "@/components/catalyst/bento";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { Ptai } from "@/components/catalyst/ptai";
 import { kycLabel } from "@/lib/profile/kyc-display";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
 import { PreFlightCheck, isPreFlightReady } from "@/components/vaults/preflight-check";

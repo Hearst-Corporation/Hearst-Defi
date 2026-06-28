@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import { BentoPanel } from "@/components/ui/bento";
+import { BentoPanel } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 
 interface AdminTableProps<T> {

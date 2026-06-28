@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "@/components/ui/badge";
+import type { BentoBadgeVariant as BadgeVariant } from "@/components/catalyst/bento-badge";
 
 /**
  * Outreach status variants — shared badge mappings for prospects, tiers,

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
+import { Skeleton, SkeletonCard } from "@/components/catalyst/skeleton";
 
 type InvestFlowLoadingShellProps = {
   width?: "cap" | "narrow" | "full";

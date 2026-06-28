@@ -6,7 +6,7 @@
 // cards. No hardcoded colour outside the canon (--ct-accent). Pure component.
 
 import { Fragment } from "react";
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import type {
   AgenticControlCenterData,
   AgenticInventoryItem,

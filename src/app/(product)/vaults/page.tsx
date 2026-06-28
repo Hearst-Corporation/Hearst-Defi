@@ -1,4 +1,4 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { listVaults } from "@/lib/data/vaults";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";

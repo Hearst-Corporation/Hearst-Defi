@@ -8,7 +8,7 @@ import {
   updateAgentTemplate,
 } from "@/app/admin/agents/actions";
 import type { AgentTemplate } from "@prisma/client";
-import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
+import { BENTO_PRIMARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import { AGENT_CATALOG } from "@/lib/agents/agent-catalog";
 import { AGENT_ICONS } from "@/lib/agents/agent-icons";

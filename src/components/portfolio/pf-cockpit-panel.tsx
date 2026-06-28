@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
-export { PanelStatus } from "@/components/ui/panel-status";
+export { PanelStatus } from "@/components/catalyst/panel-status";
 
 
 export type PfCockpitPanelVariant = "wide" | "compact" | "table";

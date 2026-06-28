@@ -5,7 +5,7 @@
 import Link from "next/link";
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { DirectSendForm } from "@/components/admin/outreach/direct-send-form";
 
 export const dynamic = "force-dynamic";

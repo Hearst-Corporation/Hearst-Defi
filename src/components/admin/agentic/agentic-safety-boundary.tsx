@@ -7,7 +7,7 @@
 // tucked into a nested <details>. No write controls. No hardcoded colour outside
 // the canon (--ct-accent). Pure component.
 
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
 

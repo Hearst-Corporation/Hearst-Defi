@@ -7,7 +7,7 @@ import "@/app/globals.css";
 import "@/app/cockpit.css";
 
 import { ErrorShellLayout } from "@/components/error/error-shell";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 
 export const dynamic = "force-dynamic";
 

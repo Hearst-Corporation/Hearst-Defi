@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Button } from "@/components/catalyst/button";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";

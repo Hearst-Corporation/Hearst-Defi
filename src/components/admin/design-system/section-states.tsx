@@ -1,9 +1,9 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { PanelStatus } from "@/components/ui/panel-status";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/catalyst/skeleton";
 
 import { DsBlock, DsSection, DsSpecimen } from "./ds-kit";
 

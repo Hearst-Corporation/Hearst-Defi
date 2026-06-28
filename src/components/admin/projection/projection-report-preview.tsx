@@ -16,7 +16,7 @@
 
 import { useCallback, useRef, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { cn } from "@/lib/cn";
 import {
   DEFAULT_PREVIEW_DRAFT,

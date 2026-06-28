@@ -1,5 +1,5 @@
-import { Card } from "@/components/ui/card";
-import { NestedPanel } from "@/components/ui/nested-panel";
+import { Card } from "@/components/catalyst/card";
+import { NestedPanel } from "@/components/catalyst/nested-panel";
 
 import { DsBlock, DsSection, DsSpecimen, DsSwatch } from "./ds-kit";
 

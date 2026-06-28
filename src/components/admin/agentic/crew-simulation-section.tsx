@@ -7,7 +7,7 @@
 // No hardcoded colour outside the canon (--ct-accent, #15191C sub-surface).
 // Pure component.
 
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import type {
   CrewSimulationMode,
   CrewSimulationResult,

@@ -1,6 +1,6 @@
 import type { Provenance } from "@/components/ui/provenance-badge";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { allocationLabelFor } from "@/lib/allocation-colors";
 import { dashboardUsdCompact } from "@/lib/admin/dashboard-formatters";
 import type { DashboardAllocation } from "@/lib/data/dashboard";

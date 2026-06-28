@@ -8,7 +8,7 @@ import { ScenarioErrorBanner } from "@/components/scenario/scenario-feedback";
 import { PresetBar } from "@/components/scenario/preset-bar";
 import { Spinner } from "@/components/scenario/scenario-spinner";
 import { CentralTaskRunner } from "@/components/scenario/central-task-runner";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 import { useScenario } from "@/hooks/use-scenario";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";

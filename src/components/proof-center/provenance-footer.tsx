@@ -1,4 +1,4 @@
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
 
 /**
  * Single source of truth for the Proof Center "Data provenance" footer.

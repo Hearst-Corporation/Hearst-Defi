@@ -1,5 +1,5 @@
-import { ApyRange } from "@/components/ui/apy-range";
-import { Progress } from "@/components/ui/progress";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { Progress } from "@/components/catalyst/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { bpsToPercent, type VaultKpiFacts } from "@/lib/vaults/vault-detail-facts";

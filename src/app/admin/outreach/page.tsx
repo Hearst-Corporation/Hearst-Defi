@@ -12,7 +12,7 @@ import {
   TABLE_WRAP,
   ROW,
 } from "@/components/admin/admin-page-shell";
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { Button } from "@/components/catalyst/button";
 import {
   Table,
@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { OutreachStatsCards } from "@/components/admin/outreach/stats-cards";
 import { OutreachAutonomyPanel } from "@/components/admin/outreach/autonomy-panel";
 import { ProspectAddForm } from "@/components/admin/outreach/prospect-add-form";

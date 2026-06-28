@@ -9,7 +9,7 @@ import {
   BentoKpiTile,
   BentoPageShell,
   BentoPanel,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getInvestor } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
@@ -18,8 +18,8 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { profileDisplayName } from "@/lib/profile/display-name";
 import { formatProfileDate } from "@/lib/profile/format-date";
 import { eligibilityVerdict, kycBadgeVariant, kycLabel } from "@/lib/profile/kyc-display";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 import { WalletDisconnectButton } from "@/components/profile/wallet-disconnect-button";

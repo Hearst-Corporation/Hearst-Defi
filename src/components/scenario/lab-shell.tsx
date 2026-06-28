@@ -14,7 +14,7 @@ import {
   type ScenarioMode,
 } from "@/components/scenario/scenario-mode-toggle";
 import { SingleMode } from "@/components/scenario/single-mode";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/catalyst/card";
 import type { ScenarioInputs, VaultId } from "@/lib/engine/types";
 
 export interface LabShellProps {

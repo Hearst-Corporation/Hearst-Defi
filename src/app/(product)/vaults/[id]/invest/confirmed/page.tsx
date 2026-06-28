@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";

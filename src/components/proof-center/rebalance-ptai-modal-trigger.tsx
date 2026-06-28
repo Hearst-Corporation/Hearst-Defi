@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { Modal } from "@/components/ui/modal";
-import { Ptai } from "@/components/ui/ptai";
+import { Modal } from "@/components/catalyst/modal";
+import { Ptai } from "@/components/catalyst/ptai";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
 
 import { cleanRebalanceTriggerText } from "./formatters";

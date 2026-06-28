@@ -19,11 +19,11 @@ import {
   type RebalancingAction,
 } from "@/components/scenario/rebalancing-actions";
 import { ScenarioPendingOverlay } from "@/components/scenario/scenario-feedback";
-import { ApyRange } from "@/components/ui/apy-range";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { PanelStatusAccent } from "@/components/ui/panel-status";
-import { Progress } from "@/components/ui/progress";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { PanelStatusAccent } from "@/components/catalyst/panel-status";
+import { Progress } from "@/components/catalyst/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   CONFIDENCE_VARIANT,

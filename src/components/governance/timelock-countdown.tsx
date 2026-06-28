@@ -14,9 +14,9 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { NestedPanel } from "@/components/ui/nested-panel";
-import { Progress } from "@/components/ui/progress";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { NestedPanel } from "@/components/catalyst/nested-panel";
+import { Progress } from "@/components/catalyst/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 
 // ── helpers ──────────────────────────────────────────────────────────────────

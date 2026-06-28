@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { RECENT_DISTRIBUTIONS_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";

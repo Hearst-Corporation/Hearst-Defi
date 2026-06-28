@@ -1,6 +1,6 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { PanelStatus } from "@/components/ui/panel-status";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { PanelStatus } from "@/components/catalyst/panel-status";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
 import type { CustodySnapshot } from "@/lib/data/custody";
 
 import { formatNestedTimestamp, formatUsdCompact, isOlderThan24h } from "./formatters";

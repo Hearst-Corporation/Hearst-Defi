@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { KycStatusBadge } from "@/components/admin/customer/kyc-status-badge";
 import { InvestorAccentBar } from "@/components/admin/customer/investor-accent-bar";

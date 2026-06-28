@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   distributionVaultScopeWhere,

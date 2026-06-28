@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Tooltip } from "@/components/ui/tooltip";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { cn } from "@/lib/cn";
 import type { VaultLiveMetric } from "@/lib/data/cockpit";
 import { formatBtcPostureLabel } from "@/lib/admin/cockpit-btc-posture";

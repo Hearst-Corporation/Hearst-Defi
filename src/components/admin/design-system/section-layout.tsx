@@ -1,7 +1,7 @@
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { Metric } from "@/components/ui/metric";
-import { MetricGrid } from "@/components/ui/nested-panel";
+import { Card } from "@/components/catalyst/card";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
+import { Metric } from "@/components/catalyst/metric";
+import { MetricGrid } from "@/components/catalyst/nested-panel";
 
 import { DsBlock, DsExampleTag, DsSection, DsSpecimen } from "./ds-kit";
 

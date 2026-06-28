@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ProofRow } from "@/components/ui/nested-panel";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Card } from "@/components/catalyst/card";
+import { ProofRow } from "@/components/catalyst/nested-panel";
 import { type Provenance, ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EXPLORER_ADDRESS_BASE, EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofType } from "@/lib/proof-center-types";

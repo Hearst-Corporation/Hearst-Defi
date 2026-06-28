@@ -7,7 +7,7 @@
 // status derived by getOutreachAutonomyStatus() — it changes no policy and
 // sends nothing.
 
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import type {
   OutreachAutonomyStatus,
   ReadinessRule,

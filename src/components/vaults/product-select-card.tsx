@@ -1,4 +1,4 @@
-import { ApyRange } from "@/components/ui/apy-range";
+import { ApyRange } from "@/components/catalyst/apy-range";
 import { Button } from "@/components/catalyst/button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
