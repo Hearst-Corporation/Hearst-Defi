@@ -71,15 +71,21 @@ git branch -d fix/nav-augmented-profile-guard feat/chat-catalyst-primitives \
 
 ## ACTIVE LOCKS
 
-### fix/composer-final-cleanup
-Owner: Cursor Composer 2.5 — MISSION #011 final surface alignment
-Branch: fix/composer-final-cleanup
-Worktree: `../connect-composer-final-cleanup`
+### fix/ds-hardcoded-ui-cleanup
+Owner: Cursor Composer 2.5 — MISSION #015 DS hardening
+Branch: fix/ds-hardcoded-ui-cleanup
+Worktree: `../connect-ds-hardening`
 Status: **active**
 Files:
-- `src/app/(product)/portfolio/page.tsx`
-- `src/app/(product)/portfolio/__tests__/portfolio-honesty.test.tsx`
-- `src/components/nav/__tests__/product-nav-items.test.ts`
+- `src/app/doc-flow.css`
+- `src/components/ui/bento.tsx`
+- `src/components/admin/admin-page-header.tsx`
+- `src/app/(product)/profile/page.tsx`
+- `src/app/admin/dashboard/page.tsx`
+- `src/app/admin/audit/page.tsx`
+- `src/app/admin/projection/preview/page.tsx`
+- `src/components/admin/projection/preview-source-banner.tsx`
+- `src/components/ui/__tests__/bento-ds-contract.test.tsx`
 
 ---
 
