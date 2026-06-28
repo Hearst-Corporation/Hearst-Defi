@@ -5,7 +5,6 @@
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { cn } from "@/lib/cn";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { Badge } from "@/components/catalyst/badge";
 import {
@@ -18,12 +17,11 @@ import {
 } from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
+import { KycStatusBadge } from "@/components/admin/customer/kyc-status-badge";
+import { InvestorAccentBar } from "@/components/admin/customer/investor-accent-bar";
 import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
-import {
-  AdminTable,
-  AdminPagination,
-} from "@/components/admin/admin-table-layout";
-import { loadCustomers, loadOrphanSubmissions, type KycStatus } from "@/lib/data/customers";
+import { AdminPagination } from "@/components/admin/admin-table-layout";
+import { loadCustomers, loadOrphanSubmissions } from "@/lib/data/customers";
 import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 import { truncateWallet } from "@/lib/wallet-display";
@@ -34,20 +32,7 @@ export const metadata = {
   title: "Investors — Hearst Connect",
 };
 
-// KYC chip chrome — bento canon (matches the eligibility chip on the invest
-// flow): tinted border + fill + text, single accent green for the approved
-// state. Provenance/status honesty preserved: each verdict keeps its own color.
-const KYC_CHIP: Record<KycStatus, string> = {
-  approved: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
-  pending: "border-amber-500/30 bg-amber-500/10 text-amber-400",
-  rejected: "border-red-500/30 bg-red-500/10 text-red-400",
-};
-
-const KYC_LABEL: Record<KycStatus, string> = {
-  approved: "Approved",
-  pending: "Pending",
-  rejected: "Rejected",
-};
+const TABLE_HEAD = "bg-transparent ct-bento-label";
 
 export default async function CustomersPage({
   searchParams,
@@ -67,7 +52,7 @@ export default async function CustomersPage({
   const kpiCells = buildCustomersKpiStrip(customers, total);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Investor"
@@ -80,7 +65,7 @@ export default async function CustomersPage({
             "Active Positions"). Composants Catalyst (Table/Badge), zéro scroll
             horizontal — colonnes full-width de gauche à droite. */}
         <section
-          className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-card shadow-sm"
+          className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
           aria-label="Investors"
         >
           {kpiCells.length > 0 && (
@@ -93,19 +78,16 @@ export default async function CustomersPage({
             />
           )}
 
-          <div className="flex items-center gap-4 border-b border-white/5 p-5">
+          <div className="flex items-center gap-4 border-b border-[var(--ct-border-soft)] p-5">
             <div className="flex flex-col gap-1">
-              <h2 className="text-[11px] font-bold uppercase leading-none tracking-[0.15em] text-zinc-400">
+              <h2 className="ct-bento-label text-[var(--ct-text-body)]">
                 Investor Directory
               </h2>
-              <p className="text-[12px] tracking-wide text-zinc-500">
+              <p className="text-[12px] tracking-wide text-[var(--ct-text-muted)]">
                 All registered accounts
               </p>
             </div>
-            <Badge
-              color="zinc"
-              className="mt-0.5 shrink-0 self-start bg-white/5 text-[10px]! uppercase tracking-widest"
-            >
+            <Badge color="zinc" className="mt-0.5 shrink-0 self-start uppercase">
               {total} total
             </Badge>
           </div>
@@ -129,22 +111,28 @@ export default async function CustomersPage({
             >
               <TableHead>
                 <TableRow>
-                  <TableHeader className="bg-transparent pl-5 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  <TableHeader className={`${TABLE_HEAD} pl-5`}>
                     Investor
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
+                  <TableHeader
+                    className={`${TABLE_HEAD} hidden text-center lg:table-cell`}
+                  >
                     Wallet
                   </TableHeader>
-                  <TableHeader className="bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  <TableHeader className={`${TABLE_HEAD} text-center`}>
                     KYC
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 md:table-cell">
+                  <TableHeader
+                    className={`${TABLE_HEAD} hidden text-center md:table-cell`}
+                  >
                     Positions
                   </TableHeader>
-                  <TableHeader className="bg-transparent text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+                  <TableHeader className={`${TABLE_HEAD} text-center`}>
                     Total principal
                   </TableHeader>
-                  <TableHeader className="hidden bg-transparent pr-5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 lg:table-cell">
+                  <TableHeader
+                    className={`${TABLE_HEAD} hidden pr-5 text-center lg:table-cell`}
+                  >
                     Joined
                   </TableHeader>
                 </TableRow>
@@ -153,42 +141,35 @@ export default async function CustomersPage({
                 {customers.map((c) => (
                   <TableRow
                     key={c.id}
-                    className="border-transparent transition-colors hover:bg-white/[0.02]"
+                    className="border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
                   >
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-3">
-                        <div className="h-7 w-1 shrink-0 rounded-full bg-[#A7FB90]" />
+                        <InvestorAccentBar />
                         <Link
                           href={`/admin/customers/${c.id}`}
-                          className="min-w-0 truncate text-[14px] font-medium text-white hover:underline"
+                          className="min-w-0 truncate text-sm font-medium text-[var(--ct-text-strong)] hover:underline"
                         >
                           {c.email}
                         </Link>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-center font-mono text-[13px] text-zinc-500 lg:table-cell">
+                    <TableCell className="hidden text-center font-mono text-[13px] text-[var(--ct-text-muted)] lg:table-cell">
                       {truncateWallet(c.walletAddress)}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-2.5">
-                        <span
-                          className={cn(
-                            "inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-                            KYC_CHIP[c.kycStatus],
-                          )}
-                        >
-                          {KYC_LABEL[c.kycStatus]}
-                        </span>
+                        <KycStatusBadge status={c.kycStatus} />
                         <KycAction investorId={c.id} status={c.kycStatus} />
                       </div>
                     </TableCell>
-                    <TableCell className="hidden text-center text-[13px] tabular-nums text-zinc-300 md:table-cell">
+                    <TableCell className="hidden text-center text-[13px] tabular-nums text-[var(--ct-text-body)] md:table-cell">
                       {c.activePositions}
                     </TableCell>
-                    <TableCell className="text-center text-[14px] font-medium tabular-nums text-white">
+                    <TableCell className="text-center text-sm font-medium tabular-nums text-[var(--ct-text-strong)]">
                       {formatUsdFull(c.totalPrincipalUsdc)}
                     </TableCell>
-                    <TableCell className="hidden pr-5 text-center text-[13px] text-zinc-500 lg:table-cell">
+                    <TableCell className="hidden pr-5 text-center text-[13px] text-[var(--ct-text-muted)] lg:table-cell">
                       {formatAdminDate(c.joinedAt)}
                     </TableCell>
                   </TableRow>
@@ -213,49 +194,64 @@ export default async function CustomersPage({
 
         {orphanSubmissions.length > 0 && (
           <section
-            className="flex flex-col gap-4"
+            className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
             aria-label="Pending submissions"
           >
-            <h2 className="text-[15px] font-semibold tracking-tight text-white">
-              Pending submissions ({orphanSubmissions.length})
-            </h2>
-            <p className="text-[12px] leading-relaxed text-zinc-500">
-              Qualification forms submitted but not yet linked to an account — e.g.
-              filled before sign-up, or an auto-create that did not complete.
-              Provision an account with the matching email to link the submission
-              and calibrate the assistant.
-            </p>
-            <AdminTable
-              data={orphanSubmissions}
-              headers={[
-                "Email",
-                "Name",
-                <span key="source" className="hidden md:inline">Source</span>,
-                <span key="submitted" className="text-right">Submitted</span>,
-              ]}
-              colWidths={[
-                "w-[34%]",
-                "w-[26%]",
-                "hidden w-[20%] md:table-cell",
-                "w-[20%] text-right",
-              ]}
-              renderRow={(s) => (
-                <>
-                  <td className="px-5 py-3 truncate text-[13px] font-medium text-white">
-                    {s.email ?? "—"}
-                  </td>
-                  <td className="px-5 py-3 truncate text-[13px] text-zinc-500">
-                    {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
-                  </td>
-                  <td className="hidden px-5 py-3 text-[13px] text-zinc-500 md:table-cell">
-                    {s.source}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zinc-500">
-                    {formatAdminDate(s.submittedAt)}
-                  </td>
-                </>
-              )}
-            />
+            <div className="flex flex-col gap-1.5 border-b border-[var(--ct-border-soft)] p-5">
+              <h2 className="ct-bento-label text-[var(--ct-text-body)]">
+                Pending submissions ({orphanSubmissions.length})
+              </h2>
+              <p className="text-[12px] leading-relaxed text-[var(--ct-text-muted)]">
+                Qualification forms submitted but not yet linked to an account —
+                filled before sign-up, or an auto-create that did not complete.
+                Provision an account with the matching email to link it.
+              </p>
+            </div>
+            <Table
+              bleed
+              dense
+              className="overflow-x-visible! whitespace-normal [&_table]:w-full [&_td]:whitespace-normal [&_th]:whitespace-normal"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableHeader className={`${TABLE_HEAD} pl-5`}>
+                    Email
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} text-center`}>
+                    Name
+                  </TableHeader>
+                  <TableHeader
+                    className={`${TABLE_HEAD} hidden text-center md:table-cell`}
+                  >
+                    Source
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} pr-5 text-center`}>
+                    Submitted
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {orphanSubmissions.map((s) => (
+                  <TableRow
+                    key={s.id}
+                    className="border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+                  >
+                    <TableCell className="pl-5 truncate text-[13px] font-medium text-[var(--ct-text-strong)]">
+                      {s.email ?? "—"}
+                    </TableCell>
+                    <TableCell className="truncate text-center text-[13px] text-[var(--ct-text-muted)]">
+                      {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
+                    </TableCell>
+                    <TableCell className="hidden text-center text-[13px] text-[var(--ct-text-muted)] md:table-cell">
+                      {s.source}
+                    </TableCell>
+                    <TableCell className="pr-5 text-center text-[13px] text-[var(--ct-text-muted)]">
+                      {formatAdminDate(s.submittedAt)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </section>
         )}
       </div>

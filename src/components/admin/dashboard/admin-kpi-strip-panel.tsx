@@ -49,20 +49,20 @@ export function AdminKpiStripPanel({
       className={cn(
         "admin-kpi-strip-panel flex flex-col overflow-hidden",
         embedded
-          ? "border-b border-white/5"
-          : "rounded-2xl border border-white/10 bg-surface-card shadow-sm",
+          ? "border-b border-[var(--ct-border-soft)]"
+          : "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
       )}
     >
       {hasHeader ? (
-        <div className="flex items-center justify-between gap-4 border-b border-white/5 p-5">
+        <div className="flex items-center justify-between gap-4 border-b border-[var(--ct-border-soft)] p-5">
           <div className="flex min-w-0 flex-col gap-1">
             {title ? (
-              <h2 className="text-[11px] font-bold uppercase leading-none tracking-[0.15em] text-zinc-400">
+              <h2 className="ct-bento-label">
                 {title}
               </h2>
             ) : null}
             {subtitle ? (
-              <p className="text-[12px] tracking-wide text-zinc-500">
+              <p className="text-[12px] tracking-wide text-[var(--ct-text-muted)]">
                 {subtitle}
               </p>
             ) : null}

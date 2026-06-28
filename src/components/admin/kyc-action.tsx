@@ -6,9 +6,14 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { setInvestorKyc } from "@/app/admin/customers/actions";
 import { cn } from "@/lib/cn";
 
-/** Compact inline bento control — neutral hairline pill, table-cell sized. */
+/** Compact inline control — neutral hairline pill, table-cell sized. Border/text
+ *  via DS tokens (no raw white/zinc hardcodes). */
 const KYC_BTN =
-  "inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-zinc-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[var(--ct-text-body)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_12%,transparent)] hover:text-[var(--ct-text-strong)] disabled:opacity-50 disabled:cursor-not-allowed";
+
+/** Accent (approve) tone — single green via the --ct-accent token, NOT #A7FB90. */
+const KYC_BTN_ACCENT =
+  "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)] hover:bg-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] hover:text-[var(--ct-accent)]";
 
 /**
  * Admin KYC override control. Renders inline in the customers table. "Approve"
@@ -56,13 +61,7 @@ export function KycAction({
     <form action={setInvestorKyc} className="inline">
       <input type="hidden" name="investorId" value={investorId} />
       <input type="hidden" name="status" value={next} />
-      <button
-        type="submit"
-        className={cn(
-          KYC_BTN,
-          "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90] hover:bg-[#A7FB90]/20",
-        )}
-      >
+      <button type="submit" className={cn(KYC_BTN, KYC_BTN_ACCENT)}>
         {label}
       </button>
     </form>

@@ -24,7 +24,7 @@ function provenanceDesc(p: string): string {
 
 /**
  * Compact per-vault KPI row for `/admin/dashboard`. Bento canon (Portfolio):
- * micro uppercase labels, 18px tabular values, accent #A7FB90. Dense strip
+ * micro uppercase labels, 18px tabular values, accent via --ct-accent. Dense strip
  * layout (inline cells + hairline separators) is preserved — the cell markup is
  * inline rather than <BentoKpiTile> because each cell carries a provenance dot
  * in the label row, a danger/accent value tone, and a delta-meta line the tile
@@ -93,7 +93,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
         >
           {kpi.value}
         </span>
-        <span className="mt-auto flex items-center gap-1.5 text-[10px] lowercase ct-text-muted">
+        <span className="mt-auto flex items-center gap-1.5 text-[length:var(--ct-text-nano)] lowercase ct-text-muted">
           <span>{kpi.sublabel?.replace(/[↑↓]/g, "")}</span>
           {kpi.sublabel?.includes("↑") && (
             <span className={cn("not-italic", deltaClass)}>↑</span>
