@@ -84,7 +84,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const investHref = investDepositPath(id);
 
   const nameParts = vault.name.trim().split(/\s+/);
-  const titleAccent = nameParts.length > 1 ? nameParts.pop()! : vault.name;
+  const titleAccent = nameParts.length > 1 ? nameParts.pop() : vault.name;
   const titleLead = nameParts.length ? nameParts.join(" ") : undefined;
 
   return (
