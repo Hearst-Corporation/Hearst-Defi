@@ -26,11 +26,11 @@ const SYSTEM_ADDITIONS_MAX = 2000;
 
 /** Micro uppercase field label — bento canon. */
 const FIELD_LABEL =
-  "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+  "text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-zinc-500";
 
 /** Native input/select/textarea chrome — bento canon. */
 const FIELD_CONTROL =
-  "w-full bg-surface-inset border border-white/10 focus:border-[#A7FB90]/40 focus:outline-none rounded-lg px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600";
+  "w-full bg-surface-inset border border-white/10 focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600";
 
 /** Neutral badge pill used in the persona summary + base-agent echo. */
 function Pill({
@@ -43,9 +43,9 @@ function Pill({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-nano)] font-bold uppercase tracking-wider",
         accent
-          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+          ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
           : "border-white/10 bg-white/5 text-zinc-400",
       )}
     >
@@ -110,7 +110,7 @@ export function AgentTemplateForm({
         <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface-inset p-5">
           <span
             aria-hidden
-            className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+            className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
           >
             <Icon className="size-6" strokeWidth={1.75} />
           </span>
@@ -119,7 +119,7 @@ export function AgentTemplateForm({
             <span className="block text-[14px] font-semibold text-white">
               {entry.label}
             </span>
-            <span className="block text-[12px] text-zinc-400">
+            <span className="block text-[length:var(--ct-text-2xs)] text-zinc-400">
               {entry.description}
             </span>
           </span>
@@ -132,11 +132,11 @@ export function AgentTemplateForm({
         <header className="flex flex-col gap-1">
           <h3
             id="sec-identity"
-            className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
+            className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
           >
             Identity
           </h3>
-          <p className="text-[12px] text-zinc-500">
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">
             How this persona appears in the library.
           </p>
         </header>
@@ -144,7 +144,7 @@ export function AgentTemplateForm({
         <label className="flex flex-col gap-1.5" htmlFor="tpl-label">
           <span className={FIELD_LABEL}>
             Label{" "}
-            <span aria-hidden className="text-[#A7FB90]">
+            <span aria-hidden className="text-[var(--ct-accent)]">
               *
             </span>
           </span>
@@ -159,7 +159,7 @@ export function AgentTemplateForm({
             placeholder="Institutional LP"
             className={FIELD_CONTROL}
           />
-          <span className="text-[11px] text-zinc-500">
+          <span className="text-[length:var(--ct-text-micro)] text-zinc-500">
             2–80 characters. Used to generate the slug.
           </span>
         </label>
@@ -185,11 +185,11 @@ export function AgentTemplateForm({
         <header className="flex flex-col gap-1">
           <h3
             id="sec-behavior"
-            className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
+            className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
           >
             Behavior
           </h3>
-          <p className="text-[12px] text-zinc-500">
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">
             Base agent and response register. Leave blank to inherit the agent
             defaults.
           </p>
@@ -198,7 +198,7 @@ export function AgentTemplateForm({
         <label className="flex flex-col gap-1.5" htmlFor="tpl-baseAgent">
           <span className={FIELD_LABEL}>
             Base agent{" "}
-            <span aria-hidden className="text-[#A7FB90]">
+            <span aria-hidden className="text-[var(--ct-accent)]">
               *
             </span>
           </span>
@@ -282,11 +282,11 @@ export function AgentTemplateForm({
         <header className="flex flex-col gap-1">
           <h3
             id="sec-instructions"
-            className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
+            className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none"
           >
             Instructions
           </h3>
-          <p className="text-[12px] text-zinc-500">
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">
             Appended verbatim to the system prompt. Never promise returns.
           </p>
         </header>
@@ -306,7 +306,7 @@ export function AgentTemplateForm({
           <span
             aria-live="polite"
             className={cn(
-              "text-right text-[11px]",
+              "text-right text-[length:var(--ct-text-micro)]",
               systemOver ? "text-red-400" : "text-zinc-500",
             )}
           >

@@ -39,7 +39,7 @@ export function Markdown({
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-6 mb-2 text-[15px] font-semibold tracking-tight text-zinc-100">
+            <h3 className="mt-6 mb-2 text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-zinc-100">
               {children}
             </h3>
           ),
@@ -62,31 +62,31 @@ export function Markdown({
           code: ({ children, className }) => {
             if (className?.startsWith("language-")) {
               return (
-                <code className="font-mono text-[12px] text-zinc-200">
+                <code className="font-mono text-[length:var(--ct-text-2xs)] text-zinc-200">
                   {children}
                 </code>
               );
             }
             return (
-              <code className="rounded-sm bg-surface-inset px-1 py-0.5 font-mono text-[12px] text-[#A7FB90]">
+              <code className="rounded-sm bg-surface-inset px-1 py-0.5 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-accent)]">
                 {children}
               </code>
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-surface-inset p-4 text-[12px]">
+            <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-surface-inset p-4 text-[length:var(--ct-text-2xs)]">
               {children}
             </pre>
           ),
           table: ({ children }) => (
             <div className="my-4 overflow-x-auto rounded-lg border border-white/10">
-              <table className="w-full border-collapse text-[12px]">
+              <table className="w-full border-collapse text-[length:var(--ct-text-2xs)]">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-white/10 px-3 py-2 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            <th className="border-b border-white/10 px-3 py-2 text-left text-[length:var(--ct-text-nano)] font-bold uppercase tracking-[0.15em] text-zinc-500">
               {children}
             </th>
           ),
@@ -100,7 +100,7 @@ export function Markdown({
             return (
               <a
                 href={safeHref}
-                className="text-[#A7FB90] underline-offset-2 hover:underline"
+                className="text-[var(--ct-accent)] underline-offset-2 hover:underline"
                 target={safeHref.startsWith("http") ? "_blank" : undefined}
                 rel={safeHref.startsWith("http") ? "noreferrer" : undefined}
               >
@@ -109,7 +109,7 @@ export function Markdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-2 border-[#A7FB90]/40 pl-4 text-[14px] italic text-zinc-400">
+            <blockquote className="my-4 border-l-2 border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] pl-4 text-[14px] italic text-zinc-400">
               {children}
             </blockquote>
           ),

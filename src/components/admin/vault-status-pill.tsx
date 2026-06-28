@@ -18,7 +18,7 @@ const STATUS_TONE: Record<VaultStatus, string> = {
   draft: "text-zinc-400",
   review: "text-amber-300",
   deployed: "text-zinc-300",
-  live: "text-[#A7FB90]",
+  live: "text-[var(--ct-accent)]",
   paused: "text-amber-300",
   closed: "text-red-400",
 };

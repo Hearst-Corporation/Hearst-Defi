@@ -1,78 +1,17 @@
-import type { ReactNode } from "react";
+/**
+ * Legacy compatibility wrapper. New usage should import from
+ * `@/components/catalyst/panel-status`.
+ *
+ * The canonical implementation now lives in Catalyst; this module only re-exports
+ * it so the existing `@/components/ui/panel-status` call sites keep working
+ * unchanged during the Catalyst absorption migration. No autonomous visual
+ * component lives here anymore.
+ */
 
-import { cn } from "@/lib/cn";
-
-export type PanelStatusTone = "muted" | "danger";
-
-export interface PanelStatusProps {
-  message: string;
-  detail?: string;
-  tone?: PanelStatusTone;
-  className?: string;
-  role?: "status" | "alert" | "note";
-}
-
-export function PanelStatus({
-  message,
-  detail,
-  tone = "muted",
-  className,
-  role = "status",
-}: PanelStatusProps) {
-  return (
-    <div className={cn("ct-panel-status", className)} role={role}>
-      <p
-        className={cn(
-          "ct-panel-status__message m-0",
-          tone === "muted" && "body-sm ct-text-muted",
-          tone === "danger" && "body-xs ct-status-danger",
-        )}
-      >
-        {message}
-      </p>
-      {detail ? (
-        <p className="ct-panel-status__detail body-xs ct-text-faint m-0">
-          {detail}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-export function PanelStatusAccent({
-  children,
-  className,
-  role = "status",
-}: {
-  children: ReactNode;
-  className?: string;
-  role?: "status" | "alert" | "note";
-}) {
-  return (
-    <div className={cn("ct-panel-status-accent", className)} role={role}>
-      {children}
-    </div>
-  );
-}
-
-export function PanelStatusSection({
-  label,
-  "aria-label": ariaLabel,
-  children,
-  className,
-}: {
-  label: string;
-  "aria-label"?: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn("ct-panel-status-section", className)}
-      aria-label={ariaLabel}
-    >
-      <p className="stat-label m-0">{label}</p>
-      {children}
-    </div>
-  );
-}
+export {
+  PanelStatus,
+  PanelStatusAccent,
+  PanelStatusSection,
+  type PanelStatusProps,
+  type PanelStatusTone,
+} from "@/components/catalyst/panel-status";

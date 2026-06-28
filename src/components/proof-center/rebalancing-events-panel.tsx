@@ -39,7 +39,7 @@ function weakestRebalanceProvenance(
 }
 
 // Provenance dot — accent green = Live, neutral = Manual/Stale. Single accent
-// (#A7FB90); never a warning/danger colour for benign rebalance states.
+// (var(--ct-accent)); never a warning/danger colour for benign rebalance states.
 const PROVENANCE_LABEL: Record<RebalanceProvenance, string> = {
   live: "Live",
   manual: "Manual",
@@ -47,15 +47,16 @@ const PROVENANCE_LABEL: Record<RebalanceProvenance, string> = {
 };
 
 const PROVENANCE_DOT: Record<RebalanceProvenance, string> = {
-  live: "bg-[#A7FB90]",
+  live: "bg-[var(--ct-accent)]",
   manual: "bg-zinc-500",
   stale: "bg-zinc-600",
 };
 
 // Status pill — accent for the executed (terminal/healthy) state, quiet zinc
-// chrome otherwise. No green other than #A7FB90.
+// chrome otherwise. No green other than var(--ct-accent).
 const STATUS_PILL: Record<string, string> = {
-  executed: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  executed:
+    "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   approved: "border-white/10 bg-white/5 text-zinc-300",
   pending: "border-white/10 bg-white/5 text-zinc-400",
   cancelled: "border-white/10 bg-white/5 text-zinc-500",
@@ -147,7 +148,7 @@ export function RebalancingEventsPanel({
               {/* Top row — rule + status pills, provenance dot */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded border border-[#A7FB90]/25 bg-[#A7FB90]/10 px-2 py-0.5 font-mono text-[11px] font-medium text-[#A7FB90]">
+                  <span className="inline-flex items-center rounded border border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 font-mono text-[11px] font-medium text-[var(--ct-accent)]">
                     {event.ruleId}
                   </span>
                   <span

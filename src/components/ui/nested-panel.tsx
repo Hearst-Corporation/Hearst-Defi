@@ -1,83 +1,17 @@
-import { cn } from "@/lib/cn";
+/**
+ * Legacy compatibility wrapper. New usage should import from
+ * `@/components/catalyst/nested-panel`.
+ *
+ * The canonical implementation now lives in Catalyst; this module only re-exports
+ * it so the existing `@/components/ui/nested-panel` call sites keep working
+ * unchanged during the Catalyst absorption migration. No autonomous visual
+ * component lives here anymore.
+ */
 
-interface NestedPanelProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "borderless";
-}
-
-export function NestedPanel({
-  children,
-  className,
-  variant = "default",
-  ...props
-}: NestedPanelProps) {
-  return (
-    <div
-      className={cn(
-        "ct-nested-panel",
-        variant === "borderless" && "ct-nested-panel--borderless",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-type RowProps = {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-};
-
-function Row({
-  label,
-  children,
-  className,
-}: RowProps) {
-  return (
-    <div className={cn("ct-proof-row", className)}>
-      <span className="ct-proof-row__label body-xs ct-text-muted">{label}</span>
-      <span className="ct-proof-row__value body-sm mono tabular ct-text-primary">
-        {children}
-      </span>
-    </div>
-  );
-}
-
-export function DataRow(props: RowProps) {
-  return <Row {...props} />;
-}
-
-export function LegalMetadataRow(props: RowProps) {
-  return <Row {...props} />;
-}
-
-export function ProofRow(props: RowProps) {
-  return <Row {...props} />;
-}
-
-type MetricGridProps = {
-  children: React.ReactNode;
-  className?: string;
-  columns?: 2 | 3 | 4;
-};
-
-export function MetricGrid({
-  children,
-  className,
-  columns = 3,
-}: MetricGridProps) {
-  return (
-    <div
-      className={cn(
-        "ct-nested-kpi-grid",
-        columns === 4 && "ct-nested-kpi-grid--4",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
+export {
+  NestedPanel,
+  DataRow,
+  LegalMetadataRow,
+  ProofRow,
+  MetricGrid,
+} from "@/components/catalyst/nested-panel";

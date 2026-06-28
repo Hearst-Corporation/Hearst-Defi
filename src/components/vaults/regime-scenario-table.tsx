@@ -96,7 +96,7 @@ export function RegimeScenarioTable({ vault }: RegimeScenarioTableProps) {
                     </div>
                   </div>
                 </td>
-                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[12px] text-zinc-400 leading-relaxed">
+                <td className="hidden md:table-cell px-4 py-4 align-top max-w-[18rem] text-[length:var(--ct-text-2xs)] text-zinc-400 leading-relaxed">
                   {row.scenario}
                 </td>
                 <td className="px-4 py-4 align-top">

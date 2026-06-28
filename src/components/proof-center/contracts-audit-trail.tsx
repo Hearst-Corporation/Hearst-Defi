@@ -153,7 +153,7 @@ function ExplorerLink({
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      className="inline-flex items-center gap-1 font-mono text-[13px] text-[#A7FB90] hover:underline"
+      className="inline-flex items-center gap-1 font-mono text-[13px] text-[var(--ct-accent)] hover:underline"
       title={title}
       aria-label={ariaLabel}
     >
@@ -298,8 +298,8 @@ function DeployedContractCard({
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {contract.sourceVerified ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-1 text-[11px] font-medium text-[#A7FB90]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#A7FB90]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2.5 py-1 text-[11px] font-medium text-[var(--ct-accent)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)]" aria-hidden="true" />
             Source-verified @ commit
           </span>
         ) : (
@@ -316,7 +316,7 @@ function DeployedContractCard({
           aria-label={`View ${contract.name} on Basescan`}
         >
           View on Basescan
-          <ExternalLink className="w-3.5 h-3.5 text-[#A7FB90]" aria-hidden="true" />
+          <ExternalLink className="w-3.5 h-3.5 text-[var(--ct-accent)]" aria-hidden="true" />
         </a>
       </div>
     </ProofArticle>
@@ -404,9 +404,9 @@ export function ContractsAuditTrail({
                     </div>
                     <div className="flex shrink-0 items-center gap-2.5">
                       {entry.variant === "success" ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2.5 py-1 text-[11px] font-medium text-[#A7FB90]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2.5 py-1 text-[11px] font-medium text-[var(--ct-accent)]">
                           <span
-                            className="h-1.5 w-1.5 rounded-full bg-[#A7FB90]"
+                            className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)]"
                             aria-hidden="true"
                           />
                           {auditBadgeLabel(entry)}
@@ -430,7 +430,7 @@ export function ContractsAuditTrail({
                         >
                           View document
                           <ExternalLink
-                            className="w-3.5 h-3.5 text-[#A7FB90]"
+                            className="w-3.5 h-3.5 text-[var(--ct-accent)]"
                             aria-hidden="true"
                           />
                         </a>

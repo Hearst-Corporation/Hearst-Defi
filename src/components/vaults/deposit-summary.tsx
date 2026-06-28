@@ -54,7 +54,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         <span
           className={cn(
             "text-[28px] font-medium leading-none tracking-tight tabular-nums transition-all duration-150",
-            hasAmount ? "text-[#A7FB90]" : "text-zinc-600",
+            hasAmount ? "text-[var(--ct-accent)]" : "text-zinc-600",
           )}
         >
           {totalAtClose !== null ? `${formatUsdFull(totalAtClose)} USDC` : "—"}
@@ -73,12 +73,12 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           }
         >
           <span
-            className="h-full bg-[#A7FB90] transition-all duration-150 ease-out"
+            className="h-full bg-[var(--ct-accent)] transition-all duration-150 ease-out"
             style={{ width: `${hasAmount ? principalShare : 100}%` }}
           />
           {hasAmount && yieldShare > 0 ? (
             <span
-              className="h-full bg-[#A7FB90]/40 transition-all duration-150 ease-out"
+              className="h-full bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] transition-all duration-150 ease-out"
               style={{ width: `${yieldShare}%` }}
             />
           ) : null}
@@ -86,7 +86,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-opacity duration-150">
-            <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[#A7FB90]" />
+            <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[var(--ct-accent)]" />
             <span className="text-[13px] text-zinc-400">Principal</span>
             <span className="text-[13px] font-medium text-white tabular-nums">
               {hasAmount ? `${formatUsdFull(amount)} USDC` : "—"}
@@ -98,7 +98,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
               !hasAmount && "opacity-40",
             )}
           >
-            <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[#A7FB90]/40" />
+            <span className="size-2.5 rounded-full border-2 border-[#15191C] bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" />
             <span className="text-[13px] text-zinc-400">
               Est. gross yield · {vault.softLockupDays}d
             </span>

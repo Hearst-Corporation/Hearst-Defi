@@ -135,14 +135,14 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       title={item.label}
       className={cn(
         "group flex w-full flex-col items-center gap-1.5 rounded-xl py-2 transition-colors duration-150",
-        isActive ? "text-[#A7FB90]" : "text-zinc-500 hover:text-zinc-200",
+        isActive ? "text-[var(--ct-accent)]" : "text-zinc-500 hover:text-zinc-200",
       )}
     >
       <span
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-150",
           isActive
-            ? "border-[#A7FB90]/30 bg-[#A7FB90]/10"
+            ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
             : "border-transparent group-hover:border-white/10 group-hover:bg-white/5",
         )}
       >
