@@ -10,18 +10,18 @@ import type {
   RiskSeverity,
 } from "@/lib/data/risk-framework";
 
-/** Severity → Progress fill (bento: single green for low, amber/red otherwise). */
+/** Severity → Progress fill (single accent for low, warning/danger otherwise). */
 const SEVERITY_FILL: Record<RiskSeverity, string> = {
-  low: "bg-[#A7FB90]",
-  medium: "bg-amber-400",
-  high: "bg-red-400",
+  low: "bg-[var(--ct-accent)]",
+  medium: "bg-[var(--ct-status-warning)]",
+  high: "bg-[var(--ct-status-danger)]",
 };
 
 /** Severity → value text color. */
 const SEVERITY_TEXT: Record<RiskSeverity, string> = {
-  low: "text-[#A7FB90]",
-  medium: "text-amber-400",
-  high: "text-red-400",
+  low: "text-[var(--ct-accent)]",
+  medium: "text-[var(--ct-status-warning)]",
+  high: "text-[var(--ct-status-danger)]",
 };
 
 const SEVERITY_BADGE: Record<RiskSeverity, "success" | "warning" | "danger"> = {
@@ -31,9 +31,9 @@ const SEVERITY_BADGE: Record<RiskSeverity, "success" | "warning" | "danger"> = {
 };
 
 const BAND_TEXT: Record<RiskFrameworkData["band"], string> = {
-  low: "text-[#A7FB90]",
-  medium: "text-amber-400",
-  high: "text-red-400",
+  low: "text-[var(--ct-accent)]",
+  medium: "text-[var(--ct-status-warning)]",
+  high: "text-[var(--ct-status-danger)]",
 };
 
 const BAND_BADGE: Record<
@@ -47,7 +47,7 @@ const BAND_BADGE: Record<
 
 /**
  * Risk summary content — no panel wrapper (parent cell provides the surface).
- * Bento canon: sub-surfaces on #15191C, micro labels, single green accent.
+ * Bento canon: sub-surfaces on --ct-surface-inset, micro labels, single accent.
  */
 export function DashboardRiskSummaryCard({
   data,
@@ -128,7 +128,7 @@ export function DashboardRiskSummaryCard({
         {data.dimensions.map((dimension) => (
           <article
             key={dimension.id}
-            className="group rounded-md border border-transparent bg-surface-inset p-2 transition-colors hover:border-white/10"
+            className="group rounded-md border border-transparent bg-surface-inset p-2 transition-colors hover:border-[var(--ct-border)]"
             aria-label={`${dimension.label}: ${dimension.score} out of 100, ${dimension.status}`}
           >
             <div className="mb-1.5 flex items-center justify-between">

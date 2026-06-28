@@ -103,13 +103,13 @@ export function CampaignForm() {
               className={BENTO_INPUT}
             />
           </label>
-          <label className="flex items-center gap-2 text-[12px] text-zinc-400">
+          <label className="ct-metric-caption flex items-center gap-2">
             <input
               type="checkbox"
               name="includeTypeform"
               value="1"
               defaultChecked
-              className="size-4 accent-[#A7FB90]"
+              className="size-4 accent-[var(--ct-accent)]"
             />
             <span>Personalise from Typeform qualification when available</span>
           </label>

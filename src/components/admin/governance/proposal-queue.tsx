@@ -13,7 +13,8 @@ import type { loadProposalQueue } from "@/lib/governance/actions";
 
 type ProposalSummary = Awaited<ReturnType<typeof loadProposalQueue>>[number];
 
-// Maps the governance display variant to a Catalyst Badge color (one green: #A7FB90).
+// Maps the governance display variant to a Catalyst Badge color. The single
+// accent green is driven by --ct-accent inside Catalyst's dark "green" tokens.
 const STATE_BADGE_COLOR: Record<
   ReturnType<typeof proposalStateVariant>,
   "zinc" | "amber" | "green" | "red"
@@ -39,20 +40,20 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
           aria-label={`Open proposal ${proposal.actionType}`}
           className="group block"
         >
-          <div className="rounded-2xl border border-white/10 bg-surface-inset p-5 transition-colors hover:border-[#A7FB90]/40">
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5 transition-colors hover:border-[var(--ct-border-accent)]">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">
-                  <Badge color="green" className="font-mono text-[10px]! uppercase tracking-wider">
+                  <Badge color="green" className="font-mono uppercase">
                     {proposal.vaultTicker}
                   </Badge>
-                  <span className="truncate text-[14px] font-medium text-white">
+                  <span className="ct-metric-value truncate">
                     {proposal.actionType}
                   </span>
                 </div>
-                <p className="mt-1.5 text-[12px] text-zinc-500">
+                <p className="ct-metric-caption mt-1.5">
                   Proposed by{" "}
-                  <span className="font-mono text-zinc-400">
+                  <span className="font-mono text-[var(--ct-text-body)]">
                     {proposal.proposedBy.slice(0, 8)}…
                   </span>
                   {" · "}
@@ -60,13 +61,13 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
                 </p>
               </div>
 
-              <div className="shrink-0 text-right text-[12px] text-zinc-500">
-                <span className="font-semibold tabular-nums text-[#A7FB90]">
+              <div className="ct-metric-caption shrink-0 text-right">
+                <span className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
                   {proposal.approvalCount}/{proposal.requiredSigners}
                 </span>{" "}
                 approved
                 {proposal.rejectionCount > 0 ? (
-                  <span className="ml-2 font-semibold text-red-400">
+                  <span className="ml-2 font-semibold text-[var(--ct-status-danger)]">
                     {proposal.rejectionCount} rejected
                   </span>
                 ) : null}
@@ -74,16 +75,16 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
 
               <Badge
                 color={STATE_BADGE_COLOR[proposalStateVariant(proposal.state)]}
-                className="text-[10px]! uppercase tracking-widest"
+                className="uppercase"
               >
                 {proposalStateLabel(proposal.state)}
               </Badge>
             </div>
 
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
-              <div className="mt-3 border-t border-white/5 pt-3 text-[12px] text-zinc-500">
+              <div className="ct-metric-caption mt-3 border-t border-[var(--ct-border-soft)] pt-3">
                 Timelock ETA:{" "}
-                <span className="font-mono text-zinc-300">
+                <span className="font-mono text-[var(--ct-text-body)]">
                   {formatGovernanceTimestamp(proposal.etaAt)}
                 </span>
               </div>

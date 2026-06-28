@@ -6,7 +6,7 @@ import type { DashboardRecentEvent } from "@/lib/data/dashboard";
  * Rebalance activity loaded from `loadDashboardData` — not chain events.
  *
  * Portfolio bento timeline: a hairline rail with one dot per event. The most
- * recent entry is the accent (#A7FB90); older entries are muted (white/20).
+ * recent entry is the accent (--ct-accent); older entries are muted.
  * Body text 13px, metadata micro uppercase. Data mapping is unchanged.
  */
 export function DashboardRecentEvents({
@@ -40,28 +40,28 @@ export function DashboardRecentEvents({
             {/* Connecting rail — runs to the next dot, omitted on the last item. */}
             {!isLast ? (
               <div className="absolute top-0 -bottom-0 left-0 flex w-6 justify-center">
-                <div className="w-px bg-white/10" />
+                <div className="w-px bg-[var(--ct-border)]" />
               </div>
             ) : (
               <div className="absolute top-0 left-0 flex h-6 w-6 justify-center">
-                <div className="w-px bg-white/10" />
+                <div className="w-px bg-[var(--ct-border)]" />
               </div>
             )}
 
-            <div className="relative flex size-6 flex-none items-center justify-center rounded-full bg-surface-card ring-1 ring-white/5">
+            <div className="relative flex size-6 flex-none items-center justify-center rounded-full bg-surface-card ring-1 ring-[var(--ct-border-soft)]">
               {isLatest ? (
-                <div className="size-2 rounded-full bg-[#A7FB90] ring-4 ring-[#111417]" />
+                <div className="size-2 rounded-full bg-[var(--ct-accent)] ring-4 ring-[var(--ct-surface-card)]" />
               ) : (
-                <div className="size-1.5 rounded-full bg-white/20" />
+                <div className="size-1.5 rounded-full bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]" />
               )}
             </div>
 
             <div className="min-w-0 flex-auto py-0.5">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 truncate text-[13px] text-zinc-400">
-                  <span className="font-medium text-white">{event.actionText}</span>
+                <p className="min-w-0 truncate text-[13px] text-[var(--ct-text-secondary)]">
+                  <span className="font-medium text-[var(--ct-text-strong)]">{event.actionText}</span>
                   {event.impactText ? (
-                    <span className="ml-2 text-zinc-500">{event.impactText}</span>
+                    <span className="ml-2 text-[var(--ct-text-muted)]">{event.impactText}</span>
                   ) : null}
                 </p>
                 <time

@@ -132,7 +132,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
         <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <p className="font-mono text-[12px] text-zinc-400">{email.toEmail}</p>
+              <p className="ct-metric-caption font-mono">{email.toEmail}</p>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={variant}>{email.status}</Badge>
                 {email.draftedByAgent && (
@@ -145,7 +145,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
                   </Badge>
                 )}
                 {hasDelivery && email.latestEventAt && (
-                  <span className="text-[12px] text-zinc-400">
+                  <span className="ct-metric-caption">
                     {fmtEventTime(email.latestEventAt)}
                   </span>
                 )}
@@ -154,7 +154,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
             {/* Preview affordance */}
             <button
               type="button"
-              className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[12px]")}
+              className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[length:var(--ct-text-2xs)]")}
               onClick={() => setPreviewOpen(true)}
             >
               Preview
@@ -213,7 +213,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
         title={`Preview — ${email.toEmail}`}
         className="max-w-2xl"
       >
-        <div className="overflow-hidden rounded-lg border border-white/10 bg-surface-inset">
+        <div className="overflow-hidden rounded-lg border border-[var(--ct-border)] bg-surface-inset">
           <iframe
             title="Email preview"
             srcDoc={renderPreviewHtml(body)}
@@ -222,7 +222,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
             style={{ minHeight: "340px" }}
           />
         </div>
-        <p className="mt-3 text-[12px] text-zinc-400">
+        <p className="ct-metric-caption mt-3">
           Read-only preview. Actual send uses the same HTML shell via Resend.
         </p>
       </Modal>

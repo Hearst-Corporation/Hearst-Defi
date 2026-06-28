@@ -26,7 +26,7 @@ export default async function SpecPage({
   }
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Spec"
@@ -49,16 +49,18 @@ export default async function SpecPage({
                     key={entry.slug}
                     href={`/admin/spec/${entry.slug}`}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors",
+                      "ct-metric-value flex items-center gap-2.5 rounded-lg px-3 py-2 font-normal transition-colors",
                       active
-                        ? "bg-[#A7FB90]/10 text-[#A7FB90]"
-                        : "text-zinc-400 hover:bg-white/5 hover:text-white",
+                        ? "bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                        : "text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] hover:text-[var(--ct-text-strong)]",
                     )}
                   >
                     <span
                       className={cn(
-                        "font-mono text-[11px] tabular-nums",
-                        active ? "text-[#A7FB90]" : "text-zinc-600",
+                        "ct-metric-caption font-mono tabular-nums",
+                        active
+                          ? "text-[var(--ct-accent)]"
+                          : "text-[var(--ct-text-muted)]",
                       )}
                     >
                       {String(entry.order).padStart(2, "0")}

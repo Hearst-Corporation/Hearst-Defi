@@ -22,12 +22,15 @@ function PreviewBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-        tone === "demo" && "border-amber-400/30 bg-amber-400/10 text-amber-400",
-        tone === "unaudited" && "border-rose-400/30 bg-rose-400/10 text-rose-400",
-        tone === "configured" && "border-sky-400/30 bg-sky-400/10 text-sky-300",
-        tone === "fallback" && "border-amber-400/30 bg-amber-400/10 text-amber-400",
-        tone === "neutral" && "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] ct-text-muted",
+        "ct-bento-label inline-flex items-center rounded-full border px-2.5 py-0.5",
+        (tone === "demo" || tone === "fallback") &&
+          "border-[color-mix(in_srgb,var(--ct-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)] text-[var(--ct-status-warning)]",
+        tone === "unaudited" &&
+          "border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)]",
+        tone === "configured" &&
+          "border-[color-mix(in_srgb,var(--ct-status-info)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-info)_10%,transparent)] text-[var(--ct-status-info)]",
+        tone === "neutral" &&
+          "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] ct-text-muted",
       )}
     >
       {children}
@@ -42,7 +45,7 @@ function ValidationLine({
   validation: ProjectionRunValidationResult;
 }) {
   return (
-    <div className="mt-3 border-t border-white/5 pt-3">
+    <div className="mt-3 border-t border-[var(--ct-border-soft)] pt-3">
       <div className="flex flex-wrap items-center gap-2">
         <PreviewBadge tone="neutral">Validation: {validation.status}</PreviewBadge>
         <PreviewBadge tone={validation.investorEligible ? "configured" : "unaudited"}>
@@ -53,7 +56,7 @@ function ValidationLine({
         <PreviewBadge tone="neutral">GO ADMIN ONLY</PreviewBadge>
       </div>
       {validation.warnings.length > 0 ? (
-        <ul className="mt-2 flex flex-col gap-1 text-[11px] text-zinc-500">
+        <ul className="ct-metric-caption mt-2 flex flex-col gap-1">
           {validation.warnings.map((w) => (
             <li key={w}>• {w}</li>
           ))}
@@ -80,7 +83,7 @@ export function PreviewSourceBanner({
           <PreviewBadge tone="neutral">Not linked to current projection</PreviewBadge>
           <PreviewBadge tone="neutral">Illustrative only</PreviewBadge>
         </div>
-        <p className="mt-2 text-[12px] ct-text-muted">
+        <p className="ct-metric-caption mt-2">
           Aucun ProjectionStudyRun trouvé. Aperçu illustratif du format de
           rapport — ne reflète pas une projection réelle. Lance une étude depuis
           /admin/projection pour brancher l’aperçu sur un vrai run.
@@ -97,22 +100,28 @@ export function PreviewSourceBanner({
         <PreviewBadge tone="configured">Assumptions CONFIGURED</PreviewBadge>
         <PreviewBadge tone="unaudited">Risk baselines UNAUDITED</PreviewBadge>
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-2 text-[12px] ct-text-secondary sm:grid-cols-4">
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div>
           <div className="ct-bento-label">Run</div>
-          <div className="font-mono ct-text-body">{latestRun.shortId}</div>
+          <div className="ct-metric-caption font-mono text-[var(--ct-text-body)]">
+            {latestRun.shortId}
+          </div>
         </div>
         <div>
           <div className="ct-bento-label">Date</div>
-          <div className="tabular-nums">{latestRun.ranAt.slice(0, 10)}</div>
+          <div className="ct-metric-caption tabular-nums">
+            {latestRun.ranAt.slice(0, 10)}
+          </div>
         </div>
         <div>
           <div className="ct-bento-label">Scénarios</div>
-          <div className="tabular-nums">{latestRun.scenarioRunCount}</div>
+          <div className="ct-metric-caption tabular-nums">
+            {latestRun.scenarioRunCount}
+          </div>
         </div>
         <div>
           <div className="ct-bento-label">APY range</div>
-          <div className="tabular-nums ct-text-accent">
+          <div className="ct-metric-caption tabular-nums ct-text-accent">
             {latestRun.apyRange
               ? `${latestRun.apyRange.low}% — ${latestRun.apyRange.high}%`
               : "—"}
@@ -120,9 +129,9 @@ export function PreviewSourceBanner({
         </div>
       </div>
       {latestRun.label ? (
-        <p className="mt-2 text-[12px] ct-text-muted">Label : {latestRun.label}</p>
+        <p className="ct-metric-caption mt-2">Label : {latestRun.label}</p>
       ) : null}
-      <p className="mt-2 text-[11px] italic ct-text-faint">
+      <p className="ct-metric-caption mt-2 italic text-[var(--ct-text-faint)]">
         Aperçu admin — projection, non garantie. Statut GO ADMIN ONLY :
         assumptions configurées non validées, risk baselines pré-audit.
       </p>

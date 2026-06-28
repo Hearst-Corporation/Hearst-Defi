@@ -20,9 +20,9 @@ type SortKey =
   | "marginUsdPerThDay";
 
 const COOLING_DOT: Record<string, string> = {
-  air: "#7fd3ff",
-  hydro: "#A7FB90",
-  immersion: "#ffce6b",
+  air: "var(--ct-status-info)",
+  hydro: "var(--ct-accent)",
+  immersion: "var(--ct-status-warning)",
 };
 
 function fmtUsd(n: number | null, digits = 4): string {
@@ -77,10 +77,10 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
             type="button"
             onClick={() => setFilter(f)}
             className={cn(
-              "rounded-lg border px-3 py-1 text-[12px] capitalize transition-colors",
+              "ct-metric-caption rounded-lg border px-3 py-1 capitalize transition-colors",
               filter === f
-                ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
-                : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
+                ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)]",
             )}
           >
             {f === "all" ? "Tous" : f} ({counts[f]})
@@ -88,10 +88,10 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-surface-inset">
-        <table className="w-full border-collapse text-[13px]">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--ct-border)] bg-surface-inset">
+        <table className="ct-metric-value w-full border-collapse font-normal">
           <thead>
-            <tr className="border-b border-white/5">
+            <tr className="border-b border-[var(--ct-border-soft)]">
               <Th label="Modèle" k="model" sort={sort} onSort={toggleSort} />
               <Th label="Cooling" k="cooling" sort={sort} onSort={toggleSort} />
               <Th label="Région" k="region" sort={sort} onSort={toggleSort} />
@@ -109,12 +109,12 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
             {view.map((r, i) => (
               <tr
                 key={`${r.model}-${r.thPerUnit}-${i}`}
-                className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.02]"
+                className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
               >
-                <td className="px-3 py-2.5 font-medium text-white">
+                <td className="px-3 py-2.5 font-medium text-[var(--ct-text-strong)]">
                   {r.model}
                 </td>
-                <td className="px-3 py-2.5 text-zinc-400">
+                <td className="px-3 py-2.5 text-[var(--ct-text-muted)]">
                   <span className="inline-flex items-center gap-1.5">
                     <span
                       className="inline-block h-1.5 w-1.5 rounded-full"
@@ -123,7 +123,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
                     {r.cooling}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 uppercase text-zinc-500">
+                <td className="px-3 py-2.5 uppercase text-[var(--ct-text-muted)]">
                   {r.region === "usa" ? "USA" : "Chine"}
                 </td>
                 <Num>{r.thPerUnit}</Num>
@@ -137,10 +137,10 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
                   className={cn(
                     "px-3 py-2.5 text-right font-semibold tabular-nums",
                     r.marginUsdPerThDay === null
-                      ? "text-zinc-500"
+                      ? "text-[var(--ct-text-muted)]"
                       : r.marginUsdPerThDay >= 0
-                        ? "text-[#A7FB90]"
-                        : "text-rose-400",
+                        ? "text-[var(--ct-accent)]"
+                        : "text-[var(--ct-status-danger)]",
                   )}
                 >
                   {fmtUsd(r.marginUsdPerThDay, 5)}
@@ -172,9 +172,9 @@ function Th({
     <th
       onClick={() => onSort(k)}
       className={cn(
-        "cursor-pointer select-none whitespace-nowrap px-3 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 hover:text-[#A7FB90]",
+        "ct-bento-label cursor-pointer select-none whitespace-nowrap px-3 py-3 hover:text-[var(--ct-accent)]",
         num ? "text-right" : "text-left",
-        active && "text-[#A7FB90]",
+        active && "text-[var(--ct-accent)]",
       )}
     >
       {label}
@@ -185,7 +185,7 @@ function Th({
 
 function Num({ children }: { children: React.ReactNode }) {
   return (
-    <td className="px-3 py-2.5 text-right tabular-nums text-zinc-300">
+    <td className="px-3 py-2.5 text-right tabular-nums text-[var(--ct-text-secondary)]">
       {children}
     </td>
   );

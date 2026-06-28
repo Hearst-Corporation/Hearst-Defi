@@ -8,10 +8,17 @@ import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
 import { VaultAllocationAdminRows } from "@/components/vaults/vault-allocation-display";
 import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
 import { BentoPanel, BentoHeader, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { PanelStatus } from "@/components/ui/panel-status";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AdminDetailSection } from "@/components/admin/admin-detail-layout";
-import { AdminTable } from "@/components/admin/admin-table-layout";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { cn } from "@/lib/cn";
 import { prisma } from "@/lib/db";
@@ -34,6 +41,13 @@ import {
 } from "../actions";
 
 export const dynamic = "force-dynamic";
+
+// Shared Catalyst table chrome (customers canon) — micro nano head label,
+// transparent rows + faint hover wash. Reused by both detail tables.
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const TABLE_WRAP = "max-w-full [&_th]:whitespace-nowrap";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -166,7 +180,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Vault"
@@ -305,7 +319,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
                       description: (
                         <>
                           This action is{" "}
-                          <strong className="text-red-400">irreversible</strong>.
+                          <strong className="text-[var(--ct-status-danger)]">
+                            irreversible
+                          </strong>
+                          .
                           Once closed, the vault can never be reactivated. No
                           state transition will be possible.
                         </>
@@ -347,25 +364,27 @@ export default async function VaultDetailPage({ params }: PageProps) {
           label="Approvals"
           title="Approvals"
           description={
-            <span className="font-mono text-[13px] tabular-nums text-zinc-400">
+            <span className="ct-metric-value font-mono text-[var(--ct-text-muted)]">
               {approveCount} / {vault.requiredSigners} required
             </span>
           }
         >
           {vault.status === "review" && (
-            <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-inset p-5">
-              <span className="text-[12px] text-zinc-400">
+            <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
+              <span className="ct-metric-caption">
                 Your signer identity (must be in the whitelist for &quot;Sign
                 Approval&quot; to appear):
               </span>
               <div className="flex items-center justify-between gap-3">
-                <code className="break-all font-mono text-[12px] text-white">{actorWallet}</code>
+                <code className="ct-metric-caption break-all font-mono text-[var(--ct-text-strong)]">
+                  {actorWallet}
+                </code>
                 <span
                   className={cn(
-                    "text-[12px] font-semibold",
+                    "ct-metric-caption font-semibold",
                     whitelist.includes(actorWallet)
-                      ? "text-[#A7FB90]"
-                      : "text-red-400",
+                      ? "text-[var(--ct-accent)]"
+                      : "text-[var(--ct-status-danger)]",
                   )}
                 >
                   {whitelist.includes(actorWallet) ? "whitelisted" : "not whitelisted"}
@@ -377,41 +396,56 @@ export default async function VaultDetailPage({ params }: PageProps) {
           {vault.approvals.length === 0 ? (
             <PanelStatus message="No signatures yet." />
           ) : (
-            <AdminTable
-              data={vault.approvals}
-              headers={["Signer", "Decision", <span key="reason" className="hidden md:inline">Reason</span>, "Date"]}
-              colWidths={[
-                "w-[38%]",
-                "w-[24%]",
-                "hidden w-[26%] md:table-cell",
-                "w-[38%] md:w-[12%]",
-              ]}
-              renderRow={(approval) => (
-                <>
-                  <td className="truncate px-5 py-4 align-top font-mono text-[12px] tabular-nums text-zinc-400">
-                    {approval.signerWallet}
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    <span
-                      className={cn(
-                        "text-[12px] font-semibold",
-                        approval.decision === "approve"
-                          ? "text-[#A7FB90]"
-                          : "text-red-400",
-                      )}
+            <section
+              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
+              aria-label="Approval signatures"
+            >
+              <Table dense className={TABLE_WRAP}>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader className={`${TABLE_HEAD} pl-5`}>
+                      Signer
+                    </TableHeader>
+                    <TableHeader className={TABLE_HEAD}>Decision</TableHeader>
+                    <TableHeader
+                      className={`${TABLE_HEAD} hidden md:table-cell`}
                     >
-                      {approval.decision}
-                    </span>
-                  </td>
-                  <td className="hidden px-5 py-4 align-top text-[12px] text-zinc-400 wrap-break-word md:table-cell">
-                    {approval.reason ?? "—"}
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 align-top font-mono text-[12px] tabular-nums text-zinc-600">
-                    {approval.signedAt.toISOString().slice(0, 10)}
-                  </td>
-                </>
-              )}
-            />
+                      Reason
+                    </TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} pr-5`}>
+                      Date
+                    </TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {vault.approvals.map((approval) => (
+                    <TableRow key={approval.id} className={ROW}>
+                      <TableCell className="ct-metric-caption truncate pl-5 align-top font-mono tabular-nums">
+                        {approval.signerWallet}
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <span
+                          className={cn(
+                            "ct-metric-caption font-semibold",
+                            approval.decision === "approve"
+                              ? "text-[var(--ct-accent)]"
+                              : "text-[var(--ct-status-danger)]",
+                          )}
+                        >
+                          {approval.decision}
+                        </span>
+                      </TableCell>
+                      <TableCell className="ct-metric-caption hidden align-top wrap-break-word md:table-cell">
+                        {approval.reason ?? "—"}
+                      </TableCell>
+                      <TableCell className="ct-metric-caption whitespace-nowrap pr-5 align-top font-mono tabular-nums text-[var(--ct-text-faint)]">
+                        {approval.signedAt.toISOString().slice(0, 10)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </section>
           )}
         </AdminDetailSection>
 
@@ -420,7 +454,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           label="Subscribers"
           title="Subscribers"
           description={
-            <span className="font-mono text-[13px] tabular-nums text-zinc-400">
+            <span className="ct-metric-value font-mono text-[var(--ct-text-muted)]">
               {vault.positions.length} active · {formatUsdFull(aumUsdc)}
             </span>
           }
@@ -428,50 +462,63 @@ export default async function VaultDetailPage({ params }: PageProps) {
           {vault.positions.length === 0 ? (
             <PanelStatus message="No active subscriptions yet." />
           ) : (
-            <AdminTable
-              data={vault.positions}
-              headers={["Investor", "Class", <span key="principal" className="text-right">Principal</span>, "Subscribed", "Lock-up ends"]}
-              colWidths={[
-                "w-[30%]",
-                "w-[12%]",
-                "w-[22%] text-right",
-                "w-[18%]",
-                "w-[18%]",
-              ]}
-              renderRow={(pos) => {
-                const classCode = classFromVaultKey(pos.vaultKey);
-                const lockupEnd = new Date(
-                  pos.subscribedAt.getTime() +
-                    lockupDaysForClass(classCode) * 86_400_000,
-                );
-                return (
-                  <>
-                    <td className="truncate px-5 py-4 align-top text-[13px] text-zinc-300">
-                      {pos.investor.user.email}
-                    </td>
-                    <td className="px-5 py-4 align-top font-mono text-[13px] text-zinc-400">
-                      {classCode}
-                    </td>
-                    <td className="px-5 py-4 text-right align-top font-medium tabular-nums text-white">
-                      {formatUsdFull(Number(pos.principalUsdc))}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 align-top text-[12px] text-zinc-400">
-                      {pos.subscribedAt.toISOString().slice(0, 10)}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 align-top text-[12px] text-zinc-400">
-                      {lockupEnd.toISOString().slice(0, 10)}
-                    </td>
-                  </>
-                );
-              }}
-            />
+            <section
+              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
+              aria-label="Active subscribers"
+            >
+              <Table dense className={TABLE_WRAP}>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader className={`${TABLE_HEAD} pl-5`}>
+                      Investor
+                    </TableHeader>
+                    <TableHeader className={TABLE_HEAD}>Class</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} text-right`}>
+                      Principal
+                    </TableHeader>
+                    <TableHeader className={TABLE_HEAD}>Subscribed</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} pr-5`}>
+                      Lock-up ends
+                    </TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {vault.positions.map((pos) => {
+                    const classCode = classFromVaultKey(pos.vaultKey);
+                    const lockupEnd = new Date(
+                      pos.subscribedAt.getTime() +
+                        lockupDaysForClass(classCode) * 86_400_000,
+                    );
+                    return (
+                      <TableRow key={pos.id} className={ROW}>
+                        <TableCell className="ct-metric-caption truncate pl-5 align-top text-[var(--ct-text-body)]">
+                          {pos.investor.user.email}
+                        </TableCell>
+                        <TableCell className="ct-metric-caption align-top font-mono">
+                          {classCode}
+                        </TableCell>
+                        <TableCell className="ct-metric-value text-right align-top">
+                          {formatUsdFull(Number(pos.principalUsdc))}
+                        </TableCell>
+                        <TableCell className="ct-metric-caption whitespace-nowrap align-top">
+                          {pos.subscribedAt.toISOString().slice(0, 10)}
+                        </TableCell>
+                        <TableCell className="ct-metric-caption whitespace-nowrap pr-5 align-top">
+                          {lockupEnd.toISOString().slice(0, 10)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </section>
           )}
         </AdminDetailSection>
 
         {/* Disclaimers */}
         <AdminDetailSection label="Disclaimers" title="Disclaimers">
           <BentoPanel>
-            <p className="whitespace-pre-wrap p-5 text-[13px] text-zinc-400">
+            <p className="ct-metric-caption whitespace-pre-wrap p-5 leading-relaxed">
               {vault.disclaimers}
             </p>
           </BentoPanel>

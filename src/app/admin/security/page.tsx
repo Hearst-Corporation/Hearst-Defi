@@ -1,5 +1,6 @@
 import { ShieldCheck, KeyRound, LifeBuoy } from "lucide-react";
 
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { BentoHeader, BentoPanel } from "@/components/ui/bento";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { isTotpEnabled } from "@/lib/auth/totp";
@@ -40,20 +41,13 @@ export default async function AdminSecurityPage() {
   const totpEnabled = await isTotpEnabled(userId);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page [--gutter:theme(spacing.8)] mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-
-        {/* HEADER */}
-        <div className="flex flex-wrap items-end justify-between pb-3 border-b border-white/10 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-              Account Security
-            </span>
-            <h1 className="text-[24px] font-semibold tracking-tight text-white">
-              Security <span className="text-[#A7FB90]">Center</span>
-            </h1>
-          </div>
-        </div>
+        <AdminPageHeader
+          titleLead="Security"
+          titleAccent="Center"
+          contextLabel="Account Security"
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <BentoPanel>
@@ -62,7 +56,7 @@ export default async function AdminSecurityPage() {
               subtitle="Required once enrolled"
             />
             <div className="flex flex-col gap-4 p-5">
-              <p className="text-[13px] leading-relaxed text-zinc-400">
+              <p className="ct-metric-caption leading-relaxed">
                 Use an authenticator app (Google Authenticator, Authy, 1Password)
                 to generate a time-based code at login. Required once enrolled.
               </p>
@@ -79,19 +73,19 @@ export default async function AdminSecurityPage() {
               {PROTECTIONS.map((item) => (
                 <li
                   key={item.title}
-                  className="flex items-start gap-4 border-b border-white/5 p-5 last:border-b-0"
+                  className="flex items-start gap-4 border-b border-[var(--ct-border-soft)] p-5 last:border-b-0"
                 >
                   <span
-                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-surface-inset"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--ct-border)] bg-surface-inset"
                     aria-hidden="true"
                   >
-                    <item.icon className="size-4 text-[#A7FB90]" />
+                    <item.icon className="size-4 text-[var(--ct-accent)]" />
                   </span>
                   <span className="flex min-w-0 flex-col gap-1.5">
-                    <span className="text-[13px] font-medium text-white">
+                    <span className="ct-metric-value">
                       {item.title}
                     </span>
-                    <span className="text-[12px] leading-relaxed text-zinc-400">
+                    <span className="ct-metric-caption leading-relaxed">
                       {item.detail}
                     </span>
                   </span>

@@ -92,10 +92,10 @@ function StatusChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        "ct-bento-label inline-flex items-center rounded-full border px-2.5 py-0.5",
         accent
-          ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
-          : "border-white/10 bg-white/5 text-zinc-400",
+          ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+          : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
       )}
     >
       {children}
@@ -128,7 +128,7 @@ export default async function SourcePage({
   ).length;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Sources de"
@@ -143,12 +143,10 @@ export default async function SourcePage({
               <BentoPanel key={brick.id}>
                 <div className="flex h-full flex-col gap-2 p-5">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-[13px] font-semibold text-white">
-                      {brick.title}
-                    </h3>
+                    <h3 className="ct-panel-title">{brick.title}</h3>
                     <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
                   </div>
-                  <p className="text-[12px] text-zinc-500">{brick.detail}</p>
+                  <p className="ct-metric-caption">{brick.detail}</p>
                 </div>
               </BentoPanel>
             );
@@ -169,14 +167,12 @@ export default async function SourcePage({
             }
             trailing={
               <div className="text-right">
-                <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                  Revenu (hashprice live)
-                </div>
-                <div className="text-[13px] font-semibold tabular-nums text-[#A7FB90]">
+                <div className="ct-bento-label">Revenu (hashprice live)</div>
+                <div className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
                   ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
                   {market.hashpriceStale ? " (stale)" : ""}
                 </div>
-                <div className="text-[12px] tabular-nums text-zinc-500">
+                <div className="ct-metric-caption tabular-nums">
                   BTC ${market.btcPriceUsd.toLocaleString()}
                 </div>
               </div>
@@ -185,9 +181,7 @@ export default async function SourcePage({
 
           <div className="flex flex-col gap-5 p-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-                Destination
-              </span>
+              <span className="ct-bento-label">Destination</span>
               {COUNTRY_ORDER.map((c) => (
                 <Link
                   key={c}
@@ -197,10 +191,10 @@ export default async function SourcePage({
                       : `/admin/source?dest=${c}`
                   }
                   className={cn(
-                    "rounded-lg border px-3 py-1 text-[12px] transition-colors",
+                    "ct-metric-caption rounded-lg border px-3 py-1 transition-colors",
                     destination === c
-                      ? "border-[#A7FB90]/40 bg-[#A7FB90]/10 text-[#A7FB90]"
-                      : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white",
+                      ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
+                      : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)]",
                   )}
                 >
                   {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
@@ -209,20 +203,20 @@ export default async function SourcePage({
             </div>
 
             {!market.configured ? (
-              <p className="text-[12px] text-zinc-500">
+              <p className="ct-metric-caption">
                 Telegram non configuré. Renseignez TELEGRAM_API_ID /
                 TELEGRAM_API_HASH / TELEGRAM_SESSION dans .env.local (login via{" "}
-                <code className="font-mono text-zinc-300">
+                <code className="font-mono text-[var(--ct-text-secondary)]">
                   node scripts/telegram-login.mjs
                 </code>
                 ).
               </p>
             ) : market.error ? (
-              <p className="text-[12px] text-rose-400">
+              <p className="ct-metric-caption text-[var(--ct-status-danger)]">
                 Lecture Telegram impossible : {market.error}
               </p>
             ) : market.rows.length === 0 ? (
-              <p className="text-[12px] text-zinc-500">
+              <p className="ct-metric-caption">
                 Aucune liste de prix exploitable dans les derniers messages.
               </p>
             ) : (
@@ -248,30 +242,28 @@ export default async function SourcePage({
               {apy.vaults.map((v) => (
                 <div
                   key={v.id}
-                  className="rounded-2xl border border-white/10 bg-surface-inset p-4"
+                  className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-4"
                 >
-                  <div className="text-[13px] font-semibold text-white">
-                    {v.label}
-                  </div>
-                  <div className="mt-1 text-[20px] font-bold tabular-nums text-[#A7FB90]">
+                  <div className="ct-panel-title">{v.label}</div>
+                  <div className="stat-value mt-1 tabular-nums">
                     {v.apyLow}% — {v.apyHigh}%
                   </div>
-                  <div className="mt-2 text-[11px] text-zinc-500">
+                  <div className="ct-metric-caption mt-2">
                     mining {v.allocation.miningPct}% · BTC {v.allocation.btcPct}%
                     · USDC {v.allocation.usdcPct}%
                   </div>
-                  <div className="text-[11px] text-zinc-600">
+                  <div className="ct-metric-caption">
                     drag emprunt −{v.borrowDragPct}%
                   </div>
                 </div>
               ))}
             </div>
-            <ul className="flex flex-col gap-1 text-[11px] text-zinc-500">
+            <ul className="ct-metric-caption flex flex-col gap-1">
               {apy.assumptions.map((a) => (
                 <li key={a}>• {a}</li>
               ))}
             </ul>
-            <p className="text-[11px] italic text-zinc-600">{apy.disclaimer}</p>
+            <p className="ct-metric-caption italic">{apy.disclaimer}</p>
           </div>
         </BentoPanel>
       </div>

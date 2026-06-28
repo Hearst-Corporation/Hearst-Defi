@@ -3,7 +3,7 @@
 // READ-ONLY. Bento conversion 2026-06-28: the agent / logic inventory as a
 // black BentoPanel, grouped by domain. Each domain is a #15191C sub-surface
 // (sub-header row + one dense line per agent: name · capability), not 22 equal
-// cards. No hardcoded colour outside the canon (#A7FB90). Pure component.
+// cards. No hardcoded colour outside the canon (--ct-accent). Pure component.
 
 import { Fragment } from "react";
 import { BentoHeader, BentoPanel } from "@/components/ui/bento";
@@ -57,13 +57,13 @@ function capabilityTone(item: AgenticInventoryItem): Tone {
 }
 
 const DOT_CLASS: Record<Tone, string> = {
-  ok: "bg-[#A7FB90]",
+  ok: "bg-[var(--ct-accent)]",
   warn: "bg-amber-400/80",
   danger: "bg-red-400/80",
 };
 
 const TAG_CLASS: Record<Tone, string> = {
-  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   danger: "border-red-400/25 bg-red-400/10 text-red-300",
 };

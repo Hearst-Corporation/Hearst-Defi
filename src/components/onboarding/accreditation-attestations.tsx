@@ -93,12 +93,12 @@ export function AccreditationAttestationFields({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl border border-white/10 bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <fieldset
           className="border-none p-0 m-0"
           aria-label="Accreditation attestations"
         >
-          <legend className="float-left w-full p-5 border-b border-white/5 text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          <legend className="ct-bento-label float-left w-full p-5 border-b border-[var(--ct-border-soft)] leading-none">
             Please confirm all three attestations to proceed
           </legend>
 
@@ -110,8 +110,8 @@ export function AccreditationAttestationFields({
                 name={id}
                 checked={isChecked(id)}
                 onChange={() => toggle(id)}
-                className="items-start gap-3 py-4 border-b border-white/5 last:border-b-0"
-                labelClassName="text-[13px] leading-relaxed text-zinc-200"
+                className="items-start gap-3 py-4 border-b border-[var(--ct-border-soft)] last:border-b-0"
+                labelClassName="body-sm leading-relaxed ct-text-primary"
               >
                 {label}
               </Checkbox>
@@ -123,18 +123,24 @@ export function AccreditationAttestationFields({
       <div aria-live="polite">
         {!allChecked ? (
           <p
-            className="m-0 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-zinc-500"
+            className="ct-bento-label m-0 flex items-center gap-2"
             role="status"
           >
-            <span aria-hidden className="size-1 rounded-full bg-zinc-500" />
+            <span
+              aria-hidden
+              className="size-1 rounded-full bg-[var(--ct-text-muted)]"
+            />
             All three attestations are required to continue.
           </p>
         ) : (
           <p
-            className="m-0 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-[#A7FB90] invisible"
+            className="ct-bento-label ct-text-accent m-0 flex items-center gap-2 invisible"
             aria-hidden
           >
-            <span aria-hidden className="size-1 rounded-full bg-[#A7FB90]" />
+            <span
+              aria-hidden
+              className="size-1 rounded-full bg-[var(--ct-accent)]"
+            />
             Ready to continue.
           </p>
         )}
@@ -142,7 +148,7 @@ export function AccreditationAttestationFields({
 
       {attestError ? (
         <p
-          className="m-0 text-[12px] text-red-400"
+          className="body-xs ct-status-danger m-0"
           aria-live="assertive"
           role="alert"
         >

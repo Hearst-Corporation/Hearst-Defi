@@ -92,20 +92,20 @@ function AllocationDiffTable({
   if (buckets.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-surface-inset">
-      <table className="w-full table-fixed text-left text-[13px] tabular-nums">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--ct-border)] bg-surface-inset">
+      <table className="w-full table-fixed text-left tabular-nums">
         <thead>
-          <tr className="border-b border-white/5">
-            <th className="w-[34%] px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+          <tr className="border-b border-[var(--ct-border-soft)]">
+            <th className="ct-bento-label w-[34%] px-5 py-3 text-left">
               Bucket
             </th>
-            <th className="w-[22%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            <th className="ct-bento-label w-[22%] px-5 py-3 text-right">
               Current %
             </th>
-            <th className="w-[22%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            <th className="ct-bento-label w-[22%] px-5 py-3 text-right">
               Target %
             </th>
-            <th className="w-[22%] px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+            <th className="ct-bento-label w-[22%] px-5 py-3 text-right">
               Delta
             </th>
           </tr>
@@ -119,24 +119,27 @@ function AllocationDiffTable({
             const delta = toPct - fromPct;
 
             return (
-              <tr key={bucket} className="border-b border-white/5 last:border-0">
-                <td className="truncate px-5 py-3 font-mono text-[12px] capitalize text-zinc-300">
+              <tr
+                key={bucket}
+                className="border-b border-[var(--ct-border-soft)] last:border-0"
+              >
+                <td className="ct-metric-caption truncate px-5 py-3 font-mono capitalize">
                   {bucket.replace(/_/g, " ")}
                 </td>
-                <td className="px-5 py-3 text-right text-zinc-400">
+                <td className="ct-metric-caption px-5 py-3 text-right">
                   {fromPct.toFixed(1)}%
                 </td>
-                <td className="px-5 py-3 text-right text-zinc-300">
+                <td className="ct-metric-caption px-5 py-3 text-right text-[var(--ct-text-secondary)]">
                   {toPct.toFixed(1)}%
                 </td>
                 <td
                   className={cn(
-                    "px-5 py-3 text-right font-semibold",
+                    "ct-metric-caption px-5 py-3 text-right font-semibold",
                     delta > 0
-                      ? "text-[#A7FB90]"
+                      ? "text-[var(--ct-accent)]"
                       : delta < 0
-                        ? "text-red-400"
-                        : "text-zinc-400",
+                        ? "text-[var(--ct-status-danger)]"
+                        : "text-[var(--ct-text-secondary)]",
                   )}
                 >
                   {delta > 0 ? "+" : ""}
@@ -233,16 +236,16 @@ export function RebalanceCard({
               {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
             </Badge>
           </div>
-          <p className="text-[13px] text-zinc-400">
+          <p className="ct-metric-caption">
             Triggered {formatAdminDateTime(new Date(event.triggeredAt))}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[12px] tabular-nums text-zinc-400">
+          <p className="ct-metric-caption tabular-nums">
             {signerCount}/{requiredSigners} sigs
           </p>
           {event.txHash && (
-            <p className="font-mono text-[12px] text-zinc-400">
+            <p className="ct-metric-caption font-mono">
               tx: {abbrWallet(event.txHash)}
             </p>
           )}
@@ -258,7 +261,7 @@ export function RebalanceCard({
       />
 
       {/* Disclaimer — CLAUDE.md #10 */}
-      <p className="text-[12px] text-zinc-600">
+      <p className="ct-metric-caption text-[var(--ct-text-muted)]">
         Projections shown above are indicative only and not a commitment to any
         specific outcome. Past performance is not a reliable indicator of future
         results.
@@ -267,9 +270,7 @@ export function RebalanceCard({
       {/* Allocation diff */}
       {(fromAlloc.length > 0 || toAlloc.length > 0) && (
         <div className="flex flex-col gap-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-            Allocation delta
-          </p>
+          <p className="ct-bento-label">Allocation delta</p>
           <AllocationDiffTable from={fromAlloc} to={toAlloc} />
         </div>
       )}
@@ -277,12 +278,10 @@ export function RebalanceCard({
       {/* Approved signers list */}
       {signers.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-            Signers
-          </p>
+          <p className="ct-bento-label">Signers</p>
           <ul className="flex flex-col gap-1">
             {signers.map((w) => (
-              <li key={w} className="font-mono text-[12px] text-zinc-400">
+              <li key={w} className="ct-metric-caption font-mono">
                 {abbrWallet(w)}
               </li>
             ))}
@@ -293,7 +292,7 @@ export function RebalanceCard({
       {/* Error display */}
       <div aria-live="polite">
         {error && (
-          <p className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-[12px] text-red-400">
+          <p className="ct-metric-caption rounded-lg border border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] px-3 py-2 text-[var(--ct-status-danger)]">
             {error}
           </p>
         )}
@@ -356,7 +355,7 @@ export function RebalanceCard({
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Rejection reason…"
-                  className="flex-1 rounded-lg border border-white/10 bg-surface-inset px-4 py-2.5 text-[13px] text-white placeholder:text-zinc-600 focus:border-[#A7FB90]/40 focus:outline-none"
+                  className="ct-metric-value flex-1 rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 placeholder:text-[var(--ct-text-muted)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none"
                   disabled={isPending}
                 />
                 <Button
@@ -395,11 +394,11 @@ export function RebalanceCard({
 
         {event.status === "executed" && (
           <div className="flex flex-col gap-2">
-            <p className="text-[12px] text-[#A7FB90]">
+            <p className="ct-metric-caption text-[var(--ct-accent)]">
               Auto-executed on approval · {formatAdminDateTime(new Date(event.executedAt))}
             </p>
             {event.txHash && (
-              <p className="font-mono text-[12px] text-zinc-400">
+              <p className="ct-metric-caption font-mono">
                 tx: {event.txHash}
               </p>
             )}
@@ -407,7 +406,7 @@ export function RebalanceCard({
         )}
 
         {event.status === "cancelled" && (
-          <p className="text-[12px] text-zinc-400">
+          <p className="ct-metric-caption">
             Signal cancelled.{" "}
             {event.triggerText.includes("[REJECTED:")
               ? event.triggerText.match(/\[REJECTED:(.*)\]/)?.[1]?.trim()

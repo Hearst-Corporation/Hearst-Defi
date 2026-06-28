@@ -3,7 +3,14 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import { AdminTable } from "@/components/admin/admin-table-layout";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/ui/apy-range";
 import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
@@ -20,6 +27,14 @@ import { VaultStatusPill } from "@/components/admin/vault-status-pill";
 import { pauseVault, resumeVault } from "./actions";
 
 export const dynamic = "force-dynamic";
+
+// Shared table chrome — mirrors the customers canon (head = micro nano label,
+// rows = transparent border + faint hover wash). Centralized so the columns
+// stay in lockstep with the other admin list tables.
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const TABLE_WRAP = "max-w-full [&_th]:whitespace-nowrap";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 const FILTER_TABS = [
   { key: "all", label: "All" },
@@ -71,7 +86,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   const portfolioKpis = buildVaultsKpiStrip(kpiInputs);
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Vault"
@@ -98,162 +113,174 @@ export default async function VaultsPage({ searchParams }: PageProps) {
           }
         />
 
-        {/* Portfolio KPI summary — only shown when there are vaults */}
-        {portfolioKpis.length > 0 && <AdminKpiStripPanel kpis={portfolioKpis} />}
+        {/* List — header (KPI strip) → Catalyst table soudés dans UNE box card
+            (pattern Portfolio / customers canon). */}
+        <section
+          className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
+          aria-label="Vault deployments"
+        >
+          {portfolioKpis.length > 0 && (
+            <AdminKpiStripPanel
+              kpis={portfolioKpis}
+              title="Vault Portfolio"
+              subtitle={`${vaults.length} ${vaults.length === 1 ? "deployment" : "deployments"} in view`}
+              embedded
+            />
+          )}
 
-        {/* List */}
-        {vaults.length === 0 ? (
-          <EmptySurface
-            variant="widget"
-            message="No deployments found."
-            detail="Vault deployments will appear here once created."
-            className="min-h-32"
-            ariaLabel="Vault deployments awaiting creation"
-          >
-            <Link
-              href="/admin/vaults/new"
-              className="mt-1 text-[12px] text-zinc-400 underline underline-offset-2 transition-colors hover:text-white"
+          {vaults.length === 0 ? (
+            <EmptySurface
+              variant="widget"
+              message="No deployments found."
+              detail="Vault deployments will appear here once created."
+              className="min-h-32"
+              ariaLabel="Vault deployments awaiting creation"
             >
-              Create the first one
-            </Link>
-          </EmptySurface>
-        ) : (
-          <AdminTable
-            data={vaults}
-            colWidths={[
-              "w-[30%]",
-              "w-[12%]",
-              "w-[26%]",
-              "w-[16%]",
-              "w-[16%] text-right",
-            ]}
-            headers={[
-              "Vault",
-              "Status",
-              "Principal vs Capacity",
-              "Target APY",
-              <span key="actions" className="sr-only">
-                Actions
-              </span>,
-            ]}
-            renderRow={(vault) => {
-              const aumUsdc = vault.positions.reduce(
-                (sum, p) => sum + Number(p.principalUsdc),
-                0,
-              );
-              const capacityUsdc = Number(vault.capacityUsdc);
-              const aumPct =
-                capacityUsdc > 0 ? (aumUsdc / capacityUsdc) * 100 : 0;
-              const apyLow = Number(vault.targetApyLowBps) / 100;
-              const apyHigh = Number(vault.targetApyHighBps) / 100;
-              return (
-                <>
-                  {/* Identity */}
-                  <td className="px-5 py-4 align-top">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-mono text-[13px] font-semibold tabular-nums text-white">
-                        {vault.ticker}
-                      </span>
-                      <span className="truncate text-[12px] text-zinc-400">
-                        {vault.name}
-                      </span>
-                      <span className="text-[12px] text-zinc-600">
-                        {STRATEGY_LABELS[vault.strategy] ?? vault.strategy}
-                      </span>
-                    </div>
-                  </td>
+              <Link
+                href="/admin/vaults/new"
+                className="ct-metric-caption mt-1 underline underline-offset-2 transition-colors hover:text-[var(--ct-text-strong)]"
+              >
+                Create the first one
+              </Link>
+            </EmptySurface>
+          ) : (
+            <Table dense className={TABLE_WRAP}>
+              <TableHead>
+                <TableRow>
+                  <TableHeader className={`${TABLE_HEAD} pl-5`}>
+                    Vault
+                  </TableHeader>
+                  <TableHeader className={TABLE_HEAD}>Status</TableHeader>
+                  <TableHeader className={TABLE_HEAD}>
+                    Principal vs Capacity
+                  </TableHeader>
+                  <TableHeader className={TABLE_HEAD}>Target APY</TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
+                    <span className="sr-only">Actions</span>
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {vaults.map((vault) => {
+                  const aumUsdc = vault.positions.reduce(
+                    (sum, p) => sum + Number(p.principalUsdc),
+                    0,
+                  );
+                  const capacityUsdc = Number(vault.capacityUsdc);
+                  const aumPct =
+                    capacityUsdc > 0 ? (aumUsdc / capacityUsdc) * 100 : 0;
+                  const apyLow = Number(vault.targetApyLowBps) / 100;
+                  const apyHigh = Number(vault.targetApyHighBps) / 100;
+                  return (
+                    <TableRow key={vault.id} className={ROW}>
+                      {/* Identity */}
+                      <TableCell className="pl-5 align-top">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="ct-metric-value font-mono">
+                            {vault.ticker}
+                          </span>
+                          <span className="ct-metric-caption truncate">
+                            {vault.name}
+                          </span>
+                          <span className="ct-metric-caption text-[var(--ct-text-faint)]">
+                            {STRATEGY_LABELS[vault.strategy] ?? vault.strategy}
+                          </span>
+                        </div>
+                      </TableCell>
 
-                  {/* Status */}
-                  <td className="px-5 py-4 align-top">
-                    <VaultStatusPill status={vault.status} />
-                  </td>
+                      {/* Status */}
+                      <TableCell className="align-top">
+                        <VaultStatusPill status={vault.status} />
+                      </TableCell>
 
-                  {/* Principal vs Capacity — positions-sum; may differ from
-                      LP-visible Reported AUM (VaultSnapshot) */}
-                  <td className="px-5 py-4 align-top">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-2">
-                        <Progress
-                          value={aumPct}
-                          label={`Deployed principal vs capacity for ${vault.ticker}`}
-                          variant="plain"
-                          className="h-1 flex-1"
-                        />
-                        <ProvenanceBadge kind="manual" variant="strip" />
-                      </div>
-                      <span className="font-mono text-[12px] tabular-nums text-zinc-400">
-                        {formatUsdCompact(aumUsdc)} /{" "}
-                        {formatUsdCompact(capacityUsdc)}
-                      </span>
-                    </div>
-                  </td>
+                      {/* Principal vs Capacity — positions-sum; may differ from
+                          LP-visible Reported AUM (VaultSnapshot) */}
+                      <TableCell className="align-top">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2">
+                            <Progress
+                              value={aumPct}
+                              label={`Deployed principal vs capacity for ${vault.ticker}`}
+                              variant="plain"
+                              className="h-1 flex-1"
+                            />
+                            <ProvenanceBadge kind="manual" variant="strip" />
+                          </div>
+                          <span className="ct-metric-caption font-mono tabular-nums">
+                            {formatUsdCompact(aumUsdc)} /{" "}
+                            {formatUsdCompact(capacityUsdc)}
+                          </span>
+                        </div>
+                      </TableCell>
 
-                  {/* Target APY */}
-                  <td className="px-5 py-4 align-top">
-                    <div className="flex items-center gap-1.5">
-                      <ApyRange low={apyLow} high={apyHigh} precision={1} />
-                      <ProvenanceBadge kind="estimated" variant="strip" />
-                    </div>
-                  </td>
+                      {/* Target APY */}
+                      <TableCell className="align-top">
+                        <div className="flex items-center gap-1.5">
+                          <ApyRange low={apyLow} high={apyHigh} precision={1} />
+                          <ProvenanceBadge kind="estimated" variant="strip" />
+                        </div>
+                      </TableCell>
 
-                  {/* Actions */}
-                  <td className="px-5 py-4 align-top">
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <Link
-                        href={`/admin/vaults/${vault.id}`}
-                        className={BENTO_SECONDARY_BTN}
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}
-                        className={BENTO_SECONDARY_BTN}
-                      >
-                        Clone
-                      </Link>
-                      {vault.status === "live" && (
-                        <VaultActionButton
-                          label="Pause"
-                          variant="ghost"
-                          size="md"
-                          confirm={{
-                            title: "Pause this vault?",
-                            description:
-                              "New activity for this vault will be paused. Existing investor records remain unchanged.",
-                            confirmLabel: "Pause vault",
-                            confirmVariant: "danger",
-                          }}
-                          action={async () => {
-                            "use server";
-                            await pauseVault(vault.id);
-                          }}
-                        />
-                      )}
-                      {vault.status === "paused" && (
-                        <VaultActionButton
-                          label="Resume"
-                          variant="ghost"
-                          size="md"
-                          confirm={{
-                            title: "Resume this vault?",
-                            description:
-                              "This will make the vault available again according to its configured status and permissions.",
-                            confirmLabel: "Resume vault",
-                            confirmVariant: "primary",
-                          }}
-                          action={async () => {
-                            "use server";
-                            await resumeVault(vault.id);
-                          }}
-                        />
-                      )}
-                    </div>
-                  </td>
-                </>
-              );
-            }}
-          />
-        )}
+                      {/* Actions */}
+                      <TableCell className="pr-5 align-top">
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/vaults/${vault.id}`}
+                            className={BENTO_SECONDARY_BTN}
+                          >
+                            View
+                          </Link>
+                          <Link
+                            href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}
+                            className={BENTO_SECONDARY_BTN}
+                          >
+                            Clone
+                          </Link>
+                          {vault.status === "live" && (
+                            <VaultActionButton
+                              label="Pause"
+                              variant="ghost"
+                              size="md"
+                              confirm={{
+                                title: "Pause this vault?",
+                                description:
+                                  "New activity for this vault will be paused. Existing investor records remain unchanged.",
+                                confirmLabel: "Pause vault",
+                                confirmVariant: "danger",
+                              }}
+                              action={async () => {
+                                "use server";
+                                await pauseVault(vault.id);
+                              }}
+                            />
+                          )}
+                          {vault.status === "paused" && (
+                            <VaultActionButton
+                              label="Resume"
+                              variant="ghost"
+                              size="md"
+                              confirm={{
+                                title: "Resume this vault?",
+                                description:
+                                  "This will make the vault available again according to its configured status and permissions.",
+                                confirmLabel: "Resume vault",
+                                confirmVariant: "primary",
+                              }}
+                              action={async () => {
+                                "use server";
+                                await resumeVault(vault.id);
+                              }}
+                            />
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </section>
       </div>
     </div>
   );

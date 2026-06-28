@@ -7,7 +7,8 @@ import type { ProjectionInvestorReportViewModel } from "@/lib/projection/investo
  * VALIDATED_ADMIN run is NEVER labelled investor-ready.
  */
 
-const PANEL = "rounded-2xl border border-white/10 bg-surface-inset p-4";
+const PANEL =
+  "rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-4";
 
 const MODE_LABEL: Record<ProjectionInvestorReportViewModel["mode"], string> = {
   NO_RUN: "No run",
@@ -25,17 +26,17 @@ function Badge({
 }) {
   const cls =
     tone === "eligible"
-      ? "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]"
+      ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
       : tone === "unaudited"
-        ? "border-rose-400/30 bg-rose-400/10 text-rose-400"
+        ? "border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)]"
         : tone === "configured"
-          ? "border-sky-400/30 bg-sky-400/10 text-sky-300"
+          ? "border-[color-mix(in_srgb,var(--ct-status-info)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-info)_10%,transparent)] text-[var(--ct-status-info)]"
           : tone === "fallback" || tone === "demo"
-            ? "border-amber-400/30 bg-amber-400/10 text-amber-400"
-            : "border-white/10 bg-white/5 text-zinc-400";
+            ? "border-[color-mix(in_srgb,var(--ct-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)] text-[var(--ct-status-warning)]"
+            : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]";
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cls}`}
+      className={`ct-bento-label inline-flex items-center rounded-full border px-2.5 py-0.5 ${cls}`}
     >
       {children}
     </span>
@@ -50,9 +51,7 @@ export function InvestorReportReadiness({
   return (
     <div className={PANEL}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500">
-          Investor Report Readiness
-        </div>
+        <div className="ct-bento-label">Investor Report Readiness</div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="neutral">Mode: {MODE_LABEL[report.mode]}</Badge>
           <Badge tone={report.investorEligible ? "eligible" : "unaudited"}>
@@ -62,11 +61,14 @@ export function InvestorReportReadiness({
         </div>
       </div>
 
-      <p className="mt-2 text-[13px] font-medium text-white">{report.headline}</p>
+      <p className="ct-metric-value mt-2 font-medium">{report.headline}</p>
 
       {report.runId ? (
-        <div className="mt-1 text-[11px] text-zinc-500">
-          Run <span className="font-mono text-zinc-300">{report.runId.slice(0, 8)}</span>
+        <div className="ct-metric-caption mt-1">
+          Run{" "}
+          <span className="font-mono text-[var(--ct-text-body)]">
+            {report.runId.slice(0, 8)}
+          </span>
           {report.createdAt ? ` · ${report.createdAt.slice(0, 10)}` : ""}
         </div>
       ) : null}
@@ -75,10 +77,8 @@ export function InvestorReportReadiness({
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {report.metrics.map((m) => (
             <div key={m.label}>
-              <div className="text-[10px] uppercase tracking-wider text-zinc-600">
-                {m.label}
-              </div>
-              <div className="tabular-nums text-[13px] text-zinc-200">{m.value}</div>
+              <div className="ct-bento-label">{m.label}</div>
+              <div className="ct-metric-value tabular-nums">{m.value}</div>
             </div>
           ))}
         </div>
@@ -95,14 +95,14 @@ export function InvestorReportReadiness({
       ) : null}
 
       {report.warnings.length > 0 ? (
-        <ul className="mt-3 flex flex-col gap-1 text-[11px] text-zinc-500">
+        <ul className="ct-metric-caption mt-3 flex flex-col gap-1">
           {report.warnings.map((w) => (
             <li key={w}>• {w}</li>
           ))}
         </ul>
       ) : null}
 
-      <ul className="mt-3 flex flex-col gap-1 border-t border-white/5 pt-3 text-[11px] italic text-zinc-600">
+      <ul className="ct-metric-caption mt-3 flex flex-col gap-1 border-t border-[var(--ct-border-soft)] pt-3 italic text-[var(--ct-text-faint)]">
         {report.disclaimers.map((d) => (
           <li key={d}>{d}</li>
         ))}

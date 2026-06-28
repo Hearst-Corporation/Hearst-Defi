@@ -66,7 +66,7 @@ export function SendCampaignButton({
         description={
           <>
             This will dispatch{" "}
-            <strong className="font-semibold text-white">
+            <strong className="font-semibold text-[var(--ct-text-strong)]">
               {approvedCount} approved email{approvedCount === 1 ? "" : "s"}
             </strong>{" "}
             via Resend immediately. The campaign status will switch to{" "}

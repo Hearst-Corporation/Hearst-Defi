@@ -50,7 +50,7 @@ import { SystemReadinessModule } from "./system-readiness";
  *
  * Bento canon (mirrors src/app/(product)/portfolio/page.tsx): the page wraps this
  * board in the grey surface; here every module is a black BentoPanel with a
- * hairline border, micro uppercase headers and a single accent green (#A7FB90).
+ * hairline border, micro uppercase headers and the single accent (--ct-accent).
  */
 
 interface DashboardAssetsBoardProps {
@@ -83,22 +83,22 @@ function PaneStatus({
   tone?: "ok" | "watch" | "alert";
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 leading-none">
+    <span className="inline-flex items-center gap-1.5 rounded border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-1.5 py-0.5 leading-none">
       <span
         className={cn(
           "size-[5px] rounded-full",
-          tone === "ok" && "bg-[#A7FB90]",
-          tone === "watch" && "bg-amber-400",
-          tone === "alert" && "bg-red-400",
+          tone === "ok" && "bg-[var(--ct-accent)]",
+          tone === "watch" && "bg-[var(--ct-status-warning)]",
+          tone === "alert" && "bg-[var(--ct-status-danger)]",
         )}
         aria-hidden
       />
       <span
         className={cn(
-          "text-[9px] font-bold uppercase tracking-[0.15em]",
-          tone === "ok" && "text-[#A7FB90]",
-          tone === "watch" && "text-amber-400",
-          tone === "alert" && "text-red-400",
+          "ct-bento-label",
+          tone === "ok" && "text-[var(--ct-accent)]",
+          tone === "watch" && "text-[var(--ct-status-warning)]",
+          tone === "alert" && "text-[var(--ct-status-danger)]",
         )}
       >
         {label}
@@ -245,13 +245,13 @@ export function DashboardAssetsBoard({
 
       {/* ── KPI strip + charts ── */}
       <BentoPanel aria-label="Vault KPIs and charts">
-        <section aria-label="Vault KPIs" className="border-b border-white/5">
+        <section aria-label="Vault KPIs" className="border-b border-[var(--ct-border-soft)]">
           <DashboardKpiStrip kpis={stripKpis} />
         </section>
 
         {showVaultAnalytics ? (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-surface-inset">
-            <div className="flex flex-col p-5 lg:px-6 border-b border-white/5 lg:border-b-0 lg:border-r">
+            <div className="flex flex-col p-5 lg:px-6 border-b border-[var(--ct-border-soft)] lg:border-b-0 lg:border-r">
               <AllocationOrbit
                 allocations={allocation}
                 capitalUsdc={capitalUsdc}
@@ -277,7 +277,7 @@ export function DashboardAssetsBoard({
             </div>
             {chartSeedPreview ? (
               <p
-                className="col-span-full px-5 lg:px-6 pb-4 text-[10px] text-zinc-500 tracking-wide"
+                className="ct-metric-caption col-span-full px-5 lg:px-6 pb-4"
                 role="status"
               >
                 Seed snapshot — simulated preview, not live production telemetry.
@@ -289,7 +289,7 @@ export function DashboardAssetsBoard({
             aria-label="Vault analytics awaiting live data"
             className="flex items-center justify-center px-8 py-10 text-center bg-surface-inset"
           >
-            <p className="max-w-[45ch] text-[13px] leading-relaxed text-zinc-400" role="status">
+            <p className="ct-metric-value max-w-[45ch] font-normal leading-relaxed text-[var(--ct-text-secondary)]" role="status">
               Capital allocation and NAV trends appear once a live vault snapshot
               is connected. KPI strip above shows honest placeholders until then.
             </p>
@@ -297,7 +297,7 @@ export function DashboardAssetsBoard({
         )}
 
         {data.recentEvents.length > 0 ? (
-          <section aria-label="Recent vault activity" className="border-t border-white/5">
+          <section aria-label="Recent vault activity" className="border-t border-[var(--ct-border-soft)]">
             <BentoHeader as="h3" title="Recent activity" subtitle="Rebalance log" />
             <div className="p-5">
               <DashboardRecentEvents events={data.recentEvents} />

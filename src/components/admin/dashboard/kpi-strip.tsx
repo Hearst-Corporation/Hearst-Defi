@@ -57,7 +57,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
       : "neutral";
   const deltaClass = {
     up: "ct-text-accent",
-    down: "text-red-400",
+    down: "text-[var(--ct-status-danger)]",
     neutral: "ct-text-muted",
   }[deltaType];
 
@@ -85,7 +85,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
           className={cn(
             "text-[18px] font-medium leading-none tracking-tight tabular-nums",
             kpi.alert
-              ? "text-red-400"
+              ? "text-[var(--ct-status-danger)]"
               : kpi.accent
                 ? "ct-text-accent"
                 : "ct-text-strong",

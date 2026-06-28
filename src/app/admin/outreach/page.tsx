@@ -7,6 +7,15 @@ import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/catalyst/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { OutreachStatsCards } from "@/components/admin/outreach/stats-cards";
 import { OutreachAutonomyPanel } from "@/components/admin/outreach/autonomy-panel";
@@ -16,10 +25,7 @@ import { CampaignForm } from "@/components/admin/outreach/campaign-form";
 import { IcpForm } from "@/components/admin/outreach/icp-form";
 import { IcpList } from "@/components/admin/outreach/icp-list";
 import { TierBadge } from "@/components/admin/outreach/tier-badge";
-import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
-import {
-  AdminTable,
-} from "@/components/admin/admin-table-layout";
+import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import {
   computeOutreachStats,
   loadProspects,
@@ -36,6 +42,12 @@ export const metadata = {
   title: "Outreach — Hearst Connect",
 };
 
+// Shared Catalyst table chrome (mirrors /admin/customers canon).
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const TABLE_WRAP = "max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+
 export default async function OutreachPage() {
   const [stats, prospects, campaigns, icps] = await Promise.all([
     computeOutreachStats(),
@@ -47,7 +59,7 @@ export default async function OutreachPage() {
   const autonomy = getOutreachAutonomyStatus();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Outreach"
@@ -55,10 +67,10 @@ export default async function OutreachPage() {
           actions={
             <div className="flex flex-wrap items-center gap-4">
               <OutreachStatsCards stats={stats} />
-              <div className="hidden h-8 w-px bg-white/10 lg:block" />
-              <Link href="/admin/outreach/compose" className={BENTO_PRIMARY_BTN}>
+              <div className="hidden h-8 w-px bg-[var(--ct-border)] lg:block" />
+              <Button href="/admin/outreach/compose" className={CATALYST_ACCENT_BTN}>
                 Compose email
-              </Link>
+              </Button>
             </div>
           }
         />
@@ -73,14 +85,19 @@ export default async function OutreachPage() {
           {/* Left: Primary Operator Content */}
           <div className="flex flex-col gap-5">
             {/* Prospect directory */}
-            <section className="flex flex-col gap-4" aria-label="Prospects">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-[15px] font-semibold tracking-tight text-white">
-                  Prospect directory{" "}
-                  <span className="ml-1 font-normal tabular-nums text-zinc-500">
-                    ({prospects.total})
-                  </span>
-                </h2>
+            <section
+              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
+              aria-label="Prospects"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] p-5">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <h2 className="ct-section-title">
+                    Prospect directory{" "}
+                    <span className="font-normal tabular-nums text-[var(--ct-text-muted)]">
+                      ({prospects.total})
+                    </span>
+                  </h2>
+                </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <ProspectAddForm />
                   <ProspectImportForm />
@@ -95,73 +112,82 @@ export default async function OutreachPage() {
                   className="min-h-32"
                 />
               ) : (
-                <AdminTable
-                  data={prospects.rows}
-                  headers={[
-                    "Email",
-                    <span key="company" className="hidden md:inline">Company</span>,
-                    <span key="name" className="hidden lg:inline">Name</span>,
-                    "Tier",
-                    "Status",
-                    <span key="added" className="hidden lg:inline">Added</span>,
-                  ]}
-                  colWidths={[
-                    "w-[30%]",
-                    "hidden w-[22%] md:table-cell",
-                    "hidden w-[18%] lg:table-cell",
-                    "w-[14%]",
-                    "w-[14%]",
-                    "hidden w-[12%] lg:table-cell",
-                  ]}
-                  renderRow={(p) => (
-                    <>
-                      <td className="truncate px-5 py-3 font-medium text-white">
-                        <Link
-                          href={`/admin/outreach/prospects/${p.id}`}
-                          className="underline-offset-4 hover:underline decoration-[#A7FB90]/30"
-                        >
-                          {p.email}
-                        </Link>
-                      </td>
-                      <td className="hidden truncate px-5 py-3 text-zinc-300 md:table-cell">
-                        {p.company ?? "—"}
-                      </td>
-                      <td className="hidden truncate px-5 py-3 text-zinc-400 lg:table-cell">
-                        <Link
-                          href={`/admin/outreach/prospects/${p.id}`}
-                          className="underline-offset-4 hover:underline decoration-[#A7FB90]/30"
-                        >
-                          {[p.firstName, p.lastName].filter(Boolean).join(" ") || "View"}
-                        </Link>
-                      </td>
-                      <td className="px-5 py-3">
-                        <TierBadge prospectId={p.id} tier={p.tier} />
-                      </td>
-                      <td className="px-5 py-3">
-                        <Badge variant={PROSPECT_VARIANT[p.status] ?? "default"} className="font-medium">
-                          {p.status}
-                        </Badge>
-                      </td>
-                      <td className="hidden px-5 py-3 tabular-nums text-zinc-500 lg:table-cell">
-                        {formatAdminDate(p.createdAt)}
-                      </td>
-                    </>
-                  )}
-                />
+                <Table dense className={TABLE_WRAP}>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeader className={`${TABLE_HEAD} pl-5`}>Email</TableHeader>
+                      <TableHeader className={`${TABLE_HEAD} hidden md:table-cell`}>
+                        Company
+                      </TableHeader>
+                      <TableHeader className={`${TABLE_HEAD} hidden lg:table-cell`}>
+                        Name
+                      </TableHeader>
+                      <TableHeader className={TABLE_HEAD}>Tier</TableHeader>
+                      <TableHeader className={TABLE_HEAD}>Status</TableHeader>
+                      <TableHeader
+                        className={`${TABLE_HEAD} hidden pr-5 lg:table-cell`}
+                      >
+                        Added
+                      </TableHeader>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {prospects.rows.map((p) => (
+                      <TableRow key={p.id} className={ROW}>
+                        <TableCell className="pl-5">
+                          <Link
+                            href={`/admin/outreach/prospects/${p.id}`}
+                            className="ct-metric-value min-w-0 truncate hover:underline"
+                          >
+                            {p.email}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="ct-metric-caption hidden truncate md:table-cell">
+                          {p.company ?? "—"}
+                        </TableCell>
+                        <TableCell className="ct-metric-caption hidden truncate lg:table-cell">
+                          <Link
+                            href={`/admin/outreach/prospects/${p.id}`}
+                            className="hover:underline"
+                          >
+                            {[p.firstName, p.lastName].filter(Boolean).join(" ") || "View"}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <TierBadge prospectId={p.id} tier={p.tier} />
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={PROSPECT_VARIANT[p.status] ?? "default"}
+                            className="font-medium"
+                          >
+                            {p.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="ct-metric-caption hidden pr-5 tabular-nums lg:table-cell">
+                          {formatAdminDate(p.createdAt)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               )}
             </section>
 
             {/* Campaigns */}
-            <section className="flex flex-col gap-4" aria-label="Campaigns">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div className="flex flex-col gap-1">
-                  <h2 className="text-[15px] font-semibold tracking-tight text-white">
+            <section
+              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
+              aria-label="Campaigns"
+            >
+              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--ct-border-soft)] p-5">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <h2 className="ct-section-title">
                     Campaign queue{" "}
-                    <span className="ml-1 font-normal tabular-nums text-zinc-500">
+                    <span className="font-normal tabular-nums text-[var(--ct-text-muted)]">
                       ({campaigns.length})
                     </span>
                   </h2>
-                  <p className="text-[12px] text-zinc-500">
+                  <p className="ct-metric-caption">
                     Define mandates, monitor drafting, and review recipient workflows.
                   </p>
                 </div>
@@ -176,47 +202,54 @@ export default async function OutreachPage() {
                   className="min-h-32"
                 />
               ) : (
-                <AdminTable
-                  data={campaigns}
-                  headers={[
-                    "Name",
-                    "Kind",
-                    "Status",
-                    <span key="emails" className="hidden text-right md:inline">Emails</span>,
-                    <span key="created" className="hidden lg:inline">Created</span>,
-                  ]}
-                  colWidths={[
-                    "w-[34%]",
-                    "w-[16%]",
-                    "w-[16%]",
-                    "hidden w-[12%] text-right md:table-cell",
-                    "hidden w-[16%] lg:table-cell",
-                  ]}
-                  renderRow={(c) => (
-                    <>
-                      <td className="truncate px-5 py-3 font-medium text-white">
-                        <Link
-                          href={`/admin/outreach/${c.id}`}
-                          className="underline-offset-4 hover:underline decoration-[#A7FB90]/30"
-                        >
-                          {c.name}
-                        </Link>
-                      </td>
-                      <td className="px-5 py-3 text-zinc-400">{c.kind}</td>
-                      <td className="px-5 py-3">
-                        <Badge variant={CAMPAIGN_VARIANT[c.status] ?? "default"} className="font-medium">
-                          {c.status}
-                        </Badge>
-                      </td>
-                      <td className="hidden px-5 py-3 text-right tabular-nums text-zinc-300 md:table-cell">
-                        {c.total}
-                      </td>
-                      <td className="hidden px-5 py-3 tabular-nums text-zinc-500 lg:table-cell">
-                        {formatAdminDate(c.createdAt)}
-                      </td>
-                    </>
-                  )}
-                />
+                <Table dense className={TABLE_WRAP}>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeader className={`${TABLE_HEAD} pl-5`}>Name</TableHeader>
+                      <TableHeader className={TABLE_HEAD}>Kind</TableHeader>
+                      <TableHeader className={TABLE_HEAD}>Status</TableHeader>
+                      <TableHeader
+                        className={`${TABLE_HEAD} hidden text-right md:table-cell`}
+                      >
+                        Emails
+                      </TableHeader>
+                      <TableHeader
+                        className={`${TABLE_HEAD} hidden pr-5 lg:table-cell`}
+                      >
+                        Created
+                      </TableHeader>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {campaigns.map((c) => (
+                      <TableRow key={c.id} className={ROW}>
+                        <TableCell className="pl-5">
+                          <Link
+                            href={`/admin/outreach/${c.id}`}
+                            className="ct-metric-value min-w-0 truncate hover:underline"
+                          >
+                            {c.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="ct-metric-caption">{c.kind}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={CAMPAIGN_VARIANT[c.status] ?? "default"}
+                            className="font-medium"
+                          >
+                            {c.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="ct-metric-caption hidden text-right tabular-nums md:table-cell">
+                          {c.total}
+                        </TableCell>
+                        <TableCell className="ct-metric-caption hidden pr-5 tabular-nums lg:table-cell">
+                          {formatAdminDate(c.createdAt)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               )}
             </section>
           </div>
@@ -225,8 +258,8 @@ export default async function OutreachPage() {
           <aside className="flex flex-col">
             <section className="flex flex-col gap-4" aria-label="Lead engine">
               <div className="flex flex-col gap-1">
-                <h2 className="text-[15px] font-semibold tracking-tight text-white">Lead engine</h2>
-                <span className="text-[12px] text-zinc-500">
+                <h2 className="ct-section-title">Lead engine</h2>
+                <span className="ct-metric-caption">
                   Source &amp; tier leads from ICP.
                 </span>
               </div>

@@ -25,10 +25,8 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
         <BentoPanel className="max-w-xl" aria-label="MVP progress">
           <div className="flex flex-col gap-3 p-5">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
-                MVP progress
-              </span>
-              <span className="font-mono tabular-nums text-[15px] text-white">
+              <span className="ct-bento-label">MVP progress</span>
+              <span className="ct-metric-value font-mono tabular-nums">
                 {mvpPhase.doneCount} / {mvpPhase.total} (
                 {progressPct(mvpPhase.doneCount, mvpPhase.total)}%)
               </span>
@@ -53,9 +51,9 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
             className="flex flex-col gap-y-5"
             aria-label={phase.label}
           >
-            <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-3">
+            <div className="flex items-baseline justify-between gap-4 border-b border-[var(--ct-border)] pb-3">
               <h2 className="h2">{phase.label}</h2>
-              <span className="font-mono tabular-nums text-[12px] text-zinc-500">
+              <span className="ct-metric-caption font-mono tabular-nums">
                 {phase.doneCount} / {phase.total}
               </span>
             </div>
@@ -93,11 +91,9 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
 
   return (
     <BentoPanel aria-label={week.label}>
-      <header className="flex flex-col gap-2 border-b border-white/5 p-5">
-        <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] leading-none text-zinc-400">
-          {week.label}
-        </h3>
-        <div className="flex items-center gap-4 text-[12px] text-zinc-500">
+      <header className="flex flex-col gap-2 border-b border-[var(--ct-border-soft)] p-5">
+        <h3 className="ct-bento-label leading-none">{week.label}</h3>
+        <div className="ct-metric-caption flex items-center gap-4">
           <span className="font-mono tabular-nums">
             {week.doneCount} / {week.total}
           </span>
@@ -112,7 +108,7 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
         {week.items.map((item) => (
           <li
             key={item.id}
-            className="border-b border-white/5 px-5 last:border-b-0"
+            className="border-b border-[var(--ct-border-soft)] px-5 last:border-b-0"
           >
             <RoadmapItemRow item={item} />
           </li>

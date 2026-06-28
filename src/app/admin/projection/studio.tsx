@@ -67,11 +67,11 @@ const DEFAULT_2D_Y_VALUES = [0.05, 0.085, 0.12];
 // ─── Bento style tokens (Portfolio canon) ────────────────────────────────────
 
 // Nested sub-surface inside a black bento panel.
-const SUB_SURFACE = "rounded-lg border border-white/10 bg-surface-inset";
-// Micro uppercase eyebrow label.
-const EYEBROW = "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+const SUB_SURFACE = "rounded-lg border border-[var(--ct-border)] bg-surface-inset";
+// Micro uppercase eyebrow label (role class).
+const EYEBROW = "ct-bento-label";
 
-// ─── Risk color helpers (bento accent / status hex) ───────────────────────────
+// ─── Risk color helpers (status tokens — success/warning/danger) ──────────────
 
 // Risk band thresholds (0–100) — single source shared by both color helpers and
 // the PTAI rebalancing-trigger copy below, so the number can't drift apart.
@@ -79,15 +79,15 @@ const RISK_SUCCESS_MAX = 35;
 const RISK_WARN_MAX = 65;
 
 function riskTextClass(score: number): string {
-  if (score <= RISK_SUCCESS_MAX) return "text-[#A7FB90]";
-  if (score <= RISK_WARN_MAX) return "text-amber-300";
-  return "text-red-400";
+  if (score <= RISK_SUCCESS_MAX) return "text-[var(--ct-accent)]";
+  if (score <= RISK_WARN_MAX) return "text-[var(--ct-status-warning)]";
+  return "text-[var(--ct-status-danger)]";
 }
 
 function riskBgClass(score: number): string {
-  if (score <= RISK_SUCCESS_MAX) return "bg-[#A7FB90]/10";
-  if (score <= RISK_WARN_MAX) return "bg-amber-300/10";
-  return "bg-red-400/10";
+  if (score <= RISK_SUCCESS_MAX) return "bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]";
+  if (score <= RISK_WARN_MAX) return "bg-[color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)]";
+  return "bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)]";
 }
 
 // ─── Slider primitive ─────────────────────────────────────────────────────────
@@ -115,8 +115,8 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
       <div className="flex items-center justify-between">
         <label
           className={cn(
-            "cursor-pointer select-none text-[11px] font-medium transition-colors",
-            isExtreme ? "font-bold text-amber-300" : "text-zinc-400",
+            "ct-metric-caption cursor-pointer select-none font-medium transition-colors",
+            isExtreme ? "font-bold text-[var(--ct-status-warning)]" : "text-[var(--ct-text-body)]",
           )}
         >
           {label}
@@ -128,8 +128,8 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         </label>
         <span
           className={cn(
-            "font-mono text-[12px] font-semibold tabular-nums transition-colors",
-            isExtreme ? "text-amber-300" : "text-white",
+            "ct-metric-value font-mono transition-colors",
+            isExtreme ? "text-[var(--ct-status-warning)]" : "text-[var(--ct-text-strong)]",
           )}
         >
           {fmt(value)}
@@ -172,9 +172,9 @@ function AllocationBreakdown({ allocations }: { allocations: MatrixCell["allocat
                     className="h-1.5 w-1.5 rounded-full"
                     style={{ backgroundColor: color }}
                   />
-                  <span className="text-[12px] font-semibold text-zinc-200">{label}</span>
+                  <span className="ct-metric-value font-semibold">{label}</span>
                 </div>
-                <span className="font-mono text-[12px] tabular-nums text-white">
+                <span className="ct-metric-value font-mono">
                   {(alloc.pct * 100).toFixed(1)}%
                 </span>
               </div>
@@ -214,8 +214,8 @@ function AssumptionsStrip({ inputs }: { inputs: ScenarioInputs }) {
       <span className={cn(EYEBROW, "whitespace-nowrap")}>Inputs</span>
       {items.map((item, idx) => (
         <div key={idx} className="flex items-center gap-1.5 whitespace-nowrap">
-          <span className="text-[12px] text-zinc-500">{item.label}:</span>
-          <span className="font-mono text-[12px] font-bold tabular-nums text-white">{item.value}</span>
+          <span className="ct-metric-caption">{item.label}:</span>
+          <span className="ct-metric-value font-mono font-bold">{item.value}</span>
         </div>
       ))}
     </div>
@@ -242,19 +242,19 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
   return (
     <div className="flex flex-col gap-3">
       {xAxis && (
-        <div className="flex select-none items-center gap-2 text-[12px] text-zinc-400">
+        <div className="ct-metric-caption flex select-none items-center gap-2">
           <span className={EYEBROW}>Axis</span>
-          <span className="rounded border border-white/10 bg-surface-inset px-1 font-mono text-zinc-300">{xAxis}</span>
+          <span className="rounded border border-[var(--ct-border)] bg-surface-inset px-1 font-mono text-[var(--ct-text-body)]">{xAxis}</span>
           {yAxis && (
             <>
-              <span className="text-zinc-600">×</span>
-              <span className="rounded border border-white/10 bg-surface-inset px-1 font-mono text-zinc-300">{yAxis}</span>
+              <span className="text-[var(--ct-text-faint)]">×</span>
+              <span className="rounded border border-[var(--ct-border)] bg-surface-inset px-1 font-mono text-[var(--ct-text-body)]">{yAxis}</span>
             </>
           )}
         </div>
       )}
       <div
-        className="rounded-xl border border-white/10 bg-surface-card p-1"
+        className="rounded-xl border border-[var(--ct-border)] bg-surface-card p-1"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
@@ -292,15 +292,15 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 "relative rounded-lg border p-2.5 text-left transition-colors",
                 riskBgClass(cell.riskScore),
                 isSelected
-                  ? "border-white/30 opacity-100"
-                  : "border-white/5 opacity-70 hover:opacity-100",
+                  ? "border-[var(--ct-border-strong)] opacity-100"
+                  : "border-[var(--ct-border-soft)] opacity-70 hover:opacity-100",
               )}
             >
               <div className="flex flex-col gap-1.5">
                 <span
                   className={cn(
-                    "font-mono text-[12px] font-bold leading-tight tabular-nums",
-                    isSelected ? "text-white" : riskTextClass(cell.riskScore),
+                    "ct-metric-value font-mono font-bold leading-tight",
+                    isSelected ? "text-[var(--ct-text-strong)]" : riskTextClass(cell.riskScore),
                   )}
                 >
                   {cell.apyLow.toFixed(1)}–{cell.apyHigh.toFixed(1)}%
@@ -308,7 +308,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 <span
                   className={cn(
                     "font-mono text-[10px] uppercase tracking-wider opacity-80",
-                    isSelected ? "text-white" : "text-zinc-500",
+                    isSelected ? "text-[var(--ct-text-strong)]" : "text-[var(--ct-text-muted)]",
                   )}
                 >
                   R {cell.riskScore}
@@ -340,7 +340,7 @@ function ExecutionModeControl({
     <div
       role="radiogroup"
       aria-label="Execution mode"
-      className="inline-flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1"
+      className="inline-flex gap-1 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] p-1"
     >
       {items.map((item) => {
         const active = value === item.value;
@@ -352,10 +352,10 @@ function ExecutionModeControl({
             aria-checked={active}
             onClick={() => onChange(item.value)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-[11px] font-bold transition-colors",
+              "ct-metric-caption rounded-md px-3 py-1.5 font-bold transition-colors",
               active
-                ? "bg-white text-zinc-900 shadow-sm"
-                : "text-zinc-500 hover:text-zinc-300",
+                ? "bg-[var(--ct-text-strong)] text-[var(--ct-bg-deep)] shadow-sm"
+                : "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-body)]",
             )}
           >
             {item.label}
@@ -503,19 +503,19 @@ export function ProjectionStudio() {
                 className={cn(
                   "flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors disabled:opacity-50",
                   active
-                    ? "border-[#A7FB90]/40 bg-[#A7FB90]/10"
-                    : "border-white/10 bg-surface-inset hover:border-white/20",
+                    ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
+                    : "border-[var(--ct-border)] bg-surface-inset hover:border-[var(--ct-border-strong)]",
                 )}
               >
                 <span
                   className={cn(
-                    "text-[12px] font-semibold",
-                    active ? "text-[#A7FB90]" : "text-white",
+                    "ct-metric-value font-semibold",
+                    active ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]",
                   )}
                 >
                   {p.label}
                 </span>
-                <span className="text-[11px] leading-snug text-zinc-500">{p.description}</span>
+                <span className="ct-metric-caption leading-snug">{p.description}</span>
               </button>
             );
           })}
@@ -589,12 +589,12 @@ export function ProjectionStudio() {
                 <p className={EYEBROW}>Execution Mode</p>
                 <ExecutionModeControl value={batchMode} onChange={setBatchMode} />
                 {batchMode === "1d" && (
-                  <p className="text-[11px] italic text-zinc-500">
-                    BTC sweep: <span className="font-mono text-zinc-400">{DEFAULT_1D_VALUES.join(", ")}%</span>
+                  <p className="ct-metric-caption italic">
+                    BTC sweep: <span className="font-mono text-[var(--ct-text-body)]">{DEFAULT_1D_VALUES.join(", ")}%</span>
                   </p>
                 )}
                 {batchMode === "2d" && (
-                  <p className="text-[11px] italic text-zinc-500">
+                  <p className="ct-metric-caption italic">
                     BTC sweep × Hashprice (3×3 matrix)
                   </p>
                 )}
@@ -605,14 +605,14 @@ export function ProjectionStudio() {
           {/* Allocation Context */}
           <div className={cn("p-4", SUB_SURFACE)}>
             <p className={cn(EYEBROW, "mb-1")}>Allocation Note</p>
-            <p className="text-[11px] leading-relaxed text-zinc-500">
+            <p className="ct-metric-caption leading-relaxed">
               Derived by engine from scenario inputs. Not manually adjustable here.
               Run projection to see derived targets.
             </p>
           </div>
 
           {error && (
-            <p className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-[12px] text-red-400">
+            <p className="ct-metric-caption rounded-lg border border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] px-3 py-2 text-[var(--ct-status-danger)]">
               {error}
             </p>
           )}
@@ -659,20 +659,20 @@ export function ProjectionStudio() {
               <BentoPanel>
                 <BentoHeader title="Projection Output" />
                 <div className="flex max-w-lg flex-col gap-3 p-5">
-                  <p className="text-[13px] text-zinc-500">
+                  <p className="ct-metric-caption">
                     Configure market assumptions and network parameters, then run projection to generate yield estimates.
                   </p>
                   <div className="pt-2">
                     <p className={cn(EYEBROW, "mb-2")}>Workflow</p>
                     <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      <span className="text-[12px] text-zinc-400">
-                        <span className="font-mono text-zinc-500">1.</span> Select preset
+                      <span className="ct-metric-caption">
+                        <span className="font-mono text-[var(--ct-text-muted)]">1.</span> Select preset
                       </span>
-                      <span className="text-[12px] text-zinc-400">
-                        <span className="font-mono text-zinc-500">2.</span> Tune inputs
+                      <span className="ct-metric-caption">
+                        <span className="font-mono text-[var(--ct-text-muted)]">2.</span> Tune inputs
                       </span>
-                      <span className="text-[12px] text-zinc-400">
-                        <span className="font-mono text-zinc-500">3.</span> Run projection
+                      <span className="ct-metric-caption">
+                        <span className="font-mono text-[var(--ct-text-muted)]">3.</span> Run projection
                       </span>
                     </div>
                   </div>
@@ -695,7 +695,7 @@ export function ProjectionStudio() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        className="rounded-md px-2 py-1 font-mono text-[11px] text-zinc-500 transition-colors hover:text-white"
+                        className="ct-metric-caption rounded-md px-2 py-1 font-mono transition-colors hover:text-[var(--ct-text-strong)]"
                         onClick={() => {
                           navigator.clipboard.writeText(result.studyId);
                           toast.success("Study ID copied to clipboard");
@@ -705,15 +705,15 @@ export function ProjectionStudio() {
                       </button>
                       <button
                         type="button"
-                        className="rounded-md px-2 py-1 font-mono text-[11px] text-zinc-500 transition-colors hover:text-white"
+                        className="ct-metric-caption rounded-md px-2 py-1 font-mono transition-colors hover:text-[var(--ct-text-strong)]"
                         onClick={() => toast.info("Export to PDF/CSV coming soon")}
                       >
                         Export
                       </button>
-                      <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-mono text-[11px] tabular-nums text-zinc-400">
+                      <span className="ct-metric-caption rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-1 font-mono">
                         ID {result.studyId.slice(-8)}
                       </span>
-                      <span className="rounded-md border border-[#A7FB90]/30 bg-[#A7FB90]/10 px-2 py-1 text-[11px] font-bold text-[#A7FB90]">
+                      <span className="ct-metric-caption rounded-md border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-1 font-bold text-[var(--ct-accent)]">
                         {result.runIds.length} {result.runIds.length > 1 ? "Runs" : "Run"}
                       </span>
                     </div>
@@ -764,10 +764,10 @@ export function ProjectionStudio() {
                               className={cn(
                                 "text-[12px] uppercase tracking-wider",
                                 selectedCell.confidence === "high"
-                                  ? "text-[#A7FB90]"
+                                  ? "text-[var(--ct-accent)]"
                                   : selectedCell.confidence === "medium"
-                                    ? "text-amber-300"
-                                    : "text-red-400",
+                                    ? "text-[var(--ct-status-warning)]"
+                                    : "text-[var(--ct-status-danger)]",
                               )}
                             >
                               {selectedCell.confidence}
@@ -826,10 +826,10 @@ export function ProjectionStudio() {
                               className={cn(
                                 "text-[12px] uppercase tracking-wider",
                                 selectedCell.confidence === "high"
-                                  ? "text-[#A7FB90]"
+                                  ? "text-[var(--ct-accent)]"
                                   : selectedCell.confidence === "medium"
-                                    ? "text-amber-300"
-                                    : "text-red-400",
+                                    ? "text-[var(--ct-status-warning)]"
+                                    : "text-[var(--ct-status-danger)]",
                               )}
                             >
                               {selectedCell.confidence}
@@ -860,17 +860,17 @@ export function ProjectionStudio() {
 
                   {/* Readiness Note */}
                   <div className={cn("flex flex-col gap-1 p-4", SUB_SURFACE)}>
-                    <p className="text-[13px] font-medium text-zinc-200">
+                    <p className="ct-metric-value font-medium">
                       Projection is ready for promotion.
                     </p>
-                    <p className="text-[12px] text-zinc-500">
+                    <p className="ct-metric-caption">
                       The model outputs are consistent with the selected methodology (v1.0). Promotion will create a draft deployment for further refinement.
                     </p>
                   </div>
 
                   {/* "Not guaranteed" disclaimer — non-negotiable #10 */}
-                  <p className="text-[11px] italic leading-relaxed text-zinc-500">
-                    <strong className="not-italic text-zinc-400">Disclaimer:</strong>{" "}
+                  <p className="ct-metric-caption italic leading-relaxed">
+                    <strong className="not-italic text-[var(--ct-text-body)]">Disclaimer:</strong>{" "}
                     Projections are conditional on stated assumptions and are not guaranteed.
                     Rule-based engine — no Monte Carlo. Past performance does not predict future
                     results. Hearst Yield Vault is offered exclusively to professional / qualified
@@ -878,7 +878,7 @@ export function ProjectionStudio() {
                   </p>
 
                   {/* Promote to vault draft */}
-                  <div className="flex flex-wrap items-center gap-4 border-t border-white/5 pt-4">
+                  <div className="flex flex-wrap items-center gap-4 border-t border-[var(--ct-border-soft)] pt-4">
                     <button
                       type="button"
                       className={BENTO_PRIMARY_BTN}
@@ -888,7 +888,7 @@ export function ProjectionStudio() {
                     >
                       {isPromoting ? "Promoting…" : "Promote to Vault Draft"}
                     </button>
-                    <span className="text-[12px] text-zinc-500">
+                    <span className="ct-metric-caption">
                       Seeds APY range into a new VaultDeployment (draft)
                     </span>
                   </div>

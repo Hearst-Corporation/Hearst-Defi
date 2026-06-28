@@ -4,7 +4,7 @@
 // BentoPanel (scenario header · risk/mode/gates KPI strip · nested step rail).
 // `executable: false` is stated once in the section header. No run / send /
 // deploy / source control anywhere — these are simulations, nothing executes.
-// No hardcoded colour outside the canon (#A7FB90 accent, #15191C sub-surface).
+// No hardcoded colour outside the canon (--ct-accent, #15191C sub-surface).
 // Pure component.
 
 import { BentoHeader, BentoPanel } from "@/components/ui/bento";
@@ -36,14 +36,14 @@ function modeTone(mode: CrewSimulationMode): Tone {
 }
 
 const DOT_CLASS: Record<Tone, string> = {
-  ok: "bg-[#A7FB90]",
+  ok: "bg-[var(--ct-accent)]",
   warn: "bg-amber-400/80",
   danger: "bg-red-400/80",
   muted: "bg-zinc-600",
 };
 
 const TAG_CLASS: Record<Tone, string> = {
-  ok: "border-[#A7FB90]/30 bg-[#A7FB90]/10 text-[#A7FB90]",
+  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
   danger: "border-red-400/25 bg-red-400/10 text-red-300",
   muted: "border-white/10 bg-white/5 text-zinc-400",

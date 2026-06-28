@@ -130,7 +130,7 @@ export function IcpForm() {
             </label>
           </div>
           <input type="hidden" name="persona" value="distributor" />
-          <p className="m-0 text-[12px] text-zinc-400">
+          <p className="ct-metric-caption m-0">
             Tier thresholds default to 85 / 60 / 40 (Prime / Warm / Cold). Sourcing
             finds, scores, and tiers leads — it never sends.
           </p>

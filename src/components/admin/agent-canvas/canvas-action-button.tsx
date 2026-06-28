@@ -11,9 +11,10 @@ import { buildOutreachPostDraftMessage } from "@/lib/canvas/outreach-turn";
 // per risk level (honesty: a high-risk write never reads as the accent-green
 // "go" colour). low/medium are quiet neutral chips; high is amber.
 const RISK_CHIP: Record<PendingActionProposal["riskLevel"], string> = {
-  low: "border-white/10 bg-white/5 text-zinc-400",
-  medium: "border-white/10 bg-white/5 text-zinc-300",
-  high: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+  low: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
+  medium:
+    "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-body)]",
+  high: "border-[color-mix(in_srgb,var(--ct-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-warning)_10%,transparent)] text-[var(--ct-status-warning)]",
 };
 
 /**
@@ -167,12 +168,12 @@ export function CanvasActionButton({
   const busy = phase === "proposing" || phase === "executing";
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-surface-inset p-4">
+    <div className="flex flex-col gap-3 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] font-semibold text-white">{proposal.label}</span>
+        <span className="ct-metric-value font-semibold">{proposal.label}</span>
         <span
           className={cn(
-            "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em]",
+            "ct-bento-label shrink-0 rounded-full border px-2 py-0.5",
             RISK_CHIP[proposal.riskLevel],
           )}
         >
@@ -181,19 +182,19 @@ export function CanvasActionButton({
       </div>
 
       {/* PTAI — Projection → Trigger → Action → Impact */}
-      <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-[12px]">
-        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Projection</dt>
-        <dd className="m-0 text-zinc-300">{proposal.summary.projection}</dd>
-        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Trigger</dt>
-        <dd className="m-0 text-zinc-300">{proposal.summary.trigger}</dd>
-        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Action</dt>
-        <dd className="m-0 text-zinc-300">{proposal.summary.action}</dd>
-        <dt className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-500">Impact</dt>
-        <dd className="m-0 text-zinc-300">{proposal.summary.impact}</dd>
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
+        <dt className="ct-bento-label">Projection</dt>
+        <dd className="ct-metric-caption m-0">{proposal.summary.projection}</dd>
+        <dt className="ct-bento-label">Trigger</dt>
+        <dd className="ct-metric-caption m-0">{proposal.summary.trigger}</dd>
+        <dt className="ct-bento-label">Action</dt>
+        <dd className="ct-metric-caption m-0">{proposal.summary.action}</dd>
+        <dt className="ct-bento-label">Impact</dt>
+        <dd className="ct-metric-caption m-0">{proposal.summary.impact}</dd>
       </dl>
 
       {proposal.willNotDo.length > 0 && (
-        <ul className="m-0 flex list-none flex-col gap-0.5 p-0 text-[10px] text-zinc-500">
+        <ul className="ct-metric-caption m-0 flex list-none flex-col gap-0.5 p-0">
           {proposal.willNotDo.map((item, i) => (
             <li key={i} className="before:content-['—_']">
               {item}
@@ -227,7 +228,7 @@ export function CanvasActionButton({
             <button
               type="button"
               className={cn(
-                "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-50",
+                "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)] disabled:cursor-not-allowed disabled:opacity-50",
               )}
               disabled={busy}
               onClick={(event) => {
@@ -241,12 +242,18 @@ export function CanvasActionButton({
               Cancel
             </button>
           </div>
-          {feedback && <p className="m-0 text-[10px] text-zinc-500">{feedback}</p>}
+          {feedback && <p className="ct-metric-caption m-0">{feedback}</p>}
         </>
       )}
 
-      {phase === "done" && <p className="m-0 text-[12px] text-[#A7FB90]">✓ {feedback}</p>}
-      {phase === "error" && <p className="m-0 text-[12px] text-red-400">{feedback}</p>}
+      {phase === "done" && (
+        <p className="ct-metric-caption m-0 text-[var(--ct-accent)]">✓ {feedback}</p>
+      )}
+      {phase === "error" && (
+        <p className="ct-metric-caption m-0 text-[var(--ct-status-danger)]">
+          {feedback}
+        </p>
+      )}
     </div>
   );
 }

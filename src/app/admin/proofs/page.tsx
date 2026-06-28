@@ -16,7 +16,7 @@ export default async function ProofsPage() {
   });
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Proof"
@@ -32,9 +32,9 @@ export default async function ProofsPage() {
 
         <section className="flex flex-col gap-4" aria-label="Published evidence">
           {items.length > 0 ? (
-            <h2 className="text-[15px] font-semibold tracking-tight text-white">
+            <h2 className="ct-section-title">
               Published evidence{" "}
-              <span className="text-zinc-500 tabular-nums">
+              <span className="ct-metric-caption tabular-nums">
                 ({items.length})
               </span>
             </h2>

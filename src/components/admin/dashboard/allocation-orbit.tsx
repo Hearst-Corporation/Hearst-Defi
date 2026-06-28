@@ -8,23 +8,26 @@ import type { DashboardAllocation } from "@/lib/data/dashboard";
 /**
  * Capital allocation orbit — Portfolio bento canon.
  *
- * Single accent (#A7FB90) donut: each segment is the accent at a decreasing
+ * Single accent (--ct-accent) donut: each segment is the accent at a decreasing
  * opacity so the split reads as one palette, never a rainbow. Track is the
- * canon graphite (#15191C). Geometry is unchanged — a 100-unit circumference
- * circle (r=15.9155) for direct percentage → strokeDasharray mapping.
+ * canon graphite (--ct-surface-inset). Geometry is unchanged — a 100-unit
+ * circumference circle (r=15.9155) for direct percentage → strokeDasharray.
+ *
+ * Structural SVG fills are driven from the token via color-mix so the single
+ * accent stays the only green even in the chart layer (ADR-013).
  */
 
-const ACCENT = "#A7FB90";
-const ORBIT_TRACK = "#15191C";
+const ACCENT = "var(--ct-accent)";
+const ORBIT_TRACK = "var(--ct-surface-inset)";
 
 /** Accent opacity ramp — index 0 = full accent, then progressively dimmer. */
-const SEGMENT_OPACITY = [1, 0.5, 0.25, 0.12] as const;
+const SEGMENT_OPACITY = [100, 50, 25, 12] as const;
 
 function segmentStroke(index: number): string {
-  const opacity = SEGMENT_OPACITY[index] ?? 0.08;
-  return opacity >= 1
+  const pct = SEGMENT_OPACITY[index] ?? 8;
+  return pct >= 100
     ? ACCENT
-    : `rgba(167, 251, 144, ${opacity})`;
+    : `color-mix(in srgb, var(--ct-accent) ${pct}%, transparent)`;
 }
 
 function SvgDonut({ allocations }: { allocations: DashboardAllocation[] }) {
@@ -117,7 +120,7 @@ export function AllocationOrbit({
               {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
             <div className="dashboard-orbit__core-meta mt-1">
-              <span className="text-[13px] font-semibold tabular-nums text-[#A7FB90]">{allocationTotal.toFixed(0)}%</span>
+              <span className="text-[13px] font-semibold tabular-nums text-[var(--ct-accent)]">{allocationTotal.toFixed(0)}%</span>
               <span className="text-[10px] uppercase tracking-[0.15em] text-zinc-500 ml-1">Mapped</span>
             </div>
           </div>
@@ -130,8 +133,8 @@ export function AllocationOrbit({
                 style={{ background: segmentStroke(index) }}
                 aria-hidden
               />
-              <span className="text-[13px] text-zinc-400 truncate">{allocationLabelFor(item.bucket)}</span>
-              <span className="text-[13px] font-medium text-white tabular-nums">{item.pct.toFixed(1)}%</span>
+              <span className="text-[13px] text-[var(--ct-text-secondary)] truncate">{allocationLabelFor(item.bucket)}</span>
+              <span className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">{item.pct.toFixed(1)}%</span>
             </li>
           ))}
         </ul>

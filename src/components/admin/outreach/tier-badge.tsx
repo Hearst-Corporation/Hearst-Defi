@@ -34,7 +34,7 @@ export function TierBadge({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded text-[12px] text-zinc-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
+        className="ct-metric-caption rounded transition-colors hover:text-[var(--ct-text-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-border-accent)]"
         aria-label="Set tier"
       >
         —
@@ -61,7 +61,7 @@ export function TierBadge({
   if (open) {
     return (
       <span
-        className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-surface-inset p-1"
+        className="inline-flex items-center gap-1 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-1"
         role="group"
         aria-label="Choose tier"
       >
@@ -71,7 +71,7 @@ export function TierBadge({
             type="button"
             disabled={isPending}
             onClick={() => choose(t)}
-            className="rounded-md px-2 py-1 text-[11px] font-bold text-zinc-400 transition-colors hover:bg-white/10 hover:text-white aria-pressed:bg-[#A7FB90] aria-pressed:text-zinc-900 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
+            className="rounded-md px-2 py-1 text-[length:var(--ct-text-nano)] font-bold text-[var(--ct-text-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)] aria-pressed:bg-[var(--ct-accent)] aria-pressed:text-[var(--ct-text-on-accent)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-border-accent)]"
             aria-pressed={t === tier}
           >
             {t}
@@ -80,7 +80,7 @@ export function TierBadge({
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-md px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
+          className="rounded-md px-2 py-1 text-[length:var(--ct-text-nano)] text-[var(--ct-text-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-border-accent)]"
           aria-label="Cancel"
         >
           ✕
@@ -94,7 +94,7 @@ export function TierBadge({
     <button
       type="button"
       onClick={() => setOpen(true)}
-      className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A7FB90]/40"
+      className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-border-accent)]"
       title={`Tier ${current} — ${TIER_LABEL[current]} · click to override`}
       aria-label={`Tier ${current}, click to override`}
     >

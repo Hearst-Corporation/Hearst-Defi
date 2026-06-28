@@ -39,7 +39,7 @@ export function SourceMoreButton({ icpId }: { icpId: string }) {
   return (
     <button
       type="button"
-      className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[12px]")}
+      className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[length:var(--ct-text-2xs)]")}
       onClick={onClick}
       disabled={isPending}
     >

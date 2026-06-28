@@ -10,6 +10,14 @@ import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/ui/empty-surface";
 import { BentoPanel } from "@/components/ui/bento";
 import { loadProspectDetail } from "@/lib/data/outreach";
@@ -18,7 +26,6 @@ import {
   AdminDetailGrid,
   AdminDetailItem,
 } from "@/components/admin/admin-detail-layout";
-import { AdminTable } from "@/components/admin/admin-table-layout";
 import { lifecycleFor, type LifecycleKind } from "@/lib/outreach/lifecycle";
 import { getMailboxReadiness } from "@/lib/outreach/mailbox-readiness";
 import {
@@ -123,7 +130,7 @@ export default async function ProspectDetailPage({
   const mailbox = getMailboxReadiness();
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Prospect"
@@ -133,7 +140,7 @@ export default async function ProspectDetailPage({
           lead={
             <Link
               href="/admin/outreach"
-              className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
             >
               ← Outreach
             </Link>
@@ -149,7 +156,7 @@ export default async function ProspectDetailPage({
                   href={`https://app-eu1.hubspot.com/contacts/contact/${p.hubspotContactId}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[12px] text-zinc-500 transition-colors hover:text-white"
+                  className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
                 >
                   HubSpot ↗
                 </a>
@@ -162,7 +169,7 @@ export default async function ProspectDetailPage({
         <AdminDetailSection label="Identity" title="Identity">
           <AdminDetailGrid>
             <AdminDetailItem label="Email">
-              <span className="font-mono text-white">
+              <span className="font-mono text-[var(--ct-text-strong)]">
                 <a href={`mailto:${p.email}`} className="hover:underline">
                   {p.email}
                 </a>
@@ -178,7 +185,7 @@ export default async function ProspectDetailPage({
                   {p.emailStatus}
                 </Badge>
               ) : (
-                <span className="text-zinc-400">—</span>
+                <span className="text-[var(--ct-text-body)]">—</span>
               )}
             </AdminDetailItem>
             <AdminDetailItem label="Added">{formatAdminDate(p.createdAt)}</AdminDetailItem>
@@ -202,7 +209,7 @@ export default async function ProspectDetailPage({
                     href={p.linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="break-all text-[#A7FB90] hover:underline"
+                    className="break-all text-[var(--ct-accent)] hover:underline"
                   >
                     View profile ↗
                   </a>
@@ -228,7 +235,7 @@ export default async function ProspectDetailPage({
               </AdminDetailItem>
               <AdminDetailItem label="Industry">{p.industry ?? "—"}</AdminDetailItem>
               <AdminDetailItem label="Apollo ID">
-                <span className="break-all font-mono text-zinc-400">{p.apolloId ?? "—"}</span>
+                <span className="break-all font-mono text-[var(--ct-text-body)]">{p.apolloId ?? "—"}</span>
               </AdminDetailItem>
               {extraRows.map((r) => (
                 <AdminDetailItem key={r.key} label={r.key}>
@@ -252,14 +259,14 @@ export default async function ProspectDetailPage({
             <AdminDetailItem label="Lifecycle stage" fullWidth>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={LIFECYCLE_KIND_VARIANT[stage.kind]}>{stage.label}</Badge>
-                <span className="text-[12px] text-zinc-400">{stage.description}</span>
+                <span className="ct-metric-caption">{stage.description}</span>
               </div>
             </AdminDetailItem>
             <AdminDetailItem label="Tier">
               {p.tier ? (
                 <Badge variant={TIER_VARIANT[p.tier] ?? "default"}>Tier {p.tier}</Badge>
               ) : (
-                <span className="text-zinc-400">— (not scored)</span>
+                <span className="text-[var(--ct-text-body)]">— (not scored)</span>
               )}
             </AdminDetailItem>
             <AdminDetailItem label="Qualification score">
@@ -274,12 +281,10 @@ export default async function ProspectDetailPage({
 
         {/* Engagement — emails */}
         <section className="flex flex-col gap-4" aria-label="Emails">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white">
-            Emails ({p.emails.length})
-          </h2>
+          <h2 className="ct-section-title">Emails ({p.emails.length})</h2>
           {/* Honest sending posture — no mailbox is connected today; this never
               implies anything was sent. Drafts are always safe. */}
-          <p className="text-[12px] text-zinc-400">Sending: {mailbox.statusLabel}</p>
+          <p className="ct-metric-caption">Sending: {mailbox.statusLabel}</p>
           {p.emails.length === 0 ? (
             <EmptySurface
               variant="widget"
@@ -288,46 +293,66 @@ export default async function ProspectDetailPage({
               className="min-h-24"
             />
           ) : (
-            <AdminTable
-              data={p.emails}
-              headers={["Subject", "Campaign", "Status", "Last event", "Sent"]}
-              colWidths={["w-[36%]", "w-[22%]", "w-[16%]", "w-[14%]", "w-[12%]"]}
-              renderRow={(e) => (
-                <>
-                  <td className="truncate px-5 py-3 font-medium text-white">
-                    <Link
-                      href={`/admin/outreach/${e.campaignId}`}
-                      className="hover:underline"
+            <BentoPanel>
+              <Table
+                dense
+                className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableHeader className="ct-bento-label pl-5">Subject</TableHeader>
+                    <TableHeader className="ct-bento-label hidden md:table-cell">
+                      Campaign
+                    </TableHeader>
+                    <TableHeader className="ct-bento-label">Status</TableHeader>
+                    <TableHeader className="ct-bento-label hidden lg:table-cell">
+                      Last event
+                    </TableHeader>
+                    <TableHeader className="ct-bento-label hidden pr-5 lg:table-cell">
+                      Sent
+                    </TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {p.emails.map((e) => (
+                    <TableRow
+                      key={e.id}
+                      className="border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
                     >
-                      {e.subject}
-                    </Link>
-                  </td>
-                  <td className="hidden truncate px-5 py-3 text-zinc-400 md:table-cell">
-                    {e.campaignName ?? "—"}
-                  </td>
-                  <td className="px-5 py-3 text-zinc-300">
-                    {e.status}
-                    {e.draftedByAgent ? (
-                      <span className="text-[12px] text-zinc-500"> · agent</span>
-                    ) : null}
-                  </td>
-                  <td className="hidden px-5 py-3 text-zinc-400 lg:table-cell">
-                    {e.latestEventType ?? "—"}
-                  </td>
-                  <td className="hidden px-5 py-3 text-zinc-400 lg:table-cell">
-                    {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
-                  </td>
-                </>
-              )}
-            />
+                      <TableCell className="pl-5">
+                        <Link
+                          href={`/admin/outreach/${e.campaignId}`}
+                          className="ct-metric-value min-w-0 truncate hover:underline"
+                        >
+                          {e.subject}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="ct-metric-caption hidden truncate md:table-cell">
+                        {e.campaignName ?? "—"}
+                      </TableCell>
+                      <TableCell className="ct-metric-value">
+                        {e.status}
+                        {e.draftedByAgent ? (
+                          <span className="ct-metric-caption"> · agent</span>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="ct-metric-caption hidden lg:table-cell">
+                        {e.latestEventType ?? "—"}
+                      </TableCell>
+                      <TableCell className="ct-metric-caption hidden pr-5 lg:table-cell">
+                        {e.sentAt ? formatAdminDate(e.sentAt) : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </BentoPanel>
           )}
         </section>
 
         {/* Engagement — replies */}
         <section className="flex flex-col gap-4" aria-label="Replies">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white">
-            Replies ({p.replies.length})
-          </h2>
+          <h2 className="ct-section-title">Replies ({p.replies.length})</h2>
           {p.replies.length === 0 ? (
             <EmptySurface
               variant="widget"
@@ -349,23 +374,21 @@ export default async function ProspectDetailPage({
                         <Badge variant="default">unclassified</Badge>
                       )}
                       {r.actionTaken ? (
-                        <span className="text-[12px] text-zinc-400">→ {r.actionTaken}</span>
+                        <span className="ct-metric-caption">→ {r.actionTaken}</span>
                       ) : null}
                       {r.confidence != null ? (
-                        <span className="text-[12px] text-zinc-400">
+                        <span className="ct-metric-caption">
                           {r.confidence}% confidence
                         </span>
                       ) : null}
-                      <span className="text-[12px] text-zinc-400">
+                      <span className="ct-metric-caption">
                         {formatAdminDate(r.createdAt)}
                       </span>
                     </div>
                     {r.subject ? (
-                      <p className="m-0 text-[13px] font-medium text-white">{r.subject}</p>
+                      <p className="ct-metric-value m-0">{r.subject}</p>
                     ) : null}
-                    <p className="m-0 whitespace-pre-wrap text-[12px] text-zinc-400">
-                      {r.body}
-                    </p>
+                    <p className="ct-metric-caption m-0 whitespace-pre-wrap">{r.body}</p>
                   </div>
                 </BentoPanel>
               ))}
@@ -376,7 +399,7 @@ export default async function ProspectDetailPage({
         {/* Notes & tags */}
         {(p.notes || p.tags.length > 0) && (
           <section className="flex flex-col gap-4" aria-label="Notes">
-            <h2 className="text-[15px] font-semibold tracking-tight text-white">Notes &amp; tags</h2>
+            <h2 className="ct-section-title">Notes &amp; tags</h2>
             <BentoPanel className="p-6">
               <div className="flex flex-col gap-2">
                 {p.tags.length > 0 ? (
@@ -389,7 +412,9 @@ export default async function ProspectDetailPage({
                   </div>
                 ) : null}
                 {p.notes ? (
-                  <p className="m-0 whitespace-pre-wrap text-[13px] text-zinc-300">{p.notes}</p>
+                  <p className="body-sm m-0 whitespace-pre-wrap text-[var(--ct-text-body)]">
+                    {p.notes}
+                  </p>
                 ) : null}
               </div>
             </BentoPanel>

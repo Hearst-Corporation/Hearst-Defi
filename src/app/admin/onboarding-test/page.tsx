@@ -15,7 +15,7 @@ export const metadata = { title: "Onboarding test — Hearst Connect" };
 
 export default function OnboardingTestPage() {
   return (
-    <div className="dark flex flex-col rounded-2xl border border-white/10 bg-surface-page mb-8">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead="Onboarding"
@@ -25,7 +25,7 @@ export default function OnboardingTestPage() {
           lead={
             <Link
               href="/admin/customers"
-              className="text-zinc-500 transition-colors hover:text-white"
+              className="text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)]"
             >
               ← Investors
             </Link>
@@ -33,10 +33,10 @@ export default function OnboardingTestPage() {
         />
 
         <section className="flex flex-col gap-4" aria-label="Simulator">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+          <h2 className="ct-section-title">
             Create real pilot investor record
           </h2>
-          <p className="text-[13px] leading-relaxed text-zinc-400">
+          <p className="ct-metric-caption leading-relaxed">
             Not a dry run — submitting creates a real investor account and
             qualification record, and applies assistant settings. You confirm
             before it runs. The welcome email and HubSpot contact are opt-in
