@@ -16,7 +16,7 @@ import {
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 
 export default function AccreditationPage() {
   const router = useRouter();

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import { generateActivationLink } from "@/app/admin/customers/[id]/actions";
 

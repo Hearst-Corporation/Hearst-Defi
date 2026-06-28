@@ -1,4 +1,4 @@
-import { Ptai } from "@/components/ui/ptai";
+import { Ptai } from "@/components/catalyst/ptai";
 import {
   deriveScenarioAction,
   deriveScenarioImpact,

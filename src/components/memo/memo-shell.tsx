@@ -7,7 +7,7 @@ import { generateMemoAction } from "@/app/admin/investor-memo/actions";
 import { generateMemoPdfAction } from "@/app/admin/investor-memo/pdf-action";
 import { MemoSection } from "@/components/memo/memo-section";
 import { MemoToolbar } from "@/components/memo/memo-toolbar";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/catalyst/card";
 import type { InvestorMemoOutput } from "@/lib/agents/schemas";
 
 interface SectionMeta {

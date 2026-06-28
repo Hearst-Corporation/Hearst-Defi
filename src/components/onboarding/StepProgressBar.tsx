@@ -5,7 +5,7 @@
 import {
   WizardStepProgress,
   type WizardStep,
-} from "@/components/ui/wizard-step-progress";
+} from "@/components/catalyst/wizard-step-progress";
 import type { OnboardingStepId } from "@/lib/onboarding/state";
 
 const STEPS: readonly WizardStep<OnboardingStepId>[] = [

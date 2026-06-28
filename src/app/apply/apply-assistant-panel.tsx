@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/catalyst/card";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
 import type { IrContact } from "@/lib/ir-contact";
 

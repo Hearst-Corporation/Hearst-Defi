@@ -6,8 +6,8 @@
 
 import { useId, useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/modal";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Modal } from "@/components/catalyst/modal";
 
 interface RejectDeploymentButtonProps {
   /** Server Action already bound to the vault id. */

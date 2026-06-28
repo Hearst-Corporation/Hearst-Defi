@@ -6,7 +6,7 @@ import {
   BentoHeader,
   BentoPanel,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 
 import { CanvasActionButton } from "./canvas-action-button";

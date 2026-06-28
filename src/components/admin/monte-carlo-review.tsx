@@ -9,7 +9,7 @@
 
 import { useMemo } from "react";
 
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import { runMonteCarlo } from "@/lib/engine/monte-carlo";
 import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 

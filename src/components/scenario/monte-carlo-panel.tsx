@@ -12,10 +12,10 @@
 
 import { useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { NestedPanel } from "@/components/ui/nested-panel";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { NestedPanel } from "@/components/catalyst/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import { ptsToPolyline as pts } from "@/lib/scenario/chart-helpers";

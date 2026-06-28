@@ -5,10 +5,10 @@ import { z } from "zod";
 import type { RebalanceEvent } from "@prisma/client";
 
 import { cn } from "@/lib/cn";
-import { Ptai } from "@/components/ui/ptai";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BentoPanel } from "@/components/ui/bento";
+import { Ptai } from "@/components/catalyst/ptai";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { BentoPanel } from "@/components/catalyst/bento";
 import {
   approveRebalance,
   rejectRebalance,

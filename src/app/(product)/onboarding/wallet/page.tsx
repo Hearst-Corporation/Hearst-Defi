@@ -2,7 +2,7 @@
  * Step 3 — Wallet binding (optional). Persists via bindWallet.
  */
 
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { WalletChamber } from "@/components/onboarding/privy-wallet-connect";
 import { getInvestor } from "@/lib/auth/session";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";

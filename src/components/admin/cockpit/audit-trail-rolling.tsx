@@ -1,4 +1,4 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminRollingTimestamp } from "@/lib/vaults/product-display";
 import type { AuditTrailEntry } from "@/lib/data/cockpit";

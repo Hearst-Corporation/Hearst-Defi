@@ -7,7 +7,7 @@ import {
   AdminSectionCard,
 } from "@/components/admin/admin-page-shell";
 import { MachineTable } from "@/components/admin/source/machine-table";
-import { BentoPanel } from "@/components/ui/bento";
+import { BentoPanel } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";

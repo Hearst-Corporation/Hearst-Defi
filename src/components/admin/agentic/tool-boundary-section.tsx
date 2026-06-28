@@ -16,7 +16,7 @@ import {
   BentoHeader,
   BentoKpiTile,
   BentoPanel,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import type {
   ReflectedToolBoundaryItem,

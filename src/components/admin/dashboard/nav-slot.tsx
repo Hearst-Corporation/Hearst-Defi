@@ -1,5 +1,5 @@
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { dashboardUsdCompact, dashboardUsdFull } from "@/lib/admin/dashboard-formatters";
 import {
   computeNavBarHeights,

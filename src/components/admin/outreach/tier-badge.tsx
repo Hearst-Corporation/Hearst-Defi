@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { overrideTier } from "@/app/admin/outreach/actions";
 import {
   TIER_BADGE_VARIANT,

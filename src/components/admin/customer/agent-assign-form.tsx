@@ -7,7 +7,7 @@ import {
   BentoLabel,
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { assignTemplate, recalibrateAgent } from "@/app/admin/customers/[id]/actions";
 import type { AgentTemplate } from "@prisma/client";
 

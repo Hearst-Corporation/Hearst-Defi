@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { setInvestorKyc } from "@/app/admin/customers/actions";
 import { cn } from "@/lib/cn";
 

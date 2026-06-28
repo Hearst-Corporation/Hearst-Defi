@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { BentoPanel } from "@/components/ui/bento";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { BentoPanel } from "@/components/catalyst/bento";
 import { SourceMoreButton } from "@/components/admin/outreach/source-more-button";
 import type { IcpRow } from "@/lib/data/outreach";
 

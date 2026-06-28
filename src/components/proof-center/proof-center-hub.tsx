@@ -1,14 +1,14 @@
 import { resolveAttestationProvenance } from "@/components/proof-center/formatters";
 import type { Provenance as ProvenanceKind } from "@/components/ui/provenance-badge";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminLeafLink,
 } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { Card } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { Card } from "@/components/catalyst/card";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import type { PlatformAddressEntry } from "@/components/proof-center/contracts-audit-trail";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 import { MiningCashFlowEvidence } from "@/components/proof-center/mining-cashflow-evidence";

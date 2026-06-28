@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { PanelStatus } from "@/components/ui/panel-status";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Card } from "@/components/catalyst/card";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 import { PORTFOLIO_ONBOARDING_INVEST_HREF } from "@/lib/portfolio/layout-preview";
 import { ShieldCheck, Zap, BarChart3, FileText, Lock } from "lucide-react";
 

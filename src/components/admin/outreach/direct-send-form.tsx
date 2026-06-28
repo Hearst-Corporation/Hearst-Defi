@@ -3,11 +3,11 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import {
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,

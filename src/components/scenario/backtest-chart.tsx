@@ -1,9 +1,9 @@
 import type { MonthlyPoint } from "@/lib/engine/types";
 import { cn } from "@/lib/cn";
 import { ptsToPathD, ptsToPolyline } from "@/lib/scenario/chart-helpers";
-import { ChartProvenanceCorner } from "@/components/ui/chart-provenance-corner";
-import { ChartDisclaimerUnderlay } from "@/components/ui/chart-disclaimer-underlay";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { ChartProvenanceCorner } from "@/components/catalyst/chart-provenance-corner";
+import { ChartDisclaimerUnderlay } from "@/components/catalyst/chart-disclaimer-underlay";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 
 // ── ViewBox constants ──────────────────────────────────────────────────────
 // Fixed 400×160 grid. Padded 16px top/bottom/left/right.

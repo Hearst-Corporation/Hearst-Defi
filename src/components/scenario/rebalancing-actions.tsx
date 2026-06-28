@@ -2,8 +2,8 @@ import {
   deriveScenarioImpact,
   deriveScenarioProjection,
 } from "@/components/scenario/ptai-derive";
-import { Badge } from "@/components/ui/badge";
-import { PanelStatus } from "@/components/ui/panel-status";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 import type { BtcTriggerKind, ScenarioOutput } from "@/lib/engine/types";
 
 type BadgeVariant = "success" | "warning" | "danger" | "default" | "brand";

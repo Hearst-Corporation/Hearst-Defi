@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_PRIMARY_BTN } from "@/components/ui/bento";
+import { BENTO_PRIMARY_BTN } from "@/components/catalyst/bento";
 import { draftAllCampaignEmails } from "@/app/admin/outreach/actions";
 
 /**

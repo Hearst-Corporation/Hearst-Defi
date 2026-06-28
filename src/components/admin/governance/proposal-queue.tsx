@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { GOVERNANCE_QUEUE_EMPTY } from "@/components/admin/governance/empty-messages";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { Badge } from "@/components/catalyst/badge";
 import {
   formatGovernanceTimestamp,

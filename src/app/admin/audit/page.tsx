@@ -24,8 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import { BentoLabel } from "@/components/ui/bento";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { getAdminAuditLog } from "@/lib/admin/audit";
 import { buildAuditKpiStrip } from "@/lib/admin/audit-kpi-strip";
 import { cn } from "@/lib/cn";

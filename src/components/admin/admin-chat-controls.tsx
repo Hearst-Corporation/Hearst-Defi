@@ -9,8 +9,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/modal";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Modal } from "@/components/catalyst/modal";
 import { Markdown } from "@/components/admin/markdown";
 import {
   getPendingConfirmationGuardError,

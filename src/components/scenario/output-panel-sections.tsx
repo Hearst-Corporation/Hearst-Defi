@@ -5,10 +5,10 @@
 // No business logic here: all maths live in src/lib/engine/*. These components
 // only format engine output for display.
 
-import { ApyRange } from "@/components/ui/apy-range";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { Progress } from "@/components/catalyst/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import {
   BUCKET_COLOR,

@@ -9,8 +9,8 @@ import { useRef } from "react";
 import { BacktestPanel } from "@/components/scenario/backtest-panel";
 import { ScenarioErrorBanner } from "@/components/scenario/scenario-feedback";
 import { Spinner } from "@/components/scenario/scenario-spinner";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { useBacktest } from "@/hooks/use-backtest";
 import type { BacktestKey } from "@/lib/engine/types";
 

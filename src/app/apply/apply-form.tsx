@@ -7,13 +7,13 @@ import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ChoiceCard, ChoiceGroup } from "@/components/ui/choice-card";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { ChoiceCard, ChoiceGroup } from "@/components/catalyst/choice-card";
 import {
   WizardStepProgress,
   type WizardStep,
-} from "@/components/ui/wizard-step-progress";
+} from "@/components/catalyst/wizard-step-progress";
 import {
   AUM_OPTIONS,
   PLATFORM_TYPE_OPTIONS,

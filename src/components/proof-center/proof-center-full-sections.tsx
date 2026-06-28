@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { BentoPanel } from "@/components/ui/bento";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoPanel } from "@/components/catalyst/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { ProofGrid } from "@/components/proof/proof-grid";
 import { PLATFORM_PROOFS_EMPTY } from "@/components/proof/empty-messages";

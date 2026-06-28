@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import { deleteProof } from "@/app/admin/proofs/actions";
 import { OFF_CHAIN_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { PublishOnChainButton } from "@/components/admin/publish-on-chain-button";
-import { BentoPanel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BentoPanel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { abbreviateAddress } from "@/lib/onchain";
 import { safeUrl } from "@/lib/safe-url";
 import { cn } from "@/lib/cn";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 
 interface ProofItem {
   id: string;

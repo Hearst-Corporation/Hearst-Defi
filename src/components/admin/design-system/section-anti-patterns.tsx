@@ -1,6 +1,6 @@
-import { Card } from "@/components/ui/card";
-import { Metric } from "@/components/ui/metric";
-import { NestedPanel } from "@/components/ui/nested-panel";
+import { Card } from "@/components/catalyst/card";
+import { Metric } from "@/components/catalyst/metric";
+import { NestedPanel } from "@/components/catalyst/nested-panel";
 
 import { DsAntiCard, DsBlock, DsDoDont, DsSection } from "./ds-kit";
 

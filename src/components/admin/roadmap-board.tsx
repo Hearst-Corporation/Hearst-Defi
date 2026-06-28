@@ -1,8 +1,8 @@
 import { RoadmapItemRow } from "@/components/admin/roadmap-item-row";
-import { BentoPanel } from "@/components/ui/bento";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { PanelStatus } from "@/components/ui/panel-status";
-import { Progress } from "@/components/ui/progress";
+import { BentoPanel } from "@/components/catalyst/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { PanelStatus } from "@/components/catalyst/panel-status";
+import { Progress } from "@/components/catalyst/progress";
 import type {
   RoadmapPhaseWithState,
   RoadmapWeekWithState,

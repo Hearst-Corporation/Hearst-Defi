@@ -3,7 +3,7 @@ import {
   type Provenance,
 } from "@/components/ui/provenance-badge";
 import { Card } from "@/components/catalyst/card";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { cn } from "@/lib/cn";
 
 interface MetricProps {

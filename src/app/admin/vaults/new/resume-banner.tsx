@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { PanelStatusAccent } from "@/components/ui/panel-status";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Card } from "@/components/catalyst/card";
+import { PanelStatusAccent } from "@/components/catalyst/panel-status";
 import { discardWizardDraft } from "../draft-actions";
 
 interface DraftGateProps {

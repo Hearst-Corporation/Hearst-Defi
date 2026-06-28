@@ -5,7 +5,7 @@ import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
 import { LiveMetrics } from "@/components/admin/cockpit/live-metrics";
 import { LiveOps } from "@/components/admin/cockpit/live-ops";
-import { BentoHeader, BentoPanel } from "@/components/ui/bento";
+import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import {
   computeNavDelta,

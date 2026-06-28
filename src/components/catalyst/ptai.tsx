@@ -13,7 +13,7 @@
  * `dark:` modifiers.
  */
 
-import { NestedPanel } from "@/components/ui/nested-panel";
+import { NestedPanel } from "@/components/catalyst/nested-panel";
 import { cn } from "@/lib/cn";
 
 interface PtaiProps {

@@ -2,9 +2,9 @@
 
 import { useRef, useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 import {
   simulateTypeformSubmission,

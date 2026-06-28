@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useId, useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 
 export interface ModalProps {
   isOpen: boolean;

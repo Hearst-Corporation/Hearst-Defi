@@ -13,7 +13,7 @@ import {
   BentoHeader,
   BentoLabel,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import {
   addAllowlistEntryAction,

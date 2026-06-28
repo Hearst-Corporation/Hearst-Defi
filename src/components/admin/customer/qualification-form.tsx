@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { BentoLabel, BENTO_PRIMARY_BTN } from "@/components/ui/bento";
+import { BentoLabel, BENTO_PRIMARY_BTN } from "@/components/catalyst/bento";
 import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";

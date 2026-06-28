@@ -16,10 +16,10 @@ import {
   TableRow,
 } from "@/components/catalyst/table";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
-import { ApyRange } from "@/components/ui/apy-range";
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Progress } from "@/components/ui/progress";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { Progress } from "@/components/catalyst/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";

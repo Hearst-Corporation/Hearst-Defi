@@ -4,8 +4,8 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/catalyst/badge";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import {
   addMemory,

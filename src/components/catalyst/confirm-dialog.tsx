@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 
 export interface ConfirmDialogProps {

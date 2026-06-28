@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
-import { BentoPanel } from "@/components/ui/bento";
+import { BentoPanel } from "@/components/catalyst/bento";
 import { loadAgentTemplate } from "@/lib/data/agent-templates";
 
 export const dynamic = "force-dynamic";

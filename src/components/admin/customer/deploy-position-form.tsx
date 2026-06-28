@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
 

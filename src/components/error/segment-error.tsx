@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 import { ErrorShellLayout } from "@/components/error/error-shell";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 
 interface SegmentErrorProps {
   /** Error object provided by the Next.js error boundary. */

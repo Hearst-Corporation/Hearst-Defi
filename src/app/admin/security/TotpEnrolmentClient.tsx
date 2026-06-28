@@ -16,7 +16,7 @@
 import { useState, useTransition } from "react";
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { startEnrolment, confirmEnrolment } from "./actions";
 import type { TotpEnrolmentPayload } from "@/lib/auth/totp";
 

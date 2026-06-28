@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import type {

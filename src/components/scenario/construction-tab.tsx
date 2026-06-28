@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { computeConstructionROI } from "@/lib/engine/construction";
 import type { ConstructionInputs } from "@/lib/engine/types";

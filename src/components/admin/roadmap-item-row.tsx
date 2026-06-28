@@ -8,8 +8,8 @@ import {
   quickSetStatus,
   updateRoadmapItem,
 } from "@/app/admin/roadmap/actions";
-import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/ui/bento";
-import { Modal } from "@/components/ui/modal";
+import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/catalyst/bento";
+import { Modal } from "@/components/catalyst/modal";
 import { cn } from "@/lib/cn";
 import { safeUrl } from "@/lib/safe-url";
 import {

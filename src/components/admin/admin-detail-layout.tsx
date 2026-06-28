@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { BentoPanel } from "@/components/ui/bento";
+import { BentoPanel } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 
 interface AdminDetailSectionProps {

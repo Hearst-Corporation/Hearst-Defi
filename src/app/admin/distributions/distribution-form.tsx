@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Card } from "@/components/catalyst/card";
 import { DistributionPreview } from "@/components/admin/distribution-preview";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
 import {

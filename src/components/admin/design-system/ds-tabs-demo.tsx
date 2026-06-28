@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { SegmentedControl } from "@/components/catalyst/segmented-control";
 
 /**
  * Interactive demo of the canonical SegmentedControl primitive for the

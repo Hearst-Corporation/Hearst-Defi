@@ -11,7 +11,7 @@ import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
 import { VaultAllocationAdminRows } from "@/components/vaults/vault-allocation-display";
 import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
-import { BentoPanel, BentoHeader, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BentoPanel, BentoHeader, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import { PanelStatus } from "@/components/ui/panel-status";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AdminDetailSection } from "@/components/admin/admin-detail-layout";
 import { parseStringArray } from "@/lib/admin/parse-string-array";

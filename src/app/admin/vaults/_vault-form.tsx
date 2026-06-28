@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
-import { ApyRange } from "@/components/ui/apy-range";
-import { Button } from "@/components/ui/button";
-import { BentoPanel } from "@/components/ui/bento";
-import { Progress } from "@/components/ui/progress";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { BentoPanel } from "@/components/catalyst/bento";
+import { Progress } from "@/components/catalyst/progress";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";

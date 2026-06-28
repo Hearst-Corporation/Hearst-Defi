@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { Badge } from "@/components/catalyst/badge";
-import { Ptai } from "@/components/ui/ptai";
-import { BentoKpiTile } from "@/components/ui/bento";
+import { Ptai } from "@/components/catalyst/ptai";
+import { BentoKpiTile } from "@/components/catalyst/bento";
 import { executeProposal, loadProposalDetail, signProposal } from "@/lib/governance/actions";
 import {
   extractPtaiFromCalldata,

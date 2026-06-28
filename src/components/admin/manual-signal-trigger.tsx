@@ -8,8 +8,8 @@
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN, BentoLabel } from "@/components/ui/bento";
-import { Modal } from "@/components/ui/modal";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN, BentoLabel } from "@/components/catalyst/bento";
+import { Modal } from "@/components/catalyst/modal";
 
 const RULE_IDS = [
   "R1",

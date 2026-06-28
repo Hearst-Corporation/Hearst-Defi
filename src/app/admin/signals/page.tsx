@@ -7,7 +7,7 @@ import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { ManualSignalTrigger } from "@/components/admin/manual-signal-trigger";
 import { RebalanceCard } from "@/components/admin/rebalance-card";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { requestManualSignal } from "./actions";
 import {
   resolveFixtureVaultId,

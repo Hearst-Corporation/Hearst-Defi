@@ -19,7 +19,7 @@ import {
   useOnboardingShell,
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { abbreviateAddress } from "@/lib/onchain";
 import { bindWallet } from "@/lib/onboarding/actions";
 import { cn } from "@/lib/cn";

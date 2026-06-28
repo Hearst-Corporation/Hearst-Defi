@@ -8,9 +8,9 @@ import { OutputPanel } from "@/components/scenario/output-panel";
 import { PRESETS } from "@/components/scenario/preset-bar";
 import { ScenarioErrorBanner } from "@/components/scenario/scenario-feedback";
 import { Spinner } from "@/components/scenario/scenario-spinner";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { PresetPicker } from "@/components/ui/preset-picker";
+import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { PresetPicker } from "@/components/catalyst/preset-picker";
 import { cn } from "@/lib/cn";
 import type { Preset, ScenarioOutput, VaultId } from "@/lib/engine/types";
 

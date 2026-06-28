@@ -7,8 +7,8 @@ import { notFound } from "next/navigation";
 
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/catalyst/badge";
-import { BentoPanel } from "@/components/ui/bento";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { BentoPanel } from "@/components/catalyst/bento";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
 import { DeployPositionForm } from "@/components/admin/customer/deploy-position-form";
 import { ActivationLinkButton } from "@/components/admin/customer/activation-link-button";

@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { setAgentTemplateArchived } from "@/app/admin/agents/actions";
-import { BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 
 /** Toggles a template's archived flag (soft retire / restore). */
 export function ArchiveTemplateButton({

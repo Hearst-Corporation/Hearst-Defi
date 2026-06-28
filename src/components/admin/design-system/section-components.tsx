@@ -1,14 +1,14 @@
 import { Bell, Plus, Search, Settings2 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { DataRow, NestedPanel, ProofRow } from "@/components/ui/nested-panel";
-import { PanelStatus } from "@/components/ui/panel-status";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Card } from "@/components/catalyst/card";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { DataRow, NestedPanel, ProofRow } from "@/components/catalyst/nested-panel";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/catalyst/skeleton";
 
 import { DsBlock, DsSection, DsSpecimen } from "./ds-kit";
 import { DsTabsDemo } from "./ds-tabs-demo";

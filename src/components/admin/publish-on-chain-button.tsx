@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { publishProofOnChain } from "@/app/admin/proofs/actions";
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { abbreviateAddress } from "@/lib/onchain";
 import { explorerLinkClass } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/cn";

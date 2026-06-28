@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 
 import type { PendingActionProposal } from "@/lib/canvas/contract";
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/ui/bento";
+import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import { buildOutreachPostDraftMessage } from "@/lib/canvas/outreach-turn";
 

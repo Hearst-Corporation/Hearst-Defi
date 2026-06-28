@@ -7,7 +7,7 @@
 import {
   SegmentedControl,
   type SegmentedItem,
-} from "@/components/ui/segmented-control";
+} from "@/components/catalyst/segmented-control";
 
 export type ScenarioMode = "single" | "compare" | "construction";
 

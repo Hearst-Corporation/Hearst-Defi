@@ -1,5 +1,5 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/catalyst/tooltip";
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
 

@@ -5,7 +5,7 @@ import {
   BentoHeader,
   BentoLabel,
   BentoPanel,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type {

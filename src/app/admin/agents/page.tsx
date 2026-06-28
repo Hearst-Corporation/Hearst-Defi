@@ -27,7 +27,7 @@ import { ArchiveTemplateButton } from "@/components/admin/archive-template-butto
 import {
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
-} from "@/components/ui/bento";
+} from "@/components/catalyst/bento";
 import { groupCatalogByScope, AGENT_CATALOG } from "@/lib/agents/agent-catalog";
 import { AGENT_ICONS } from "@/lib/agents/agent-icons";
 import {

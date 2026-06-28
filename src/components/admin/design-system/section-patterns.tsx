@@ -1,9 +1,9 @@
-import { ApyRange } from "@/components/ui/apy-range";
-import { Card } from "@/components/ui/card";
-import { DashboardPanelHeader } from "@/components/ui/dashboard-panel-header";
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Metric } from "@/components/ui/metric";
-import { DataRow, MetricGrid, NestedPanel } from "@/components/ui/nested-panel";
+import { ApyRange } from "@/components/catalyst/apy-range";
+import { Card } from "@/components/catalyst/card";
+import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { Metric } from "@/components/catalyst/metric";
+import { DataRow, MetricGrid, NestedPanel } from "@/components/catalyst/nested-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 
 import { DsBlock, DsExampleTag, DsSection, DsSpecimen } from "./ds-kit";

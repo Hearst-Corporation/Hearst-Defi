@@ -1,4 +1,4 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProofCard } from "@/components/proof/proof-card";
 import {
   filteredProofsEmpty,

@@ -2,7 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 
-import { Button } from "@/components/ui/button";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { logout } from "@/lib/auth/actions";
 
 /**

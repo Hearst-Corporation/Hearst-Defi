@@ -15,7 +15,7 @@ import {
   TABLE_WRAP,
   ROW,
 } from "@/components/admin/admin-page-shell";
-import { Badge } from "@/components/ui/badge";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import {
   Table,
   TableBody,
@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { loadProspectDetail } from "@/lib/data/outreach";
 import { AdminDetailItem } from "@/components/admin/admin-detail-layout";
 import { lifecycleFor, type LifecycleKind } from "@/lib/outreach/lifecycle";

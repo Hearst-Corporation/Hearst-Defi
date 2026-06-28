@@ -1,4 +1,4 @@
-import { EmptySurface } from "@/components/ui/empty-surface";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { formatAdminMonthDay } from "@/lib/vaults/product-display";
 import type { DashboardRecentEvent } from "@/lib/data/dashboard";
 

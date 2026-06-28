@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-import { EmptySurface } from "@/components/ui/empty-surface";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { Card } from "@/components/catalyst/card";
 import { EVENT_TIMELINE_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { EventKind, OnChainEvent } from "@/lib/chain/event-logger";

@@ -1,6 +1,6 @@
 "use client";
 
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { SegmentedControl } from "@/components/catalyst/segmented-control";
 
 export type LabTab = "scenario" | "backtest";
 

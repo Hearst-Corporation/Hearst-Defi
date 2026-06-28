@@ -1,4 +1,4 @@
-import { BentoHeader } from "@/components/ui/bento";
+import { BentoHeader } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import type { DashboardAllocation } from "@/lib/data/dashboard";

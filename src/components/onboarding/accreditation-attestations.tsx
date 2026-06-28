@@ -8,7 +8,7 @@
 import { useState, useTransition } from "react";
 
 import { attestAccreditation } from "@/app/actions/accreditation";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/catalyst/choice-checkbox";
 
 const ATTESTATIONS = [
   {
