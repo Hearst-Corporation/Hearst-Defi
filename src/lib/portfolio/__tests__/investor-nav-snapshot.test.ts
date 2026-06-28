@@ -157,7 +157,7 @@ describe("reconstructInvestorNavSeries", () => {
     await expect(reconstructInvestorNavSeries("inv-1", SINCE, NOW)).resolves.toEqual([]);
   });
 
-  it("rises deterministically from real principal to the real current NAV", async () => {
+  it("climbs deterministically from zero to the real current NAV", async () => {
     const subscribedAt = new Date("2026-03-30T00:00:00Z"); // ~90d before NOW
     positionFindManyMock.mockResolvedValue([
       { principalUsdc: 500000, accruedYieldUsdc: 9800, subscribedAt },
@@ -166,9 +166,9 @@ describe("reconstructInvestorNavSeries", () => {
     const series = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
 
     expect(series.length).toBeGreaterThanOrEqual(2);
-    // Starts at the deposit: principal only (accrued 0).
-    expect(series[0]?.valueUsdc).toBe(500000);
-    // Ends at the current real NAV: principal + accrued.
+    // Climbs from ZERO at subscription...
+    expect(series[0]?.valueUsdc).toBe(0);
+    // ...up to the current real NAV (principal + accrued) at now.
     expect(series[series.length - 1]?.valueUsdc).toBe(509800);
     // Monotonic non-decreasing, never above the real current NAV.
     for (let i = 1; i < series.length; i += 1) {
@@ -189,7 +189,7 @@ describe("reconstructInvestorNavSeries", () => {
     expect(a).toEqual(b);
   });
 
-  it("treats a later deposit as an honest step-up (0 before its subscription)", async () => {
+  it("starts at zero and a later deposit contributes 0 before its subscription", async () => {
     positionFindManyMock.mockResolvedValue([
       { principalUsdc: 100, accruedYieldUsdc: 10, subscribedAt: new Date("2025-12-28T00:00:00Z") },
       { principalUsdc: 50, accruedYieldUsdc: 5, subscribedAt: new Date("2026-05-28T00:00:00Z") },
@@ -197,9 +197,9 @@ describe("reconstructInvestorNavSeries", () => {
 
     const series = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
 
-    // Earliest point reflects only the first deposit (100), not 150.
-    expect(series[0]?.valueUsdc).toBe(100);
-    // Final point = both positions fully accrued: 110 + 55 = 165.
+    // Climbs from zero (earliest subscription, ratio 0).
+    expect(series[0]?.valueUsdc).toBe(0);
+    // Final point = both positions at full current value: 110 + 55 = 165.
     expect(series[series.length - 1]?.valueUsdc).toBe(165);
   });
 });

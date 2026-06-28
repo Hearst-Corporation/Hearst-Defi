@@ -7,11 +7,12 @@
  * via preserveAspectRatio="none"); axis labels are crisp HTML positioned in the
  * margins so they never distort. Server Component, token-only, no dependency.
  *
- * Index-based x spacing (matches evenly-sampled hourly/daily series). Honest at
- * the edges: <2 points renders an empty surface, never a fabricated line.
+ * Index-based x spacing (matches evenly-sampled hourly/daily series). The y-axis
+ * ALWAYS baselines at 0 and scales its top to the volume (a nice-rounded max), so
+ * the curve reads as a real climb from zero and the chart is coherent across any
+ * account size ($11 or $500k). Honest at the edges: <2 points renders an empty
+ * surface, never a fabricated line.
  */
-
-import { extent } from "./geometry";
 
 export interface HcValuePoint {
   at: Date | number | string;
@@ -34,6 +35,17 @@ function defaultValueFormat(n: number): string {
   if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
   if (abs >= 1_000) return `$${Math.round(n / 1_000)}k`;
   return `$${Math.round(n)}`;
+}
+
+/** Round up to a clean axis top (1/1.5/2/3/4/5/6/8/10 × 10ⁿ) so the value sits
+ *  high on the plot with a little headroom — keeps the y-scale tied to volume. */
+function niceCeil(v: number): number {
+  if (v <= 0) return 1;
+  const mag = Math.pow(10, Math.floor(Math.log10(v)));
+  const norm = v / mag;
+  const steps = [1, 1.5, 2, 3, 4, 5, 6, 8, 10];
+  const nice = steps.find((s) => norm <= s) ?? 10;
+  return nice * mag;
 }
 
 function toDate(at: Date | number | string): Date {
@@ -79,7 +91,9 @@ export function HcValueChart({
   }
 
   const values = points.map((p) => p.value);
-  const [yMin, yMax] = extent(values);
+  // Y-axis always baselines at 0; the top scales to the volume (nice-rounded max).
+  const yMin = 0;
+  const yMax = niceCeil(Math.max(1, ...values));
   const plotTop = PAD.top;
   const plotBottom = height - PAD.bottom;
   const plotLeft = PAD.left;
