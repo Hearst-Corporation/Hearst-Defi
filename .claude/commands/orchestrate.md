@@ -28,6 +28,38 @@ Le **1er mot** de `$ARGUMENTS` choisit le mode (vide → `run`) :
 | `run` *(défaut)* | Boucle de surveillance active. Re-scanne, intègre les candidats verts, re-dort, recommence. Tourne tant que la session est ouverte. |
 | `once` | Un seul cycle complet (scan → décide → intègre les candidats verts) puis stop. |
 | `status` | **Read-only.** Affiche l'état (candidats, verdicts) sans rien merger. |
+| `dispatch` | **Tu LANCES les agents toi-même** depuis des tâches/audits fournis par Adrien : découpe en lots de fichiers disjoints, un worktree isolé par agent sur origin/main frais, réserve les fichiers, lance les agents en parallèle (ils codent, ne commitent JAMAIS — RULE 0), puis enchaîne sur `run` pour intégrer. Voir section DISPATCH. |
+
+---
+
+## MODE `dispatch` — TU es aussi le chef de chantier (pas seulement l'intégrateur)
+
+Adrien te donne des **tâches** ou des **audits** (P0/P1/P2, findings). Tu ne te contentes pas
+d'attendre des branches : **tu crées et lances les agents toi-même.**
+
+**D1. Découpe en lots DISJOINTS** — regroupe les tâches par **zone de fichiers sans
+recouvrement**. Règle absolue : deux agents ne partagent JAMAIS un fichier ; un fichier
+single-owner n'est confié qu'à UN seul agent. Calibre le nombre d'agents sur les lots
+réalistes (souvent 3–6). Moins d'agents bien séparés > 5 qui se chevauchent.
+
+**D2. Un worktree isolé par agent, sur origin/main frais**
+```bash
+git fetch origin >/dev/null 2>&1
+git worktree add "../agent-<nom>" -b "feat/<nom>" origin/main
+```
+
+**D3. Réserve les fichiers** de chaque agent dans `docs/agent-file-locks.md` (bloc par agent :
+branche + fichiers possédés), commit `chore(locks): reserve <agents>`. Chevauchement détecté → re-découpe, ne lance pas.
+
+**D4. Lance les agents EN PARALLÈLE** (un seul message, plusieurs `Agent`). Chaque prompt contient :
+son **scope exact** (= son lock, seuls fichiers autorisés), la **tâche/les findings** verbatim,
+la **RULE 0** (« jamais git commit/push/merge/rebase/add ; tu édites tes fichiers dans
+`../agent-<nom>` et tu t'arrêtes ; livrable = fichiers + rapport »), l'ordre de **valider en
+local** (typecheck sur son scope) sans committer.
+
+**D5. Récupère + intègre** — passe au CYCLE normal (1→6) sur leurs branches. Lots disjoints →
+gates en parallèle → merge des verts un par un → nettoyage worktrees + libération locks.
+Après un `dispatch`, **enchaîne automatiquement sur `run`**.
 
 ---
 
