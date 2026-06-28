@@ -18,8 +18,7 @@ export interface ChatSettingsProps {
   productName?: string;
 }
 
-const MICRO_LABEL =
-  "text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500";
+const MICRO_LABEL = "ct-bento-label";
 
 export function ChatSettings({ productName }: ChatSettingsProps = {}) {
   const markdown = useSyncExternalStore(

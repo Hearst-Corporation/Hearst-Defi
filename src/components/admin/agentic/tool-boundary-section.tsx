@@ -109,7 +109,7 @@ function Th({ children, className }: { children: ReactNode; className?: string }
   return (
     <th
       className={cn(
-        "bg-transparent px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500",
+        "ct-bento-label bg-transparent px-4 py-3",
         className,
       )}
     >

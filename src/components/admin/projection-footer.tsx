@@ -26,7 +26,7 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
       aria-label="Live vault projection"
     >
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5">
-        <span className="whitespace-nowrap text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+        <span className="ct-bento-label whitespace-nowrap">
           Projected APY range
         </span>
 

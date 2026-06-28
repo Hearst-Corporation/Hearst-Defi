@@ -104,7 +104,7 @@ export function RailRight() {
                   Ready
                 </span>
               </span>
-              <span className="truncate text-[10px] font-medium uppercase tracking-[0.15em] text-zinc-500">
+              <span className="truncate font-medium ct-bento-label">
                 {product.name}
               </span>
             </span>

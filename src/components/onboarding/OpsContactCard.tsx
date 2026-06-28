@@ -49,7 +49,7 @@ export function OpsContactCard({
           className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
           aria-label={`Email ${name} at ${email}`}
         >
-          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="ct-bento-label">
             Email
           </span>
           <span className="truncate">{email}</span>
@@ -62,7 +62,7 @@ export function OpsContactCard({
           className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
-          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="ct-bento-label">
             Schedule
           </span>
           <span>Book a call ↗</span>

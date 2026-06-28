@@ -115,9 +115,8 @@ function sanitizeHtml(html: string): string {
 // Tokens de style partagés (bento) — réutilisés par plusieurs sous-composants.
 // ---------------------------------------------------------------------------
 
-/** Label micro : 10px, uppercase, tracking large, gras, zinc-500. */
-const MICRO_LABEL =
-  "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500";
+/** Label micro : nano, uppercase, tracking large, gras, muted. */
+const MICRO_LABEL = "ct-bento-label";
 
 // Markdown body — Tailwind via arbitrary descendant variants. Reproduit la prose
 // chat : titres serrés, listes à puces accent, code mono teinté accent, blocs pre

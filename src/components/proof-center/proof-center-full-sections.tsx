@@ -141,7 +141,7 @@ export function ProofCenterFullSections({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-surface-inset px-6 py-10 text-center">
-            <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+            <div className="ct-bento-label">
               Governance queue
             </div>
             <div className="text-[length:var(--ct-text-sm)] font-medium text-white">

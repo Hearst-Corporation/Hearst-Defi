@@ -96,7 +96,7 @@ export function AgenticSafetyBoundary({
             className="flex flex-col gap-3 rounded-xl border border-white/5 bg-surface-inset p-4"
           >
             <div className="flex items-center justify-between gap-3">
-              <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-400">
+              <span className="ct-bento-label flex items-center gap-2">
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[r.tone]}`}
                   aria-hidden
@@ -118,7 +118,7 @@ export function AgenticSafetyBoundary({
 
             {r.detail && r.detail.items.length > 0 ? (
               <details className="group">
-                <summary className="flex cursor-pointer list-none items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500 transition-colors hover:text-zinc-300">
+                <summary className="ct-bento-label flex cursor-pointer list-none items-center gap-2 transition-colors hover:text-zinc-300">
                   <span
                     className="inline-block h-1.5 w-1.5 rotate-45 border-b border-r border-current transition-transform group-open:rotate-[225deg]"
                     aria-hidden

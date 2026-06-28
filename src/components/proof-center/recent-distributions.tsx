@@ -39,7 +39,7 @@ function weakestProvenance(kinds: readonly Provenance[]): Provenance {
 /** Micro label — Portfolio/vaults bento style. */
 function MicroLabel({ children }: { children: ReactNode }) {
   return (
-    <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+    <span className="ct-bento-label">
       {children}
     </span>
   );
