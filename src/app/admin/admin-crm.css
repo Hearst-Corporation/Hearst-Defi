@@ -166,7 +166,13 @@
 .admin-search-dock {
   position: fixed;
   top: var(--ct-space-4);
-  right: var(--ct-space-4);
+  /* Inset by the chat rail's EFFECTIVE width so the dock (search ⌘K +
+     notifications bell) stays inside the center slot and never overlaps the chat
+     rail header buttons (history/settings/width/collapse). --ct-rail-right-eff
+     already tracks the rail state in the cascade: 48px collapsed, 23rem open,
+     30rem expanded → the dock follows automatically. Before: right:16px anchored
+     to the VIEWPORT edge → ~244px overlap into the rail header when open. */
+  right: calc(var(--ct-rail-right-eff, 0px) + var(--ct-space-4));
   z-index: var(--ct-z-dropdown);
   display: flex;
   justify-content: flex-end;

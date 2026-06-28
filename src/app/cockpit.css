@@ -3756,9 +3756,24 @@ button.ct-choice-card {
 }
 
 .ct-rail-right.collapsed {
-  /* SEUL état où le chat devient une poignée — choix explicite de l'utilisateur. */
-  width: 48px;
-  min-width: 48px;
+  /* Collapse = FERMETURE TOTALE (choix produit explicite owner) : plus de poignée
+     48px résiduelle. Le rail disparaît complètement, le centre + le footer
+     reprennent toute la largeur. Le SEUL point de ré-ouverture est le bouton
+     « Open assistant » sorti à côté des autres contrôles top-right
+     (ChatRailToggle). L'élément reste dans le DOM (display:none) pour que la
+     cascade `:has(.ct-rail-right.collapsed)` continue de mettre
+     --ct-rail-right-eff à 0. */
+  display: none;
+  width: 0;
+  min-width: 0;
+}
+
+/* Collapse = 0 effective width (overrides the legacy 48px in tokens.css). The
+   center panel, footer and bottom-bar centering all read --ct-rail-right-eff,
+   so this is what makes the footer brand stop wrapping/breaking and the slot
+   reclaim the full width when the assistant is closed. */
+.ct-root:has(.ct-rail-right.collapsed) {
+  --ct-rail-right-eff: 0px;
 }
 
 .ct-rail-right.expanded {

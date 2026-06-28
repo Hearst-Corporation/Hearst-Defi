@@ -104,10 +104,16 @@ export default async function CustomersPage({
               </div>
             </EmptySurface>
           ) : (
+            // Slot-aware contract: the Catalyst wrapper keeps its own
+            // `overflow-x-auto`, so when the assistant rail is open and the
+            // center slot is narrow the table scrolls LOCALLY instead of
+            // bleeding under the rail. `bleed` dropped so the wrapper's
+            // `-mx-(--gutter)` no longer pulls the edges past the card. No
+            // `overflow-x-visible!` (it defeated the local scroll), no
+            // `[&_table]:w-full` (it fought the table's intrinsic min width).
             <Table
-              bleed
               dense
-              className="overflow-x-visible! whitespace-normal [&_table]:w-full [&_td]:whitespace-normal [&_th]:whitespace-normal"
+              className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
             >
               <TableHead>
                 <TableRow>
@@ -208,9 +214,8 @@ export default async function CustomersPage({
               </p>
             </div>
             <Table
-              bleed
               dense
-              className="overflow-x-visible! whitespace-normal [&_table]:w-full [&_td]:whitespace-normal [&_th]:whitespace-normal"
+              className="max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
             >
               <TableHead>
                 <TableRow>
