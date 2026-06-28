@@ -1,11 +1,13 @@
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 import { PreviewSourceBanner } from "@/components/admin/projection/preview-source-banner";
+import { InvestorReportReadiness } from "@/components/admin/projection/investor-report-readiness";
 import { getLatestProjectionStudyRun } from "@/lib/projection/latest-study-run";
 import {
   defaultRunValidationContext,
   validateProjectionRun,
 } from "@/lib/projection/run-validation";
+import { buildInvestorReportViewModel } from "@/lib/projection/investor-report-view-model";
 
 import "../../admin-strategy.css";
 
@@ -31,6 +33,7 @@ export default async function ProjectionPreviewPage() {
     latestRun,
     defaultRunValidationContext(!latestRun),
   );
+  const report = buildInvestorReportViewModel(latestRun, validation);
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-white/10 bg-zinc-900 mb-8">
@@ -41,6 +44,7 @@ export default async function ProjectionPreviewPage() {
           contextLabel="Strategy"
         />
         <PreviewSourceBanner latestRun={latestRun} validation={validation} />
+        <InvestorReportReadiness report={report} />
         <ProjectionReportPreview />
       </div>
     </div>
