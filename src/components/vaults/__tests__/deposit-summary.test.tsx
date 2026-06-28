@@ -49,8 +49,9 @@ describe("DepositSummary — vault panel DS patterns", () => {
     );
 
     // Graphical split = accent-green segments on a graphite track (bento).
-    expect(html).toContain("bg-[#A7FB90]");
-    expect(html).toContain("bg-[#A7FB90]/40");
+    // Accent is the --ct-accent token now (single-green doctrine), not raw hex.
+    expect(html).toContain("bg-[var(--ct-accent)]");
+    expect(html).toContain("color-mix(in_srgb,var(--ct-accent)_40%,transparent)");
     expect(html).toContain("9.4");
     expect(html).toContain("12.8");
     expect(html).toContain("$500,000 USDC");
