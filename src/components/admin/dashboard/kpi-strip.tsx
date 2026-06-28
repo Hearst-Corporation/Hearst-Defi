@@ -38,7 +38,7 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
           <DashboardKpiCell kpi={kpi} />
           {index < kpis.length - 1 && (
             <div
-              className="h-8 w-px shrink-0 self-center bg-white/10"
+              className="h-8 w-px shrink-0 self-center bg-[var(--ct-border)]"
               aria-hidden="true"
             />
           )}
@@ -56,9 +56,9 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
       ? "down"
       : "neutral";
   const deltaClass = {
-    up: "text-[#A7FB90]",
+    up: "ct-text-accent",
     down: "text-red-400",
-    neutral: "text-zinc-500",
+    neutral: "ct-text-muted",
   }[deltaType];
 
   return (
@@ -76,7 +76,7 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
         aria-label={`${kpi.label}: ${kpi.value}`}
       >
         <div className="flex min-w-0 items-center justify-between gap-2">
-          <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
+          <span className="ct-bento-label">
             {kpi.label}
           </span>
           <ProvenanceBadge kind={kpi.provenance} variant="strip" />
@@ -87,13 +87,13 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
             kpi.alert
               ? "text-red-400"
               : kpi.accent
-                ? "text-[#A7FB90]"
-                : "text-white",
+                ? "ct-text-accent"
+                : "ct-text-strong",
           )}
         >
           {kpi.value}
         </span>
-        <span className="mt-auto flex items-center gap-1.5 text-[10px] lowercase text-zinc-500">
+        <span className="mt-auto flex items-center gap-1.5 text-[10px] lowercase ct-text-muted">
           <span>{kpi.sublabel?.replace(/[↑↓]/g, "")}</span>
           {kpi.sublabel?.includes("↑") && (
             <span className={cn("not-italic", deltaClass)}>↑</span>
