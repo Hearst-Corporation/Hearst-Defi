@@ -455,7 +455,7 @@ async function persistChatLlmRun(args: {
  * it. The `→` hints at the workspace the bridge is opening in parallel.
  */
 const PRODUCT_WORKSPACE_CHAT_ACK =
-  "Framing this in the Product Workspace → the full detail (inferred vault, assumptions, guardrails) is written there, not here.";
+  "Framing this in the Product Workspace → the inferred vault, assumptions and guardrails are written there, not here. I do not run a study or create a vault from chat — you keep the hand. Next step: open Projection, review the configured assumptions, then run the study manually. Admin only, manual run required, projection not guaranteed.";
 
 /** A one-shot text/plain stream carrying a single fixed message — used to keep
  *  the chat bubble short when the model's prose is diverted to the workspace. */

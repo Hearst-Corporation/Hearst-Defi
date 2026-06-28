@@ -228,6 +228,17 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     // Bubble shows ONLY the short fixed ack — the chat model never runs.
     const body = await readStreamText(res);
     expect(body).toContain("Product Workspace");
+    // The ack is honest about the handoff: no auto-run, no auto-create, the
+    // admin keeps control, and Projection is the next manual step.
+    expect(body).toContain("Projection");
+    expect(body).toContain("manual run required");
+    expect(body).toContain("not guaranteed");
+    expect(body.toLowerCase()).toContain("do not run a study");
+    // Never claims the product/vault already exists or a run already fired.
+    expect(body.toLowerCase()).not.toContain("product created");
+    expect(body.toLowerCase()).not.toContain("vault created");
+    expect(body.toLowerCase()).not.toContain("run launched");
+    expect(body.toLowerCase()).not.toContain("investor-ready");
     expect(mockRunChatAgent).not.toHaveBeenCalled();
 
     await vi.waitFor(() => {

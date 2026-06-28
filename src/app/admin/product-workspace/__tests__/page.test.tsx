@@ -95,4 +95,35 @@ describe("ProductWorkspacePage (near-empty, agent-filled)", () => {
     // is what matters and is still asserted.
     expect(html).toContain("Awaiting objective from cockpit agent");
   });
+
+  it("renders a Continue-to-Projection CTA carrying the objective + from flag when an objective exists", async () => {
+    mockLoadDraft.mockResolvedValueOnce(null);
+    const html = await renderPage({
+      autostart: "1",
+      objective: "Créer une offre Defensive",
+    });
+
+    expect(html).toContain("Next step — Projection");
+    expect(html).toContain("Continue to Projection");
+    // Links to projection with the objective encoded + the handoff flag.
+    expect(html).toContain(
+      `/admin/projection?objective=${encodeURIComponent("Créer une offre Defensive")}&amp;from=product-workspace`,
+    );
+    // Honest framing wording is present, forbidden-claim wording is not.
+    expect(html).toContain("manual run required");
+    expect(html).toContain("not guaranteed");
+    expect(html.toLowerCase()).not.toContain("product created");
+    expect(html.toLowerCase()).not.toContain("vault created");
+    expect(html.toLowerCase()).not.toContain("investor-ready");
+  });
+
+  it("disables the Projection CTA with an honest message when no objective was received", async () => {
+    mockLoadDraft.mockResolvedValueOnce(null);
+    const html = await renderPage({});
+
+    expect(html).toContain("Continue to Projection — objective required");
+    expect(html).toContain('aria-disabled="true"');
+    // No live link to projection when there is nothing to carry.
+    expect(html).not.toContain("/admin/projection?objective=");
+  });
 });

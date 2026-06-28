@@ -62,33 +62,40 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-### fix/catalyst-absorption
-Owner: Claude Opus — MISSION #043 Catalyst Absorption Migration
-Branch: fix/catalyst-absorption
-Worktree: ../connect-catalyst-absorption
+### fix/chat-product-projection-handoff
+Owner: Claude Opus — MISSION HC-4196 Chat → Projection handoff prefill
+Branch: fix/chat-product-projection-handoff
+Worktree: principal (integration tree)
 Started: 2026-06-28
 Status: active
 
-Goal: migrate the DS toward Catalyst by ABSORPTION (no brutal deletion). Turn
-src/components/ui primitives into temporary compatibility wrappers that delegate
-to src/components/catalyst. Fix the typography debt roots that propagate hardcodes.
+Goal: bridge the chat→product→projection discontinuity found by HC-7748 WITHOUT
+any auto-execution. Honest chat ack, a Product Workspace → Projection CTA, and a
+Projection handoff context block that reads query params and prefills nothing that
+runs. No auto-run, no auto-create, no auto-promote, no swarm.
 
-Scope (wrappers + roots only — no page-mass rewrite, no deletion):
-- src/components/ui/badge.tsx, button.tsx, card.tsx, bento.tsx, empty-surface.tsx,
-  provenance-badge.tsx (→ Catalyst-delegating wrappers)
-- src/components/catalyst/* (complete only the primitives needed to absorb ui/*)
-- src/components/admin/admin-detail-layout.tsx, admin-table-layout.tsx,
-  cockpit-panel-header.tsx (typography roots)
-- src/app/admin/product-workspace/page.tsx (semantic h2)
-- src/lib/proof-center/full-log-loader.ts (server-only)
+Scope:
+- src/app/api/cockpit-chat/route.ts (PRODUCT_WORKSPACE_CHAT_ACK wording only)
+- src/app/admin/product-workspace/page.tsx (CTA section)
+- src/app/admin/projection/page.tsx (read searchParams + handoff block)
+- src/components/admin/projection/projection-handoff.tsx (new context block)
+- tests under the above __tests__ dirs
 
-STOP: never touches Prisma/migrations/engine/projection-calc/chat-nav/outreach/#146,
-never restores the deleted value-chart.test.tsx, never touches HcValueChart unless
-typecheck forces it.
+STOP: never touches engine/data/telegram/prisma/portfolio/payments/vaults/outreach/
+chat-guard. Never adds an auto-run or auto-create. Never imposes a migration.
 
 ---
 
 ## RELEASED LOCKS
+
+### fix/catalyst-absorption (terminé — PR #184 MERGED)
+Owner: Claude Opus — MISSION #043 Catalyst Absorption Migration
+Branch: fix/catalyst-absorption
+Released: 2026-06-28
+Status: released (merged)
+Reason: PR #184 « route legacy ui primitives through catalyst (absorption) » MERGED
+  2026-06-28. Worktree `../connect-catalyst-absorption` inexistant, branche locale
+  et distante absentes. Lock résiduel `active` retiré (travail intégré dans main).
 
 ### fix/ds-hardcoded-ui-cleanup (lock fantôme — retiré sur accord owner)
 Owner: Cursor Composer 2.5 — MISSION #015 DS hardening
