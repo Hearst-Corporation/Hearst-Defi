@@ -19,10 +19,8 @@ describe("global deterministic nav hardening", () => {
       ["open the product page", "vaults"],
       ["ouvre le vault", "vaults"],
       ["show proof center", "proof-center"],
-      ["montre mes positions", "portfolio-positions"],
-      ["ouvre activity", "portfolio-activity"],
-      ["ouvre distributions", "portfolio-distributions"],
-      ["open yield", "portfolio-yield"],
+      // Portfolio sub-leaves (positions / activity / distributions / yield) were
+      // removed from the chat whitelist — no longer navigable (asserted null below).
       ["portofolio", "portfolio"],
       ["dashbord", "portfolio"],
     ];

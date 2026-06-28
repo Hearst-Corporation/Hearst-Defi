@@ -58,8 +58,8 @@ describe("nav-channel (Upstash auto-deserialize round-trip)", () => {
     expect(await consumeNav("u3")).toBeNull();
   });
 
-  it("opens a NEW whitelisted sub-page (portfolio-distributions)", async () => {
-    await publishNav("u4", "portfolio-distributions");
-    expect((await consumeNav("u4"))?.route).toBe("/portfolio/distributions");
+  it("opens a whitelisted nested sub-page (proof-center-full)", async () => {
+    await publishNav("u4", "proof-center-full");
+    expect((await consumeNav("u4"))?.route).toBe("/proof-center/full");
   });
 });

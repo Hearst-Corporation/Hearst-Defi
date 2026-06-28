@@ -36,11 +36,11 @@ describe("nav-fallback-intent", () => {
       expect(resolveLpNavDestinationKey("show vaults")).toBe("vaults");
       expect(resolveLpNavDestinationKey("open proof center")).toBe("proof-center");
       expect(resolveLpNavDestinationKey("open my dashboard")).toBe("portfolio");
-      expect(resolveLpNavDestinationKey("open activity")).toBe("portfolio-activity");
-      expect(resolveLpNavDestinationKey("open distributions")).toBe(
-        "portfolio-distributions",
-      );
-      expect(resolveLpNavDestinationKey("open yield")).toBe("portfolio-yield");
+      // Portfolio sub-leaves were removed from the chat whitelist (unwired stubs):
+      // an explicit nav phrase for them now resolves nothing (no blank-page routing).
+      expect(resolveLpNavDestinationKey("open activity")).toBeNull();
+      expect(resolveLpNavDestinationKey("open distributions")).toBeNull();
+      expect(resolveLpNavDestinationKey("open yield")).toBeNull();
     });
 
     it("returns null for generic product Q&A", () => {

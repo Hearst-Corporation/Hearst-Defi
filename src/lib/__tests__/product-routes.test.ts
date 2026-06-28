@@ -33,6 +33,7 @@ const EXPECTED_ROUTES = [
   "/admin/governance/proposal/[id]",
   "/admin/governance/propose",
   "/admin/investor-memo",
+  "/admin/marketplace",
   "/admin/monitoring",
   "/admin/onboarding-test",
   "/admin/outreach",
@@ -41,6 +42,7 @@ const EXPECTED_ROUTES = [
   "/admin/outreach/prospects/[id]",
   "/admin/product-workspace",
   "/admin/projection",
+  "/admin/projection/preview",
   "/admin/proof-center",
   "/admin/proof-center/full",
   "/admin/proofs",
@@ -48,6 +50,7 @@ const EXPECTED_ROUTES = [
   "/admin/scenario-lab",
   "/admin/security",
   "/admin/signals",
+  "/admin/source",
   "/admin/spec",
   "/admin/spec/[slug]",
   "/admin/vaults",
@@ -90,6 +93,14 @@ describe("getProductRoutes", () => {
     const routes = await getProductRoutes();
     // Exact match: a missing or extra page fails the test on the spot.
     expect(routes).toEqual(EXPECTED_ROUTES);
+  });
+
+  it("exposes no public /catalyst-preview demo route", async () => {
+    // The internal Catalyst component showcase used to live at the app root with
+    // no (product)/admin/auth layout gate — any logged-out visitor could open it.
+    // It was deleted; this guard fails if it is ever re-added as a public route.
+    const routes = await getProductRoutes();
+    expect(routes).not.toContain("/catalyst-preview");
   });
 
   it("strips route groups and keeps dynamic segments", async () => {

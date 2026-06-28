@@ -27,25 +27,23 @@ import {
  * resolver output before being asserted here.
  */
 describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-gating invariants", () => {
-  // ---- 1. Sub-page beats parent -------------------------------------------
-  describe("depth-priority: a sub-page wins over its parent", () => {
-    it('"ouvre mes distributions" → portfolio-distributions (NOT portfolio)', () => {
-      const key = resolveLpNavDestinationKey("ouvre mes distributions");
-      expect(key).toBe("portfolio-distributions");
-      expect(key).not.toBe("portfolio");
-    });
-
-    it('"va sur ma fiscalité" → portfolio-tax (NOT portfolio)', () => {
-      const key = resolveLpNavDestinationKey("va sur ma fiscalité");
-      expect(key).toBe("portfolio-tax");
-      expect(key).not.toBe("portfolio");
-    });
-
-    it('"montre-moi mes positions" → portfolio-positions (NOT portfolio)', () => {
-      const key = resolveLpNavDestinationKey("montre-moi mes positions");
-      expect(key).toBe("portfolio-positions");
-      expect(key).not.toBe("portfolio");
-    });
+  // ---- 1. Removed portfolio sub-leaves no longer navigate ------------------
+  // The portfolio sub-leaves (positions / activity / distributions / yield / tax)
+  // were removed from the chat whitelist (unwired stubs). A verb+leaf phrase that
+  // used to resolve a leaf must now return null — and must NOT fall back to the
+  // parent /portfolio either (a leaf keyword is not a portfolio keyword).
+  describe("removed portfolio sub-leaves never navigate", () => {
+    for (const phrase of [
+      "ouvre mes distributions",
+      "va sur ma fiscalité",
+      "montre-moi mes positions",
+      "consulte mon activité",
+      "montre-moi mon rendement",
+    ]) {
+      it(`"${phrase}" → null (leaf removed, no parent fallback)`, () => {
+        expect(resolveLpNavDestinationKey(phrase)).toBeNull();
+      });
+    }
   });
 
   // ---- 2. Hand-tuned rules run first --------------------------------------
@@ -84,17 +82,9 @@ describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-
       );
     });
 
-    it('"ouvre ma fiscalité" → portfolio-tax (LP resolver)', () => {
-      expect(resolveLpNavDestinationKey("ouvre ma fiscalité")).toBe(
-        "portfolio-tax",
-      );
-    });
-
-    it('"montre-moi l\'activité" → portfolio-activity (apostrophe + trailing é)', () => {
-      expect(resolveLpNavDestinationKey("montre-moi l'activité")).toBe(
-        "portfolio-activity",
-      );
-    });
+    // NOTE: the LP é-boundary examples (fiscalité / activité) used the portfolio
+    // sub-leaves, now removed from the whitelist. The \p{L} Unicode boundary stays
+    // proven by the admin "sécurité" case above (a keyword ending in é).
   });
 
   // ---- 4. Verb-gating: bare keyword (no verb) must NOT navigate -----------
@@ -147,7 +137,6 @@ describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-
       ["ouvre dashboard", "portfolio"],
       ["amène-moi au dashboard", "portfolio"],
       ["open my portfolio", "portfolio"],
-      ["show distributions", "portfolio-distributions"],
       ["va sur proof center", "proof-center"],
       ["portofolio", "portfolio"], // typo command
       ["dashbord", "portfolio"], // typo command

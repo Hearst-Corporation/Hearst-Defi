@@ -45,46 +45,10 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
     description:
       "Tableau de bord du portefeuille de l'investisseur : valeur, rendement YTD, prochaine distribution, allocation, positions.",
   },
-  {
-    key: "portfolio-positions",
-    profile: "lp",
-    route: "/portfolio/positions",
-    label: "Portefeuille — Positions",
-    description:
-      "Détail des positions actives de l'investisseur (par vault / share class).",
-  },
-  {
-    key: "portfolio-activity",
-    profile: "lp",
-    route: "/portfolio/activity",
-    label: "Portefeuille — Activité",
-    description:
-      "Historique d'activité du compte : souscriptions, distributions, mouvements.",
-  },
-  {
-    key: "portfolio-distributions",
-    profile: "lp",
-    route: "/portfolio/distributions",
-    label: "Portefeuille — Distributions",
-    description:
-      "Distributions mensuelles USDC reçues et à venir, calendrier et montants.",
-  },
-  {
-    key: "portfolio-yield",
-    profile: "lp",
-    route: "/portfolio/yield",
-    label: "Portefeuille — Rendement",
-    description:
-      "Décomposition du rendement (YTD, par période), sources et fourchette d'APY.",
-  },
-  {
-    key: "portfolio-tax",
-    profile: "lp",
-    route: "/portfolio/tax",
-    label: "Portefeuille — Fiscalité",
-    description:
-      "Documents et synthèse fiscale liés aux positions et distributions.",
-  },
+  // The portfolio sub-leaves (positions / activity / distributions / yield / tax)
+  // are intentionally NOT chat-navigable destinations: the leaf pages are unwired
+  // stubs, so the chat must never route an investor to a blank surface. The routes
+  // still exist — re-add a destination here only once a leaf renders real data.
   {
     key: "vaults",
     profile: "lp",
@@ -367,6 +331,22 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/spec",
     label: "Admin — Specs produit",
     description: "Index des specs produit (docs/spec) consultables en interne.",
+  },
+  {
+    key: "admin-source",
+    profile: "admin",
+    route: "/admin/source",
+    label: "Admin — Source",
+    description:
+      "Source de données / ingestion (signaux, bricks de données) consultée côté admin. Visible dans le sub-nav Strategy.",
+  },
+  {
+    key: "admin-agentic",
+    profile: "admin",
+    route: "/admin/agentic",
+    label: "Admin — Agentic Console",
+    description:
+      "Console agentique (lecture seule) : carte du système, observabilité du routeur, frontière des outils, garde-fous. Visible dans le rail Dashboard.",
   },
 ] as const;
 

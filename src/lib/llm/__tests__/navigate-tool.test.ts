@@ -17,11 +17,6 @@ describe("navigate-tool whitelist", () => {
     }
     expect(LP_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
       "/portfolio",
-      "/portfolio/positions",
-      "/portfolio/activity",
-      "/portfolio/distributions",
-      "/portfolio/yield",
-      "/portfolio/tax",
       "/vaults",
       "/proof-center",
       "/proof-center/full",
@@ -32,6 +27,22 @@ describe("navigate-tool whitelist", () => {
       "/legal/terms",
       "/agent-canvas",
     ]);
+  });
+
+  it("does NOT chat-navigate to the unwired portfolio sub-leaves", () => {
+    // positions / activity / distributions / yield / tax are blank stubs — the
+    // chat must not route an investor to them. Routes still exist, but no chat
+    // destination until they render real data.
+    const lpRoutes = LP_NAV_DESTINATIONS.map((d) => d.route);
+    for (const leaf of [
+      "/portfolio/positions",
+      "/portfolio/activity",
+      "/portfolio/distributions",
+      "/portfolio/yield",
+      "/portfolio/tax",
+    ]) {
+      expect(lpRoutes).not.toContain(leaf);
+    }
   });
 
   it("admin whitelist exposes admin routes only", () => {
@@ -64,6 +75,8 @@ describe("navigate-tool whitelist", () => {
       "/admin/security",
       "/admin/signals",
       "/admin/spec",
+      "/admin/source",
+      "/admin/agentic",
     ]);
     // Every admin destination stays under /admin (root or sub-path); none is a
     // dynamic `[id]` route (the model has no id to fill).
@@ -71,6 +84,14 @@ describe("navigate-tool whitelist", () => {
       expect(d.route).toMatch(/^\/admin(\/|$)/);
       expect(d.route).not.toContain("[");
     }
+  });
+
+  it("exposes the menu-visible admin ops pages (source, agentic) as chat destinations", () => {
+    // Both are visible in the admin menu and admin-gated, but were missing from the
+    // chat whitelist — so the chat could not navigate to a page the rail shows.
+    const adminRoutes = ADMIN_NAV_DESTINATIONS.map((d) => d.route);
+    expect(adminRoutes).toContain("/admin/source");
+    expect(adminRoutes).toContain("/admin/agentic");
   });
 
   it("resolves a known key and rejects an unknown one", () => {
