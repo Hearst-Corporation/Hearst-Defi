@@ -100,6 +100,31 @@
   grid-template-columns: none;
 }
 
+/* Chaque cellule KPI centrée (label + valeur + sous-titre alignés au milieu),
+   pour des colonnes équilibrées. Scopé au strip ADMIN (pas au dashboard
+   assets-board qui partage le composant). */
+.admin-kpi-strip-panel .dashboard-kpi-strip > div {
+  position: relative;
+  justify-content: center;
+}
+.admin-kpi-strip-panel .dashboard-kpi-strip > div > div {
+  align-items: center;
+  text-align: center;
+}
+/* Label row : ne plus étaler label↔dot (justify-between) — les grouper centrés. */
+.admin-kpi-strip-panel .dashboard-kpi-strip [class*="justify-between"] {
+  justify-content: center;
+}
+/* Séparateurs : le trait inline dans le wrapper colle au contenu de gauche →
+   pas équidistant. On le masque et on pose une vraie bordure à la FRONTIÈRE de
+   chaque colonne (sauf la 1re) : le trait tombe pile entre 2 KPI égaux. */
+.admin-kpi-strip-panel .dashboard-kpi-strip > div > [aria-hidden="true"] {
+  display: none;
+}
+.admin-kpi-strip-panel .dashboard-kpi-strip > div + div {
+  border-left: 1px solid var(--ct-border);
+}
+
 .admin-doc .admin-card {
   padding: var(--ct-space-5);
 }

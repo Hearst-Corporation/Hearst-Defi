@@ -94,7 +94,7 @@ export default async function CustomersPage({
           )}
 
           <div className="flex items-center gap-4 border-b border-white/5 p-5">
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1">
               <h2 className="text-[11px] font-bold uppercase leading-none tracking-[0.15em] text-zinc-400">
                 Investor Directory
               </h2>
@@ -157,7 +157,7 @@ export default async function CustomersPage({
                   >
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-1 shrink-0 rounded-full bg-[#A7FB90]" />
+                        <div className="h-7 w-1 shrink-0 rounded-full bg-[#A7FB90]" />
                         <Link
                           href={`/admin/customers/${c.id}`}
                           className="min-w-0 truncate text-[14px] font-medium text-white hover:underline"

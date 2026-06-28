@@ -55,7 +55,7 @@ export function AdminKpiStripPanel({
     >
       {hasHeader ? (
         <div className="flex items-center justify-between gap-4 border-b border-white/5 p-5">
-          <div className="flex min-w-0 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1">
             {title ? (
               <h2 className="text-[11px] font-bold uppercase leading-none tracking-[0.15em] text-zinc-400">
                 {title}
