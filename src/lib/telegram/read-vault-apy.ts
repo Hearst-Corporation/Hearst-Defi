@@ -7,6 +7,7 @@ import { parseMachinePriceMessage } from "./parse-machine-price";
 import { getTelegramClient, isTelegramConfigured } from "./client";
 import { fetchHashprice } from "@/lib/data/hashprice";
 import { fetchDefiLlama } from "@/lib/data/defillama";
+import { getProjectionCompanyAssumptions } from "@/lib/projection/company-assumptions";
 import type { DestinationCountry } from "./cost-model";
 
 /**
@@ -39,27 +40,36 @@ export interface VaultApySnapshot {
   vaults: VaultApyView[];
   assumptions: string[];
   disclaimer: string;
+  /** Provenance of the company levers (status CONFIGURED, not live/validated). */
+  companyAssumptions: {
+    source: string;
+    status: string;
+    notes: string[];
+    markupPct: number;
+    revenueSharePct: number;
+    borrowAprPct: number;
+    feePct: number;
+  };
 }
-
-// Default company levers + market assumptions (admin-tunable later).
-const MARKUP_PCT = 15;
-const COMPANY_SHARE_PCT = 20;
-const BTC_RETURN = { bear: -20, base: 40, bull: 120 };
-const BORROW_APR_PCT = 6;
-const FEES_PCT = 2;
-
-const VAULT_BOUNDS: Record<
-  string,
-  { label: string; avgLtv: number; bounds?: Parameters<typeof composeVaultApy>[0]["bounds"] }
-> = {
-  yield: { label: "Yield", avgLtv: 0.5 },
-  defensive: { label: "Defensive", avgLtv: 0.4, bounds: { btc: [0, 15], usdc: [35, 100] } },
-  "btc-plus": { label: "BTC Plus", avgLtv: 0.55, bounds: { btc: [40, 100] } },
-};
 
 export async function loadVaultApy(
   destination: DestinationCountry = "uae",
 ): Promise<VaultApySnapshot> {
+  // Company levers now come from an EXPLICIT, traceable layer (status CONFIGURED,
+  // NOT live/validated) instead of silent local constants — see
+  // src/lib/projection/company-assumptions.ts.
+  const company = getProjectionCompanyAssumptions();
+  const MARKUP_PCT = company.markupPct;
+  const COMPANY_SHARE_PCT = company.revenueSharePct;
+  const BTC_RETURN = {
+    bear: company.btcScenarios.bearPct,
+    base: company.btcScenarios.basePct,
+    bull: company.btcScenarios.bullPct,
+  };
+  const BORROW_APR_PCT = company.borrowAprPct;
+  const FEES_PCT = company.feePct;
+  const VAULT_BOUNDS = company.vaultBounds;
+
   const [market, defi] = await Promise.all([
     loadMachineMarket(undefined, destination),
     fetchDefiLlama(),
@@ -131,6 +141,15 @@ export async function loadVaultApy(
     vaults,
     assumptions: ref.assumptions,
     disclaimer: ref.disclaimer,
+    companyAssumptions: {
+      source: company.metadata.source,
+      status: company.metadata.status,
+      notes: company.metadata.notes,
+      markupPct: company.markupPct,
+      revenueSharePct: company.revenueSharePct,
+      borrowAprPct: company.borrowAprPct,
+      feePct: company.feePct,
+    },
   };
 }
 

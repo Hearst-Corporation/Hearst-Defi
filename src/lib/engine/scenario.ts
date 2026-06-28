@@ -325,6 +325,21 @@ function apyBoundsFromReturns(
   };
 }
 
+/**
+ * Honest label for a stable-sleeve yield: an injected value is reported as
+ * "from injected yield source"; an omitted one as "fallback/default assumption".
+ * Never writes "fixed" for a value that was actually injected live.
+ */
+function stableYieldLabel(
+  injected: number | undefined,
+  fallback: number,
+): string {
+  if (injected !== undefined && injected !== null) {
+    return `${(injected * 100).toFixed(2)}% from injected yield source`;
+  }
+  return `${(fallback * 100).toFixed(2)}% fallback/default assumption`;
+}
+
 function buildAssumptionsV2(params: ScenarioParams): string[] {
   const w = params.allocationWeights;
   return [
@@ -334,7 +349,10 @@ function buildAssumptionsV2(params: ScenarioParams): string[] {
     `allocationWeights: mining=${(w.mining * 100).toFixed(1)}%, btcTactical=${(w.btcTactical * 100).toFixed(1)}%, usdcBase=${(w.usdcBase * 100).toFixed(1)}%, stableReserve=${(w.stableReserve * 100).toFixed(1)}%`,
     `miningYieldPct=${(params.miningYieldPct * 100).toFixed(2)}% annualized (simple, no compounding within month)`,
     `riskFreeRate=${(params.riskFreeRate * 100).toFixed(2)}% annualized; duration=${params.durationMonths} months`,
-    "usdcBase APY: 4.8% fixed; stableReserve APY: 4.5% fixed",
+    // Truth wording: state the ACTUAL source of each stable yield. "fixed" is
+    // only honest for the engine default; an injected value is labelled as such.
+    `USDC base APY: ${stableYieldLabel(params.usdcAnnualYield, DEFAULT_USDC_ANNUAL_YIELD)}; ` +
+      `stable reserve APY: ${stableYieldLabel(params.stableAnnualYield, DEFAULT_STABLE_ANNUAL_YIELD)}`,
     "BTC monthly return: rule-based proxy derived from hashprice signal (not Monte Carlo)",
     "Not Monte Carlo — deterministic rule-based projection",
   ];
