@@ -1,47 +1,35 @@
-/**
- * Portfolio · Activity — FEUILLE BLANCHE (rebuild from scratch).
- *
- * 2026-06-27 : l'ancienne page (PortfolioLeafShell / TrustProofCompact /
- * ledger transactions groupé par date + portfolio.css + tokens --ct-*) a été
- * mise de côté pour repartir de zéro avec Catalyst, en miroir de la page
- * principale /portfolio. L'ancien code reste intact dans git et tous les
- * composants src/components/portfolio/* sont toujours là, simplement plus
- * rendus ici.
- *
- * Cette coquille n'importe NI portfolio.css NI les tokens --ct-* : base Catalyst
- * native (palette zinc, dark mode via .dark). Les surfaces sont reconstruites
- * une par une, validées au fur et à mesure.
- *
- * Le shell produit (rail gauche + chat) vient du layout parent
- * (src/app/(product)/layout.tsx) et reste en place — c'est l'infra d'auth/nav,
- * pas le DS de la page.
- */
+// Portfolio › Activity — transaction history, bound to real data (loadPortfolio)
+// on the DS canon. Reuses the RecentActivity card (Catalyst + canon tokens),
+// which renders an honest empty state when there is nothing to show.
+
+import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
+import { RecentActivity } from "@/components/portfolio/recent-activity";
+import { loadPortfolio } from "@/lib/data/portfolio";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Activity",
-  description: "Your full transaction history",
+  description: "Your transaction history",
 };
 
+export default async function ActivityPage() {
+  const { recentTransactions, source, updatedAt } = await loadPortfolio();
 
-export default function ActivityPage() {
   return (
-    <main
-      className="dark min-h-dvh bg-surface-page px-8 py-10 text-zinc-100"
-    >
-      <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-semibold text-white">Activity</h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Feuille blanche — reconstruction en cours.
-        </p>
-
-        <div className="mt-10 rounded-xl border border-dashed border-white/10 p-16 text-center">
-          <p className="text-sm text-zinc-500">
-            Surfaces à reconstruire avec Catalyst, une par une.
-          </p>
-        </div>
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <PortfolioLeafHeader
+          titleLead="Recent"
+          titleAccent="Activity"
+          kicker="DEPOSITS · PAYOUTS · WITHDRAWALS"
+        />
+        <RecentActivity
+          transactions={recentTransactions}
+          source={source}
+          updatedAt={updatedAt}
+        />
       </div>
-    </main>
+    </div>
   );
 }

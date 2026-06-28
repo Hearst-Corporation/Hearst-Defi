@@ -1,46 +1,114 @@
-/**
- * Portfolio → Distributions — FEUILLE BLANCHE (rebuild from scratch).
- *
- * 2026-06-27 : l'ancienne page leaf (PortfolioLeafShell / DistribCalendar /
- * ApyRange / KPIs + ../portfolio.css + tokens --ct-*) a été mise de côté pour
- * repartir de zéro avec Catalyst, en cohérence avec /portfolio (page.tsx). L'ancien
- * code reste intact dans git et tous les composants src/components/portfolio/* sont
- * toujours là, simplement plus rendus ici.
- *
- * Cette coquille n'importe NI ../portfolio.css NI les tokens --ct-* : base Catalyst
- * native (palette zinc, dark mode via .dark). Les surfaces sont reconstruites une
- * par une, validées au fur et à mesure.
- *
- * Le shell produit (rail gauche + chat) vient du layout parent
- * (src/app/(product)/layout.tsx) et reste en place — c'est l'infra d'auth/nav,
- * pas le DS de la page.
- */
+// Portfolio › Distributions — USDC payout history + next-distribution summary,
+// bound to real data (loadPortfolio) on the DS canon.
+
+import { Badge } from "@/components/catalyst/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
+import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
+import { loadPortfolio } from "@/lib/data/portfolio";
+import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Distributions",
-  description: "Your monthly distribution calendar and payout history",
+  description: "Your USDC distribution history",
 };
 
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
-export default function DistributionsPage() {
+export default async function DistributionsPage() {
+  const { recentTransactions, nextDistributionAt } = await loadPortfolio();
+  const payouts = recentTransactions.filter(
+    (t) => t.type === "distribution" || t.type === "claim",
+  );
+
   return (
-    <main
-      className="dark min-h-dvh bg-surface-page px-8 py-10 text-zinc-100"
-    >
-      <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-semibold text-white">Distributions</h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Feuille blanche — reconstruction en cours.
-        </p>
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <PortfolioLeafHeader
+          titleLead="USDC"
+          titleAccent="Distributions"
+          kicker="MONTHLY USDC · T+5 SETTLEMENT"
+        />
 
-        <div className="mt-10 rounded-xl border border-dashed border-white/10 p-16 text-center">
-          <p className="text-sm text-zinc-500">
-            Surfaces à reconstruire avec Catalyst, une par une.
-          </p>
-        </div>
+        {/* Next distribution summary */}
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-6 flex flex-col items-center justify-center">
+          <div className="ct-bento-label mb-3">Next distribution</div>
+          <div className="h1 mb-2">
+            {nextDistributionAt.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </div>
+          <div className="ct-metric-caption">Monthly USDC · T+5 settlement</div>
+        </section>
+
+        {/* Payout history */}
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+          aria-label="Distribution history"
+        >
+          <div className="p-5 border-b border-[var(--ct-border-soft)]">
+            <h2 className="ct-section-title">Payout history</h2>
+            <p className="ct-metric-caption">Distributions received</p>
+          </div>
+          {payouts.length > 0 ? (
+            <Table
+              dense
+              className="[--gutter:0px] max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableHeader className={`${TABLE_HEAD} pl-5`}>Date</TableHeader>
+                  <TableHeader className={`${TABLE_HEAD}`}>Vault</TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} text-center`}>
+                    Type
+                  </TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
+                    Amount
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {payouts.map((t) => (
+                  <TableRow key={t.id} className={ROW}>
+                    <TableCell className="ct-metric-caption pl-5">
+                      {formatAdminDate(t.occurredAt)}
+                    </TableCell>
+                    <TableCell className="ct-metric-caption">
+                      {t.positionVaultName ?? "Hearst Yield Vault"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge color="zinc" className="uppercase">
+                        {t.type === "claim" ? "Claim" : "Payout"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="ct-metric-value pr-5 text-right text-[var(--ct-accent)]">
+                      +{formatUsdFull(t.amountUsdc)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="p-10 text-center">
+              <p className="ct-metric-caption">
+                No distributions yet. Monthly USDC payouts appear here once your
+                first cycle settles.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
-    </main>
+    </div>
   );
 }

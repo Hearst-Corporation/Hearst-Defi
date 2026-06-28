@@ -7,10 +7,11 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 
+import Link from "next/link";
+
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
 import { relativeTime } from "@/lib/format/time";
 
 const usdFmt = new Intl.NumberFormat("en-US", {
@@ -77,11 +78,18 @@ export function RecentActivity({
               : "Deposits, payouts, and withdrawals"}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-3">
           {provenance ? (
             <ProvenanceBadge kind={provenance} variant="compact" />
           ) : null}
-          {leafHref ? <PortfolioLeafLink href={leafHref} /> : null}
+          {leafHref ? (
+            <Link
+              href={leafHref}
+              className="ct-bento-label inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
+            >
+              See more <span aria-hidden="true">→</span>
+            </Link>
+          ) : null}
         </div>
       </header>
 

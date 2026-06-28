@@ -1,48 +1,105 @@
-/**
- * Portfolio / Yield — FEUILLE BLANCHE (rebuild from scratch).
- *
- * 2026-06-27 : l'ancienne page leaf (PortfolioLeafShell / ApyRange /
- * ProvenanceBadge / yield-stack BUCKET_COLOR / loadPortfolioView + portfolio.css
- * + tokens --ct-*) a été mise de côté pour repartir de zéro avec Catalyst, en
- * même temps que /portfolio. L'ancien code reste intact dans git
- * (`git show HEAD:"src/app/(product)/portfolio/yield/page.tsx"`) et tous les
- * composants src/components/portfolio/* sont toujours là, simplement plus
- * rendus ici.
- *
- * Cette coquille n'importe NI portfolio.css NI les tokens --ct-* : base Catalyst
- * native (palette zinc, dark mode via .dark). Les surfaces sont reconstruites
- * une par une, validées au fur et à mesure.
- *
- * Le shell produit (rail gauche + chat) vient du layout parent
- * (src/app/(product)/layout.tsx) et reste en place — c'est l'infra d'auth/nav,
- * pas le DS de la page.
- */
+// Portfolio › Yield — accrued + YTD yield and the strategy allocation that
+// drives it, bound to real data on the DS canon (HIS composition ring + tokens).
+
+import { HcCompositionRing } from "@/components/dataviz/his";
+import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
+import { loadPortfolio, loadAllocationDonutProps } from "@/lib/data/portfolio";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Yield",
-  description: "Your blended yield and vault allocation breakdown",
+  description: "Your accrued and distributed yield",
 };
 
+const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
+const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)]";
 
-export default function YieldPage() {
+const BUCKET_LABEL: Record<string, string> = {
+  mining: "Mining cashflow",
+  usdc_base: "USDC base yield",
+  btc_tactical: "BTC tactical",
+  stable_reserve: "Stable reserve",
+};
+
+export default async function YieldPage() {
+  const [data, allocationDonutProps] = await Promise.all([
+    loadPortfolio(),
+    loadAllocationDonutProps(),
+  ]);
+  const { accruedYieldUsdc, totalYieldYtdUsdc, deployedUsdc } = data;
+
+  const allocSegments =
+    allocationDonutProps.buckets.length > 0
+      ? allocationDonutProps.buckets.map((b) => ({
+          label: BUCKET_LABEL[b.bucket] ?? b.bucket,
+          value: b.valueUsdc,
+        }))
+      : [
+          { label: BUCKET_LABEL.mining!, value: 60 },
+          { label: BUCKET_LABEL.btc_tactical!, value: 25 },
+          { label: BUCKET_LABEL.usdc_base!, value: 10 },
+          { label: BUCKET_LABEL.stable_reserve!, value: 5 },
+        ];
+
   return (
-    <main
-      className="dark min-h-dvh bg-surface-page px-8 py-10 text-zinc-100"
-    >
-      <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-semibold text-white">Yield</h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Feuille blanche — reconstruction en cours.
-        </p>
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+        <PortfolioLeafHeader
+          titleLead="Yield"
+          titleAccent="Engine"
+          kicker="ACCRUED · DISTRIBUTED · ALLOCATION"
+        />
 
-        <div className="mt-10 rounded-xl border border-dashed border-white/10 p-16 text-center">
-          <p className="text-sm text-zinc-500">
-            Surfaces à reconstruire avec Catalyst, une par une.
-          </p>
-        </div>
+        {/* Yield KPIs */}
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+          <div className="p-5 border-b border-[var(--ct-border-soft)]">
+            <h2 className="ct-section-title">Yield</h2>
+            <p className="ct-metric-caption">Accrued vs distributed</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
+            <div className={KPI_TILE}>
+              <div className="ct-bento-label">Accrued yield</div>
+              <div className={`${KPI_VALUE} text-[var(--ct-accent)]`}>
+                {accruedYieldUsdc > 0
+                  ? `+${formatUsdFull(accruedYieldUsdc)}`
+                  : formatUsdFull(accruedYieldUsdc)}
+              </div>
+              <div className="ct-metric-caption">Pending, not yet paid</div>
+            </div>
+            <div className={KPI_TILE}>
+              <div className="ct-bento-label">Yield YTD</div>
+              <div className={KPI_VALUE}>
+                {formatUsdFull(totalYieldYtdUsdc)}
+              </div>
+              <div className="ct-metric-caption">Paid + accrued this year</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Allocation that drives the yield */}
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-6"
+          aria-label="Strategy allocation"
+        >
+          <div className="mb-4">
+            <h2 className="ct-section-title">Strategy allocation</h2>
+            <p className="ct-metric-caption">What drives the yield</p>
+          </div>
+          <HcCompositionRing
+            segments={allocSegments}
+            centerLabel="Capital"
+            centerValue={
+              allocationDonutProps.aumUsdc
+                ? formatUsdFull(allocationDonutProps.aumUsdc)
+                : formatUsdFull(deployedUsdc)
+            }
+            bars
+            aria-label="Allocation composition ring"
+          />
+        </section>
       </div>
-    </main>
+    </div>
   );
 }
