@@ -93,6 +93,16 @@
    grille interne. */
 .admin-kpi-strip-panel > .dashboard-kpi-strip {
   background: var(--ct-surface-inset);
+  /* display:grid DOIT être (re)déclaré ici — pas seulement hérité du `.dashboard-
+     kpi-strip` de base (cockpit.css). En navigation client-side (SPA), l'ordre
+     d'injection des chunks CSS Next/Turbopack diffère du full-load : une règle
+     `display:flex` d'un autre chunk pouvait gagner sur le `display:grid` de base
+     → la strip tombait en flex, les `grid-auto-*` ci-dessous devenaient inertes,
+     et les KPI s'affichaient en largeurs inégales (cassés). Au refresh (full
+     SSR) l'ordre était correct → grid OK. En posant display:grid sur CE sélecteur
+     (spécificité 0,2,0 > 0,1,0), le rendu est déterministe quel que soit l'ordre
+     des chunks. Cause racine du bug "KPI cassés à la nav, OK au refresh". */
+  display: grid;
   /* Répartit les cellules sur TOUTE la largeur du panel (pas de colonnes vides
      auto-fit à droite qui tassent les KPI à gauche). Chaque KPI = part égale. */
   grid-auto-flow: column;
