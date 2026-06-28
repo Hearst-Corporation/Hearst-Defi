@@ -79,7 +79,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium text-black transition-opacity duration-150 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-black transition-opacity duration-150 hover:opacity-90"
           onClick={newChat}
           aria-label="Start new conversation"
           style={{ background: productColor ?? "#A7FB90" }}
@@ -101,15 +101,15 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
       {loading && (
         <div className="flex flex-col items-center gap-3 py-8">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[var(--ct-accent)]" />
-          <p className="text-[12px] text-zinc-500">Loading history…</p>
+          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">Loading history…</p>
         </div>
       )}
       {error && (
         <div className="flex flex-col items-center gap-3 rounded-lg border border-white/10 bg-[#15191C] px-4 py-6 text-center">
-          <p className="text-[13px] text-zinc-300">{error}</p>
+          <p className="text-[length:var(--ct-text-xs)] text-zinc-300">{error}</p>
           <button
             type="button"
-            className="rounded-md border border-white/10 px-3 py-1.5 text-[12px] text-zinc-400 transition-colors duration-150 hover:text-white hover:border-white/20"
+            className="rounded-md border border-white/10 px-3 py-1.5 text-[length:var(--ct-text-2xs)] text-zinc-400 transition-colors duration-150 hover:text-white hover:border-white/20"
             onClick={load}
           >
             ↻ Try again
@@ -121,7 +121,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <p className="text-[12px] leading-relaxed text-zinc-500">
+          <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-500">
             No conversations yet.<br />
             Start a chat and your history will appear here.
           </p>
@@ -144,7 +144,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
-                <span className="truncate text-[13px] text-zinc-200">{c.title}</span>
+                <span className="truncate text-[length:var(--ct-text-xs)] text-zinc-200">{c.title}</span>
               </div>
               <span className="text-[10px] text-zinc-500">{formatDate(c.updated_at)}</span>
             </button>

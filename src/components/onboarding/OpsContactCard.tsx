@@ -22,7 +22,7 @@ export function OpsContactCard({
       aria-label="Investor Relations contact"
     >
       <div className="flex items-end justify-between p-5 border-b border-white/5">
-        <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
           Your IR Contact
         </h2>
       </div>
@@ -30,7 +30,7 @@ export function OpsContactCard({
       <div className="flex items-center gap-4 p-5">
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center size-11 shrink-0 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[15px] font-semibold text-[var(--ct-accent)]"
+          className="inline-flex items-center justify-center size-11 shrink-0 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[length:var(--ct-text-sm)] font-semibold text-[var(--ct-accent)]"
         >
           {name.charAt(0)}
         </span>
@@ -39,14 +39,14 @@ export function OpsContactCard({
           <span className="text-[14px] font-semibold text-white tracking-tight truncate">
             {name}
           </span>
-          <span className="text-[12px] text-zinc-500 truncate">{title}</span>
+          <span className="text-[length:var(--ct-text-2xs)] text-zinc-500 truncate">{title}</span>
         </div>
       </div>
 
       <div className="flex flex-col">
         <a
           href={`mailto:${email}`}
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
           aria-label={`Email ${name} at ${email}`}
         >
           <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">
@@ -59,7 +59,7 @@ export function OpsContactCard({
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[13px] text-[var(--ct-accent)] hover:text-white transition-colors"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-white/5 text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
           <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-zinc-500">

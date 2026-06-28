@@ -2,14 +2,14 @@
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "31879c53 (base) → lot fix/catalyst-exec-lot2",
+    "head": "31879c53 (base) → lot fix/catalyst-exec-lot3",
     "originMain": "31879c53",
-    "status": "EXECUTION lot2 — single-DS convergence (Catalyst canon). 23 ui/* wrappers now delegate to Catalyst.",
-    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot2",
+    "status": "EXECUTION lot3 — single-DS convergence (Catalyst canon). 25 ui/* wrappers now delegate to Catalyst; bento.tsx absorbed.",
+    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot3",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
     "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed.",
-    "note": "lot2 — 23 wrappers now delegate"
+    "note": "lot3 — bento absorbed, 25 wrappers delegate, deep token pass"
   },
   "summary": {
     "pagesTotal": 72,
@@ -24,19 +24,19 @@
     "uiImporterFiles": 188,
     "catalystImporterFiles": 33,
     "uiFilesTotal": 31,
-    "catalystFilesTotal": 51,
-    "catalystCanonActive": 25,
+    "catalystFilesTotal": 53,
+    "catalystCanonActive": 27,
     "catalystCanonReserve": 24,
-    "uiWrappedToCatalyst": 23,
-    "uiLegacyAutonomous": 6,
+    "uiWrappedToCatalyst": 25,
+    "uiLegacyAutonomous": 4,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 63,
-    "accentHardcodesTsx": 55,
+    "accentHardcodesTotal": 41,
+    "accentHardcodesTsx": 33,
     "accentDefinitions": 6,
-    "accentRemovedThisLot": 21,
-    "accentRemovedTotal": 74,
-    "typographyArbitraryPx": 494,
-    "typographyTokenDriven": 105,
+    "accentRemovedThisLot": 22,
+    "accentRemovedTotal": 96,
+    "typographyArbitraryPx": 362,
+    "typographyTokenDriven": 237,
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 4,
     "dsGuardsRed": 0,
@@ -363,7 +363,7 @@
       "used": 1,
       "status": "CANON_ACTIVE",
       "tokenClean": true,
-      "wrapper": "← ui/wizard-step-progress (#049 lot2)"
+      "wrapper": "← ui/wizard-step-progress (#049 lot3)"
     },
     {
       "name": "chart-disclaimer-underlay.tsx",
@@ -406,16 +406,23 @@
       "status": "CANON_ACTIVE",
       "tokenClean": true,
       "wrapper": "← ui/confirm-dialog (#049 lot2)"
+    },
+    {
+      "name": "bento.tsx",
+      "used": 58,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/bento (#049 lot3)"
     }
   ],
   "uiWrappers": [
     {
       "name": "bento.tsx",
       "imports": 58,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none yet (page-shell + section primitives)",
-      "priority": "P0"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/bento",
+      "priority": "done"
     },
     {
       "name": "provenance-badge.tsx",
@@ -832,7 +839,7 @@
       "name": "bento-ds-contract",
       "file": "src/components/ui/__tests__/bento-ds-contract.test.tsx",
       "enforces": "BentoPanel ct-glass-panel; audit/dashboard on BentoPageShell + Catalyst Input/Table",
-      "status": "GREEN 8/8 — guard aligned to AdminPageShell canon (#049)"
+      "status": "GREEN 8/8 — BENTO_SRC repointed to catalyst/bento.tsx canon (#049 lot3)"
     },
     {
       "name": "portfolio-real-data-contract",
@@ -848,9 +855,9 @@
     }
   ],
   "guardsMissing": [
-    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (55 tsx occurrences unguarded)",
+    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (33 tsx occurrences unguarded — canvas/SVG/theme fallbacks)",
     "No guard enforcing ui/* → catalyst delegation direction (new autonomous ui/* could accumulate)",
-    "No guard for text-[Npx] across product/vaults/proof-center tsx (494 occurrences, only customers guarded)",
+    "No guard for text-[Npx] across product/vaults/proof-center tsx (362 occurrences, only customers guarded)",
     "No guard preventing source='live' bound to a <2-point/fallback series outside HcValueChart",
     "No guard pinning cockpit token version / asset versioning"
   ],
@@ -939,6 +946,11 @@
       "date": "2026-06-28",
       "ref": "Mission #049 lot2",
       "note": "+13 more ui/* wrappers absorbed into Catalyst → 23 total delegating; 51 catalyst files; #A7FB90 137→63; text-[Npx] 541→494 (token-driven 58→105); all DS guards green. The big remaining wrapper is bento.tsx (58 importers). Zero deletion."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot3",
+      "note": "bento.tsx (58 importers, the headline wrapper) + wizard-step-progress absorbed into Catalyst → 25 total delegating, 53 catalyst files; deep token pass — #A7FB90 137→41 (96 removed, rest are canvas/SVG/theme fallbacks), arbitrary text-[Npx] 541→362 with token-driven 58→237; all DS guards green (bento-ds-contract BENTO_SRC repointed to the canon). Zero deletion."
     }
   ]
 }

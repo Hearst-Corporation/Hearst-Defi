@@ -105,7 +105,7 @@ export function AllocationOrbit({
           <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] leading-none">
             Balance sheet
           </span>
-          <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
+          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-zinc-400 uppercase tracking-[0.15em] leading-none">
             Capital allocation
           </h3>
         </div>
@@ -120,7 +120,7 @@ export function AllocationOrbit({
               {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
             <div className="dashboard-orbit__core-meta mt-1">
-              <span className="text-[13px] font-semibold tabular-nums text-[var(--ct-accent)]">{allocationTotal.toFixed(0)}%</span>
+              <span className="text-[length:var(--ct-text-xs)] font-semibold tabular-nums text-[var(--ct-accent)]">{allocationTotal.toFixed(0)}%</span>
               <span className="text-[10px] uppercase tracking-[0.15em] text-zinc-500 ml-1">Mapped</span>
             </div>
           </div>
@@ -133,8 +133,8 @@ export function AllocationOrbit({
                 style={{ background: segmentStroke(index) }}
                 aria-hidden
               />
-              <span className="text-[13px] text-[var(--ct-text-secondary)] truncate">{allocationLabelFor(item.bucket)}</span>
-              <span className="text-[13px] font-medium text-[var(--ct-text-strong)] tabular-nums">{item.pct.toFixed(1)}%</span>
+              <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-secondary)] truncate">{allocationLabelFor(item.bucket)}</span>
+              <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">{item.pct.toFixed(1)}%</span>
             </li>
           ))}
         </ul>

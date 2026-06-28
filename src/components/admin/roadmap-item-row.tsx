@@ -28,10 +28,10 @@ const STATUSES: RoadmapStatus[] = [
 ];
 
 const INPUT_CLASS =
-  "mt-2 w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[13px] text-white placeholder:text-zinc-600 transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+  "mt-2 w-full rounded-lg border border-white/10 bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-zinc-600 transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 
 const GHOST_BTN =
-  "rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   const [open, setOpen] = useState(false);
@@ -77,7 +77,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             title={statusLabel(item.status)}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <span className="text-[13px] font-medium text-white">
+            <span className="text-[length:var(--ct-text-xs)] font-medium text-white">
               {item.label}
             </span>
             <div className="flex flex-wrap items-center gap-2">
@@ -89,7 +89,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                   href={safeUrl(item.evidenceUrl)}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[12px] font-medium text-[var(--ct-accent)] underline-offset-2 hover:underline"
+                  className="text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-accent)] underline-offset-2 hover:underline"
                 >
                   Evidence ↗
                 </Link>
@@ -101,7 +101,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
               ) : null}
             </div>
             {item.validatedBy && !open ? (
-              <p className="m-0 text-[12px] text-zinc-500">
+              <p className="m-0 text-[length:var(--ct-text-2xs)] text-zinc-500">
                 Validated by {item.validatedBy}
                 {item.validatedAt
                   ? ` · ${item.validatedAt.toISOString().slice(0, 10)}`
@@ -165,7 +165,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         >
           <input type="hidden" name="itemId" value={item.id} />
 
-          <p className="m-0 font-mono text-[12px] text-zinc-500">
+          <p className="m-0 font-mono text-[length:var(--ct-text-2xs)] text-zinc-500">
             {item.id}
             {item.spec_ref ? ` · ${item.spec_ref}` : ""}
           </p>

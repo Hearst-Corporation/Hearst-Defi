@@ -77,12 +77,12 @@ export function SystemReadinessModule({
 
           <div className="flex items-center gap-1.5 rounded-md bg-surface-inset px-2 py-1">
             <BentoLabel className="text-[10px]">Uptime</BentoLabel>
-            <span className="text-[11px] font-medium tabular-nums text-[var(--ct-accent)]">
+            <span className="text-[length:var(--ct-text-micro)] font-medium tabular-nums text-[var(--ct-accent)]">
               99.98%
             </span>
             <span aria-hidden className="h-2 w-px bg-[var(--ct-border)]" />
             <BentoLabel className="text-[10px]">Last scan</BentoLabel>
-            <span className="text-[11px] font-medium tabular-nums text-[var(--ct-text-secondary)]">
+            <span className="text-[length:var(--ct-text-micro)] font-medium tabular-nums text-[var(--ct-text-secondary)]">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -91,7 +91,7 @@ export function SystemReadinessModule({
           </div>
         </div>
 
-        <p className="m-0 max-w-[60ch] text-[13px] leading-snug text-zinc-400">
+        <p className="m-0 max-w-[60ch] text-[length:var(--ct-text-xs)] leading-snug text-zinc-400">
           {view.postureBlurb}
         </p>
 
@@ -141,7 +141,7 @@ function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
       >
         {stat.value}
       </span>
-      <span className="truncate text-[11px] text-zinc-500">{stat.detail}</span>
+      <span className="truncate text-[length:var(--ct-text-micro)] text-zinc-500">{stat.detail}</span>
     </div>
   );
 }
@@ -161,7 +161,7 @@ function ReadinessFactorDot({ factor }: { factor: ReadinessFactor }) {
       />
       <span
         className={cn(
-          "whitespace-nowrap text-[11px] font-medium",
+          "whitespace-nowrap text-[length:var(--ct-text-micro)] font-medium",
           toneText(factor.tone),
         )}
       >

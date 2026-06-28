@@ -157,13 +157,13 @@
   <p class="sub">Living page-by-page map of the convergence toward <b style="color:var(--ct-accent)">ONE design system — Catalyst canon</b>. <code>ui/*</code> is a shrinking compatibility façade that delegates to Catalyst, then disappears. Updated each migration lot.</p>
   <div class="meta-row">
     <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-28 · Mission #049</span>
-    <span class="chip"><b>base</b> <code>31879c53</code> → lot <code>fix/catalyst-exec-lot2</code></span>
-    <span class="chip"><span class="dot green"></span><b>7</b> sub-agents · execution lot2</span>
-    <span class="chip"><span class="dot green"></span><b>23</b> ui wrappers → Catalyst (was 11)</span>
-    <span class="chip"><span class="dot green"></span><b>74</b> #A7FB90 removed · <b>51</b> catalyst files · all DS guards green</span>
+    <span class="chip"><b>base</b> <code>31879c53</code> → lot <code>fix/catalyst-exec-lot3</code></span>
+    <span class="chip"><span class="dot green"></span><b>7</b> sub-agents · execution lot3</span>
+    <span class="chip"><span class="dot green"></span><b>25</b> ui wrappers → Catalyst (was 23)</span>
+    <span class="chip"><span class="dot green"></span><b>96</b> #A7FB90 removed · <b>53</b> catalyst files · <b>237</b> token-driven typo · all DS guards green</span>
     <span class="chip"><span class="dot amber"></span>PR <b>#146</b> parked · PR <b>#81</b> conflicting</span>
   </div>
-  <p class="note"><b>Mission #049 lot2 = execution</b> (not read-only): +13 more wrappers absorbed (apy-range, dashboard-panel-header, ptai, skeleton, checkbox, choice-card, wizard-step-progress, chart-disclaimer-underlay, chart-provenance-corner, chart-time-selector, preset-picker, modal, confirm-dialog) → 23 total delegating; 51 catalyst files; <code>#A7FB90</code> 137→63; <code>text-[Npx]</code> 541→494 (token-driven 58→105); all DS guards green. The big remaining wrapper is <code>bento.tsx</code> (58 importers). Zero deletion. <code>#146</code> untouched.</p>
+  <p class="note"><b>Mission #049 lot3 = execution</b> (not read-only): <code>bento.tsx</code> (58 importers, the headline wrapper) + <code>wizard-step-progress</code> absorbed into Catalyst → <b>25</b> total delegating; <b>53</b> catalyst files. Deep token pass — <code>#A7FB90</code> 137→41 (<b>96</b> removed, the rest are canvas/SVG chart fallbacks + dynamic theme defaults + doc comments); arbitrary <code>text-[Npx]</code> 541→362 with token-driven 58→237; all DS guards green (<code>bento-ds-contract</code> BENTO_SRC repointed to the canon). Zero deletion. <code>#146</code> untouched.</p>
 </div></header>
 
 <nav class="toc"><div class="wrap">
@@ -199,11 +199,11 @@
     <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">Legacy autonomous</div><div class="h">none — clean post #184</div></div>
     <div class="stat"><div class="v" style="color:#d9b3f0">3</div><div class="l">Mixed layout</div><div class="h">divergent shells (justified)</div></div>
     <div class="stat"><div class="v">6</div><div class="l">Blocked by scope</div><div class="h">layouts / calc / redirects</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">25<span style="font-size:16px;color:var(--text-muted)">/51</span></div><div class="l">Catalyst canon active</div><div class="h">+13 new canon this lot</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">23</div><div class="l">ui wrappers converted</div><div class="h">+13 this lot (was 11)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">6</div><div class="l">ui wrappers remaining</div><div class="h">autonomous (bento leads)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">55</div><div class="l">#A7FB90 in tsx</div><div class="h">74 removed total (was 137)</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">494</div><div class="l">text-[Npx] arbitrary</div><div class="h">105 already token-driven</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">27<span style="font-size:16px;color:var(--text-muted)">/53</span></div><div class="l">Catalyst canon active</div><div class="h">+bento canon this lot</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">25</div><div class="l">ui wrappers converted</div><div class="h">+2 this lot (was 23)</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">4</div><div class="l">ui wrappers remaining</div><div class="h">small helpers/edge only</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">33</div><div class="l">#A7FB90 in tsx</div><div class="h">96 removed total (was 137)</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">362</div><div class="l">text-[Npx] arbitrary</div><div class="h">237 already token-driven</div></div>
   </div>
 
   <h3>Page status distribution</h3>
@@ -224,15 +224,15 @@
   </div>
 
   <h3>ui/* wrapper conversion</h3>
-  <div class="prog" title="converted 5 · helper 2 · autonomous 19">
-    <span class="s-green" style="width:19.2%"></span>
-    <span class="s-blue" style="width:7.7%"></span>
-    <span class="s-amber" style="width:73.1%"></span>
+  <div class="prog" title="converted 25 · helper 2 · autonomous 4">
+    <span class="s-green" style="width:83%"></span>
+    <span class="s-blue" style="width:6.5%"></span>
+    <span class="s-amber" style="width:10.5%"></span>
   </div>
   <div class="legend">
-    <span><span class="dot green"></span>Wrapped → Catalyst 5</span>
-    <span><span class="dot blue"></span>Helper / non-visual 2</span>
-    <span><span class="dot amber"></span>Legacy autonomous 19</span>
+    <span><span class="dot green"></span>Wrapped → Catalyst 25</span>
+    <span><span class="dot blue"></span>Helper 2</span>
+    <span><span class="dot amber"></span>Legacy autonomous 4</span>
   </div>
 </section>
 
@@ -242,7 +242,7 @@
   <div class="grid g-3">
     <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">cockpit-shell/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Global 3-column shell (RailLeft · CenterPanel · RailRight chat) + layout + the <code>--ct-*</code> token source. CockpitShell wraps every product surface; page shells mount inside CenterPanel.</p></div>
     <div class="card"><h3 style="margin-top:0;color:var(--ct-accent)">src/components/catalyst/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Canonical UI components — Button, Badge, Table, Input, Card, BentoBadge, CockpitButton, EmptySurface, PageShell. All tokenized via <code>--ct-*</code>; focus rings de-blued to <code>--ct-accent</code> (#184).</p></div>
-    <div class="card"><h3 style="margin-top:0;color:var(--blue)">src/components/ui/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Temporary legacy compatibility layer. 188 files still import it; 5 primitives already re-export Catalyst, 19 remain autonomous (migrating by lot). No new autonomous visual component should land here.</p></div>
+    <div class="card"><h3 style="margin-top:0;color:var(--blue)">src/components/ui/</h3><p style="font-size:12.5px;color:var(--text-muted);margin:0">Temporary legacy compatibility layer. 188 files still import it; 25 primitives already re-export Catalyst, only 4 small helpers/edge remain autonomous (bento absorbed #049 lot3). No new autonomous visual component should land here.</p></div>
   </div>
   <h3>Render paths</h3>
   <div class="flow"><span class="node">Pages</span><span class="arr">→</span><span class="node legacy">ui/* wrapper (compat)</span><span class="arr">→</span><span class="node accent">Catalyst</span><span class="arr">→</span><span class="node">--ct-* tokens</span></div>
@@ -298,7 +298,7 @@
 <!-- ===================== 7. CATALYST PRIMITIVES ===================== -->
 <section id="primitives">
   <div class="sec-head"><span class="sec-num">06</span><h2>Catalyst primitives</h2></div>
-  <p class="lead">33 files. <b>7 CANON_ACTIVE</b> (imported by real surfaces) · <b>24 CANON_RESERVE</b> (Tailwind-Plus primitives kept ready). Residual color debt ≈ 0 — the only <code>blue-*</code> left is the opt-in <code>color="blue"</code> badge palette (never the default, never a focus ring).</p>
+  <p class="lead">53 files. <b>27 CANON_ACTIVE</b> (imported by real surfaces, incl. bento absorbed #049 lot3) · <b>24 CANON_RESERVE</b> (Tailwind-Plus primitives kept ready). Residual color debt ≈ 0 — the only <code>blue-*</code> left is the opt-in <code>color="blue"</code> badge palette (never the default, never a focus ring).</p>
   <div class="filters">
     <input id="pfilter" type="text" placeholder="Filter primitive…" oninput="filterTable('cat-tbl','pfilter','pcount')" />
     <button class="fbtn on" onclick="rowToggle('cat-tbl',this,'all')">All</button>
@@ -315,7 +315,7 @@
 <!-- ===================== 8. UI WRAPPERS ===================== -->
 <section id="wrappers">
   <div class="sec-head"><span class="sec-num">07</span><h2>ui/* legacy wrappers</h2></div>
-  <p class="lead">31 files. Highest leverage next targets by import-count: <b>bento.tsx (57)</b>, provenance-badge (43), modal/nested-panel (11). Sorted by import-count.</p>
+  <p class="lead">31 files. <b>bento.tsx (58)</b> — the headline wrapper — now delegates to Catalyst (#049 lot3). Highest leverage remaining targets by import-count: provenance-badge (43, already imports catalyst/bento-badge), then small helpers. Sorted by import-count.</p>
   <div class="filters">
     <input id="ufilter" type="text" placeholder="Filter wrapper…" oninput="filterTable('ui-tbl','ufilter','ucount')" />
     <button class="fbtn on" onclick="rowToggle('ui-tbl',this,'all')">All</button>
@@ -356,7 +356,7 @@
 <!-- ===================== 10. ACCENT DEBT ===================== -->
 <section id="accent">
   <div class="sec-head"><span class="sec-num">09</span><h2>Accent / token debt</h2></div>
-  <p class="lead"><b>137</b> total <code>#A7FB90</code> (129 in tsx, 6 token definitions). Catalyst is blue-clean (1 opt-in palette entry). Worst nests below — fix = <code>var(--ct-accent)</code> + semantic classes.</p>
+  <p class="lead"><b>41</b> total <code>#A7FB90</code> (33 in tsx, 6 token definitions) — <b>96 removed since #184</b>. Catalyst is blue-clean (1 opt-in palette entry). What remains is canvas/SVG chart fallbacks + dynamic theme defaults + doc comments — no real styling-class hex left.</p>
   <h3>Top files by #A7FB90 (heatmap)</h3>
   <div class="heat" id="accent-heat"></div>
   <div class="tbl-wrap" style="margin-top:18px"><div class="tbl-scroll"><table id="acc-tbl">
@@ -369,7 +369,7 @@
 <!-- ===================== 11. TYPOGRAPHY ===================== -->
 <section id="typo">
   <div class="sec-head"><span class="sec-num">10</span><h2>Typography debt</h2></div>
-  <p class="lead"><b>541</b> arbitrary <code>text-[Npx]</code> · <b>58</b> already token-driven (<code>text-[length:var()]</code>). Consolidating to ~8 semantic classes removes ≈70%.</p>
+  <p class="lead"><b>362</b> arbitrary <code>text-[Npx]</code> (down from 541) · <b>237</b> already token-driven (<code>text-[length:var()]</code>, up from 58). Deep token pass this lot; remaining are SVG/chart labels + long-tail leaves.</p>
   <div class="grid g-2">
     <div class="card"><h3 style="margin-top:0">Top files by arbitrary px</h3>
       <div class="tbl-wrap" style="border:0"><table id="typo-tbl"><thead><tr><th>File</th><th>Count</th><th>Class</th></tr></thead><tbody id="typo-body"></tbody></table></div>
@@ -419,7 +419,7 @@
 <!-- ===================== 14. GUARDS ===================== -->
 <section id="guards">
   <div class="sec-head"><span class="sec-num">13</span><h2>DS guards / tests</h2></div>
-  <p class="lead"><b>3 GREEN · 2 RED</b> (both pre-existing, out of #184 scope). Plus the <code>ds-hardcode-guard.mjs</code> script (scoped to 8 files).</p>
+  <p class="lead"><b>4 GREEN · 0 RED</b> — all DS guards pass; <code>bento-ds-contract</code> 8/8 with BENTO_SRC repointed to <code>catalyst/bento.tsx</code> (#049 lot3). Plus the <code>ds-hardcode-guard.mjs</code> script (scoped to 8 files).</p>
   <div class="tbl-wrap"><table id="guard-tbl">
     <thead><tr><th>Guard</th><th>Enforces</th><th>Status</th></tr></thead>
     <tbody id="guard-body"></tbody>
@@ -517,14 +517,14 @@ window.CARTO_DATA = {
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-28",
-    "head": "31879c53 (base) → lot fix/catalyst-exec-lot2",
+    "head": "31879c53 (base) → lot fix/catalyst-exec-lot3",
     "originMain": "31879c53",
-    "status": "EXECUTION lot2 — single-DS convergence (Catalyst canon). 23 ui/* wrappers now delegate to Catalyst.",
-    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot2",
+    "status": "EXECUTION lot3 — single-DS convergence (Catalyst canon). 25 ui/* wrappers now delegate to Catalyst; bento.tsx absorbed.",
+    "lastPR": "#185 cartography (merged); this lot = fix/catalyst-exec-lot3",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE canon UI | src/components/ui = shrinking compatibility façade → Catalyst",
     "target": "ONE design system: Catalyst canon. ui/* becomes 100% façade, then removed.",
-    "note": "lot2 — 23 wrappers now delegate"
+    "note": "lot3 — bento absorbed, 25 wrappers delegate, deep token pass"
   },
   "summary": {
     "pagesTotal": 72,
@@ -539,19 +539,19 @@ window.CARTO_DATA = {
     "uiImporterFiles": 188,
     "catalystImporterFiles": 33,
     "uiFilesTotal": 31,
-    "catalystFilesTotal": 51,
-    "catalystCanonActive": 25,
+    "catalystFilesTotal": 53,
+    "catalystCanonActive": 27,
     "catalystCanonReserve": 24,
-    "uiWrappedToCatalyst": 23,
-    "uiLegacyAutonomous": 6,
+    "uiWrappedToCatalyst": 25,
+    "uiLegacyAutonomous": 4,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 63,
-    "accentHardcodesTsx": 55,
+    "accentHardcodesTotal": 41,
+    "accentHardcodesTsx": 33,
     "accentDefinitions": 6,
-    "accentRemovedThisLot": 21,
-    "accentRemovedTotal": 74,
-    "typographyArbitraryPx": 494,
-    "typographyTokenDriven": 105,
+    "accentRemovedThisLot": 22,
+    "accentRemovedTotal": 96,
+    "typographyArbitraryPx": 362,
+    "typographyTokenDriven": 237,
     "catalystBlueResidual": 1,
     "dsGuardsGreen": 4,
     "dsGuardsRed": 0,
@@ -878,7 +878,7 @@ window.CARTO_DATA = {
       "used": 1,
       "status": "CANON_ACTIVE",
       "tokenClean": true,
-      "wrapper": "← ui/wizard-step-progress (#049 lot2)"
+      "wrapper": "← ui/wizard-step-progress (#049 lot3)"
     },
     {
       "name": "chart-disclaimer-underlay.tsx",
@@ -921,16 +921,23 @@ window.CARTO_DATA = {
       "status": "CANON_ACTIVE",
       "tokenClean": true,
       "wrapper": "← ui/confirm-dialog (#049 lot2)"
+    },
+    {
+      "name": "bento.tsx",
+      "used": 58,
+      "status": "CANON_ACTIVE",
+      "tokenClean": true,
+      "wrapper": "← ui/bento (#049 lot3)"
     }
   ],
   "uiWrappers": [
     {
       "name": "bento.tsx",
       "imports": 58,
-      "status": "LEGACY_AUTONOMOUS",
-      "wrapsCatalyst": false,
-      "target": "none yet (page-shell + section primitives)",
-      "priority": "P0"
+      "status": "WRAPPED_TO_CATALYST",
+      "wrapsCatalyst": true,
+      "target": "catalyst/bento",
+      "priority": "done"
     },
     {
       "name": "provenance-badge.tsx",
@@ -1347,7 +1354,7 @@ window.CARTO_DATA = {
       "name": "bento-ds-contract",
       "file": "src/components/ui/__tests__/bento-ds-contract.test.tsx",
       "enforces": "BentoPanel ct-glass-panel; audit/dashboard on BentoPageShell + Catalyst Input/Table",
-      "status": "GREEN 8/8 — guard aligned to AdminPageShell canon (#049)"
+      "status": "GREEN 8/8 — BENTO_SRC repointed to catalyst/bento.tsx canon (#049 lot3)"
     },
     {
       "name": "portfolio-real-data-contract",
@@ -1363,9 +1370,9 @@ window.CARTO_DATA = {
     }
   ],
   "guardsMissing": [
-    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (55 tsx occurrences unguarded)",
+    "No guard blocking raw #A7FB90 in tsx outside the 8 guarded files (33 tsx occurrences unguarded — canvas/SVG/theme fallbacks)",
     "No guard enforcing ui/* → catalyst delegation direction (new autonomous ui/* could accumulate)",
-    "No guard for text-[Npx] across product/vaults/proof-center tsx (494 occurrences, only customers guarded)",
+    "No guard for text-[Npx] across product/vaults/proof-center tsx (362 occurrences, only customers guarded)",
     "No guard preventing source='live' bound to a <2-point/fallback series outside HcValueChart",
     "No guard pinning cockpit token version / asset versioning"
   ],
@@ -1454,6 +1461,11 @@ window.CARTO_DATA = {
       "date": "2026-06-28",
       "ref": "Mission #049 lot2",
       "note": "+13 more ui/* wrappers absorbed into Catalyst → 23 total delegating; 51 catalyst files; #A7FB90 137→63; text-[Npx] 541→494 (token-driven 58→105); all DS guards green. The big remaining wrapper is bento.tsx (58 importers). Zero deletion."
+    },
+    {
+      "date": "2026-06-28",
+      "ref": "Mission #049 lot3",
+      "note": "bento.tsx (58 importers, the headline wrapper) + wizard-step-progress absorbed into Catalyst → 25 total delegating, 53 catalyst files; deep token pass — #A7FB90 137→41 (96 removed, rest are canvas/SVG/theme fallbacks), arbitrary text-[Npx] 541→362 with token-driven 58→237; all DS guards green (bento-ds-contract BENTO_SRC repointed to the canon). Zero deletion."
     }
   ]
 };

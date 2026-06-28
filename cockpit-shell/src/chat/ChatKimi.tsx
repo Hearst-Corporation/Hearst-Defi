@@ -123,11 +123,11 @@ const MICRO_LABEL =
 // chat : titres serrés, listes à puces accent, code mono teinté accent, blocs pre
 // encadrés. Pas de halo, juste typographie + espacement.
 const MARKDOWN_PROSE = cn(
-  "text-[13px] leading-[1.65] text-zinc-300",
+  "text-[length:var(--ct-text-xs)] leading-[1.65] text-zinc-300",
   // Headings
   "[&_h1]:mt-5 [&_h1]:mb-2 [&_h1]:text-[18px] [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-white",
-  "[&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white",
-  "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:text-white",
+  "[&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-[length:var(--ct-text-sm)] [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white",
+  "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:text-[length:var(--ct-text-xs)] [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:text-white",
   "[&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0",
   // Paragraphs
   "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
@@ -138,7 +138,7 @@ const MARKDOWN_PROSE = cn(
   "[&_li]:marker:text-[var(--ct-accent)]",
   // Code
   "[&_code]:rounded [&_code]:bg-black/40 [&_code]:px-[5px] [&_code]:py-[2px] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[var(--ct-accent)]",
-  "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/60 [&_pre]:p-3 [&_pre]:text-[12px] [&_pre]:font-mono",
+  "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/60 [&_pre]:p-3 [&_pre]:text-[length:var(--ct-text-2xs)] [&_pre]:font-mono",
   "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-zinc-300",
 );
 
@@ -342,7 +342,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           onClick={newConversation}
           title="New chat"
           aria-label="Start new conversation"
-          className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-[3px] text-[11px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-white"
+          className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-[3px] text-[length:var(--ct-text-micro)] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-white"
         >
           + New
         </button>
@@ -364,7 +364,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
                 </span>
                 <div className="flex flex-col gap-1.5">
                   <h2 className="text-[17px] font-semibold tracking-tight text-white">Hearst Assistant</h2>
-                  <p className="mx-auto max-w-[240px] text-[13px] leading-relaxed text-zinc-500">
+                  <p className="mx-auto max-w-[240px] text-[length:var(--ct-text-xs)] leading-relaxed text-zinc-500">
                     Your institutional co-pilot for portfolio insights and vault analysis.
                   </p>
                 </div>
@@ -427,11 +427,11 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
 
         {error && (
           <div className="my-4 flex flex-col gap-2.5 rounded-2xl border border-[#f9a03f]/20 bg-[#f9a03f]/[0.06] px-4 py-3">
-            <p className="text-[13px] font-medium leading-normal text-white">{error}</p>
+            <p className="text-[length:var(--ct-text-xs)] font-medium leading-normal text-white">{error}</p>
             <button
               type="button"
               onClick={retryLast}
-              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[12px] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-accent)]"
+              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-accent)]"
               aria-label="Retry last message"
             >
               ↻ Retry
@@ -447,7 +447,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           PAS encore envoyé. Double-Entrée rapide force l'envoi immédiat. */}
       {queued ? (
         <div
-          className="mt-2 flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[#15191C]/50 px-2.5 py-1.5 text-[13px] text-zinc-400"
+          className="mt-2 flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[#15191C]/50 px-2.5 py-1.5 text-[length:var(--ct-text-xs)] text-zinc-400"
           aria-live="polite"
         >
           <span
@@ -461,7 +461,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
 
       {/* Input */}
       <div className="mt-auto flex flex-col gap-2.5 pt-2">
-        <div className="flex items-center justify-center gap-1.5 text-[11px] italic text-zinc-500">
+        <div className="flex items-center justify-center gap-1.5 text-[length:var(--ct-text-micro)] italic text-zinc-500">
           <svg className="h-3 w-3 shrink-0 not-italic text-zinc-600" viewBox="0 0 13 13" fill="none" aria-hidden="true">
             <rect x="2.5" y="5.5" width="8" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.1" />
             <path d="M4.5 5.5V4a2 2 0 0 1 4 0v1.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
@@ -477,7 +477,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         >
           <textarea
             ref={textareaRef}
-            className="max-h-[10.5rem] min-h-10 flex-1 resize-none border-none bg-transparent py-1.5 text-[13px] leading-normal text-white outline-none placeholder:text-zinc-500"
+            className="max-h-[10.5rem] min-h-10 flex-1 resize-none border-none bg-transparent py-1.5 text-[length:var(--ct-text-xs)] leading-normal text-white outline-none placeholder:text-zinc-500"
             rows={1}
             placeholder="Message the assistant…"
             value={input}
@@ -548,7 +548,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
   return (
     <div
       className={cn(
-        "flex flex-col py-2 text-[13px] leading-relaxed",
+        "flex flex-col py-2 text-[length:var(--ct-text-xs)] leading-relaxed",
         isUser ? "max-w-[85%] items-end self-end text-right" : "max-w-full items-start self-start",
       )}
     >
@@ -628,12 +628,12 @@ function ChatChartCard({ chart }: { chart: ChatChart }) {
       <div className="mb-2 flex items-start justify-between">
         <div>
           <div className={MICRO_LABEL}>{chart.title}</div>
-          <div className="text-[13px] font-semibold text-white">{chart.metric}</div>
+          <div className="text-[length:var(--ct-text-xs)] font-semibold text-white">{chart.metric}</div>
         </div>
         <span className="rounded bg-white/5 px-1 py-px text-[9px] uppercase text-zinc-500">{chart.provenance}</span>
       </div>
       <ChartVisual chart={chart} />
-      <div className="flex justify-between text-[11px] text-zinc-500">
+      <div className="flex justify-between text-[length:var(--ct-text-micro)] text-zinc-500">
         <span>{chart.status === "ready" ? "Ready" : "Building"}</span>
         <span>{Math.round(chart.progress)}%</span>
       </div>
@@ -643,7 +643,7 @@ function ChatChartCard({ chart }: { chart: ChatChart }) {
           style={{ width: `${Math.max(4, Math.min(100, chart.progress))}%` }}
         />
       </div>
-      <p className="mt-2 text-[11px] leading-snug text-zinc-500">{chart.note}</p>
+      <p className="mt-2 text-[length:var(--ct-text-micro)] leading-snug text-zinc-500">{chart.note}</p>
     </article>
   );
 }
