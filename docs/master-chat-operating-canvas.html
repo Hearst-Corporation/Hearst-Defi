@@ -169,6 +169,71 @@
   .rv-v.file{font-family:var(--mono);font-size:10px;color:var(--txt2)}
   .rv-v.danger{color:#ff8e8e}
 
+  /* ── DIAGNOSTICS VIEW ─────────────────────────────── */
+  #diag-view{display:none;padding:22px;overflow-y:auto;flex:1}
+  #diag-view.on{display:block}
+  .diag-controls{display:flex;gap:10px;margin:14px 0 16px;flex-wrap:wrap}
+  .btn{font-family:var(--fnt);font-size:12px;font-weight:600;border-radius:7px;padding:8px 14px;cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--txt);transition:all .14s}
+  .btn:hover{border-color:var(--line3)}
+  .btn-primary{background:var(--green-d);border-color:var(--green-b);color:#eaf9e4}
+  .btn-primary:hover{background:rgba(167,251,144,.22)}
+  .btn-ghost{color:var(--txt2)}
+  .btn[disabled]{opacity:.4;cursor:not-allowed}
+  .diag-summary{font-size:13px;font-family:var(--mono);background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:11px 14px;margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap}
+  .sm-pass{color:var(--green);font-weight:700}.sm-fail{color:var(--red);font-weight:700}.sm-warn{color:var(--yellow);font-weight:700}.sm-skip{color:var(--txt2);font-weight:700}
+  .diag-section-h{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);font-weight:700;margin:22px 0 10px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .approx{font-size:9px;letter-spacing:.02em;text-transform:none;color:var(--yellow);background:var(--yellow-d);border:1px solid rgba(255,194,94,.25);border-radius:4px;padding:2px 7px;font-weight:600}
+  /* failure map */
+  .fmap-clean{font-size:12.5px;color:var(--green);background:var(--green-d);border:1px solid var(--green-b);border-radius:8px;padding:12px 14px}
+  .fmap{display:flex;flex-direction:column;gap:8px}
+  .fm-row{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--red);border-radius:7px;padding:10px 12px;font-size:11.5px;color:var(--txt)}
+  .fm-row.warn{border-left-color:var(--yellow)}
+  .fm-row .mono{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+  /* per-flow */
+  .diag-flow{margin-bottom:14px;background:var(--panel);border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+  .diag-flow-head{display:flex;align-items:center;gap:9px;padding:10px 14px;background:var(--panel2);cursor:pointer;border-bottom:1px solid var(--line)}
+  .diag-flow-head:hover{background:var(--panel3)}
+  .diag-flow-head .fs-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .dfh-name{font-size:12.5px;font-weight:700;color:#e4ebf3;flex:1}
+  .dfh-score{font-size:10.5px;font-family:var(--mono);color:var(--green);font-weight:700}
+  .diag-tests{padding:6px 0}
+  /* test row */
+  .test-row{display:grid;grid-template-columns:64px 36px 1fr;gap:10px;align-items:start;padding:7px 14px;border-bottom:1px solid var(--line)}
+  .test-row:last-child{border-bottom:none}
+  .test-row.st-fail{background:rgba(255,95,95,.05)}
+  .test-row.st-warn{background:rgba(255,194,94,.04)}
+  .st{font-size:9px;font-weight:800;letter-spacing:.06em;text-align:center;padding:2px 0;border-radius:4px}
+  .st-pass{background:var(--green-d);color:var(--green)}
+  .st-fail{background:rgba(255,95,95,.16);color:var(--red)}
+  .st-warn{background:var(--yellow-d);color:var(--yellow)}
+  .st-skip{background:var(--panel3);color:var(--txt2)}
+  .sev{font-size:9px;font-weight:800;text-align:center;padding:2px 0;border-radius:4px}
+  .sev-p0{background:rgba(255,80,80,.2);color:#ff5050}.sev-p1{background:var(--orange-d);color:var(--orange)}.sev-p2{background:var(--yellow-d);color:var(--yellow)}.sev-info{background:var(--blue-d);color:var(--blue)}
+  .tr-main{min-width:0}
+  .tr-label{font-size:11.5px;color:#dde5ef;font-weight:600;line-height:1.35}
+  .tr-actual{font-size:10.5px;color:var(--txt2);margin-top:2px;line-height:1.4}
+  .test-row.st-pass .tr-actual{color:var(--green)}
+  .tr-detail{font-size:10.5px;color:var(--txt2);margin-top:5px;line-height:1.5;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+  .tr-detail .mono,.fm-row .mono{font-family:var(--mono)}
+  .mini-btn{margin-top:6px;font-size:10px;font-family:var(--fnt);color:var(--green);background:transparent;border:1px solid var(--green-b);border-radius:5px;padding:3px 8px;cursor:pointer}
+  .mini-btn:hover{background:var(--green-d)}
+  /* simulate */
+  .sim-box{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .sim-box input{flex:1;min-width:240px;background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:8px 12px;color:var(--txt);font-size:12px;font-family:var(--fnt);outline:none}
+  .sim-box input:focus{border-color:var(--green-b)}
+  #sim-result{flex-basis:100%;margin-top:4px}
+  .sim-out{font-size:12px;background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:10px 12px;color:var(--txt)}
+  .sim-out a{cursor:pointer;text-decoration:underline}
+  .sim-meta{font-size:10px;color:var(--yellow);display:block;margin-top:4px}
+  .sim-hint{font-size:11px;color:var(--txt3)}
+  /* flowstrip inline diagnostics */
+  .fs-diag-btn{cursor:pointer;color:var(--green);font-size:12px;border:1px solid var(--green-b);border-radius:5px;padding:3px 9px;background:var(--green-d)}
+  .fs-diag-btn:hover{background:rgba(167,251,144,.2)}
+  .fs-diag-summary{font-size:11px;font-family:var(--mono);color:var(--txt2);margin:12px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+  .fs-diag-summary a{cursor:pointer}
+  .fs-diag-rows{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+  @media(max-width:980px){.fs-diag-rows{grid-template-columns:1fr}}
+
   /* responsive */
   @media(max-width:1180px){
     #detail{width:300px}
@@ -188,9 +253,9 @@
   <span>Flows <b id="sb-flows">—</b></span>
   <span>Write tools <b>7</b></span>
   <span>External sends <b>4+1</b></span>
-  <span>Hard guarantees <b>12</b></span>
+  <span>Invariants <b id="sb-inv">—</b></span>
   <div class="sep"></div>
-  <span>Runtime no-touch · docs HTML only · facts verified vs source</span>
+  <span>Static diagnostics · no runtime · no network · facts verified vs source</span>
 </div>
 
 <div id="app">
@@ -210,6 +275,7 @@
       <div class="rail-h">Views</div>
       <div class="rail-item view-item" data-view="overview" onclick="setView('overview')"><span class="swatch" style="background:var(--green)"></span><span class="ri-label">Overview (all nodes)</span></div>
       <div class="rail-item view-item" data-view="records" onclick="setView('records')"><span class="swatch" style="background:var(--steel)"></span><span class="ri-label">Records</span></div>
+      <div class="rail-item view-item" data-view="diagnostics" onclick="setView('diagnostics')"><span class="swatch" style="background:var(--blue)"></span><span class="ri-label">Diagnostics</span></div>
     </div>
     <div class="rail-foot">
       Read-only documentation. No runtime import, no CDN, no fetch.<br>Facts cross-checked against source by a 4-agent verifier + critic.
@@ -239,6 +305,7 @@
         <svg id="edges"></svg>
       </div>
       <div id="records-view"></div>
+      <div id="diag-view"></div>
     </div>
 
     <div id="flowstrip">
@@ -989,9 +1056,11 @@ function renderFlowStrip(fid){
   }).join('');
   inner.innerHTML=`
     <div class="fs-head"><span class="fs-dot" style="background:${f.color}"></span><h3>${f.label}</h3>
+      <span class="fs-diag-btn" onclick="runFlowDiagnosticInline('${fid}')">⚡ Run diagnostic</span>
       <span class="fs-close" onclick="closeFlow()">Clear flow ✕</span></div>
     <div class="fs-sum">${f.summary}</div>
-    <div class="fs-steps">${steps}</div>`;
+    <div class="fs-steps">${steps}</div>
+    <div id="fs-diag-out"></div>`;
   strip.classList.add('open');
 }
 
@@ -1009,14 +1078,20 @@ function closeFlow(){
 function setView(v,silent){
   currentView=v;
   const rv=document.getElementById('records-view');
+  const dv=document.getElementById('diag-view');
   const gr=document.getElementById('graph');
   document.querySelectorAll('.rail-item.view-item').forEach(el=>el.classList.toggle('active',el.dataset.view===v && !activeFlow));
+  rv.classList.remove('on'); dv.classList.remove('on');
   if(v==='records'){
-    rv.classList.add('on'); gr.style.display='none';
+    gr.style.display='none'; rv.classList.add('on');
     document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
     if(!silent) renderRecords();
+  }else if(v==='diagnostics'){
+    gr.style.display='none'; dv.classList.add('on');
+    document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
+    if(!silent) renderDiagnostics();
   }else{
-    rv.classList.remove('on'); gr.style.display='block';
+    gr.style.display='block';
     if(v==='overview'&&!activeFlow){
       document.querySelectorAll('.node').forEach(el=>el.classList.remove('dim','flow-on','active'));
       drawEdges();
@@ -1051,6 +1126,7 @@ function highlightRecord(name){
 function search(q){
   q=q.trim().toLowerCase();
   document.getElementById('search-clear').style.display=q?'block':'none';
+  if(currentView==='diagnostics'){ return; }
   if(currentView==='records'){ filterRecords(q); return; }
   if(!q){document.querySelectorAll('.node').forEach(el=>el.classList.remove('search-hit','search-miss'));return;}
   if(activeFlow) closeFlow();
@@ -1071,6 +1147,297 @@ function filterRecords(q){
 }
 function clearSearch(){document.getElementById('search-input').value='';search('');}
 
+/* ════════════════════════════════════════════════════════════════
+   DIAGNOSTIC RUNNER — pure static model checks. No runtime, no
+   network, no DB. Every check inspects the encoded NODES/FLOWS/
+   RECORDS and asserts an invariant the canvas documents. GREEN means
+   the documented model is internally consistent; a future bad edit
+   to the model turns the relevant invariant RED.
+   ════════════════════════════════════════════════════════════════ */
+
+// Live dry-run hooks — intentionally all null. No safe dry-run endpoint
+// exists in the app (verified: no /api/admin/diagnostics/* route). The
+// "Run live dry-run" button stays disabled until one is registered here.
+const LIVE_ENDPOINTS = {
+  product:null, projection:null, outreachDirect:null, campaignFanout:null,
+  autoSend:null, followups:null, vault:null, dangerous:null,
+  llmFallback:null, lp:null, admin:null
+};
+
+// A real business side-effect record (vs always-on chat/admin bookkeeping).
+const BUSINESS_RECORDS = new Set(['ProjectionStudyRun','ScenarioRun','VaultDeployment','ShareClass','OutreachEmail','OutreachEmailEvent','GovernanceProposal','OutreachSuppression']);
+
+const _F=fid=>FLOWS[fid];
+const _has=(fid,nid)=>_F(fid).nodeIds.includes(nid);
+const _idx=(fid,nid)=>_F(fid).nodeIds.indexOf(nid);
+const _N=nid=>NODES[nid]||{};
+const _creates=(nid,rec)=>(_N(nid).records||[]).includes(rec);
+const _flowText=fid=>JSON.stringify(_F(fid)).toLowerCase();
+const _nodeText=nid=>JSON.stringify(_N(nid)).toLowerCase();
+const _isBizWrite=nid=>{const n=_N(nid);return n.ext===true||(n.records||[]).some(r=>BUSINESS_RECORDS.has(r));};
+const _firstCreatorIdx=(fid,rec)=>_F(fid).nodeIds.findIndex(nid=>_creates(nid,rec));
+
+const P =a=>({status:'pass',actual:a||'as expected'});
+const Fl=a=>({status:'fail',actual:a});
+const W =a=>({status:'warn',actual:a});
+
+const DIAGNOSTICS = {
+  'flow-product':[
+    {id:'product-has-workspace',label:'Flow includes the Product Workspace node',severity:'P1',mode:'static',expected:'product-workspace present in flow',file:'src/app/admin/product-workspace/page.tsx',fix:'Add product-workspace to flow nodeIds',
+      check:()=>_has('flow-product','product-workspace')?P('present at step '+(_idx('flow-product','product-workspace')+1)):Fl('product-workspace missing')},
+    {id:'product-has-preset',label:'Flow includes buildProjectionInputPreset',severity:'P2',mode:'static',expected:'projection-input-preset present',file:'src/lib/projection/projection-input-preset.ts',fix:'Add projection-input-preset to flow',
+      check:()=>_has('flow-product','projection-input-preset')?P('present'):Fl('projection-input-preset missing')},
+    {id:'product-has-projection-page',label:'Flow includes the Projection page',severity:'P2',mode:'static',expected:'projection-page present',file:'src/app/admin/projection/page.tsx',fix:'Add projection-page to flow',
+      check:()=>_has('flow-product','projection-page')?P('present'):Fl('projection-page missing')},
+    {id:'product-no-auto-run',label:'No ProjectionStudyRun created before the manual run node',severity:'P0',mode:'static',expected:'No node before run-study creates ProjectionStudyRun',file:'src/app/admin/projection/page.tsx · actions.ts',fix:'Ensure only the run button creates the run',
+      check:()=>{const ri=_idx('flow-product','run-study');const before=_F('flow-product').nodeIds.slice(0,ri<0?undefined:ri);const bad=before.filter(n=>_creates(n,'ProjectionStudyRun'));return bad.length?Fl('created earlier by: '+bad.join(', ')):P('first creator is run-study (step '+(ri+1)+')');}},
+    {id:'product-preset-readonly',label:'Preset node is read-only (writeRisk none)',severity:'P0',mode:'static',expected:'projection-input-preset.writeRisk === "none"',file:'src/lib/projection/projection-input-preset.ts',fix:'Keep the preset pure / read-only',
+      check:()=>_N('projection-input-preset').writeRisk==='none'?P('writeRisk = none'):Fl('writeRisk = '+_N('projection-input-preset').writeRisk)},
+    {id:'product-preset-no-numbers',label:'Preset output carries no numeric prefill (APY/LTV/p5/p50/p95/cashflow)',severity:'P0',mode:'static',expected:'output mentions no business numbers as prefilled values',file:'src/lib/projection/projection-input-preset.ts',fix:'Keep preset structural-only (CONTEXT ONLY)',
+      check:()=>{const o=(_N('projection-input-preset').output||'').toLowerCase();const banned=['apy','ltv','cashflow','p5','p50','p95'].filter(b=>o.includes(b));return banned.length?Fl('output mentions: '+banned.join(', ')):P('structural fields only, no numbers');}},
+    {id:'product-runstudy-first-creator',label:'run-study is the first node that can create ProjectionStudyRun',severity:'P1',mode:'static',expected:'first ProjectionStudyRun creator === run-study',file:'src/app/admin/projection/studio.tsx:443',fix:'—',
+      check:()=>{const i=_firstCreatorIdx('flow-product','ProjectionStudyRun');const nid=_F('flow-product').nodeIds[i];return nid==='run-study'?P('first creator at step '+(i+1)):Fl('first creator is '+nid);}},
+  ],
+  'flow-projection':[
+    {id:'proj-runstudy-creates',label:'run-study creates ProjectionStudyRun',severity:'P1',mode:'static',expected:'run-study.records includes ProjectionStudyRun',file:'src/app/admin/projection/actions.ts:201',fix:'—',
+      check:()=>_creates('run-study','ProjectionStudyRun')?P('creates ProjectionStudyRun + ScenarioRun'):Fl('does not create the run')},
+    {id:'proj-runstudy-manual',label:'run-study is a manual UI action (not chat-reachable)',severity:'P0',mode:'static',expected:'type action + guards state "button only / not chat"',file:'src/app/admin/projection/studio.tsx:443',fix:'Mark run-study manual; keep it out of chat tools',
+      check:()=>{const n=_N('run-study');const t=(n.label+' '+(n.guards||[]).join(' ')).toLowerCase();return (n.type==='action'&&(t.includes('button')||t.includes('manual')))?P('manual button only'):Fl('not marked manual');}},
+    {id:'proj-page-no-record',label:'Projection GET creates no record',severity:'P0',mode:'static',expected:'projection-page.records is empty',file:'src/app/admin/projection/page.tsx',fix:'Keep GET render side-effect-free',
+      check:()=>{const r=_N('projection-page').records||[];return r.length===0?P('records: none'):Fl('GET creates: '+r.join(', '));}},
+    {id:'proj-promote-draft-only',label:'promote-to-draft creates only a DRAFT deployment',severity:'P1',mode:'static',expected:'promote-to-draft output states status="draft"',file:'src/app/admin/projection/actions.ts:328',fix:'Keep promote draft-only',
+      check:()=>{const o=(_N('promote-to-draft').output||'').toLowerCase();return o.includes('draft')?P('status="draft" only'):Fl('draft status not stated');}},
+    {id:'proj-vaultdeploy-draft',label:'VaultDeployment is draft-only from chat/promote paths',severity:'P0',mode:'static',expected:'RECORDS.VaultDeployment.hard restricts to draft',file:'prisma/schema.prisma:449',fix:'—',
+      check:()=>{const h=(RECORDS.VaultDeployment.hard||'').toLowerCase();return h.includes('draft')?P(RECORDS.VaultDeployment.hard):Fl('no draft-only constraint recorded');}},
+    {id:'proj-no-auto-investor-ready',label:'Investor-ready is not an automatic run result',severity:'P0',mode:'static',expected:'flow states the investor-ready gate is separate / not lifted by a run',file:'src/app/admin/projection/actions.ts',fix:'Keep the investor-ready gate separate from a run',
+      check:()=>{const t=_flowText('flow-projection');return (t.includes('investor-ready')&&(t.includes('not lifted')||t.includes('separate')||t.includes('not auto')))?P('gate is separate from a run'):W('no explicit investor-ready guard text in flow');}},
+  ],
+  'flow-outreach-direct':[
+    {id:'od-confirm-before-send',label:'ConfirmDialog precedes sendDirectEmail',severity:'P0',mode:'static',expected:'confirm-dialog index < send-direct-email index',file:'src/components/catalyst/confirm-dialog.tsx (PR #210)',fix:'Gate the send behind the dialog',
+      check:()=>{const c=_idx('flow-outreach-direct','confirm-dialog'),s=_idx('flow-outreach-direct','send-direct-email');return (c>-1&&s>-1&&c<s)?P('confirm step '+(c+1)+' before send step '+(s+1)):Fl('order wrong or a node missing');}},
+    {id:'od-send-external',label:'sendDirectEmail is flagged as external send',severity:'P1',mode:'static',expected:'send-direct-email.ext === true',file:'src/app/admin/outreach/actions.ts:703',fix:'Mark the node external-send',
+      check:()=>_N('send-direct-email').ext===true?P('externalSend = true'):Fl('externalSend not set')},
+    {id:'od-has-forbidden',label:'Flow includes the forbidden-words guard',severity:'P0',mode:'static',expected:'forbidden-words present',file:'src/lib/agents/forbidden-words.ts',fix:'Add forbidden-words to flow',
+      check:()=>_has('flow-outreach-direct','forbidden-words')?P('present'):Fl('missing')},
+    {id:'od-has-suppression',label:'Flow includes the suppression check',severity:'P0',mode:'static',expected:'suppression-check present',file:'src/lib/outreach/suppression.ts',fix:'Add suppression-check to flow',
+      check:()=>_has('flow-outreach-direct','suppression-check')?P('present'):Fl('missing')},
+    {id:'od-no-bypass',label:'No direct DirectSendForm → Resend path (must pass ConfirmDialog)',severity:'P0',mode:'static',expected:'direct-send-form.next does not include resend',file:'src/components/admin/outreach/direct-send-form.tsx',fix:'Route the form through confirm-dialog',
+      check:()=>{const nx=_N('direct-send-form').next||[];return !nx.includes('resend')?P('next: '+nx.join(', ')):Fl('direct-send-form links straight to resend');}},
+  ],
+  'flow-campaign-fanout':[
+    {id:'cf-uses-fanout',label:'Flow uses the campaign-fanout node',severity:'P1',mode:'static',expected:'campaign-fanout present',file:'src/lib/inngest/functions/outreach-send.ts',fix:'Add campaign-fanout to flow',
+      check:()=>_has('flow-campaign-fanout','campaign-fanout')?P('present'):Fl('missing')},
+    {id:'cf-correct-file',label:'campaign-fanout maps to outreach-send.ts (not auto-send)',severity:'P0',mode:'static',expected:'campaign-fanout.file contains outreach-send.ts',file:'src/lib/inngest/functions/outreach-send.ts',fix:'Point campaign-fanout at outreach-send.ts',
+      check:()=>(_N('campaign-fanout').file||'').includes('outreach-send.ts')?P('outreach-send.ts'):Fl('wrong file: '+_N('campaign-fanout').file)},
+    {id:'cf-has-suppression',label:'Flow includes the suppression check',severity:'P0',mode:'static',expected:'suppression-check present',file:'src/lib/outreach/suppression.ts',fix:'Add suppression-check',
+      check:()=>_has('flow-campaign-fanout','suppression-check')?P('present'):Fl('missing')},
+    {id:'cf-has-forbidden',label:'Flow includes the forbidden-words guard',severity:'P0',mode:'static',expected:'forbidden-words present',file:'src/lib/agents/forbidden-words.ts',fix:'Add forbidden-words',
+      check:()=>_has('flow-campaign-fanout','forbidden-words')?P('present'):Fl('missing')},
+    {id:'cf-has-resend',label:'Flow reaches Resend (after guards pass)',severity:'P2',mode:'static',expected:'resend present',file:'src/lib/email/send.ts',fix:'Add resend leaf',
+      check:()=>_has('flow-campaign-fanout','resend')?P('present'):Fl('missing')},
+    {id:'cf-not-autosend',label:'Flow is NOT conflated with the auto-send cron',severity:'P0',mode:'static',expected:'auto-send-cron NOT in flow',file:'src/lib/inngest/functions/outreach-auto-send.ts',fix:'Keep the two crons separate',
+      check:()=>!_has('flow-campaign-fanout','auto-send-cron')?P('separate handler'):Fl('contains auto-send-cron')},
+    {id:'cf-block-audit',label:'Block-send audit (PR #213) represented',severity:'INFO',mode:'static',expected:'flow/node mentions blockedSend audit',file:'src/lib/inngest/functions/outreach-send.ts:146-159',fix:'Note the audit-on-block path',
+      check:()=>{const t=_flowText('flow-campaign-fanout')+_nodeText('campaign-fanout');return t.includes('blockedsend')?P('audit blockedSend present'):W('block audit not mentioned');}},
+  ],
+  'flow-auto-send':[
+    {id:'as-uses-cron',label:'Flow uses the auto-send-cron node',severity:'P1',mode:'static',expected:'auto-send-cron present',file:'src/lib/inngest/functions/outreach-auto-send.ts',fix:'Add auto-send-cron',
+      check:()=>_has('flow-auto-send','auto-send-cron')?P('present'):Fl('missing')},
+    {id:'as-correct-file',label:'auto-send-cron maps to outreach-auto-send.ts',severity:'P0',mode:'static',expected:'auto-send-cron.file contains outreach-auto-send.ts',file:'src/lib/inngest/functions/outreach-auto-send.ts',fix:'Point node at outreach-auto-send.ts',
+      check:()=>(_N('auto-send-cron').file||'').includes('outreach-auto-send.ts')?P('outreach-auto-send.ts'):Fl('wrong file: '+_N('auto-send-cron').file)},
+    {id:'as-not-fanout',label:'Flow is NOT conflated with campaign fan-out',severity:'P0',mode:'static',expected:'campaign-fanout NOT in flow',file:'src/lib/inngest/functions/outreach-send.ts',fix:'Keep separate from outreach-send',
+      check:()=>!_has('flow-auto-send','campaign-fanout')?P('separate handler'):Fl('contains campaign-fanout')},
+    {id:'as-autonomy',label:'Flow gates on OUTREACH_AUTONOMY',severity:'P0',mode:'static',expected:'flow mentions OUTREACH_AUTONOMY',file:'src/lib/outreach/send-policy.ts',fix:'Document the autonomy gate',
+      check:()=>_flowText('flow-auto-send').includes('outreach_autonomy')?P('OUTREACH_AUTONOMY gate present (default SUGGEST)'):Fl('autonomy gate not mentioned')},
+    {id:'as-tierA',label:'Tier A is never auto-sent',severity:'P0',mode:'static',expected:'flow states Tier A never auto-sent',file:'src/lib/outreach/send-policy.ts',fix:'Keep Tier A draft-only',
+      check:()=>{const t=_flowText('flow-auto-send');return (t.includes('tier a')&&t.includes('never'))?P('Tier A never auto-sent (hard block)'):Fl('Tier A guard missing')}},
+    {id:'as-warmup',label:'Warm-up / daily cap represented',severity:'P1',mode:'static',expected:'flow mentions warm-up or daily cap',file:'src/lib/outreach/send-policy.ts',fix:'Document warm-up + cap',
+      check:()=>{const t=_flowText('flow-auto-send');return (t.includes('warm-up')||t.includes('warm up')||t.includes('daily cap')||t.includes(' cap'))?P('warm-up / daily cap present'):W('warm-up/cap not mentioned')}},
+    {id:'as-audit',label:'Auto-send block audit (PR #216) represented',severity:'INFO',mode:'static',expected:'flow mentions auto_send audit channel',file:'src/lib/inngest/functions/outreach-auto-send.ts:210-224',fix:'Note audit-on-block',
+      check:()=>_flowText('flow-auto-send').includes('auto_send')?P('audit channel auto_send (#216)'):W('auto_send audit not mentioned')},
+  ],
+  'flow-followups':[
+    {id:'fu-uses-cron',label:'Flow uses the followups-cron node',severity:'P1',mode:'static',expected:'followups-cron present',file:'src/lib/inngest/functions/outreach-followups.ts',fix:'Add followups-cron',
+      check:()=>_has('flow-followups','followups-cron')?P('present'):Fl('missing')},
+    {id:'fu-correct-file',label:'followups-cron maps to outreach-followups.ts',severity:'P0',mode:'static',expected:'followups-cron.file contains outreach-followups.ts',file:'src/lib/inngest/functions/outreach-followups.ts',fix:'Point node at outreach-followups.ts',
+      check:()=>(_N('followups-cron').file||'').includes('outreach-followups.ts')?P('outreach-followups.ts'):Fl('wrong file: '+_N('followups-cron').file)},
+    {id:'fu-nurture',label:'Flow requires NURTURE+ autonomy',severity:'P0',mode:'static',expected:'flow mentions NURTURE+',file:'src/lib/outreach/send-policy.ts',fix:'Document the NURTURE+ gate',
+      check:()=>_flowText('flow-followups').includes('nurture')?P('NURTURE+ gate present'):Fl('NURTURE+ not mentioned')},
+    {id:'fu-cadence',label:'Cadence / limits represented (max steps, delays)',severity:'P1',mode:'static',expected:'flow mentions max step or delay cadence',file:'src/lib/inngest/functions/outreach-followups.ts',fix:'Document cadence',
+      check:()=>{const t=_flowText('flow-followups');return (t.includes('max_step')||t.includes('max ')||t.includes('3d')||t.includes('delay')||t.includes('follow-up #'))?P('cadence/limits present (3d/4d, max 2)'):W('cadence not mentioned')}},
+    {id:'fu-guards',label:'Flow includes suppression + forbidden-words',severity:'P0',mode:'static',expected:'both guards present',file:'suppression.ts · forbidden-words.ts',fix:'Add both guards',
+      check:()=>(_has('flow-followups','suppression-check')&&_has('flow-followups','forbidden-words'))?P('both guards present'):Fl('missing a guard')},
+    {id:'fu-not-others',label:'Flow is distinct from fan-out and auto-send',severity:'P0',mode:'static',expected:'no campaign-fanout, no auto-send-cron',file:'src/lib/inngest/functions/outreach-followups.ts',fix:'Keep handlers separate',
+      check:()=>(!_has('flow-followups','campaign-fanout')&&!_has('flow-followups','auto-send-cron'))?P('distinct handler'):Fl('conflated with another path')},
+  ],
+  'flow-vault':[
+    {id:'v-has-hitl',label:'Flow includes the HITL confirmation token',severity:'P0',mode:'static',expected:'hitl-token present',file:'src/lib/llm/tools/confirmations.ts',fix:'Gate the write behind a HITL token',
+      check:()=>_has('flow-vault','hitl-token')?P('present'):Fl('missing hitl-token')},
+    {id:'v-deploy-not-draftmodel',label:'create_vault_draft writes VaultDeployment, NOT the VaultDraft model',severity:'P0',mode:'static',expected:'vault-draft-tool.records includes VaultDeployment and excludes VaultDraft',file:'src/app/admin/vaults/actions.ts:71',fix:'Keep records accurate (VaultDeployment draft + ShareClass)',
+      check:()=>{const r=_N('vault-draft-tool').records||[];return (r.includes('VaultDeployment')&&!r.includes('VaultDraft'))?P('records: '+r.join(', ')):Fl('records: '+r.join(', '));}},
+    {id:'v-requires-hitl',label:'vault-draft-tool requires HITL',severity:'P0',mode:'static',expected:'vault-draft-tool.hitl === true',file:'src/lib/llm/tools/registry.ts:1286',fix:'Set confirmationRequired / hitl',
+      check:()=>_N('vault-draft-tool').hitl===true?P('hitl = true'):Fl('hitl not required')},
+    {id:'v-no-resend',label:'Flow contains no external send (no Resend)',severity:'P1',mode:'static',expected:'resend NOT in flow',file:'—',fix:'Vault draft never emails',
+      check:()=>!_has('flow-vault','resend')?P('no external send'):Fl('contains resend')},
+    {id:'v-no-deploy',label:'Flow contains no deploy / go-live node',severity:'P0',mode:'static',expected:'no deploy/live node in flow',file:'src/app/admin/vaults/actions.ts (markAsLive = governance UI)',fix:'Keep deploy out of chat',
+      check:()=>{const bad=_F('flow-vault').nodeIds.filter(n=>/deploy-exec|go-live|mark-live|markaslive|deploy-tool/.test(n));return bad.length?Fl('contains: '+bad.join(', ')):P('no deploy/live node (markAsLive is governance UI)');}},
+    {id:'v-deploy-draft',label:'VaultDeployment is draft-only here',severity:'P0',mode:'static',expected:'RECORDS.VaultDeployment.hard restricts to draft',file:'prisma/schema.prisma:449',fix:'—',
+      check:()=>{const h=(RECORDS.VaultDeployment.hard||'').toLowerCase();return h.includes('draft')?P(RECORDS.VaultDeployment.hard):Fl('not draft-only');}},
+  ],
+  'flow-dangerous':[
+    {id:'d-has-router',label:'Flow includes the danger-first guard',severity:'P1',mode:'static',expected:'danger-router present',file:'src/lib/agentic/intent-router-rules.ts:49-102',fix:'Add danger-router',
+      check:()=>_has('flow-dangerous','danger-router')?P('present'):Fl('missing')},
+    {id:'d-has-refusal',label:'Flow terminates in a refusal',severity:'P0',mode:'static',expected:'dangerous-refusal present',file:'src/app/api/cockpit-chat/route.ts:763-785',fix:'Add dangerous-refusal terminal',
+      check:()=>_has('flow-dangerous','dangerous-refusal')?P('present'):Fl('missing')},
+    {id:'d-no-llm',label:'No LLM in the dangerous path (pre-LLM refusal)',severity:'P0',mode:'static',expected:'llm-fallback NOT in flow',file:'src/app/api/cockpit-chat/route.ts',fix:'Refuse before the LLM',
+      check:()=>!_has('flow-dangerous','llm-fallback')?P('no llm-fallback node'):Fl('contains llm-fallback')},
+    {id:'d-no-write',label:'No business-write node in the dangerous path',severity:'P0',mode:'static',expected:'no node creates a business record / external send',file:'src/lib/agentic/intent-router.ts',fix:'Keep the refusal side-effect-free',
+      check:()=>{const bad=_F('flow-dangerous').nodeIds.filter(_isBizWrite);return bad.length?Fl('business write via: '+bad.join(', ')):P('0 business writes (chat bookkeeping excluded)');}},
+    {id:'d-no-hitl',label:'No HITL token in the dangerous path (nothing to confirm)',severity:'P1',mode:'static',expected:'hitl-token NOT in flow',file:'—',fix:'Refusal needs no token',
+      check:()=>!_has('flow-dangerous','hitl-token')?P('no hitl-token'):Fl('contains hitl-token')},
+    {id:'d-verdict-prellm',label:'Verdict states refusal is pre-LLM',severity:'P0',mode:'static',expected:'flow verdict mentions pre-LLM',file:'src/app/api/cockpit-chat/route.ts:763',fix:'—',
+      check:()=>(_F('flow-dangerous').verdict||'').toLowerCase().includes('pre-llm')?P('verdict states pre-LLM'):Fl('verdict missing pre-LLM')},
+  ],
+  'flow-llm-fallback':[
+    {id:'lf-has-guard',label:'LLM stream passes the output guard',severity:'P0',mode:'static',expected:'output-guard present after llm-fallback',file:'src/lib/llm/output-guard.ts',fix:'Wrap the stream with guardChatStream',
+      check:()=>{const l=_idx('flow-llm-fallback','llm-fallback'),g=_idx('flow-llm-fallback','output-guard');return (l>-1&&g>-1&&g>l)?P('output-guard after llm (step '+(g+1)+')'):Fl('guard missing or before llm');}},
+    {id:'lf-no-biz-write',label:'No autonomous business write in the fallback path',severity:'P0',mode:'static',expected:'no node creates a business record / external send',file:'src/lib/llm/chat-agent.ts',fix:'Keep write tools behind HITL',
+      check:()=>{const bad=_F('flow-llm-fallback').nodeIds.filter(_isBizWrite);return bad.length?Fl('business write via: '+bad.join(', ')):P('0 business writes');}},
+    {id:'lf-no-navtool',label:'Flow notes there is no model navigate tool',severity:'P1',mode:'static',expected:'flow mentions no model navigate tool / deterministic nav',file:'src/lib/llm/chat-agent.ts',fix:'—',
+      check:()=>{const t=_flowText('flow-llm-fallback')+_nodeText('llm-fallback');return t.includes('navigate tool')||t.includes('deterministic')?P('no model navigate tool'):W('nav-tool note absent')}},
+  ],
+  'flow-lp':[
+    {id:'lp-has-boundary',label:'Flow includes the LP boundary',severity:'P0',mode:'static',expected:'lp-boundary present',file:'src/app/api/cockpit-chat/route.ts',fix:'Add lp-boundary',
+      check:()=>_has('flow-lp','lp-boundary')?P('present'):Fl('missing')},
+    {id:'lp-no-admin-tools',label:'LP path has no admin tool surface',severity:'P0',mode:'static',expected:'admin-tools NOT in flow',file:'src/lib/llm/tools/policy.ts',fix:'Gate admin tools to admin role',
+      check:()=>!_has('flow-lp','admin-tools')?P('no admin-tools'):Fl('contains admin-tools')},
+    {id:'lp-no-write-tools',label:'LP path has no write tools',severity:'P0',mode:'static',expected:'no write-tool nodes',file:'src/lib/llm/tools/registry.ts',fix:'Keep write tools admin-only',
+      check:()=>{const wt=['vault-draft-tool','admin-write-tools','outreach-trigger-send-run','campaign-draft-tool','send-direct-email'];const bad=_F('flow-lp').nodeIds.filter(n=>wt.includes(n));return bad.length?Fl('contains: '+bad.join(', ')):P('no write tools');}},
+    {id:'lp-no-outreach-send',label:'LP path reaches no outreach send node',severity:'P0',mode:'static',expected:'no send/resend nodes',file:'src/lib/inngest/functions/*',fix:'—',
+      check:()=>{const sn=['send-direct-email','campaign-fanout','auto-send-cron','followups-cron','outreach-trigger-send-run','resend'];const bad=_F('flow-lp').nodeIds.filter(n=>sn.includes(n));return bad.length?Fl('contains: '+bad.join(', ')):P('no outreach send node');}},
+    {id:'lp-no-vault-tool',label:'LP path cannot reach the vault draft tool',severity:'P0',mode:'static',expected:'vault-draft-tool NOT in flow',file:'src/lib/llm/tools/registry.ts:1286',fix:'—',
+      check:()=>!_has('flow-lp','vault-draft-tool')?P('no vault draft tool'):Fl('contains vault-draft-tool')},
+  ],
+  'flow-admin':[
+    {id:'ad-has-tools',label:'Flow includes the admin tool surface',severity:'P2',mode:'static',expected:'admin-tools present',file:'src/lib/llm/tools/registry.ts',fix:'Add admin-tools',
+      check:()=>_has('flow-admin','admin-tools')?P('present'):Fl('missing')},
+    {id:'ad-has-write-tools',label:'Flow includes the 7 admin write tools',severity:'P2',mode:'static',expected:'admin-write-tools present',file:'src/lib/llm/tools/registry.ts:1185-1307',fix:'Add admin-write-tools',
+      check:()=>_has('flow-admin','admin-write-tools')?P('present'):Fl('missing')},
+    {id:'ad-has-hitl',label:'Admin write tools are gated by a HITL token',severity:'P0',mode:'static',expected:'hitl-token present',file:'src/lib/llm/tools/confirmations.ts',fix:'Gate writes behind a token',
+      check:()=>_has('flow-admin','hitl-token')?P('present'):Fl('missing')},
+    {id:'ad-confirm-required',label:'Write tools marked confirmationRequired',severity:'P0',mode:'static',expected:'admin-write-tools text states confirmationRequired',file:'src/lib/llm/tools/registry.ts',fix:'—',
+      check:()=>_nodeText('admin-write-tools').includes('confirmationrequired')?P('all confirmationRequired:true'):Fl('confirmationRequired not stated')},
+    {id:'ad-trigger-send-callout',label:'outreach_trigger_send_run flagged as the one external-send chat tool',severity:'P0',mode:'static',expected:'node text calls out outreach_trigger_send_run can send',file:'src/lib/llm/tools/registry.ts:1275',fix:'Call it out explicitly',
+      check:()=>{const t=_nodeText('admin-write-tools')+_nodeText('outreach-trigger-send-run');return (t.includes('outreach_trigger_send_run')&&t.includes('send'))?P('called out + gated, never Tier A'):W('not explicitly called out')}},
+    {id:'ad-no-deploy-tool',label:'No deploy-capable chat tool exists',severity:'P0',mode:'static',expected:'capabilities report deploy_execute:no / db_write:no',file:'src/lib/llm/tools/registry.ts:1066',fix:'—',
+      check:()=>{const t=_nodeText('admin-tools');return (t.includes('deploy_execute:no')||t.includes('db_write:no'))?P('capabilities report deploy_execute:no'):W('deploy capability not explicitly denied')}},
+  ],
+};
+
+function runFlowTests(fid){
+  return (DIAGNOSTICS[fid]||[]).map(t=>{
+    let r; try{ r=t.check(); }catch(e){ r={status:'fail',actual:'check threw: '+e.message}; }
+    return Object.assign({},t,r);
+  });
+}
+function tallyTests(list){
+  const c={pass:0,fail:0,warn:0,skip:0};
+  list.forEach(t=>{c[t.status]=(c[t.status]||0)+1;});
+  return c;
+}
+const STAT={pass:['PASS','st-pass'],fail:['FAIL','st-fail'],warn:['WARN','st-warn'],skip:['SKIPPED','st-skip']};
+const SEV={P0:['P0','sev-p0'],P1:['P1','sev-p1'],P2:['P2','sev-p2'],INFO:['INFO','sev-info']};
+function testRow(t,fid){
+  const s=STAT[t.status]||STAT.skip, sv=SEV[t.severity]||SEV.INFO;
+  return `<div class="test-row st-${t.status}">
+    <span class="st ${s[1]}">${s[0]}</span>
+    <span class="sev ${sv[1]}">${sv[0]}</span>
+    <div class="tr-main">
+      <div class="tr-label">${t.label}</div>
+      <div class="tr-actual">${t.status==='pass'?'✓ ':''}${t.actual||''}</div>
+      ${t.status!=='pass'?`<div class="tr-detail"><b>Expected:</b> ${t.expected}<br><b>Likely file:</b> <span class="mono">${t.file}</span><br><b>Fix:</b> ${t.fix||'—'}</div><button class="mini-btn" onclick="selectFlow('${fid}')">Go to flow ›</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderDiagnostics(){
+  const dv=document.getElementById('diag-view');
+  const all={}; Object.keys(DIAGNOSTICS).forEach(fid=>all[fid]=runFlowTests(fid));
+  const flat=Object.values(all).flat();
+  const c=tallyTests(flat); const total=flat.length;
+  const failures=[];
+  Object.entries(all).forEach(([fid,tests])=>tests.filter(t=>t.status==='fail'||t.status==='warn').forEach(t=>failures.push(Object.assign({fid},t))));
+  const flowCards=Object.entries(all).map(([fid,tests])=>{
+    const f=FLOWS[fid]; const tc=tallyTests(tests);
+    return `<div class="diag-flow">
+      <div class="diag-flow-head" onclick="selectFlow('${fid}')">
+        <span class="fs-dot" style="background:${f.color}"></span>
+        <span class="dfh-name">${f.label}</span>
+        <span class="dfh-score">${tc.pass}/${tests.length} PASS${tc.fail?' · '+tc.fail+' FAIL':''}${tc.warn?' · '+tc.warn+' WARN':''}</span>
+      </div>
+      <div class="diag-tests">${tests.map(t=>testRow(t,fid)).join('')}</div>
+    </div>`;
+  }).join('');
+  const fmap = failures.length
+    ? `<div class="fmap">${failures.map(x=>`<div class="fm-row ${x.status==='warn'?'warn':''}">
+         <span class="sev ${(SEV[x.severity]||SEV.INFO)[1]}">${x.severity}</span>
+         <div><b>${FLOWS[x.fid].label}</b> — ${x.label}<br><span class="mono">${x.file}</span> · ${x.actual}<br><button class="mini-btn" onclick="selectFlow('${x.fid}')">Go to flow ›</button></div></div>`).join('')}</div>`
+    : `<div class="fmap-clean">✓ No failing invariants detected in the static model.</div>`;
+  const liveDisabled = Object.values(LIVE_ENDPOINTS).every(v=>v===null);
+  dv.innerHTML=`
+    <div class="rv-h">Flow Diagnostics — Static Runner</div>
+    <div class="rv-sub">Pure checks against the encoded NODES / FLOWS / RECORDS. No runtime, no network, no DB, no email. <b>${total} invariants across ${Object.keys(all).length} flows.</b></div>
+    <div class="diag-controls">
+      <button class="btn btn-primary" onclick="renderDiagnostics()">↻ Run static diagnostic</button>
+      <button class="btn btn-ghost" ${liveDisabled?'disabled':''} title="${liveDisabled?'No dry-run endpoint registered. Static diagnostics only.':'Run registered dry-run endpoint'}">Run live dry-run</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('diag-view').scrollTo({top:0,behavior:'smooth'})">Reset</button>
+    </div>
+    <div class="diag-summary">
+      <span class="sm-pass">${c.pass} passed</span> ·
+      <span class="sm-fail">${c.fail} failed</span> ·
+      <span class="sm-warn">${c.warn} warning${c.warn===1?'':'s'}</span> ·
+      <span class="sm-skip">${c.skip} skipped</span>
+    </div>
+    <div class="diag-section-h">Failure Map</div>
+    ${fmap}
+    <div class="diag-section-h">Simulate prompt classification <span class="approx">Local approximation — not the runtime router</span></div>
+    <div class="sim-box">
+      <input id="sim-input" placeholder='e.g. "create a mining stable yield product"' onkeydown="if(event.key==='Enter')runSimulate()" />
+      <button class="btn btn-primary" onclick="runSimulate()">Classify</button>
+      <div id="sim-result"><span class="sim-hint">Type a prompt and classify it locally. This does not call the runtime router.</span></div>
+    </div>
+    <div class="diag-section-h">Per-flow results</div>
+    ${flowCards}`;
+}
+
+// Public entry point: runDiagnostic(flowId) → inline per-flow run;
+// runDiagnostic() with no arg → full static dashboard.
+function runDiagnostic(fid){ return fid ? runFlowDiagnosticInline(fid) : renderDiagnostics(); }
+
+function runFlowDiagnosticInline(fid){
+  const tests=runFlowTests(fid); const c=tallyTests(tests);
+  const out=document.getElementById('fs-diag-out'); if(!out) return;
+  out.innerHTML=`<div class="fs-diag-summary"><span class="sm-pass">${c.pass} passed</span> · <span class="sm-fail">${c.fail} failed</span> · <span class="sm-warn">${c.warn} warning${c.warn===1?'':'s'}</span> · <span class="sm-skip">${c.skip} skipped</span> &nbsp;—&nbsp; <a onclick="setView('diagnostics')">Open full diagnostics ›</a></div>
+    <div class="fs-diag-rows">${tests.map(t=>testRow(t,fid)).join('')}</div>`;
+}
+
+function runSimulate(){
+  const q=(document.getElementById('sim-input').value||'').toLowerCase().trim();
+  const out=document.getElementById('sim-result');
+  if(!q){out.innerHTML='<span class="sim-hint">Type a prompt to classify locally.</span>';return;}
+  let flow=null, note='Runtime check required: yes';
+  if(/\b(deploy|deploie|deployer|go ?live|mets? en ligne|sign|signe|mainnet|governance|gouvernance|migrate|migre|change (the )?(formula|formule|model|modele))\b/.test(q)){flow='flow-dangerous';note='Refused BEFORE the LLM · 0 records · Runtime check required: yes';}
+  else if(/\bfollow.?up|relance/.test(q)){flow='flow-followups';note='Follow-ups are cron-driven — NOT promptable from chat · Runtime check required: yes';}
+  else if(/\b(source|sourcer|find|trouve|recupere)\b.*\b(lead|prospect|distributeur|contact)/.test(q)){flow='flow-auto-send';note='Sourcing held behind the send/source human gate · never auto-runs';}
+  else if(/\b(send|envoie|envoyer|dispatch|expedie)\b/.test(q)&&/\b(campaign|campagne|prospect|email|mail|outreach|lead|newsletter)\b/.test(q)){flow='flow-auto-send';note='Held behind the send/source human gate · Tier A never auto-sent · Runtime check required: yes';}
+  else if(/\b(draft|redige|prepare)\b.*\bvault\b|\bvault draft\b/.test(q)){flow='flow-vault';note='Draft-only behind a HITL token · writes VaultDeployment(draft), never live';}
+  else if(/\b(new|nouveau|nouvelle|create|cree|creer|monter|build|lance)\b.*\b(product|produit|vault|offer|offre|strategy|strategie)\b/.test(q)){flow='flow-product';note='Opens Product Workspace · chat creates 0 runs · Runtime check required: yes';}
+  else if(/\b(project|projection|simulat|scenario|scenarios|monte ?carlo|forecast|backtest)\b/.test(q)){flow='flow-projection';note='Routes to projection / scenario lab · manual run required · chat creates 0 runs';}
+  else {flow=null;}
+  if(!flow){out.innerHTML=`<div class="sim-out"><b>Likely flow:</b> Unknown / LLM fallback &nbsp;<a onclick="selectFlow('flow-llm-fallback')">open ›</a><span class="sim-meta">Local approximation — not the runtime router. ${note}</span></div>`;return;}
+  out.innerHTML=`<div class="sim-out"><b>Likely flow:</b> <a onclick="selectFlow('${flow}')">${FLOWS[flow].label} ›</a><span class="sim-meta">Local approximation — not the runtime router. ${note}</span></div>`;
+}
+
 /* ── RAIL FLOWS ── */
 function buildRail(){
   const rf=document.getElementById('rail-flows');
@@ -1088,12 +1455,14 @@ function init(){
   buildNodes(); buildEdges(); buildRail();
   document.getElementById('sb-nodes').textContent=Object.keys(NODES).length-1; // minus the 'records' helper node
   document.getElementById('sb-flows').textContent=Object.keys(FLOWS).length;
+  document.getElementById('sb-inv').textContent=Object.values(DIAGNOSTICS).reduce((a,t)=>a+t.length,0);
   document.getElementById('search-input').addEventListener('input',e=>search(e.target.value));
   document.getElementById('canvas-scroll').addEventListener('click',()=>{ /* background click keeps selection */ });
   // deep link
   const h=location.hash.replace('#','');
   if(h&&FLOWS[h]) selectFlow(h);
   else if(h&&h.startsWith('node-')&&NODES[h.slice(5)]) selectNode(h.slice(5));
+  else if(h==='diagnostics'||h==='records') setView(h);
   else setView('overview');
   window.addEventListener('hashchange',()=>{const hh=location.hash.replace('#','');if(FLOWS[hh]&&hh!==activeFlow)selectFlow(hh);});
 }
