@@ -80,9 +80,17 @@ jobs:
           set -e
           MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
           STATUS="${{ steps.tests.outputs.status }}"; STATUS="${STATUS:-done}"
-          # Files changed by the Claude step (staged + unstaged + untracked).
+          # Files changed by the Claude step. Exclude workflow-generated artifacts
+          # (claude-output.json, *-stderr.log, test-output.txt, agents-manifest.json,
+          # pr-body.md) so the fleet reflects only Claude's real edits, not our scaffolding.
           git add -A
-          mapfile -t FILES < <(git diff --cached --name-only)
+          mapfile -t FILES < <(git diff --cached --name-only \
+            -- . \
+            ':(exclude)claude-output.json' \
+            ':(exclude)claude-stderr.log' \
+            ':(exclude)test-output.txt' \
+            ':(exclude)agents-manifest.json' \
+            ':(exclude)pr-body.md')
           python3 - "$MODEL" "$STATUS" "${FILES[@]}" > agents-manifest.json <<'PY'
           import json, sys
           model = sys.argv[1]
