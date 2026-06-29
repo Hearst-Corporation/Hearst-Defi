@@ -479,6 +479,12 @@ body {
 .ct-status-dot-danger  { background: var(--ct-status-danger);  box-shadow: none; }
 .ct-status-dot-info    { background: var(--ct-status-info);    box-shadow: none; }
 
+/* LED dots — status dots with ambient glow (KYC stepper, status indicators) */
+.ct-led-off   { background: color-mix(in srgb, var(--ct-text-strong) 15%, transparent); }
+.ct-led-green { background: var(--ct-accent);         box-shadow: 0 0 6px 1px color-mix(in srgb, var(--ct-accent) 55%, transparent); }
+.ct-led-amber { background: var(--ct-status-warning); box-shadow: 0 0 6px 1px color-mix(in srgb, var(--ct-status-warning) 55%, transparent); }
+.ct-led-red   { background: var(--ct-status-danger);  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--ct-status-danger) 55%, transparent); }
+
 .ct-status-glow-success { color: var(--ct-status-success); filter: none; }
 .ct-status-glow-warning { color: var(--ct-status-warning); filter: none; }
 .ct-status-glow-danger  { color: var(--ct-status-danger);  filter: none; }

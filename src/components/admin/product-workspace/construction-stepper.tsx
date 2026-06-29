@@ -33,6 +33,16 @@ import { DataScientistOutput } from "./data-scientist-output";
  * Read-only: nothing is created, sent, or deployed from here.
  */
 
+/**
+ * DISPLAY-ONLY mask — which step cards are rendered in the stepper.
+ *
+ * The five specialists ALWAYS run server-side and stream their frames; this list
+ * only controls what the admin SEES. We are iterating the design step-by-step, so
+ * we currently render step 1 (bitcoin) alone. Add ids back here to reveal the
+ * others — nothing in the pipeline/computation changes.
+ */
+const VISIBLE_STEP_IDS: readonly ConstructionStepId[] = ["bitcoin"];
+
 type Lifecycle = "upcoming" | "running" | ConstructionStepStatus;
 
 interface StepResult {
@@ -245,12 +255,13 @@ export function ConstructionStepper({ objective }: { objective: string | null })
         ) : null}
       </div>
 
-      {/* Vertical stepper */}
+      {/* Vertical stepper — DISPLAY filtered to VISIBLE_STEP_IDS while we iterate
+          the design step-by-step. The full pipeline still runs all five steps. */}
       <ol className="flex flex-col">
-        {CONSTRUCTION_STEPS.map((step, i) => {
+        {CONSTRUCTION_STEPS.filter((s) => VISIBLE_STEP_IDS.includes(s.id)).map((step, i, visible) => {
           const life = lifecycleOf(step.id);
           const result = results[step.id];
-          const isLast = i === CONSTRUCTION_STEPS.length - 1;
+          const isLast = i === visible.length - 1;
           const connectorDone = result !== undefined; // step finished → fill the rail down
           return (
             <li
