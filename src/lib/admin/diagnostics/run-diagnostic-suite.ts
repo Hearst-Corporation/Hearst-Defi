@@ -16,6 +16,10 @@ import {
   type VaultHitlDiagnosticsDeps,
 } from "./vault-hitl-diagnostics";
 import { runGuardDiagnostics } from "./guard-diagnostics";
+import {
+  runPersistenceDiagnostics,
+  type PersistenceDiagnosticsDeps,
+} from "./persistence-diagnostics";
 
 export const DIAGNOSTIC_SUITES = [
   "chat-router",
@@ -23,6 +27,7 @@ export const DIAGNOSTIC_SUITES = [
   "outreach",
   "vault-hitl",
   "guards",
+  "persistence",
 ] as const;
 export type SuiteName = (typeof DIAGNOSTIC_SUITES)[number];
 
@@ -36,6 +41,7 @@ export function isSuiteName(value: unknown): value is SuiteName {
 export interface SuiteDeps {
   outreach?: OutreachDiagnosticsDeps;
   vaultHitl?: VaultHitlDiagnosticsDeps;
+  persistence?: PersistenceDiagnosticsDeps;
 }
 
 export const SUITE_META: Record<SuiteName, { label: string; blurb: string }> = {
@@ -63,6 +69,11 @@ export const SUITE_META: Record<SuiteName, { label: string; blurb: string }> = {
     label: "Guards",
     blurb: "Danger-first refusals + output guard + body-size guard.",
   },
+  persistence: {
+    label: "Persistence",
+    blurb:
+      "Proves the rollback seam: real create → assert → rollback, zero net persistence.",
+  },
 };
 
 export async function runSuite(
@@ -80,6 +91,12 @@ export async function runSuite(
       return makeSuiteResult(name, runVaultHitlDiagnostics(deps.vaultHitl));
     case "guards":
       return makeSuiteResult(name, await runGuardDiagnostics());
+    case "persistence":
+      return makeSuiteResult(
+        name,
+        runPersistenceDiagnostics(deps.persistence),
+        deps.persistence?.rollbackProbe?.executed ? "rolled-back" : "none",
+      );
   }
 }
 
