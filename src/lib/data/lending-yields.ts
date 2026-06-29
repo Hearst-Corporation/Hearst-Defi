@@ -95,6 +95,7 @@ interface PoolRaw {
   apyBase: number | null;
   apyReward: number | null;
   tvlUsd: number | null;
+  underlyingTokens?: string[] | null;
 }
 
 interface PoolsResponse {
@@ -116,6 +117,28 @@ const ALLOWED_CHAINS: ReadonlySet<string> = new Set([
 const MIN_TVL_USD = 10_000_000;
 const STABLE_SYMBOL = "USDC";
 const MAX_POOLS = 30;
+
+/**
+ * USDC contract addresses by chain (lowercase).
+ * Used to match Morpho Blue vaults that expose a non-USDC symbol but have USDC
+ * as their sole underlying token (e.g. STEAKUSDC, GTUSDCP on Base).
+ */
+const USDC_ADDRESSES: ReadonlySet<string> = new Set([
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // Ethereum USDC
+  "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // Base USDC
+  "0xaf88d065e77c8cc2239327c5edb3a432268e5831", // Arbitrum USDC
+  "0x0b2c639c533813f4aa9d7837caf62653d097ff85", // Optimism USDC
+]);
+
+function isUsdcPool(item: PoolRaw): boolean {
+  if (item.symbol.toUpperCase() === STABLE_SYMBOL) return true;
+  // For Morpho vaults with wrapped/curated symbols, match by underlying token address.
+  if (Array.isArray(item.underlyingTokens) && item.underlyingTokens.length === 1) {
+    const addr = item.underlyingTokens[0]?.toLowerCase();
+    if (addr && USDC_ADDRESSES.has(addr)) return true;
+  }
+  return false;
+}
 
 /**
  * Conservative fallback (DefiLlama unreachable). 4.5% reflects the typical
@@ -252,7 +275,7 @@ async function fetchOnce(fetchedAt: Date): Promise<LendingYieldsSnapshot> {
       if (!isPoolRaw(item)) continue;
       const protocol = SLUG_TO_PROTOCOL[item.project];
       if (!protocol) continue;
-      if (item.symbol.toUpperCase() !== STABLE_SYMBOL) continue;
+      if (!isUsdcPool(item)) continue;
       if (!ALLOWED_CHAINS.has(item.chain.toLowerCase())) continue;
       const tvl = item.tvlUsd ?? 0;
       const apy = item.apy ?? 0;

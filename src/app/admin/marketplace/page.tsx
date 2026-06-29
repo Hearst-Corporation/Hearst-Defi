@@ -1,3 +1,9 @@
+import Image from "next/image";
+
+import { fetchBinancePrices } from "@/lib/data/binance-price";
+import { fetchLendingYields } from "@/lib/data/lending-yields";
+import { fetchProtocolTvl } from "@/lib/data/protocol-tvl";
+import { fetchStablecoinPrices } from "@/lib/data/stablecoin-prices";
 import {
   AdminPageShell,
   AdminSectionCard,
@@ -17,83 +23,172 @@ import { ApyRange } from "@/components/catalyst/apy-range";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
-import { fetchBinancePrices } from "@/lib/data/binance-price";
-import { fetchLendingYields } from "@/lib/data/lending-yields";
-import { fetchProtocolTvl } from "@/lib/data/protocol-tvl";
-import { fetchStablecoinPrices } from "@/lib/data/stablecoin-prices";
-
-/**
- * /admin/marketplace — read-only live crypto/DeFi market data.
- *
- * Composes the four free, no-key market-data loaders (Binance spot REST,
- * Chainlink/DefiLlama stablecoin prices, DefiLlama lending yields, DefiLlama
- * protocol TVL). Every figure carries an honest provenance badge: oracle for
- * Chainlink, live for the REST/aggregator feeds, stale on fallback. No
- * financial action, no writes — purely informational.
- *
- * Mounted on the canonical admin shell (AdminPageShell + AdminSectionCard) so
- * the surface, header grammar, and welded section cards match /customers. Each
- * detail table uses the shared Catalyst chrome (TABLE_HEAD / TABLE_WRAP / ROW);
- * KPI tile rows separate with token hairlines, never hardcoded white washes.
- *
- * `force-dynamic` so the page reflects the latest loader snapshot per request
- * (the loaders own their own short in-memory cache; the page never blocks on a
- * live upstream because every loader returns a fallback instead of throwing).
- */
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "DeFi Marketplace — Hearst Connect",
 };
 
-function formatUsd(n: number, maximumFractionDigits = 2): string {
-  return n.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits,
-  });
+// ── Asset icon registry ────────────────────────────────────────────────────────
+
+const CRYPTO_ICON: Record<string, string> = {
+  BTC:      "/crypto-icons/btc.svg",
+  ETH:      "/crypto-icons/eth.svg",
+  USDC:     "/crypto-icons/usdc.svg",
+  USDT:     "/crypto-icons/usdt.svg",
+  DAI:      "/crypto-icons/dai.svg",
+  CRVUSD:   "/crypto-icons/crv.svg",
+  GHO:      "/crypto-icons/gho.svg",
+  USDE:     "/crypto-icons/usde.svg",
+  aave:     "/crypto-icons/aave.svg",
+  compound: "/crypto-icons/compound.svg",
+  morpho:   "/crypto-icons/morpho.svg",
+};
+
+const PROTOCOL_WORDMARK: Record<string, { src: string; w: number; h: number; cls: string }> = {
+  aave:     { src: "/crypto-icons/aave-wordmark.svg",     w: 94,  h: 16, cls: "h-3 w-auto" },
+  compound: { src: "/crypto-icons/compound-wordmark.svg", w: 121, h: 27, cls: "h-4 w-auto" },
+  morpho:   { src: "/crypto-icons/morpho-wordmark.svg",   w: 104, h: 21, cls: "h-4 w-auto" },
+};
+
+// ── Shared micro-components ────────────────────────────────────────────────────
+
+function CryptoIcon({ id, size = 16 }: { id: string; size?: number }) {
+  const src = CRYPTO_ICON[id];
+  if (!src) return null;
+  return (
+    <Image
+      src={src}
+      alt={id}
+      width={size}
+      height={size}
+      className="shrink-0 rounded-full"
+    />
+  );
 }
 
-/** Compact USD for large figures: $1.2B / $640.0M / $12.3K. */
-function formatUsdCompact(n: number): string {
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return formatUsd(n, 0);
+function ProtocolWordmark({ id }: { id: string }) {
+  const wm = PROTOCOL_WORDMARK[id];
+  if (!wm) return <span className="ct-bento-label capitalize">{id}</span>;
+  return <Image src={wm.src} alt={id} width={wm.w} height={wm.h} className={wm.cls} />;
 }
 
-function trendOf(pct: number): { direction: "up" | "down" | "flat"; text: string } {
-  const direction = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
-  return { direction, text: `${Math.abs(pct).toFixed(2)}%` };
+function SpotLabel({ symbol }: { symbol: string }) {
+  const base = symbol.replace("USDT", "");
+  return (
+    <span className="flex items-center justify-center gap-1.5">
+      <CryptoIcon id={base} size={16} />
+      {base} / USDT
+    </span>
+  );
 }
 
-/** Read-only KPI tile — token surfaces only, separated by hairlines in its grid. */
+function Trend({ direction, text }: { direction: "up" | "down" | "flat"; text: string }) {
+  const tone =
+    direction === "up"
+      ? "text-[var(--ct-accent)]"
+      : direction === "down"
+        ? "ct-status-danger"
+        : "ct-text-muted";
+  const glyph = direction === "up" ? "↑" : direction === "down" ? "↓" : "→";
+  return (
+    <span
+      className={cn(
+        "font-mono text-[length:var(--ct-text-micro)] font-medium tabular-nums",
+        tone,
+      )}
+    >
+      {glyph} {text}
+    </span>
+  );
+}
+
 function MarketKpiTile({
   label,
   value,
   sub,
-  accent = false,
 }: {
   label: React.ReactNode;
   value: React.ReactNode;
   sub?: React.ReactNode;
-  accent?: boolean;
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2 p-5">
+    <div className="flex min-w-0 flex-col items-center gap-2 p-5 text-center">
       <div className="ct-bento-label">{label}</div>
-      <div
-        className={cn(
-          "text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums",
-          accent ? "text-[var(--ct-accent)]" : "ct-text-strong",
-        )}
-      >
+      <div className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
         {value}
       </div>
       {sub ? <div className="ct-metric-caption">{sub}</div> : null}
     </div>
   );
 }
+
+// ── Formatters ─────────────────────────────────────────────────────────────────
+
+function formatUsd(n: number, maximumFractionDigits = 2): string {
+  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits });
+}
+
+function formatUsdCompact(n: number): string {
+  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
+  if (n >= 1_000_000)     return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000)         return `$${(n / 1_000).toFixed(1)}K`;
+  return formatUsd(n, 0);
+}
+
+function trendProps(pct: number): { direction: "up" | "down" | "flat"; text: string } {
+  return {
+    direction: pct > 0 ? "up" : pct < 0 ? "down" : "flat",
+    text: `${Math.abs(pct).toFixed(2)}%`,
+  };
+}
+
+// ── Shared grid wrapper (KPI tile row) ─────────────────────────────────────────
+
+function KpiGrid({
+  cols = 3,
+  children,
+}: {
+  cols?: 2 | 3;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]",
+        cols === 2 ? "sm:grid-cols-2" : "md:grid-cols-3",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function KpiCell({
+  last,
+  cols,
+  children,
+}: {
+  last: boolean;
+  cols: 2 | 3;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "min-w-0",
+        !last &&
+          (cols === 2
+            ? "border-b border-[var(--ct-border-soft)] sm:border-b-0 sm:border-r"
+            : "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r"),
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────────
 
 export default async function MarketplacePage() {
   const [binance, stablecoins, lending, tvl] = await Promise.all([
@@ -109,7 +204,7 @@ export default async function MarketplacePage() {
       titleAccent="Marketplace"
       contextLabel="Live market data"
     >
-      {/* ── Spot prices (Binance) ─────────────────────────────────────────── */}
+      {/* Spot prices */}
       <AdminSectionCard
         title="Spot prices"
         subtitle="BTC / ETH · Binance 24h ticker"
@@ -118,32 +213,25 @@ export default async function MarketplacePage() {
         }
         ariaLabel="Spot prices"
       >
-        <div className="grid min-w-0 grid-cols-1 bg-[var(--ct-surface-inset)] sm:grid-cols-2">
+        <KpiGrid cols={2}>
           {binance.tickers.map((t, i, arr) => (
-            <div
-              key={t.symbol}
-              className={cn(
-                "min-w-0",
-                i < arr.length - 1 &&
-                  "border-b border-[var(--ct-border-soft)] sm:border-b-0 sm:border-r",
-              )}
-            >
+            <KpiCell key={t.symbol} last={i === arr.length - 1} cols={2}>
               <MarketKpiTile
-                label={t.symbol.replace("USDT", " / USDT")}
+                label={<SpotLabel symbol={t.symbol} />}
                 value={formatUsd(t.lastPrice)}
                 sub={
                   <span className="flex items-center gap-2">
-                    <Trend trend={trendOf(t.priceChangePct)} />
+                    <Trend {...trendProps(t.priceChangePct)} />
                     <ProvenanceBadge kind={t.provenance} compact />
                   </span>
                 }
               />
-            </div>
+            </KpiCell>
           ))}
-        </div>
+        </KpiGrid>
       </AdminSectionCard>
 
-      {/* ── Decentralized stablecoin prices ───────────────────────────────── */}
+      {/* Stablecoin pegs */}
       <AdminSectionCard
         title="Stablecoin pegs"
         subtitle="On-chain decentralized stablecoins"
@@ -164,22 +252,19 @@ export default async function MarketplacePage() {
           <TableHead>
             <TableRow>
               <TableHeader className={`${TABLE_HEAD} pl-5`}>Asset</TableHeader>
-              <TableHeader className={`${TABLE_HEAD} text-right`}>
-                Price
-              </TableHeader>
-              <TableHeader className={`${TABLE_HEAD} text-right`}>
-                Peg deviation
-              </TableHeader>
-              <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
-                Source
-              </TableHeader>
+              <TableHeader className={`${TABLE_HEAD} text-right`}>Price</TableHeader>
+              <TableHeader className={`${TABLE_HEAD} text-right`}>Peg deviation</TableHeader>
+              <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>Source</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {stablecoins.prices.map((coin) => (
               <TableRow key={coin.symbol} className={ROW}>
-                <TableCell className="ct-metric-value pl-5">
-                  {coin.symbol}
+                <TableCell className="pl-5">
+                  <span className="flex items-center gap-2">
+                    <CryptoIcon id={coin.symbol.toUpperCase()} size={16} />
+                    <span className="ct-metric-value">{coin.symbol}</span>
+                  </span>
                 </TableCell>
                 <TableCell className="ct-metric-value text-right tabular-nums">
                   ${coin.priceUsd.toFixed(4)}
@@ -198,14 +283,13 @@ export default async function MarketplacePage() {
         </Table>
         <p className="ct-metric-caption border-t border-[var(--ct-border-soft)] p-5 leading-relaxed">
           USDC / USDT / DAI read from Chainlink USD aggregators (provenance{" "}
-          <span className="font-medium text-[var(--ct-text-body)]">oracle</span>)
-          when a mainnet RPC is configured; crvUSD / GHO / USDe and any fallback
-          from the DefiLlama coins aggregator (provenance{" "}
-          <span className="font-medium text-[var(--ct-text-body)]">live</span>).
+          <span className="font-medium ct-text-body">oracle</span>) when a mainnet RPC is
+          configured; crvUSD / GHO / USDe and any fallback from the DefiLlama coins aggregator
+          (provenance <span className="font-medium ct-text-body">live</span>).
         </p>
       </AdminSectionCard>
 
-      {/* ── Lending yields (Morpho / Compound / Aave) ─────────────────────── */}
+      {/* Lending yields */}
       <AdminSectionCard
         title="Lending yields"
         subtitle="USDC supply APY · median → best pool"
@@ -214,19 +298,11 @@ export default async function MarketplacePage() {
         }
         ariaLabel="Lending yields"
       >
-        {/* Per-protocol best APY summary — token-hairline tiles, no white washes. */}
-        <div className="grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3">
+        <KpiGrid cols={3}>
           {lending.protocols.map((p, i, arr) => (
-            <div
-              key={p.protocol}
-              className={cn(
-                "min-w-0",
-                i < arr.length - 1 &&
-                  "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
-              )}
-            >
+            <KpiCell key={p.protocol} last={i === arr.length - 1} cols={3}>
               <MarketKpiTile
-                label={p.label}
+                label={<ProtocolWordmark id={p.protocol} />}
                 value={
                   <ApyRange
                     className="font-medium tabular-nums ct-text-strong"
@@ -237,33 +313,27 @@ export default async function MarketplacePage() {
                 }
                 sub={`${p.poolCount} pool${p.poolCount > 1 ? "s" : ""} · ${formatUsdCompact(p.tvlUsd)} TVL`}
               />
-            </div>
+            </KpiCell>
           ))}
-        </div>
-        {/* Top pools detail */}
+        </KpiGrid>
         <Table dense className={TABLE_WRAP}>
           <TableHead>
             <TableRow>
-              <TableHeader className={`${TABLE_HEAD} pl-5`}>
-                Protocol
-              </TableHeader>
+              <TableHeader className={`${TABLE_HEAD} pl-5`}>Protocol</TableHeader>
               <TableHeader className={TABLE_HEAD}>Chain</TableHeader>
-              <TableHeader className={`${TABLE_HEAD} text-right`}>
-                APY (base → total)
-              </TableHeader>
-              <TableHeader className={`${TABLE_HEAD} text-right`}>
-                Reward
-              </TableHeader>
-              <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
-                TVL
-              </TableHeader>
+              <TableHeader className={`${TABLE_HEAD} text-right`}>APY (base → total)</TableHeader>
+              <TableHeader className={`${TABLE_HEAD} text-right`}>Reward</TableHeader>
+              <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>TVL</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {lending.pools.slice(0, 10).map((pool, i) => (
               <TableRow key={`${pool.protocol}-${pool.chain}-${i}`} className={ROW}>
-                <TableCell className="ct-metric-value pl-5 capitalize">
-                  {pool.protocol}
+                <TableCell className="pl-5">
+                  <span className="flex items-center gap-2">
+                    <CryptoIcon id={pool.protocol} size={16} />
+                    <span className="ct-metric-value capitalize">{pool.protocol}</span>
+                  </span>
                 </TableCell>
                 <TableCell className="ct-metric-caption">{pool.chain}</TableCell>
                 <TableCell className="text-right">
@@ -275,9 +345,7 @@ export default async function MarketplacePage() {
                   />
                 </TableCell>
                 <TableCell className="ct-metric-caption text-right tabular-nums">
-                  {pool.apyRewardPct > 0
-                    ? `+${pool.apyRewardPct.toFixed(2)}%`
-                    : "—"}
+                  {pool.apyRewardPct > 0 ? `+${pool.apyRewardPct.toFixed(2)}%` : "—"}
                 </TableCell>
                 <TableCell className="ct-metric-caption pr-5 text-right tabular-nums">
                   {formatUsdCompact(pool.tvlUsd)}
@@ -288,7 +356,7 @@ export default async function MarketplacePage() {
         </Table>
       </AdminSectionCard>
 
-      {/* ── Protocol TVL ──────────────────────────────────────────────────── */}
+      {/* Protocol TVL */}
       <AdminSectionCard
         title="Protocol TVL"
         subtitle="Total value locked · DefiLlama"
@@ -297,57 +365,27 @@ export default async function MarketplacePage() {
         }
         ariaLabel="Protocol TVL"
       >
-        <div className="grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3">
+        <KpiGrid cols={3}>
           {tvl.protocols.map((p, i, arr) => (
-            <div
-              key={p.protocol}
-              className={cn(
-                "min-w-0",
-                i < arr.length - 1 &&
-                  "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
-              )}
-            >
+            <KpiCell key={p.protocol} last={i === arr.length - 1} cols={3}>
               <MarketKpiTile
-                label={p.label}
+                label={<ProtocolWordmark id={p.protocol} />}
                 value={formatUsdCompact(p.tvlUsd)}
                 sub={
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     <span className="font-mono ct-text-muted">{p.slug}</span>
                     <ProvenanceBadge kind={p.provenance} compact />
                   </span>
                 }
               />
-            </div>
+            </KpiCell>
           ))}
-        </div>
+        </KpiGrid>
         <p className="ct-metric-caption p-5 tabular-nums">
           Combined tracked TVL:{" "}
-          <span className="font-medium ct-text-strong">
-            {formatUsdCompact(tvl.totalTvlUsd)}
-          </span>
+          <span className="font-medium ct-text-strong">{formatUsdCompact(tvl.totalTvlUsd)}</span>
         </p>
       </AdminSectionCard>
     </AdminPageShell>
-  );
-}
-
-/** Inline +/- change pill matching the Portfolio yield-line accent treatment. */
-function Trend({
-  trend,
-}: {
-  trend: { direction: "up" | "down" | "flat"; text: string };
-}) {
-  const tone =
-    trend.direction === "up"
-      ? "text-[var(--ct-accent)]"
-      : trend.direction === "down"
-        ? "text-[var(--ct-status-danger)]"
-        : "ct-text-muted";
-  const glyph =
-    trend.direction === "up" ? "↑" : trend.direction === "down" ? "↓" : "→";
-  return (
-    <span className={cn("font-mono text-[length:var(--ct-text-micro)] font-medium tabular-nums", tone)}>
-      {glyph} {trend.text}
-    </span>
   );
 }
