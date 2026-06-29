@@ -143,15 +143,15 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       )}
     >
       {/* Round tile button. Selected = full accent green with black (bg-deep)
-          icon. Unselected = the app's grey body background (--ct-surface-page,
-          the same plinth grey used on every body) with a WHITE icon; hover
-          lifts it slightly. */}
+          icon. Unselected = the raised anthracite surface (--ct-surface-raised,
+          one step above the body grey) with a WHITE icon; hover lifts it. All
+          token-driven — no hardcoded colour in the component. */}
       <span
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-150",
           isActive
             ? "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
-            : "border-[var(--ct-border-soft)] bg-[var(--ct-surface-page)] text-[var(--ct-text-strong)] group-hover:border-[var(--ct-border)] group-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,var(--ct-surface-page))]",
+            : "border-[var(--ct-border-soft)] bg-[var(--ct-surface-raised)] text-[var(--ct-text-strong)] group-hover:border-[var(--ct-border)] group-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,var(--ct-surface-raised))]",
         )}
       >
         {Icon ? <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} /> : null}

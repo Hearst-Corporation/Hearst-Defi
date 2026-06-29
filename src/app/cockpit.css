@@ -117,6 +117,11 @@
   --ct-surface-page: #18181b;
   --ct-surface-card: #000000;
   --ct-surface-inset: #15191C;
+  /* Surface « élevée » (anthracite) — un cran AU-DESSUS de surface-page, pour
+     les pastilles/chips qui doivent ressortir du fond sans être une carte.
+     DÉRIVÉE des tokens existants (zéro hex nouveau) : surface-page éclaircie
+     par une pointe de texte fort. Un seul endroit, référencée par token. */
+  --ct-surface-raised: color-mix(in srgb, var(--ct-text-strong) 9%, var(--ct-surface-page));
 
   /* Portfolio yield-stack bucket tiers — single accent stepped toward neutral so
      mining/usdc/btc/reserve read as one colour family. Defined as tokens so
