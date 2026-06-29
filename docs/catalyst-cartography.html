@@ -570,7 +570,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #059 (global table system — symmetric first:pl-5/last:pr-5 gutter on the shared catalyst/table primitive, destructive -mx-(--gutter) / sm:first:pl-1 override removed, table-gutter-guard added) · prior: Mission #055 (admin visual frame, min-w-0 crop fix) · merged <code class="mono">d05f618c</code> (#218), <code class="mono">ddae124d</code> (#219), <code class="mono">78fc53fd</code> (#223) on <code class="mono">main</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #061 (right chat rail DS canonization — RailRight + ChatKimi/Settings/History tokenized to --ct-*, send-enabled = accent + bg-deep, right-chat-rail DS guard added) · prior: Mission #059 (global table gutter contract), #055 (admin visual frame) · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -1551,6 +1551,12 @@ window.CARTO_DATA = {
       "file": "src/lib/ds/__tests__/table-gutter-guard.test.ts",
       "enforces": "Destructive table gutter patterns (first/last --gutter, sm:first:pl-1, sm:last:pr-1, -mx-(--gutter)) live ONLY in the catalyst/table primitive; symmetric first:pl-5/last:pr-5 contract; reports table-fixed usage",
       "status": "active"
+    },
+    {
+      "name": "right-chat-rail-design-system",
+      "file": "src/lib/ds/__tests__/right-chat-rail-design-system.test.ts",
+      "enforces": "Right chat rail (RailRight + ChatKimi + ChatSettings + ChatHistory) is tokens-only: no #0B0E10/#15191C/bg-black/border-white/bg-white/text-white/text-zinc/#A7FB90/inline-bg; accent/bg-deep/surface tokens consumed; send-enabled = accent + bg-deep",
+      "status": "active"
     }
   ],
   "guardsMissing": [
@@ -1727,6 +1733,11 @@ window.CARTO_DATA = {
       "date": "2026-06-29",
       "ref": "Mission #059 — Global Table System (gutter contract)",
       "note": "The Catalyst table primitive (src/components/catalyst/table.tsx) owned a contradictory gutter system: the surface used a -mx-(--gutter) negative-margin bleed (undefined var) and the first/last cells used first:pl-(--gutter) / last:pr-(--gutter) then OVERRODE them to sm:first:pl-1 / sm:last:pr-1 (4px) on every sm+ screen. Result: edge columns glued to the card frame, left/right asymmetry, eaten margins — on EVERY one of the 13 Catalyst-table pages (admin customers/outreach/agents/audit/vaults/distributions/marketplace + user portfolio/positions/distributions/[positionId] + governance allowlist). Fix at the SHARED PRIMITIVE so it lands everywhere at once: surface = min-w-0 + overflow-x-auto (local scroll, no negative margin, no responsive padding dance); cells = px-4 with a symmetric first:pl-5 / last:pr-5 20px edge gutter so the first column lines up with the card header text and the last column breathes the same on the right. The destructive override is removed. Pages keep their (now redundant, identical-value) first:pl-5/last:pr-5 compensation — harmless, no double-pad, no churn. New guard src/lib/ds/__tests__/table-gutter-guard.test.ts blocks the destructive patterns (first:pl-(--gutter, last:pr-(--gutter, sm:first:pl-1, sm:last:pr-1, -mx-(--gutter)) outside the primitive allowlist and reports table-fixed users (5 custom admin widgets, allowed). Validation: typecheck green; ds-authority-lock + table-gutter-guard + all catalyst tests + admin/portfolio page tests green (289). Auth-gated visual QA deferred (fresh worktree 307-redirects, Playwright browser locked) — verified via SSR render of the primitive instead. Custom <table> widgets (agentic console, monitoring, rebalance, etc.) were NOT migrated into the primitive (out of the destructive-gutter scope; STOP: refactor too broad). engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #061 — Right Chat Rail DS Canonization",
+      "note": "The right rail / assistant panel (cockpit-shell: RailRight.tsx + chat/ChatKimi.tsx + ChatSettings.tsx + ChatHistory.tsx) had drifted off the DS: hardcoded bg-[#0B0E10]/bg-[#15191C]/bg-black surfaces, border-white/* and bg-white/* chrome, text-white/text-zinc-* text, and an inline style=background:#A7FB90 accent dot + send button. All tokenized to --ct-*: rail shell = --ct-bg-deep + --ct-border-soft; header buttons = border-soft/text-muted with accent-tinted hover; logo box + Ready badge + online dot = --ct-accent (single green); empty-state + suggested cards = --ct-surface-card; suggested chips = --ct-surface-inset + --ct-border + --ct-text-body; composer = --ct-surface-inset with accent focus-within; send ENABLED = full --ct-accent fill + --ct-bg-deep icon, DISABLED = border-soft/transparent/text-faint; error block = --ct-status-warning-soft/-border; queued/disclaimer/markdown/charts text → --ct-text-body/-muted/-faint. Chart series colours (#f9a03f stress, #60a5fa low-band) left as data-viz (semantic series, not chrome). ct-chat-root + ct-chat-list scroll anchors preserved. New guard src/lib/ds/__tests__/right-chat-rail-design-system.test.ts blocks the raw-colour patterns in the 4 rail files and asserts accent/bg-deep/surface token usage + the send-enabled accent state. Zero chat/LLM/nav/auth logic touched."
     }
   ],
   "adminVisualFrame": {

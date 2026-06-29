@@ -38,7 +38,7 @@ const TITLES: Record<string, string> = {
 
 // Bento toolbar button — shared treatment for history / settings / width / collapse.
 const TOOLBAR_BTN =
-  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-white/10 text-zinc-400 transition-colors duration-150 hover:text-white hover:border-white/20";
+  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[var(--ct-border-soft)] text-[var(--ct-text-muted)] transition-colors duration-150 hover:text-[var(--ct-text-strong)] hover:border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]";
 const TOOLBAR_BTN_ACTIVE = "text-[var(--ct-accent)] border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)]";
 
 function toolbarBtnClass(active: boolean): string {
@@ -74,7 +74,7 @@ export function RailRight() {
   // width / collapse from the global cascade); bento Tailwind layered on top.
   const railClass = [
     "ct-rail-right",
-    "flex flex-col bg-[#0B0E10] border-l border-white/10",
+    "flex flex-col bg-[var(--ct-bg-deep)] border-l border-[var(--ct-border-soft)]",
     mode === "collapsed" ? "collapsed" : "",
     mode === "expanded" ? "expanded" : "",
   ]
@@ -83,20 +83,19 @@ export function RailRight() {
 
   return (
     <aside className={railClass}>
-      <div className="ct-rail-right-header flex items-center gap-2 border-b border-white/10">
+      <div className="ct-rail-right-header flex items-center gap-2 border-b border-[var(--ct-border-soft)]">
         {open && (
           <span className="flex min-w-0 flex-1 items-center gap-2.5">
             <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]">
               <HearstMark size={16} />
               <span
-                className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0B0E10]${streaming ? " animate-pulse" : ""}`}
-                style={{ background: product.color }}
+                className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[var(--ct-bg-deep)] bg-[var(--ct-accent)]${streaming ? " animate-pulse" : ""}`}
                 aria-hidden="true"
               />
             </span>
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="flex items-center gap-2">
-                <span className="truncate text-[15px] font-medium leading-none text-white">
+                <span className="truncate text-[15px] font-medium leading-none text-[var(--ct-text-strong)]">
                   {TITLES[view] ?? "Assistant"}
                 </span>
                 <span className="inline-flex shrink-0 items-center gap-1 rounded border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 text-[10px] uppercase tracking-widest text-[var(--ct-accent)]">

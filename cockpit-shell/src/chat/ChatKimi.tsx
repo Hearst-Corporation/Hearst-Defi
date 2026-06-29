@@ -6,9 +6,12 @@
  * Toute la logique d'état et de streaming est dans useChat.ts.
  * Ce composant gère : JSX, textarea, focus, scroll, retry, reset.
  *
- * Skin : bento Tailwind (canon Portfolio) — panneaux `bg-black` / sous-surfaces
- * `bg-[#15191C]`, bordures `border-white/10`, accent unique #A7FB90. Deux classes
- * legacy sont CONSERVÉES car ce sont des points d'ancrage structurels :
+ * Skin : bento Tailwind (canon Portfolio) — panneaux `--ct-surface-card` /
+ * sous-surfaces `--ct-surface-inset`, bordures `--ct-border(-soft)`, accent
+ * unique `--ct-accent`. Tout le chrome passe par les tokens DS `--ct-*` ; seules
+ * les couleurs de DATA-VIZ des séries de courbes (stress/distribution) restent en
+ * hex sémantique. Deux classes legacy sont CONSERVÉES car ce sont des points
+ * d'ancrage structurels :
  *   - `ct-chat-root` : la coquille (RailRight) cible `.ct-rail-right-body:has(.ct-chat-root)`
  *     pour passer le body en `overflow:hidden; min-height:0` (le scroll vit alors
  *     sur la liste interne — cf. cockpit.css "Chat scroll fix").
@@ -122,23 +125,23 @@ const MICRO_LABEL = "ct-bento-label";
 // chat : titres serrés, listes à puces accent, code mono teinté accent, blocs pre
 // encadrés. Pas de halo, juste typographie + espacement.
 const MARKDOWN_PROSE = cn(
-  "text-[length:var(--ct-text-xs)] leading-[1.65] text-zinc-300",
+  "text-[length:var(--ct-text-xs)] leading-[1.65] text-[var(--ct-text-body)]",
   // Headings
-  "[&_h1]:mt-5 [&_h1]:mb-2 [&_h1]:text-[18px] [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-white",
-  "[&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-[length:var(--ct-text-sm)] [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-white",
-  "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:text-[length:var(--ct-text-xs)] [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:text-white",
+  "[&_h1]:mt-5 [&_h1]:mb-2 [&_h1]:text-[18px] [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-[var(--ct-text-strong)]",
+  "[&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-[length:var(--ct-text-sm)] [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-[var(--ct-text-strong)]",
+  "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:text-[length:var(--ct-text-xs)] [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:text-[var(--ct-text-strong)]",
   "[&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0",
   // Paragraphs
   "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
   // Inline emphasis
-  "[&_strong]:font-bold [&_strong]:text-white [&_em]:italic [&_em]:opacity-90",
+  "[&_strong]:font-bold [&_strong]:text-[var(--ct-text-strong)] [&_em]:italic [&_em]:opacity-90",
   // Lists
   "[&_ul]:my-2 [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:my-1",
   "[&_li]:marker:text-[var(--ct-accent)]",
   // Code
-  "[&_code]:rounded [&_code]:bg-black/40 [&_code]:px-[5px] [&_code]:py-[2px] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[var(--ct-accent)]",
-  "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/60 [&_pre]:p-3 [&_pre]:text-[length:var(--ct-text-2xs)] [&_pre]:font-mono",
-  "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-zinc-300",
+  "[&_code]:rounded [&_code]:bg-[color-mix(in_srgb,var(--ct-bg-deep)_40%,transparent)] [&_code]:px-[5px] [&_code]:py-[2px] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[var(--ct-accent)]",
+  "[&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-[var(--ct-border-soft)] [&_pre]:bg-[color-mix(in_srgb,var(--ct-bg-deep)_60%,transparent)] [&_pre]:p-3 [&_pre]:text-[length:var(--ct-text-2xs)] [&_pre]:font-mono",
+  "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-[var(--ct-text-body)]",
 );
 
 // ---------------------------------------------------------------------------
@@ -329,8 +332,6 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
     sendMessage(lastUser.content);
   }, [messages, sendMessage]);
 
-  const accent = productColor ?? "#A7FB90";
-
   return (
     // `ct-chat-root` conservé : hook structurel du shell (`:has()`) + colonne flex.
     <div className="ct-chat-root flex h-full min-h-0 flex-1 flex-col">
@@ -341,7 +342,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           onClick={newConversation}
           title="New chat"
           aria-label="Start new conversation"
-          className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-[3px] text-[length:var(--ct-text-micro)] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-white"
+          className="ml-auto rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-[3px] text-[length:var(--ct-text-micro)] font-semibold text-[var(--ct-text-body)] transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-text-strong)]"
         >
           + New
         </button>
@@ -356,14 +357,14 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         {isConversationEmpty && !streaming && (
           <div className="m-auto flex w-full flex-col gap-4">
             {/* Assistant panel — hero premium, un seul panneau bento */}
-            <div className="rounded-2xl border border-white/10 bg-black p-6 shadow-sm">
+            <div className="rounded-2xl border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-6 shadow-sm">
               <div className="flex flex-col items-center gap-3 text-center">
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]">
                   <HearstMark size={26} />
                 </span>
                 <div className="flex flex-col gap-1.5">
-                  <h2 className="text-[17px] font-semibold tracking-tight text-white">Hearst Assistant</h2>
-                  <p className="mx-auto max-w-[240px] text-[length:var(--ct-text-xs)] leading-relaxed text-zinc-500">
+                  <h2 className="text-[17px] font-semibold tracking-tight text-[var(--ct-text-strong)]">Hearst Assistant</h2>
+                  <p className="mx-auto max-w-[240px] text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-faint)]">
                     Your institutional co-pilot for portfolio insights and vault analysis.
                   </p>
                 </div>
@@ -371,7 +372,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
             </div>
 
             {/* Suggested actions panel — bento noir */}
-            <div className="flex flex-col gap-3.5 rounded-2xl border border-white/10 bg-black p-5 shadow-sm">
+            <div className="flex flex-col gap-3.5 rounded-2xl border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-5 shadow-sm">
               <div className={cn("self-start", MICRO_LABEL)}>Suggested Actions</div>
               <ChatPresets
                 masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
@@ -425,12 +426,12 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         )}
 
         {error && (
-          <div className="my-4 flex flex-col gap-2.5 rounded-2xl border border-[#f9a03f]/20 bg-[#f9a03f]/[0.06] px-4 py-3">
-            <p className="text-[length:var(--ct-text-xs)] font-medium leading-normal text-white">{error}</p>
+          <div className="my-4 flex flex-col gap-2.5 rounded-2xl border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-4 py-3">
+            <p className="text-[length:var(--ct-text-xs)] font-medium leading-normal text-[var(--ct-text-strong)]">{error}</p>
             <button
               type="button"
               onClick={retryLast}
-              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-semibold text-zinc-300 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-accent)]"
+              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-semibold text-[var(--ct-text-body)] transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-accent)]"
               aria-label="Retry last message"
             >
               ↻ Retry
@@ -446,29 +447,29 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
           PAS encore envoyé. Double-Entrée rapide force l'envoi immédiat. */}
       {queued ? (
         <div
-          className="mt-2 flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[#15191C]/50 px-2.5 py-1.5 text-[length:var(--ct-text-xs)] text-zinc-400"
+          className="mt-2 flex min-w-0 items-center gap-1.5 rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-surface-inset)_50%,transparent)] px-2.5 py-1.5 text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]"
           aria-live="polite"
         >
           <span
             className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[var(--ct-accent)]"
             aria-hidden="true"
           />
-          <span className="min-w-0 flex-1 truncate text-white">Queued · {queued}</span>
-          <span className="shrink-0 text-zinc-500">sends after this reply — press Enter again to force</span>
+          <span className="min-w-0 flex-1 truncate text-[var(--ct-text-strong)]">Queued · {queued}</span>
+          <span className="shrink-0 text-[var(--ct-text-faint)]">sends after this reply — press Enter again to force</span>
         </div>
       ) : null}
 
       {/* Input */}
       <div className="mt-auto flex flex-col gap-2.5 pt-2">
-        <div className="flex items-center justify-center gap-1.5 text-[length:var(--ct-text-micro)] italic text-zinc-500">
-          <svg className="h-3 w-3 shrink-0 not-italic text-zinc-600" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <div className="flex items-center justify-center gap-1.5 text-[length:var(--ct-text-micro)] italic text-[var(--ct-text-faint)]">
+          <svg className="h-3 w-3 shrink-0 not-italic text-[var(--ct-text-faint)]" viewBox="0 0 13 13" fill="none" aria-hidden="true">
             <rect x="2.5" y="5.5" width="8" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.1" />
             <path d="M4.5 5.5V4a2 2 0 0 1 4 0v1.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
           </svg>
           Drafts are prepared in review mode. Nothing sends without confirmation.
         </div>
         <form
-          className="flex items-end gap-2 rounded-xl border border-white/10 bg-[#15191C] py-2 pl-3.5 pr-2 shadow-sm transition-colors duration-150 focus-within:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]"
+          className="flex items-end gap-2 rounded-xl border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] py-2 pl-3.5 pr-2 shadow-sm transition-colors duration-150 focus-within:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]"
           onSubmit={(e) => {
             e.preventDefault();
             handleSend(input);
@@ -476,7 +477,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         >
           <textarea
             ref={textareaRef}
-            className="max-h-[10.5rem] min-h-10 flex-1 resize-none border-none bg-transparent py-1.5 text-[length:var(--ct-text-xs)] leading-normal text-white outline-none placeholder:text-zinc-500"
+            className="max-h-[10.5rem] min-h-10 flex-1 resize-none border-none bg-transparent py-1.5 text-[length:var(--ct-text-xs)] leading-normal text-[var(--ct-text-strong)] outline-none placeholder:text-[var(--ct-text-faint)]"
             rows={1}
             placeholder="Message the assistant…"
             value={input}
@@ -491,12 +492,11 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
             className={cn(
               "flex aspect-square h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 transition-colors duration-150",
               input.trim()
-                ? "text-black"
-                : "border border-white/10 bg-transparent text-zinc-500",
+                ? "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
+                : "border border-[var(--ct-border-soft)] bg-transparent text-[var(--ct-text-faint)]",
             )}
             disabled={!input.trim()}
             aria-label={streaming ? "Queue or send message" : "Send message"}
-            style={input.trim() ? { background: accent } : undefined}
           >
             {streaming ? (
               <span className="inline-flex items-center gap-[3px]">
@@ -556,7 +556,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
           className={cn(
             "mb-1 inline-flex items-center gap-1 text-[10px] font-bold uppercase leading-none tracking-[0.12em]",
             isUser
-              ? "self-end text-zinc-500"
+              ? "self-end text-[var(--ct-text-faint)]"
               : "text-[var(--ct-accent)] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[var(--ct-accent)] before:content-['']",
           )}
         >
@@ -570,7 +570,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
           <span className="h-1 w-1 animate-pulse rounded-full bg-[var(--ct-accent)] [animation-delay:0.3s]" />
         </div>
       ) : isUser ? (
-        <p className="m-0 whitespace-pre-wrap italic text-white/90">{msg.content}</p>
+        <p className="m-0 whitespace-pre-wrap italic text-[var(--ct-text-strong)]">{msg.content}</p>
       ) : markdown ? (
         <>
           {msg.content ? (
@@ -588,7 +588,7 @@ function MessageBubble({ msg, isStreamingThis }: MessageBubbleProps) {
       ) : (
         <>
           {msg.content ? (
-            <p className="m-0 whitespace-pre-wrap text-zinc-300">{msg.content}</p>
+            <p className="m-0 whitespace-pre-wrap text-[var(--ct-text-body)]">{msg.content}</p>
           ) : null}
           <ChatCharts charts={msg.charts} />
           {isStreamingThis && <StreamCursor />}
@@ -620,29 +620,29 @@ function ChatChartCard({ chart }: { chart: ChatChart }) {
   return (
     <article
       className={cn(
-        "mt-2 rounded-lg border border-white/10 bg-[#15191C]/40 p-3 transition-colors duration-150 hover:border-white/20",
+        "mt-2 rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-surface-inset)_40%,transparent)] p-3 transition-colors duration-150 hover:border-[var(--ct-border)]",
         chart.status === "building" && "opacity-80",
       )}
     >
       <div className="mb-2 flex items-start justify-between">
         <div>
           <div className={MICRO_LABEL}>{chart.title}</div>
-          <div className="text-[length:var(--ct-text-xs)] font-semibold text-white">{chart.metric}</div>
+          <div className="text-[length:var(--ct-text-xs)] font-semibold text-[var(--ct-text-strong)]">{chart.metric}</div>
         </div>
-        <span className="rounded bg-white/5 px-1 py-px text-[9px] uppercase text-zinc-500">{chart.provenance}</span>
+        <span className="rounded bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-1 py-px text-[9px] uppercase text-[var(--ct-text-faint)]">{chart.provenance}</span>
       </div>
       <ChartVisual chart={chart} />
-      <div className="flex justify-between text-[length:var(--ct-text-micro)] text-zinc-500">
+      <div className="flex justify-between text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">
         <span>{chart.status === "ready" ? "Ready" : "Building"}</span>
         <span>{Math.round(chart.progress)}%</span>
       </div>
-      <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+      <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]" aria-hidden="true">
         <span
           className="block h-full rounded-[inherit] bg-[var(--ct-accent)] transition-[width] duration-150"
           style={{ width: `${Math.max(4, Math.min(100, chart.progress))}%` }}
         />
       </div>
-      <p className="mt-2 text-[length:var(--ct-text-micro)] leading-snug text-zinc-500">{chart.note}</p>
+      <p className="mt-2 text-[length:var(--ct-text-micro)] leading-snug text-[var(--ct-text-faint)]">{chart.note}</p>
     </article>
   );
 }
@@ -660,7 +660,7 @@ function ChartVisual({ chart }: { chart: ChatChart }) {
 /** Skeleton de chargement d'un chart — barre balayée par un gradient accent. */
 function ChartSkeleton() {
   return (
-    <div className="mt-1.5 h-[76px] animate-pulse rounded-lg bg-gradient-to-r from-transparent via-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] to-transparent bg-white/5" />
+    <div className="mt-1.5 h-[76px] animate-pulse rounded-lg bg-gradient-to-r from-transparent via-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] to-transparent bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]" />
   );
 }
 
@@ -671,7 +671,7 @@ function AllocationStack({ chart }: { chart: ChatChart }) {
   let x = 0;
   return (
     <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
-      <rect x="0" y="20" width="260" height="18" rx="9" className="fill-white/10" />
+      <rect x="0" y="20" width="260" height="18" rx="9" className="fill-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]" />
       {chart.segments.map((segment) => {
         const width = (segment.value / 100) * 260;
         const currentX = x;
@@ -687,7 +687,7 @@ function AllocationStack({ chart }: { chart: ChatChart }) {
               fill={segment.color}
               opacity="0.9"
             />
-            <text x={currentX + 4} y="56" className="fill-zinc-500 text-[8px]">
+            <text x={currentX + 4} y="56" className="fill-[var(--ct-text-faint)] text-[8px]">
               {segment.value}%
             </text>
           </g>
@@ -711,9 +711,9 @@ function DistributionRange({ chart }: { chart: ChatChart }) {
     <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
       <polyline points={highs} fill="none" className="stroke-[var(--ct-accent)] [stroke-width:2.2]" />
       <polyline points={lows} fill="none" className="stroke-[#60a5fa] [stroke-width:2.2]" />
-      <line x1="18" y1="58" x2="238" y2="58" className="stroke-white/10 [stroke-width:1]" />
-      <text x="18" y="70" className="fill-zinc-500 text-[8px]">M1</text>
-      <text x="222" y="70" className="fill-zinc-500 text-[8px]">M12</text>
+      <line x1="18" y1="58" x2="238" y2="58" className="stroke-[var(--ct-border-soft)] [stroke-width:1]" />
+      <text x="18" y="70" className="fill-[var(--ct-text-faint)] text-[8px]">M1</text>
+      <text x="222" y="70" className="fill-[var(--ct-text-faint)] text-[8px]">M12</text>
     </svg>
   );
 }
@@ -728,7 +728,7 @@ function StressCorridor({ chart }: { chart: ChatChart }) {
   return (
     <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
       <polyline points={points} fill="none" className="stroke-[#f9a03f] [stroke-width:2.4]" />
-      <line x1="20" y1="58" x2="232" y2="58" className="stroke-white/10 [stroke-width:1]" />
+      <line x1="20" y1="58" x2="232" y2="58" className="stroke-[var(--ct-border-soft)] [stroke-width:1]" />
       {chart.points.map((point, index) => (
         <circle
           key={point.label}
