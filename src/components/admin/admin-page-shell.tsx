@@ -29,6 +29,30 @@ export const TABLE_WRAP =
 export const ROW =
   "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
+/* Canon surface classes — the named hooks the Mission #055 frame guard checks,
+ * and the consistent chrome pages apply so tables/forms read identically.
+ *  - TABLE_SURFACE: wrap any table block so it can shrink (min-w-0) and scroll
+ *    LOCALLY (overflow-x-auto) instead of cropping the page frame.
+ *  - FORM_SURFACE: the canon form body rhythm (p-5 lg:p-6, column gap) so forms
+ *    sit as a framed card body, never a full-bleed black slab.                 */
+export const TABLE_SURFACE = "admin-canon-table-surface min-w-0";
+export const FORM_SURFACE = "admin-canon-form-surface";
+
+/**
+ * Table surface — the canon wrapper for a Catalyst table inside an
+ * AdminSectionCard. Keeps horizontal scroll LOCAL to the card so a wide table
+ * never bleeds past the frame or crops on the right (chat rail open included).
+ */
+export function AdminTableSurface({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn(TABLE_SURFACE, className)}>{children}</div>;
+}
+
 /**
  * Outer admin page box + canonical header. Every admin page wraps its body in
  * this so the page surface, padding rhythm, and title grammar are identical.
@@ -73,7 +97,7 @@ export function AdminPageShell({
         className,
       )}
     >
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+      <div className="admin-canon-page-frame min-w-0 p-5 lg:p-6 flex flex-col gap-y-5">
         <AdminPageHeader
           titleLead={titleLead}
           titleAccent={titleAccent}
@@ -131,7 +155,13 @@ export function AdminSectionCard({
   return (
     <section
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
+        // `min-w-0` is the crop fix: AdminSectionCard is a flex item; without it
+        // its default `min-width:auto` = the intrinsic width of its widest child
+        // (a wide Catalyst table), so the card refuses to shrink below that and
+        // overflows the page frame → the table crops on the right (worse with the
+        // chat rail open). `min-w-0` lets the card shrink to the slot width and
+        // the table's own `overflow-x-auto` then scrolls LOCALLY inside the card.
+        "admin-canon-first-block flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
         className,
       )}
       aria-label={ariaLabel}

@@ -1,4 +1,4 @@
-import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard, FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { FeedbackForm } from "@/components/admin/feedback-form";
 import { FeedbackList } from "@/components/admin/feedback-list";
 import { prisma } from "@/lib/db";
@@ -31,7 +31,7 @@ export default async function FeedbackPage() {
         subtitle="Capture what changed, what feels off, and what should happen next."
         ariaLabel="Submit feedback"
       >
-        <div className="p-5 lg:p-6">
+        <div className={FORM_SURFACE}>
           <FeedbackForm />
         </div>
       </AdminSectionCard>

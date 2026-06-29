@@ -1,0 +1,58 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * Admin Visual Frame — canon surface classes (Mission #055)
+ *
+ * The admin pages were already on the AdminPageShell + AdminSectionCard grammar
+ * (Mission #051/#054), yet they did NOT look the same: wide tables cropped on
+ * the right, frame width shifted with the chat rail, and the gap/padding rhythm
+ * drifted. Root cause = the flexbox `min-width:auto` default: a section that is
+ * a flex item won't shrink below its widest child's intrinsic width, so a wide
+ * table pushes the whole frame past the content slot.
+ *
+ * These classes are the single, named source for the admin frame contract. They
+ * are applied by the shell primitives (admin-page-shell.tsx) and are the hooks
+ * the Mission #055 frame guard asserts. Tokens only (--ct-*), no hardcoded hues.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* The page frame: the padded column inside the rounded admin box. `min-width:0`
+ * lets every child (and the table inside it) shrink to the real slot width
+ * instead of overflowing — identical width with the chat rail open or closed. */
+.admin-canon-page-frame {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-canon-page-frame > * {
+  /* Every direct child of the frame can shrink — no full-bleed crop. */
+  min-width: 0;
+}
+
+/* The canon "first block" (and every AdminSectionCard): a flex item that can
+ * shrink so its inner table's own overflow-x-auto scrolls LOCALLY. */
+.admin-canon-first-block {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Table surface: wrap a table block so horizontal scroll stays inside the card.
+ * The crop-proof contract — a wide table scrolls here, it never bleeds out. */
+.admin-canon-table-surface {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Form surface: the canon form body rhythm so a form reads as a framed card
+ * body (consistent padding + vertical gap), never an isolated full-black slab. */
+.admin-canon-form-surface {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-space-5, 1.25rem);
+  min-width: 0;
+  padding: var(--ct-space-5, 1.25rem);
+}
+
+@media (min-width: 1024px) {
+  .admin-canon-form-surface {
+    padding: var(--ct-space-6, 1.5rem);
+  }
+}
