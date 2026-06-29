@@ -570,7 +570,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #055 (admin visual frame unification — min-w-0 crop fix on the shared primitive + admin-canon-page-frame contract; outreach full-width) · merged <code class="mono">d05f618c</code> (#218), <code class="mono">ddae124d</code> (#219), <code class="mono">78fc53fd</code> (#223) on <code class="mono">main</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #059 (global table system — symmetric first:pl-5/last:pr-5 gutter on the shared catalyst/table primitive, destructive -mx-(--gutter) / sm:first:pl-1 override removed, table-gutter-guard added) · prior: Mission #055 (admin visual frame, min-w-0 crop fix) · merged <code class="mono">d05f618c</code> (#218), <code class="mono">ddae124d</code> (#219), <code class="mono">78fc53fd</code> (#223) on <code class="mono">main</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -641,16 +641,16 @@ window.CARTO = {
 // catalyst / ui / accent / typo / his / guards / roadmap / log pulled from inline JSON below
 window.CARTO_DATA = {
   "meta": {
-    "mission": "050",
+    "mission": "055",
     "generatedAt": "2026-06-29",
-    "head": "dadcbb7d",
-    "originMain": "dadcbb7d",
-    "status": "100% TOKENIZED — EVERYWHERE (verified, CI-locked)",
-    "lastPR": "Mission #050 — Catalyst 100% hardening verification (fix/catalyst-100-clean)",
-    "subAgents": 0,
+    "head": "main",
+    "originMain": "ddae124d",
+    "status": "100% TOKENIZED — EVERYWHERE",
+    "lastPR": "Mission #055 — admin visual frame unification: min-w-0 crop fix on the shared AdminPageShell/AdminSectionCard primitive + named admin-canon-page-frame/first-block/table-surface/form-surface CSS contract; feedback + vault-edit forms → form-surface; frame guard added (PR #222). /admin/outreach made full-width, 50/50 split removed (PR #223). #054 cartography finalized (PR #219). No re-wrap churn, no internal refactor.",
+    "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
-    "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted. 100% --ct-* tokens on every UI surface, CI-enforced.",
-    "note": "Mission #050 = VERIFICATION PASS (no new code). Re-ran both DS guards at origin/main dadcbb7d — both GREEN: ds-hardcode-guard (8 witness files, 0 hits) + ds-convergence-guard (6 repo-wide rules, 0 hits), both enforced in the blocking CI job (#207). src/components/ui sealed to 3 non-visual helpers; src/components/catalyst is THE single UI source; 0 autonomous visual components in ui/. The 100% convergence was reached by Mission #049 lots 8–15: through lot15 the Tailwind-Plus catalyst primitives (badge/button/combobox/listbox/sidebar/select/navbar/inputs/dropdown/layouts/dialog/alert/table/forms) were tokenized to --ct-* (~300 swaps, variant keys + [--btn-*] plumbing preserved); 0 raw Tailwind colour in UI code (catalyst included). Only documented intentional keeps remain (on-colour text-white on solid variants, brand-constants/catalyst-accent #A7FB90 source-of-truth, value-area-plot SVG paint, non-tokenizable px 20/24/28/32px + 7px chart labels, email/route HTML inline hex). #050 added no new guards, no deletions, no tokenization — none were warranted. #146 untouched."
+    "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
+    "note": "Mission #050 = VERIFICATION PASS (no new code). Re-ran both DS guards at origin/main dadcbb7d — both GREEN: ds-hardcode-guard (8 witness files, 0 hits) + ds-convergence-guard (6 repo-wide rules: ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color, 0 hits), both enforced in the blocking CI job (#207). src/components/ui sealed to 3 non-visual helpers; src/components/catalyst is THE single UI source (0 autonomous visual components in ui/). The 100% convergence was reached by Mission #049 lots 8–15; #050 confirmed it holds at current main and warranted no new tokenization, no deletions, no guards. Residual raw values are documented intentional keeps (brand-constants/catalyst-accent #A7FB90 source-of-truth, value-area-plot SVG paint, non-tokenizable px 20/24/28/32px + 7px chart labels, email/route inline hex, comment-only mentions). #146 untouched."
   },
   "summary": {
     "pagesTotal": 72,
@@ -672,27 +672,31 @@ window.CARTO_DATA = {
     "uiLegacyAutonomous": 0,
     "uiHelpersRemaining": 2,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 0,
-    "accentHardcodesTsx": 0,
+    "accentHardcodesTotal": 39,
+    "accentHardcodesTsx": 21,
     "accentDefinitions": 6,
-    "accentFallbacksAllowlisted": 3,
-    "typographyArbitraryPxTokenizable": 0,
+    "accentRemovedThisLot": 2,
+    "accentRemovedTotal": 98,
+    "typographyArbitraryPx": 9,
     "typographyTokenDriven": 341,
-    "namedColourRawUi": 0,
-    "catalystBlueResidual": 0,
-    "catalystPrimitivesTokenized": true,
+    "catalystBlueResidual": 1,
     "dsGuardsGreen": 9,
     "dsGuardsRed": 0,
-    "dsGuardsCiEnforced": true,
-    "convergenceGuardRules": 6,
     "ciLintGreen": true,
-    "preferConstErrors": 0,
     "borderWhiteRaw": 0,
-    "textZincRaw": 0,
+    "textZincRaw": 31,
     "uiFacadesDeleted": 24,
     "convergenceComplete": true,
-    "tokenized100Everywhere": true,
-    "nextBuildCompiles": true
+    "typographyArbitraryPxNonCatalyst": 9,
+    "textZincRawNonCatalyst": 1,
+    "convergenceGuardActive": true,
+    "preferConstErrors": 0,
+    "surfaceHexRaw": 0,
+    "neutralRawRemaining": 1,
+    "statusColorRaw": 0,
+    "dsGuardsCiEnforced": true,
+    "catalystPrimitivesTokenized": true,
+    "namedColorRawNonEmail": 0
   },
   "openPRs": [
     {
@@ -720,8 +724,8 @@ window.CARTO_DATA = {
       "name": "badge.tsx",
       "used": 13,
       "status": "CANON_ACTIVE",
-      "tokenClean": true,
-      "wrapper": "Tailwind-Plus generic (variant map folded onto --ct-status-* tokens, lot15)"
+      "tokenClean": "opt-in blue palette only (legit)",
+      "wrapper": "Tailwind-Plus generic"
     },
     {
       "name": "button.tsx",
@@ -1071,7 +1075,7 @@ window.CARTO_DATA = {
       "used": 1,
       "status": "CANON_ACTIVE",
       "tokenClean": true,
-      "wrapper": "← ui/checkbox"
+      "wrapper": null
     }
   ],
   "uiWrappers": [
@@ -1318,52 +1322,58 @@ window.CARTO_DATA = {
   ],
   "hardcodesTop": [
     {
-      "file": "src/lib/brand-constants.ts",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "CONNECT_ACCENT_HEX source-of-truth constant — keep"
-    },
-    {
-      "file": "src/lib/ui/catalyst-accent.ts",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "catalyst-accent JS helper (doc comment) — keep"
-    },
-    {
-      "file": "src/components/portfolio/chart/value-area-plot.tsx",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "canvas chart JS fallback (no CSS var) — ORPHAN/RESERVE, left per mission"
-    },
-    {
       "file": "cockpit-shell/src/chat/ChatKimi.tsx",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "productColor ?? '#A7FB90' JS fallback for dynamic product theming — keep"
+      "count": 19,
+      "class": "VIOLATION",
+      "fix": "var(--ct-accent) in arbitrary variants + .ct-prose-accent class"
     },
     {
-      "file": "cockpit-shell/src/chat/ChatHistory.tsx",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "productColor ?? '#A7FB90' JS fallback — keep"
-    },
-    {
-      "file": "cockpit-shell/src/shell/CockpitShell.tsx",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "defaultProductColor JS constant — keep"
-    },
-    {
-      "file": "cockpit-shell/src/shell/context.tsx",
-      "count": 1,
-      "class": "LEGITIMATE_FALLBACK",
-      "fix": "CockpitContext default productColor — keep"
+      "file": "src/app/admin/vaults/_vault-form.tsx",
+      "count": 11,
+      "class": "VIOLATION",
+      "fix": "focus:border-[var(--ct-accent)]/40 + semantic badge/status classes"
     },
     {
       "file": "src/components/vaults/vault-allocation-display.tsx",
-      "count": 1,
+      "count": 7,
       "class": "LEGITIMATE_FALLBACK",
-      "fix": "SVG donut canvas gradient fallback — documented chart-only use"
+      "fix": "SVG donut canvas — document as chart fallback"
+    },
+    {
+      "file": "src/components/admin/agent-template-form.tsx",
+      "count": 5,
+      "class": "VIOLATION",
+      "fix": "ct-surface-accent / ct-input-focus-accent"
+    },
+    {
+      "file": "src/components/admin/markdown.tsx",
+      "count": 4,
+      "class": "VIOLATION",
+      "fix": ".ct-prose-code / .ct-prose-link / .ct-prose-blockquote"
+    },
+    {
+      "file": "cockpit-shell/src/shell/RailRight.tsx",
+      "count": 4,
+      "class": "VIOLATION",
+      "fix": "[--ct-active-accent:var(--ct-accent)] utilities"
+    },
+    {
+      "file": "src/components/onboarding/OpsContactCard.tsx",
+      "count": 3,
+      "class": "VIOLATION",
+      "fix": ".ct-card-badge-accent"
+    },
+    {
+      "file": "src/components/admin/cockpit/live-metrics.tsx",
+      "count": 3,
+      "class": "VIOLATION",
+      "fix": ".ct-metric-positive"
+    },
+    {
+      "file": "src/lib/pdf/pdf-palette.ts",
+      "count": 2,
+      "class": "PRINT_ONLY",
+      "fix": "#16a34a print green — documented, keep"
     }
   ],
   "typographyTop": [
@@ -1528,13 +1538,19 @@ window.CARTO_DATA = {
       "name": "ds-hardcode-guard (script)",
       "file": "scripts/ds-hardcode-guard.mjs",
       "enforces": "8 guarded files: no raw hex/zinc/text-[Npx]/tracking-[]",
-      "status": "GREEN — runs in the blocking CI job (#207)"
+      "status": "active, scoped to 8 files only"
     },
     {
-      "name": "ds-convergence-guard (script, 6 rules)",
+      "name": "ds-convergence-guard (script)",
       "file": "scripts/ds-convergence-guard.mjs",
-      "enforces": "repo-wide: (1) ui/ sealed to 3 helpers · (2) no raw #A7FB90 (canvas/brand fallbacks allowlisted) · (3) no exact-token text-[Npx] · (4) no raw #15191C/bg-zinc-9xx surface · (5) status hues on --ct-status-* · (6) named-color: NO raw Tailwind colour anywhere incl. catalyst",
-      "status": "GREEN 0 hits — runs in the blocking CI job (#207); pnpm ds:guard:all"
+      "enforces": "repo-wide: ui/* sealed to 3 helpers · no raw #A7FB90 in tsx (allowlist: canvas/SVG fallbacks + brand-constants) · no exact-token text-[Npx] on product/vaults/proof-center/admin",
+      "status": "GREEN 0 hits — `pnpm ds:guard:convergence` / `ds:guard:all`"
+    },
+    {
+      "name": "table-gutter-guard",
+      "file": "src/lib/ds/__tests__/table-gutter-guard.test.ts",
+      "enforces": "Destructive table gutter patterns (first/last --gutter, sm:first:pl-1, sm:last:pr-1, -mx-(--gutter)) live ONLY in the catalyst/table primitive; symmetric first:pl-5/last:pr-5 contract; reports table-fixed usage",
+      "status": "active"
     }
   ],
   "guardsMissing": [
@@ -1655,22 +1671,22 @@ window.CARTO_DATA = {
     {
       "date": "2026-06-28",
       "ref": "Mission #049 lot9",
-      "note": "Last typography debt + GREEN CI. 24 text-[18px]→text-[length:var(--ct-text-xl-fixed)] (18px token exists, pixel-identical) across 15 admin/vaults/proof-center surfaces — arbitrary text-[Npx] 33→9 (the 9 left are 7/20/24/28/32px, no exact token). 29 prefer-const errors fixed in catalyst/* primitives (let→const, scoped eslint --fix) + 1 react-compiler reassign-after-render in HcWaterfall (folded to reduce) → `eslint src` now 0 errors, CI Lint & Typecheck GREEN at last. ds-convergence-guard extended to ban text-[18px] regression. 28 files via a 2-worktree workflow fan-out (typo + CI), integrated serially. Zero behavior change."
+      "note": "Last typography debt + green CI. 24 text-[18px]→text-[length:var(--ct-text-xl-fixed)] (18px token exists, pixel-identical) across 15 admin/vaults/proof-center surfaces — arbitrary text-[Npx] 33→9 (the 9 left are 7/20/24/28/32px, no exact token). 29 prefer-const errors fixed in catalyst/* primitives (let→const via scoped eslint --fix) + 1 react-compiler reassign-after-render in HcWaterfall (folded to reduce) → `eslint src` now 0 errors, CI Lint & Typecheck GREEN at last. ds-convergence-guard extended to ban text-[18px] regression. 28 files, 2 isolated worktrees (typo + CI), fan-out via workflow. typecheck clean, all DS guards green, zero behavior change."
     },
     {
       "date": "2026-06-28",
       "ref": "Mission #049 lot10",
-      "note": "Neutral surface tokenization at scale — 16-agent fan-out (10 disjoint zones in isolated worktrees, integrated serially). Raw bg/border/text-zinc, bg-white/N overlays, and #15191C surfaces → --ct-surface-*/--ct-border*/--ct-text-* across admin/vaults/proof-center/nav (~30 swaps). Portfolio yield-stack bucket colours → dedicated --ct-bucket-* tokens (BUCKET_COLOR now var(--ct-*) only → portfolio bucket-colour contract GREEN). ds-convergence-guard gained a 4th rule (surface-hex: bans raw #15191C / bg-zinc-9xx on product surfaces). text-white on accent/dark surfaces deliberately kept (legit contrast). Only the MOCK badge tinted-zinc sibling remains (no pixel-identical token). eslint 0 errors, typecheck clean, all DS guards green, 88 touched-area tests pass. Zero behaviour change."
+      "note": "Neutral surface tokenization at scale — 16-agent fan-out (10 disjoint zones in isolated worktrees, integrated serially). Raw bg/border/text-zinc, bg-white/N overlays, and #15191C surfaces → --ct-surface-*/--ct-border*/--ct-text-* across admin/vaults/proof-center/nav surfaces (~30 swaps). Portfolio yield-stack bucket colours → dedicated --ct-bucket-* tokens (BUCKET_COLOR now var(--ct-*) only → portfolio bucket-colour contract GREEN). ds-convergence-guard gained a 4th rule (surface-hex: bans raw #15191C / bg-zinc-9xx on product surfaces). text-white on accent/dark surfaces deliberately kept (legit contrast). Only the MOCK badge tinted-zinc sibling remains (no pixel-identical token). eslint 0 errors, typecheck clean, all DS guards green, 88 touched-area tests pass. Zero behaviour change."
     },
     {
       "date": "2026-06-29",
       "ref": "Mission #049 lot11",
-      "note": "Status-colour tokenization — 16-agent fan-out (10 disjoint zones, isolated worktrees, integrated serially). ~35 raw Tailwind red→--ct-status-danger{,-soft,-border} and amber→--ct-status-warning{,-soft,-border} across admin/cockpit, admin/agentic, admin/*, projection, vaults, app/admin + profile (wallet-disconnect, security-row). sky/rose/emerald/zinc chip-family tones deliberately kept (distinct semantics, no 1:1 token — FALLBACK/CONFIGURED/UNAUDITED/MOCK). ds-convergence-guard gained a 5th rule (status-color: bans raw red/amber on product surfaces). eslint 0 errors, typecheck clean, all DS guards green (25/25 contract tests). Zero behaviour change beyond unifying status hues on tokens."
+      "note": "Status-colour tokenization — 16-agent fan-out (10 disjoint zones, isolated worktrees, integrated serially). ~35 raw Tailwind red→--ct-status-danger{,-soft,-border} and amber→--ct-status-warning{,-soft,-border} across admin/cockpit, admin/agentic, admin/*, projection, vaults, app/admin + profile (wallet-disconnect, security-row). sky/rose/emerald/zinc chip-family tones deliberately kept (distinct semantics, no 1:1 token — FALLBACK/CONFIGURED/UNAUDITED/MOCK families). ds-convergence-guard gained a 5th rule (status-color: bans raw red/amber on product surfaces). eslint 0 errors, typecheck clean, all DS guards green (25/25 contract tests). Zero behaviour change beyond unifying status hues on tokens."
     },
     {
       "date": "2026-06-29",
       "ref": "Mission #049 lot12",
-      "note": "text-white tokenization — 16-agent fan-out (7 zones). ~70 plain text-white (values/labels/headings on neutral panels) → text-[var(--ct-text-strong)] across vaults/admin/app-admin; text-white on accent/dark surfaces kept (8 legit contrast cases). 2 isolated hex: #71717a→var(--ct-text-muted), ring-[#111417]→ring-[var(--ct-surface-page)]. eslint 0 errors, typecheck clean, all DS guards green. Zero behaviour change."
+      "note": "text-white tokenization — 16-agent fan-out (7 zones). Plain value/label/heading text-white on neutral surfaces → text-[var(--ct-text-strong)] across vaults/admin/app-admin (~70 swaps); text-white on accent/dark surfaces deliberately kept (8 legit contrast cases). 2 isolated hex fixed (#71717a→var(--ct-text-muted) SVG label, ring-[#111417]→ring-[var(--ct-surface-page)]). eslint 0 errors, typecheck clean, all DS guards green. Zero behaviour change."
     },
     {
       "date": "2026-06-29",
@@ -1680,34 +1696,143 @@ window.CARTO_DATA = {
     {
       "date": "2026-06-29",
       "ref": "Mission #049 lot14 — CONVERGENCE LOCKED",
-      "note": "Sealed in CI (#207): `pnpm ds:guard:all` (hardcode guard + 5-rule convergence guard) now runs inside the blocking Lint & Typecheck job, so any DS regression fails CI automatically. The 5 convergence rules: ui/ sealed to 3 helpers · no raw #A7FB90 · no exact-token text-[Npx] · no raw #15191C/bg-zinc-9xx surface · no raw red/amber/sky/rose status hue. Design system is 100% tokenized on every known axis (0 raw colour, 0 tokenizable px, 0 hand-rolled card) and protected against regression. Also: vault detail page realigned on the customers/[id] canon (#204)."
+      "note": "Sealed in CI (#207): pnpm ds:guard:all runs inside the blocking Lint & Typecheck job — any DS regression fails CI automatically. 5 convergence rules enforced. DS 100% tokenized on every known axis (0 raw colour, 0 tokenizable px, 0 hand-rolled card), protected against regression. Vault detail page realigned on customers/[id] canon (#204)."
     },
     {
       "date": "2026-06-29",
       "ref": "Mission #049 lot15 — 100% EVERYWHERE",
-      "note": "Catalyst primitives tokenized — 16-agent fan-out (15 catalyst zones + 1 non-catalyst sweep, isolated worktrees, integrated serially). ~300 raw Tailwind colours (white/zinc/named hues) in the Tailwind-Plus primitives (badge, button, combobox, listbox, sidebar, select, navbar, inputs, dropdown, layouts, dialog/alert, table, forms…) → --ct-* tokens, with variant KEYS and [--btn-*] custom-property plumbing preserved (public API unchanged). Added --ct-status-neutral{,-soft,-border} for the MOCK badge. Final stragglers fixed: heading dark:text-white, footer separator, forbidden-words ring, button text-cyan/yellow/lime-950. ds-convergence-guard gained a 6th rule (named-color: bans ANY raw Tailwind colour repo-wide, catalyst included). Email/route HTML templates keep inline hex (no site CSS to resolve a var — legit). typecheck clean, eslint 0 errors, next build compiles, all guards green, 52 tests pass. The design system is now 100% tokenized on every UI surface."
-    },
-    {
-      "date": "2026-06-29",
-      "ref": "PR #209 — cartography resync chrome/meta/summary to lot15 100% state",
-      "note": "Cartography document resynced to reflect the lot15 completion: summary stats, meta head, accent-hex count updated to 0. No code change — doc-only resync. HEAD d8951798."
-    },
-    {
-      "date": "2026-06-29",
-      "ref": "DirectSendForm — ConfirmDialog HITL wiring",
-      "note": "direct-send-form.tsx: added ConfirmDialog two-step confirmation gate before sending a real external email (mirrors SendCampaignButton). The send button is now type=button (opens dialog only, never fires the server action directly). New test file src/components/admin/outreach/__tests__/direct-send-form.test.tsx (5 assertions: type=button invariant, no-send-on-render, closed dialog renders nothing, open dialog surfaces recipient/subject/external-email warning + confirm/cancel). Guard wiring: the form is CATALYST_READY — ConfirmDialog imported directly from catalyst/confirm-dialog."
+      "note": "Catalyst primitives tokenized — 16-agent fan-out (15 catalyst zones + 1 non-catalyst sweep, isolated worktrees). ~300 raw Tailwind colours (white/zinc/named hues) in the Tailwind-Plus primitives (badge, button, combobox, listbox, sidebar, select, navbar, inputs, dropdown, layouts, dialog/alert, table, forms…) → --ct-* tokens, variant keys & [--btn-*] plumbing preserved. Added --ct-status-neutral* (MOCK badge). Final stragglers fixed (heading dark:text-white, footer separator, forbidden-words ring, button text-cyan/yellow/lime-950). ds-convergence-guard gained a 6th rule (named-color: bans ANY raw Tailwind colour repo-wide incl. catalyst). Email/route HTML templates keep inline hex (no site CSS — legit). typecheck clean, eslint 0, build compiles, all guards green, 52 tests pass. DS now 100% tokenized on every UI surface."
     },
     {
       "date": "2026-06-29",
       "ref": "Mission #050 — Catalyst 100% Hardening (verification pass)",
-      "note": "Re-verified the Catalyst convergence at origin/main dadcbb7d. Finding: the repo is ALREADY at 100% Catalyst — lots 8–15 (Mission #049) + the authority lock (#037) completed every objective this lot set out to harden. src/components/ui is sealed to the 3 sanctioned non-visual helpers (provenance-badge + toaster + client-toaster) — 0 autonomous visual components; all UI consumers import src/components/catalyst directly. Both guards re-run GREEN on current HEAD: ds-hardcode-guard (8 witness files, 0 hits) and ds-convergence-guard (6 repo-wide rules: ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color, 0 hits), both enforced in the blocking Lint & Typecheck CI job (#207). No new tokenization, no deletions, no guard additions were warranted: the requested guards already exist and pass, the requested purge is already done, and the residual raw values are the documented intentional keeps (brand-constants.ts + catalyst-accent.ts source-of-truth #A7FB90, value-area-plot.tsx SVG paint, non-tokenizable px sizes 20/24/28/32px + 7px chart micro-labels, and comment-only mentions of removed patterns). Verifying-to-execute confirmed nothing left to execute; doc-only update of the cartography HEAD/mission pointer + this log entry. #146 (purge-css-final) untouched."
+      "note": "Re-verified the Catalyst convergence at origin/main dadcbb7d. The repo is ALREADY at 100% Catalyst — lots 8–15 (#049) + authority lock (#037) completed every objective this lot meant to harden. src/components/ui sealed to the 3 sanctioned non-visual helpers (provenance-badge + toaster + client-toaster); 0 autonomous visual components; all UI consumers import src/components/catalyst directly. Both guards re-run GREEN: ds-hardcode-guard (0 hits) + ds-convergence-guard (6 rules, 0 hits), CI-enforced (#207). No new tokenization/deletions/guards warranted — requested guards already exist and pass, requested purge already done, residual raw values are the documented intentional keeps. Doc-only update of cartography HEAD/mission pointer + this log entry. #146 untouched."
     },
     {
       "date": "2026-06-29",
       "ref": "Mission #051 — Admin Visual Start Pattern",
       "note": "Premier bloc admin uniformisé sur le canon /admin/customers (wrap-safe AdminSectionCard / AdminKpiStripPanel embedded). KPI soudés (monitoring, governance, signals), bare grids encadrés (source, proofs), shells custom wrappés (roadmap, memo, projection, preview, scenario-lab), detail first-block normalisé (agents/[id], customers/[id], vaults/[id] via vault-admin-kpi-strip), forms encadrés. Aucun refacto interne / engine / charts / server-action. Guard admin-canon-start-pattern ajouté (50 tests)."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #054 — Admin Visual Structure Unification (finalized)",
+      "note": "Owner trajectory correction: the real request was 'uniformify the visual structure of admin pages' — NOT projection safe input / security / canvas / read-only cartography / Catalyst hardening. Verdict after evidence: the substantive work was ALREADY SHIPPED — PR #218 (fix/admin-visual-canon) merged to main in d05f618c at 03:47:38Z (the concurrent auto-pipeline merged + deleted the branch mid-investigation). 14 admin pages welded on the /admin/customers canon, guard admin-canon-start-pattern.test.ts (50 tests) green in CI Vitest, all real gates green (Lint&Typecheck, Vitest, SecDevOps, Vercel, Foundry); only the pre-existing non-blocking Playwright login-flow flake red (auth-flow + dashboard cascade from 'login failed' seed — #218 touches no auth/portfolio code). Re-confirmed the 3 left-intentional pages (security, governance/allowlist, distributions): wrapping any would force the double-frame #054 itself forbids → kept conformant-by-different-means, not regressions. dashboard cockpit grammar stays exempt (never forced). agentic deferred to PR #81. This entry is the doc-only #054 cartography finalization (HEAD/mission pointer + #054 log + label); no admin page re-churned, no fresh competing branch, no engine/projection/prisma/chat/outreach/HcValueChart/#146 touched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #055 — Admin Visual Frame Unification",
+      "note": "Owner screenshots showed admin pages still didn't LOOK the same despite being on the #051/#054 start-pattern: Investors table cropped right, frame width jumped with the chat rail, forms read as isolated slabs. Root cause = flexbox min-width:auto on AdminSectionCard (a flex item) — a wide Catalyst table's intrinsic width won, the card refused to shrink, the frame overflowed the slot. Fix at the SHARED PRIMITIVE so it lands on every admin page at once: min-w-0 on the page frame (admin-canon-page-frame) and on every AdminSectionCard (admin-canon-first-block), plus a named CSS contract in src/app/admin/admin-canon.css (page-frame / first-block / table-surface / form-surface, tokens only). The Catalyst table already had overflow-x-auto; min-w-0 is what lets it scroll locally instead of bleeding. feedback + vaults/[id]/edit form bodies → admin-canon-form-surface (framed card body, not a black slab). New guard src/app/admin/__tests__/admin-visual-frame.test.ts locks the CSS contract + the primitive min-w-0 and lists exemptions. Shipped: PR #222 (frame), PR #223 (outreach full-width — 50/50 split removed), PR #219 (#054 cartography). Mission #057 merged all three to main and ran the real browser visual QA (see report). No re-wrap churn, no internal refactor; engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #059 — Global Table System (gutter contract)",
+      "note": "The Catalyst table primitive (src/components/catalyst/table.tsx) owned a contradictory gutter system: the surface used a -mx-(--gutter) negative-margin bleed (undefined var) and the first/last cells used first:pl-(--gutter) / last:pr-(--gutter) then OVERRODE them to sm:first:pl-1 / sm:last:pr-1 (4px) on every sm+ screen. Result: edge columns glued to the card frame, left/right asymmetry, eaten margins — on EVERY one of the 13 Catalyst-table pages (admin customers/outreach/agents/audit/vaults/distributions/marketplace + user portfolio/positions/distributions/[positionId] + governance allowlist). Fix at the SHARED PRIMITIVE so it lands everywhere at once: surface = min-w-0 + overflow-x-auto (local scroll, no negative margin, no responsive padding dance); cells = px-4 with a symmetric first:pl-5 / last:pr-5 20px edge gutter so the first column lines up with the card header text and the last column breathes the same on the right. The destructive override is removed. Pages keep their (now redundant, identical-value) first:pl-5/last:pr-5 compensation — harmless, no double-pad, no churn. New guard src/lib/ds/__tests__/table-gutter-guard.test.ts blocks the destructive patterns (first:pl-(--gutter, last:pr-(--gutter, sm:first:pl-1, sm:last:pr-1, -mx-(--gutter)) outside the primitive allowlist and reports table-fixed users (5 custom admin widgets, allowed). Validation: typecheck green; ds-authority-lock + table-gutter-guard + all catalyst tests + admin/portfolio page tests green (289). Auth-gated visual QA deferred (fresh worktree 307-redirects, Playwright browser locked) — verified via SSR render of the primitive instead. Custom <table> widgets (agentic console, monitoring, rebalance, etc.) were NOT migrated into the primitive (out of the destructive-gutter scope; STOP: refactor too broad). engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
     }
-  ]
+  ],
+  "adminVisualFrame": {
+    "mission": "055",
+    "rootCause": "flexbox min-width:auto on AdminSectionCard (flex item) — wide Catalyst table intrinsic width wins, card won't shrink, frame overflows the slot and crops right (worse with chat rail open).",
+    "fix": "min-w-0 on the shared primitive (page frame + every section card) + named CSS contract in src/app/admin/admin-canon.css.",
+    "canonClasses": [
+      "admin-canon-page-frame",
+      "admin-canon-first-block",
+      "admin-canon-table-surface",
+      "admin-canon-form-surface"
+    ],
+    "primitivesChanged": [
+      "src/components/admin/admin-page-shell.tsx",
+      "src/app/admin/admin-canon.css",
+      "src/app/admin/layout.tsx"
+    ],
+    "formSurfaceApplied": [
+      "feedback",
+      "vaults/[id]/edit"
+    ],
+    "outreachFullWidth": "PR #223 — removed the lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)] split; Lead engine now a full-width block.",
+    "guard": "src/app/admin/__tests__/admin-visual-frame.test.ts",
+    "exempted": [
+      "dashboard (cockpit)",
+      "/admin (redirect)",
+      "proof-center",
+      "proof-center/full",
+      "agent-canvas/[canvasId]",
+      "vaults/new (wizard)",
+      "agentic (control-tower cockpit, PR #81)"
+    ],
+    "mergedTo": "main via PR #222 (frame), #223 (outreach full-width), #219 (#054 cartography) — Mission #057.",
+    "untouched": [
+      "engine",
+      "projection calculations",
+      "outreach runtime",
+      "chat/nav runtime",
+      "server actions",
+      "HcValueChart",
+      "Prisma/migrations",
+      "#146"
+    ]
+  },
+  "adminVisualCanon": {
+    "mission054": "Re-validated and confirmed SHIPPED via PR #218 / merge d05f618c. Owner criterion met: 10 admin pages read as one system in <2s (canon header + page-canon-rule + welded first block + no floating KPI + no bare grid + no naked custom shell). The 3 leftIntentional are double-frame avoidances, not divergences; dashboard cockpit exempt and never forced.",
+    "canonTool": "AdminSectionCard (= the welded section of /admin/customers)",
+    "guard": "src/app/admin/__tests__/admin-canon-start-pattern.test.ts",
+    "counts": {
+      "compliant": 19,
+      "adjusted": 14,
+      "leftIntentional": 3,
+      "exempted": 7
+    },
+    "compliant": [
+      "audit",
+      "onboarding-test",
+      "agents",
+      "agents/new",
+      "governance/propose",
+      "governance/proposal/[id]",
+      "vaults",
+      "vaults/[id]",
+      "outreach",
+      "outreach/compose",
+      "outreach/[campaignId]",
+      "outreach/prospects/[id]",
+      "product-workspace",
+      "spec",
+      "spec/[slug]",
+      "feedback",
+      "marketplace",
+      "design-system",
+      "customers (canon ref)"
+    ],
+    "adjusted": [
+      "monitoring (KPI soldered)",
+      "governance (KPI soldered)",
+      "signals (KPI soldered)",
+      "source (bare grid framed)",
+      "proofs (bare section framed)",
+      "roadmap (RoadmapBoard wrapped)",
+      "investor-memo (MemoShell wrapped)",
+      "projection (source-truth wrapped)",
+      "projection/preview (report-source wrapped)",
+      "scenario-lab (LabShell wrapped, inner frame neutralized)",
+      "agents/[id] (BentoPanel->AdminSectionCard)",
+      "customers/[id] (identity->AdminSectionCard)",
+      "vaults/[id]/edit (VaultForm framed)",
+      "vault-admin-kpi-strip (welded into one canon card)"
+    ],
+    "leftIntentional": [
+      "security (two welded AdminSectionCards, no outer frame)",
+      "governance/allowlist (AllowlistBoard = framed BentoPanels; wrap would cage-in-cage)",
+      "distributions (DistributionForm renders its own canon Card)"
+    ],
+    "exempted": [
+      "dashboard (cockpit)",
+      "/admin (redirect)",
+      "proof-center",
+      "proof-center/full",
+      "agent-canvas/[canvasId]",
+      "vaults/new (wizard)",
+      "agentic (covered by PR #81)"
+    ]
+  }
 };
 
 // ============ RENDER ============

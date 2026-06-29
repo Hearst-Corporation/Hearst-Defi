@@ -23,9 +23,15 @@ export function Table({
 }: { bleed?: boolean; dense?: boolean; grid?: boolean; striped?: boolean } & React.ComponentPropsWithoutRef<'div'>) {
   return (
     <TableContext.Provider value={{ bleed, dense, grid, striped } as React.ContextType<typeof TableContext>}>
-      <div className="flow-root">
-        <div {...props} className={cn(className, '-mx-(--gutter) overflow-x-auto whitespace-nowrap')}>
-          <div className={cn('inline-block min-w-full align-middle', !bleed && 'sm:px-(--gutter)')}>
+      {/* Canon table surface (Mission #059): a self-contained, full-width
+          scroll surface — no negative-margin bleed (it pulled the table past
+          the card and broke symmetry), no responsive horizontal padding dance.
+          min-w-0 lets the table shrink and scroll LOCALLY inside its card
+          instead of forcing a global horizontal scrollbar. The edge gutter is
+          owned by the cells below. */}
+      <div className="flow-root min-w-0">
+        <div {...props} className={cn(className, 'min-w-0 overflow-x-auto whitespace-nowrap')}>
+          <div className="inline-block min-w-full align-middle">
             <table className="min-w-full text-left text-sm/6 text-[var(--ct-text-strong)] dark:text-[var(--ct-text-strong)]">{children}</table>
           </div>
         </div>
@@ -75,23 +81,28 @@ export function TableRow({
 }
 
 export function TableHeader({ className, ...props }: React.ComponentPropsWithoutRef<'th'>) {
-  const { bleed, grid } = useContext(TableContext)
+  const { grid } = useContext(TableContext)
 
   return (
     <th
       {...props}
       className={cn(
         className,
-        'border-b border-b-[var(--ct-border)] px-4 py-2 font-medium first:pl-(--gutter,--spacing(2)) last:pr-(--gutter,--spacing(2)) dark:border-b-[var(--ct-border)]',
-        grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0 dark:border-l-[var(--ct-border-soft)]',
-        !bleed && 'sm:first:pl-1 sm:last:pr-1'
+        // Canon symmetric gutter (Mission #059): every cell is px-4; the first
+        // and last cells get a 20px edge gutter (pl-5/pr-5) so the first column
+        // lines up with the card header text and the last column breathes the
+        // same amount on the right. The old destructive edge override (an
+        // undefined --gutter var then a 4px sm override) is removed — it glued
+        // the edge columns to the frame and broke left/right symmetry.
+        'border-b border-b-[var(--ct-border)] px-4 py-2 font-medium first:pl-5 last:pr-5 dark:border-b-[var(--ct-border)]',
+        grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0 dark:border-l-[var(--ct-border-soft)]'
       )}
     />
   )
 }
 
 export function TableCell({ className, children, ...props }: React.ComponentPropsWithoutRef<'td'>) {
-  const { bleed, dense, grid, striped } = useContext(TableContext)
+  const { dense, grid, striped } = useContext(TableContext)
   const { href, target, title } = useContext(TableRowContext)
   const [cellRef, setCellRef] = useState<HTMLElement | null>(null)
 
@@ -101,11 +112,13 @@ export function TableCell({ className, children, ...props }: React.ComponentProp
       {...props}
       className={cn(
         className,
-        'relative px-4 first:pl-(--gutter,--spacing(2)) last:pr-(--gutter,--spacing(2))',
+        // Canon symmetric gutter (Mission #059) — mirrors TableHeader: px-4
+        // everywhere, first:pl-5 / last:pr-5 edge gutter, no destructive 4px
+        // edge override.
+        'relative px-4 first:pl-5 last:pr-5',
         !striped && 'border-b border-[var(--ct-border-soft)] dark:border-[var(--ct-border-soft)]',
         grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0 dark:border-l-[var(--ct-border-soft)]',
-        dense ? 'py-2.5' : 'py-4',
-        !bleed && 'sm:first:pl-1 sm:last:pr-1'
+        dense ? 'py-2.5' : 'py-4'
       )}
     >
       {href && (
