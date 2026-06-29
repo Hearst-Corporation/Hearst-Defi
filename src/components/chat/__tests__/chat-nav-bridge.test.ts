@@ -13,6 +13,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  isSameDestination,
   nextPollDelay,
   nextPollSchedule,
   shouldScheduleNextPoll,
@@ -20,6 +21,48 @@ import {
 
 const BASE = 900;
 const MAX = 7_200;
+
+describe("isSameDestination (anti-loop contract)", () => {
+  const WS = "/admin/product-workspace";
+
+  it("treats an identical route+query as same (true no-op)", () => {
+    expect(isSameDestination(WS, WS)).toBe(true);
+    expect(
+      isSameDestination(`${WS}?objective=foo`, `${WS}?objective=foo`),
+    ).toBe(true);
+  });
+
+  it("is order-insensitive on query params", () => {
+    expect(
+      isSameDestination(
+        `${WS}?objective=foo&autostart=1`,
+        `${WS}?autostart=1&objective=foo`,
+      ),
+    ).toBe(true);
+  });
+
+  it("THE BUG FIX: same page, DIFFERENT objective is NOT a no-op", () => {
+    // User is inside the product workspace on objective "foo" and asks to create
+    // a product "bar". The directive lands on the same path with a new objective
+    // → must re-navigate, so this is NOT the same destination.
+    expect(
+      isSameDestination(`${WS}?objective=bar`, `${WS}?objective=foo`),
+    ).toBe(false);
+    // Arriving with an objective while currently on the bare page also fires.
+    expect(isSameDestination(`${WS}?objective=bar`, WS)).toBe(false);
+  });
+
+  it("different pathnames are never the same destination", () => {
+    expect(isSameDestination("/admin/projection", WS)).toBe(false);
+    expect(
+      isSameDestination(`/admin/projection?objective=foo`, `${WS}?objective=foo`),
+    ).toBe(false);
+  });
+
+  it("ignores a hash fragment when comparing", () => {
+    expect(isSameDestination(`${WS}#section`, WS)).toBe(true);
+  });
+});
 
 describe("nextPollDelay", () => {
   it("resets to base when a directive landed", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { isProtectedRoute } from "@/lib/llm/navigate-tool";
@@ -103,6 +103,43 @@ export function shouldScheduleNextPoll(
   return kind === "immediate" || armed;
 }
 
+/**
+ * Pure helper — exported for unit-testing the anti-loop contract.
+ *
+ * Returns true when `target` lands on EXACTLY the same place the user already
+ * is — same pathname AND the same set of query params (order-insensitive). A
+ * directive to the same page with a DIFFERENT seeded objective (different query)
+ * is NOT "same destination", so it re-navigates and the page picks up the new
+ * objective. This is what lets "create a product X" fire while the user is
+ * already inside the product workspace.
+ *
+ * `current` is the live location as pathname + search (e.g.
+ * "/admin/product-workspace?objective=foo"). Both inputs are parsed leniently;
+ * a malformed target falls back to a plain string compare.
+ */
+export function isSameDestination(target: string, current: string): boolean {
+  if (target === current) return true;
+  const parse = (
+    value: string,
+  ): { path: string; query: string } | null => {
+    const hashless = value.split("#")[0] ?? value;
+    const qIndex = hashless.indexOf("?");
+    const path = qIndex === -1 ? hashless : hashless.slice(0, qIndex);
+    const rawQuery = qIndex === -1 ? "" : hashless.slice(qIndex + 1);
+    // Normalise the query so param order never matters.
+    const params = new URLSearchParams(rawQuery);
+    const sorted = [...params.entries()].sort(([a], [b]) =>
+      a < b ? -1 : a > b ? 1 : 0,
+    );
+    const query = sorted.map(([k, v]) => `${k}=${v}`).join("&");
+    return { path, query };
+  };
+  const t = parse(target);
+  const c = parse(current);
+  if (!t || !c) return false;
+  return t.path === c.path && t.query === c.query;
+}
+
 interface PendingNav {
   route: string;
   label: string;
@@ -119,11 +156,22 @@ interface PendingNav {
 export function ChatNavBridge() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const pathRef = useRef(pathname);
+  // Live location as pathname + search, so the anti-loop can tell apart "already
+  // on this page with this objective" (a true no-op) from "same page, different
+  // objective" (must re-navigate so the page re-seeds).
+  const search = searchParams.toString();
+  const location = search.length > 0 ? `${pathname}?${search}` : pathname;
+  const pathRef = useRef(location);
+  // Pathname WITHOUT the query — `isProtectedRoute` does exact path matches that
+  // a trailing "?objective=…" would break, so protected-flow detection always
+  // uses the bare pathname.
+  const pathnameRef = useRef(pathname);
   useEffect(() => {
-    pathRef.current = pathname;
-  }, [pathname]);
+    pathRef.current = location;
+    pathnameRef.current = pathname;
+  }, [location, pathname]);
 
   const [pending, setPending] = useState<PendingNav | null>(null);
   const autoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -184,45 +232,52 @@ export function ChatNavBridge() {
 
           if (!cancelled && data.route) {
             const current = pathRef.current;
-            if (data.route !== current) {
-              // anti-loop: already here → treat as empty (keep backing off)
-              // Seeded destinations (scenario lab, product workspace, agent
-              // canvas) carry the objective/autostart in the URL so the page can
-              // pick it up. The agent-canvas base route also gets the canvasId
-              // appended as a path segment (/admin/agent-canvas/<id>).
-              const isCanvasRoute =
-                data.route === "/agent-canvas" || data.route === "/admin/agent-canvas";
-              const isSeededRoute =
-                data.route === "/admin/scenario-lab" ||
-                data.route === "/admin/product-workspace" ||
-                isCanvasRoute;
-              const routeWithParams = isSeededRoute
-                ? (() => {
-                    const base =
-                      isCanvasRoute && data.canvasId
-                        ? `${data.route}/${data.canvasId}`
-                        : data.route!;
-                    const params = new URLSearchParams();
-                    if (data.autostart) params.set("autostart", "1");
-                    if (data.objective && data.objective.trim().length > 0) {
-                      params.set("objective", data.objective.trim());
-                    }
-                    if (data.intentKind) params.set("intent", data.intentKind);
-                    if (data.secondaryRoute === "/admin/scenario-lab") {
-                      params.set("secondary", "scenario-lab");
-                    }
-                    if (data.secondaryHint && data.secondaryHint.trim().length > 0) {
-                      params.set("secondaryHint", data.secondaryHint.trim());
-                    }
-                    const query = params.toString();
-                    return query.length > 0 ? `${base}?${query}` : base;
-                  })()
-                : data.route;
+            // Build the FINAL destination (route + seeded params) BEFORE the
+            // anti-loop check. Seeded destinations (scenario lab, product
+            // workspace, agent canvas) carry the objective/autostart in the URL
+            // so the page can pick it up; the agent-canvas base route also gets
+            // the canvasId appended as a path segment (/admin/agent-canvas/<id>).
+            const isCanvasRoute =
+              data.route === "/agent-canvas" || data.route === "/admin/agent-canvas";
+            const isSeededRoute =
+              data.route === "/admin/scenario-lab" ||
+              data.route === "/admin/product-workspace" ||
+              isCanvasRoute;
+            const routeWithParams = isSeededRoute
+              ? (() => {
+                  const base =
+                    isCanvasRoute && data.canvasId
+                      ? `${data.route}/${data.canvasId}`
+                      : data.route!;
+                  const params = new URLSearchParams();
+                  if (data.autostart) params.set("autostart", "1");
+                  if (data.objective && data.objective.trim().length > 0) {
+                    params.set("objective", data.objective.trim());
+                  }
+                  if (data.intentKind) params.set("intent", data.intentKind);
+                  if (data.secondaryRoute === "/admin/scenario-lab") {
+                    params.set("secondary", "scenario-lab");
+                  }
+                  if (data.secondaryHint && data.secondaryHint.trim().length > 0) {
+                    params.set("secondaryHint", data.secondaryHint.trim());
+                  }
+                  const query = params.toString();
+                  return query.length > 0 ? `${base}?${query}` : base;
+                })()
+              : data.route;
 
+            // Anti-loop compares the FULL destination (route + params), not the
+            // bare route. A directive that lands the user on the SAME page they
+            // are on but with a DIFFERENT seeded objective (e.g. they typed
+            // "create a product X" while already inside the product workspace)
+            // changes the searchParams → it is NOT a no-op and must re-navigate
+            // so the page picks up the new objective. Only an identical
+            // route+params pair is treated as already-here and dropped.
+            if (!isSameDestination(routeWithParams, current)) {
               setPending({
                 route: routeWithParams,
                 label: data.label ?? "the page",
-                protected: isProtectedRoute(current),
+                protected: isProtectedRoute(pathnameRef.current),
                 ...(data.objective ? { objective: data.objective } : {}),
                 ...(data.autostart ? { autostart: true } : {}),
                 ...(data.intentKind ? { intentKind: data.intentKind } : {}),
@@ -301,13 +356,15 @@ export function ChatNavBridge() {
         | undefined;
       const route = typeof detail?.route === "string" ? detail.route : null;
       if (!route) return;
-      const current = pathRef.current;
-      if (route === current) return; // anti-loop: already here
+      // Local fast-path routes carry no seeded params, so compare against the
+      // full current destination via the same anti-loop helper (a bare route
+      // equals the current pathname only when the current page has no query).
+      if (isSameDestination(route, pathRef.current)) return; // already here
       const label = typeof detail?.label === "string" ? detail.label : "the page";
       setPending({
         route,
         label,
-        protected: isProtectedRoute(current),
+        protected: isProtectedRoute(pathnameRef.current),
       });
     };
 
