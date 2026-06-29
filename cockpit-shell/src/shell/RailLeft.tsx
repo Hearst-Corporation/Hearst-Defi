@@ -56,7 +56,6 @@ export function RailLeft() {
             setLauncher(!open);
           }
         }}
-        style={{ ["--p-color" as string]: top.color }}
       >
         <span className="ct-rail-top-badge">
           <HearstMark size={34} />
@@ -75,8 +74,9 @@ export function RailLeft() {
                 className={`ct-rail-row${on ? " active" : ""}`}
                 title={p.name}
                 aria-pressed={on}
+                aria-current={on ? "page" : undefined}
+                data-active={on ? "true" : undefined}
                 onClick={() => pick(p.id)}
-                style={{ ["--p-color" as string]: p.color }}
               >
                 <span className="ct-rail-row-icon">
                   <HearstMark size={24} />
@@ -139,14 +139,14 @@ function UserBadge({ appId }: { appId: string }) {
           délibéré, donc aucun clic involontaire ne peut signer out. */}
       <button
         type="button"
-        className="group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#15191C] text-[12px] font-semibold tracking-wide text-zinc-200 transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-white"
+        className="ct-rail-identity-button group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] text-[12px] font-semibold tracking-wide text-[var(--ct-text-body)] transition-colors duration-150 hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] hover:text-[var(--ct-text-strong)]"
         title="Profile & settings"
         aria-label="Profile & settings"
         onClick={() => router.push("/profile")}
       >
         {display}
         <span
-          className="absolute -bottom-0.5 -right-0.5 block h-3 w-3 rounded-full bg-[var(--ct-accent)] ring-2 ring-[#0B0E10]"
+          className="absolute -bottom-0.5 -right-0.5 block h-3 w-3 rounded-full bg-[var(--ct-accent)] ring-2 ring-[var(--ct-bg-deep)]"
           aria-hidden="true"
         />
       </button>
