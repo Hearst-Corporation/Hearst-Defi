@@ -34,11 +34,15 @@ import type {
   LiveSwarmStepAudit,
   ProductConstructionDraft,
   ProductConstructionError,
+  ScenarioResult,
 } from "./types";
 import {
   resolveQuantAssumptions,
   type QuantAssumptionsOverrides,
 } from "./quant-assumptions";
+import { deriveRegimeAllocation } from "./strategy-allocation";
+import { buildConstructionSteps } from "./construction-steps";
+import type { VaultMode } from "@/lib/engine/types";
 
 const DISCLAIMER =
   "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
@@ -60,6 +64,14 @@ export interface PipelineOptions {
   assumptions?: QuantAssumptionsOverrides;
   /** Skip the LLM write-up and use the deterministic one (faster / no LLM cost). */
   deterministicWriteupOnly?: boolean;
+  /**
+   * When true, additionally run the 3-scenario orchestration (defensive /
+   * balanced / opportunistic) using the REAL allocator-derived mining weights
+   * and populate `draft.scenarios` + `draft.steps`. Data is fetched ONCE and
+   * shared; MC runs 3×. The balanced scenario's quant artifact is used for
+   * `draft.quant` (the default headline).
+   */
+  withScenarios?: boolean;
 }
 
 /**
@@ -106,7 +118,19 @@ export async function runProductConstructionPipeline(
   audit.push(strategy.audit);
 
   // D · quant Monte-Carlo (seeded from objective + spot).
+  // When withScenarios is requested we derive the balanced allocation first and
+  // use its miningFraction as the override so the MAIN quant also uses the real
+  // strategy weight rather than the hardcoded 0.6 assumption default.
   const seed = deriveSeed(trimmed, market.btcUsd);
+
+  // Balanced allocation (always derived — used for the main quant even outside
+  // the full 3-scenario path so the default pipeline benefits from the fix too).
+  const balancedAllocation = deriveRegimeAllocation({
+    regime: "balanced",
+    miningYieldPct: strategy.artifact.miningYieldPct,
+    usdcYieldPct: strategy.artifact.usdcYieldPct,
+  });
+
   const quant = runQuant({
     seed,
     market: {
@@ -121,8 +145,59 @@ export async function runProductConstructionPipeline(
     },
     telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
     assumptions,
+    // Key fix: replace the hardcoded 0.6 with the allocator-derived weight.
+    miningWeightOverride: balancedAllocation.miningFraction,
   });
   audit.push(quant.audit);
+
+  // 3-scenario orchestration (optional — data already fetched; MC runs 3×).
+  let scenarios: ScenarioResult[] | undefined;
+  if (opts.withScenarios) {
+    const REGIMES: VaultMode[] = ["defensive", "balanced", "opportunistic"];
+    scenarios = REGIMES.map((regime) => {
+      const allocation = deriveRegimeAllocation({
+        regime,
+        miningYieldPct: strategy.artifact.miningYieldPct,
+        usdcYieldPct: strategy.artifact.usdcYieldPct,
+      });
+      // Per-regime seed: stable offset per regime so all 3 are distinct but
+      // reproducible (no Math.random, no Date.now).
+      const regimeSeedOffset = regime === "defensive" ? 0 : regime === "balanced" ? 1 : 2;
+      const regimeQuant = runQuant({
+        seed: (seed + regimeSeedOffset) >>> 0,
+        market: {
+          btcUsd: market.btcUsd,
+          difficulty: market.difficulty,
+          hashpriceUsdPerThDay: market.hashpriceUsdPerThDay,
+        },
+        strategy: {
+          miningYieldPct: strategy.artifact.miningYieldPct,
+          usdcYieldPct: strategy.artifact.usdcYieldPct,
+          headlineApy: strategy.artifact.headlineApy,
+        },
+        telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
+        assumptions,
+        miningWeightOverride: allocation.miningFraction,
+      });
+      const result: ScenarioResult = {
+        regime,
+        allocation: {
+          mining: allocation.mining,
+          btc: allocation.btc,
+          usdc: allocation.usdc,
+          stableReserve: allocation.stableReserve,
+          miningFraction: allocation.miningFraction,
+          governanceException: allocation.governanceException,
+          miningProfitable: allocation.miningProfitable,
+          rationale: allocation.rationale,
+        },
+        quant: regimeQuant.artifact,
+        miningProfitable: allocation.miningProfitable,
+        governanceException: allocation.governanceException,
+      };
+      return result;
+    });
+  }
 
   // E · charts (pure mapping).
   const charts = runCharts({
@@ -152,6 +227,31 @@ export async function runProductConstructionPipeline(
   });
   audit.push(writeup.audit);
 
+  // Deterministic steps (produced when scenarios are present).
+  const steps =
+    scenarios !== undefined
+      ? buildConstructionSteps({
+          telegram: {
+            machineCount: telegram.machineCount,
+            ...(telegram.topMachine ? { topMachine: telegram.topMachine } : {}),
+            bestCostPerThDay: telegram.bestCostPerThDay,
+          },
+          market: {
+            btcUsd: market.btcUsd,
+            hashpriceUsdPerThDay: market.hashpriceUsdPerThDay,
+            defiApyMedianPct: market.defiApyMedianPct,
+          },
+          strategy: {
+            miningYieldPct: strategy.artifact.miningYieldPct,
+            usdcYieldPct: strategy.artifact.usdcYieldPct,
+            usdcSource: strategy.artifact.usdcSource,
+            provenance: strategy.artifact.provenance,
+            btcReturn: strategy.artifact.btcReturn,
+          },
+          scenarios,
+        })
+      : undefined;
+
   const draft: ProductConstructionDraft = {
     objective: trimmed,
     vault: { ticker: vault.ticker, label: vault.label },
@@ -180,6 +280,8 @@ export async function runProductConstructionPipeline(
       markedLive: false,
       custodialWrite: false,
     },
+    ...(scenarios !== undefined ? { scenarios } : {}),
+    ...(steps !== undefined ? { steps } : {}),
   };
 
   // Runtime floor: the draft must have suppressed every effect. If not, refuse.
@@ -207,4 +309,17 @@ export function isProductConstructionError(
     (r as ProductConstructionError).kind === "floor_violation" ||
     (r as ProductConstructionError).kind === "unsafe"
   );
+}
+
+/**
+ * Convenience wrapper: run the full pipeline with `withScenarios: true`.
+ * Data is fetched ONCE; MC runs 3× (one per regime). Charts + writeup use the
+ * BALANCED scenario. Returns the same `ProductConstructionDraft | ProductConstructionError`
+ * shape with `draft.scenarios` and `draft.steps` populated.
+ */
+export async function runProductConstructionScenarios(
+  objective: string,
+  opts: Omit<PipelineOptions, "withScenarios"> = {},
+): Promise<ProductConstructionDraft | ProductConstructionError> {
+  return runProductConstructionPipeline(objective, { ...opts, withScenarios: true });
 }
