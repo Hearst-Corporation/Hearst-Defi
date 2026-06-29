@@ -4,8 +4,10 @@ import { manufacturerBrand } from "@/lib/telegram/manufacturer-logos";
 
 /**
  * ManufacturerLogo — the maker's real square brand icon (original artwork, NO
- * tint), shown inline before the model name. Falls back to a neutral dot when
- * the maker has no committed icon (Autre).
+ * tint), shown inline before the model name. The icon sits on a light chip so
+ * dark/transparent artwork (e.g. the black Bitmain ant) stays visible on the
+ * dark cockpit surface — the logo itself is never recoloured, only the chip
+ * behind it. Falls back to a neutral dot when the maker has no committed icon.
  */
 export function ManufacturerLogo({
   manufacturer,
@@ -22,27 +24,40 @@ export function ManufacturerLogo({
     return (
       <span
         className={cn(
-          "inline-block shrink-0 rounded-full bg-[var(--ct-text-muted)]",
+          "inline-flex shrink-0 items-center justify-center rounded-[5px] bg-[var(--ct-surface-inset)]",
           className,
         )}
-        style={{ width: Math.round(size * 0.4), height: Math.round(size * 0.4) }}
+        style={{ width: size, height: size }}
         aria-hidden
-      />
+      >
+        <span
+          className="rounded-full bg-[var(--ct-text-muted)]"
+          style={{
+            width: Math.round(size * 0.34),
+            height: Math.round(size * 0.34),
+          }}
+        />
+      </span>
     );
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={brand.icon}
-      alt={brand.label}
+    <span
+      className={cn(
+        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[5px] bg-white",
+        className,
+      )}
+      style={{ width: size, height: size, padding: Math.round(size * 0.12) }}
       title={brand.label}
-      width={size}
-      height={size}
-      loading="lazy"
-      decoding="async"
-      className={cn("shrink-0 rounded-[4px] object-contain", className)}
-      style={{ width: size, height: size }}
-    />
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={brand.icon}
+        alt={brand.label}
+        loading="lazy"
+        decoding="async"
+        className="h-full w-full object-contain"
+      />
+    </span>
   );
 }
