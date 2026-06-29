@@ -7,7 +7,6 @@ import {
 } from "@/components/admin/admin-page-shell";
 import { DestinationFilter } from "@/components/admin/source/destination-filter";
 import { MachineTable } from "@/components/admin/source/machine-table";
-import { Badge } from "@/components/catalyst/badge";
 import { Card } from "@/components/catalyst/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
@@ -29,53 +28,48 @@ import {
  *
  *   1. BTC price              — Chainlink / Coingecko
  *   2. Hashprice / difficulty — mempool.space → deriveHashpriceUsdPerThDay()
- *   3. Stable yields          — multi-source USDC / USDT → blended rate
+ *   3. Stable yields          — DefiLlama median USDC pool APY
  *   4. Machine prices         — Telegram channels → daily average → amortized $/TH/day
  *
- * Frame is admin canon; the body renders entirely on DS primitives (Card / Badge
- * / SegmentedControl / Table) — no local visual system.
+ * All four are wired live (the values feed the hashprice header, the USDC line
+ * and the machines table below). Frame is admin canon; the body renders entirely
+ * on DS primitives (Card / SegmentedControl / Table) — no local visual system.
  */
 
-type BrickStatus = "wired" | "todo" | "tbd";
-
-// Brick wiring status → DS Badge colour. "Câblé" = accent/success, the rest are
-// quiet zinc — never a hand-rolled tinted span.
-const STATUS_BADGE: Record<BrickStatus, { color: "green" | "zinc"; label: string }> = {
-  wired: { color: "green", label: "Câblé" },
-  todo: { color: "zinc", label: "À câbler" },
-  tbd: { color: "zinc", label: "À définir" },
-};
-
+// The four ingestion bricks are ALL wired live (verified against the loaders:
+// BTC price + difficulty via fetchHashprice → Coingecko + mempool.space; stable
+// yields via fetchDefiLlama; machine prices via the Telegram reader). There is
+// no per-brick wiring-status chip to display — every source feeds the page above
+// (hashprice header, USDC line, machines table), so a static status badge would
+// be noise at best and a stale lie at worst. We describe the source of each
+// brick; freshness is surfaced where the live value renders (the hashprice
+// "(stale)" suffix), not as a static badge here.
 const BRICKS: ReadonlyArray<{
   id: string;
   title: string;
   detail: string;
-  status: BrickStatus;
 }> = [
   {
     id: "btc-price",
     title: "BTC price",
-    detail: "Chainlink + Coingecko fallback.",
-    status: "todo",
+    detail: "Coingecko (fetchBtcPrice) → prix USD, fallback conservateur.",
   },
   {
     id: "hashprice",
     title: "Hashprice / difficulty",
-    detail: "mempool.space → hashprice $/TH/jour (formule pure existante).",
-    status: "todo",
+    detail:
+      "mempool.space (difficulté) × BTC price → hashprice $/TH/jour (formule pure).",
   },
   {
     id: "stable-yields",
-    title: "Stable yields (USDC / USDT)",
-    detail: "Sources multiples → blended (méthode à arrêter avec Adrien).",
-    status: "tbd",
+    title: "Stable yields (USDC)",
+    detail: "DefiLlama → médiane des APY de pools USDC, fallback conservateur.",
   },
   {
     id: "machine-prices",
     title: "Prix machines (Telegram)",
     detail:
       "Canaux Telegram → moyenne journalière → amortissement (air 3 ans / hydro 5 ans) → $/TH/jour.",
-    status: "wired",
   },
 ];
 
@@ -114,29 +108,21 @@ export default async function SourcePage({
           inside are DS Cards (flat material = dense module surface). */}
       <AdminSectionCard
         title="Pipeline de données"
-        subtitle="Briques d'ingestion et leur statut le long de la chaîne de données."
+        subtitle="Sources d'ingestion live qui alimentent le moteur — toutes câblées."
         ariaLabel="Pipeline de données"
       >
         <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2">
-          {BRICKS.map((brick) => {
-            const badge = STATUS_BADGE[brick.status];
-            return (
-              <Card
-                key={brick.id}
-                material="flat"
-                hoverOverlay={false}
-                contentClassName="flex h-full flex-col gap-2"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="ct-panel-title">{brick.title}</h3>
-                  <Badge color={badge.color} className="shrink-0">
-                    {badge.label}
-                  </Badge>
-                </div>
-                <p className="ct-metric-caption">{brick.detail}</p>
-              </Card>
-            );
-          })}
+          {BRICKS.map((brick) => (
+            <Card
+              key={brick.id}
+              material="flat"
+              hoverOverlay={false}
+              contentClassName="flex h-full flex-col gap-2"
+            >
+              <h3 className="ct-panel-title">{brick.title}</h3>
+              <p className="ct-metric-caption">{brick.detail}</p>
+            </Card>
+          ))}
         </div>
       </AdminSectionCard>
 
