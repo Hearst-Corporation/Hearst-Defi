@@ -1,14 +1,15 @@
 name: nexus-loop
 
-# Dispatched by Hearst Nexus. Runs Claude Code headless on the self-hosted GPU1
-# runner, authenticated by the Max subscription (OAuth token) — NOT the API key,
-# so loop runs are covered by the subscription, not metered credit.
-# Never pushes to the default branch.
+# Dispatched by Hearst Nexus. Runs a SEQUENTIAL FLEET of Claude Code agents on the
+# self-hosted GPU runner, authenticated by the Max subscription (OAuth token) — NOT
+# the API key. Each agent is a real `claude -p` pass with a distinct role; the count
+# comes from the loop's maxAgents (input `agents`). Never pushes to the default branch.
+# Workflow artifacts are kept in $RUNNER_TEMP so they never land in the PR.
 on:
   workflow_dispatch:
     inputs:
       prompt:
-        description: 'Mission for Claude Code'
+        description: 'Mission for Claude Code (already carries scope + policies)'
         required: true
         type: string
       run_label:
@@ -17,9 +18,14 @@ on:
         default: 'manual'
         type: string
       model:
-        description: 'Model alias (opus | sonnet | gemini) — from the Nexus loop'
+        description: 'Model alias (opus | sonnet | gemini)'
         required: false
         default: 'opus'
+        type: string
+      agents:
+        description: 'Number of sequential Claude agents to run (fan-out fleet size)'
+        required: false
+        default: '1'
         type: string
 
 permissions:
@@ -37,101 +43,100 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Claude Code (headless, subscription auth)
-        id: claude
+      - name: Run agent fleet (sequential fan-out)
+        id: fleet
         shell: bash -l {0}
         run: |
           set -e
-          # node 20 + the OAuth subscription token live on the runner.
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
           set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
           unset ANTHROPIC_API_KEY   # force subscription auth, never metered credit
-          echo "Nexus run: ${{ inputs.run_label }} (model: ${{ inputs.model }})"
-          claude -p "${{ inputs.prompt }}" \
-            --permission-mode acceptEdits \
-            --allowedTools "Edit,Write,Bash(npm test)" \
-            --model "${{ inputs.model }}" \
-            --output-format json \
-            > claude-output.json 2> claude-stderr.log || true
-          echo "---- stderr ----"; cat claude-stderr.log || true
-          echo "---- output (head) ----"; head -c 1500 claude-output.json || true
+
+          TMP="$RUNNER_TEMP"
+          N="${{ inputs.agents }}"; N="${N:-1}"
+          case "$N" in ''|*[!0-9]*) N=1 ;; esac
+          [ "$N" -lt 1 ] && N=1
+          MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
+          ROLES=(architect coder tester reviewer refactorer documenter optimizer integrator analyst hardener cleaner planner builder verifier auditor finisher)
+
+          echo "Nexus run ${{ inputs.run_label }} — fleet of $N agent(s), model $MODEL"
+          # Base checkpoint so each agent's file delta is measurable precisely.
+          BASE=$(git rev-parse HEAD)
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          git config user.email "nexus-bot@hearst.app"
+          git config user.name "nexus-bot"
+          git add -A && git commit -q --allow-empty -m "nexus base ${{ inputs.run_label }}"
+
+          : > "$TMP/agent-rows.txt"
+          for i in $(seq 0 $((N-1))); do
+            ROLE="${ROLES[$i]:-agent-$((i+1))}"
+            echo "──── agent $((i+1))/$N : $ROLE ────"
+            AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${{ inputs.prompt }}"
+            claude -p "$AGENT_PROMPT" \
+              --permission-mode acceptEdits \
+              --allowedTools "Edit,Write,Bash(npm test)" \
+              --model "$MODEL" \
+              --output-format json \
+              > "$TMP/claude-$i.json" 2> "$TMP/claude-$i.err" || true
+            if grep -q '"is_error":true' "$TMP/claude-$i.json" 2>/dev/null; then ST=error; else ST=done; fi
+            git add -A
+            NF=$(git diff --cached --name-only | wc -l | tr -d ' ')
+            git commit -q --allow-empty -m "nexus agent $i ($ROLE)"
+            echo "$i|$ROLE|$ST|$NF" >> "$TMP/agent-rows.txt"
+            echo "agent $ROLE → status=$ST files=$NF"
+          done
+          echo "---- agent-rows ----"; cat "$TMP/agent-rows.txt"
 
       - name: Run tests (validation gate)
         id: tests
         shell: bash -l {0}
         run: |
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          if npm test 2>&1 | tee test-output.txt; then
+          if npm test 2>&1 | tee "$RUNNER_TEMP/test-output.txt"; then
             echo "status=done" >> "$GITHUB_OUTPUT"
           else
             echo "tests failed (PR still opens for review)"
             echo "status=error" >> "$GITHUB_OUTPUT"
           fi
 
-      # ── Build the real agent fleet manifest from facts on the runner ──────────
-      # One agent per top-level directory actually touched by this run (role =
-      # the directory). Model is the model Nexus requested; status comes from the
-      # test gate. Nexus reads the embedded block from the PR body and persists
-      # it — no fabrication: every agent maps to files that were really changed.
-      - name: Build agents manifest
-        id: manifest
+      - name: Build manifest + PR body
         shell: bash -l {0}
         run: |
           set -e
+          TMP="$RUNNER_TEMP"
           MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
-          STATUS="${{ steps.tests.outputs.status }}"; STATUS="${STATUS:-done}"
-          # Files changed by the Claude step. Exclude workflow-generated artifacts
-          # (claude-output.json, *-stderr.log, test-output.txt, agents-manifest.json,
-          # pr-body.md) so the fleet reflects only Claude's real edits, not our scaffolding.
-          git add -A
-          mapfile -t FILES < <(git diff --cached --name-only \
-            -- . \
-            ':(exclude)claude-output.json' \
-            ':(exclude)claude-stderr.log' \
-            ':(exclude)test-output.txt' \
-            ':(exclude)agents-manifest.json' \
-            ':(exclude)pr-body.md')
-          python3 - "$MODEL" "$STATUS" "${FILES[@]}" > agents-manifest.json <<'PY'
+          python3 - "$MODEL" < "$TMP/agent-rows.txt" > "$TMP/agents-manifest.json" <<'PY'
           import json, sys
           model = sys.argv[1]
-          status = sys.argv[2]
-          files = sys.argv[3:]
-          groups = {}
-          for f in files:
-              top = f.split('/')[0] if '/' in f else (f or 'root')
-              groups[top] = groups.get(top, 0) + 1
           agents = []
-          for i, (role, count) in enumerate(sorted(groups.items())):
-              agents.append({
-                  "index": i,
-                  "role": role,
-                  "model": model,
-                  "status": status,
-                  "filesTouched": count,
-              })
-          # No file changes → a single agent that ran but touched nothing.
+          for line in sys.stdin:
+              line = line.strip()
+              if not line:
+                  continue
+              idx, role, st, nf = line.split('|')
+              agents.append({"index": int(idx), "role": role, "model": model, "status": st, "filesTouched": int(nf)})
           if not agents:
-              agents = [{"index": 0, "role": "agent", "model": model, "status": status, "filesTouched": 0}]
+              agents = [{"index": 0, "role": "agent", "model": model, "status": "done", "filesTouched": 0}]
           print(json.dumps({"schemaVersion": 1, "model": model, "agents": agents}))
           PY
-          echo "---- agents-manifest.json ----"; cat agents-manifest.json
+          echo "---- agents-manifest.json ----"; cat "$TMP/agents-manifest.json"
 
-      - name: Compose PR body (with agents manifest)
-        shell: bash -l {0}
-        run: |
           {
-            echo "Automated by **Hearst Nexus** loop run \`${{ inputs.run_label }}\`,"
-            echo "executed on the self-hosted GPU1 runner via the Max subscription."
+            echo "Automated by **Hearst Nexus** loop run \`${{ inputs.run_label }}\` — fleet of ${{ inputs.agents }} agent(s)."
             echo
             echo "**Mission:** ${{ inputs.prompt }}"
             echo
             echo "Review before merge — Nexus never auto-merges."
             echo
             echo "<!--nexus:agents"
-            cat agents-manifest.json
+            cat "$TMP/agents-manifest.json"
             echo "nexus:agents-->"
-          } > pr-body.md
-          echo "---- pr-body.md ----"; cat pr-body.md
+          } > "$TMP/pr-body.md"
+
+          # Collapse all per-agent checkpoint commits back to base so create-pull-request
+          # bundles the fleet's real file changes as one PR. Artifacts live in $TMP, never
+          # in the working tree, so nothing extra leaks into the PR.
+          git reset --soft "${{ steps.fleet.outputs.base }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
@@ -139,6 +144,6 @@ jobs:
           branch: nexus/${{ inputs.run_label }}
           base: main
           title: "nexus-loop: ${{ inputs.run_label }}"
-          commit-message: "nexus-loop: apply Claude Code changes (${{ inputs.run_label }})"
-          body-path: pr-body.md
+          commit-message: "nexus-loop: apply ${{ inputs.agents }}-agent fleet changes (${{ inputs.run_label }})"
+          body-path: ${{ runner.temp }}/pr-body.md
           delete-branch: true
