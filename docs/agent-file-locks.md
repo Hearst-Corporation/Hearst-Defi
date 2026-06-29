@@ -84,28 +84,30 @@ cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ---
 
-### fix/admin-source-ds-canon — MISSION #067
-Owner: Claude Opus — Admin Source page DS canonization
-Branch: fix/admin-source-ds-canon
-Worktree: ../connect-source-ds-canon
+### feat/source-provider-logos — MISSION #067-logos
+Owner: Claude Opus — Real provider logos on /admin/source
+Branch: feat/source-provider-logos
+Worktree: ../connect-provider-logos
 Started: 2026-06-29
 Status: active
 
-Goal: canonize the INNER content of /admin/source onto DS primitives. Frame is
-already canon; the body (pipeline cards, prix-machines header, destination/cooling
-filters, machines table, APY cards) was a custom cockpit/Bento/raw-table system.
-Replace with Catalyst Card / Badge / SegmentedControl / Table primitives. No new
-local visual system.
+Goal: show real, locally-hosted provider brand logos (official colours, NO tint)
+for the USDC venues that back the stable-yield input, in the "Stable yields" card
+and next to the APY source line. Logos downloaded once from DeFiLlama's protocol
+icon CDN and committed under public/providers/. Dynamic slug→logo mapping with an
+initial-pill fallback (so any pool the API surfaces still renders cleanly).
 
 Scope:
-- src/app/admin/source/page.tsx
-- src/components/admin/source/machine-table.tsx
-- src/components/admin/source/* (new presentational pieces if needed)
-- src/app/admin/source/__tests__/admin-source-ds-contract.test.ts (new guard)
+- public/providers/*.png (committed brand logos)
+- src/lib/data/provider-logos.ts (slug→logo mapping, new)
+- src/components/admin/source/provider-logo.tsx (ProviderLogo/ProviderChip, new)
+- src/lib/telegram/read-vault-apy.ts (expose usdcVenues view-model — NO calc change)
+- src/app/admin/source/page.tsx (wire logos)
+- src/app/admin/source/__tests__/* (guard updates if needed)
 
-STOP: never touches mining/hashprice formulas, Telegram source logic, APY model,
-projections, Prisma/migrations, server actions, chat/nav/router, cockpit.css,
-#146. UI/DS/layout only.
+STOP: never touches mining/hashprice formulas, the DeFiLlama fetch logic, the APY
+math, projections, Prisma/migrations, server actions, chat/nav/router, cockpit.css,
+#146. UI/DS/data-shape only — usdcVenues is a passthrough of existing topYields.
 
 ---
 
