@@ -1,12 +1,13 @@
 /**
  * Tests for HcValueChart — the hero NAV / value-over-time instrument on
- * /portfolio (the surface that replaced the deleted legacy value-chart.tsx).
+ * /portfolio. Rendered with `react-dom/server` renderToStaticMarkup (the
+ * project's vitest `environment: "node"`, no jsdom). Assertions run against the
+ * produced SVG/HTML string.
  *
- * Rendered with `react-dom/server` renderToStaticMarkup — consistent with the
- * project's `environment: "node"` vitest config (no jsdom, no Testing Library).
- * Assertions run against the produced SVG/HTML string. Honesty is the contract:
- * <2 points must render the empty surface (never a fabricated line), and a real
- * series must baseline its y-axis at 0 so the curve reads as a climb from zero.
+ * Contract: honesty + stability. <2 points → an explicit empty surface (never a
+ * fabricated line); a real series → a FIXED-viewBox SVG (no distorting
+ * `preserveAspectRatio="none"`); the y-axis baselines at 0; the path never
+ * contains NaN; the endpoint is always labelled with context.
  */
 
 import { describe, it, expect } from "vitest";
@@ -35,7 +36,7 @@ describe("HcValueChart — empty / single-point", () => {
       <HcValueChart points={points} aria-label="Portfolio value trend" />,
     );
     expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("Chart available once activity is recorded");
+    expect(html).toContain("No portfolio history yet");
     // No real chart geometry is drawn for an empty series.
     expect(html).not.toContain("<svg");
     expect(html).not.toContain("<path");
@@ -52,32 +53,63 @@ describe("HcValueChart — with a real series", () => {
     );
     expect(html).not.toContain('data-hc-empty="true"');
     expect(html).toContain("<svg");
-    // Area fill (gradient) + the curve path are both present.
     expect(html).toContain("url(#hc-value-fill)");
     expect(html).toContain("var(--ct-chart-curve-color)");
-    // The two <path> elements: area + line.
+    // Two <path> elements: area + line.
     expect(count(html, "<path")).toBe(2);
     // Final value dot.
     expect(html).toContain("<circle");
+  });
+
+  it("uses a FIXED viewBox and does NOT stretch with preserveAspectRatio=none", () => {
+    const html = renderToStaticMarkup(
+      <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
+    );
+    expect(html).toContain('viewBox="0 0 720 240"');
+    expect(html).not.toContain('preserveAspectRatio="none"');
+    expect(html).toContain('preserveAspectRatio="xMidYMid meet"');
   });
 
   it("baselines the y-axis at 0 so the curve reads as a climb from zero", () => {
     const html = renderToStaticMarkup(
       <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
     );
-    // The lowest y-tick label is exactly $0 — proves the zero baseline.
     expect(html).toContain("$0");
     // Three value gridlines are emitted (min / mid / max).
     expect(count(html, 'data-hc-grid="y"')).toBe(3);
   });
 
-  it("labels the x-axis with month markers drawn from the real point dates", () => {
+  it("labels the x-axis with the dates passed as ticks", () => {
+    const html = renderToStaticMarkup(
+      <HcValueChart
+        points={SERIES}
+        granularity="monthly"
+        xTicks={[
+          { index: 0, label: "Jan" },
+          { index: 3, label: "Apr" },
+        ]}
+        aria-label="Portfolio value trend"
+      />,
+    );
+    expect(html).toContain("Jan");
+    expect(html).toContain("Apr");
+  });
+
+  it("renders the endpoint label + latest value callout", () => {
     const html = renderToStaticMarkup(
       <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
     );
-    // Months come from the series timestamps (Jan / Apr present at the extremes).
-    expect(html).toContain("Jan");
-    expect(html).toContain("Apr");
+    expect(html).toContain('data-hc-endpoint="true"');
+    expect(html).toContain("Latest");
+    // Latest value ($11,000 → "$11.0K") appears in the callout.
+    expect(html).toContain("$11.0K");
+  });
+
+  it("never emits NaN in the path geometry", () => {
+    const html = renderToStaticMarkup(
+      <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
+    );
+    expect(html).not.toContain("NaN");
   });
 
   it("token-only: emits no raw hex color", () => {
@@ -88,7 +120,23 @@ describe("HcValueChart — with a real series", () => {
   });
 });
 
-// 3 ─ A large account ($500k) scales its y-axis to the volume (no overflow/clamp).
+// 3 ─ Flat series stays flat and produces no NaN.
+describe("HcValueChart — flat series", () => {
+  it("renders a flat line without NaN", () => {
+    const flat: HcValuePoint[] = [
+      { at: "2026-01-15T00:00:00Z", value: 500 },
+      { at: "2026-01-16T00:00:00Z", value: 500 },
+      { at: "2026-01-17T00:00:00Z", value: 500 },
+    ];
+    const html = renderToStaticMarkup(
+      <HcValueChart points={flat} aria-label="Portfolio value trend" />,
+    );
+    expect(html).toContain("<svg");
+    expect(html).not.toContain("NaN");
+  });
+});
+
+// 4 ─ A large account ($500k) scales its y-axis to the volume (no overflow/clamp).
 describe("HcValueChart — scales across account sizes", () => {
   it("renders a $M-scale y-axis tick for a large balance", () => {
     const big: HcValuePoint[] = [
@@ -99,7 +147,7 @@ describe("HcValueChart — scales across account sizes", () => {
       <HcValueChart points={big} aria-label="Portfolio value trend" />,
     );
     expect(html).toContain('data-hc-grid="y"');
-    // Default formatter renders the top tick in $M for a half-million NAV.
-    expect(html).toMatch(/\$0\.\d{2}M|\$\d+k/);
+    // Default formatter renders a top tick in $M / $K for a half-million NAV.
+    expect(html).toMatch(/\$\d[\d.]*M|\$\d[\d.]*K/);
   });
 });
