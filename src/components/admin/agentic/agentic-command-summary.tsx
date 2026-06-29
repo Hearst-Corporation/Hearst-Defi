@@ -1,12 +1,14 @@
 // Admin · Agentic Control Tower — Command Summary KPI strip (presentational).
 //
-// READ-ONLY. Renders the headline metrics as the CANON admin KPI strip
-// (DashboardKpiStrip — the same full-width, hairline-separated, 18px-value
-// strip every other admin page opens with) instead of a small inline status
-// line. The first tile is the platform health; the rest are the tower metrics.
-// Attention items (watch/alert) stay as tight warning lines below the strip.
+// READ-ONLY. Renders the headline metrics as the CANON admin KPI strip — via
+// AdminKpiStripPanel (embedded) so it gets the grey inset surface + centred
+// cells + boundary separators, exactly like /admin/customers & /admin/vaults.
+// A bare DashboardKpiStrip is transparent + left-aligned (it sat on the card's
+// black surface, mis-centred) — that's the bug this replaces. The first tile is
+// platform health; the rest are the tower metrics. Attention items (watch/alert)
+// stay as tight warning lines below the strip.
 
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type { TowerSummary, TowerMetric } from "@/lib/agentic/system-map/tower-summary";
 
@@ -60,7 +62,7 @@ export function AgenticStatusLine({
 
   return (
     <div className="flex flex-col" aria-label="Agentic command summary">
-      <DashboardKpiStrip kpis={kpis} />
+      <AdminKpiStripPanel kpis={kpis} embedded />
 
       {attention.length > 0 && (
         <ul
