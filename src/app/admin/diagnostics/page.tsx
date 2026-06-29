@@ -14,6 +14,7 @@ import { OutreachLifecycleDemo } from "@/components/admin/diagnostics/outreach-l
 import { DiagnosticResultTable } from "@/components/admin/diagnostics/diagnostic-result-table";
 import type { DiagnosticSuiteResult } from "@/lib/admin/diagnostics/types";
 import { runBtcMiningVaultDiagnostics } from "@/lib/admin/diagnostics/btc-mining-vault-diagnostics";
+import { runBtcProductConstructionDiagnostics } from "@/lib/admin/diagnostics/btc-product-construction-diagnostics";
 import {
   DIAGNOSTIC_SUITES,
   SUITE_META,
@@ -51,6 +52,7 @@ export default async function AdminDiagnosticsPage() {
   // Pure product diagnostics — exercises the real BTC Mining Vault product /
   // guards / engine functions, dry-run, no writes/sends.
   const btcMiningVaultResults = runBtcMiningVaultDiagnostics();
+  const btcProductConstructionResults = runBtcProductConstructionDiagnostics();
 
   return (
     <AdminPageShell
@@ -136,6 +138,17 @@ export default async function AdminDiagnosticsPage() {
       >
         <div className="p-5">
           <DiagnosticResultTable results={btcMiningVaultResults} />
+        </div>
+      </AdminSectionCard>
+
+      {/* 7 — BTC Product Construction Orchestration diagnostics */}
+      <AdminSectionCard
+        title="BTC product construction — orchestration diagnostics"
+        subtitle="Dry-run checks for the parallel-swarm / sequenced-reveal contract: deterministic render order, dependency gates, ONE canonical allocation read by summary/scenarios/write-up/wizard, 30% mining floor (raw sub-floor rejected), scenario percent format, targets never summed, product name, no guarantee language, no writes/sends/deploys."
+        ariaLabel="BTC product construction orchestration diagnostics"
+      >
+        <div className="p-5">
+          <DiagnosticResultTable results={btcProductConstructionResults} />
         </div>
       </AdminSectionCard>
     </AdminPageShell>

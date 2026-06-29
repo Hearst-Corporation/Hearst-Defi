@@ -57,29 +57,46 @@ export function constructionDraftToVaultForm(
   const highRaw = clampBps(draft.quant.headlineRange.high * 10_000);
   const highBps = highRaw > lowBps ? highRaw : lowBps + 100;
 
-  // Allocation: the strategy artifact carries mining%/USDC% of the blended
-  // yield. Convert to allocation weight proportionally (mining vs USDC), then
-  // balance the rest into the stable reserve.
-  const miningPct = Math.max(0, draft.strategy.miningYieldPct);
-  const usdcPct = Math.max(0, draft.strategy.usdcYieldPct);
-  const denom = miningPct + usdcPct;
-  let miningBps = denom > 0 ? clampBps((miningPct / denom) * 6_000) : 3_000;
-  let usdcBps = denom > 0 ? clampBps((usdcPct / denom) * 6_000) : 3_000;
-  // Reserve the rest so the four legs sum to exactly 10000.
-  const allocated = miningBps + usdcBps;
-  let stableReserveBps = clampBps(10_000 - allocated);
-  // Defensive: if rounding overshot, trim USDC.
-  if (miningBps + usdcBps + stableReserveBps > 10_000) {
-    const over = miningBps + usdcBps + stableReserveBps - 10_000;
-    usdcBps = Math.max(0, usdcBps - over);
+  // Allocation: ALWAYS read the canonical allocation when present (the SINGLE
+  // source of truth). This guarantees the wizard prefill, the summary, the
+  // scenario cards and the write-up all carry the SAME mining weight (≥30% for
+  // the BTC mining product) — never the old yield-mix proportion that produced
+  // a sub-floor mining % (e.g. 2.92%) in the wizard while the cards showed 30%.
+  let miningBps: number;
+  let btcTacticalBps: number;
+  let usdcBps: number;
+  let stableReserveBps: number;
+
+  if (draft.canonicalAllocation) {
+    const a = draft.canonicalAllocation;
+    miningBps = clampBps(a.mining * 100);
+    btcTacticalBps = clampBps(a.btcHoldingCollateral * 100);
+    usdcBps = clampBps(a.yieldOverlay * 100);
+    stableReserveBps = clampBps(a.stableReserve * 100);
+    // Re-normalise to exactly 10000 by absorbing the rounding slack into the
+    // stable reserve (keeps the wizard's sum-to-100% invariant).
+    const sum = miningBps + btcTacticalBps + usdcBps + stableReserveBps;
+    stableReserveBps = clampBps(stableReserveBps + (10_000 - sum));
+  } else {
+    // Legacy fallback (no canonical allocation): derive from the yield mix.
+    const miningPct = Math.max(0, draft.strategy.miningYieldPct);
+    const usdcPct = Math.max(0, draft.strategy.usdcYieldPct);
+    const denom = miningPct + usdcPct;
+    miningBps = denom > 0 ? clampBps((miningPct / denom) * 6_000) : 3_000;
+    usdcBps = denom > 0 ? clampBps((usdcPct / denom) * 6_000) : 3_000;
+    btcTacticalBps = 0;
+    const allocated = miningBps + usdcBps;
+    stableReserveBps = clampBps(10_000 - allocated);
+    if (miningBps + usdcBps + stableReserveBps > 10_000) {
+      const over = miningBps + usdcBps + stableReserveBps - 10_000;
+      usdcBps = Math.max(0, usdcBps - over);
+    }
+    const total = miningBps + usdcBps + stableReserveBps;
+    if (total < 10_000) stableReserveBps += 10_000 - total;
+    miningBps = clampBps(miningBps);
+    usdcBps = clampBps(usdcBps);
+    stableReserveBps = clampBps(stableReserveBps);
   }
-  // If we under-shot, push the slack into the reserve.
-  const total = miningBps + usdcBps + stableReserveBps;
-  if (total < 10_000) stableReserveBps += 10_000 - total;
-  // Final clamp (paranoia).
-  miningBps = clampBps(miningBps);
-  usdcBps = clampBps(usdcBps);
-  stableReserveBps = clampBps(stableReserveBps);
 
   return {
     ticker: draft.vault.ticker.slice(0, 8),
@@ -88,7 +105,7 @@ export function constructionDraftToVaultForm(
     targetApyLowBps: lowBps,
     targetApyHighBps: highBps,
     targetMiningBps: miningBps,
-    targetBtcTacticalBps: 0,
+    targetBtcTacticalBps: btcTacticalBps,
     targetUsdcBaseBps: usdcBps,
     targetStableReserveBps: stableReserveBps,
     // Carry the construction assumptions as disclaimers so provenance follows.
