@@ -6,11 +6,11 @@ import {
   BentoLabel,
   BentoPanel,
 } from "@/components/catalyst/bento";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
 import { cn } from "@/lib/cn";
+import type { HeroKpi } from "@/lib/data/cockpit";
 import type {
   ReadinessFactor,
-  ReadinessStat,
   ReadinessTone,
   SystemReadinessView,
 } from "@/lib/admin/dashboard-readiness-view";
@@ -54,6 +54,11 @@ export function SystemReadinessModule({
         }
       />
 
+      {/* Vault mode + Oracle freshness as the canon KPI strip — full-width,
+          hairline-separated tiles welded under the header, like every other
+          admin page. Values stay neutral white (one-accent colour discipline). */}
+      <DashboardKpiStrip kpis={statsToKpis(view.stats)} />
+
       <div className="flex flex-col gap-5 p-5">
         {/* Verdict — dominant operator read: dot + posture + uptime strip. */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -95,16 +100,6 @@ export function SystemReadinessModule({
           {view.postureBlurb}
         </p>
 
-        {/* ≤2 unique stats: Vault mode + Oracle freshness */}
-        <div
-          className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] sm:grid-cols-2"
-          role="list"
-        >
-          {view.stats.map((stat) => (
-            <ReadinessStatCell key={stat.label} stat={stat} />
-          ))}
-        </div>
-
         {/* Compact dot strip — replaces the 5-row matrix (detail lives in Row-3 risk card) */}
         <div
           className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-[var(--ct-border-soft)] pt-4"
@@ -120,30 +115,15 @@ export function SystemReadinessModule({
   );
 }
 
-function ReadinessStatCell({ stat }: { stat: ReadinessStat }) {
-  return (
-    <div
-      role="listitem"
-      className="flex flex-col gap-1.5 bg-surface-card p-4"
-      aria-label={`${stat.label}: ${stat.value}`}
-    >
-      <div className="flex min-w-0 items-center justify-between gap-2">
-        <BentoLabel>{stat.label}</BentoLabel>
-        {stat.provenance ? (
-          <ProvenanceBadge kind={stat.provenance} variant="strip" />
-        ) : null}
-      </div>
-      <span
-        className={cn(
-          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums",
-          toneText(stat.tone),
-        )}
-      >
-        {stat.value}
-      </span>
-      <span className="truncate text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)]">{stat.detail}</span>
-    </div>
-  );
+// Vault mode / Oracle freshness → canon KPI tiles. Values stay neutral white
+// (no accent/alert) to match the one-accent colour discipline used across admin.
+function statsToKpis(stats: SystemReadinessView["stats"]): HeroKpi[] {
+  return stats.map((stat) => ({
+    label: stat.label,
+    value: stat.value,
+    sublabel: stat.detail,
+    provenance: stat.provenance ?? "manual",
+  }));
 }
 
 /** Compact inline dot + label — the terse one-row strip replacing the matrix. */
