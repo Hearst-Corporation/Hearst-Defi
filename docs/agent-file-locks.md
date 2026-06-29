@@ -62,10 +62,29 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-> Aucun lock actif. Dernière intégration : CI Vitest green-up complet — suite
-> 100% verte (PR #203 + #206).
+### feat/projection-safe-input-preset
+Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
+Branch: feat/projection-safe-input-preset
+Worktree: principal (integration tree)
+Started: 2026-06-29
+Status: active
+
+Goal: derive a SAFE, non-numeric projection input preset from the Product
+Workspace objective (label/product type/buckets/notes) + explicit review-required
+and forbidden-prefill lists, surfaced in the Projection handoff. The Studio's run
+inputs are all business numbers → NONE are ever prefilled. Run Study stays manual.
+
+Scope:
+- src/lib/projection/projection-input-preset.ts (new pure view-model)
+- src/components/admin/projection/projection-handoff.tsx (preset block)
+- tests under src/lib/projection/__tests__ + src/app/admin/projection/__tests__
+
+STOP: never touches engine/data/telegram/prisma/portfolio/payments/outreach/
+cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ---
+
+## RELEASED LOCKS
 
 ## RELEASED LOCKS
 
