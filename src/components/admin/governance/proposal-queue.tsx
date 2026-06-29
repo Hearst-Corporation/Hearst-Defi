@@ -31,16 +31,19 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
     return <EmptySurface live {...GOVERNANCE_QUEUE_EMPTY} />;
   }
 
+  // Flat list — each proposal is a hairline-separated row, NOT its own bordered
+  // box (the parent AdminSectionCard already owns the frame). Same way user
+  // pages render a list of items. Hover tints the row instead of the border.
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col">
       {proposals.map((proposal) => (
         <Link
           key={proposal.id}
           href={`/admin/governance/proposal/${proposal.id}`}
           aria-label={`Open proposal ${proposal.actionType}`}
-          className="group block"
+          className="group block border-b border-[var(--ct-border-soft)] last:border-0"
         >
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5 transition-colors hover:border-[var(--ct-border-accent)]">
+          <div className="p-5 transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)]">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">

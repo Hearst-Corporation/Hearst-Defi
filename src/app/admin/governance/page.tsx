@@ -82,9 +82,7 @@ export default async function GovernancePage({ searchParams }: PageProps) {
           />
         }
       >
-        <div className="p-5 lg:p-6">
-          <ProposalQueue proposals={filtered} />
-        </div>
+        <ProposalQueue proposals={filtered} />
       </AdminSectionCard>
     </AdminPageShell>
   );
