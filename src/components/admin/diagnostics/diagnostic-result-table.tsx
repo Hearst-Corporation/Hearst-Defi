@@ -2,16 +2,16 @@ import type { DiagnosticResult } from "@/lib/admin/diagnostics/types";
 
 const STATUS: Record<DiagnosticResult["status"], { label: string; cls: string }> = {
   pass: { label: "PASS", cls: "text-[var(--ct-accent)]" },
-  fail: { label: "FAIL", cls: "text-red-400" },
-  warn: { label: "WARN", cls: "text-amber-400" },
-  skipped: { label: "SKIP", cls: "text-zinc-500" },
+  fail: { label: "FAIL", cls: "text-[var(--ct-status-danger)]" },
+  warn: { label: "WARN", cls: "text-[var(--ct-status-warning)]" },
+  skipped: { label: "SKIP", cls: "text-[var(--ct-text-tertiary)]" },
 };
 
 const SEV: Record<DiagnosticResult["severity"], string> = {
-  P0: "text-red-400",
-  P1: "text-orange-400",
-  P2: "text-amber-400",
-  INFO: "text-sky-400",
+  P0: "text-[var(--ct-status-danger)]",
+  P1: "text-[var(--ct-status-warning)]",
+  P2: "text-[var(--ct-status-warning)]",
+  INFO: "text-[var(--ct-status-info)]",
 };
 
 const HEADS = [
@@ -54,21 +54,27 @@ export function DiagnosticResultTable({
                 <td className={`px-3 py-2 font-bold ${SEV[r.severity]}`}>
                   {r.severity}
                 </td>
-                <td className="px-3 py-2 text-zinc-100">
+                <td className="px-3 py-2 text-[var(--ct-text-strong)]">
                   {r.label}
                   {r.guard ? (
-                    <span className="block text-[10px] text-zinc-500">
+                    <span className="block text-xs text-[var(--ct-text-tertiary)]">
                       guard: {r.guard}
                     </span>
                   ) : null}
                 </td>
-                <td className="px-3 py-2 text-zinc-400">{r.expected}</td>
-                <td className="px-3 py-2 text-zinc-400">{r.actual}</td>
-                <td className="px-3 py-2 font-mono text-[10px] text-zinc-500">
+                <td className="px-3 py-2 text-[var(--ct-text-muted)]">
+                  {r.expected}
+                </td>
+                <td className="px-3 py-2 text-[var(--ct-text-muted)]">
+                  {r.actual}
+                </td>
+                <td className="px-3 py-2 font-mono text-xs text-[var(--ct-text-tertiary)]">
                   {r.likelyFile}
                   {r.likelyFunction ? ` · ${r.likelyFunction}` : ""}
                 </td>
-                <td className="px-3 py-2 text-zinc-500">{r.sideEffect}</td>
+                <td className="px-3 py-2 text-[var(--ct-text-tertiary)]">
+                  {r.sideEffect}
+                </td>
               </tr>
             );
           })}

@@ -95,7 +95,7 @@ export function DiagnosticCenter({
       {current ? (
         <div className="flex flex-col gap-4">
           {/* safety banner */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-[11px] text-zinc-400">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-xs text-[var(--ct-text-muted)]">
             <span>
               Mode:{" "}
               <span className="text-[var(--ct-accent)]">{current.mode}</span>
@@ -119,7 +119,7 @@ export function DiagnosticCenter({
           </div>
 
           {errorBy[selected] ? (
-            <p className="text-xs text-red-400">
+            <p className="text-xs text-[var(--ct-status-danger)]">
               Last run error: {errorBy[selected]}
             </p>
           ) : null}
@@ -136,21 +136,23 @@ export function DiagnosticCenter({
                 {failures.map((f) => (
                   <li
                     key={f.id}
-                    className="rounded-lg border border-[var(--ct-border)] bg-surface-card px-3 py-2 text-xs text-zinc-300"
+                    className="rounded-lg border border-[var(--ct-border)] bg-surface-card px-3 py-2 text-xs text-[var(--ct-text-secondary)]"
                   >
                     <span
                       className={
                         f.status === "fail"
-                          ? "font-bold text-red-400"
-                          : "font-bold text-amber-400"
+                          ? "font-bold text-[var(--ct-status-danger)]"
+                          : "font-bold text-[var(--ct-status-warning)]"
                       }
                     >
                       {f.severity}
                     </span>{" "}
                     {f.label} —{" "}
-                    <span className="text-zinc-500">{f.actual}</span>
+                    <span className="text-[var(--ct-text-tertiary)]">
+                      {f.actual}
+                    </span>
                     {f.likelyFile ? (
-                      <span className="block font-mono text-[10px] text-zinc-600">
+                      <span className="block font-mono text-xs text-[var(--ct-text-faint)]">
                         {f.likelyFile}
                       </span>
                     ) : null}
@@ -168,26 +170,26 @@ export function DiagnosticCenter({
             <button
               type="button"
               onClick={() => setShowRaw((v) => !v)}
-              className="text-xs text-zinc-400 underline-offset-2 hover:underline"
+              className="text-xs text-[var(--ct-text-muted)] underline-offset-2 hover:underline"
             >
               {showRaw ? "Hide" : "Show"} raw diagnostic JSON
             </button>
             <button
               type="button"
               onClick={copyJson}
-              className="text-xs text-zinc-400 underline-offset-2 hover:underline"
+              className="text-xs text-[var(--ct-text-muted)] underline-offset-2 hover:underline"
             >
               {copied ? "Copied ✓" : "Copy report JSON"}
             </button>
           </div>
           {showRaw ? (
-            <pre className="max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-3 font-mono text-[10px] text-zinc-400">
+            <pre className="max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-3 font-mono text-xs text-[var(--ct-text-muted)]">
               {JSON.stringify(current, null, 2)}
             </pre>
           ) : null}
         </div>
       ) : (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-[var(--ct-text-tertiary)]">
           Select a suite and press “Run suite”.
         </p>
       )}
