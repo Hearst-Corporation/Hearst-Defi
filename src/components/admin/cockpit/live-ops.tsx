@@ -1,14 +1,31 @@
 import Link from "next/link";
 
-import { Tooltip } from "@/components/catalyst/tooltip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { cn } from "@/lib/cn";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
+import type { HeroKpi } from "@/lib/data/cockpit";
 import type {
   InngestJob,
   InngestJobStatus,
   OnChainEvent,
   SentryStats,
 } from "@/lib/data/cockpit";
+
+/** Internal section eyebrow — one shared style for every Platform-status
+ *  sub-section header (Inngest Jobs / LLM Health / Chain Activity), so they
+ *  stop drifting per call-site. Title left, optional meta right. */
+function PanelSubhead({ title, meta }: { title: string; meta?: string }) {
+  return (
+    <header className="mb-2.5 flex items-center justify-between">
+      <h3 className="ct-bento-label">{title}</h3>
+      {meta ? (
+        <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">
+          {meta}
+        </span>
+      ) : null}
+    </header>
+  );
+}
 
 interface LiveOpsProps {
   inngestJobs: InngestJob[];
@@ -30,10 +47,7 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
 
       {/* INNGEST JOBS */}
       <section className="flex flex-col">
-        <header className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">Inngest Jobs</h3>
-          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">Real-time</span>
-        </header>
+        <PanelSubhead title="Inngest Jobs" meta="Real-time" />
         <div className="flex flex-col">
           {inngestJobs.map((job) => (
             <InngestRow key={job.id} job={job} />
@@ -41,55 +55,16 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
       </section>
 
-      {/* LLM HEALTH */}
+      {/* LLM HEALTH — Errors / Warnings as the canon KPI strip (inset bg,
+          centred cells), not a bespoke inset box. Errors flag alert when > 0. */}
       <section className="flex flex-col">
-        <header className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">LLM Health</h3>
-          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">24h Window</span>
-        </header>
-        <div className="flex items-stretch gap-3 bg-surface-inset rounded-lg p-4">
-          <Tooltip
-            content={(
-              <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">
-                <div className="text-[length:var(--ct-text-2xs)] font-medium text-white">Sentry Errors</div>
-                <div className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] leading-snug">Critical exceptions captured in the last 24 hours across all services.</div>
-              </div>
-            )}
-          >
-            <div className="flex-1 cursor-help">
-              <SentryCounter
-                label="Errors"
-                count={sentryStats.errors24h}
-                alert={sentryStats.errors24h > 0}
-              />
-            </div>
-          </Tooltip>
-          <div className="w-px self-stretch bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]" />
-          <Tooltip
-            content={(
-              <div className="flex flex-col gap-1 max-w-[220px] whitespace-normal">
-                <div className="text-[length:var(--ct-text-2xs)] font-medium text-white">Sentry Warnings</div>
-                <div className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)] leading-snug">Non-critical warnings captured in the last 24 hours.</div>
-              </div>
-            )}
-          >
-            <div className="flex-1 cursor-help">
-              <SentryCounter
-                label="Warnings"
-                count={sentryStats.warnings24h}
-                alert={false}
-              />
-            </div>
-          </Tooltip>
-        </div>
+        <PanelSubhead title="LLM Health" meta="24h Window" />
+        <AdminKpiStripPanel kpis={sentryKpis(sentryStats)} embedded />
       </section>
 
       {/* CHAIN ACTIVITY */}
       <section className="flex flex-col">
-        <header className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">Chain Activity</h3>
-          <span className="text-[length:var(--ct-text-nano)] uppercase tracking-widest text-[var(--ct-text-faint)]">Live Feed</span>
-        </header>
+        <PanelSubhead title="Chain Activity" meta="Live Feed" />
         {onChainEvents.length === 0 ? (
           <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] py-2" role="status">No recent on-chain events.</p>
         ) : (
@@ -158,28 +133,24 @@ const STATUS_LABEL: Record<InngestJobStatus, string> = {
   unknown: "—",
 };
 
-function SentryCounter({
-  label,
-  count,
-  alert,
-}: {
-  label: string;
-  count: number;
-  alert: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)]">{label}</span>
-      <span
-        className={cn(
-          "text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums leading-none",
-          alert && count > 0 ? "text-[var(--ct-status-danger)]" : "text-[var(--ct-text-strong)]",
-        )}
-      >
-        {count}
-      </span>
-    </div>
-  );
+/** Sentry 24h Errors / Warnings → canon KPI tiles. Errors turn red (alert)
+ *  when > 0; warnings stay neutral white (one-accent colour discipline). */
+function sentryKpis(stats: SentryStats): HeroKpi[] {
+  return [
+    {
+      label: "Errors",
+      value: String(stats.errors24h),
+      sublabel: "critical · last 24h",
+      provenance: "manual",
+      ...(stats.errors24h > 0 ? { alert: true } : {}),
+    },
+    {
+      label: "Warnings",
+      value: String(stats.warnings24h),
+      sublabel: "non-critical · last 24h",
+      provenance: "manual",
+    },
+  ];
 }
 
 const EVENT_TYPE_ICON: Record<OnChainEvent["type"], string> = {
