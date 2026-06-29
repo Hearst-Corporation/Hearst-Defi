@@ -134,6 +134,86 @@ describe("outreachSendHandler — campaign fan-out", () => {
     expect(campaignUpdateMock).not.toHaveBeenCalled();
   });
 
+  it("re-checks forbidden words at send time — an unsafe approved row is NOT sent", async () => {
+    // A row that passed approval but carries an unconditional claim (e.g. a
+    // post-approval hand-edit / legacy row). Body contains "guaranteed".
+    const unsafe = {
+      id: "email_bad",
+      toEmail: "bad@example.com",
+      subject: "Our yield is guaranteed",
+      body: "This is risk-free, returns are guaranteed.",
+      prospectId: "prospect_bad",
+    };
+    emailFindManyMock.mockResolvedValue([unsafe, approvedRow(1)]);
+
+    const { outreachSendHandler } = await import("@/lib/inngest/functions/outreach-send");
+    const res = await outreachSendHandler({
+      step: buildStepShim(),
+      event: { data: { campaignId: "camp_1", requestedBy: "0xadmin" } },
+    });
+
+    // Unsafe row blocked (never reaches Resend); the safe row still sends.
+    expect(sendTrackedEmailMock).toHaveBeenCalledTimes(1);
+    expect(sendTrackedEmailMock).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "r1@example.com" }),
+    );
+    // The blocked row is marked failed (uses the existing status, no new model).
+    expect(emailUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "email_bad" }, data: { status: "failed" } }),
+    );
+    // Fan-out continues: one sent, one blocked-as-failed, campaign flipped sent.
+    expect(res).toEqual({ sent: 1, failed: 1, total: 2 });
+    expect(campaignUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "sent" }) }),
+    );
+  });
+
+  it("a forbidden word in the SUBJECT alone also blocks the send", async () => {
+    const unsafeSubject = {
+      id: "email_subj",
+      toEmail: "subj@example.com",
+      subject: "Risk-free institutional yield",
+      body: "A perfectly clean body with no claims.",
+      prospectId: "prospect_subj",
+    };
+    emailFindManyMock.mockResolvedValue([unsafeSubject]);
+
+    const { outreachSendHandler } = await import("@/lib/inngest/functions/outreach-send");
+    const res = await outreachSendHandler({
+      step: buildStepShim(),
+      event: { data: { campaignId: "camp_1", requestedBy: "0xadmin" } },
+    });
+
+    expect(sendTrackedEmailMock).not.toHaveBeenCalled();
+    expect(emailUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "email_subj" }, data: { status: "failed" } }),
+    );
+    expect(res).toEqual({ sent: 0, failed: 1, total: 1 });
+  });
+
+  it("suppression is still checked before the forbidden-words gate (no double send)", async () => {
+    // A suppressed AND unsafe row: suppression wins first, still never sent,
+    // marked failed once. Proves both gates coexist without a double dispatch.
+    const both = {
+      id: "email_both",
+      toEmail: "both@example.com",
+      subject: "guaranteed returns",
+      body: "guaranteed",
+      prospectId: "prospect_both",
+    };
+    emailFindManyMock.mockResolvedValue([both]);
+    isSuppressedMock.mockResolvedValue(true);
+
+    const { outreachSendHandler } = await import("@/lib/inngest/functions/outreach-send");
+    const res = await outreachSendHandler({
+      step: buildStepShim(),
+      event: { data: { campaignId: "camp_1", requestedBy: "0xadmin" } },
+    });
+
+    expect(sendTrackedEmailMock).not.toHaveBeenCalled();
+    expect(res).toEqual({ sent: 0, failed: 1, total: 1 });
+  });
+
   it("rejects a malformed event payload before any send", async () => {
     const { outreachSendHandler } = await import("@/lib/inngest/functions/outreach-send");
     await expect(
