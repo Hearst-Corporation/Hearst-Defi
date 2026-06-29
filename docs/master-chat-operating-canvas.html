@@ -234,26 +234,138 @@
   .fs-diag-rows{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
   @media(max-width:980px){.fs-diag-rows{grid-template-columns:1fr}}
 
+  /* ════ V4 CONTROL ROOM / PROGRESSIVE DISCLOSURE ════ */
+  #stage{flex:1;display:flex;min-height:0}
+  .stage-view{display:none;flex:1;min-width:0;overflow:auto}
+  .stage-view.on{display:block}
+  #graph-scroll.on{display:block;position:relative}
+  .view-pad{padding:30px 40px 60px;max-width:1180px;margin:0 auto}
+  .cr-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);font-weight:700}
+  .cr-title{font-size:24px;font-weight:700;color:#f0f5fb;letter-spacing:-.02em;margin:6px 0 6px}
+  .cr-sub{font-size:13px;color:var(--txt2);max-width:620px;line-height:1.55}
+  /* status tiles */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0 32px}
+  .tile{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:13px 15px}
+  .tile .tk{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+  .tile .tv{font-size:15px;font-weight:700;color:#e7eef6;margin-top:5px;display:flex;align-items:center;gap:7px}
+  .tile .tv .dotv{width:8px;height:8px;border-radius:50%}
+  /* domain cards */
+  .sect-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);font-weight:700;margin:0 0 14px}
+  .domains{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .domain{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:18px 18px 16px;cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s;position:relative;overflow:hidden}
+  .domain:hover{transform:translateY(-3px);border-color:var(--line3);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .domain::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--dcol,var(--green))}
+  .domain .dm-top{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .domain .dm-dot{width:9px;height:9px;border-radius:3px;background:var(--dcol)}
+  .domain .dm-title{font-size:15px;font-weight:700;color:#eaf0f7}
+  .domain .dm-desc{font-size:12px;color:var(--txt2);line-height:1.5;min-height:54px}
+  .domain .dm-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .domain .dm-status{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:5px}
+  .domain .dm-open{font-size:12px;color:var(--green);font-weight:600}
+  .stat-green{background:var(--green-d);color:var(--green)}
+  .stat-yellow{background:var(--yellow-d);color:var(--yellow)}
+  .stat-red{background:var(--red-d);color:var(--red)}
+  .stat-steel{background:rgba(138,160,184,.14);color:var(--steel)}
+  /* back link */
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2);cursor:pointer;margin-bottom:16px}
+  .back-link:hover{color:var(--green)}
+  /* flow journey */
+  .j-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .j-titlewrap{flex:1;min-width:200px}
+  .j-title{font-size:22px;font-weight:700;color:#f0f5fb;letter-spacing:-.01em}
+  .j-summary{font-size:13px;color:var(--txt2);margin-top:6px;line-height:1.5;max-width:640px}
+  .j-meta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 26px}
+  .j-meta .jm{background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:8px 13px}
+  .j-meta .jm .jk{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+  .j-meta .jm .jvv{font-size:13px;font-weight:700;margin-top:3px;color:#e7eef6}
+  /* journey steps */
+  .journey-steps{display:flex;flex-direction:column;gap:0;margin-bottom:8px}
+  .jstep{display:flex;gap:16px;position:relative;padding-bottom:14px}
+  .jstep:last-child{padding-bottom:0}
+  .jstep-rail{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .jstep-num{width:30px;height:30px;border-radius:50%;background:var(--panel2);border:1.5px solid var(--line3);color:#cdd6e2;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:1}
+  .jstep.r-write .jstep-num{border-color:var(--orange);color:var(--orange)}
+  .jstep.r-extsend .jstep-num{border-color:#ff8e6e;color:#ff8e6e}
+  .jstep.r-manual .jstep-num{border-color:var(--yellow);color:var(--yellow)}
+  .jstep.r-refuse .jstep-num{border-color:var(--red);color:var(--red)}
+  .jstep-line{flex:1;width:2px;background:var(--line2);margin:3px 0}
+  .jstep:last-child .jstep-line{display:none}
+  .jstep-body{flex:1;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:12px 15px;margin-bottom:2px}
+  .jstep-t{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .jstep-name{font-size:13px;font-weight:700;color:#e7eef6}
+  .jstep-txt{font-size:12px;color:var(--txt2);margin-top:5px;line-height:1.5}
+  .rb{font-size:8.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+  .rb-read{background:var(--blue-d);color:var(--blue)}
+  .rb-write{background:var(--orange-d);color:var(--orange)}
+  .rb-extsend{background:rgba(255,95,95,.1);color:#ff8e6e}
+  .rb-manual{background:var(--yellow-d);color:var(--yellow)}
+  .rb-refuse{background:var(--red-d);color:var(--red)}
+  .rb-rec{background:rgba(138,160,184,.16);color:var(--steel)}
+  /* verdict + risks */
+  .j-verdict{background:linear-gradient(135deg,var(--green-d),transparent);border:1px solid var(--green-b);border-radius:11px;padding:15px 17px;margin:24px 0 20px}
+  .j-verdict.warn{background:linear-gradient(135deg,var(--yellow-d),transparent);border-color:rgba(255,194,94,.32)}
+  .j-verdict.danger{background:linear-gradient(135deg,var(--red-d),transparent);border-color:rgba(255,95,95,.32)}
+  .j-verdict .vh{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);font-weight:700;margin-bottom:6px}
+  .j-verdict .vt{font-size:13.5px;color:#eef3f9;line-height:1.55}
+  .risks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+  .risk-chip{font-size:11.5px;color:var(--txt);background:var(--panel);border:1px solid var(--line2);border-radius:20px;padding:6px 13px;display:inline-flex;align-items:center;gap:7px}
+  .risk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+  /* journey action buttons */
+  .j-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  /* technical drawer */
+  .tech-drawer{max-height:0;overflow:hidden;transition:max-height .3s ease;margin-top:4px}
+  .tech-drawer.open{max-height:3000px}
+  .tech-inner{background:var(--panel);border:1px solid var(--line2);border-radius:11px;padding:18px;margin-top:14px}
+  .tech-inner .d-sect-h:first-child{margin-top:0;padding-top:0;border-top:none}
+  #journey-diag-out{margin-top:14px}
+  /* diagnostics summary table */
+  .diag-overview{display:flex;flex-direction:column;gap:0;background:var(--panel);border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:8px}
+  .do-row{display:grid;grid-template-columns:1fr auto auto auto;gap:14px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+  .do-row:last-child{border-bottom:none}
+  .do-row:hover{background:var(--panel2)}
+  .do-name{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#e4ebf3}
+  .do-name .fs-dot{width:10px;height:10px;border-radius:3px}
+  .do-health{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:5px}
+  .do-score{font-size:11px;font-family:var(--mono);color:var(--txt2);min-width:64px;text-align:right}
+  .do-toggle{font-size:11px;color:var(--green);font-weight:600}
+  .do-tests{display:none;padding:2px 0 8px;background:var(--bg2);border-bottom:1px solid var(--line)}
+  .do-tests.open{display:block}
+  /* prompt preview */
+  .pp-box{background:var(--panel);border:1px solid var(--line2);border-radius:11px;padding:16px}
+  /* rail v4 */
+  .rail-item .ri-dot{width:7px;height:7px;border-radius:50%;background:var(--txt3);flex-shrink:0}
+  .rail-item.active .ri-dot{background:var(--green)}
+  .rail-divider{height:1px;background:var(--line);margin:10px 12px}
+  .rail-toggle{margin:4px 12px 0;display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:11.5px;color:var(--txt2);border:1px solid var(--line2);transition:all .14s}
+  .rail-toggle:hover{color:var(--txt);border-color:var(--line3)}
+  .rail-toggle.on{background:var(--green-d);color:#eaf9e4;border-color:var(--green-b)}
+  .rail-toggle .tg-switch{margin-left:auto;width:28px;height:15px;border-radius:9px;background:var(--line3);position:relative;transition:background .14s;flex-shrink:0}
+  .rail-toggle.on .tg-switch{background:var(--green)}
+  .rail-toggle .tg-switch::after{content:'';position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:left .14s}
+  .rail-toggle.on .tg-switch::after{left:15px}
+
   /* responsive */
   @media(max-width:1180px){
     #detail{width:300px}
-    #rail{width:200px}
+    #rail{width:210px}
+  }
+  @media(max-width:760px){
+    .view-pad{padding:20px}
+    .j-head{flex-direction:column}
   }
 </style>
 </head>
 <body>
 
 <div id="status-bar">
-  <span><b class="dot">●</b> Master Chat Operating Canvas</span>
+  <span><b class="dot">●</b> Master Chat Control Room</span>
   <div class="sep"></div>
   <span>HEAD <b id="sb-head">a6777abc</b></span>
   <span>main · <b>2026-06-29</b></span>
   <div class="sep"></div>
-  <span>Nodes <b id="sb-nodes">—</b></span>
   <span>Flows <b id="sb-flows">—</b></span>
-  <span>Write tools <b>7</b></span>
-  <span>External sends <b>4+1</b></span>
   <span>Invariants <b id="sb-inv">—</b></span>
+  <span id="sb-nodes" style="display:none"></span>
   <div class="sep"></div>
   <span>Static diagnostics · no runtime · no network · facts verified vs source</span>
 </div>
@@ -264,8 +376,11 @@
   <nav id="rail">
     <div class="brand">
       <div class="b1">Hearst Connect</div>
-      <div class="b2">Interactive Operating Canvas</div>
-      <div class="b3">Click a node or flow to see how chat wakes routers, pages, tools, records &amp; guards.</div>
+      <div class="b2">Master Chat Control Room</div>
+      <div class="b3">Pick a domain or flow to see what wakes up, what can write, what is blocked, and where it can fail.</div>
+    </div>
+    <div class="rail-sect">
+      <div class="rail-item view-item" data-view="control-room" onclick="setView('control-room')"><span class="ri-dot"></span><span class="ri-label">Control Room</span></div>
     </div>
     <div class="rail-sect">
       <div class="rail-h">Flows</div>
@@ -273,18 +388,19 @@
     </div>
     <div class="rail-sect">
       <div class="rail-h">Views</div>
-      <div class="rail-item view-item" data-view="overview" onclick="setView('overview')"><span class="swatch" style="background:var(--green)"></span><span class="ri-label">Overview (all nodes)</span></div>
-      <div class="rail-item view-item" data-view="records" onclick="setView('records')"><span class="swatch" style="background:var(--steel)"></span><span class="ri-label">Records</span></div>
-      <div class="rail-item view-item" data-view="diagnostics" onclick="setView('diagnostics')"><span class="swatch" style="background:var(--blue)"></span><span class="ri-label">Diagnostics</span></div>
+      <div class="rail-item view-item" data-view="diagnostics" onclick="setView('diagnostics')"><span class="ri-dot"></span><span class="ri-label">Diagnostics</span></div>
+      <div class="rail-item view-item" data-view="records" onclick="setView('records')"><span class="ri-dot"></span><span class="ri-label">Records</span></div>
+      <div class="rail-item view-item" data-view="source" onclick="setView('source')"><span class="ri-dot"></span><span class="ri-label">Source Truth</span></div>
     </div>
+    <div class="rail-toggle" id="graph-toggle" onclick="toggleAdvancedGraph()"><span>Advanced graph</span><span class="tg-switch"></span></div>
     <div class="rail-foot">
-      Read-only documentation. No runtime import, no CDN, no fetch.<br>Facts cross-checked against source by a 4-agent verifier + critic.
+      Read-only documentation. No runtime, no CDN, no fetch.<br>Facts cross-checked against source by a 4-agent verifier + critic.
     </div>
   </nav>
 
   <!-- CENTER -->
   <div id="center">
-    <div id="toolbar">
+    <div id="toolbar" style="display:none">
       <div id="search">
         <span class="si">⌕</span>
         <input id="search-input" type="text" placeholder="Search node, file, action, record…  (ProjectionStudyRun, HITL, outreach-send, deploy…)" autocomplete="off" spellcheck="false">
@@ -300,25 +416,25 @@
       </div>
     </div>
 
-    <div id="canvas-scroll">
-      <div id="graph">
-        <svg id="edges"></svg>
+    <div id="stage">
+      <div id="control-room" class="stage-view"></div>
+      <div id="journey" class="stage-view"></div>
+      <div id="diag-view" class="stage-view"></div>
+      <div id="records-view" class="stage-view"></div>
+      <div id="source-view" class="stage-view"></div>
+      <div id="graph-scroll" class="stage-view">
+        <div id="graph">
+          <svg id="edges"></svg>
+        </div>
       </div>
-      <div id="records-view"></div>
-      <div id="diag-view"></div>
-    </div>
-
-    <div id="flowstrip">
-      <div class="fs-inner" id="flowstrip-inner"></div>
     </div>
   </div>
 
-  <!-- RIGHT DETAIL -->
-  <aside id="detail">
+  <!-- RIGHT DETAIL (advanced graph only) -->
+  <aside id="detail" style="display:none">
     <div class="d-empty" id="detail-empty">
       <div class="de-ic">◎</div>
-      Select a <b>node</b> in the graph or a <b>flow</b> in the left rail.<br><br>
-      Each node shows what wakes it, its file, write risk, the records it can create, and its guards.
+      Click a <b>node</b> in the graph to inspect its file, write risk, records, and guards.
     </div>
     <div id="detail-content"></div>
   </aside>
@@ -880,6 +996,182 @@ const RECORDS = {
 };
 
 /* ════════════════════════════════════════════════════════════════
+   V4 SIMPLIFIED LAYER — DOMAINS (Level 1) + FLOW_JOURNEYS (Level 2).
+   Plain-language views over the verified NODES/FLOWS/RECORDS. They never
+   contradict the source data; the dense detail stays in FLOWS/NODES and is
+   shown only on demand (technical drawer) or in the Advanced graph.
+   ════════════════════════════════════════════════════════════════ */
+
+const DOMAINS = {
+  chat:{title:'Chat Intake',color:C.green,status:'Safe',
+    desc:'Every message passes the kill-switch, auth, rate-limit and sanitize, then the deterministic router — all before any LLM call.',
+    flows:['flow-llm-fallback','flow-lp','flow-admin']},
+  router:{title:'Intent Router',color:C.green,status:'Safe',
+    desc:'A pure, deterministic router classifies intent and refuses dangerous actions before the model ever runs.',
+    flows:['flow-dangerous','flow-llm-fallback']},
+  product:{title:'Product → Projection',color:C.blue,status:'Safe',
+    desc:'Chat can open the workspace, but only a manual admin click can run a projection. The preset never fills a number.',
+    flows:['flow-product','flow-projection']},
+  outreach:{title:'Outreach Lifecycle',color:C.orange,status:'Gated',
+    desc:'Four separate send paths — direct, fan-out, auto-send, follow-ups. Each is individually guarded and env-gated.',
+    flows:['flow-outreach-direct','flow-campaign-fanout','flow-auto-send','flow-followups']},
+  vault:{title:'Vault / HITL',color:C.purple,status:'Safe',
+    desc:'Chat can draft a vault deployment behind a 2-step token. It can never push one live.',
+    flows:['flow-vault']},
+  guards:{title:'Safety Guards',color:C.red,status:'Safe',
+    desc:'Dangerous actions are refused pre-LLM, and LP users are walled off from every admin surface.',
+    flows:['flow-dangerous','flow-lp','flow-admin']},
+  records:{title:'Records',color:C.steel,status:'Reference',
+    desc:'What can be created, by whom, and what is draft-only or manual-only across 13 Prisma models.',
+    view:'records'},
+  diagnostics:{title:'Diagnostics',color:C.green,status:'Healthy',
+    desc:'Static invariants across every flow. Open to see health per flow and the failure map.',
+    view:'diagnostics'},
+};
+
+// risk → step rail class + badge label
+const RISKB={read:['rb-read','Read'],write:['rb-write','Write'],extsend:['rb-extsend','External send'],manual:['rb-manual','Manual'],refuse:['rb-refuse','Refused']};
+
+const FLOW_JOURNEYS = {
+  'flow-product':{title:'Product Creation',status:'Safe',writeMode:'Manual only',externalSend:'No',
+    summary:'Chat opens the Product Workspace, but it never creates a projection run.',
+    verdict:'Chat cannot create a projection run. Only the manual Run button can — and that is what writes ProjectionStudyRun + ScenarioRun.',
+    risks:['No numeric prefill in the preset','Manual run only','Investor-ready gate is separate'],
+    journey:[
+      {t:'Chat',b:'User asks for a new product.',risk:'read'},
+      {t:'Router',b:'Deterministic intent opens the Product Workspace — no LLM needed.',risk:'read'},
+      {t:'Product Workspace',b:'Admin frames the product. Nothing runs from this page.',risk:'read'},
+      {t:'Projection Handoff',b:'Safe structural preset only (label / type / buckets). No business number is filled.',risk:'read'},
+      {t:'Projection Page (GET)',b:'Studio + methodology v1.0 load. A GET creates no record.',risk:'read'},
+      {t:'Run (manual click)',b:'A manual admin click creates the run.',risk:'write',rec:'ProjectionStudyRun + ScenarioRun'},
+    ]},
+  'flow-projection':{title:'Projection Run',status:'Safe',writeMode:'Manual click',externalSend:'No',
+    summary:'Only the manual Run button creates ProjectionStudyRun + ScenarioRun.',
+    verdict:'Manual admin click only — chat and GET cannot trigger it. A separate Promote button is what writes the deployment-draft numbers.',
+    risks:['Manual run only','Engine is pure','Mainnet gated on Spearbit'],
+    journey:[
+      {t:'Run button',b:'Admin clicks Run in the projection studio.',risk:'write'},
+      {t:'Validate assumptions',b:'Configured assumptions are read.',risk:'read'},
+      {t:'Pure engine',b:'runScenario(inputs,{now}) — no I/O, no Math.random().',risk:'read'},
+      {t:'Persist run',b:'The run is written with an audit row.',risk:'write',rec:'ProjectionStudyRun + ScenarioRun'},
+      {t:'Promote (optional)',b:'A separate Promote button writes a deployment draft seeded from the run.',risk:'write',rec:'VaultDeployment (draft)'},
+    ]},
+  'flow-outreach-direct':{title:'Outreach — Direct Send',status:'Gated',writeMode:'Confirm + guarded',externalSend:'Yes (gated)',
+    summary:'A real email is sent only after ConfirmDialog + forbidden-words + suppression checks.',
+    verdict:'A real external email — but a ConfirmDialog is mandatory and forbidden-words + suppression run at send time.',
+    risks:['ConfirmDialog mandatory','Forbidden-words assert (throws)','Suppression at send'],
+    journey:[
+      {t:'DirectSendForm',b:'Admin opens the form. There is no chat trigger.',risk:'read'},
+      {t:'ConfirmDialog',b:'Admin must confirm — no one-click send.',risk:'manual'},
+      {t:'sendDirectEmail()',b:'Forbidden-words assert + suppression check run.',risk:'write'},
+      {t:'Resend',b:'The real email is sent, with an unsubscribe link.',risk:'extsend',rec:'OutreachEmail + OutreachEmailEvent'},
+      {t:'Audit',b:'outreach.sendDirectEmail is recorded.',risk:'write',rec:'AdminAudit'},
+    ]},
+  'flow-campaign-fanout':{title:'Campaign Fan-Out',status:'Gated',writeMode:'Per-row guarded',externalSend:'Yes (gated)',
+    summary:'Campaign fan-out uses outreach-send.ts, not auto-send. Each email is guarded individually.',
+    verdict:'outreach-send.ts is the fan-out (concurrency 3). Every row re-checks suppression + forbidden-words; blocked rows are failed + audited, and the campaign continues.',
+    risks:['Per-row suppression + forbidden-words','Blocked = failed + audited','No duplicate sends on retry'],
+    journey:[
+      {t:'Send Campaign',b:'Admin triggers the action (behind a ConfirmDialog) → emits outreach.campaign.send.',risk:'manual'},
+      {t:'Inngest outreach-send',b:'Loads status=approved emails.',risk:'read'},
+      {t:'Per-row suppression',b:'isSuppressed() is re-checked at send time.',risk:'read'},
+      {t:'Per-row forbidden-words',b:'containsForbidden() (PR #211); a block → failed + audit (PR #213).',risk:'read'},
+      {t:'Resend',b:'Clean rows are sent; the campaign is flipped to sent.',risk:'extsend',rec:'OutreachEmail + OutreachEmailEvent'},
+    ]},
+  'flow-auto-send':{title:'Auto-Send',status:'Gated',writeMode:'Env-gated cron',externalSend:'Yes (gated)',
+    summary:'Auto-send is hourly, env-gated, Tier B/C only, and Tier A is never auto-sent.',
+    verdict:'Distinct from fan-out (outreach-auto-send.ts). The default OUTREACH_AUTONOMY=SUGGEST sends nothing; Tier A is never auto-sent at any level.',
+    risks:['Default SUGGEST = 0 sends','Tier A never auto-sent','Warm-up + daily cap'],
+    journey:[
+      {t:'Hourly cron',b:'0 * * * * — or the outreach_trigger_send_run HITL tool (same handler).',risk:'read'},
+      {t:'Autonomy gate',b:'OUTREACH_AUTONOMY: the default SUGGEST short-circuits to 0 sends.',risk:'read'},
+      {t:'Budget + tier',b:'Warm-up daily cap; Tier B/C only — Tier A is blocked.',risk:'read'},
+      {t:'Suppression + forbidden-words',b:'Re-checked at send; a block → audit auto_send (PR #216).',risk:'read'},
+      {t:'Resend',b:'Sends within budget; stamps tierAtSend / autonomyAtSend.',risk:'extsend',rec:'OutreachEmail + OutreachEmailEvent'},
+    ]},
+  'flow-followups':{title:'Followups',status:'Gated',writeMode:'Env-gated cron',externalSend:'Yes (gated)',
+    summary:'Followups are daily, NURTURE+ only, and generate content live before a guarded send.',
+    verdict:'A daily cron, NURTURE+ only. It is the only path that drafts content at runtime and creates the OutreachEmail row at send.',
+    risks:['NURTURE+ required','Max 2 follow-ups (3d / 4d)','Suppression + forbidden-words at send'],
+    journey:[
+      {t:'Daily cron',b:'0 9 * * * UTC.',risk:'read'},
+      {t:'NURTURE+ gate',b:'Below NURTURE+ the run is a no-op.',risk:'read'},
+      {t:'Load due',b:'status=contacted, step 1..2, delay 3d/4d, max 100/run.',risk:'read'},
+      {t:'Draft live',b:'draftColdEmail() generates the content at runtime.',risk:'read'},
+      {t:'Guards + send',b:'Suppression + forbidden-words; the row is created at send.',risk:'extsend',rec:'OutreachEmail'},
+    ]},
+  'flow-vault':{title:'Vault Draft / HITL',status:'Safe',writeMode:'HITL draft only',externalSend:'No',
+    summary:'Chat can only create a VaultDeployment draft after a 2-step HITL token. It cannot go live.',
+    verdict:'create_vault_draft writes VaultDeployment(draft) + ShareClass — never the unrelated VaultDraft model. markAsLive is governance UI, never chat.',
+    risks:['2-step HITL token','Draft only — never live','Writes VaultDeployment, not VaultDraft'],
+    journey:[
+      {t:'Chat request',b:'Admin asks to create a vault draft.',risk:'read'},
+      {t:'Model proposes',b:'The model proposes the write; it cannot auto-execute one.',risk:'read'},
+      {t:'Zod + HITL token',b:'The 23-field schema is validated; a 5-min single-use token is issued.',risk:'manual'},
+      {t:'Admin confirms',b:'The token is consumed (single-use, payload-bound).',risk:'manual'},
+      {t:'createDraftVault',b:'Writes a draft deployment + share class + audit.',risk:'write',rec:'VaultDeployment (draft) + ShareClass'},
+    ]},
+  'flow-dangerous':{title:'Dangerous Refusal',status:'Refused',writeMode:'None',externalSend:'No',
+    summary:'Deploy, sign, governance execution, migrations, and formula/model changes are refused before the LLM.',
+    verdict:'There is no path to deploy / go-live / on-chain from chat. The refusal is pre-LLM — the model never sees the prompt.',
+    risks:['Refused pre-LLM','0 records, 0 side-effects','Mainnet gated on Spearbit'],
+    journey:[
+      {t:'Dangerous phrase',b:'deploy / sign / governance / migrate / change formula or model.',risk:'read'},
+      {t:'Danger-first guard',b:'DANGEROUS_RULES match (4 rules).',risk:'refuse'},
+      {t:'refuse_autonomous',b:'prohibitedAutonomousAction = true; no LLM call is made.',risk:'refuse'},
+      {t:'Refusal',b:'A fixed FR refusal returns to the client. No record, no navigation.',risk:'refuse'},
+    ]},
+  'flow-llm-fallback':{title:'Unknown / LLM Fallback',status:'Safe',writeMode:'HITL only',externalSend:'No',
+    summary:'Unresolved intents go to GPT-4.1 inside a 3-layer output guard.',
+    verdict:'The LLM runs with the full guard stack. No autonomous write without a HITL token, and there is no model navigate tool.',
+    risks:['3-layer output guard','No model navigate tool','Writes only via HITL tools'],
+    journey:[
+      {t:'Router → unknown',b:'Intent is unresolved or educational.',risk:'read'},
+      {t:'Role context',b:'LP or admin context is built server-side.',risk:'read'},
+      {t:'GPT-4.1',b:'runChatAgent; the model is exposed read tools only.',risk:'read'},
+      {t:'Output guard',b:'Forbidden-words + APY-range; non-compliant text is never emitted.',risk:'read'},
+      {t:'Client',b:'The answer is streamed. No automatic financial action.',risk:'read'},
+    ]},
+  'flow-lp':{title:'LP Boundary',status:'Safe',writeMode:'None',externalSend:'No',
+    summary:'LP users have read-only context and cannot reach admin tools or admin pages.',
+    verdict:'The LP boundary is enforced at auth. The decisive control is the nav profile guard — admin-* route keys are dropped for non-admin users.',
+    risks:['0 write tools for LP','0 admin pages','Nav profile guard'],
+    journey:[
+      {t:'LP message',b:'An investor sends any message.',risk:'read'},
+      {t:'Role = LP',b:'requireAuth resolves the LP role.',risk:'read'},
+      {t:'LP context',b:'Portfolio context + the LP system prompt.',risk:'read'},
+      {t:'Tool gate',b:'0 write tools, 0 admin tools; admin-* nav is dropped.',risk:'read'},
+      {t:'Answer',b:'The LLM answers within the LP boundary + output guard.',risk:'read'},
+    ]},
+  'flow-admin':{title:'Admin Tools',status:'Safe',writeMode:'HITL only',externalSend:'Gated (1 tool)',
+    summary:'Admin write tools exist, but every write is behind a HITL confirmation token.',
+    verdict:'All 7 write tools are confirmationRequired. Only outreach_trigger_send_run can send (gated, never Tier A); nothing deploys.',
+    risks:['All writes HITL-gated','Only 1 tool can send (gated)','No deploy tool'],
+    journey:[
+      {t:'Admin message',b:'chatMode = admin.',risk:'read'},
+      {t:'Admin context',b:'11 read tools (no confirm) + 7 write tools.',risk:'read'},
+      {t:'Read tools',b:'Run with no confirmation.',risk:'read'},
+      {t:'Write tools',b:'All confirmationRequired:true → a HITL token.',risk:'manual'},
+      {t:'Telemetry',b:'Every run is logged with a hashed input, never the raw payload.',risk:'write',rec:'AdminToolRun'},
+    ]},
+};
+
+// Source-truth notes — the corrections the verifier/critic locked in.
+const SOURCE_TRUTH = [
+  ['Campaign fan-out','src/lib/inngest/functions/outreach-send.ts — the outreach.campaign.send consumer (concurrency 3). NOT the auto-send cron.'],
+  ['Auto-send','src/lib/inngest/functions/outreach-auto-send.ts — hourly "0 * * * *", env-gated by OUTREACH_AUTONOMY (default SUGGEST). Tier A never auto-sent.'],
+  ['Follow-ups','src/lib/inngest/functions/outreach-followups.ts — daily "0 9 * * *", NURTURE+, drafts content at runtime.'],
+  ['Direct send','src/app/admin/outreach/actions.ts:703 sendDirectEmail — behind a ConfirmDialog (PR #210); uses the THROWING assertNoForbiddenWords.'],
+  ['create_vault_draft','Writes prisma.vaultDeployment(status="draft") + ShareClass — NOT the Prisma VaultDraft model (an unrelated wizard autosave).'],
+  ['Safe preset','buildProjectionInputPreset — context-only, 7 structural fields, never a numeric prefill (no APY/LTV/p5/p50/p95/cashflow).'],
+  ['Projection GET','GET /admin/projection creates no run. Only the manual Run button creates ProjectionStudyRun + ScenarioRun (actions.ts:201).'],
+  ['Dangerous actions','deploy / sign / governance / migrate / change formula·model refused pre-LLM (DANGEROUS_RULES, 4 rules); model never sees the prompt.'],
+  ['Chat modes','One unified engine across 3 modes (LP / admin / review) — not a 2-way split. Kill-switch CHAT_MASTER_AGENT, default ON.'],
+  ['Navigation','No model navigate tool — navigation is 100% deterministic. The LP→admin control is the nav profile guard, not a confidence threshold.'],
+  ['Audit on block','Blocked sends are audited as outreach.blockedSend across channels campaign_fanout / auto_send / followup (PR #213 + #216).'],
+];
+
+/* ════════════════════════════════════════════════════════════════
    RENDER
    ════════════════════════════════════════════════════════════════ */
 const CARD_W=156, CARD_H=54;
@@ -991,13 +1283,21 @@ function renderNodeDetail(id){
 }
 
 /* ── SELECT FLOW ── */
+/* ── Level 2 — FLOW JOURNEY ── */
+function statusClass(s){return s==='Safe'||s==='Healthy'?'stat-green':s==='Gated'?'stat-yellow':s==='Refused'?'stat-red':'stat-steel';}
+
 function selectFlow(fid){
   if(!FLOWS[fid])return;
   activeFlow=fid; activeNode=null;
-  if(currentView==='records') setView('overview',true);
   location.hash=fid;
   document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.toggle('active',el.dataset.flow===fid));
-  document.querySelectorAll('.rail-item.view-item').forEach(el=>el.classList.remove('active'));
+  applyFlowHighlightToGraph(fid);   // keep the advanced graph in sync for later
+  setView('journey',true);
+  renderFlowJourney(fid);
+  document.getElementById('journey').scrollTo({top:0});
+}
+
+function applyFlowHighlightToGraph(fid){
   const set=new Set(FLOWS[fid].nodeIds);
   document.querySelectorAll('.node').forEach(el=>{
     el.classList.remove('active','search-hit','search-miss');
@@ -1006,97 +1306,99 @@ function selectFlow(fid){
     else{el.classList.add('dim');el.classList.remove('flow-on');}
   });
   drawEdges();
-  renderFlowDetail(fid);
-  renderFlowStrip(fid);
-  // scroll first node into view
-  const first=document.getElementById('node-'+FLOWS[fid].nodeIds[0]);
-  if(first) first.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
-function renderFlowDetail(fid){
-  const f=FLOWS[fid];
-  document.getElementById('detail-empty').style.display='none';
-  const dc=document.getElementById('detail-content');
-  const vClass = fid==='flow-dangerous'||fid==='flow-lp'?'danger':(f.color===C.yellow||f.color===C.grey?'warn':'');
-  const nodeChips=f.nodeIds.filter(x=>NODES[x]).map(x=>chip(NODES[x].label,`selectNode('${x}')`)).join('');
-  dc.innerHTML=`
-    <div class="d-wrap">
-      <div class="d-kicker"><span class="dk-dot" style="background:${f.color}"></span><span class="dk-type">Flow</span></div>
-      <div class="d-title">${f.label}</div>
-      <div class="d-verdict ${vClass}">${f.verdict}</div>
-      <div class="d-row"><div class="dr-h">Summary</div><div class="dr-b">${f.summary}</div></div>
-      <div class="d-sect-h">Writes</div>
-      ${f.writes.length?`<ul class="d-list">${f.writes.map(w=>`<li>${w}</li>`).join('')}</ul>`:'<div class="dr-b" style="color:var(--txt2)">No writes. No records. No side-effects.</div>'}
-      <div class="d-sect-h">Guards</div>
-      <ul class="d-list guards">${f.guards.map(g=>`<li>${g}</li>`).join('')}</ul>
-      <div class="d-sect-h">Evidence</div>
-      <ul class="d-list">${f.evidence.map(e=>`<li>${e}</li>`).join('')}</ul>
-      <div class="d-sect-h">Nodes in this flow</div>
-      <div>${nodeChips}</div>
+function renderFlowJourney(fid){
+  const j=FLOW_JOURNEYS[fid];
+  if(!j){ openAdvancedNode(FLOWS[fid].nodeIds[0]); return; }
+  const sc=statusClass(j.status);
+  const vClass = j.status==='Refused'?'danger':(j.status==='Gated'?'warn':'');
+  const steps=j.journey.map((s,i)=>{
+    const rb=RISKB[s.risk]||RISKB.read;
+    const recBadge=s.rec?`<span class="rb rb-rec">▣ ${s.rec}</span>`:'';
+    return `<div class="jstep r-${s.risk}">
+      <div class="jstep-rail"><div class="jstep-num">${i+1}</div><div class="jstep-line"></div></div>
+      <div class="jstep-body"><div class="jstep-t"><span class="jstep-name">${s.t}</span><span class="rb ${rb[0]}">${rb[1]}</span>${recBadge}</div><div class="jstep-txt">${s.b}</div></div>
     </div>`;
-  document.getElementById('detail').scrollTop=0;
+  }).join('');
+  const risks=j.risks.map(r=>`<span class="risk-chip">${r}</span>`).join('');
+  document.getElementById('journey').innerHTML=`<div class="view-pad">
+    <span class="back-link" onclick="closeFlow()">‹ Control Room</span>
+    <div class="j-head"><div class="j-titlewrap"><div class="j-title">${j.title}</div><div class="j-summary">${j.summary}</div></div></div>
+    <div class="j-meta">
+      <div class="jm"><div class="jk">Status</div><div class="jvv"><span class="do-health ${sc}">${j.status}</span></div></div>
+      <div class="jm"><div class="jk">Writes</div><div class="jvv">${j.writeMode}</div></div>
+      <div class="jm"><div class="jk">External send</div><div class="jvv">${j.externalSend}</div></div>
+    </div>
+    <div class="sect-label">Journey</div>
+    <div class="journey-steps">${steps}</div>
+    <div class="j-verdict ${vClass}"><div class="vh">Verdict</div><div class="vt">${j.verdict}</div></div>
+    <div class="sect-label">Primary safeguards</div>
+    <div class="risks">${risks}</div>
+    <div class="j-actions">
+      <button class="btn btn-ghost" id="tech-btn-${fid}" onclick="toggleTechnicalDetails('${fid}')">Show technical details</button>
+      <button class="btn btn-primary" onclick="runDiagnostic('${fid}')">Run diagnostic</button>
+      <button class="btn btn-ghost" onclick="openRelatedRecords('${fid}')">Open related records</button>
+    </div>
+    <div class="tech-drawer" id="tech-${fid}"></div>
+    <div id="journey-diag-out"></div>
+  </div>`;
 }
 
-function renderFlowStrip(fid){
+/* ── Level 3 — technical details (hidden by default) ── */
+function toggleTechnicalDetails(fid){
+  const d=document.getElementById('tech-'+fid), btn=document.getElementById('tech-btn-'+fid);
+  if(d.classList.contains('open')){d.classList.remove('open');d.innerHTML='';btn.textContent='Show technical details';return;}
   const f=FLOWS[fid];
-  const strip=document.getElementById('flowstrip');
-  const inner=document.getElementById('flowstrip-inner');
-  const steps=f.steps.map((s,i)=>{
-    const tags=[];
-    if(s.w) tags.push(`<span class="n-tag tag-write">WRITE</span>`);
-    if(s.risk==='high') tags.push(`<span class="n-tag tag-ext">HIGH RISK</span>`);
-    if(s.risk==='none'&&!s.w) tags.push(`<span class="n-tag tag-read">READ</span>`);
-    return `<div class="fs-step"><div class="fss-card">
-      <div class="fss-n"><span class="fss-num">${i+1}</span><span class="fss-label">${s.n}</span></div>
-      <div class="fss-file">${s.f}</div>
-      ${s.w?`<div class="fss-note" style="color:var(--orange)">↳ writes ${s.w}</div>`:''}
-      ${s.note?`<div class="fss-note">${s.note}</div>`:''}
-      <div class="fss-tags">${tags.join('')}</div>
-    </div><span class="fss-arrow">→</span></div>`;
-  }).join('');
-  inner.innerHTML=`
-    <div class="fs-head"><span class="fs-dot" style="background:${f.color}"></span><h3>${f.label}</h3>
-      <span class="fs-diag-btn" onclick="runFlowDiagnosticInline('${fid}')">⚡ Run diagnostic</span>
-      <span class="fs-close" onclick="closeFlow()">Clear flow ✕</span></div>
-    <div class="fs-sum">${f.summary}</div>
-    <div class="fs-steps">${steps}</div>
-    <div id="fs-diag-out"></div>`;
-  strip.classList.add('open');
+  const nodeChips=f.nodeIds.filter(x=>NODES[x]).map(x=>`<span class="d-chip" onclick="openAdvancedNode('${x}')">${NODES[x].label}<span class="chev">›</span></span>`).join('');
+  const writes=f.writes&&f.writes.length?`<ul class="d-list">${f.writes.map(w=>`<li>${w}</li>`).join('')}</ul>`:'<div class="dr-b" style="color:var(--txt2)">No writes. No records. No side-effects.</div>';
+  const inv=(DIAGNOSTICS[fid]||[]).length;
+  d.innerHTML=`<div class="tech-inner">
+    <div class="d-sect-h">Source nodes (open in advanced graph)</div><div>${nodeChips}</div>
+    <div class="d-sect-h">Writes</div>${writes}
+    <div class="d-sect-h">Guards</div><ul class="d-list guards">${f.guards.map(g=>`<li>${g}</li>`).join('')}</ul>
+    <div class="d-sect-h">Evidence</div><ul class="d-list">${f.evidence.map(e=>`<li>${e}</li>`).join('')}</ul>
+    <div class="d-sect-h">Invariants</div><div class="dr-b" style="color:var(--txt2)">${inv} static checks — press “Run diagnostic” above or open the Diagnostics tab.</div>
+  </div>`;
+  d.classList.add('open'); btn.textContent='Hide technical details';
 }
+
+function openRelatedRecords(fid){
+  const recs=new Set();
+  FLOWS[fid].nodeIds.forEach(nid=>((NODES[nid]&&NODES[nid].records)||[]).forEach(r=>recs.add(r)));
+  setView('records');
+  const first=[...recs][0];
+  if(first) highlightRecord(first);
+}
+
+function openAdvancedNode(id){ document.getElementById('graph-toggle').classList.add('on'); setView('graph'); selectNode(id); }
 
 function closeFlow(){
   activeFlow=null;
-  document.getElementById('flowstrip').classList.remove('open');
   document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.node').forEach(el=>el.classList.remove('dim','flow-on'));
-  drawEdges();
   if(location.hash) history.replaceState(null,'',location.pathname);
-  setView('overview');
+  setView('control-room');
 }
 
-/* ── VIEWS ── */
+/* ── VIEW SWITCHER ── */
 function setView(v,silent){
   currentView=v;
-  const rv=document.getElementById('records-view');
-  const dv=document.getElementById('diag-view');
-  const gr=document.getElementById('graph');
-  document.querySelectorAll('.rail-item.view-item').forEach(el=>el.classList.toggle('active',el.dataset.view===v && !activeFlow));
-  rv.classList.remove('on'); dv.classList.remove('on');
-  if(v==='records'){
-    gr.style.display='none'; rv.classList.add('on');
+  ['control-room','journey','diag-view','records-view','source-view','graph-scroll'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.querySelectorAll('.rail-item.view-item').forEach(el=>el.classList.toggle('active',el.dataset.view===v));
+  if(v!=='journey'){
+    activeFlow=null;
     document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
-    if(!silent) renderRecords();
-  }else if(v==='diagnostics'){
-    gr.style.display='none'; dv.classList.add('on');
-    document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
-    if(!silent) renderDiagnostics();
-  }else{
-    gr.style.display='block';
-    if(v==='overview'&&!activeFlow){
-      document.querySelectorAll('.node').forEach(el=>el.classList.remove('dim','flow-on','active'));
-      drawEdges();
-    }
   }
+  document.getElementById('toolbar').style.display=(v==='graph'||v==='records')?'flex':'none';
+  document.getElementById('detail').style.display=(v==='graph')?'block':'none';
+  if(v!=='graph') document.getElementById('graph-toggle').classList.remove('on');
+  if(v==='control-room'){ document.getElementById('control-room').classList.add('on'); if(!silent) renderControlRoom(); }
+  else if(v==='journey'){ document.getElementById('journey').classList.add('on'); }
+  else if(v==='records'){ document.getElementById('records-view').classList.add('on'); if(!silent) renderRecords(); }
+  else if(v==='diagnostics'){ document.getElementById('diag-view').classList.add('on'); if(!silent) renderDiagnostics(); }
+  else if(v==='source'){ document.getElementById('source-view').classList.add('on'); if(!silent) renderSourceTruth(); }
+  else if(v==='graph'){ document.getElementById('graph-scroll').classList.add('on'); document.getElementById('graph-toggle').classList.add('on'); drawEdges(); }
 }
 
 function renderRecords(){
@@ -1128,8 +1430,8 @@ function search(q){
   document.getElementById('search-clear').style.display=q?'block':'none';
   if(currentView==='diagnostics'){ return; }
   if(currentView==='records'){ filterRecords(q); return; }
+  if(currentView!=='graph'){ return; }
   if(!q){document.querySelectorAll('.node').forEach(el=>el.classList.remove('search-hit','search-miss'));return;}
-  if(activeFlow) closeFlow();
   Object.entries(NODES).forEach(([id,n])=>{
     const hay=(n.label+' '+n.type+' '+(n.file||'')+' '+(n.wake||'')+' '+(n.output||'')+' '+(n.guards||[]).join(' ')+' '+(n.records||[]).join(' ')).toLowerCase();
     const el=document.getElementById('node-'+id);
@@ -1367,58 +1669,65 @@ function renderDiagnostics(){
   const c=tallyTests(flat); const total=flat.length;
   const failures=[];
   Object.entries(all).forEach(([fid,tests])=>tests.filter(t=>t.status==='fail'||t.status==='warn').forEach(t=>failures.push(Object.assign({fid},t))));
-  const flowCards=Object.entries(all).map(([fid,tests])=>{
+  // summary-first: one row per flow, tests collapsed by default
+  const rows=Object.entries(all).map(([fid,tests])=>{
     const f=FLOWS[fid]; const tc=tallyTests(tests);
-    return `<div class="diag-flow">
-      <div class="diag-flow-head" onclick="selectFlow('${fid}')">
-        <span class="fs-dot" style="background:${f.color}"></span>
-        <span class="dfh-name">${f.label}</span>
-        <span class="dfh-score">${tc.pass}/${tests.length} PASS${tc.fail?' · '+tc.fail+' FAIL':''}${tc.warn?' · '+tc.warn+' WARN':''}</span>
+    const health = tc.fail?'Failing':tc.warn?'Warning':'Healthy';
+    const hc = tc.fail?'stat-red':tc.warn?'stat-yellow':'stat-green';
+    return `<div class="do-row" onclick="toggleFlowTests('${fid}')">
+        <div class="do-name"><span class="fs-dot" style="background:${f.color}"></span>${f.label}</div>
+        <span class="do-health ${hc}">${health}</span>
+        <span class="do-score">${tc.pass}/${tests.length} pass</span>
+        <span class="do-toggle" id="dotg-${fid}">View tests ›</span>
       </div>
-      <div class="diag-tests">${tests.map(t=>testRow(t,fid)).join('')}</div>
-    </div>`;
+      <div class="do-tests" id="dotests-${fid}">${tests.map(t=>testRow(t,fid)).join('')}</div>`;
   }).join('');
   const fmap = failures.length
-    ? `<div class="fmap">${failures.map(x=>`<div class="fm-row ${x.status==='warn'?'warn':''}">
-         <span class="sev ${(SEV[x.severity]||SEV.INFO)[1]}">${x.severity}</span>
-         <div><b>${FLOWS[x.fid].label}</b> — ${x.label}<br><span class="mono">${x.file}</span> · ${x.actual}<br><button class="mini-btn" onclick="selectFlow('${x.fid}')">Go to flow ›</button></div></div>`).join('')}</div>`
-    : `<div class="fmap-clean">✓ No failing invariants detected in the static model.</div>`;
+    ? `<div class="fmap">${failures.map(x=>`<div class="fm-row ${x.status==='warn'?'warn':''}"><span class="sev ${(SEV[x.severity]||SEV.INFO)[1]}">${x.severity}</span><div><b>${FLOWS[x.fid].label}</b> — ${x.label}<br><span class="mono">${x.file}</span> · ${x.actual}<br><button class="mini-btn" onclick="selectFlow('${x.fid}')">Go to flow ›</button></div></div>`).join('')}</div>`
+    : `<div class="fmap-clean">✓ No failing static invariants detected.</div>`;
   const liveDisabled = Object.values(LIVE_ENDPOINTS).every(v=>v===null);
-  dv.innerHTML=`
-    <div class="rv-h">Flow Diagnostics — Static Runner</div>
-    <div class="rv-sub">Pure checks against the encoded NODES / FLOWS / RECORDS. No runtime, no network, no DB, no email. <b>${total} invariants across ${Object.keys(all).length} flows.</b></div>
+  dv.innerHTML=`<div class="view-pad">
+    <div class="cr-kicker">Diagnostics overview</div>
+    <div class="cr-title">Flow health</div>
+    <div class="cr-sub">${total} static invariants across ${Object.keys(all).length} flows. Pure model checks — no runtime, no network, no DB, no email.</div>
     <div class="diag-controls">
       <button class="btn btn-primary" onclick="renderDiagnostics()">↻ Run static diagnostic</button>
       <button class="btn btn-ghost" ${liveDisabled?'disabled':''} title="${liveDisabled?'No dry-run endpoint registered. Static diagnostics only.':'Run registered dry-run endpoint'}">Run live dry-run</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('diag-view').scrollTo({top:0,behavior:'smooth'})">Reset</button>
     </div>
-    <div class="diag-summary">
-      <span class="sm-pass">${c.pass} passed</span> ·
-      <span class="sm-fail">${c.fail} failed</span> ·
-      <span class="sm-warn">${c.warn} warning${c.warn===1?'':'s'}</span> ·
-      <span class="sm-skip">${c.skip} skipped</span>
-    </div>
-    <div class="diag-section-h">Failure Map</div>
+    <div class="diag-summary"><span class="sm-pass">${c.pass} passed</span> · <span class="sm-fail">${c.fail} failed</span> · <span class="sm-warn">${c.warn} warning${c.warn===1?'':'s'}</span> · <span class="sm-skip">${c.skip} skipped</span></div>
+    <div class="sect-label" style="margin-top:26px">Per-flow health</div>
+    <div class="diag-overview">${rows}</div>
+    <div class="sect-label" style="margin-top:26px">Failure map</div>
     ${fmap}
-    <div class="diag-section-h">Simulate prompt classification <span class="approx">Local approximation — not the runtime router</span></div>
-    <div class="sim-box">
-      <input id="sim-input" placeholder='e.g. "create a mining stable yield product"' onkeydown="if(event.key==='Enter')runSimulate()" />
-      <button class="btn btn-primary" onclick="runSimulate()">Classify</button>
-      <div id="sim-result"><span class="sim-hint">Type a prompt and classify it locally. This does not call the runtime router.</span></div>
-    </div>
-    <div class="diag-section-h">Per-flow results</div>
-    ${flowCards}`;
+    <div class="sect-label" style="margin-top:26px">Prompt Preview <span class="approx">Local approximation — not the runtime router</span></div>
+    <div class="pp-box"><div class="sim-box">
+      <input id="sim-input" placeholder='e.g. "create a mining stable yield product"' onkeydown="if(event.key===&quot;Enter&quot;)runSimulate()" />
+      <button class="btn btn-primary" onclick="runSimulate()">Preview</button>
+      <div id="sim-result"><span class="sim-hint">Type a prompt to see which flow it would likely hit. This does not call the runtime router.</span></div>
+    </div></div>
+  </div>`;
+}
+function renderDiagnosticsSummary(){ return renderDiagnostics(); }
+function toggleFlowTests(fid){
+  const el=document.getElementById('dotests-'+fid), tg=document.getElementById('dotg-'+fid);
+  if(!el) return;
+  const open=el.classList.toggle('open');
+  if(tg) tg.textContent = open?'Hide tests ▾':'View tests ›';
 }
 
-// Public entry point: runDiagnostic(flowId) → inline per-flow run;
-// runDiagnostic() with no arg → full static dashboard.
-function runDiagnostic(fid){ return fid ? runFlowDiagnosticInline(fid) : renderDiagnostics(); }
+// runDiagnostic(flowId) → inline per-flow run in the journey; runDiagnostic() → full tab.
+function runDiagnostic(fid){ return fid ? runFlowDiagnosticInline(fid) : (setView('diagnostics')); }
 
 function runFlowDiagnosticInline(fid){
   const tests=runFlowTests(fid); const c=tallyTests(tests);
-  const out=document.getElementById('fs-diag-out'); if(!out) return;
-  out.innerHTML=`<div class="fs-diag-summary"><span class="sm-pass">${c.pass} passed</span> · <span class="sm-fail">${c.fail} failed</span> · <span class="sm-warn">${c.warn} warning${c.warn===1?'':'s'}</span> · <span class="sm-skip">${c.skip} skipped</span> &nbsp;—&nbsp; <a onclick="setView('diagnostics')">Open full diagnostics ›</a></div>
-    <div class="fs-diag-rows">${tests.map(t=>testRow(t,fid)).join('')}</div>`;
+  const out=document.getElementById('journey-diag-out'); if(!out) return;
+  const health = (c.fail||c.warn)?'Warning':'Healthy';
+  const hc = (c.fail||c.warn)?'stat-yellow':'stat-green';
+  out.innerHTML=`<div class="tech-inner">
+    <div class="fs-diag-summary" style="margin-top:0;padding-top:0;border-top:none">Status: <span class="do-health ${hc}">${health}</span> &nbsp; <span class="sm-pass">${c.pass} passed</span> · <span class="sm-fail">${c.fail} failed</span> · <span class="sm-warn">${c.warn} warning${c.warn===1?'':'s'}</span> &nbsp;—&nbsp; <a onclick="setView('diagnostics')" style="cursor:pointer">Open full diagnostics ›</a></div>
+    <div class="fs-diag-rows">${tests.map(t=>testRow(t,fid)).join('')}</div>
+  </div>`;
+  out.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
 function runSimulate(){
@@ -1438,13 +1747,86 @@ function runSimulate(){
   out.innerHTML=`<div class="sim-out"><b>Likely flow:</b> <a onclick="selectFlow('${flow}')">${FLOWS[flow].label} ›</a><span class="sim-meta">Local approximation — not the runtime router. ${note}</span></div>`;
 }
 
-/* ── RAIL FLOWS ── */
+/* ── Level 1 — CONTROL ROOM ── */
+function renderControlRoom(){
+  const cr=document.getElementById('control-room');
+  const flat=Object.keys(DIAGNOSTICS).reduce((a,fid)=>{a.push(...runFlowTests(fid));return a;},[]);
+  const tc=tallyTests(flat);
+  const diagHealth=tc.fail?'red':tc.warn?'yellow':'green';
+  const tiles=[
+    ['Runtime','no-touch docs','steel'],
+    ['Flows',String(Object.keys(FLOW_JOURNEYS).length),'green'],
+    ['Diagnostics',tc.pass+'/'+flat.length+' static',diagHealth],
+    ['External sends','gated','yellow'],
+    ['Projection runs','manual only','green'],
+  ].map(t=>`<div class="tile"><div class="tk">${t[0]}</div><div class="tv"><span class="dotv" style="background:var(--${t[2]})"></span>${t[1]}</div></div>`).join('');
+  const cards=Object.entries(DOMAINS).map(([id,d])=>{
+    const sc=statusClass(d.status);
+    return `<div class="domain" style="--dcol:${d.color}" onclick="openDomain('${id}')">
+      <div class="dm-top"><span class="dm-dot"></span><span class="dm-title">${d.title}</span></div>
+      <div class="dm-desc">${d.desc}</div>
+      <div class="dm-foot"><span class="dm-status ${sc}">${d.status}</span><span class="dm-open">Open →</span></div>
+    </div>`;
+  }).join('');
+  cr.innerHTML=`<div class="view-pad">
+    <div class="cr-kicker">Hearst Connect</div>
+    <div class="cr-title">Master Chat Control Room</div>
+    <div class="cr-sub">Select a flow to see what wakes up, what can write, what is blocked, and where it can fail.</div>
+    <div class="tiles">${tiles}</div>
+    <div class="sect-label">Domains</div>
+    <div class="domains">${cards}</div>
+  </div>`;
+}
+
+function openDomain(id){
+  const d=DOMAINS[id]; if(!d) return;
+  if(d.view){ setView(d.view); return; }
+  if(d.flows && d.flows.length===1){ selectFlow(d.flows[0]); return; }
+  renderDomainPanel(id);
+}
+
+function renderDomainPanel(id){
+  const d=DOMAINS[id];
+  setView('control-room',true);
+  const cards=d.flows.map(fid=>{
+    const j=FLOW_JOURNEYS[fid]||{title:(FLOWS[fid]||{}).label,summary:(FLOWS[fid]||{}).summary,status:'Safe'};
+    const sc=statusClass(j.status);
+    return `<div class="domain" style="--dcol:${(FLOWS[fid]||{}).color||C.green}" onclick="selectFlow('${fid}')">
+      <div class="dm-top"><span class="dm-dot"></span><span class="dm-title">${j.title}</span></div>
+      <div class="dm-desc">${j.summary}</div>
+      <div class="dm-foot"><span class="dm-status ${sc}">${j.status}</span><span class="dm-open">Open →</span></div>
+    </div>`;
+  }).join('');
+  document.getElementById('control-room').innerHTML=`<div class="view-pad">
+    <span class="back-link" onclick="renderControlRoom()">‹ Control Room</span>
+    <div class="cr-kicker">Domain</div>
+    <div class="cr-title">${d.title}</div>
+    <div class="cr-sub">${d.desc}</div>
+    <div class="sect-label" style="margin-top:24px">Flows in this domain</div>
+    <div class="domains">${cards}</div>
+  </div>`;
+}
+
+function renderSourceTruth(){
+  const v=document.getElementById('source-view');
+  const rows=SOURCE_TRUTH.map(s=>`<div class="rv-card system"><div class="rv-name">${s[0]}</div><div class="rv-line"><span class="rv-v">${s[1]}</span></div></div>`).join('');
+  v.innerHTML=`<div class="view-pad">
+    <div class="cr-kicker">Source truth</div>
+    <div class="cr-title">Verified facts</div>
+    <div class="cr-sub">The corrections a 4-agent verifier + critic locked in against source at HEAD a6777abc. These are exactly what the journeys and diagnostics encode.</div>
+    <div class="rv-grid" style="margin-top:22px">${rows}</div>
+  </div>`;
+}
+
+function toggleAdvancedGraph(){ setView(currentView==='graph'?'control-room':'graph'); }
+
+/* ── RAIL ── */
 function buildRail(){
   const rf=document.getElementById('rail-flows');
-  Object.entries(FLOWS).forEach(([fid,f])=>{
+  Object.keys(FLOW_JOURNEYS).forEach(fid=>{
     const el=document.createElement('div');
     el.className='rail-item'; el.dataset.flow=fid;
-    el.innerHTML=`<span class="swatch" style="background:${f.color}"></span><span class="ri-label">${f.label}</span>`;
+    el.innerHTML=`<span class="ri-dot"></span><span class="ri-label">${FLOW_JOURNEYS[fid].title}</span>`;
     el.onclick=()=>selectFlow(fid);
     rf.appendChild(el);
   });
@@ -1453,17 +1835,15 @@ function buildRail(){
 /* ── INIT ── */
 function init(){
   buildNodes(); buildEdges(); buildRail();
-  document.getElementById('sb-nodes').textContent=Object.keys(NODES).length-1; // minus the 'records' helper node
-  document.getElementById('sb-flows').textContent=Object.keys(FLOWS).length;
+  document.getElementById('sb-flows').textContent=Object.keys(FLOW_JOURNEYS).length;
   document.getElementById('sb-inv').textContent=Object.values(DIAGNOSTICS).reduce((a,t)=>a+t.length,0);
-  document.getElementById('search-input').addEventListener('input',e=>search(e.target.value));
-  document.getElementById('canvas-scroll').addEventListener('click',()=>{ /* background click keeps selection */ });
-  // deep link
+  const si=document.getElementById('search-input'); if(si) si.addEventListener('input',e=>search(e.target.value));
   const h=location.hash.replace('#','');
   if(h&&FLOWS[h]) selectFlow(h);
-  else if(h&&h.startsWith('node-')&&NODES[h.slice(5)]) selectNode(h.slice(5));
-  else if(h==='diagnostics'||h==='records') setView(h);
-  else setView('overview');
+  else if(h&&h.startsWith('node-')&&NODES[h.slice(5)]) openAdvancedNode(h.slice(5));
+  else if(h==='diagnostics'||h==='records'||h==='source') setView(h);
+  else if(h==='advanced-graph'||h==='graph') setView('graph');
+  else setView('control-room');
   window.addEventListener('hashchange',()=>{const hh=location.hash.replace('#','');if(FLOWS[hh]&&hh!==activeFlow)selectFlow(hh);});
 }
 document.addEventListener('DOMContentLoaded',init);
