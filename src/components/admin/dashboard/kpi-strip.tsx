@@ -34,7 +34,10 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
   return (
     <div className="dashboard-kpi-strip">
       {kpis.map((kpi, index) => (
-        <div key={kpi.label} className="flex items-center">
+        // w-full + min-w-0 so each grid cell fills its 1fr column (the cell
+        // would otherwise shrink to its intrinsic width and pull the KPI to the
+        // left of the column). The separator sits flush at the column edge.
+        <div key={kpi.label} className="flex w-full min-w-0 items-center">
           <DashboardKpiCell kpi={kpi} />
           {index < kpis.length - 1 && (
             <div
