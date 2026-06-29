@@ -2,6 +2,7 @@ import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { resolveVault } from "@/lib/vaults/resolver";
 import { cloneFormValues } from "@/lib/vaults/clone";
+import { decodeVaultFormPrefill } from "@/lib/agentic/swarm/live/to-vault-form";
 import { loadWizardDraft } from "../draft-actions";
 import { VaultWizard } from "./wizard";
 import { ResumeDraftBanner } from "./resume-banner";
@@ -76,6 +77,20 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
     const sourceRef = await resolveVault(cloneFrom);
     if (sourceRef) {
       cloneValues = cloneFormValues(sourceRef);
+    }
+  }
+
+  // Resolve ?prefill=<base64> — a product-construction draft handed off from the
+  // Product Workspace. Pure URL handoff: nothing was persisted, the decode is
+  // whitelisted + clamped (decodeVaultFormPrefill), and the values seed the form
+  // exactly like a clone. The admin still completes fees/SPV/signers + signs.
+  if (!cloneValues) {
+    const rawPrefill = params["prefill"];
+    const prefill = decodeVaultFormPrefill(
+      typeof rawPrefill === "string" ? rawPrefill : undefined,
+    );
+    if (prefill) {
+      cloneValues = prefill as Partial<FormState>;
     }
   }
 
