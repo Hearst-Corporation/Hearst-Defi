@@ -3,12 +3,11 @@ import type { Manufacturer } from "@/lib/telegram/manufacturer-catalog";
 import { manufacturerBrand } from "@/lib/telegram/manufacturer-logos";
 
 /**
- * ManufacturerMark — a compact, square brand mark for the start of a machine
- * row: the maker's initial in its official brand colour. Used inline before the
- * model because the official wordmarks are horizontal (they would not fit a
- * row). Token-driven sizing so it sits on the `ct-metric-value` baseline.
+ * ManufacturerLogo — the maker's real square brand icon (original artwork, NO
+ * tint), shown inline before the model name. Falls back to a neutral dot when
+ * the maker has no committed icon (Autre).
  */
-export function ManufacturerMark({
+export function ManufacturerLogo({
   manufacturer,
   size = 18,
   className,
@@ -18,68 +17,32 @@ export function ManufacturerMark({
   className?: string;
 }) {
   const brand = manufacturerBrand(manufacturer);
-  return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-[5px] font-bold leading-none",
-        className,
-      )}
-      style={{
-        width: size,
-        height: size,
-        fontSize: Math.round(size * 0.56),
-        // Brand colour as a tinted chip — the mark itself, not a recolour of a
-        // logo. Foreground = brand colour, background = a faint wash of it.
-        color: brand.color,
-        backgroundColor: `color-mix(in srgb, ${brand.color} 16%, transparent)`,
-        boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${brand.color} 35%, transparent)`,
-      }}
-      aria-hidden
-      title={brand.label}
-    >
-      {brand.label.charAt(0)}
-    </span>
-  );
-}
 
-/**
- * ManufacturerWordmark — the official committed wordmark logo (original art, no
- * tint) for a manufacturer group header, or the brand name in its colour when no
- * wordmark asset exists. Sits on a neutral pill so a dark wordmark (Bitmain) is
- * legible on the dark surface.
- */
-export function ManufacturerWordmark({
-  manufacturer,
-  count,
-}: {
-  manufacturer: Manufacturer;
-  count: number;
-}) {
-  const brand = manufacturerBrand(manufacturer);
+  if (!brand.icon) {
+    return (
+      <span
+        className={cn(
+          "inline-block shrink-0 rounded-full bg-[var(--ct-text-muted)]",
+          className,
+        )}
+        style={{ width: Math.round(size * 0.4), height: Math.round(size * 0.4) }}
+        aria-hidden
+      />
+    );
+  }
+
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <ManufacturerMark manufacturer={manufacturer} size={22} />
-      {brand.wordmark ? (
-        // Real wordmark on a light pill so black/transparent artwork stays legible.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={brand.wordmark}
-          alt={brand.label}
-          className="h-4 w-auto rounded-[3px] bg-[var(--ct-text-strong)] px-1.5 py-0.5"
-          loading="lazy"
-          decoding="async"
-        />
-      ) : (
-        <span
-          className="text-[length:var(--ct-text-sm)] font-semibold"
-          style={{ color: brand.color }}
-        >
-          {brand.label}
-        </span>
-      )}
-      <span className="ct-metric-caption tabular-nums text-[var(--ct-text-muted)]">
-        {count}
-      </span>
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={brand.icon}
+      alt={brand.label}
+      title={brand.label}
+      width={size}
+      height={size}
+      loading="lazy"
+      decoding="async"
+      className={cn("shrink-0 rounded-[4px] object-contain", className)}
+      style={{ width: size, height: size }}
+    />
   );
 }
