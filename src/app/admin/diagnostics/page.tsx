@@ -11,7 +11,9 @@ import { DiagnosticCenter } from "@/components/admin/diagnostics/diagnostic-cent
 import { DiagnosticFlowTheater } from "@/components/admin/diagnostics/diagnostic-flow-theater";
 import { ChatActionLab } from "@/components/admin/diagnostics/chat-action-lab";
 import { OutreachLifecycleDemo } from "@/components/admin/diagnostics/outreach-lifecycle-demo";
+import { DiagnosticResultTable } from "@/components/admin/diagnostics/diagnostic-result-table";
 import type { DiagnosticSuiteResult } from "@/lib/admin/diagnostics/types";
+import { runBtcMiningVaultDiagnostics } from "@/lib/admin/diagnostics/btc-mining-vault-diagnostics";
 import {
   DIAGNOSTIC_SUITES,
   SUITE_META,
@@ -46,6 +48,9 @@ export default async function AdminDiagnosticsPage() {
   // Pure, read-only — no LLM, no send, no write, no persistence.
   const chatActionReport = runChatActionLab();
   const lifecycleReport = buildOutreachLifecycleDemo();
+  // Pure product diagnostics — exercises the real BTC Mining Vault product /
+  // guards / engine functions, dry-run, no writes/sends.
+  const btcMiningVaultResults = runBtcMiningVaultDiagnostics();
 
   return (
     <AdminPageShell
@@ -120,6 +125,17 @@ export default async function AdminDiagnosticsPage() {
       >
         <div className="p-5">
           <DiagnosticCenter suites={suites} initial={initial} />
+        </div>
+      </AdminSectionCard>
+
+      {/* 6 — BTC Mining Performance Vault product diagnostics */}
+      <AdminSectionCard
+        title="BTC Mining Performance Vault — product diagnostics"
+        subtitle="Dry-run checks exercising the REAL product / guards / engine functions: no guaranteed-APY language, no double counting, mining floor enforced, configured-not-validated, coverage gate, recovery not a guarantee, BTC sale last-resort, reserve not spent first. No writes, no sends."
+        ariaLabel="BTC Mining Performance Vault product diagnostics"
+      >
+        <div className="p-5">
+          <DiagnosticResultTable results={btcMiningVaultResults} />
         </div>
       </AdminSectionCard>
     </AdminPageShell>

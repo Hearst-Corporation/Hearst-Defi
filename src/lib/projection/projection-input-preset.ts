@@ -26,6 +26,11 @@ import {
   type ProjectionDraftBucket,
 } from "@/lib/projection/product-objective-draft";
 import { PROJECTION_METHODOLOGY_VERSION } from "@/lib/projection/methodology-panel";
+import {
+  BTC_MINING_PERFORMANCE_VAULT,
+  type BtcMiningPerformanceVault,
+} from "@/lib/products/btc-mining-performance-vault";
+import { formatTargetsSafely } from "@/lib/products/guards";
 
 /** Non-financial fields safe to carry from the objective into the Studio. */
 export interface ProjectionPresetSafeFields {
@@ -152,5 +157,132 @@ export function buildProjectionInputPreset(
     forbiddenPrefill: [...FORBIDDEN_PREFILL],
     warnings: draft.warnings,
     hasSafeFields,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// BTC Mining Performance Vault — CONFIGURED-context preset (additive)
+// ---------------------------------------------------------------------------
+//
+// Carries the committed product's CONFIGURED, NON-FINANCIAL structural ranges as
+// LABELLED-CONFIGURED context for the Projection Studio — duration, the four
+// allocation ranges, the distribution band, the total target band, the recovery
+// window, and machine life. EACH carries `status: "CONFIGURED"` + `validated:
+// false` so a consumer can never read it as a contractual/validated term.
+//
+// HARD discipline (same as `buildProjectionInputPreset`): it does NOT prefill any
+// ScenarioInputs business number (btc_price_change_pct, hashprice, energy_cost_kwh,
+// stable_apy_pct, vol_index) — those stay in `reviewRequired` / `forbiddenPrefill`
+// exactly as today. It does NOT run a study and does NOT create a record. The
+// ranges below are READ from the product constant; nothing is invented.
+
+/** A single CONFIGURED context range — display only, never a run input. */
+export interface ConfiguredContextRange {
+  /** What the range describes. */
+  readonly label: string;
+  /** Human display string — always a range or qualitative, never a single point. */
+  readonly display: string;
+  /** Always "CONFIGURED" — a code default, not validated by owner/DB/audit. */
+  readonly status: "CONFIGURED";
+  /** Always false — these are configured assumptions, not validated terms. */
+  readonly validated: false;
+}
+
+export interface BtcMiningVaultProjectionPreset {
+  readonly source: "btc-mining-performance-vault";
+  readonly methodologyVersion: string;
+  /** CONFIGURED, non-financial structural ranges (display-only context). */
+  readonly configuredContext: readonly ConfiguredContextRange[];
+  /** The two honest target strings — NEVER summed. */
+  readonly targets: { readonly distribution: string; readonly total: string };
+  /** Inputs the admin MUST review before any run (never prefilled here). */
+  readonly reviewRequired: readonly string[];
+  /** Business numbers that are NEVER prefilled from this preset. */
+  readonly forbiddenPrefill: readonly string[];
+  /** Honesty strings the surface must show. */
+  readonly displayNotes: readonly string[];
+  /** Always false — this preset never triggers a study. */
+  readonly runsStudy: false;
+  /** Always false — this preset never creates a record. */
+  readonly createsRecord: false;
+}
+
+function configuredRange(label: string, display: string): ConfiguredContextRange {
+  return { label, display, status: "CONFIGURED", validated: false };
+}
+
+/** The three mandatory honesty strings for the BTC Mining Vault projection preset. */
+export const BTC_MINING_VAULT_PRESET_DISPLAY_NOTES: readonly string[] = [
+  "All figures are configured assumptions, not validated contractual terms.",
+  "Monthly distribution target is included in total performance target.",
+  "Distribution is coverage-gated and not guaranteed.",
+] as const;
+
+/**
+ * Build the BTC Mining Performance Vault projection preset — CONFIGURED context
+ * only. Pure: reads the product constant, invents nothing, runs nothing, persists
+ * nothing. Safe to call in a Server Component render.
+ *
+ * The distribution/total target strings come from `formatTargetsSafely` (two
+ * distinct strings) — they are never summed into a single headline.
+ */
+export function buildBtcMiningVaultProjectionPreset(
+  product: BtcMiningPerformanceVault = BTC_MINING_PERFORMANCE_VAULT,
+): BtcMiningVaultProjectionPreset {
+  const a = product.allocation;
+  const d = product.monthlyDistributionTargetAnnualized;
+  const t = product.totalPerformanceTarget;
+  const safe = formatTargetsSafely(product);
+  const pct = (f: number) => Math.round(f * 100);
+
+  const configuredContext: ConfiguredContextRange[] = [
+    configuredRange(
+      "Target cycle duration",
+      `~${product.targetDurationMonths} months`,
+    ),
+    configuredRange(
+      "Mining allocation",
+      `${pct(a.mining.min)}–${pct(a.mining.max)}% (${pct(a.mining.floor)}% structural floor)`,
+    ),
+    configuredRange(
+      "BTC holding / collateral allocation",
+      `${pct(a.btcHoldingCollateral.min)}–${pct(a.btcHoldingCollateral.max)}%`,
+    ),
+    configuredRange(
+      "Stable funding reserve allocation",
+      `${pct(a.stableFundingReserve.min)}–${pct(a.stableFundingReserve.max)}%`,
+    ),
+    configuredRange(
+      "Yield overlay allocation",
+      `${pct(a.yieldOverlay.min)}–${pct(a.yieldOverlay.max)}% (excess liquidity only)`,
+    ),
+    configuredRange(
+      "Monthly distribution target (annualized)",
+      `${pct(d.min)}–${pct(d.max)}% (coverage-gated)`,
+    ),
+    configuredRange(
+      "Total performance target",
+      `${pct(t.min)}–${pct(t.max)}% over ~${product.targetDurationMonths} months, inclusive of distributions`,
+    ),
+    configuredRange(
+      "Recovery extension",
+      `${product.recovery.extensionMonths.min}–${product.recovery.extensionMonths.max} months (capital-only default)`,
+    ),
+    configuredRange(
+      "Machine productive life",
+      `~${product.levers.machineLifeYears.value} years`,
+    ),
+  ];
+
+  return {
+    source: "btc-mining-performance-vault",
+    methodologyVersion: PROJECTION_METHODOLOGY_VERSION,
+    configuredContext,
+    targets: { distribution: safe.distribution, total: safe.total },
+    reviewRequired: [...REVIEW_REQUIRED],
+    forbiddenPrefill: [...FORBIDDEN_PREFILL],
+    displayNotes: BTC_MINING_VAULT_PRESET_DISPLAY_NOTES,
+    runsStudy: false,
+    createsRecord: false,
   };
 }
