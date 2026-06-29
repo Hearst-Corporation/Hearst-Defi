@@ -52,6 +52,9 @@ import {
 } from "./quant-assumptions";
 import { deriveRegimeAllocation, deriveRawAllocation } from "./strategy-allocation";
 import { buildConstructionSteps } from "./construction-steps";
+import { buildProductEngineOutputs } from "./product-engine-bridge";
+import { getCalculatedVsDocumented } from "./calculated-vs-documented";
+import { BTC_MINING_PRODUCT_ID } from "@/lib/products/canonical-allocation";
 import type { VaultMode } from "@/lib/engine/types";
 import { BTC_MINING_PERFORMANCE_VAULT } from "@/lib/products/btc-mining-performance-vault";
 import {
@@ -383,6 +386,23 @@ export async function runProductConstructionPipeline(
   });
   audit.push(writeup.audit);
 
+  // PROMPT 17 — run the four product financial engines (funding / exit-recovery /
+  // waterfalls / operator) for the BTC mining product. Additive + read-only: the
+  // engines are pure and the outputs are flagged PARTIAL where construction-time
+  // inputs are unknown (never invented). Operator economics stays a SEPARATE
+  // object — it is never added to the client APY.
+  const isMiningProduct = productId === BTC_MINING_PRODUCT_ID;
+  const engineOutputs = isMiningProduct
+    ? buildProductEngineOutputs({
+        strategy: strategy.artifact,
+        quant: quantArtifact,
+        canonicalAllocation,
+      })
+    : null;
+  const calculatedVsDocumented = isMiningProduct
+    ? getCalculatedVsDocumented()
+    : undefined;
+
   // Deterministic steps (produced when scenarios are present).
   const steps =
     scenarios !== undefined
@@ -441,6 +461,17 @@ export async function runProductConstructionPipeline(
     ...(steps !== undefined ? { steps } : {}),
     canonicalAllocation,
     economics,
+    // PROMPT 17 — wired product engines (mining product only; additive, optional).
+    ...(engineOutputs
+      ? {
+          stableFundingDecision: engineOutputs.stableFundingDecision,
+          exitRecovery: engineOutputs.exitRecovery,
+          waterfalls: engineOutputs.waterfalls,
+          operatorEconomics: engineOutputs.operatorEconomics,
+          monteCarloDisclosure: engineOutputs.monteCarloDisclosure,
+        }
+      : {}),
+    ...(calculatedVsDocumented ? { calculatedVsDocumented } : {}),
   };
 
   // Runtime floor: the draft must have suppressed every effect. If not, refuse.

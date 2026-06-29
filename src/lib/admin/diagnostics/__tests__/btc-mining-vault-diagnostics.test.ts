@@ -12,14 +12,15 @@ function byId(id: string) {
 }
 
 describe("runBtcMiningVaultDiagnostics", () => {
-  it("returns the eight product checks, all in the suite", () => {
+  it("returns the thirteen product checks, all in the suite", () => {
     const results = runBtcMiningVaultDiagnostics();
-    expect(results.length).toBe(8);
+    expect(results.length).toBe(13);
     for (const r of results) {
       expect(r.suite).toBe(BTC_MINING_VAULT_DIAGNOSTIC_SUITE);
     }
     expect(results.map((r) => r.id).sort()).toEqual(
       [
+        // baseline (8)
         "btc-sale-last-resort",
         "configured-not-validated",
         "coverage-gate-present",
@@ -28,6 +29,12 @@ describe("runBtcMiningVaultDiagnostics", () => {
         "no-guaranteed-language",
         "recovery-not-a-guarantee",
         "stable-reserve-not-first",
+        // PROMPT 17 — Phase H (5)
+        "waterfalls-present-and-ordered",
+        "waterfall-no-guaranteed-distribution",
+        "operator-economics-separate-from-apy",
+        "monte-carlo-disclosure-honest",
+        "calculated-vs-documented-present",
       ].sort(),
     );
   });

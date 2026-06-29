@@ -21,6 +21,14 @@
 import type { QuantAssumptions } from "./quant-assumptions";
 import type { CanonicalAllocation } from "@/lib/products/canonical-allocation";
 import type { EconomicsViews } from "@/lib/products/economics-views";
+import type {
+  WiredFundingDecision,
+  WiredExitRecovery,
+  MonteCarloDisclosure,
+} from "./product-engine-bridge";
+import type { ProductWaterfalls } from "@/lib/products/btc-mining-waterfalls";
+import type { OperatorEconomics } from "@/lib/products/operator-economics";
+import type { CalculatedVsDocumented } from "./calculated-vs-documented";
 
 /**
  * The single execution mode of this family. There is deliberately no "write" /
@@ -213,6 +221,23 @@ export interface ProductConstructionDraft {
    * Surfaces a BUG CANDIDATE flag rather than masking a negative number.
    */
   economics?: EconomicsViews;
+  // ─────────────────────────────────────────────────────────────────────────
+  // PROMPT 17 — full product financial engine wired into the pipeline. All
+  // additive + optional (present only for the BTC mining product). Operator
+  // economics is a SEPARATE object and is NEVER added to the client APY.
+  // ─────────────────────────────────────────────────────────────────────────
+  /** Stable Funding Engine decision (doc §10). PARTIAL at construction time. */
+  stableFundingDecision?: WiredFundingDecision;
+  /** Exit / Recovery state (doc §13/§14). Recovery is never a guarantee. */
+  exitRecovery?: WiredExitRecovery;
+  /** The three product waterfalls (doc §17), fixed ordering, status-aware. */
+  waterfalls?: ProductWaterfalls;
+  /** Operator economics (doc §16) — separate from client return, never added to APY. */
+  operatorEconomics?: OperatorEconomics;
+  /** Honest Monte-Carlo disclosure (static v1, scenario-level funding). */
+  monteCarloDisclosure?: MonteCarloDisclosure;
+  /** Calculated-vs-documented manifest (Phase A) — the report renders this. */
+  calculatedVsDocumented?: CalculatedVsDocumented;
 }
 
 /** Typed pipeline failure — never an execution fallback. */

@@ -23,6 +23,7 @@ import {
   encodeVaultFormPrefill,
 } from "@/lib/agentic/swarm/live/to-vault-form";
 import { DataScientistOutput } from "./data-scientist-output";
+import { ProductEngineReport } from "./product-engine-report";
 
 /**
  * Product construction — full-page vertical stepper.
@@ -186,7 +187,7 @@ function StepNode({ life, pipelineRunning }: { life: Lifecycle; pipelineRunning:
         // Queued: pulsing dot — "I'm next in line."
         <span className="h-(--ct-space-2) w-(--ct-space-2) animate-pulse rounded-(--ct-radius-full) bg-[var(--ct-text-faint)]" />
       ) : (
-        <span className="h-(--ct-space-2) w-(--ct-space-2) rounded-(--ct-radius-full) bg-[var(--ct-text-faint)] opacity-40" />
+        <span className="h-(--ct-space-2) w-(--ct-space-2) rounded-(--ct-radius-full) bg-[var(--ct-text-faint)] opacity-[var(--ct-opacity-40)]" />
       )}
     </span>
   );
@@ -199,6 +200,8 @@ function StepNode({ life, pipelineRunning }: { life: Lifecycle; pipelineRunning:
 function Typewriter({ text, speedMs = 28 }: { text: string; speedMs?: number }) {
   const [shown, setShown] = useState(0);
   useEffect(() => {
+    // Intentional: restart the reveal from 0 whenever `text` changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShown(0);
     if (!text) return;
     const id = setInterval(() => {
@@ -260,6 +263,25 @@ function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
   );
 }
 
+/** One cell of the Bitcoin KPI strip. Declared at module scope (never inside the
+ *  render) so it keeps a stable identity — react-hooks/static-components. */
+function BitcoinStripCell({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-(--ct-space-2) p-5 md:px-6">
+      <span className="ct-bento-label">{label}</span>
+      <div className="flex items-center justify-center gap-(--ct-space-2)">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Bitcoin step result — a KPI strip tailored to the Bitcoin Price Specialist:
  *  - Spot   : the Bitcoin logo next to the price.
@@ -275,21 +297,7 @@ function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
   // Parse the signed % to pick the arrow + tone. "+1.2%" → up, "-0.8%" → down.
   const pctNum = parseFloat(change.replace(/[^0-9.+-]/g, ""));
   const up = Number.isFinite(pctNum) ? pctNum >= 0 : true;
-
-  const Cell = ({
-    label,
-    children,
-  }: {
-    label: string;
-    children: React.ReactNode;
-  }) => (
-    <div className="flex flex-col items-center gap-(--ct-space-2) p-5 md:px-6">
-      <span className="ct-bento-label">{label}</span>
-      <div className="flex items-center justify-center gap-(--ct-space-2)">
-        {children}
-      </div>
-    </div>
-  );
+  const Cell = BitcoinStripCell;
 
   return (
     <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
@@ -368,7 +376,6 @@ export function ConstructionStepper({ objective }: { objective: string | null })
       let stepStartedAt = Date.now();
       const sleep = (ms: number) =>
         new Promise<void>((r) => setTimeout(r, ms));
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -420,7 +427,6 @@ export function ConstructionStepper({ objective }: { objective: string | null })
   useEffect(() => {
     if (autoRanRef.current || !objective) return;
     autoRanRef.current = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void run();
   }, [objective, run]);
 
@@ -628,6 +634,10 @@ export function ConstructionStepper({ objective }: { objective: string | null })
           />
           <div className="p-(--ct-space-5)">
             <DataScientistOutput draft={draft} />
+            {/* PROMPT 17 — wired product financial engines (funding / exit-recovery
+                / waterfalls / operator) + calculated-vs-documented disclosure.
+                Renders nothing for a non-mining draft. */}
+            <ProductEngineReport draft={draft} />
           </div>
         </BentoPanel>
       ) : null}
