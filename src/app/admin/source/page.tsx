@@ -1,14 +1,14 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-
 import {
   AdminPageShell,
   AdminSectionCard,
+  AdminTableSurface,
 } from "@/components/admin/admin-page-shell";
+import { DestinationFilter } from "@/components/admin/source/destination-filter";
 import { MachineTable } from "@/components/admin/source/machine-table";
-import { BentoPanel } from "@/components/catalyst/bento";
-import { cn } from "@/lib/cn";
+import { Badge } from "@/components/catalyst/badge";
+import { Card } from "@/components/catalyst/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
 import { loadVaultApy } from "@/lib/telegram/read-vault-apy";
@@ -32,15 +32,18 @@ import {
  *   3. Stable yields          — multi-source USDC / USDT → blended rate
  *   4. Machine prices         — Telegram channels → daily average → amortized $/TH/day
  *
- * For now this only frames the four sections; each gets wired in turn.
+ * Frame is admin canon; the body renders entirely on DS primitives (Card / Badge
+ * / SegmentedControl / Table) — no local visual system.
  */
 
 type BrickStatus = "wired" | "todo" | "tbd";
 
-const STATUS_CHIP: Record<BrickStatus, { accent: boolean; label: string }> = {
-  wired: { accent: true, label: "Câblé" },
-  todo: { accent: false, label: "À câbler" },
-  tbd: { accent: false, label: "À définir" },
+// Brick wiring status → DS Badge colour. "Câblé" = accent/success, the rest are
+// quiet zinc — never a hand-rolled tinted span.
+const STATUS_BADGE: Record<BrickStatus, { color: "green" | "zinc"; label: string }> = {
+  wired: { color: "green", label: "Câblé" },
+  todo: { color: "zinc", label: "À câbler" },
+  tbd: { color: "zinc", label: "À définir" },
 };
 
 const BRICKS: ReadonlyArray<{
@@ -76,36 +79,6 @@ const BRICKS: ReadonlyArray<{
   },
 ];
 
-const COUNTRY_ORDER: DestinationCountry[] = [
-  "china",
-  "uae",
-  "france",
-  "usa",
-  "russia",
-];
-
-/** Tinted bento chip — brick wiring status. */
-function StatusChip({
-  accent,
-  children,
-}: {
-  accent: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      className={cn(
-        "ct-bento-label inline-flex items-center rounded-full border px-2.5 py-0.5",
-        accent
-          ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-          : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
 function resolveDestination(raw: string | undefined): DestinationCountry {
   return raw && raw in CUSTOMS_DUTY_PCT
     ? (raw as DestinationCountry)
@@ -137,7 +110,8 @@ export default async function SourcePage({
       contextLabel="Strategy"
     >
       {/* Canon frame around the GROUP of ingestion bricks — a single
-          AdminSectionCard, NOT a frame per panel (no double-frame). */}
+          AdminSectionCard, NOT a frame per panel (no double-frame). The bricks
+          inside are DS Cards (flat material = dense module surface). */}
       <AdminSectionCard
         title="Pipeline de données"
         subtitle="Briques d'ingestion et leur statut le long de la chaîne de données."
@@ -145,17 +119,22 @@ export default async function SourcePage({
       >
         <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2">
           {BRICKS.map((brick) => {
-            const chip = STATUS_CHIP[brick.status];
+            const badge = STATUS_BADGE[brick.status];
             return (
-              <BentoPanel key={brick.id}>
-                <div className="flex h-full flex-col gap-2 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="ct-panel-title">{brick.title}</h3>
-                    <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
-                  </div>
-                  <p className="ct-metric-caption">{brick.detail}</p>
+              <Card
+                key={brick.id}
+                material="flat"
+                hoverOverlay={false}
+                contentClassName="flex h-full flex-col gap-2"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="ct-panel-title">{brick.title}</h3>
+                  <Badge color={badge.color} className="shrink-0">
+                    {badge.label}
+                  </Badge>
                 </div>
-              </BentoPanel>
+                <p className="ct-metric-caption">{brick.detail}</p>
+              </Card>
             );
           })}
         </div>
@@ -171,42 +150,30 @@ export default async function SourcePage({
             {CUSTOMS_DUTY_PCT[destination]}% ({COUNTRY_LABELS[destination]})
           </>
         }
-        headerTrailing={
-          <div className="text-right">
-            <div className="ct-bento-label">Revenu (hashprice live)</div>
-            <div className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
-              ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
-              {market.hashpriceStale ? " (stale)" : ""}
-            </div>
-            <div className="ct-metric-caption tabular-nums">
-              BTC ${market.btcPriceUsd.toLocaleString()}
-            </div>
-          </div>
-        }
         ariaLabel="Prix machines"
       >
         <div className="flex flex-col gap-5 p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="ct-bento-label">Destination</span>
-            {COUNTRY_ORDER.map((c) => (
-              <Link
-                key={c}
-                href={
-                  c === DEFAULT_DESTINATION
-                    ? "/admin/source"
-                    : `/admin/source?dest=${c}`
-                }
-                className={cn(
-                  "ct-metric-caption rounded-lg border px-3 py-1 transition-colors",
-                  destination === c
-                    ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                    : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)]",
-                )}
-              >
-                {COUNTRY_LABELS[c]} · {CUSTOMS_DUTY_PCT[c]}%
-              </Link>
-            ))}
-          </div>
+          {/* Hashprice (revenue) metric — DS stat block. Full-width; stacks
+              cleanly below the header on every slot (large/medium/chat-open). */}
+          <Card
+            material="flat"
+            hoverOverlay={false}
+            density="compact"
+            contentClassName="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"
+          >
+            <div className="flex flex-col gap-1">
+              <span className="ct-bento-label">Revenu (hashprice live)</span>
+              <span className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
+                ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
+                {market.hashpriceStale ? " (stale)" : ""}
+              </span>
+            </div>
+            <span className="ct-metric-caption tabular-nums">
+              BTC ${market.btcPriceUsd.toLocaleString()}
+            </span>
+          </Card>
+
+          <DestinationFilter destination={destination} />
 
           {!market.configured ? (
             <p className="ct-metric-caption">
@@ -226,7 +193,9 @@ export default async function SourcePage({
               Aucune liste de prix exploitable dans les derniers messages.
             </p>
           ) : (
-            <MachineTable rows={market.rows} />
+            <AdminTableSurface>
+              <MachineTable rows={market.rows} />
+            </AdminTableSurface>
           )}
         </div>
       </AdminSectionCard>
@@ -246,12 +215,14 @@ export default async function SourcePage({
         <div className="flex flex-col gap-4 p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {apy.vaults.map((v) => (
-              <div
+              <Card
                 key={v.id}
-                className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-4"
+                material="flat"
+                hoverOverlay={false}
+                contentClassName="flex flex-col gap-1"
               >
                 <div className="ct-panel-title">{v.label}</div>
-                <div className="stat-value mt-1 tabular-nums">
+                <div className="ct-metric-value mt-1 tabular-nums text-[var(--ct-accent)]">
                   {v.apyLow}% — {v.apyHigh}%
                 </div>
                 <div className="ct-metric-caption mt-2">
@@ -261,7 +232,7 @@ export default async function SourcePage({
                 <div className="ct-metric-caption">
                   drag emprunt −{v.borrowDragPct}%
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
           <ul className="ct-metric-caption flex flex-col gap-1">
