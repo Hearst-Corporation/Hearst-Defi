@@ -14,6 +14,7 @@ import {
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
 import { Badge } from "@/components/catalyst/badge";
 import { BentoBadge } from "@/components/catalyst/bento-badge";
+import { Card } from "@/components/catalyst/card";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import {
   Table,
@@ -132,7 +133,12 @@ export default async function AgentsPage() {
                         aria-label={`New persona template from ${entry.label}`}
                         className="group block h-full"
                       >
-                        <div className="h-full min-h-[13rem] flex flex-col gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5 transition-colors hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]">
+                        <Card
+                          material="flat"
+                          hoverOverlay={false}
+                          className="h-full transition-colors group-hover:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]"
+                          contentClassName="flex h-full min-h-[13rem] flex-col gap-4"
+                        >
                           {/* Header row: accent icon tile + scope badge */}
                           <div className="flex items-center gap-3">
                             <span
@@ -170,7 +176,7 @@ export default async function AgentsPage() {
                               strokeWidth={2.25}
                             />
                           </span>
-                        </div>
+                        </Card>
                       </Link>
                     );
                   })}

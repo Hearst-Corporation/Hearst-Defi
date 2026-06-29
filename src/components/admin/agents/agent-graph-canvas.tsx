@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { Badge } from "@/components/catalyst/badge";
+import { SegmentedControl } from "@/components/catalyst/segmented-control";
 import { cn } from "@/lib/cn";
 import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 import type {
@@ -65,12 +67,14 @@ const BINDING_LABEL: Record<NodeBindingKind, string> = {
   static: "Static wiring",
 };
 
-const META_PILL_CLASS =
-  "rounded-full px-[var(--ct-space-1_5)] py-[var(--ct-space-0_5)] text-[length:var(--ct-text-nano)] uppercase";
-const OUTLINE_META_PILL_CLASS = cn(
-  META_PILL_CLASS,
-  "border border-(--ct-border-soft) ct-text-faint",
-);
+/** Run-status → DS Badge colour (token-only via the Badge primitive). */
+type RunStatus = "success" | "failed" | "timeout" | "blocked" | string;
+function statusBadgeColor(status: RunStatus): "green" | "red" | "amber" | "zinc" {
+  if (status === "success") return "green";
+  if (status === "failed" || status === "timeout") return "red";
+  if (status === "blocked") return "amber";
+  return "zinc";
+}
 
 const POLL_MS = 5_000;
 
@@ -324,37 +328,18 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
   const selectedNode = activeView?.nodes.find((n) => n.id === selected) ?? null;
 
   return (
-    <div className="admin-doc-stack admin-doc-stack--tight">
-      {/* Tabs */}
-      <div
-        role="tablist"
-        aria-label="Agent graph views"
-        className="admin-graph-tablist flex flex-wrap"
-      >
-        {views.map((v) => {
-          const isActive = v.id === activeViewId;
-          return (
-            <button
-              key={v.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveViewId(v.id)}
-              className={cn(
-                "admin-graph-tab rounded-full border body-xs ct-transition-base",
-                isActive
-                  ? "border-(--ct-border-accent) bg-(--ct-accent-soft) ct-text-accent"
-                  : "border-(--ct-border-soft) ct-text-muted hover:ct-text-strong",
-              )}
-            >
-              {v.label}
-            </button>
-          );
-        })}
-      </div>
+    <div className="flex flex-col gap-4">
+      {/* View switcher — canonical SegmentedControl (tablist). */}
+      <SegmentedControl
+        items={views.map((v) => ({ value: v.id, label: v.label }))}
+        value={activeViewId}
+        onChange={setActiveViewId}
+        ariaLabel="Agent graph views"
+        variant="tablist"
+      />
 
       {activeView && (
-        <p className="body-xs ct-text-muted">{activeView.description}</p>
+        <p className="ct-metric-caption">{activeView.description}</p>
       )}
 
       <div className="admin-graph-split grid">
@@ -381,7 +366,7 @@ function RuntimePanel({
 }) {
   if (!node) {
     return (
-      <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 body-xs ct-text-muted">
+      <div className="rounded-2xl border border-[var(--ct-border-soft)] bg-surface-inset p-5 ct-metric-caption">
         Click a node to see its provenance + runtime (recent runs, latency, cost,
         errors).
       </div>
@@ -389,18 +374,20 @@ function RuntimePanel({
   }
   const isLive = node.bindingKind !== "static";
   return (
-    <div className="admin-inset-panel border border-(--ct-border-soft) ct-surface-1 admin-doc-stack admin-doc-stack--tight">
-      <div className="flex items-start justify-between gap-[var(--ct-space-2)]">
-        <div>
-          <p className="body-sm ct-text-strong m-0">{node.label}</p>
-          <p className="text-[length:var(--ct-text-nano)] uppercase tracking-wide ct-text-faint">
+    <div className="flex flex-col gap-3 rounded-2xl border border-[var(--ct-border-soft)] bg-surface-inset p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <h3 className="ct-panel-title m-0 text-[var(--ct-text-strong)]">
+            {node.label}
+          </h3>
+          <span className="ct-bento-label">
             {node.kind} · {node.state}
-          </p>
+          </span>
         </div>
         <button
           type="button"
           onClick={onClear}
-          className="body-xs ct-text-muted hover:ct-text-strong"
+          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
           aria-label="Clear selection"
         >
           ✕
@@ -408,76 +395,51 @@ function RuntimePanel({
       </div>
 
       {node.description && (
-        <p className="body-xs ct-text-muted">{node.description}</p>
+        <p className="ct-metric-caption leading-relaxed">{node.description}</p>
       )}
 
-      {/* Provenance + tool meta */}
-      <div className="flex flex-wrap gap-[var(--ct-space-1_5)]">
-        <span className={OUTLINE_META_PILL_CLASS}>
-          {BINDING_LABEL[node.bindingKind]}
-        </span>
+      {/* Provenance + tool meta — DS Badges. */}
+      <div className="flex flex-wrap gap-2">
+        <Badge color="zinc">{BINDING_LABEL[node.bindingKind]}</Badge>
         {node.riskLevel && (
-          <span
-            className={cn(
-              META_PILL_CLASS,
+          <Badge
+            color={
               node.riskLevel === "high"
-                ? "ct-status-danger"
+                ? "red"
                 : node.riskLevel === "medium"
-                  ? "ct-status-warning"
-                  : "ct-text-muted",
-            )}
+                  ? "amber"
+                  : "zinc"
+            }
           >
             {node.riskLevel} risk
-          </span>
+          </Badge>
         )}
-        {node.confirmationRequired && (
-          <span
-            className={cn(
-              META_PILL_CLASS,
-              "border border-(--ct-border-accent) ct-text-accent",
-            )}
-          >
-            HITL · confirm
-          </span>
-        )}
+        {node.confirmationRequired && <Badge color="green">HITL · confirm</Badge>}
       </div>
 
       {!isLive ? (
-        <p className="body-xs ct-text-faint">
+        <p className="ct-metric-caption text-[var(--ct-text-faint)]">
           Structural wiring / method — no own telemetry (never lit as Live).
         </p>
       ) : (
         <>
-          <div className="body-xs ct-text-muted">{node.recentRuns} run(s) · 24 h</div>
+          <div className="ct-metric-caption">{node.recentRuns} run(s) · 24 h</div>
           {node.samples.length > 0 ? (
-            <div className="admin-doc-stack admin-doc-stack--tight">
+            <div className="flex flex-col">
               {node.samples.map((s, i) => (
                 <div
                   key={`${s.atIso}-${i}`}
-                  className="flex items-center justify-between gap-[var(--ct-space-2)] border-b border-(--ct-border-soft) py-[var(--ct-space-1)] last:border-0 body-xs"
+                  className="flex items-center justify-between gap-2 border-b border-[var(--ct-border-soft)] py-2 last:border-0"
                 >
                   <div className="min-w-0">
-                    <span
-                      className={cn(
-                        META_PILL_CLASS,
-                        s.status === "success"
-                          ? "ct-status-success"
-                          : s.status === "failed" || s.status === "timeout"
-                            ? "ct-status-danger"
-                            : s.status === "blocked"
-                              ? "ct-status-warning"
-                              : "ct-text-muted",
-                      )}
-                    >
-                      {s.status}
-                    </span>
+                    <Badge color={statusBadgeColor(s.status)}>{s.status}</Badge>
                     {s.turnId && (
-                      <div className="mt-[var(--ct-space-0_5)] truncate mono text-micro ct-text-faint">
+                      <div className="mt-1 truncate font-mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-faint)]">
                         {s.turnId}
                       </div>
                     )}
                   </div>
-                  <span className="ct-text-faint text-right">
+                  <span className="ct-metric-caption text-right text-[var(--ct-text-faint)]">
                     {s.latencyMs != null ? `${s.latencyMs} ms` : "—"}
                     {s.costUsd != null ? ` · $${s.costUsd.toFixed(4)}` : ""}
                   </span>
@@ -485,7 +447,9 @@ function RuntimePanel({
               ))}
             </div>
           ) : (
-            <p className="body-xs ct-text-faint">No recent runs.</p>
+            <p className="ct-metric-caption text-[var(--ct-text-faint)]">
+              No recent runs.
+            </p>
           )}
         </>
       )}
