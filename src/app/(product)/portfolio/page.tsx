@@ -152,6 +152,7 @@ export default async function PortfolioPage() {
             title="Portfolio value"
             subtitle={heroSubtitle}
             metric={formatUsdFull(totalValueUsdc)}
+            metricCompact
             source={heroSource}
             state={heroState}
             height={200}

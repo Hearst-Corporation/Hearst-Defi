@@ -4,10 +4,13 @@
  * project's vitest `environment: "node"`, no jsdom). Assertions run against the
  * produced SVG/HTML string.
  *
- * Contract: honesty + stability. <2 points → an explicit empty surface (never a
- * fabricated line); a real series → a FIXED-viewBox SVG (no distorting
- * `preserveAspectRatio="none"`); the y-axis baselines at 0; the path never
- * contains NaN; the endpoint is always labelled with context.
+ * Contract: honesty + full-width + readability.
+ *   - <2 points → an explicit empty surface (never a fabricated line);
+ *   - a real series → the area/line SVG STRETCHES to fill the width
+ *     (preserveAspectRatio="none") with a non-scaling stroke;
+ *   - the y-axis baselines at 0;
+ *   - per-day dots + an endpoint callout are rendered as crisp HTML (no shear);
+ *   - the path never contains NaN.
  */
 
 import { describe, it, expect } from "vitest";
@@ -37,37 +40,29 @@ describe("HcValueChart — empty / single-point", () => {
     );
     expect(html).toContain('data-hc-empty="true"');
     expect(html).toContain("No portfolio history yet");
-    // No real chart geometry is drawn for an empty series.
     expect(html).not.toContain("<svg");
     expect(html).not.toContain("<path");
-    // The accessible label is preserved even on the empty surface.
     expect(html).toContain('aria-label="Portfolio value trend"');
   });
 });
 
-// 2 ─ Real series renders the SVG instrument (area + line + axes), no empty marker.
+// 2 ─ Real series: the area+line SVG stretches to fill the width.
 describe("HcValueChart — with a real series", () => {
-  it("draws the area, the curve and the end dot", () => {
+  it("draws the area + curve and fills the full width (preserveAspectRatio=none)", () => {
     const html = renderToStaticMarkup(
       <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
     );
     expect(html).not.toContain('data-hc-empty="true"');
     expect(html).toContain("<svg");
+    expect(html).toContain('width="100%"');
+    // The plot intentionally STRETCHES horizontally to use all the card width.
+    expect(html).toContain('preserveAspectRatio="none"');
+    // The stroke must stay crisp under the stretch.
+    expect(html).toContain('vector-effect="non-scaling-stroke"');
     expect(html).toContain("url(#hc-value-fill)");
     expect(html).toContain("var(--ct-chart-curve-color)");
     // Two <path> elements: area + line.
     expect(count(html, "<path")).toBe(2);
-    // Final value dot.
-    expect(html).toContain("<circle");
-  });
-
-  it("uses a FIXED viewBox and does NOT stretch with preserveAspectRatio=none", () => {
-    const html = renderToStaticMarkup(
-      <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
-    );
-    expect(html).toContain('viewBox="0 0 720 240"');
-    expect(html).not.toContain('preserveAspectRatio="none"');
-    expect(html).toContain('preserveAspectRatio="xMidYMid meet"');
   });
 
   it("baselines the y-axis at 0 so the curve reads as a climb from zero", () => {
@@ -75,8 +70,25 @@ describe("HcValueChart — with a real series", () => {
       <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
     );
     expect(html).toContain("$0");
-    // Three value gridlines are emitted (min / mid / max).
     expect(count(html, 'data-hc-grid="y"')).toBe(3);
+  });
+
+  it("renders one crisp dot per data point (one-per-day markers)", () => {
+    const html = renderToStaticMarkup(
+      <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
+    );
+    // One dot per point in SERIES.
+    expect(count(html, 'data-hc-dot="true"')).toBe(SERIES.length);
+  });
+
+  it("renders the endpoint dot + label + latest value callout", () => {
+    const html = renderToStaticMarkup(
+      <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
+    );
+    expect(html).toContain('data-hc-endpoint-dot="true"');
+    expect(html).toContain('data-hc-endpoint="true"');
+    expect(html).toContain("Latest");
+    expect(html).toContain("$11.0K");
   });
 
   it("labels the x-axis with the dates passed as ticks", () => {
@@ -95,16 +107,6 @@ describe("HcValueChart — with a real series", () => {
     expect(html).toContain("Apr");
   });
 
-  it("renders the endpoint label + latest value callout", () => {
-    const html = renderToStaticMarkup(
-      <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
-    );
-    expect(html).toContain('data-hc-endpoint="true"');
-    expect(html).toContain("Latest");
-    // Latest value ($11,000 → "$11.0K") appears in the callout.
-    expect(html).toContain("$11.0K");
-  });
-
   it("never emits NaN in the path geometry", () => {
     const html = renderToStaticMarkup(
       <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
@@ -117,6 +119,15 @@ describe("HcValueChart — with a real series", () => {
       <HcValueChart points={SERIES} aria-label="Portfolio value trend" />,
     );
     expect(html).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+  });
+
+  it("can suppress the per-day dots", () => {
+    const html = renderToStaticMarkup(
+      <HcValueChart points={SERIES} showPointDots={false} aria-label="Portfolio value trend" />,
+    );
+    expect(count(html, 'data-hc-dot="true"')).toBe(0);
+    // The endpoint dot is independent of the per-day dots and stays.
+    expect(html).toContain('data-hc-endpoint-dot="true"');
   });
 });
 
@@ -147,7 +158,6 @@ describe("HcValueChart — scales across account sizes", () => {
       <HcValueChart points={big} aria-label="Portfolio value trend" />,
     );
     expect(html).toContain('data-hc-grid="y"');
-    // Default formatter renders a top tick in $M / $K for a half-million NAV.
     expect(html).toMatch(/\$\d[\d.]*M|\$\d[\d.]*K/);
   });
 });
