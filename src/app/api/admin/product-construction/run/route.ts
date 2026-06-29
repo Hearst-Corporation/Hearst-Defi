@@ -65,11 +65,13 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   let objective = "";
   let deterministicWriteupOnly = false;
+  let withScenarios = false;
   let assumptions: QuantAssumptionsOverrides | undefined;
   try {
     const body = (await request.json().catch(() => null)) as {
       objective?: unknown;
       deterministicWriteupOnly?: unknown;
+      withScenarios?: unknown;
       preset?: unknown;
       assumptions?: unknown;
     } | null;
@@ -77,6 +79,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       objective = body.objective.trim().slice(0, MAX_OBJECTIVE_LEN);
     }
     deterministicWriteupOnly = body?.deterministicWriteupOnly === true;
+    withScenarios = body?.withScenarios === true;
     // Calibration: a named preset (conservative/base/aggressive) as a base, with
     // explicit per-field overrides layered on top. Both are CLAMPED inside the
     // pipeline (resolveQuantAssumptions), so an out-of-range value can never push
@@ -105,6 +108,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   try {
     const result = await runProductConstructionPipeline(objective, {
       deterministicWriteupOnly,
+      withScenarios,
       ...(assumptions ? { assumptions } : {}),
     });
     if (isProductConstructionError(result)) {
