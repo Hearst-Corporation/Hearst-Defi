@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import type { ProductWorkspaceIntentKind } from "@/lib/llm/product-workspace-intent";
+import { parseFormState } from "./form-state";
 
 export interface ProductWorkspaceDraft {
   objective?: string;
@@ -20,18 +21,6 @@ export interface ProductWorkspaceDraft {
 const FORM_STATE_KEY = "productWorkspace";
 /** Hard cap on the persisted brief — bounds the JSON blob in vaultDraft.formState. */
 const MAX_AGENT_BRIEF_LEN = 6_000;
-
-function parseFormState(raw: string | null | undefined): Record<string, unknown> {
-  if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as Record<string, unknown>)
-      : {};
-  } catch {
-    return {};
-  }
-}
 
 function parseStoredDraft(value: unknown): ProductWorkspaceDraft | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
