@@ -156,8 +156,9 @@
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
   <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. <code>src/components/ui</code> is sealed to 3 non-visual helpers; <code>src/components/catalyst</code> is the single UI source. Mission #050 re-verified the convergence at <code>dadcbb7d</code>: both DS guards green, no new work warranted.</p>
   <div class="meta-row">
-    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #050 (verification)</span>
-    <span class="chip"><b>head</b> <code>dadcbb7d</code> · status <code>100% CATALYST — VERIFIED</code></span>
+    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #051 (admin start pattern)</span>
+    <span class="chip"><b>head</b> <code>fix/admin-visual-canon</code> · status <code>100% TOKENIZED</code></span>
+    <span class="chip"><span class="dot green"></span><b>#051</b> admin start pattern · <code>AdminSectionCard</code> canon</span>
     <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 27)</span>
     <span class="chip"><span class="dot green"></span><b>52</b> catalyst files · all tokenized</span>
     <span class="chip"><span class="dot green"></span>0 raw Tailwind colour in UI</span>
@@ -174,6 +175,7 @@
   <a href="#matrix">Page matrix</a>
   <a href="#product">Product</a>
   <a href="#admin">Admin</a>
+  <a href="#admin-visual-canon">Admin start pattern</a>
   <a href="#primitives">Catalyst primitives</a>
   <a href="#wrappers">ui/* wrappers</a>
   <a href="#layout">Layout</a>
@@ -295,6 +297,88 @@
     <div class="card"><h3 style="margin-top:0;font-size:14px">projection · scenario-lab <span class="b b-scope">SCOPE</span></h3><p style="font-size:11.5px;color:var(--text-muted)">Layout on AdminPageShell ✓ — financial calculation display is <b>BLOCKED_BY_SCOPE</b> (do not touch math).</p></div>
     <div class="card"><h3 style="margin-top:0;font-size:14px">marketplace <span class="b b-compat">COMPAT</span></h3><p style="font-size:11.5px;color:var(--text-muted)">Custom MarketKpiTile + apy-range/provenance wrappers; catalyst/table for grid.<br><b style="color:var(--text)">Lot D/F.</b></p></div>
   </div>
+</section>
+
+<!-- ===================== 6b. ADMIN VISUAL START PATTERN ===================== -->
+<section id="admin-visual-canon">
+  <div class="sec-head"><span class="sec-num">05b</span><h2>Admin Visual Start Pattern</h2></div>
+  <p class="lead"><b>Mission #051</b> uniformized the <b>first block</b> of every admin route on a single canon: the welded <code>AdminSectionCard</code> / <code>AdminKpiStripPanel</code> grammar (= the welded section of <code>/admin/customers</code>). KPI strips soldered into one canon card, bare grids framed, custom shells wrapped, detail first-blocks normalized, forms framed. <b>No internal refactor</b> — engine, charts, server-actions untouched. <b>Canon tool = AdminSectionCard</b> (= the welded section of <code>/admin/customers</code>). Guard: <code>src/app/admin/__tests__/admin-canon-start-pattern.test.ts</code>.</p>
+
+  <div class="grid g-4" style="margin-bottom:14px">
+    <div class="stat accent"><div class="v">19</div><div class="l">Already canon</div><div class="h">compliant before #051</div><span class="bar" style="width:100%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--green)">14</div><div class="l">Welded this pass</div><div class="h">adjusted in #051</div><span class="bar" style="width:74%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--blue)">3</div><div class="l">Left intentionally</div><div class="h">conformant by different means</div></div>
+    <div class="stat"><div class="v" style="color:var(--text-muted)">7</div><div class="l">Exempted</div><div class="h">cockpit / redirect / wizard</div></div>
+  </div>
+
+  <div class="grid g-4">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--ct-accent);font-size:14px">Visually compliant <span class="b b-ready">CANON</span></h3>
+      <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px">Already canon before #051 — first block already a welded AdminSectionCard / AdminKpiStripPanel.</p>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:var(--text-muted);line-height:1.7">
+        <li><code>audit</code></li>
+        <li><code>onboarding-test</code></li>
+        <li><code>agents</code> · <code>agents/new</code></li>
+        <li><code>governance/propose</code></li>
+        <li><code>governance/proposal/[id]</code></li>
+        <li><code>vaults</code> · <code>vaults/[id]</code></li>
+        <li><code>outreach</code> · <code>outreach/compose</code></li>
+        <li><code>outreach/[campaignId]</code></li>
+        <li><code>outreach/prospects/[id]</code></li>
+        <li><code>product-workspace</code></li>
+        <li><code>spec</code> · <code>spec/[slug]</code></li>
+        <li><code>feedback</code></li>
+        <li><code>marketplace</code></li>
+        <li><code>design-system</code></li>
+        <li><code>customers</code> <span class="pill ok">canon ref</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--green);font-size:14px">Adjusted in #051 <span class="b b-active">WELDED</span></h3>
+      <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px">Welded onto the canon this pass.</p>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:var(--text-muted);line-height:1.7">
+        <li><code>monitoring</code> <span class="pill">KPI soldered</span></li>
+        <li><code>governance</code> <span class="pill">KPI soldered</span></li>
+        <li><code>signals</code> <span class="pill">KPI soldered</span></li>
+        <li><code>source</code> <span class="pill">bare grid framed</span></li>
+        <li><code>proofs</code> <span class="pill">bare section framed</span></li>
+        <li><code>roadmap</code> <span class="pill">RoadmapBoard wrapped</span></li>
+        <li><code>investor-memo</code> <span class="pill">MemoShell wrapped</span></li>
+        <li><code>projection</code> <span class="pill">source-truth wrapped</span></li>
+        <li><code>projection/preview</code> <span class="pill">report-source wrapped</span></li>
+        <li><code>scenario-lab</code> <span class="pill">LabShell wrapped, inner frame neutralized</span></li>
+        <li><code>agents/[id]</code> <span class="pill">BentoPanel→AdminSectionCard</span></li>
+        <li><code>customers/[id]</code> <span class="pill">identity→AdminSectionCard</span></li>
+        <li><code>vaults/[id]/edit</code> <span class="pill">VaultForm framed</span></li>
+        <li><code>vault-admin-kpi-strip</code> <span class="pill">welded into one canon card</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--blue);font-size:14px">Left intentionally <span class="b b-compat">BY DESIGN</span></h3>
+      <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px">Would double-frame / already self-framed — conformant by different means, <b>not</b> regressions.</p>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:var(--text-muted);line-height:1.7">
+        <li><code>security</code> <span class="pill">two welded AdminSectionCards, no outer frame</span></li>
+        <li><code>governance/allowlist</code> <span class="pill">AllowlistBoard = framed BentoPanels; wrap would cage-in-cage</span></li>
+        <li><code>distributions</code> <span class="pill">DistributionForm renders its own canon Card</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--text-muted);font-size:14px">Exempted <span class="b b-scope">SCOPE</span></h3>
+      <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px">Out of scope for the start-pattern canon.</p>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:var(--text-muted);line-height:1.7">
+        <li><code>dashboard</code> <span class="pill">cockpit</span></li>
+        <li><code>/admin</code> <span class="pill">redirect</span></li>
+        <li><code>proof-center</code> · <code>proof-center/full</code></li>
+        <li><code>agent-canvas/[canvasId]</code></li>
+        <li><code>vaults/new</code> <span class="pill">wizard</span></li>
+        <li><code>agentic</code> <span class="pill">covered by PR #81</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="note"><b>Canon tool = AdminSectionCard</b> (= the welded section of <code>/admin/customers</code>). Guard: <code>src/app/admin/__tests__/admin-canon-start-pattern.test.ts</code> (50 tests). <code>dashboard</code> stays on the cockpit grammar (exempt); the redirect <code>/admin</code> and the <code>vaults/new</code> wizard are out of scope.</p>
 </section>
 
 <!-- ===================== 7. CATALYST PRIMITIVES ===================== -->
@@ -446,7 +530,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #050 (verification pass) · head <code class="mono">dadcbb7d</code> · status <code class="mono">100% CATALYST — VERIFIED &amp; CI-LOCKED</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #051 (admin visual start pattern) · head <code class="mono">fix/admin-visual-canon</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -1577,6 +1661,11 @@ window.CARTO_DATA = {
       "date": "2026-06-29",
       "ref": "Mission #050 — Catalyst 100% Hardening (verification pass)",
       "note": "Re-verified the Catalyst convergence at origin/main dadcbb7d. Finding: the repo is ALREADY at 100% Catalyst — lots 8–15 (Mission #049) + the authority lock (#037) completed every objective this lot set out to harden. src/components/ui is sealed to the 3 sanctioned non-visual helpers (provenance-badge + toaster + client-toaster) — 0 autonomous visual components; all UI consumers import src/components/catalyst directly. Both guards re-run GREEN on current HEAD: ds-hardcode-guard (8 witness files, 0 hits) and ds-convergence-guard (6 repo-wide rules: ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color, 0 hits), both enforced in the blocking Lint & Typecheck CI job (#207). No new tokenization, no deletions, no guard additions were warranted: the requested guards already exist and pass, the requested purge is already done, and the residual raw values are the documented intentional keeps (brand-constants.ts + catalyst-accent.ts source-of-truth #A7FB90, value-area-plot.tsx SVG paint, non-tokenizable px sizes 20/24/28/32px + 7px chart micro-labels, and comment-only mentions of removed patterns). Verifying-to-execute confirmed nothing left to execute; doc-only update of the cartography HEAD/mission pointer + this log entry. #146 (purge-css-final) untouched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #051 — Admin Visual Start Pattern",
+      "note": "Premier bloc admin uniformisé sur le canon /admin/customers (wrap-safe AdminSectionCard / AdminKpiStripPanel embedded). KPI soudés (monitoring, governance, signals), bare grids encadrés (source, proofs), shells custom wrappés (roadmap, memo, projection, preview, scenario-lab), detail first-block normalisé (agents/[id], customers/[id], vaults/[id] via vault-admin-kpi-strip), forms encadrés. Aucun refacto interne / engine / charts / server-action. Guard admin-canon-start-pattern ajouté (50 tests)."
     }
   ]
 };

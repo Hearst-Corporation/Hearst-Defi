@@ -86,7 +86,14 @@ cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ## RELEASED LOCKS
 
-## RELEASED LOCKS
+### fix/admin-visual-canon — MISSION #051 (terminé — mergé)
+Owner: Claude Opus (orchestrateur) — Admin visual canon start pattern
+Branch: fix/admin-visual-canon
+Released: 2026-06-29
+Status: released (merged)
+Résultat: premier bloc admin uniformisé sur le canon /admin/customers (wrap-safe
+AdminSectionCard / AdminKpiStripPanel embedded). 14 pages welded + guard
+admin-canon-start-pattern (50 tests). Aucun engine/charts/server-action/prisma touché.
 
 ### fix/vitest-portfolio-vaults-nav (terminé — PR #206 MERGED)
 Owner: Claude Opus — CI Vitest green-up (5 remaining red tests)

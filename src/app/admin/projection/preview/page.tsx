@@ -1,4 +1,7 @@
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { ProjectionReportPreview } from "@/components/admin/projection/projection-report-preview";
 import { PreviewSourceBanner } from "@/components/admin/projection/preview-source-banner";
 import { InvestorReportReadiness } from "@/components/admin/projection/investor-report-readiness";
@@ -36,16 +39,23 @@ export default async function ProjectionPreviewPage() {
   const report = buildInvestorReportViewModel(latestRun, validation);
 
   return (
-    // Banner → readiness → interactive report, each its own surface, stacked
-    // directly inside the canon shell. No nesting of these self-contained
-    // panels in an extra card (anti-cage).
+    // Canon start pattern (#051): the FIRST content block (source banner +
+    // report readiness) reads as a welded AdminSectionCard. Both are
+    // self-contained inset surfaces → they nest as the card body (surface-card
+    // frame → inset rows), the canon card→inset relationship, not a double
+    // frame. The interactive report keeps its own surface below — its internals
+    // are untouched.
     <AdminPageShell
       titleLead="Investor Report Preview"
       titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
       contextLabel="Strategy"
     >
-      <PreviewSourceBanner latestRun={latestRun} validation={validation} />
-      <InvestorReportReadiness report={report} />
+      <AdminSectionCard ariaLabel="Report source" title="Report source">
+        <div className="flex flex-col gap-5 p-5">
+          <PreviewSourceBanner latestRun={latestRun} validation={validation} />
+          <InvestorReportReadiness report={report} />
+        </div>
+      </AdminSectionCard>
       <ProjectionReportPreview />
     </AdminPageShell>
   );

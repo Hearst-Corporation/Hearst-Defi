@@ -136,22 +136,29 @@ export default async function SourcePage({
       titleAccent="données"
       contextLabel="Strategy"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {BRICKS.map((brick) => {
-          const chip = STATUS_CHIP[brick.status];
-          return (
-            <BentoPanel key={brick.id}>
-              <div className="flex h-full flex-col gap-2 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="ct-panel-title">{brick.title}</h3>
-                  <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
+      {/* Canon frame around the GROUP of ingestion bricks — a single
+          AdminSectionCard, NOT a frame per panel (no double-frame). */}
+      <AdminSectionCard
+        title="Pipeline de données"
+        ariaLabel="Pipeline de données"
+      >
+        <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2">
+          {BRICKS.map((brick) => {
+            const chip = STATUS_CHIP[brick.status];
+            return (
+              <BentoPanel key={brick.id}>
+                <div className="flex h-full flex-col gap-2 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="ct-panel-title">{brick.title}</h3>
+                    <StatusChip accent={chip.accent}>{chip.label}</StatusChip>
+                  </div>
+                  <p className="ct-metric-caption">{brick.detail}</p>
                 </div>
-                <p className="ct-metric-caption">{brick.detail}</p>
-              </div>
-            </BentoPanel>
-          );
-        })}
-      </div>
+              </BentoPanel>
+            );
+          })}
+        </div>
+      </AdminSectionCard>
 
       <AdminSectionCard
         title={`Prix machines — ${market.channel}`}

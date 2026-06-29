@@ -1,4 +1,7 @@
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
 import { ProofList } from "@/components/admin/proof-list";
 import { prisma } from "@/lib/db";
@@ -27,21 +30,24 @@ export default async function ProofsPage() {
         />
       }
     >
-      {/* ANTI-CAGE : chaque preuve est DÉJÀ une carte (BentoPanel) dans
-          ProofList. On ne re-wrap PAS la liste dans une AdminSectionCard (ça
-          ferait carte-dans-carte). Le titre vit en sur-header léger, les
-          row-cards restent une pile à plat dessous. */}
-      <section className="flex min-w-0 flex-col gap-4" aria-label="Published evidence">
-        {items.length > 0 ? (
-          <h2 className="ct-section-title">
-            Published evidence{" "}
+      {/* Canon start pattern — the proof library lives in a welded
+          AdminSectionCard, like /customers. The published count rides in the
+          card sub-header trailing slot; the proof row-cards stack in the body. */}
+      <AdminSectionCard
+        title="Published evidence"
+        headerTrailing={
+          items.length > 0 ? (
             <span className="ct-metric-caption tabular-nums">
               ({items.length})
             </span>
-          </h2>
-        ) : null}
-        <ProofList items={items} />
-      </section>
+          ) : undefined
+        }
+        ariaLabel="Published evidence"
+      >
+        <div className="flex min-w-0 flex-col gap-4 p-5">
+          <ProofList items={items} />
+        </div>
+      </AdminSectionCard>
     </AdminPageShell>
   );
 }

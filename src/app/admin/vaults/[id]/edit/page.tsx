@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
@@ -78,7 +78,11 @@ export default async function EditVaultPage({ params }: PageProps) {
         </Link>
       }
     >
-      <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
+      <AdminSectionCard ariaLabel="Vault draft" title="Vault draft">
+        <div className="p-5 lg:p-6">
+          <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
+        </div>
+      </AdminSectionCard>
     </AdminPageShell>
   );
 }
