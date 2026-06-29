@@ -32,7 +32,7 @@ const styles = {
     // Shim/overlay, inset to match button foreground and used for hover state + highlight shadow
     'after:absolute after:inset-0 after:-z-10 after:rounded-[calc(var(--radius-lg)-1px)]',
     // Inner highlight shadow
-    'after:shadow-[inset_0_1px_--theme(--color-white/15%)]',
+    'after:shadow-[inset_0_1px_color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)]',
     // White overlay on hover
     'data-active:after:bg-(--btn-hover-overlay) data-hover:after:bg-(--btn-hover-overlay)',
     // Dark mode: `after` layer expands to cover entire button
@@ -42,33 +42,33 @@ const styles = {
   ],
   outline: [
     // Base
-    'border-zinc-950/10 text-zinc-950 data-active:bg-zinc-950/2.5 data-hover:bg-zinc-950/2.5',
+    'border-[var(--ct-border)] text-[var(--ct-text-strong)] data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
     // Dark mode
-    'dark:border-[var(--ct-border-strong)] dark:text-white dark:[--btn-bg:transparent] dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+    'dark:border-[var(--ct-border-strong)] dark:text-[var(--ct-text-strong)] dark:[--btn-bg:transparent] dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
     // Icon
-    '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
+    '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
   ],
   plain: [
     // Base
-    'border-transparent text-zinc-950 data-active:bg-zinc-950/5 data-hover:bg-zinc-950/5',
+    'border-transparent text-[var(--ct-text-strong)] data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
     // Dark mode
-    'dark:text-white dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]',
+    'dark:text-[var(--ct-text-strong)] dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]',
     // Icon
-    '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
+    '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
   ],
   insetRing: [
     // White bg with inset ring (shadow-xs)
-    'bg-white text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 border-transparent',
+    'bg-[var(--ct-surface-card)] text-[var(--ct-text-strong)] shadow-xs inset-ring inset-ring-[var(--ct-border)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] border-transparent',
     // Dark mode variants
-    'dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]',
+    'dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:text-[var(--ct-text-strong)] dark:shadow-none dark:inset-ring-[var(--ct-border-soft)] dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]',
     // Fully rounded
     'rounded-full',
   ],
   iconOnly: [
     // Circular icon-only buttons with accent background
-    'rounded-full shadow-xs text-zinc-950 bg-(--btn-bg)',
+    'rounded-full shadow-xs text-[var(--ct-bg-deep)] bg-(--btn-bg)',
     // Dark mode logic (no shadow, specific hover)
-    'dark:shadow-none dark:text-zinc-900',
+    'dark:shadow-none dark:text-[var(--ct-bg-deep)]',
     // We remove the default pseudo-elements for solid buttons when used as iconOnly
     'before:hidden after:hidden border-transparent',
     // Force icon color to match text
@@ -76,61 +76,61 @@ const styles = {
   ],
   colors: {
     'dark/zinc': [
-      'text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10',
-      'dark:text-white dark:[--btn-bg:var(--color-zinc-600)] dark:[--btn-hover-overlay:var(--color-white)]/5',
-      '[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)]',
+      'text-white [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
+      'dark:text-white dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
+      '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     light: [
-      'text-zinc-950 [--btn-bg:white] [--btn-border:var(--color-zinc-950)]/10 [--btn-hover-overlay:var(--color-zinc-950)]/2.5 data-active:[--btn-border:var(--color-zinc-950)]/15 data-hover:[--btn-border:var(--color-zinc-950)]/15',
-      'dark:text-white dark:[--btn-hover-overlay:var(--color-white)]/5 dark:[--btn-bg:var(--color-zinc-800)]',
-      '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
+      'text-[var(--ct-bg-deep)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/10 [--btn-hover-overlay:var(--ct-bg-deep)]/2.5 data-active:[--btn-border:var(--ct-border)]/15 data-hover:[--btn-border:var(--ct-border)]/15',
+      'dark:text-white dark:[--btn-hover-overlay:var(--ct-text-strong)]/5 dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+      '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     'dark/white': [
-      'text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10',
-      'dark:text-zinc-950 dark:[--btn-bg:white] dark:[--btn-hover-overlay:var(--color-zinc-950)]/5',
-      '[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]',
+      'text-white [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
+      'dark:text-[var(--ct-bg-deep)] dark:[--btn-bg:var(--ct-text-strong)] dark:[--btn-hover-overlay:var(--ct-bg-deep)]/5',
+      '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     dark: [
-      'text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10',
-      'dark:[--btn-hover-overlay:var(--color-white)]/5 dark:[--btn-bg:var(--color-zinc-800)]',
-      '[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)]',
+      'text-white [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
+      'dark:[--btn-hover-overlay:var(--ct-text-strong)]/5 dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+      '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     white: [
-      'text-zinc-950 [--btn-bg:white] [--btn-border:var(--color-zinc-950)]/10 [--btn-hover-overlay:var(--color-zinc-950)]/2.5 data-active:[--btn-border:var(--color-zinc-950)]/15 data-hover:[--btn-border:var(--color-zinc-950)]/15',
-      'dark:[--btn-hover-overlay:var(--color-zinc-950)]/5',
-      '[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-500)] data-hover:[--btn-icon:var(--color-zinc-500)]',
+      'text-[var(--ct-bg-deep)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/10 [--btn-hover-overlay:var(--ct-bg-deep)]/2.5 data-active:[--btn-border:var(--ct-border)]/15 data-hover:[--btn-border:var(--ct-border)]/15',
+      'dark:[--btn-hover-overlay:var(--ct-bg-deep)]/5',
+      '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)]',
     ],
     zinc: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-zinc-600)] [--btn-border:var(--color-zinc-700)]/90',
-      'dark:[--btn-hover-overlay:var(--color-white)]/5',
-      '[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)]',
+      'text-white [--btn-hover-overlay:var(--ct-text-strong)]/10 [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90',
+      'dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
+      '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     indigo: [
       'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-indigo-500)] [--btn-border:var(--color-indigo-600)]/90',
       '[--btn-icon:var(--color-indigo-300)] data-active:[--btn-icon:var(--color-indigo-200)] data-hover:[--btn-icon:var(--color-indigo-200)]',
     ],
     cyan: [
-      'text-cyan-950 [--btn-bg:var(--color-cyan-300)] [--btn-border:var(--color-cyan-400)]/80 [--btn-hover-overlay:var(--color-white)]/25',
+      'text-[var(--ct-bg-deep)] [--btn-bg:var(--color-cyan-300)] [--btn-border:var(--color-cyan-400)]/80 [--btn-hover-overlay:var(--color-white)]/25',
       '[--btn-icon:var(--color-cyan-500)]',
     ],
     red: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-red-600)] [--btn-border:var(--color-red-700)]/90',
-      '[--btn-icon:var(--color-red-300)] data-active:[--btn-icon:var(--color-red-200)] data-hover:[--btn-icon:var(--color-red-200)]',
+      'text-white [--btn-hover-overlay:var(--ct-text-strong)]/10 [--btn-bg:var(--ct-status-danger)] [--btn-border:var(--ct-status-danger-border)]/90',
+      '[--btn-icon:var(--ct-status-danger-soft)] data-active:[--btn-icon:var(--ct-status-danger-soft)] data-hover:[--btn-icon:var(--ct-status-danger-soft)]',
     ],
     orange: [
       'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-orange-500)] [--btn-border:var(--color-orange-600)]/90',
       '[--btn-icon:var(--color-orange-300)] data-active:[--btn-icon:var(--color-orange-200)] data-hover:[--btn-icon:var(--color-orange-200)]',
     ],
     amber: [
-      'text-amber-950 [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-amber-400)] [--btn-border:var(--color-amber-500)]/80',
-      '[--btn-icon:var(--color-amber-600)]',
+      'text-[var(--ct-bg-deep)] [--btn-hover-overlay:var(--ct-text-strong)]/25 [--btn-bg:var(--ct-status-warning)] [--btn-border:var(--ct-status-warning-border)]/80',
+      '[--btn-icon:var(--ct-status-warning-border)]',
     ],
     yellow: [
-      'text-yellow-950 [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-yellow-300)] [--btn-border:var(--color-yellow-400)]/80',
+      'text-[var(--ct-bg-deep)] [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-yellow-300)] [--btn-border:var(--color-yellow-400)]/80',
       '[--btn-icon:var(--color-yellow-600)] data-active:[--btn-icon:var(--color-yellow-700)] data-hover:[--btn-icon:var(--color-yellow-700)]',
     ],
     lime: [
-      'text-lime-950 [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-lime-300)] [--btn-border:var(--color-lime-400)]/80',
+      'text-[var(--ct-bg-deep)] [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-lime-300)] [--btn-border:var(--color-lime-400)]/80',
       '[--btn-icon:var(--color-lime-600)] data-active:[--btn-icon:var(--color-lime-700)] data-hover:[--btn-icon:var(--color-lime-700)]',
     ],
     green: [

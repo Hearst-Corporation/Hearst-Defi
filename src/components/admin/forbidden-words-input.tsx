@@ -101,7 +101,7 @@ export function ForbiddenWordsInput({
     "aria-describedby": hasViolations ? `${id}-forbidden` : undefined,
     className: cn(
       className,
-      hasViolations && "ring-1 ring-red-500/60 focus:ring-red-500/60",
+      hasViolations && "ring-1 ring-[var(--ct-status-danger)] focus:ring-[var(--ct-status-danger)]",
     ),
   };
 

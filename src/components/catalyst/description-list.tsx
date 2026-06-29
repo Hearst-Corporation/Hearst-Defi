@@ -18,7 +18,7 @@ export function DescriptionTerm({ className, ...props }: React.ComponentPropsWit
       {...props}
       className={cn(
         className,
-        'col-start-1 border-t border-zinc-950/5 pt-3 text-[var(--ct-text-faint)] first:border-none sm:border-t sm:border-zinc-950/5 sm:py-3 dark:border-[var(--ct-border-soft)] dark:text-[var(--ct-text-muted)] sm:dark:border-[var(--ct-border-soft)]'
+        'col-start-1 border-t border-[var(--ct-border-soft)] pt-3 text-[var(--ct-text-faint)] first:border-none sm:border-t sm:border-[var(--ct-border-soft)] sm:py-3 dark:border-[var(--ct-border-soft)] dark:text-[var(--ct-text-muted)] sm:dark:border-[var(--ct-border-soft)]'
       )}
     />
   )
@@ -30,7 +30,7 @@ export function DescriptionDetails({ className, ...props }: React.ComponentProps
       {...props}
       className={cn(
         className,
-        'pt-1 pb-3 text-zinc-950 sm:border-t sm:border-zinc-950/5 sm:py-3 sm:nth-2:border-none dark:text-white dark:sm:border-[var(--ct-border-soft)]'
+        'pt-1 pb-3 text-[var(--ct-text-strong)] sm:border-t sm:border-[var(--ct-border-soft)] sm:py-3 sm:nth-2:border-none dark:text-[var(--ct-text-strong)] dark:sm:border-[var(--ct-border-soft)]'
       )}
     />
   )

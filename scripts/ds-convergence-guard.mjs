@@ -151,19 +151,20 @@ for (const abs of walk(SRC)) {
       });
     }
 
-    // Guard 5 — raw Tailwind status hues on scoped surfaces. Each maps to a
-    // canonical token: red→danger, amber→warning, sky→info, rose→unaudited.
-    // emerald/orange/yellow are NOT matched (no token yet — would need a DS
-    // decision before banning). MOCK's neutral zinc tint is handled elsewhere.
-    if (pxScoped && /\b(?:text|bg|border)-(?:red|amber|sky|rose)-[0-9]/.test(line)) {
-      const m = line.match(/\b(?:text|bg|border)-(?:red|amber|sky|rose)-[0-9]+(?:\/[0-9]+)?/);
+    // Guard 5 — raw Tailwind named colours, REPO-WIDE (every .tsx, catalyst
+    // included). Neutrals (white/zinc) + status hues + any palette colour must
+    // go through a --ct-* token. Email/route .ts templates (no site CSS, inline
+    // hex required) are skipped — only .tsx UI is scanned here.
+    if (rel.endsWith(".tsx") &&
+        /\b(?:text|bg|border|ring|fill|stroke|divide)-(?:white|zinc|red|amber|sky|rose|emerald|blue|green|orange|yellow|slate|gray|neutral|stone|indigo|violet|purple|pink|teal|cyan|lime)-[0-9]/.test(line)) {
+      const m = line.match(/\b(?:text|bg|border|ring|fill|stroke|divide)-(?:white|zinc|red|amber|sky|rose|emerald|blue|green|orange|yellow|slate|gray|neutral|stone|indigo|violet|purple|pink|teal|cyan|lime)-[0-9]+(?:\/[0-9]+)?/);
       violations.push({
-        guard: "status-color",
+        guard: "named-color",
         file: rel,
         lineNo: i + 1,
         text: line.trim(),
-        reason: `Raw Tailwind status hue ${m[0]} — use the canonical --ct-status-* token.`,
-        fix: "red→--ct-status-danger* · amber→--ct-status-warning* · sky→--ct-status-info* · rose→--ct-status-unaudited* ({,-soft,-border}).",
+        reason: `Raw Tailwind colour ${m[0]} — use a --ct-* token.`,
+        fix: "neutrals→--ct-text-*/--ct-surface-*/--ct-border*; status→--ct-status-{danger,warning,info,unaudited,success,neutral}{,-soft,-border}.",
       });
     }
   }

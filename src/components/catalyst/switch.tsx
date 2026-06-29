@@ -45,36 +45,36 @@ export function SwitchField({
 
 const colors = {
   'dark/zinc': [
-    '[--switch-bg-ring:var(--color-zinc-950)]/90 [--switch-bg:var(--color-zinc-900)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--color-white)]/25',
-    '[--switch-ring:var(--color-zinc-950)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white] dark:[--switch-ring:var(--color-zinc-700)]/90',
+    '[--switch-bg-ring:var(--ct-text-strong)]/90 [--switch-bg:var(--ct-surface-card)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--ct-text-strong)]/25',
+    '[--switch-ring:var(--ct-text-strong)]/90 [--switch-shadow:var(--ct-bg-deep)]/10 [--switch:white] dark:[--switch-ring:var(--ct-border-soft)]/90',
   ],
   'dark/white': [
-    '[--switch-bg-ring:var(--color-zinc-950)]/90 [--switch-bg:var(--color-zinc-900)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--color-white)]',
-    '[--switch-ring:var(--color-zinc-950)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white] dark:[--switch-ring:transparent] dark:[--switch:var(--color-zinc-900)]',
+    '[--switch-bg-ring:var(--ct-text-strong)]/90 [--switch-bg:var(--ct-surface-card)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--ct-text-strong)]',
+    '[--switch-ring:var(--ct-text-strong)]/90 [--switch-shadow:var(--ct-bg-deep)]/10 [--switch:white] dark:[--switch-ring:transparent] dark:[--switch:var(--ct-surface-card)]',
   ],
   dark: [
-    '[--switch-bg-ring:var(--color-zinc-950)]/90 [--switch-bg:var(--color-zinc-900)] dark:[--switch-bg-ring:var(--color-white)]/15',
-    '[--switch-ring:var(--color-zinc-950)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white]',
+    '[--switch-bg-ring:var(--ct-text-strong)]/90 [--switch-bg:var(--ct-surface-card)] dark:[--switch-bg-ring:var(--ct-text-strong)]/15',
+    '[--switch-ring:var(--ct-text-strong)]/90 [--switch-shadow:var(--ct-bg-deep)]/10 [--switch:white]',
   ],
   zinc: [
-    '[--switch-bg-ring:var(--color-zinc-700)]/90 [--switch-bg:var(--color-zinc-600)] dark:[--switch-bg-ring:transparent]',
-    '[--switch-shadow:var(--color-black)]/10 [--switch:white] [--switch-ring:var(--color-zinc-700)]/90',
+    '[--switch-bg-ring:var(--ct-border-soft)]/90 [--switch-bg:var(--ct-text-muted)] dark:[--switch-bg-ring:transparent]',
+    '[--switch-shadow:var(--ct-bg-deep)]/10 [--switch:white] [--switch-ring:var(--ct-border-soft)]/90',
   ],
   white: [
-    '[--switch-bg-ring:var(--color-black)]/15 [--switch-bg:white] dark:[--switch-bg-ring:transparent]',
-    '[--switch-shadow:var(--color-black)]/10 [--switch-ring:transparent] [--switch:var(--color-zinc-950)]',
+    '[--switch-bg-ring:var(--ct-bg-deep)]/15 [--switch-bg:var(--ct-text-strong)] dark:[--switch-bg-ring:transparent]',
+    '[--switch-shadow:var(--ct-bg-deep)]/10 [--switch-ring:transparent] [--switch:var(--ct-bg-deep)]',
   ],
   red: [
-    '[--switch-bg-ring:var(--color-red-700)]/90 [--switch-bg:var(--color-red-600)] dark:[--switch-bg-ring:transparent]',
-    '[--switch:white] [--switch-ring:var(--color-red-700)]/90 [--switch-shadow:var(--color-red-900)]/20',
+    '[--switch-bg-ring:var(--ct-status-danger)]/90 [--switch-bg:var(--ct-status-danger)] dark:[--switch-bg-ring:transparent]',
+    '[--switch:white] [--switch-ring:var(--ct-status-danger)]/90 [--switch-shadow:var(--ct-status-danger)]/20',
   ],
   orange: [
     '[--switch-bg-ring:var(--color-orange-600)]/90 [--switch-bg:var(--color-orange-500)] dark:[--switch-bg-ring:transparent]',
     '[--switch:white] [--switch-ring:var(--color-orange-600)]/90 [--switch-shadow:var(--color-orange-900)]/20',
   ],
   amber: [
-    '[--switch-bg-ring:var(--color-amber-500)]/80 [--switch-bg:var(--color-amber-400)] dark:[--switch-bg-ring:transparent]',
-    '[--switch-ring:transparent] [--switch-shadow:transparent] [--switch:var(--color-amber-950)]',
+    '[--switch-bg-ring:var(--ct-status-warning)]/80 [--switch-bg:var(--ct-status-warning)] dark:[--switch-bg-ring:transparent]',
+    '[--switch-ring:transparent] [--switch-shadow:transparent] [--switch:var(--ct-bg-deep)]',
   ],
   yellow: [
     '[--switch-bg-ring:var(--color-yellow-400)]/80 [--switch-bg:var(--color-yellow-300)] dark:[--switch-bg-ring:transparent]',
@@ -85,12 +85,12 @@ const colors = {
     '[--switch-ring:transparent] [--switch-shadow:transparent] [--switch:var(--color-lime-950)]',
   ],
   green: [
-    '[--switch-bg-ring:var(--color-green-700)]/90 [--switch-bg:var(--color-green-600)] dark:[--switch-bg-ring:transparent]',
-    '[--switch:white] [--switch-ring:var(--color-green-700)]/90 [--switch-shadow:var(--color-green-900)]/20',
+    '[--switch-bg-ring:var(--ct-status-success)]/90 [--switch-bg:var(--ct-status-success)] dark:[--switch-bg-ring:transparent]',
+    '[--switch:white] [--switch-ring:var(--ct-status-success)]/90 [--switch-shadow:var(--ct-status-success)]/20',
   ],
   emerald: [
-    '[--switch-bg-ring:var(--color-emerald-600)]/90 [--switch-bg:var(--color-emerald-500)] dark:[--switch-bg-ring:transparent]',
-    '[--switch:white] [--switch-ring:var(--color-emerald-600)]/90 [--switch-shadow:var(--color-emerald-900)]/20',
+    '[--switch-bg-ring:var(--ct-status-success)]/90 [--switch-bg:var(--ct-status-success)] dark:[--switch-bg-ring:transparent]',
+    '[--switch:white] [--switch-ring:var(--ct-status-success)]/90 [--switch-shadow:var(--ct-status-success)]/20',
   ],
   teal: [
     '[--switch-bg-ring:var(--color-teal-700)]/90 [--switch-bg:var(--color-teal-600)] dark:[--switch-bg-ring:transparent]',
@@ -157,17 +157,17 @@ export function Switch({
         // Outline and background color in forced-colors mode so switch is still visible
         'forced-colors:outline forced-colors:[--switch-bg:Highlight] dark:forced-colors:[--switch-bg:Highlight]',
         // Unchecked
-        'bg-zinc-200 ring-1 ring-black/5 ring-inset dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:ring-white/15',
+        'bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)] ring-inset dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:ring-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)]',
         // Checked
         'data-checked:bg-(--switch-bg) data-checked:ring-(--switch-bg-ring) dark:data-checked:bg-(--switch-bg) dark:data-checked:ring-(--switch-bg-ring)',
         // Focus
         'focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:[outline-color:var(--ct-accent)]',
         // Hover
-        'data-hover:ring-black/15 data-hover:data-checked:ring-(--switch-bg-ring)',
-        'dark:data-hover:ring-white/25 dark:data-hover:data-checked:ring-(--switch-bg-ring)',
+        'data-hover:ring-[color-mix(in_srgb,var(--ct-bg-deep)_15%,transparent)] data-hover:data-checked:ring-(--switch-bg-ring)',
+        'dark:data-hover:ring-[color-mix(in_srgb,var(--ct-text-strong)_25%,transparent)] dark:data-hover:data-checked:ring-(--switch-bg-ring)',
         // Disabled
-        'data-disabled:bg-zinc-200 data-disabled:opacity-50 data-disabled:data-checked:bg-zinc-200 data-disabled:data-checked:ring-black/5',
-        'dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] dark:data-disabled:data-checked:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] dark:data-disabled:data-checked:ring-white/15',
+        'data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] data-disabled:opacity-50 data-disabled:data-checked:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] data-disabled:data-checked:ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]',
+        'dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] dark:data-disabled:data-checked:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] dark:data-disabled:data-checked:ring-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)]',
         // Color specific styles
         colors[color]
       )}
@@ -182,12 +182,12 @@ export function Switch({
           // Invisible border so the switch is still visible in forced-colors mode
           'border border-transparent',
           // Unchecked
-          'bg-white shadow-sm ring-1 ring-black/5',
+          'bg-[var(--ct-text-strong)] shadow-sm ring-1 ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]',
           // Checked
           'group-data-checked:bg-(--switch) group-data-checked:shadow-(--switch-shadow) group-data-checked:ring-(--switch-ring)',
           'group-data-checked:translate-x-4 sm:group-data-checked:translate-x-3',
           // Disabled
-          'group-data-checked:group-data-disabled:bg-white group-data-checked:group-data-disabled:shadow-sm group-data-checked:group-data-disabled:ring-black/5'
+          'group-data-checked:group-data-disabled:bg-[var(--ct-text-strong)] group-data-checked:group-data-disabled:shadow-sm group-data-checked:group-data-disabled:ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]'
         )}
       />
     </Headless.Switch>

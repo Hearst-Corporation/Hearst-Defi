@@ -40,13 +40,13 @@ export const Input = forwardRef(function Input(
         // Basic layout
         'relative block w-full',
         // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-        'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-sm',
+        'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-[var(--ct-surface-card)] before:shadow-sm',
         // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
         'dark:before:hidden',
         // Focus ring
         'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-[var(--ct-accent)]',
         // Disabled state
-        'has-data-disabled:opacity-50 has-data-disabled:before:bg-zinc-950/5 has-data-disabled:before:shadow-none',
+        'has-data-disabled:opacity-50 has-data-disabled:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] has-data-disabled:before:shadow-none',
       ])}
     >
       <Headless.Input
@@ -72,17 +72,17 @@ export const Input = forwardRef(function Input(
           // Basic layout
           'relative block w-full appearance-none rounded-lg px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]',
           // Typography
-          'text-base/6 text-zinc-950 placeholder:text-[var(--ct-text-faint)] sm:text-sm/6 dark:text-white',
+          'text-base/6 text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] sm:text-sm/6',
           // Border
-          'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-[var(--ct-border)] dark:data-hover:border-[var(--ct-border-strong)]',
+          'border border-[var(--ct-border)] data-hover:border-[var(--ct-border-strong)]',
           // Background color
-          'bg-transparent dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+          'bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
           // Hide default focus styles
           'focus:outline-hidden',
           // Invalid state
-          'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-600 dark:data-invalid:data-hover:border-red-600',
+          'data-invalid:border-[var(--ct-status-danger)] data-invalid:data-hover:border-[var(--ct-status-danger)]',
           // Disabled state
-          'data-disabled:border-zinc-950/20 dark:data-disabled:border-[var(--ct-border-strong)] dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:data-hover:data-disabled:border-[var(--ct-border-strong)]',
+          'data-disabled:border-[var(--ct-border-strong)] data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] data-hover:data-disabled:border-[var(--ct-border-strong)]',
           // System icons
           'dark:scheme-dark',
         ])}

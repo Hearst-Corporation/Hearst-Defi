@@ -167,6 +167,11 @@
   --ct-status-unaudited-soft: color-mix(in srgb, var(--ct-status-unaudited) 10%, transparent);
   --ct-status-unaudited-border: color-mix(in srgb, var(--ct-status-unaudited) 30%, transparent);
 
+  /* Neutral — muted grey status tone for provenance badges (MOCK / inert). */
+  --ct-status-neutral: var(--ct-text-muted);
+  --ct-status-neutral-soft: color-mix(in srgb, var(--ct-text-strong) 6%, transparent);
+  --ct-status-neutral-border: var(--ct-border);
+
 
   /* Radius tokens (alignés sur le DS) */
   --ct-radius-xs: 0.125rem; /* 2px — chart legend swatch, micro chips */

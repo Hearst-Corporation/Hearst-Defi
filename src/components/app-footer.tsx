@@ -63,7 +63,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
               className="inline-flex items-center gap-2"
             >
               {i > 0 ? (
-                <span className="text-zinc-700" aria-hidden>
+                <span className="text-[var(--ct-text-faint)]" aria-hidden>
                   ·
                 </span>
               ) : null}
