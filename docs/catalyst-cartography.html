@@ -1561,6 +1561,11 @@ window.CARTO_DATA = {
       "date": "2026-06-29",
       "ref": "Mission #049 lot14 — CONVERGENCE LOCKED",
       "note": "Sealed in CI (#207): `pnpm ds:guard:all` (hardcode guard + 5-rule convergence guard) now runs inside the blocking Lint & Typecheck job, so any DS regression fails CI automatically. The 5 convergence rules: ui/ sealed to 3 helpers · no raw #A7FB90 · no exact-token text-[Npx] · no raw #15191C/bg-zinc-9xx surface · no raw red/amber/sky/rose status hue. Design system is 100% tokenized on every known axis (0 raw colour, 0 tokenizable px, 0 hand-rolled card) and protected against regression. Also: vault detail page realigned on the customers/[id] canon (#204)."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #049 lot15 — 100% EVERYWHERE",
+      "note": "Catalyst primitives tokenized — 16-agent fan-out (15 catalyst zones + 1 non-catalyst sweep, isolated worktrees, integrated serially). ~300 raw Tailwind colours (white/zinc/named hues) in the Tailwind-Plus primitives (badge, button, combobox, listbox, sidebar, select, navbar, inputs, dropdown, layouts, dialog/alert, table, forms…) → --ct-* tokens, with variant KEYS and [--btn-*] custom-property plumbing preserved (public API unchanged). Added --ct-status-neutral{,-soft,-border} for the MOCK badge. Final stragglers fixed: heading dark:text-white, footer separator, forbidden-words ring, button text-cyan/yellow/lime-950. ds-convergence-guard gained a 6th rule (named-color: bans ANY raw Tailwind colour repo-wide, catalyst included). Email/route HTML templates keep inline hex (no site CSS to resolve a var — legit). typecheck clean, eslint 0 errors, next build compiles, all guards green, 52 tests pass. The design system is now 100% tokenized on every UI surface."
     }
   ]
 };

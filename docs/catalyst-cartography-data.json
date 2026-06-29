@@ -4,8 +4,8 @@
     "generatedAt": "2026-06-28",
     "head": "<lot9-pending>",
     "originMain": "c463155c",
-    "status": "CONVERGENCE LOCKED",
-    "lastPR": "#207 — DS guards enforced in blocking CI job",
+    "status": "100% TOKENIZED — EVERYWHERE",
+    "lastPR": "lot15 catalyst primitives 100% (fix/catalyst-lot15)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -53,7 +53,9 @@
     "surfaceHexRaw": 0,
     "neutralRawRemaining": 1,
     "statusColorRaw": 0,
-    "dsGuardsCiEnforced": true
+    "dsGuardsCiEnforced": true,
+    "catalystPrimitivesTokenized": true,
+    "namedColorRawNonEmail": 0
   },
   "openPRs": [
     {
@@ -1048,6 +1050,11 @@
       "date": "2026-06-29",
       "ref": "Mission #049 lot14 — CONVERGENCE LOCKED",
       "note": "Sealed in CI (#207): pnpm ds:guard:all runs inside the blocking Lint & Typecheck job — any DS regression fails CI automatically. 5 convergence rules enforced. DS 100% tokenized on every known axis (0 raw colour, 0 tokenizable px, 0 hand-rolled card), protected against regression. Vault detail page realigned on customers/[id] canon (#204)."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #049 lot15 — 100% EVERYWHERE",
+      "note": "Catalyst primitives tokenized — 16-agent fan-out (15 catalyst zones + 1 non-catalyst sweep, isolated worktrees). ~300 raw Tailwind colours (white/zinc/named hues) in the Tailwind-Plus primitives (badge, button, combobox, listbox, sidebar, select, navbar, inputs, dropdown, layouts, dialog/alert, table, forms…) → --ct-* tokens, variant keys & [--btn-*] plumbing preserved. Added --ct-status-neutral* (MOCK badge). Final stragglers fixed (heading dark:text-white, footer separator, forbidden-words ring, button text-cyan/yellow/lime-950). ds-convergence-guard gained a 6th rule (named-color: bans ANY raw Tailwind colour repo-wide incl. catalyst). Email/route HTML templates keep inline hex (no site CSS — legit). typecheck clean, eslint 0, build compiles, all guards green, 52 tests pass. DS now 100% tokenized on every UI surface."
     }
   ]
 }

@@ -29,16 +29,16 @@ export function Avatar({
         // Basic layout
         'inline-flex items-center justify-center shrink-0 align-middle [--avatar-radius:20%]',
         // Outlines from the requested design
-        'ring-2 ring-white outline -outline-offset-1 outline-black/5 dark:ring-gray-900 dark:outline-white/10',
+        'ring-2 ring-[var(--ct-surface-card)] outline -outline-offset-1 outline-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]',
         // Border radius
         square ? 'rounded-(--avatar-radius)' : 'rounded-full',
         // If no src, apply the background for initials
-        !src && 'bg-gray-500 dark:bg-gray-800'
+        !src && 'bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]'
       )}
     >
       {initials && (
         <span className={cn(
-          "font-medium text-white",
+          "font-medium text-[var(--ct-text-strong)]",
           // Adapt text size based on container size heuristics (Tailwind Arbitrary values not easily readable, but we map common sizes)
           className?.includes('size-6') ? "text-xs" :
           className?.includes('size-8') ? "text-sm" :

@@ -73,7 +73,7 @@ export function PaginationPage({
       className={cn(
         className,
         'min-w-9 before:absolute before:-inset-px before:rounded-lg',
-        current && 'before:bg-zinc-950/5 dark:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]'
+        current && 'before:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]'
       )}
     >
       <span className="-mx-0.5">{children}</span>
@@ -90,7 +90,7 @@ export function PaginationGap({
     <span
       aria-hidden="true"
       {...props}
-      className={cn(className, 'w-9 text-center text-sm/6 font-semibold text-zinc-950 select-none dark:text-white')}
+      className={cn(className, 'w-9 text-center text-sm/6 font-semibold text-[var(--ct-text-strong)] select-none dark:text-[var(--ct-text-strong)]')}
     >
       {children}
     </span>

@@ -24,7 +24,7 @@ export function Legend({
       {...props}
       className={cn(
         className,
-        'text-base/6 font-semibold text-zinc-950 data-disabled:opacity-50 sm:text-sm/6 dark:text-white'
+        'text-base/6 font-semibold text-[var(--ct-text-strong)] data-disabled:opacity-50 sm:text-sm/6'
       )}
     />
   )
@@ -58,7 +58,7 @@ export function Label({ className, ...props }: { className?: string } & Omit<Hea
       {...props}
       className={cn(
         className,
-        'text-base/6 text-zinc-950 select-none data-disabled:opacity-50 sm:text-sm/6 dark:text-white'
+        'text-base/6 text-[var(--ct-text-strong)] select-none data-disabled:opacity-50 sm:text-sm/6'
       )}
     />
   )
@@ -85,7 +85,7 @@ export function ErrorMessage({
     <Headless.Description
       data-slot="error"
       {...props}
-      className={cn(className, 'text-base/6 text-red-600 data-disabled:opacity-50 sm:text-sm/6 dark:text-red-500')}
+      className={cn(className, 'text-base/6 text-[var(--ct-status-danger)] data-disabled:opacity-50 sm:text-sm/6')}
     />
   )
 }

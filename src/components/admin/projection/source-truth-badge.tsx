@@ -13,7 +13,7 @@ const TONE: Record<SourceTruthStatus, string> = {
   LIVE: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   FALLBACK: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
   CONFIGURED: "border-[var(--ct-status-info-border)] bg-[var(--ct-status-info-soft)] text-[var(--ct-status-info)]",
-  MOCK: "border-zinc-500/30 bg-zinc-500/10 text-[var(--ct-text-muted)]",
+  MOCK: "border-[var(--ct-status-neutral-border)] bg-[var(--ct-status-neutral-soft)] text-[var(--ct-status-neutral)]",
   DEMO: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
   UNAUDITED: "border-[var(--ct-status-unaudited-border)] bg-[var(--ct-status-unaudited-soft)] text-[var(--ct-status-unaudited)]",
   PARTIAL: "border-[var(--ct-status-info-border)] bg-[var(--ct-status-info-soft)] text-[var(--ct-status-info)]",

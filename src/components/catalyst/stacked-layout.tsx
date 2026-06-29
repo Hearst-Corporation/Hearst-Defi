@@ -25,13 +25,13 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
     <Headless.Dialog open={open} onClose={close} className="lg:hidden">
       <Headless.DialogBackdrop
         transition
-        className="fixed inset-0 bg-black/30 transition data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        className="fixed inset-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_30%,transparent)] transition data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
       />
       <Headless.DialogPanel
         transition
         className="fixed inset-y-0 w-full max-w-80 p-2 transition duration-300 ease-in-out data-closed:-translate-x-full"
       >
-        <div className="flex h-full flex-col rounded-lg bg-white shadow-xs ring-1 ring-zinc-950/5 dark:bg-surface-page dark:ring-white/10">
+        <div className="flex h-full flex-col rounded-lg bg-[var(--ct-surface-card)] shadow-xs ring-1 ring-[var(--ct-border)]">
           <div className="-mb-3 px-4 pt-3">
             <Headless.CloseButton as={NavbarItem} aria-label="Close navigation">
               <CloseMenuIcon />
@@ -52,7 +52,7 @@ export function StackedLayout({
   const [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className="relative isolate flex min-h-svh w-full flex-col bg-white lg:bg-zinc-100 dark:bg-surface-page dark:lg:bg-zinc-950">
+    <div className="relative isolate flex min-h-svh w-full flex-col bg-[var(--ct-surface-card)] lg:bg-[var(--ct-bg-deep)]">
       {/* Sidebar on mobile */}
       <MobileSidebar open={showSidebar} close={() => setShowSidebar(false)}>
         {sidebar}
@@ -70,7 +70,7 @@ export function StackedLayout({
 
       {/* Content */}
       <main className="flex flex-1 flex-col pb-2 lg:px-2">
-        <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-surface-page dark:lg:ring-white/10">
+        <div className="grow p-6 lg:rounded-lg lg:bg-[var(--ct-surface-card)] lg:p-10 lg:shadow-xs lg:ring-1 lg:ring-[var(--ct-border)]">
           <div className="mx-auto max-w-6xl">{children}</div>
         </div>
       </main>

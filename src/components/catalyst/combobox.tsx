@@ -43,15 +43,15 @@ export function Combobox<T>({
           // Basic layout
           'relative block w-full',
           // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-          'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-sm',
+          'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-[var(--ct-surface-card)] before:shadow-sm',
           // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
           'dark:before:hidden',
           // Focus ring
           'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-[var(--ct-accent)]',
           // Disabled state
-          'has-data-disabled:opacity-50 has-data-disabled:before:bg-zinc-950/5 has-data-disabled:before:shadow-none',
+          'has-data-disabled:opacity-50 has-data-disabled:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] has-data-disabled:before:shadow-none',
           // Invalid state
-          'has-data-invalid:before:shadow-red-500/10',
+          'has-data-invalid:before:shadow-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)]',
         ])}
       >
         <Headless.ComboboxInput
@@ -68,24 +68,24 @@ export function Combobox<T>({
             // Horizontal padding
             'pr-[calc(--spacing(10)-1px)] pl-[calc(--spacing(3.5)-1px)] sm:pr-[calc(--spacing(9)-1px)] sm:pl-[calc(--spacing(3)-1px)]',
             // Typography
-            'text-base/6 text-zinc-950 placeholder:text-[var(--ct-text-faint)] sm:text-sm/6 dark:text-white',
+            'text-base/6 text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] sm:text-sm/6 dark:text-[var(--ct-text-strong)]',
             // Border
-            'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-[var(--ct-border)] dark:data-hover:border-[var(--ct-border-strong)]',
+            'border border-[var(--ct-border)] data-hover:border-[var(--ct-border-strong)] dark:border-[var(--ct-border)] dark:data-hover:border-[var(--ct-border-strong)]',
             // Background color
             'bg-transparent dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
             // Hide default focus styles
             'focus:outline-hidden',
             // Invalid state
-            'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-500 dark:data-invalid:data-hover:border-red-500',
+            'data-invalid:border-[var(--ct-status-danger)] data-invalid:data-hover:border-[var(--ct-status-danger)] dark:data-invalid:border-[var(--ct-status-danger)] dark:data-invalid:data-hover:border-[var(--ct-status-danger)]',
             // Disabled state
-            'data-disabled:border-zinc-950/20 dark:data-disabled:border-[var(--ct-border-strong)] dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:data-hover:data-disabled:border-[var(--ct-border-strong)]',
+            'data-disabled:border-[var(--ct-border-strong)] dark:data-disabled:border-[var(--ct-border-strong)] dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:data-hover:data-disabled:border-[var(--ct-border-strong)]',
             // System icons
             'dark:scheme-dark',
           ])}
         />
         <Headless.ComboboxButton className="group absolute inset-y-0 right-0 flex items-center px-2">
           <svg
-            className="size-5 stroke-zinc-500 group-data-disabled:stroke-zinc-600 group-data-hover:stroke-zinc-700 sm:size-4 dark:stroke-zinc-400 dark:group-data-hover:stroke-zinc-300 forced-colors:stroke-[CanvasText]"
+            className="size-5 stroke-[var(--ct-text-muted)] group-data-disabled:stroke-[var(--ct-text-muted)] group-data-hover:stroke-[var(--ct-text-muted)] sm:size-4 dark:stroke-[var(--ct-text-muted)] dark:group-data-hover:stroke-[var(--ct-text-body)] forced-colors:stroke-[CanvasText]"
             viewBox="0 0 16 16"
             aria-hidden="true"
             fill="none"
@@ -108,9 +108,9 @@ export function Combobox<T>({
           // Handle scrolling when menu won't fit in viewport
           'overflow-y-scroll overscroll-contain',
           // Popover background
-          'bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75',
+          'bg-[color-mix(in_srgb,var(--ct-surface-card)_75%,transparent)] backdrop-blur-xl dark:bg-[color-mix(in_srgb,var(--ct-surface-card)_75%,transparent)]',
           // Shadows
-          'shadow-lg ring-1 ring-zinc-950/10 dark:ring-white/10 dark:ring-inset',
+          'shadow-lg ring-1 ring-[var(--ct-border)] dark:ring-[var(--ct-border)] dark:ring-inset',
           // Transitions
           'transition-opacity duration-100 ease-in data-closed:data-leave:opacity-0 data-transition:pointer-events-none'
         )}
@@ -134,7 +134,7 @@ export function ComboboxOption<T>({
     'flex min-w-0 items-center',
     // Icons
     '*:data-[slot=icon]:size-5 *:data-[slot=icon]:shrink-0 sm:*:data-[slot=icon]:size-4',
-    '*:data-[slot=icon]:text-[var(--ct-text-faint)] group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-[var(--ct-text-muted)]',
+    '*:data-[slot=icon]:text-[var(--ct-text-faint)] group-data-focus/option:*:data-[slot=icon]:text-[var(--ct-bg-deep)] dark:*:data-[slot=icon]:text-[var(--ct-text-muted)]',
     'forced-colors:*:data-[slot=icon]:text-[CanvasText] forced-colors:group-data-focus/option:*:data-[slot=icon]:text-[Canvas]',
     // Avatars
     '*:data-[slot=avatar]:-mx-0.5 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:size-5'
@@ -147,7 +147,7 @@ export function ComboboxOption<T>({
         // Basic layout
         'group/option grid w-full cursor-default grid-cols-[1fr_--spacing(5)] items-baseline gap-x-2 rounded-lg py-2.5 pr-2 pl-3.5 sm:grid-cols-[1fr_--spacing(4)] sm:py-1.5 sm:pr-2 sm:pl-3',
         // Typography
-        'text-base/6 text-zinc-950 sm:text-sm/6 dark:text-white forced-colors:text-[CanvasText]',
+        'text-base/6 text-[var(--ct-text-strong)] sm:text-sm/6 dark:text-[var(--ct-text-strong)] forced-colors:text-[CanvasText]',
         // Focus
         'outline-hidden data-focus:bg-[var(--ct-accent)] data-focus:text-[var(--ct-bg-deep)]',
         // Forced colors mode
@@ -179,7 +179,7 @@ export function ComboboxDescription({ className, children, ...props }: React.Com
       {...props}
       className={cn(
         className,
-        'flex flex-1 overflow-hidden text-[var(--ct-text-faint)] group-data-focus/option:text-white before:w-2 before:min-w-0 before:shrink dark:text-[var(--ct-text-muted)]'
+        'flex flex-1 overflow-hidden text-[var(--ct-text-faint)] group-data-focus/option:text-[var(--ct-bg-deep)] before:w-2 before:min-w-0 before:shrink dark:text-[var(--ct-text-muted)]'
       )}
     >
       <span className="flex-1 truncate">{children}</span>

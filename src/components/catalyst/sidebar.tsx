@@ -17,7 +17,7 @@ export function SidebarHeader({ className, ...props }: React.ComponentPropsWitho
       {...props}
       className={cn(
         className,
-        'flex flex-col border-b border-zinc-950/5 p-4 dark:border-[var(--ct-border-soft)] [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
+        'flex flex-col border-b border-[var(--ct-border-soft)] p-4 [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
       )}
     />
   )
@@ -41,7 +41,7 @@ export function SidebarFooter({ className, ...props }: React.ComponentPropsWitho
       {...props}
       className={cn(
         className,
-        'flex flex-col border-t border-zinc-950/5 p-4 dark:border-[var(--ct-border-soft)] [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
+        'flex flex-col border-t border-[var(--ct-border-soft)] p-4 [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
       )}
     />
   )
@@ -58,7 +58,7 @@ export function SidebarSection({ className, ...props }: React.ComponentPropsWith
 }
 
 export function SidebarDivider({ className, ...props }: React.ComponentPropsWithoutRef<'hr'>) {
-  return <hr {...props} className={cn(className, 'my-4 border-t border-zinc-950/5 lg:-mx-4 dark:border-[var(--ct-border-soft)]')} />
+  return <hr {...props} className={cn(className, 'my-4 border-t border-[var(--ct-border-soft)] lg:-mx-4')} />
 }
 
 export function SidebarSpacer({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
@@ -67,7 +67,7 @@ export function SidebarSpacer({ className, ...props }: React.ComponentPropsWitho
 
 export function SidebarHeading({ className, ...props }: React.ComponentPropsWithoutRef<'h3'>) {
   return (
-    <h3 {...props} className={cn(className, 'mb-1 px-2 text-xs/6 font-medium text-[var(--ct-text-faint)] dark:text-[var(--ct-text-muted)]')} />
+    <h3 {...props} className={cn(className, 'mb-1 px-2 text-xs/6 font-medium text-[var(--ct-text-muted)]')} />
   )
 }
 
@@ -85,24 +85,19 @@ export const SidebarItem = forwardRef(function SidebarItem(
 ) {
   const classes = cn(
     // Base
-    'flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-zinc-950 sm:py-2 sm:text-sm/5',
+    'flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-[var(--ct-text-strong)] sm:py-2 sm:text-sm/5',
     // Leading icon/icon-only
-    '*:data-[slot=icon]:size-6 *:data-[slot=icon]:shrink-0 *:data-[slot=icon]:fill-zinc-500 sm:*:data-[slot=icon]:size-5',
+    '*:data-[slot=icon]:size-6 *:data-[slot=icon]:shrink-0 *:data-[slot=icon]:fill-[var(--ct-text-body)] sm:*:data-[slot=icon]:size-5',
     // Trailing icon (down chevron or similar)
     '*:last:data-[slot=icon]:ml-auto *:last:data-[slot=icon]:size-5 sm:*:last:data-[slot=icon]:size-4',
     // Avatar
     '*:data-[slot=avatar]:-m-0.5 *:data-[slot=avatar]:size-7 sm:*:data-[slot=avatar]:size-6',
     // Hover
-    'data-hover:bg-zinc-950/5 data-hover:*:data-[slot=icon]:fill-zinc-950',
+    'data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-hover:*:data-[slot=icon]:fill-[var(--ct-text-strong)]',
     // Active
-    'data-active:bg-zinc-950/5 data-active:*:data-[slot=icon]:fill-zinc-950',
+    'data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-active:*:data-[slot=icon]:fill-[var(--ct-text-strong)]',
     // Current
-    'data-current:*:data-[slot=icon]:fill-zinc-950',
-    // Dark mode
-    'dark:text-white dark:*:data-[slot=icon]:fill-zinc-400',
-    'dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:*:data-[slot=icon]:fill-white',
-    'dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-active:*:data-[slot=icon]:fill-white',
-    'dark:data-current:*:data-[slot=icon]:fill-white'
+    'data-current:*:data-[slot=icon]:fill-[var(--ct-text-strong)]'
   )
 
   return (
@@ -110,7 +105,7 @@ export const SidebarItem = forwardRef(function SidebarItem(
       {current && (
         <motion.span
           layoutId="current-indicator"
-          className="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-zinc-950 dark:bg-white"
+          className="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-[var(--ct-text-strong)]"
         />
       )}
       {typeof props.href === 'string' ? (
