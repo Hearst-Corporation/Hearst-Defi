@@ -32,6 +32,7 @@ const BOUNDARY: ToolBoundaryEntry[] = [
       "export_briefing_pack",
       "outreach_list_prospects",
       "outreach_stats",
+      "run_product_construction",
     ],
     requiresConfirmation: false,
     notes:

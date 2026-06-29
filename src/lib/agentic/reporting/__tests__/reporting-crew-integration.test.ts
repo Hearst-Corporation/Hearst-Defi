@@ -15,9 +15,9 @@ describe("getReportingCrewBriefing — integration with real control-center", ()
     // The real registry has router active + zero unknown tools + safety holding,
     // so with no observability the status is no_data (not alert).
     expect(b.status).toBe("no_data");
-    // Tool boundary health reflects the real reflected registry (11 read tools).
+    // Tool boundary health reflects the real reflected registry (12 read tools).
     const toolSection = b.sections.find((s) => s.id === "tool-boundary-health")!;
-    expect(toolSection.metrics.some((m) => m.value === "11")).toBe(true);
+    expect(toolSection.metrics.some((m) => m.value === "12")).toBe(true);
     // Safety & gates: no autonomous gate in the real registry.
     const safety = b.sections.find((s) => s.id === "safety-gates")!;
     expect(safety).toBeDefined();

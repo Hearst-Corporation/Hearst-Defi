@@ -94,12 +94,12 @@ describe("loadAgentGraphViews (multi-view, LlmRun + AdminToolRun)", () => {
       const ids = new Set(v.nodes.map((n) => n.id));
       expect(v.edges.every((e) => ids.has(e.from) && ids.has(e.to))).toBe(true);
     }
-    // The instruments view exposes all 18 tools + the caller (9 base read + 2
-    // outreach read + 2 base write + 3 outreach write + 2 canvas write
-    // [create_vault_draft, create_campaign_draft]).
+    // The instruments view exposes all 19 tools + the caller (10 base read
+    // [incl. run_product_construction] + 2 outreach read + 2 base write + 3
+    // outreach write + 2 canvas write [create_vault_draft, create_campaign_draft]).
     const instruments = views.find((v) => v.id === "instruments")!;
     const toolNodes = instruments.nodes.filter((n) => n.kind === "tool");
-    expect(toolNodes).toHaveLength(18);
+    expect(toolNodes).toHaveLength(19);
     expect(toolNodes.every((n) => n.bindingKind === "tool")).toBe(true);
   });
 

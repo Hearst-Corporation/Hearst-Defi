@@ -110,6 +110,13 @@ export const REFLECTED_TOOL_META: Record<string, ReflectedToolMeta> = {
     description: "Outreach stats (read-only, no side effects)",
     externalEffect: false,
   },
+  run_product_construction: {
+    kind: "read",
+    riskLevel: "low",
+    description:
+      "Run the live-read product-construction swarms (fetch + compute, never write/send/deploy)",
+    externalEffect: false,
+  },
 
   // ---- write tools (7) — all confirmationRequired:true ---------------------
   create_review_note_draft: {

@@ -156,14 +156,14 @@ describe("agentic control center — tool boundary v1 (reflection)", () => {
     expect(v1.source).toBe("code_reflection");
     expect(v1.tools.length).toBeGreaterThan(0);
     expect(v1.safetyNotes.length).toBeGreaterThan(0);
-    expect(v1.counts.read_only).toBe(11);
+    expect(v1.counts.read_only).toBe(12);
     expect(v1.counts.confirmed_write).toBe(1);
     expect(v1.counts.draft_or_proposal).toBe(6);
     expect(v1.counts.unknown).toBe(0);
   });
 
   it("the static Control Center boundary is in sync with the real registry (no drift)", () => {
-    // The static BOUNDARY lists exactly the real 11 read + 7 write ids, so there
+    // The static BOUNDARY lists exactly the real 12 read + 7 write ids, so there
     // should be no missing-in-static / stale-static warnings.
     const drift = v1.consistencyIssues.filter(
       (i) =>
