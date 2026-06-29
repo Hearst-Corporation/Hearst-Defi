@@ -15,6 +15,7 @@ import { DiagnosticResultTable } from "@/components/admin/diagnostics/diagnostic
 import type { DiagnosticSuiteResult } from "@/lib/admin/diagnostics/types";
 import { runBtcMiningVaultDiagnostics } from "@/lib/admin/diagnostics/btc-mining-vault-diagnostics";
 import { runBtcProductConstructionDiagnostics } from "@/lib/admin/diagnostics/btc-product-construction-diagnostics";
+import { runBtcMiningConstructionScenarioDiagnostics } from "@/lib/admin/diagnostics/btc-mining-construction-scenario-diagnostics";
 import {
   DIAGNOSTIC_SUITES,
   SUITE_META,
@@ -53,6 +54,7 @@ export default async function AdminDiagnosticsPage() {
   // guards / engine functions, dry-run, no writes/sends.
   const btcMiningVaultResults = runBtcMiningVaultDiagnostics();
   const btcProductConstructionResults = runBtcProductConstructionDiagnostics();
+  const btcMiningScenarioResults = runBtcMiningConstructionScenarioDiagnostics();
 
   return (
     <AdminPageShell
@@ -149,6 +151,17 @@ export default async function AdminDiagnosticsPage() {
       >
         <div className="p-5">
           <DiagnosticResultTable results={btcProductConstructionResults} />
+        </div>
+      </AdminSectionCard>
+
+      {/* 8 — BTC Mining Construction Scenario diagnostics (canvas model) */}
+      <AdminSectionCard
+        title="BTC mining construction — scenario diagnostics"
+        subtitle="Replays construction → 3 scenarios → steps via the tested canvas model (docs/strategy/btc-mining-vault-calculation-canvas.html): scenarios present, 30% mining floor, allocator-adjusted APY never silently negative, coverage classified, steps carry formulas, export well-formed, CONFIGURED never VALIDATED. Documents the chat-tool scenario gap. No writes/sends/deploys."
+        ariaLabel="BTC mining construction scenario diagnostics"
+      >
+        <div className="p-5">
+          <DiagnosticResultTable results={btcMiningScenarioResults} />
         </div>
       </AdminSectionCard>
     </AdminPageShell>
