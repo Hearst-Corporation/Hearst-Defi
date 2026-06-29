@@ -10,6 +10,7 @@ import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
 import { isSuppressed } from "@/lib/outreach/suppression";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
+import { recordAdminAudit } from "@/lib/admin/audit";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
 import type { OutreachCampaignSendPayload } from "@/lib/outreach/events";
 
@@ -71,7 +72,7 @@ export async function outreachSendHandler({
     });
     throw new Error(`[outreach-send] malformed payload — ${msg}`);
   }
-  const { campaignId } = parseResult.data;
+  const { campaignId, requestedBy } = parseResult.data;
 
   // ── 1. Load approved emails — one durable step, JSON-serialisable result ───
   const approved = await step.run("load-approved-emails", async () => {
@@ -137,6 +138,33 @@ export async function outreachSendHandler({
             emailId: email.id,
             found: forbidden.found,
           });
+          // Audit the compliance block so a blocked send is never silent. The
+          // payload carries the matched terms + channel — never the email body.
+          // Best-effort (matches the existing fan-out posture): an audit failure
+          // must NOT turn a blocked email into a sent one — the row already has
+          // status "failed" and we have returned before any send.
+          try {
+            await recordAdminAudit({
+              actorWallet: requestedBy,
+              action: "outreach.blockedSend",
+              entityType: "OutreachEmail",
+              entityId: email.id,
+              after: {
+                reason: "forbidden_words",
+                channel: "campaign_fanout",
+                campaignId,
+                prospectId: email.prospectId ?? null,
+                found: forbidden.found,
+              },
+            });
+          } catch (auditErr) {
+            logger.error("[outreach-send] failed to audit blocked send", {
+              campaignId,
+              emailId: email.id,
+              error:
+                auditErr instanceof Error ? auditErr.message : String(auditErr),
+            });
+          }
           return { ok: false as const, blocked: true };
         }
 

@@ -52,8 +52,13 @@ function toDate(at: Date | number | string): Date {
   return at instanceof Date ? at : new Date(at);
 }
 
-function monthLabel(at: Date | number | string): string {
-  return toDate(at).toLocaleDateString("en-US", { month: "short" });
+function monthLabel(at: Date | number | string, short: boolean): string {
+  const d = toDate(at);
+  if (short) {
+    // Series spans < 60 days — show "Jun 1" so ticks are distinguishable.
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+  return d.toLocaleDateString("en-US", { month: "short" });
 }
 
 export function HcValueChart({
@@ -117,6 +122,12 @@ export function HcValueChart({
   // 4 x-axis month markers spread across the series.
   const xIdx = [0, Math.round((points.length - 1) / 3), Math.round((2 * (points.length - 1)) / 3), points.length - 1];
   const xTicks = Array.from(new Set(xIdx));
+  // Use day-precision labels when the series spans less than 60 days so ticks
+  // don't all collapse to the same month name.
+  const spanDays =
+    (toDate(points[points.length - 1]!.at).getTime() - toDate(points[0]!.at).getTime()) /
+    (24 * 60 * 60 * 1000);
+  const shortLabels = spanDays < 60;
 
   return (
     <div className="relative h-full w-full" style={{ height }}>
@@ -200,7 +211,7 @@ export function HcValueChart({
             pointerEvents: "none",
           }}
         >
-          {monthLabel(points[idx]!.at)}
+          {monthLabel(points[idx]!.at, shortLabels)}
         </span>
       ))}
     </div>

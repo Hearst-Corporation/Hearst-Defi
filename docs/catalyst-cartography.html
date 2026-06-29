@@ -156,8 +156,8 @@
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
   <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. Zero raw Tailwind colour in UI code; convergence is sealed by a 6-rule guard enforced in the blocking CI job.</p>
   <div class="meta-row">
-    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #049 (lot15)</span>
-    <span class="chip"><b>head</b> <code>f16fd2cb</code> · status <code>100% TOKENIZED</code></span>
+    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #049 (lot15 + sync)</span>
+    <span class="chip"><b>head</b> <code>d8951798</code> · status <code>100% TOKENIZED</code></span>
     <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 27)</span>
     <span class="chip"><span class="dot green"></span><b>52</b> catalyst files · all tokenized</span>
     <span class="chip"><span class="dot green"></span>0 raw Tailwind colour in UI</span>
@@ -446,7 +446,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #049 (lot15) · head <code class="mono">f16fd2cb</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #049 (lot15 + sync) · head <code class="mono">d8951798</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -493,7 +493,7 @@ window.CARTO = {
     ["Admin","/admin/governance/proposal/[id]","AdminPageShell+SectionCard","badge","bento·ptai","—","0","CATALYST_READY","P1","Complete"],
     ["Admin","/admin/distributions","AdminPageShell+SectionCard","—","apy-range·empty·provenance","catalyst/table","0","CATALYST_READY","P1","Complete"],
     ["Admin","/admin/outreach","AdminPageShell+SectionCard","button·table","badge·empty-surface","—","0","CATALYST_READY","P0","Complete"],
-    ["Admin","/admin/outreach/compose","AdminPageShell+SectionCard","—","badge","—","0","CATALYST_READY","P1","DirectSendForm"],
+    ["Admin","/admin/outreach/compose","AdminPageShell+SectionCard","—","badge","—","0","CATALYST_READY","P1","DirectSendForm — ConfirmDialog HITL wired + test ✓"],
     ["Admin","/admin/outreach/[campaignId]","AdminPageShell+SectionCard","—","badge·empty-surface","—","0","CATALYST_READY","P1","Complete"],
     ["Admin","/admin/outreach/prospects/[id]","AdminPageShell+SectionCard","table","badge·empty-surface","—","0","CATALYST_READY","P1","Complete"],
     ["Admin","/admin/marketplace","AdminPageShell+SectionCard","—","apy-range·provenance","catalyst/table+grid","0","UI_WRAPPER_COMPAT","P1","MarketKpiTile custom (Lot D/F)"],
@@ -519,10 +519,10 @@ window.CARTO_DATA = {
   "meta": {
     "mission": "049",
     "generatedAt": "2026-06-29",
-    "head": "f16fd2cb",
-    "originMain": "f16fd2cb",
+    "head": "d8951798",
+    "originMain": "d8951798",
     "status": "100% TOKENIZED — EVERYWHERE",
-    "lastPR": "lot15 catalyst primitives 100% tokenized (#208)",
+    "lastPR": "cartography resync chrome/meta/summary to lot15 state (#209)",
     "subAgents": 16,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted. 100% --ct-* tokens on every UI surface, CI-enforced.",
@@ -1194,58 +1194,52 @@ window.CARTO_DATA = {
   ],
   "hardcodesTop": [
     {
-      "file": "cockpit-shell/src/chat/ChatKimi.tsx",
-      "count": 19,
-      "class": "VIOLATION",
-      "fix": "var(--ct-accent) in arbitrary variants + .ct-prose-accent class"
+      "file": "src/lib/brand-constants.ts",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "CONNECT_ACCENT_HEX source-of-truth constant — keep"
     },
     {
-      "file": "src/app/admin/vaults/_vault-form.tsx",
-      "count": 11,
-      "class": "VIOLATION",
-      "fix": "focus:border-[var(--ct-accent)]/40 + semantic badge/status classes"
+      "file": "src/lib/ui/catalyst-accent.ts",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "catalyst-accent JS helper (doc comment) — keep"
+    },
+    {
+      "file": "src/components/portfolio/chart/value-area-plot.tsx",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "canvas chart JS fallback (no CSS var) — ORPHAN/RESERVE, left per mission"
+    },
+    {
+      "file": "cockpit-shell/src/chat/ChatKimi.tsx",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "productColor ?? '#A7FB90' JS fallback for dynamic product theming — keep"
+    },
+    {
+      "file": "cockpit-shell/src/chat/ChatHistory.tsx",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "productColor ?? '#A7FB90' JS fallback — keep"
+    },
+    {
+      "file": "cockpit-shell/src/shell/CockpitShell.tsx",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "defaultProductColor JS constant — keep"
+    },
+    {
+      "file": "cockpit-shell/src/shell/context.tsx",
+      "count": 1,
+      "class": "LEGITIMATE_FALLBACK",
+      "fix": "CockpitContext default productColor — keep"
     },
     {
       "file": "src/components/vaults/vault-allocation-display.tsx",
-      "count": 7,
+      "count": 1,
       "class": "LEGITIMATE_FALLBACK",
-      "fix": "SVG donut canvas — document as chart fallback"
-    },
-    {
-      "file": "src/components/admin/agent-template-form.tsx",
-      "count": 5,
-      "class": "VIOLATION",
-      "fix": "ct-surface-accent / ct-input-focus-accent"
-    },
-    {
-      "file": "src/components/admin/markdown.tsx",
-      "count": 4,
-      "class": "VIOLATION",
-      "fix": ".ct-prose-code / .ct-prose-link / .ct-prose-blockquote"
-    },
-    {
-      "file": "cockpit-shell/src/shell/RailRight.tsx",
-      "count": 4,
-      "class": "VIOLATION",
-      "fix": "[--ct-active-accent:var(--ct-accent)] utilities"
-    },
-    {
-      "file": "src/components/onboarding/OpsContactCard.tsx",
-      "count": 3,
-      "class": "VIOLATION",
-      "fix": ".ct-card-badge-accent"
-    },
-    {
-      "file": "src/components/admin/cockpit/live-metrics.tsx",
-      "count": 3,
-      "class": "VIOLATION",
-      "fix": ".ct-metric-positive"
-    },
-    {
-      "file": "src/lib/pdf/pdf-palette.ts",
-      "count": 2,
-      "class": "PRINT_ONLY",
-      "fix": "#16a34a print green — documented, keep"
+      "fix": "SVG donut canvas gradient fallback — documented chart-only use"
     }
   ],
   "typographyTop": [
@@ -1568,6 +1562,16 @@ window.CARTO_DATA = {
       "date": "2026-06-29",
       "ref": "Mission #049 lot15 — 100% EVERYWHERE",
       "note": "Catalyst primitives tokenized — 16-agent fan-out (15 catalyst zones + 1 non-catalyst sweep, isolated worktrees, integrated serially). ~300 raw Tailwind colours (white/zinc/named hues) in the Tailwind-Plus primitives (badge, button, combobox, listbox, sidebar, select, navbar, inputs, dropdown, layouts, dialog/alert, table, forms…) → --ct-* tokens, with variant KEYS and [--btn-*] custom-property plumbing preserved (public API unchanged). Added --ct-status-neutral{,-soft,-border} for the MOCK badge. Final stragglers fixed: heading dark:text-white, footer separator, forbidden-words ring, button text-cyan/yellow/lime-950. ds-convergence-guard gained a 6th rule (named-color: bans ANY raw Tailwind colour repo-wide, catalyst included). Email/route HTML templates keep inline hex (no site CSS to resolve a var — legit). typecheck clean, eslint 0 errors, next build compiles, all guards green, 52 tests pass. The design system is now 100% tokenized on every UI surface."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "PR #209 — cartography resync chrome/meta/summary to lot15 100% state",
+      "note": "Cartography document resynced to reflect the lot15 completion: summary stats, meta head, accent-hex count updated to 0. No code change — doc-only resync. HEAD d8951798."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "DirectSendForm — ConfirmDialog HITL wiring",
+      "note": "direct-send-form.tsx: added ConfirmDialog two-step confirmation gate before sending a real external email (mirrors SendCampaignButton). The send button is now type=button (opens dialog only, never fires the server action directly). New test file src/components/admin/outreach/__tests__/direct-send-form.test.tsx (5 assertions: type=button invariant, no-send-on-render, closed dialog renders nothing, open dialog surfaces recipient/subject/external-email warning + confirm/cancel). Guard wiring: the form is CATALYST_READY — ConfirmDialog imported directly from catalyst/confirm-dialog."
     }
   ]
 };
