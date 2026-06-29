@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
-import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
+import {
+  CockpitButton as Button,
+  cockpitButtonVariants,
+} from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 import {
   constructionDraftToVaultForm,
@@ -45,10 +47,11 @@ export function ProductConstructionPanel({
     try {
       // No preset to pick — the swarms run on the CONFIGURED base regime. The
       // server resolves + clamps the assumptions; the headline stays a range.
+      // withScenarios: true requests the 3 regime cards + reasoning steps.
       const res = await fetch("/api/admin/product-construction/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ objective, preset: "base" }),
+        body: JSON.stringify({ objective, preset: "base", withScenarios: true }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };

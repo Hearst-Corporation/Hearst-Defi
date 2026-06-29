@@ -12,10 +12,13 @@ import type {
   HcLabeledValue,
   HcSourceStatus,
 } from "@/components/dataviz/his/types";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type {
   ChartArtifact,
+  LiveProvenance,
   ProductConstructionDraft,
+  ScenarioResult,
 } from "@/lib/agentic/swarm/live/types";
 
 /**
@@ -46,16 +49,45 @@ function provenanceToSource(p: ChartArtifact["provenance"]): HcSourceStatus {
   }
 }
 
+/** Map LiveProvenance (capitalized) to the ProvenanceBadge kind (lowercase). */
+function liveProvenanceToBadgeKind(p: LiveProvenance): Provenance {
+  switch (p) {
+    case "Live":
+      return "live";
+    case "Oracle":
+      return "oracle";
+    case "Attested":
+      return "attested";
+    case "Estimated":
+      return "estimated";
+    case "Manual":
+      return "manual";
+    case "Stale":
+      return "stale";
+  }
+}
+
 interface Section {
   id: string;
   label: string;
 }
 
-const SECTIONS: Section[] = [
+const SECTIONS_BASE: Section[] = [
   { id: "summary", label: "Summary" },
   { id: "market", label: "Market inputs" },
   { id: "strategy", label: "Strategy" },
   { id: "projection", label: "Projection" },
+  { id: "assumptions", label: "Assumptions" },
+  { id: "writeup", label: "Write-up" },
+  { id: "audit", label: "Provenance & audit" },
+];
+const SECTIONS_WITH_SCENARIOS: Section[] = [
+  { id: "summary", label: "Summary" },
+  { id: "market", label: "Market inputs" },
+  { id: "strategy", label: "Strategy" },
+  { id: "projection", label: "Projection" },
+  { id: "scenarios", label: "Scenarios" },
+  { id: "reasoning", label: "Reasoning" },
   { id: "assumptions", label: "Assumptions" },
   { id: "writeup", label: "Write-up" },
   { id: "audit", label: "Provenance & audit" },
@@ -87,6 +119,66 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** One scenario card — allocation ring + APY range + p5/p50/p95. */
+function ScenarioCard({ scenario }: { scenario: ScenarioResult }) {
+  const regimeLabel: Record<ScenarioResult["regime"], string> = {
+    defensive: "Defensive",
+    balanced: "Balanced",
+    opportunistic: "Opportunistic",
+  };
+
+  const allocationSegments: HcLabeledValue[] = [
+    { label: "Mining", value: scenario.allocation.mining },
+    { label: "BTC", value: scenario.allocation.btc },
+    { label: "USDC", value: scenario.allocation.usdc },
+    { label: "Reserve", value: scenario.allocation.stableReserve },
+  ];
+
+  const ariaLabel = `${regimeLabel[scenario.regime]} scenario allocation`;
+
+  return (
+    <div className="flex flex-col gap-(--ct-space-3) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
+      {/* Header row: regime label + governance badge */}
+      <div className="flex items-center gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">
+          {regimeLabel[scenario.regime]}
+        </span>
+        {scenario.governanceException ? (
+          <span className="inline-flex items-center gap-(--ct-space-1) rounded-(--ct-radius-full) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-px text-[length:var(--ct-text-nano)] ct-text-tertiary">
+            mining floored (governance review)
+          </span>
+        ) : null}
+      </div>
+
+      {/* Allocation ring */}
+      <HcCompositionRing
+        segments={allocationSegments}
+        size={120}
+        bars
+        aria-label={ariaLabel}
+      />
+
+      {/* APY headline range + percentiles */}
+      <div className="grid grid-cols-2 gap-(--ct-space-2)">
+        <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-surface-page p-(--ct-space-3)">
+          <span className="ct-bento-label">APY range</span>
+          <span className="mono text-[length:var(--ct-text-base)] font-bold ct-text-strong">
+            {Pct(scenario.quant.headlineRange.low)}–{Pct(scenario.quant.headlineRange.high)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-surface-page p-(--ct-space-3)">
+          <span className="ct-bento-label">p5 / p50 / p95</span>
+          <span className="mono text-[length:var(--ct-text-sm)] font-medium ct-text-body">
+            {Pct(scenario.quant.percentiles.p5)} /{" "}
+            {Pct(scenario.quant.percentiles.p50)} /{" "}
+            {Pct(scenario.quant.percentiles.p95)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ConstructionReport({
   draft,
   /** When true, reveal sections progressively (the "writes itself" effect). */
@@ -95,6 +187,13 @@ export function ConstructionReport({
   draft: ProductConstructionDraft;
   animate?: boolean;
 }) {
+  const hasScenarios =
+    Array.isArray(draft.scenarios) && draft.scenarios.length > 0;
+  const hasSteps = Array.isArray(draft.steps) && draft.steps.length > 0;
+
+  // Pick the right section list based on whether scenarios are present.
+  const SECTIONS = hasScenarios ? SECTIONS_WITH_SCENARIOS : SECTIONS_BASE;
+
   // Progressive reveal: show N sections, growing on a short cadence. A persisted
   // report (animate=false) shows everything immediately.
   const [revealed, setRevealed] = useState(animate ? 1 : SECTIONS.length);
@@ -104,7 +203,7 @@ export function ConstructionReport({
     if (revealed >= SECTIONS.length) return;
     const t = setTimeout(() => setRevealed((n) => n + 1), 350);
     return () => clearTimeout(t);
-  }, [animate, revealed]);
+  }, [animate, revealed, SECTIONS.length]);
 
   const fan = useMemo(
     () => draft.charts.find((c) => c.kind === "fan"),
@@ -127,6 +226,19 @@ export function ConstructionReport({
   const allocationSegments: HcLabeledValue[] = (allocation?.allocation ?? []).map(
     (seg) => ({ label: seg.label, value: seg.valuePct }),
   );
+
+  // Section index lookup — position shifts when scenarios are inserted.
+  const idx = {
+    summary: 0,
+    market: 1,
+    strategy: 2,
+    projection: 3,
+    scenarios: hasScenarios ? 4 : -1,
+    reasoning: hasScenarios ? 5 : -1,
+    assumptions: hasScenarios ? 6 : 4,
+    writeup: hasScenarios ? 7 : 5,
+    audit: hasScenarios ? 8 : 6,
+  } as const;
 
   return (
     <div className="grid gap-(--ct-space-6) lg:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
@@ -153,7 +265,7 @@ export function ConstructionReport({
 
       <article className="flex min-w-0 flex-col gap-(--ct-space-8)">
         {/* 1 — Summary */}
-        {shows(0) ? (
+        {shows(idx.summary) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="summary">{draft.vault.label} — construction report</SectionHeading>
             <p className="body-sm ct-text-body">{draft.objective}</p>
@@ -179,7 +291,7 @@ export function ConstructionReport({
         ) : null}
 
         {/* 2 — Market inputs */}
-        {shows(1) ? (
+        {shows(idx.market) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="market">Market inputs</SectionHeading>
             <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
@@ -204,7 +316,7 @@ export function ConstructionReport({
         ) : null}
 
         {/* 3 — Strategy */}
-        {shows(2) ? (
+        {shows(idx.strategy) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="strategy">Strategy</SectionHeading>
             <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
@@ -245,7 +357,7 @@ export function ConstructionReport({
         ) : null}
 
         {/* 4 — Projection */}
-        {shows(3) ? (
+        {shows(idx.projection) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="projection">Projection</SectionHeading>
             {fan ? (
@@ -275,8 +387,60 @@ export function ConstructionReport({
           </section>
         ) : null}
 
-        {/* 5 — Assumptions */}
-        {shows(4) ? (
+        {/* 5 — Scenarios (defensive / balanced / opportunistic) — optional */}
+        {hasScenarios && shows(idx.scenarios) ? (
+          <section className="flex flex-col gap-(--ct-space-3)">
+            <SectionHeading id="scenarios">Scenarios</SectionHeading>
+            <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
+              Three regime allocations derived from live inputs. Each is an
+              independent Monte-Carlo run — APY is always a range, never a
+              single point. Not a projection of actual returns.
+            </p>
+            <div className="grid gap-(--ct-space-3) sm:grid-cols-3">
+              {draft.scenarios!.map((s) => (
+                <ScenarioCard key={s.regime} scenario={s} />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {/* 6 — Reasoning / step-by-step — optional */}
+        {hasSteps && shows(idx.reasoning) ? (
+          <section className="flex flex-col gap-(--ct-space-3)">
+            <SectionHeading id="reasoning">Reasoning</SectionHeading>
+            <ol className="flex flex-col gap-(--ct-space-3)">
+              {draft.steps!.map((step, i) => (
+                <li
+                  key={step.id}
+                  className="grid grid-cols-[auto_minmax(0,1fr)] gap-(--ct-space-3) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)"
+                >
+                  {/* Step number */}
+                  <span
+                    aria-hidden
+                    className="flex h-(--ct-space-6) w-(--ct-space-6) shrink-0 items-center justify-center rounded-(--ct-radius-full) border border-[var(--ct-border-accent)] mono text-[length:var(--ct-text-xs)] font-bold ct-text-accent"
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="flex min-w-0 flex-col gap-(--ct-space-1)">
+                    <div className="flex flex-wrap items-center gap-(--ct-space-2)">
+                      <span className="ct-bento-label ct-text-strong">
+                        {step.title}
+                      </span>
+                      <ProvenanceBadge
+                        kind={liveProvenanceToBadgeKind(step.provenance)}
+                        compact
+                      />
+                    </div>
+                    <p className="body-sm ct-text-body">{step.finding}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
+
+        {/* 7 — Assumptions */}
+        {shows(idx.assumptions) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="assumptions">Assumptions (regime)</SectionHeading>
             <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
@@ -305,8 +469,8 @@ export function ConstructionReport({
           </section>
         ) : null}
 
-        {/* 6 — Write-up */}
-        {shows(5) ? (
+        {/* 8 — Write-up */}
+        {shows(idx.writeup) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="writeup">Write-up</SectionHeading>
             <span className="ct-bento-label">
@@ -316,8 +480,8 @@ export function ConstructionReport({
           </section>
         ) : null}
 
-        {/* 7 — Provenance & audit */}
-        {shows(6) ? (
+        {/* 9 — Provenance & audit */}
+        {shows(idx.audit) ? (
           <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="audit">Provenance &amp; audit</SectionHeading>
             <ul className="flex flex-col gap-(--ct-space-1) mono text-[length:var(--ct-text-xs)] ct-text-secondary">

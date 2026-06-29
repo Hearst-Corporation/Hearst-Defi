@@ -184,6 +184,17 @@ export interface ProductConstructionDraft {
     markedLive: false;
     custodialWrite: false;
   };
+  /**
+   * 3-scenario results (defensive / balanced / opportunistic) — additive, optional.
+   * Present when the pipeline was run via runProductConstructionScenarios or when
+   * the pipeline option `withScenarios: true` was supplied.
+   */
+  scenarios?: ScenarioResult[];
+  /**
+   * Deterministic step-by-step reasoning artifact — additive, optional.
+   * Present alongside `scenarios` to explain WHAT the numbers mean.
+   */
+  steps?: ConstructionStep[];
 }
 
 /** Typed pipeline failure — never an execution fallback. */
@@ -192,4 +203,48 @@ export interface ProductConstructionError {
   stageId?: LiveSwarmStageId;
   reasonCode: string;
   message: string;
+}
+
+// ---------------------------------------------------------------------------
+// Additive: scenario / step types (Stream A)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per-regime result produced by the 3-scenario orchestration. Each regime
+ * shares the same A/B/C data fetch but runs an independent D (runQuant).
+ */
+export interface ScenarioResult {
+  /** The vault mode this scenario corresponds to. */
+  regime: "defensive" | "balanced" | "opportunistic";
+  /** 4-sleeve allocation derived from the live allocator for this regime. */
+  allocation: {
+    mining: number;
+    btc: number;
+    usdc: number;
+    stableReserve: number;
+    miningFraction: number;
+    governanceException: boolean;
+    miningProfitable: boolean;
+    rationale: string;
+  };
+  /** Seeded Monte-Carlo result for this regime. */
+  quant: QuantArtifact;
+  /** Mirrors RegimeAllocationResult.miningProfitable for convenience. */
+  miningProfitable: boolean;
+  /** True when the mining weight was clamped up to the 30% floor. */
+  governanceException: boolean;
+}
+
+/**
+ * One deterministic reasoning step produced by buildConstructionSteps.
+ * Pure text — never invents a figure; every number comes from the inputs.
+ */
+export interface ConstructionStep {
+  /** Stable ordering id: "step-1", "step-2", "step-3", "step-4". */
+  id: string;
+  title: string;
+  /** One-sentence finding from the data. No invented numbers. */
+  finding: string;
+  /** Provenance tag matching the live data source. */
+  provenance: LiveProvenance;
 }

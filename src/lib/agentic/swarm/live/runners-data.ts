@@ -223,6 +223,13 @@ export interface QuantResult {
  * CALIBRATABLE `assumptions` object (already resolved + clamped by the caller
  * via resolveQuantAssumptions), so a scenario can be tuned conservative ↔
  * aggressive without changing code.
+ *
+ * `miningWeightOverride` — when provided, it replaces `assumptions.yield.miningWeight`
+ * for the MC engine's blended-yield split. This is the key bridge from the real
+ * allocator: callers (strategy-allocation → pipeline) derive the weight from live
+ * returns + the product's regime bounds, then pass it here so the MC reflects
+ * the ACTUAL strategy, not the hardcoded 0.6 default. When absent, the
+ * assumptions value is used unchanged (backward compatible).
  */
 export function runQuant(args: {
   seed: number;
@@ -230,9 +237,22 @@ export function runQuant(args: {
   strategy: Pick<StrategyCrossArtifact, "miningYieldPct" | "usdcYieldPct" | "headlineApy">;
   telegram: Pick<TelegramPricingResult, "bestCostPerThDay">;
   assumptions: QuantAssumptions;
+  /**
+   * When supplied, overrides `assumptions.yield.miningWeight` for the MC engine.
+   * Use this to wire the REAL allocator-derived weight instead of the hardcoded 0.6.
+   * Must be in [0, 1]. Values outside that range are clamped silently.
+   */
+  miningWeightOverride?: number;
 }): QuantResult {
-  const { seed, market, strategy, telegram, assumptions } = args;
+  const { seed, market, strategy, telegram, assumptions, miningWeightOverride } = args;
   const { horizonMonths, floorApyPct } = assumptions;
+
+  // Resolve the effective mining weight: caller-supplied override (clamped to [0,1])
+  // wins; otherwise fall back to the assumptions value.
+  const effectiveMiningWeight =
+    miningWeightOverride !== undefined
+      ? Math.min(1, Math.max(0, miningWeightOverride))
+      : assumptions.yield.miningWeight;
 
   // Capital/TH derived from the best landed cost when available, else a
   // conservative industry default; cost/TH/day from the same source.
@@ -266,8 +286,8 @@ export function runQuant(args: {
       maxMultiple: assumptions.difficulty.maxMultiple,
     },
     yield: {
-      miningWeight: assumptions.yield.miningWeight,
-      stableWeight: 1 - assumptions.yield.miningWeight,
+      miningWeight: effectiveMiningWeight,
+      stableWeight: 1 - effectiveMiningWeight,
       stableApyMean: strategy.usdcYieldPct / 100,
       stableApyVol: assumptions.yield.stableApyVol,
       costPerThDay,
