@@ -1,11 +1,11 @@
 {
   "meta": {
-    "mission": "054",
+    "mission": "055",
     "generatedAt": "2026-06-29",
     "head": "main",
-    "originMain": "d16e4a64",
+    "originMain": "ddae124d",
     "status": "100% TOKENIZED — EVERYWHERE",
-    "lastPR": "Mission #054 — admin visual structure finalized (supersedes #051 label): start-pattern unification merged to main in d05f618c (PR #218). 14 pages welded, 3 left intentional (double-frame avoided), dashboard cockpit + redirect + proof-center + agent-canvas + vaults/new wizard exempted.",
+    "lastPR": "Mission #055 — admin visual frame unification: min-w-0 crop fix on the shared AdminPageShell/AdminSectionCard primitive + named admin-canon-page-frame/first-block/table-surface/form-surface CSS contract; feedback + vault-edit forms → form-surface; frame guard added (PR #222). /admin/outreach made full-width, 50/50 split removed (PR #223). #054 cartography finalized (PR #219). No re-wrap churn, no internal refactor.",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -1070,8 +1070,26 @@
       "date": "2026-06-29",
       "ref": "Mission #054 — Admin Visual Structure Unification (finalized)",
       "note": "Owner trajectory correction: the real request was 'uniformify the visual structure of admin pages' — NOT projection safe input / security / canvas / read-only cartography / Catalyst hardening. Verdict after evidence: the substantive work was ALREADY SHIPPED — PR #218 (fix/admin-visual-canon) merged to main in d05f618c at 03:47:38Z (the concurrent auto-pipeline merged + deleted the branch mid-investigation). 14 admin pages welded on the /admin/customers canon, guard admin-canon-start-pattern.test.ts (50 tests) green in CI Vitest, all real gates green (Lint&Typecheck, Vitest, SecDevOps, Vercel, Foundry); only the pre-existing non-blocking Playwright login-flow flake red (auth-flow + dashboard cascade from 'login failed' seed — #218 touches no auth/portfolio code). Re-confirmed the 3 left-intentional pages (security, governance/allowlist, distributions): wrapping any would force the double-frame #054 itself forbids → kept conformant-by-different-means, not regressions. dashboard cockpit grammar stays exempt (never forced). agentic deferred to PR #81. This entry is the doc-only #054 cartography finalization (HEAD/mission pointer + #054 log + label); no admin page re-churned, no fresh competing branch, no engine/projection/prisma/chat/outreach/HcValueChart/#146 touched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #055 — Admin Visual Frame Unification",
+      "note": "Owner screenshots showed admin pages still didn't LOOK the same despite being on the #051/#054 start-pattern: Investors table cropped right, frame width jumped with the chat rail, forms read as isolated slabs. Root cause = flexbox min-width:auto on AdminSectionCard (a flex item) — a wide Catalyst table's intrinsic width won, the card refused to shrink, the frame overflowed the slot. Fix at the SHARED PRIMITIVE so it lands on every admin page at once: min-w-0 on the page frame (admin-canon-page-frame) and on every AdminSectionCard (admin-canon-first-block), plus a named CSS contract in src/app/admin/admin-canon.css (page-frame / first-block / table-surface / form-surface, tokens only). The Catalyst table already had overflow-x-auto; min-w-0 is what lets it scroll locally instead of bleeding. feedback + vaults/[id]/edit form bodies → admin-canon-form-surface (framed card body, not a black slab). New guard src/app/admin/__tests__/admin-visual-frame.test.ts locks the CSS contract + the primitive min-w-0 and lists exemptions. Shipped: PR #222 (frame), PR #223 (outreach full-width — 50/50 split removed), PR #219 (#054 cartography). Mission #057 merged all three to main and ran the real browser visual QA (see report). No re-wrap churn, no internal refactor; engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
     }
   ],
+  "adminVisualFrame": {
+    "mission": "055",
+    "rootCause": "flexbox min-width:auto on AdminSectionCard (flex item) — wide Catalyst table intrinsic width wins, card won't shrink, frame overflows the slot and crops right (worse with chat rail open).",
+    "fix": "min-w-0 on the shared primitive (page frame + every section card) + named CSS contract in src/app/admin/admin-canon.css.",
+    "canonClasses": ["admin-canon-page-frame", "admin-canon-first-block", "admin-canon-table-surface", "admin-canon-form-surface"],
+    "primitivesChanged": ["src/components/admin/admin-page-shell.tsx", "src/app/admin/admin-canon.css", "src/app/admin/layout.tsx"],
+    "formSurfaceApplied": ["feedback", "vaults/[id]/edit"],
+    "outreachFullWidth": "PR #223 — removed the lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)] split; Lead engine now a full-width block.",
+    "guard": "src/app/admin/__tests__/admin-visual-frame.test.ts",
+    "exempted": ["dashboard (cockpit)", "/admin (redirect)", "proof-center", "proof-center/full", "agent-canvas/[canvasId]", "vaults/new (wizard)", "agentic (control-tower cockpit, PR #81)"],
+    "mergedTo": "main via PR #222 (frame), #223 (outreach full-width), #219 (#054 cartography) — Mission #057.",
+    "untouched": ["engine", "projection calculations", "outreach runtime", "chat/nav runtime", "server actions", "HcValueChart", "Prisma/migrations", "#146"]
+  },
   "adminVisualCanon": {
     "mission054": "Re-validated and confirmed SHIPPED via PR #218 / merge d05f618c. Owner criterion met: 10 admin pages read as one system in <2s (canon header + page-canon-rule + welded first block + no floating KPI + no bare grid + no naked custom shell). The 3 leftIntentional are double-frame avoidances, not divergences; dashboard cockpit exempt and never forced.",
     "canonTool": "AdminSectionCard (= the welded section of /admin/customers)",
