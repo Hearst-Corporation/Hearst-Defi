@@ -56,26 +56,26 @@ export function ProjectionSourceSummary({
   const inputs = summary.rows.filter((r) => r.kind === "input");
   const outputs = summary.rows.filter((r) => r.kind === "output");
 
+  // Flat content — NO own box and NO repeated "Source truth" heading: this
+  // renders directly inside the parent AdminSectionCard "Source truth", which
+  // already owns the frame + title + subtitle. Wrapping it again produced a
+  // card-in-card double-frame and a duplicate title (the DS divergence the
+  // owner flagged). Status badges now sit on a flush leading row.
   return (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[length:var(--ct-text-micro)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]">
-          Source truth
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <SourceTruthBadge status="MIXED">{`Overall: ${summary.overall}`}</SourceTruthBadge>
-          {present.map((s) => (
-            <SourceTruthBadge key={s} status={s}>{`${summary.counts[s]} ${s}`}</SourceTruthBadge>
-          ))}
-        </div>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <SourceTruthBadge status="MIXED">{`Overall: ${summary.overall}`}</SourceTruthBadge>
+        {present.map((s) => (
+          <SourceTruthBadge key={s} status={s}>{`${summary.counts[s]} ${s}`}</SourceTruthBadge>
+        ))}
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <SourceColumn title="Inputs" rows={inputs} />
         <SourceColumn title="Outputs" rows={outputs} />
       </div>
 
-      <p className="mt-3 border-t border-[var(--ct-border-soft)] pt-3 text-[length:var(--ct-text-micro)] italic text-[var(--ct-text-faint)]">
+      <p className="border-t border-[var(--ct-border-soft)] pt-3 text-[length:var(--ct-text-micro)] italic text-[var(--ct-text-faint)]">
         Projection methodology : live inputs + configured assumptions. Not
         guaranteed. Admin validation required — {summary.verdict}.
       </p>
