@@ -1,0 +1,68 @@
+/* Live Flow Theater — colors + keyframes only (token-driven, dark-mode).
+   Kept in CSS (not .tsx) so all hues live behind --ct-* tokens. */
+
+.dft {
+  --v-pass: var(--ct-accent);
+  --v-read: var(--ct-status-info);
+  --v-route: var(--ct-status-info);
+  --v-hitl: var(--ct-status-warning);
+  --v-manual: var(--ct-status-warning);
+  --v-write: var(--ct-status-unaudited);
+  --v-external: var(--ct-status-unaudited);
+  --v-refuse: var(--ct-status-danger);
+  --v-block: var(--ct-status-danger);
+  --v-live-err: var(--ct-status-danger);
+}
+
+.dft-stage { position: relative; width: 940px; height: 540px; }
+.dft-edges { position: absolute; inset: 0; width: 940px; height: 540px; pointer-events: none; z-index: 1; }
+.dft-edges path { fill: none; stroke: var(--ct-border); stroke-width: 1.6; }
+.dft-edges path.flow {
+  stroke: var(--fc, var(--ct-accent));
+  stroke-width: 2.6;
+  stroke-dasharray: 7 7;
+  animation: dft-dash 0.5s linear infinite;
+}
+@keyframes dft-dash { to { stroke-dashoffset: -28; } }
+
+.dft-node {
+  position: absolute; width: 150px; min-height: 46px;
+  background: var(--ct-surface-card);
+  border: 1px solid var(--ct-border);
+  border-left: 3px solid var(--nc, var(--ct-border));
+  border-radius: 9px; padding: 7px 10px; z-index: 2; opacity: 0.5;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s, border-color 0.2s;
+}
+.dft-node .nl { font-size: 0.72rem; font-weight: 700; color: var(--ct-text-strong); line-height: 1.2; }
+.dft-node .ns { font-size: 0.6rem; color: var(--ct-text-tertiary); margin-top: 2px; line-height: 1.25; }
+.dft-node.dimmed { opacity: 0.22; }
+.dft-node.lit { opacity: 1; transform: translateY(-2px) scale(1.02); }
+.dft-node.v-pass    { box-shadow: 0 0 0 1.5px var(--v-pass); }
+.dft-node.v-read,
+.dft-node.v-route   { box-shadow: 0 0 0 1.5px var(--v-read); }
+.dft-node.v-hitl,
+.dft-node.v-manual  { box-shadow: 0 0 0 1.5px var(--v-hitl); }
+.dft-node.v-write,
+.dft-node.v-external{ box-shadow: 0 0 0 1.5px var(--v-write); }
+.dft-node.v-refuse,
+.dft-node.v-block,
+.dft-node.v-live-err{ box-shadow: 0 0 0 1.5px var(--v-refuse); }
+
+.dft-token {
+  position: absolute; z-index: 5; left: 0; top: 0;
+  transform: translate(-50%, -50%) scale(0.6); opacity: 0;
+  transition: left 0.72s cubic-bezier(.45,.05,.3,1), top 0.72s cubic-bezier(.45,.05,.3,1), opacity 0.3s, transform 0.3s;
+  max-width: 260px; background: var(--ct-surface-inset);
+  border: 1px solid var(--ct-accent); border-radius: 20px; padding: 6px 13px;
+  font-size: 0.7rem; color: var(--ct-text-strong);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dft-token.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.dft-token .tic { color: var(--ct-accent); margin-right: 5px; }
+
+.dft-pulse { position: absolute; z-index: 3; width: 150px; height: 46px; border-radius: 9px; pointer-events: none; opacity: 0; }
+.dft-pulse.go { animation: dft-pr 0.7s ease-out; }
+@keyframes dft-pr { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 0; transform: scale(1.5); } }
+
+.dft-le { opacity: 0; transform: translateX(10px); transition: opacity 0.25s, transform 0.25s; }
+.dft-le.in { opacity: 1; transform: translateX(0); }
