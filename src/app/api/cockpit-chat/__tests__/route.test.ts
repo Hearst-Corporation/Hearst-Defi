@@ -251,6 +251,39 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
+  it("product creation wins over the legacy vaults nav fallback for 'on va créer un produit'", async () => {
+    // REGRESSION: "on va créer un produit" matches the legacy nav fallback as a
+    // `vaults` navigation (the verb "va" + the noun "produit") AND the product
+    // classifier as product creation. The product intent is more specific and
+    // must win — the admin must land on the Product Workspace, never /vaults.
+    mockClassify.mockReturnValue({
+      kind: "product_creation",
+      objective: "on va créer un produit qui s'appelle Titan Vault",
+      primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+      autostart: true,
+      shouldOpenProductWorkspace: true,
+      shouldOpenScenarioLab: false,
+    });
+
+    const res = await POST(
+      makeChatRequest("on va créer un produit qui s'appelle Titan Vault"),
+    );
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+        objective: "on va créer un produit qui s'appelle Titan Vault",
+        autostart: true,
+        intentKind: "product_creation",
+      });
+    });
+    // The legacy fallback must NOT have diverted to /vaults.
+    expect(mockPublishNav).not.toHaveBeenCalledWith(USER_ID, {
+      destinationKey: "vaults",
+    });
+  });
+
   it("carries Scenario Lab as secondary metadata when the product intent also wants simulation", async () => {
     mockClassify.mockReturnValue({
       kind: "mixed_product_creation_simulation",

@@ -799,6 +799,21 @@ async function runMasterAgentTurn(args: {
     ? isEducationalReadOnly(agenticDecision)
     : false;
 
+  // Admin product-creation/framing intent — computed AFTER the router-v2
+  // fast-path (which returns earlier for high-confidence nav, so a pure
+  // navigation never triggers this classify call) and BEFORE the legacy nav
+  // fallback. It is MORE SPECIFIC than the generic nav shortcut and must win:
+  // the legacy regex captures "on va créer un produit" as a `vaults` navigation
+  // (the verb "va" + the noun "produit"), which would wrongly send the admin to
+  // /vaults instead of opening the Product Workspace. Admin-only surface.
+  const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+    (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
+  );
+  const productIntent =
+    !isReview && isAdmin && productWorkspaceNavEnabled && !canvasIntent
+      ? classifyProductWorkspaceIntent(message)
+      : null;
+
   // ── 4. Fallback legacy nav (router n'a pas capté ou manque de confiance) ──
   // Le regex legacy reste la sécurité en cas de miss du router. GARDE-FOU
   // NÉGATION : si le router a détecté une négation ("ne montre pas les vaults",
@@ -810,6 +825,10 @@ async function runMasterAgentTurn(args: {
     !isReview &&
     !canvasIntent &&
     !agenticDecision?.negated &&
+    // A product-creation intent is more specific than the generic nav shortcut
+    // and is handled by the dedicated block below — do NOT let the legacy
+    // fallback divert "on va créer un produit" to /vaults.
+    !productIntent?.shouldOpenProductWorkspace &&
     navShortcutKey &&
     resolveNavDestinationForProfile(navShortcutKey, navShortcutProfile)
   ) {
@@ -875,22 +894,11 @@ async function runMasterAgentTurn(args: {
   // and the workspace itself generates + streams the framing brief live (POST
   // /api/admin/product-workspace/brief).
   //
-  // Intent detection is now DETERMINISTIC (regex, synchronous) — no LLM call,
-  // no latency, no failure mode. Covers all known phrasings via
-  // classifyProductWorkspaceIntent. Admin-only: the workspace is an admin surface.
-  // Skip when a canvas intent already won (e.g. outreach canvas).
-
-  const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-    (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
-  );
-  // Gate on the admin ROLE, not the chat mode: an admin gets a product intent
-  // diverted to the workspace even from plain Conversation mode. A LP never
-  // reaches here for the workspace (the surface is admin-only).
-  const productIntent =
-    !isReview && isAdmin && productWorkspaceNavEnabled && !canvasIntent
-      ? classifyProductWorkspaceIntent(message)
-      : null;
-
+  // Intent detection is DETERMINISTIC (regex, synchronous) — no LLM call, no
+  // latency, no failure mode. `productIntent` was computed above (before the
+  // legacy nav fallback) so product creation takes precedence over a generic
+  // nav shortcut. Gate on the admin ROLE, not the chat mode: an admin gets a
+  // product intent diverted to the workspace even from plain Conversation mode.
   if (productIntent?.shouldOpenProductWorkspace) {
     // AWAIT the publish (do NOT fire-and-forget): the client bridge starts
     // polling /api/chat-nav the moment it sees the answer, so the directive
