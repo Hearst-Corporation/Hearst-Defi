@@ -61,3 +61,54 @@ describe("resolveQuantAssumptions", () => {
     expect(aggr.yield.miningWeight).toBeGreaterThan(base.yield.miningWeight);
   });
 });
+
+import { runMonteCarlo } from "@/lib/engine/monte-carlo";
+
+/**
+ * Proof that calibration actually MOVES the numbers: the same seed + market,
+ * run under the conservative vs aggressive regime, produces different p50/p95.
+ * runMonteCarlo is pure (seeded) so this is deterministic — no server needed.
+ */
+describe("calibration changes the Monte-Carlo output", () => {
+  function runWith(overrides: Parameters<typeof resolveQuantAssumptions>[0]) {
+    const a = resolveQuantAssumptions(overrides);
+    return runMonteCarlo({
+      seed: 42,
+      paths: a.paths,
+      horizonMonths: a.horizonMonths,
+      btc: { startPriceUsd: 60000, annualDrift: a.btc.annualDrift, annualVol: a.btc.annualVol },
+      difficulty: {
+        start: 1e14,
+        longRun: 1e14 * a.difficulty.longRunMultiple,
+        reversionSpeed: a.difficulty.reversionSpeed,
+        annualVol: a.difficulty.annualVol,
+        minMultiple: a.difficulty.minMultiple,
+        maxMultiple: a.difficulty.maxMultiple,
+      },
+      yield: {
+        miningWeight: a.yield.miningWeight,
+        stableWeight: 1 - a.yield.miningWeight,
+        stableApyMean: 0.05,
+        stableApyVol: a.yield.stableApyVol,
+        costPerThDay: 0.05,
+        capitalPerThUsd: 36.5,
+      },
+      floorApy: a.floorApyPct / 100,
+      btcDifficultyCorrelation: a.btcDifficultyCorrelation,
+    });
+  }
+
+  it("aggressive vs conservative produce a different p50 (calibration is real)", () => {
+    const cons = runWith(QUANT_PRESETS.conservative);
+    const aggr = runWith(QUANT_PRESETS.aggressive);
+    expect(aggr.percentiles.p50).not.toBe(cons.percentiles.p50);
+    // Aggressive (higher drift, higher mining weight) ⇒ higher median.
+    expect(aggr.percentiles.p50).toBeGreaterThan(cons.percentiles.p50);
+  });
+
+  it("same regime + same seed is reproducible (deterministic)", () => {
+    const a = runWith(QUANT_PRESETS.base);
+    const b = runWith(QUANT_PRESETS.base);
+    expect(a.percentiles).toEqual(b.percentiles);
+  });
+});
