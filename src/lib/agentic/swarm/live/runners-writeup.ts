@@ -28,6 +28,7 @@ import type {
   StrategyCrossArtifact,
   WriteupArtifact,
 } from "./types";
+import type { CanonicalAllocation } from "@/lib/products/canonical-allocation";
 
 const MAX_PROSE_TOKENS = 900;
 
@@ -52,8 +53,10 @@ function buildWriteupUserPrompt(args: {
   strategy: StrategyCrossArtifact;
   quant: QuantArtifact;
   market: { btcUsd: number; hashpriceUsdPerThDay: number };
+  canonicalAllocation?: CanonicalAllocation;
 }): string {
-  const { objective, vaultLabel, strategy, quant, market } = args;
+  const { objective, vaultLabel, strategy, quant, market, canonicalAllocation } =
+    args;
   const r1 = (n: number) => Math.round(n * 10) / 10;
   return [
     `Vault: ${vaultLabel}`,
@@ -67,6 +70,11 @@ function buildWriteupUserPrompt(args: {
     `- P(sous le plancher ${quant.floorApyPct}%): ${quant.probBelowFloorPct}%`,
     `- Rendement mining: ${r1(strategy.miningYieldPct)}% · USDC: ${r1(strategy.usdcYieldPct)}% (source ${strategy.usdcSource})`,
     `- Leviers entreprise: markup ${strategy.companyLevers.markupPct}%, revenue-share ${strategy.companyLevers.revenueSharePct}%, énergie $${strategy.companyLevers.energyCostUsdPerKwh}/kWh, frais ${strategy.companyLevers.feePct}%`,
+    ...(canonicalAllocation
+      ? [
+          `- Allocation canonique (à reprendre telle quelle): mining ${r1(canonicalAllocation.mining)}% · BTC holding ${r1(canonicalAllocation.btcHoldingCollateral)}% · réserve stable ${r1(canonicalAllocation.stableReserve)}% · overlay rendement ${r1(canonicalAllocation.yieldOverlay)}%`,
+        ]
+      : []),
     "",
     "Hypothèses à intégrer:",
     ...strategy.assumptions.map((a) => `- ${a}`),
@@ -89,6 +97,7 @@ export async function runWriteup(args: {
   strategy: StrategyCrossArtifact;
   quant: QuantArtifact;
   market: { btcUsd: number; hashpriceUsdPerThDay: number };
+  canonicalAllocation?: CanonicalAllocation;
 }): Promise<{ artifact: WriteupArtifact; audit: LiveSwarmStepAudit }> {
   const fallback = buildDeterministicWriteup(args);
 

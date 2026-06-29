@@ -278,3 +278,57 @@ export function deriveRegimeAllocation(
     allocatorScores: raw3.scores,
   };
 }
+
+/**
+ * The RAW, UNCONSTRAINED allocation — what the allocator wants with the mining
+ * floor lowered to 0. This is the output the product floor guard REJECTS when
+ * mining is underwater (it can come out at single-digit % mining, e.g. 2.92%).
+ * It is shown ONLY in a debug section ("Raw allocator output — rejected by
+ * product guard"), never as a normal allocation. The 4 sleeves are percent and
+ * sum to ~100.
+ *
+ * Pure: same dependencies as deriveRegimeAllocation (allocator + constants).
+ */
+export function deriveRawAllocation(args: {
+  regime: VaultMode;
+  miningYieldPct: number;
+  usdcYieldPct: number;
+  btcExpectedReturnPctOverride?: number;
+}): { mining: number; btc: number; usdc: number; stableReserve: number } {
+  const { regime, miningYieldPct, usdcYieldPct, btcExpectedReturnPctOverride } =
+    args;
+  const base = BASE_MIX_BY_MODE[regime];
+  const btcScenarios = BTC_MINING_PERFORMANCE_VAULT.levers.btcScenarios.value;
+  const btcExpectedReturnPct =
+    btcExpectedReturnPctOverride !== undefined
+      ? btcExpectedReturnPctOverride
+      : btcScenarioForRegime(regime, btcScenarios);
+
+  // Mining lower bound 0 (NO floor) so the allocator's true preference shows.
+  const miningMaxPct = Math.min(45, base.mining + 10);
+  const btcMin = Math.max(0, base.btc_tactical - 10);
+  const btcMax = Math.min(55, base.btc_tactical + 15);
+  const usdcBaseTotal = base.usdc_base + base.stable_reserve;
+  const usdcMin = Math.max(5, usdcBaseTotal - 20);
+  const usdcMax = Math.min(95, usdcBaseTotal + 50);
+
+  const raw3 = allocate({
+    miningYieldPct,
+    btcExpectedReturnPct,
+    usdcYieldPct,
+    bounds: {
+      mining: [0, miningMaxPct],
+      btc: [btcMin, btcMax],
+      usdc: [usdcMin, usdcMax],
+    },
+  });
+
+  const usdcTotalPct = raw3.usdcPct;
+  const { usdc, stableReserve } = splitUsdcSleeve(usdcTotalPct, base);
+  return {
+    mining: round2(raw3.miningPct),
+    btc: round2(raw3.btcPct),
+    usdc,
+    stableReserve,
+  };
+}

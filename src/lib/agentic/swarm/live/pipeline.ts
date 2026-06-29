@@ -50,10 +50,15 @@ import {
   resolveQuantAssumptions,
   type QuantAssumptionsOverrides,
 } from "./quant-assumptions";
-import { deriveRegimeAllocation } from "./strategy-allocation";
+import { deriveRegimeAllocation, deriveRawAllocation } from "./strategy-allocation";
 import { buildConstructionSteps } from "./construction-steps";
 import type { VaultMode } from "@/lib/engine/types";
 import { BTC_MINING_PERFORMANCE_VAULT } from "@/lib/products/btc-mining-performance-vault";
+import {
+  resolveProductIdentity,
+  buildCanonicalAllocation,
+} from "@/lib/products/canonical-allocation";
+import { buildEconomicsViews } from "@/lib/products/economics-views";
 
 const DISCLAIMER =
   "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
@@ -144,6 +149,17 @@ export async function runProductConstructionPipeline(
   // none were supplied). Every hardcode is now a value in here.
   const assumptions = resolveQuantAssumptions(opts.assumptions);
   const audit: LiveSwarmStepAudit[] = [];
+
+  // Product identity (root cause #A): a BTC-mining objective MUST surface as the
+  // "BTC Mining Performance Vault", never the generic "Hearst Yield Vault". The
+  // generic inference is only used as a fallback for non-mining objectives.
+  const identity = resolveProductIdentity(trimmed);
+  const inferred = inferVault(trimmed);
+  const vault = {
+    ticker: identity?.ticker ?? inferred.ticker,
+    label: identity?.name ?? inferred.label,
+  };
+  const productId = identity?.id ?? `vault:${inferred.ticker}`;
 
   // A · Telegram pricing  +  B · market live (independent reads, run together).
   const [telegram, market] = await Promise.all([
@@ -291,10 +307,57 @@ export async function runProductConstructionPipeline(
     quantArtifact = quant.artifact;
   }
 
-  // E · charts (pure mapping).
+  // Canonical allocation (root cause #B): ONE allocation every surface reads.
+  // Derived from the floor-enforced balanced regime; the raw, unconstrained
+  // allocator output is kept ONLY as a rejected debug artifact when it is
+  // sub-floor (e.g. mining 2.92%). Summary / scenario cards / write-up / wizard
+  // prefill all read THIS object — never a yield mix or the raw allocator.
+  const canonicalBalanced = deriveRegimeAllocation({
+    regime: "balanced",
+    miningYieldPct: strategy.artifact.miningYieldPct,
+    usdcYieldPct: strategy.artifact.usdcYieldPct,
+  });
+  const rawBalanced = deriveRawAllocation({
+    regime: "balanced",
+    miningYieldPct: strategy.artifact.miningYieldPct,
+    usdcYieldPct: strategy.artifact.usdcYieldPct,
+  });
+  const canonicalAllocation = buildCanonicalAllocation({
+    productId,
+    productName: vault.label,
+    enforced: {
+      mining: canonicalBalanced.mining,
+      btcHoldingCollateral: canonicalBalanced.btc,
+      stableReserve: canonicalBalanced.stableReserve,
+      yieldOverlay: canonicalBalanced.usdc,
+      miningFraction: canonicalBalanced.miningFraction,
+      governanceException: canonicalBalanced.governanceException,
+      provenance: strategy.artifact.provenance,
+    },
+    raw: {
+      mining: rawBalanced.mining,
+      btcHoldingCollateral: rawBalanced.btc,
+      stableReserve: rawBalanced.stableReserve,
+      yieldOverlay: rawBalanced.usdc,
+    },
+  });
+
+  // Raw vs allocator-adjusted economics (root cause #D): never mask a negative.
+  const economics = buildEconomicsViews({
+    miningYieldPct: strategy.artifact.miningYieldPct,
+    usdcYieldPct: strategy.artifact.usdcYieldPct,
+    btcBaseReturnPct: strategy.artifact.btcReturn.base,
+    borrowAprPct: strategy.artifact.companyLevers.borrowAprPct,
+    feePct: strategy.artifact.companyLevers.feePct,
+    rawMiningWeight: rawBalanced.mining / 100,
+    adjustedMiningWeight: canonicalBalanced.miningFraction,
+  });
+
+  // E · charts (pure mapping) — the allocation ring reads the CANONICAL sleeves.
   const charts = runCharts({
     strategy: strategy.artifact,
     quant: quantArtifact,
+    canonicalAllocation,
   });
   audit.push({
     stageId: "charts",
@@ -305,8 +368,8 @@ export async function runProductConstructionPipeline(
     degraded: false,
   });
 
-  // F · writeup (LLM + guard, or deterministic).
-  const vault = inferVault(trimmed);
+  // F · writeup (LLM + guard, or deterministic) — reads the canonical allocation
+  // so the prose's mining % matches every other surface.
   const writeup = await runWriteup({
     objective: trimmed,
     vaultLabel: vault.label,
@@ -316,6 +379,7 @@ export async function runProductConstructionPipeline(
       btcUsd: market.btcUsd,
       hashpriceUsdPerThDay: market.hashpriceUsdPerThDay,
     },
+    canonicalAllocation,
   });
   audit.push(writeup.audit);
 
@@ -347,6 +411,7 @@ export async function runProductConstructionPipeline(
   const draft: ProductConstructionDraft = {
     objective: trimmed,
     vault: { ticker: vault.ticker, label: vault.label },
+    productId,
     telegram: {
       configured: telegram.configured,
       machineCount: telegram.machineCount,
@@ -374,6 +439,8 @@ export async function runProductConstructionPipeline(
     },
     ...(scenarios !== undefined ? { scenarios } : {}),
     ...(steps !== undefined ? { steps } : {}),
+    canonicalAllocation,
+    economics,
   };
 
   // Runtime floor: the draft must have suppressed every effect. If not, refuse.

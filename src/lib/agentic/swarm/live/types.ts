@@ -19,6 +19,8 @@
  */
 
 import type { QuantAssumptions } from "./quant-assumptions";
+import type { CanonicalAllocation } from "@/lib/products/canonical-allocation";
+import type { EconomicsViews } from "@/lib/products/economics-views";
 
 /**
  * The single execution mode of this family. There is deliberately no "write" /
@@ -98,6 +100,7 @@ export interface StrategyCrossArtifact {
   miningYieldPct: number;
   usdcYieldPct: number;
   usdcSource: string;
+  /** BTC scenario band in PERCENT (e.g. −20 / +40 / +120) — NOT a fraction. */
   btcReturn: { bear: number; base: number; bull: number };
   headlineApy: { low: number; high: number };
   assumptions: string[];
@@ -161,6 +164,11 @@ export interface ProductConstructionDraft {
   objective: string;
   /** Vault inferred for the objective (label/ticker only — no state mutated). */
   vault: { ticker: string; label: string };
+  /**
+   * Stable product id ("btc-mining-performance-vault" for the mining flow).
+   * Drives the product floor guard on the canonical allocation.
+   */
+  productId?: string;
   telegram: { configured: boolean; machineCount: number; topMachine?: string };
   market: { btcUsd: number; hashpriceUsdPerThDay: number; defiApyMedianPct: number };
   strategy: StrategyCrossArtifact;
@@ -194,6 +202,17 @@ export interface ProductConstructionDraft {
    * Present alongside `scenarios` to explain WHAT the numbers mean.
    */
   steps?: ConstructionStep[];
+  /**
+   * The SINGLE canonical allocation every surface must read (summary, scenario
+   * cards, assumptions, write-up, wizard prefill, raw JSON). Floor-enforced; the
+   * raw sub-floor allocator output, when rejected, lives in `rawRejected`.
+   */
+  canonicalAllocation?: CanonicalAllocation;
+  /**
+   * Raw vs allocator-adjusted economics — the negative-APY transparency view.
+   * Surfaces a BUG CANDIDATE flag rather than masking a negative number.
+   */
+  economics?: EconomicsViews;
 }
 
 /** Typed pipeline failure — never an execution fallback. */

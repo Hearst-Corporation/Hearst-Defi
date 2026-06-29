@@ -17,6 +17,7 @@ import type {
   StrategyCrossArtifact,
   WriteupArtifact,
 } from "./types";
+import type { CanonicalAllocation } from "@/lib/products/canonical-allocation";
 
 // ── E · charts (pure) ───────────────────────────────────────────────────────
 
@@ -29,8 +30,10 @@ import type {
 export function runCharts(args: {
   strategy: StrategyCrossArtifact;
   quant: QuantArtifact;
+  /** The canonical allocation — the allocation ring reads THIS (never a yield mix). */
+  canonicalAllocation?: CanonicalAllocation;
 }): { charts: ChartArtifact[] } {
-  const { strategy, quant } = args;
+  const { strategy, quant, canonicalAllocation } = args;
   const seedLabel = `seed ${quant.seed}`;
 
   // Projection fan: ramp from a tight t0 band to the full pN band at the horizon
@@ -60,18 +63,47 @@ export function runCharts(args: {
       fanBands,
       provenance: quant.provenance,
     },
-    {
-      id: "allocation",
-      kind: "allocation",
-      title: "Blended yield mix",
-      unit: "%",
-      ariaLabel: "Allocation of the blended yield between mining and USDC legs",
-      allocation: [
-        { label: "Mining yield", valuePct: round1(strategy.miningYieldPct) },
-        { label: "USDC yield", valuePct: round1(strategy.usdcYieldPct) },
-      ],
-      provenance: strategy.provenance,
-    },
+    // Allocation ring — the CANONICAL four sleeves (floor-enforced), NOT the
+    // yield mix. Falls back to the yield mix only when no canonical allocation
+    // was supplied (legacy callers); the pipeline always supplies one.
+    canonicalAllocation
+      ? {
+          id: "allocation",
+          kind: "allocation" as const,
+          title: "Canonical allocation",
+          unit: "%",
+          ariaLabel:
+            "Canonical four-sleeve allocation — mining floor, BTC holding, stable reserve, yield overlay",
+          allocation: [
+            { label: "Mining", valuePct: round1(canonicalAllocation.mining) },
+            {
+              label: "BTC holding",
+              valuePct: round1(canonicalAllocation.btcHoldingCollateral),
+            },
+            {
+              label: "Stable reserve",
+              valuePct: round1(canonicalAllocation.stableReserve),
+            },
+            {
+              label: "Yield overlay",
+              valuePct: round1(canonicalAllocation.yieldOverlay),
+            },
+          ],
+          provenance: strategy.provenance,
+        }
+      : {
+          id: "allocation",
+          kind: "allocation" as const,
+          title: "Blended yield mix",
+          unit: "%",
+          ariaLabel:
+            "Allocation of the blended yield between mining and USDC legs",
+          allocation: [
+            { label: "Mining yield", valuePct: round1(strategy.miningYieldPct) },
+            { label: "USDC yield", valuePct: round1(strategy.usdcYieldPct) },
+          ],
+          provenance: strategy.provenance,
+        },
     {
       id: "headline-range",
       kind: "value",
@@ -107,12 +139,25 @@ export function buildDeterministicWriteup(args: {
   strategy: StrategyCrossArtifact;
   quant: QuantArtifact;
   market: { btcUsd: number; hashpriceUsdPerThDay: number };
+  /** The canonical allocation — the prose's mining % must match every surface. */
+  canonicalAllocation?: CanonicalAllocation;
 }): WriteupArtifact {
-  const { objective, vaultLabel, strategy, quant, market } = args;
+  const { objective, vaultLabel, strategy, quant, market, canonicalAllocation } =
+    args;
   const lo = round1(quant.headlineRange.low * 100);
   const hi = round1(quant.headlineRange.high * 100);
   const p5 = round1(quant.percentiles.p5 * 100);
   const p95 = round1(quant.percentiles.p95 * 100);
+
+  const allocationLine = canonicalAllocation
+    ? `Canonical allocation: mining ${round1(canonicalAllocation.mining)}% · ` +
+      `BTC holding ${round1(canonicalAllocation.btcHoldingCollateral)}% · ` +
+      `stable reserve ${round1(canonicalAllocation.stableReserve)}% · ` +
+      `yield overlay ${round1(canonicalAllocation.yieldOverlay)}%` +
+      (canonicalAllocation.governanceException
+        ? " (mining floored — governance review)."
+        : ".")
+    : "";
 
   const prose = [
     `## ${vaultLabel} — framing brief`,
@@ -124,6 +169,7 @@ export function buildDeterministicWriteup(args: {
     `A seeded Monte-Carlo (seed ${quant.seed}, ${quant.paths.toLocaleString("en-US")} paths, ${quant.horizonMonths}-month horizon) places the p5–p95 dispersion at ${p5}–${p95}%, with an estimated ${quant.probBelowFloorPct}% probability of finishing below the ${quant.floorApyPct}% floor. These are conditional projections, not promises.`,
     "",
     `Mining yield contributes ${round1(strategy.miningYieldPct)}% and the USDC leg ${round1(strategy.usdcYieldPct)}% (source: ${strategy.usdcSource}). Every figure above is conditional on the stated assumptions and is **not guaranteed**.`,
+    ...(allocationLine ? ["", allocationLine] : []),
     "",
     "### Assumptions",
     ...strategy.assumptions.map((a) => `- ${a}`),
