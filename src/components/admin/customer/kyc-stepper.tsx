@@ -1,30 +1,24 @@
 import type { KycStatus } from "@/lib/data/customers";
 
-const GRAY = "bg-[color-mix(in_srgb,var(--ct-text-strong)_25%,transparent)]";
-const YELLOW = "bg-[var(--ct-status-warning)]";
-const ORANGE = "bg-[var(--ct-status-danger)]";
-const GREEN = "bg-[var(--ct-accent)]";
-
-function resolveSteps(kyc: KycStatus): { name: string; color: string }[] {
+function resolveSteps(kyc: KycStatus): { name: string; led: string }[] {
   if (kyc === "approved") {
     return [
-      { name: "Account opened", color: GREEN },
-      { name: "KYC", color: GREEN },
-      { name: "Approved", color: GREEN },
+      { name: "Account created", led: "ct-led-green" },
+      { name: "KYC submitted",   led: "ct-led-green" },
+      { name: "Approved",        led: "ct-led-green" },
     ];
   }
   if (kyc === "rejected") {
     return [
-      { name: "Account opened", color: YELLOW },
-      { name: "KYC", color: ORANGE },
-      { name: "Approved", color: GRAY },
+      { name: "Account created", led: "ct-led-red" },
+      { name: "KYC submitted",   led: "ct-led-red" },
+      { name: "Rejected",        led: "ct-led-red" },
     ];
   }
-  // pending — account open, KYC not yet done
   return [
-    { name: "Account opened", color: YELLOW },
-    { name: "KYC", color: GRAY },
-    { name: "Approved", color: GRAY },
+    { name: "Account created", led: "ct-led-amber" },
+    { name: "KYC submitted",   led: "ct-led-amber" },
+    { name: "Approved",        led: "ct-led-off"   },
   ];
 }
 
@@ -37,8 +31,8 @@ export function KycStepper({ status }: { status: KycStatus }) {
         <li key={step.name}>
           <span
             title={step.name}
-            className={`block size-2 rounded-full ${step.color}`}
             aria-label={step.name}
+            className={`block size-2.5 rounded-full ${step.led}`}
           />
         </li>
       ))}

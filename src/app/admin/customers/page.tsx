@@ -156,13 +156,7 @@ export default async function CustomersPage({
                     <TableCell>
                       <div className="flex flex-col items-center gap-1.5">
                         <KycStepper status={c.kycStatus} />
-                        {c.kycStatus === "approved" ? (
-                          <KycAction investorId={c.id} status={c.kycStatus} />
-                        ) : (
-                          <span className="ct-bento-label text-[var(--ct-text-faint)]">
-                            {c.kycStatus === "rejected" ? "Rejected" : "Pending"}
-                          </span>
-                        )}
+                        <KycAction investorId={c.id} status={c.kycStatus} />
                       </div>
                     </TableCell>
                     <TableCell
