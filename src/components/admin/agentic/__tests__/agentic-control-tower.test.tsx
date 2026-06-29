@@ -54,7 +54,9 @@ describe("AgenticStatusLine", () => {
   const html = renderToStaticMarkup(<AgenticStatusLine summary={SUMMARY} />);
 
   it("renders the status line with health + product headline numbers", () => {
-    expect(html).toContain("agentic-statusline");
+    // Canon migration (Mission #064): the bespoke `agentic-statusline` class is
+    // inlined to tokenised Tailwind; the stable hook is the aria-label.
+    expect(html).toContain('aria-label="Agentic command summary"');
     expect(html).toContain("Autonomous, read-only");
     expect(html).toContain("Gated writes");
     expect(html).toContain("Never autonomous");
@@ -109,9 +111,13 @@ describe("AgenticCapabilitiesBoard", () => {
 describe("AgenticAgentsOverview", () => {
   const html = renderToStaticMarkup(<AgenticAgentsOverview controlCenter={CC} />);
   it("groups agents by domain (sub-header rows), not 22 equal cards", () => {
-    // Canonized 2026-06-29: the "Agents & Crews" heading is provided by the
-    // parent AdminSectionCard; this frameless body owns the domain groups.
-    expect(html).toContain("agentic-table-subhead");
+    // Canonized 2026-06-29 / Mission #064: the "Agents & Crews" heading is
+    // provided by the parent AdminSectionCard; this frameless body owns the
+    // domain groups as FLAT hairline-separated blocks (no inset sub-surface /
+    // cage-in-cage), each headed by a canon micro label.
+    expect(html).toContain("ct-bento-label");
+    expect(html).not.toContain("agentic-table-subhead");
+    expect(html).not.toContain("bg-surface-inset");
     expect(html).toContain("Compliance");
     expect(html).toContain("Outreach");
     expect(html).toContain("reads only");

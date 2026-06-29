@@ -96,10 +96,11 @@ describe("RouterObservabilityTrends", () => {
     // No raw hex anywhere, and no inline rgb()/rgba() color literals.
     expect(html).not.toMatch(/#[0-9a-fA-F]{6}/);
     expect(html).not.toMatch(/rgba?\(/);
-    // Color is carried by the token-only agentic vocabulary (data-tone + classes
-    // defined in admin-docs.css with var(--ct-*)), not inline style colors.
+    // Color is carried by the token-only vocabulary: the proportional bar via
+    // data-tone (.agentic-bar grammar) and the outcome label via the canon
+    // BentoBadge (Mission #064 — replaced the bespoke `agentic-tag`).
     expect(html).toContain('data-tone="accent"');
-    expect(html).toContain("agentic-tag");
+    expect(html).toContain("Nav fast-path"); // BentoBadge outcome label
     expect(html).toContain("agentic-bar-fill");
   });
 });

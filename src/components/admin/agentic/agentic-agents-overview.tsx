@@ -1,11 +1,15 @@
 // Admin · Agentic Control Tower — Agents & Crews (presentational).
 //
-// READ-ONLY. Bento conversion 2026-06-28: the agent / logic inventory as a
-// black BentoPanel, grouped by domain. Each domain is a #15191C sub-surface
-// (sub-header row + one dense line per agent: name · capability), not 22 equal
-// cards. No hardcoded colour outside the canon (--ct-accent). Pure component.
+// READ-ONLY. Canon migration (Mission #064): the agent / logic inventory grouped
+// by domain inside the parent AdminSectionCard. Each domain is a FLAT block (no
+// border/radius/inset sub-surface — no cage-in-cage): a domain header row
+// separated from its agent lines and from the other domains by hairlines only.
+// Capability renders as a canon BentoBadge. No hardcoded colour outside the canon
+// (--ct-accent). Pure component.
 
 import { Fragment } from "react";
+
+import { BentoBadge } from "@/components/catalyst/bento-badge";
 import type {
   AgenticControlCenterData,
   AgenticInventoryItem,
@@ -41,7 +45,7 @@ const DOMAIN_ORDER = [
   "observability",
 ];
 
-type Tone = "ok" | "warn" | "danger";
+type CapabilityVariant = "success" | "warning" | "danger";
 
 function capability(item: AgenticInventoryItem): string {
   if (!item.writesAllowed) return "reads only";
@@ -49,34 +53,14 @@ function capability(item: AgenticInventoryItem): string {
   return "writes";
 }
 
-function capabilityTone(item: AgenticInventoryItem): Tone {
-  if (!item.writesAllowed) return "ok";
-  if (item.humanGateRequired) return "warn";
+function capabilityVariant(item: AgenticInventoryItem): CapabilityVariant {
+  if (!item.writesAllowed) return "success";
+  if (item.humanGateRequired) return "warning";
   return "danger";
 }
 
-const DOT_CLASS: Record<Tone, string> = {
-  ok: "bg-[var(--ct-accent)]",
-  warn: "bg-[var(--ct-status-warning)]",
-  danger: "bg-[var(--ct-status-danger)]",
-};
-
-const TAG_CLASS: Record<Tone, string> = {
-  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
-  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
-};
-
 function CapabilityTag({ item }: { item: AgenticInventoryItem }) {
-  const tone = capabilityTone(item);
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium ${TAG_CLASS[tone]}`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[tone]}`} aria-hidden />
-      {capability(item)}
-    </span>
-  );
+  return <BentoBadge variant={capabilityVariant(item)}>{capability(item)}</BentoBadge>;
 }
 
 export function AgenticAgentsOverview({
@@ -109,15 +93,12 @@ export function AgenticAgentsOverview({
         {`${inventory.length} units · ${domains.length} domains · ${inventory.length - writeCount} read-only · ${gatedCount} gated write${gatedCount !== 1 ? "s" : ""}.`}
       </p>
 
-      <div className="grid grid-cols-1 gap-4 p-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-8 px-5 lg:grid-cols-2">
         {domains.map((domain) => {
           const items = byDomain.get(domain) ?? [];
           return (
-            <div
-              key={domain}
-              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl bg-surface-inset"
-            >
-              <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-4 py-3">
+            <div key={domain} className="flex flex-col">
+              <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3">
                 <span className="ct-bento-label">
                   {DOMAIN_LABEL[domain] ?? domain}
                 </span>
@@ -125,7 +106,7 @@ export function AgenticAgentsOverview({
                   {items.length}
                 </span>
               </div>
-              <div className="flex flex-col px-4">
+              <div className="flex flex-col pb-3">
                 {items.map((item) => (
                   <Fragment key={item.id}>
                     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">

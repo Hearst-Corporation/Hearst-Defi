@@ -1,27 +1,31 @@
 // Admin · Agentic Control Tower — Safety Boundary (presentational).
 //
-// READ-ONLY. Bento conversion 2026-06-28: the platform's hard limits as a black
-// BentoPanel, one #15191C sub-surface per pillar (Console · Forbidden · Human
-// gates · Guards) with a coloured status dot (green = guaranteed, red = the
-// dangerous actions that are never autonomous, amber = gated) and the item list
-// tucked into a nested <details>. No write controls. No hardcoded colour outside
-// the canon (--ct-accent). Pure component.
+// READ-ONLY. Canon migration (Mission #064): the platform's hard limits inside
+// the parent AdminSectionCard. One FLAT pillar block per limit (Console ·
+// Forbidden · Human gates · Guards) — no border/radius/inset sub-surface, no
+// cage-in-cage — separated by hairlines, each with a canon BentoBadge status
+// chip (success = guaranteed, danger = the dangerous actions that are never
+// autonomous, warning = gated) and the item list tucked into a nested <details>.
+// No write controls. No hardcoded colour outside the canon (--ct-accent). Pure
+// component.
 
+import { BentoBadge } from "@/components/catalyst/bento-badge";
+import type { BentoBadgeVariant } from "@/components/catalyst/bento-badge";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
 
 type Tone = "ok" | "warn" | "danger";
 
+const TONE_VARIANT: Record<Tone, BentoBadgeVariant> = {
+  ok: "success",
+  warn: "warning",
+  danger: "danger",
+};
+
 const DOT_CLASS: Record<Tone, string> = {
   ok: "bg-[var(--ct-accent)]",
   warn: "bg-[var(--ct-status-warning)]",
   danger: "bg-[var(--ct-status-danger)]",
-};
-
-const TAG_CLASS: Record<Tone, string> = {
-  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
-  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
 };
 
 export function AgenticSafetyBoundary({
@@ -83,11 +87,11 @@ export function AgenticSafetyBoundary({
 
   return (
     <div className="flex min-w-0 flex-col">
-      <div className="grid grid-cols-1 gap-4 p-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-8 px-5 lg:grid-cols-2">
         {rows.map((r) => (
           <div
             key={r.id}
-            className="flex flex-col gap-3 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset p-4"
+            className="flex flex-col gap-3 border-b border-[var(--ct-border-soft)] py-4 last:border-b-0 lg:[&:nth-last-child(2):nth-child(odd)]:border-b-0"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="ct-bento-label flex items-center gap-2">
@@ -97,11 +101,9 @@ export function AgenticSafetyBoundary({
                 />
                 {r.pillar}
               </span>
-              <span
-                className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-micro)] font-medium tabular-nums ${TAG_CLASS[r.tone]}`}
-              >
+              <BentoBadge variant={TONE_VARIANT[r.tone]} className="tabular-nums">
                 {r.value}
-              </span>
+              </BentoBadge>
             </div>
 
             {r.note ? (
@@ -123,7 +125,7 @@ export function AgenticSafetyBoundary({
                   {r.detail.items.map((it) => (
                     <span
                       key={it}
-                      className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-black/40 px-2 py-0.5 text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)]"
+                      className="inline-flex items-center rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_40%,transparent)] px-2 py-0.5 text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)]"
                     >
                       {it}
                     </span>

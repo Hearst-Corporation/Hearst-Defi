@@ -6,12 +6,49 @@
 // "unavailable" / "empty" lines when the durable store has nothing to show.
 // Dense line/table vocabulary only, DS tokens only (no hardcoded hex). Pure
 // component — unit-testable via SSR.
+//
+// Canon migration (Mission #064): `agentic-tag` → BentoBadge, `agentic-table` →
+// Catalyst dense Table, `agentic-cell-*` → tokenised utilities. The
+// `.agentic-rowdetail` disclosure chrome and the `.agentic-bar` proportional bar
+// grammar are kept (section primitives, not table cells).
 
-import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { cn } from "@/lib/cn";
+import { BentoBadge, type BentoBadgeVariant } from "@/components/catalyst/bento-badge";
+import type { AgenticTone } from "@/components/admin/agentic/agentic-group";
+import {
+  Table,
+  TableHead,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/catalyst/table";
 import type {
   RouterLongTermDay,
   RouterLongTermSummary,
 } from "@/lib/agentic/observability/types";
+
+const FAINT = "text-[var(--ct-text-faint)]";
+const SECTION_CAPTION = "text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]";
+const EMPTY_LINE = "text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]";
+
+/** Maps the legacy AgenticTone scale onto the canon BentoBadge variant scale. */
+function toneToVariant(tone: AgenticTone): BentoBadgeVariant {
+  switch (tone) {
+    case "success":
+      return "success";
+    case "warning":
+      return "warning";
+    case "danger":
+      return "danger";
+    case "accent":
+      return "accent";
+    case "info":
+    case "neutral":
+    default:
+      return "default";
+  }
+}
 
 // Outcome categories, render order top→bottom. Each carries a tone that drives
 // the tag colour, the row rail, and the proportional bar fill — all token-only
@@ -47,76 +84,76 @@ export function RouterObservabilityLongTerm({
     <details className="agentic-rowdetail">
       <summary className="agentic-rowdetail-summary">
         Long-term{" "}
-        <AgenticTag tone={available ? "success" : "danger"}>
+        <BentoBadge variant={available ? "success" : "danger"}>
           {available ? "durable" : "unavailable"}
-        </AgenticTag>{" "}
-        <AgenticTag tone="neutral">last {horizonDays}d</AgenticTag>{" "}
-        <AgenticTag tone="neutral">
+        </BentoBadge>{" "}
+        <BentoBadge variant="default">last {horizonDays}d</BentoBadge>{" "}
+        <BentoBadge variant="default">
           retention {retention.retentionDays}d
           {retention.fromEnv ? " · env" : " · default"}
-        </AgenticTag>
+        </BentoBadge>
       </summary>
 
       <div className="agentic-rowdetail-body">
-        <p className="agentic-section-caption m-0">{note}</p>
+        <p className={cn(SECTION_CAPTION, "m-0")}>{note}</p>
 
         {!available ? null : total === 0 ? (
-          <p className="agentic-empty-line m-0">
+          <p className={cn(EMPTY_LINE, "m-0")}>
             No durable router traces in the last {horizonDays} days yet. Send chat
             traffic to build long-term history.
           </p>
         ) : (
           <>
             {/* Per-day outcomes — one dense row per UTC day. */}
-            <p className="agentic-section-caption m-0">
+            <p className={cn(SECTION_CAPTION, "m-0")}>
               Per-day outcomes ({total} total)
             </p>
-            <table className="agentic-table">
-              <thead>
-                <tr>
-                  <th>Day</th>
-                  <th>Total</th>
+            <Table dense>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Day</TableHeader>
+                  <TableHeader>Total</TableHeader>
                   {CATEGORIES.map((c) => (
-                    <th key={c.key}>{c.label}</th>
+                    <TableHeader key={c.key}>{c.label}</TableHeader>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {days.map((d) => (
-                  <tr key={d.date}>
-                    <td className="agentic-cell-strong agentic-cell-mono">{d.date}</td>
-                    <td className="agentic-cell-num agentic-cell-strong">{d.total}</td>
+                  <TableRow key={d.date}>
+                    <TableCell className="ct-metric-value font-mono">{d.date}</TableCell>
+                    <TableCell className="text-right tabular-nums ct-metric-value">{d.total}</TableCell>
                     {CATEGORIES.map((c) => (
-                      <td key={c.key} className="agentic-cell-num agentic-cell-muted">
+                      <TableCell key={c.key} className="text-right tabular-nums ct-metric-caption">
                         {d[c.key] > 0 ? d[c.key] : "—"}
-                      </td>
+                      </TableCell>
                     ))}
-                  </tr>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
 
             {/* Horizon totals — share-of-decisions with a token-only bar. */}
-            <p className="agentic-section-caption m-0">Horizon totals</p>
-            <table className="agentic-table">
-              <thead>
-                <tr>
-                  <th>Outcome</th>
-                  <th>Share</th>
-                  <th>%</th>
-                  <th>Count</th>
-                </tr>
-              </thead>
-              <tbody>
+            <p className={cn(SECTION_CAPTION, "m-0")}>Horizon totals</p>
+            <Table dense>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Outcome</TableHeader>
+                  <TableHeader>Share</TableHeader>
+                  <TableHeader>%</TableHeader>
+                  <TableHeader>Count</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {CATEGORIES.map((c) => {
                   const value = totals[c.key];
                   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
                   return (
-                    <tr key={c.key} data-tone={c.tone === "neutral" ? undefined : c.tone}>
-                      <td className="agentic-cell-strong">
-                        <AgenticTag tone={c.tone}>{c.label}</AgenticTag>
-                      </td>
-                      <td>
+                    <TableRow key={c.key} data-tone={c.tone === "neutral" ? undefined : c.tone}>
+                      <TableCell className="ct-metric-value">
+                        <BentoBadge variant={toneToVariant(c.tone)}>{c.label}</BentoBadge>
+                      </TableCell>
+                      <TableCell>
                         <span
                           className="agentic-bar"
                           aria-hidden
@@ -127,14 +164,14 @@ export function RouterObservabilityLongTerm({
                             data-tone={c.tone === "neutral" ? undefined : c.tone}
                           />
                         </span>
-                      </td>
-                      <td className="agentic-cell-num agentic-cell-strong">{pct}%</td>
-                      <td className="agentic-cell-num agentic-cell-faint">{value}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums ct-metric-value">{pct}%</TableCell>
+                      <TableCell className={cn("text-right tabular-nums", FAINT)}>{value}</TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </>
         )}
       </div>

@@ -8,17 +8,49 @@
 // here — they live once in the Observability trends module above.
 // NO write controls, NO action buttons, NO rule/prompt editor, NO fake data.
 // Pure component — all data passed in, unit-testable via SSR.
+//
+// Canon migration (Mission #064): `agentic-tag` → BentoBadge, `agentic-table` →
+// Catalyst dense Table, `agentic-cell-*` → tokenised utilities. The
+// `.agentic-rowdetail` disclosure chrome is kept (section primitive).
 
+import { cn } from "@/lib/cn";
+import { BentoBadge, type BentoBadgeVariant } from "@/components/catalyst/bento-badge";
+import type { AgenticTone } from "@/components/admin/agentic/agentic-group";
 import {
-  AgenticTag,
-  type AgenticTone,
-} from "@/components/admin/agentic/agentic-group";
+  Table,
+  TableHead,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/catalyst/table";
 import type {
   RouterQualityRate,
   RouterQualityReview,
   RouterQualitySeverity,
   RouterQualitySignal,
 } from "@/lib/agentic/observability/types";
+
+const FAINT = "text-[var(--ct-text-faint)]";
+const EMPTY_LINE = "text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]";
+
+/** Maps the legacy AgenticTone scale onto the canon BentoBadge variant scale. */
+function toneToVariant(tone: AgenticTone): BentoBadgeVariant {
+  switch (tone) {
+    case "success":
+      return "success";
+    case "warning":
+      return "warning";
+    case "danger":
+      return "danger";
+    case "accent":
+      return "accent";
+    case "info":
+    case "neutral":
+    default:
+      return "default";
+  }
+}
 
 /** Map a watchlist severity to a tag tone. */
 function severityTone(severity: RouterQualitySeverity): AgenticTone {
@@ -48,19 +80,21 @@ function RateRow({ rate }: { rate: RouterQualityRate }) {
   const pct = Math.round(rate.rate * 1000) / 10; // one decimal %
   const tone = rateTone(rate.rate);
   return (
-    <tr data-tone={tone === "success" ? undefined : tone}>
-      <td className="agentic-cell-strong">{rate.label}</td>
-      <td className="agentic-cell-num">
+    <TableRow data-tone={tone === "success" ? undefined : tone}>
+      <TableCell className="ct-metric-value">{rate.label}</TableCell>
+      <TableCell className="text-right tabular-nums">
         {pct}%
-        <span className="agentic-cell-faint">
+        <span className={FAINT}>
           {" · "}
           {rate.count}/{rate.total}
         </span>
-      </td>
-      <td className="whitespace-nowrap">
-        <AgenticTag tone={tone}>{tone === "success" ? "ok" : tone}</AgenticTag>
-      </td>
-    </tr>
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
+        <BentoBadge variant={toneToVariant(tone)}>
+          {tone === "success" ? "ok" : tone}
+        </BentoBadge>
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -68,13 +102,15 @@ function RateRow({ rate }: { rate: RouterQualityRate }) {
 function WatchRow({ signal }: { signal: RouterQualitySignal }) {
   const tone: AgenticTone = signal.active ? severityTone(signal.severity) : "success";
   return (
-    <tr data-tone={signal.active ? severityTone(signal.severity) : undefined}>
-      <td className="agentic-cell-strong">{signal.label}</td>
-      <td className="agentic-cell-muted">{signal.detail}</td>
-      <td className="whitespace-nowrap">
-        <AgenticTag tone={tone}>{signal.active ? signal.severity : "ok"}</AgenticTag>
-      </td>
-    </tr>
+    <TableRow data-tone={signal.active ? severityTone(signal.severity) : undefined}>
+      <TableCell className="ct-metric-value">{signal.label}</TableCell>
+      <TableCell className="ct-metric-caption">{signal.detail}</TableCell>
+      <TableCell className="whitespace-nowrap">
+        <BentoBadge variant={toneToVariant(tone)}>
+          {signal.active ? signal.severity : "ok"}
+        </BentoBadge>
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -91,11 +127,11 @@ export function RouterQualityReview({
     <details className="agentic-rowdetail" open>
       <summary className="agentic-rowdetail-summary">
         Router Quality Review
-        <AgenticTag tone={activeSignalCount > 0 ? "warning" : "success"}>
+        <BentoBadge variant={activeSignalCount > 0 ? "warning" : "success"}>
           {activeSignalCount > 0
             ? `${activeSignalCount} signal${activeSignalCount > 1 ? "s" : ""}`
             : "healthy"}
-        </AgenticTag>
+        </BentoBadge>
       </summary>
       <div className="agentic-rowdetail-body">
         <p className="m-0">
@@ -105,56 +141,56 @@ export function RouterQualityReview({
         </p>
 
         {total === 0 ? (
-          <p className="agentic-empty-line m-0">
-            <AgenticTag tone="neutral">no data</AgenticTag>
+          <p className={cn(EMPTY_LINE, "m-0")}>
+            <BentoBadge variant="default">no data</BentoBadge>
             No router decisions in this window to review. Send chat traffic (or
             widen the window) to populate the quality review.
           </p>
         ) : (
           <>
-            <table className="agentic-table">
-              <thead>
-                <tr>
-                  <th>Health rate</th>
-                  <th className="agentic-cell-num">Value</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table dense>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Health rate</TableHeader>
+                  <TableHeader className="text-right tabular-nums">Value</TableHeader>
+                  <TableHeader>Status</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {rates.map((r) => (
                   <RateRow key={r.key} rate={r} />
                 ))}
-                <tr>
-                  <td className="agentic-cell-strong">Negated · no nav</td>
-                  <td className="agentic-cell-num">
+                <TableRow>
+                  <TableCell className="ct-metric-value">Negated · no nav</TableCell>
+                  <TableCell className="text-right tabular-nums">
                     {negatedNoNav}
-                    <span className="agentic-cell-faint">{" · blocked"}</span>
-                  </td>
-                  <td className="whitespace-nowrap">
-                    <AgenticTag tone="success">ok</AgenticTag>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    <span className={FAINT}>{" · blocked"}</span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <BentoBadge variant="success">ok</BentoBadge>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
 
-            <table className="agentic-table">
-              <thead>
-                <tr>
-                  <th>Watchlist</th>
-                  <th>Detail</th>
-                  <th>Severity</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table dense>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Watchlist</TableHeader>
+                  <TableHeader>Detail</TableHeader>
+                  <TableHeader>Severity</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {watchlist.map((s) => (
                   <WatchRow key={s.key} signal={s} />
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </>
         )}
 
-        <p className="agentic-cell-faint m-0">{note}</p>
+        <p className={cn(FAINT, "m-0")}>{note}</p>
       </div>
     </details>
   );
