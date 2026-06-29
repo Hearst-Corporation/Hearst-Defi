@@ -1,0 +1,64 @@
+name: nexus-loop
+
+# Dispatched by Hearst Nexus. Runs Claude Code headless on the self-hosted GPU1
+# runner using the Max subscription (no API credit). Opens a PR — never pushes
+# to the default branch, never auto-merges.
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Mission for Claude Code'
+        required: true
+        type: string
+      run_label:
+        description: 'Nexus run id / label'
+        required: false
+        default: 'manual'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: nexus-loop-${{ github.ref }}-${{ inputs.run_label }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: [self-hosted, gpu1]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code (headless, subscription auth)
+        shell: bash -l {0}
+        run: |
+          set -e
+          export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
+          set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
+          unset ANTHROPIC_API_KEY   # subscription auth only, never metered credit
+          echo "Nexus run: ${{ inputs.run_label }} on $GITHUB_REPOSITORY"
+          claude -p "${{ inputs.prompt }}" \
+            --permission-mode acceptEdits \
+            --allowedTools "Edit,Write,Read,Bash" \
+            --output-format json \
+            > claude-output.json 2> claude-stderr.log || true
+          echo "---- stderr ----"; cat claude-stderr.log || true
+          echo "---- output (head) ----"; head -c 1500 claude-output.json || true
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: nexus/${{ inputs.run_label }}
+          base: main
+          title: "nexus-loop: ${{ inputs.run_label }}"
+          commit-message: "nexus-loop: apply Claude Code changes (${{ inputs.run_label }})"
+          body: |
+            Automated by **Hearst Nexus** loop run `${{ inputs.run_label }}`,
+            executed on the self-hosted GPU1 runner via the Max subscription.
+
+            **Mission:** ${{ inputs.prompt }}
+
+            Review before merge — Nexus never auto-merges and never pushes to main.
+          delete-branch: true
