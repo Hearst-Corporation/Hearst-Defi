@@ -2,6 +2,16 @@
 
 import { useMemo, useState } from "react";
 
+import { Badge } from "@/components/catalyst/badge";
+import { SegmentedControl } from "@/components/catalyst/segmented-control";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 import type { MachineRow } from "@/lib/telegram/read-machines";
 
@@ -19,11 +29,20 @@ type SortKey =
   | "totalCostUsdPerThDay"
   | "marginUsdPerThDay";
 
-const COOLING_DOT: Record<string, string> = {
-  air: "var(--ct-status-info)",
-  hydro: "var(--ct-accent)",
-  immersion: "var(--ct-status-warning)",
+// Cooling → DS Badge colour (token-only via the Badge primitive, never an inline
+// background-color). air = info, hydro = accent/success, immersion = warning.
+const COOLING_BADGE: Record<MachineRow["cooling"], "blue" | "green" | "amber"> = {
+  air: "blue",
+  hydro: "green",
+  immersion: "amber",
 };
+
+// Catalyst head/cell chrome — the same literals the canon customers table uses,
+// so the source table reads identically (nano uppercase head; the edge gutter is
+// owned by the cells via pl-5/pr-5).
+const HEAD = "bg-transparent ct-bento-label";
+const ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
 
 function fmtUsd(n: number | null, digits = 4): string {
   return n === null ? "—" : `$${n.toFixed(digits)}`;
@@ -68,125 +87,148 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
     [rows],
   );
 
+  const coolingItems = useMemo(
+    () =>
+      (["all", "air", "hydro", "immersion"] as const).map((f) => ({
+        value: f,
+        label: (
+          <span className="capitalize">
+            {f === "all" ? "Tous" : f} {counts[f]}
+          </span>
+        ),
+      })),
+    [counts],
+  );
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-2">
-        {(["all", "air", "hydro", "immersion"] as const).map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            className={cn(
-              "ct-metric-caption rounded-lg border px-3 py-1 capitalize transition-colors",
-              filter === f
-                ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
-                : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] hover:text-[var(--ct-text-strong)]",
-            )}
-          >
-            {f === "all" ? "Tous" : f} ({counts[f]})
-          </button>
-        ))}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="ct-bento-label">Cooling</span>
+        <SegmentedControl
+          items={coolingItems}
+          value={filter}
+          onChange={setFilter}
+          ariaLabel="Filtrer par refroidissement"
+          variant="radiogroup"
+        />
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--ct-border)] bg-surface-inset">
-        <table className="ct-metric-value w-full border-collapse font-normal">
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)]">
-              <Th label="Modèle" k="model" sort={sort} onSort={toggleSort} />
-              <Th label="Cooling" k="cooling" sort={sort} onSort={toggleSort} />
-              <Th label="Région" k="region" sort={sort} onSort={toggleSort} />
-              <Th label="TH/s" k="thPerUnit" sort={sort} onSort={toggleSort} num />
-              <Th label="J/TH" k="efficiencyJTh" sort={sort} onSort={toggleSort} num />
-              <Th label="Ex-works" k="exWorksUsd" sort={sort} onSort={toggleSort} num />
-              <Th label="Landed" k="landedUsd" sort={sort} onSort={toggleSort} num />
-              <Th label="CAPEX $/TH/j" k="capexUsdPerThDay" sort={sort} onSort={toggleSort} num />
-              <Th label="Énergie $/TH/j" k="energyUsdPerThDay" sort={sort} onSort={toggleSort} num />
-              <Th label="Coût total $/TH/j" k="totalCostUsdPerThDay" sort={sort} onSort={toggleSort} num />
-              <Th label="Marge $/TH/j" k="marginUsdPerThDay" sort={sort} onSort={toggleSort} num />
-            </tr>
-          </thead>
-          <tbody>
-            {view.map((r, i) => (
-              <tr
-                key={`${r.model}-${r.thPerUnit}-${i}`}
-                className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+      <Table dense className="[&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
+        <TableHead>
+          <TableRow>
+            <SortHeader label="Modèle" k="model" sort={sort} onSort={toggleSort} className="pl-5" />
+            <SortHeader label="Cooling" k="cooling" sort={sort} onSort={toggleSort} />
+            <SortHeader label="Région" k="region" sort={sort} onSort={toggleSort} />
+            <SortHeader label="TH/s" k="thPerUnit" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="J/TH" k="efficiencyJTh" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Ex-works" k="exWorksUsd" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Landed" k="landedUsd" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="CAPEX $/TH/j" k="capexUsdPerThDay" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Énergie $/TH/j" k="energyUsdPerThDay" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Coût total $/TH/j" k="totalCostUsdPerThDay" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Marge $/TH/j" k="marginUsdPerThDay" sort={sort} onSort={toggleSort} num className="pr-5" />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {view.map((r, i) => (
+            <TableRow key={`${r.model}-${r.thPerUnit}-${i}`} className={ROW}>
+              <TableCell
+                className="ct-metric-value min-w-[10rem] max-w-[18rem] truncate pl-5 font-medium text-[var(--ct-text-strong)]"
+                title={r.model}
               >
-                <td className="px-3 py-2.5 font-medium text-[var(--ct-text-strong)]">
-                  {r.model}
-                </td>
-                <td className="px-3 py-2.5 text-[var(--ct-text-muted)]">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span
-                      className="inline-block h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: COOLING_DOT[r.cooling] }}
-                    />
-                    {r.cooling}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5 uppercase text-[var(--ct-text-muted)]">
-                  {r.region === "usa" ? "USA" : "Chine"}
-                </td>
-                <Num>{r.thPerUnit}</Num>
-                <Num>{r.efficiencyJTh ?? "—"}</Num>
-                <Num>${r.exWorksUsd.toLocaleString()}</Num>
-                <Num>${r.landedUsd.toLocaleString()}</Num>
-                <Num>{fmtUsd(r.capexUsdPerThDay, 5)}</Num>
-                <Num>{fmtUsd(r.energyUsdPerThDay, 5)}</Num>
-                <Num>{fmtUsd(r.totalCostUsdPerThDay, 5)}</Num>
-                <td
-                  className={cn(
-                    "px-3 py-2.5 text-right font-semibold tabular-nums",
-                    r.marginUsdPerThDay === null
-                      ? "text-[var(--ct-text-muted)]"
-                      : r.marginUsdPerThDay >= 0
-                        ? "text-[var(--ct-accent)]"
-                        : "text-[var(--ct-status-danger)]",
-                  )}
-                >
-                  {fmtUsd(r.marginUsdPerThDay, 5)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                {r.model}
+              </TableCell>
+              <TableCell>
+                <Badge color={COOLING_BADGE[r.cooling]} className="capitalize">
+                  {r.cooling}
+                </Badge>
+              </TableCell>
+              <TableCell className="ct-metric-caption uppercase">
+                {r.region === "usa" ? "USA" : "Chine"}
+              </TableCell>
+              <Num>{r.thPerUnit}</Num>
+              <Num muted={r.efficiencyJTh === null}>{r.efficiencyJTh ?? "—"}</Num>
+              <Num>${r.exWorksUsd.toLocaleString()}</Num>
+              <Num>${r.landedUsd.toLocaleString()}</Num>
+              <Num muted={r.capexUsdPerThDay === null}>{fmtUsd(r.capexUsdPerThDay, 5)}</Num>
+              <Num muted={r.energyUsdPerThDay === null}>{fmtUsd(r.energyUsdPerThDay, 5)}</Num>
+              <Num muted={r.totalCostUsdPerThDay === null}>{fmtUsd(r.totalCostUsdPerThDay, 5)}</Num>
+              <TableCell
+                className={cn(
+                  "pr-5 text-right font-semibold tabular-nums",
+                  r.marginUsdPerThDay === null
+                    ? "text-[var(--ct-text-muted)]"
+                    : r.marginUsdPerThDay >= 0
+                      ? "text-[var(--ct-accent)]"
+                      : "text-[var(--ct-status-danger)]",
+                )}
+              >
+                {fmtUsd(r.marginUsdPerThDay, 5)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
 
-function Th({
+function SortHeader({
   label,
   k,
   sort,
   onSort,
   num,
+  className,
 }: {
   label: string;
   k: SortKey;
   sort: { key: SortKey; asc: boolean };
   onSort: (k: SortKey) => void;
   num?: boolean;
+  className?: string;
 }) {
   const active = sort.key === k;
   return (
-    <th
-      onClick={() => onSort(k)}
-      className={cn(
-        "ct-bento-label cursor-pointer select-none whitespace-nowrap px-3 py-3 hover:text-[var(--ct-accent)]",
-        num ? "text-right" : "text-left",
-        active && "text-[var(--ct-accent)]",
-      )}
+    <TableHeader
+      className={cn(HEAD, num && "text-right", className)}
+      aria-sort={active ? (sort.asc ? "ascending" : "descending") : "none"}
     >
-      {label}
-      {active ? (sort.asc ? " ↑" : " ↓") : ""}
-    </th>
+      <button
+        type="button"
+        onClick={() => onSort(k)}
+        className={cn(
+          "inline-flex cursor-pointer select-none items-center gap-1 whitespace-nowrap transition-colors hover:text-[var(--ct-accent)]",
+          num && "flex-row-reverse",
+          active && "text-[var(--ct-accent)]",
+        )}
+      >
+        {label}
+        <span aria-hidden className="text-[length:var(--ct-text-nano)]">
+          {active ? (sort.asc ? "↑" : "↓") : ""}
+        </span>
+      </button>
+    </TableHeader>
   );
 }
 
-function Num({ children }: { children: React.ReactNode }) {
+function Num({
+  children,
+  muted = false,
+}: {
+  children: React.ReactNode;
+  muted?: boolean;
+}) {
   return (
-    <td className="px-3 py-2.5 text-right tabular-nums text-[var(--ct-text-secondary)]">
+    <TableCell
+      className={cn(
+        "ct-metric-caption text-right tabular-nums",
+        muted
+          ? "text-[var(--ct-text-muted)]"
+          : "text-[var(--ct-text-secondary)]",
+      )}
+    >
       {children}
-    </td>
+    </TableCell>
   );
 }

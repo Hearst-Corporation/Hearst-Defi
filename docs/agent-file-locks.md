@@ -84,6 +84,31 @@ cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ---
 
+### fix/admin-source-ds-canon — MISSION #067
+Owner: Claude Opus — Admin Source page DS canonization
+Branch: fix/admin-source-ds-canon
+Worktree: ../connect-source-ds-canon
+Started: 2026-06-29
+Status: active
+
+Goal: canonize the INNER content of /admin/source onto DS primitives. Frame is
+already canon; the body (pipeline cards, prix-machines header, destination/cooling
+filters, machines table, APY cards) was a custom cockpit/Bento/raw-table system.
+Replace with Catalyst Card / Badge / SegmentedControl / Table primitives. No new
+local visual system.
+
+Scope:
+- src/app/admin/source/page.tsx
+- src/components/admin/source/machine-table.tsx
+- src/components/admin/source/* (new presentational pieces if needed)
+- src/app/admin/source/__tests__/admin-source-ds-contract.test.ts (new guard)
+
+STOP: never touches mining/hashprice formulas, Telegram source logic, APY model,
+projections, Prisma/migrations, server actions, chat/nav/router, cockpit.css,
+#146. UI/DS/layout only.
+
+---
+
 ## RELEASED LOCKS
 
 ### fix/admin-visual-canon — MISSION #051 (terminé — mergé)
