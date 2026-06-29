@@ -31,6 +31,7 @@ import {
   POSITION_STATUS_CONFIG,
 } from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
+import { resolvePortfolioChartWindow } from "@/lib/portfolio/value-series";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -71,11 +72,6 @@ function SeeMore({ href }: { href: string }) {
   );
 }
 
-/** Loader source → HIS truth status (drives the badge tone + honesty veil). */
-function hcSource(source: "live" | "fallback"): HcSourceStatus {
-  return source === "live" ? "live" : "fallback";
-}
-
 export default async function PortfolioPage() {
   // Call ONLY the two loaders this page renders (the value/positions data + the
   // allocation ring). Avoids loadPortfolioView's extra risk/distrib/proof/yield
@@ -113,6 +109,21 @@ export default async function PortfolioPage() {
   const heroState: "ready" | "fallback" =
     source === "fallback" ? "fallback" : "ready";
 
+  // Resolve the chart's header + axis from the REAL span so the subtitle can
+  // never claim "12 months" while the x-axis shows days, and so the provenance
+  // badge reads "Live" only when the data is genuinely live (real source AND a
+  // real span). Demo data gets the explicit "Demo" pill; a seed/low balance is
+  // annotated rather than dressed up as a mature institutional book.
+  const chartWindow = resolvePortfolioChartWindow(valuePoints, source);
+  const heroSubtitle = chartWindow.isLowBalance
+    ? `${chartWindow.subtitle} · seed balance`
+    : chartWindow.subtitle;
+  const heroSource: HcSourceStatus = chartWindow.isDemo
+    ? "demo"
+    : chartWindow.isLive
+      ? "live"
+      : "estimated";
+
   // Allocation ring — REAL vault-snapshot buckets only. No fabricated split: if
   // there is no real allocation, the ring renders its empty track (zero stays
   // zero, widget still visible) rather than an invented 60/25/10/5 under a badge.
@@ -139,9 +150,9 @@ export default async function PortfolioPage() {
         <section className="grid grid-cols-1 lg:grid-cols-[1.8fr_minmax(300px,1fr)] gap-5">
           <HcChartCard
             title="Portfolio value"
-            subtitle="Net asset value · last 12 months"
+            subtitle={heroSubtitle}
             metric={formatUsdFull(totalValueUsdc)}
-            source={hcSource(source)}
+            source={heroSource}
             state={heroState}
             height={200}
             aria-label="Portfolio value over time"
@@ -149,6 +160,8 @@ export default async function PortfolioPage() {
             <HcValueChart
               points={valuePoints}
               height={200}
+              xTicks={chartWindow.xTicks}
+              granularity={chartWindow.granularity}
               aria-label="Portfolio value trend"
             />
           </HcChartCard>

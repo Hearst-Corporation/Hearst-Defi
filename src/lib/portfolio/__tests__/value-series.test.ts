@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   buildPortfolioValueSeries,
   chartWindowBounds,
+  formatPortfolioCurrency,
+  resolvePortfolioChartWindow,
   PORTFOLIO_VALUE_HOURLY_CADENCE_MS,
   type ValueSeriesTx,
 } from "../value-series";
@@ -118,5 +120,95 @@ describe("chartWindowBounds", () => {
   it("24h window spans exactly one day", () => {
     const { start, end } = chartWindowBounds(now, "24h");
     expect(end.getTime() - start.getTime()).toBe(24 * 60 * 60 * 1000);
+  });
+});
+
+describe("formatPortfolioCurrency", () => {
+  it("handles whole dollars", () => {
+    expect(formatPortfolioCurrency(0)).toBe("$0");
+    expect(formatPortfolioCurrency(11)).toBe("$11");
+    expect(formatPortfolioCurrency(999)).toBe("$999");
+  });
+
+  it("handles cents", () => {
+    expect(formatPortfolioCurrency(11.2)).toBe("$11.20");
+    expect(formatPortfolioCurrency(11.25)).toBe("$11.25");
+  });
+
+  it("handles thousands", () => {
+    expect(formatPortfolioCurrency(11_200)).toBe("$11.2K");
+    expect(formatPortfolioCurrency(1_000)).toBe("$1.0K");
+  });
+
+  it("handles millions", () => {
+    expect(formatPortfolioCurrency(11_200_000)).toBe("$11.2M");
+    expect(formatPortfolioCurrency(500_000)).toBe("$500.0K");
+  });
+
+  it("handles billions", () => {
+    expect(formatPortfolioCurrency(1_120_000_000)).toBe("$1.1B");
+  });
+
+  it("handles negatives and non-finite", () => {
+    expect(formatPortfolioCurrency(-11_200)).toBe("-$11.2K");
+    expect(formatPortfolioCurrency(Number.NaN)).toBe("$0");
+  });
+});
+
+describe("resolvePortfolioChartWindow", () => {
+  const day = 24 * 60 * 60 * 1000;
+  const mk = (offsets: number[], v: number) =>
+    offsets.map((d) => ({ at: new Date(Date.UTC(2026, 0, 1) + d * day), value: v }));
+
+  it("returns the empty state for <2 points", () => {
+    const w = resolvePortfolioChartWindow([], "live");
+    expect(w.granularity).toBe("empty");
+    expect(w.xTicks).toHaveLength(0);
+    expect(w.isLive).toBe(false);
+    expect(w.subtitle).not.toContain("12 months");
+  });
+
+  it("uses daily labels + a 'last N days' subtitle for a short window", () => {
+    const w = resolvePortfolioChartWindow(mk([0, 1, 2, 3], 100), "live");
+    expect(w.granularity).toBe("daily");
+    expect(w.subtitle).toContain("last 3 days");
+    expect(w.subtitle).not.toContain("12 months");
+    // Day-precise labels (e.g. "Jan 1"), not bare month names.
+    expect(w.xTicks[0]?.label).toMatch(/[A-Z][a-z]{2} \d+/);
+  });
+
+  it("uses monthly labels + a trailing-months subtitle for a long window", () => {
+    const w = resolvePortfolioChartWindow(mk([0, 120, 240, 364], 100), "live");
+    expect(w.granularity).toBe("monthly");
+    expect(w.subtitle).toContain("trailing 12 months");
+    // Bare month names ("Jan"), no day number.
+    expect(w.xTicks[0]?.label).toMatch(/^[A-Z][a-z]{2}$/);
+  });
+
+  it("never claims 12 months while the axis shows days (no mismatch)", () => {
+    const w = resolvePortfolioChartWindow(mk([0, 1, 2, 3], 100), "live");
+    const claims12m = w.subtitle.includes("12 months");
+    const daysAxis = w.granularity === "daily";
+    expect(claims12m && daysAxis).toBe(false);
+  });
+
+  it("marks fallback data as demo, never live", () => {
+    const w = resolvePortfolioChartWindow(mk([0, 1, 2], 100), "fallback");
+    expect(w.isDemo).toBe(true);
+    expect(w.isLive).toBe(false);
+  });
+
+  it("flags a low / seed balance explicitly", () => {
+    const seed = resolvePortfolioChartWindow(mk([0, 1, 2], 11), "live");
+    expect(seed.isLowBalance).toBe(true);
+    const mature = resolvePortfolioChartWindow(mk([0, 1, 2], 500_000), "live");
+    expect(mature.isLowBalance).toBe(false);
+  });
+
+  it("emits at most 6 x-axis ticks", () => {
+    const many = mk(Array.from({ length: 30 }, (_, i) => i), 100);
+    const w = resolvePortfolioChartWindow(many, "live");
+    expect(w.xTicks.length).toBeLessThanOrEqual(6);
+    expect(w.xTicks.length).toBeGreaterThanOrEqual(2);
   });
 });
