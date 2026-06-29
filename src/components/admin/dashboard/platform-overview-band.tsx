@@ -31,7 +31,12 @@ export function PlatformOverviewBand({
   return (
     <div
       aria-label="Platform overview"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-[var(--ct-border-soft)] sm:divide-y-0 sm:divide-x"
+      // 4 dense clusters. Stay at 2 columns through lg (each cluster keeps room
+      // for its title + "View full" leaf link + label/value rows) and only split
+      // to 4 columns at xl, where the panel is wide enough. At lg-and-below the
+      // 4-column layout squeezed each cluster until the heading overlapped its
+      // leaf link. divide-y returns between the two stacked rows below xl.
+      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 divide-y xl:divide-y-0 sm:divide-x divide-[var(--ct-border-soft)]"
     >
       {view.clusters.map((cluster, index) => (
         <div key={cluster.label} className="flex flex-col p-5">
