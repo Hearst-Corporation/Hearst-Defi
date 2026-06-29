@@ -23,6 +23,7 @@ import {
   encodeVaultFormPrefill,
 } from "@/lib/agentic/swarm/live/to-vault-form";
 import { DataScientistOutput } from "./data-scientist-output";
+import { ProductEngineReport } from "./product-engine-report";
 
 /**
  * Product construction — full-page vertical stepper.
@@ -628,6 +629,10 @@ export function ConstructionStepper({ objective }: { objective: string | null })
           />
           <div className="p-(--ct-space-5)">
             <DataScientistOutput draft={draft} />
+            {/* PROMPT 17 — wired product financial engines (funding / exit-recovery
+                / waterfalls / operator) + calculated-vs-documented disclosure.
+                Renders nothing for a non-mining draft. */}
+            <ProductEngineReport draft={draft} />
           </div>
         </BentoPanel>
       ) : null}

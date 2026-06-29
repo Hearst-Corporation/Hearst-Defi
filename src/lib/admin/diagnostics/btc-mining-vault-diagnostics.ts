@@ -30,7 +30,16 @@ import {
   type StableFundingInput,
 } from "@/lib/products/stable-funding-engine";
 import { nextExitRecoveryState } from "@/lib/products/exit-recovery";
-import { buildOperatorEconomics } from "@/lib/products/operator-economics";
+import {
+  buildOperatorEconomics,
+  clientDistributionBand,
+} from "@/lib/products/operator-economics";
+import {
+  buildProductWaterfalls,
+  assertWaterfallOrder,
+} from "@/lib/products/btc-mining-waterfalls";
+import { buildProductEngineOutputs } from "@/lib/agentic/swarm/live/product-engine-bridge";
+import { getCalculatedVsDocumented } from "@/lib/agentic/swarm/live/calculated-vs-documented";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { buildBtcMiningVaultBrief } from "@/lib/product-workspace/btc-mining-vault-preset";
 import { buildBtcMiningVaultDraftTemplate } from "@/lib/vault-drafts/btc-mining-vault-template";
@@ -68,6 +77,65 @@ function healthyFundingInput(): StableFundingInput {
     stableReserveRunway: 600_000,
     minRunway: 300_000,
   };
+}
+
+/**
+ * Build the wired engine outputs from a MINIMAL, CONFIGURED bridge context — the
+ * diagnostic only needs the disclosure + engine shapes, not live data. The values
+ * here are conservative configured placeholders (never presented as live).
+ */
+function buildEngineOutputsForDiagnostic() {
+  const lev = PRODUCT.levers;
+  return buildProductEngineOutputs({
+    strategy: {
+      configured: true,
+      miningYieldPct: 8,
+      usdcYieldPct: 6,
+      usdcSource: "configured",
+      btcReturn: { bear: -20, base: 40, bull: 120 },
+      headlineApy: { low: 0.057, high: 0.07 },
+      assumptions: [],
+      disclaimer: "",
+      companyLevers: {
+        source: "configured",
+        status: "CONFIGURED",
+        markupPct: lev.markupPct.value,
+        revenueSharePct: lev.revenueSharePct.value,
+        borrowAprPct: lev.borrowAprPct.value,
+        feePct: 0,
+        energyCostUsdPerKwh: lev.energyCostUsdPerKwh.value,
+      },
+      provenance: "Manual",
+    },
+    quant: {
+      seed: 1,
+      paths: 5000,
+      horizonMonths: 12,
+      percentiles: { p5: 0.02, p25: 0.057, p50: 0.064, p75: 0.07, p95: 0.1 },
+      headlineRange: { low: 0.057, high: 0.07 },
+      probBelowFloorPct: 0,
+      floorApyPct: 0,
+      provenance: "Estimated",
+    },
+    canonicalAllocation: {
+      productId: PRODUCT.id,
+      productName: PRODUCT.name,
+      mining: 35,
+      btcHoldingCollateral: 45,
+      stableReserve: 12,
+      yieldOverlay: 8,
+      miningFraction: 0.35,
+      governanceException: false,
+      provenance: "Manual",
+      rawRejected: null,
+      bands: {
+        mining: [30, 40],
+        btcHoldingCollateral: [40, 55],
+        stableReserve: [10, 15],
+        yieldOverlay: [0, 10],
+      },
+    },
+  });
 }
 
 /** A healthy input where borrow is NOT cheaper than the stable yield it would
@@ -351,6 +419,153 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
         : fail("Engine reflexively spent the reserve / sold BTC first.", {
             cheapBorrow: cheapBorrow.source,
             idleStable: idleStable.source,
+          });
+    },
+  },
+  // ───────────────────────────── PROMPT 17 — Phase H ────────────────────────
+  {
+    id: "waterfalls-present-and-ordered",
+    label: "Waterfalls present in report with stable ordering",
+    severity: "P0",
+    expected:
+      "buildProductWaterfalls returns normal/early/recovery; assertWaterfallOrder finds no reorder",
+    likelyFile: "src/lib/products/btc-mining-waterfalls.ts",
+    likelyFunction: "buildProductWaterfalls / assertWaterfallOrder",
+    guard: "waterfall-order",
+    run: () => {
+      const wf = buildProductWaterfalls();
+      const violations = [
+        ...assertWaterfallOrder(wf.normal),
+        ...assertWaterfallOrder(wf.earlyClosure),
+        ...assertWaterfallOrder(wf.recovery),
+      ];
+      const allKinds =
+        wf.normal.kind === "normal" &&
+        wf.earlyClosure.kind === "early_closure" &&
+        wf.recovery.kind === "recovery";
+      const ok = violations.length === 0 && allKinds;
+      return ok
+        ? pass("All three waterfalls present; ordering is stable.", {
+            normal: wf.normal.steps.length,
+            early: wf.earlyClosure.steps.length,
+            recovery: wf.recovery.steps.length,
+          })
+        : fail("Waterfall missing or reordered.", { violations, allKinds });
+    },
+  },
+  {
+    id: "waterfall-no-guaranteed-distribution",
+    label: "Waterfall never implies a guaranteed distribution",
+    severity: "P0",
+    expected:
+      "with coverage gated off, the monthly-distribution step is 'blocked' (never active/guaranteed)",
+    likelyFile: "src/lib/products/btc-mining-waterfalls.ts",
+    likelyFunction: "buildProductWaterfalls",
+    guard: "waterfall-no-guarantee",
+    run: () => {
+      // Funding decision with coverage below 1.0 → distribution must be blocked.
+      const gatedFunding = chooseStableFundingSource({
+        ...healthyFundingInput(),
+        coverageRatio: 0.9,
+      });
+      const wf = buildProductWaterfalls({ funding: gatedFunding });
+      const distStep = wf.normal.steps.find((s) => s.rank === 4);
+      const ok =
+        distStep !== undefined &&
+        distStep.status === "blocked" &&
+        gatedFunding.distributionAllowed === false;
+      return ok
+        ? pass("Coverage gated off → distribution step blocked, not implied.", {
+            step: distStep?.status,
+          })
+        : fail("Distribution step not blocked under a coverage gate.", { distStep });
+    },
+  },
+  {
+    id: "operator-economics-separate-from-apy",
+    label: "Operator economics present and separate — never added to client APY",
+    severity: "P0",
+    expected:
+      "client distribution band is unchanged by reading operator economics; no operator value merged into the band",
+    likelyFile: OPERATOR_FILE,
+    likelyFunction: "buildOperatorEconomics / clientDistributionBand",
+    guard: "operator-separate",
+    run: () => {
+      const op = buildOperatorEconomics(PRODUCT);
+      const band = clientDistributionBand(PRODUCT);
+      // The client band must equal the product's own distribution target —
+      // proof that operator economics did not (and cannot) alter it.
+      const bandUntouched =
+        band.min === PRODUCT.monthlyDistributionTargetAnnualized.min &&
+        band.max === PRODUCT.monthlyDistributionTargetAnnualized.max;
+      // Every operator value is double-locked as not-validated, so none can be
+      // read as part of the client (validated/contractual) distribution.
+      const opValues = Object.values(op);
+      const allOperatorNotValidated = opValues.every(
+        (v) => v.validated === false && v.status === "CONFIGURED_NOT_VALIDATED",
+      );
+      const ok = bandUntouched && allOperatorNotValidated;
+      return ok
+        ? pass(
+            "Client distribution band is unchanged; operator figures live in a separate object.",
+            { band: `${(band.min * 100).toFixed(0)}–${(band.max * 100).toFixed(0)}%` },
+          )
+        : fail("Operator economics could be read into the client APY.", {
+            bandUntouched,
+          });
+    },
+  },
+  {
+    id: "monte-carlo-disclosure-honest",
+    label: "Monte-Carlo disclosure is accurate (static, not path-dependent)",
+    severity: "P0",
+    expected:
+      "monteCarloDisclosure.pathDependentRebalancing === false and note says 'static'",
+    likelyFile: "src/lib/agentic/swarm/live/product-engine-bridge.ts",
+    likelyFunction: "buildProductEngineOutputs",
+    guard: "mc-disclosure",
+    run: () => {
+      const outputs = buildEngineOutputsForDiagnostic();
+      const mc = outputs.monteCarloDisclosure;
+      const ok =
+        mc.pathDependentRebalancing === false &&
+        /static/i.test(mc.note) &&
+        (mc.version === "v1" || mc.version === "v1.1");
+      return ok
+        ? pass("Monte-Carlo disclosed as static / scenario-level — no path-dependent claim.", {
+            version: mc.version,
+          })
+        : fail("Monte-Carlo disclosure overstates fidelity.", { mc });
+    },
+  },
+  {
+    id: "calculated-vs-documented-present",
+    label: "Calculated-vs-documented section present and honest",
+    severity: "P0",
+    expected:
+      "manifest lists the wired engines under 'calculated' and path-dependent MC under 'documentedOnly'",
+    likelyFile: "src/lib/agentic/swarm/live/calculated-vs-documented.ts",
+    likelyFunction: "getCalculatedVsDocumented",
+    guard: "calc-vs-doc",
+    run: () => {
+      const cvd = getCalculatedVsDocumented();
+      const calculatedHasEngines =
+        cvd.calculated.some((c) => /Stable Funding/i.test(c)) &&
+        cvd.calculated.some((c) => /Exit \/ Recovery/i.test(c)) &&
+        cvd.calculated.some((c) => /Waterfall/i.test(c)) &&
+        cvd.calculated.some((c) => /Operator economics/i.test(c));
+      const documentedHasPathDependent = cvd.documentedOnly.some((d) =>
+        /path-dependent/i.test(d),
+      );
+      const ok = calculatedHasEngines && documentedHasPathDependent;
+      return ok
+        ? pass(
+            "Engines listed as calculated; path-dependent MC honestly listed as documented-only.",
+            { calculated: cvd.calculated.length, documentedOnly: cvd.documentedOnly.length },
+          )
+        : fail("Calculated-vs-documented manifest is inaccurate.", {
+            calculatedHasEngines,
+            documentedHasPathDependent,
           });
     },
   },
