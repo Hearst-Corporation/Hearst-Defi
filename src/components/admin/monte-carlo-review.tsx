@@ -182,7 +182,7 @@ export function MonteCarloReview({
         {/* Tail-risk line */}
         <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
           P(APY &lt; 8%) ={" "}
-          <span className="font-semibold tabular-nums text-white">
+          <span className="font-semibold tabular-nums text-[var(--ct-text-strong)]">
             {(result.probBelowFloor * 100).toFixed(1)}%
           </span>
           &ensp;·&ensp;range:{" "}
@@ -219,7 +219,7 @@ function MetricCell({ label, value, tone }: MetricCellProps) {
     tone === "accent"
       ? "tabular-nums text-[length:var(--ct-text-base)] font-medium text-[var(--ct-accent)]"
       : tone === "primary"
-        ? "tabular-nums text-[length:var(--ct-text-base)] font-medium text-white"
+        ? "tabular-nums text-[length:var(--ct-text-base)] font-medium text-[var(--ct-text-strong)]"
         : "tabular-nums text-[length:var(--ct-text-base)] font-medium text-[var(--ct-text-muted)]";
 
   return (

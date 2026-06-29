@@ -8,12 +8,12 @@ const TONE_DOT: Record<StressRegime["tone"], string> = {
 };
 
 const TONE_LABEL: Record<StressRegime["tone"], string> = {
-  success: "text-white",
+  success: "text-[var(--ct-text-strong)]",
   danger: "text-[var(--ct-text-muted)]",
 };
 
 function PctCell({ value }: { value: number }) {
-  return <span className="text-[length:var(--ct-text-14)] font-medium text-white tabular-nums">{value}%</span>;
+  return <span className="text-[length:var(--ct-text-14)] font-medium text-[var(--ct-text-strong)] tabular-nums">{value}%</span>;
 }
 
 interface RegimeScenarioTableProps {

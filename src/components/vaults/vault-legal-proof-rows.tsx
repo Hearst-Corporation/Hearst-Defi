@@ -22,7 +22,7 @@ function ProofRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3">
       <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{label}</span>
-      <span className="text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums">
+      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
         {value}
       </span>
     </div>

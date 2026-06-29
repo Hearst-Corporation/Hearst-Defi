@@ -88,7 +88,7 @@ export function AdminPagination({
         {page > 1 && (
           <Link
             href={`${basePath}?page=${page - 1}&pageSize=${pageSize}`}
-            className="rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
+            className="rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
           >
             Previous
           </Link>
@@ -96,7 +96,7 @@ export function AdminPagination({
         {hasMore && (
           <Link
             href={`${basePath}?page=${page + 1}&pageSize=${pageSize}`}
-            className="rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
+            className="rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
           >
             Next
           </Link>

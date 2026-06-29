@@ -116,7 +116,7 @@ export function AllocationOrbit({
           <SvgDonut allocations={allocations} />
           <div className="dashboard-orbit__core">
             <span className="ct-bento-label">AUM Total</span>
-            <strong className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums text-white mt-1">
+            <strong className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums text-[var(--ct-text-strong)] mt-1">
               {dashboardUsdCompact.format(capitalUsdc)}
             </strong>
             <div className="dashboard-orbit__core-meta mt-1">

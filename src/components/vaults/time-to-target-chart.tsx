@@ -301,7 +301,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
               x={xAt(m, totalPts)}
               y={VB_H - 1}
               textAnchor="middle"
-              fill="#71717a"
+              fill="var(--ct-text-muted)"
               className="text-[7px] font-mono"
               aria-hidden="true"
             >

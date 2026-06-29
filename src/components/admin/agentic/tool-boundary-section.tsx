@@ -278,7 +278,7 @@ export function ToolBoundarySection({
               key={a.id}
               className="border-b border-[var(--ct-border-soft)] py-3 text-[length:var(--ct-text-xs)] leading-snug last:border-b-0"
             >
-              <span className="font-medium text-white">{a.name}</span>
+              <span className="font-medium text-[var(--ct-text-strong)]">{a.name}</span>
               <span className="text-[var(--ct-text-faint)]"> — {a.notes}</span>
             </li>
           ))}

@@ -144,7 +144,7 @@ export function ProofCenterFullSections({
             <div className="ct-bento-label">
               Governance queue
             </div>
-            <div className="text-[length:var(--ct-text-sm)] font-medium text-white">
+            <div className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)]">
               No pending timelocks
             </div>
             <p className="max-w-sm text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
