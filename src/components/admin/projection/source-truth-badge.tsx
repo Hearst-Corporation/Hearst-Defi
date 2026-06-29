@@ -12,11 +12,11 @@ import type {
 const TONE: Record<SourceTruthStatus, string> = {
   LIVE: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
   FALLBACK: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
-  CONFIGURED: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+  CONFIGURED: "border-[var(--ct-status-info-border)] bg-[var(--ct-status-info-soft)] text-[var(--ct-status-info)]",
   MOCK: "border-zinc-500/30 bg-zinc-500/10 text-[var(--ct-text-muted)]",
   DEMO: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
-  UNAUDITED: "border-rose-400/30 bg-rose-400/10 text-rose-400",
-  PARTIAL: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+  UNAUDITED: "border-[var(--ct-status-unaudited-border)] bg-[var(--ct-status-unaudited-soft)] text-[var(--ct-status-unaudited)]",
+  PARTIAL: "border-[var(--ct-status-info-border)] bg-[var(--ct-status-info-soft)] text-[var(--ct-status-info)]",
   MIXED: "border-[var(--ct-border-strong)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-body)]",
 };
 

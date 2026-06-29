@@ -151,19 +151,19 @@ for (const abs of walk(SRC)) {
       });
     }
 
-    // Guard 5 — raw Tailwind red/amber status hues on scoped surfaces. Danger &
-    // warning have canonical tokens (--ct-status-danger*/--ct-status-warning*).
-    // sky/rose/emerald/etc. are deliberately NOT matched (distinct chip-family
-    // tones with no 1:1 token — converting them would collapse the family).
-    if (pxScoped && /\b(?:text|bg|border)-(?:red|amber)-[0-9]/.test(line)) {
-      const m = line.match(/\b(?:text|bg|border)-(?:red|amber)-[0-9]+(?:\/[0-9]+)?/);
+    // Guard 5 — raw Tailwind status hues on scoped surfaces. Each maps to a
+    // canonical token: red→danger, amber→warning, sky→info, rose→unaudited.
+    // emerald/orange/yellow are NOT matched (no token yet — would need a DS
+    // decision before banning). MOCK's neutral zinc tint is handled elsewhere.
+    if (pxScoped && /\b(?:text|bg|border)-(?:red|amber|sky|rose)-[0-9]/.test(line)) {
+      const m = line.match(/\b(?:text|bg|border)-(?:red|amber|sky|rose)-[0-9]+(?:\/[0-9]+)?/);
       violations.push({
         guard: "status-color",
         file: rel,
         lineNo: i + 1,
         text: line.trim(),
         reason: `Raw Tailwind status hue ${m[0]} — use the canonical --ct-status-* token.`,
-        fix: "red → text/bg-[var(--ct-status-danger)] · bg-[var(--ct-status-danger-soft)] · border-[var(--ct-status-danger-border)]; amber → --ct-status-warning{,-soft,-border}.",
+        fix: "red→--ct-status-danger* · amber→--ct-status-warning* · sky→--ct-status-info* · rose→--ct-status-unaudited* ({,-soft,-border}).",
       });
     }
   }

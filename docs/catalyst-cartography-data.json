@@ -5,7 +5,7 @@
     "head": "<lot9-pending>",
     "originMain": "c463155c",
     "status": "DONE",
-    "lastPR": "lot12 text-white→--ct-text-strong + isolated hex (fix/catalyst-lot12)",
+    "lastPR": "lot13 status-info/unaudited tokens (sky→info, rose→unaudited) (fix/catalyst-status-info)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -1037,6 +1037,11 @@
       "date": "2026-06-29",
       "ref": "Mission #049 lot12",
       "note": "text-white tokenization — 16-agent fan-out (7 zones). Plain value/label/heading text-white on neutral surfaces → text-[var(--ct-text-strong)] across vaults/admin/app-admin (~70 swaps); text-white on accent/dark surfaces deliberately kept (8 legit contrast cases). 2 isolated hex fixed (#71717a→var(--ct-text-muted) SVG label, ring-[#111417]→ring-[var(--ct-surface-page)]). eslint 0 errors, typecheck clean, all DS guards green. Zero behaviour change."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #049 lot13",
+      "note": "Provenance-badge status tones tokenized. Added --ct-status-unaudited{,-soft,-border} (rose) to cockpit.css; source-truth-badge.tsx CONFIGURED/PARTIAL→--ct-status-info* (token existed), UNAUDITED→--ct-status-unaudited*. MOCK's neutral zinc tint kept (no 1:1 token). All named status hues (sky/rose) now tokenized — ds-convergence-guard status-color rule extended to ban raw sky/rose too. eslint 0 errors, typecheck clean, DS guards green, 78 source-truth tests pass."
     }
   ]
 }
