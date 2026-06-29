@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { ActionQueue } from "@/components/admin/cockpit/action-queue";
@@ -121,14 +120,21 @@ function PaneHeader({
   href?: string;
   provenance?: Provenance;
 }) {
-  const trailing: ReactNode = (
-    <>
-      {status ? <PaneStatus label={status} tone={statusTone} /> : null}
-      {href ? <AdminLeafLink href={href} /> : null}
-      {provenance ? <ProvenanceBadge kind={provenance} variant="strip" /> : null}
-    </>
+  // Custom header (not BentoHeader) so the title and its trailing controls
+  // (status badge + "View full" + provenance) WRAP instead of overlapping when
+  // the pane is narrow and the title runs onto two lines. Reproduces the canon
+  // .ct-bento-panel-header chrome (p-5 + bottom hairline) with flex-wrap, a
+  // min-w-0 title, and a shrink-0 trailing group that drops below the title.
+  return (
+    <div className="ct-bento-panel-header flex flex-wrap items-end justify-between gap-x-4 gap-y-1.5">
+      <h3 className="ct-bento-card-title min-w-0">{title}</h3>
+      <div className="flex shrink-0 items-center gap-2 pb-0.5">
+        {status ? <PaneStatus label={status} tone={statusTone} /> : null}
+        {href ? <AdminLeafLink href={href} /> : null}
+        {provenance ? <ProvenanceBadge kind={provenance} variant="strip" /> : null}
+      </div>
+    </div>
   );
-  return <BentoHeader as="h3" title={title} trailing={trailing} />;
 }
 
 export function DashboardAssetsBoard({
