@@ -5,6 +5,15 @@ name: nexus-loop
 # the API key. Each agent is a real `claude -p` pass with a distinct role; the count
 # comes from the loop's maxAgents (input `agents`). Never pushes to the default branch.
 # Workflow artifacts are kept in $RUNNER_TEMP so they never land in the PR.
+#
+# TWO MODES (input `mode`):
+#   default → run agents, collapse to a single delta, and let create-pull-request
+#             open/refresh a PR on branch `nexus/<run_label>`. Unchanged behaviour.
+#   pr_fix  → PATCH an EXISTING pull request in place: check out its existing head
+#             branch (`target_head_ref`), run the agents, commit fixes, and push to
+#             the SAME branch. NEVER creates a new branch or a new PR. NEVER merges.
+#             Fails closed if the target inputs are missing, if the head ref is the
+#             protected default branch, or if the remote head branch is absent.
 on:
   workflow_dispatch:
     inputs:
@@ -27,6 +36,27 @@ on:
         required: false
         default: '1'
         type: string
+      # ── pr_fix inputs (only sent by Nexus for pr.fix runs) ───────────────────
+      mode:
+        description: 'Run mode: default or pr_fix'
+        required: false
+        default: 'default'
+        type: string
+      target_pr_number:
+        description: 'PR number to patch in pr_fix mode'
+        required: false
+        default: ''
+        type: string
+      target_head_ref:
+        description: 'Existing PR head branch to patch'
+        required: false
+        default: ''
+        type: string
+      target_base_ref:
+        description: 'PR base branch'
+        required: false
+        default: 'main'
+        type: string
 
 permissions:
   contents: write
@@ -39,9 +69,53 @@ concurrency:
 jobs:
   run:
     runs-on: [self-hosted, gpu1]
+    env:
+      MODE: ${{ inputs.mode }}
+      TARGET_PR: ${{ inputs.target_pr_number }}
+      TARGET_HEAD_REF: ${{ inputs.target_head_ref }}
+      TARGET_BASE_REF: ${{ inputs.target_base_ref }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── pr_fix: validate inputs and check out the EXISTING head branch ───────
+      # Fails closed (clear message, no stack trace) on any missing target input,
+      # on a head ref that is the protected default branch, or on an absent remote
+      # branch — so a pr_fix run can NEVER fall through to creating a new PR or
+      # touching main. Skipped entirely in default mode.
+      - name: Resolve pr_fix target
+        id: prfix
+        if: ${{ inputs.mode == 'pr_fix' }}
+        shell: bash -l {0}
+        run: |
+          set -e
+          if [ -z "$TARGET_HEAD_REF" ]; then
+            echo "pr_fix: missing target_head_ref"; exit 1
+          fi
+          if [ -z "$TARGET_BASE_REF" ]; then
+            echo "pr_fix: missing target_base_ref"; exit 1
+          fi
+          if [ -z "$TARGET_PR" ]; then
+            echo "pr_fix: missing target_pr_number"; exit 1
+          fi
+          case "$TARGET_HEAD_REF" in
+            main|master)
+              echo "Refusing to patch protected default branch"
+              exit 1
+              ;;
+          esac
+          if ! git ls-remote --exit-code --heads origin "$TARGET_HEAD_REF" >/dev/null 2>&1; then
+            echo "pr_fix: remote branch '$TARGET_HEAD_REF' not found — refusing to create a new PR"
+            exit 1
+          fi
+          git config user.email "nexus-bot@hearst.app"
+          git config user.name "nexus-bot"
+          git fetch origin "$TARGET_HEAD_REF"
+          git checkout -B "$TARGET_HEAD_REF" "origin/$TARGET_HEAD_REF"
+          echo "→ pr_fix: patching existing PR #$TARGET_PR on $TARGET_HEAD_REF"
 
       - name: Run agent fleet (sequential fan-out)
         id: fleet
@@ -133,12 +207,19 @@ jobs:
             echo "nexus:agents-->"
           } > "$TMP/pr-body.md"
 
-          # Collapse all per-agent checkpoint commits back to base so create-pull-request
-          # bundles the fleet's real file changes as one PR. Artifacts live in $TMP, never
-          # in the working tree, so nothing extra leaks into the PR.
+      # ── DEFAULT MODE: collapse to base so create-pull-request bundles the
+      # fleet's real file changes as one PR. pr_fix never runs this. ────────────
+      - name: Collapse fleet commits (default mode only)
+        if: ${{ inputs.mode != 'pr_fix' }}
+        shell: bash -l {0}
+        run: |
+          set -e
+          # Artifacts live in $RUNNER_TEMP, never in the working tree, so nothing
+          # extra leaks into the PR.
           git reset --soft "${{ steps.fleet.outputs.base }}"
 
       - name: Create Pull Request
+        if: ${{ inputs.mode != 'pr_fix' }}
         uses: peter-evans/create-pull-request@v6
         with:
           branch: nexus/${{ inputs.run_label }}
@@ -147,3 +228,41 @@ jobs:
           commit-message: "nexus-loop: apply ${{ inputs.agents }}-agent fleet changes (${{ inputs.run_label }})"
           body-path: ${{ runner.temp }}/pr-body.md
           delete-branch: true
+
+      # ── pr_fix MODE: collapse the fleet's checkpoint commits into ONE commit on
+      # the existing head branch and push to that SAME branch. Never creates a new
+      # branch or PR; never touches main. No-diff is a clean no-op. ──────────────
+      - name: Patch existing PR branch (pr_fix mode)
+        id: prfix_push
+        if: ${{ inputs.mode == 'pr_fix' }}
+        shell: bash -l {0}
+        run: |
+          set -e
+          # Defence in depth: re-assert the head ref is not the default branch even
+          # if the resolve step were ever bypassed.
+          case "$TARGET_HEAD_REF" in
+            main|master)
+              echo "Refusing to patch protected default branch"
+              exit 1
+              ;;
+          esac
+          # Collapse the per-agent checkpoint commits back to base, then re-stage
+          # the net file delta as a single commit on the existing head branch.
+          git reset --soft "${{ steps.fleet.outputs.base }}"
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "→ pr_fix: no diff — no fix was necessary; nothing pushed."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git commit -q -m "nexus: pr_fix ${{ inputs.run_label }} on $TARGET_HEAD_REF"
+            git push origin "HEAD:$TARGET_HEAD_REF"
+            echo "→ pr_fix: pushed fixes to existing head $TARGET_HEAD_REF"
+          fi
+
+      - name: Comment on the patched PR (pr_fix mode)
+        if: ${{ inputs.mode == 'pr_fix' && steps.prfix_push.outputs.changed == 'true' && inputs.target_pr_number != '' }}
+        shell: bash -l {0}
+        run: |
+          set -e
+          gh pr comment "$TARGET_PR" --body "Nexus pr.fix run ${{ inputs.run_label }} pushed fixes to ${TARGET_HEAD_REF}." \
+          || echo "could not comment on PR #$TARGET_PR (non-fatal)"
