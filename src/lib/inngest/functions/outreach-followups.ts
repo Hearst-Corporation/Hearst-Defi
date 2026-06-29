@@ -7,7 +7,7 @@ import { recordAdminAudit } from "@/lib/admin/audit";
 import { env } from "@/lib/env";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { isSuppressed } from "@/lib/outreach/suppression";
-import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { draftColdEmail } from "@/lib/agents/outreach-writer";
 import { isTier, type Tier } from "@/lib/outreach/tier";
 import { decideAutoSend, type Autonomy } from "@/lib/outreach/send-policy";
@@ -183,7 +183,60 @@ export async function outreachFollowupsHandler({
           audience: icp?.persona === "distributor" ? "distributor" : "subscriber",
           language: icp?.language === "fr" ? "fr" : "en",
         });
-        assertNoForbiddenWords(`${subject}\n${body}`);
+        // Compliance gate (non-negotiable #5): never send a follow-up carrying
+        // an unconditional claim. Use containsForbidden (no throw) so a block is
+        // an explicit, audited outcome distinct from a Resend failure — parity
+        // with outreach-send / outreach-auto-send. The drafted row is persisted
+        // as "failed" (existing status, no new model) and audited; nothing is
+        // sent. Audit is best-effort and runs AFTER the no-send decision, so an
+        // audit failure can never turn a blocked follow-up into a sent one.
+        const forbidden = containsForbidden(`${subject}\n${body}`);
+        if (forbidden) {
+          const blocked = await prisma.outreachEmail.create({
+            data: {
+              campaignId,
+              prospectId: p.id,
+              toEmail: p.email,
+              subject,
+              body,
+              status: "failed",
+              draftedByAgent: true,
+              tierAtSend: tier,
+              autonomyAtSend: autonomy,
+            },
+            select: { id: true },
+          });
+          logger.error("[outreach-followups] blocked forbidden-words", {
+            prospectId: p.id,
+            emailId: blocked.id,
+            found: forbidden.found,
+          });
+          try {
+            await recordAdminAudit({
+              actorWallet: "system:outreach-followups",
+              action: "outreach.blockedSend",
+              entityType: "OutreachEmail",
+              entityId: blocked.id,
+              after: {
+                reason: "forbidden_words",
+                channel: "followup",
+                prospectId: p.id,
+                step: nextStep,
+                tier,
+                autonomy,
+                found: forbidden.found,
+              },
+            });
+          } catch (auditErr) {
+            logger.error("[outreach-followups] failed to audit blocked send", {
+              prospectId: p.id,
+              emailId: blocked.id,
+              error:
+                auditErr instanceof Error ? auditErr.message : String(auditErr),
+            });
+          }
+          return "blocked" as const;
+        }
 
         const email = await prisma.outreachEmail.create({
           data: {
