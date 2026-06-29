@@ -25,8 +25,15 @@ const PRODUCT_FRAMING_INTENT_RE =
 const PRODUCT_CONTEXT_RE =
   /\b(produit|product|vault|offre|offer|strategy|strategie|stratégie)\b/i;
 
+// A simulation/projection ask routes to the Scenario Lab (NEVER the Product
+// Workspace — see `hasCreation` gating below). "projection"/"projeter" and the
+// English "forecast" are included so a bare "je veux faire une projection" /
+// "I want to run a projection" resolves DETERMINISTICALLY to the lab instead of
+// falling through to the LLM. This does NOT open the Product Workspace: those
+// words carry no product noun, so `hasCreation` stays false and the
+// explicit_simulation branch (Scenario Lab) wins.
 export const EXPLICIT_SIMULATION_INTENT_RE =
-  /\b(simuler|simulation|scenario|scénario|stress test|stress-test|monte carlo|backtest|run scenario)\b/i;
+  /\b(simuler|simulation|scenario|scénario|stress test|stress-test|monte carlo|backtest|run scenario|projection|projections|projeter|prevision|prévision|forecast)\b/i;
 
 export type ProductWorkspaceIntentKind =
   | "none"
