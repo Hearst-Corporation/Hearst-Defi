@@ -78,7 +78,11 @@ export default async function EditVaultPage({ params }: PageProps) {
         </Link>
       }
     >
-      <AdminSectionCard ariaLabel="Vault draft" title="Vault draft">
+      <AdminSectionCard
+        ariaLabel="Vault draft"
+        title="Vault draft"
+        subtitle="Edit this vault's parameters, share classes, and assumptions before publishing."
+      >
         <div className={FORM_SURFACE}>
           <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
         </div>

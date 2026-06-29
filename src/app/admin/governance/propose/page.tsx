@@ -70,7 +70,7 @@ export default async function ProposePage() {
       }
     >
 
-        <AdminSectionCard ariaLabel="Proposal form" title="Proposal details">
+        <AdminSectionCard ariaLabel="Proposal form" title="Proposal details" subtitle="Select the vault and describe the governance action to draft.">
           <div className="p-5 lg:p-6">
             <form action={handlePropose} className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">

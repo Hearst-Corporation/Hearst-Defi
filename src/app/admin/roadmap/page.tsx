@@ -25,7 +25,11 @@ export default async function RoadmapPage() {
           its own BentoPanels INSIDE this frame — so we use a TITLE-ONLY card
           (no inner padding wrapper) to give the canon frame without stacking a
           second padded border around the board (anti cage-in-cage). */}
-      <AdminSectionCard ariaLabel="Roadmap" title="Delivery roadmap">
+      <AdminSectionCard
+        ariaLabel="Roadmap"
+        title="Delivery roadmap"
+        subtitle="Planned phases and their status across the build, grouped by delivery stage."
+      >
         <div className="p-5">
           <RoadmapBoard phases={phases} />
         </div>

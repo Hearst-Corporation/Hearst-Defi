@@ -93,6 +93,7 @@ export default async function OutreachPage() {
             {/* Prospect directory */}
             <AdminSectionCard
               ariaLabel="Prospects"
+              subtitle="Sourced contacts with tier, score, and outreach status."
               title={
                 <>
                   Prospect directory{" "}

@@ -140,6 +140,7 @@ export default async function SourcePage({
           AdminSectionCard, NOT a frame per panel (no double-frame). */}
       <AdminSectionCard
         title="Pipeline de données"
+        subtitle="Briques d'ingestion et leur statut le long de la chaîne de données."
         ariaLabel="Pipeline de données"
       >
         <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2">

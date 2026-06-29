@@ -35,7 +35,11 @@ export default async function EditAgentTemplatePage({
         </Link>
       }
     >
-      <AdminSectionCard ariaLabel="Edit template" title="Template profile">
+      <AdminSectionCard
+        ariaLabel="Edit template"
+        title="Template profile"
+        subtitle="Review and edit this agent template's base, instructions, and configuration."
+      >
         <div className="p-5 lg:p-6">
           <AgentTemplateForm template={template} />
         </div>

@@ -86,7 +86,7 @@ export default async function ProductWorkspacePage({
       titleAccent="Workspace"
       contextLabel="Strategy"
     >
-      <AdminSectionCard ariaLabel="Objective" title="Objective">
+      <AdminSectionCard ariaLabel="Objective" title="Objective" subtitle="Framing captured from the cockpit agent; documentation only.">
         <div className="flex flex-col gap-2 p-5">
           {/* display value — intentionally p, not a document heading */}
           <Heading
@@ -108,7 +108,7 @@ export default async function ProductWorkspacePage({
       {/* Routing source — shows the admin (esp. when testing by hand) whether
           the system reached this page via deterministic/regex routing or an LLM
           fallback, where the objective came from, and the brief status. */}
-      <AdminSectionCard ariaLabel="Routing source" title="Routing source">
+      <AdminSectionCard ariaLabel="Routing source" title="Routing source" subtitle="How this page was reached and where the objective originated.">
         <dl className="grid grid-cols-1 gap-x-8 gap-y-2 p-5 text-xs sm:grid-cols-2">
           <div className="flex items-baseline gap-3">
             <dt className="ct-bento-label w-32 shrink-0">Routing</dt>
@@ -143,6 +143,7 @@ export default async function ProductWorkspacePage({
       <AdminSectionCard
         ariaLabel="Agent framing brief"
         title={<span id="pw-agent-brief-heading">Agent framing brief</span>}
+        subtitle="Structured framing the agent derived from the objective."
       >
         <div className="p-5">
           <AgentBriefLive
@@ -163,6 +164,7 @@ export default async function ProductWorkspacePage({
       <AdminSectionCard
         ariaLabel="Continue to Projection"
         title="Next step — Projection"
+        subtitle="Carries the objective forward; no run is created from here."
       >
         <div className="flex flex-col gap-3 p-5">
           <p className="ct-metric-caption leading-relaxed">

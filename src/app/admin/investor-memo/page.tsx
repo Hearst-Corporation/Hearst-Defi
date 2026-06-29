@@ -30,7 +30,11 @@ export default async function InvestorMemoPage({
           toolbar + per-section Cards INSIDE this frame — so we use a TITLE-ONLY
           card to provide the canon frame without nesting a second padded border
           around its surfaces (anti cage-in-cage). */}
-      <AdminSectionCard ariaLabel="Investor memo" title="Investor memo">
+      <AdminSectionCard
+        ariaLabel="Investor memo"
+        title="Investor memo"
+        subtitle="Compose and review the investor-facing memo sections for this vault."
+      >
         <div className="p-5">
           <MemoShell vaultId={vaultId} vaultName={vault.label} />
         </div>

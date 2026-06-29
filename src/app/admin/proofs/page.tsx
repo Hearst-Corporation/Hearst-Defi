@@ -35,6 +35,7 @@ export default async function ProofsPage() {
           card sub-header trailing slot; the proof row-cards stack in the body. */}
       <AdminSectionCard
         title="Published evidence"
+        subtitle="Proof items released to the public Proof Center, most recent first."
         headerTrailing={
           items.length > 0 ? (
             <span className="ct-metric-caption tabular-nums">

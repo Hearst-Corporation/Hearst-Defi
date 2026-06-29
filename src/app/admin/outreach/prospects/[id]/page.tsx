@@ -169,7 +169,11 @@ export default async function ProspectDetailPage({
     >
 
         {/* Identity */}
-        <AdminSectionCard ariaLabel="Identity" title="Identity">
+        <AdminSectionCard
+          ariaLabel="Identity"
+          title="Identity"
+          subtitle="Contact record, source, and email deliverability status."
+        >
           <dl className={DETAIL_GRID}>
             <AdminDetailItem label="Email">
               <span className="break-all font-mono text-[var(--ct-text-strong)]">
@@ -259,7 +263,11 @@ export default async function ProspectDetailPage({
         </AdminSectionCard>
 
         {/* Qualification */}
-        <AdminSectionCard ariaLabel="Qualification" title="Qualification">
+        <AdminSectionCard
+          ariaLabel="Qualification"
+          title="Qualification"
+          subtitle="Lifecycle stage, tier, and fit score against the target ICP."
+        >
           <dl className={DETAIL_GRID}>
             <AdminDetailItem label="Lifecycle stage" fullWidth>
               <div className="flex flex-wrap items-center gap-2">
@@ -352,7 +360,11 @@ export default async function ProspectDetailPage({
 
         {/* Engagement — replies. Each reply is an inset row inside ONE welded card
             (anti-cage: no BentoPanel-per-reply stack). */}
-        <AdminSectionCard ariaLabel="Replies" title={`Replies (${p.replies.length})`}>
+        <AdminSectionCard
+          ariaLabel="Replies"
+          title={`Replies (${p.replies.length})`}
+          subtitle="Inbound replies matched to this prospect, classified by intent."
+        >
           {p.replies.length === 0 ? (
             <div className="p-5">
               <EmptySurface
@@ -401,7 +413,11 @@ export default async function ProspectDetailPage({
 
         {/* Notes & tags */}
         {(p.notes || p.tags.length > 0) && (
-          <AdminSectionCard ariaLabel="Notes" title="Notes & tags">
+          <AdminSectionCard
+            ariaLabel="Notes"
+            title="Notes & tags"
+            subtitle="Manual annotations and labels attached to this prospect."
+          >
             <div className="flex flex-col gap-2 p-5">
               {p.tags.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-2">

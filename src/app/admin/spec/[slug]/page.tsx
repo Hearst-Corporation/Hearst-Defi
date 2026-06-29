@@ -36,6 +36,7 @@ export default async function SpecPage({
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)]">
         <AdminSectionCard
           title="Documents"
+          subtitle="Browse the specification library; the active document is highlighted."
           ariaLabel="Spec documents"
           className="lg:self-start"
         >

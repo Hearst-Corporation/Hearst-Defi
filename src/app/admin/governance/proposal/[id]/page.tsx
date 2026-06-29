@@ -111,6 +111,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         <AdminSectionCard
           ariaLabel="Proposal meta"
           title="Proposal meta"
+          subtitle="Proposer, signer quorum, timelock, and lifecycle timestamps."
           headerTrailing={
             <>
               <Badge color="green" className="font-mono uppercase">
@@ -196,7 +197,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         ) : null}
 
         {/* ── Justification ─────────────────────────────────────────────── */}
-        <AdminSectionCard ariaLabel="Justification" title="Justification">
+        <AdminSectionCard ariaLabel="Justification" title="Justification" subtitle="Rationale recorded by the proposer for this governance action.">
           <div className="p-5 lg:p-6">
             <p className="body-sm whitespace-pre-wrap leading-relaxed text-[var(--ct-text-body)]">
               {proposal.justification}
@@ -206,7 +207,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
         {/* ── Calldata ──────────────────────────────────────────────────── */}
         {proposal.calldata ? (
-          <AdminSectionCard ariaLabel="Calldata" title="Calldata">
+          <AdminSectionCard ariaLabel="Calldata" title="Calldata" subtitle="Encoded transaction payload to be executed on-chain.">
             <div className="p-5 lg:p-6">
               <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4 font-mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-body)]">
                 {formatProposalCalldata(proposal.calldata)}
@@ -221,6 +222,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           title={`Signatures (${proposal.approvalCount}/${proposal.requiredSigners} approved${
             proposal.rejectionCount > 0 ? `, ${proposal.rejectionCount} rejected` : ""
           }${proposal.cancelCount > 0 ? `, ${proposal.cancelCount} cancel` : ""})`}
+          subtitle="Approvers who have signed; quorum required before execution."
         >
           <div className="p-5 lg:p-6">
             {proposal.signatures.length === 0 ? (
@@ -264,7 +266,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
 
         {/* ── Actions ───────────────────────────────────────────────────── */}
         {!isTerminal ? (
-          <AdminSectionCard ariaLabel="Actions" title="Actions">
+          <AdminSectionCard ariaLabel="Actions" title="Actions" subtitle="Sign, timelock, execute, or cancel this proposal.">
             <div className="p-5 lg:p-6 flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 {canSign ? (

@@ -40,7 +40,11 @@ export default async function NewAgentTemplatePage({
         </Link>
       }
     >
-      <AdminSectionCard ariaLabel="New template" title="Template details">
+      <AdminSectionCard
+        ariaLabel="New template"
+        title="Template details"
+        subtitle="Define the base agent, instructions, and configuration for a new template."
+      >
         <div className="p-5 lg:p-6">
           <AgentTemplateForm initialBaseAgent={initialBaseAgent} />
         </div>
