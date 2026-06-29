@@ -12,8 +12,7 @@ import type {
   HcLabeledValue,
   HcSourceStatus,
 } from "@/components/dataviz/his/types";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import type { Provenance } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type {
   ChartArtifact,
