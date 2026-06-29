@@ -5,7 +5,7 @@
     "head": "<lot9-pending>",
     "originMain": "c463155c",
     "status": "DONE",
-    "lastPR": "lot10 neutral tokenization (zinc/white/#15191C → --ct-*) + portfolio bucket tokens (fix/catalyst-lot10)",
+    "lastPR": "lot11 status colours (red→danger, amber→warning) → --ct-status-* (fix/catalyst-lot11)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -39,7 +39,7 @@
     "typographyArbitraryPx": 9,
     "typographyTokenDriven": 341,
     "catalystBlueResidual": 1,
-    "dsGuardsGreen": 8,
+    "dsGuardsGreen": 9,
     "dsGuardsRed": 0,
     "ciLintGreen": true,
     "borderWhiteRaw": 0,
@@ -51,7 +51,8 @@
     "convergenceGuardActive": true,
     "preferConstErrors": 0,
     "surfaceHexRaw": 0,
-    "neutralRawRemaining": 1
+    "neutralRawRemaining": 1,
+    "statusColorRaw": 0
   },
   "openPRs": [
     {
@@ -1026,6 +1027,11 @@
       "date": "2026-06-28",
       "ref": "Mission #049 lot10",
       "note": "Neutral surface tokenization at scale — 16-agent fan-out (10 disjoint zones in isolated worktrees, integrated serially). Raw bg/border/text-zinc, bg-white/N overlays, and #15191C surfaces → --ct-surface-*/--ct-border*/--ct-text-* across admin/vaults/proof-center/nav surfaces (~30 swaps). Portfolio yield-stack bucket colours → dedicated --ct-bucket-* tokens (BUCKET_COLOR now var(--ct-*) only → portfolio bucket-colour contract GREEN). ds-convergence-guard gained a 4th rule (surface-hex: bans raw #15191C / bg-zinc-9xx on product surfaces). text-white on accent/dark surfaces deliberately kept (legit contrast). Only the MOCK badge tinted-zinc sibling remains (no pixel-identical token). eslint 0 errors, typecheck clean, all DS guards green, 88 touched-area tests pass. Zero behaviour change."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #049 lot11",
+      "note": "Status-colour tokenization — 16-agent fan-out (10 disjoint zones, isolated worktrees, integrated serially). ~35 raw Tailwind red→--ct-status-danger{,-soft,-border} and amber→--ct-status-warning{,-soft,-border} across admin/cockpit, admin/agentic, admin/*, projection, vaults, app/admin + profile (wallet-disconnect, security-row). sky/rose/emerald/zinc chip-family tones deliberately kept (distinct semantics, no 1:1 token — FALLBACK/CONFIGURED/UNAUDITED/MOCK families). ds-convergence-guard gained a 5th rule (status-color: bans raw red/amber on product surfaces). eslint 0 errors, typecheck clean, all DS guards green (25/25 contract tests). Zero behaviour change beyond unifying status hues on tokens."
     }
   ]
 }

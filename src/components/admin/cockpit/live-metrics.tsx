@@ -58,16 +58,16 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
 
   const marginColor =
     vault.miningMarginScore < 15
-      ? "text-red-400"
+      ? "text-[var(--ct-status-danger)]"
       : vault.miningMarginScore < 40
-        ? "text-amber-400"
+        ? "text-[var(--ct-status-warning)]"
         : "text-[var(--ct-accent)]";
 
   const riskColor =
     vault.riskScore > 70
-      ? "text-red-400"
+      ? "text-[var(--ct-status-danger)]"
       : vault.riskScore > 45
-        ? "text-amber-400"
+        ? "text-[var(--ct-status-warning)]"
         : "text-[var(--ct-accent)]";
 
   return (
@@ -114,7 +114,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           <MetricCellWithTooltip
             label="Oracle"
             value={oracleLabel}
-            valueClassName={oracleStale ? "text-red-400" : undefined}
+            valueClassName={oracleStale ? "text-[var(--ct-status-danger)]" : undefined}
             tooltipTitle="Oracle Delay"
             tooltipDesc="Time since last price feed update. >6h considered stale. Updated every block."
           />

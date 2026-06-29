@@ -64,8 +64,10 @@ function eventTimelineCardTitle(
  * neutral/state changes, never any non-canonical green.
  */
 function eventDotClass(kind: EventKind): string {
-  if (kind === "GuardrailBreach") return "bg-red-400 ring-red-400/15";
-  if (kind === "TriggerArmed") return "bg-amber-300 ring-amber-300/15";
+  if (kind === "GuardrailBreach")
+    return "bg-[var(--ct-status-danger)] ring-[var(--ct-status-danger-soft)]";
+  if (kind === "TriggerArmed")
+    return "bg-[var(--ct-status-warning)] ring-[var(--ct-status-warning-soft)]";
   if (kind === "Distribution" || kind === "AttestationPublished") {
     return "bg-[var(--ct-accent)] ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]";
   }

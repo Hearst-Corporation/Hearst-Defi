@@ -658,7 +658,7 @@ export function VaultForm(props: VaultFormProps) {
               <span
                 className={cn(
                   "font-semibold",
-                  allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-red-400",
+                  allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-[var(--ct-status-danger)]",
                 )}
               >
                 {allocTotal()} / 10 000
@@ -814,7 +814,7 @@ export function VaultForm(props: VaultFormProps) {
                           )}
                         </div>
                         {!isValid && (
-                          <span className="text-[length:var(--ct-text-2xs)] text-red-400">
+                          <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">
                             Invalid format: must be a 0x… address or 25-char ID.
                           </span>
                         )}
@@ -995,7 +995,7 @@ export function VaultForm(props: VaultFormProps) {
                   <span
                     className={cn(
                       "font-mono text-[length:var(--ct-text-xs)] font-semibold tabular-nums",
-                      allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-red-400",
+                      allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-[var(--ct-status-danger)]",
                     )}
                   >
                     {pct(allocTotal())}%
@@ -1070,7 +1070,7 @@ export function VaultForm(props: VaultFormProps) {
             <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <span className={BENTO_LABEL}>Signers whitelist</span>
               {filledSigners.length === 0 ? (
-                <span className="text-[length:var(--ct-text-2xs)] text-red-400">
+                <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">
                   No signers added — add at least {form.requiredSigners} in the
                   Governance step.
                 </span>
@@ -1092,7 +1092,7 @@ export function VaultForm(props: VaultFormProps) {
                           )}
                         </code>
                         {!valid && (
-                          <span className="text-[length:var(--ct-text-2xs)] text-red-400">malformed</span>
+                          <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">malformed</span>
                         )}
                       </li>
                     );
@@ -1101,7 +1101,7 @@ export function VaultForm(props: VaultFormProps) {
               )}
 
               {props.adminId !== undefined && !adminInWhitelist && (
-                <p className="pt-1 text-[length:var(--ct-text-2xs)] text-red-400">
+                <p className="pt-1 text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">
                   Your identity ({props.adminId}) is not in the whitelist — you
                   will not be able to sign this deployment yourself.
                 </p>
@@ -1111,7 +1111,7 @@ export function VaultForm(props: VaultFormProps) {
             {!signersOk && (
               <div
                 role="status"
-                className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[length:var(--ct-text-xs)] text-red-400"
+                className="rounded-lg border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-4 py-3 text-[length:var(--ct-text-xs)] text-[var(--ct-status-danger)]"
               >
                 {hasMalformedSigner
                   ? "Fix the malformed signer(s) in the Governance step before submitting."
@@ -1130,7 +1130,7 @@ export function VaultForm(props: VaultFormProps) {
         {error ? (
           <div
             role="alert"
-            className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[length:var(--ct-text-xs)] text-red-400"
+            className="rounded-lg border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-4 py-3 text-[length:var(--ct-text-xs)] text-[var(--ct-status-danger)]"
           >
             {error}
           </div>

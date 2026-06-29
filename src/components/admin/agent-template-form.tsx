@@ -307,7 +307,7 @@ export function AgentTemplateForm({
             aria-live="polite"
             className={cn(
               "text-right text-[length:var(--ct-text-micro)]",
-              systemOver ? "text-red-400" : "text-[var(--ct-text-faint)]",
+              systemOver ? "text-[var(--ct-status-danger)]" : "text-[var(--ct-text-faint)]",
             )}
           >
             {systemLen} / {SYSTEM_ADDITIONS_MAX}

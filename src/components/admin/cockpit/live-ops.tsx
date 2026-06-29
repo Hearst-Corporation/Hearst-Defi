@@ -133,7 +133,7 @@ function InngestRow({ job }: { job: InngestJob }) {
             job.status === "ok"
               ? "text-[var(--ct-accent)]"
               : job.status === "err"
-                ? "text-red-400"
+                ? "text-[var(--ct-status-danger)]"
                 : "text-[var(--ct-text-faint)]",
           )}
         >
@@ -146,8 +146,8 @@ function InngestRow({ job }: { job: InngestJob }) {
 
 const STATUS_DOT: Record<InngestJobStatus, string> = {
   ok: "bg-[var(--ct-accent)]",
-  err: "bg-red-400",
-  pending: "bg-amber-400",
+  err: "bg-[var(--ct-status-danger)]",
+  pending: "bg-[var(--ct-status-warning)]",
   unknown: "bg-[var(--ct-text-faint)]",
 };
 
@@ -173,7 +173,7 @@ function SentryCounter({
       <span
         className={cn(
           "text-[length:var(--ct-text-xl-fixed)] font-medium tabular-nums leading-none",
-          alert && count > 0 ? "text-red-400" : "text-[var(--ct-text-strong)]",
+          alert && count > 0 ? "text-[var(--ct-status-danger)]" : "text-[var(--ct-text-strong)]",
         )}
       >
         {count}

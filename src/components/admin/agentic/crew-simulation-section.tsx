@@ -37,15 +37,15 @@ function modeTone(mode: CrewSimulationMode): Tone {
 
 const DOT_CLASS: Record<Tone, string> = {
   ok: "bg-[var(--ct-accent)]",
-  warn: "bg-amber-400/80",
-  danger: "bg-red-400/80",
+  warn: "bg-[var(--ct-status-warning)]",
+  danger: "bg-[var(--ct-status-danger)]",
   muted: "bg-[var(--ct-text-faint)]",
 };
 
 const TAG_CLASS: Record<Tone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
-  danger: "border-red-400/25 bg-red-400/10 text-red-300",
+  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
+  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
   muted: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
 };
 
@@ -172,10 +172,10 @@ export function CrewSimulationSection({
                           {blockedActions.map((action) => (
                             <span
                               key={action}
-                              className="inline-flex items-center gap-1.5 rounded-md border border-red-400/20 bg-red-400/5 px-2 py-0.5 text-[length:var(--ct-text-micro)] text-red-300/90"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-2 py-0.5 text-[length:var(--ct-text-micro)] text-[var(--ct-status-danger)]"
                             >
                               <span
-                                className="h-1 w-1 rounded-full bg-red-400/70"
+                                className="h-1 w-1 rounded-full bg-[var(--ct-status-danger)]"
                                 aria-hidden
                               />
                               {action}
