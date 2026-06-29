@@ -23,24 +23,6 @@
    ============================================================================= */
 
 /* =============================================================================
-   1. STATUS DOTS — colour variants for .dashboard-status-dot (live-ops)
-   ============================================================================= */
-
-.cockpit-dot--ok {
-  background: var(--ct-status-success);
-}
-.cockpit-dot--err {
-  background: var(--ct-status-danger);
-}
-.cockpit-dot--pending {
-  background: var(--ct-status-warning);
-}
-.cockpit-dot--idle {
-  background: var(--ct-border);
-  opacity: var(--ct-opacity-60);
-}
-
-/* =============================================================================
    1B. TECHNICAL TYPOGRAPHY — standardized sizes for high-density data
    ============================================================================= */
 
@@ -53,89 +35,6 @@
   line-height: 1;
 }
 
-.cockpit-label-sm {
-  font-size: var(--ct-text-octa);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-widest);
-  color: var(--ct-text-faint);
-  line-height: 1.2;
-}
-
-.cockpit-value-xs {
-  font-size: var(--ct-text-nano);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--ct-text-muted);
-}
-
-.cockpit-value-sm {
-  font-size: var(--ct-text-deci);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--ct-text-strong);
-  letter-spacing: -0.01em;
-}
-
-.cockpit-value-md {
-  font-size: var(--ct-text-micro);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--ct-text-strong);
-  letter-spacing: -0.01em;
-}
-
-/* =============================================================================
-   2. SEVERITY PILL — colour variants for .dashboard-severity-pill (action-queue)
-      (geometry + `border: 1px solid` already set in cockpit.css)
-   ============================================================================= */
-
-.cockpit-severity--p0 {
-  background: var(--ct-status-danger-soft);
-  border-color: var(--ct-status-danger-border);
-  color: var(--ct-status-danger);
-}
-.cockpit-severity--p1 {
-  background: var(--ct-status-warning-soft);
-  border-color: var(--ct-status-warning-border);
-  color: var(--ct-status-warning);
-}
-.cockpit-severity--p2 {
-  background: var(--ct-surface-inset);
-  border-color: var(--ct-border-soft);
-  color: var(--ct-text-faint);
-}
-
-/* =============================================================================
-   3. HOVERABLE ROWS — surface-1 hover + tokenised transition
-      (action-queue li, audit-trail tbody tr, live-metrics row)
-   ============================================================================= */
-
-.cockpit-hover-row {
-  transition: background-color var(--ct-dur-fast) var(--ct-ease);
-}
-.cockpit-hover-row:hover {
-  background: var(--ct-surface-inset);
-}
-
-/* Action-queue row + live-metrics row also carry inset rounding + negative
-   gutter so the hover plate breathes past the panel padding. */
-.cockpit-hover-row--inset {
-  border-radius: var(--ct-radius-md);
-  padding-left: var(--ct-space-3);
-  padding-right: var(--ct-space-3);
-  margin-left: calc(-1 * var(--ct-space-3));
-  margin-right: calc(-1 * var(--ct-space-3));
-}
-
-/* On-chain event link — opacity dip on hover (no surface change). */
-.cockpit-hover-fade {
-  transition: opacity var(--ct-dur-fast) var(--ct-ease);
-}
-.cockpit-hover-fade:hover {
-  opacity: var(--ct-opacity-80);
-}
-
 /* =============================================================================
    4. TABLE CELL PADDING — audit-trail header + rows
    ============================================================================= */
@@ -143,27 +42,6 @@
 .dashboard-cockpit .ct-table-cell,
 .dashboard-cockpit .ct-table-header {
   padding: var(--ct-space-1_5) var(--ct-space-2);
-}
-
-/* =============================================================================
-   5. AUDIT-TRAIL COLUMN WIDTHS — table-fixed column ratios
-      (replaces w-[20%] / w-[18%] / w-[24%] arbitrary utilities)
-   ============================================================================= */
-
-.cockpit-col-time {
-  width: 20%;
-}
-.cockpit-col-actor {
-  width: 18%;
-}
-.cockpit-col-action {
-  width: 24%;
-}
-.cockpit-col-entity {
-  width: 18%;
-}
-.cockpit-col-entity-id {
-  width: 20%;
 }
 
 /* =============================================================================
@@ -189,55 +67,12 @@
   gap: 0;
 }
 
-.dashboard-kpi-strip__cell {
-  flex: 1;
-  padding: var(--ct-space-4) var(--ct-space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-
-.dashboard-kpi-strip__label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ct-space-2);
-  margin-bottom: var(--ct-space-0_5);
-}
-
-.dashboard-kpi-strip__value {
-  font-size: var(--ct-text-xl);
-  font-weight: var(--ct-font-semibold);
-  line-height: 1.1;
-  letter-spacing: var(--ct-tracking-tight);
-}
-
-.dashboard-kpi-strip__meta {
-  font-size: var(--ct-text-deci);
-  font-weight: var(--ct-font-medium);
-  letter-spacing: 0.01em;
-}
-
-.dashboard-kpi-strip__separator {
-  width: 1px;
-  height: var(--ct-space-8);
-  align-self: center;
-  background: var(--ct-border-ghost);
-}
-
 /* =============================================================================
    9. ADMIN HEADER REFINEMENT — Command Center status indicators
    ============================================================================= */
 
 .admin-doc-shell:has(.dashboard-cockpit) {
   gap: var(--ct-space-5) !important;
-}
-
-.dashboard-merged-card {
-  background: var(--ct-surface-card);
-  border: 1px solid color-mix(in srgb, var(--ct-graphite-border-nested) 40%, transparent);
-  border-radius: var(--ct-radius-xl);
-  box-shadow: 0 4px 12px -8px var(--ct-bg-deep);
 }
 
 .dashboard-orbit-card,
