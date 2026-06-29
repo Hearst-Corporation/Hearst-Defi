@@ -31,6 +31,20 @@ describe("ProjectionHandoff — Projection input draft block", () => {
     expect(html).toContain("Nothing has been run");
   });
 
+  it("renders the methodology panel — CONFIGURED assumptions to review + version", () => {
+    const html = render("Créer une offre Defensive");
+    expect(html).toContain("Assumptions to review");
+    expect(html).toContain("methodology v1.0");
+    expect(html).toContain("CONFIGURED");
+    // The in-code assumption labels + values surface (markup 15%, fees 2%, etc.).
+    expect(html).toContain("Machine-cost markup");
+    expect(html).toContain("15%");
+    expect(html).toContain("Revenue share");
+    expect(html).toContain("BTC scenario band");
+    // Honest note carried from assumptions metadata.
+    expect(html.toLowerCase()).toContain("pas validées");
+  });
+
   it("surfaces keyword-derived suggestions (product type + buckets) for a mining+stable objective", () => {
     const html = render("Produit DeFi mining + stable yield en USDC");
     expect(html).toContain("Suggested product type");
