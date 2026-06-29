@@ -214,5 +214,3 @@ export async function loadHourlyValueSnapshots(
     throw err;
   }
 }
-
-export { HOUR_MS as INVESTOR_NAV_HOUR_MS };

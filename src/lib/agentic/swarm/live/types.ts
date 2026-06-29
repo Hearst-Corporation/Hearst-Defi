@@ -186,8 +186,7 @@ export interface ProductConstructionDraft {
   };
   /**
    * 3-scenario results (defensive / balanced / opportunistic) — additive, optional.
-   * Present when the pipeline was run via runProductConstructionScenarios or when
-   * the pipeline option `withScenarios: true` was supplied.
+   * Present when the pipeline was run with the option `withScenarios: true`.
    */
   scenarios?: ScenarioResult[];
   /**

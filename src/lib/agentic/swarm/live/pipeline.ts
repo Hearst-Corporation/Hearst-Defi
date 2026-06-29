@@ -344,16 +344,3 @@ export function isProductConstructionError(
     (r as ProductConstructionError).kind === "unsafe"
   );
 }
-
-/**
- * Convenience wrapper: run the full pipeline with `withScenarios: true`.
- * Data is fetched ONCE; MC runs 3× (one per regime). Charts + writeup use the
- * BALANCED scenario. Returns the same `ProductConstructionDraft | ProductConstructionError`
- * shape with `draft.scenarios` and `draft.steps` populated.
- */
-export async function runProductConstructionScenarios(
-  objective: string,
-  opts: Omit<PipelineOptions, "withScenarios"> = {},
-): Promise<ProductConstructionDraft | ProductConstructionError> {
-  return runProductConstructionPipeline(objective, { ...opts, withScenarios: true });
-}

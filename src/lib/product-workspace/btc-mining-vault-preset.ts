@@ -25,10 +25,7 @@ import {
   BTC_MINING_PERFORMANCE_VAULT,
   type BtcMiningPerformanceVault,
 } from "@/lib/products/btc-mining-performance-vault";
-import {
-  formatTargetsSafely,
-  MINING_FLOOR,
-} from "@/lib/products/guards";
+import { formatTargetsSafely } from "@/lib/products/guards";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -209,6 +206,3 @@ export function buildBtcMiningVaultBriefIfMatched(
     ? buildBtcMiningVaultBrief()
     : null;
 }
-
-/** Re-exported for surfaces that want to reference the structural floor (percent). */
-export const BTC_MINING_VAULT_MINING_FLOOR_PCT = Math.round(MINING_FLOOR * 100);

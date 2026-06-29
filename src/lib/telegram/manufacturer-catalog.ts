@@ -21,15 +21,6 @@ export type Manufacturer =
   | "bitaxe"
   | "other";
 
-export const MANUFACTURER_LABELS: Record<Manufacturer, string> = {
-  bitmain: "Bitmain (Antminer)",
-  microbt: "MicroBT (Whatsminer)",
-  bitdeer: "Bitdeer (Sealminer)",
-  canaan: "Canaan (Avalon)",
-  bitaxe: "Bitaxe / Nerd",
-  other: "Autre",
-};
-
 /** Classify a model label by manufacturer. Order: most specific brand tokens. */
 export function manufacturerOf(model: string): Manufacturer {
   const l = model.toLowerCase();

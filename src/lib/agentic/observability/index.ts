@@ -17,7 +17,6 @@ export {
   getRouterTrendWindowStart,
   buildRouterDecisionTrendBuckets,
   getTopMatchedRules,
-  ROUTER_TREND_BUFFER_NOTE,
 } from "./trends";
 export { redactSnippet, MAX_SNIPPET_LEN } from "./redact";
 export { recordRouterDecisionSafe } from "./record-router-decision";
@@ -25,7 +24,6 @@ export {
   getRouterObservabilitySummary,
   buildLongTermSummary,
   resolveWindow,
-  isDurableObservabilityAvailable,
   ROUTER_OBSERVABILITY_SAFETY_NOTE,
   DEFAULT_LONG_TERM_HORIZON_DAYS,
 } from "./read-router-decisions";

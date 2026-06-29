@@ -18,8 +18,6 @@ import type { ToolBoundaryRiskLevel } from "./types";
 
 /** Path of the registry the ids/metadata mirror. */
 export const TOOL_REGISTRY_SOURCE = "src/lib/llm/tools/registry.ts";
-/** Path of the pure id arrays this reflection is driven by. */
-export const TOOL_IDS_SOURCE = "src/lib/llm/tools/types.ts";
 
 /** Curated, tested metadata for one real tool id. */
 export interface ReflectedToolMeta {

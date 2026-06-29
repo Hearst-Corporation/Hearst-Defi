@@ -266,11 +266,3 @@ export async function getRouterObservabilitySummary(args?: {
 
   return summary;
 }
-
-/** Convenience for diagnostics: did the durable store serve the read? */
-export async function isDurableObservabilityAvailable(
-  window: RouterObservabilityWindow = "24h",
-): Promise<boolean> {
-  const res = await durableReadTraces({ window, limit: 1 });
-  return res.ok;
-}
