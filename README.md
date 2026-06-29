@@ -563,3 +563,4 @@ Quatre spécialistes sous `.claude/agents/`, à invoquer via `Agent` avec
 
 Chaque agent a une liste « forbidden » plus stricte que ce README. **Si un
 agent rencontre un cas non couvert, il s'arrête et demande à Adrien.**
+Nexus pipeline verified.
