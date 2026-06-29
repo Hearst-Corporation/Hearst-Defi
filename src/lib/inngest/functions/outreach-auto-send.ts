@@ -9,7 +9,7 @@ import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
 import { isSuppressed } from "@/lib/outreach/suppression";
-import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { isTier, type Tier } from "@/lib/outreach/tier";
 import {
   decideAutoSend,
@@ -190,11 +190,48 @@ export async function outreachAutoSendHandler({
         return "suppressed" as const;
       }
 
-      try {
-        // Defensive re-assert: the drafting agent already guards, but never send
-        // a forbidden-word body even if a draft was hand-edited.
-        assertNoForbiddenWords(`${item.subject}\n${item.body}`);
+      // Compliance gate (non-negotiable #5): the drafting agent already guards,
+      // but never auto-send a forbidden-word body even if a draft was hand-edited.
+      // Use containsForbidden (no throw) so a block is an explicit, audited
+      // outcome distinct from a Resend failure — parity with outreach-send /
+      // outreach-followups. The row is marked "failed", the block is audited
+      // (channel "auto_send"), and nothing is sent.
+      const forbidden = containsForbidden(`${item.subject}\n${item.body}`);
+      if (forbidden) {
+        await prisma.outreachEmail
+          .update({ where: { id: item.emailId }, data: { status: "failed" } })
+          .catch(() => {});
+        logger.error("[outreach-auto-send] blocked forbidden-words", {
+          emailId: item.emailId,
+          found: forbidden.found,
+        });
+        // Best-effort audit — runs AFTER the no-send decision, so an audit
+        // failure can never turn a blocked email into a sent one.
+        try {
+          await recordAdminAudit({
+            actorWallet: "system:outreach-auto-send",
+            action: "outreach.blockedSend",
+            entityType: "OutreachEmail",
+            entityId: item.emailId,
+            after: {
+              reason: "forbidden_words",
+              channel: "auto_send",
+              prospectId: item.prospectId ?? null,
+              tier: item.tier,
+              autonomy,
+              found: forbidden.found,
+            },
+          });
+        } catch (auditErr) {
+          logger.error("[outreach-auto-send] failed to audit blocked send", {
+            emailId: item.emailId,
+            error: auditErr instanceof Error ? auditErr.message : String(auditErr),
+          });
+        }
+        return "blocked" as const;
+      }
 
+      try {
         const result = await sendTrackedEmail({
           to: item.toEmail,
           subject: item.subject,
