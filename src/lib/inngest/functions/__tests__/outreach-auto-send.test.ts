@@ -25,7 +25,7 @@ const emailCountMock = vi.fn<() => Promise<number>>(async () => 0); // sentToday
 const emailFindManyMock = vi.fn<() => Promise<unknown[]>>(async () => []); // candidate drafts
 const emailUpdateMock = vi.fn(async () => ({}));
 const prospectUpdateMock = vi.fn(async () => ({}));
-const auditCreateMock = vi.fn(async () => ({}));
+const auditCreateMock = vi.fn(async (_args: { data: { action: string; entityType: string; entityId: string; diff: string } }) => ({}));
 const txMock = vi.fn(async (ops: unknown[]) => ops);
 
 // Mutable env the handler reads — each test sets autonomy/cap.
@@ -156,12 +156,58 @@ describe("outreachAutoSendHandler — governed autonomous sender", () => {
 
     const res = await outreachAutoSendHandler({ step: buildStepShim(), now: new Date("2026-06-23T10:00:00Z") });
 
-    // The compliant one sends; the tampered one is caught by assertNoForbiddenWords → failed
+    // The compliant one sends; the tampered one is blocked by containsForbidden → failed
     expect(sendTrackedEmailMock).toHaveBeenCalledTimes(1);
     expect(sendTrackedEmailMock).toHaveBeenCalledWith(expect.objectContaining({ to: "r1@example.com" }));
     expect(res.failed).toBe(1);
     expect(emailUpdateMock).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: "email_0" }, data: { status: "failed" } }),
     );
+  });
+
+  it("a blocked auto-send is audited (outreach.blockedSend, channel auto_send), body excluded", async () => {
+    mockEnv.OUTREACH_AUTONOMY = "SEND";
+    const tampered = "We offer an assured return, risk-free and guaranteed.";
+    emailFindManyMock.mockResolvedValue([draft(0, "B", { body: tampered })]);
+    const { outreachAutoSendHandler } = await import("@/lib/inngest/functions/outreach-auto-send");
+
+    const res = await outreachAutoSendHandler({ step: buildStepShim(), now: new Date("2026-06-23T10:00:00Z") });
+
+    // Never sent; counted as failed.
+    expect(sendTrackedEmailMock).not.toHaveBeenCalled();
+    expect(res.sent).toBe(0);
+    expect(res.failed).toBe(1);
+
+    // Audited with the right shape — and NEVER the full body.
+    expect(auditCreateMock).toHaveBeenCalledTimes(1);
+    const auditArg = auditCreateMock.mock.calls[0]![0];
+    expect(auditArg.data.action).toBe("outreach.blockedSend");
+    expect(auditArg.data.entityType).toBe("OutreachEmail");
+    expect(auditArg.data.entityId).toBe("email_0");
+    const diff = JSON.parse(auditArg.data.diff) as {
+      after: { reason: string; channel: string; tier: string; autonomy: string; found: string[] };
+    };
+    expect(diff.after.reason).toBe("forbidden_words");
+    expect(diff.after.channel).toBe("auto_send");
+    expect(diff.after.tier).toBe("B");
+    expect(diff.after.autonomy).toBe("SEND");
+    expect(Array.isArray(diff.after.found)).toBe(true);
+    expect(auditArg.data.diff).not.toContain(tampered);
+  });
+
+  it("a safe auto-send does NOT write a blockedSend audit row", async () => {
+    mockEnv.OUTREACH_AUTONOMY = "SEND";
+    emailFindManyMock.mockResolvedValue([draft(0, "B")]);
+    const { outreachAutoSendHandler } = await import("@/lib/inngest/functions/outreach-auto-send");
+
+    await outreachAutoSendHandler({ step: buildStepShim(), now: new Date("2026-06-23T10:00:00Z") });
+
+    expect(sendTrackedEmailMock).toHaveBeenCalledTimes(1);
+    // No blockedSend audit on a clean send (the "sent" audit runs inside the
+    // mocked $transaction, which does not invoke the callback in this shim).
+    const blockedCalls = auditCreateMock.mock.calls.filter(
+      (c) => c[0]?.data?.action === "outreach.blockedSend",
+    );
+    expect(blockedCalls).toHaveLength(0);
   });
 });
