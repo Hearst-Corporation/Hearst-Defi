@@ -215,176 +215,10 @@
   border-top: 0;
 }
 
-/* --- status line (replaces the hero box): one row of inline facts ------------ */
-.agentic-statusline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ct-space-2) var(--ct-space-4);
-  padding: var(--ct-space-3) var(--ct-space-4);
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-left-width: var(--ct-space-0_5);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-surface-card);
-}
-.agentic-statusline[data-health="healthy"] { border-left-color: var(--ct-status-success); }
-.agentic-statusline[data-health="watch"]   { border-left-color: var(--ct-status-warning); }
-.agentic-statusline[data-health="alert"]   { border-left-color: var(--ct-status-danger); }
-.agentic-statusline[data-health="no_data"] { border-left-color: var(--ct-border-strong); }
-
-.agentic-statusline-health {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--ct-space-2);
-  margin-right: auto;
-}
-.agentic-statusline-fact {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--ct-space-1_5);
-  white-space: nowrap;
-}
-.agentic-statusline-fact-value {
-  font-size: var(--ct-text-base);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-  font-variant-numeric: tabular-nums;
-}
-.agentic-statusline-fact-value[data-tone="success"] { color: var(--ct-status-success); }
-.agentic-statusline-fact-value[data-tone="warning"] { color: var(--ct-status-warning); }
-.agentic-statusline-fact-value[data-tone="danger"]  { color: var(--ct-status-danger); }
-.agentic-statusline-fact-value[data-tone="accent"]  { color: var(--ct-accent); }
-.agentic-statusline-fact-label {
-  font-size: var(--ct-text-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-muted);
-}
-
-/* Attention items: tight warning lines under the status line. */
-.agentic-attention {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-}
-.agentic-attention-item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-1_5) var(--ct-space-3);
-  border-left: var(--ct-space-0_5) solid var(--ct-status-warning);
-  border-radius: var(--ct-radius-sm);
-  background: var(--ct-status-warning-soft);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-body);
-}
-
-/* --- collapsible record group (the core primitive) --------------------------- */
-.agentic-group {
-  border: 1px solid var(--ct-graphite-border-nested);
-  border-radius: var(--ct-radius-lg);
-  background: var(--ct-surface-card);
-  overflow: clip;
-}
-.agentic-group + .agentic-group { margin-top: 0; }
-
-.agentic-group-summary {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-3);
-  padding: var(--ct-space-3) var(--ct-space-4);
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-  transition: background var(--ct-dur-base) var(--ct-ease);
-}
-.agentic-group-summary::-webkit-details-marker { display: none; }
-.agentic-group-summary:hover { background: var(--ct-surface-inset); }
-.agentic-group-summary:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 1px var(--ct-accent);
-}
-
-/* Disclosure caret — pure CSS, rotates on open. */
-.agentic-caret {
-  width: var(--ct-space-3);
-  height: var(--ct-space-3);
-  flex-shrink: 0;
-  border-right: 1.5px solid var(--ct-text-muted);
-  border-bottom: 1.5px solid var(--ct-text-muted);
-  transform: rotate(-45deg);
-  transition: transform var(--ct-dur-base) var(--ct-ease);
-}
-.agentic-group[open] > .agentic-group-summary .agentic-caret { transform: rotate(45deg); }
-
-.agentic-group-title {
-  font-size: var(--ct-text-sm);
-  font-weight: var(--ct-font-bold);
-  color: var(--ct-text-strong);
-  letter-spacing: var(--ct-tracking-tight);
-}
-.agentic-group-meta {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-}
-.agentic-group-count {
-  font-variant-numeric: tabular-nums;
-  color: var(--ct-text-body);
-  font-weight: var(--ct-font-semibold);
-}
-.agentic-group-body {
-  border-top: 1px solid var(--ct-border-soft);
-}
-.agentic-group-note {
-  padding: var(--ct-space-2) var(--ct-space-4);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-  border-bottom: 1px solid var(--ct-border-soft);
-}
-
-/* --- the data table: one shared, dense, tokenised table ---------------------- */
-.agentic-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-  text-align: left;
-}
-.agentic-table thead th {
-  position: sticky;
-  top: 0;
-  padding: var(--ct-space-2) var(--ct-space-4);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-muted);
-  background: var(--ct-surface-card);
-  border-bottom: 1px solid var(--ct-border-strong);
-  white-space: nowrap;
-}
-.agentic-table tbody td {
-  padding: var(--ct-space-2) var(--ct-space-4);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-body);
-  border-bottom: 1px solid var(--ct-border-soft);
-  vertical-align: top;
-}
-.agentic-table tbody tr:last-child td { border-bottom: 0; }
-.agentic-table tbody tr {
-  transition: background var(--ct-dur-base) var(--ct-ease);
-}
-.agentic-table tbody tr:hover { background: var(--ct-surface-inset); }
-
-/* Left tier/tone accent rail on a row, driven by data-tone. */
-.agentic-table tbody td:first-child { border-left: var(--ct-space-0_5) solid transparent; }
+/* Left tier/tone accent rail on a row, driven by data-tone (kept — still set on
+   the migrated Catalyst TableRows). The statusline / collapsible-group / custom
+   table / tag / cell rules were removed in Mission #064b once the page moved to
+   the Catalyst Table + BentoBadge canon. */
 [data-tone="success"]  > td:first-child,
 tr[data-tone="success"]  td:first-child { border-left-color: var(--ct-status-success); }
 [data-tone="warning"]  > td:first-child,
@@ -395,82 +229,6 @@ tr[data-tone="danger"]   td:first-child { border-left-color: var(--ct-status-dan
 tr[data-tone="info"]     td:first-child { border-left-color: var(--ct-status-info); }
 [data-tone="accent"]   > td:first-child,
 tr[data-tone="accent"]   td:first-child { border-left-color: var(--ct-accent); }
-
-/* Tier sub-header row inside a table. */
-.agentic-table .agentic-table-subhead td {
-  padding-top: var(--ct-space-3);
-  font-size: var(--ct-text-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wider);
-  color: var(--ct-text-muted);
-  background: var(--ct-bg-deep);
-  border-bottom: 1px solid var(--ct-border-strong);
-}
-.agentic-table-subhead-count {
-  margin-left: var(--ct-space-2);
-  color: var(--ct-text-body);
-  font-variant-numeric: tabular-nums;
-}
-
-/* The primary text cell (action / agent name). */
-.agentic-cell-strong {
-  color: var(--ct-text-primary);
-  font-weight: var(--ct-font-medium);
-}
-.agentic-cell-muted { color: var(--ct-text-muted); }
-.agentic-cell-faint { color: var(--ct-text-faint); }
-.agentic-cell-mono {
-  font-family: var(--font-mono);
-  word-break: break-word;
-}
-.agentic-cell-num {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* Inline status/tier tag — token-only chip, no box pile. */
-.agentic-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 var(--ct-space-1_5);
-  border-radius: var(--ct-radius-sm);
-  font-size: var(--ct-text-micro);
-  font-weight: var(--ct-font-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  white-space: nowrap;
-  border: 1px solid var(--ct-border);
-  color: var(--ct-text-muted);
-}
-.agentic-tag[data-tone="success"] {
-  color: var(--ct-status-success);
-  border-color: var(--ct-status-success-border);
-  background: var(--ct-status-success-soft);
-}
-.agentic-tag[data-tone="warning"] {
-  color: var(--ct-status-warning);
-  border-color: var(--ct-status-warning-border);
-  background: var(--ct-status-warning-soft);
-}
-.agentic-tag[data-tone="danger"] {
-  color: var(--ct-status-danger);
-  border-color: var(--ct-status-danger-border);
-  background: var(--ct-status-danger-soft);
-}
-.agentic-tag[data-tone="info"] {
-  color: var(--ct-status-info);
-  border-color: var(--ct-status-info-border);
-  background: var(--ct-status-info-soft);
-}
-
-/* Section caption row above a table inside the group body. */
-.agentic-section-caption {
-  margin: 0;
-  padding: var(--ct-space-2) var(--ct-space-4);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-}
 
 /* Nested disclosure inside a row's detail cell (per-action examples, steps). */
 .agentic-rowdetail {
@@ -496,16 +254,6 @@ tr[data-tone="accent"]   td:first-child { border-left-color: var(--ct-accent); }
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-1);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-muted);
-}
-
-/* Empty / unavailable inline state — a quiet line, not a box. */
-.agentic-empty-line {
-  display: flex;
-  align-items: center;
-  gap: var(--ct-space-2);
-  padding: var(--ct-space-3) var(--ct-space-4);
   font-size: var(--ct-text-xs);
   color: var(--ct-text-muted);
 }
@@ -544,7 +292,6 @@ tr[data-tone="accent"]   td:first-child { border-left-color: var(--ct-accent); }
 /* Responsive: tables stay readable; let the group body scroll x on tiny widths. */
 @container admin-doc (max-width: 40rem) {
   .agentic-group-body { overflow-x: auto; }
-  .agentic-table { min-width: max-content; }
 }
 
 /* =============================================================================
