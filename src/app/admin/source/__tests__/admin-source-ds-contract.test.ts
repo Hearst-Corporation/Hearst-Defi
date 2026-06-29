@@ -72,10 +72,17 @@ describe("admin source — wired to DS primitives", () => {
     expect(page).toContain("<Card");
   });
 
-  it("pipeline brick status uses the DS Badge, not a hand-rolled span", () => {
+  it("pipeline shows NO stale wiring-status chip (every source is wired live)", () => {
     const page = read(PAGE);
-    expect(page).toContain('from "@/components/catalyst/badge"');
-    expect(page).toContain("<Badge");
+    // The four ingestion bricks are all wired (Coingecko + mempool.space +
+    // DefiLlama + Telegram). The old static "À câbler / À définir / Câblé" chips
+    // were a frozen lie — they never re-checked the loaders. They must stay gone:
+    // freshness is surfaced where the live value renders (the hashprice "(stale)"
+    // suffix), never as a hardcoded badge here.
+    expect(page).not.toContain("À câbler");
+    expect(page).not.toContain("À définir");
+    expect(page).not.toMatch(/\bSTATUS_BADGE\b/);
+    expect(page).not.toMatch(/\bBrickStatus\b/);
   });
 
   it("the machines table is the Catalyst Table primitive", () => {
