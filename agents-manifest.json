@@ -1,0 +1,1 @@
+{"schemaVersion": 1, "model": "opus", "agents": [{"index": 0, "role": "README.md", "model": "opus", "status": "done", "filesTouched": 1}, {"index": 1, "role": "prisma", "model": "opus", "status": "done", "filesTouched": 1}]}

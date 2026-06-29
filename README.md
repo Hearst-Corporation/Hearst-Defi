@@ -1,3 +1,4 @@
+<!-- nexus defi check 2 -->
 # Hearst Connect
 
 Single-vault institutional DeFi platform. **Hearst Yield Vault** : mining-backed
