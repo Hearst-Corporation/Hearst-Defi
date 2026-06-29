@@ -22,8 +22,13 @@ const PRODUCT_CREATION_VERB_RE =
 const PRODUCT_FRAMING_INTENT_RE =
   /\b(cadrer|cadrage|frame|framing|thesis|thèse|strategie|stratégie|strategy|modeling|modelling|modélisation|modeliser|modéliser)\b/i;
 
+// Product/vault context. Common misspellings of "vault" are included on purpose
+// — admins type fast ("volt", "vaul", "veault", "vaut") and a creation intent
+// must not be dropped to a generic LLM answer (the page never opened) over a
+// typo. In the Hearst DeFi context "volt" is overwhelmingly a vault typo, not the
+// electrical unit, so the false-positive risk is negligible vs the UX win.
 const PRODUCT_CONTEXT_RE =
-  /\b(produit|product|vault|offre|offer|strategy|strategie|stratégie)\b/i;
+  /\b(produit|product|vault|vaults|volt|volts|vaul|veault|vaut|offre|offer|strategy|strategie|stratégie)\b/i;
 
 // A simulation/projection ask routes to the Scenario Lab (NEVER the Product
 // Workspace — see `hasCreation` gating below). "projection"/"projeter" and the
