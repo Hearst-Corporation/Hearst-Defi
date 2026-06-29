@@ -115,7 +115,7 @@ export function AgenticAgentsOverview({
           return (
             <div
               key={domain}
-              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset"
+              className="agentic-table-subhead flex flex-col overflow-hidden rounded-xl bg-surface-inset"
             >
               <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-4 py-3">
                 <span className="ct-bento-label">
