@@ -8,6 +8,7 @@ import {
   BENTO_PRIMARY_BTN,
   BENTO_SECONDARY_BTN,
 } from "@/components/catalyst/bento";
+import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,
@@ -19,14 +20,18 @@ import { draftDirectEmail, sendDirectEmail } from "@/app/admin/outreach/actions"
  * One-off email composer: send a single tracked email to one address, without
  * creating a campaign. Optionally drafts the subject + body with the agent
  * (cold-email persona, Typeform CTA). Nothing is sent until the operator clicks
- * "Send now"; the agent only fills the fields for review.
+ * "Send now" AND confirms the dialog — this is a REAL external email, so the
+ * send is two-step (mirrors SendCampaignButton); the agent only fills the
+ * fields for review.
  */
 export function DirectSendForm() {
   const [isDrafting, startDraft] = useTransition();
   const [isSending, startSend] = useTransition();
+  const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [sentId, setSentId] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   function onDraft(formData: FormData) {
     setSentId(null);
@@ -42,21 +47,31 @@ export function DirectSendForm() {
     });
   }
 
-  function onSend(formData: FormData) {
-    // The draft form's contact fields aren't in this form; subject/body come
-    // from controlled state, recipient from the hidden mirror below.
-    startSend(async () => {
-      const result = await sendDirectEmail(formData);
-      if (result.ok) {
-        setSentId(result.resendEmailId ?? "sent");
-        toast.success("Email sent");
-      } else {
-        toast.error(result.error ?? "Send failed");
-      }
+  /**
+   * Fires the actual send AFTER the confirm dialog is accepted. Throws on a
+   * failed send so the ConfirmDialog surfaces the error inline and stays open;
+   * resolves cleanly on success so the dialog closes itself.
+   */
+  async function onConfirmSend(): Promise<void> {
+    const fd = new FormData();
+    fd.set("to", to);
+    fd.set("subject", subject);
+    fd.set("body", body);
+    await new Promise<void>((resolve, reject) => {
+      startSend(async () => {
+        const result = await sendDirectEmail(fd);
+        if (result.ok) {
+          setSentId(result.resendEmailId ?? "sent");
+          toast.success("Email sent");
+          resolve();
+        } else {
+          const message = result.error ?? "Send failed";
+          toast.error(message);
+          reject(new Error(message));
+        }
+      });
     });
   }
-
-  const [to, setTo] = useState("");
 
   return (
     <div className="flex flex-col gap-5">
@@ -106,8 +121,14 @@ export function DirectSendForm() {
         </div>
       </form>
 
-      {/* Subject + body (editable) → send */}
-      <form action={onSend} className="flex flex-col gap-4" aria-label="Compose and send">
+      {/* Subject + body (editable) → confirm → send. Not a native submit: the
+          send is gated behind an explicit confirmation dialog (real external
+          email), so the button opens the dialog instead of firing the action. */}
+      <form
+        className="flex flex-col gap-4"
+        aria-label="Compose and send"
+        onSubmit={(e) => e.preventDefault()}
+      >
         <input type="hidden" name="to" value={to} />
         <label className={BENTO_FIELD} htmlFor="ds-subject">
           <span className={BENTO_FIELD_LABEL}>Subject</span>
@@ -136,7 +157,13 @@ export function DirectSendForm() {
           />
         </label>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isSending || !to || !subject || !body}>
+          <button
+            type="button"
+            className={BENTO_PRIMARY_BTN}
+            onClick={() => setConfirmOpen(true)}
+            disabled={isSending || !to || !subject || !body}
+            aria-busy={isSending}
+          >
             {isSending ? "Sending…" : "Send now"}
           </button>
           {sentId && <Badge variant="success">Sent · tracked</Badge>}
@@ -146,6 +173,35 @@ export function DirectSendForm() {
           under the “Direct sends” campaign so it appears in your stats.
         </p>
       </form>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Send this email now?"
+        description={
+          <>
+            This will send a real{" "}
+            <strong className="font-semibold text-[var(--ct-text-strong)]">
+              external email
+            </strong>{" "}
+            to{" "}
+            <strong className="font-semibold text-[var(--ct-text-strong)]">
+              {to || "(no recipient)"}
+            </strong>
+            {subject ? (
+              <>
+                {" "}
+                with subject{" "}
+                <span className="font-mono">“{subject}”</span>
+              </>
+            ) : null}
+            . Review the recipient and message before confirming.
+          </>
+        }
+        confirmLabel="Confirm send"
+        confirmVariant="primary"
+        onConfirm={onConfirmSend}
+      />
     </div>
   );
 }
