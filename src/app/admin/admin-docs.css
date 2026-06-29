@@ -517,37 +517,6 @@ tr[data-tone="accent"]   td:first-child { border-left-color: var(--ct-accent); }
   gap: var(--ct-space-1);
 }
 
-/* Steps rail inside crew simulation row-detail. */
-.agentic-steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-1);
-  counter-reset: step;
-}
-.agentic-step {
-  display: flex;
-  align-items: baseline;
-  gap: var(--ct-space-2);
-  font-size: var(--ct-text-xs);
-  color: var(--ct-text-body);
-}
-.agentic-step-index {
-  flex-shrink: 0;
-  min-width: var(--ct-space-4);
-  font-variant-numeric: tabular-nums;
-  color: var(--ct-text-faint);
-}
-.agentic-step-mode {
-  margin-left: auto;
-  font-size: var(--ct-text-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--ct-tracking-wide);
-  color: var(--ct-text-muted);
-}
-
 /* Inline share/magnitude bar inside a table cell — token-only, no JS.
    Width is driven by a CSS var (--agentic-bar-pct) set per row; tone-coloured
    via data-tone so it reuses the same status palette as the row rails. */
