@@ -175,11 +175,11 @@ function AllocationBreakdown({ allocations }: { allocations: MatrixCell["allocat
                   <span className="ct-metric-value font-semibold">{label}</span>
                 </div>
                 <span className="ct-metric-value font-mono">
-                  {(alloc.pct * 100).toFixed(1)}%
+                  {alloc.pct.toFixed(1)}%
                 </span>
               </div>
               <Progress
-                value={alloc.pct * 100}
+                value={alloc.pct}
                 max={100}
                 className="h-1"
                 // @ts-expect-error - custom style for progress fill
