@@ -237,11 +237,12 @@ describe("POST /api/cockpit-chat — LP profile guard on admin-* navigation", ()
     const res = await POST(makeChatRequest("ouvre outreach"));
     expect(res.status).toBe(200);
 
-    // Admin → the router fast-path navigates before the LLM.
+    // Admin → the router fast-path navigates before the LLM. The fast-path now
+    // returns a readable ack stream (not raw JSON); navigation is proven by the
+    // publishNav call.
     const body = await readStreamText(res);
-    const parsed = JSON.parse(body);
-    expect(parsed.navIntent).toBe("admin-outreach");
-    expect(parsed.metadata.intent).toBe("navigate");
+    expect(body).not.toContain("navIntent");
+    expect(body.trim().length).toBeGreaterThan(0);
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockPublishNav).toHaveBeenCalledWith(LP_USER_ID, {
       destinationKey: "admin-outreach",
@@ -253,8 +254,8 @@ describe("POST /api/cockpit-chat — LP profile guard on admin-* navigation", ()
     expect(res.status).toBe(200);
 
     const body = await readStreamText(res);
-    const parsed = JSON.parse(body);
-    expect(parsed.navIntent).toBe("portfolio");
+    expect(body).not.toContain("navIntent");
+    expect(body.trim().length).toBeGreaterThan(0);
     expect(mockPublishNav).toHaveBeenCalledWith(LP_USER_ID, {
       destinationKey: "portfolio",
     });

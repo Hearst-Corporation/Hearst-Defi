@@ -62,22 +62,22 @@ export function DashboardRiskSummaryCard({
 
   if (data.source === "fallback") {
     return (
-      <div data-risk-provenance={provenance}>
+      <div className="px-5 py-8" data-risk-provenance={provenance}>
         <EmptySurface
           variant="inline"
           message="No risk inputs yet."
           detail="This block populates after the first vault snapshot and mining metric are recorded."
           ariaLabel="Risk posture"
-          className="flex flex-1 items-center justify-center py-8"
+          className="flex flex-1 items-center justify-center"
         />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4" data-risk-provenance={provenance}>
-      {/* Overview hero — composite score + band + five-factor caption. */}
-      <div className="flex items-start justify-between gap-4 rounded-lg border border-[var(--ct-border-soft)] bg-surface-inset p-3">
+    <div className="flex flex-col" data-risk-provenance={provenance}>
+      {/* Overview hero — composite score flush edge-to-edge like KPI strip. */}
+      <div className="flex items-start justify-between gap-4 border-b border-[var(--ct-border-soft)] bg-surface-inset px-5 py-4">
         <div className="flex flex-col gap-1">
           <Tooltip
             content={
@@ -124,7 +124,7 @@ export function DashboardRiskSummaryCard({
       </div>
 
       {/* Per-dimension rows — label + status badge + detail + score + bar. */}
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-2 px-5 py-4">
         {data.dimensions.map((dimension) => (
           <article
             key={dimension.id}

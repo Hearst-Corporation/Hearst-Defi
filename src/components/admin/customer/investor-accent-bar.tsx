@@ -1,11 +1,17 @@
-/** Vertical accent rule shown to the left of an identity cell (Portfolio
- *  "Active Positions" canon). Single green via the --ct-accent token — never a
- *  raw #A7FB90 in the page. */
-export function InvestorAccentBar() {
+import { cn } from "@/lib/cn";
+import type { KycStatus } from "@/lib/data/customers";
+
+const BAR_COLOR: Record<KycStatus, string> = {
+  pending:  "bg-[var(--ct-status-warning)]",
+  approved: "bg-[var(--ct-accent)]",
+  rejected: "bg-[var(--ct-status-danger)]",
+};
+
+export function InvestorAccentBar({ status = "pending" }: { status?: KycStatus }) {
   return (
     <div
       aria-hidden="true"
-      className="h-7 w-1 shrink-0 rounded-full bg-[var(--ct-accent)]"
+      className={cn("h-7 w-1 shrink-0 rounded-full", BAR_COLOR[status])}
     />
   );
 }

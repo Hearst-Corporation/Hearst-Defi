@@ -67,8 +67,11 @@ export function buildCustomersKpiStrip(
   if (totalPrincipal > 0) {
     kpis.push({
       label: "Deployed principal",
+      // Like the KYC cells, this sum is scoped to the current page when
+      // paginated — carry the same honest scope note rather than implying it is
+      // the whole base.
       value: formatUsdCompact(totalPrincipal),
-      sublabel: `${withPositions} investor${withPositions !== 1 ? "s" : ""} with positions`,
+      sublabel: `${withPositions} with position${withPositions !== 1 ? "s" : ""} · ${scopeNote}`,
       provenance: "manual",
     });
   } else if (withPositions === 0 && customers.length > 0) {

@@ -47,7 +47,7 @@ export function NavSlot({
               {lastNav !== null ? (
                 <>
                   <span className="ct-bento-label">USD</span>
-                  <span className="text-[24px] font-medium leading-none tracking-tight text-[var(--ct-text-strong)]">{dashboardUsdCompact.format(lastNav)}</span>
+                  <span className="text-[length:var(--ct-text-3xl-fixed)] font-medium leading-none tracking-tight text-[var(--ct-text-strong)]">{dashboardUsdCompact.format(lastNav)}</span>
                 </>
               ) : (
                 <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Awaiting data</span>
