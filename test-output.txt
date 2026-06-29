@@ -1,0 +1,7 @@
+
+> hearst-connect@0.1.0 pretest
+> node scripts/assert-prisma-provider-safe.mjs sqlite && PRISMA_PROVIDER=sqlite node scripts/prisma-provider.mjs && PRISMA_PROVIDER=sqlite prisma generate
+
+[prisma-provider] OK (sqlite) — sqlite generate allowed — isolation override set (CI / PRISMA_SQLITE_ISOLATED).
+[prisma-provider] switched provider from "postgresql" to "sqlite"
+sh: 1: prisma: not found
