@@ -84,30 +84,29 @@ cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ---
 
-### feat/source-provider-logos — MISSION #067-logos
-Owner: Claude Opus — Real provider logos on /admin/source
-Branch: feat/source-provider-logos
-Worktree: ../connect-provider-logos
+### feat/source-machine-manufacturer-logos — MISSION #067-mfr
+Owner: Claude Opus — Manufacturer logos + grouping in /admin/source machine table
+Branch: feat/source-machine-manufacturer-logos
+Worktree: ../connect-mfr-logos
 Started: 2026-06-29
 Status: active
 
-Goal: show real, locally-hosted provider brand logos (official colours, NO tint)
-for the USDC venues that back the stable-yield input, in the "Stable yields" card
-and next to the APY source line. Logos downloaded once from DeFiLlama's protocol
-icon CDN and committed under public/providers/. Dynamic slug→logo mapping with an
-initial-pill fallback (so any pool the API surfaces still renders cleanly).
+Goal: in the machines table, group rows BY MANUFACTURER (Bitmain / MicroBT /
+Bitdeer / Canaan / Bitaxe / Autre) and show a brand mark at the start of each row
++ the real official wordmark on each group header. Wordmarks downloaded once from
+the makers' sites (Bitmain ANTMINER, Bitdeer) committed under public/manufacturers/,
+NO tint; makers without a wordmark get a brand-colour initial mark. Reuses the
+EXISTING manufacturer classification (manufacturerOf) — no new mining logic.
 
 Scope:
-- public/providers/*.png (committed brand logos)
-- src/lib/data/provider-logos.ts (slug→logo mapping, new)
-- src/components/admin/source/provider-logo.tsx (ProviderLogo/ProviderChip, new)
-- src/lib/telegram/read-vault-apy.ts (expose usdcVenues view-model — NO calc change)
-- src/app/admin/source/page.tsx (wire logos)
-- src/app/admin/source/__tests__/* (guard updates if needed)
+- public/manufacturers/*.png (committed wordmarks)
+- src/lib/telegram/manufacturer-logos.ts (brand mapping, new)
+- src/components/admin/source/manufacturer-mark.tsx (Mark/Wordmark, new)
+- src/components/admin/source/machine-table.tsx (group + sort by manufacturer)
 
-STOP: never touches mining/hashprice formulas, the DeFiLlama fetch logic, the APY
-math, projections, Prisma/migrations, server actions, chat/nav/router, cockpit.css,
-#146. UI/DS/data-shape only — usdcVenues is a passthrough of existing topYields.
+STOP: never touches mining/hashprice formulas, Telegram parsing/classification
+logic, the APY model, projections, Prisma/migrations, server actions,
+chat/nav/router, cockpit.css, #146. UI/DS/grouping only.
 
 ---
 
