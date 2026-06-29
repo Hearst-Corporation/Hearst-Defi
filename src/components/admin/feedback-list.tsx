@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/cn";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { toggleResolved } from "@/app/admin/feedback/actions";
 
 interface FeedbackItem {
@@ -19,16 +20,12 @@ interface FeedbackItem {
 export function FeedbackList({ items }: { items: FeedbackItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="p-5 lg:p-6">
-        <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-8 text-center">
-          <p className="ct-metric-value text-[var(--ct-text-secondary)]">
-            No feedback logged yet.
-          </p>
-          <p className="ct-metric-caption">
-            Submit the first note using the form above.
-          </p>
-        </div>
-      </div>
+      <EmptySurface
+        variant="widget"
+        message="No feedback logged yet."
+        detail="Submit the first note using the form above."
+        className="min-h-32"
+      />
     );
   }
 

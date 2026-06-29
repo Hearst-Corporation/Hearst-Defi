@@ -7,9 +7,6 @@ import type { ProjectionInvestorReportViewModel } from "@/lib/projection/investo
  * VALIDATED_ADMIN run is NEVER labelled investor-ready.
  */
 
-const PANEL =
-  "rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-4";
-
 const MODE_LABEL: Record<ProjectionInvestorReportViewModel["mode"], string> = {
   NO_RUN: "No run",
   BLOCKED: "Blocked",
@@ -49,7 +46,12 @@ export function InvestorReportReadiness({
   report: ProjectionInvestorReportViewModel;
 }) {
   return (
-    <div className={PANEL}>
+    // Flat sub-section (#063): rendered inside the "Report source"
+    // AdminSectionCard body (preview/page.tsx), which already supplies the
+    // frame + padding. A bordered inset here would be a box-in-a-box, so the
+    // content stays flat — the internal "Investor Report Readiness"
+    // ct-bento-label scopes it as a sub-section.
+    <div>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="ct-bento-label">Investor Report Readiness</div>
         <div className="flex flex-wrap items-center gap-2">
