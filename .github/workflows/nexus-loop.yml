@@ -85,7 +85,9 @@ jobs:
           mapfile -t FILES < <(git diff --cached --name-only)
           python3 - "$MODEL" "$STATUS" "${FILES[@]}" > agents-manifest.json <<'PY'
           import json, sys
-          model, status, *files = sys.argv[1], sys.argv[2], sys.argv[3:]
+          model = sys.argv[1]
+          status = sys.argv[2]
+          files = sys.argv[3:]
           groups = {}
           for f in files:
               top = f.split('/')[0] if '/' in f else (f or 'root')
