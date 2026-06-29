@@ -275,8 +275,8 @@ const INPUTS = [
   ["hashpriceUsdPerThDay","Hashprice","$/TH/day","ESTIMATED",0.001],
   ["sect","Machine"],
   ["machinePriceUsd","Machine price (cost)","USD","ESTIMATED",50],
-  ["machineHashrateTh","Machine hashrate","TH/s","ESTIMATED",1],
-  ["machineEfficiencyJTh","Efficiency","J/TH","ESTIMATED",0.5],
+  ["machineHashrateTh","Hashrate (number of TH/s)","TH/s","ESTIMATED",1],
+  ["machineEfficiencyJTh","Consumption (efficiency)","J/TH","ESTIMATED",0.5],
   ["machineLifeMonths","Machine life","months","CONFIGURED",1],
   ["energyCostUsdPerKwh","Energy cost","$/kWh","CONFIGURED",0.005],
   ["uptime","Uptime","frac","CONFIGURED",0.01],
@@ -298,8 +298,9 @@ const INPUTS = [
   ["btcBullPct","BTC bull","%","CONFIGURED",5],
 ];
 const META = {}; for(const c of INPUTS){ if(c[0]!=="sect") META[c[0]]={label:c[1],unit:c[2],status:c[3],step:c[4]}; }
-/* the 8 critical inputs shown in Simple View */
-const KEY_INPUTS = ["capitalUsd","btcPriceNow","hashpriceUsdPerThDay","energyCostUsdPerKwh","machinePriceUsd","stableYieldPct","borrowAprPct","btcBasePct"];
+/* the critical inputs shown in Simple View — includes the machine spec-sheet
+   fields (price, number of TH/s, consumption J/TH) right next to the price. */
+const KEY_INPUTS = ["capitalUsd","btcPriceNow","hashpriceUsdPerThDay","energyCostUsdPerKwh","machinePriceUsd","machineHashrateTh","machineEfficiencyJTh","stableYieldPct","borrowAprPct","btcBasePct"];
 const DEFAULTS = {
   capitalUsd:1000000, btcPriceNow:60000, hashpriceUsdPerThDay:0.06,
   machinePriceUsd:3500, machineHashrateTh:234, machineEfficiencyJTh:15, machineLifeMonths:60,
