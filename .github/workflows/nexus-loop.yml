@@ -50,6 +50,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.NEXUS_PAT }}
           branch: nexus/${{ inputs.run_label }}
           base: main
           title: "nexus-loop: ${{ inputs.run_label }}"
