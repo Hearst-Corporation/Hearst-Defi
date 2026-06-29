@@ -32,8 +32,8 @@ type ChipTone = "ok" | "warn" | "danger" | "neutral";
 /** Single green (--ct-accent) for ok/allowed; amber for gated, red for danger, zinc otherwise. */
 const CHIP_TONE: Record<ChipTone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-amber-400/30 bg-amber-400/10 text-amber-400",
-  danger: "border-red-400/30 bg-red-400/10 text-red-400",
+  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
+  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
   neutral: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
 };
 

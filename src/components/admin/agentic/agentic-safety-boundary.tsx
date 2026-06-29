@@ -15,14 +15,14 @@ type Tone = "ok" | "warn" | "danger";
 
 const DOT_CLASS: Record<Tone, string> = {
   ok: "bg-[var(--ct-accent)]",
-  warn: "bg-amber-400/80",
-  danger: "bg-red-400/80",
+  warn: "bg-[var(--ct-status-warning)]",
+  danger: "bg-[var(--ct-status-danger)]",
 };
 
 const TAG_CLASS: Record<Tone, string> = {
   ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-amber-400/25 bg-amber-400/10 text-amber-300",
-  danger: "border-red-400/25 bg-red-400/10 text-red-300",
+  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
+  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
 };
 
 export function AgenticSafetyBoundary({

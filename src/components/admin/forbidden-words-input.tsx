@@ -43,9 +43,9 @@ function ForbiddenWordList({ matches }: { matches: ForbiddenMatch[] }) {
       {matches.map((m) => (
         <li
           key={`${m.word}-${m.index}`}
-          className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[length:var(--ct-text-2xs)] font-medium leading-none text-red-400"
+          className="inline-flex items-center gap-1 rounded-md border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-1.5 py-0.5 text-[length:var(--ct-text-2xs)] font-medium leading-none text-[var(--ct-status-danger)]"
         >
-          <span aria-hidden="true" className="text-red-400">
+          <span aria-hidden="true" className="text-[var(--ct-status-danger)]">
             ⚠
           </span>
           <span>{m.word}</span>

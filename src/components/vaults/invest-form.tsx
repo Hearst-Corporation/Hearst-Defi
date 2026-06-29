@@ -170,7 +170,7 @@ function AmountLedger({
     <div
       className={cn(
         "rounded-lg border bg-surface-inset transition-colors",
-        isValid ? "border-[var(--ct-border)]" : "border-red-500/40",
+        isValid ? "border-[var(--ct-border)]" : "border-[var(--ct-status-danger-border)]",
         isCalculating && "opacity-80",
       )}
     >
@@ -237,9 +237,9 @@ function EligibilityChecklist({
     kycStatus === "approved"
       ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
       : kycStatus === "rejected"
-        ? "border-red-500/30 bg-red-500/10 text-red-400"
+        ? "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]"
         : kycStatus === "pending"
-          ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+          ? "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]"
           : "border-[var(--ct-border)] bg-surface-inset text-[var(--ct-text-muted)]";
 
   return (
@@ -378,7 +378,7 @@ function AmountSection({
                 className={cn(
                   "w-full bg-transparent border-0 p-0 text-[28px] font-medium text-[var(--ct-text-strong)] tabular-nums leading-none outline-none placeholder:text-[var(--ct-text-faint)] focus:outline-none",
                   disabled && "text-[var(--ct-text-faint)]",
-                  !disabled && amount > 0 && !amountValid && "text-red-400",
+                  !disabled && amount > 0 && !amountValid && "text-[var(--ct-status-danger)]",
                 )}
               />
             </div>
@@ -389,7 +389,7 @@ function AmountSection({
             className={cn(
               "text-[length:var(--ct-text-2xs)] px-1",
               helper.variant === "ok" && "text-[var(--ct-accent)]",
-              helper.variant === "warn" && "text-amber-400",
+              helper.variant === "warn" && "text-[var(--ct-status-warning)]",
               helper.variant === "neutral" && "text-[var(--ct-text-faint)]",
             )}
           >
@@ -753,9 +753,9 @@ function InvestFormLive({
             {depositError ? (
               <div
                 role="alert"
-                className="rounded-lg border border-red-500/30 bg-red-500/10 p-4"
+                className="rounded-lg border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] p-4"
               >
-                <p className="text-[length:var(--ct-text-2xs)] text-red-400 m-0">{depositError}</p>
+                <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)] m-0">{depositError}</p>
               </div>
             ) : null}
 

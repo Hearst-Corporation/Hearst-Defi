@@ -11,10 +11,10 @@ import type {
 
 const TONE: Record<SourceTruthStatus, string> = {
   LIVE: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  FALLBACK: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+  FALLBACK: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
   CONFIGURED: "border-sky-400/30 bg-sky-400/10 text-sky-300",
   MOCK: "border-zinc-500/30 bg-zinc-500/10 text-[var(--ct-text-muted)]",
-  DEMO: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+  DEMO: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
   UNAUDITED: "border-rose-400/30 bg-rose-400/10 text-rose-400",
   PARTIAL: "border-sky-400/30 bg-sky-400/10 text-sky-300",
   MIXED: "border-[var(--ct-border-strong)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-body)]",

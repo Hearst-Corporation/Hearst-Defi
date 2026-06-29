@@ -110,14 +110,14 @@ const SEVERITY_TONES: Record<
   { dot: string; text: string; cta: string }
 > = {
   P0: {
-    dot: "bg-red-400",
-    text: "text-red-400",
-    cta: "border-red-400/20 bg-red-400/10 text-red-400 hover:bg-red-400/20",
+    dot: "bg-[var(--ct-status-danger)]",
+    text: "text-[var(--ct-status-danger)]",
+    cta: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] hover:bg-[var(--ct-status-danger-soft)]",
   },
   P1: {
-    dot: "bg-amber-400",
-    text: "text-amber-400",
-    cta: "border-amber-400/20 bg-amber-400/10 text-amber-400 hover:bg-amber-400/20",
+    dot: "bg-[var(--ct-status-warning)]",
+    text: "text-[var(--ct-status-warning)]",
+    cta: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)] hover:bg-[var(--ct-status-warning-soft)]",
   },
   P2: {
     dot: "bg-[var(--ct-text-faint)]",

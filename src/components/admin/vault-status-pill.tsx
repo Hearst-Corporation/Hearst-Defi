@@ -16,11 +16,11 @@ const STATUS_MAP: Record<VaultStatus, { label: string }> = {
 // draft/deployed. Colours drive both the dot (bg-current) and the label.
 const STATUS_TONE: Record<VaultStatus, string> = {
   draft: "text-[var(--ct-text-muted)]",
-  review: "text-amber-300",
+  review: "text-[var(--ct-status-warning)]",
   deployed: "text-[var(--ct-text-body)]",
   live: "text-[var(--ct-accent)]",
-  paused: "text-amber-300",
-  closed: "text-red-400",
+  paused: "text-[var(--ct-status-warning)]",
+  closed: "text-[var(--ct-status-danger)]",
 };
 
 interface VaultStatusPillProps {
