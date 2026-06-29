@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { FileText, ShieldCheck, ExternalLink, Link as LinkIcon } from "lucide-react";
 import { getDeployment } from "@/lib/chain/deployments";
@@ -95,33 +96,6 @@ function auditBadgeLabel(entry: AuditEntry): string {
   if (entry.variant === "warning") return "In progress";
   if (entry.variant === "success") return "Completed";
   return "Pending";
-}
-
-/** Bento panel header in the Portfolio / vaults converted style. */
-function PanelHeader({
-  title,
-  subtitle,
-  trailing,
-}: {
-  title: string;
-  subtitle?: string;
-  trailing?: ReactNode;
-}) {
-  return (
-    <div className="flex items-end justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
-      <div className="flex flex-col gap-1.5 min-w-0">
-        <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
-          {title}
-        </h2>
-        {subtitle ? (
-          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">{subtitle}</p>
-        ) : null}
-      </div>
-      {trailing ? (
-        <div className="flex shrink-0 items-center gap-2 pb-0.5">{trailing}</div>
-      ) : null}
-    </div>
-  );
 }
 
 const MICRO_LABEL = "ct-bento-label";
@@ -334,12 +308,12 @@ export function ContractsAuditTrail({
   return (
     <div className="dark flex flex-col gap-y-5">
       {platformAddresses.length > 0 ? (
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
-          <PanelHeader
-            title="On-chain addresses"
-            subtitle="Vault, manager & custody scope"
-            trailing={<ProvenanceBadge kind="manual" />}
-          />
+        <AdminSectionCard
+          title="On-chain addresses"
+          subtitle="Vault, manager & custody scope"
+          headerTrailing={<ProvenanceBadge kind="manual" />}
+          ariaLabel="On-chain addresses"
+        >
           <div>
             {platformAddresses.map((entry, idx) => (
               <PlatformAddressRow
@@ -349,15 +323,15 @@ export function ContractsAuditTrail({
               />
             ))}
           </div>
-        </section>
+        </AdminSectionCard>
       ) : null}
 
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
-        <PanelHeader
-          title="Deployed contracts · test network"
-          subtitle="Configured deployment addresses"
-          trailing={<ProvenanceBadge kind={deploymentsProvenance} />}
-        />
+      <AdminSectionCard
+        title="Deployed contracts · test network"
+        subtitle="Configured deployment addresses"
+        headerTrailing={<ProvenanceBadge kind={deploymentsProvenance} />}
+        ariaLabel="Deployed contracts"
+      >
         <div>
           {DEPLOYED_CONTRACTS.map((contract, idx) => (
             <DeployedContractCard
@@ -367,15 +341,14 @@ export function ContractsAuditTrail({
             />
           ))}
         </div>
-      </section>
+      </AdminSectionCard>
 
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
-        <PanelHeader
-          title="Contract audit trail"
-          subtitle="Review status"
-          trailing={<ProvenanceBadge kind="manual" />}
-        />
-
+      <AdminSectionCard
+        title="Contract audit trail"
+        subtitle="Review status"
+        headerTrailing={<ProvenanceBadge kind="manual" />}
+        ariaLabel="Contract audit trail"
+      >
         <ul>
           {AUDIT_ENTRIES.map((entry, idx) => (
             <li
@@ -452,7 +425,7 @@ export function ContractsAuditTrail({
             completed.
           </p>
         </div>
-      </section>
+      </AdminSectionCard>
     </div>
   );
 }

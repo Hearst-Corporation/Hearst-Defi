@@ -1,6 +1,4 @@
-import type { ReactNode } from "react";
-
-import { BentoPanel } from "@/components/catalyst/bento";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProofFilter } from "@/components/proof/proof-filter";
 import { ProofGrid } from "@/components/proof/proof-grid";
@@ -10,7 +8,6 @@ import type { FilterValue } from "@/components/proof/proof-filter-types";
 import { TimelockCountdown } from "@/components/governance/timelock-countdown";
 import type { OnChainEvent } from "@/lib/chain/event-logger";
 import { TIMELOCK_DELAY_HOURS } from "@/lib/governance/state-machine";
-import { cn } from "@/lib/cn";
 
 import type { PlatformAddressEntry } from "./contracts-audit-trail";
 import { ContractsAuditTrail } from "./contracts-audit-trail";
@@ -34,49 +31,14 @@ interface ProofCenterFullSectionsProps {
 }
 
 /**
- * Bento section wrapper — pure Tailwind, matches the Portfolio page + the
- * converted vault flow. The panel chrome is the shared {@link BentoPanel}
- * primitive (byte-identical class string); only the header is kept inline so
- * the visible `<h2 id>` survives for `aria-labelledby` wiring and the section
- * ordering stays intact across the product + admin /proof-center/full routes.
+ * Layer-2 drill-down sections shared by product + admin /proof-center/full routes.
+ *
+ * Every block is a canonical {@link AdminSectionCard} (black uppercase header +
+ * flat body) at a SINGLE level — no `BentoPanel`/`ct-glass-panel` wrapper around
+ * canon section cards (that produced the cage-in-cage). The Contracts block
+ * renders its own canon cards directly (On-chain addresses / Deployed contracts /
+ * Audit trail), so they sit as top-level siblings, not nested inside another card.
  */
-function BentoSection({
-  id,
-  title,
-  subtitle,
-  actions,
-  children,
-}: {
-  id: string;
-  title: string;
-  subtitle?: string;
-  actions?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <BentoPanel role="region" aria-labelledby={id}>
-      <div className="flex flex-wrap items-end justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
-        <div className="flex flex-col gap-1.5">
-          <h2
-            id={id}
-            className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none m-0"
-          >
-            {title}
-          </h2>
-          {subtitle ? (
-            <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">{subtitle}</p>
-          ) : null}
-        </div>
-        {actions ? (
-          <div className="flex shrink-0 items-center gap-2 pb-0.5">{actions}</div>
-        ) : null}
-      </div>
-      <div className="p-5 lg:p-6">{children}</div>
-    </BentoPanel>
-  );
-}
-
-/** Layer-2 drill-down sections shared by product + admin /proof-center/full routes. */
 export function ProofCenterFullSections({
   onChainEvents,
   proofs,
@@ -85,75 +47,71 @@ export function ProofCenterFullSections({
   timelockProposals,
   variant = "product",
 }: ProofCenterFullSectionsProps) {
-  const admin = variant === "admin";
-
   return (
     <div className="dark flex flex-col gap-y-5">
-      <BentoSection
-        id="event-timeline-heading"
-        title="On-chain event log"
+      <AdminSectionCard
+        title={<span id="event-timeline-heading">On-chain event log</span>}
         subtitle="Latest published vault events"
+        ariaLabel="On-chain event log"
       >
-        <EventTimeline events={onChainEvents} sectionLed variant={variant} />
-      </BentoSection>
+        <div className="p-5">
+          <EventTimeline events={onChainEvents} sectionLed variant={variant} />
+        </div>
+      </AdminSectionCard>
 
-      <BentoSection
-        id="proof-grid-heading"
-        title="Off-chain proofs & documents"
-        subtitle="Pinned attestations & signed reports"
-        actions={proofs.length > 0 ? <ProofFilter /> : null}
+      <AdminSectionCard
+        title={<span id="proof-grid-heading">Off-chain proofs &amp; documents</span>}
+        subtitle="Pinned attestations &amp; signed reports"
+        headerTrailing={proofs.length > 0 ? <ProofFilter /> : undefined}
+        ariaLabel="Off-chain proofs and documents"
       >
-        {proofs.length === 0 ? (
-          <EmptySurface live variant="inline" {...PLATFORM_PROOFS_EMPTY} />
-        ) : (
-          <ProofGrid proofs={proofs} filter={filter} demo={false} />
-        )}
-      </BentoSection>
+        <div className="p-5">
+          {proofs.length === 0 ? (
+            <EmptySurface live variant="inline" {...PLATFORM_PROOFS_EMPTY} />
+          ) : (
+            <ProofGrid proofs={proofs} filter={filter} demo={false} />
+          )}
+        </div>
+      </AdminSectionCard>
 
-      <BentoSection
-        id="contracts-heading"
-        title="Contracts & review trail"
-        subtitle="Deployed addresses & audit history"
-      >
-        <ContractsAuditTrail platformAddresses={platformAddresses} variant={variant} />
-      </BentoSection>
+      {/* Contracts & review trail — renders its OWN canon cards directly
+          (no parent wrapper) so they are top-level siblings, not nested. */}
+      <ContractsAuditTrail
+        platformAddresses={platformAddresses}
+        variant={variant}
+      />
 
-      <BentoSection
-        id="timelock-heading"
-        title="Pending governance timelocks"
+      <AdminSectionCard
+        title={<span id="timelock-heading">Pending governance timelocks</span>}
         subtitle="Queued actions awaiting execution"
+        ariaLabel="Pending governance timelocks"
       >
-        {timelockProposals.length > 0 ? (
-          <div
-            className={cn(
-              "flex flex-col",
-              admin ? "gap-4" : "gap-5",
-            )}
-          >
-            {timelockProposals.map((proposal) => (
-              <TimelockCountdown
-                key={proposal.id}
-                proposalId={proposal.id}
-                queueTime={(proposal.queuedAt ?? proposal.createdAt).toISOString()}
-                delayHours={proposal.timelockHours ?? TIMELOCK_DELAY_HOURS}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset px-6 py-10 text-center">
-            <div className="ct-bento-label">
-              Governance queue
+        <div className="p-5">
+          {timelockProposals.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {timelockProposals.map((proposal) => (
+                <TimelockCountdown
+                  key={proposal.id}
+                  proposalId={proposal.id}
+                  queueTime={(proposal.queuedAt ?? proposal.createdAt).toISOString()}
+                  delayHours={proposal.timelockHours ?? TIMELOCK_DELAY_HOURS}
+                />
+              ))}
             </div>
-            <div className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)]">
-              No pending timelocks
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset px-6 py-10 text-center">
+              <div className="ct-bento-label">Governance queue</div>
+              <div className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)]">
+                No pending timelocks
+              </div>
+              <p className="max-w-sm text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
+                No proposals are currently waiting on a timelock. Queued governance
+                actions will appear here before execution.
+              </p>
             </div>
-            <p className="max-w-sm text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
-              No proposals are currently waiting on a timelock. Queued governance
-              actions will appear here before execution.
-            </p>
-          </div>
-        )}
-      </BentoSection>
+          )}
+        </div>
+      </AdminSectionCard>
 
       <ProvenanceFooter />
     </div>

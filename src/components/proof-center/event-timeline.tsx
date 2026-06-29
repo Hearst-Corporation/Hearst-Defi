@@ -190,8 +190,8 @@ export function EventTimeline({
   variant = "product",
 }: EventTimelineProps) {
   if (events.length === 0) {
-    return (
-      <Card material="flat" hoverOverlay={false}>
+    const emptyBody = (
+      <>
         <ProofCenterCardHeader
           sectionLed={sectionLed}
           eyebrow="On-chain event log"
@@ -199,14 +199,23 @@ export function EventTimeline({
           tone="quiet"
         />
         <EmptySurface live {...EVENT_TIMELINE_EMPTY} />
+      </>
+    );
+    // When section-led, the parent AdminSectionCard IS the shell — no inner
+    // Card wrapper (that produced cage-in-cage). Standalone (product) keeps it.
+    return sectionLed ? (
+      emptyBody
+    ) : (
+      <Card material="flat" hoverOverlay={false}>
+        {emptyBody}
       </Card>
     );
   }
 
   const eventsProvenance = "live" as const;
 
-  return (
-    <Card material="flat">
+  const body = (
+    <>
       <ProofCenterCardHeader
         sectionLed={sectionLed}
         eyebrow="On-chain event log"
@@ -227,6 +236,8 @@ export function EventTimeline({
           />
         ))}
       </ol>
-    </Card>
+    </>
   );
+
+  return sectionLed ? body : <Card material="flat">{body}</Card>;
 }
