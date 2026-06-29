@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearst Connect — Master Chat Live Flow Theater</title>
+<style>
+  :root{
+    --bg:#0a0c0f;--bg2:#0d1117;--panel:#11161d;--panel2:#161d27;--line:#1e2630;--line2:#2a3542;
+    --txt:#cdd6e2;--txt2:#8b99ab;--txt3:#5b6a7c;
+    --green:#A7FB90;--green-d:rgba(167,251,144,.14);--green-b:rgba(167,251,144,.4);
+    --blue:#67b8ff;--blue-d:rgba(103,184,255,.14);
+    --yellow:#ffc25e;--yellow-d:rgba(255,194,94,.14);
+    --orange:#ff9a5c;--orange-d:rgba(255,154,92,.16);
+    --red:#ff5f5f;--red-d:rgba(255,95,95,.15);
+    --purple:#c4a8ff;--purple-d:rgba(196,168,255,.15);
+    --grey:#6b7a8f;
+    --mono:'SF Mono','Fira Code',ui-monospace,monospace;
+    --fnt:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);font-family:var(--fnt);font-size:13px;overflow:hidden;
+    background:radial-gradient(900px 500px at 70% -5%,rgba(167,251,144,.05),transparent 60%),var(--bg)}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#222c38;border-radius:6px}
+
+  #bar{height:46px;display:flex;align-items:center;gap:16px;padding:0 20px;border-bottom:1px solid var(--line);background:rgba(10,12,15,.85);backdrop-filter:blur(8px)}
+  #bar .b1{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);font-weight:700}
+  #bar .b2{font-size:15px;font-weight:700;color:#eef3f9;letter-spacing:-.01em}
+  #bar .b3{font-size:11px;color:var(--txt3);margin-left:auto}
+
+  #app{display:flex;height:calc(100vh - 46px)}
+
+  /* ── LEFT: scenarios ── */
+  #rail{width:262px;flex-shrink:0;border-right:1px solid var(--line);background:var(--bg2);overflow-y:auto;padding:14px 12px}
+  .rail-h{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--txt3);font-weight:700;padding:6px 8px}
+  .scn{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--scol,var(--grey));border-radius:9px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .14s;color:var(--txt)}
+  .scn:hover{border-color:var(--line2);transform:translateY(-1px)}
+  .scn.active{background:var(--panel2);box-shadow:0 0 0 1px var(--scol)}
+  .scn .s-tag{font-size:8.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--scol);margin-bottom:4px;display:flex;gap:6px;align-items:center}
+  .scn .s-prompt{font-size:12px;color:#e2e9f2;line-height:1.35;font-weight:500}
+  .scn .s-role{font-size:9.5px;color:var(--txt3);margin-top:4px;font-family:var(--mono)}
+
+  /* ── CENTER: stage ── */
+  #center{flex:1;display:flex;flex-direction:column;min-width:0}
+  #controls{height:54px;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--line)}
+  .btn{font-family:var(--fnt);font-size:12.5px;font-weight:600;border-radius:8px;padding:8px 16px;cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--txt);transition:all .14s}
+  .btn:hover{border-color:var(--line2);color:#fff}
+  .btn.primary{background:var(--green-d);border-color:var(--green-b);color:#eaf9e4}
+  .btn.primary:hover{background:rgba(167,251,144,.24)}
+  .btn[disabled]{opacity:.4;cursor:not-allowed}
+  .seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+  .seg button{background:var(--panel);border:none;color:var(--txt2);font-size:11px;padding:7px 11px;cursor:pointer;font-family:var(--fnt)}
+  .seg button.on{background:var(--green-d);color:var(--green)}
+  .ctrl-meta{margin-left:auto;font-size:11px;color:var(--txt3);font-family:var(--mono)}
+
+  #stagewrap{flex:1;position:relative;overflow:auto}
+  #stage{position:relative;width:940px;height:540px;margin:14px auto}
+  #edges{position:absolute;inset:0;width:940px;height:540px;pointer-events:none;z-index:1}
+  #edges path{fill:none;stroke:#1b2430;stroke-width:1.6}
+  #edges path.flow{stroke:var(--fc,var(--green));stroke-width:2.6;stroke-dasharray:7 7;animation:dash .5s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-28}}
+
+  .node{position:absolute;width:150px;min-height:46px;background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--ncol,var(--line2));border-radius:9px;padding:7px 10px;z-index:2;transition:transform .2s,box-shadow .2s,opacity .25s,border-color .2s,background .2s;opacity:.5}
+  .node .n-l{font-size:11px;font-weight:700;color:#e4ebf3;line-height:1.2}
+  .node .n-s{font-size:9px;color:var(--txt3);margin-top:2px;line-height:1.25}
+  .node.dimmed{opacity:.22}
+  .node.lit{opacity:1;transform:translateY(-2px) scale(1.02)}
+  .node.v-pass{box-shadow:0 0 0 1.5px var(--green),0 8px 24px rgba(167,251,144,.12)}
+  .node.v-read{box-shadow:0 0 0 1.5px var(--blue)}
+  .node.v-route{box-shadow:0 0 0 1.5px var(--blue)}
+  .node.v-refuse,.node.v-block{box-shadow:0 0 0 1.5px var(--red),0 8px 26px rgba(255,95,95,.18)}
+  .node.v-hitl{box-shadow:0 0 0 1.5px var(--purple),0 8px 24px rgba(196,168,255,.14)}
+  .node.v-manual{box-shadow:0 0 0 1.5px var(--yellow)}
+  .node.v-write{box-shadow:0 0 0 1.5px var(--orange)}
+  .node.v-external{box-shadow:0 0 0 1.5px var(--orange)}
+
+  /* moving token */
+  #token{position:absolute;z-index:5;left:0;top:0;transform:translate(-50%,-50%) scale(.6);opacity:0;
+    transition:left .72s cubic-bezier(.45,.05,.3,1),top .72s cubic-bezier(.45,.05,.3,1),opacity .3s,transform .3s;
+    max-width:240px;background:#0c1f12;border:1px solid var(--green-b);border-radius:20px;padding:6px 13px;
+    font-size:11px;color:#eafbe2;box-shadow:0 6px 24px rgba(0,0,0,.5),0 0 18px rgba(167,251,144,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #token.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #token .tk-ic{color:var(--green);margin-right:5px}
+
+  /* pulse ring */
+  .pulse{position:absolute;z-index:3;width:150px;height:46px;border-radius:9px;pointer-events:none;opacity:0}
+  .pulse.go{animation:pr .7s ease-out}
+  @keyframes pr{0%{opacity:.55;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+
+  /* ── RIGHT: live log ── */
+  #side{width:392px;flex-shrink:0;border-left:1px solid var(--line);background:var(--bg2);display:flex;flex-direction:column}
+  #hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px}
+  .hud-c{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 8px;text-align:center}
+  .hud-c .hk{font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+  .hud-c .hv{font-size:20px;font-weight:800;margin-top:3px;color:#e7eef6;font-family:var(--mono)}
+  .hud-c.zero .hv{color:var(--green)}
+  .hud-c.hot .hv{color:var(--orange)}
+  .log-h{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--txt3);font-weight:700;padding:6px 16px}
+  #log{flex:1;overflow-y:auto;padding:0 14px 16px;display:flex;flex-direction:column;gap:7px}
+  .le{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 11px;opacity:0;transform:translateX(10px);transition:opacity .25s,transform .25s}
+  .le.in{opacity:1;transform:translateX(0)}
+  .le .le-top{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+  .le .le-stage{font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--lc,var(--txt2))}
+  .le .le-arrow{color:var(--txt3)}
+  .le .le-txt{font-size:11.5px;color:var(--txt);line-height:1.45}
+  .le .le-txt b{color:#eef3f9}
+  .le .le-txt code{font-family:var(--mono);font-size:10px;color:var(--txt2);background:var(--bg);padding:0 4px;border-radius:3px}
+  .vbadge{font-size:8px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-left:auto}
+  .vb-pass{background:var(--green-d);color:var(--green)}
+  .vb-read,.vb-route{background:var(--blue-d);color:var(--blue)}
+  .vb-refuse,.vb-block{background:var(--red-d);color:var(--red)}
+  .vb-hitl{background:var(--purple-d);color:var(--purple)}
+  .vb-manual{background:var(--yellow-d);color:var(--yellow)}
+  .vb-write,.vb-external{background:var(--orange-d);color:var(--orange)}
+  #verdict{margin:0 14px 14px;border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.5;display:none}
+  #verdict.show{display:block}
+  #verdict.ok{background:var(--green-d);border:1px solid var(--green-b);color:#eaf9e4}
+  #verdict.stop{background:var(--red-d);border:1px solid rgba(255,95,95,.4);color:#ffd9d9}
+  #verdict.gate{background:var(--purple-d);border:1px solid rgba(196,168,255,.4);color:#ece2ff}
+  .foot{font-size:9.5px;color:var(--txt3);padding:0 16px 12px;line-height:1.5}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px}
+  .lg{display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--txt2)}
+  .lg .d{width:9px;height:9px;border-radius:2px}
+</style>
+</head>
+<body>
+<div id="bar">
+  <div><div class="b1">Hearst Connect · Agentic</div><div class="b2">Master Chat — Live Flow Theater</div></div>
+  <div class="b3">Watch a prompt travel the chat: router → gates → action, refusal or HITL. Static replay of the verified runtime model · no live calls.</div>
+</div>
+
+<div id="app">
+  <nav id="rail">
+    <div class="rail-h">Scenarios — press ▶ Play</div>
+    <div id="scenarios"></div>
+    <div class="legend">
+      <span class="lg"><span class="d" style="background:var(--blue)"></span>read / route</span>
+      <span class="lg"><span class="d" style="background:var(--purple)"></span>HITL gate</span>
+      <span class="lg"><span class="d" style="background:var(--orange)"></span>write / send</span>
+      <span class="lg"><span class="d" style="background:var(--red)"></span>refusal / block</span>
+    </div>
+  </nav>
+
+  <div id="center">
+    <div id="controls">
+      <button class="btn primary" id="play">▶ Play</button>
+      <button class="btn" id="replay">↺ Replay</button>
+      <button class="btn" id="auto">⏩ Auto-cycle</button>
+      <div class="seg" id="speed">
+        <button data-s="1700">0.5×</button>
+        <button data-s="950" class="on">1×</button>
+        <button data-s="520">2×</button>
+      </div>
+      <div class="ctrl-meta" id="cmeta">Select a scenario</div>
+    </div>
+    <div id="stagewrap">
+      <div id="stage"><svg id="edges"></svg></div>
+    </div>
+  </div>
+
+  <aside id="side">
+    <div id="hud">
+      <div class="hud-c zero" id="hud-writes"><div class="hk">Writes</div><div class="hv">0</div></div>
+      <div class="hud-c zero" id="hud-sends"><div class="hk">Ext. sends</div><div class="hv">0</div></div>
+      <div class="hud-c zero" id="hud-records"><div class="hk">Records</div><div class="hv">0</div></div>
+      <div class="hud-c zero" id="hud-gates"><div class="hk">Gates fired</div><div class="hv">0</div></div>
+    </div>
+    <div class="log-h">Live transcript — router · gates · outcome</div>
+    <div id="log"></div>
+    <div id="verdict"></div>
+    <div class="foot">Replay of the verified operating model (4-agent source-verified). It does not call the runtime; it shows exactly what the deterministic router + guards do.</div>
+  </aside>
+</div>
+
+<script>
+/* ── Nodes (fixed layout) ── */
+const C={input:'#67b8ff',guard:'#ffc25e',router:'#A7FB90',danger:'#ff5f5f',page:'#67b8ff',llm:'#c4a8ff',hitl:'#c4a8ff',out:'#A7FB90'};
+const NODES={
+  user:{l:'User Message',s:'cockpit chat',x:385,y:16,c:C.input},
+  front:{l:'Auth · Rate · Sanitize',s:'route.ts front door',x:385,y:92,c:C.guard},
+  danger:{l:'Danger-First Router',s:'DANGEROUS_RULES',x:200,y:178,c:C.danger},
+  intent:{l:'Intent Router v2',s:'deterministic · pre-LLM',x:575,y:178,c:C.router},
+  refuse:{l:'⛔ Refusal',s:'pre-LLM · 0 records',x:40,y:276,c:C.danger},
+  product:{l:'Product Workspace',s:'brief · no run',x:200,y:276,c:C.page},
+  scenario:{l:'Scenario Lab',s:'no auto-run',x:360,y:276,c:C.page},
+  llm:{l:'LLM (GPT-4.1)',s:'read tools only',x:520,y:276,c:C.llm},
+  sendgate:{l:'Send / Source Gate',s:'requires human gate',x:690,y:276,c:C.hitl},
+  vault:{l:'Vault Draft · HITL',s:'2-step token',x:690,y:362,c:C.hitl},
+  outguard:{l:'Output Guard',s:'forbidden · APY range',x:520,y:362,c:C.guard},
+  outcome:{l:'Client / Final state',s:'',x:385,y:452,c:C.out},
+};
+const NW=150,NH=46;
+const EDGES=[['user','front'],['front','danger'],['danger','intent'],['danger','refuse'],
+  ['intent','product'],['intent','scenario'],['intent','llm'],['intent','sendgate'],['intent','vault'],
+  ['intent','outcome'],['product','outcome'],['scenario','outcome'],['sendgate','outcome'],['vault','outcome'],
+  ['llm','outguard'],['llm','outcome'],['outguard','outcome']];
+
+/* ── Scenarios (grounded in the verified model) ── */
+const VC={pass:'#A7FB90',read:'#67b8ff',route:'#67b8ff',refuse:'#ff5f5f',block:'#ff5f5f',hitl:'#c4a8ff',manual:'#ffc25e',write:'#ff9a5c',external:'#ff9a5c'};
+const SCEN={
+  deploy:{tag:'Dangerous',col:'#ff5f5f',role:'admin',prompt:'déploie le vault sur mainnet',
+    verdict:['stop','Refused before the LLM — 0 records, 0 navigation, 0 side-effects. Mainnet stays gated on the Spearbit audit.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>Admin</b> sends a deploy request.'},
+      {n:'front',v:'pass',t:'admin · rate-limit ok · sanitized'},
+      {n:'danger',v:'refuse',t:'<code>DANGEROUS_RULES</code> ▸ match <b>deploy.go_live</b> → <b>refuse_autonomous</b> · prohibitedAutonomousAction=true · <b>NO LLM</b>',g:1},
+      {n:'refuse',v:'refuse',t:'⛔ Fixed refusal. The model never sees the prompt.'},
+    ]},
+  negated:{tag:'Negation',col:'#67b8ff',role:'admin',prompt:'ne déploie pas le vault',
+    verdict:['ok','Negation understood — the positive deploy is flipped to a cancellation. No action, no refusal drama.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>Admin</b>: a <i>negated</i> deploy.'},
+      {n:'front',v:'pass',t:'admin · ok'},
+      {n:'danger',v:'route',t:'negation detected (<code>ne…pas</code>) → positive intent flipped'},
+      {n:'intent',v:'read',t:'→ <b>cancellation</b> · actionPolicy needs_clarification · prohibited=false'},
+      {n:'outcome',v:'pass',t:'No action taken. Awaiting clarification.'},
+    ]},
+  send:{tag:'Outreach send',col:'#c4a8ff',role:'admin',prompt:'envoie la campagne aux prospects maintenant',
+    verdict:['gate','Held behind the human gate. Nothing is sent. Tier A is never auto-sent; suppression + forbidden-words + daily cap re-check at send time.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>Admin</b> asks to send a campaign.'},
+      {n:'front',v:'pass',t:'admin · ok'},
+      {n:'danger',v:'read',t:'no dangerous match → pass through'},
+      {n:'intent',v:'hitl',t:'<code>SEND_SOURCE_RULES</code> ▸ <b>send_request</b> → requires_human_gate',g:1},
+      {n:'sendgate',v:'hitl',t:'Held · <b>Tier A NEVER auto-sent</b> · cap + suppression at send'},
+      {n:'outcome',v:'pass',t:'Nothing sent. Awaits explicit confirmation.'},
+    ]},
+  product:{tag:'Product',col:'#67b8ff',role:'admin',prompt:'crée un nouveau produit mining stable yield',
+    verdict:['ok','Chat opens the workspace but creates 0 runs. Only a manual Run Study click writes a ProjectionStudyRun.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>Admin</b> wants a new product.'},
+      {n:'front',v:'pass',t:'admin · ok'},
+      {n:'danger',v:'read',t:'pass through'},
+      {n:'intent',v:'route',t:'<b>product_draft</b> → open Product Workspace'},
+      {n:'product',v:'read',t:'Admin frames the brief · <b>nothing runs from this page</b>'},
+      {n:'outcome',v:'pass',t:'0 ProjectionStudyRun · manual Run Study only.'},
+    ]},
+  sim:{tag:'Simulation',col:'#67b8ff',role:'admin',prompt:'lance une simulation monte carlo',
+    verdict:['ok','Routes to the Scenario Lab. No run is created by chat — the admin runs it manually.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>Admin</b> asks for a Monte Carlo sim.'},
+      {n:'front',v:'pass',t:'admin · ok'},
+      {n:'danger',v:'read',t:'pass through'},
+      {n:'intent',v:'route',t:'<b>explicit_simulation</b> → Scenario Lab'},
+      {n:'scenario',v:'read',t:'Scenario Lab opens · no auto-run from chat'},
+      {n:'outcome',v:'pass',t:'Nothing runs automatically.'},
+    ]},
+  vault:{tag:'Vault draft',col:'#ff9a5c',role:'admin',prompt:'crée un draft de vault yield',
+    verdict:['gate','Draft-only behind a 2-step HITL token. Writes a VaultDeployment(draft) + ShareClass — never the VaultDraft model, never live.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>Admin</b> asks to draft a vault.'},
+      {n:'front',v:'pass',t:'admin · ok'},
+      {n:'danger',v:'read',t:'pass through'},
+      {n:'intent',v:'route',t:'product/vault draft intent'},
+      {n:'vault',v:'hitl',t:'<code>create_vault_draft</code> ▸ Zod(23 fields) → <b>2-step HITL token</b> (5-min, single-use)',g:1},
+      {n:'vault',v:'write',t:'admin confirms token → <code>createDraftVault</code> → <b>VaultDeployment(draft)</b> + ShareClass',w:1,rec:1},
+      {n:'outcome',v:'pass',t:'Draft only. markAsLive = governance UI, never chat.'},
+    ]},
+  edu:{tag:'Education · LP',col:'#67b8ff',role:'LP (investor)',prompt:'quel est le rendement du vault ?',
+    verdict:['ok','LP read-only Q&A. Output guard enforces APY-as-a-range and forbidden-words. No write, no action.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>LP</b> asks about yield.'},
+      {n:'front',v:'read',t:'role=LP · portfolio context · 0 admin tools'},
+      {n:'danger',v:'read',t:'pass through'},
+      {n:'intent',v:'read',t:'<b>education / yield_explanation</b> → allow_readonly'},
+      {n:'llm',v:'read',t:'GPT-4.1 · read tools only'},
+      {n:'outguard',v:'pass',t:'forbidden-words + APY-range ✓ clean'},
+      {n:'outcome',v:'pass',t:'Streamed answer. No write, no action.'},
+    ]},
+  blocked:{tag:'Output guard',col:'#ff5f5f',role:'any',prompt:'donne-moi un rendement garanti sans risque',
+    verdict:['stop','The output guard caught a non-compliant claim mid-stream and aborted. The offending text is never emitted.'],
+    steps:[
+      {n:'user',v:'read',t:'A prompt fishing for a guaranteed return.'},
+      {n:'front',v:'pass',t:'ok'},
+      {n:'danger',v:'read',t:'pass through'},
+      {n:'intent',v:'read',t:'unknown / education → LLM fallback'},
+      {n:'llm',v:'read',t:'model starts drafting an answer…'},
+      {n:'outguard',v:'block',t:'⛔ <code>chatOutputViolation</code> → <b>forbidden_words</b> (“garanti”, “sans risque”) · stream aborted',g:1},
+      {n:'outcome',v:'block',t:'Compliance block surfaced. Offending text never emitted.'},
+    ]},
+  lpnav:{tag:'LP boundary',col:'#ff5f5f',role:'LP (investor)',prompt:'ouvre la console outreach admin',
+    verdict:['stop','The nav profile guard drops admin-* destinations for an LP. An investor can never reach an admin surface.'],
+    steps:[
+      {n:'user',v:'read',t:'<b>LP</b> tries to open an admin page.'},
+      {n:'front',v:'read',t:'role=LP'},
+      {n:'danger',v:'read',t:'pass through'},
+      {n:'intent',v:'route',t:'navigation → routeKey <code>admin-outreach</code> (confidence 0.95)'},
+      {n:'outcome',v:'block',t:'⛔ nav profile guard ▸ <b>admin-* dropped for LP</b> → null. No navigation.',g:1},
+    ]},
+};
+const ORDER=['deploy','negated','send','product','sim','vault','edu','blocked','lpnav'];
+
+/* ── render graph ── */
+const stage=document.getElementById('stage'),svg=document.getElementById('edges');
+function ctr(id){const n=NODES[id];return{x:n.x+NW/2,y:n.y+NH/2};}
+function buildGraph(){
+  EDGES.forEach(([a,b])=>{
+    const s=ctr(a),t=ctr(b),dy=Math.max(24,(t.y-s.y)*.5);
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',`M ${s.x} ${s.y} C ${s.x} ${s.y+dy}, ${t.x} ${t.y-dy}, ${t.x} ${t.y}`);
+    p.id='e-'+a+'-'+b; svg.appendChild(p);
+  });
+  Object.entries(NODES).forEach(([id,n])=>{
+    const el=document.createElement('div');el.className='node';el.id='n-'+id;
+    el.style.left=n.x+'px';el.style.top=n.y+'px';el.style.setProperty('--ncol',n.c);
+    el.innerHTML=`<div class="n-l">${n.l}</div>${n.s?`<div class="n-s">${n.s}</div>`:''}`;
+    stage.appendChild(el);
+  });
+  const tok=document.createElement('div');tok.id='token';tok.innerHTML='<span class="tk-ic">▸</span><span id="tok-txt"></span>';stage.appendChild(tok);
+}
+
+/* ── playback ── */
+let STEP=950,cur=null,timers=[],playing=false,autoMode=false;
+function clearTimers(){timers.forEach(t=>clearTimeout(t));timers=[];}
+function resetStage(){
+  clearTimers();playing=false;
+  document.querySelectorAll('.node').forEach(el=>{el.className='node dimmed';});
+  document.querySelectorAll('#edges path').forEach(p=>p.classList.remove('flow'));
+  const tok=document.getElementById('token');tok.classList.remove('show');
+  document.getElementById('log').innerHTML='';
+  const vd=document.getElementById('verdict');vd.className='';vd.style.display='none';
+  setHud(0,0,0,0);
+}
+function setHud(w,s,r,g){
+  const set=(id,val)=>{const c=document.getElementById(id);c.querySelector('.hv').textContent=val;c.className='hud-c '+(val>0?(id==='hud-gates'?'':'hot'):'zero');};
+  set('hud-writes',w);set('hud-sends',s);set('hud-records',r);
+  const gc=document.getElementById('hud-gates');gc.querySelector('.hv').textContent=g;gc.className='hud-c '+(g>0?'':'zero');
+}
+function selectScenario(id,autostart){
+  cur=id;resetStage();
+  document.querySelectorAll('.scn').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  const sc=SCEN[id];
+  document.getElementById('cmeta').textContent=`${sc.role} ▸ "${sc.prompt}"`;
+  const tok=document.getElementById('token');document.getElementById('tok-txt').textContent=sc.prompt;
+  // place token at user node, hidden
+  const u=ctr('user');tok.style.left=u.x+'px';tok.style.top=u.y+'px';
+  if(autostart) play();
+}
+function play(){
+  if(!cur)return;
+  resetStage();
+  const sc=SCEN[cur];playing=true;
+  document.getElementById('play').textContent='▶ Playing…';
+  const STAGE_LABELS={user:'User',front:'Front door',danger:'Danger router',intent:'Intent router',refuse:'Refusal',product:'Product WS',scenario:'Scenario Lab',llm:'LLM',sendgate:'Send gate',outguard:'Output guard',vault:'Vault HITL',outcome:'Outcome'};
+  let w=0,s=0,r=0,g=0,prev=null;
+  const tok=document.getElementById('token');
+  sc.steps.forEach((st,i)=>{
+    timers.push(setTimeout(()=>{
+      const c=ctr(st.n);
+      tok.classList.add('show');tok.style.left=c.x+'px';tok.style.top=c.y+'px';
+      // edge flow prev->cur
+      if(prev){const e=document.getElementById('e-'+prev+'-'+st.n);if(e){e.style.setProperty('--fc',VC[st.v]||'#A7FB90');e.classList.add('flow');}}
+      const pe=prev;
+      timers.push(setTimeout(()=>{ if(pe){const e=document.getElementById('e-'+pe+'-'+st.n);if(e)e.classList.remove('flow');} },STEP));
+      // light node
+      const nel=document.getElementById('n-'+st.n);
+      nel.className='node lit v-'+st.v;
+      pulse(st.n,VC[st.v]);
+      // hud
+      if(st.w)w+=st.w; if(st.send)s+=st.send; if(st.rec)r+=st.rec; if(st.g)g+=st.g;
+      setHud(w,s,r,g);
+      // log
+      addLog(STAGE_LABELS[st.n]||st.n,st.t,st.v,VC[st.v]);
+      prev=st.n;
+      if(i===sc.steps.length-1){
+        timers.push(setTimeout(()=>{
+          showVerdict(sc.verdict);
+          playing=false;document.getElementById('play').textContent='▶ Play';
+          if(autoMode) timers.push(setTimeout(nextAuto,1500));
+        },STEP*0.7));
+      }
+    },i*STEP+120));
+    prev=null; // prev tracked at runtime via closure variable above; reset not needed
+  });
+  // fix prev tracking: rebuild using sequential approach
+}
+function pulse(id,col){
+  const n=NODES[id];const p=document.createElement('div');p.className='pulse';
+  p.style.left=n.x+'px';p.style.top=n.y+'px';p.style.boxShadow='0 0 0 2px '+(col||'#A7FB90');
+  stage.appendChild(p);requestAnimationFrame(()=>p.classList.add('go'));
+  setTimeout(()=>p.remove(),750);
+}
+function addLog(stage,txt,v,col){
+  const log=document.getElementById('log');
+  const el=document.createElement('div');el.className='le';el.style.setProperty('--lc',col);
+  const VB={pass:'PASS',read:'READ',route:'ROUTE',refuse:'REFUSED',block:'BLOCKED',hitl:'HITL',manual:'MANUAL',write:'WRITE',external:'EXT SEND'};
+  el.innerHTML=`<div class="le-top"><span class="le-stage">${stage}</span><span class="le-arrow">▸</span><span class="vbadge vb-${v}">${VB[v]||v}</span></div><div class="le-txt">${txt}</div>`;
+  log.appendChild(el);requestAnimationFrame(()=>el.classList.add('in'));
+  log.scrollTop=log.scrollHeight;
+}
+function showVerdict(vd){
+  const el=document.getElementById('verdict');el.className=vd[0]+' show';
+  el.innerHTML=`<b>${vd[0]==='stop'?'⛔ Blocked / Refused':vd[0]==='gate'?'🔒 Human gate':'✓ Safe'}</b><br>${vd[1]}`;
+}
+function nextAuto(){
+  if(!autoMode)return;
+  const i=ORDER.indexOf(cur);const ni=(i+1)%ORDER.length;
+  selectScenario(ORDER[ni],true);
+}
+
+/* ── wire up ── */
+function buildRail(){
+  const r=document.getElementById('scenarios');
+  ORDER.forEach(id=>{
+    const sc=SCEN[id];
+    const b=document.createElement('button');b.className='scn';b.dataset.id=id;b.style.setProperty('--scol',sc.col);
+    b.innerHTML=`<div class="s-tag"><span style="width:7px;height:7px;border-radius:50%;background:${sc.col};display:inline-block"></span>${sc.tag}</div><div class="s-prompt">“${sc.prompt}”</div><div class="s-role">${sc.role}</div>`;
+    b.onclick=()=>{autoMode=false;document.getElementById('auto').classList.remove('primary');selectScenario(id,true);};
+    r.appendChild(b);
+  });
+}
+document.getElementById('play').onclick=()=>{ if(cur) play(); };
+document.getElementById('replay').onclick=()=>{ if(cur) play(); };
+document.getElementById('auto').onclick=function(){ autoMode=!autoMode; this.classList.toggle('primary',autoMode); if(autoMode){ selectScenario(cur||ORDER[0],true);} };
+document.querySelectorAll('#speed button').forEach(b=>b.onclick=function(){document.querySelectorAll('#speed button').forEach(x=>x.classList.remove('on'));this.classList.add('on');STEP=+this.dataset.s;});
+
+buildGraph();buildRail();selectScenario('deploy',false);
+</script>
+</body>
+</html>
