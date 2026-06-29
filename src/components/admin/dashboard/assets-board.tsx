@@ -40,6 +40,7 @@ import { PlatformOverviewBand } from "./platform-overview-band";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
 import { DashboardRecentEvents } from "./dashboard-recent-events";
 import { SystemReadinessModule } from "./system-readiness";
+import { MarketPricesPanel } from "./market-prices-panel";
 
 /**
  * Layout scope:
@@ -315,6 +316,9 @@ export function DashboardAssetsBoard({
           </section>
         ) : null}
       </BentoPanel>
+
+      {/* ── Market prices — BTC / ETH spot (Binance) ── */}
+      <MarketPricesPanel />
 
       {/* ── Ops trio — three independent panels (Portfolio canon) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
