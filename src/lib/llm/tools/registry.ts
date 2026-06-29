@@ -1176,26 +1176,6 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     run: async (_context, input) => runGenerateDemoPlan(input),
   },
   {
-    id: "run_product_construction",
-    kind: "read",
-    description:
-      "Run the six live-read product-construction swarms for an objective (Telegram machine pricing, live BTC/hashprice/DeFi, strategy cross, seeded Monte-Carlo, charts, write-up) and return the numeric DRAFT. Read-only: fetches + computes, never sends/deploys/marks-live/writes custodially.",
-    riskLevel: "low",
-    confirmationRequired: false,
-    allowedChatModes: ["admin"],
-    allowedProfiles: ["admin"],
-    resultFormat: "json_object",
-    parameters: {
-      type: "object",
-      properties: {
-        objective: { type: "string" },
-      },
-      required: ["objective"],
-      additionalProperties: false,
-    },
-    run: async (_context, input) => runProductConstructionTool(input),
-  },
-  {
     id: "export_demo_pack",
     kind: "read",
     description:
@@ -1261,6 +1241,26 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
       "Outreach pipeline overview: prospect counts by tier and by status.",
     run: async () => runOutreachStats(),
   }),
+  {
+    id: "run_product_construction",
+    kind: "read",
+    description:
+      "Run the six live-read product-construction swarms for an objective (Telegram machine pricing, live BTC/hashprice/DeFi, strategy cross, seeded Monte-Carlo, charts, write-up) and return the numeric DRAFT. Read-only: fetches + computes, never sends/deploys/marks-live/writes custodially.",
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "json_object",
+    parameters: {
+      type: "object",
+      properties: {
+        objective: { type: "string" },
+      },
+      required: ["objective"],
+      additionalProperties: false,
+    },
+    run: async (_context, input) => runProductConstructionTool(input),
+  },
 ] as const;
 
 export const ADMIN_WRITE_TOOLS: readonly AdminWriteToolDefinition[] = [
