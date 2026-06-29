@@ -9,8 +9,8 @@
 // Catalyst Table primitive and `agentic-tag` by BentoBadge, so this section
 // renders exactly like the rest of the admin.
 
-import { BentoBadge, type BentoBadgeVariant } from "@/components/catalyst/bento-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/catalyst/table";
+import { cn } from "@/lib/cn";
 import type { AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { RouterObservabilitySummary } from "@/lib/agentic/observability/types";
@@ -25,13 +25,15 @@ interface TopologyRow {
   tone: AgenticTone;
 }
 
-const TONE_VARIANT: Record<AgenticTone, BentoBadgeVariant> = {
-  success: "success",
-  warning: "warning",
-  danger: "danger",
-  accent: "accent",
-  info: "default",
-  neutral: "default",
+// The Value column shows a plain numeric/short value (3, 12, 19, "Active"),
+// not a badge — a tone only tints its colour. Bigger + tabular, no chip.
+const TONE_TEXT: Record<AgenticTone, string> = {
+  success: "text-[var(--ct-accent)]",
+  warning: "text-[var(--ct-status-warning)]",
+  danger: "text-[var(--ct-status-danger)]",
+  accent: "text-[var(--ct-accent)]",
+  info: "text-[var(--ct-text-strong)]",
+  neutral: "text-[var(--ct-text-strong)]",
 };
 
 export function AgenticTopologyMap({
@@ -131,8 +133,15 @@ export function AgenticTopologyMap({
           {rows.map((r) => (
             <TableRow key={r.id} data-tone={r.tone}>
               <TableCell className="ct-metric-value">{r.block}</TableCell>
-              <TableCell className="text-right tabular-nums">
-                <BentoBadge variant={TONE_VARIANT[r.tone]}>{r.value}</BentoBadge>
+              <TableCell className="text-right">
+                <span
+                  className={cn(
+                    "text-[length:var(--ct-text-sm)] font-medium tabular-nums",
+                    TONE_TEXT[r.tone],
+                  )}
+                >
+                  {r.value}
+                </span>
               </TableCell>
               <TableCell className="ct-metric-caption">{r.meaning}</TableCell>
             </TableRow>
