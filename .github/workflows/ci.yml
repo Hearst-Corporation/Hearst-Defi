@@ -53,6 +53,12 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
+      # Design-system anti-regression: hardcode guard (8 witness files) +
+      # convergence guard (repo-wide: ui/ sealed, no raw accent hex, no
+      # exact-token px, no raw surface #15191C/zinc-9xx, no raw status hue).
+      - name: DS guards
+        run: pnpm ds:guard:all
+
   # ────────────────────────────────────────────────────────────────
   # Job — SecDevOps gate (secret-leak scan)
   # ────────────────────────────────────────────────────────────────
