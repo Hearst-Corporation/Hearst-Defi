@@ -43,6 +43,7 @@ const EXPECTED_ROUTES = [
   "/admin/outreach/prospects/[id]",
   "/admin/product-workspace",
   "/admin/product-workspace/report/print",
+  "/admin/products/btc-mining-performance-vault",
   "/admin/projection",
   "/admin/projection/preview",
   "/admin/proof-center",
