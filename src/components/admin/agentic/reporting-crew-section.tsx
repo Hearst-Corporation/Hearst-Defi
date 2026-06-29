@@ -13,7 +13,8 @@
 import type { ReactNode } from "react";
 
 import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
-import { cn } from "@/lib/cn";
+import { BentoBadge } from "@/components/catalyst/bento-badge";
+import type { BentoBadgeVariant } from "@/components/catalyst/bento-badge";
 import type {
   ReportingCrewBriefing,
   ReportingCrewSection as ReportingCrewSectionData,
@@ -22,28 +23,19 @@ import type {
   ReportingCrewStatus,
 } from "@/lib/agentic/reporting/types";
 
-/** Bento chip tone — drives the border/bg/text triplet only. */
+/** Bento chip tone → canon BentoBadge variant. */
 type ChipTone = "ok" | "warn" | "danger" | "neutral";
 
-/** Single green (--ct-accent) for healthy; amber for watch, red for alert, zinc otherwise. */
-const CHIP_TONE: Record<ChipTone, string> = {
-  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
-  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
-  neutral: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
+/** Single green (--ct-accent) for healthy; amber for watch, red for alert, default otherwise. */
+const CHIP_VARIANT: Record<ChipTone, BentoBadgeVariant> = {
+  ok: "success",
+  warn: "warning",
+  danger: "danger",
+  neutral: "default",
 };
 
 function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-wider whitespace-nowrap",
-        CHIP_TONE[tone],
-      )}
-    >
-      {children}
-    </span>
-  );
+  return <BentoBadge variant={CHIP_VARIANT[tone]}>{children}</BentoBadge>;
 }
 
 function statusTone(status: ReportingCrewStatus): ChipTone {

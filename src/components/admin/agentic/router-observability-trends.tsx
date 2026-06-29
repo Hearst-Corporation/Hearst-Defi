@@ -4,13 +4,50 @@
 // and the top matched rules — all derived from the existing capped trace buffer
 // — as dense token-only tables. NO write controls, NO forms, NO inputs: window
 // selection lives in the parent Observability section header.
+//
+// Canon migration (Mission #064): `agentic-tag` → BentoBadge, `agentic-table` →
+// Catalyst dense Table, `agentic-cell-*` → tokenised utilities. The proportional
+// `.agentic-bar` grammar and the `.agentic-rowdetail` / `.agentic-trends`
+// section primitives are kept (they are section chrome, not table cells).
 
-import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { cn } from "@/lib/cn";
+import { BentoBadge, type BentoBadgeVariant } from "@/components/catalyst/bento-badge";
+import type { AgenticTone } from "@/components/admin/agentic/agentic-group";
+import {
+  Table,
+  TableHead,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/catalyst/table";
 import type {
   RouterDecisionTrendBucket,
   RouterMatchedRuleStat,
   RouterTrendWindow,
 } from "@/lib/agentic/observability/types";
+
+const FAINT = "text-[var(--ct-text-faint)]";
+const SECTION_CAPTION = "text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]";
+const EMPTY_LINE = "text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]";
+
+/** Maps the legacy AgenticTone scale onto the canon BentoBadge variant scale. */
+function toneToVariant(tone: AgenticTone): BentoBadgeVariant {
+  switch (tone) {
+    case "success":
+      return "success";
+    case "warning":
+      return "warning";
+    case "danger":
+      return "danger";
+    case "accent":
+      return "accent";
+    case "info":
+    case "neutral":
+    default:
+      return "default";
+  }
+}
 
 const WINDOW_LABEL: Record<RouterTrendWindow, string> = {
   "1h": "1h",
@@ -95,43 +132,43 @@ export function RouterObservabilityTrends({
       <details className="agentic-rowdetail" open>
         <summary className="agentic-rowdetail-summary">
           Outcome trend
-          <span className="agentic-cell-faint tabular-nums">
+          <span className={cn(FAINT, "tabular-nums")}>
             {" · "}
             {windowTotal} decision{windowTotal === 1 ? "" : "s"} · {WINDOW_LABEL[window]}
           </span>
         </summary>
         <div className="agentic-rowdetail-body">
           {windowTotal === 0 ? (
-            <p className="agentic-empty-line m-0">
+            <p className={cn(EMPTY_LINE, "m-0")}>
               No router decisions in this window yet. Pick a wider window or send
               chat traffic to populate the trend.
             </p>
           ) : showTrend ? (
-            <table className="agentic-table">
-              <thead>
-                <tr>
-                  <th>Bucket</th>
-                  <th>Decisions</th>
-                  <th>Share</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table dense>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Bucket</TableHeader>
+                  <TableHeader>Decisions</TableHeader>
+                  <TableHeader>Share</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {trendRows.map((b) => {
                   const pct = maxBucket > 0 ? Math.round((b.total / maxBucket) * 100) : 0;
                   return (
-                    <tr key={b.start}>
-                      <td className="agentic-cell-mono">{b.label}</td>
-                      <td className="agentic-cell-num">{b.total}</td>
-                      <td>
+                    <TableRow key={b.start}>
+                      <TableCell className="font-mono">{b.label}</TableCell>
+                      <TableCell className="text-right tabular-nums">{b.total}</TableCell>
+                      <TableCell>
                         <CellBar pct={pct} tone="accent" />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           ) : (
-            <p className="agentic-empty-line m-0">
+            <p className={cn(EMPTY_LINE, "m-0")}>
               Low sample ({windowTotal} decision{windowTotal === 1 ? "" : "s"} over{" "}
               {WINDOW_LABEL[window]}) — a time trend needs more traffic to read.
               The distribution below summarises the outcomes.
@@ -141,68 +178,68 @@ export function RouterObservabilityTrends({
       </details>
 
       {/* Outcome distribution — one row per category. */}
-      <p className="agentic-section-caption">Outcome distribution</p>
+      <p className={SECTION_CAPTION}>Outcome distribution</p>
       {windowTotal === 0 ? (
-        <p className="agentic-empty-line m-0">No decisions to distribute.</p>
+        <p className={cn(EMPTY_LINE, "m-0")}>No decisions to distribute.</p>
       ) : (
-        <table className="agentic-table">
-          <thead>
-            <tr>
-              <th>Outcome</th>
-              <th>Count</th>
-              <th>Share</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table dense>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Outcome</TableHeader>
+              <TableHeader>Count</TableHeader>
+              <TableHeader>Share</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {dist.map((d) => {
               const pct = windowTotal > 0 ? Math.round((d.value / windowTotal) * 100) : 0;
               return (
-                <tr key={d.key} data-tone={d.tone === "neutral" ? undefined : d.tone}>
-                  <td className="agentic-cell-strong">
-                    <AgenticTag tone={d.tone}>{d.label}</AgenticTag>
-                  </td>
-                  <td className="agentic-cell-num">{d.value}</td>
-                  <td>
+                <TableRow key={d.key} data-tone={d.tone === "neutral" ? undefined : d.tone}>
+                  <TableCell className="ct-metric-value">
+                    <BentoBadge variant={toneToVariant(d.tone)}>{d.label}</BentoBadge>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{d.value}</TableCell>
+                  <TableCell>
                     <div className="admin-doc-inline-row admin-doc-inline-row--start">
                       <CellBar pct={pct} tone={d.tone} />
-                      <span className="agentic-cell-muted tabular-nums whitespace-nowrap">
+                      <span className="ct-metric-caption tabular-nums whitespace-nowrap">
                         {pct}%
                       </span>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
 
       {/* Top matched rules — one row per rule. */}
-      <p className="agentic-section-caption">Top matched rules</p>
+      <p className={SECTION_CAPTION}>Top matched rules</p>
       {topMatchedRules.length === 0 ? (
-        <p className="agentic-empty-line m-0">
+        <p className={cn(EMPTY_LINE, "m-0")}>
           No matched rules recorded in the buffer yet.
         </p>
       ) : (
-        <table className="agentic-table">
-          <thead>
-            <tr>
-              <th>Rule</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table dense>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Rule</TableHeader>
+              <TableHeader>Count</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {topMatchedRules.map((r) => (
-              <tr key={r.ruleId}>
-                <td className="agentic-cell-mono">{r.ruleId}</td>
-                <td className="agentic-cell-num">{r.count}</td>
-              </tr>
+              <TableRow key={r.ruleId}>
+                <TableCell className="font-mono">{r.ruleId}</TableCell>
+                <TableCell className="text-right tabular-nums">{r.count}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
 
-      <p className="agentic-section-caption agentic-cell-faint">{bufferLimitNote}</p>
+      <p className={cn(SECTION_CAPTION, FAINT)}>{bufferLimitNote}</p>
     </div>
   );
 }

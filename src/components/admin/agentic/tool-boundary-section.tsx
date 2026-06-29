@@ -17,6 +17,9 @@ import {
   BentoKpiTile,
   BentoPanel,
 } from "@/components/catalyst/bento";
+import { BentoBadge } from "@/components/catalyst/bento-badge";
+import type { BentoBadgeVariant } from "@/components/catalyst/bento-badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 import type {
   ReflectedToolBoundaryItem,
@@ -26,28 +29,19 @@ import type {
   ToolBoundaryV1Summary,
 } from "@/lib/agentic/tool-boundary";
 
-/** Bento chip tone — drives the border/bg/text triplet only. */
+/** Bento chip tone → canon BentoBadge variant. */
 type ChipTone = "ok" | "warn" | "danger" | "neutral";
 
-/** Single green (--ct-accent) for ok/allowed; amber for gated, red for danger, zinc otherwise. */
-const CHIP_TONE: Record<ChipTone, string> = {
-  ok: "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]",
-  warn: "border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] text-[var(--ct-status-warning)]",
-  danger: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)]",
-  neutral: "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
+/** Single green (--ct-accent) for ok/allowed; amber for gated, red for danger, default otherwise. */
+const CHIP_VARIANT: Record<ChipTone, BentoBadgeVariant> = {
+  ok: "success",
+  warn: "warning",
+  danger: "danger",
+  neutral: "default",
 };
 
 function Chip({ tone, children }: { tone: ChipTone; children: ReactNode }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-[length:var(--ct-text-deci)] font-bold uppercase tracking-wider whitespace-nowrap",
-        CHIP_TONE[tone],
-      )}
-    >
-      {children}
-    </span>
-  );
+  return <BentoBadge variant={CHIP_VARIANT[tone]}>{children}</BentoBadge>;
 }
 
 const TIER_LABEL: Record<ToolBoundaryTier, string> = {
@@ -107,42 +101,37 @@ const COUNT_TIERS: ToolBoundaryTier[] = [
 
 function Th({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <th
-      className={cn(
-        "ct-bento-label bg-transparent px-4 py-3",
-        className,
-      )}
-    >
+    <TableHeader className={cn("ct-bento-label bg-transparent", className)}>
       {children}
-    </th>
+    </TableHeader>
   );
 }
 
 function ToolRow({ tool }: { tool: ReflectedToolBoundaryItem }) {
   return (
-    <tr className="border-b border-[var(--ct-border-soft)] align-top transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
-      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
+    <TableRow className="align-top transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
+      <TableCell className="break-all font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
         {tool.id}
-      </td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell>
         <Chip tone={tierTone(tool.tier)}>{TIER_LABEL[tool.tier]}</Chip>
-      </td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell>
         <Chip tone={riskTone(tool.riskLevel)}>{tool.riskLevel}</Chip>
-      </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-[var(--ct-text-faint)]">
+      </TableCell>
+      <TableCell className="whitespace-nowrap text-[length:var(--ct-text-2xs)] tabular-nums text-[var(--ct-text-faint)]">
         {tool.humanGateRequired ? "HITL" : "—"}
-      </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] tabular-nums text-[var(--ct-text-faint)]">
+      </TableCell>
+      <TableCell className="whitespace-nowrap text-[length:var(--ct-text-2xs)] tabular-nums text-[var(--ct-text-faint)]">
         {tool.autonomousAllowed ? "yes" : "no"}
-      </td>
-      <td className="whitespace-nowrap px-4 py-3 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
+      </TableCell>
+      <TableCell className="whitespace-nowrap text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
         {tool.runtimeStatus}
-      </td>
-      <td className="break-all px-4 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
+      </TableCell>
+      <TableCell className="break-all font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
         {tool.source}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -243,26 +232,24 @@ export function ToolBoundarySection({
           subtitle="Tier · risk · gate · autonomous · runtime · source"
           as="h3"
         />
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
-            <thead>
-              <tr className="border-b border-[var(--ct-border-soft)]">
-                {["Tool", "Tier", "Risk", "Gate", "Autonomous", "Runtime", "Source"].map(
-                  (h) => (
-                    <Th key={h} className="whitespace-nowrap">
-                      {h}
-                    </Th>
-                  ),
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {realTools.map((t) => (
-                <ToolRow key={t.id} tool={t} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table dense className="text-[length:var(--ct-text-xs)]">
+          <TableHead>
+            <TableRow>
+              {["Tool", "Tier", "Risk", "Gate", "Autonomous", "Runtime", "Source"].map(
+                (h) => (
+                  <Th key={h} className="whitespace-nowrap">
+                    {h}
+                  </Th>
+                ),
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {realTools.map((t) => (
+              <ToolRow key={t.id} tool={t} />
+            ))}
+          </TableBody>
+        </Table>
       </BentoPanel>
 
       {/* Forbidden-autonomous actions (represented, not callable tools) */}

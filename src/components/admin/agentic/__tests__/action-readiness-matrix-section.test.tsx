@@ -37,9 +37,10 @@ describe("ActionReadinessMatrixSection", () => {
 
   it("renders the four tier lanes as table sub-header rows", () => {
     const html = render(MATRIX);
-    // Tier lanes are now grouped via sub-header rows inside the dense table,
-    // one per autonomy tier, each carrying the tier label + count.
-    const laneCount = (html.match(/class="agentic-table-subhead"/g) ?? []).length;
+    // Tier lanes are now grouped via sub-header rows inside the canon Catalyst
+    // table, one per autonomy tier, each carrying the tier label + count. The
+    // sub-header cell is the colSpan=5 `ct-bento-label` row (Mission #064).
+    const laneCount = (html.match(/ct-bento-label/g) ?? []).length;
     expect(laneCount).toBe(4);
     // Each lane label appears within a sub-header cell.
     expect(html).toContain(">Read-only<");

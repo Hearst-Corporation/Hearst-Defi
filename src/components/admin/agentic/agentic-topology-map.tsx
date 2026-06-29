@@ -4,8 +4,14 @@
 // inside a collapsible group — one row per block (Router, Guards, HITL, Tools,
 // Agents, Actions, Observability, Forbidden zone), each with a value + plain
 // meaning. No grid of cards, no hardcoded values. Pure component.
+//
+// Canonized (Mission #064): the custom `agentic-table` is replaced by the canon
+// Catalyst Table primitive and `agentic-tag` by BentoBadge, so this section
+// renders exactly like the rest of the admin.
 
-import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { BentoBadge, type BentoBadgeVariant } from "@/components/catalyst/bento-badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/catalyst/table";
+import type { AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { RouterObservabilitySummary } from "@/lib/agentic/observability/types";
 import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
@@ -18,6 +24,15 @@ interface TopologyRow {
   meaning: string;
   tone: AgenticTone;
 }
+
+const TONE_VARIANT: Record<AgenticTone, BentoBadgeVariant> = {
+  success: "success",
+  warning: "warning",
+  danger: "danger",
+  accent: "accent",
+  info: "default",
+  neutral: "default",
+};
 
 export function AgenticTopologyMap({
   controlCenter,
@@ -104,26 +119,26 @@ export function AgenticTopologyMap({
 
   return (
     <div id="topology" className="agentic-group-body min-w-0 border-t-0">
-      <table className="agentic-table">
-        <thead>
-          <tr>
-            <th>Block</th>
-            <th className="agentic-cell-num">Value</th>
-            <th>Meaning</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table dense>
+        <TableHead>
+          <TableRow>
+            <TableHeader>Block</TableHeader>
+            <TableHeader className="text-right">Value</TableHeader>
+            <TableHeader>Meaning</TableHeader>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {rows.map((r) => (
-            <tr key={r.id} data-tone={r.tone}>
-              <td className="agentic-cell-strong">{r.block}</td>
-              <td className="agentic-cell-num">
-                <AgenticTag tone={r.tone}>{r.value}</AgenticTag>
-              </td>
-              <td className="agentic-cell-muted">{r.meaning}</td>
-            </tr>
+            <TableRow key={r.id} data-tone={r.tone}>
+              <TableCell className="ct-metric-value">{r.block}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                <BentoBadge variant={TONE_VARIANT[r.tone]}>{r.value}</BentoBadge>
+              </TableCell>
+              <TableCell className="ct-metric-caption">{r.meaning}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
