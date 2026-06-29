@@ -161,6 +161,12 @@
   --ct-status-info-soft: rgba(96, 165, 250, 0.10);
   --ct-status-info-border: rgba(96, 165, 250, 0.20);
 
+  /* Unaudited — a distinct rose tone for provenance badges (UNAUDITED): not an
+     error (danger), not a caution (warning) — "not yet verified". */
+  --ct-status-unaudited: #fb7185;
+  --ct-status-unaudited-soft: color-mix(in srgb, var(--ct-status-unaudited) 10%, transparent);
+  --ct-status-unaudited-border: color-mix(in srgb, var(--ct-status-unaudited) 30%, transparent);
+
 
   /* Radius tokens (alignés sur le DS) */
   --ct-radius-xs: 0.125rem; /* 2px — chart legend swatch, micro chips */
