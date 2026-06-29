@@ -82,7 +82,7 @@ function PaneStatus({
   tone?: "ok" | "watch" | "alert";
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-1.5 py-0.5 leading-none">
+    <span className="inline-flex items-center gap-1.5 rounded border border-[var(--ct-border)] bg-[var(--ct-status-neutral-soft)] px-1.5 py-0.5 leading-none">
       <span
         className={cn(
           "size-[5px] rounded-full",
@@ -349,13 +349,11 @@ export function DashboardAssetsBoard({
             statusTone="ok"
             href="/admin/monitoring"
           />
-          <div className="p-5">
-            <LiveOps
-              inngestJobs={cockpit.inngestJobs}
-              sentryStats={cockpit.sentryStats}
-              onChainEvents={cockpit.onChainEvents}
-            />
-          </div>
+          <LiveOps
+            inngestJobs={cockpit.inngestJobs}
+            sentryStats={cockpit.sentryStats}
+            onChainEvents={cockpit.onChainEvents}
+          />
         </BentoPanel>
       </div>
 
@@ -369,13 +367,11 @@ export function DashboardAssetsBoard({
             href="/admin/vaults"
             provenance={riskProvenance}
           />
-          <div className="p-5">
-            <DashboardRiskSummaryCard
-              data={risk}
-              hasLiveKpis={hasLiveKpis}
-              simulated={simulated}
-            />
-          </div>
+          <DashboardRiskSummaryCard
+            data={risk}
+            hasLiveKpis={hasLiveKpis}
+            simulated={simulated}
+          />
         </BentoPanel>
 
         <BentoPanel>

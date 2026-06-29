@@ -43,10 +43,10 @@ interface LiveOpsProps {
  */
 export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProps) {
   return (
-    <div aria-label="Platform status" className="flex flex-col gap-6">
+    <div aria-label="Platform status" className="flex flex-col">
 
       {/* INNGEST JOBS */}
-      <section className="flex flex-col">
+      <section className="flex flex-col border-b border-[var(--ct-border-soft)] px-5 py-4">
         <PanelSubhead title="Inngest Jobs" meta="Real-time" />
         <div className="flex flex-col">
           {inngestJobs.map((job) => (
@@ -55,15 +55,16 @@ export function LiveOps({ inngestJobs, sentryStats, onChainEvents }: LiveOpsProp
         </div>
       </section>
 
-      {/* LLM HEALTH — Errors / Warnings as the canon KPI strip (inset bg,
-          centred cells), not a bespoke inset box. Errors flag alert when > 0. */}
-      <section className="flex flex-col">
-        <PanelSubhead title="LLM Health" meta="24h Window" />
+      {/* LLM HEALTH — flush edge-to-edge like KPI strip */}
+      <section className="flex flex-col border-b border-[var(--ct-border-soft)]">
+        <div className="px-5 pt-4 pb-3">
+          <PanelSubhead title="LLM Health" meta="24h Window" />
+        </div>
         <AdminKpiStripPanel kpis={sentryKpis(sentryStats)} embedded />
       </section>
 
       {/* CHAIN ACTIVITY */}
-      <section className="flex flex-col">
+      <section className="flex flex-col px-5 py-4">
         <PanelSubhead title="Chain Activity" meta="Live Feed" />
         {onChainEvents.length === 0 ? (
           <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] py-2" role="status">No recent on-chain events.</p>

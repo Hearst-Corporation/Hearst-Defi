@@ -17,7 +17,7 @@ import {
 } from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
-import { KycStatusBadge } from "@/components/admin/customer/kyc-status-badge";
+import { KycStepper } from "@/components/admin/customer/kyc-stepper";
 import { InvestorAccentBar } from "@/components/admin/customer/investor-accent-bar";
 import { CreateInvestorButton } from "@/components/admin/customer/create-investor-button";
 import { AdminPagination } from "@/components/admin/admin-table-layout";
@@ -41,6 +41,10 @@ const TABLE_HEAD = "bg-transparent ct-bento-label";
 const TABLE_WRAP = "max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap";
 const ROW =
   "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+// Section card shell — shared by the two list cards (Investor Directory +
+// Pending submissions) so they stay in lockstep. Pure de-duplication.
+const CARD =
+  "flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm";
 
 export default async function CustomersPage({
   searchParams,
@@ -69,10 +73,7 @@ export default async function CustomersPage({
         {/* Header noir (KPI) → sous-header → tableau Catalyst, tout soudé dans
             UNE box card (pattern Portfolio "Capital & Yield" / "Active
             Positions"). Le CTA "New investor" vit dans le header de page. */}
-        <section
-          className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-          aria-label="Investors"
-        >
+        <section className={CARD} aria-label="Investors">
           {kpiCells.length > 0 && (
             <AdminKpiStripPanel
               kpis={kpiCells}
@@ -104,7 +105,7 @@ export default async function CustomersPage({
               </div>
             </EmptySurface>
           ) : (
-            <Table dense className={TABLE_WRAP}>
+            <Table className={TABLE_WRAP}>
               <TableHead>
                 <TableRow>
                   <TableHeader className={`${TABLE_HEAD} pl-5`}>
@@ -138,7 +139,7 @@ export default async function CustomersPage({
                   <TableRow key={c.id} className={ROW}>
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-3">
-                        <InvestorAccentBar />
+                        <InvestorAccentBar status={c.kycStatus} />
                         <Link
                           href={`/admin/customers/${c.id}`}
                           className="ct-metric-value min-w-0 truncate hover:underline"
@@ -153,9 +154,15 @@ export default async function CustomersPage({
                       {truncateWallet(c.walletAddress)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-center gap-2.5">
-                        <KycStatusBadge status={c.kycStatus} />
-                        <KycAction investorId={c.id} status={c.kycStatus} />
+                      <div className="flex flex-col items-center gap-1.5">
+                        <KycStepper status={c.kycStatus} />
+                        {c.kycStatus === "approved" ? (
+                          <KycAction investorId={c.id} status={c.kycStatus} />
+                        ) : (
+                          <span className="ct-bento-label text-[var(--ct-text-faint)]">
+                            {c.kycStatus === "rejected" ? "Rejected" : "Pending"}
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell
@@ -192,10 +199,7 @@ export default async function CustomersPage({
         </section>
 
         {orphanSubmissions.length > 0 && (
-          <section
-            className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-            aria-label="Pending submissions"
-          >
+          <section className={CARD} aria-label="Pending submissions">
             <div className="flex flex-col gap-1.5 border-b border-[var(--ct-border-soft)] p-5">
               <h2 className="ct-section-title">
                 Pending submissions ({orphanSubmissions.length})

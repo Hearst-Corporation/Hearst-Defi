@@ -6,7 +6,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { Badge } from "@/components/catalyst/badge";
 import { BentoPanel } from "@/components/catalyst/bento";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { KycAction } from "@/components/admin/kyc-action";
@@ -202,17 +201,15 @@ export default async function CustomerDetailPage({
               <BentoPanel className="p-6">
                 <div className="flex flex-col gap-4">
                   <h3 className="ct-bento-label">Recommended</h3>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {persona.segments.map((s) => (
-                      <Badge key={s} color="green" className="uppercase">
-                        {s}
-                      </Badge>
-                    ))}
-                    <Badge color="zinc">Style: {persona.tone}</Badge>
-                    <Badge color="zinc">Language: {persona.language}</Badge>
-                    <Badge color="zinc">Detail: {persona.verbosity}</Badge>
-                    <Badge color="zinc">vault: {persona.suggestedVault}</Badge>
-                  </div>
+                  <dl className="grid grid-cols-2 gap-x-8 gap-y-2">
+                    <AdminDetailItem label="Segments">
+                      <span className="text-[var(--ct-accent)]">{persona.segments.join(", ") || "—"}</span>
+                    </AdminDetailItem>
+                    <AdminDetailItem label="Style">{persona.tone}</AdminDetailItem>
+                    <AdminDetailItem label="Language">{persona.language}</AdminDetailItem>
+                    <AdminDetailItem label="Detail">{persona.verbosity}</AdminDetailItem>
+                    <AdminDetailItem label="Vault">{persona.suggestedVault}</AdminDetailItem>
+                  </dl>
                   <p className="ct-metric-caption leading-relaxed">
                     {persona.customInstructions}
                   </p>
@@ -224,16 +221,16 @@ export default async function CustomerDetailPage({
               <div className="flex flex-col gap-4">
                 <h3 className="ct-bento-label">Current</h3>
                 {applied ? (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <dl className="grid grid-cols-2 gap-x-8 gap-y-2">
                     {applied.template && (
-                      <Badge color="green" className="uppercase">
-                        Preset: {applied.template.label}
-                      </Badge>
+                      <AdminDetailItem label="Preset">
+                        <span className="text-[var(--ct-accent)]">{applied.template.label}</span>
+                      </AdminDetailItem>
                     )}
-                    <Badge color="zinc">Style: {applied.tone ?? "—"}</Badge>
-                    <Badge color="zinc">Language: {applied.language ?? "—"}</Badge>
-                    <Badge color="zinc">Detail: {applied.verbosity ?? "—"}</Badge>
-                  </div>
+                    <AdminDetailItem label="Style">{applied.tone ?? "—"}</AdminDetailItem>
+                    <AdminDetailItem label="Language">{applied.language ?? "—"}</AdminDetailItem>
+                    <AdminDetailItem label="Detail">{applied.verbosity ?? "—"}</AdminDetailItem>
+                  </dl>
                 ) : (
                   <p className="ct-metric-caption leading-relaxed">
                     No profile is applied yet. Refresh from intake answers or assign a reusable template.

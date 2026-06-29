@@ -392,10 +392,12 @@ describe("POST /api/cockpit-chat — LP nav fallback", () => {
     expect(res.status).toBe(200);
 
     const body = await readStreamText(res);
-    // Router v2 returns JSON with navIntent, not the legacy ack text
-    const parsed = JSON.parse(body);
-    expect(parsed.navIntent).toBe("portfolio");
-    expect(parsed.metadata.intent).toBe("navigate");
+    // Router v2 fast-path now returns the SAME readable ack stream as the legacy
+    // nav fallback (a human-facing bubble), NOT a raw JSON body. The navigation
+    // itself travels out-of-band via publishNav (asserted below), so the user
+    // never sees the bare {"navIntent":...} JSON in the chat.
+    expect(body).not.toContain("navIntent");
+    expect(body.trim().length).toBeGreaterThan(0);
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
       destinationKey: "portfolio",
@@ -425,9 +427,9 @@ describe("POST /api/cockpit-chat — admin nav regex shortcut", () => {
     expect(res.status).toBe(200);
 
     const body = await readStreamText(res);
-    const parsed = JSON.parse(body);
-    expect(parsed.navIntent).toBe("admin-customers");
-    expect(parsed.metadata.intent).toBe("navigate");
+    // Fast-path returns the readable ack stream, not raw JSON (see LP test).
+    expect(body).not.toContain("navIntent");
+    expect(body.trim().length).toBeGreaterThan(0);
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockClassify).not.toHaveBeenCalled();
     expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
@@ -628,9 +630,10 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
     expect(res.status).toBe(200);
 
     const body = await readStreamText(res);
-    const parsed = JSON.parse(body);
-    expect(parsed.navIntent).toBe("vaults");
-    expect(parsed.metadata.intent).toBe("navigate");
+    // Fast-path returns the readable ack stream, not raw JSON. Navigation is
+    // proven by the publishNav call (out-of-band), not the response body.
+    expect(body).not.toContain("navIntent");
+    expect(body.trim().length).toBeGreaterThan(0);
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
       destinationKey: "vaults",

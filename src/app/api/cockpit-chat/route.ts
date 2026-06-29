@@ -747,15 +747,19 @@ async function runMasterAgentTurn(args: {
         turnId,
         chatId,
       });
-      return new Response(
-        JSON.stringify({
-          role: "assistant",
-          content: "",
-          navIntent: routeKey,
-          metadata: { intent: "navigate", destinationKey: routeKey },
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      );
+      // Return the SAME readable ack stream the legacy nav fallback uses ("Je
+      // vous y emmène." / "Taking you there.") instead of a raw JSON body with
+      // an empty `content`. The directive was already published above, so the
+      // bridge opens the page regardless; the user must still see a human-facing
+      // bubble in the chat, never the bare `{"navIntent":...}` JSON.
+      persistAssistantAckMessage({
+        persistence,
+        chatId,
+        turnId,
+        variant: "nav-fast-path",
+        text: buildNavShortcutAck(message),
+      });
+      return ackResponse(buildNavShortcutAck(message), chatId);
     }
   }
 
