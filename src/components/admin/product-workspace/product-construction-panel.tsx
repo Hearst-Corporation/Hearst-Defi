@@ -91,39 +91,39 @@ export function ProductConstructionPanel({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-(--ct-space-5)">
       {/* Auto-run status — the swarms run on their own as soon as the workspace
           opens; there is no preset to pick. A re-run link covers a transient
           fetch failure or a manual refresh. */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--ct-border)] bg-surface-card px-4 py-3">
+      <div className="flex flex-wrap items-center gap-(--ct-space-3) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-4) py-(--ct-space-3)">
         {loading ? (
-          <span className="flex items-center gap-2 text-xs text-[var(--ct-text-secondary)]">
+          <span className="flex items-center gap-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-secondary">
             <span
               aria-hidden
-              className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)] animate-pulse"
+              className="h-(--ct-space-1_5) w-(--ct-space-1_5) rounded-(--ct-radius-full) bg-[var(--ct-accent)] animate-pulse"
             />
             Running the construction swarms — Telegram · BTC · hashprice ·
             Monte-Carlo…
           </span>
         ) : draft ? (
-          <span className="text-xs text-[var(--ct-text-tertiary)]">
+          <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
             Report generated from live data ·{" "}
             <button
               type="button"
               onClick={() => void run()}
-              className="underline-offset-2 hover:underline text-[var(--ct-text-muted)]"
+              className="underline-offset-2 hover:underline ct-text-muted"
             >
               re-run
             </button>
           </span>
         ) : (
-          <span className="text-xs text-[var(--ct-text-tertiary)]">
+          <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
             live_read · fetches BTC + hashprice + Telegram + DeFi, computes a
             seeded Monte-Carlo · no write, no send, no deploy
           </span>
         )}
         {error ? (
-          <span className="text-xs text-[var(--ct-status-danger)]">
+          <span className="text-[length:var(--ct-text-xs)] ct-status-danger">
             {error} ·{" "}
             <button
               type="button"
@@ -137,9 +137,9 @@ export function ProductConstructionPanel({
       </div>
 
       {draft ? (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-(--ct-space-5)">
           {/* Actions — wizard hand-off (no DB write) + PDF export of the report. */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-(--ct-space-3)">
             <Link
               href={`/admin/vaults/new?prefill=${encodeURIComponent(
                 encodeVaultFormPrefill(constructionDraftToVaultForm(draft)),
@@ -154,7 +154,7 @@ export function ProductConstructionPanel({
             <Button variant="secondary" size="sm" onClick={() => downloadPdf()}>
               Open print view (PDF)
             </Button>
-            <span className="text-xs text-[var(--ct-text-tertiary)]">
+            <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
               Wizard hand-off carries ticker / APY range / allocations · no record
               created · the report below is written into the page and persisted to
               your draft.
@@ -169,12 +169,12 @@ export function ProductConstructionPanel({
             <button
               type="button"
               onClick={() => setShowRaw((v) => !v)}
-              className="text-xs text-[var(--ct-text-muted)] underline-offset-2 hover:underline"
+              className="text-[length:var(--ct-text-xs)] ct-text-muted underline-offset-2 hover:underline"
             >
               {showRaw ? "Hide" : "Show"} raw construction JSON
             </button>
             {showRaw ? (
-              <pre className="mt-2 max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-3 font-mono text-xs text-[var(--ct-text-muted)]">
+              <pre className="mt-(--ct-space-2) max-h-96 overflow-auto rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-page p-(--ct-space-3) mono text-[length:var(--ct-text-xs)] ct-text-muted">
                 {JSON.stringify(draft, null, 2)}
               </pre>
             ) : null}
