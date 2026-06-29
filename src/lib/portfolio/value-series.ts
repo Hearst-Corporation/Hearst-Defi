@@ -276,3 +276,159 @@ export function buildPortfolioValueSeries(args: {
 
 /** Expected minimum cadence for a healthy hourly feed (ms). */
 export const PORTFOLIO_VALUE_HOURLY_CADENCE_MS = HOUR_MS;
+
+// ── Chart presentation helpers ────────────────────────────────────────────────
+// Pure, deterministic, no I/O. These drive the hero chart's header + axis so the
+// subtitle can NEVER claim "12 months" while the x-axis shows a few days, and so
+// the chart honestly labels its own time window from the real point dates.
+//
+// Pattern absorbed (not copied) from the reference TimeSeriesChart: an explicit
+// padding model, niceTicks-style rounded value steps, and a single formatValue.
+// No external colours, no campaign/business logic, no third-party convention.
+
+const DAY_MS = 24 * HOUR_MS;
+
+/** Below this balance the account is a seed, not a mature institutional book. */
+export const PORTFOLIO_SEED_BALANCE_USDC = 1_000;
+
+export type PortfolioChartGranularity = "daily" | "monthly" | "empty";
+
+export interface PortfolioChartTick {
+  /** Index into the (filtered) point series the tick belongs to. */
+  index: number;
+  label: string;
+}
+
+export interface ResolvedPortfolioChartWindow {
+  /** Header subtitle, always coherent with the real span (never "12 months" for days). */
+  subtitle: string;
+  /** Window granularity, drives x-axis label format. */
+  granularity: PortfolioChartGranularity;
+  /** 4–6 x-axis ticks spread across the series, labelled for the granularity. */
+  xTicks: PortfolioChartTick[];
+  /** Days spanned by the series (0 when <2 points). */
+  spanDays: number;
+  /** True only when the data is genuinely live (real source AND a real span). */
+  isLive: boolean;
+  /** True when the chart is rendering fallback / mock data. */
+  isDemo: boolean;
+  /** True when the latest value is at or below the seed-balance threshold. */
+  isLowBalance: boolean;
+}
+
+/**
+ * Format a USDC value for the chart (header metric + y-axis ticks).
+ *   0 → "$0"   ·   11 → "$11"   ·   11.2 → "$11.20"
+ *   11_200 → "$11.2K"   ·   11_200_000 → "$11.2M"   ·   1_120_000_000 → "$1.1B"
+ * Whole dollars under $1k print without decimals; cents print with two.
+ */
+export function formatPortfolioCurrency(value: number): string {
+  if (!Number.isFinite(value)) return "$0";
+  const neg = value < 0;
+  const abs = Math.abs(value);
+  let body: string;
+  if (abs >= 1_000_000_000) body = `${(abs / 1_000_000_000).toFixed(1)}B`;
+  else if (abs >= 1_000_000) body = `${(abs / 1_000_000).toFixed(1)}M`;
+  else if (abs >= 1_000) body = `${(abs / 1_000).toFixed(1)}K`;
+  else if (Number.isInteger(abs)) body = `${abs}`;
+  else body = abs.toFixed(2);
+  return `${neg ? "-" : ""}$${body}`;
+}
+
+/** Date → tick label, formatted for the resolved granularity. */
+export function formatChartDateTick(
+  at: Date | number | string,
+  granularity: PortfolioChartGranularity,
+): string {
+  const d = at instanceof Date ? at : new Date(at);
+  if (granularity === "monthly") {
+    return d.toLocaleDateString("en-US", { month: "short" });
+  }
+  // daily / empty → "Jun 24"
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/** Evenly-spread tick indices across a series of `len` points (4–6 ticks). */
+function spreadTickIndices(len: number): number[] {
+  if (len <= 1) return len === 1 ? [0] : [];
+  const target = Math.min(6, Math.max(2, len));
+  const last = len - 1;
+  const out = new Set<number>();
+  for (let i = 0; i < target; i++) {
+    out.add(Math.round((i / (target - 1)) * last));
+  }
+  return [...out].sort((a, b) => a - b);
+}
+
+/**
+ * Resolve everything the hero chart header + axis need from the real series.
+ * The subtitle and x-axis granularity are derived from the actual span so they
+ * can never disagree.
+ *
+ * @param points  the real value series (≥0 points)
+ * @param source  loader truth — "live" plots as live, "fallback" plots as demo
+ */
+export function resolvePortfolioChartWindow(
+  points: readonly { at: Date | number | string; value: number }[],
+  source: "live" | "fallback",
+): ResolvedPortfolioChartWindow {
+  const isDemo = source === "fallback";
+
+  if (points.length < 2) {
+    return {
+      subtitle: "Net asset value · awaiting history",
+      granularity: "empty",
+      xTicks: [],
+      spanDays: 0,
+      isLive: false,
+      isDemo,
+      isLowBalance: false,
+    };
+  }
+
+  const firstAt = points[0]!.at;
+  const lastAt = points[points.length - 1]!.at;
+  const toMs = (a: Date | number | string): number =>
+    (a instanceof Date ? a : new Date(a)).getTime();
+  const spanDays = Math.max(0, (toMs(lastAt) - toMs(firstAt)) / DAY_MS);
+
+  // ≥ ~10 weeks of history reads as a trailing-months view; below that the axis
+  // is day-precise (otherwise every tick collapses to the same month name).
+  const granularity: PortfolioChartGranularity = spanDays >= 70 ? "monthly" : "daily";
+
+  let subtitle: string;
+  if (granularity === "monthly") {
+    const months = Math.round(spanDays / 30);
+    subtitle =
+      months >= 12
+        ? "Net asset value · trailing 12 months"
+        : `Net asset value · trailing ${months} months`;
+  } else if (spanDays >= 1) {
+    const days = Math.max(1, Math.round(spanDays));
+    subtitle = `Net asset value · last ${days} days`;
+  } else {
+    subtitle = "Net asset value · latest activity window";
+  }
+
+  const xTicks: PortfolioChartTick[] = spreadTickIndices(points.length).map(
+    (index) => ({
+      index,
+      label: formatChartDateTick(points[index]!.at, granularity),
+    }),
+  );
+
+  const latestValue = points[points.length - 1]!.value;
+  const isLowBalance = latestValue <= PORTFOLIO_SEED_BALANCE_USDC;
+  // Live only when real-sourced AND there is a genuine span to plot.
+  const isLive = !isDemo && spanDays > 0;
+
+  return {
+    subtitle,
+    granularity,
+    xTicks,
+    spanDays,
+    isLive,
+    isDemo,
+    isLowBalance,
+  };
+}
