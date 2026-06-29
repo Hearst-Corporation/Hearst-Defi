@@ -203,17 +203,19 @@ jobs:
         run: |
           set -e
           # After the soft reset, the fleet's net change is staged on the PR branch.
+          # No-diff is a clean success (nothing to fix); if/else avoids a mid-script
+          # exit that the login shell can turn into a spurious non-zero status.
           if git diff --cached --quiet; then
-            echo "→ No diff — no changes were necessary / no fix was produced."
-            exit 0
-          fi
-          git commit -q -m "nexus pr.fix: ${{ inputs.run_label }} (PR #${{ inputs.target_pr_number }})"
-          git push origin "HEAD:${{ inputs.target_head_ref }}"
-          echo "→ pushed fixes to ${{ inputs.target_head_ref }} (no new PR)"
-          if [ -n "${{ inputs.target_pr_number }}" ]; then
-            gh pr comment "${{ inputs.target_pr_number }}" \
-              --body "Nexus pr.fix run \`${{ inputs.run_label }}\` pushed fixes to \`${{ inputs.target_head_ref }}\`." \
-            || echo "::warning::could not comment on PR #${{ inputs.target_pr_number }}"
+            echo "→ No diff — no changes were necessary / no fix was produced. (success)"
+          else
+            git commit -q -m "nexus pr.fix: ${{ inputs.run_label }} (PR #${{ inputs.target_pr_number }})"
+            git push origin "HEAD:${{ inputs.target_head_ref }}"
+            echo "→ pushed fixes to ${{ inputs.target_head_ref }} (no new PR)"
+            if [ -n "${{ inputs.target_pr_number }}" ]; then
+              gh pr comment "${{ inputs.target_pr_number }}" \
+                --body "Nexus pr.fix run \`${{ inputs.run_label }}\` pushed fixes to \`${{ inputs.target_head_ref }}\`." \
+              || echo "::warning::could not comment on PR #${{ inputs.target_pr_number }}"
+            fi
           fi
         env:
           GH_TOKEN: ${{ github.token }}
