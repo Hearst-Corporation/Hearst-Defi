@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
 import { SegmentedControl } from "@/components/catalyst/segmented-control";
@@ -12,8 +12,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
+import {
+  ManufacturerMark,
+  ManufacturerWordmark,
+} from "@/components/admin/source/manufacturer-mark";
 import { cn } from "@/lib/cn";
+import type { Manufacturer } from "@/lib/telegram/manufacturer-catalog";
 import type { MachineRow } from "@/lib/telegram/read-machines";
+
+// Manufacturer group order on the table — Adrien's primary hardware first.
+const MANUFACTURER_ORDER: Manufacturer[] = [
+  "bitmain",
+  "microbt",
+  "bitdeer",
+  "canaan",
+  "bitaxe",
+  "other",
+];
+const TOTAL_COLS = 11;
 
 type CoolingFilter = "all" | "air" | "hydro" | "immersion";
 type SortKey =
@@ -55,23 +71,29 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
     asc: false,
   });
 
-  const view = useMemo(() => {
+  // Group by manufacturer (fixed order), then apply the active column sort
+  // WITHIN each group. Empty groups are dropped so we only render makers present
+  // in the filtered fleet.
+  const groups = useMemo(() => {
     const filtered =
       filter === "all" ? rows : rows.filter((r) => r.cooling === filter);
-    const sorted = [...filtered].sort((a, b) => {
-      const av = a[sort.key];
-      const bv = b[sort.key];
-      // nulls last regardless of direction
-      if (av === null && bv === null) return 0;
-      if (av === null) return 1;
-      if (bv === null) return -1;
-      const cmp =
-        typeof av === "number" && typeof bv === "number"
-          ? av - bv
-          : String(av).localeCompare(String(bv));
-      return sort.asc ? cmp : -cmp;
-    });
-    return sorted;
+    const sortRows = (list: MachineRow[]) =>
+      [...list].sort((a, b) => {
+        const av = a[sort.key];
+        const bv = b[sort.key];
+        if (av === null && bv === null) return 0;
+        if (av === null) return 1;
+        if (bv === null) return -1;
+        const cmp =
+          typeof av === "number" && typeof bv === "number"
+            ? av - bv
+            : String(av).localeCompare(String(bv));
+        return sort.asc ? cmp : -cmp;
+      });
+    return MANUFACTURER_ORDER.map((m) => ({
+      manufacturer: m,
+      rows: sortRows(filtered.filter((r) => r.manufacturer === m)),
+    })).filter((g) => g.rows.length > 0);
   }, [rows, filter, sort]);
 
   const toggleSort = (key: SortKey) =>
@@ -130,42 +152,62 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {view.map((r, i) => (
-            <TableRow key={`${r.model}-${r.thPerUnit}-${i}`} className={ROW}>
-              <TableCell
-                className="ct-metric-value min-w-[10rem] max-w-[18rem] truncate pl-5 font-medium text-[var(--ct-text-strong)]"
-                title={r.model}
-              >
-                {r.model}
-              </TableCell>
-              <TableCell>
-                <Badge color={COOLING_BADGE[r.cooling]} className="capitalize">
-                  {r.cooling}
-                </Badge>
-              </TableCell>
-              <TableCell className="ct-metric-caption uppercase">
-                {r.region === "usa" ? "USA" : "Chine"}
-              </TableCell>
-              <Num>{r.thPerUnit}</Num>
-              <Num muted={r.efficiencyJTh === null}>{r.efficiencyJTh ?? "—"}</Num>
-              <Num>${r.exWorksUsd.toLocaleString()}</Num>
-              <Num>${r.landedUsd.toLocaleString()}</Num>
-              <Num muted={r.capexUsdPerThDay === null}>{fmtUsd(r.capexUsdPerThDay, 5)}</Num>
-              <Num muted={r.energyUsdPerThDay === null}>{fmtUsd(r.energyUsdPerThDay, 5)}</Num>
-              <Num muted={r.totalCostUsdPerThDay === null}>{fmtUsd(r.totalCostUsdPerThDay, 5)}</Num>
-              <TableCell
-                className={cn(
-                  "pr-5 text-right font-semibold tabular-nums",
-                  r.marginUsdPerThDay === null
-                    ? "text-[var(--ct-text-muted)]"
-                    : r.marginUsdPerThDay >= 0
-                      ? "text-[var(--ct-accent)]"
-                      : "text-[var(--ct-status-danger)]",
-                )}
-              >
-                {fmtUsd(r.marginUsdPerThDay, 5)}
-              </TableCell>
-            </TableRow>
+          {groups.map((g) => (
+            <Fragment key={g.manufacturer}>
+              {/* Manufacturer group header — full-width row with the real
+                  wordmark (or brand name) + machine count. */}
+              <TableRow className="border-transparent">
+                <TableCell
+                  colSpan={TOTAL_COLS}
+                  className="bg-[var(--ct-surface-inset)] pl-5 pr-5 pt-4 pb-2"
+                >
+                  <ManufacturerWordmark
+                    manufacturer={g.manufacturer}
+                    count={g.rows.length}
+                  />
+                </TableCell>
+              </TableRow>
+              {g.rows.map((r, i) => (
+                <TableRow key={`${r.model}-${r.thPerUnit}-${i}`} className={ROW}>
+                  <TableCell
+                    className="ct-metric-value min-w-[12rem] max-w-[20rem] pl-5 font-medium text-[var(--ct-text-strong)]"
+                    title={r.model}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <ManufacturerMark manufacturer={r.manufacturer} />
+                      <span className="min-w-0 truncate">{r.model}</span>
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge color={COOLING_BADGE[r.cooling]} className="capitalize">
+                      {r.cooling}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="ct-metric-caption uppercase">
+                    {r.region === "usa" ? "USA" : "Chine"}
+                  </TableCell>
+                  <Num>{r.thPerUnit}</Num>
+                  <Num muted={r.efficiencyJTh === null}>{r.efficiencyJTh ?? "—"}</Num>
+                  <Num>${r.exWorksUsd.toLocaleString()}</Num>
+                  <Num>${r.landedUsd.toLocaleString()}</Num>
+                  <Num muted={r.capexUsdPerThDay === null}>{fmtUsd(r.capexUsdPerThDay, 5)}</Num>
+                  <Num muted={r.energyUsdPerThDay === null}>{fmtUsd(r.energyUsdPerThDay, 5)}</Num>
+                  <Num muted={r.totalCostUsdPerThDay === null}>{fmtUsd(r.totalCostUsdPerThDay, 5)}</Num>
+                  <TableCell
+                    className={cn(
+                      "pr-5 text-right font-semibold tabular-nums",
+                      r.marginUsdPerThDay === null
+                        ? "text-[var(--ct-text-muted)]"
+                        : r.marginUsdPerThDay >= 0
+                          ? "text-[var(--ct-accent)]"
+                          : "text-[var(--ct-status-danger)]",
+                    )}
+                  >
+                    {fmtUsd(r.marginUsdPerThDay, 5)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </Fragment>
           ))}
         </TableBody>
       </Table>
