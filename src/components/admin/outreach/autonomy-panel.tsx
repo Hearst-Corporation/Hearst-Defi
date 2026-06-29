@@ -67,13 +67,14 @@ export function OutreachAutonomyPanel({
   status: OutreachAutonomyStatus;
 }) {
   return (
-    // Stacked full-width — no columns, no holes. A compact autonomy strip on
-    // top, then the readiness ledger full-width below (rules in a 2-col grid so
-    // it doesn't run too tall). Two side-by-side columns of unequal height were
-    // what created the black hole; stacking removes it by construction.
+    // Flat content — NO inner boxes. This renders inside the AdminSectionCard
+    // "Autonomy & engagement" which already owns the frame; wrapping each zone
+    // in its own rounded/border/inset box was a card-in-card double-frame. The
+    // two zones (autonomy strip, readiness ledger) are now separated by a single
+    // hairline, the same way user pages stack sub-sections.
     <div className="flex flex-col gap-5">
       {/* Autonomy strip — one compact horizontal row: mode + guards + chips. */}
-      <div className="rounded-2xl border border-[var(--ct-border-soft)] bg-surface-inset p-5">
+      <div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <div className="flex items-center gap-2">
             <span className="ct-bento-label">Autonomy</span>
@@ -107,8 +108,9 @@ export function OutreachAutonomyPanel({
         )}
       </div>
 
-      {/* Readiness ledger — full width, rules in a 2-col grid to stay compact. */}
-      <div className="rounded-2xl border border-[var(--ct-border-soft)] p-5">
+      {/* Readiness ledger — full width, rules in a 2-col grid to stay compact.
+          Separated from the strip above by a hairline (no inner box). */}
+      <div className="border-t border-[var(--ct-border-soft)] pt-5">
         <div className="flex items-center justify-between">
           <span className="ct-bento-label">Readiness Ledger</span>
           <span className="ct-bento-label">System Check</span>

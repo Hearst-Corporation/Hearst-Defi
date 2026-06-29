@@ -107,7 +107,7 @@ export function AgentTemplateForm({
     >
       {/* Selected base agent — echoes the catalog card you arrived from. */}
       {entry && (
-        <div className="flex items-center gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
+        <div className="flex items-center gap-4">
           <span
             aria-hidden
             className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"

@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/admin-page-shell";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
 import { Badge } from "@/components/catalyst/badge";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import {
   Table,
   TableBody,
@@ -189,15 +190,12 @@ export default async function AgentsPage() {
         ariaLabel="Persona templates"
       >
           {templates.length === 0 ? (
-            <div className="p-5 lg:p-6">
-              <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-8 text-center">
-                <p className="ct-metric-value">No persona templates yet.</p>
-                <p className="ct-metric-caption">
-                  Pick a base agent above to create your first reusable persona —
-                  tone, language, and register.
-                </p>
-              </div>
-            </div>
+            <EmptySurface
+              variant="widget"
+              message="No persona templates yet."
+              detail="Pick a base agent above to create your first reusable persona — tone, language, and register."
+              className="min-h-32"
+            />
           ) : (
             <Table dense className={TABLE_WRAP}>
               <TableHead>
