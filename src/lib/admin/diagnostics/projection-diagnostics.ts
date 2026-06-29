@@ -149,7 +149,7 @@ export function runProjectionDiagnostics(): DiagnosticResult[] {
       sideEffect: "skipped",
       run: () =>
         skip(
-          "SKIPPED — calling runProjectionStudy is a DB-write (prisma.projectionStudyRun.create); not exercised without a rollback seam. It is a 'use server' action gated by requireAdmin, never in the chat tool registry.",
+          "SKIPPED — runProjectionStudy writes via the global prisma client (prisma.projectionStudyRun.create) and takes no tx, so the rollback seam cannot wrap the ACTION without a runtime refactor (out of scope). The Persistence suite proves the seam works for direct model writes. It is a 'use server' action gated by requireAdmin, never in the chat tool registry.",
         ),
     },
     {
