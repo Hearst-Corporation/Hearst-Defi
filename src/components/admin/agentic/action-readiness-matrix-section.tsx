@@ -7,7 +7,7 @@
 // No hardcoded values. Pure component.
 
 import { Fragment } from "react";
-import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type {
   ActionReadinessItem,
   ActionReadinessMatrix,
@@ -100,13 +100,7 @@ export function ActionReadinessMatrixSection({
   const itemsByTier = (tier: ActionReadinessTier) => items.filter((i) => i.tier === tier);
 
   return (
-    <AgenticGroup
-      id="action-readiness"
-      title="Actions & Gates"
-      count={items.length}
-      defaultOpen
-      note="Every platform action classified by autonomy tier. Green runs on its own; amber needs human confirmation; red never runs autonomously."
-    >
+    <div id="action-readiness" className="agentic-group-body min-w-0 border-t-0">
       <table className="agentic-table">
         <thead>
           <tr>
@@ -137,6 +131,6 @@ export function ActionReadinessMatrixSection({
           })}
         </tbody>
       </table>
-    </AgenticGroup>
+    </div>
   );
 }

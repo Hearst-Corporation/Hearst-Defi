@@ -5,7 +5,7 @@
 // Agents, Actions, Observability, Forbidden zone), each with a value + plain
 // meaning. No grid of cards, no hardcoded values. Pure component.
 
-import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { RouterObservabilitySummary } from "@/lib/agentic/observability/types";
 import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
@@ -103,12 +103,7 @@ export function AgenticTopologyMap({
   ];
 
   return (
-    <AgenticGroup
-      id="topology"
-      title="Topology"
-      count={rows.length}
-      note="How the platform is wired — router at the centre, guards and gates around it, forbidden zone at the edge."
-    >
+    <div id="topology" className="agentic-group-body min-w-0 border-t-0">
       <table className="agentic-table">
         <thead>
           <tr>
@@ -129,6 +124,6 @@ export function AgenticTopologyMap({
           ))}
         </tbody>
       </table>
-    </AgenticGroup>
+    </div>
   );
 }

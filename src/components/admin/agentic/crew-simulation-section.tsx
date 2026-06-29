@@ -94,13 +94,10 @@ export function CrewSimulationSection({
   if (!simulations || simulations.length === 0) return null;
 
   return (
-    <BentoPanel className="bg-transparent border-0 shadow-none gap-4">
-      <BentoHeader
-        className="px-0 pt-0"
-        title="Crew Simulation"
-        subtitle="What each crew would do — read-only simulation. No step executes; no tool is called."
-        trailing={<Tag tone="danger">executable: false</Tag>}
-      />
+    <div className="flex min-w-0 flex-col gap-4">
+      <div className="flex items-center justify-end">
+        <Tag tone="danger">executable: false</Tag>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {simulations.map(
@@ -191,6 +188,6 @@ export function CrewSimulationSection({
           },
         )}
       </div>
-    </BentoPanel>
+    </div>
   );
 }

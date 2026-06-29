@@ -25,10 +25,13 @@ const NO_WRITE_CONTROLS = (html: string) => {
 };
 
 describe("ActionReadinessMatrixSection", () => {
-  it("renders heading and section", () => {
+  it("renders the table body (heading now lives in the canon section card)", () => {
     const html = render(MATRIX);
-    expect(html).toContain("Actions");
-    expect(html).toContain("Gates");
+    // Canonized 2026-06-29: the "Actions & Gates" heading is provided by the
+    // parent AdminSectionCard. This frameless body owns the table — assert on
+    // the column headers it still renders.
+    expect(html).toContain(">Action<");
+    expect(html).toContain(">Gate<");
     NO_WRITE_CONTROLS(html);
   });
 

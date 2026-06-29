@@ -196,11 +196,23 @@
    token family (success/warning/danger/info) + the single accent --ct-accent.
    ============================================================================= */
 
-/* --- page shell: a single vertical record stack ------------------------------ */
+/* --- page shell: a single vertical record stack ------------------------------
+   Canonized 2026-06-29: the tower is now a plain full-width admin flow — the
+   layout (flex-col + gap-5) comes from utilities on the orchestrator so it
+   matches every other admin page. This rule only guards against grid/flex
+   blowout so wide agentic tables shrink and scroll locally. */
 .agentic-tower {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
+  min-width: 0;
+}
+
+/* Frameless section bodies: when an agentic table/body sits directly inside a
+   canon AdminSectionCard, the card header rule already separates it, so it
+   drops its own top border and must be able to shrink (local scroll on wide). */
+.agentic-group-body {
+  min-width: 0;
+}
+.agentic-group-body.border-t-0 {
+  border-top: 0;
 }
 
 /* --- status line (replaces the hero box): one row of inline facts ------------ */

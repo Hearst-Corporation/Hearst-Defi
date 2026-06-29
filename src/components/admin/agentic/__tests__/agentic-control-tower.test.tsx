@@ -108,7 +108,8 @@ describe("AgenticCapabilitiesBoard", () => {
 describe("AgenticAgentsOverview", () => {
   const html = renderToStaticMarkup(<AgenticAgentsOverview controlCenter={CC} />);
   it("groups agents by domain (sub-header rows), not 22 equal cards", () => {
-    expect(html).toContain("Agents &amp; Crews");
+    // Canonized 2026-06-29: the "Agents & Crews" heading is provided by the
+    // parent AdminSectionCard; this frameless body owns the domain groups.
     expect(html).toContain("agentic-table-subhead");
     expect(html).toContain("Compliance");
     expect(html).toContain("Outreach");
@@ -125,7 +126,8 @@ describe("AgenticSafetyBoundary", () => {
     <AgenticSafetyBoundary controlCenter={CC} matrix={MATRIX} />,
   );
   it("states the hard limits in plain language", () => {
-    expect(html).toContain("Safety Boundary");
+    // Canonized 2026-06-29: the "Safety Boundary" heading is provided by the
+    // parent AdminSectionCard; the pillars (body) still state the hard limits.
     expect(html).toContain("Nothing executes here");
     expect(html).toContain("never autonomous");
     expect(html.toLowerCase()).toContain("human");

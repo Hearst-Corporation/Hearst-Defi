@@ -6,7 +6,6 @@
 // cards. No hardcoded colour outside the canon (--ct-accent). Pure component.
 
 import { Fragment } from "react";
-import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import type {
   AgenticControlCenterData,
   AgenticInventoryItem,
@@ -105,11 +104,10 @@ export function AgenticAgentsOverview({
   ).length;
 
   return (
-    <BentoPanel>
-      <BentoHeader
-        title="Agents & Crews"
-        subtitle={`${inventory.length} units · ${domains.length} domains · ${inventory.length - writeCount} read-only · ${gatedCount} gated write${gatedCount !== 1 ? "s" : ""}.`}
-      />
+    <div className="flex min-w-0 flex-col">
+      <p className="ct-metric-caption border-b border-[var(--ct-border-soft)] px-5 py-3">
+        {`${inventory.length} units · ${domains.length} domains · ${inventory.length - writeCount} read-only · ${gatedCount} gated write${gatedCount !== 1 ? "s" : ""}.`}
+      </p>
 
       <div className="grid grid-cols-1 gap-4 p-5 lg:grid-cols-2">
         {domains.map((domain) => {
@@ -143,6 +141,6 @@ export function AgenticAgentsOverview({
           );
         })}
       </div>
-    </BentoPanel>
+    </div>
   );
 }
