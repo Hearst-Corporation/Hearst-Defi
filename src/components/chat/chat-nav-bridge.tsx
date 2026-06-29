@@ -115,7 +115,7 @@ export function shouldScheduleNextPoll(
  *
  * `current` is the live location as pathname + search (e.g.
  * "/admin/product-workspace?objective=foo"). Both inputs are parsed leniently;
- * a malformed target falls back to a plain string compare.
+ * a hash fragment is ignored and a malformed target falls back to false.
  */
 export function isSameDestination(target: string, current: string): boolean {
   if (target === current) return true;
