@@ -84,29 +84,22 @@ cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ---
 
-### fix/proof-full-canon — MISSION proof-center/full DS canon
-Owner: Claude Opus — Rebuild /proof-center/full on the admin canon (kill cage-in-cage)
-Branch: fix/proof-full-canon
-Worktree: ../connect-proof-full
+### fix/machine-logo-visible — manufacturer logo chip
+Owner: Claude Opus — Machine manufacturer logos on a light chip (visibility)
+Branch: fix/machine-logo-visible
+Worktree: ../connect-logo-bg
 Started: 2026-06-29
 Status: active
 
-Goal: the Full Log page (/admin/proof-center/full AND /(product)/proof-center/full,
-shared layout) wraps each block in BentoPanel (ct-glass-panel) that then CONTAINS
-section bg-surface-card / ct-card flat children → cage-in-cage. Rebuild on the
-canon: AdminSectionCard at a single level (header + flat body), no glass wrapper
-around canon sections, flatten the event-timeline inner Card.
+Goal: the black Bitmain ant logo was invisible on the dark table. Put every
+manufacturer logo on a light chip (white background, no tint of the artwork) so
+dark/transparent logos stay visible. Single-file visual tweak.
 
 Scope:
-- src/components/proof-center/proof-center-full-sections.tsx (BentoSection → canon)
-- src/components/proof-center/contracts-audit-trail.tsx (3 sections → AdminSectionCard)
-- src/components/proof-center/event-timeline.tsx (drop inner flat Card when sectionLed)
-- possibly src/components/proof-center/proof-center-full-log-layout.tsx
+- src/components/admin/source/manufacturer-mark.tsx (logo wrapped in light chip)
 
-STOP: never touches the loaders/data (full-log-loader), the on-chain reads,
-governance state machine, Prisma/migrations, server actions, chat/nav/router,
-cockpit.css, #146. UI/DS/layout only. Keep the shared product+admin variants both
-working; do not break the proof-center shell-contract guard test.
+STOP: never touches data/loaders/classification/mining/APY/Prisma/server-actions/
+chat-nav/cockpit.css/#146. Pure visual.
 
 ---
 
