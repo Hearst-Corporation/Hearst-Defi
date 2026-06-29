@@ -129,8 +129,8 @@ async function main() {
     const startValue = PRINCIPAL;
     const dailyStep = (value - startValue) / DAYS_OF_NAV;
 
-    /** UTC midnight `d` days before today. */
-    function utcMidnightDaysAgo(d: number): Date {
+    /** UTC 16:00 `d` days before today (stable, one row per calendar day). */
+    function utcDayPoint(d: number): Date {
       const ref = new Date(Date.now() - d * DAY_MS);
       return new Date(
         Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), ref.getUTCDate(), 16, 0, 0, 0),
@@ -139,8 +139,8 @@ async function main() {
 
     await prisma.investorNavSnapshot.deleteMany({ where: { investorId } });
     for (let d = DAYS_OF_NAV; d >= 0; d--) {
-      const at = utcMidnightDaysAgo(d);
-      // Deterministic ±0.15% wobble so the curve breathes without lying.
+      const at = utcDayPoint(d);
+      // Deterministic ±0.3% wobble so the curve breathes without lying.
       const wobble = (((d * 53) % 7) - 3) / 1000;
       const dayValue =
         d === 0
