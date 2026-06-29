@@ -62,7 +62,25 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-> Aucun lock actif. Dernière intégration : HC-7631 (PR #198) mergée.
+### feat/projection-methodology-panel
+Owner: Claude Opus — MISSION HC-7631 follow-up (methodology panel)
+Branch: feat/projection-methodology-panel
+Worktree: principal (integration tree)
+Started: 2026-06-29
+Status: active
+
+Goal: surface the CONFIGURED company assumptions + methodology version inside the
+Projection handoff block (read-only) so the admin reviews them before Run Study.
+Pure view-model reading getProjectionCompanyAssumptions — NO LLM, NO fetch, NO DB,
+NO business number invented, NO slider prefill, NO auto-run.
+
+Scope:
+- src/lib/projection/methodology-panel.ts (new pure view-model)
+- src/components/admin/projection/projection-handoff.tsx (render the panel)
+- tests under src/lib/projection/__tests__ + src/app/admin/projection/__tests__
+
+STOP: never touches engine/data/telegram/prisma/portfolio/payments/vaults/outreach/
+chat-guard/cockpit.css. Never invents a business number. Never adds an auto-run.
 
 ---
 
