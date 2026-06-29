@@ -6,7 +6,7 @@ import {
   BentoLabel,
   BentoPanel,
 } from "@/components/catalyst/bento";
-import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
 import type {
@@ -54,10 +54,12 @@ export function SystemReadinessModule({
         }
       />
 
-      {/* Vault mode + Oracle freshness as the canon KPI strip — full-width,
-          hairline-separated tiles welded under the header, like every other
-          admin page. Values stay neutral white (one-accent colour discipline). */}
-      <DashboardKpiStrip kpis={statsToKpis(view.stats)} />
+      {/* Vault mode + Oracle freshness as the CANON KPI strip — via
+          AdminKpiStripPanel (embedded) so it gets the grey inset surface,
+          centred cells, and welded bottom hairline, exactly like the strip on
+          /admin/customers and /admin/vaults. A bare DashboardKpiStrip is
+          transparent + left-aligned, which is the bug this replaces. */}
+      <AdminKpiStripPanel kpis={statsToKpis(view.stats)} embedded />
 
       <div className="flex flex-col gap-5 p-5">
         {/* Verdict — dominant operator read: dot + posture + uptime strip. */}
