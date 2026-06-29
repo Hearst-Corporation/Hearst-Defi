@@ -135,22 +135,22 @@ function RailItem({ item, pathname, active }: RailItemProps) {
       title={item.label}
       className={cn(
         "group flex w-full flex-col items-center gap-1.5 rounded-xl py-2 transition-colors duration-150",
-        // Label colour — single accent green. Active label reads strongest;
-        // idle/hover stay green (no grey faint state).
+        // Selected = accent-strong green label. Unselected = white label
+        // (filled grey tile button below).
         isActive
           ? "text-[var(--ct-accent-strong)]"
-          : "text-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)] hover:text-[var(--ct-accent-strong)]",
+          : "text-[var(--ct-text-strong)]",
       )}
     >
-      {/* Solid green button tile. Idle = filled muted-green (accent on bg-deep)
-          with a green icon; active = full accent fill with black (bg-deep) icon.
-          One green only — no transparent/faint state. */}
+      {/* Tile button. Selected = full accent green with black (bg-deep) icon.
+          Unselected = filled GREY tile (surface-inset, like the background)
+          with a WHITE icon; hover lifts the grey slightly. */}
       <span
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-150",
           isActive
             ? "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]"
-            : "border-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_12%,var(--ct-bg-deep))] text-[var(--ct-accent-strong)] group-hover:border-[color-mix(in_srgb,var(--ct-accent)_45%,transparent)] group-hover:bg-[color-mix(in_srgb,var(--ct-accent)_24%,var(--ct-bg-deep))]",
+            : "border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] text-[var(--ct-text-strong)] group-hover:border-[var(--ct-border)] group-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,var(--ct-surface-inset))]",
         )}
       >
         {Icon ? <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} /> : null}
