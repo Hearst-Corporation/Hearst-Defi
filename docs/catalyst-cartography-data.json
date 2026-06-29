@@ -904,6 +904,12 @@
       "file": "scripts/ds-convergence-guard.mjs",
       "enforces": "repo-wide: ui/* sealed to 3 helpers · no raw #A7FB90 in tsx (allowlist: canvas/SVG fallbacks + brand-constants) · no exact-token text-[Npx] on product/vaults/proof-center/admin",
       "status": "GREEN 0 hits — `pnpm ds:guard:convergence` / `ds:guard:all`"
+    },
+    {
+      "name": "table-gutter-guard",
+      "file": "src/lib/ds/__tests__/table-gutter-guard.test.ts",
+      "enforces": "Destructive table gutter patterns (first/last --gutter, sm:first:pl-1, sm:last:pr-1, -mx-(--gutter)) live ONLY in the catalyst/table primitive; symmetric first:pl-5/last:pr-5 contract; reports table-fixed usage",
+      "status": "active"
     }
   ],
   "guardsMissing": [
@@ -1075,29 +1081,115 @@
       "date": "2026-06-29",
       "ref": "Mission #055 — Admin Visual Frame Unification",
       "note": "Owner screenshots showed admin pages still didn't LOOK the same despite being on the #051/#054 start-pattern: Investors table cropped right, frame width jumped with the chat rail, forms read as isolated slabs. Root cause = flexbox min-width:auto on AdminSectionCard (a flex item) — a wide Catalyst table's intrinsic width won, the card refused to shrink, the frame overflowed the slot. Fix at the SHARED PRIMITIVE so it lands on every admin page at once: min-w-0 on the page frame (admin-canon-page-frame) and on every AdminSectionCard (admin-canon-first-block), plus a named CSS contract in src/app/admin/admin-canon.css (page-frame / first-block / table-surface / form-surface, tokens only). The Catalyst table already had overflow-x-auto; min-w-0 is what lets it scroll locally instead of bleeding. feedback + vaults/[id]/edit form bodies → admin-canon-form-surface (framed card body, not a black slab). New guard src/app/admin/__tests__/admin-visual-frame.test.ts locks the CSS contract + the primitive min-w-0 and lists exemptions. Shipped: PR #222 (frame), PR #223 (outreach full-width — 50/50 split removed), PR #219 (#054 cartography). Mission #057 merged all three to main and ran the real browser visual QA (see report). No re-wrap churn, no internal refactor; engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #059 — Global Table System (gutter contract)",
+      "note": "The Catalyst table primitive (src/components/catalyst/table.tsx) owned a contradictory gutter system: the surface used a -mx-(--gutter) negative-margin bleed (undefined var) and the first/last cells used first:pl-(--gutter) / last:pr-(--gutter) then OVERRODE them to sm:first:pl-1 / sm:last:pr-1 (4px) on every sm+ screen. Result: edge columns glued to the card frame, left/right asymmetry, eaten margins — on EVERY one of the 13 Catalyst-table pages (admin customers/outreach/agents/audit/vaults/distributions/marketplace + user portfolio/positions/distributions/[positionId] + governance allowlist). Fix at the SHARED PRIMITIVE so it lands everywhere at once: surface = min-w-0 + overflow-x-auto (local scroll, no negative margin, no responsive padding dance); cells = px-4 with a symmetric first:pl-5 / last:pr-5 20px edge gutter so the first column lines up with the card header text and the last column breathes the same on the right. The destructive override is removed. Pages keep their (now redundant, identical-value) first:pl-5/last:pr-5 compensation — harmless, no double-pad, no churn. New guard src/lib/ds/__tests__/table-gutter-guard.test.ts blocks the destructive patterns (first:pl-(--gutter, last:pr-(--gutter, sm:first:pl-1, sm:last:pr-1, -mx-(--gutter)) outside the primitive allowlist and reports table-fixed users (5 custom admin widgets, allowed). Validation: typecheck green; ds-authority-lock + table-gutter-guard + all catalyst tests + admin/portfolio page tests green (289). Auth-gated visual QA deferred (fresh worktree 307-redirects, Playwright browser locked) — verified via SSR render of the primitive instead. Custom <table> widgets (agentic console, monitoring, rebalance, etc.) were NOT migrated into the primitive (out of the destructive-gutter scope; STOP: refactor too broad). engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
     }
   ],
   "adminVisualFrame": {
     "mission": "055",
     "rootCause": "flexbox min-width:auto on AdminSectionCard (flex item) — wide Catalyst table intrinsic width wins, card won't shrink, frame overflows the slot and crops right (worse with chat rail open).",
     "fix": "min-w-0 on the shared primitive (page frame + every section card) + named CSS contract in src/app/admin/admin-canon.css.",
-    "canonClasses": ["admin-canon-page-frame", "admin-canon-first-block", "admin-canon-table-surface", "admin-canon-form-surface"],
-    "primitivesChanged": ["src/components/admin/admin-page-shell.tsx", "src/app/admin/admin-canon.css", "src/app/admin/layout.tsx"],
-    "formSurfaceApplied": ["feedback", "vaults/[id]/edit"],
+    "canonClasses": [
+      "admin-canon-page-frame",
+      "admin-canon-first-block",
+      "admin-canon-table-surface",
+      "admin-canon-form-surface"
+    ],
+    "primitivesChanged": [
+      "src/components/admin/admin-page-shell.tsx",
+      "src/app/admin/admin-canon.css",
+      "src/app/admin/layout.tsx"
+    ],
+    "formSurfaceApplied": [
+      "feedback",
+      "vaults/[id]/edit"
+    ],
     "outreachFullWidth": "PR #223 — removed the lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)] split; Lead engine now a full-width block.",
     "guard": "src/app/admin/__tests__/admin-visual-frame.test.ts",
-    "exempted": ["dashboard (cockpit)", "/admin (redirect)", "proof-center", "proof-center/full", "agent-canvas/[canvasId]", "vaults/new (wizard)", "agentic (control-tower cockpit, PR #81)"],
+    "exempted": [
+      "dashboard (cockpit)",
+      "/admin (redirect)",
+      "proof-center",
+      "proof-center/full",
+      "agent-canvas/[canvasId]",
+      "vaults/new (wizard)",
+      "agentic (control-tower cockpit, PR #81)"
+    ],
     "mergedTo": "main via PR #222 (frame), #223 (outreach full-width), #219 (#054 cartography) — Mission #057.",
-    "untouched": ["engine", "projection calculations", "outreach runtime", "chat/nav runtime", "server actions", "HcValueChart", "Prisma/migrations", "#146"]
+    "untouched": [
+      "engine",
+      "projection calculations",
+      "outreach runtime",
+      "chat/nav runtime",
+      "server actions",
+      "HcValueChart",
+      "Prisma/migrations",
+      "#146"
+    ]
   },
   "adminVisualCanon": {
     "mission054": "Re-validated and confirmed SHIPPED via PR #218 / merge d05f618c. Owner criterion met: 10 admin pages read as one system in <2s (canon header + page-canon-rule + welded first block + no floating KPI + no bare grid + no naked custom shell). The 3 leftIntentional are double-frame avoidances, not divergences; dashboard cockpit exempt and never forced.",
     "canonTool": "AdminSectionCard (= the welded section of /admin/customers)",
     "guard": "src/app/admin/__tests__/admin-canon-start-pattern.test.ts",
-    "counts": { "compliant": 19, "adjusted": 14, "leftIntentional": 3, "exempted": 7 },
-    "compliant": ["audit", "onboarding-test", "agents", "agents/new", "governance/propose", "governance/proposal/[id]", "vaults", "vaults/[id]", "outreach", "outreach/compose", "outreach/[campaignId]", "outreach/prospects/[id]", "product-workspace", "spec", "spec/[slug]", "feedback", "marketplace", "design-system", "customers (canon ref)"],
-    "adjusted": ["monitoring (KPI soldered)", "governance (KPI soldered)", "signals (KPI soldered)", "source (bare grid framed)", "proofs (bare section framed)", "roadmap (RoadmapBoard wrapped)", "investor-memo (MemoShell wrapped)", "projection (source-truth wrapped)", "projection/preview (report-source wrapped)", "scenario-lab (LabShell wrapped, inner frame neutralized)", "agents/[id] (BentoPanel->AdminSectionCard)", "customers/[id] (identity->AdminSectionCard)", "vaults/[id]/edit (VaultForm framed)", "vault-admin-kpi-strip (welded into one canon card)"],
-    "leftIntentional": ["security (two welded AdminSectionCards, no outer frame)", "governance/allowlist (AllowlistBoard = framed BentoPanels; wrap would cage-in-cage)", "distributions (DistributionForm renders its own canon Card)"],
-    "exempted": ["dashboard (cockpit)", "/admin (redirect)", "proof-center", "proof-center/full", "agent-canvas/[canvasId]", "vaults/new (wizard)", "agentic (covered by PR #81)"]
+    "counts": {
+      "compliant": 19,
+      "adjusted": 14,
+      "leftIntentional": 3,
+      "exempted": 7
+    },
+    "compliant": [
+      "audit",
+      "onboarding-test",
+      "agents",
+      "agents/new",
+      "governance/propose",
+      "governance/proposal/[id]",
+      "vaults",
+      "vaults/[id]",
+      "outreach",
+      "outreach/compose",
+      "outreach/[campaignId]",
+      "outreach/prospects/[id]",
+      "product-workspace",
+      "spec",
+      "spec/[slug]",
+      "feedback",
+      "marketplace",
+      "design-system",
+      "customers (canon ref)"
+    ],
+    "adjusted": [
+      "monitoring (KPI soldered)",
+      "governance (KPI soldered)",
+      "signals (KPI soldered)",
+      "source (bare grid framed)",
+      "proofs (bare section framed)",
+      "roadmap (RoadmapBoard wrapped)",
+      "investor-memo (MemoShell wrapped)",
+      "projection (source-truth wrapped)",
+      "projection/preview (report-source wrapped)",
+      "scenario-lab (LabShell wrapped, inner frame neutralized)",
+      "agents/[id] (BentoPanel->AdminSectionCard)",
+      "customers/[id] (identity->AdminSectionCard)",
+      "vaults/[id]/edit (VaultForm framed)",
+      "vault-admin-kpi-strip (welded into one canon card)"
+    ],
+    "leftIntentional": [
+      "security (two welded AdminSectionCards, no outer frame)",
+      "governance/allowlist (AllowlistBoard = framed BentoPanels; wrap would cage-in-cage)",
+      "distributions (DistributionForm renders its own canon Card)"
+    ],
+    "exempted": [
+      "dashboard (cockpit)",
+      "/admin (redirect)",
+      "proof-center",
+      "proof-center/full",
+      "agent-canvas/[canvasId]",
+      "vaults/new (wizard)",
+      "agentic (covered by PR #81)"
+    ]
   }
 }
