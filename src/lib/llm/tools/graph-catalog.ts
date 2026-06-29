@@ -22,6 +22,7 @@ const READ_GRAPH_LABELS: Record<AdminReadToolId, string> = {
   export_briefing_pack: "Briefing pack",
   outreach_list_prospects: "List prospects",
   outreach_stats: "Outreach stats",
+  run_product_construction: "Product construction",
 };
 
 const WRITE_GRAPH_LABELS: Record<AdminWriteToolId, string> = {

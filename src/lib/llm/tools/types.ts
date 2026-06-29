@@ -14,6 +14,8 @@ export const ADMIN_READ_TOOL_IDS = [
   // Outreach, folded into the unified chat — read side (no side effects).
   "outreach_list_prospects",
   "outreach_stats",
+  // Live-read product-construction swarms (fetch + compute, never write/deploy).
+  "run_product_construction",
 ] as const;
 
 export type AdminReadToolId = (typeof ADMIN_READ_TOOL_IDS)[number];
