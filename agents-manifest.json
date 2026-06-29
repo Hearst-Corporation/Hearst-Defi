@@ -1,0 +1,1 @@
+{"schemaVersion": 1, "model": "sonnet", "agents": [{"index": 0, "role": "README.md", "model": "sonnet", "status": "done", "filesTouched": 1}, {"index": 1, "role": "prisma", "model": "sonnet", "status": "done", "filesTouched": 1}]}
