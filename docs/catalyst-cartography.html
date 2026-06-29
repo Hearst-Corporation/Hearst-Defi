@@ -152,12 +152,12 @@
 <body>
 
 <header class="cover"><div class="wrap">
-  <p class="kicker">Hearst Connect · Design System · <span style="color:var(--ct-accent)">Mission #049 — 100% TOKENIZED EVERYWHERE</span></p>
+  <p class="kicker">Hearst Connect · Design System · <span style="color:var(--ct-accent)">Mission #050 — 100% CATALYST, VERIFIED &amp; CI-LOCKED</span></p>
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
-  <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. Zero raw Tailwind colour in UI code; convergence is sealed by a 6-rule guard enforced in the blocking CI job.</p>
+  <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. <code>src/components/ui</code> is sealed to 3 non-visual helpers; <code>src/components/catalyst</code> is the single UI source. Mission #050 re-verified the convergence at <code>dadcbb7d</code>: both DS guards green, no new work warranted.</p>
   <div class="meta-row">
-    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #049 (lot15 + sync)</span>
-    <span class="chip"><b>head</b> <code>d8951798</code> · status <code>100% TOKENIZED</code></span>
+    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #050 (verification)</span>
+    <span class="chip"><b>head</b> <code>dadcbb7d</code> · status <code>100% CATALYST — VERIFIED</code></span>
     <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 27)</span>
     <span class="chip"><span class="dot green"></span><b>52</b> catalyst files · all tokenized</span>
     <span class="chip"><span class="dot green"></span>0 raw Tailwind colour in UI</span>
@@ -446,7 +446,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #049 (lot15 + sync) · head <code class="mono">d8951798</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #050 (verification pass) · head <code class="mono">dadcbb7d</code> · status <code class="mono">100% CATALYST — VERIFIED &amp; CI-LOCKED</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -517,16 +517,16 @@ window.CARTO = {
 // catalyst / ui / accent / typo / his / guards / roadmap / log pulled from inline JSON below
 window.CARTO_DATA = {
   "meta": {
-    "mission": "049",
+    "mission": "050",
     "generatedAt": "2026-06-29",
-    "head": "d8951798",
-    "originMain": "d8951798",
-    "status": "100% TOKENIZED — EVERYWHERE",
-    "lastPR": "cartography resync chrome/meta/summary to lot15 state (#209)",
-    "subAgents": 16,
+    "head": "dadcbb7d",
+    "originMain": "dadcbb7d",
+    "status": "100% TOKENIZED — EVERYWHERE (verified, CI-locked)",
+    "lastPR": "Mission #050 — Catalyst 100% hardening verification (fix/catalyst-100-clean)",
+    "subAgents": 0,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted. 100% --ct-* tokens on every UI surface, CI-enforced.",
-    "note": "100% TOKENIZED EVERYWHERE — through lot15 the Tailwind-Plus catalyst primitives (badge/button/combobox/listbox/sidebar/select/navbar/inputs/dropdown/layouts/dialog/alert/table/forms) were tokenized to --ct-* (~300 swaps, variant keys + [--btn-*] plumbing preserved). 0 raw Tailwind colour in UI code (catalyst included); only legit keeps remain (on-colour text-white on solid variants, unused decorative button ramps with no --ct equiv, email/route HTML inline hex). ds-convergence-guard = 6 rules (ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color), enforced in the blocking CI job (#207). typecheck clean, eslint 0, next build compiles, all guards green."
+    "note": "Mission #050 = VERIFICATION PASS (no new code). Re-ran both DS guards at origin/main dadcbb7d — both GREEN: ds-hardcode-guard (8 witness files, 0 hits) + ds-convergence-guard (6 repo-wide rules, 0 hits), both enforced in the blocking CI job (#207). src/components/ui sealed to 3 non-visual helpers; src/components/catalyst is THE single UI source; 0 autonomous visual components in ui/. The 100% convergence was reached by Mission #049 lots 8–15: through lot15 the Tailwind-Plus catalyst primitives (badge/button/combobox/listbox/sidebar/select/navbar/inputs/dropdown/layouts/dialog/alert/table/forms) were tokenized to --ct-* (~300 swaps, variant keys + [--btn-*] plumbing preserved); 0 raw Tailwind colour in UI code (catalyst included). Only documented intentional keeps remain (on-colour text-white on solid variants, brand-constants/catalyst-accent #A7FB90 source-of-truth, value-area-plot SVG paint, non-tokenizable px 20/24/28/32px + 7px chart labels, email/route HTML inline hex). #050 added no new guards, no deletions, no tokenization — none were warranted. #146 untouched."
   },
   "summary": {
     "pagesTotal": 72,
@@ -1572,6 +1572,11 @@ window.CARTO_DATA = {
       "date": "2026-06-29",
       "ref": "DirectSendForm — ConfirmDialog HITL wiring",
       "note": "direct-send-form.tsx: added ConfirmDialog two-step confirmation gate before sending a real external email (mirrors SendCampaignButton). The send button is now type=button (opens dialog only, never fires the server action directly). New test file src/components/admin/outreach/__tests__/direct-send-form.test.tsx (5 assertions: type=button invariant, no-send-on-render, closed dialog renders nothing, open dialog surfaces recipient/subject/external-email warning + confirm/cancel). Guard wiring: the form is CATALYST_READY — ConfirmDialog imported directly from catalyst/confirm-dialog."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #050 — Catalyst 100% Hardening (verification pass)",
+      "note": "Re-verified the Catalyst convergence at origin/main dadcbb7d. Finding: the repo is ALREADY at 100% Catalyst — lots 8–15 (Mission #049) + the authority lock (#037) completed every objective this lot set out to harden. src/components/ui is sealed to the 3 sanctioned non-visual helpers (provenance-badge + toaster + client-toaster) — 0 autonomous visual components; all UI consumers import src/components/catalyst directly. Both guards re-run GREEN on current HEAD: ds-hardcode-guard (8 witness files, 0 hits) and ds-convergence-guard (6 repo-wide rules: ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color, 0 hits), both enforced in the blocking Lint & Typecheck CI job (#207). No new tokenization, no deletions, no guard additions were warranted: the requested guards already exist and pass, the requested purge is already done, and the residual raw values are the documented intentional keeps (brand-constants.ts + catalyst-accent.ts source-of-truth #A7FB90, value-area-plot.tsx SVG paint, non-tokenizable px sizes 20/24/28/32px + 7px chart micro-labels, and comment-only mentions of removed patterns). Verifying-to-execute confirmed nothing left to execute; doc-only update of the cartography HEAD/mission pointer + this log entry. #146 (purge-css-final) untouched."
     }
   ]
 };

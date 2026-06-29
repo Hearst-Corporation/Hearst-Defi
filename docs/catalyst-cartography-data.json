@@ -1,15 +1,15 @@
 {
   "meta": {
-    "mission": "049",
-    "generatedAt": "2026-06-28",
-    "head": "<lot9-pending>",
-    "originMain": "c463155c",
-    "status": "100% TOKENIZED — EVERYWHERE",
-    "lastPR": "lot15 catalyst primitives 100% (fix/catalyst-lot15)",
+    "mission": "050",
+    "generatedAt": "2026-06-29",
+    "head": "dadcbb7d",
+    "originMain": "dadcbb7d",
+    "status": "100% CATALYST — VERIFIED & CI-LOCKED",
+    "lastPR": "Mission #050 — Catalyst 100% hardening verification (fix/catalyst-100-clean)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
-    "note": "CONVERGENCE COMPLETE — Catalyst is the single UI source; ui/ reduced to 3 files (provenance-badge + 2 helpers); 24 dead façades deleted; 165 consumers import catalyst directly | lot8: 44 text-[Npx]+13 zinc→token, 3 missing guards shipped."
+    "note": "Mission #050 = VERIFICATION PASS (no new code). Re-ran both DS guards at origin/main dadcbb7d — both GREEN: ds-hardcode-guard (8 witness files, 0 hits) + ds-convergence-guard (6 repo-wide rules: ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color, 0 hits), both enforced in the blocking CI job (#207). src/components/ui sealed to 3 non-visual helpers; src/components/catalyst is THE single UI source (0 autonomous visual components in ui/). The 100% convergence was reached by Mission #049 lots 8–15; #050 confirmed it holds at current main and warranted no new tokenization, no deletions, no guards. Residual raw values are documented intentional keeps (brand-constants/catalyst-accent #A7FB90 source-of-truth, value-area-plot SVG paint, non-tokenizable px 20/24/28/32px + 7px chart labels, email/route inline hex, comment-only mentions). #146 untouched."
   },
   "summary": {
     "pagesTotal": 72,
@@ -1055,6 +1055,11 @@
       "date": "2026-06-29",
       "ref": "Mission #049 lot15 — 100% EVERYWHERE",
       "note": "Catalyst primitives tokenized — 16-agent fan-out (15 catalyst zones + 1 non-catalyst sweep, isolated worktrees). ~300 raw Tailwind colours (white/zinc/named hues) in the Tailwind-Plus primitives (badge, button, combobox, listbox, sidebar, select, navbar, inputs, dropdown, layouts, dialog/alert, table, forms…) → --ct-* tokens, variant keys & [--btn-*] plumbing preserved. Added --ct-status-neutral* (MOCK badge). Final stragglers fixed (heading dark:text-white, footer separator, forbidden-words ring, button text-cyan/yellow/lime-950). ds-convergence-guard gained a 6th rule (named-color: bans ANY raw Tailwind colour repo-wide incl. catalyst). Email/route HTML templates keep inline hex (no site CSS — legit). typecheck clean, eslint 0, build compiles, all guards green, 52 tests pass. DS now 100% tokenized on every UI surface."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #050 — Catalyst 100% Hardening (verification pass)",
+      "note": "Re-verified the Catalyst convergence at origin/main dadcbb7d. The repo is ALREADY at 100% Catalyst — lots 8–15 (#049) + authority lock (#037) completed every objective this lot meant to harden. src/components/ui sealed to the 3 sanctioned non-visual helpers (provenance-badge + toaster + client-toaster); 0 autonomous visual components; all UI consumers import src/components/catalyst directly. Both guards re-run GREEN: ds-hardcode-guard (0 hits) + ds-convergence-guard (6 rules, 0 hits), CI-enforced (#207). No new tokenization/deletions/guards warranted — requested guards already exist and pass, requested purge already done, residual raw values are the documented intentional keeps. Doc-only update of cartography HEAD/mission pointer + this log entry. #146 untouched."
     }
   ]
 }
