@@ -97,7 +97,7 @@ export function DashboardRiskSummaryCard({
               <div className="flex items-baseline gap-1">
                 <span
                   className={cn(
-                    "text-[32px] font-bold leading-none tracking-tighter tabular-nums",
+                    "text-[length:var(--ct-text-display)] font-bold leading-none tracking-tighter tabular-nums",
                     BAND_TEXT[data.band],
                   )}
                 >
