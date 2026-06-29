@@ -1507,11 +1507,16 @@ body {
      EST la surface. Pas de fond ghost ici (créait un 2e cadre = cage-in-cage).
      Séparateurs = hairlines par cellule (bloc plus bas). */
   gap: 0;
-  /* auto-fit : autant de colonnes que la largeur le permet — la strip tient sur
-     UNE ligne dès que le panel est assez large, quel que soit le nombre de KPI
-     (4, 5 ou 8). Remplace les anciens paliers fixes repeat(2/3/4/8) qui
-     cassaient en 2×2 sur les panels étroits. min 7.5rem = une cellule lisible. */
-  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  /* Une colonne par KPI, parts ÉGALES sur TOUTE la largeur du panel — pas
+     d'auto-fit (qui laissait des colonnes vides / tassait les KPI à gauche
+     quand la largeur du panel ne tombait pas juste). grid-auto-flow:column +
+     grid-auto-columns:1fr → chaque KPI occupe exactement 1/N de la largeur,
+     quel que soit le nombre de KPI (4, 5, 6, 8) et le contexte (panel admin ou
+     board dashboard). Sur panel étroit, les cellules se compressent ensemble
+     (min-width:0) au lieu de wrapper. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: none;
   min-width: 0;
   /* Clippe la hairline droite de la dernière colonne et la hairline bas de la
      dernière ligne : marge négative 1px + overflow hidden. Aucune bordure ne
