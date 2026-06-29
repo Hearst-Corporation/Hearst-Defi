@@ -8,8 +8,9 @@ import { logger } from "@/lib/logger";
  * Binance spot price loader — server-side, REST.
  *
  * Source: https://api.binance.com/api/v3/ticker/24hr (public, no auth, free).
- * We use the `data-api.binance.vision` market-data mirror by default to keep
- * read-only price polling off the trading-API host.
+ * Default host is the canonical Binance prod API (`api.binance.com`); override
+ * via BINANCE_API_BASE_URL (e.g. the `data-api.binance.vision` market-data
+ * mirror) when you want read-only polling off the trading-API host.
  *
  * WHY REST AND NOT WEBSOCKET:
  *   Binance's real-time price feed is a WebSocket
@@ -59,7 +60,7 @@ export interface BinancePriceSnapshot {
 /** Default symbols surfaced. Override per call via `fetchBinancePrices(symbols)`. */
 export const DEFAULT_BINANCE_SYMBOLS = ["BTCUSDT", "ETHUSDT"] as const;
 
-const DEFAULT_BASE_URL = "https://data-api.binance.vision";
+const DEFAULT_BASE_URL = "https://api.binance.com";
 const CACHE_TTL_MS = 15 * 1000; // 15s — spot price moves second-by-second
 const FETCH_TIMEOUT_MS = 8_000;
 const STALE_THRESHOLD_MS = STALE_THRESHOLDS.btc_price; // 5 min spot SLO
