@@ -5,6 +5,7 @@ import {
   productTypeLabel,
   bucketLabel,
 } from "@/lib/projection/product-objective-draft";
+import { buildProjectionInputPreset } from "@/lib/projection/projection-input-preset";
 
 /**
  * Product Workspace → Projection input DRAFT block.
@@ -23,6 +24,7 @@ export function ProjectionHandoff({
   objective: string | null;
 }) {
   const draft = deriveProjectionInputDraft(objective ?? "");
+  const preset = buildProjectionInputPreset(objective ?? "");
   const methodology = buildMethodologyPanel();
 
   return (
@@ -75,6 +77,60 @@ export function ProjectionHandoff({
             ))}
           </ul>
         ) : null}
+
+        {/* Projection preset — the honest split between what the workspace
+            inferred (safe, non-numeric fields) and what the admin must still
+            decide (review-required) / what is never prefilled from text
+            (forbidden). NO business number is ever prepared here. */}
+        <div className="flex flex-col gap-3 border-t border-[var(--ct-border)] pt-3">
+          <p className="ct-bento-label">Projection preset from Product Workspace</p>
+
+          <div className="flex flex-col gap-1">
+            <p className="ct-metric-caption uppercase tracking-wider">
+              Safe fields prepared
+            </p>
+            {preset.hasSafeFields ? (
+              <ul className="flex list-disc flex-col gap-1 pl-4">
+                {preset.safeFields.productTypeLabel ? (
+                  <li className="body-sm ct-text-body">
+                    Product type: {preset.safeFields.productTypeLabel}
+                  </li>
+                ) : null}
+                {preset.safeFields.bucketLabels &&
+                preset.safeFields.bucketLabels.length > 0 ? (
+                  <li className="body-sm ct-text-body">
+                    Buckets: {preset.safeFields.bucketLabels.join(", ")}
+                  </li>
+                ) : null}
+                {preset.safeFields.label ? (
+                  <li className="body-sm ct-text-body">
+                    Label: {preset.safeFields.label}
+                  </li>
+                ) : null}
+              </ul>
+            ) : (
+              <p className="ct-metric-caption leading-relaxed">
+                None — the objective did not yield a safe structural field. Set
+                the inputs manually.
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <p className="ct-metric-caption uppercase tracking-wider">
+              Review required (not prefilled)
+            </p>
+            <p className="body-sm ct-text-body">
+              {preset.reviewRequired.join(" · ")}
+            </p>
+          </div>
+
+          <p className="ct-metric-caption leading-relaxed">
+            No business number is prepared from the objective (
+            {preset.forbiddenPrefill.slice(0, 4).join(", ")}, …). Manual Run Study
+            required.
+          </p>
+        </div>
 
         {/* Methodology panel — the CONFIGURED assumptions the admin must review
             before running. Read-only mirror of the in-code assumptions the engine

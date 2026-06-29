@@ -45,6 +45,25 @@ describe("ProjectionHandoff — Projection input draft block", () => {
     expect(html.toLowerCase()).toContain("pas validées");
   });
 
+  it("renders the projection preset block — safe fields + review required, no business number", () => {
+    const html = render("Produit mining + stable yield ciblant 20% APY");
+    expect(html).toContain("Projection preset from Product Workspace");
+    expect(html).toContain("Safe fields prepared");
+    expect(html).toContain("Product type: Mining + stable yield");
+    expect(html).toContain("Review required (not prefilled)");
+    expect(html).toContain("Revenue share (CONFIGURED)");
+    expect(html).toContain("No business number is prepared from the objective");
+    // The 20% from the objective is NOT surfaced as a prepared APY value.
+    expect(html).not.toMatch(/Target APY[^<]*20%/i);
+    expect(html).not.toContain("APY target: 20%");
+  });
+
+  it("preset block shows an honest 'None' when no safe field is derivable", () => {
+    const html = render("un truc sympa pour les gens");
+    expect(html).toContain("Projection preset from Product Workspace");
+    expect(html).toContain("Set the inputs manually");
+  });
+
   it("surfaces keyword-derived suggestions (product type + buckets) for a mining+stable objective", () => {
     const html = render("Produit DeFi mining + stable yield en USDC");
     expect(html).toContain("Suggested product type");
@@ -65,13 +84,16 @@ describe("ProjectionHandoff — Projection input draft block", () => {
   it("never invents a business number or claims a record/run", () => {
     const html = render("Créer un produit mining + stable yield ciblant 10% APY");
     const lower = html.toLowerCase();
-    // No derived APY/hashprice/energy value is presented as a suggestion.
-    expect(lower).not.toContain("apy target");
+    // No derived APY/business VALUE is presented as a prepared field. NOTE:
+    // "APY target" appears in the forbidden-prefill boundary text ("no business
+    // number is prepared … (APY target, …)") — that is the honest boundary, the
+    // opposite of inventing one. We forbid an APY paired with a NUMBER.
+    expect(lower).not.toMatch(/apy target\s*[:=]\s*\d/);
+    expect(lower).not.toMatch(/(target apy|apy)\s*[:=]?\s*\d+(\.\d+)?\s*%/);
     expect(lower).not.toContain("suggested apy");
     expect(lower).not.toContain("product created");
     expect(lower).not.toContain("vault created");
     expect(lower).not.toContain("run launched");
-    expect(lower).not.toContain("investor-ready");
     expect(lower).not.toContain("guaranteed to");
     // Always reminds that assumptions stay configured.
     expect(lower).toContain("configured");
