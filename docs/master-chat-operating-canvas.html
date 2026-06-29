@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearst Connect — Master Chat Operating Canvas</title>
+<style>
+  :root {
+    --bg:        #0a0c0f;
+    --bg2:       #111418;
+    --bg3:       #181c22;
+    --bg4:       #1e2430;
+    --border:    #252d3a;
+    --border2:   #2e3847;
+    --text:      #cdd4e0;
+    --text-dim:  #7a8899;
+    --text-soft: #9fafc2;
+    --green:     #A7FB90;
+    --green-dim: rgba(167,251,144,.15);
+    --green-glow:rgba(167,251,144,.08);
+    --red:       #ff5f5f;
+    --red-dim:   rgba(255,95,95,.15);
+    --yellow:    #ffc25e;
+    --yellow-dim:rgba(255,194,94,.15);
+    --blue:      #67b8ff;
+    --blue-dim:  rgba(103,184,255,.15);
+    --purple:    #c4a8ff;
+    --purple-dim:rgba(196,168,255,.15);
+    --orange:    #ff9a5c;
+    --orange-dim:rgba(255,154,92,.15);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ───────────────────────────────────────────────── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,15,.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    height: 44px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 0 12px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  nav a:hover { color: var(--green); }
+  nav a.active { color: var(--green); border-bottom-color: var(--green); }
+  .nav-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    padding: 48px 40px 36px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, rgba(167,251,144,.04) 0%, transparent 50%);
+  }
+  .brand { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+  header h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: #f0f4fa; margin-bottom: 8px; }
+  header .subtitle { color: var(--text-soft); font-size: 14px; max-width: 640px; }
+  .meta-row { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .meta-chip {
+    font-size: 11px; color: var(--text-dim);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 9px;
+    font-family: var(--mono);
+  }
+  .meta-chip span { color: var(--text-soft); }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .canvas { max-width: 1440px; margin: 0 auto; padding: 0 24px 80px; }
+  section { padding: 48px 0 0; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: var(--green-dim);
+    border: 1px solid rgba(167,251,144,.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+  section h2 { font-size: 18px; font-weight: 700; color: #e8edf5; letter-spacing: -.01em; }
+  section .section-desc { color: var(--text-dim); font-size: 12px; margin-top: 6px; }
+
+  /* ── BADGES ─────────────────────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .b-read     { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(103,184,255,.25); }
+  .b-write    { background: var(--orange-dim);  color: var(--orange); border: 1px solid rgba(255,154,92,.25); }
+  .b-hitl     { background: var(--purple-dim);  color: var(--purple); border: 1px solid rgba(196,168,255,.25); }
+  .b-manual   { background: var(--yellow-dim);  color: var(--yellow); border: 1px solid rgba(255,194,94,.25); }
+  .b-refusal  { background: var(--red-dim);     color: var(--red);    border: 1px solid rgba(255,95,95,.25); }
+  .b-ext      { background: rgba(255,95,95,.12);color: #ff9090;       border: 1px solid rgba(255,95,95,.2); }
+  .b-live     { background: var(--green-dim);   color: var(--green);  border: 1px solid rgba(167,251,144,.2); }
+  .b-fallback { background: var(--bg3);         color: var(--text-dim);border: 1px solid var(--border2); }
+  .b-blocked  { background: rgba(255,95,95,.18);color: #ff6060;       border: 1px solid rgba(255,95,95,.3); }
+  .b-config   { background: var(--yellow-dim);  color: var(--yellow); border: 1px solid rgba(255,194,94,.2); }
+  .b-danger   { background: rgba(255,80,80,.2); color: #ff5050;       border: 1px solid rgba(255,80,80,.4); font-size:10px; }
+  .b-guard    { background: rgba(167,251,144,.1);color:#6ddd54;       border: 1px solid rgba(167,251,144,.2); }
+
+  /* ── FLOW DIAGRAM (A) ───────────────────────────────────── */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+  .flow-node {
+    width: 100%;
+    max-width: 760px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    position: relative;
+  }
+  .flow-node.highlight {
+    border-color: rgba(167,251,144,.3);
+    background: linear-gradient(135deg, rgba(167,251,144,.04) 0%, var(--bg2) 60%);
+  }
+  .flow-node.danger { border-color: rgba(255,80,80,.3); background: linear-gradient(135deg, rgba(255,80,80,.06) 0%, var(--bg2) 60%); }
+  .flow-node.warn  { border-color: rgba(255,194,94,.3); background: linear-gradient(135deg, rgba(255,194,94,.05) 0%, var(--bg2) 60%); }
+  .flow-node.info  { border-color: rgba(103,184,255,.3); background: linear-gradient(135deg, rgba(103,184,255,.04) 0%, var(--bg2) 60%); }
+  .flow-node-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e0e8f4;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-node-file {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+  .flow-node-desc {
+    font-size: 11.5px;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+  .flow-node-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .flow-arrow {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, rgba(167,251,144,.4), rgba(167,251,144,.1));
+    margin: 0 auto;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid rgba(167,251,144,.5);
+  }
+  .flow-fork {
+    width: 100%;
+    max-width: 760px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  .fork-branch {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 11px;
+    color: var(--text-soft);
+  }
+  .fork-branch strong { display: block; color: #d4dcea; font-size: 11.5px; margin-bottom: 4px; }
+  .fork-branch.green { border-color: rgba(167,251,144,.25); }
+  .fork-branch.red   { border-color: rgba(255,95,95,.25); }
+  .fork-branch.yellow{ border-color: rgba(255,194,94,.25); }
+  .fork-branch.purple{ border-color: rgba(196,168,255,.25); }
+  .fork-branch.blue  { border-color: rgba(103,184,255,.25); }
+
+  /* ── WAKE-UP TABLE (B) ──────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin-top: 4px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    min-width: 780px;
+  }
+  thead tr { background: var(--bg3); }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border2);
+    white-space: nowrap;
+  }
+  td {
+    padding: 9px 14px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    line-height: 1.45;
+  }
+  td.mono { font-family: var(--mono); font-size: 10.5px; color: var(--text-dim); }
+  tr:hover td { background: rgba(255,255,255,.015); }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── SWIMLANES (C) ──────────────────────────────────────── */
+  .lanes { display: flex; flex-direction: column; gap: 24px; }
+  .lane {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .lane-header {
+    padding: 14px 20px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .lane-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--green-dim);
+    border: 1px solid rgba(167,251,144,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--green);
+    flex-shrink: 0;
+  }
+  .lane-title { font-size: 13px; font-weight: 700; color: #e0e8f4; }
+  .lane-body { padding: 20px; }
+  .lane-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .step {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    padding-bottom: 16px;
+  }
+  .step:last-child { padding-bottom: 0; }
+  .step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid var(--bg2);
+    flex-shrink: 0;
+    margin-top: 4px;
+    z-index: 1;
+    position: relative;
+  }
+  .step-dot.red   { background: var(--red); }
+  .step-dot.yellow{ background: var(--yellow); }
+  .step-dot.blue  { background: var(--blue); }
+  .step-dot.purple{ background: var(--purple); }
+  .step-line {
+    position: absolute;
+    left: 4px;
+    top: 14px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--border2), var(--border));
+  }
+  .step:last-child .step-line { display: none; }
+  .step-content { flex: 1; }
+  .step-name { font-size: 12px; font-weight: 600; color: #d4dcea; margin-bottom: 3px; }
+  .step-detail { font-size: 11px; color: var(--text-dim); line-height: 1.45; }
+  .step-detail code { font-family: var(--mono); font-size: 10.5px; color: var(--text-soft); background: var(--bg3); padding: 0 4px; border-radius: 2px; }
+  .step-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .lane-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(167,251,144,.05);
+    border: 1px solid rgba(167,251,144,.15);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+  .lane-note.red  { background: rgba(255,95,95,.05); border-color: rgba(255,95,95,.2); }
+  .lane-note.yellow{ background: rgba(255,194,94,.05); border-color: rgba(255,194,94,.2); }
+  .lane-note strong { color: #e0e8f4; }
+
+  /* ── MATRIX (D) ─────────────────────────────────────────── */
+  td .badge + .badge { margin-left: 4px; }
+  .cell-file { font-family: var(--mono); font-size: 10px; color: var(--text-dim); display: block; margin-top: 3px; }
+
+  /* ── RECORD MAP (E) ─────────────────────────────────────── */
+  .record-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .record-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .record-card.manual { border-left: 3px solid var(--yellow); }
+  .record-card.auto   { border-left: 3px solid var(--orange); }
+  .record-card.hitl   { border-left: 3px solid var(--purple); }
+  .record-card.never  { border-left: 3px solid var(--red); }
+  .record-name { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: #d4dcea; margin-bottom: 8px; }
+  .record-rows { display: flex; flex-direction: column; gap: 4px; }
+  .record-row { display: flex; gap: 8px; align-items: baseline; }
+  .record-key { font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-dim); min-width: 72px; flex-shrink: 0; }
+  .record-val { font-size: 11px; color: var(--text-soft); }
+  .record-val.green { color: var(--green); font-weight: 600; }
+  .record-val.red   { color: var(--red); }
+  .record-val.yellow{ color: var(--yellow); }
+
+  /* ── GUARDRAIL (F) ──────────────────────────────────────── */
+  .guard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+  }
+  .guard-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .guard-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    width: 20px;
+    text-align: center;
+  }
+  .guard-content strong { display: block; font-size: 12px; color: #d4dcea; margin-bottom: 3px; }
+  .guard-content p { font-size: 11px; color: var(--text-dim); line-height: 1.45; }
+  .guard-content .cell-file { margin-top: 4px; }
+
+  /* ── EVIDENCE (G) ───────────────────────────────────────── */
+  .evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .evidence-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .evidence-card h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #d4dcea;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .evidence-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .evidence-row:last-child { border-bottom: none; }
+  .evidence-label { font-size: 11px; color: var(--text-dim); }
+  .evidence-val {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .evidence-val.zero { color: var(--green); }
+  .evidence-val.count { color: var(--blue); }
+  .evidence-val.warn { color: var(--yellow); }
+  .evidence-source {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── FOOTER ─────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 40px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  footer p { font-size: 11px; color: var(--text-dim); }
+  footer .next-recs { font-size: 11px; color: var(--text-dim); }
+  footer .next-recs strong { color: var(--text-soft); }
+
+  /* ── UTILITY ─────────────────────────────────────────────── */
+  .gap-col { display: flex; flex-direction: column; gap: 10px; }
+  .gap-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  code { font-family: var(--mono); font-size: 10.5px; }
+
+  @media (max-width: 960px) {
+    header { padding: 32px 20px 24px; }
+    .canvas { padding: 0 16px 60px; }
+    nav { padding: 0 16px; }
+    .flow-fork { grid-template-columns: repeat(2, 1fr); }
+    .record-grid { grid-template-columns: 1fr; }
+    .guard-grid { grid-template-columns: 1fr; }
+    .evidence-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#global-map" class="active">A. Global Map</a>
+  <div class="nav-sep"></div>
+  <a href="#wake-map">B. Wake-Up Map</a>
+  <div class="nav-sep"></div>
+  <a href="#lanes">C. Action Lanes</a>
+  <div class="nav-sep"></div>
+  <a href="#matrix">D. Write Risk Matrix</a>
+  <div class="nav-sep"></div>
+  <a href="#records">E. Record Map</a>
+  <div class="nav-sep"></div>
+  <a href="#guardrails">F. Guardrails</a>
+  <div class="nav-sep"></div>
+  <a href="#evidence">G. Evidence</a>
+</nav>
+
+<header>
+  <div class="brand">Hearst Connect · Agentic Intelligence</div>
+  <h1>Master Chat Operating Canvas</h1>
+  <p class="subtitle">How chat actions wake routers, tools, guards, pages, writes, and manual gates.</p>
+  <div class="meta-row">
+    <div class="meta-chip">Branch <span>main</span></div>
+    <div class="meta-chip">HEAD <span>cf298852</span></div>
+    <div class="meta-chip">Date <span>2026-06-29</span></div>
+    <div class="meta-chip">Chat endpoint <span>POST /api/cockpit-chat</span></div>
+    <div class="meta-chip">LLM <span>OpenAI GPT-4.1 (ADR-011)</span></div>
+    <div class="meta-chip">Router <span>Deterministic Intent Router v2</span></div>
+    <div class="meta-chip">Guard <span>Output guard + forbidden-words</span></div>
+  </div>
+</header>
+
+<div class="canvas">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- A. GLOBAL OPERATING MAP                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="global-map">
+    <div class="section-header">
+      <div class="section-label">A</div>
+      <h2>Global Operating Map</h2>
+    </div>
+    <p class="section-desc">End-to-end message lifecycle — from user input to final state. Each node shows file, truth status, and write risk.</p>
+    <div style="height:24px"></div>
+
+    <div class="flow-diagram">
+
+      <div class="flow-node highlight">
+        <div class="flow-node-title">
+          USER MESSAGE
+          <span class="badge b-read">Input</span>
+        </div>
+        <div class="flow-node-file">LP (investor cockpit) or Admin console — role-partitioned at auth</div>
+        <div class="flow-node-desc">Any text prompt submitted in the cockpit chat panel (Section 3 — right rail). Message text, chat ID, and mode delivered via POST body.</div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node info">
+        <div class="flow-node-title">
+          AUTH / ROLE / RATE LIMIT / SANITIZE
+          <span class="badge b-guard">Gate</span>
+        </div>
+        <div class="flow-node-file">src/app/api/cockpit-chat/route.ts → requireAuth, assertRateLimit, assertBodySize</div>
+        <div class="flow-node-desc">
+          Session validated via Privy. Role extracted (<code>admin</code> vs LP). Rate limit enforced. Body size capped.
+          LP cannot reach admin tool space. Admin cannot reach LP-only surfaces.
+          Chat mode (<code>admin</code> | LP) determines which system prompt, context, and tool set is built.
+        </div>
+        <div class="flow-node-badges">
+          <span class="badge b-read">No write</span>
+          <span class="badge b-guard">Role split</span>
+          <span class="badge b-blocked">LP ≠ Admin tools</span>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node warn">
+        <div class="flow-node-title">
+          DETERMINISTIC INTENT ROUTER v2
+          <span class="badge b-guard">Pre-LLM</span>
+        </div>
+        <div class="flow-node-file">src/lib/agentic/intent-router.ts · intent-router-rules.ts · intent-router-negation.ts</div>
+        <div class="flow-node-desc">
+          Runs BEFORE any LLM call. Normalizes input (lowercase, accent-strip, apostrophe→space).
+          Priority chain: <strong>empty → cancellation → confirmation → DANGEROUS → send/source → outreach → product/vault → reporting → navigation → education → unknown</strong>.
+          Negation is cross-cutting: "ne déploie pas" flips deploy → cancellation. Pure: no I/O, no DB.
+          Records decision to observability store (fire-and-forget, never blocks).
+        </div>
+        <div class="flow-node-badges">
+          <span class="badge b-read">Pure function</span>
+          <span class="badge b-guard">Danger-first</span>
+          <span class="badge b-read">No LLM yet</span>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" style="border-color:var(--border2)">
+        <div class="flow-node-title">FAST PATH DECISION</div>
+        <div class="flow-node-file">intent-router.ts → route.ts (switch on kind)</div>
+        <div class="flow-node-desc">Router emits a typed <code>AgenticIntentDecision</code>. The chat handler switches on <code>kind</code> to determine action before building LLM context.</div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-fork">
+        <div class="fork-branch green">
+          <strong>Product Creation</strong>
+          <span class="badge b-hitl">Canvas</span><br>
+          Redirects to Product Workspace.<br>
+          Chat creates NO run, NO record.
+        </div>
+        <div class="fork-branch green">
+          <strong>Navigation</strong>
+          <span class="badge b-read">Read-only</span><br>
+          Sends nav command to client.<br>
+          No write, no LLM (fast path).
+        </div>
+        <div class="fork-branch yellow">
+          <strong>Outreach Canvas</strong>
+          <span class="badge b-hitl">HITL</span><br>
+          Opens campaign canvas.<br>
+          Draft-only behind confirmation.
+        </div>
+        <div class="fork-branch red">
+          <strong>Dangerous</strong>
+          <span class="badge b-refusal">Refused</span><br>
+          deploy/sign/go-live → refused.<br>
+          No LLM call, no action.
+        </div>
+        <div class="fork-branch red">
+          <strong>Send / Source</strong>
+          <span class="badge b-blocked">Requires gate</span><br>
+          Held behind human gate.<br>
+          Never auto-dispatched.
+        </div>
+        <div class="fork-branch blue">
+          <strong>Education / Unknown</strong>
+          <span class="badge b-fallback">LLM fallback</span><br>
+          LLM called with context.<br>
+          Output guard applied.
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node info">
+        <div class="flow-node-title">
+          PRODUCT WORKSPACE INTENT CLASSIFIER
+          <span class="badge b-read">Pre-LLM check</span>
+        </div>
+        <div class="flow-node-file">src/lib/llm/product-workspace-intent.ts · classifyProductWorkspaceIntent()</div>
+        <div class="flow-node-desc">
+          Pure regex classifier. Runs if the intent router did not already resolve to a hard fast-path.
+          Distinguishes: <code>product_creation</code> (creation verb + product noun), <code>product_framing</code>, <code>explicit_simulation</code>, and mixed kinds.
+          A bare creation verb ("create") without a product noun → <code>none</code> (not a product intent, falls to LLM).
+          "Create projection" → <code>none</code>, not product creation.
+        </div>
+        <div class="flow-node-badges">
+          <span class="badge b-read">Pure</span>
+          <span class="badge b-read">No I/O</span>
+          <span class="badge b-guard">Prevents projection/product confusion</span>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node">
+        <div class="flow-node-title">LLM CALL (when needed)</div>
+        <div class="flow-node-file">src/lib/llm/chat-agent.ts · runChatAgent() — OpenAI GPT-4.1 (ADR-011)</div>
+        <div class="flow-node-desc">
+          Called only when deterministic routing does not resolve the intent. System prompt is role-aware (LP vs admin).
+          Admin mode can call bounded read tools (navigate, get specs, get vault data) and write tools (behind HITL confirmation token).
+          LP mode has NO write tools. Output streamed to client.
+        </div>
+        <div class="flow-node-badges">
+          <span class="badge b-config">GPT-4.1</span>
+          <span class="badge b-read">LP: read-only tools</span>
+          <span class="badge b-hitl">Admin writes: HITL token required</span>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node warn">
+        <div class="flow-node-title">
+          OUTPUT GUARD
+          <span class="badge b-guard">Post-LLM</span>
+        </div>
+        <div class="flow-node-file">src/lib/llm/output-guard.ts · guardChatStream() · chatOutputViolation()</div>
+        <div class="flow-node-desc">
+          Wraps the token stream. Holds a 64-char look-back buffer. On each chunk checks:
+          (1) <code>containsForbiddenChat()</code> — forbidden words (guarantee, promise, garanti, sans risque, etc.) with negation-aware matching.
+          (2) <code>hasSinglePointApy()</code> — APY must be a range, never a single point.
+          On violation: emits <code>\x00ERROR:</code> sentinel, aborts stream. The offending text is never delivered.
+          Yield-keyword-aware: holds emission at last sentence boundary when a yield sentence is in progress.
+        </div>
+        <div class="flow-node-badges">
+          <span class="badge b-guard">Forbidden words</span>
+          <span class="badge b-guard">APY range enforced</span>
+          <span class="badge b-blocked">Violating text never emitted</span>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node highlight">
+        <div class="flow-node-title">
+          CLIENT — NAV / CANVAS / RESPONSE
+          <span class="badge b-live">Final state</span>
+        </div>
+        <div class="flow-node-file">cockpit-shell client (chat renderer, canvas handler, nav signal consumer)</div>
+        <div class="flow-node-desc">
+          Client receives: streamed text response, OR nav command (→ page redirect), OR canvas signal (→ Product Workspace / Scenario Lab panel opens), OR error sentinel.
+          No financial or custodial action is ever taken automatically.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- B. WAKE-UP MAP                                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="wake-map">
+    <div class="section-header">
+      <div class="section-label">B</div>
+      <h2>Wake-Up Map — What Gets Activated</h2>
+    </div>
+    <p class="section-desc">For each trigger, which component wakes, what it does, and what write risk applies.</p>
+    <div style="height:16px"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Wake condition / Trigger</th>
+            <th>Component awakened</th>
+            <th>File / function</th>
+            <th>Action</th>
+            <th>Writes?</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Product creation phrase</strong><br><em>"nouveau produit", "create a vault", "new offer"</em></td>
+            <td>Product Workspace Intent + nav to /admin/product-workspace</td>
+            <td class="mono">product-workspace-intent.ts<br>classifyProductWorkspaceIntent()</td>
+            <td>Opens workspace canvas. Sends nav signal to client. <strong>No record created.</strong></td>
+            <td><span class="badge b-read">READ</span></td>
+            <td><span class="badge b-live">None</span></td>
+          </tr>
+          <tr>
+            <td><strong>Projection phrase</strong><br><em>"show me projections", "go to projection"</em></td>
+            <td>Navigation resolver → /admin/projection</td>
+            <td class="mono">nav-fallback-intent.ts<br>intent-router.ts</td>
+            <td>GET /admin/projection page served. <strong>No ProjectionStudyRun created.</strong></td>
+            <td><span class="badge b-read">READ</span></td>
+            <td><span class="badge b-live">None</span></td>
+          </tr>
+          <tr>
+            <td><strong>Scenario Lab phrase</strong><br><em>"simulate", "monte carlo", "run scenario"</em></td>
+            <td>Scenario Lab nav → /admin/scenario-lab</td>
+            <td class="mono">product-workspace-intent.ts<br>EXPLICIT_SIMULATION_INTENT_RE</td>
+            <td>Opens Scenario Lab. No run created by chat.</td>
+            <td><span class="badge b-read">READ</span></td>
+            <td><span class="badge b-live">None</span></td>
+          </tr>
+          <tr>
+            <td><strong>Deploy / go-live phrase</strong><br><em>"déploie", "mets en ligne", "go live", "mark live"</em></td>
+            <td>Danger-first guard → refusal</td>
+            <td class="mono">intent-router-rules.ts<br>DANGEROUS_RULES[deploy.go_live]</td>
+            <td>Router refuses before LLM. Emits refusal message. No action taken.</td>
+            <td><span class="badge b-refusal">REFUSAL</span></td>
+            <td><span class="badge b-danger">Critical</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sign transaction phrase</strong><br><em>"sign transaction", "execute tx", "broadcast"</em></td>
+            <td>Danger-first guard → refusal</td>
+            <td class="mono">DANGEROUS_RULES[deploy.sign_tx]</td>
+            <td>Refused before LLM. No on-chain action ever reachable from chat.</td>
+            <td><span class="badge b-refusal">REFUSAL</span></td>
+            <td><span class="badge b-danger">Critical</span></td>
+          </tr>
+          <tr>
+            <td><strong>Send outreach phrase</strong><br><em>"envoie aux prospects", "send the campaign"</em></td>
+            <td>SEND_SOURCE_RULES gate → requires human gate</td>
+            <td class="mono">SEND_SOURCE_RULES[outreach.send]</td>
+            <td>Held behind human gate. No auto-dispatch. Tier A never auto-sent.</td>
+            <td><span class="badge b-hitl">HITL required</span></td>
+            <td><span class="badge b-danger">High</span></td>
+          </tr>
+          <tr>
+            <td><strong>Source leads phrase</strong><br><em>"source prospects", "find leads", "trouve des prospects"</em></td>
+            <td>SEND_SOURCE_RULES gate</td>
+            <td class="mono">SEND_SOURCE_RULES[outreach.source]</td>
+            <td>Gated. Requires human gate before Apollo sourcing runs.</td>
+            <td><span class="badge b-hitl">HITL required</span></td>
+            <td><span class="badge b-danger">High</span></td>
+          </tr>
+          <tr>
+            <td><strong>Create vault draft phrase</strong><br><em>"create vault draft", "draft a vault"</em></td>
+            <td>Write tool: create_vault_draft</td>
+            <td class="mono">registry.ts → runCreateVaultDraft()<br>vaults/actions.ts → createDraftVault()</td>
+            <td>Emits confirmation token (2-step HITL). Admin must confirm. Creates VaultDraft record after confirmation.</td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-hitl">HITL</span></td>
+            <td><span class="badge b-config">Medium</span></td>
+          </tr>
+          <tr>
+            <td><strong>Unknown prompt</strong></td>
+            <td>LLM fallback</td>
+            <td class="mono">chat-agent.ts · runChatAgent()</td>
+            <td>GPT-4.1 called. Output guarded. No action without explicit tool call.</td>
+            <td><span class="badge b-fallback">Depends on tools called</span></td>
+            <td><span class="badge b-fallback">Low–medium</span></td>
+          </tr>
+          <tr>
+            <td><strong>LP prompt</strong> (any)</td>
+            <td>LP system prompt + LP tool set (no admin tools)</td>
+            <td class="mono">route.ts → COCKPIT_DEFAULT_SYSTEM_PROMPT<br>buildPortfolioContextBlock()</td>
+            <td>LP sees portfolio context only. LP cannot access write tools, admin pages, outreach, or vault actions.</td>
+            <td><span class="badge b-read">READ only</span></td>
+            <td><span class="badge b-live">None</span></td>
+          </tr>
+          <tr>
+            <td><strong>Admin prompt</strong> (admin mode)</td>
+            <td>Admin system prompt + admin tool set</td>
+            <td class="mono">route.ts → COCKPIT_ADMIN_SYSTEM_PROMPT<br>buildAdminContextBlock()</td>
+            <td>Admin has read tools + bounded write tools (all behind HITL). Can navigate admin pages.</td>
+            <td><span class="badge b-hitl">Write = HITL</span></td>
+            <td><span class="badge b-config">Medium</span></td>
+          </tr>
+          <tr>
+            <td><strong>Forbidden wording in output</strong><br><em>"garanti", "sans risque", single-point APY</em></td>
+            <td>Output guard</td>
+            <td class="mono">output-guard.ts → guardChatStream()<br>forbidden-words.ts · apy-range.ts</td>
+            <td>Stream aborted. Block sentinel emitted. User sees compliance refusal message.</td>
+            <td><span class="badge b-blocked">BLOCKED</span></td>
+            <td><span class="badge b-danger">High</span></td>
+          </tr>
+          <tr>
+            <td><strong>from=product-workspace query param</strong></td>
+            <td>Projection page — handoff mode</td>
+            <td class="mono">src/app/admin/projection/page.tsx</td>
+            <td>GET renders page in handoff mode with methodology panel. No run created.</td>
+            <td><span class="badge b-read">READ</span></td>
+            <td><span class="badge b-live">None</span></td>
+          </tr>
+          <tr>
+            <td><strong>Direct send button click</strong></td>
+            <td>DirectSendForm → ConfirmDialog</td>
+            <td class="mono">src/app/admin/outreach/ (actions) → sendDirectEmail</td>
+            <td>ConfirmDialog shown. Admin must confirm. Real email sent via Resend after confirmation + forbidden-words + suppression checks.</td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-ext">External send</span> <span class="badge b-hitl">Confirm required</span></td>
+            <td><span class="badge b-danger">High</span></td>
+          </tr>
+          <tr>
+            <td><strong>Campaign fan-out (approved campaigns)</strong></td>
+            <td>Campaign send action</td>
+            <td class="mono">src/lib/inngest/functions/outreach-auto-send.ts</td>
+            <td>Per-email: suppression re-check + forbidden-words re-check before Resend call. Blocked emails logged as failed, campaign continues.</td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-ext">External send</span></td>
+            <td><span class="badge b-danger">High</span></td>
+          </tr>
+          <tr>
+            <td><strong>Auto-send cron (hourly)</strong></td>
+            <td>Inngest job: outreach-auto-send</td>
+            <td class="mono">outreach-auto-send.ts → OUTREACH_AUTO_SEND_CRON "0 * * * *"</td>
+            <td>SUGGEST mode (default) → short-circuits, nothing sent. SEND+ → sends Tier B/C up to daily cap. Tier A never auto-sent.</td>
+            <td><span class="badge b-write">WRITE (SEND+ only)</span> <span class="badge b-blocked">BLOCKED in SUGGEST</span></td>
+            <td><span class="badge b-config">Env-governed</span></td>
+          </tr>
+          <tr>
+            <td><strong>Follow-up cron (daily 09:00 UTC)</strong></td>
+            <td>Inngest job: outreach-followups</td>
+            <td class="mono">outreach-followups.ts → OUTREACH_FOLLOWUPS_CRON "0 9 * * *"</td>
+            <td>NURTURE+ only. Sends follow-up #1 (≥3 days) and #2 (≥4 days) per prospect. Max 100/run. Suppression + forbidden-words re-checked.</td>
+            <td><span class="badge b-write">WRITE (NURTURE+ only)</span></td>
+            <td><span class="badge b-config">Env-governed</span></td>
+          </tr>
+          <tr>
+            <td><strong>Negated action phrase</strong><br><em>"ne va pas dans vaults", "don't deploy"</em></td>
+            <td>Negation guard → cancellation</td>
+            <td class="mono">intent-router-negation.ts · isNegated()</td>
+            <td>Positive intent flipped to cancellation. Router emits cancellation decision. No action taken.</td>
+            <td><span class="badge b-read">No action</span></td>
+            <td><span class="badge b-live">None</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- C. ACTION LANES                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="lanes">
+    <div class="section-header">
+      <div class="section-label">C</div>
+      <h2>Action Lanes</h2>
+    </div>
+    <p class="section-desc">Step-by-step swimlane for each major flow. Write boundaries and manual gates are explicitly marked.</p>
+    <div style="height:16px"></div>
+    <div class="lanes">
+
+      <!-- LANE 1 -->
+      <div class="lane">
+        <div class="lane-header">
+          <div class="lane-num">1</div>
+          <div class="lane-title">Product Creation Flow</div>
+          <span class="badge b-read" style="margin-left:auto">0 auto-writes</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-steps">
+            <div class="step">
+              <div class="step-dot"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">User types product creation phrase</div>
+                <div class="step-detail">e.g. "create a new vault", "nouveau produit yield mining"</div>
+                <div class="step-badges"><span class="badge b-read">No LLM yet</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Deterministic Router classifies → product_draft</div>
+                <div class="step-detail">PRODUCT_VAULT_RULES[product.draft] or classifyProductWorkspaceIntent() → shouldOpenProductWorkspace=true</div>
+                <div class="step-badges"><span class="badge b-read">Pure function</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Nav signal sent to client → /admin/product-workspace</div>
+                <div class="step-detail">Client receives navigation command. Chat message rendered. Workspace panel opens.</div>
+                <div class="step-badges"><span class="badge b-read">READ</span> <span class="badge b-live">No record created</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot blue"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin fills Product Workspace brief</div>
+                <div class="step-detail">Form fields: vault name, strategy, assumptions. No auto-fill from chat. Admin edits manually.</div>
+                <div class="step-badges"><span class="badge b-manual">Manual</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot blue"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">CTA "Go to Projection" surfaced</div>
+                <div class="step-detail">A handoff block with projection CTA and methodology panel is shown after brief is saved.</div>
+                <div class="step-badges"><span class="badge b-read">READ</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot blue"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin navigates to /admin/projection</div>
+                <div class="step-detail">GET request. No run. Projection studio loaded. Draft suggestions and methodology panel visible.</div>
+                <div class="step-badges"><span class="badge b-read">GET = no write</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin clicks "Run Study" (manual action)</div>
+                <div class="step-detail"><code>runProjectionStudy()</code> called from studio.tsx:443. <strong>Only this click creates a ProjectionStudyRun.</strong> Chat cannot trigger this.</div>
+                <div class="step-badges"><span class="badge b-manual">Manual click only</span> <span class="badge b-write">Creates ProjectionStudyRun + ScenarioRun</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lane-note">
+            <strong>Key invariants:</strong> Chat creates 0 runs. Workspace GET creates 0 runs. Projection page GET creates 0 runs.
+            Only the "Run Study" button in studio.tsx creates a ProjectionStudyRun. The flow is
+            Chat → Workspace (read) → Projection GET (read) → Admin click Run Study (write).
+          </div>
+        </div>
+      </div>
+
+      <!-- LANE 2 -->
+      <div class="lane">
+        <div class="lane-header">
+          <div class="lane-num">2</div>
+          <div class="lane-title">Projection Run (Run Study)</div>
+          <span class="badge b-manual" style="margin-left:auto">Admin click only</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-steps">
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin clicks "Run Study" in projection studio</div>
+                <div class="step-detail">Triggers <code>runProjectionStudy()</code> — src/app/admin/projection/actions.ts:114</div>
+                <div class="step-badges"><span class="badge b-manual">Manual</span> <span class="badge b-write">Write intent</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Server action validates configured assumptions</div>
+                <div class="step-detail">Reads live/configured sources. Pure engine called (<code>src/lib/engine/*</code> — no I/O, no DB inside engine).</div>
+                <div class="step-badges"><span class="badge b-config">Configured sources</span> <span class="badge b-read">Pure engine</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">ProjectionStudyRun + ScenarioRun created in DB</div>
+                <div class="step-detail">Prisma writes. Audit row recorded. validation status set. EntityType "ProjectionStudyRun" in audit log.</div>
+                <div class="step-badges"><span class="badge b-write">DB write</span> <span class="badge b-guard">Audit trail</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot red"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Investor eligibility remains blocked</div>
+                <div class="step-detail">A run alone does not make vault investor-ready. Assumptions validation + audit gate must pass separately. Admin-only surface.</div>
+                <div class="step-badges"><span class="badge b-blocked">Investor-ready gate not lifted by run</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lane-note yellow">
+            <strong>Unaudited risk:</strong> Mainnet vault deployment is gated on Spearbit audit (ADR-006). A projection run is not a deployment approval.
+            <strong>No chat tool</strong> can trigger runProjectionStudy — the tool is a server action behind a UI button only.
+          </div>
+        </div>
+      </div>
+
+      <!-- LANE 3 -->
+      <div class="lane">
+        <div class="lane-header">
+          <div class="lane-num">3</div>
+          <div class="lane-title">Outreach — Direct Send</div>
+          <span class="badge b-ext" style="margin-left:auto">External email</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-steps">
+            <div class="step">
+              <div class="step-dot blue"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin opens DirectSendForm</div>
+                <div class="step-detail">Manual UI action — no chat trigger. Form collects recipient, subject, body.</div>
+                <div class="step-badges"><span class="badge b-manual">Manual UI</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin clicks Submit → ConfirmDialog shown</div>
+                <div class="step-detail">ConfirmDialog (added PR #210) blocks the send. Admin must explicitly confirm. No accidental one-click send.</div>
+                <div class="step-badges"><span class="badge b-hitl">Confirmation required</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Admin confirms → sendDirectEmail() called</div>
+                <div class="step-detail">Server action validates forbidden words, checks suppression list, then calls Resend API.</div>
+                <div class="step-badges"><span class="badge b-guard">Forbidden words</span> <span class="badge b-guard">Suppression check</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Resend sends real email + audit logged</div>
+                <div class="step-detail">OutreachEmail record created. Email event logged. Unsubscribe link included.</div>
+                <div class="step-badges"><span class="badge b-write">DB write</span> <span class="badge b-ext">External send</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lane-note red">
+            <strong>Real email.</strong> This sends to a real recipient. The ConfirmDialog (PR #210) prevents accidental sends.
+            Forbidden-words guard and suppression check run before Resend is called.
+          </div>
+        </div>
+      </div>
+
+      <!-- LANE 4 -->
+      <div class="lane">
+        <div class="lane-header">
+          <div class="lane-num">4</div>
+          <div class="lane-title">Outreach — Campaign Fan-Out</div>
+          <span class="badge b-ext" style="margin-left:auto">Per-email guarded</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-steps">
+            <div class="step">
+              <div class="step-dot blue"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Approved campaign emails queued</div>
+                <div class="step-detail">Auto-send cron (hourly) or manual fan-out picks up draft cold emails with eligible tier.</div>
+                <div class="step-badges"><span class="badge b-config">Tier B/C eligible (auto). Tier A = draft only.</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Suppression re-check (per email)</div>
+                <div class="step-detail"><code>isSuppressed()</code> called at send time — not just at draft time.</div>
+                <div class="step-badges"><span class="badge b-guard">Suppression</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot yellow"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Forbidden-words re-check (per email) — PR #211</div>
+                <div class="step-detail"><code>assertNoForbiddenWords()</code> or <code>containsForbidden()</code> re-checked at send time (not just at draft). Blocked emails set status=failed.</div>
+                <div class="step-badges"><span class="badge b-guard">Forbidden words</span> <span class="badge b-blocked">Unsafe = failed, not sent</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">sendTrackedEmail() → Resend</div>
+                <div class="step-detail">Clean email sent. OutreachEmailEvent recorded. Campaign continues for remaining emails.</div>
+                <div class="step-badges"><span class="badge b-ext">External send</span> <span class="badge b-write">DB write</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lane-note">
+            <strong>OUTREACH_AUTONOMY default = SUGGEST.</strong> In SUGGEST mode the auto-send budget gate short-circuits — nothing is auto-sent.
+            SEND+ enables Tier B/C auto-send up to OUTREACH_DAILY_SEND_CAP. Tier A is NEVER auto-sent.
+            Warm-up curve governs volume in first days.
+          </div>
+        </div>
+      </div>
+
+      <!-- LANE 5 -->
+      <div class="lane">
+        <div class="lane-header">
+          <div class="lane-num">5</div>
+          <div class="lane-title">Dangerous Action Refusal</div>
+          <span class="badge b-refusal" style="margin-left:auto">Never executes</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-steps">
+            <div class="step">
+              <div class="step-dot red"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">User sends dangerous phrase</div>
+                <div class="step-detail">"deploy", "go live", "sign transaction", "execute governance", "migrate database", "change formula", "mark live"</div>
+                <div class="step-badges"><span class="badge b-danger">Dangerous intent</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot red"></div>
+              <div class="step-line"></div>
+              <div class="step-content">
+                <div class="step-name">Danger-first guard fires — BEFORE LLM</div>
+                <div class="step-detail"><code>DANGEROUS_RULES</code> matched. Router returns <code>refuse_autonomous</code> with <code>prohibitedAutonomousAction: true</code>. No LLM call made.</div>
+                <div class="step-badges"><span class="badge b-refusal">REFUSAL</span> <span class="badge b-guard">Pre-LLM</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot red"></div>
+              <div class="step-content">
+                <div class="step-name">Refusal message streamed to client</div>
+                <div class="step-detail">No action taken. No record created. No page navigated. Human must act through the multi-sig governance UI.</div>
+                <div class="step-badges"><span class="badge b-read">0 writes</span> <span class="badge b-blocked">0 records</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lane-note red">
+            <strong>Zero path to deploy/go-live/on-chain from chat.</strong> Deploy, sign, governance execution, DB migration, formula change — all refused before LLM. Mainnet vault stays gated on Spearbit audit (ADR-006).
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- D. TOOL / WRITE RISK MATRIX                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="matrix">
+    <div class="section-header">
+      <div class="section-label">D</div>
+      <h2>Tool / Write Risk Matrix</h2>
+    </div>
+    <p class="section-desc">Every action available from or related to the chat — read/write classification, confirmation requirements, and current guards.</p>
+    <div style="height:16px"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Action / Tool</th>
+            <th>R/W</th>
+            <th>Admin only</th>
+            <th>Confirm required</th>
+            <th>External send?</th>
+            <th>Creates record?</th>
+            <th>Current guard</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Navigation</strong><br><span class="cell-file">nav-fallback-intent.ts · navigate-tool.ts</span></td>
+            <td><span class="badge b-read">READ</span></td>
+            <td>No (LP + admin)</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+            <td>Route whitelist enforced. LP cannot nav to admin pages. Verb-gating: bare mentions ≠ navigation.</td>
+          </tr>
+          <tr>
+            <td><strong>Product Workspace brief open</strong><br><span class="cell-file">product-workspace-intent.ts · /admin/product-workspace</span></td>
+            <td><span class="badge b-read">READ</span></td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+            <td>Admin route. Chat signals nav; admin fills form. No auto-record.</td>
+          </tr>
+          <tr>
+            <td><strong>Projection GET (view page)</strong><br><span class="cell-file">src/app/admin/projection/page.tsx</span></td>
+            <td><span class="badge b-read">READ</span></td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+            <td>GET never creates ProjectionStudyRun. Handoff block + methodology panel surfaced.</td>
+          </tr>
+          <tr>
+            <td><strong>Projection Run Study (Run Study button)</strong><br><span class="cell-file">projection/actions.ts → runProjectionStudy()</span></td>
+            <td><span class="badge b-write">WRITE</span></td>
+            <td>Yes</td>
+            <td>Implicit (manual click)</td>
+            <td>No</td>
+            <td>Yes — ProjectionStudyRun + ScenarioRun</td>
+            <td>UI button only. Not reachable from chat. Audit row written. Investor-ready gate separate.</td>
+          </tr>
+          <tr>
+            <td><strong>Promote to draft / vault status change</strong><br><span class="cell-file">vaults/actions.ts</span></td>
+            <td><span class="badge b-write">WRITE</span></td>
+            <td>Yes</td>
+            <td>Yes (HITL token)</td>
+            <td>No</td>
+            <td>Yes — VaultDraft update</td>
+            <td>2-step HITL confirmation token. Draft-only from chat. markAsLive requires multi-sig UI.</td>
+          </tr>
+          <tr>
+            <td><strong>Create vault draft</strong><br><span class="cell-file">registry.ts → runCreateVaultDraft() → vaults/actions.ts</span></td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-hitl">HITL</span></td>
+            <td>Yes</td>
+            <td>Yes (HITL token, 2-step)</td>
+            <td>No</td>
+            <td>Yes — VaultDraft</td>
+            <td>HITL confirmation token flow. Input validated with Zod before token issued. Admin only.</td>
+          </tr>
+          <tr>
+            <td><strong>Direct outreach send</strong><br><span class="cell-file">outreach/actions.ts → sendDirectEmail → Resend</span></td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-ext">External</span></td>
+            <td>Yes</td>
+            <td>Yes (ConfirmDialog — PR #210)</td>
+            <td>Yes</td>
+            <td>Yes — OutreachEmail</td>
+            <td>ConfirmDialog. Forbidden-words. Suppression. Unsubscribe link. Real email.</td>
+          </tr>
+          <tr>
+            <td><strong>Campaign auto-send (Tier B/C)</strong><br><span class="cell-file">outreach-auto-send.ts (Inngest)</span></td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-ext">External</span></td>
+            <td>System (cron)</td>
+            <td>No (env-governed)</td>
+            <td>Yes</td>
+            <td>Yes — OutreachEmail + events</td>
+            <td>OUTREACH_AUTONOMY=SUGGEST blocks all. SEND+ enables B/C only. Daily cap + warm-up. Forbidden-words + suppression at send.</td>
+          </tr>
+          <tr>
+            <td><strong>Auto-send (Tier A)</strong></td>
+            <td><span class="badge b-blocked">NEVER</span></td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>No auto-send</td>
+            <td>Hard block in decideAutoSend(). Tier A is always draft-only.</td>
+          </tr>
+          <tr>
+            <td><strong>Follow-up send (NURTURE+ cron)</strong><br><span class="cell-file">outreach-followups.ts (Inngest)</span></td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-ext">External</span></td>
+            <td>System (cron)</td>
+            <td>No (env-governed)</td>
+            <td>Yes</td>
+            <td>Yes — OutreachEmail + events</td>
+            <td>NURTURE+ required. Suppression + forbidden-words re-checked. Max 100/run. 3-day then 4-day delay. Max 2 follow-ups.</td>
+          </tr>
+          <tr>
+            <td><strong>Outreach source leads</strong><br><span class="cell-file">outreach/actions.ts → runSourcing()</span></td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-hitl">HITL</span></td>
+            <td>Yes</td>
+            <td>Yes (human gate)</td>
+            <td>No</td>
+            <td>Yes — OutreachProspect records</td>
+            <td>Held behind human gate. Chat SEND_SOURCE_RULES block auto-trigger.</td>
+          </tr>
+          <tr>
+            <td><strong>Draft email for prospect</strong><br><span class="cell-file">registry.ts → draftEmailForProspect()</span></td>
+            <td><span class="badge b-write">WRITE</span> <span class="badge b-hitl">HITL</span></td>
+            <td>Yes</td>
+            <td>Yes (HITL token)</td>
+            <td>No (draft only)</td>
+            <td>Yes — OutreachEmail (draft status)</td>
+            <td>Draft only. Does not send. Forbidden-words validated at draft time. Send requires separate confirmation.</td>
+          </tr>
+          <tr>
+            <td><strong>Deploy / go-live</strong></td>
+            <td><span class="badge b-refusal">REFUSED</span></td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>No</td>
+            <td>Danger-first guard before LLM. prohibitedAutonomousAction=true. Mainnet gated on Spearbit (ADR-006).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- E. RECORD CREATION MAP                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="records">
+    <div class="section-header">
+      <div class="section-label">E</div>
+      <h2>Record Creation Map</h2>
+    </div>
+    <p class="section-desc">Which records exist, who creates them, whether they are auto or manual, and key hard constraints.</p>
+    <div style="height:16px"></div>
+    <div class="record-grid">
+
+      <div class="record-card manual">
+        <div class="record-name">ProjectionStudyRun</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">runProjectionStudy() — server action</div></div>
+          <div class="record-row"><div class="record-key">Trigger</div><div class="record-val yellow">Admin clicks Run Study in studio.tsx</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val red">Never auto</div></div>
+          <div class="record-row"><div class="record-key">Chat?</div><div class="record-val red">Chat NEVER creates this</div></div>
+          <div class="record-row"><div class="record-key">GET?</div><div class="record-val red">Projection GET NEVER creates this</div></div>
+        </div>
+      </div>
+
+      <div class="record-card manual">
+        <div class="record-name">ScenarioRun</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">runProjectionStudy() (child of ProjectionStudyRun)</div></div>
+          <div class="record-row"><div class="record-key">Trigger</div><div class="record-val yellow">Same as ProjectionStudyRun — manual Run Study</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val red">Never</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Single run = 1 ScenarioRun, matrixSize=1</div></div>
+        </div>
+      </div>
+
+      <div class="record-card hitl">
+        <div class="record-name">VaultDraft</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">createDraftVault() via registry.ts tool</div></div>
+          <div class="record-row"><div class="record-key">Trigger</div><div class="record-val">Admin chat with HITL 2-step token confirmed</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val red">Never — requires HITL token</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Draft-only. markAsLive requires multi-sig UI, not chat.</div></div>
+        </div>
+      </div>
+
+      <div class="record-card never">
+        <div class="record-name">VaultDeployment</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">Governance multi-sig UI (not chat)</div></div>
+          <div class="record-row"><div class="record-key">Chat creates?</div><div class="record-val red">Never from chat</div></div>
+          <div class="record-row"><div class="record-key">Mainnet?</div><div class="record-val red">Gated on Spearbit audit (ADR-006)</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">deploy/go-live refused before LLM in chat</div></div>
+        </div>
+      </div>
+
+      <div class="record-card never">
+        <div class="record-name">VaultDeploymentApproval</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">Multi-sig governance process</div></div>
+          <div class="record-row"><div class="record-key">Chat creates?</div><div class="record-val red">Never</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">No path from chat to vault approval</div></div>
+        </div>
+      </div>
+
+      <div class="record-card never">
+        <div class="record-name">GovernanceProposal</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">Admin UI (draft-only from chat, HITL gated)</div></div>
+          <div class="record-row"><div class="record-key">Auto execute?</div><div class="record-val red">Never — DANGEROUS_RULES refuse execution</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Governance execution refused by danger-first router</div></div>
+        </div>
+      </div>
+
+      <div class="record-card auto">
+        <div class="record-name">OutreachEmail</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">Direct send / campaign fan-out / auto-send / drafting agent</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val yellow">Partially — Tier B/C at SEND+ (env gate)</div></div>
+          <div class="record-row"><div class="record-key">Tier A?</div><div class="record-val red">Draft-only, never auto-sent</div></div>
+          <div class="record-row"><div class="record-key">Guard</div><div class="record-val">Forbidden-words + suppression at every send path</div></div>
+        </div>
+      </div>
+
+      <div class="record-card auto">
+        <div class="record-name">OutreachEmailEvent</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">Resend webhooks / logEmailActivity() / send tracking</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val green">Yes — system event logging</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Immutable audit. opened, clicked, replied, bounced etc.</div></div>
+        </div>
+      </div>
+
+      <div class="record-card hitl">
+        <div class="record-name">OutreachSuppression</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">Unsubscribe handler (Resend webhook via Svix HMAC)</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val green">Yes — on opt-out signal</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Checked at every send (draft + fan-out + followup)</div></div>
+        </div>
+      </div>
+
+      <div class="record-card auto">
+        <div class="record-name">LlmRun</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-val">chat-agent.ts / batch agent runs</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val green">Yes — on every LLM call</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Cost estimation logged (estimateOpenAiCostUsd). Observability.</div></div>
+        </div>
+      </div>
+
+      <div class="record-card auto">
+        <div class="record-name">cockpitMessage</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-key">route.ts — after() hook (fire-and-forget)</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val green">Yes — every chat turn</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Persisted after response. Includes role, content, intent decision.</div></div>
+        </div>
+      </div>
+
+      <div class="record-card auto">
+        <div class="record-name">cockpitChat</div>
+        <div class="record-rows">
+          <div class="record-row"><div class="record-key">Created by</div><div class="record-key">route.ts — on first message of a session</div></div>
+          <div class="record-row"><div class="record-key">Auto?</div><div class="record-val green">Yes — per chat session</div></div>
+          <div class="record-row"><div class="record-key">Notes</div><div class="record-val">Groups messages by chat ID. Tenant-scoped.</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:16px; padding:14px 16px; background:rgba(255,95,95,.06); border:1px solid rgba(255,95,95,.2); border-radius:8px; font-size:11.5px; color:var(--text-soft); line-height:1.6;">
+      <strong style="color:#ff9090;">Hard constraints on record creation from chat:</strong><br>
+      • <code>GET /admin/projection</code> — never creates ProjectionStudyRun.<br>
+      • Chat product creation phrase → Product Workspace → never creates ProjectionStudyRun.<br>
+      • Chat cannot trigger <code>runProjectionStudy()</code> — that server action is behind a UI button only.<br>
+      • Chat cannot create VaultDeployment or VaultDeploymentApproval.<br>
+      • Governance execution is refused before LLM — no GovernanceProposal executed from chat.
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- F. GUARDRAIL MAP                                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="guardrails">
+    <div class="section-header">
+      <div class="section-label">F</div>
+      <h2>Guardrail Map</h2>
+    </div>
+    <p class="section-desc">Every active safety mechanism — where it runs, what it blocks, and which file enforces it.</p>
+    <div style="height:16px"></div>
+    <div class="guard-grid">
+
+      <div class="guard-item">
+        <div class="guard-icon">🛡</div>
+        <div class="guard-content">
+          <strong>No auto-run (projection)</strong>
+          <p>runProjectionStudy() is unreachable from chat. Only the "Run Study" UI button triggers it. GET never creates a run.</p>
+          <span class="cell-file">projection/actions.ts · studio.tsx:443</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🛡</div>
+        <div class="guard-content">
+          <strong>No auto-vault</strong>
+          <p>VaultDraft creation requires 2-step HITL token. VaultDeployment requires multi-sig UI. Chat cannot deploy.</p>
+          <span class="cell-file">registry.ts · vaults/actions.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🚫</div>
+        <div class="guard-content">
+          <strong>No deploy / go-live from chat</strong>
+          <p>DANGEROUS_RULES refuse deploy/sign/governance before LLM. prohibitedAutonomousAction=true. Mainnet gated on Spearbit (ADR-006).</p>
+          <span class="cell-file">intent-router-rules.ts · DANGEROUS_RULES</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🚫</div>
+        <div class="guard-content">
+          <strong>No false investor-ready</strong>
+          <p>investor-ready / eligible status requires separate gates (assumptions validated, audit completed). A run alone does not lift the gate.</p>
+          <span class="cell-file">projection/actions.ts · validation flow</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📋</div>
+        <div class="guard-content">
+          <strong>Forbidden-words guard (output)</strong>
+          <p>Streaming output scanned for "guarantee", "promise", "garanti", "sans risque", "rendement certain", "gain assuré" etc. Negation-aware. Violation = stream aborted, sentinel emitted.</p>
+          <span class="cell-file">output-guard.ts · forbidden-words.ts · containsForbiddenChat()</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📋</div>
+        <div class="guard-content">
+          <strong>APY always a range</strong>
+          <p>hasSinglePointApy() checks every streamed chunk. A single-point APY figure ("11%") in a yield context aborts the stream. Only ranges pass ("9–13%").</p>
+          <span class="cell-file">output-guard.ts · agents/apy-range.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🔐</div>
+        <div class="guard-content">
+          <strong>HITL confirmation token (write tools)</strong>
+          <p>All write tools require a 2-step confirmation: model proposes → system issues token → admin submits token → action executes. Token TTL: 5 minutes. No auto-consume.</p>
+          <span class="cell-file">tools/confirmations.ts · registry.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">✅</div>
+        <div class="guard-content">
+          <strong>Direct send confirmation (ConfirmDialog)</strong>
+          <p>PR #210 — admin must click "Confirm" in a dialog before any direct outreach email is sent. No accidental one-click send path.</p>
+          <span class="cell-file">src/app/admin/outreach/ (DirectSendForm)</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🔒</div>
+        <div class="guard-content">
+          <strong>LP / admin route boundary</strong>
+          <p>LP (investor) cannot reach admin pages, write tools, or outreach surfaces. Role extracted from Privy session. System prompt and tool set are role-partitioned at auth time.</p>
+          <span class="cell-file">route.ts · requireAuth · isAdminWriteToolAllowed()</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🧹</div>
+        <div class="guard-content">
+          <strong>XSS / input sanitization</strong>
+          <p>Body size capped (assertBodySize). Input normalized before routing. No raw HTML reflected. Output streamed as text, not injected as HTML.</p>
+          <span class="cell-file">route.ts · assertBodySize · intent-router-normalize.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📛</div>
+        <div class="guard-content">
+          <strong>Query param sanitization</strong>
+          <p>from=product-workspace and similar params are handled server-side, not reflected unsanitized. Projection GET only reads the param; no action executed.</p>
+          <span class="cell-file">projection/page.tsx</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🚫</div>
+        <div class="guard-content">
+          <strong>Suppression list (outreach)</strong>
+          <p>isSuppressed() called at every send path: direct send, campaign fan-out, auto-send, and follow-ups. Suppressed emails are never sent.</p>
+          <span class="cell-file">lib/outreach/suppression.ts · isSuppressed()</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🔗</div>
+        <div class="guard-content">
+          <strong>Unsubscribe HMAC (outreach)</strong>
+          <p>Every outbound email carries a cryptographically signed unsubscribe link. Opt-out verified server-side via Svix HMAC before creating OutreachSuppression record.</p>
+          <span class="cell-file">lib/outreach/ · Resend inbound Svix handler</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🌡</div>
+        <div class="guard-content">
+          <strong>OUTREACH_AUTONOMY default = SUGGEST</strong>
+          <p>Default env value blocks all auto-sends. SEND+ is required for Tier B/C auto-send. Tier A is never auto-sent regardless of OUTREACH_AUTONOMY value.</p>
+          <span class="cell-file">lib/outreach/send-policy.ts · decideAutoSend()</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📊</div>
+        <div class="guard-content">
+          <strong>Tier A never auto-sent</strong>
+          <p>Hard code path in decideAutoSend() — Tier A prospects receive only drafted emails. No autonomy level enables Tier A auto-send.</p>
+          <span class="cell-file">send-policy.ts · outreach-auto-send.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📈</div>
+        <div class="guard-content">
+          <strong>Warm-up curve + daily cap</strong>
+          <p>Auto-send volume is bounded by remainingDailyBudget() (warm-up days × ramp curve). OUTREACH_DAILY_SEND_CAP env var enforced. Prevents deliverability harm.</p>
+          <span class="cell-file">send-policy.ts · outreach-auto-send.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📋</div>
+        <div class="guard-content">
+          <strong>Forbidden-words re-check at campaign send (PR #211)</strong>
+          <p>assertNoForbiddenWords() / containsForbidden() re-checked at fan-out send time, not just at draft time. Unsafe emails silently blocked (status=failed), campaign continues.</p>
+          <span class="cell-file">outreach-auto-send.ts · outreach-followups.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">🔑</div>
+        <div class="guard-content">
+          <strong>Server-side system prompt (no client override)</strong>
+          <p>System prompts are built server-side from COCKPIT_ADMIN_SYSTEM_PROMPT / COCKPIT_DEFAULT_SYSTEM_PROMPT. Client cannot override or inject system prompt content.</p>
+          <span class="cell-file">route.ts · lib/llm/prompts.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📦</div>
+        <div class="guard-content">
+          <strong>Rate limit + body size cap</strong>
+          <p>assertRateLimit() and assertBodySize() run before any routing. Prevents DoS and oversized injection payloads.</p>
+          <span class="cell-file">route.ts · lib/rate-limit.ts</span>
+        </div>
+      </div>
+
+      <div class="guard-item">
+        <div class="guard-icon">📝</div>
+        <div class="guard-content">
+          <strong>Assumptions + "not guaranteed" disclaimer mandatory</strong>
+          <p>Every projection must surface its assumptions and a "not guaranteed" disclaimer (Non-négociable #10). Methodology v1.0 is immutable — version bump required for changes.</p>
+          <span class="cell-file">docs/methodology/v1.0.md · projection/page.tsx</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- G. TEST EVIDENCE PANEL                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="evidence">
+    <div class="section-header">
+      <div class="section-label">G</div>
+      <h2>Test Evidence Panel</h2>
+    </div>
+    <p class="section-desc">Verified test results supporting the claims in this canvas. "Reported by prior mission" = not re-verified in this pass.</p>
+    <div style="height:16px"></div>
+    <div class="evidence-grid">
+
+      <div class="evidence-card">
+        <h4><span class="badge b-guard" style="font-size:10px">Product hard stress</span> &nbsp;80-prompt / XSS / Parser suite</h4>
+        <div class="evidence-row">
+          <div class="evidence-label">Total prompts tested</div>
+          <div class="evidence-val count">80</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">URL / XSS cases</div>
+          <div class="evidence-val count">13</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Parser edge cases</div>
+          <div class="evidence-val count">16</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Auto-run triggered</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Auto-vault triggered</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Record from GET</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">False investor-ready</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Guaranteed APY by app</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">XSS injected</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">HITL bypass</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Deploy / go-live triggered</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">LP reached admin surface</div>
+          <div class="evidence-val zero">0</div>
+        </div>
+        <div class="evidence-source">Reported by prior mission — stress test scripts/stress/</div>
+      </div>
+
+      <div class="evidence-card">
+        <h4><span class="badge b-live" style="font-size:10px">Vitest suite</span> &nbsp;CI baseline post PR #203/#206</h4>
+        <div class="evidence-row">
+          <div class="evidence-label">Test files</div>
+          <div class="evidence-val count">380</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Total tests</div>
+          <div class="evidence-val count">4 165+</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Suite status</div>
+          <div class="evidence-val zero">GREEN</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">CI gate</div>
+          <div class="evidence-val zero">Passing</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Projection handoff test</div>
+          <div class="evidence-val zero">"manual Run Study required" ✓</div>
+        </div>
+        <div class="evidence-source">src/app/admin/projection/__tests__/page.handoff.test.tsx · PR #206 (1a39d226)</div>
+      </div>
+
+      <div class="evidence-card">
+        <h4><span class="badge b-ext" style="font-size:10px">Outreach</span> &nbsp;Direct send + campaign guards</h4>
+        <div class="evidence-row">
+          <div class="evidence-label">Direct send confirm added</div>
+          <div class="evidence-val zero">✓ PR #210</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Fan-out forbidden-words re-check</div>
+          <div class="evidence-val zero">✓ PR #211</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Unsafe campaign email sent</div>
+          <div class="evidence-val zero">0 (blocked)</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Tier A auto-sent</div>
+          <div class="evidence-val zero">Never</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">OUTREACH_AUTONOMY default</div>
+          <div class="evidence-val warn">SUGGEST (no auto-send)</div>
+        </div>
+        <div class="evidence-source">Verified in outreach-auto-send.ts + outreach-followups.ts · commit f33eb5dc / b1e68096</div>
+      </div>
+
+      <div class="evidence-card">
+        <h4><span class="badge b-guard" style="font-size:10px">Router</span> &nbsp;Intent router v2 coverage</h4>
+        <div class="evidence-row">
+          <div class="evidence-label">Danger-first guard</div>
+          <div class="evidence-val zero">✓ Pre-LLM</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Negation cross-cutting</div>
+          <div class="evidence-val zero">✓ v2 isNegated()</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Nav verb-gating (LP→admin leak)</div>
+          <div class="evidence-val zero">✓ Closed</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Bug-report non-nav</div>
+          <div class="evidence-val zero">✓ BUG_REPORT_RE</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Typo command set</div>
+          <div class="evidence-val zero">✓ Controlled set</div>
+        </div>
+        <div class="evidence-source">src/lib/agentic/intent-router.ts · intent-router-rules.ts (verified in this pass)</div>
+      </div>
+
+      <div class="evidence-card">
+        <h4><span class="badge b-guard" style="font-size:10px">Output guard</span> &nbsp;Stream compliance layer</h4>
+        <div class="evidence-row">
+          <div class="evidence-label">Look-back buffer</div>
+          <div class="evidence-val count">64 chars</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Forbidden-words matcher</div>
+          <div class="evidence-val zero">containsForbiddenChat()</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">APY single-point check</div>
+          <div class="evidence-val zero">hasSinglePointApy()</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Yield keyword hold-back</div>
+          <div class="evidence-val zero">✓ Sentence boundary</div>
+        </div>
+        <div class="evidence-row">
+          <div class="evidence-label">Offending text emitted?</div>
+          <div class="evidence-val zero">Never (buffer absorbs)</div>
+        </div>
+        <div class="evidence-source">src/lib/llm/output-guard.ts (verified in this pass)</div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /canvas -->
+
+<footer>
+  <p>Hearst Connect · Master Chat Operating Canvas · <strong style="color:var(--text-soft)">HEAD cf298852</strong> · 2026-06-29 · Read-only documentation — no runtime dependency.</p>
+  <div class="next-recs">
+    <strong>Recommended next canvases:</strong> Outreach full lifecycle · Projection engine / source truth
+  </div>
+</footer>
+
+<script>
+  // Highlight active nav link on scroll
+  (function(){
+    const sections = document.querySelectorAll('section[id]');
+    const links = document.querySelectorAll('nav a[href^="#"]');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => obs.observe(s));
+  })();
+</script>
+
+</body>
+</html>
