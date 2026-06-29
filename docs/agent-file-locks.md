@@ -62,29 +62,32 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-### fix/vitest-hf-load-deferral
-Owner: Claude Opus — CI Vitest green-up (HF load deferral)
-Branch: fix/vitest-hf-load-deferral
-Worktree: principal (integration tree)
-Started: 2026-06-29
-Status: active
-
-Goal: stop huggingface.ts from throwing at import when no HF token is set under
-test (NODE_ENV=test), so CI Vitest stops crashing the 3 semantic-guard importer
-suites (chat-agent ×2 + route.guard) at "0 test". Defers the missing-token error
-to first USE (like openai.ts + the existing build-phase path). HF stays optional
-and fail-open; HF_AVAILABLE=false makes semantic-guard skip HF cleanly.
-
-Scope:
-- src/lib/llm/huggingface.ts (IS_TEST → placeholder instead of throw at load)
-- src/lib/llm/__tests__/huggingface-test-deferral.test.ts (new guard test)
-
-STOP: never touches engine/data/prisma/portfolio/vaults/outreach/chat-guard. Does
-NOT fix the 5 remaining red DS/onboarding/nav tests (out of scope, their owners').
+> Aucun lock actif. Dernières intégrations : HC-7631 methodology panel (PR #200),
+> fix CI Vitest HF deferral (PR #203).
 
 ---
 
 ## RELEASED LOCKS
+
+### fix/vitest-hf-load-deferral (terminé — PR #203 MERGED)
+Owner: Claude Opus — CI Vitest green-up (HF load deferral)
+Branch: fix/vitest-hf-load-deferral
+Released: 2026-06-29
+Status: released (merged)
+Reason: PR #203 « defer huggingface missing-token error under test » MERGED (squash
+  5ed5f5fd). huggingface.ts → placeholder (not throw) at load under NODE_ENV=test;
+  unblocked the 3 semantic-guard importer suites in CI (Vitest 8→5 failed files).
+  5 red DS/vaults/onboarding/nav tests remain — out of scope, their owners'.
+
+### feat/projection-methodology-panel (terminé — PR #200 MERGED)
+Owner: Claude Opus — MISSION HC-7631 follow-up (methodology panel)
+Branch: feat/projection-methodology-panel
+Released: 2026-06-29
+Status: released (merged)
+Reason: PR #200 « surface methodology panel in handoff block » MERGED (squash
+  9188f088). Pure buildMethodologyPanel view-model + handoff "Assumptions to
+  review" section (CONFIGURED markup/revenue-share/borrow/fees/BTC band + v1.0).
+  No business number invented, no slider prefill, no auto-run.
 
 ### feat/projection-input-draft-from-chat (terminé — PR #198 MERGED)
 Owner: Claude Opus — MISSION HC-7631 Chat-guided projection input draft
