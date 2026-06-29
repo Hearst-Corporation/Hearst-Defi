@@ -5,9 +5,16 @@
 // left rail colours the tier; per-action reason/examples live in a nested
 // <details> so the table stays scannable. No write controls, nothing executes.
 // No hardcoded values. Pure component.
+//
+// Canonized (Mission #064): the custom `agentic-table` is replaced by the canon
+// Catalyst Table primitive and `agentic-tag` by BentoBadge. The tier sub-header
+// rows and the per-action <details> disclosure are preserved as functional
+// content.
 
 import { Fragment } from "react";
-import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { BentoBadge, type BentoBadgeVariant } from "@/components/catalyst/bento-badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/catalyst/table";
+import type { AgenticTone } from "@/components/admin/agentic/agentic-group";
 import type {
   ActionReadinessItem,
   ActionReadinessMatrix,
@@ -35,6 +42,15 @@ const TIER_ORDER: ActionReadinessTier[] = [
   "forbidden_autonomous",
 ];
 
+const TONE_VARIANT: Record<AgenticTone, BentoBadgeVariant> = {
+  success: "success",
+  warning: "warning",
+  danger: "danger",
+  accent: "accent",
+  info: "default",
+  neutral: "default",
+};
+
 function gateLabel(item: ActionReadinessItem): string {
   if (item.tier === "forbidden_autonomous") return "blocked";
   if (item.humanGateRequired || item.confirmationRequired) return "HITL";
@@ -50,8 +66,8 @@ function riskTone(risk: ActionReadinessItem["riskLevel"]): AgenticTone {
 function ActionRow({ item }: { item: ActionReadinessItem }) {
   const hasDetail = Boolean(item.reason) || item.examples.length > 0;
   return (
-    <tr data-tone={TIER_TONE[item.tier]}>
-      <td className="agentic-cell-strong">
+    <TableRow data-tone={TIER_TONE[item.tier]}>
+      <TableCell className="ct-metric-value">
         {item.label}
         {hasDetail && (
           <details className="agentic-rowdetail">
@@ -59,33 +75,33 @@ function ActionRow({ item }: { item: ActionReadinessItem }) {
             <div className="agentic-rowdetail-body">
               {item.reason && <span>{item.reason}</span>}
               {item.examples.map((ex) => (
-                <span key={ex} className="agentic-cell-faint">
+                <span key={ex} className="text-[var(--ct-text-faint)]">
                   · {ex}
                 </span>
               ))}
             </div>
           </details>
         )}
-      </td>
-      <td>
+      </TableCell>
+      <TableCell>
         {item.riskLevel !== "none" && item.riskLevel !== "low" ? (
-          <AgenticTag tone={riskTone(item.riskLevel)}>{item.riskLevel}</AgenticTag>
+          <BentoBadge variant={TONE_VARIANT[riskTone(item.riskLevel)]}>{item.riskLevel}</BentoBadge>
         ) : (
-          <span className="agentic-cell-faint">—</span>
+          <span className="text-[var(--ct-text-faint)]">—</span>
         )}
-      </td>
-      <td className="agentic-cell-muted" title={item.requiredGate ?? undefined}>
+      </TableCell>
+      <TableCell className="ct-metric-caption" title={item.requiredGate ?? undefined}>
         {gateLabel(item)}
-      </td>
-      <td className="agentic-cell-muted">
+      </TableCell>
+      <TableCell className="ct-metric-caption">
         {item.autonomousAllowed ? "autonomous" : "human"}
-      </td>
-      <td>
-        <AgenticTag tone={item.status === "blocked" ? "danger" : item.status === "available" ? "success" : "warning"}>
+      </TableCell>
+      <TableCell>
+        <BentoBadge variant={TONE_VARIANT[item.status === "blocked" ? "danger" : item.status === "available" ? "success" : "warning"]}>
           {item.status}
-        </AgenticTag>
-      </td>
-    </tr>
+        </BentoBadge>
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -101,36 +117,36 @@ export function ActionReadinessMatrixSection({
 
   return (
     <div id="action-readiness" className="agentic-group-body min-w-0 border-t-0">
-      <table className="agentic-table">
-        <thead>
-          <tr>
-            <th>Action</th>
-            <th>Risk</th>
-            <th>Gate</th>
-            <th>Autonomy</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table dense>
+        <TableHead>
+          <TableRow>
+            <TableHeader>Action</TableHeader>
+            <TableHeader>Risk</TableHeader>
+            <TableHeader>Gate</TableHeader>
+            <TableHeader>Autonomy</TableHeader>
+            <TableHeader>Status</TableHeader>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {TIER_ORDER.map((tier) => {
             const tierItems = itemsByTier(tier);
             if (tierItems.length === 0) return null;
             return (
               <Fragment key={tier}>
-                <tr className="agentic-table-subhead">
-                  <td colSpan={5}>
+                <TableRow>
+                  <TableCell colSpan={5} className="ct-bento-label bg-[var(--ct-surface-inset)]">
                     {TIER_LABEL[tier]}
-                    <span className="agentic-table-subhead-count">{counts[tier]}</span>
-                  </td>
-                </tr>
+                    <span className="ml-2 tabular-nums text-[var(--ct-text-faint)]">{counts[tier]}</span>
+                  </TableCell>
+                </TableRow>
                 {tierItems.map((item) => (
                   <ActionRow key={item.id} item={item} />
                 ))}
               </Fragment>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

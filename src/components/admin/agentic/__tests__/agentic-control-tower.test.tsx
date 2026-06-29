@@ -83,9 +83,10 @@ describe("AgenticTopologyMap", () => {
     expect(html).toContain("Agents & Crews".replace("&", "&amp;"));
     expect(html).toContain("Forbidden Zone");
     expect(html).toContain("Observability");
-    // line/table console primitives
+    // line/table console primitives — the topology now renders the canon
+    // Catalyst table (Mission #064), wrapped in the agentic-group body.
     expect(html).toContain("agentic-group");
-    expect(html).toContain("agentic-table");
+    expect(html).toContain("<table");
     NO_RUN_CONTROLS(html);
   });
 });
