@@ -118,7 +118,7 @@ export default async function MarketplacePage() {
         }
         ariaLabel="Spot prices"
       >
-        <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-1 bg-[var(--ct-surface-inset)] sm:grid-cols-2">
           {binance.tickers.map((t, i, arr) => (
             <div
               key={t.symbol}
@@ -215,7 +215,7 @@ export default async function MarketplacePage() {
         ariaLabel="Lending yields"
       >
         {/* Per-protocol best APY summary — token-hairline tiles, no white washes. */}
-        <div className="grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] md:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3">
           {lending.protocols.map((p, i, arr) => (
             <div
               key={p.protocol}
@@ -227,10 +227,9 @@ export default async function MarketplacePage() {
             >
               <MarketKpiTile
                 label={p.label}
-                accent
                 value={
                   <ApyRange
-                    className="font-medium tabular-nums text-[var(--ct-accent)]"
+                    className="font-medium tabular-nums ct-text-strong"
                     low={Math.min(p.apyMedianPct, p.topPool.apyPct)}
                     high={p.topPool.apyPct}
                     precision={2}
@@ -298,7 +297,7 @@ export default async function MarketplacePage() {
         }
         ariaLabel="Protocol TVL"
       >
-        <div className="grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] md:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3">
           {tvl.protocols.map((p, i, arr) => (
             <div
               key={p.protocol}
