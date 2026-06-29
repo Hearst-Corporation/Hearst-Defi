@@ -35,9 +35,11 @@ import type {
   ProductConstructionDraft,
   ProductConstructionError,
 } from "./types";
+import {
+  resolveQuantAssumptions,
+  type QuantAssumptionsOverrides,
+} from "./quant-assumptions";
 
-const DEFAULT_HORIZON_MONTHS = 12;
-const DEFAULT_FLOOR_APY_PCT = 8;
 const DISCLAIMER =
   "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
 
@@ -53,8 +55,9 @@ function deriveSeed(objective: string, btcUsd: number): number {
 }
 
 export interface PipelineOptions {
-  horizonMonths?: number;
-  floorApyPct?: number;
+  /** Calibratable Monte-Carlo assumptions (drift/vol/reversion/horizon/…). When
+   *  omitted, the CONFIGURED defaults are used. Resolved + clamped internally. */
+  assumptions?: QuantAssumptionsOverrides;
   /** Skip the LLM write-up and use the deterministic one (faster / no LLM cost). */
   deterministicWriteupOnly?: boolean;
 }
@@ -86,8 +89,9 @@ export async function runProductConstructionPipeline(
     };
   }
 
-  const horizonMonths = opts.horizonMonths ?? DEFAULT_HORIZON_MONTHS;
-  const floorApyPct = opts.floorApyPct ?? DEFAULT_FLOOR_APY_PCT;
+  // Resolve + clamp the calibratable Monte-Carlo assumptions (defaults when
+  // none were supplied). Every hardcode is now a value in here.
+  const assumptions = resolveQuantAssumptions(opts.assumptions);
   const audit: LiveSwarmStepAudit[] = [];
 
   // A · Telegram pricing  +  B · market live (independent reads, run together).
@@ -105,7 +109,6 @@ export async function runProductConstructionPipeline(
   const seed = deriveSeed(trimmed, market.btcUsd);
   const quant = runQuant({
     seed,
-    horizonMonths,
     market: {
       btcUsd: market.btcUsd,
       difficulty: market.difficulty,
@@ -117,7 +120,7 @@ export async function runProductConstructionPipeline(
       headlineApy: strategy.artifact.headlineApy,
     },
     telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
-    floorApyPct,
+    assumptions,
   });
   audit.push(quant.audit);
 
@@ -164,6 +167,7 @@ export async function runProductConstructionPipeline(
     },
     strategy: strategy.artifact,
     quant: quant.artifact,
+    assumptions,
     charts: charts.charts,
     writeup: writeup.artifact,
     audit,
