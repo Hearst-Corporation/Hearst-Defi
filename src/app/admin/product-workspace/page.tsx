@@ -5,6 +5,7 @@ import {
   AdminSectionCard,
 } from "@/components/admin/admin-page-shell";
 import { AgentBriefLive } from "@/components/admin/product-workspace/agent-brief-live";
+import { ProductConstructionPanel } from "@/components/admin/product-workspace/product-construction-panel";
 import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
 import { Heading } from "@/components/catalyst/heading";
 import { cn } from "@/lib/cn";
@@ -151,6 +152,20 @@ export default async function ProductWorkspacePage({
             autostart={autostart}
             initialBrief={initialBrief}
           />
+        </div>
+      </AdminSectionCard>
+
+      {/* Product construction swarms — fetches live BTC/hashprice/Telegram/DeFi,
+          computes a seeded Monte-Carlo, and renders the chiffré + charted +
+          written DRAFT. Read-only (live_read): no write, no send, no deploy. The
+          admin triggers it; nothing is created from this surface. */}
+      <AdminSectionCard
+        ariaLabel="Product construction swarms"
+        title="Product construction — live data swarms"
+        subtitle="Six read-only swarms cross live market + Telegram machine prices, run a seeded Monte-Carlo, and produce a charted, written draft. Nothing is created, sent, or deployed."
+      >
+        <div className="p-5">
+          <ProductConstructionPanel objective={objective ?? null} />
         </div>
       </AdminSectionCard>
 
