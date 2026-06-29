@@ -1,26 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  AdminPageShell,
-  TABLE_HEAD,
-  ROW,
-} from "@/components/admin/admin-page-shell";
+import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
 import { VaultAllocationAdminRows } from "@/components/vaults/vault-allocation-display";
 import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
-import { BentoPanel, BentoHeader, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/catalyst/table";
-import { PanelStatus } from "@/components/catalyst/panel-status";
+import { BentoPanel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { AdminTable } from "@/components/admin/admin-table-layout";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { AdminDetailSection } from "@/components/admin/admin-detail-layout";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
@@ -46,10 +35,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-// Local table wrap — keeps Catalyst's overflow-x-auto LOCAL to the card.
-// TABLE_HEAD / ROW come from the shell (customers canon). Reused by both
-// detail tables (Approvals + Subscribers).
-const TABLE_WRAP = "max-w-full [&_th]:whitespace-nowrap";
+// Detail-table cell tokens — customers/[id] canon (AdminTable supplies the
+// chrome; consumers pass their own <td>). Reused by Approvals + Subscribers.
+const CELL = "px-5 py-3 ct-metric-caption align-top";
+const CELL_STRONG = "px-5 py-3 ct-metric-value align-top";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -342,23 +331,18 @@ export default async function VaultDetailPage({ params }: PageProps) {
           showAumCard={vault.status === "live"}
         />
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <BentoPanel>
-            <BentoHeader title="Legal" />
-            <div className="p-5">
+        <AdminDetailSection label="Terms" title="Legal & allocation">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <BentoPanel className="p-5">
               <VaultLegalProofRows facts={legalFacts} variant="admin" />
-            </div>
-          </BentoPanel>
-
-          <BentoPanel>
-            <BentoHeader title="Allocation Policy" />
-            <div className="px-5 pb-5">
+            </BentoPanel>
+            <BentoPanel className="p-5">
               <VaultAllocationAdminRows facts={allocationFacts} />
-            </div>
-          </BentoPanel>
-        </div>
+            </BentoPanel>
+          </div>
+        </AdminDetailSection>
 
-        {/* Approvals — table shell only (no panel double frame; cf. audit/customers). */}
+        {/* Approvals — AdminTable (customers canon), EmptySurface for the zero state. */}
         <AdminDetailSection
           label="Approvals"
           title="Approvals"
@@ -393,58 +377,43 @@ export default async function VaultDetailPage({ params }: PageProps) {
           )}
 
           {vault.approvals.length === 0 ? (
-            <PanelStatus message="No signatures yet." />
+            <EmptySurface
+              variant="widget"
+              message="No signatures yet."
+              detail="Approvals will appear here once signers act on the review."
+              className="min-h-20"
+            />
           ) : (
-            <section
-              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-              aria-label="Approval signatures"
-            >
-              <Table dense className={TABLE_WRAP}>
-                <TableHead>
-                  <TableRow>
-                    <TableHeader className={`${TABLE_HEAD} pl-5`}>
-                      Signer
-                    </TableHeader>
-                    <TableHeader className={TABLE_HEAD}>Decision</TableHeader>
-                    <TableHeader
-                      className={`${TABLE_HEAD} hidden md:table-cell`}
+            <AdminTable
+              data={vault.approvals}
+              headers={["Signer", "Decision", <span key="reason" className="hidden md:table-cell">Reason</span>, "Date"]}
+              colWidths={["35%", "15%", "35%", "15%"]}
+              renderRow={(approval) => (
+                <>
+                  <td className={`${CELL} truncate font-mono tabular-nums`}>
+                    {approval.signerWallet}
+                  </td>
+                  <td className={CELL}>
+                    <span
+                      className={cn(
+                        "font-semibold",
+                        approval.decision === "approve"
+                          ? "text-[var(--ct-accent)]"
+                          : "text-[var(--ct-status-danger)]",
+                      )}
                     >
-                      Reason
-                    </TableHeader>
-                    <TableHeader className={`${TABLE_HEAD} pr-5`}>
-                      Date
-                    </TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {vault.approvals.map((approval) => (
-                    <TableRow key={approval.id} className={ROW}>
-                      <TableCell className="ct-metric-caption truncate pl-5 align-top font-mono tabular-nums">
-                        {approval.signerWallet}
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <span
-                          className={cn(
-                            "ct-metric-caption font-semibold",
-                            approval.decision === "approve"
-                              ? "text-[var(--ct-accent)]"
-                              : "text-[var(--ct-status-danger)]",
-                          )}
-                        >
-                          {approval.decision}
-                        </span>
-                      </TableCell>
-                      <TableCell className="ct-metric-caption hidden align-top wrap-break-word md:table-cell">
-                        {approval.reason ?? "—"}
-                      </TableCell>
-                      <TableCell className="ct-metric-caption whitespace-nowrap pr-5 align-top font-mono tabular-nums text-[var(--ct-text-faint)]">
-                        {approval.signedAt.toISOString().slice(0, 10)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </section>
+                      {approval.decision}
+                    </span>
+                  </td>
+                  <td className={`${CELL} hidden wrap-break-word md:table-cell`}>
+                    {approval.reason ?? "—"}
+                  </td>
+                  <td className={`${CELL} whitespace-nowrap font-mono tabular-nums text-[var(--ct-text-faint)]`}>
+                    {approval.signedAt.toISOString().slice(0, 10)}
+                  </td>
+                </>
+              )}
+            />
           )}
         </AdminDetailSection>
 
@@ -459,58 +428,42 @@ export default async function VaultDetailPage({ params }: PageProps) {
           }
         >
           {vault.positions.length === 0 ? (
-            <PanelStatus message="No active subscriptions yet." />
+            <EmptySurface
+              variant="widget"
+              message="No active subscriptions yet."
+              detail="Investor positions will appear here once the vault is funded."
+              className="min-h-20"
+            />
           ) : (
-            <section
-              className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
-              aria-label="Active subscribers"
-            >
-              <Table dense className={TABLE_WRAP}>
-                <TableHead>
-                  <TableRow>
-                    <TableHeader className={`${TABLE_HEAD} pl-5`}>
-                      Investor
-                    </TableHeader>
-                    <TableHeader className={TABLE_HEAD}>Class</TableHeader>
-                    <TableHeader className={`${TABLE_HEAD} text-right`}>
-                      Principal
-                    </TableHeader>
-                    <TableHeader className={TABLE_HEAD}>Subscribed</TableHeader>
-                    <TableHeader className={`${TABLE_HEAD} pr-5`}>
-                      Lock-up ends
-                    </TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {vault.positions.map((pos) => {
-                    const classCode = classFromVaultKey(pos.vaultKey);
-                    const lockupEnd = new Date(
-                      pos.subscribedAt.getTime() +
-                        lockupDaysForClass(classCode) * 86_400_000,
-                    );
-                    return (
-                      <TableRow key={pos.id} className={ROW}>
-                        <TableCell className="ct-metric-caption truncate pl-5 align-top text-[var(--ct-text-body)]">
-                          {pos.investor.user.email}
-                        </TableCell>
-                        <TableCell className="ct-metric-caption align-top font-mono">
-                          {classCode}
-                        </TableCell>
-                        <TableCell className="ct-metric-value text-right align-top">
-                          {formatUsdFull(Number(pos.principalUsdc))}
-                        </TableCell>
-                        <TableCell className="ct-metric-caption whitespace-nowrap align-top">
-                          {pos.subscribedAt.toISOString().slice(0, 10)}
-                        </TableCell>
-                        <TableCell className="ct-metric-caption whitespace-nowrap pr-5 align-top">
-                          {lockupEnd.toISOString().slice(0, 10)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </section>
+            <AdminTable
+              data={vault.positions}
+              headers={["Investor", "Class", <span key="principal" className="text-right">Principal</span>, "Subscribed", "Lock-up ends"]}
+              colWidths={["32%", "13%", "20%", "17%", "18%"]}
+              renderRow={(pos) => {
+                const classCode = classFromVaultKey(pos.vaultKey);
+                const lockupEnd = new Date(
+                  pos.subscribedAt.getTime() +
+                    lockupDaysForClass(classCode) * 86_400_000,
+                );
+                return (
+                  <>
+                    <td className={`${CELL} truncate text-[var(--ct-text-body)]`}>
+                      {pos.investor.user.email}
+                    </td>
+                    <td className={`${CELL} font-mono`}>{classCode}</td>
+                    <td className={`${CELL_STRONG} text-right`}>
+                      {formatUsdFull(Number(pos.principalUsdc))}
+                    </td>
+                    <td className={`${CELL} whitespace-nowrap`}>
+                      {pos.subscribedAt.toISOString().slice(0, 10)}
+                    </td>
+                    <td className={`${CELL} whitespace-nowrap`}>
+                      {lockupEnd.toISOString().slice(0, 10)}
+                    </td>
+                  </>
+                );
+              }}
+            />
           )}
         </AdminDetailSection>
 
