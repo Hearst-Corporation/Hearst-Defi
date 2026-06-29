@@ -20,7 +20,7 @@ export interface ChatHistoryProps {
   productColor?: string;
 }
 
-export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
+export function ChatHistory(_props: ChatHistoryProps = {}) {
   const [chats, setChats] = useState<ChatSummary[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,21 +75,20 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-black p-3">
+    <div className="flex flex-col gap-3 rounded-lg bg-[var(--ct-surface-card)] p-3">
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-black transition-opacity duration-150 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-md bg-[var(--ct-accent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-bg-deep)] transition-opacity duration-150 hover:opacity-90"
           onClick={newChat}
           aria-label="Start new conversation"
-          style={{ background: productColor ?? "#A7FB90" }}
         >
           + New conversation
         </button>
         {chats.length > 0 && (
           <button
             type="button"
-            className="ml-auto rounded-md border border-white/10 px-2.5 py-1.5 ct-bento-label transition-colors duration-150 hover:text-white hover:border-white/20"
+            className="ml-auto rounded-md border border-[var(--ct-border-soft)] px-2.5 py-1.5 ct-bento-label transition-colors duration-150 hover:text-[var(--ct-text-strong)] hover:border-[var(--ct-border)]"
             onClick={clearAll}
             title="Clear all"
           >
@@ -100,16 +99,16 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
 
       {loading && (
         <div className="flex flex-col items-center gap-3 py-8">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[var(--ct-accent)]" />
-          <p className="text-[length:var(--ct-text-2xs)] text-zinc-500">Loading history…</p>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)]" />
+          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">Loading history…</p>
         </div>
       )}
       {error && (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-white/10 bg-[#15191C] px-4 py-6 text-center">
-          <p className="text-[length:var(--ct-text-xs)] text-zinc-300">{error}</p>
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-4 py-6 text-center">
+          <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">{error}</p>
           <button
             type="button"
-            className="rounded-md border border-white/10 px-3 py-1.5 text-[length:var(--ct-text-2xs)] text-zinc-400 transition-colors duration-150 hover:text-white hover:border-white/20"
+            className="rounded-md border border-[var(--ct-border-soft)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] transition-colors duration-150 hover:text-[var(--ct-text-strong)] hover:border-[var(--ct-border)]"
             onClick={load}
           >
             ↻ Try again
@@ -118,10 +117,10 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
       )}
       {!loading && !error && chats.length === 0 && (
         <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ct-text-faint)]">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-zinc-500">
+          <p className="text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-faint)]">
             No conversations yet.<br />
             Start a chat and your history will appear here.
           </p>
@@ -132,7 +131,7 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
         {chats.map((c) => (
           <li
             key={c.id}
-            className="group flex items-stretch overflow-hidden rounded-lg bg-[#15191C] transition-colors duration-150 hover:bg-white/[0.05]"
+            className="group flex items-stretch overflow-hidden rounded-lg bg-[var(--ct-surface-inset)] transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]"
           >
             <button
               type="button"
@@ -140,17 +139,17 @@ export function ChatHistory({ productColor }: ChatHistoryProps = {}) {
               onClick={() => selectChat(c.id)}
             >
               <div className="flex min-w-0 items-center gap-2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-zinc-500">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[var(--ct-text-faint)]">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
-                <span className="truncate text-[length:var(--ct-text-xs)] text-zinc-200">{c.title}</span>
+                <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">{c.title}</span>
               </div>
-              <span className="text-[10px] text-zinc-500">{formatDate(c.updated_at)}</span>
+              <span className="text-[10px] text-[var(--ct-text-faint)]">{formatDate(c.updated_at)}</span>
             </button>
             <button
               type="button"
-              className="flex shrink-0 items-center px-3 text-zinc-600 opacity-0 transition-all duration-150 hover:text-white group-hover:opacity-100"
+              className="flex shrink-0 items-center px-3 text-[var(--ct-text-faint)] opacity-0 transition-all duration-150 hover:text-[var(--ct-text-strong)] group-hover:opacity-100"
               onClick={() => deleteChat(c.id)}
               aria-label="Delete conversation"
               title="Delete"
