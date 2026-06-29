@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearst Connect — Interactive Master Chat Operating Canvas</title>
+<style>
+  :root{
+    --bg:#0a0c0f; --bg2:#0d1117; --panel:#10151c; --panel2:#141b24; --panel3:#1a222d;
+    --line:#1e2630; --line2:#28323f; --line3:#33404f;
+    --txt:#cdd6e2; --txt2:#8b99ab; --txt3:#5b6a7c;
+    --green:#A7FB90; --green-d:rgba(167,251,144,.14); --green-b:rgba(167,251,144,.32);
+    --blue:#67b8ff; --blue-d:rgba(103,184,255,.13);
+    --yellow:#ffc25e; --yellow-d:rgba(255,194,94,.13);
+    --orange:#ff9a5c; --orange-d:rgba(255,154,92,.14);
+    --red:#ff5f5f; --red-d:rgba(255,95,95,.13);
+    --purple:#c4a8ff; --purple-d:rgba(196,168,255,.13);
+    --steel:#8aa0b8; --grey:#6b7a8f;
+    --mono:'SF Mono','Fira Code','Cascadia Code',ui-monospace,monospace;
+    --fnt:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);font-family:var(--fnt);font-size:13px;line-height:1.5;overflow:hidden}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#222c38;border-radius:6px}
+  ::-webkit-scrollbar-thumb:hover{background:#2e3a48}
+  a{color:var(--green);text-decoration:none}
+
+  /* ── STATUS BAR ─────────────────────────────────── */
+  #status-bar{height:34px;background:var(--bg2);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 18px;font-size:11px;color:var(--txt2);font-family:var(--mono);flex-shrink:0;overflow-x:auto;white-space:nowrap}
+  #status-bar b{color:var(--txt);font-weight:600}
+  #status-bar .dot{color:var(--green)}
+  #status-bar .sep{width:1px;height:16px;background:var(--line2);flex-shrink:0}
+
+  /* ── APP GRID ───────────────────────────────────── */
+  #app{display:flex;height:calc(100vh - 34px)}
+
+  /* ── LEFT RAIL ──────────────────────────────────── */
+  #rail{width:236px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow-y:auto}
+  .brand{padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+  .brand .b1{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);font-weight:700}
+  .brand .b2{font-size:15px;font-weight:700;color:#eef3f9;margin-top:3px;letter-spacing:-.01em}
+  .brand .b3{font-size:10.5px;color:var(--txt3);margin-top:5px;line-height:1.45}
+  .rail-sect{padding:14px 12px 6px}
+  .rail-h{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--txt3);padding:0 8px 8px;font-weight:700}
+  .rail-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--txt2);transition:all .14s;border:1px solid transparent;margin-bottom:1px}
+  .rail-item:hover{background:var(--panel2);color:var(--txt)}
+  .rail-item.active{background:var(--green-d);color:#eaf9e4;border-color:var(--green-b)}
+  .rail-item .swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+  .rail-item .ri-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rail-item.view-item{font-weight:600}
+  .rail-foot{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);font-size:10px;color:var(--txt3);line-height:1.5}
+
+  /* ── CENTER ─────────────────────────────────────── */
+  #center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+  #toolbar{height:50px;flex-shrink:0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--bg)}
+  #search{flex:1;max-width:420px;position:relative}
+  #search input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:8px 12px 8px 32px;color:var(--txt);font-size:12.5px;font-family:var(--fnt);outline:none;transition:border-color .15s}
+  #search input:focus{border-color:var(--green-b)}
+  #search .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:13px;pointer-events:none}
+  #search .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--txt3);cursor:pointer;font-size:14px;display:none;padding:2px 6px}
+  .tb-meta{font-size:11px;color:var(--txt2);font-family:var(--mono);margin-left:auto;display:flex;align-items:center;gap:10px}
+  .tb-chip{padding:3px 9px;border-radius:5px;background:var(--panel);border:1px solid var(--line2)}
+  #legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .lg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txt2)}
+  .lg .d{width:9px;height:9px;border-radius:2px}
+
+  #canvas-scroll{flex:1;overflow:auto;position:relative;background:
+    radial-gradient(circle at 30% 10%, rgba(167,251,144,.025), transparent 45%),
+    var(--bg)}
+  #graph{position:relative;width:1480px;height:1200px}
+  #edges{position:absolute;top:0;left:0;width:1480px;height:1200px;pointer-events:none;z-index:1}
+  .node{position:absolute;width:156px;min-height:54px;background:var(--panel);border:1px solid var(--line2);border-left-width:3px;border-radius:8px;padding:8px 10px;cursor:pointer;z-index:2;transition:transform .14s,box-shadow .14s,opacity .18s,border-color .14s,background .14s}
+  .node:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.45)}
+  .node .n-type{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);font-weight:700;margin-bottom:2px}
+  .node .n-label{font-size:11px;font-weight:600;color:#e4ebf3;line-height:1.25}
+  .node .n-tags{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+  .node .n-tag{font-size:7.5px;font-weight:700;letter-spacing:.04em;padding:1px 4px;border-radius:3px;text-transform:uppercase}
+  .node.active{transform:translateY(-2px);box-shadow:0 0 0 1px currentColor,0 8px 26px rgba(0,0,0,.5)}
+  .node.dim{opacity:.18;filter:grayscale(.5)}
+  .node.flow-on{opacity:1}
+  .node.search-hit{box-shadow:0 0 0 2px var(--green),0 6px 18px rgba(0,0,0,.4)}
+  .node.search-miss{opacity:.16}
+
+  .tag-read{background:var(--blue-d);color:var(--blue)}
+  .tag-write{background:var(--orange-d);color:var(--orange)}
+  .tag-hitl{background:var(--purple-d);color:var(--purple)}
+  .tag-manual{background:var(--yellow-d);color:var(--yellow)}
+  .tag-ext{background:var(--orange-d);color:#ffb27e}
+  .tag-refuse{background:var(--red-d);color:var(--red)}
+  .tag-rec{background:rgba(138,160,184,.14);color:var(--steel)}
+  .tag-cron{background:rgba(107,122,143,.18);color:#9fb0c2}
+
+  /* ── FLOW TIMELINE STRIP (under graph, appears on flow select) ── */
+  #flowstrip{flex-shrink:0;max-height:0;overflow:hidden;border-top:1px solid var(--line);background:var(--bg2);transition:max-height .25s ease}
+  #flowstrip.open{max-height:300px;overflow:auto}
+  .fs-inner{padding:14px 18px}
+  .fs-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .fs-head .fs-dot{width:11px;height:11px;border-radius:3px}
+  .fs-head h3{font-size:14px;color:#eef3f9}
+  .fs-head .fs-close{margin-left:auto;cursor:pointer;color:var(--txt3);font-size:12px;border:1px solid var(--line2);border-radius:5px;padding:3px 9px}
+  .fs-head .fs-close:hover{color:var(--txt);border-color:var(--line3)}
+  .fs-sum{font-size:11.5px;color:var(--txt2);margin-bottom:12px}
+  .fs-steps{display:flex;gap:0;overflow-x:auto;padding-bottom:6px}
+  .fs-step{flex:0 0 auto;min-width:180px;max-width:230px;position:relative;padding:0 16px 0 0}
+  .fs-step .fss-card{background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:9px 11px;height:100%}
+  .fs-step .fss-n{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .fs-step .fss-num{width:17px;height:17px;border-radius:50%;background:var(--green-d);color:var(--green);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .fs-step .fss-label{font-size:11px;font-weight:600;color:#e4ebf3;line-height:1.25}
+  .fs-step .fss-file{font-family:var(--mono);font-size:9px;color:var(--txt3);margin-top:4px;line-height:1.35;word-break:break-word}
+  .fs-step .fss-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+  .fs-step .fss-note{font-size:9.5px;color:var(--yellow);margin-top:5px;line-height:1.3}
+  .fs-step .fss-arrow{position:absolute;right:2px;top:24px;color:var(--line3);font-size:14px}
+  .fs-step:last-child .fss-arrow{display:none}
+
+  /* ── RIGHT DETAIL ──────────────────────────────── */
+  #detail{width:354px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--line);overflow-y:auto}
+  .d-empty{padding:40px 22px;color:var(--txt3);font-size:12.5px;text-align:center;line-height:1.7}
+  .d-empty .de-ic{font-size:26px;margin-bottom:12px;opacity:.5}
+  .d-wrap{padding:18px}
+  .d-kicker{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .d-kicker .dk-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+  .d-kicker .dk-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+  .d-title{font-size:17px;font-weight:700;color:#f0f5fb;letter-spacing:-.01em;line-height:1.25;margin-bottom:10px}
+  .d-file{font-family:var(--mono);font-size:10px;color:var(--txt2);background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:8px 10px;line-height:1.5;word-break:break-word;margin-bottom:14px}
+  .d-row{margin-bottom:13px}
+  .d-row .dr-h{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);font-weight:700;margin-bottom:5px}
+  .d-row .dr-b{font-size:12px;color:var(--txt);line-height:1.5}
+  .d-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .d-badge{font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:5px;border:1px solid}
+  .bd-read{background:var(--blue-d);color:var(--blue);border-color:rgba(103,184,255,.3)}
+  .bd-write{background:var(--orange-d);color:var(--orange);border-color:rgba(255,154,92,.3)}
+  .bd-hitl{background:var(--purple-d);color:var(--purple);border-color:rgba(196,168,255,.3)}
+  .bd-ext{background:rgba(255,95,95,.1);color:#ff8e6e;border-color:rgba(255,140,90,.3)}
+  .bd-ok{background:var(--green-d);color:var(--green);border-color:var(--green-b)}
+  .bd-no{background:var(--panel3);color:var(--txt2);border-color:var(--line2)}
+  .bd-refuse{background:rgba(255,95,95,.14);color:var(--red);border-color:rgba(255,95,95,.35)}
+  .d-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .d-list li{font-size:11.5px;color:var(--txt);line-height:1.45;padding-left:16px;position:relative}
+  .d-list li::before{content:'';position:absolute;left:2px;top:7px;width:5px;height:5px;border-radius:50%;background:var(--green);opacity:.6}
+  .d-list.guards li::before{background:var(--yellow)}
+  .d-list.danger li::before{background:var(--red)}
+  .d-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);background:var(--panel);border:1px solid var(--line2);border-radius:5px;padding:4px 9px;cursor:pointer;transition:all .14s;margin:0 5px 5px 0;color:var(--txt)}
+  .d-chip:hover{border-color:var(--green-b);background:var(--green-d);color:#eaf9e4}
+  .d-chip .chev{color:var(--txt3);font-size:10px}
+  .d-verdict{background:var(--green-d);border:1px solid var(--green-b);border-radius:8px;padding:11px 13px;font-size:12px;color:#eaf9e4;line-height:1.55;margin-bottom:14px}
+  .d-verdict.warn{background:var(--yellow-d);border-color:rgba(255,194,94,.32);color:#ffe9c4}
+  .d-verdict.danger{background:var(--red-d);border-color:rgba(255,95,95,.32);color:#ffd4d4}
+  .d-sect-h{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);font-weight:700;margin:18px 0 9px;padding-top:14px;border-top:1px solid var(--line)}
+
+  /* ── RECORDS VIEW (overlays canvas) ─────────────── */
+  #records-view{display:none;padding:22px;overflow-y:auto;flex:1}
+  #records-view.on{display:block}
+  .rv-h{font-size:16px;font-weight:700;color:#eef3f9;margin-bottom:4px}
+  .rv-sub{font-size:12px;color:var(--txt2);margin-bottom:18px}
+  .rv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+  .rv-card{background:var(--panel);border:1px solid var(--line2);border-radius:9px;padding:13px 15px;border-left:3px solid var(--steel)}
+  .rv-card.auto{border-left-color:var(--orange)}
+  .rv-card.manual{border-left-color:var(--yellow)}
+  .rv-card.hitl{border-left-color:var(--purple)}
+  .rv-card.system{border-left-color:var(--green)}
+  .rv-name{font-family:var(--mono);font-size:13px;font-weight:700;color:#e9eff6;margin-bottom:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .rv-tag{font-size:8.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+  .rv-line{display:flex;gap:8px;margin-bottom:5px;font-size:11px}
+  .rv-k{color:var(--txt3);min-width:64px;flex-shrink:0;font-weight:600;text-transform:uppercase;font-size:9px;letter-spacing:.05em;padding-top:1px}
+  .rv-v{color:var(--txt);line-height:1.45}
+  .rv-v.file{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+  .rv-v.danger{color:#ff8e8e}
+
+  /* responsive */
+  @media(max-width:1180px){
+    #detail{width:300px}
+    #rail{width:200px}
+  }
+</style>
+</head>
+<body>
+
+<div id="status-bar">
+  <span><b class="dot">●</b> Master Chat Operating Canvas</span>
+  <div class="sep"></div>
+  <span>HEAD <b id="sb-head">a6777abc</b></span>
+  <span>main · <b>2026-06-29</b></span>
+  <div class="sep"></div>
+  <span>Nodes <b id="sb-nodes">—</b></span>
+  <span>Flows <b id="sb-flows">—</b></span>
+  <span>Write tools <b>7</b></span>
+  <span>External sends <b>4+1</b></span>
+  <span>Hard guarantees <b>12</b></span>
+  <div class="sep"></div>
+  <span>Runtime no-touch · docs HTML only · facts verified vs source</span>
+</div>
+
+<div id="app">
+
+  <!-- LEFT RAIL -->
+  <nav id="rail">
+    <div class="brand">
+      <div class="b1">Hearst Connect</div>
+      <div class="b2">Interactive Operating Canvas</div>
+      <div class="b3">Click a node or flow to see how chat wakes routers, pages, tools, records &amp; guards.</div>
+    </div>
+    <div class="rail-sect">
+      <div class="rail-h">Flows</div>
+      <div id="rail-flows"></div>
+    </div>
+    <div class="rail-sect">
+      <div class="rail-h">Views</div>
+      <div class="rail-item view-item" data-view="overview" onclick="setView('overview')"><span class="swatch" style="background:var(--green)"></span><span class="ri-label">Overview (all nodes)</span></div>
+      <div class="rail-item view-item" data-view="records" onclick="setView('records')"><span class="swatch" style="background:var(--steel)"></span><span class="ri-label">Records</span></div>
+    </div>
+    <div class="rail-foot">
+      Read-only documentation. No runtime import, no CDN, no fetch.<br>Facts cross-checked against source by a 4-agent verifier + critic.
+    </div>
+  </nav>
+
+  <!-- CENTER -->
+  <div id="center">
+    <div id="toolbar">
+      <div id="search">
+        <span class="si">⌕</span>
+        <input id="search-input" type="text" placeholder="Search node, file, action, record…  (ProjectionStudyRun, HITL, outreach-send, deploy…)" autocomplete="off" spellcheck="false">
+        <span class="clear" id="search-clear" onclick="clearSearch()">✕</span>
+      </div>
+      <div id="legend">
+        <span class="lg"><span class="d" style="background:var(--blue)"></span>read</span>
+        <span class="lg"><span class="d" style="background:var(--yellow)"></span>manual/HITL</span>
+        <span class="lg"><span class="d" style="background:var(--orange)"></span>external send</span>
+        <span class="lg"><span class="d" style="background:var(--purple)"></span>HITL token</span>
+        <span class="lg"><span class="d" style="background:var(--red)"></span>danger/refusal</span>
+        <span class="lg"><span class="d" style="background:var(--grey)"></span>cron</span>
+      </div>
+    </div>
+
+    <div id="canvas-scroll">
+      <div id="graph">
+        <svg id="edges"></svg>
+      </div>
+      <div id="records-view"></div>
+    </div>
+
+    <div id="flowstrip">
+      <div class="fs-inner" id="flowstrip-inner"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT DETAIL -->
+  <aside id="detail">
+    <div class="d-empty" id="detail-empty">
+      <div class="de-ic">◎</div>
+      Select a <b>node</b> in the graph or a <b>flow</b> in the left rail.<br><br>
+      Each node shows what wakes it, its file, write risk, the records it can create, and its guards.
+    </div>
+    <div id="detail-content"></div>
+  </aside>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   DATA — every fact verified against source at HEAD a6777abc by a
+   4-agent verifier + completeness critic (see commit message).
+   ════════════════════════════════════════════════════════════════ */
+
+const C = {input:'#67b8ff',endpoint:'#A7FB90',guard:'#ffc25e',router:'#A7FB90',
+  danger:'#ff5f5f',classifier:'#67b8ff',llm:'#c4a8ff',page:'#67b8ff',ui:'#67b8ff',
+  action:'#ffc25e',tool:'#c4a8ff',record:'#8aa0b8',cron:'#6b7a8f',external:'#ff9a5c',
+  output:'#A7FB90',canvas:'#c4a8ff',
+  blue:'#67b8ff',yellow:'#ffc25e',orange:'#ff9a5c',grey:'#6b7a8f',red:'#ff5f5f',purple:'#c4a8ff'};
+
+const NODES = {
+  'user-message':{label:'User Message',type:'input',color:C.input,x:680,y:24,
+    file:'cockpit-shell client (chat panel, Section 3)',
+    wake:'Any text submitted in the cockpit chat. Author is LP investor, admin, or review-mode.',
+    output:'POST body → /api/cockpit-chat (message, chatId, mode). Client-sent "system" is stripped server-side.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Client cannot set the system prompt — `system` field not in ChatBodySchema; logged + stripped if sent'],
+    next:['cockpit-chat-endpoint']},
+
+  'cockpit-chat-endpoint':{label:'POST /api/cockpit-chat',type:'endpoint',color:C.endpoint,x:680,y:124,
+    file:'src/app/api/cockpit-chat/route.ts:1243 (runtime=nodejs, force-dynamic)',
+    wake:'Every chat message. Single unified engine for 3 modes (normal LP / admin / review) — no legacy fallback (ADR-017).',
+    output:'kill-switch → front-door guards → router → (maybe) LLM → output guard → stream',
+    writeRisk:'low',ext:false,hitl:false,
+    records:['CockpitChat','CockpitMessage','LlmRun'],
+    guards:['3-mode partition: COCKPIT_DEFAULT (LP) / COCKPIT_ADMIN / REVIEW_FACILITATOR prompt','Persists CockpitChat (route.ts:296), CockpitMessage (345/1008), LlmRun off-path (.then, 1218)','after() hook used for memory distill only, not core persistence'],
+    next:['kill-switch','auth-role-rate-limit']},
+
+  'kill-switch':{label:'CHAT_MASTER_AGENT kill-switch',type:'guard',color:C.danger,x:920,y:124,
+    file:'src/lib/feature-flags.ts:28 · route.ts:1243-1252',
+    wake:'Checked FIRST, before body-read/auth/rate-limit/DB.',
+    output:'If CHAT_MASTER_AGENT="0" → HTTP 503 + Retry-After:300, no body read, no rate-limit bucket, no DB. Default ON.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Default ON: process.env.CHAT_MASTER_AGENT !== "0"','Disabled → 503, zero side-effects','No fallback engine — legacy @hearst/cockpit-shell retired (ADR-017)'],
+    next:[]},
+
+  'auth-role-rate-limit':{label:'Front-door Guards',type:'guard',color:C.guard,x:680,y:220,
+    file:'route.ts → assertBodySize · requireAuth · assertRateLimit · ChatBodySchema',
+    wake:'Every request that passed the kill-switch.',
+    output:'Validated + sanitized request. chatMode/role resolved AFTER body validation (getSession 1488/1569).',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Order: (1) assertBodySize → 413','(2) requireAuth → 401','(3) assertRateLimit keyed `cockpit-chat:${userId}` → 429','(4) Zod body validate + sanitize → 400','Role is resolved LAST (post-validation), not at the front door'],
+    next:['lp-boundary','admin-tools','danger-router']},
+
+  'lp-boundary':{label:'LP Boundary',type:'danger',color:C.danger,x:1108,y:220,
+    file:'route.ts → requireAuth + isAdminToolAllowed · src/lib/llm/tools/policy.ts',
+    wake:'Role resolves to LP (investor). 80-prompt stress: LP reached admin surface = 0.',
+    output:'LP system prompt + portfolio context. ZERO write tools, ZERO admin read tools, ZERO admin nav.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Admin tools gated allowedChatModes:["admin"] AND allowedProfiles:["admin"] — both required','Nav profile guard drops admin-* route keys for non-admin (route.ts:710-718)','LP cannot reach outreach / vault / projection write surfaces'],
+    next:['llm-fallback']},
+
+  'admin-tools':{label:'Admin Tool Surface',type:'tool',color:C.tool,x:1108,y:316,
+    file:'src/lib/llm/tools/registry.ts — 11 read tools + 7 write tools',
+    wake:'Role resolves to admin AND chatMode==="admin".',
+    output:'11 admin READ tools (no confirmation) + 7 WRITE tools (all confirmationRequired:true, HITL token).',
+    writeRisk:'medium',ext:false,hitl:true,
+    records:['AdminToolRun'],
+    guards:['Model is exposed ONLY the read tools; write tools attempted by the model are blocked → HITL guidance','Every tool run telemetered to AdminToolRun (status, latency, inputHash never raw payload)','read_runtime_capabilities self-reports deploy_execute:no, db_write:no'],
+    next:['admin-write-tools','llm-fallback']},
+
+  'danger-router':{label:'Danger-First Guard',type:'danger',color:C.danger,x:470,y:316,
+    file:'src/lib/agentic/intent-router-rules.ts:49-102 → DANGEROUS_RULES (4 rules)',
+    wake:'deploy/go-live · sign tx · execute governance · migrate db / change formula·model. FIRST among content rules.',
+    output:'refuse_autonomous decision (confidence 0.9) BEFORE any LLM call. Negated ("ne déploie pas") → cancellation.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['4 rules: deploy.go_live, deploy.sign_tx, deploy.execute_governance, deploy.migrate_or_change_core','All actionPolicy refuse_autonomous, riskLevel critical, prohibitedAutonomousAction=true','Caught even if the message also contains an education- or nav-ish word'],
+    next:['dangerous-refusal','intent-router']},
+
+  'intent-router':{label:'Deterministic Intent Router v2',type:'router',color:C.router,x:680,y:316,
+    file:'src/lib/agentic/intent-router.ts (+ -rules, -negation, -types)',
+    wake:'Every non-dangerous message. Runs NON-SHADOW (active by default) BEFORE the LLM.',
+    output:'Typed AgenticIntentDecision. Priority: empty→cancel→confirm→DANGEROUS→send/source→outreach→product/vault→reporting→navigation→education→unknown.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Pure: no I/O, no DB','Negation cross-cutting → flips positive intents to cancellation','Navigation only when !negated AND !BUG_REPORT_RE (a complaint naming a section never navigates)','Observability trace is fire-and-forget, never blocks'],
+    next:['product-workspace-intent','send-source-gate','outreach-canvas','nav-resolver','llm-fallback']},
+
+  'nav-resolver':{label:'Deterministic Nav + Profile Guard',type:'guard',color:C.blue||C.classifier,x:1000,y:420,
+    file:'route.ts:693-718 · intent-router.ts:350-377 (resolver)',
+    wake:'Navigation intent at confidence 0.95 (always clears the ≥0.7 gate).',
+    output:'Nav directive to client. NO model navigate tool exists — navigation is 100% deterministic.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['THE LP-cannot-reach-admin control: routeKey.startsWith("admin-") resolved only if isAdmin, else dropped (null)','Verb-gated: a bare "outreach"/"dashboard" mention does not navigate','The ≥0.7 confidence gate is effectively a no-op (nav emits at 0.95) — the profile guard is the real guard'],
+    next:['client-nav','product-workspace','projection-page','scenario-lab']},
+
+  'product-workspace-intent':{label:'Product Workspace Intent',type:'classifier',color:C.classifier,x:470,y:424,
+    file:'src/lib/llm/product-workspace-intent.ts → classifyProductWorkspaceIntent()',
+    wake:'creation verb + product noun (produit|product|vault|offre|offer|strategy). Pure regex.',
+    output:'6 kinds: none · product_creation · product_framing · explicit_simulation · mixed_product_creation_simulation · mixed_product_framing_simulation.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Bare creation verb WITHOUT a product noun → falls through (not product creation)','"create projection" → none (no product noun, no sim verb); a sim verb would route it to Scenario Lab','Mixed opens BOTH Product Workspace + Scenario Lab; pure simulation opens only Scenario Lab'],
+    next:['product-workspace','scenario-lab']},
+
+  'send-source-gate':{label:'Send / Source Gate',type:'danger',color:C.danger,x:640,y:512,
+    file:'intent-router-rules.ts:109-138 → SEND_SOURCE_RULES (outreach.send, outreach.source)',
+    wake:'"envoie aux prospects" / "send the campaign" / "source leads".',
+    output:'requires_human_gate decision. Held — never auto-dispatched from the router.',
+    writeRisk:'none',ext:false,hitl:true,records:[],
+    guards:['actionPolicy requires_human_gate, riskLevel high, prohibitedAutonomousAction=true','targetCrew outreach','Tier A never auto-sent at any autonomy level'],
+    next:['outreach-trigger-send-run']},
+
+  'outreach-canvas':{label:'Outreach Canvas (draft-only)',type:'canvas',color:C.canvas,x:820,y:512,
+    file:'intent-router-rules.ts:145-176 → OUTREACH_RULES · route.ts deterministic outreach state machine',
+    wake:'Outreach setup/draft phrasing in chat.',
+    output:'Canvas opens to collect campaign fields. A NO-LLM state machine (parseOutreachMessage/reduceOutreachWorkflowState) emits template text + canvas stream.',
+    writeRisk:'low',ext:false,hitl:true,records:[],
+    guards:['outreach.draft = allow_draft_only (HITL); outreach.setup = allow_canvas','No send and no sourcing from the canvas','LLM canvas classifier is only a fallback after deterministic paths'],
+    next:['campaign-draft-tool']},
+
+  'llm-fallback':{label:'LLM Fallback (GPT-4.1)',type:'llm',color:C.llm,x:1180,y:424,
+    file:'src/lib/llm/chat-agent.ts:372 → runChatAgent · OpenAI GPT-4.1 (ADR-011)',
+    wake:'Intent unresolved / educational / unknown. The model never sees a dangerous or fast-path-handled prompt.',
+    output:'Streamed answer. Model exposed only admin READ tools; attempted WRITE calls are blocked → HITL guidance.',
+    writeRisk:'depends on tools',ext:false,hitl:false,
+    records:['LlmRun'],
+    guards:['Server-side system prompt; client cannot override','isEducationalReadOnly only ADDS a prompt hint — never relaxes the output guard','No model navigate tool — nav is deterministic','Model write-call attempts → blockedWriteCalls → guidance, never executed'],
+    next:['output-guard']},
+
+  'output-guard':{label:'Output Guard (live stream)',type:'guard',color:C.guard,x:1180,y:520,
+    file:'src/lib/llm/output-guard.ts → guardChatStream() · chatOutputViolation()',
+    wake:'Every LLM token stream (wired at chat-agent.ts:627).',
+    output:'Clean stream, OR \\x00ERROR: block sentinel + abort. Offending span never emitted.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['64-char SETTLE look-back buffer holds text until validated','containsForbiddenChat() — FR∪EN, negation-aware','hasSinglePointApy() — APY must be a range','Yield-keyword sentence-boundary hold','Layer 2: semantic guard blocks PERSISTENCE when SEMANTIC_GUARD=enforce','Layer 3: saveMessage refuses to persist a non-compliant answer (never re-injected next turn)'],
+    next:['client-nav']},
+
+  'client-nav':{label:'Client — Nav / Canvas / Response',type:'output',color:C.output,x:1000,y:616,
+    file:'cockpit-shell client (renderer · canvas handler · nav consumer)',
+    wake:'Server streams a result.',
+    output:'Text answer OR page redirect OR canvas panel OR error sentinel. No financial/custodial action ever auto-taken.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['No autonomous financial, custodial, deploy or on-chain action reachable here'],
+    next:[]},
+
+  'product-workspace':{label:'Product Workspace',type:'page',color:C.page,x:380,y:520,
+    file:'src/app/admin/product-workspace/page.tsx (requireAdmin, force-dynamic)',
+    wake:'product_draft intent OR nav /admin/product-workspace.',
+    output:'Objective framing + AgentBriefLive + "Continue to Projection" link (?objective=…&from=product-workspace).',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['"Nothing runs from this page"; "no vault creation, allocations, or approvals from this surface"','Creates NO ProjectionStudyRun and NO preset row'],
+    next:['projection-input-preset','projection-page']},
+
+  'projection-input-preset':{label:'buildProjectionInputPreset()',type:'classifier',color:C.classifier,x:200,y:616,
+    file:'src/lib/projection/projection-input-preset.ts:113 (pure)',
+    wake:'Product Workspace objective handed off (PR #212).',
+    output:'7 structural safe fields ONLY: label, description, productType, productTypeLabel, buckets, bucketLabels, notes.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Pure: no LLM, no fetch, no DB, no Date.now(), no Math.random()','NEVER emits a business number','REVIEW_REQUIRED = 11 business-number inputs (BTC %, hashprice, stable APY, revenue share…)','FORBIDDEN_PREFILL = 15 (APY target, exact LTV, p5/p50/p95, cashflow amounts…)','hasSafeFields true only when structural keywords found — numbers never prefilled regardless'],
+    next:['projection-page']},
+
+  'scenario-lab':{label:'Scenario Lab',type:'page',color:C.page,x:560,y:616,
+    file:'src/app/admin/scenario-lab/',
+    wake:'explicit_simulation intent (simulate / monte carlo / run scenario).',
+    output:'Scenario config UI. No auto-run from chat.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Chat routes simulation intents here, not to Product Workspace','No run created by navigation'],
+    next:[]},
+
+  'projection-page':{label:'Projection Page (GET)',type:'page',color:C.page,x:380,y:616,
+    file:'src/app/admin/projection/page.tsx (+ studio.tsx)',
+    wake:'Nav /admin/projection OR ?from=product-workspace handoff.',
+    output:'Studio UI. Methodology panel rendered ONLY in the handoff block (?from=product-workspace).',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['GET NEVER creates a ProjectionStudyRun (page.tsx:34-39: "the Run button is the only path to a run")','Chat product creation NEVER creates a run','runProjectionStudy is a "use server" action gated by requireAdmin — not invoked on GET render'],
+    next:['methodology-panel','run-study','promote-to-draft']},
+
+  'methodology-panel':{label:'Methodology Panel',type:'ui',color:C.ui,x:200,y:712,
+    file:'src/lib/projection/methodology-panel.ts:21 (PROJECTION_METHODOLOGY_VERSION="v1.0")',
+    wake:'Projection handoff block (?from=product-workspace) via ProjectionHandoff.',
+    output:'Methodology v1.0 + assumptions + "not guaranteed" disclaimer. "Manual Run Study required."',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Methodology v1.0 immutable (version bump required to change)','"No business number is prepared from the objective"','Three independent "v1.0" literals exist (panel, studio.tsx:385, engine/methodology.ts:11) — they agree but are not one source'],
+    next:['run-study']},
+
+  'run-study':{label:'Run Projection (manual button)',type:'action',color:C.action,x:380,y:712,
+    file:'studio.tsx:443 (handleRun) → runProjectionStudy() actions.ts:114',
+    wake:'Admin clicks the run button. Labels: "Run projection" / "Run 1D Batch (5 runs)" / "Run 2D Batch (9 runs)".',
+    output:'ProjectionStudyRun + ScenarioRun(s) persisted. Audit action "projection.run", entityType ProjectionStudyRun.',
+    writeRisk:'high',ext:false,hitl:false,
+    records:['ProjectionStudyRun','ScenarioRun','AdminAudit'],
+    guards:['UI button only — NOT reachable from chat','requireAdmin','Engine (src/lib/engine/*) is pure: injected now, no fetch/Math.random','Batch caps: 1D ≤5 values, 2D ≤25 (5×5); Zod-enforced','Investor-ready is NOT auto-set by a run'],
+    next:['projection-study-run']},
+
+  'projection-study-run':{label:'ProjectionStudyRun + ScenarioRun',type:'record',color:C.record,x:300,y:808,
+    file:'actions.ts:201 (prisma.projectionStudyRun.create — sole occurrence repo-wide)',
+    wake:'runProjectionStudy() ONLY.',
+    output:'Persisted parent + child run(s), validation status, matrixSize.',
+    writeRisk:'high',ext:false,hitl:false,
+    records:['ProjectionStudyRun','ScenarioRun'],
+    guards:['Single run = 1 ProjectionStudyRun + 1 ScenarioRun (matrixSize=1)','Mainnet vault deployment still gated on Spearbit audit (ADR-006)'],
+    next:[]},
+
+  'promote-to-draft':{label:'Promote to Vault Draft',type:'action',color:C.action,x:560,y:712,
+    file:'studio.tsx:463 → promoteStudyToDraft() actions.ts:328',
+    wake:'Admin clicks "Promote to Vault Draft" on a study. This is the path that WRITES business numbers into a deployment.',
+    output:'Reads first ScenarioRun → creates VaultDeployment status="draft" (actions.ts:401), seeded from engine output + PROMOTE_DEFAULTS.',
+    writeRisk:'high',ext:false,hitl:false,
+    records:['VaultDeployment','AdminAudit'],
+    guards:['Draft status only','Audit entityType "VaultDeployment"','markAsLive is a separate gated action (state machine + signer quorum + live-gate), never chat'],
+    next:['vault-deployment']},
+
+  'vault-deployment':{label:'VaultDeployment (draft)',type:'record',color:C.record,x:560,y:808,
+    file:'prisma/schema.prisma:449 (model VaultDeployment)',
+    wake:'createDraftVault() (chat tool path) OR promoteStudyToDraft().',
+    output:'Deployment row in status="draft" + nested ShareClass.',
+    writeRisk:'high',ext:false,hitl:false,
+    records:['VaultDeployment','ShareClass'],
+    guards:['status="draft" only on create','markAsLive → state machine ALLOWED_TRANSITIONS + signer quorum + evaluateDeploymentLiveGate','Chat cannot flip a deployment to live'],
+    next:[]},
+
+  'vault-draft-tool':{label:'create_vault_draft (chat tool)',type:'tool',color:C.tool,x:760,y:616,
+    file:'registry.ts:1286 → runCreateVaultDraft → createDraftVault() vaults/actions.ts:71',
+    wake:'Admin chat asks to create a vault draft (after HITL token confirmed).',
+    output:'⚠ Writes prisma.vaultDeployment (status="draft") + ShareClass — NOT the Prisma "VaultDraft" model (that is an unrelated wizard autosave).',
+    writeRisk:'high',ext:false,hitl:true,
+    records:['VaultDeployment','ShareClass','AdminAudit'],
+    guards:['confirmationRequired:true (2-step HITL token)','CreateDraftSchema (23 fields) Zod-validated before token issued; action re-validates','requireAdmin + assertVaultRateLimit (30/60s)','Audit "vault.createDraft", entityType VaultDeployment','Draft only — never deploys'],
+    next:['hitl-token']},
+
+  'admin-write-tools':{label:'7 Admin Write Tools',type:'tool',color:C.tool,x:940,y:712,
+    file:'registry.ts:1185-1307 → ADMIN_WRITE_TOOLS (all confirmationRequired:true)',
+    wake:'Admin chat intent that maps to a write tool.',
+    output:'create_review_note_draft · create_governance_proposal_draft · outreach_source_leads · outreach_draft_email · outreach_trigger_send_run · create_vault_draft · create_campaign_draft.',
+    writeRisk:'high',ext:false,hitl:true,
+    records:['AdminToolRun'],
+    guards:['Every one requires a HITL confirmation token','Model cannot auto-execute — proposes only; admin confirms','All draft-only EXCEPT outreach_trigger_send_run (can dispatch a send run, Tier B/C, gated by OUTREACH_AUTONOMY)','No write tool deploys a vault or signs on-chain'],
+    next:['hitl-token','vault-draft-tool','outreach-trigger-send-run']},
+
+  'hitl-token':{label:'HITL Confirmation Token',type:'guard',color:C.purple||C.tool,x:940,y:808,
+    file:'src/lib/llm/tools/confirmations.ts · registry.ts:57 (TTL 5 min) · schema.prisma:673',
+    wake:'Any admin write tool call without a confirmed token.',
+    output:'Token issued (DB-backed) → admin submits → consumed → action executes. 2-step.',
+    writeRisk:'medium',ext:false,hitl:true,
+    records:['AdminWriteToolConfirmation'],
+    guards:['Persisted in Prisma AdminWriteToolConfirmation (not in-memory/Redis)','Binds (userId, toolId, SHA-256 payloadHash); single-use atomic (updateMany WHERE usedAt:null)','TTL 5 min (DEFAULT_WRITE_CONFIRMATION_TTL_MS); rejects not_found/expired/used/mismatch','Input Zod-validated BEFORE the token is created'],
+    next:[]},
+
+  'outreach-trigger-send-run':{label:'outreach_trigger_send_run (chat tool)',type:'tool',color:C.tool,x:1120,y:712,
+    file:'registry.ts:1275 → runOutreachTriggerSendRun → outreachAutoSendHandler',
+    wake:'Admin chat triggers a send run (after HITL token).',
+    output:'Invokes the SAME auto-send handler. Dispatches Tier B/C only when OUTREACH_AUTONOMY≥SEND (default SUGGEST = nothing).',
+    writeRisk:'high',ext:true,hitl:true,
+    records:['OutreachEmail','OutreachEmailEvent','AdminToolRun'],
+    guards:['confirmationRequired:true','Tier A NEVER auto-sent at any autonomy level (ADR-016)','Daily cap + warm-up + suppression + forbidden-words re-checked at send','This is the ONE chat tool that can cause an external email — still gated & never Tier A'],
+    next:['auto-send-cron']},
+
+  'campaign-draft-tool':{label:'create_campaign_draft (chat tool)',type:'tool',color:C.tool,x:820,y:616,
+    file:'registry.ts:1394 → runCreateCampaignDraft → createCampaign',
+    wake:'Outreach canvas / draft intent (after HITL token).',
+    output:'Adapts a structured object to FormData → createCampaign (draft). Swallows only the next/redirect signal.',
+    writeRisk:'medium',ext:false,hitl:true,
+    records:['AdminToolRun'],
+    guards:['confirmationRequired:true','Draft only — does not send','isRedirectError(err) swallowed so a successful draft+redirect is not mis-reported as 500; real errors re-thrown'],
+    next:['hitl-token']},
+
+  'direct-send-form':{label:'DirectSendForm',type:'ui',color:C.external,x:60,y:912,
+    file:'src/components/admin/outreach/direct-send-form.tsx',
+    wake:'Admin opens the direct-send UI. No chat trigger.',
+    output:'Form (recipient, subject, body). "Send now" is type="button" → opens ConfirmDialog.',
+    writeRisk:'medium',ext:false,hitl:false,records:[],
+    guards:['Manual UI only','Mirrors SendCampaignButton two-step pattern'],
+    next:['confirm-dialog']},
+
+  'confirm-dialog':{label:'ConfirmDialog',type:'guard',color:C.guard,x:240,y:912,
+    file:'src/components/catalyst/confirm-dialog.tsx (PR #210 · b1e68096)',
+    wake:'DirectSendForm "Send now" AND SendCampaignButton both use this shared dialog.',
+    output:'Admin must explicitly confirm before the send action runs.',
+    writeRisk:'none',ext:false,hitl:true,records:[],
+    guards:['No accidental one-click send','Same shared catalyst dialog for direct send + campaign fan-out trigger'],
+    next:['send-direct-email']},
+
+  'send-direct-email':{label:'sendDirectEmail()',type:'action',color:C.external,x:420,y:912,
+    file:'src/app/admin/outreach/actions.ts:703 (Server Action)',
+    wake:'Admin confirms in ConfirmDialog (onConfirmSend is the only caller).',
+    output:'OutreachEmail row created status "approved" → Resend → stamped "sent" (or "failed"). Audit "outreach.sendDirectEmail".',
+    writeRisk:'high',ext:true,hitl:true,
+    records:['OutreachEmail','AdminAudit'],
+    guards:['assertNoForbiddenWords() — THROWS (caught → {ok:false}); distinct from the no-throw containsForbidden() the crons use','isSuppressed() checked','Unsubscribe link included','Crash-safe ordering: approved row before dispatch, sentAt only after Resend confirms'],
+    next:['resend']},
+
+  'campaign-fanout':{label:'Campaign Fan-Out',type:'job',color:C.external,x:600,y:912,
+    file:'src/lib/inngest/functions/outreach-send.ts (OUTREACH_SEND_ID="outreach-send", concurrency 3)',
+    wake:'Admin "Send Campaign" Server Action emits outreach.campaign.send (also behind a ConfirmDialog).',
+    output:'Loads status="approved" emails; per-row step.run: suppression + forbidden-words → send → mark sent/failed; campaign flipped "sent" after loop.',
+    writeRisk:'high',ext:true,hitl:false,
+    records:['OutreachEmail','OutreachEmailEvent','AdminAudit'],
+    guards:['Per-row step.run → Inngest retry replays cache, no duplicate sends','Suppression re-checked at send (isSuppressed)','Forbidden-words re-checked at send — containsForbidden() (PR #211 · f33eb5dc)','Blocked row → status "failed" + audit "outreach.blockedSend" channel "campaign_fanout" (PR #213); fan-out continues'],
+    next:['suppression-check','forbidden-words','resend']},
+
+  'auto-send-cron':{label:'Auto-Send Cron',type:'cron',color:C.cron,x:780,y:912,
+    file:'outreach-auto-send.ts (OUTREACH_AUTO_SEND_ID, CRON "0 * * * *" hourly, concurrency 1)',
+    wake:'Hourly cron, OR the outreach_trigger_send_run chat tool (same handler).',
+    output:'SUGGEST (default) → short-circuits, 0 sends. SEND+ → Tier B/C up to daily cap. Pulls existing status="draft" rows.',
+    writeRisk:'high',ext:true,hitl:false,
+    records:['OutreachEmail','OutreachEmailEvent','AdminAudit'],
+    guards:['OUTREACH_AUTONOMY default SUGGEST → nothing sent','Tier A NEVER auto-sent (decideAutoSend tier==="A" → false always)','Warm-up: floor 10, 14 days, geometric ramp, clamped to OUTREACH_DAILY_SEND_CAP (default 30)','Suppression + forbidden-words (containsForbidden) re-checked; stamps tierAtSend/autonomyAtSend','Blocked → audit "outreach.blockedSend" channel "auto_send" (PR #216 · 51b81d97)'],
+    next:['suppression-check','forbidden-words','resend']},
+
+  'followups-cron':{label:'Followups Cron',type:'cron',color:C.cron,x:960,y:912,
+    file:'outreach-followups.ts (OUTREACH_FOLLOWUPS_ID, CRON "0 9 * * *" daily, concurrency 1)',
+    wake:'Daily 09:00 UTC cron.',
+    output:'NURTURE+ only. DRAFTS content at runtime (draftColdEmail LLM) and CREATES the OutreachEmail row at send — the only path that generates content live.',
+    writeRisk:'high',ext:true,hitl:false,
+    records:['OutreachEmail','OutreachEmailEvent','AdminAudit'],
+    guards:['Needs NURTURE+ autonomy (else no-op)','STEP_DELAY_DAYS {1:3, 2:4}; MAX_STEP=2 (3 total touches); MAX_PER_RUN=100','Only status="contacted"; reply/qualified/converted/opted_out owned by reply-handler (removed from cadence)','Suppression + forbidden-words re-checked; blocked → audit channel "followup"'],
+    next:['suppression-check','forbidden-words','resend']},
+
+  'suppression-check':{label:'Suppression Check',type:'guard',color:C.guard,x:520,y:1004,
+    file:'src/lib/outreach/suppression.ts → isSuppressed()',
+    wake:'Every outreach send path (direct · fan-out · auto-send · followups) + at sourcing.',
+    output:'Pass, or skip/fail the row.',
+    writeRisk:'none',ext:false,hitl:false,
+    records:['OutreachSuppression'],
+    guards:['Per-email AND per-domain entries; empty address treated as suppressed','Re-checked at SEND time (a recipient may opt out after approval)','Unsubscribe via Svix HMAC inbound webhook'],
+    next:[]},
+
+  'forbidden-words':{label:'Forbidden-Words Guard',type:'guard',color:C.danger,x:700,y:1004,
+    file:'src/lib/agents/forbidden-words.ts (containsForbidden / containsForbiddenChat / assertNoForbiddenWords)',
+    wake:'Every LLM output stream + every outreach send path.',
+    output:'Pass or block.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['FORBIDDEN_WORDS: guarantee, promise, certain, will deliver, risk-free, no risk, assured','Crons use containsForbidden() (no-throw {found}) → block is an audited outcome distinct from a Resend failure','Direct send uses assertNoForbiddenWords() (THROWS)','Chat uses containsForbiddenChat() (FR∪EN, negation-aware, before-window-only exemption)'],
+    next:[]},
+
+  'resend':{label:'Resend API',type:'external',color:C.external,x:820,y:1090,
+    file:'src/lib/email/send.ts:72 → sendTrackedEmail() (POST api.resend.com/emails)',
+    wake:'All send paths, only AFTER suppression + forbidden-words both pass.',
+    output:'Email delivered; resendEmailId returned; OutreachEmailEvent logged; HubSpot activity best-effort.',
+    writeRisk:'high',ext:true,hitl:false,
+    records:['OutreachEmailEvent'],
+    guards:['Shared leaf sender for all four paths + direct send','Unsubscribe link in every email'],
+    next:[]},
+
+  'dangerous-refusal':{label:'Dangerous Refusal',type:'danger',color:C.danger,x:240,y:412,
+    file:'route.ts:763-785 (refuse_autonomous || prohibitedAutonomousAction)',
+    wake:'DANGEROUS_RULES matched (deploy/sign/governance/migrate/change-formula·model).',
+    output:'Fixed FR refusal ack, metadata.intent="refusal". NO LLM, NO tool, NO write, NO HITL, NO record, NO nav.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Pre-LLM — the model never sees the prompt','0 records, 0 pages, 0 side-effects','Negation: "ne déploie pas" → cancellation, not refusal','Mainnet gated on Spearbit audit (ADR-006)'],
+    next:[]},
+
+  'records':{label:'▣ All Records',type:'record',color:C.record,x:1180,y:912,
+    file:'prisma/schema.prisma — 13 models in scope',
+    wake:'Open the Records view.',
+    output:'Which records exist, who creates them, auto vs manual, and the hard constraints.',
+    writeRisk:'none',ext:false,hitl:false,records:[],
+    guards:['Click to open the full Records grid'],
+    next:[]}
+};
+
+const FLOWS = {
+  'flow-product':{label:'Product Creation',color:C.blue,
+    summary:'Chat → Product Workspace → Projection (GET) → manual Run. Chat & GET create 0 runs.',
+    verdict:'Chat creates 0 runs. The manual run button is the only path to a ProjectionStudyRun; the preset never fills a number.',
+    nodeIds:['user-message','cockpit-chat-endpoint','auth-role-rate-limit','intent-router','product-workspace-intent','product-workspace','projection-input-preset','projection-page','methodology-panel','run-study','projection-study-run'],
+    steps:[
+      {n:'Product creation phrase',f:'creation verb + product noun',risk:'none'},
+      {n:'Router → product_workspace_intent',f:'product-workspace-intent.ts',risk:'none'},
+      {n:'Nav signal → /admin/product-workspace',f:'route.ts + client',risk:'none'},
+      {n:'Admin fills brief',f:'product-workspace/page.tsx',risk:'none',note:'"Nothing runs from this page"'},
+      {n:'buildProjectionInputPreset()',f:'projection-input-preset.ts:113',risk:'none',note:'CONTEXT ONLY — no numeric prefill'},
+      {n:'Continue to Projection (GET)',f:'?from=product-workspace',risk:'none',note:'GET creates no run'},
+      {n:'Admin clicks the run button',f:'studio.tsx:443 → runProjectionStudy',risk:'high',w:'ProjectionStudyRun + ScenarioRun'}
+    ],
+    writes:['ProjectionStudyRun (manual only)','ScenarioRun (manual only)','AdminAudit'],
+    guards:['No auto-run from chat','No auto-run from GET','Preset never emits a business number','Methodology v1.0 + disclaimer mandatory','Investor-ready gate separate'],
+    evidence:['80-prompt product stress: 0 auto-run, 0 record from GET (reported by prior mission)','Vitest page.handoff.test asserts "manual Run Study required" — CONFIRMED in source']},
+
+  'flow-projection':{label:'Projection Run',color:C.yellow,
+    summary:'Manual run button → pure engine → ProjectionStudyRun + ScenarioRun. Optional promote → VaultDeployment(draft).',
+    verdict:'Manual admin click only. Chat and GET cannot trigger it. Promote is a separate button that writes the numbers.',
+    nodeIds:['run-study','projection-study-run','promote-to-draft','vault-deployment'],
+    steps:[
+      {n:'Admin clicks run button',f:'studio.tsx:443',risk:'high',w:'triggers runProjectionStudy'},
+      {n:'Validate configured assumptions',f:'actions.ts:114',risk:'none'},
+      {n:'Pure engine runScenario(inputs, {now})',f:'src/lib/engine/scenario.ts (pure)',risk:'none'},
+      {n:'Persist ProjectionStudyRun',f:'actions.ts:201',risk:'high',w:'ProjectionStudyRun'},
+      {n:'Persist ScenarioRun(s)',f:'actions.ts',risk:'high',w:'ScenarioRun'},
+      {n:'Audit row',f:'recordAdminAudit entityType ProjectionStudyRun',risk:'none',w:'AdminAudit'},
+      {n:'(Optional) Promote to Vault Draft',f:'studio.tsx:463 → promoteStudyToDraft actions.ts:328',risk:'high',w:'VaultDeployment(draft)',note:'This is where business numbers enter a deployment'}
+    ],
+    writes:['ProjectionStudyRun','ScenarioRun','AdminAudit','VaultDeployment(draft) via Promote'],
+    guards:['Admin only','UI button only — not chat','Engine pure (injected now, no Math.random)','Investor-ready NOT lifted by a run','Mainnet gated on Spearbit (ADR-006)'],
+    evidence:['prisma.projectionStudyRun.create is the sole repo-wide occurrence (actions.ts:201) — CONFIRMED']},
+
+  'flow-outreach-direct':{label:'Outreach — Direct Send',color:C.orange,
+    summary:'Admin UI → ConfirmDialog → assertNoForbiddenWords + suppression → Resend. Real one-off email.',
+    verdict:'Real external email. ConfirmDialog mandatory (PR #210). Uses the THROWING forbidden-words assert.',
+    nodeIds:['direct-send-form','confirm-dialog','send-direct-email','forbidden-words','suppression-check','resend'],
+    steps:[
+      {n:'Open DirectSendForm',f:'direct-send-form.tsx (manual UI, no chat)',risk:'none'},
+      {n:'"Send now" → ConfirmDialog',f:'catalyst/confirm-dialog.tsx (PR #210)',risk:'none',note:'No one-click send'},
+      {n:'Confirm → sendDirectEmail()',f:'actions.ts:703',risk:'high',w:'OutreachEmail (approved)'},
+      {n:'assertNoForbiddenWords() (throws)',f:'@/lib/agents/validators',risk:'none'},
+      {n:'isSuppressed()',f:'suppression.ts',risk:'none'},
+      {n:'Resend → stamp sent / failed',f:'send.ts:72 sendTrackedEmail',risk:'high',w:'OutreachEmailEvent'},
+      {n:'Audit "outreach.sendDirectEmail"',f:'recordAdminAudit',risk:'none',w:'AdminAudit'}
+    ],
+    writes:['OutreachEmail','OutreachEmailEvent','AdminAudit'],
+    guards:['ConfirmDialog mandatory','Throwing forbidden-words assert','Suppression at send','Unsubscribe link','Crash-safe: approved before dispatch, sent only after Resend confirms'],
+    evidence:['PR #210 (b1e68096) — ConfirmDialog as the only caller of sendDirectEmail — CONFIRMED']},
+
+  'flow-campaign-fanout':{label:'Campaign Fan-Out',color:C.orange,
+    summary:'"Send Campaign" (ConfirmDialog) → Inngest outreach-send → per-row guarded send. Distinct from auto-send.',
+    verdict:'outreach-send.ts is the campaign fan-out (concurrency 3). Per-row guards; blocked rows audited & skipped, campaign continues.',
+    nodeIds:['campaign-fanout','suppression-check','forbidden-words','resend'],
+    steps:[
+      {n:'"Send Campaign" Server Action',f:'actions.ts → emits outreach.campaign.send',risk:'none',note:'Also behind a ConfirmDialog'},
+      {n:'Inngest outreach-send consumer',f:'outreach-send.ts (concurrency 3)',risk:'none'},
+      {n:'Load status="approved" emails',f:'step.run load-approved-emails',risk:'none'},
+      {n:'Per-row: isSuppressed()',f:'suppression.ts',risk:'none',note:'Re-checked at send'},
+      {n:'Per-row: containsForbidden() (no-throw)',f:'forbidden-words.ts (PR #211)',risk:'none',note:'Blocked → failed + audit "blockedSend/campaign_fanout"; continues'},
+      {n:'sendTrackedEmail() → Resend',f:'send.ts',risk:'high',w:'OutreachEmail (sent)'},
+      {n:'Flip campaign → "sent"',f:'step.run mark-campaign-sent',risk:'none'}
+    ],
+    writes:['OutreachEmail (sent/failed per row)','OutreachEmailEvent','AdminAudit (block audit)'],
+    guards:['Per-row step.run → Inngest retry = no duplicates','Suppression + forbidden-words at send (not just draft)','Blocked = failed + audited, not silently skipped','Operates on pre-existing approved rows'],
+    evidence:['PR #211 (f33eb5dc) re-check + PR #213 (03a70237) block audit — CONFIRMED in outreach-send.ts:146-159']},
+
+  'flow-auto-send':{label:'Auto-Send Cron',color:C.grey,
+    summary:'Hourly cron. SUGGEST=0 sends. SEND+ = Tier B/C up to warm-up cap. Tier A never. Same handler as the trigger tool.',
+    verdict:'Distinct from fan-out (outreach-send.ts). Governed by OUTREACH_AUTONOMY; also invokable via the outreach_trigger_send_run HITL tool.',
+    nodeIds:['auto-send-cron','outreach-trigger-send-run','suppression-check','forbidden-words','resend'],
+    steps:[
+      {n:'Hourly cron "0 * * * *" (or trigger tool)',f:'outreach-auto-send.ts (concurrency 1)',risk:'none'},
+      {n:'OUTREACH_AUTONOMY gate',f:'decideAutoSend()',risk:'none',note:'Default SUGGEST → short-circuits, 0 sends'},
+      {n:'Daily budget / warm-up',f:'remainingDailyBudget (floor 10, 14 days, ramp, cap 30)',risk:'none'},
+      {n:'Tier filter (B/C only)',f:'send-policy.ts',risk:'none',note:'Tier A never auto-sent'},
+      {n:'Pull status="draft" rows; suppression',f:'isSuppressed()',risk:'none'},
+      {n:'containsForbidden() (no-throw)',f:'forbidden-words.ts',risk:'none',note:'Blocked → audit "blockedSend/auto_send" (PR #216)'},
+      {n:'Resend → stamp tierAtSend/autonomyAtSend',f:'send.ts',risk:'high',w:'OutreachEmail + OutreachEmailEvent'}
+    ],
+    writes:['OutreachEmail (Tier B/C, SEND+ only)','OutreachEmailEvent','AdminAudit'],
+    guards:['SUGGEST default = 0 sends','Tier A never auto-sent (hard block)','Warm-up + daily cap','Suppression + forbidden-words at send','outreach_trigger_send_run reuses this exact handler (still gated, still never Tier A)'],
+    evidence:['PR #216 (51b81d97) auto-send block audit — CONFIRMED in outreach-auto-send.ts:210-224']},
+
+  'flow-followups':{label:'Followups Cron',color:C.grey,
+    summary:'Daily 09:00 UTC. NURTURE+ only. 2 follow-ups max (3d then 4d). Drafts content live and creates the row at send.',
+    verdict:'Distinct cron. The ONLY path that drafts content at runtime (LLM) and creates the OutreachEmail row at send time.',
+    nodeIds:['followups-cron','suppression-check','forbidden-words','resend'],
+    steps:[
+      {n:'Daily cron "0 9 * * *"',f:'outreach-followups.ts (concurrency 1)',risk:'none'},
+      {n:'NURTURE+ gate',f:'decideAutoSend(tier, autonomy, "follow_up")',risk:'none',note:'Below NURTURE+ → no-op'},
+      {n:'Load status="contacted" due (step 1..2)',f:'STEP_DELAY_DAYS {1:3, 2:4}; MAX_PER_RUN 100',risk:'none'},
+      {n:'isSuppressed()',f:'suppression.ts',risk:'none'},
+      {n:'draftColdEmail() (LLM) at runtime',f:'outreach-followups.ts:170',risk:'none',note:'Content generated live'},
+      {n:'containsForbidden() (no-throw)',f:'forbidden-words.ts',risk:'none',note:'Blocked → audit "blockedSend/followup"'},
+      {n:'Create OutreachEmail + send → advance sequenceStep',f:'send.ts',risk:'high',w:'OutreachEmail'},
+      {n:'step ≥ 3 → exhausted, stop',f:'MAX_STEP=2',risk:'none'}
+    ],
+    writes:['OutreachEmail (follow-up, created at send)','OutreachEmailEvent','sequenceStep on OutreachProspect'],
+    guards:['NURTURE+ required','Max 3 total touches; 3d then 4d gap; 100/run cap','reply/qualified/converted/opted_out removed from cadence','Suppression + forbidden-words at send'],
+    evidence:['outreach-followups.ts:170/241 runtime draft + create at send — CONFIRMED']},
+
+  'flow-vault':{label:'Vault Draft (HITL)',color:C.purple,
+    summary:'Chat tool → 2-step HITL token → createDraftVault → writes VaultDeployment(draft). NOT the VaultDraft model.',
+    verdict:'create_vault_draft writes prisma.vaultDeployment(status="draft") + ShareClass — never the unrelated "VaultDraft" wizard model. markAsLive = governance UI, never chat.',
+    nodeIds:['admin-write-tools','vault-draft-tool','hitl-token','vault-deployment'],
+    steps:[
+      {n:'Admin chat requests a vault draft',f:'route.ts admin tool set',risk:'none'},
+      {n:'Model proposes create_vault_draft',f:'registry.ts:1286 (read-tool surface only)',risk:'none',note:'Model cannot auto-execute a write'},
+      {n:'CreateDraftSchema (23 fields) Zod-validated',f:'vaults/schema.ts',risk:'none',note:'Before any token'},
+      {n:'HITL token issued (5-min TTL, DB-backed)',f:'confirmations.ts → AdminWriteToolConfirmation',risk:'none'},
+      {n:'Admin submits token → consumed',f:'consumeWriteConfirmation (single-use, SHA-256 bound)',risk:'none'},
+      {n:'createDraftVault() executes',f:'vaults/actions.ts:71 (requireAdmin + rate limit)',risk:'high',w:'VaultDeployment(draft) + ShareClass'}
+    ],
+    writes:['VaultDeployment (status="draft")','ShareClass','AdminAudit (vault.createDraft)','AdminWriteToolConfirmation'],
+    guards:['2-step HITL token, single-use, payload-bound, 5-min TTL','Action re-validates internally (defense in depth)','Draft only — markAsLive needs state machine + signer quorum + live-gate, never chat','VaultDeployment/Approval are not chat-reachable beyond draft'],
+    evidence:['createDraftVault calls prisma.vaultDeployment.create (NOT vaultDraft) — CONFIRMED, critic top-risk corrected']},
+
+  'flow-dangerous':{label:'Dangerous Refusal',color:C.red,
+    summary:'deploy / sign / governance / migrate → refused BEFORE the LLM. 0 records, 0 side-effects.',
+    verdict:'0 path to deploy / go-live / on-chain from chat. Refusal is pre-LLM; the model never sees the prompt.',
+    nodeIds:['user-message','cockpit-chat-endpoint','auth-role-rate-limit','danger-router','dangerous-refusal'],
+    steps:[
+      {n:'Dangerous phrase',f:'deploy/sign/governance/migrate/change formula·model',risk:'none'},
+      {n:'DANGEROUS_RULES matched (4 rules)',f:'intent-router-rules.ts:49-102',risk:'none',note:'Before the LLM'},
+      {n:'refuse_autonomous (prohibitedAutonomousAction=true)',f:'intent-router.ts',risk:'none'},
+      {n:'Fixed FR refusal ack to client',f:'route.ts:763-785',risk:'none',note:'No LLM, tool, write, HITL, nav'}
+    ],
+    writes:[],
+    guards:['Pre-LLM short-circuit','0 records / 0 pages','Negation → cancellation, not a positive action','Mainnet gated on Spearbit (ADR-006)'],
+    evidence:['80-prompt stress: 0 deploy/live (reported by prior mission)','route.ts:763-785 fixed refusal — CONFIRMED']},
+
+  'flow-llm-fallback':{label:'Unknown / LLM Fallback',color:C.purple,
+    summary:'Intent unresolved → GPT-4.1 with role context → 3-layer output guard → stream.',
+    verdict:'LLM runs inside the full guard stack. No autonomous write without a HITL token; no model navigate tool.',
+    nodeIds:['user-message','cockpit-chat-endpoint','auth-role-rate-limit','intent-router','llm-fallback','output-guard','client-nav'],
+    steps:[
+      {n:'Router → unknown / education',f:'intent-router.ts',risk:'none'},
+      {n:'Role-aware context built',f:'buildPortfolioContextBlock / buildAdminContextBlock',risk:'none'},
+      {n:'runChatAgent() → GPT-4.1',f:'chat-agent.ts:372 (ADR-011)',risk:'depends',w:'LlmRun'},
+      {n:'Live output guard',f:'output-guard.ts guardChatStream',risk:'none'},
+      {n:'Persistence guards (semantic + saveMessage)',f:'chat-agent.ts:554 / route.ts:337',risk:'none',note:'Non-compliant answer never re-injected'},
+      {n:'Stream to client',f:'client',risk:'none'}
+    ],
+    writes:['LlmRun','CockpitMessage','CockpitChat'],
+    guards:['3 output layers: live stream + semantic persistence guard + saveMessage refusal','Forbidden-words + APY-range','Server-side system prompt','Model exposed read tools only; write attempts → HITL guidance'],
+    evidence:['80-prompt stress: 0 XSS, 0 HITL bypass, 0 guaranteed APY (reported by prior mission)']},
+
+  'flow-lp':{label:'LP Prompt Boundary',color:C.red,
+    summary:'LP investor → read-only context, 0 write tools, 0 admin pages.',
+    verdict:'LP boundary enforced at auth. The decisive control is the nav profile guard (admin-* keys dropped), not a confidence threshold.',
+    nodeIds:['user-message','cockpit-chat-endpoint','auth-role-rate-limit','lp-boundary','llm-fallback','output-guard','client-nav'],
+    steps:[
+      {n:'LP sends any message',f:'cockpit-shell client',risk:'none'},
+      {n:'requireAuth → role=LP',f:'route.ts Privy session',risk:'none'},
+      {n:'LP system prompt + portfolio context',f:'COCKPIT_DEFAULT_SYSTEM_PROMPT',risk:'none'},
+      {n:'Tool set = 0 write, 0 admin tools',f:'isAdminToolAllowed → false for LP',risk:'none'},
+      {n:'Nav profile guard drops admin-* keys',f:'route.ts:710-718',risk:'none',note:'The real LP→admin block'},
+      {n:'LLM answers + output guard',f:'chat-agent.ts',risk:'none',w:'LlmRun'}
+    ],
+    writes:['LlmRun','CockpitMessage'],
+    guards:['Admin tools require chatMode admin AND profile admin','Nav profile guard drops admin-* routes for LP','No outreach/vault/projection write reachable'],
+    evidence:['80-prompt LP boundary: 0 breaches (reported by prior mission)','policy.ts AND of chatMode+profile — CONFIRMED']},
+
+  'flow-admin':{label:'Admin Prompt Tools',color:C.purple,
+    summary:'Admin → 11 read tools (no confirm) + 7 write tools (all HITL). Model gets read tools only.',
+    verdict:'Admin write tools exist but every one is gated by a 2-step HITL token; the model proposes, the admin confirms.',
+    nodeIds:['user-message','cockpit-chat-endpoint','auth-role-rate-limit','admin-tools','admin-write-tools','hitl-token','output-guard','client-nav'],
+    steps:[
+      {n:'Admin sends message (chatMode admin)',f:'route.ts Privy session',risk:'none'},
+      {n:'Admin prompt + admin context',f:'COCKPIT_ADMIN_SYSTEM_PROMPT',risk:'none'},
+      {n:'11 read tools (no confirmation)',f:'ADMIN_READ_TOOLS registry.ts:937-1183',risk:'low'},
+      {n:'7 write tools (confirmationRequired:true)',f:'ADMIN_WRITE_TOOLS registry.ts:1185-1307',risk:'medium'},
+      {n:'HITL token for any write',f:'confirmations.ts',risk:'none'},
+      {n:'Every run telemetered',f:'AdminToolRun (status, inputHash)',risk:'none',w:'AdminToolRun'},
+      {n:'Output guard',f:'output-guard.ts',risk:'none'}
+    ],
+    writes:['VaultDeployment(draft) HITL','OutreachEmail draft / send-run HITL','GovernanceProposal draft HITL','review-note / campaign draft HITL','LlmRun','AdminToolRun','CockpitMessage'],
+    guards:['All 7 write tools confirmationRequired:true','Model cannot auto-execute a write (blocked → guidance)','outreach_trigger_send_run can send (gated, never Tier A); nothing deploys','Every tool run telemetered to AdminToolRun (hashed input, never raw)'],
+    evidence:['registry.ts: all 7 write tools confirmationRequired:true — CONFIRMED']}
+};
+
+const RECORDS = {
+  CockpitChat:{cls:'system',auto:'auto',trigger:'First message of a chat session',file:'route.ts:296 (schema.prisma:287)'},
+  CockpitMessage:{cls:'system',auto:'auto',trigger:'Every chat turn (user + assistant)',file:'route.ts:345/1008 (schema.prisma:298)'},
+  LlmRun:{cls:'system',auto:'auto',trigger:'Every LLM call (off the response path)',file:'persistChatLlmRun route.ts:1218 (schema.prisma:807)'},
+  AdminToolRun:{cls:'system',auto:'auto',trigger:'Every admin read/write tool execution (status, latency, hashed input)',file:'registry.ts:309 (schema.prisma:687)'},
+  AdminWriteToolConfirmation:{cls:'hitl',auto:'auto',trigger:'A write tool needs a HITL token (single-use, SHA-256 bound, 5-min TTL)',file:'confirmations.ts (schema.prisma:673)'},
+  ProjectionStudyRun:{cls:'manual',auto:'manual',trigger:'Manual run button only',file:'actions.ts:201 (schema.prisma:508)',hard:'NEVER from chat, NEVER from GET'},
+  ScenarioRun:{cls:'manual',auto:'manual',trigger:'Manual run (child of ProjectionStudyRun)',file:'actions.ts (schema.prisma:90)',hard:'Same gate as ProjectionStudyRun'},
+  VaultDeployment:{cls:'hitl',auto:'manual',trigger:'create_vault_draft (HITL) OR promoteStudyToDraft — status="draft"',file:'vaults/actions.ts / projection/actions.ts:401 (schema.prisma:449)',hard:'Chat can create DRAFT only; markAsLive = governance UI'},
+  VaultDraft:{cls:'system',auto:'auto',trigger:'Admin vault wizard form-state autosave (userId, formState JSON, step)',file:'schema.prisma:725',hard:'UNRELATED to create_vault_draft — not written by any chat tool'},
+  VaultDeploymentApproval:{cls:'manual',auto:'manual',trigger:'Multi-sig governance (signer quorum)',file:'schema.prisma:495',hard:'NEVER from chat'},
+  GovernanceProposal:{cls:'hitl',auto:'manual',trigger:'create_governance_proposal_draft (HITL, draft); execution refused by danger-first router',file:'schema.prisma:741',hard:'Execution refused pre-LLM'},
+  OutreachEmail:{cls:'auto',auto:'partial',trigger:'Direct send / fan-out / auto-send (SEND+, B/C) / followups (NURTURE+)',file:'4 send paths (schema.prisma:1155)',hard:'Tier A NEVER auto-sent'},
+  OutreachEmailEvent:{cls:'auto',auto:'auto',trigger:'Resend send + webhook tracking',file:'send.ts (schema.prisma:1183)'},
+  OutreachSuppression:{cls:'auto',auto:'auto',trigger:'Unsubscribe opt-out (Svix HMAC inbound)',file:'suppression.ts (schema.prisma:1255)'},
+  AdminAudit:{cls:'auto',auto:'auto',trigger:'Any admin write action (incl. "outreach.blockedSend")',file:'recordAdminAudit (schema.prisma:524)'}
+};
+
+/* ════════════════════════════════════════════════════════════════
+   RENDER
+   ════════════════════════════════════════════════════════════════ */
+const CARD_W=156, CARD_H=54;
+const graph=document.getElementById('graph');
+const svg=document.getElementById('edges');
+let activeNode=null, activeFlow=null, currentView='overview';
+
+const TYPE_TAG={read:['READ','tag-read'],write:['WRITE','tag-write'],hitl:['HITL','tag-hitl'],
+  manual:['MANUAL','tag-manual'],ext:['EXT SEND','tag-ext'],refuse:['REFUSAL','tag-refuse'],
+  cron:['CRON','tag-cron'],rec:['RECORD','tag-rec']};
+
+function nodeTags(n){
+  const t=[];
+  if(n.type==='danger'&&(n.label.includes('Refusal')||n.label.includes('Gate')||n.label.includes('Boundary')||n.label.includes('Danger'))) t.push(TYPE_TAG.refuse);
+  if(n.writeRisk&&n.writeRisk!=='none') t.push(TYPE_TAG.write); else if(!n.hitl&&!n.ext&&n.type!=='cron'&&n.type!=='record') t.push(TYPE_TAG.read);
+  if(n.hitl) t.push(TYPE_TAG.hitl);
+  if(n.ext) t.push(TYPE_TAG.ext);
+  if(n.type==='cron') t.push(TYPE_TAG.cron);
+  if(n.type==='record') t.push(TYPE_TAG.rec);
+  if(n.type==='action') t.push(TYPE_TAG.manual);
+  // dedupe by code
+  const seen=new Set(),out=[];
+  t.forEach(x=>{if(!seen.has(x[0])){seen.add(x[0]);out.push(x);}});
+  return out.slice(0,3);
+}
+
+function buildNodes(){
+  Object.entries(NODES).forEach(([id,n])=>{
+    const el=document.createElement('div');
+    el.className='node';
+    el.id='node-'+id;
+    el.style.left=n.x+'px';
+    el.style.top=n.y+'px';
+    el.style.borderLeftColor=n.color;
+    el.style.color=n.color;
+    const tags=nodeTags(n).map(t=>`<span class="n-tag ${t[1]}">${t[0]}</span>`).join('');
+    el.innerHTML=`<div class="n-type">${n.type}</div><div class="n-label">${n.label}</div><div class="n-tags">${tags}</div>`;
+    el.onclick=(e)=>{e.stopPropagation(); if(id==='records'){setView('records');return;} selectNode(id);};
+    graph.appendChild(el);
+  });
+}
+
+function edgeKey(a,b){return a+'__'+b;}
+const EDGES=[];
+function buildEdges(){
+  Object.entries(NODES).forEach(([id,n])=>{
+    (n.next||[]).forEach(t=>{ if(NODES[t]) EDGES.push([id,t]); });
+  });
+  drawEdges();
+}
+function center(id,pos){const n=NODES[id]; return pos==='bottom'?{x:n.x+CARD_W/2,y:n.y+CARD_H}:{x:n.x+CARD_W/2,y:n.y};}
+function drawEdges(){
+  svg.innerHTML='';
+  const flowSet = activeFlow ? new Set(FLOWS[activeFlow].nodeIds) : null;
+  EDGES.forEach(([a,b])=>{
+    const s=center(a,'bottom'), t=center(b,'top');
+    const dy=Math.max(28,(t.y-s.y)*0.5);
+    const d=`M ${s.x} ${s.y} C ${s.x} ${s.y+dy}, ${t.x} ${t.y-dy}, ${t.x} ${t.y}`;
+    const inFlow = flowSet && flowSet.has(a) && flowSet.has(b);
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',d);
+    p.setAttribute('fill','none');
+    if(inFlow){p.setAttribute('stroke',FLOWS[activeFlow].color);p.setAttribute('stroke-width','2.2');p.setAttribute('opacity','0.9');}
+    else if(flowSet){p.setAttribute('stroke','#1b232d');p.setAttribute('stroke-width','1');p.setAttribute('opacity','0.5');}
+    else {p.setAttribute('stroke','rgba(167,251,144,0.16)');p.setAttribute('stroke-width','1.3');}
+    svg.appendChild(p);
+  });
+}
+
+/* ── SELECT NODE ── */
+function selectNode(id){
+  activeNode=id;
+  document.querySelectorAll('.node').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('node-'+id);
+  if(el){el.classList.add('active'); el.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});}
+  renderNodeDetail(id);
+}
+
+function badge(cls,txt){return `<span class="d-badge ${cls}">${txt}</span>`;}
+function chip(label,onclick,kind){return `<span class="d-chip" onclick="${onclick}">${label}<span class="chev">›</span></span>`;}
+
+function renderNodeDetail(id){
+  const n=NODES[id];
+  document.getElementById('detail-empty').style.display='none';
+  const dc=document.getElementById('detail-content');
+  const badges=[];
+  badges.push(n.writeRisk&&n.writeRisk!=='none'?badge('bd-write','Write: '+n.writeRisk):badge('bd-read','Read-only'));
+  badges.push(n.ext?badge('bd-ext','External send'):badge('bd-no','No external send'));
+  badges.push(n.hitl?badge('bd-hitl','HITL required'):badge('bd-no','No HITL'));
+
+  const recChips=(n.records||[]).map(r=>RECORDS[r]?chip(r,`setView('records');highlightRecord('${r}')`):`<span class="d-chip" style="cursor:default">${r}</span>`).join('');
+  const nextChips=(n.next||[]).filter(x=>NODES[x]).map(x=>chip(NODES[x].label,`selectNode('${x}')`)).join('');
+  const flowsWith=Object.entries(FLOWS).filter(([fid,f])=>f.nodeIds.includes(id)).map(([fid,f])=>chip(f.label,`selectFlow('${fid}')`)).join('');
+
+  dc.innerHTML=`
+    <div class="d-wrap">
+      <div class="d-kicker"><span class="dk-dot" style="background:${n.color}"></span><span class="dk-type">${n.type}</span></div>
+      <div class="d-title">${n.label}</div>
+      <div class="d-file">${n.file}</div>
+      <div class="d-badges">${badges.join('')}</div>
+      <div class="d-row"><div class="dr-h">Wakes when</div><div class="dr-b">${n.wake||'—'}</div></div>
+      <div class="d-row"><div class="dr-h">Output</div><div class="dr-b">${n.output||'—'}</div></div>
+      ${recChips?`<div class="d-row"><div class="dr-h">Records it can create</div><div>${recChips}</div></div>`:''}
+      ${(n.guards&&n.guards.length)?`<div class="d-sect-h">Guards</div><ul class="d-list guards">${n.guards.map(g=>`<li>${g}</li>`).join('')}</ul>`:''}
+      ${nextChips?`<div class="d-sect-h">Next actions</div><div>${nextChips}</div>`:''}
+      ${flowsWith?`<div class="d-sect-h">Appears in flows</div><div>${flowsWith}</div>`:''}
+    </div>`;
+  document.getElementById('detail').scrollTop=0;
+}
+
+/* ── SELECT FLOW ── */
+function selectFlow(fid){
+  if(!FLOWS[fid])return;
+  activeFlow=fid; activeNode=null;
+  if(currentView==='records') setView('overview',true);
+  location.hash=fid;
+  document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.toggle('active',el.dataset.flow===fid));
+  document.querySelectorAll('.rail-item.view-item').forEach(el=>el.classList.remove('active'));
+  const set=new Set(FLOWS[fid].nodeIds);
+  document.querySelectorAll('.node').forEach(el=>{
+    el.classList.remove('active','search-hit','search-miss');
+    const nid=el.id.replace('node-','');
+    if(set.has(nid)){el.classList.remove('dim');el.classList.add('flow-on');}
+    else{el.classList.add('dim');el.classList.remove('flow-on');}
+  });
+  drawEdges();
+  renderFlowDetail(fid);
+  renderFlowStrip(fid);
+  // scroll first node into view
+  const first=document.getElementById('node-'+FLOWS[fid].nodeIds[0]);
+  if(first) first.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+function renderFlowDetail(fid){
+  const f=FLOWS[fid];
+  document.getElementById('detail-empty').style.display='none';
+  const dc=document.getElementById('detail-content');
+  const vClass = fid==='flow-dangerous'||fid==='flow-lp'?'danger':(f.color===C.yellow||f.color===C.grey?'warn':'');
+  const nodeChips=f.nodeIds.filter(x=>NODES[x]).map(x=>chip(NODES[x].label,`selectNode('${x}')`)).join('');
+  dc.innerHTML=`
+    <div class="d-wrap">
+      <div class="d-kicker"><span class="dk-dot" style="background:${f.color}"></span><span class="dk-type">Flow</span></div>
+      <div class="d-title">${f.label}</div>
+      <div class="d-verdict ${vClass}">${f.verdict}</div>
+      <div class="d-row"><div class="dr-h">Summary</div><div class="dr-b">${f.summary}</div></div>
+      <div class="d-sect-h">Writes</div>
+      ${f.writes.length?`<ul class="d-list">${f.writes.map(w=>`<li>${w}</li>`).join('')}</ul>`:'<div class="dr-b" style="color:var(--txt2)">No writes. No records. No side-effects.</div>'}
+      <div class="d-sect-h">Guards</div>
+      <ul class="d-list guards">${f.guards.map(g=>`<li>${g}</li>`).join('')}</ul>
+      <div class="d-sect-h">Evidence</div>
+      <ul class="d-list">${f.evidence.map(e=>`<li>${e}</li>`).join('')}</ul>
+      <div class="d-sect-h">Nodes in this flow</div>
+      <div>${nodeChips}</div>
+    </div>`;
+  document.getElementById('detail').scrollTop=0;
+}
+
+function renderFlowStrip(fid){
+  const f=FLOWS[fid];
+  const strip=document.getElementById('flowstrip');
+  const inner=document.getElementById('flowstrip-inner');
+  const steps=f.steps.map((s,i)=>{
+    const tags=[];
+    if(s.w) tags.push(`<span class="n-tag tag-write">WRITE</span>`);
+    if(s.risk==='high') tags.push(`<span class="n-tag tag-ext">HIGH RISK</span>`);
+    if(s.risk==='none'&&!s.w) tags.push(`<span class="n-tag tag-read">READ</span>`);
+    return `<div class="fs-step"><div class="fss-card">
+      <div class="fss-n"><span class="fss-num">${i+1}</span><span class="fss-label">${s.n}</span></div>
+      <div class="fss-file">${s.f}</div>
+      ${s.w?`<div class="fss-note" style="color:var(--orange)">↳ writes ${s.w}</div>`:''}
+      ${s.note?`<div class="fss-note">${s.note}</div>`:''}
+      <div class="fss-tags">${tags.join('')}</div>
+    </div><span class="fss-arrow">→</span></div>`;
+  }).join('');
+  inner.innerHTML=`
+    <div class="fs-head"><span class="fs-dot" style="background:${f.color}"></span><h3>${f.label}</h3>
+      <span class="fs-close" onclick="closeFlow()">Clear flow ✕</span></div>
+    <div class="fs-sum">${f.summary}</div>
+    <div class="fs-steps">${steps}</div>`;
+  strip.classList.add('open');
+}
+
+function closeFlow(){
+  activeFlow=null;
+  document.getElementById('flowstrip').classList.remove('open');
+  document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.node').forEach(el=>el.classList.remove('dim','flow-on'));
+  drawEdges();
+  if(location.hash) history.replaceState(null,'',location.pathname);
+  setView('overview');
+}
+
+/* ── VIEWS ── */
+function setView(v,silent){
+  currentView=v;
+  const rv=document.getElementById('records-view');
+  const gr=document.getElementById('graph');
+  document.querySelectorAll('.rail-item.view-item').forEach(el=>el.classList.toggle('active',el.dataset.view===v && !activeFlow));
+  if(v==='records'){
+    rv.classList.add('on'); gr.style.display='none';
+    document.querySelectorAll('#rail-flows .rail-item').forEach(el=>el.classList.remove('active'));
+    if(!silent) renderRecords();
+  }else{
+    rv.classList.remove('on'); gr.style.display='block';
+    if(v==='overview'&&!activeFlow){
+      document.querySelectorAll('.node').forEach(el=>el.classList.remove('dim','flow-on','active'));
+      drawEdges();
+    }
+  }
+}
+
+function renderRecords(){
+  const rv=document.getElementById('records-view');
+  const tagFor=a=>a==='auto'?['AUTO','tag-write']:a==='manual'?['MANUAL','tag-manual']:a==='partial'?['PARTIAL','tag-ext']:['SYSTEM','tag-read'];
+  const cards=Object.entries(RECORDS).map(([name,r])=>{
+    const t=tagFor(r.auto);
+    return `<div class="rv-card ${r.cls}" id="rec-${name}">
+      <div class="rv-name">${name}<span class="rv-tag ${t[1]}">${t[0]}</span></div>
+      <div class="rv-line"><span class="rv-k">Trigger</span><span class="rv-v">${r.trigger}</span></div>
+      <div class="rv-line"><span class="rv-k">Source</span><span class="rv-v file">${r.file}</span></div>
+      ${r.hard?`<div class="rv-line"><span class="rv-k">Hard</span><span class="rv-v danger">${r.hard}</span></div>`:''}
+    </div>`;
+  }).join('');
+  rv.innerHTML=`<div class="rv-h">Record Creation Map</div>
+    <div class="rv-sub">13 Prisma models in scope. Note the trap the verifier flagged: <b style="color:var(--orange)">create_vault_draft writes VaultDeployment(draft), not the VaultDraft model</b> (that one is an unrelated wizard autosave).</div>
+    <div class="rv-grid">${cards}</div>`;
+}
+function highlightRecord(name){
+  setTimeout(()=>{
+    const el=document.getElementById('rec-'+name);
+    if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.style.boxShadow='0 0 0 2px var(--green)';setTimeout(()=>el.style.boxShadow='',1600);}
+  },60);
+}
+
+/* ── SEARCH ── */
+function search(q){
+  q=q.trim().toLowerCase();
+  document.getElementById('search-clear').style.display=q?'block':'none';
+  if(currentView==='records'){ filterRecords(q); return; }
+  if(!q){document.querySelectorAll('.node').forEach(el=>el.classList.remove('search-hit','search-miss'));return;}
+  if(activeFlow) closeFlow();
+  Object.entries(NODES).forEach(([id,n])=>{
+    const hay=(n.label+' '+n.type+' '+(n.file||'')+' '+(n.wake||'')+' '+(n.output||'')+' '+(n.guards||[]).join(' ')+' '+(n.records||[]).join(' ')).toLowerCase();
+    const el=document.getElementById('node-'+id);
+    if(hay.includes(q)){el.classList.add('search-hit');el.classList.remove('search-miss');}
+    else{el.classList.add('search-miss');el.classList.remove('search-hit');}
+  });
+}
+function filterRecords(q){
+  Object.keys(RECORDS).forEach(name=>{
+    const el=document.getElementById('rec-'+name); if(!el)return;
+    const r=RECORDS[name];
+    const hay=(name+' '+r.trigger+' '+r.file+' '+(r.hard||'')).toLowerCase();
+    el.style.opacity=(!q||hay.includes(q))?'1':'0.18';
+  });
+}
+function clearSearch(){document.getElementById('search-input').value='';search('');}
+
+/* ── RAIL FLOWS ── */
+function buildRail(){
+  const rf=document.getElementById('rail-flows');
+  Object.entries(FLOWS).forEach(([fid,f])=>{
+    const el=document.createElement('div');
+    el.className='rail-item'; el.dataset.flow=fid;
+    el.innerHTML=`<span class="swatch" style="background:${f.color}"></span><span class="ri-label">${f.label}</span>`;
+    el.onclick=()=>selectFlow(fid);
+    rf.appendChild(el);
+  });
+}
+
+/* ── INIT ── */
+function init(){
+  buildNodes(); buildEdges(); buildRail();
+  document.getElementById('sb-nodes').textContent=Object.keys(NODES).length-1; // minus the 'records' helper node
+  document.getElementById('sb-flows').textContent=Object.keys(FLOWS).length;
+  document.getElementById('search-input').addEventListener('input',e=>search(e.target.value));
+  document.getElementById('canvas-scroll').addEventListener('click',()=>{ /* background click keeps selection */ });
+  // deep link
+  const h=location.hash.replace('#','');
+  if(h&&FLOWS[h]) selectFlow(h);
+  else if(h&&h.startsWith('node-')&&NODES[h.slice(5)]) selectNode(h.slice(5));
+  else setView('overview');
+  window.addEventListener('hashchange',()=>{const hh=location.hash.replace('#','');if(FLOWS[hh]&&hh!==activeFlow)selectFlow(hh);});
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
