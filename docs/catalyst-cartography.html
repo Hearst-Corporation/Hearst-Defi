@@ -1556,6 +1556,11 @@ window.CARTO_DATA = {
       "date": "2026-06-29",
       "ref": "Mission #049 lot13",
       "note": "Provenance-badge status tones tokenized. Added --ct-status-unaudited{,-soft,-border} (rose) to cockpit.css; source-truth-badge.tsx CONFIGURED/PARTIAL→--ct-status-info* (token existed), UNAUDITED→--ct-status-unaudited*. MOCK's neutral zinc tint kept (no 1:1 token). All named status hues (sky/rose) now tokenized — ds-convergence-guard status-color rule extended to ban raw sky/rose too. eslint 0 errors, typecheck clean, DS guards green, 78 source-truth tests pass."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #049 lot14 — CONVERGENCE LOCKED",
+      "note": "Sealed in CI (#207): `pnpm ds:guard:all` (hardcode guard + 5-rule convergence guard) now runs inside the blocking Lint & Typecheck job, so any DS regression fails CI automatically. The 5 convergence rules: ui/ sealed to 3 helpers · no raw #A7FB90 · no exact-token text-[Npx] · no raw #15191C/bg-zinc-9xx surface · no raw red/amber/sky/rose status hue. Design system is 100% tokenized on every known axis (0 raw colour, 0 tokenizable px, 0 hand-rolled card) and protected against regression. Also: vault detail page realigned on the customers/[id] canon (#204)."
     }
   ]
 };

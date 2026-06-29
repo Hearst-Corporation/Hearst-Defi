@@ -4,8 +4,8 @@
     "generatedAt": "2026-06-28",
     "head": "<lot9-pending>",
     "originMain": "c463155c",
-    "status": "DONE",
-    "lastPR": "lot13 status-info/unaudited tokens (sky→info, rose→unaudited) (fix/catalyst-status-info)",
+    "status": "CONVERGENCE LOCKED",
+    "lastPR": "#207 — DS guards enforced in blocking CI job",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -52,7 +52,8 @@
     "preferConstErrors": 0,
     "surfaceHexRaw": 0,
     "neutralRawRemaining": 1,
-    "statusColorRaw": 0
+    "statusColorRaw": 0,
+    "dsGuardsCiEnforced": true
   },
   "openPRs": [
     {
@@ -1042,6 +1043,11 @@
       "date": "2026-06-29",
       "ref": "Mission #049 lot13",
       "note": "Provenance-badge status tones tokenized. Added --ct-status-unaudited{,-soft,-border} (rose) to cockpit.css; source-truth-badge.tsx CONFIGURED/PARTIAL→--ct-status-info* (token existed), UNAUDITED→--ct-status-unaudited*. MOCK's neutral zinc tint kept (no 1:1 token). All named status hues (sky/rose) now tokenized — ds-convergence-guard status-color rule extended to ban raw sky/rose too. eslint 0 errors, typecheck clean, DS guards green, 78 source-truth tests pass."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #049 lot14 — CONVERGENCE LOCKED",
+      "note": "Sealed in CI (#207): pnpm ds:guard:all runs inside the blocking Lint & Typecheck job — any DS regression fails CI automatically. 5 convergence rules enforced. DS 100% tokenized on every known axis (0 raw colour, 0 tokenizable px, 0 hand-rolled card), protected against regression. Vault detail page realigned on customers/[id] canon (#204)."
     }
   ]
 }
