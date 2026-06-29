@@ -31,7 +31,12 @@ export function ChatSettings({ productName }: ChatSettingsProps = {}) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-[var(--ct-surface-card)] p-3">
+    // `ct-chat-settings` is the DS anchor the admin chat-mode controls portal into
+    // (AdminChatControls → document.querySelector(".ct-chat-settings")). Without it
+    // the Conversation/Review/Admin mode selector has nowhere to mount and silently
+    // disappears. Keep it FIRST so the anchor is stable; the Tailwind utilities
+    // layer the card surface + spacing on top of the DS flex/scroll base.
+    <div className="ct-chat-settings flex flex-col gap-3 rounded-lg bg-[var(--ct-surface-card)] p-3">
       <section className="rounded-lg border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] p-4">
         <div className={MICRO_LABEL}>LLM infra</div>
         <div className="mt-2 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">
