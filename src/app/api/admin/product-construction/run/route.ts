@@ -24,6 +24,7 @@ import {
   type QuantAssumptionsOverrides,
   type QuantPresetId,
 } from "@/lib/agentic/swarm/live/quant-assumptions";
+import { saveConstructionReport } from "@/lib/product-workspace/construction-report-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -112,6 +113,11 @@ export async function POST(request: NextRequest): Promise<Response> {
         { status: result.kind === "unsafe" ? 422 : 400 },
       );
     }
+    // Persist the report into the admin's existing VaultDraft (best-effort, off
+    // the response path). An informational artifact — not a custodial action.
+    void saveConstructionReport({ userId, draft: result }).catch(() => {
+      /* persistence is best-effort; never fail the response over it */
+    });
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });
