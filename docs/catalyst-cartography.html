@@ -156,9 +156,9 @@
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
   <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. <code>src/components/ui</code> is sealed to 3 non-visual helpers; <code>src/components/catalyst</code> is the single UI source. Mission #050 re-verified the convergence at <code>dadcbb7d</code>: both DS guards green, no new work warranted.</p>
   <div class="meta-row">
-    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #051 (admin start pattern)</span>
-    <span class="chip"><b>head</b> <code>fix/admin-visual-canon</code> · status <code>100% TOKENIZED</code></span>
-    <span class="chip"><span class="dot green"></span><b>#051</b> admin start pattern · <code>AdminSectionCard</code> canon</span>
+    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #054 (admin visual structure — finalized)</span>
+    <span class="chip"><span class="dot green"></span><b>merged</b> <code>d05f618c</code> · PR <code>#218</code> on <code>main</code></span>
+    <span class="chip"><span class="dot green"></span><b>#054 = #051</b> admin start pattern · <code>AdminSectionCard</code> canon</span>
     <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 27)</span>
     <span class="chip"><span class="dot green"></span><b>52</b> catalyst files · all tokenized</span>
     <span class="chip"><span class="dot green"></span>0 raw Tailwind colour in UI</span>
@@ -303,6 +303,8 @@
 <section id="admin-visual-canon">
   <div class="sec-head"><span class="sec-num">05b</span><h2>Admin Visual Start Pattern</h2></div>
   <p class="lead"><b>Mission #051</b> uniformized the <b>first block</b> of every admin route on a single canon: the welded <code>AdminSectionCard</code> / <code>AdminKpiStripPanel</code> grammar (= the welded section of <code>/admin/customers</code>). KPI strips soldered into one canon card, bare grids framed, custom shells wrapped, detail first-blocks normalized, forms framed. <b>No internal refactor</b> — engine, charts, server-actions untouched. <b>Canon tool = AdminSectionCard</b> (= the welded section of <code>/admin/customers</code>). Guard: <code>src/app/admin/__tests__/admin-canon-start-pattern.test.ts</code>.</p>
+
+  <p class="lead" style="border-left:2px solid var(--ct-accent);padding-left:12px"><b>Mission #054</b> re-validated the owner's real request — <i>uniformify the visual structure of admin pages</i> — and confirmed it is <b>shipped</b>: the start-pattern work merged to <code>main</code> in <code>d05f618c</code> (PR #218). Owner criterion holds: open 10 admin pages and the same system reads in the first 2 seconds — canon header, page-canon-rule, welded first block, no floating KPI, no bare grid, no naked custom shell. The three pages left intentionally (<code>security</code>, <code>governance/allowlist</code>, <code>distributions</code>) were re-checked: wrapping them would force the <b>double-frame #054 explicitly forbids</b>, so they stay conformant-by-different-means — not regressions. The <code>dashboard cockpit</code> grammar stays exempt (never forced onto the admin canon), as do the <code>/admin</code> redirect, the proof-center product layouts, the agent-canvas, and the <code>vaults/new</code> wizard.</p>
 
   <div class="grid g-4" style="margin-bottom:14px">
     <div class="stat accent"><div class="v">19</div><div class="l">Already canon</div><div class="h">compliant before #051</div><span class="bar" style="width:100%"></span></div>
@@ -530,7 +532,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #051 (admin visual start pattern) · head <code class="mono">fix/admin-visual-canon</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #054 (admin visual structure — finalized; supersedes the #051 label) · merged <code class="mono">d05f618c</code> (PR #218) on <code class="mono">main</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
