@@ -7,7 +7,6 @@
 // tucked into a nested <details>. No write controls. No hardcoded colour outside
 // the canon (--ct-accent). Pure component.
 
-import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { ActionReadinessMatrix } from "@/lib/agentic/action-readiness/types";
 
@@ -83,12 +82,7 @@ export function AgenticSafetyBoundary({
   ];
 
   return (
-    <BentoPanel>
-      <BentoHeader
-        title="Safety Boundary"
-        subtitle="The hard limits. Nothing executes here. Every write is gated; the most dangerous actions can never be autonomous."
-      />
-
+    <div className="flex min-w-0 flex-col">
       <div className="grid grid-cols-1 gap-4 p-5 lg:grid-cols-2">
         {rows.map((r) => (
           <div
@@ -140,6 +134,6 @@ export function AgenticSafetyBoundary({
           </div>
         ))}
       </div>
-    </BentoPanel>
+    </div>
   );
 }

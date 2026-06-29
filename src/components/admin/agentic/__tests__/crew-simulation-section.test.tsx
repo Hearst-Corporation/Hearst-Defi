@@ -37,9 +37,10 @@ const NO_RUN_CONTROLS = (html: string) => {
 };
 
 describe("CrewSimulationSection", () => {
-  it("renders heading + executable:false marker + read-only note", () => {
+  it("renders executable:false marker + read-only note", () => {
+    // Canonized 2026-06-29: the "Crew Simulation" heading is provided by the
+    // parent AdminSectionCard; the body keeps the executable:false guard marker.
     const html = render(SIMS);
-    expect(html).toContain("Crew Simulation");
     expect(html).toContain("executable: false");
     NO_RUN_CONTROLS(html);
   });

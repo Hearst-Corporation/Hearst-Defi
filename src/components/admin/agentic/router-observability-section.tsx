@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { AgenticGroup, AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
+import { AgenticTag, type AgenticTone } from "@/components/admin/agentic/agentic-group";
 import { RouterObservabilityTrends } from "@/components/admin/agentic/router-observability-trends";
 import { RouterObservabilityLongTerm } from "@/components/admin/agentic/router-observability-longterm";
 import { RouterQualityReview } from "@/components/admin/agentic/router-quality-review";
@@ -70,7 +70,13 @@ const AGGREGATION_LABEL: Record<RouterObservabilityAggregationMode, string> = {
   fallback: "in-memory fallback",
 };
 
-function WindowSelector({ current }: { current: RouterObservabilityWindow }) {
+/** Time-window pill selector — exported so the canon section card can host it
+ *  in its header trailing slot (the section body itself is now frameless). */
+export function ObservabilityWindowSelector({
+  current,
+}: {
+  current: RouterObservabilityWindow;
+}) {
   return (
     <span className="agentic-windowbar" role="group" aria-label="Time window">
       {WINDOWS.map((w) => (
@@ -119,20 +125,16 @@ export function RouterObservabilitySection({
 }: {
   summary: RouterObservabilitySummary | null;
 }) {
-  const current = summary?.window ?? "24h";
-
   if (!summary || summary.state === "unavailable") {
     return (
-      <AgenticGroup
-        id="router-observability"
-        title="Observability"
-        meta={<AgenticTag tone="danger">unavailable</AgenticTag>}
-        note="Read-only metadata about what the router did on recent chat turns. No message text, no secrets."
-      >
+      <div id="router-observability" className="agentic-group-body min-w-0 border-t-0 p-5">
+        <p className="agentic-section-caption m-0">
+          <AgenticTag tone="danger">unavailable</AgenticTag>
+        </p>
         <p className="agentic-empty-line m-0">
           Router trace storage is unavailable. Router behaviour is unaffected.
         </p>
-      </AgenticGroup>
+      </div>
     );
   }
 
@@ -163,12 +165,9 @@ export function RouterObservabilitySection({
   ];
 
   return (
-    <AgenticGroup
+    <div
       id="router-observability"
-      title="Observability"
-      count={stats.total}
-      meta={<WindowSelector current={current} />}
-      note="Read-only metadata about what the router did on recent chat turns. No message text, no secrets."
+      className="agentic-group-body flex min-w-0 flex-col gap-3 border-t-0 p-5"
     >
       {/* Status strip — inline tags, one line. */}
       <p className="agentic-section-caption">
@@ -233,6 +232,6 @@ export function RouterObservabilitySection({
       <RouterQualityReview review={summary.qualityReview} />
 
       {summary.longTerm && <RouterObservabilityLongTerm longTerm={summary.longTerm} />}
-    </AgenticGroup>
+    </div>
   );
 }

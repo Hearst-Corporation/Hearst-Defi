@@ -1,11 +1,14 @@
 // Admin · Agentic Control Tower (orchestrator, presentational).
 //
-// READ-ONLY. The single composition for /admin/agentic. Rewritten 2026-06-26 as
-// a dense line/table console: a status line, then a stack of collapsible record
-// groups (native <details>) — topology facts, capabilities, agents, actions &
-// gates, crew simulations, observability, safety boundary. No box grids, no
-// hardcoded values (every token is var(--ct-*)). No write controls anywhere.
+// READ-ONLY. The single composition for /admin/agentic. Canonized 2026-06-29:
+// every top-level zone is now a canon AdminSectionCard (the same frame every
+// other admin page uses — customers/outreach/agents/feedback), stacked in a
+// full-width flex-col gap-5 flow. The section components render frameless
+// bodies (no own card / no <details> top-level frame) so there is no
+// double-frame. Content, counts, and security copy are unchanged. No write
+// controls anywhere.
 
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { AgenticStatusLine } from "@/components/admin/agentic/agentic-command-summary";
 import { AgenticTopologyMap } from "@/components/admin/agentic/agentic-topology-map";
 import { AgenticCapabilitiesBoard } from "@/components/admin/agentic/agentic-capabilities-board";
@@ -13,7 +16,10 @@ import { AgenticAgentsOverview } from "@/components/admin/agentic/agentic-agents
 import { AgenticSafetyBoundary } from "@/components/admin/agentic/agentic-safety-boundary";
 import { ActionReadinessMatrixSection } from "@/components/admin/agentic/action-readiness-matrix-section";
 import { CrewSimulationSection } from "@/components/admin/agentic/crew-simulation-section";
-import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
+import {
+  RouterObservabilitySection,
+  ObservabilityWindowSelector,
+} from "@/components/admin/agentic/router-observability-section";
 
 import type { AgenticControlCenterData } from "@/lib/agentic/control-center/types";
 import type { RouterObservabilitySummary } from "@/lib/agentic/observability/types";
@@ -39,28 +45,85 @@ export function AgenticControlTower({
     crewSimulations,
   });
 
+  const observabilityWindow = observability?.window ?? "24h";
+
   return (
-    <div className="agentic-tower">
-      <AgenticStatusLine summary={summary} />
+    <div className="agentic-tower flex min-w-0 flex-col gap-5">
+      <AdminSectionCard
+        ariaLabel="Agentic command summary"
+        title="Command Summary"
+        subtitle="Autonomy, gates, forbidden actions, and simulated crews."
+      >
+        <div className="p-5">
+          <AgenticStatusLine summary={summary} />
+        </div>
+      </AdminSectionCard>
 
-      <AgenticTopologyMap
-        controlCenter={controlCenter}
-        observability={observability}
-        actionReadiness={actionReadiness}
-        crewSimulations={crewSimulations}
-      />
+      <AdminSectionCard
+        ariaLabel="Topology"
+        title="Topology"
+        subtitle="Router at the centre, guards and gates around it, forbidden zone at the edge."
+      >
+        <AgenticTopologyMap
+          controlCenter={controlCenter}
+          observability={observability}
+          actionReadiness={actionReadiness}
+          crewSimulations={crewSimulations}
+        />
+      </AdminSectionCard>
 
-      <AgenticCapabilitiesBoard matrix={actionReadiness} />
+      <AdminSectionCard
+        ariaLabel="Capabilities"
+        title="Capabilities"
+        subtitle="What the platform can do, by how much human oversight it needs."
+      >
+        <AgenticCapabilitiesBoard matrix={actionReadiness} />
+      </AdminSectionCard>
 
-      <AgenticAgentsOverview controlCenter={controlCenter} />
+      <AdminSectionCard
+        ariaLabel="Agents & Crews"
+        title="Agents & Crews"
+        subtitle="Units grouped by domain — read-only and gated-write inventory."
+      >
+        <AgenticAgentsOverview controlCenter={controlCenter} />
+      </AdminSectionCard>
 
-      <ActionReadinessMatrixSection matrix={actionReadiness} />
+      <AdminSectionCard
+        ariaLabel="Actions & Gates"
+        title="Actions & Gates"
+        subtitle="Every platform action classified by autonomy tier. Green runs on its own; amber needs human confirmation; red never runs autonomously."
+      >
+        <ActionReadinessMatrixSection matrix={actionReadiness} />
+      </AdminSectionCard>
 
-      <CrewSimulationSection simulations={crewSimulations} />
+      <AdminSectionCard
+        ariaLabel="Crew Simulation"
+        title="Crew Simulation"
+        subtitle="What each crew would do — read-only simulation. No step executes; no tool is called."
+      >
+        <div className="p-5">
+          <CrewSimulationSection simulations={crewSimulations} />
+        </div>
+      </AdminSectionCard>
 
-      <RouterObservabilitySection summary={observability} />
+      <AdminSectionCard
+        ariaLabel="Observability"
+        title="Observability"
+        subtitle="Read-only metadata about what the router did on recent chat turns. No message text, no secrets."
+        headerTrailing={
+          <ObservabilityWindowSelector current={observabilityWindow} />
+        }
+      >
+        <RouterObservabilitySection summary={observability} />
+      </AdminSectionCard>
 
-      <AgenticSafetyBoundary controlCenter={controlCenter} matrix={actionReadiness} />
+      <AdminSectionCard
+        ariaLabel="Safety Boundary"
+        title="Safety Boundary"
+        subtitle="The hard limits. Nothing executes here. Every write is gated; the most dangerous actions can never be autonomous."
+      >
+        <AgenticSafetyBoundary controlCenter={controlCenter} matrix={actionReadiness} />
+      </AdminSectionCard>
     </div>
   );
 }

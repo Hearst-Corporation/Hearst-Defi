@@ -8,7 +8,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { RouterObservabilitySection } from "@/components/admin/agentic/router-observability-section";
+import {
+  RouterObservabilitySection,
+  ObservabilityWindowSelector,
+} from "@/components/admin/agentic/router-observability-section";
 import type {
   RouterDecisionTrace,
   RouterObservabilitySummary,
@@ -79,9 +82,19 @@ const NO_WRITE_CONTROLS = (html: string) => {
 };
 
 describe("RouterObservabilitySection v1", () => {
-  it("always renders heading and window selector links", () => {
+  // Canonized 2026-06-29: the "Observability" heading and the window selector
+  // moved to the parent AdminSectionCard (header + trailing slot). The section
+  // body renders the state-honest content; the selector is its own export.
+  it("renders an honest body for the empty state", () => {
     const html = render(summary({ state: "empty" }));
-    expect(html).toContain("Observability");
+    expect(html).toContain("No router traces in this window");
+    NO_WRITE_CONTROLS(html);
+  });
+
+  it("the window selector export renders all four window links", () => {
+    const html = renderToStaticMarkup(
+      <ObservabilityWindowSelector current="24h" />,
+    );
     // Window selector links present (rendered as <a href="?routerWindow=...">).
     expect(html).toContain("routerWindow=1h");
     expect(html).toContain("routerWindow=24h");

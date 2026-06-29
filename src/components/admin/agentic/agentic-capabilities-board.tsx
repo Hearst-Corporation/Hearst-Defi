@@ -10,7 +10,6 @@
 
 import type { ReactNode } from "react";
 
-import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import type {
   ActionReadinessMatrix,
@@ -82,18 +81,7 @@ export function AgenticCapabilitiesBoard({
   if (!matrix) return null;
 
   return (
-    <BentoPanel id="capabilities" aria-label="Capabilities">
-      <BentoHeader
-        title="Capabilities"
-        subtitle="What the platform can do, by how much human oversight it needs."
-        as="h3"
-        trailing={
-          <span className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none text-[var(--ct-text-strong)] tabular-nums">
-            {CAPABILITIES.length}
-          </span>
-        }
-      />
-      <div className="overflow-x-auto">
+    <div id="capabilities" className="min-w-0 overflow-x-auto">
         <table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
           <thead>
             <tr className="border-b border-[var(--ct-border-soft)]">
@@ -130,7 +118,6 @@ export function AgenticCapabilitiesBoard({
             })}
           </tbody>
         </table>
-      </div>
-    </BentoPanel>
+    </div>
   );
 }
