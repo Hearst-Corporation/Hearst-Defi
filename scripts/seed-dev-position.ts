@@ -116,31 +116,45 @@ async function main() {
 
     const value = PRINCIPAL + ACCRUED;
 
-    // 6. Hourly NAV prints for chart QA (flat at current NAV — honest dev fixture).
-    const HOUR_MS = 60 * 60 * 1000;
-    const hoursBack = 168;
-    await prisma.investorNavSnapshot.deleteMany({ where: { investorId } });
-    for (let h = hoursBack; h >= 0; h--) {
-      const at = new Date(
-        Date.UTC(
-          new Date(Date.now() - h * HOUR_MS).getUTCFullYear(),
-          new Date(Date.now() - h * HOUR_MS).getUTCMonth(),
-          new Date(Date.now() - h * HOUR_MS).getUTCDate(),
-          new Date(Date.now() - h * HOUR_MS).getUTCHours(),
-          0,
-          0,
-          0,
-        ),
+    // 6. DAILY NAV prints for chart QA — ONE point per day over `DAYS_OF_NAV` days,
+    //    with a real (varying) climb so the hero chart reads as an honest daily
+    //    series, not a dead-flat line. The loader DISCARDS a constant NAV series
+    //    (distinctValues < 2 → it reconstructs from the ledger), so every day MUST
+    //    carry a distinct value: start near the opening principal and accrue yield
+    //    one day at a time toward today's live NAV. Kept under the resolver's
+    //    70-day monthly threshold so the x-axis stays day-precise ("last N days").
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const DAYS_OF_NAV = 60;
+    // Linear daily accrual from the opening principal to the current total value.
+    const startValue = PRINCIPAL;
+    const dailyStep = (value - startValue) / DAYS_OF_NAV;
+
+    /** UTC midnight `d` days before today. */
+    function utcMidnightDaysAgo(d: number): Date {
+      const ref = new Date(Date.now() - d * DAY_MS);
+      return new Date(
+        Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), ref.getUTCDate(), 16, 0, 0, 0),
       );
+    }
+
+    await prisma.investorNavSnapshot.deleteMany({ where: { investorId } });
+    for (let d = DAYS_OF_NAV; d >= 0; d--) {
+      const at = utcMidnightDaysAgo(d);
+      // Deterministic ±0.15% wobble so the curve breathes without lying.
+      const wobble = (((d * 53) % 7) - 3) / 1000;
+      const dayValue =
+        d === 0
+          ? value // last point = exact live NAV
+          : Math.round((startValue + (DAYS_OF_NAV - d) * dailyStep) * (1 + wobble));
       await prisma.investorNavSnapshot.upsert({
         where: { investorId_takenAt: { investorId, takenAt: at } },
         create: {
           investorId,
           takenAt: at,
-          valueUsdc: value,
+          valueUsdc: dayValue,
           source: "dev_seed",
         },
-        update: { valueUsdc: value, source: "dev_seed" },
+        update: { valueUsdc: dayValue, source: "dev_seed" },
       });
     }
 
@@ -150,7 +164,7 @@ async function main() {
       `  principal $${PRINCIPAL.toLocaleString()} · accrued $${ACCRUED.toLocaleString()} · distributed $${distributed.toLocaleString()}`,
     );
     console.log(`  value $${value.toLocaleString()} · ${MONTHS_OF_HISTORY} monthly distributions`);
-    console.log(`  hourly NAV prints: ${hoursBack + 1} rows (dev_seed)`);
+    console.log(`  daily NAV prints: ${DAYS_OF_NAV + 1} rows (dev_seed, varying)`);
   } finally {
     await prisma.$disconnect();
   }
