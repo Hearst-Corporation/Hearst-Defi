@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
-import { Card } from "@/components/catalyst/card";
+import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { PanelStatusAccent } from "@/components/catalyst/panel-status";
 import { discardWizardDraft } from "../draft-actions";
 
@@ -69,8 +69,13 @@ export function ResumeDraftBanner({
   }, [updatedAt]);
 
   return (
-    <Card className="max-w-2xl">
-      <div className="admin-doc-stack admin-doc-stack--roomy">
+    <AdminSectionCard
+      title="Resume your draft"
+      subtitle="Pick up the autosaved vault deployment, or discard it and start fresh."
+      ariaLabel="Resume vault draft"
+      className="max-w-2xl"
+    >
+      <div className="admin-doc-stack admin-doc-stack--roomy p-5">
         <div className="admin-doc-stack admin-doc-stack--compact">
           <p className="body-sm ct-text-strong">
             An autosaved {draftLabel} was found on this account.
@@ -134,6 +139,6 @@ export function ResumeDraftBanner({
           </div>
         )}
       </div>
-    </Card>
+    </AdminSectionCard>
   );
 }
