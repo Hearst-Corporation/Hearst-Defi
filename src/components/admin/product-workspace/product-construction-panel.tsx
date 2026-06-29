@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
@@ -11,10 +11,7 @@ import {
   encodeVaultFormPrefill,
 } from "@/lib/agentic/swarm/live/to-vault-form";
 import { ConstructionReport } from "@/components/admin/product-workspace/construction-report";
-import type {
-  ChartArtifact,
-  ProductConstructionDraft,
-} from "@/lib/agentic/swarm/live/types";
+import type { ProductConstructionDraft } from "@/lib/agentic/swarm/live/types";
 
 /**
  * Product Construction panel — the visible output of the six live-read swarms.
@@ -25,42 +22,6 @@ import type {
  * fan (p5/p50/p95), the blended-yield allocation, the headline range, the audit
  * trail, and the long-form write-up. Read-only — nothing is created or deployed.
  */
-
-function Slider({
-  label,
-  value,
-  min,
-  max,
-  unit,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  unit: string;
-  onChange: (n: number) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="flex items-center justify-between text-xs text-[var(--ct-text-secondary)]">
-        <span>{label}</span>
-        <span className="font-mono text-[var(--ct-text-strong)]">
-          {value}
-          {unit}
-        </span>
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="accent-[var(--ct-accent)]"
-      />
-    </label>
-  );
-}
 
 export function ProductConstructionPanel({
   objective,
@@ -73,34 +34,21 @@ export function ProductConstructionPanel({
   const [showRaw, setShowRaw] = useState(false);
   // Animate the report's progressive reveal only right after a fresh run.
   const [animateReport, setAnimateReport] = useState(false);
-
-  // ── Monte-Carlo calibration ────────────────────────────────────────────────
-  const [preset, setPreset] = useState<"conservative" | "base" | "aggressive">(
-    "base",
-  );
-  // Per-field overrides (percent units in the UI; converted to fractions below).
-  const [driftPct, setDriftPct] = useState(10);
-  const [volPct, setVolPct] = useState(60);
-  const [horizonMonths, setHorizonMonths] = useState(12);
-  const [miningWeightPct, setMiningWeightPct] = useState(60);
+  // Auto-run guard: kick the swarms exactly once when the workspace opens with
+  // an objective. A manual re-run goes through `run` directly.
+  const autoRanRef = useRef(false);
 
   const run = useCallback(async () => {
     if (!objective) return;
     setLoading(true);
     setError(null);
     try {
+      // No preset to pick — the swarms run on the CONFIGURED base regime. The
+      // server resolves + clamps the assumptions; the headline stays a range.
       const res = await fetch("/api/admin/product-construction/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          objective,
-          preset,
-          assumptions: {
-            horizonMonths,
-            btc: { annualDrift: driftPct / 100, annualVol: volPct / 100 },
-            yield: { miningWeight: miningWeightPct / 100 },
-          },
-        }),
+        body: JSON.stringify({ objective, preset: "base" }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -114,7 +62,17 @@ export function ProductConstructionPanel({
     } finally {
       setLoading(false);
     }
-  }, [objective, preset, driftPct, volPct, horizonMonths, miningWeightPct]);
+  }, [objective]);
+
+  // Auto-run the swarms once the workspace opens with an objective — no button,
+  // no preset selection. The admin sees the report write itself.
+  useEffect(() => {
+    if (autoRanRef.current) return;
+    if (!objective) return;
+    autoRanRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void run();
+  }, [objective, run]);
 
   // Open the print view in a new tab. The run already persisted the report to
   // the admin's draft, so the print page loads it server-side and the admin uses
@@ -134,84 +92,47 @@ export function ProductConstructionPanel({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Monte-Carlo calibration — tune the scenario regime before running. Every
-          value is clamped server-side; the headline always stays a range. */}
-      <div className="flex flex-col gap-3 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
-        <div className="flex items-center justify-between gap-3">
-          <span className="ct-bento-label">Monte-Carlo calibration</span>
-          <div className="flex items-center gap-1">
-            {(["conservative", "base", "aggressive"] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setPreset(p)}
-                className={cn(
-                  "rounded-md border px-2 py-1 text-xs",
-                  preset === p
-                    ? "border-[var(--ct-accent)] text-[var(--ct-accent)]"
-                    : "border-[var(--ct-border)] text-[var(--ct-text-muted)]",
-                )}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Slider
-            label="BTC drift"
-            value={driftPct}
-            min={-50}
-            max={100}
-            unit="%/yr"
-            onChange={setDriftPct}
-          />
-          <Slider
-            label="BTC vol"
-            value={volPct}
-            min={10}
-            max={150}
-            unit="%/yr"
-            onChange={setVolPct}
-          />
-          <Slider
-            label="Horizon"
-            value={horizonMonths}
-            min={1}
-            max={60}
-            unit="mo"
-            onChange={setHorizonMonths}
-          />
-          <Slider
-            label="Mining weight"
-            value={miningWeightPct}
-            min={0}
-            max={100}
-            unit="%"
-            onChange={setMiningWeightPct}
-          />
-        </div>
-        <p className="text-xs text-[var(--ct-text-tertiary)]">
-          A preset seeds drift / vol / mining-weight; the sliders override on top.
-          Bounds are enforced server-side. Same inputs ⇒ same seeded fan.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => void run()}
-          disabled={loading}
-        >
-          {loading ? "Running swarms…" : "Run construction swarms"}
-        </Button>
-        <span className="text-xs text-[var(--ct-text-tertiary)]">
-          live_read · fetches BTC + hashprice + Telegram + DeFi, computes a seeded
-          Monte-Carlo · no write, no send, no deploy
-        </span>
+      {/* Auto-run status — the swarms run on their own as soon as the workspace
+          opens; there is no preset to pick. A re-run link covers a transient
+          fetch failure or a manual refresh. */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--ct-border)] bg-surface-card px-4 py-3">
+        {loading ? (
+          <span className="flex items-center gap-2 text-xs text-[var(--ct-text-secondary)]">
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)] animate-pulse"
+            />
+            Running the construction swarms — Telegram · BTC · hashprice ·
+            Monte-Carlo…
+          </span>
+        ) : draft ? (
+          <span className="text-xs text-[var(--ct-text-tertiary)]">
+            Report generated from live data ·{" "}
+            <button
+              type="button"
+              onClick={() => void run()}
+              className="underline-offset-2 hover:underline text-[var(--ct-text-muted)]"
+            >
+              re-run
+            </button>
+          </span>
+        ) : (
+          <span className="text-xs text-[var(--ct-text-tertiary)]">
+            live_read · fetches BTC + hashprice + Telegram + DeFi, computes a
+            seeded Monte-Carlo · no write, no send, no deploy
+          </span>
+        )}
         {error ? (
-          <span className="text-xs text-[var(--ct-status-danger)]">{error}</span>
+          <span className="text-xs text-[var(--ct-status-danger)]">
+            {error} ·{" "}
+            <button
+              type="button"
+              onClick={() => void run()}
+              className="underline-offset-2 hover:underline"
+            >
+              retry
+            </button>
+          </span>
         ) : null}
       </div>
 
