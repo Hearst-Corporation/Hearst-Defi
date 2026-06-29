@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import type { ProductConstructionDraft } from "@/lib/agentic/swarm/live/types";
+import { parseFormState } from "./form-state";
 
 /**
  * Persist the latest construction report into the EXISTING `VaultDraft` row
@@ -57,16 +58,9 @@ function toStored(
   };
 }
 
-function parseFormState(raw: string | null | undefined): Record<string, unknown> {
-  if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as Record<string, unknown>)
-      : {};
-  } catch {
-    return {};
-  }
+/** Coerce an unknown JSON value to a number, or null when it isn't finite. */
+function num(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 /** Best-effort persist — a failed write never breaks the response path. */
@@ -115,6 +109,9 @@ export async function loadConstructionReport(
     const r = state[REPORT_KEY];
     if (!r || typeof r !== "object" || Array.isArray(r)) return null;
     const raw = r as Record<string, unknown>;
+    // Required string identity fields gate the read; the rest are coerced
+    // defensively so a partially-written blob still loads (number→0, optional
+    // metadata via fallback) instead of being dropped.
     if (
       typeof raw.objective !== "string" ||
       typeof raw.vaultTicker !== "string" ||
@@ -122,7 +119,22 @@ export async function loadConstructionReport(
     ) {
       return null;
     }
-    return raw as unknown as StoredConstructionReport;
+    return {
+      objective: raw.objective,
+      vaultTicker: raw.vaultTicker,
+      vaultLabel: typeof raw.vaultLabel === "string" ? raw.vaultLabel : "",
+      headlineLow: num(raw.headlineLow) ?? 0,
+      headlineHigh: num(raw.headlineHigh) ?? 0,
+      probBelowFloorPct: num(raw.probBelowFloorPct) ?? 0,
+      seed: num(raw.seed) ?? 0,
+      btcUsd: num(raw.btcUsd) ?? 0,
+      hashpriceUsdPerThDay: num(raw.hashpriceUsdPerThDay) ?? 0,
+      machineCount: num(raw.machineCount) ?? 0,
+      prose: raw.prose,
+      llmAuthored: raw.llmAuthored === true,
+      updatedAtIso:
+        typeof raw.updatedAtIso === "string" ? raw.updatedAtIso : "",
+    };
   } catch (err) {
     logger.warn(
       "construction report load failed",

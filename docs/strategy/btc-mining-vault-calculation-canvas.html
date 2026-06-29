@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BTC Mining Performance Vault — Calculation Debug Canvas</title>
+<title>BTC Mining Performance Vault — Calculation Canvas</title>
 <!--
   Self-contained financial DEBUG canvas for the BTC Mining Performance Vault.
-  NOT investor-facing. Every assumption is editable; outputs recompute in the
-  browser. The formulas mirror the real pipeline:
+  Simple View first; Advanced Debug is collapsed. NOT investor-facing. Every
+  assumption is editable; outputs recompute in the browser. Formulas mirror the
+  real pipeline:
     - machine economics : src/lib/telegram/cost-model.ts + strategy-model.ts
     - allocator + floor  : src/lib/agentic/swarm/live/strategy-allocation.ts
     - raw vs adjusted    : src/lib/products/economics-views.ts
@@ -18,8 +19,8 @@
 -->
 <style>
   :root{
-    --bg:#0a0c0a; --bg-deep:#070806; --panel:#12150f; --panel-2:#171b13;
-    --inset:#0d100b; --border:#23291d; --border-soft:#1a1f15;
+    --bg:#0a0c0a; --bg-deep:#070806; --panel:#12150f; --inset:#0d100b;
+    --border:#23291d; --border-soft:#1a1f15;
     --text:#e8efe2; --text-2:#b6c0ab; --text-3:#7f8a73; --faint:#5a6350;
     --accent:#A7FB90; --accent-dim:#5e8a52;
     --orange:#f4a463; --blue:#7db4f0; --danger:#f0796b; --warn:#e9c46a;
@@ -27,183 +28,216 @@
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,rgba(167,251,144,.06),transparent),var(--bg);
+  body{margin:0;background:radial-gradient(1100px 640px at 78% -12%,rgba(167,251,144,.06),transparent),var(--bg);
     color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-  a{color:var(--accent)}
-  .wrap{max-width:1640px;margin:0 auto;padding:20px 22px 80px}
-  h1{font-size:20px;margin:0;font-weight:700;letter-spacing:-.2px}
-  h2{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-3);margin:0 0 10px;font-weight:600}
+  .wrap{max-width:1320px;margin:0 auto;padding:22px 20px 90px}
+  h1{font-size:21px;margin:0;font-weight:700;letter-spacing:-.2px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-3);margin:0 0 11px;font-weight:600}
   .mono{font-family:var(--mono)}
-  .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;
-    padding:2px 9px;font-size:11px;color:var(--text-2)}
-  .banner{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 18px}
-  .banner .pill{background:var(--inset)}
-  .pill.danger{color:var(--danger);border-color:#3a241f}
-  .pill.warn{color:var(--warn);border-color:#3a331f}
-  .pill.ok{color:var(--accent);border-color:#27331f}
-  .topbar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+  .sub{color:var(--text-3);font-size:12px;margin-top:5px}
+  .pill{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;padding:2px 9px;font-size:11px;color:var(--text-2);background:var(--inset)}
+  /* header */
+  .head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:20px}
   .controls{display:flex;flex-wrap:wrap;gap:8px}
   button{font-family:var(--sans);font-size:12.5px;cursor:pointer;border-radius:9px;border:1px solid var(--border);
-    background:var(--panel);color:var(--text-2);padding:7px 12px;transition:.12s}
+    background:var(--panel);color:var(--text-2);padding:8px 13px;transition:.12s}
   button:hover{border-color:var(--accent-dim);color:var(--text)}
   button.primary{background:var(--accent);color:#0a0c0a;border-color:var(--accent);font-weight:600}
   button.primary:hover{filter:brightness(1.05)}
-  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
-  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:12px 14px}
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:20px}
+  @media(max-width:680px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:13px 15px}
   .kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3)}
-  .kpi .val{font-family:var(--mono);font-size:18px;font-weight:700;margin-top:3px}
-  .kpi .val.neg{color:var(--danger)}
-  .kpi .val.pos{color:var(--accent)}
-  .grid{display:grid;grid-template-columns:300px minmax(0,1fr) 320px;gap:16px;align-items:start}
-  @media(max-width:1200px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:15px}
-  .card.inset{background:var(--inset)}
-  .field{display:grid;grid-template-columns:1fr auto;gap:6px 8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border-soft)}
+  .kpi .val{font-family:var(--mono);font-size:19px;font-weight:700;margin-top:4px}
+  .kpi .val.neg{color:var(--danger)} .kpi .val.pos{color:var(--accent)}
+  /* simple grid */
+  .grid{display:grid;grid-template-columns:260px minmax(0,1fr) 320px;gap:16px;align-items:start}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:16px}
+  /* inputs */
+  .field{display:grid;grid-template-columns:1fr auto;gap:5px 8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)}
   .field:last-child{border-bottom:0}
   .field .fl{display:flex;flex-direction:column;gap:1px;min-width:0}
-  .field .fl .nm{font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .field .fl .meta{font-size:10px;color:var(--faint)}
-  .field input{width:96px;font-family:var(--mono);font-size:12.5px;text-align:right;background:var(--inset);
-    border:1px solid var(--border);border-radius:7px;color:var(--text);padding:5px 7px}
+  .field .nm{font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .field .meta{font-size:10px;color:var(--faint)}
+  .field input{width:92px;font-family:var(--mono);font-size:12.5px;text-align:right;background:var(--inset);
+    border:1px solid var(--border);border-radius:7px;color:var(--text);padding:6px 8px}
   .field input:focus{outline:none;border-color:var(--accent-dim)}
-  .field .rs{background:none;border:0;color:var(--faint);font-size:11px;padding:2px 5px;cursor:pointer}
+  .field .rs{background:none;border:0;color:var(--faint);font-size:12px;padding:2px 5px;cursor:pointer}
   .field .rs:hover{color:var(--accent)}
-  .src{font-size:9px;letter-spacing:.08em;border-radius:4px;padding:1px 5px;border:1px solid var(--border)}
-  .src.LIVE{color:var(--accent)} .src.ATTESTED{color:var(--accent)} .src.ESTIMATED{color:var(--blue)}
+  .src{font-size:9px;letter-spacing:.06em;border-radius:4px;padding:1px 5px;border:1px solid var(--border)}
+  .src.LIVE,.src.ATTESTED{color:var(--accent)} .src.ESTIMATED{color:var(--blue)}
   .src.CONFIGURED{color:var(--text-3)} .src.STALE{color:var(--warn)} .src.UNKNOWN{color:var(--faint)}
-  .sectlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-dim);margin:14px 0 4px;font-weight:600}
+  .sectlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-dim);margin:16px 0 4px;font-weight:600}
   .sectlabel:first-child{margin-top:0}
-  .scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media(max-width:820px){.scenarios{grid-template-columns:1fr}}
-  .scn{background:var(--inset);border:1px solid var(--border);border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:10px}
-  .scn h3{margin:0;font-size:15px;font-weight:700}
-  .scn .gov{font-size:10px;color:var(--warn);border:1px solid #3a331f;border-radius:999px;padding:1px 7px;display:inline-block}
-  .bar{display:flex;height:16px;border-radius:5px;overflow:hidden;border:1px solid var(--border)}
+  /* safe hero */
+  .hero{background:linear-gradient(180deg,rgba(167,251,144,.05),transparent),var(--panel);
+    border:1px solid var(--accent-dim);border-radius:18px;padding:18px}
+  .hero .tag{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .hero h3{margin:3px 0 14px;font-size:17px;font-weight:700}
+  .bar{display:flex;height:22px;border-radius:7px;overflow:hidden;border:1px solid var(--border)}
   .bar span{display:block;height:100%}
-  .legend{display:flex;flex-wrap:wrap;gap:8px;font-size:10.5px;color:var(--text-3)}
-  .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:middle}
-  .scn .row{display:flex;justify-content:space-between;font-size:12px;border-top:1px solid var(--border-soft);padding-top:6px}
-  .scn .row .v{font-family:var(--mono);font-weight:600}
-  .scn .apy{font-family:var(--mono);font-size:17px;font-weight:700}
-  .warns{display:flex;flex-direction:column;gap:5px}
-  .warns .w{font-size:11px;color:var(--warn)}
+  .legend{display:flex;flex-wrap:wrap;gap:11px;font-size:11.5px;color:var(--text-2);margin-top:9px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  .heromet{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+  .heromet .m{background:var(--inset);border:1px solid var(--border-soft);border-radius:11px;padding:10px 12px}
+  .heromet .m .l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+  .heromet .m .v{font-family:var(--mono);font-size:16px;font-weight:700;margin-top:3px}
+  .herorow{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;border-top:1px solid var(--border-soft);padding-top:9px;margin-top:12px}
+  .herorow .v{font-family:var(--mono);font-weight:600;text-align:right}
+  .herowarn{margin-top:12px;font-size:12px;color:var(--warn);background:rgba(233,196,106,.07);border:1px solid #3a331f;border-radius:9px;padding:8px 11px}
+  /* engines */
+  .eng{display:flex;flex-direction:column;gap:11px}
+  .ecard{border:1px solid var(--border);border-radius:13px;padding:12px 13px;background:var(--inset)}
+  .ecard .t{display:flex;align-items:center;gap:8px}
+  .ecard .dot{width:9px;height:9px;border-radius:3px}
+  .ecard .nm{font-weight:700;font-size:14px}
+  .ecard .yield{font-family:var(--mono);font-size:18px;font-weight:700;margin:6px 0 2px}
+  .ecard .meta{font-size:11px;color:var(--text-3);display:flex;flex-wrap:wrap;gap:4px 10px}
+  .mining{color:var(--accent)} .btc{color:var(--orange)} .usdc{color:var(--blue)}
+  /* why negative */
+  .why{margin-top:16px;border:1px solid var(--border);border-radius:13px;padding:13px;background:var(--panel)}
+  .why h2{margin-bottom:9px}
+  .why ul{margin:0;padding-left:17px}
+  .why li{font-size:12.5px;color:var(--text-2);margin-bottom:7px}
+  .why .issue{margin-top:9px;font-size:12.5px;color:var(--danger);font-weight:600;border-top:1px solid var(--border-soft);padding-top:9px}
+  /* compact other scenarios */
+  .others{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:560px){.others{grid-template-columns:1fr}}
+  .mini{background:var(--inset);border:1px solid var(--border);border-radius:12px;padding:12px}
+  .mini h4{margin:0 0 8px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+  .mini .gov{font-size:9.5px;color:var(--warn);border:1px solid #3a331f;border-radius:999px;padding:1px 6px}
+  .mini .bar{height:14px}
+  .mini .r{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-2);margin-top:7px}
+  .mini .r .v{font-family:var(--mono);font-weight:600}
+  /* advanced */
+  .adv{margin-top:24px}
+  .advhead{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border-soft);padding-top:18px}
+  .adv-body{margin-top:16px;display:grid;gap:16px}
+  .adv-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:900px){.adv-cols{grid-template-columns:1fr}}
   .insp .item{border-bottom:1px solid var(--border-soft);padding:8px 0;cursor:pointer}
   .insp .item:last-child{border-bottom:0}
-  .insp .item .t{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}
-  .insp .item .t b{font-weight:600;color:var(--text)}
-  .insp .item .body{display:none;margin-top:7px;font-size:11.5px;color:var(--text-2)}
+  .insp .item .h{display:flex;justify-content:space-between;font-size:12.5px}
+  .insp .item .h b{color:var(--text)} .insp .item .body{display:none;margin-top:6px;font-size:11.5px;color:var(--text-2)}
   .insp .item.open .body{display:block}
-  .insp .item .fx{font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--bg-deep);
-    border:1px solid var(--border);border-radius:7px;padding:6px 8px;margin:5px 0;white-space:pre-wrap;word-break:break-word}
-  .neg{background:linear-gradient(180deg,rgba(240,121,107,.07),transparent);border:1px solid #3a241f;border-radius:13px;padding:13px;margin-top:14px}
-  .neg h2{color:var(--danger)}
-  .neg ul{margin:6px 0 0;padding-left:18px}
-  .neg li{font-size:12px;color:var(--text-2);margin-bottom:5px}
-  .neg li.bug{color:var(--danger);font-weight:600}
-  .steps{margin-top:16px}
-  .step{display:grid;grid-template-columns:30px 1fr;gap:12px;background:var(--panel);border:1px solid var(--border);
-    border-radius:12px;padding:11px 13px;margin-bottom:8px}
-  .step .n{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:999px;
-    border:1px solid var(--accent-dim);font-family:var(--mono);font-weight:700;color:var(--accent);font-size:13px}
-  .step .b .h{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .step .b .h b{font-size:13px}
-  .step .fx{font-family:var(--mono);font-size:11px;color:var(--text-3);margin-top:4px}
-  .step .out{font-family:var(--mono);font-size:12.5px;color:var(--accent);margin-top:3px}
+  .fx{font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--bg-deep);border:1px solid var(--border);border-radius:7px;padding:6px 8px;margin:5px 0;white-space:pre-wrap;word-break:break-word}
+  .step{display:grid;grid-template-columns:28px 1fr;gap:11px;background:var(--inset);border:1px solid var(--border);border-radius:11px;padding:10px 12px;margin-bottom:8px}
+  .step .n{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--accent-dim);font-family:var(--mono);font-weight:700;color:var(--accent);font-size:12.5px}
+  .step b{font-size:12.5px}
+  .step .out{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:3px}
   .step .vals{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:3px}
-  .step .stepwarn{font-size:11px;color:var(--warn);margin-top:4px}
-  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  @media(max-width:820px){.twocol{grid-template-columns:1fr}}
-  .ecard{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:13px}
-  .ecard .big{font-family:var(--mono);font-size:22px;font-weight:700;margin-top:4px}
-  textarea{width:100%;min-height:150px;background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;
-    color:var(--text-2);font-family:var(--mono);font-size:11px;padding:10px;margin-top:8px}
+  .step .sw{font-size:11px;color:var(--warn);margin-top:4px}
+  .ecard.guard{background:var(--panel)}
+  .ecard.guard .big{font-family:var(--mono);font-size:21px;font-weight:700;margin-top:4px}
+  textarea{width:100%;min-height:150px;background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;color:var(--text-2);font-family:var(--mono);font-size:11px;padding:10px;margin-top:8px}
   .hide{display:none!important}
   .foot{margin-top:30px;color:var(--faint);font-size:11px;border-top:1px solid var(--border-soft);padding-top:12px}
+  .warnlist .w{font-size:11.5px;color:var(--warn);margin-bottom:4px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
+
+  <!-- HEADER -->
+  <div class="head">
     <div>
-      <h1>BTC Mining Performance Vault — Calculation Debug Canvas</h1>
-      <div class="banner">
-        <span class="pill warn">Debug canvas — not investor-facing</span>
-        <span class="pill ok">All values editable</span>
-        <span class="pill">CONFIGURED is not VALIDATED</span>
-        <span class="pill">No guarantee</span>
-        <span class="pill">No DB writes · no sends · no deploy</span>
-      </div>
+      <h1>BTC Mining Performance Vault — Calculation Canvas</h1>
+      <div class="sub">Not investor-facing · No guarantee · CONFIGURED is not VALIDATED · read-only, no DB writes</div>
     </div>
     <div class="controls">
-      <button id="toggleRaw" type="button">View: Allocator-adjusted</button>
-      <button id="toggleProv" type="button">Provenance: on</button>
-      <button id="toggleFx" type="button">Formulas: on</button>
-      <button id="resetAll" type="button">Reset all</button>
-      <button id="copyBtn" class="primary" type="button">Copy debug summary</button>
+      <button id="resetAll" type="button">Reset</button>
+      <button id="advBtn" type="button">Show Advanced Debug</button>
+      <button id="copyBtn" class="primary" type="button">Copy summary</button>
     </div>
   </div>
 
-  <div class="summary" id="summary"></div>
+  <!-- KPIs (4 only) -->
+  <div class="kpis" id="kpis"></div>
 
+  <!-- SIMPLE VIEW -->
   <div class="grid">
-    <!-- LEFT: inputs -->
+    <!-- left: key assumptions -->
     <div class="card">
-      <h2>Inputs / Assumptions</h2>
-      <div id="inputs"></div>
+      <h2>Key Assumptions</h2>
+      <div id="keyInputs"></div>
     </div>
 
-    <!-- CENTER: scenarios + negative driver -->
+    <!-- center: safe scenario hero + other scenarios -->
+    <div>
+      <div class="hero" id="hero"></div>
+      <div class="others" id="others"></div>
+    </div>
+
+    <!-- right: performance engines + why negative -->
     <div>
       <div class="card">
-        <h2>Scenarios — Defensive · Balanced · Opportunistic</h2>
-        <div class="scenarios" id="scenarios"></div>
+        <h2>Performance Engines — today</h2>
+        <div class="eng" id="engines"></div>
       </div>
-      <div class="neg" id="negPanel">
-        <h2>Negative driver / bug candidate</h2>
-        <ul id="negList"></ul>
+      <div class="why" id="why"></div>
+    </div>
+  </div>
+
+  <!-- ADVANCED DEBUG (collapsed) -->
+  <div class="adv">
+    <div class="advhead">
+      <h2 style="margin:0">Advanced Debug</h2>
+      <div class="controls">
+        <button id="fxBtn" type="button">Formulas: off</button>
+        <button id="provBtn" type="button">Provenance: on</button>
       </div>
     </div>
+    <div class="adv-body hide" id="advanced">
+      <div class="adv-cols">
+        <div class="card">
+          <h2>All assumptions</h2>
+          <div id="allInputs"></div>
+        </div>
+        <div class="card insp">
+          <h2>Formula Inspector</h2>
+          <div id="inspector"></div>
+        </div>
+      </div>
 
-    <!-- RIGHT: formula inspector + warnings -->
-    <div class="card insp">
-      <h2>Formula Inspector</h2>
-      <div id="inspector"></div>
-      <h2 style="margin-top:16px">Warnings</h2>
-      <div class="warns" id="warns"></div>
+      <div class="adv-cols">
+        <div class="ecard guard">
+          <span class="src" style="color:var(--text-3)">Before allocation guard (raw economics)</span>
+          <div class="big" id="rawApy">—</div>
+          <div class="mono" style="font-size:11px;color:var(--text-3)" id="rawMeta"></div>
+        </div>
+        <div class="ecard guard">
+          <span class="src ESTIMATED">After allocation guard (allocator-adjusted)</span>
+          <div class="big" id="adjApy">—</div>
+          <div class="mono" style="font-size:11px;color:var(--text-3)" id="adjMeta"></div>
+          <div class="mono" id="bugLine" style="font-size:11px;color:var(--danger);margin-top:6px"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Construction Steps (A–M)</h2>
+        <div id="steps"></div>
+      </div>
+
+      <div class="adv-cols">
+        <div class="card">
+          <h2>Full warnings</h2>
+          <div class="warnlist" id="warns"></div>
+        </div>
+        <div class="card">
+          <h2>Export JSON</h2>
+          <button id="exportBtn" type="button">Refresh export JSON</button>
+          <textarea id="exportArea" readonly spellcheck="false"></textarea>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <!-- raw vs adjusted economics -->
-  <div class="twocol">
-    <div class="ecard">
-      <span class="src" style="color:var(--text-3)">Raw economics (forced mining @ base mix)</span>
-      <div class="big" id="rawApy">—</div>
-      <div class="mono" style="font-size:11px;color:var(--text-3)" id="rawMeta"></div>
-    </div>
-    <div class="ecard">
-      <span class="src ESTIMATED">Allocator-adjusted economics</span>
-      <div class="big" id="adjApy">—</div>
-      <div class="mono" style="font-size:11px;color:var(--text-3)" id="adjMeta"></div>
-    </div>
-  </div>
-
-  <!-- construction steps -->
-  <div class="steps">
-    <h2 style="margin-bottom:10px">Construction Steps (machine → USDC → BTC → scenarios)</h2>
-    <div id="steps"></div>
-  </div>
-
-  <!-- export -->
-  <div class="card" style="margin-top:16px">
-    <h2>Export current scenario JSON</h2>
-    <button id="exportBtn" type="button">Refresh export JSON</button>
-    <textarea id="exportArea" readonly spellcheck="false"></textarea>
   </div>
 
   <div class="foot">
-    Read-only construction debug. Formulas mirror the prod pipeline
-    (cost-model.ts, strategy-allocation.ts, economics-views.ts) and the tested
-    model (src/lib/products/mining-canvas-model.ts). Projection conditional on the
+    Read-only construction debug. Formulas mirror the prod pipeline (cost-model.ts,
+    strategy-allocation.ts, economics-views.ts) and the tested model
+    (src/lib/products/mining-canvas-model.ts). Projection conditional on the
     displayed assumptions — not guaranteed. The 8–12% distribution target and the
     20–24% total target are separate layers; the total is inclusive of the
     distributions and the two are never summed.
@@ -233,7 +267,7 @@ const PRODUCT = {
   coverage:{ healthy:1.25, adequate:1.0, stressed:0.8 },
 };
 
-/* ─── input config (label, key, unit, status, step) ───────────────────── */
+/* ─── input config (key, label, unit, status, step) ───────────────────── */
 const INPUTS = [
   ["sect","Capital & market"],
   ["capitalUsd","Capital amount","USD","CONFIGURED",1000],
@@ -263,6 +297,9 @@ const INPUTS = [
   ["btcBasePct","BTC base","%","CONFIGURED",5],
   ["btcBullPct","BTC bull","%","CONFIGURED",5],
 ];
+const META = {}; for(const c of INPUTS){ if(c[0]!=="sect") META[c[0]]={label:c[1],unit:c[2],status:c[3],step:c[4]}; }
+/* the 8 critical inputs shown in Simple View */
+const KEY_INPUTS = ["capitalUsd","btcPriceNow","hashpriceUsdPerThDay","energyCostUsdPerKwh","machinePriceUsd","stableYieldPct","borrowAprPct","btcBasePct"];
 const DEFAULTS = {
   capitalUsd:1000000, btcPriceNow:60000, hashpriceUsdPerThDay:0.06,
   machinePriceUsd:3500, machineHashrateTh:234, machineEfficiencyJTh:15, machineLifeMonths:60,
@@ -272,9 +309,9 @@ const DEFAULTS = {
   btcBearPct:-20, btcBasePct:40, btcBullPct:120,
 };
 let STATE = {...DEFAULTS};
-let viewRaw = false, showProv = true, showFx = true;
+let showProv = true, showFx = false, advOpen = false;
 
-/* ─── allocator (mirrors src/lib/telegram/allocator.ts) ───────────────── */
+/* ════════════ CALCULATION ENGINE (unchanged) ═══════════════════════════ */
 function score(ret,risk){ return Math.max(0,ret)/Math.max(risk,0.1); }
 function applyBounds(w,bounds){
   const keys=["mining","btc","usdc"], lo=k=>(bounds[k]?bounds[k][0]:0), hi=k=>(bounds[k]?bounds[k][1]:100);
@@ -297,8 +334,6 @@ function allocate(mining,btc,usdc,bounds){
   if(bounds) w=applyBounds(w,bounds);
   return { miningPct:r2(w.mining), btcPct:r2(w.btc), usdcPct:r2(w.usdc), scores };
 }
-
-/* ─── deriveRegimeAllocation (mirrors strategy-allocation.ts) ──────────── */
 function splitUsdc(usdcTotal,base){
   const tot=base.usdc_base+base.stable_reserve;
   if(tot<=0) return {usdc:usdcTotal,stableReserve:0};
@@ -326,8 +361,6 @@ function deriveRegime(regime,miningYield,usdcYield,s){
   return { regime, mining:miningPct, btc:btcPct, usdc:sp.usdc, stableReserve:sp.stableReserve,
     miningFraction:clampedFrac, governanceException, miningProfitable: miningYield>0, btcReturnPct:btcRet };
 }
-
-/* ─── machine economics (mirrors cost-model + strategy-model) ─────────── */
 function machineEcon(s){
   const exWorks=s.machinePriceUsd*(1+s.markupPct/100), landed=exWorks+100;
   const th=s.machineHashrateTh>0?s.machineHashrateTh:1, landedPerTh=landed/th;
@@ -343,8 +376,6 @@ function machineEcon(s){
     companyCutUsdPerThDay:r6(companyCut), lpNetUsdPerThDay:r6(lpNet), lpMiningYieldPct:r2(lpYield),
     miningProfitable: net>0 };
 }
-
-/* ─── raw vs adjusted economics (mirrors economics-views.ts) ──────────── */
 function blend(mining,usdc,btcBase,borrow,fee,mw){
   const btcContrib=r2(btcBase*0.05), sw=1-mw;
   return { miningWeight:r2(mw), blendedApyPct:r2(mw*mining + sw*usdc + btcContrib - borrow - fee), btcContrib };
@@ -358,8 +389,6 @@ function economics(s,m){
   const bugCandidate = adjusted.blendedApyPct<0 && s.stableYieldPct>0;
   return { raw, adjusted, bugCandidate, my };
 }
-
-/* ─── scenario (4-sleeve + APY range + dispersion + coverage) ─────────── */
 function coverageState(r){ return r>=PRODUCT.coverage.healthy?"healthy":r>=PRODUCT.coverage.adequate?"adequate":r>=PRODUCT.coverage.stressed?"stressed":"suspended"; }
 function scenario(regime,s,miningYield){
   const a=deriveRegime(regime,miningYield,s.stableYieldPct,s);
@@ -375,183 +404,210 @@ function scenario(regime,s,miningYield){
   const warns=[];
   if(a.governanceException) warns.push("Mining clamped to the 30% floor — governance review.");
   if(!a.miningProfitable) warns.push("Mining underwater — rotated toward the stable floor.");
-  if(base<0) warns.push("Base-case APY negative — see negative-driver panel.");
+  if(base<0) warns.push("Base-case APY negative — see the explanation panel.");
   return { regime, alloc:a, drag, apyLow:lo, apyHigh:hi, apyBase:base,
     p5:r2(base-Z90*sigma), p25:r2(base-Z50*sigma), p50:r2(base), p75:r2(base+Z50*sigma), p95:r2(base+Z90*sigma),
     coverageRatio:cov, coverageState:coverageState(cov), warns };
 }
-
-/* ─── render ──────────────────────────────────────────────────────────── */
-const SLEEVE_COLORS = { mining:"var(--accent)", btc:"var(--orange)", usdc:"var(--blue)", reserve:"var(--text-3)" };
-const LABEL = { defensive:"Defensive", balanced:"Balanced", opportunistic:"Opportunistic" };
-
 function compute(){
   const s=STATE, m=machineEcon(s), my=m.lpMiningYieldPct;
   const scns=["defensive","balanced","opportunistic"].map(r=>scenario(r,s,my));
-  const econ=economics(s,m);
-  return { s, m, my, scns, econ };
+  return { s, m, my, scns, econ:economics(s,m) };
 }
+function buildExport(){
+  const {s,m,scns,econ}=compute();
+  return { inputs:s, outputs:m,
+    economics:{ beforeGuardApyPct:econ.raw.blendedApyPct, afterGuardApyPct:econ.adjusted.blendedApyPct, possibleCalculationIssue:econ.bugCandidate },
+    scenarios:scns.map(sc=>({regime:sc.regime,allocation:sc.alloc,apyLow:sc.apyLow,apyHigh:sc.apyHigh,p50:sc.p50,coverage:sc.coverageRatio})),
+    warnings:[...new Set(scns.flatMap(sc=>sc.warns))],
+    possibleCalculationIssues: econ.bugCandidate?["Adjusted APY negative despite positive stable fallback."]:[] };
+}
+/* ════════════ END ENGINE ════════════════════════════════════════════════ */
 
-function renderInputs(){
-  const host=document.getElementById("inputs"); host.innerHTML="";
-  for(const cfg of INPUTS){
-    if(cfg[0]==="sect"){ const h=document.createElement("div"); h.className="sectlabel"; h.textContent=cfg[1]; host.appendChild(h); continue; }
-    const [key,label,unit,status,step]=cfg;
-    const f=document.createElement("div"); f.className="field";
-    f.innerHTML=`<div class="fl"><span class="nm">${label}</span>
-      <span class="meta"><span class="src ${status} ${showProv?'':'hide'}">${status}</span> <span class="u">${unit}</span></span></div>
-      <div style="display:flex;align-items:center;gap:4px">
-        <input type="number" step="${step}" value="${STATE[key]}" data-k="${key}" />
-        <button class="rs" data-reset="${key}" title="reset">↺</button></div>`;
-    host.appendChild(f);
-  }
+/* ─── input fields (built once; live-sync without rebuild) ────────────── */
+function fieldEl(key){
+  const meta=META[key], f=document.createElement("div"); f.className="field";
+  f.innerHTML=`<div class="fl"><span class="nm">${meta.label}</span>
+    <span class="meta"><span class="src ${meta.status} ${showProv?'':'hide'}">${meta.status}</span> ${meta.unit}</span></div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <input type="number" step="${meta.step}" value="${STATE[key]}" data-k="${key}" />
+      <button class="rs" data-reset="${key}" title="reset">↺</button></div>`;
+  return f;
+}
+function wireInputs(host){
   host.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",e=>{
     const k=e.target.dataset.k, v=parseFloat(e.target.value);
-    if(Number.isFinite(v)){ STATE[k]=v; render(); }
+    if(!Number.isFinite(v)) return;
+    STATE[k]=v;
+    document.querySelectorAll('input[data-k="'+k+'"]').forEach(o=>{ if(o!==e.target) o.value=v; });
+    render();
   }));
   host.querySelectorAll("[data-reset]").forEach(b=>b.addEventListener("click",e=>{
-    const k=e.target.dataset.reset; STATE[k]=DEFAULTS[k]; renderInputs(); render();
+    const k=e.target.dataset.reset; STATE[k]=DEFAULTS[k];
+    document.querySelectorAll('input[data-k="'+k+'"]').forEach(o=>o.value=DEFAULTS[k]);
+    render();
   }));
 }
+function buildInputs(){
+  const key=document.getElementById("keyInputs"); key.innerHTML="";
+  KEY_INPUTS.forEach(k=>key.appendChild(fieldEl(k)));
+  const all=document.getElementById("allInputs"); all.innerHTML="";
+  for(const c of INPUTS){
+    if(c[0]==="sect"){ const h=document.createElement("div"); h.className="sectlabel"; h.textContent=c[1]; all.appendChild(h); }
+    else all.appendChild(fieldEl(c[0]));
+  }
+  wireInputs(key); wireInputs(all);
+}
 
-function bar(a){
+/* ─── render (outputs only — never rebuilds inputs) ───────────────────── */
+const LABEL={defensive:"Defensive",balanced:"Balanced",opportunistic:"Opportunistic"};
+const C={mining:"var(--accent)",btc:"var(--orange)",usdc:"var(--blue)",reserve:"var(--text-3)"};
+function negc(v){ return v<0?"neg":"pos"; }
+function barHTML(a){
   const seg=(v,c)=>`<span style="width:${v}%;background:${c}"></span>`;
-  return `<div class="bar">${seg(a.mining,SLEEVE_COLORS.mining)}${seg(a.btc,SLEEVE_COLORS.btc)}${seg(a.usdc,SLEEVE_COLORS.usdc)}${seg(a.stableReserve,SLEEVE_COLORS.reserve)}</div>`;
+  return `<div class="bar">${seg(a.mining,C.mining)}${seg(a.btc,C.btc)}${seg(a.usdc,C.usdc)}${seg(a.stableReserve,C.reserve)}</div>`;
 }
 
 function render(){
   const {s,m,my,scns,econ}=compute();
-  const balanced=scns[1];
+  const safe=scns[1], defensive=scns[0], opp=scns[2];   /* Safe hero = balanced base case */
 
-  /* summary */
-  const negCls=v=>v<0?"neg":"pos";
-  document.getElementById("summary").innerHTML=[
-    ["Mining net yield",pctOf(my),negCls(my)],
-    ["Balanced APY range",`${pctOf(balanced.apyLow)}–${pctOf(balanced.apyHigh)}`,negCls(balanced.apyBase)],
-    ["Raw economics",pctOf(econ.raw.blendedApyPct),negCls(econ.raw.blendedApyPct)],
-    ["Adjusted economics",pctOf(econ.adjusted.blendedApyPct),negCls(econ.adjusted.blendedApyPct)],
-    ["Mining margin/TH/day",`$${m.netUsdPerThDay}`,negCls(m.netUsdPerThDay)],
-    ["Coverage (balanced)",`${balanced.coverageRatio}× ${balanced.coverageState}`,balanced.coverageRatio<1?"neg":"pos"],
+  /* KPIs — 4 only */
+  document.getElementById("kpis").innerHTML=[
+    ["Mining yield",pctOf(my),negc(my)],
+    ["Safe APY range",`${pctOf(safe.apyLow)}–${pctOf(safe.apyHigh)}`,negc(safe.apyBase)],
+    ["p50 (median)",pctOf(safe.p50),negc(safe.p50)],
+    ["Coverage",`${safe.coverageRatio}× ${safe.coverageState}`,safe.coverageRatio<1?"neg":"pos"],
   ].map(([l,v,c])=>`<div class="kpi"><div class="lbl">${l}</div><div class="val ${c}">${v}</div></div>`).join("");
 
-  /* scenarios */
-  document.getElementById("scenarios").innerHTML=scns.map(sc=>{
-    const a=sc.alloc;
-    return `<div class="scn">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3>${LABEL[sc.regime]}</h3>
-        ${sc.alloc.governanceException?'<span class="gov">mining floored</span>':''}</div>
-      ${bar(a)}
-      <div class="legend">
-        <span><i style="background:var(--accent)"></i>Mining ${a.mining}%</span>
-        <span><i style="background:var(--orange)"></i>BTC ${a.btc}%</span>
-        <span><i style="background:var(--blue)"></i>USDC ${a.usdc}%</span>
-        <span><i style="background:var(--text-3)"></i>Reserve ${a.stableReserve}%</span></div>
-      <div class="apy" style="color:${sc.apyBase<0?'var(--danger)':'var(--accent)'}">${pctOf(sc.apyLow)} – ${pctOf(sc.apyHigh)}</div>
-      <div class="row"><span>p5 / p50 / p95</span><span class="v">${pctOf(sc.p5)} / ${pctOf(sc.p50)} / ${pctOf(sc.p95)}</span></div>
-      <div class="row"><span>Coverage</span><span class="v">${sc.coverageRatio}× ${sc.coverageState}</span></div>
-      <div class="row"><span>Mining margin</span><span class="v" style="color:${m.netUsdPerThDay<0?'var(--danger)':'inherit'}">$${m.netUsdPerThDay}/TH</span></div>
-      <div class="row"><span>Funding</span><span class="v">${s.borrowAprPct<s.stableYieldPct?'Borrow':'Idle/Reserve'}</span></div>
-      <div class="row"><span>BTC tilt</span><span class="v">${sgn(sc.alloc.btcReturnPct)}%</span></div>
-      ${sc.warns.length?`<div class="warns">${sc.warns.map(w=>`<div class="w">⚠ ${w}</div>`).join("")}</div>`:''}
+  /* Safe hero */
+  const a=safe.alloc, funding = s.borrowAprPct<s.stableYieldPct ? "Borrow against BTC (cheaper than the stable yield it preserves)" : "Use idle stable / reserve (borrow not advantageous)";
+  document.getElementById("hero").innerHTML=`
+    <span class="tag">Safe Scenario · base case</span>
+    <h3>${LABEL[safe.regime]} allocation</h3>
+    ${barHTML(a)}
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>Mining ${a.mining}%</span>
+      <span><i style="background:var(--orange)"></i>BTC ${a.btc}%</span>
+      <span><i style="background:var(--blue)"></i>USDC ${a.usdc}%</span>
+      <span><i style="background:var(--text-3)"></i>Reserve ${a.stableReserve}%</span></div>
+    <div class="heromet">
+      <div class="m"><div class="l">APY range</div><div class="v" style="color:${safe.apyBase<0?'var(--danger)':'var(--accent)'}">${pctOf(safe.apyLow)}–${pctOf(safe.apyHigh)}</div></div>
+      <div class="m"><div class="l">p50 (median)</div><div class="v">${pctOf(safe.p50)}</div></div>
+      <div class="m"><div class="l">Coverage</div><div class="v">${safe.coverageRatio}×</div></div>
+    </div>
+    <div class="herorow"><span>Funding decision</span><span class="v">${funding}</span></div>
+    ${safe.warns.length?`<div class="herowarn">⚠ ${safe.warns[0]}</div>`:''}`;
+
+  /* Other scenarios (compact) */
+  document.getElementById("others").innerHTML=[defensive,opp].map(sc=>{
+    const al=sc.alloc;
+    return `<div class="mini">
+      <h4>${LABEL[sc.regime]} ${sc.alloc.governanceException?'<span class="gov">floored</span>':''}</h4>
+      ${barHTML(al)}
+      <div class="r"><span>APY range</span><span class="v" style="color:${sc.apyBase<0?'var(--danger)':'inherit'}">${pctOf(sc.apyLow)}–${pctOf(sc.apyHigh)}</span></div>
+      <div class="r"><span>p50</span><span class="v">${pctOf(sc.p50)}</span></div>
+      <div class="r"><span>Mining</span><span class="v">${al.mining}%</span></div>
     </div>`;
   }).join("");
 
-  /* economics cards */
+  /* Performance engines */
+  document.getElementById("engines").innerHTML=[
+    ["mining","Mining",pctOf(my),"Production engine","Medium / high","ESTIMATED"],
+    ["btc","BTC",sgn(s.btcBasePct)+"%","Capital protection / collateral","High","CONFIGURED"],
+    ["usdc","USDC",pctOf(s.stableYieldPct),"Funding / stable yield","Low","ESTIMATED"],
+  ].map(([cls,nm,yl,role,risk,st])=>`
+    <div class="ecard">
+      <div class="t"><span class="dot" style="background:${C[cls]}"></span><span class="nm ${cls}">${nm}</span></div>
+      <div class="yield ${cls}">${yl}</div>
+      <div class="meta"><span>${role}</span><span>·</span><span>${risk} risk</span><span>·</span><span class="src ${st} ${showProv?'':'hide'}">${st}</span></div>
+    </div>`).join("");
+
+  /* Why is it negative / low */
+  const bullets=[];
+  if(m.netUsdPerThDay<=0) bullets.push(`Mining margin is weak: energy + capex exceed gross revenue ($${m.totalCostUsdPerThDay} cost vs $${m.grossRevenueUsdPerThDay} revenue per TH/day).`);
+  else bullets.push(`Mining margin is positive ($${m.netUsdPerThDay}/TH/day net), giving a ${pctOf(my)} mining yield.`);
+  bullets.push(`Borrow + fees subtract about ${(safe.drag+s.feesPct).toFixed(1)}% from the blended APY.`);
+  if(!safe.alloc.miningProfitable) bullets.push("The allocator rotates toward USDC; mining is held at the 30% floor for this product.");
+  else bullets.push("The allocator keeps a risk-balanced mix across mining, BTC and USDC.");
+  let why=`<h2>Why this result is low / negative</h2><ul>${bullets.slice(0,3).map(b=>`<li>${b}</li>`).join("")}</ul>`;
+  if(econ.bugCandidate) why+=`<div class="issue">Possible calculation issue: adjusted APY is negative even though the stable fallback (USDC ${pctOf(s.stableYieldPct)}) is positive.</div>`;
+  document.getElementById("why").innerHTML=why;
+
+  /* Advanced: before/after guard */
   document.getElementById("rawApy").textContent=pctOf(econ.raw.blendedApyPct);
   document.getElementById("rawApy").style.color=econ.raw.blendedApyPct<0?"var(--danger)":"var(--text)";
   document.getElementById("rawMeta").textContent=`forced mining weight ${econ.raw.miningWeight} · USDC ${s.stableYieldPct}% · borrow −${s.borrowAprPct}% · fees −${s.feesPct}%`;
   document.getElementById("adjApy").textContent=pctOf(econ.adjusted.blendedApyPct);
   document.getElementById("adjApy").style.color=econ.adjusted.blendedApyPct<0?"var(--danger)":"var(--accent)";
-  document.getElementById("adjMeta").textContent=`allocator mining weight ${econ.adjusted.miningWeight} (floor-enforced) · USDC ${s.stableYieldPct}%`;
+  document.getElementById("adjMeta").textContent=`allocator mining weight ${econ.adjusted.miningWeight} (30% floor enforced) · USDC ${s.stableYieldPct}%`;
+  document.getElementById("bugLine").textContent=econ.bugCandidate?"bug candidate — adjusted APY negative despite positive stable fallback.":"";
 
-  /* negative-driver panel */
-  const neg=document.getElementById("negList"); const nd=[];
-  if(m.netUsdPerThDay<=0){ nd.push(`Mining net income is negative: gross $${m.grossRevenueUsdPerThDay}/TH/day < total cost $${m.totalCostUsdPerThDay}/TH/day (energy $${m.energyUsdPerThDay} + capex $${m.capexUsdPerThDay} + pool/maint $${m.poolMaintUsdPerThDay}).`);
-    nd.push("Allocator should rotate toward USDC — mining held at the 30% floor for the BTC mining product."); }
-  if(econ.raw.blendedApyPct<0) nd.push(`Raw economics negative at forced mining weight ${econ.raw.miningWeight}: mining ${my}% drags the blend.`);
-  if(econ.bugCandidate) nd.push("__BUG__ Allocator-adjusted APY is negative even though capital should rotate away from unprofitable mining. Inspect: mining weight derivation / floor enforcement / negative-yield treatment.");
-  document.getElementById("negPanel").style.display = nd.length?"block":"none";
-  neg.innerHTML = nd.map(t=>t.startsWith("__BUG__")?`<li class="bug">${t.replace("__BUG__ ","BUG CANDIDATE — ")}</li>`:`<li>${t}</li>`).join("");
+  renderInspector(s,m,safe);
+  renderSteps(s,m,safe);
 
-  /* warnings */
   const allW=[...new Set(scns.flatMap(sc=>sc.warns))];
-  document.getElementById("warns").innerHTML = allW.length?allW.map(w=>`<div class="w">⚠ ${w}</div>`).join(""):'<div style="font-size:11px;color:var(--text-3)">No warnings.</div>';
-
-  renderInspector(s,m,balanced,econ);
-  renderSteps(s,m,balanced);
+  document.getElementById("warns").innerHTML=allW.length?allW.map(w=>`<div class="w">⚠ ${w}</div>`).join(""):'<div style="font-size:11px;color:var(--text-3)">No warnings.</div>';
   updateExport();
 }
 
-function regimeBtcSafe(regime,s){ return regime==="defensive"?s.btcBearPct:regime==="opportunistic"?s.btcBullPct:s.btcBasePct; }
-
-function renderInspector(s,m,b,econ){
+function renderInspector(s,m,b){
   const items=[
     ["Mining revenue (gross)","gross = hashprice","$"+m.grossRevenueUsdPerThDay+"/TH/day",["hashprice="+s.hashpriceUsdPerThDay]],
     ["Energy cost","energy = (effJTh × 24 / 1000) × $kWh × uptime","$"+m.energyUsdPerThDay+"/TH/day",["eff="+s.machineEfficiencyJTh,"$kWh="+s.energyCostUsdPerKwh,"uptime="+s.uptime]],
     ["Capex","capex = landed / TH / (lifeMonths × 30.4)","$"+m.capexUsdPerThDay+"/TH/day",["landed/TH=$"+m.landedPerThUsd,"life="+s.machineLifeMonths+"mo"]],
-    ["Net mining income","net = gross − (capex + energy + pool+maint) ; lpNet = net − net×revShare%","$"+m.lpNetUsdPerThDay+"/TH/day → "+m.lpMiningYieldPct+"% yield",["net=$"+m.netUsdPerThDay,"revShare="+s.revenueSharePct+"%"]],
-    ["Allocator weight","score=max(0,ret)/risk (mining 35 / btc 65 / usdc 3); normalize; clamp ≥30% floor","mining "+b.alloc.mining+"%",["miningYield="+m.lpMiningYieldPct+"%","usdcYield="+s.stableYieldPct+"%"]],
-    ["BTC upside contribution","wBtc × btcReturn (base) within the blend","wBtc="+(b.alloc.btc/100).toFixed(2)+" × "+s.btcBasePct+"%",["btcBase="+s.btcBasePct+"%"]],
-    ["APY headline","apy(btc)=wMining×mining + wBtc×btc + wUsdc×usdc − borrowDrag − fees ; range=[bear,bull]",pctOf(b.apyLow)+" – "+pctOf(b.apyHigh),["drag=−"+b.drag+"%","fees=−"+s.feesPct+"%"]],
-    ["Coverage ratio","coverage = (wMining×miningYield + wUsdc×stableYield) / target distribution midpoint",b.coverageRatio+"× ("+b.coverageState+")",["targetMid="+((PRODUCT.distMin+PRODUCT.distMax)/2)+"%"]],
-    ["Stable funding decision","borrow if borrowAPR < stableYield (preserve productive stable); else idle/reserve; BTC sale last-resort",(s.borrowAprPct<s.stableYieldPct?"Borrow against BTC":"Use idle stable / reserve"),["borrow="+s.borrowAprPct+"%","stable="+s.stableYieldPct+"%"]],
+    ["Net mining income","net = gross − cost ; lpNet = net − net×revShare% ; yield = lpNet×365/landedPerTh","$"+m.lpNetUsdPerThDay+"/TH/day → "+m.lpMiningYieldPct+"%",["net=$"+m.netUsdPerThDay,"revShare="+s.revenueSharePct+"%"]],
+    ["Allocator weight","score=max(0,ret)/risk (35/65/3); normalize; clamp ≥30% floor","mining "+b.alloc.mining+"%",["miningYield="+m.lpMiningYieldPct+"%","usdcYield="+s.stableYieldPct+"%"]],
+    ["APY headline","apy(btc)=wMining×mining + wBtc×btc + wUsdc×usdc − borrowDrag − fees",pctOf(b.apyLow)+" – "+pctOf(b.apyHigh),["drag=−"+b.drag+"%","fees=−"+s.feesPct+"%"]],
+    ["Coverage ratio","coverage = (wMining×miningYield + wUsdc×stableYield) / target midpoint",b.coverageRatio+"× ("+b.coverageState+")",["targetMid="+((PRODUCT.distMin+PRODUCT.distMax)/2)+"%"]],
+    ["Stable funding decision","borrow if borrowAPR < stableYield ; else idle/reserve ; BTC sale last-resort",(s.borrowAprPct<s.stableYieldPct?"Borrow against BTC":"Use idle stable / reserve"),["borrow="+s.borrowAprPct+"%","stable="+s.stableYieldPct+"%"]],
     ["Recovery trigger","maturity unrecovered → "+PRODUCT.recMin+"–"+PRODUCT.recMax+"mo capital-only extension (not a guarantee)","configured",["duration="+PRODUCT.durationMonths+"mo"]],
   ];
   document.getElementById("inspector").innerHTML=items.map((it,i)=>`
-    <div class="item ${i===0?'open':''}" data-i="${i}">
-      <div class="t"><b>${it[0]}</b><span class="src ESTIMATED ${showProv?'':'hide'}">inspect</span></div>
+    <div class="item ${i===0?'open':''}">
+      <div class="h"><b>${it[0]}</b><span style="font-family:var(--mono);color:var(--accent)">${it[2]}</span></div>
       <div class="body">
         <div class="fx ${showFx?'':'hide'}">${it[1]}</div>
         <div class="mono" style="font-size:11px;color:var(--text-3)">${it[3].join(" · ")}</div>
-        <div style="font-family:var(--mono);color:var(--accent);margin-top:4px">${it[2]}</div>
       </div></div>`).join("");
-  document.querySelectorAll(".insp .item").forEach(el=>el.addEventListener("click",()=>el.classList.toggle("open")));
+  document.querySelectorAll("#inspector .item").forEach(el=>el.addEventListener("click",()=>el.classList.toggle("open")));
 }
 
 function renderSteps(s,m,b){
   const steps=[
-    ["A","Read machine offer","costPrice (Letine ex-works)","$"+s.machinePriceUsd,["model: illustrative (ATTESTED in prod via Telegram)"]],
+    ["A","Read machine offer","costPrice (Letine ex-works)","$"+s.machinePriceUsd,[]],
     ["B","Normalize machine cost","landed = costPrice×(1+markup%) + freight($100)","landed $"+m.landedPerMachineUsd+" ($"+m.landedPerThUsd+"/TH)",["markup="+s.markupPct+"%"]],
     ["C","Compute TH/s purchased","th = machineHashrateTh",s.machineHashrateTh+" TH/s",[]],
-    ["D","Compute gross mining revenue","gross = hashprice","$"+m.grossRevenueUsdPerThDay+"/TH/day",["hashprice="+s.hashpriceUsdPerThDay]],
-    ["E","Subtract energy/capex/pool/maint","energy+capex+poolMaint","total cost $"+m.totalCostUsdPerThDay+"/TH/day",["energy=$"+m.energyUsdPerThDay,"capex=$"+m.capexUsdPerThDay,"poolMaint=$"+m.poolMaintUsdPerThDay]],
-    ["F","Apply operator revenue-share","companyCut = max(0,net)×revShare% ; lpNet = net − companyCut","LP net $"+m.lpNetUsdPerThDay+"/TH/day",["net=$"+m.netUsdPerThDay,"revShare="+s.revenueSharePct+"%"], m.netUsdPerThDay<=0?"Net mining income ≤ 0 — mining underwater.":null],
-    ["G","Compute net mining income (yield)","lpYield% = (lpNet×365)/landedPerTh×100",m.lpMiningYieldPct+"%",["lpNet=$"+m.lpNetUsdPerThDay], m.lpMiningYieldPct<0?"Mining yield negative — allocator must rotate to USDC.":null],
-    ["H","Compare mining vs stable vs BTC","score = max(0,return)/risk","scores drive weights",["mining="+m.lpMiningYieldPct+"%","stable="+s.stableYieldPct+"%","btc="+s.btcBasePct+"%"]],
+    ["D","Compute gross mining revenue","gross = hashprice","$"+m.grossRevenueUsdPerThDay+"/TH/day",[]],
+    ["E","Subtract energy/capex/pool/maint","energy + capex + poolMaint","total cost $"+m.totalCostUsdPerThDay+"/TH/day",["energy=$"+m.energyUsdPerThDay,"capex=$"+m.capexUsdPerThDay]],
+    ["F","Apply operator revenue-share","companyCut = max(0,net)×revShare% ; lpNet = net − companyCut","LP net $"+m.lpNetUsdPerThDay+"/TH/day",["net=$"+m.netUsdPerThDay], m.netUsdPerThDay<=0?"Net mining income ≤ 0 — mining underwater.":null],
+    ["G","Compute net mining yield","lpYield% = (lpNet×365)/landedPerTh×100",m.lpMiningYieldPct+"%",[], m.lpMiningYieldPct<0?"Mining yield negative — allocator must rotate to USDC.":null],
+    ["H","Compare mining vs stable vs BTC","score = max(0,return)/risk","scores drive weights",["mining="+m.lpMiningYieldPct+"%","stable="+s.stableYieldPct+"%"]],
     ["I","Derive allocation weights","deriveRegimeAllocation → mining ≥30% ; usdc split base+reserve","mining "+b.alloc.mining+"% · BTC "+b.alloc.btc+"% · reserve "+b.alloc.stableReserve+"% · overlay "+b.alloc.usdc+"%",[], b.alloc.governanceException?"Mining clamped to 30% floor (governance exception).":null],
-    ["J","Compute APY range","apy = wMining×mining + wBtc×btc + wUsdc×usdc − drag − fees",pctOf(b.apyLow)+" – "+pctOf(b.apyHigh)+" (base "+pctOf(b.apyBase)+")",["drag=−"+b.drag+"%"], b.apyBase<0?"Base APY negative — see negative-driver panel.":null],
+    ["J","Compute APY range","apy = wMining×mining + wBtc×btc + wUsdc×usdc − drag − fees",pctOf(b.apyLow)+" – "+pctOf(b.apyHigh)+" (base "+pctOf(b.apyBase)+")",["drag=−"+b.drag+"%"], b.apyBase<0?"Base APY negative.":null],
     ["K","Compute coverage","coverage = cash capacity / target midpoint",b.coverageRatio+"× ("+b.coverageState+")",[], (b.coverageState==="stressed"||b.coverageState==="suspended")?"Coverage below adequate — distribution gate pauses.":null],
-    ["L","Decide funding source","cheapest idle stable → borrow vs yield → reserve ; BTC last resort",(s.borrowAprPct<s.stableYieldPct?"Borrow against BTC":"Use idle stable / reserve"),["borrow="+s.borrowAprPct+"%"]],
+    ["L","Decide funding source","cheapest idle stable → borrow vs yield → reserve ; BTC last-resort",(s.borrowAprPct<s.stableYieldPct?"Borrow against BTC":"Use idle stable / reserve"),[]],
     ["M","Decide early exit / recovery","coverage<1.0 pause ; <0.8 suspend ; maturity → capital-only extension","Recovery "+PRODUCT.recMin+"–"+PRODUCT.recMax+"mo capital-only (not a guarantee)",[]],
   ];
   document.getElementById("steps").innerHTML=steps.map(st=>`
     <div class="step"><div class="n">${st[0]}</div>
-      <div class="b">
-        <div class="h"><b>${st[1]}</b></div>
+      <div><b>${st[1]}</b>
         <div class="fx ${showFx?'':'hide'}">${st[2]}</div>
         <div class="vals">${st[4].join(" · ")}</div>
         <div class="out">→ ${st[3]}</div>
-        ${st[5]?`<div class="stepwarn">⚠ ${st[5]}</div>`:''}
-      </div></div>`).join("");
+        ${st[5]?`<div class="sw">⚠ ${st[5]}</div>`:''}</div></div>`).join("");
 }
 
-/* ─── export / copy ───────────────────────────────────────────────────── */
-function buildExport(){
-  const {s,m,scns,econ}=compute();
-  return { inputs:s, outputs:m,
-    economics:{ rawApyPct:econ.raw.blendedApyPct, adjustedApyPct:econ.adjusted.blendedApyPct, bugCandidate:econ.bugCandidate },
-    scenarios:scns.map(sc=>({regime:sc.regime,allocation:sc.alloc,apyLow:sc.apyLow,apyHigh:sc.apyHigh,p50:sc.p50,coverage:sc.coverageRatio})),
-    warnings:[...new Set(scns.flatMap(sc=>sc.warns))],
-    bugCandidates: econ.bugCandidate?["Allocator-adjusted APY negative despite positive stable fallback."]:[] };
-}
 function updateExport(){ document.getElementById("exportArea").value=JSON.stringify(buildExport(),null,2); }
 
 /* ─── wiring ──────────────────────────────────────────────────────────── */
-document.getElementById("toggleRaw").addEventListener("click",e=>{ viewRaw=!viewRaw; e.target.textContent="View: "+(viewRaw?"Raw economics":"Allocator-adjusted"); render(); });
-document.getElementById("toggleProv").addEventListener("click",e=>{ showProv=!showProv; e.target.textContent="Provenance: "+(showProv?"on":"off"); renderInputs(); render(); });
-document.getElementById("toggleFx").addEventListener("click",e=>{ showFx=!showFx; e.target.textContent="Formulas: "+(showFx?"on":"off"); render(); });
-document.getElementById("resetAll").addEventListener("click",()=>{ STATE={...DEFAULTS}; renderInputs(); render(); });
+document.getElementById("advBtn").addEventListener("click",e=>{
+  advOpen=!advOpen; document.getElementById("advanced").classList.toggle("hide",!advOpen);
+  e.target.textContent=(advOpen?"Hide":"Show")+" Advanced Debug";
+});
+document.getElementById("fxBtn").addEventListener("click",e=>{ showFx=!showFx; e.target.textContent="Formulas: "+(showFx?"on":"off"); render(); });
+document.getElementById("provBtn").addEventListener("click",e=>{ showProv=!showProv; e.target.textContent="Provenance: "+(showProv?"on":"off"); buildInputs(); render(); });
+document.getElementById("resetAll").addEventListener("click",()=>{ STATE={...DEFAULTS}; buildInputs(); render(); });
 document.getElementById("exportBtn").addEventListener("click",updateExport);
 document.getElementById("copyBtn").addEventListener("click",()=>{
   const txt=JSON.stringify(buildExport(),null,2);
@@ -560,7 +616,7 @@ document.getElementById("copyBtn").addEventListener("click",()=>{
   const b=document.getElementById("copyBtn"); const o=b.textContent; b.textContent="Copied ✓"; setTimeout(()=>b.textContent=o,1200);
 });
 
-renderInputs();
+buildInputs();
 render();
 </script>
 </body>

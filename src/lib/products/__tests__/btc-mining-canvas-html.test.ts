@@ -48,18 +48,33 @@ describe("btc mining calculation canvas HTML", () => {
   });
 
   it("surfaces the debug / honesty banners", () => {
-    expect(HTML).toContain("Debug canvas — not investor-facing");
+    expect(HTML).toContain("Not investor-facing");
     expect(HTML).toContain("CONFIGURED is not VALIDATED");
     expect(lower).toContain("no db writes");
   });
 
-  it("exposes the editable inputs + scenario columns + formula inspector", () => {
-    expect(HTML).toContain("Inputs / Assumptions");
+  it("Simple View first: key assumptions, safe scenario, engines, why panel", () => {
+    expect(HTML).toContain("Key Assumptions");
+    expect(HTML).toContain("Safe Scenario");
+    expect(HTML).toContain("Performance Engines");
+    expect(HTML).toContain("Why this result is low / negative");
     expect(HTML).toContain("Defensive");
     expect(HTML).toContain("Balanced");
     expect(HTML).toContain("Opportunistic");
+  });
+
+  it("Advanced Debug holds the full formulas, steps, before/after guard, export", () => {
+    expect(HTML).toContain("Advanced Debug");
+    expect(HTML).toContain("All assumptions");
     expect(HTML).toContain("Formula Inspector");
     expect(HTML).toContain("Construction Steps");
-    expect(HTML).toContain("Negative driver");
+    expect(HTML).toContain("Before allocation guard");
+    expect(HTML).toContain("After allocation guard");
+    expect(HTML).toContain("Export JSON");
+    // Advanced is collapsed by default (the body carries the `hide` class).
+    const advTag = HTML.match(/<div[^>]*id="advanced"[^>]*>/)?.[0] ?? "";
+    expect(advTag).toContain("hide");
+    // Formulas OFF by default.
+    expect(HTML).toContain("showFx = false");
   });
 });
