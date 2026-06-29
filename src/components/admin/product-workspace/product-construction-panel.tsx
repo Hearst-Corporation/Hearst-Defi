@@ -5,14 +5,12 @@ import { useCallback, useState } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
-import { Markdown } from "@/components/admin/markdown";
 import { cn } from "@/lib/cn";
-import { HcChartCard, HcFanChart } from "@/components/dataviz/his";
-import type { HcSourceStatus } from "@/components/dataviz/his/types";
 import {
   constructionDraftToVaultForm,
   encodeVaultFormPrefill,
 } from "@/lib/agentic/swarm/live/to-vault-form";
+import { ConstructionReport } from "@/components/admin/product-workspace/construction-report";
 import type {
   ChartArtifact,
   ProductConstructionDraft,
@@ -27,93 +25,6 @@ import type {
  * fan (p5/p50/p95), the blended-yield allocation, the headline range, the audit
  * trail, and the long-form write-up. Read-only — nothing is created or deployed.
  */
-
-function provenanceToSource(p: ChartArtifact["provenance"]): HcSourceStatus {
-  switch (p) {
-    case "Live":
-      return "live";
-    case "Oracle":
-      return "oracle";
-    case "Attested":
-      return "attested";
-    case "Estimated":
-      return "estimated";
-    case "Manual":
-      return "manual";
-    case "Stale":
-      return "stale";
-  }
-}
-
-function FanCard({
-  chart,
-  disclaimer,
-}: {
-  chart: ChartArtifact;
-  disclaimer: string;
-}) {
-  const bands = (chart.fanBands ?? []).map((b) => ({
-    m: b.m,
-    p5: b.p5,
-    p50: b.p50,
-    p95: b.p95,
-  }));
-  const last = bands.at(-1);
-  const metric = last ? `${last.p5}–${last.p95}%` : undefined;
-  return (
-    <HcChartCard
-      title={chart.title}
-      {...(metric ? { metric } : {})}
-      source={provenanceToSource(chart.provenance)}
-      disclaimer={disclaimer}
-      height={300}
-      aria-label={chart.ariaLabel}
-    >
-      <HcFanChart
-        bands={bands}
-        unit={chart.unit}
-        {...(chart.seedLabel ? { seedLabel: chart.seedLabel } : {})}
-        aria-label={chart.ariaLabel}
-      />
-    </HcChartCard>
-  );
-}
-
-function AllocationCard({ chart }: { chart: ChartArtifact }) {
-  const segments = chart.allocation ?? [];
-  const total = segments.reduce((s, x) => s + x.valuePct, 0) || 1;
-  return (
-    <HcChartCard
-      title={chart.title}
-      source={provenanceToSource(chart.provenance)}
-      height={120}
-      aria-label={chart.ariaLabel}
-    >
-      <div className="flex flex-col gap-2 p-2">
-        {segments.map((seg, i) => (
-          <div key={seg.label} className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-xs text-[var(--ct-text-secondary)]">
-              <span>{seg.label}</span>
-              <span className="font-mono text-[var(--ct-text-strong)]">
-                {seg.valuePct}%
-              </span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-surface-page">
-              <div
-                className="h-2 rounded-full"
-                style={{
-                  width: `${(seg.valuePct / total) * 100}%`,
-                  background:
-                    i === 0 ? "var(--ct-accent)" : "var(--ct-status-info)",
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </HcChartCard>
-  );
-}
 
 function Slider({
   label,
@@ -151,17 +62,6 @@ function Slider({
   );
 }
 
-function KpiTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
-      <span className="ct-bento-label">{label}</span>
-      <span className="font-mono text-base font-bold text-[var(--ct-text-strong)]">
-        {value}
-      </span>
-    </div>
-  );
-}
-
 export function ProductConstructionPanel({
   objective,
 }: {
@@ -171,6 +71,8 @@ export function ProductConstructionPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showRaw, setShowRaw] = useState(false);
+  // Animate the report's progressive reveal only right after a fresh run.
+  const [animateReport, setAnimateReport] = useState(false);
 
   // ── Monte-Carlo calibration ────────────────────────────────────────────────
   const [preset, setPreset] = useState<"conservative" | "base" | "aggressive">(
@@ -206,12 +108,21 @@ export function ProductConstructionPanel({
         return;
       }
       setDraft((await res.json()) as ProductConstructionDraft);
+      setAnimateReport(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "request failed");
     } finally {
       setLoading(false);
     }
   }, [objective, preset, driftPct, volPct, horizonMonths, miningWeightPct]);
+
+  // Open the print view in a new tab. The run already persisted the report to
+  // the admin's draft, so the print page loads it server-side and the admin uses
+  // the browser's Print → Save as PDF (works in every runtime, no PDF lib).
+  const downloadPdf = useCallback(() => {
+    if (!draft) return;
+    window.open("/admin/product-workspace/report/print", "_blank", "noopener");
+  }, [draft]);
 
   if (!objective) {
     return (
@@ -220,9 +131,6 @@ export function ProductConstructionPanel({
       </p>
     );
   }
-
-  const fan = draft?.charts.find((c) => c.kind === "fan");
-  const allocation = draft?.charts.find((c) => c.kind === "allocation");
 
   return (
     <div className="flex flex-col gap-5">
@@ -309,70 +217,7 @@ export function ProductConstructionPanel({
 
       {draft ? (
         <div className="flex flex-col gap-5">
-          {/* KPI strip — the headline numbers */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiTile
-              label="Headline APY"
-              value={`${(draft.quant.headlineRange.low * 100).toFixed(1)}–${(draft.quant.headlineRange.high * 100).toFixed(1)}%`}
-            />
-            <KpiTile
-              label="BTC spot"
-              value={`$${Math.round(draft.market.btcUsd).toLocaleString("en-US")}`}
-            />
-            <KpiTile
-              label="Hashprice"
-              value={`$${draft.market.hashpriceUsdPerThDay.toFixed(3)}/TH`}
-            />
-            <KpiTile
-              label="P(below floor)"
-              value={`${draft.quant.probBelowFloorPct}%`}
-            />
-          </div>
-
-          {/* Regime used — the resolved (clamped) assumptions behind these
-              numbers, so the calibration is auditable on the result. */}
-          <div className="flex flex-wrap gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-xs text-[var(--ct-text-muted)]">
-            <span>
-              drift{" "}
-              <span className="text-[var(--ct-text-strong)]">
-                {(draft.assumptions.btc.annualDrift * 100).toFixed(0)}%
-              </span>
-            </span>
-            <span>
-              vol{" "}
-              <span className="text-[var(--ct-text-strong)]">
-                {(draft.assumptions.btc.annualVol * 100).toFixed(0)}%
-              </span>
-            </span>
-            <span>
-              horizon{" "}
-              <span className="text-[var(--ct-text-strong)]">
-                {draft.assumptions.horizonMonths}mo
-              </span>
-            </span>
-            <span>
-              mining wt{" "}
-              <span className="text-[var(--ct-text-strong)]">
-                {(draft.assumptions.yield.miningWeight * 100).toFixed(0)}%
-              </span>
-            </span>
-            <span>
-              paths{" "}
-              <span className="text-[var(--ct-text-strong)]">
-                {draft.assumptions.paths.toLocaleString("en-US")}
-              </span>
-            </span>
-            <span>
-              seed{" "}
-              <span className="text-[var(--ct-text-strong)]">
-                {draft.quant.seed}
-              </span>
-            </span>
-          </div>
-
-          {/* Hand-off to the manual vault wizard — pre-fills ticker/name/APY
-              range/allocations via a URL param (NO DB write). The admin finishes
-              fees/SPV/signers and signs. Nothing is created from this panel. */}
+          {/* Actions — wizard hand-off (no DB write) + PDF export of the report. */}
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/admin/vaults/new?prefill=${encodeURIComponent(
@@ -385,56 +230,18 @@ export function ProductConstructionPanel({
             >
               Open in vault wizard (pre-filled)
             </Link>
+            <Button variant="secondary" size="sm" onClick={() => downloadPdf()}>
+              Open print view (PDF)
+            </Button>
             <span className="text-xs text-[var(--ct-text-tertiary)]">
-              Carries ticker, name, APY range and allocations · no record created
-              · you complete fees / SPV / signers and sign
+              Wizard hand-off carries ticker / APY range / allocations · no record
+              created · the report below is written into the page and persisted to
+              your draft.
             </span>
           </div>
 
-          {/* Charts — the very-visible artefacts */}
-          <div className="grid gap-4 lg:grid-cols-2">
-            {fan ? <FanCard chart={fan} disclaimer={draft.disclaimer} /> : null}
-            {allocation ? <AllocationCard chart={allocation} /> : null}
-          </div>
-
-          {/* Write-up — the rich prose */}
-          <div className="rounded-xl border border-[var(--ct-border)] bg-surface-card p-5">
-            <div className="mb-2 flex items-center justify-between">
-              <h3 className="ct-section-title">{draft.writeup.title}</h3>
-              <span className="ct-bento-label">
-                {draft.writeup.llmAuthored ? "LLM-authored" : "deterministic"}
-              </span>
-            </div>
-            <Markdown content={draft.writeup.prose} />
-          </div>
-
-          {/* Audit trail — provenance of each swarm */}
-          <div className="rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
-            <h3 className="ct-bento-label mb-2">Swarm audit</h3>
-            <ul className="flex flex-col gap-1 font-mono text-xs text-[var(--ct-text-secondary)]">
-              {draft.audit.map((a) => (
-                <li key={a.stageId} className="flex items-center gap-3">
-                  <span
-                    className={
-                      a.degraded
-                        ? "text-[var(--ct-status-warning)]"
-                        : "text-[var(--ct-accent)]"
-                    }
-                  >
-                    {a.degraded ? "○" : "●"}
-                  </span>
-                  <span className="w-40 shrink-0">{a.stageId}</span>
-                  <span className="w-20 shrink-0">{a.provenance}</span>
-                  <span className="text-[var(--ct-text-tertiary)]">
-                    {a.reasonCode}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs text-[var(--ct-text-tertiary)]">
-              {draft.disclaimer}
-            </p>
-          </div>
+          {/* The report — written directly into the workspace body, navigable. */}
+          <ConstructionReport draft={draft} animate={animateReport} />
 
           {/* Raw drawer */}
           <div>

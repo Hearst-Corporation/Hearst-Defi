@@ -74,6 +74,9 @@ const PRIMARY_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/admin/agent-canvas/[canvasId]/page.tsx",
   // Vault creation — multi-step wizard with its own framing.
   "src/app/admin/vaults/new/page.tsx",
+  // Construction report print page — standalone print/PDF layout (light theme,
+  // window.print), deliberately outside the admin canon shell.
+  "src/app/admin/product-workspace/report/print/page.tsx",
   // Agentic console — covered by the separate PR #81 redesign; exempt for now
   // so this guard doesn't conflict with that in-flight work. Re-fold it into
   // the enforced set (or its own contract) once #81 lands.
