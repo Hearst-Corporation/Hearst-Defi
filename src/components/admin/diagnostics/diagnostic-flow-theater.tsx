@@ -197,6 +197,7 @@ export function DiagnosticFlowTheater() {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const tokenRef = useRef<HTMLDivElement | null>(null);
   const timers = useRef<number[]>([]);
+  const selectRef = useRef<((id: string, autostart?: boolean) => void) | null>(null);
   const [cur, setCur] = useState<string>("deploy");
   const [speed, setSpeed] = useState<number>(950);
   const [playing, setPlaying] = useState(false);
@@ -261,7 +262,7 @@ export function DiagnosticFlowTheater() {
             setVerdict(sc.verdict); setPlaying(false);
             if (auto) timers.current.push(window.setTimeout(() => {
               const next = ORDER[(ORDER.indexOf(id) + 1) % ORDER.length];
-              if (next) select(next, true);
+              if (next) selectRef.current?.(next, true);
             }, 1600));
           }, speed * 0.7));
         }
@@ -303,6 +304,7 @@ export function DiagnosticFlowTheater() {
     if (tokenRef.current) { tokenRef.current.style.left = u.x + "px"; tokenRef.current.style.top = u.y + "px"; }
     if (autostart) playAnim(id);
   }, [playAnim, resetStage]);
+  useEffect(() => { selectRef.current = select; }, [select]);
 
   const playLive = useCallback((id: string) => { playAnim(id); void runLive(id); }, [playAnim, runLive]);
 
@@ -321,7 +323,15 @@ export function DiagnosticFlowTheater() {
     setAllHealth(out.join("   |   "));
   }, []);
 
-  useEffect(() => { select("deploy", false); return () => clearTimers(); }, [select]);
+  useEffect(() => {
+    // mount: DOM-only sync — dim the nodes and park the token at "user".
+    // No setState: all reset states already match their initial values and `cur` defaults to "deploy".
+    stageRef.current?.querySelectorAll(".dft-node").forEach((el) => { el.className = "dft-node dimmed"; });
+    stageRef.current?.querySelectorAll(".dft-edges path").forEach((p) => p.classList.remove("flow"));
+    const u = ctr("user");
+    if (tokenRef.current) { tokenRef.current.style.left = u.x + "px"; tokenRef.current.style.top = u.y + "px"; }
+    return () => clearTimers();
+  }, []);
   useEffect(() => {
     const log = stageRef.current?.parentElement?.parentElement?.querySelector("#dft-log");
     if (log) log.scrollTop = log.scrollHeight;
