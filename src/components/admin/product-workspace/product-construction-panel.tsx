@@ -115,6 +115,42 @@ function AllocationCard({ chart }: { chart: ChartArtifact }) {
   );
 }
 
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  unit,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  unit: string;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="flex items-center justify-between text-xs text-[var(--ct-text-secondary)]">
+        <span>{label}</span>
+        <span className="font-mono text-[var(--ct-text-strong)]">
+          {value}
+          {unit}
+        </span>
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="accent-[var(--ct-accent)]"
+      />
+    </label>
+  );
+}
+
 function KpiTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
@@ -136,6 +172,16 @@ export function ProductConstructionPanel({
   const [error, setError] = useState<string | null>(null);
   const [showRaw, setShowRaw] = useState(false);
 
+  // ── Monte-Carlo calibration ────────────────────────────────────────────────
+  const [preset, setPreset] = useState<"conservative" | "base" | "aggressive">(
+    "base",
+  );
+  // Per-field overrides (percent units in the UI; converted to fractions below).
+  const [driftPct, setDriftPct] = useState(10);
+  const [volPct, setVolPct] = useState(60);
+  const [horizonMonths, setHorizonMonths] = useState(12);
+  const [miningWeightPct, setMiningWeightPct] = useState(60);
+
   const run = useCallback(async () => {
     if (!objective) return;
     setLoading(true);
@@ -144,7 +190,15 @@ export function ProductConstructionPanel({
       const res = await fetch("/api/admin/product-construction/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ objective }),
+        body: JSON.stringify({
+          objective,
+          preset,
+          assumptions: {
+            horizonMonths,
+            btc: { annualDrift: driftPct / 100, annualVol: volPct / 100 },
+            yield: { miningWeight: miningWeightPct / 100 },
+          },
+        }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -157,7 +211,7 @@ export function ProductConstructionPanel({
     } finally {
       setLoading(false);
     }
-  }, [objective]);
+  }, [objective, preset, driftPct, volPct, horizonMonths, miningWeightPct]);
 
   if (!objective) {
     return (
@@ -172,6 +226,69 @@ export function ProductConstructionPanel({
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Monte-Carlo calibration — tune the scenario regime before running. Every
+          value is clamped server-side; the headline always stays a range. */}
+      <div className="flex flex-col gap-3 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <span className="ct-bento-label">Monte-Carlo calibration</span>
+          <div className="flex items-center gap-1">
+            {(["conservative", "base", "aggressive"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPreset(p)}
+                className={cn(
+                  "rounded-md border px-2 py-1 text-xs",
+                  preset === p
+                    ? "border-[var(--ct-accent)] text-[var(--ct-accent)]"
+                    : "border-[var(--ct-border)] text-[var(--ct-text-muted)]",
+                )}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Slider
+            label="BTC drift"
+            value={driftPct}
+            min={-50}
+            max={100}
+            unit="%/yr"
+            onChange={setDriftPct}
+          />
+          <Slider
+            label="BTC vol"
+            value={volPct}
+            min={10}
+            max={150}
+            unit="%/yr"
+            onChange={setVolPct}
+          />
+          <Slider
+            label="Horizon"
+            value={horizonMonths}
+            min={1}
+            max={60}
+            unit="mo"
+            onChange={setHorizonMonths}
+          />
+          <Slider
+            label="Mining weight"
+            value={miningWeightPct}
+            min={0}
+            max={100}
+            unit="%"
+            onChange={setMiningWeightPct}
+          />
+        </div>
+        <p className="text-xs text-[var(--ct-text-tertiary)]">
+          A preset seeds drift / vol / mining-weight; the sliders override on top.
+          Bounds are enforced server-side. Same inputs ⇒ same seeded fan.
+        </p>
+      </div>
+
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant="primary"
@@ -210,6 +327,47 @@ export function ProductConstructionPanel({
               label="P(below floor)"
               value={`${draft.quant.probBelowFloorPct}%`}
             />
+          </div>
+
+          {/* Regime used — the resolved (clamped) assumptions behind these
+              numbers, so the calibration is auditable on the result. */}
+          <div className="flex flex-wrap gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-xs text-[var(--ct-text-muted)]">
+            <span>
+              drift{" "}
+              <span className="text-[var(--ct-text-strong)]">
+                {(draft.assumptions.btc.annualDrift * 100).toFixed(0)}%
+              </span>
+            </span>
+            <span>
+              vol{" "}
+              <span className="text-[var(--ct-text-strong)]">
+                {(draft.assumptions.btc.annualVol * 100).toFixed(0)}%
+              </span>
+            </span>
+            <span>
+              horizon{" "}
+              <span className="text-[var(--ct-text-strong)]">
+                {draft.assumptions.horizonMonths}mo
+              </span>
+            </span>
+            <span>
+              mining wt{" "}
+              <span className="text-[var(--ct-text-strong)]">
+                {(draft.assumptions.yield.miningWeight * 100).toFixed(0)}%
+              </span>
+            </span>
+            <span>
+              paths{" "}
+              <span className="text-[var(--ct-text-strong)]">
+                {draft.assumptions.paths.toLocaleString("en-US")}
+              </span>
+            </span>
+            <span>
+              seed{" "}
+              <span className="text-[var(--ct-text-strong)]">
+                {draft.quant.seed}
+              </span>
+            </span>
           </div>
 
           {/* Hand-off to the manual vault wizard — pre-fills ticker/name/APY

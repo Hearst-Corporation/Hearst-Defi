@@ -30,6 +30,7 @@ import type {
   QuantArtifact,
   StrategyCrossArtifact,
 } from "./types";
+import type { QuantAssumptions } from "./quant-assumptions";
 
 function audit(
   stageId: LiveSwarmStepAudit["stageId"],
@@ -216,16 +217,22 @@ export interface QuantResult {
  * derived deterministically from the objective + market spot so the same inputs
  * reproduce the same fan (ADR-006: no Math.random, no Date.now). Headline stays
  * a range; MC only adds the p5/p50/p95 dispersion (#1, #7).
+ *
+ * Every previously-hardcoded assumption (BTC drift/vol, difficulty reversion,
+ * blended weights, amortization, paths, horizon, floor) now comes from a
+ * CALIBRATABLE `assumptions` object (already resolved + clamped by the caller
+ * via resolveQuantAssumptions), so a scenario can be tuned conservative ↔
+ * aggressive without changing code.
  */
 export function runQuant(args: {
   seed: number;
-  horizonMonths: number;
   market: Pick<MarketLiveResult, "btcUsd" | "difficulty" | "hashpriceUsdPerThDay">;
   strategy: Pick<StrategyCrossArtifact, "miningYieldPct" | "usdcYieldPct" | "headlineApy">;
   telegram: Pick<TelegramPricingResult, "bestCostPerThDay">;
-  floorApyPct: number;
+  assumptions: QuantAssumptions;
 }): QuantResult {
-  const { seed, horizonMonths, market, strategy, telegram, floorApyPct } = args;
+  const { seed, market, strategy, telegram, assumptions } = args;
+  const { horizonMonths, floorApyPct } = assumptions;
 
   // Capital/TH derived from the best landed cost when available, else a
   // conservative industry default; cost/TH/day from the same source.
@@ -233,35 +240,41 @@ export function runQuant(args: {
     telegram.bestCostPerThDay !== null && telegram.bestCostPerThDay > 0
       ? telegram.bestCostPerThDay
       : 0.05; // conservative fallback $/TH/day
-  // Approx capital/TH from a 24-month amortization of the cost leg (defensive).
-  const capitalPerThUsd = Math.max(costPerThDay * 30.4 * 24, 20);
+  // Capital/TH from the calibrated amortization of the cost leg (defensive).
+  const capitalPerThUsd = Math.max(
+    costPerThDay * 30.4 * assumptions.amortizationMonths,
+    20,
+  );
 
   const out = runMonteCarlo({
     seed,
-    paths: 5_000,
+    paths: assumptions.paths,
     horizonMonths,
     btc: {
       startPriceUsd: market.btcUsd > 0 ? market.btcUsd : 60_000,
-      annualDrift: 0.1,
-      annualVol: 0.6,
+      annualDrift: assumptions.btc.annualDrift,
+      annualVol: assumptions.btc.annualVol,
     },
     difficulty: {
       start: market.difficulty > 0 ? market.difficulty : 1,
-      longRun: market.difficulty > 0 ? market.difficulty * 1.15 : 1.15,
-      reversionSpeed: 0.8,
-      annualVol: 0.25,
-      minMultiple: 0.6,
-      maxMultiple: 2.0,
+      longRun:
+        (market.difficulty > 0 ? market.difficulty : 1) *
+        assumptions.difficulty.longRunMultiple,
+      reversionSpeed: assumptions.difficulty.reversionSpeed,
+      annualVol: assumptions.difficulty.annualVol,
+      minMultiple: assumptions.difficulty.minMultiple,
+      maxMultiple: assumptions.difficulty.maxMultiple,
     },
     yield: {
-      miningWeight: 0.6,
-      stableWeight: 0.4,
+      miningWeight: assumptions.yield.miningWeight,
+      stableWeight: 1 - assumptions.yield.miningWeight,
       stableApyMean: strategy.usdcYieldPct / 100,
-      stableApyVol: 0.01,
+      stableApyVol: assumptions.yield.stableApyVol,
       costPerThDay,
       capitalPerThUsd,
     },
     floorApy: floorApyPct / 100,
+    btcDifficultyCorrelation: assumptions.btcDifficultyCorrelation,
   });
 
   const artifact: QuantArtifact = {

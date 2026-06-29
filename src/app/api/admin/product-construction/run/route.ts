@@ -19,6 +19,11 @@ import {
   runProductConstructionPipeline,
   isProductConstructionError,
 } from "@/lib/agentic/swarm/live/pipeline";
+import {
+  QUANT_PRESETS,
+  type QuantAssumptionsOverrides,
+  type QuantPresetId,
+} from "@/lib/agentic/swarm/live/quant-assumptions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,15 +64,33 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   let objective = "";
   let deterministicWriteupOnly = false;
+  let assumptions: QuantAssumptionsOverrides | undefined;
   try {
     const body = (await request.json().catch(() => null)) as {
       objective?: unknown;
       deterministicWriteupOnly?: unknown;
+      preset?: unknown;
+      assumptions?: unknown;
     } | null;
     if (body && typeof body.objective === "string") {
       objective = body.objective.trim().slice(0, MAX_OBJECTIVE_LEN);
     }
     deterministicWriteupOnly = body?.deterministicWriteupOnly === true;
+    // Calibration: a named preset (conservative/base/aggressive) as a base, with
+    // explicit per-field overrides layered on top. Both are CLAMPED inside the
+    // pipeline (resolveQuantAssumptions), so an out-of-range value can never push
+    // the simulation to a nonsense regime — the body is untrusted but bounded.
+    const presetOverride =
+      typeof body?.preset === "string" && body.preset in QUANT_PRESETS
+        ? QUANT_PRESETS[body.preset as QuantPresetId]
+        : undefined;
+    const explicit =
+      body?.assumptions && typeof body.assumptions === "object"
+        ? (body.assumptions as QuantAssumptionsOverrides)
+        : undefined;
+    if (presetOverride || explicit) {
+      assumptions = { ...presetOverride, ...explicit };
+    }
   } catch {
     /* fall through to the empty-objective guard */
   }
@@ -81,6 +104,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   try {
     const result = await runProductConstructionPipeline(objective, {
       deterministicWriteupOnly,
+      ...(assumptions ? { assumptions } : {}),
     });
     if (isProductConstructionError(result)) {
       return NextResponse.json(

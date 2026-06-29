@@ -18,6 +18,8 @@
  * No I/O in this module — types only.
  */
 
+import type { QuantAssumptions } from "./quant-assumptions";
+
 /**
  * The single execution mode of this family. There is deliberately no "write" /
  * "deploy" / "send" member: a live-read swarm reads + computes, never mutates.
@@ -163,6 +165,9 @@ export interface ProductConstructionDraft {
   market: { btcUsd: number; hashpriceUsdPerThDay: number; defiApyMedianPct: number };
   strategy: StrategyCrossArtifact;
   quant: QuantArtifact;
+  /** The resolved (defaults + clamped overrides) Monte-Carlo assumptions used —
+   *  surfaced so the admin sees exactly what regime produced the numbers. */
+  assumptions: QuantAssumptions;
   charts: ChartArtifact[];
   writeup: WriteupArtifact;
   /** Per-stage audit trail. */

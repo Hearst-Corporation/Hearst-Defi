@@ -38,6 +38,17 @@ export type { LiveSafetyViolation } from "./assert-live-safe";
 export { runCharts, buildDeterministicWriteup } from "./runners-artifacts";
 
 export {
+  DEFAULT_QUANT_ASSUMPTIONS,
+  resolveQuantAssumptions,
+  QUANT_PRESETS,
+} from "./quant-assumptions";
+export type {
+  QuantAssumptions,
+  QuantAssumptionsOverrides,
+  QuantPresetId,
+} from "./quant-assumptions";
+
+export {
   runProductConstructionPipeline,
   isProductConstructionError,
 } from "./pipeline";
