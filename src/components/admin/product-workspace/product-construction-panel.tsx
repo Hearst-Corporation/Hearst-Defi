@@ -1,11 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
 import { Markdown } from "@/components/admin/markdown";
+import { cn } from "@/lib/cn";
 import { HcChartCard, HcFanChart } from "@/components/dataviz/his";
 import type { HcSourceStatus } from "@/components/dataviz/his/types";
+import {
+  constructionDraftToVaultForm,
+  encodeVaultFormPrefill,
+} from "@/lib/agentic/swarm/live/to-vault-form";
 import type {
   ChartArtifact,
   ProductConstructionDraft,
@@ -203,6 +210,27 @@ export function ProductConstructionPanel({
               label="P(below floor)"
               value={`${draft.quant.probBelowFloorPct}%`}
             />
+          </div>
+
+          {/* Hand-off to the manual vault wizard — pre-fills ticker/name/APY
+              range/allocations via a URL param (NO DB write). The admin finishes
+              fees/SPV/signers and signs. Nothing is created from this panel. */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href={`/admin/vaults/new?prefill=${encodeURIComponent(
+                encodeVaultFormPrefill(constructionDraftToVaultForm(draft)),
+              )}`}
+              className={cn(
+                cockpitButtonVariants({ variant: "primary", size: "sm" }),
+                "self-start",
+              )}
+            >
+              Open in vault wizard (pre-filled)
+            </Link>
+            <span className="text-xs text-[var(--ct-text-tertiary)]">
+              Carries ticker, name, APY range and allocations · no record created
+              · you complete fees / SPV / signers and sign
+            </span>
           </div>
 
           {/* Charts — the very-visible artefacts */}
