@@ -114,6 +114,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     href: "/admin/product-workspace",
     tabs: [
       { id: "product-workspace", label: "Overview", href: "/admin/product-workspace", icon: "FileText" },
+      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
       { id: "source", label: "Source", href: "/admin/source", icon: "Database" },
       { id: "projection", label: "Projection", href: "/admin/projection", icon: "FileText" },
       // Scenario Lab = sandbox/exploration interne. Route conservée, mais retirée
@@ -123,15 +124,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       // Projection Preview = aperçu rapport démo (fixture), PAS une page produit
       // normale. Retirée du menu, route conservée. Label clarifié.
       { id: "projection-preview", label: "Investor Report Preview — Demo Fixture", railLabel: "Preview", href: "/admin/projection/preview", icon: "Eye", hideFromSubNav: true },
-    ],
-  },
-  {
-    id: "marketplace",
-    label: "Marketplace",
-    icon: "TrendingUp",
-    href: "/admin/marketplace",
-    tabs: [
-      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
     ],
   },
   {
