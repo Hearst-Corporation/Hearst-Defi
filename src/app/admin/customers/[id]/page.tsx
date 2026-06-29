@@ -96,7 +96,11 @@ export default async function CustomerDetailPage({
           {/* Identity — canon welded card (prospects/[id] pattern): a <dl> grid
               body, with the account sign-in row as a soft inset (anti cage-in-cage,
               not a second full panel surface). */}
-          <AdminSectionCard ariaLabel="Investor profile" title="Investor profile">
+          <AdminSectionCard
+            ariaLabel="Investor profile"
+            title="Investor profile"
+            subtitle="Identity, role, wallet, and account sign-in details for this investor."
+          >
             <dl className={DETAIL_GRID}>
               <AdminDetailItem label="Email">
                 <span className="font-medium text-[var(--ct-text-strong)]">

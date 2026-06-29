@@ -121,7 +121,11 @@ export default async function CampaignDetailPage({
 
         {/* Delivery summary — visible once emails start being dispatched */}
         {deliverySummary && (
-          <AdminSectionCard ariaLabel="Delivery summary" title="Delivery">
+          <AdminSectionCard
+            ariaLabel="Delivery summary"
+            title="Delivery"
+            subtitle="Dispatch progress across recipients once sending begins."
+          >
             <div className="p-5">
               <p className="ct-metric-value font-mono">{deliverySummary}</p>
             </div>
@@ -130,7 +134,11 @@ export default async function CampaignDetailPage({
 
         {/* Release — shown only when campaign is sendable (draft|review + ≥1 approved email) */}
         {canRelease && (
-          <AdminSectionCard ariaLabel="Release" title="Release">
+          <AdminSectionCard
+            ariaLabel="Release"
+            title="Release"
+            subtitle="Dispatch every approved email and move the campaign into sending."
+          >
             <div className="flex flex-col gap-4 p-5">
               <p className="ct-metric-caption leading-relaxed">
                 Dispatch all approved emails. The campaign switches to{" "}

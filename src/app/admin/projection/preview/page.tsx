@@ -50,7 +50,11 @@ export default async function ProjectionPreviewPage() {
       titleAccent={latestRun ? "Latest Study Run" : "Demo Fixture"}
       contextLabel="Strategy"
     >
-      <AdminSectionCard ariaLabel="Report source" title="Report source">
+      <AdminSectionCard
+        ariaLabel="Report source"
+        title="Report source"
+        subtitle="Underlying study run and validation behind this preview."
+      >
         <div className="flex flex-col gap-5 p-5">
           <PreviewSourceBanner latestRun={latestRun} validation={validation} />
           <InvestorReportReadiness report={report} />

@@ -89,6 +89,7 @@ export default async function ScenarioLabPage({
       <AdminSectionCard
         ariaLabel="Scenario lab"
         title="Scenario lab"
+        subtitle="Load assumptions, tune inputs, and project vault outcomes across scenarios."
         className="[&_.scenario-lab-box]:rounded-none [&_.scenario-lab-box]:border-0 [&_.scenario-lab-box]:shadow-none [&_.scenario-lab-box]:bg-transparent"
       >
         <LabShell

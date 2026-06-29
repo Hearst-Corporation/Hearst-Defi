@@ -52,7 +52,11 @@ export default async function ProjectionPage({
       titleAccent="Projection"
       contextLabel="Strategy"
     >
-      <AdminSectionCard ariaLabel="Source truth" title="Source truth">
+      <AdminSectionCard
+        ariaLabel="Source truth"
+        title="Source truth"
+        subtitle="Assumptions and inputs that feed this projection run."
+      >
         <div className="flex flex-col gap-5 p-5">
           {fromWorkspace ? (
             <ProjectionHandoff objective={objective ?? null} />
