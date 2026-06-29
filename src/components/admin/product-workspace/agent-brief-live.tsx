@@ -1,25 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { Markdown } from "@/components/admin/markdown";
 import { cn } from "@/lib/cn";
+import {
+  analyzeObjectiveQuality,
+  DIMENSION_LABEL,
+} from "@/lib/product-workspace/objective-quality";
 
 /**
  * Live agent framing brief for the (near-empty) Product Workspace.
  *
  * The page no longer pre-computes any product content — this component is the
- * chamber the agent fills. On mount, if there is no persisted brief yet and the
- * page was opened by the cockpit agent (`autostart`), it POSTs the objective to
- * /api/admin/product-workspace/brief and streams the brief token-by-token into
- * the page (typewriter). The route persists the final text, so a later refresh
- * arrives with `initialBrief` set and skips regeneration.
+ * chamber the agent fills. It guards against the "the agent is writing the
+ * brief…" spinner the user reported with two layers:
  *
- * States: idle (manual trigger) · streaming ("L'agent rédige le cadrage…" +
- * live text) · done (Markdown render) · error.
+ *  1. A pure, synchronous TOO-VAGUE pre-check (no model call): a bare objective
+ *     like "Je veux créer un produit." renders a structured fallback listing the
+ *     5 framing inputs to define, instead of streaming forever.
+ *  2. A CLIENT-SIDE WATCHDOG on the stream: if the fetch hangs or stalls with no
+ *     tokens, it aborts and flips to the error state (with Retry). The spinner
+ *     can therefore never run indefinitely.
+ *
+ * States: no-objective · too-vague (structured fallback) · idle (manual
+ * trigger) · streaming (with watchdog) · done (Markdown) · error (retry).
  */
 type Phase = "idle" | "streaming" | "done" | "error";
+
+/** Hard client watchdog: a brief that produces no tokens within this window —
+ *  or never finishes — is aborted so the spinner cannot hang forever. */
+const STREAM_WATCHDOG_MS = 45_000;
 
 export function AgentBriefLive({
   objective,
@@ -34,16 +46,44 @@ export function AgentBriefLive({
   const [phase, setPhase] = useState<Phase>(initialBrief ? "done" : "idle");
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startedRef = useRef(false);
+  const unmountedRef = useRef(false);
+  const timedOutRef = useRef(false);
+
+  // Pure, synchronous: an objective that names little more than "a product" is
+  // too broad to brief. We surface the missing inputs instead of calling the
+  // model. A persisted brief still renders (the admin already refined it once).
+  const quality = useMemo(
+    () => analyzeObjectiveQuality(objective),
+    [objective],
+  );
+  const tooVague = !initialBrief && quality.tooVague;
+
+  const clearWatchdog = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+  }, []);
 
   const generate = useCallback(async () => {
     if (!objective) return;
     abortRef.current?.abort();
+    clearWatchdog();
     const controller = new AbortController();
     abortRef.current = controller;
     setError(null);
     setText("");
     setPhase("streaming");
+    timedOutRef.current = false;
+
+    // Watchdog — abort a hung/slow stream so the spinner can't run forever.
+    watchdogRef.current = setTimeout(() => {
+      timedOutRef.current = true;
+      controller.abort();
+    }, STREAM_WATCHDOG_MS);
+
     try {
       const res = await fetch("/api/admin/product-workspace/brief", {
         method: "POST",
@@ -68,42 +108,91 @@ export function AgentBriefLive({
         setText(acc);
       }
       acc += dec.decode();
+      clearWatchdog();
+      if (unmountedRef.current) return;
       setText(acc);
-      setPhase(acc.trim().length > 0 ? "done" : "error");
-      if (acc.trim().length === 0) setError("Empty brief — try again.");
+      if (acc.trim().length > 0) {
+        setPhase("done");
+      } else {
+        setPhase("error");
+        setError("Empty brief — try again.");
+      }
     } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") return;
+      clearWatchdog();
+      // Unmount or a superseding run — stay quiet, never touch state.
+      if (unmountedRef.current || abortRef.current !== controller) return;
+      const aborted = err instanceof Error && err.name === "AbortError";
+      // A quiet abort that was NOT our watchdog (e.g. a manual re-trigger that
+      // raced) is ignored; only a watchdog timeout becomes a visible error.
+      if (aborted && !timedOutRef.current) return;
       setPhase("error");
-      setError("Brief generation failed — try again.");
+      setError(
+        timedOutRef.current
+          ? "Brief generation timed out. The workspace is still usable — retry or continue manually."
+          : "Brief generation failed. The workspace is still usable — retry or continue manually.",
+      );
     } finally {
       if (abortRef.current === controller) abortRef.current = null;
     }
-  }, [objective]);
+  }, [objective, clearWatchdog]);
 
-  // Auto-launch once when the agent opened this page and no brief exists yet.
+  // Auto-launch once when the agent opened this page, the objective is specific
+  // enough, and no brief exists yet. A too-vague objective never autostarts —
+  // it shows the structured fallback instead (no model call, no spinner).
   useEffect(() => {
     if (startedRef.current) return;
     if (initialBrief) return;
     if (!autostart || !objective) return;
+    if (quality.tooVague) return;
     startedRef.current = true;
-    // One-shot async kickoff: generate() streams a brief and setStates only
-    // after awaits (not synchronously). This is an effect-driven side effect,
-    // not state derivable during render.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void generate();
-  }, [autostart, objective, initialBrief, generate]);
+  }, [autostart, objective, initialBrief, quality.tooVague, generate]);
 
   useEffect(() => {
-    return () => abortRef.current?.abort();
-  }, []);
+    return () => {
+      unmountedRef.current = true;
+      clearWatchdog();
+      abortRef.current?.abort();
+    };
+  }, [clearWatchdog]);
 
+  // ── No objective ──────────────────────────────────────────────────────────
   if (!objective) {
     return (
-      <p className="body-sm ct-text-muted italic">
-        {autostart
-          ? "Objective not received — return to chat and retry."
-          : "Waiting for an objective from the cockpit assistant."}
-      </p>
+      <div className="admin-doc-stack admin-doc-stack--tight">
+        <p className="body-sm ct-text-muted">No objective provided.</p>
+        <p className="body-xs ct-text-muted">
+          Start from chat or enter an objective manually.
+        </p>
+      </div>
+    );
+  }
+
+  // ── Too vague (structured fallback — no model call) ───────────────────────
+  if (tooVague && phase !== "streaming" && phase !== "done") {
+    return (
+      <div className="admin-doc-stack admin-doc-stack--tight">
+        <p className="body-sm ct-text-body">
+          The objective is too broad to generate a complete product brief.
+        </p>
+        <p className="body-xs ct-text-muted">Define:</p>
+        <ol className="list-decimal pl-5 body-sm ct-text-body">
+          {quality.missing.map((dim) => (
+            <li key={dim}>{DIMENSION_LABEL[dim]}</li>
+          ))}
+        </ol>
+        <p className="body-xs ct-text-muted">
+          Add these to the objective from chat (or refine it), then the workspace
+          can write a real framing brief. Nothing is generated from a vague
+          objective — no model call, no assumptions invented.
+        </p>
+        {/* Escape hatch — let the admin force a brief anyway if they accept it
+            will be thin. Honest label, not a primary action. */}
+        <Button variant="secondary" size="sm" onClick={() => void generate()}>
+          Write a brief anyway
+        </Button>
+      </div>
     );
   }
 
@@ -134,10 +223,13 @@ export function AgentBriefLive({
       {phase === "error" ? (
         <div className="admin-doc-stack admin-doc-stack--tight">
           <p className={cn("body-sm", "ct-status-danger")} role="alert">
-            {error ?? "Error."}
+            {error ?? "Brief generation failed."}
+          </p>
+          <p className="body-xs ct-text-muted">
+            The workspace is still usable. You can continue manually or retry.
           </p>
           <Button variant="secondary" size="sm" onClick={() => void generate()}>
-            Retry
+            Retry brief
           </Button>
         </div>
       ) : null}

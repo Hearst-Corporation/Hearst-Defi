@@ -19,6 +19,7 @@ import ProductWorkspacePage from "../page";
 async function renderPage(searchParams: {
   autostart?: string;
   objective?: string;
+  intent?: string;
 }) {
   const element = await ProductWorkspacePage({
     searchParams: Promise.resolve(searchParams),
@@ -96,25 +97,55 @@ describe("ProductWorkspacePage (near-empty, agent-filled)", () => {
     expect(html).toContain("Awaiting objective from cockpit agent");
   });
 
-  it("renders a Continue-to-Projection CTA carrying the objective + from flag when an objective exists", async () => {
+  it("renders a Projection CTA carrying the objective + from flag when a SPECIFIC objective exists", async () => {
     mockLoadDraft.mockResolvedValueOnce(null);
+    // A specific objective (asset + yield + risk + horizon) → brief is NOT too
+    // vague, so the CTA is the confident "Continue to Projection".
+    const objective =
+      "BTC yield vault for institutions, 60-day lock-up, downside protection";
+    const html = await renderPage({ autostart: "1", objective });
+
+    expect(html).toContain("Next step — Projection");
+    expect(html).toContain("Continue to Projection");
+    expect(html).toContain(
+      `/admin/projection?objective=${encodeURIComponent(objective)}&amp;from=product-workspace`,
+    );
+    // Honest framing wording is present, forbidden-claim wording is not.
+    expect(html).toContain("No run is created from this page");
+    expect(html).toContain("manual admin review");
+    expect(html.toLowerCase()).not.toContain("product created");
+    expect(html.toLowerCase()).not.toContain("vault created");
+    expect(html.toLowerCase()).not.toContain("investor-ready");
+  });
+
+  it("a VAGUE objective gets an honest 'Continue anyway' CTA with a no-prefill note", async () => {
+    mockLoadDraft.mockResolvedValueOnce(null);
+    // "Créer une offre Defensive" carries almost no substance → too vague.
     const html = await renderPage({
       autostart: "1",
       objective: "Créer une offre Defensive",
     });
 
-    expect(html).toContain("Next step — Projection");
-    expect(html).toContain("Continue to Projection");
-    // Links to projection with the objective encoded + the handoff flag.
+    expect(html).toContain("Continue anyway");
     expect(html).toContain(
-      `/admin/projection?objective=${encodeURIComponent("Créer une offre Defensive")}&amp;from=product-workspace`,
+      "Projection will require manual assumptions. No numbers will be prefilled.",
     );
-    // Honest framing wording is present, forbidden-claim wording is not.
-    expect(html).toContain("manual run required");
-    expect(html).toContain("not guaranteed");
-    expect(html.toLowerCase()).not.toContain("product created");
-    expect(html.toLowerCase()).not.toContain("vault created");
-    expect(html.toLowerCase()).not.toContain("investor-ready");
+    // Still a real link (not disabled) — the admin may proceed manually.
+    expect(html).toContain("/admin/projection?objective=");
+  });
+
+  it("shows the routing-source block (deterministic, no LLM) when seeded by chat", async () => {
+    mockLoadDraft.mockResolvedValueOnce(null);
+    const html = await renderPage({
+      autostart: "1",
+      objective: "BTC yield vault, 60-day lock-up, downside protection",
+      intent: "product_creation",
+    });
+
+    expect(html).toContain("Routing source");
+    expect(html).toContain("deterministic product intent");
+    expect(html).toContain("no LLM used to route");
+    expect(html).toContain("cockpit chat");
   });
 
   it("disables the Projection CTA with an honest message when no objective was received", async () => {

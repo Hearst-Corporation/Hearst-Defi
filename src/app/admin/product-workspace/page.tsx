@@ -10,6 +10,7 @@ import { Heading } from "@/components/catalyst/heading";
 import { cn } from "@/lib/cn";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadProductWorkspaceDraft } from "@/lib/product-workspace/draft";
+import { analyzeObjectiveQuality } from "@/lib/product-workspace/objective-quality";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,16 @@ function sanitizeObjective(raw: string | undefined): string | undefined {
   return cleaned ? cleaned.slice(0, MAX_OBJECTIVE_LEN) : undefined;
 }
 
+/** A short, human label for the intent kind carried from the chat. */
+const INTENT_LABEL: Record<string, string> = {
+  product_creation: "deterministic product intent",
+  product_framing: "deterministic product framing",
+  mixed_product_creation_simulation:
+    "deterministic product + simulation intent",
+  mixed_product_framing_simulation:
+    "deterministic product framing + simulation intent",
+};
+
 /**
  * Product Workspace — a near-empty chamber the cockpit agent fills.
  *
@@ -47,6 +58,7 @@ export default async function ProductWorkspacePage({
   const params = await searchParams;
   const objective = sanitizeObjective(params.objective);
   const autostart = params.autostart === "1";
+  const intentKind = params.intent;
 
   // A persisted brief (from a prior generation for the same objective) lets a
   // refresh re-render without re-billing the model. A different objective in
@@ -56,6 +68,17 @@ export default async function ProductWorkspacePage({
     persistedDraft?.agentBrief && persistedDraft.objective === objective
       ? persistedDraft.agentBrief
       : null;
+
+  // Pure, synchronous: lets the page show an honest routing-source block + an
+  // honest Projection CTA without any model call.
+  const quality = analyzeObjectiveQuality(objective);
+  const briefStatus = !objective
+    ? "no objective"
+    : initialBrief
+      ? "ready (persisted)"
+      : quality.tooVague
+        ? "too vague fallback"
+        : "auto-generating";
 
   return (
     <AdminPageShell
@@ -82,6 +105,41 @@ export default async function ProductWorkspacePage({
         </div>
       </AdminSectionCard>
 
+      {/* Routing source — shows the admin (esp. when testing by hand) whether
+          the system reached this page via deterministic/regex routing or an LLM
+          fallback, where the objective came from, and the brief status. */}
+      <AdminSectionCard ariaLabel="Routing source" title="Routing source">
+        <dl className="grid grid-cols-1 gap-x-8 gap-y-2 p-5 text-xs sm:grid-cols-2">
+          <div className="flex items-baseline gap-3">
+            <dt className="ct-bento-label w-32 shrink-0">Routing</dt>
+            <dd className="text-[var(--ct-accent)]">
+              {intentKind && INTENT_LABEL[intentKind]
+                ? INTENT_LABEL[intentKind]
+                : "deterministic product intent"}{" "}
+              <span className="text-[var(--ct-text-tertiary)]">
+                (no LLM used to route)
+              </span>
+            </dd>
+          </div>
+          <div className="flex items-baseline gap-3">
+            <dt className="ct-bento-label w-32 shrink-0">Objective source</dt>
+            <dd className="text-[var(--ct-text-secondary)]">
+              {autostart ? "cockpit chat" : objective ? "manual / refresh" : "—"}
+            </dd>
+          </div>
+          <div className="flex items-baseline gap-3">
+            <dt className="ct-bento-label w-32 shrink-0">Brief status</dt>
+            <dd className="text-[var(--ct-text-secondary)]">{briefStatus}</dd>
+          </div>
+          <div className="flex items-baseline gap-3">
+            <dt className="ct-bento-label w-32 shrink-0">Projection handoff</dt>
+            <dd className="text-[var(--ct-text-secondary)]">
+              {objective ? "available (context-only)" : "objective required"}
+            </dd>
+          </div>
+        </dl>
+      </AdminSectionCard>
+
       <AdminSectionCard
         ariaLabel="Agent framing brief"
         title={<span id="pw-agent-brief-heading">Agent framing brief</span>}
@@ -98,28 +156,43 @@ export default async function ProductWorkspacePage({
       {/* Handoff CTA — the next step is Projection, where the admin reviews the
           configured assumptions and runs the study MANUALLY. This link never
           runs a study, creates a vault, or promotes a draft: it only carries the
-          objective so Projection can show a context block. When no objective was
-          received the CTA is disabled with an honest message. */}
+          objective so Projection can show a context block. The label is HONEST
+          about brief readiness: a ready brief gets "Continue to Projection"; a
+          vague/failed brief gets "Continue anyway" + a note that the projection
+          will need manual assumptions with no prefilled numbers. */}
       <AdminSectionCard
         ariaLabel="Continue to Projection"
         title="Next step — Projection"
       >
         <div className="flex flex-col gap-3 p-5">
           <p className="ct-metric-caption leading-relaxed">
-            Admin only · manual run required · projection, not guaranteed.
-            Continue to Projection to review the configured assumptions, then run
-            the study yourself. Nothing runs from this page.
+            No run is created from this page. Projection requires manual admin
+            review.
           </p>
           {objective ? (
-            <Link
-              href={`/admin/projection?objective=${encodeURIComponent(objective)}&from=product-workspace`}
-              className={cn(
-                cockpitButtonVariants({ variant: "primary", size: "lg" }),
-                "self-start",
-              )}
-            >
-              Continue to Projection
-            </Link>
+            <>
+              {quality.tooVague && !initialBrief ? (
+                <p className="body-xs ct-text-muted">
+                  Projection will require manual assumptions. No numbers will be
+                  prefilled.
+                </p>
+              ) : null}
+              <Link
+                href={`/admin/projection?objective=${encodeURIComponent(objective)}&from=product-workspace`}
+                className={cn(
+                  cockpitButtonVariants({
+                    variant:
+                      quality.tooVague && !initialBrief ? "secondary" : "primary",
+                    size: "lg",
+                  }),
+                  "self-start",
+                )}
+              >
+                {quality.tooVague && !initialBrief
+                  ? "Continue anyway"
+                  : "Continue to Projection"}
+              </Link>
+            </>
           ) : (
             <span
               aria-disabled="true"
