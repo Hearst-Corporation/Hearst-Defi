@@ -12,6 +12,16 @@ import "server-only";
  * the draft's effects are all suppressed and the floor is asserted before the
  * draft is returned. Nothing is sent, deployed, marked-live, or written
  * custodially; the admin reviews the draft and runs everything manually.
+ *
+ * Two D-stage paths:
+ *   • withScenarios=false (default): a single main runQuant is run with the
+ *     allocator-derived balanced miningFraction as an override. draft.quant comes
+ *     from this run (3 MC calls total: A+B+C+D=1).
+ *   • withScenarios=true: three runQuant calls are made (one per regime, seeds
+ *     seed+0/+1/+2). The BALANCED scenario's quant artifact is reused as
+ *     draft.quant (the default headline), so draft.quant and the "balanced" card
+ *     in draft.scenarios always show the SAME headlineRange — there is NO
+ *     separate independent main runQuant in this path.
  */
 
 import { inferVault } from "@/lib/llm/product-chat-stream";
@@ -65,11 +75,13 @@ export interface PipelineOptions {
   /** Skip the LLM write-up and use the deterministic one (faster / no LLM cost). */
   deterministicWriteupOnly?: boolean;
   /**
-   * When true, additionally run the 3-scenario orchestration (defensive /
-   * balanced / opportunistic) using the REAL allocator-derived mining weights
-   * and populate `draft.scenarios` + `draft.steps`. Data is fetched ONCE and
-   * shared; MC runs 3×. The balanced scenario's quant artifact is used for
-   * `draft.quant` (the default headline).
+   * When true, run the 3-scenario orchestration (defensive / balanced /
+   * opportunistic) using REAL allocator-derived mining weights. Data is fetched
+   * ONCE and shared; MC runs exactly 3× (one per regime, seeds seed+0/+1/+2).
+   * The BALANCED scenario's quant artifact is DIRECTLY used as `draft.quant`
+   * (no extra independent runQuant call). This guarantees that the Projection
+   * headline and the balanced scenario card show the SAME headlineRange.
+   * Populates `draft.scenarios` + `draft.steps`.
    */
   withScenarios?: boolean;
 }
@@ -118,43 +130,27 @@ export async function runProductConstructionPipeline(
   audit.push(strategy.audit);
 
   // D · quant Monte-Carlo (seeded from objective + spot).
-  // When withScenarios is requested we derive the balanced allocation first and
-  // use its miningFraction as the override so the MAIN quant also uses the real
-  // strategy weight rather than the hardcoded 0.6 assumption default.
   const seed = deriveSeed(trimmed, market.btcUsd);
 
-  // Balanced allocation (always derived — used for the main quant even outside
-  // the full 3-scenario path so the default pipeline benefits from the fix too).
-  const balancedAllocation = deriveRegimeAllocation({
-    regime: "balanced",
-    miningYieldPct: strategy.artifact.miningYieldPct,
-    usdcYieldPct: strategy.artifact.usdcYieldPct,
-  });
+  // Two paths for the D stage:
+  //
+  //  withScenarios=false (default): run a single main runQuant with the
+  //  allocator-derived balanced miningFraction so the pipeline uses the real
+  //  strategy weight rather than the hardcoded 0.6 assumption default.
+  //
+  //  withScenarios=true: run 3 regime quants (defensive/balanced/opportunistic,
+  //  seeds seed+0/+1/+2). The BALANCED scenario's quant is then reused as
+  //  draft.quant — no extra independent runQuant is issued, so draft.quant
+  //  and the balanced scenario card always carry the SAME headlineRange.
 
-  const quant = runQuant({
-    seed,
-    market: {
-      btcUsd: market.btcUsd,
-      difficulty: market.difficulty,
-      hashpriceUsdPerThDay: market.hashpriceUsdPerThDay,
-    },
-    strategy: {
-      miningYieldPct: strategy.artifact.miningYieldPct,
-      usdcYieldPct: strategy.artifact.usdcYieldPct,
-      headlineApy: strategy.artifact.headlineApy,
-    },
-    telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
-    assumptions,
-    // Key fix: replace the hardcoded 0.6 with the allocator-derived weight.
-    miningWeightOverride: balancedAllocation.miningFraction,
-  });
-  audit.push(quant.audit);
+  const REGIMES: VaultMode[] = ["defensive", "balanced", "opportunistic"];
 
-  // 3-scenario orchestration (optional — data already fetched; MC runs 3×).
+  let quantArtifact: ReturnType<typeof runQuant>["artifact"];
   let scenarios: ScenarioResult[] | undefined;
+
   if (opts.withScenarios) {
-    const REGIMES: VaultMode[] = ["defensive", "balanced", "opportunistic"];
-    scenarios = REGIMES.map((regime) => {
+    // 3-scenario path: MC runs exactly 3× (one per regime).
+    const scenarioResults = REGIMES.map((regime) => {
       const allocation = deriveRegimeAllocation({
         regime,
         miningYieldPct: strategy.artifact.miningYieldPct,
@@ -195,21 +191,59 @@ export async function runProductConstructionPipeline(
         miningProfitable: allocation.miningProfitable,
         governanceException: allocation.governanceException,
       };
-      return result;
+      return { result, regimeQuant };
     });
+
+    scenarios = scenarioResults.map(({ result }) => result);
+
+    // Identify the balanced scenario by name (not by hardcoded index) so this
+    // is robust if the REGIMES order ever changes.
+    const balancedEntry = scenarioResults.find(({ result }) => result.regime === "balanced");
+    // balancedEntry is always defined: REGIMES contains "balanced". The non-null
+    // assertion is safe; tsc strict mode is satisfied by the fallback.
+    quantArtifact = balancedEntry!.regimeQuant.artifact;
+
+    // Push the audit entry for the quant stage using the balanced run's audit.
+    audit.push(balancedEntry!.regimeQuant.audit);
+  } else {
+    // Single-quant path (default): derive balanced allocation and run once.
+    const balancedAllocation = deriveRegimeAllocation({
+      regime: "balanced",
+      miningYieldPct: strategy.artifact.miningYieldPct,
+      usdcYieldPct: strategy.artifact.usdcYieldPct,
+    });
+    const quant = runQuant({
+      seed,
+      market: {
+        btcUsd: market.btcUsd,
+        difficulty: market.difficulty,
+        hashpriceUsdPerThDay: market.hashpriceUsdPerThDay,
+      },
+      strategy: {
+        miningYieldPct: strategy.artifact.miningYieldPct,
+        usdcYieldPct: strategy.artifact.usdcYieldPct,
+        headlineApy: strategy.artifact.headlineApy,
+      },
+      telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
+      assumptions,
+      // Use the allocator-derived weight rather than the hardcoded 0.6 default.
+      miningWeightOverride: balancedAllocation.miningFraction,
+    });
+    audit.push(quant.audit);
+    quantArtifact = quant.artifact;
   }
 
   // E · charts (pure mapping).
   const charts = runCharts({
     strategy: strategy.artifact,
-    quant: quant.artifact,
+    quant: quantArtifact,
   });
   audit.push({
     stageId: "charts",
     mode: "live_read",
     ok: true,
     reasonCode: "charts_ok",
-    provenance: quant.artifact.provenance,
+    provenance: quantArtifact.provenance,
     degraded: false,
   });
 
@@ -219,7 +253,7 @@ export async function runProductConstructionPipeline(
     objective: trimmed,
     vaultLabel: vault.label,
     strategy: strategy.artifact,
-    quant: quant.artifact,
+    quant: quantArtifact,
     market: {
       btcUsd: market.btcUsd,
       hashpriceUsdPerThDay: market.hashpriceUsdPerThDay,
@@ -266,7 +300,7 @@ export async function runProductConstructionPipeline(
       defiApyMedianPct: market.defiApyMedianPct,
     },
     strategy: strategy.artifact,
-    quant: quant.artifact,
+    quant: quantArtifact,
     assumptions,
     charts: charts.charts,
     writeup: writeup.artifact,
