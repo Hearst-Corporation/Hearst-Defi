@@ -27,8 +27,13 @@ export interface HcValueChartProps {
   "aria-label": string;
 }
 
-const VIEW_W = 720;
-const PAD = { top: 12, right: 12, bottom: 22, left: 44 } as const;
+// Wide viewBox so the SVG's intrinsic aspect ratio is close to the rendered
+// (wide) container — keeps the preserveAspectRatio="none" horizontal stretch
+// modest, so the curve isn't flattened and the area's right edge isn't a
+// disproportionate vertical wall. Right padding gives the end cap room to
+// breathe instead of touching the frame.
+const VIEW_W = 1600;
+const PAD = { top: 12, right: 28, bottom: 22, left: 44 } as const;
 
 function defaultValueFormat(n: number): string {
   const abs = Math.abs(n);

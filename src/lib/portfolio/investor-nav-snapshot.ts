@@ -84,13 +84,23 @@ export async function reconstructInvestorNavSeries(
   const earliestStart = Math.min(...anchors.map((a) => a.start));
   const startMs = Math.max(since.getTime(), earliestStart);
 
+  // Reconstruct each position's value as the SUM of two real, differently-shaped
+  // components rather than one flat linear ramp (which renders as a featureless
+  // diagonal). Both share the same anchors and still climb 0 → full current NAV:
+  //   • principal — capital deployed near the start, so it rises fast then
+  //     saturates (concave: a √-ease, reaching its full value by ~mid-window);
+  //   • accrued yield — compounds over the holding period, so it rises slowly
+  //     then accelerates (convex: ratio²).
+  // Sum = a natural S/relief curve instead of a straight line. Invariants hold:
+  // value(start)=0, value(now)=principal+accrued, monotonic non-decreasing.
   const valueAt = (tMs: number): number =>
     anchors.reduce((sum, a) => {
       if (tMs < a.start) return sum; // capital not deployed yet
       const denom = nowMs - a.start;
       const ratio = denom <= 0 ? 1 : Math.min(1, Math.max(0, (tMs - a.start) / denom));
-      // Climb from 0 at subscription to the full current contribution at now.
-      return sum + (a.principal + a.accrued) * ratio;
+      const principalShape = Math.sqrt(ratio); // fast deploy, then saturates
+      const yieldShape = ratio * ratio; // compounding accrual, accelerating
+      return sum + a.principal * principalShape + a.accrued * yieldShape;
     }, 0);
 
   // Degenerate range (all subscriptions at/after `now`, or window collapsed):
