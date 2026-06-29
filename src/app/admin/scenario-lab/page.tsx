@@ -1,6 +1,9 @@
 export const dynamic = "force-dynamic";
 
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { LabShell } from "@/components/scenario/lab-shell";
 import { MonteCarloPanel } from "@/components/scenario/monte-carlo-panel";
 import { prisma } from "@/lib/db";
@@ -68,28 +71,39 @@ export default async function ScenarioLabPage({
   }
 
   return (
-    // LabShell is ONE flat Card holding tabs + inputs + result; MonteCarloPanel
-    // is its own panel. Both are self-contained surfaces → dropped straight
-    // into the page shell, no extra card wrapper (anti-cage). The legacy
-    // scenario-lab-page* classes (now layout no-ops) ride on the shell box.
+    // Canon start pattern (#051): the first content block reads as a welded
+    // AdminSectionCard. LabShell is ONE flat Card that is itself the page's
+    // single surface — wrapping it as-is would stack two identical surface-card
+    // borders (textbook cage-in-cage). So we use a TITLE-ONLY card AND strip the
+    // inner `.scenario-lab-box` surface (border/rounding/shadow/own padding) via
+    // a page-boundary className, so only the canon AdminSectionCard frame shows
+    // and the lab body sits flush inside it. LabShell itself is NOT edited.
+    // MonteCarloPanel keeps its own surface below. The legacy scenario-lab-page*
+    // classes (now layout no-ops) ride on the shell box.
     <AdminPageShell
       titleLead="Scenario"
       titleAccent="Lab"
       contextLabel={`Strategy · ${vault.ticker}`}
       className="scenario-lab-page scenario-lab-page--fit"
     >
-      <LabShell
-        vaultId={vaultId}
-        initialInputs={liveInputs}
-        initialObjective={objective}
-        autostart={autostart}
-        liveBtcPrice={liveBtcPrice}
-        stableYield={{
-          source: stableYieldSource,
-          apyPct: liveInputs?.stable_apy_pct,
-          fallbackReason: stableYieldFallbackReason,
-        }}
-      />
+      <AdminSectionCard
+        ariaLabel="Scenario lab"
+        title="Scenario lab"
+        className="[&_.scenario-lab-box]:rounded-none [&_.scenario-lab-box]:border-0 [&_.scenario-lab-box]:shadow-none [&_.scenario-lab-box]:bg-transparent"
+      >
+        <LabShell
+          vaultId={vaultId}
+          initialInputs={liveInputs}
+          initialObjective={objective}
+          autostart={autostart}
+          liveBtcPrice={liveBtcPrice}
+          stableYield={{
+            source: stableYieldSource,
+            apyPct: liveInputs?.stable_apy_pct,
+            fallbackReason: stableYieldFallbackReason,
+          }}
+        />
+      </AdminSectionCard>
 
       {FEATURE_FLAGS.ENABLE_MONTE_CARLO ? <MonteCarloPanel /> : null}
     </AdminPageShell>

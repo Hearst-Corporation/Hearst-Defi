@@ -1,11 +1,11 @@
 {
   "meta": {
-    "mission": "050",
+    "mission": "051",
     "generatedAt": "2026-06-29",
-    "head": "dadcbb7d",
-    "originMain": "dadcbb7d",
-    "status": "100% CATALYST — VERIFIED & CI-LOCKED",
-    "lastPR": "Mission #050 — Catalyst 100% hardening verification (fix/catalyst-100-clean)",
+    "head": "fix/admin-visual-canon",
+    "originMain": "a6777abc",
+    "status": "100% TOKENIZED — EVERYWHERE",
+    "lastPR": "Mission #051 — admin visual start pattern welded on /admin/customers canon (fix/admin-visual-canon)",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -1060,6 +1060,20 @@
       "date": "2026-06-29",
       "ref": "Mission #050 — Catalyst 100% Hardening (verification pass)",
       "note": "Re-verified the Catalyst convergence at origin/main dadcbb7d. The repo is ALREADY at 100% Catalyst — lots 8–15 (#049) + authority lock (#037) completed every objective this lot meant to harden. src/components/ui sealed to the 3 sanctioned non-visual helpers (provenance-badge + toaster + client-toaster); 0 autonomous visual components; all UI consumers import src/components/catalyst directly. Both guards re-run GREEN: ds-hardcode-guard (0 hits) + ds-convergence-guard (6 rules, 0 hits), CI-enforced (#207). No new tokenization/deletions/guards warranted — requested guards already exist and pass, requested purge already done, residual raw values are the documented intentional keeps. Doc-only update of cartography HEAD/mission pointer + this log entry. #146 untouched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #051 — Admin Visual Start Pattern",
+      "note": "Premier bloc admin uniformisé sur le canon /admin/customers (wrap-safe AdminSectionCard / AdminKpiStripPanel embedded). KPI soudés (monitoring, governance, signals), bare grids encadrés (source, proofs), shells custom wrappés (roadmap, memo, projection, preview, scenario-lab), detail first-block normalisé (agents/[id], customers/[id], vaults/[id] via vault-admin-kpi-strip), forms encadrés. Aucun refacto interne / engine / charts / server-action. Guard admin-canon-start-pattern ajouté (50 tests)."
     }
-  ]
+  ],
+  "adminVisualCanon": {
+    "canonTool": "AdminSectionCard (= the welded section of /admin/customers)",
+    "guard": "src/app/admin/__tests__/admin-canon-start-pattern.test.ts",
+    "counts": { "compliant": 19, "adjusted": 14, "leftIntentional": 3, "exempted": 7 },
+    "compliant": ["audit", "onboarding-test", "agents", "agents/new", "governance/propose", "governance/proposal/[id]", "vaults", "vaults/[id]", "outreach", "outreach/compose", "outreach/[campaignId]", "outreach/prospects/[id]", "product-workspace", "spec", "spec/[slug]", "feedback", "marketplace", "design-system", "customers (canon ref)"],
+    "adjusted": ["monitoring (KPI soldered)", "governance (KPI soldered)", "signals (KPI soldered)", "source (bare grid framed)", "proofs (bare section framed)", "roadmap (RoadmapBoard wrapped)", "investor-memo (MemoShell wrapped)", "projection (source-truth wrapped)", "projection/preview (report-source wrapped)", "scenario-lab (LabShell wrapped, inner frame neutralized)", "agents/[id] (BentoPanel->AdminSectionCard)", "customers/[id] (identity->AdminSectionCard)", "vaults/[id]/edit (VaultForm framed)", "vault-admin-kpi-strip (welded into one canon card)"],
+    "leftIntentional": ["security (two welded AdminSectionCards, no outer frame)", "governance/allowlist (AllowlistBoard = framed BentoPanels; wrap would cage-in-cage)", "distributions (DistributionForm renders its own canon Card)"],
+    "exempted": ["dashboard (cockpit)", "/admin (redirect)", "proof-center", "proof-center/full", "agent-canvas/[canvasId]", "vaults/new (wizard)", "agentic (covered by PR #81)"]
+  }
 }

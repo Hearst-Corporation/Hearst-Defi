@@ -1,6 +1,5 @@
 import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
 import { Button } from "@/components/catalyst/button";
 import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
@@ -61,11 +60,10 @@ export default async function GovernancePage({ searchParams }: PageProps) {
         </Button>
       }
     >
-      {governanceKpis.length > 0 ? (
-        <AdminKpiStripPanel kpis={governanceKpis} />
-      ) : null}
-
       <AdminSectionCard
+        kpis={governanceKpis.length > 0 ? governanceKpis : undefined}
+        kpiTitle="Governance"
+        kpiSubtitle="Multisig action queue"
         ariaLabel="Proposal queue"
         title="Governance proposals"
         subtitle="Multisig action queue · sign, timelock, execute"

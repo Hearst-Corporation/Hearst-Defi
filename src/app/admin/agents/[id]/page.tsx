@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { AgentTemplateForm } from "@/components/admin/agent-template-form";
-import { BentoPanel } from "@/components/catalyst/bento";
 import { loadAgentTemplate } from "@/lib/data/agent-templates";
 
 export const dynamic = "force-dynamic";
@@ -36,11 +35,11 @@ export default async function EditAgentTemplatePage({
         </Link>
       }
     >
-      <BentoPanel aria-label="Edit template">
+      <AdminSectionCard ariaLabel="Edit template" title="Template profile">
         <div className="p-5 lg:p-6">
           <AgentTemplateForm template={template} />
         </div>
-      </BentoPanel>
+      </AdminSectionCard>
     </AdminPageShell>
   );
 }

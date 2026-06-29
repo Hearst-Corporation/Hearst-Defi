@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/catalyst/badge";
 import { BentoPanel } from "@/components/catalyst/bento";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
@@ -18,7 +18,6 @@ import { MemoryManager } from "@/components/admin/customer/memory-manager";
 import { loadCustomerDetail } from "@/lib/data/customer-detail";
 import {
   AdminDetailSection,
-  AdminDetailGrid,
   AdminDetailItem,
 } from "@/components/admin/admin-detail-layout";
 import { AdminTable } from "@/components/admin/admin-table-layout";
@@ -52,6 +51,11 @@ const QUAL_SOURCE_LABEL: Record<string, string> = {
 // Tokenized table-cell classes (canon roles) — no inline text-[Npx]/text-zinc-*.
 const CELL = "px-5 py-3 ct-metric-caption";
 const CELL_STRONG = "px-5 py-3 ct-metric-value";
+
+// Detail grid inside a welded card body — prospects/[id] canon (items-start so
+// short fields never stretch to match the tall full-width ones).
+const DETAIL_GRID =
+  "grid grid-cols-1 items-start gap-x-8 gap-y-5 p-5 md:grid-cols-2";
 
 export default async function CustomerDetailPage({
   params,
@@ -89,9 +93,11 @@ export default async function CustomerDetailPage({
       }
     >
 
-          {/* Identity + positions */}
-          <AdminDetailSection label="Identity" title="Investor profile">
-            <AdminDetailGrid>
+          {/* Identity — canon welded card (prospects/[id] pattern): a <dl> grid
+              body, with the account sign-in row as a soft inset (anti cage-in-cage,
+              not a second full panel surface). */}
+          <AdminSectionCard ariaLabel="Investor profile" title="Investor profile">
+            <dl className={DETAIL_GRID}>
               <AdminDetailItem label="Email">
                 <span className="font-medium text-[var(--ct-text-strong)]">
                   {detail.email}
@@ -106,9 +112,9 @@ export default async function CustomerDetailPage({
               <AdminDetailItem label="Joined">
                 {formatAdminDate(detail.joinedAt)}
               </AdminDetailItem>
-            </AdminDetailGrid>
-            <BentoPanel className="p-5">
-              <div className="flex flex-col gap-3">
+            </dl>
+            <div className="px-5 pb-5">
+              <div className="flex flex-col gap-3 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4">
                 <p className="ct-metric-caption m-0 leading-relaxed">
                   Account sign-in. Auto-created and admin-provisioned investors start
                   with no usable password — they log in via a one-time activation
@@ -117,8 +123,8 @@ export default async function CustomerDetailPage({
                 </p>
                 <ActivationLinkButton investorId={detail.investorId} />
               </div>
-            </BentoPanel>
-          </AdminDetailSection>
+            </div>
+          </AdminSectionCard>
 
           <AdminDetailSection label="Positions" title={`Vault positions (${detail.positions.length})`}>
             {detail.positions.length === 0 ? (

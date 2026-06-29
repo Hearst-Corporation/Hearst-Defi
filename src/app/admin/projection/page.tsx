@@ -1,4 +1,7 @@
-import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import {
+  AdminPageShell,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { ProjectionHandoff } from "@/components/admin/projection/projection-handoff";
 import { ProjectionSourceSummary } from "@/components/admin/projection/source-truth-badge";
 import { loadSourceTruthSummary } from "@/lib/projection/source-truth-summary";
@@ -39,19 +42,25 @@ export default async function ProjectionPage({
   const objective = sanitizeObjective(params.objective);
 
   return (
-    // Source-truth summary (own banner surface) + ProjectionStudio (own
-    // BentoPanels) stack directly under the canon shell. No extra card wrapper
-    // around either → no card-in-card (anti-cage).
+    // Canon start pattern (#051): the FIRST content block (optional handoff +
+    // source-truth summary) reads as a welded AdminSectionCard. The summary +
+    // handoff are self-contained inset surfaces → they nest as the card body
+    // (surface-card frame → inset rows), the canon card→inset relationship, not
+    // a double frame. ProjectionStudio keeps its own surface below.
     <AdminPageShell
       titleLead="Engine"
       titleAccent="Projection"
       contextLabel="Strategy"
     >
-      {fromWorkspace ? (
-        <ProjectionHandoff objective={objective ?? null} />
-      ) : null}
+      <AdminSectionCard ariaLabel="Source truth" title="Source truth">
+        <div className="flex flex-col gap-5 p-5">
+          {fromWorkspace ? (
+            <ProjectionHandoff objective={objective ?? null} />
+          ) : null}
 
-      <ProjectionSourceSummary summary={sourceTruth} />
+          <ProjectionSourceSummary summary={sourceTruth} />
+        </div>
+      </AdminSectionCard>
 
       <ProjectionStudio />
     </AdminPageShell>
