@@ -5,6 +5,7 @@
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { DiagnosticCenter } from "@/components/admin/diagnostics/diagnostic-center";
+import { DiagnosticFlowTheater } from "@/components/admin/diagnostics/diagnostic-flow-theater";
 import type { DiagnosticSuiteResult } from "@/lib/admin/diagnostics/types";
 import {
   DIAGNOSTIC_SUITES,
@@ -42,8 +43,18 @@ export default async function AdminDiagnosticsPage() {
       contextLabel="dry-run · real runtime probes · no writes, no email"
     >
       <AdminSectionCard
+        title="Live flow theater"
+        subtitle="Watch a prompt travel the chat — router → gates → action, refusal or HITL — then press “Run live” to fire the real suite endpoint and see the actual result."
+        ariaLabel="Live flow theater"
+      >
+        <div className="p-5">
+          <DiagnosticFlowTheater />
+        </div>
+      </AdminSectionCard>
+
+      <AdminSectionCard
         title="Flow health"
-        subtitle="Real dry-run checks for Chat, Projection, Outreach, Vault/HITL and Guards. Nothing here sends email, deploys, or persists a business record."
+        subtitle="Real dry-run checks for Chat, Projection, Outreach, Vault/HITL, Guards and Persistence. Nothing here sends email, deploys, or persists a business record."
         ariaLabel="Flow health"
       >
         <div className="p-5">
