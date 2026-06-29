@@ -14,14 +14,22 @@ import { env } from "@/lib/env";
  * paraphrase-robust compliance detection.
  *
  * Token resolution precedence: HF_TOKEN ?? HUGGINGFACE_API_KEY. Configuration
- * is sourced exclusively from the validated env (`@/lib/env`). There are NO
- * silent placeholder fallbacks — a missing token either throws at import
- * (normal runtime) or, only during `next build`
- * (NEXT_PHASE === "phase-production-build"), yields a stub that throws on first
- * use so route static analysis still succeeds. Same contract as `openai.ts`.
+ * is sourced exclusively from the validated env (`@/lib/env`). HF is OPTIONAL
+ * (env marks both names `.optional()`): the semantic guard is a best-effort
+ * second screen that fails open when HF is unavailable (`HF_AVAILABLE` / the
+ * try-catch in `semantic-guard.ts`). So a missing token throws at import only at
+ * NORMAL RUNTIME (to surface a real prod misconfiguration). During `next build`
+ * (NEXT_PHASE === "phase-production-build") OR under test (NODE_ENV === "test",
+ * e.g. Vitest with no HF secret) it yields a stub that throws on first USE — the
+ * module loads, `HF_AVAILABLE` stays false, and every importer (chat-agent,
+ * route guards, …) degrades gracefully instead of crashing at load. Same
+ * deferral contract as `openai.ts`.
  */
 
 const IS_BUILD_PHASE = process.env.NEXT_PHASE === "phase-production-build";
+/** Vitest/CI without an HF secret: defer the missing-token error to first use so
+ *  module import succeeds and the fail-open semantic guard can skip HF. */
+const IS_TEST = process.env.NODE_ENV === "test";
 
 /** Resolved HF token, or null when neither env var is set. */
 const HF_TOKEN_RESOLVED: string | null =
@@ -53,7 +61,7 @@ function createHuggingFaceClient(): InferenceClient {
     const reason =
       "HF_TOKEN (or HUGGINGFACE_API_KEY) is not configured. Set it in the " +
       "environment to use Hugging Face inference features.";
-    if (IS_BUILD_PHASE) {
+    if (IS_BUILD_PHASE || IS_TEST) {
       return buildPlaceholderClient(reason);
     }
     throw new Error(reason);

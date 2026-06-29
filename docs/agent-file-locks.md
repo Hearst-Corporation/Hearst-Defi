@@ -62,25 +62,25 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-### feat/projection-methodology-panel
-Owner: Claude Opus — MISSION HC-7631 follow-up (methodology panel)
-Branch: feat/projection-methodology-panel
+### fix/vitest-hf-load-deferral
+Owner: Claude Opus — CI Vitest green-up (HF load deferral)
+Branch: fix/vitest-hf-load-deferral
 Worktree: principal (integration tree)
 Started: 2026-06-29
 Status: active
 
-Goal: surface the CONFIGURED company assumptions + methodology version inside the
-Projection handoff block (read-only) so the admin reviews them before Run Study.
-Pure view-model reading getProjectionCompanyAssumptions — NO LLM, NO fetch, NO DB,
-NO business number invented, NO slider prefill, NO auto-run.
+Goal: stop huggingface.ts from throwing at import when no HF token is set under
+test (NODE_ENV=test), so CI Vitest stops crashing the 3 semantic-guard importer
+suites (chat-agent ×2 + route.guard) at "0 test". Defers the missing-token error
+to first USE (like openai.ts + the existing build-phase path). HF stays optional
+and fail-open; HF_AVAILABLE=false makes semantic-guard skip HF cleanly.
 
 Scope:
-- src/lib/projection/methodology-panel.ts (new pure view-model)
-- src/components/admin/projection/projection-handoff.tsx (render the panel)
-- tests under src/lib/projection/__tests__ + src/app/admin/projection/__tests__
+- src/lib/llm/huggingface.ts (IS_TEST → placeholder instead of throw at load)
+- src/lib/llm/__tests__/huggingface-test-deferral.test.ts (new guard test)
 
-STOP: never touches engine/data/telegram/prisma/portfolio/payments/vaults/outreach/
-chat-guard/cockpit.css. Never invents a business number. Never adds an auto-run.
+STOP: never touches engine/data/prisma/portfolio/vaults/outreach/chat-guard. Does
+NOT fix the 5 remaining red DS/onboarding/nav tests (out of scope, their owners').
 
 ---
 
