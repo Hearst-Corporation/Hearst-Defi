@@ -24,6 +24,8 @@ export interface HcChartCardProps {
   subtitle?: string;
   /** Headline value, already formatted (e.g. "9.4–12.8%"). */
   metric?: string;
+  /** Render the headline value smaller + tighter (lets the plot breathe). */
+  metricCompact?: boolean;
   /** Signed delta chip, already formatted (e.g. "+2.1%"). */
   delta?: { label: string; tone: "positive" | "negative" | "neutral" };
   source?: HcSourceStatus;
@@ -48,6 +50,7 @@ export function HcChartCard({
   title,
   subtitle,
   metric,
+  metricCompact = false,
   delta,
   source,
   state = "ready",
@@ -110,11 +113,16 @@ export function HcChartCard({
       </header>
 
       {(metric || delta) && (
-        <div className="flex items-baseline gap-3" style={{ marginTop: "var(--ct-space-3)" }}>
+        <div
+          className="flex items-baseline gap-3"
+          style={{ marginTop: metricCompact ? "var(--ct-space-1)" : "var(--ct-space-3)" }}
+        >
           {metric && (
             <span
               style={{
-                fontSize: "var(--ct-text-display-fixed)",
+                fontSize: metricCompact
+                  ? "var(--ct-text-xl)"
+                  : "var(--ct-text-display-fixed)",
                 fontWeight: 800,
                 fontVariantNumeric: "tabular-nums",
                 letterSpacing: "-0.02em",
