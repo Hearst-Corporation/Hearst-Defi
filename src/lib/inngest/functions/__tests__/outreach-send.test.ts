@@ -20,6 +20,7 @@ const isSuppressedMock = vi.fn<(email: string) => Promise<boolean>>(async () => 
 const emailFindManyMock = vi.fn<() => Promise<unknown[]>>(async () => []);
 const emailUpdateMock = vi.fn(async () => ({}));
 const campaignUpdateMock = vi.fn(async () => ({}));
+const auditCreateMock = vi.fn(async (_args: { data: { action: string; entityType: string; entityId: string; diff: string } }) => ({}));
 
 vi.mock("@/lib/email/send", () => ({
   sendTrackedEmail: sendTrackedEmailMock,
@@ -38,6 +39,7 @@ vi.mock("@/lib/db", () => ({
   prisma: {
     outreachEmail: { findMany: emailFindManyMock, update: emailUpdateMock },
     outreachCampaign: { update: campaignUpdateMock },
+    adminAudit: { create: auditCreateMock },
   },
 }));
 
@@ -166,6 +168,22 @@ describe("outreachSendHandler — campaign fan-out", () => {
     expect(campaignUpdateMock).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: "sent" }) }),
     );
+    // The block is audited: action outreach.blockedSend, channel campaign_fanout,
+    // reason forbidden_words, with the matched terms — and NEVER the email body.
+    expect(auditCreateMock).toHaveBeenCalledTimes(1);
+    const auditArg = auditCreateMock.mock.calls[0]![0];
+    expect(auditArg.data.action).toBe("outreach.blockedSend");
+    expect(auditArg.data.entityType).toBe("OutreachEmail");
+    expect(auditArg.data.entityId).toBe("email_bad");
+    const diff = JSON.parse(auditArg.data.diff) as {
+      after: { reason: string; channel: string; campaignId: string; found: string[] };
+    };
+    expect(diff.after.reason).toBe("forbidden_words");
+    expect(diff.after.channel).toBe("campaign_fanout");
+    expect(diff.after.campaignId).toBe("camp_1");
+    expect(Array.isArray(diff.after.found)).toBe(true);
+    // Privacy: the full email body must never be persisted in the audit diff.
+    expect(auditArg.data.diff).not.toContain("This is risk-free, returns are guaranteed.");
   });
 
   it("a forbidden word in the SUBJECT alone also blocks the send", async () => {
