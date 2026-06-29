@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/admin-page-shell";
 import { AgentGraphCanvas } from "@/components/admin/agents/agent-graph-canvas";
 import { Badge } from "@/components/catalyst/badge";
+import { BentoBadge } from "@/components/catalyst/bento-badge";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import {
   Table,
@@ -141,15 +142,11 @@ export default async function AgentsPage() {
                               <Icon className="size-6" strokeWidth={2} />
                             </span>
                             <span className="flex-1" />
-                            <span
-                              className={
-                                entry.scope === "platform"
-                                  ? "ct-bento-label inline-flex items-center rounded-md border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 text-[var(--ct-accent)]"
-                                  : "ct-bento-label inline-flex items-center rounded-md border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-2 py-0.5"
-                              }
+                            <BentoBadge
+                              variant={entry.scope === "platform" ? "accent" : "default"}
                             >
                               {entry.scopeLabel}
-                            </span>
+                            </BentoBadge>
                           </div>
 
                           {/* Title + surface */}
