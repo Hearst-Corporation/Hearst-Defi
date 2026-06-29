@@ -156,7 +156,7 @@
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
   <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. <code>src/components/ui</code> is sealed to 3 non-visual helpers; <code>src/components/catalyst</code> is the single UI source. Mission #050 re-verified the convergence at <code>dadcbb7d</code>: both DS guards green, no new work warranted.</p>
   <div class="meta-row">
-    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #051 (admin start pattern)</span>
+    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #055 (admin visual frame) · <code>min-w-0</code> crop fix</span>
     <span class="chip"><b>head</b> <code>fix/admin-visual-canon</code> · status <code>100% TOKENIZED</code></span>
     <span class="chip"><span class="dot green"></span><b>#051</b> admin start pattern · <code>AdminSectionCard</code> canon</span>
     <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 27)</span>
@@ -527,10 +527,48 @@
   <p class="note">Keep this file updated at each DS lot: re-run the 7-agent cartography, refresh the JSON, append an event here.</p>
 </section>
 
+<section id="admin-visual-frame">
+  <div class="sec-head"><span class="sec-num">05c</span><h2>Admin Visual Frame Unification</h2></div>
+  <p class="lead"><b>Mission #055</b> closed the gap the screenshots exposed: the admin pages were already on the <code>AdminPageShell</code> + <code>AdminSectionCard</code> grammar (#051/#054), yet they did <b>not look the same</b> — wide tables cropped on the right, the frame width jumped when the chat rail opened, and forms read as isolated slabs. <b>Root cause = the flexbox <code>min-width:auto</code> default</b>: an <code>AdminSectionCard</code> is a flex item, so without <code>min-w-0</code> it refuses to shrink below its widest child's intrinsic width — a wide Catalyst table then pushes the whole frame past the content slot and crops. The fix is at the <b>shared primitive</b>, so it lands on every admin page at once: <code>min-w-0</code> on the page frame and on every section card, plus a named CSS contract (<code>admin-canon-page-frame</code>, <code>admin-canon-first-block</code>, <code>admin-canon-table-surface</code>, <code>admin-canon-form-surface</code>) in <code>src/app/admin/admin-canon.css</code>. The Catalyst table already scrolls locally (<code>overflow-x-auto</code>); <code>min-w-0</code> is what lets that scroll engage instead of bleeding the frame. <b>No re-wrap churn, no internal refactor</b> — engine, charts, server-actions, outreach/projection logic untouched.</p>
+
+  <div class="grid g-4" style="margin-bottom:14px">
+    <div class="stat accent"><div class="v">1</div><div class="l">Root-cause fix</div><div class="h">min-w-0 on the shared primitive</div><span class="bar" style="width:100%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--green)">4</div><div class="l">Canon classes</div><div class="h">page-frame · first-block · table · form</div><span class="bar" style="width:80%"></span></div>
+    <div class="stat"><div class="v" style="color:var(--blue)">2</div><div class="l">Form bodies</div><div class="h">feedback + vault edit → form-surface</div></div>
+    <div class="stat"><div class="v" style="color:var(--text-muted)">7</div><div class="l">Exempted</div><div class="h">dashboard cockpit / redirect / custom</div></div>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--ct-accent);font-size:14px">Screenshot issues fixed <span class="b b-active">FRAMED</span></h3>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:var(--text-muted);line-height:1.7">
+        <li><code>customers</code> (Investors) <span class="pill">table no longer crops right; reference stabilized</span></li>
+        <li>frame width <span class="pill">stable with the chat rail open AND closed (min-w-0)</span></li>
+        <li><code>feedback</code> <span class="pill">form body → admin-canon-form-surface (no isolated slab)</span></li>
+        <li><code>vaults/[id]/edit</code> <span class="pill">form body → admin-canon-form-surface</span></li>
+        <li><code>outreach</code> · <code>agents</code> <span class="pill">already welded; inherit the primitive fix</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--text-muted);font-size:14px">Exempted <span class="b b-scope">SCOPE</span></h3>
+      <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px">Kept on their own framing on purpose — listed in the frame guard.</p>
+      <ul style="margin:0;padding-left:16px;font-size:11.5px;color:var(--text-muted);line-height:1.7">
+        <li><code>dashboard</code> <span class="pill">dashboard cockpit</span></li>
+        <li><code>/admin</code> <span class="pill">redirect</span></li>
+        <li><code>proof-center</code> · <code>proof-center/full</code></li>
+        <li><code>agent-canvas/[canvasId]</code></li>
+        <li><code>vaults/new</code> <span class="pill">wizard</span></li>
+        <li><code>agentic</code> <span class="pill">control-tower cockpit · PR #81</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="note"><b>Guard = <code>src/app/admin/__tests__/admin-visual-frame.test.ts</code></b> (Mission #055): locks the canon CSS contract + the primitive's <code>min-w-0</code> so the crop can't silently regress, and lists the frame exemptions. Validation: typecheck green, frame guard + start-pattern + ds-authority-lock + bento contract all green (85 tests), production build OK. The authenticated Playwright sweep (chat rail × viewports) was <b>not</b> run from the fresh worktree — admin pages sit behind a Privy login + admin-role gate with no seeded DB/.env here; the change is a deterministic CSS <code>min-width:0</code> shrink + additive classes (no structural/colour/spacing change to existing content).</p>
+</section>
+
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #051 (admin visual start pattern) · head <code class="mono">fix/admin-visual-canon</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #055 (admin visual frame unification — min-w-0 crop fix on the shared primitive + admin-canon-page-frame contract) · head <code class="mono">fix/admin-visual-frame</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 

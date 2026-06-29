@@ -1,11 +1,11 @@
 {
   "meta": {
-    "mission": "051",
+    "mission": "055",
     "generatedAt": "2026-06-29",
-    "head": "fix/admin-visual-canon",
-    "originMain": "a6777abc",
+    "head": "fix/admin-visual-frame",
+    "originMain": "bedbf63e",
     "status": "100% TOKENIZED — EVERYWHERE",
-    "lastPR": "Mission #051 — admin visual start pattern welded on /admin/customers canon (fix/admin-visual-canon)",
+    "lastPR": "Mission #055 — admin visual frame unification: min-w-0 crop fix on the shared AdminPageShell/AdminSectionCard primitive + named admin-canon-page-frame/first-block/table-surface/form-surface CSS contract; feedback + vault-edit forms → form-surface; frame guard added. No re-wrap churn, no internal refactor.",
     "subAgents": 7,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
     "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
@@ -1065,8 +1065,25 @@
       "date": "2026-06-29",
       "ref": "Mission #051 — Admin Visual Start Pattern",
       "note": "Premier bloc admin uniformisé sur le canon /admin/customers (wrap-safe AdminSectionCard / AdminKpiStripPanel embedded). KPI soudés (monitoring, governance, signals), bare grids encadrés (source, proofs), shells custom wrappés (roadmap, memo, projection, preview, scenario-lab), detail first-block normalisé (agents/[id], customers/[id], vaults/[id] via vault-admin-kpi-strip), forms encadrés. Aucun refacto interne / engine / charts / server-action. Guard admin-canon-start-pattern ajouté (50 tests)."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #055 — Admin Visual Frame Unification",
+      "note": "Owner screenshots showed admin pages still didn't LOOK the same despite being on the #051/#054 start-pattern: Investors table cropped right, frame width jumped with the chat rail, forms read as isolated slabs. Root cause = flexbox min-width:auto on AdminSectionCard (a flex item) — a wide Catalyst table's intrinsic width won, the card refused to shrink, the frame overflowed the slot. Fix at the SHARED PRIMITIVE so it lands on every admin page at once: min-w-0 on the page frame (admin-canon-page-frame) and on every AdminSectionCard (admin-canon-first-block), plus a named CSS contract in src/app/admin/admin-canon.css (page-frame / first-block / table-surface / form-surface, tokens only). The Catalyst table already had overflow-x-auto; min-w-0 is what lets it scroll locally instead of bleeding. feedback + vaults/[id]/edit form bodies → admin-canon-form-surface (framed card body, not a black slab). New guard src/app/admin/__tests__/admin-visual-frame.test.ts locks the CSS contract + the primitive min-w-0 (crop can't silently regress) and lists exemptions (dashboard cockpit, /admin redirect, proof-center x2, agent-canvas, vaults/new wizard, agentic=PR#81). Validation: typecheck green; frame guard + start-pattern + ds-authority-lock + bento contract green (85 tests); production build OK. Authenticated Playwright sweep NOT run from the fresh worktree (Privy login + admin gate, no seeded DB/.env) — change is a deterministic CSS min-width:0 shrink + additive classes. No re-wrap churn, no internal refactor; engine/projection/outreach/chat/HcValueChart/#146/Prisma untouched."
     }
   ],
+  "adminVisualFrame": {
+    "mission": "055",
+    "rootCause": "flexbox min-width:auto on AdminSectionCard (flex item) — wide Catalyst table intrinsic width wins, card won't shrink, frame overflows the slot and crops right (worse with chat rail open).",
+    "fix": "min-w-0 on the shared primitive (page frame + every section card) + named CSS contract in src/app/admin/admin-canon.css.",
+    "canonClasses": ["admin-canon-page-frame", "admin-canon-first-block", "admin-canon-table-surface", "admin-canon-form-surface"],
+    "primitivesChanged": ["src/components/admin/admin-page-shell.tsx", "src/app/admin/admin-canon.css", "src/app/admin/layout.tsx"],
+    "formSurfaceApplied": ["feedback", "vaults/[id]/edit"],
+    "guard": "src/app/admin/__tests__/admin-visual-frame.test.ts",
+    "exempted": ["dashboard (cockpit)", "/admin (redirect)", "proof-center", "proof-center/full", "agent-canvas/[canvasId]", "vaults/new (wizard)", "agentic (control-tower cockpit, PR #81)"],
+    "validation": { "typecheck": "green", "guards": "85 tests green (frame + start-pattern + ds-authority-lock + bento)", "build": "OK", "playwrightAuthedSweep": "NOT RUN — Privy login + admin gate, no seeded DB/.env in fresh worktree; CSS min-width:0 change is deterministic" },
+    "untouched": ["engine", "projection calculations", "outreach runtime", "chat/nav runtime", "server actions", "HcValueChart", "Prisma/migrations", "#146"]
+  },
   "adminVisualCanon": {
     "canonTool": "AdminSectionCard (= the welded section of /admin/customers)",
     "guard": "src/app/admin/__tests__/admin-canon-start-pattern.test.ts",
