@@ -27,6 +27,18 @@ vi.mock("@/lib/auth/session", () => ({
   getInvestor: vi.fn().mockResolvedValue(null),
 }));
 
+// The page resolves the position's subscribedAt to compute the REAL elapsed
+// soft-lock day (audit I16: no fabricated 0% — the progress bar only renders
+// when a position resolves). These structural tests cover a fresh confirmation,
+// so we mock the position with subscribedAt = now → elapsed 0 → "Day 0 of 60".
+vi.mock("@/lib/db", () => ({
+  prisma: {
+    position: {
+      findUnique: vi.fn().mockResolvedValue({ subscribedAt: new Date() }),
+    },
+  },
+}));
+
 import ConfirmedPage from "@/app/(product)/vaults/[id]/invest/confirmed/page";
 
 /** Build a fake resolved Promise. */
@@ -135,7 +147,10 @@ describe("S9 ConfirmedPage — all required elements present", () => {
   it("shows receipt + Methodology PDF email notice", async () => {
     const html = await getHtml({ email: "investor@firm.com" });
     expect(html).toContain("Methodology v1.0 PDF");
-    expect(html).toContain("investor@firm.com");
+    // The notice is generic ("your registered address") on purpose: the page does
+    // NOT echo a URL-supplied email back into the document (unverified input).
+    expect(html).toContain("will be emailed to your registered address");
+    expect(html).not.toContain("investor@firm.com");
   });
 
 

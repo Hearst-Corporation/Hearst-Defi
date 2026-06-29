@@ -185,13 +185,14 @@ describe("BUCKET_COLOR token contract", () => {
     }
   });
 
-  it("mining uses --ct-accent (brightest)", () => {
-    expect(BUCKET_COLOR.mining).toBe("var(--ct-accent)");
+  // BUCKET_COLOR now points at dedicated --ct-bucket-* tokens (the stepped
+  // green family lives in cockpit.css), not inline color-mix literals. This
+  // keeps BUCKET_COLOR var(--ct-*)-only and the colour math in one place.
+  it("mining uses the --ct-bucket-mining token (brightest = --ct-accent in cockpit.css)", () => {
+    expect(BUCKET_COLOR.mining).toBe("var(--ct-bucket-mining)");
   });
 
-  it("btc_tactical uses color-mix with 46% accent (medium muted)", () => {
-    expect(BUCKET_COLOR.btc_tactical).toBe(
-      "color-mix(in srgb, var(--ct-accent) 46%, var(--ct-text-neutral))",
-    );
+  it("btc_tactical uses the --ct-bucket-btc token (medium-muted accent in cockpit.css)", () => {
+    expect(BUCKET_COLOR.btc_tactical).toBe("var(--ct-bucket-btc)");
   });
 });
