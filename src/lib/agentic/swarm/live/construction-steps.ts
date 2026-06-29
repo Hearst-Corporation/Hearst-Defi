@@ -33,6 +33,12 @@ export interface ConstructionStepsInput {
     usdcYieldPct: number;
     usdcSource: string;
     provenance: LiveProvenance;
+    /**
+     * BTC scenario tilt bands, ALREADY IN PERCENT (e.g. bear −20, base +40,
+     * bull +120) — sourced from company-assumptions via read-vault-apy
+     * (`btcScenarios.bearPct` etc.). Rendered verbatim with a `%` suffix; do NOT
+     * multiply by 100 (that was the −2000% cosmetic double-×100 bug, root cause #3).
+     */
     btcReturn: { bear: number; base: number; bull: number };
   };
   /** The 3 regime results produced by the scenario orchestration. */
@@ -118,9 +124,11 @@ export function buildConstructionSteps(
   // Step 3 — BTC / market
   const btcSpot =
     market.btcUsd > 0 ? `$${Math.round(market.btcUsd).toLocaleString("en-US")}` : "data unavailable";
-  const bearPct = `${round1(strategy.btcReturn.bear * 100)}%`;
-  const basePct = `${round1(strategy.btcReturn.base * 100)}%`;
-  const bullPct = `+${round1(strategy.btcReturn.bull * 100)}%`;
+  // btcReturn is ALREADY in percent (−20 / +40 / +120) — render verbatim, no ×100
+  // (root cause #3: the previous ×100 produced −2000% / +12000%).
+  const bearPct = `${round1(strategy.btcReturn.bear)}%`;
+  const basePct = `${round1(strategy.btcReturn.base)}%`;
+  const bullPct = `+${round1(strategy.btcReturn.bull)}%`;
 
   const step3: ConstructionStep = {
     id: "step-3",

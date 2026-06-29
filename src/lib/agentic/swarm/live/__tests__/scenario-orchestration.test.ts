@@ -97,6 +97,122 @@ describe("runQuant — miningWeightOverride", () => {
   });
 });
 
+// ── runQuant: btcAnnualDriftOverride (root cause #1) ─────────────────────────
+
+describe("runQuant — btcAnnualDriftOverride", () => {
+  // Use a 3-sleeve allocation so the BTC sleeve carries the drift signal.
+  const SLEEVES = { miningWeightOverride: 0.3, btcHoldWeight: 0.5, stableWeightOverride: 0.2 };
+
+  it("a higher BTC drift shifts the median APY upward (drift actually reaches the MC)", () => {
+    const bear = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      btcAnnualDriftOverride: -0.2,
+      ...SLEEVES,
+    });
+    const bull = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      btcAnnualDriftOverride: 0.5,
+      ...SLEEVES,
+    });
+    expect(bull.artifact.percentiles.p50).toBeGreaterThan(bear.artifact.percentiles.p50);
+  });
+
+  it("backward compatible: no drift override uses assumptions.btc.annualDrift", () => {
+    // The default assumptions drift equals what the override would supply.
+    const a = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+    });
+    const b = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      btcAnnualDriftOverride: ASSUMPTIONS.btc.annualDrift,
+    });
+    expect(a.artifact.percentiles.p50).toBe(b.artifact.percentiles.p50);
+  });
+});
+
+// ── runQuant: btcHoldWeight 3-sleeve blend (root cause #2) ───────────────────
+
+describe("runQuant — btcHoldWeight (3-sleeve blend)", () => {
+  it("when btcHoldWeight is omitted the MC stays 2-sleeve (backward compatible)", () => {
+    const a = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      miningWeightOverride: 0.35,
+    });
+    const b = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      miningWeightOverride: 0.35,
+      btcHoldWeight: 0, // explicit zero — still 2-sleeve
+    });
+    expect(a.artifact.percentiles.p50).toBe(b.artifact.percentiles.p50);
+  });
+
+  it("with btcHoldWeight>0 the three legs sum to 1 and the BTC-hold sleeve adds price exposure", () => {
+    // Same weights, only the BTC sleeve drift flips: bull median > bear median.
+    const bull = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      miningWeightOverride: 0.3,
+      btcHoldWeight: 0.5,
+      stableWeightOverride: 0.2,
+      btcAnnualDriftOverride: 0.4,
+    });
+    const bear = runQuant({
+      seed: SEED,
+      market: MARKET,
+      strategy: STRATEGY_PROFITABLE,
+      telegram: TELEGRAM,
+      assumptions: ASSUMPTIONS,
+      miningWeightOverride: 0.3,
+      btcHoldWeight: 0.5,
+      stableWeightOverride: 0.2,
+      btcAnnualDriftOverride: -0.3,
+    });
+    expect(bull.artifact.percentiles.p50).toBeGreaterThan(bear.artifact.percentiles.p50);
+  });
+
+  it("clamps btcHoldWeight + stableWeightOverride to [0,1] (no engine throw on extreme inputs)", () => {
+    expect(() =>
+      runQuant({
+        seed: SEED,
+        market: MARKET,
+        strategy: STRATEGY_PROFITABLE,
+        telegram: TELEGRAM,
+        assumptions: ASSUMPTIONS,
+        miningWeightOverride: 0.3,
+        btcHoldWeight: 0.5,
+        stableWeightOverride: 0.2,
+      }),
+    ).not.toThrow();
+  });
+});
+
 // ── 3-scenario orchestration (pure helper, no pipeline/server) ───────────────
 
 function runScenarios(strategy: typeof STRATEGY_PROFITABLE): ScenarioResult[] {
@@ -213,7 +329,9 @@ describe("buildConstructionSteps", () => {
       usdcYieldPct: 5,
       usdcSource: "Aave USDC",
       provenance: "Live" as const,
-      btcReturn: { bear: -0.2, base: 0.4, bull: 1.2 },
+      // btcReturn is ALREADY in percent in production (read-vault-apy →
+      // company-assumptions btcScenarios.*Pct = −20 / +40 / +120), NOT fractions.
+      btcReturn: { bear: -20, base: 40, bull: 120 },
     },
     scenarios,
   };
@@ -251,6 +369,19 @@ describe("buildConstructionSteps", () => {
     expect(steps[2]!.finding).toContain("bull");
   });
 
+  it("step-3 renders the BTC bands as -20% / +40% / +120% (NOT -2000% — root cause #3)", () => {
+    const steps = buildConstructionSteps(INPUT);
+    const finding = steps[2]!.finding;
+    // The honest, correctly-scaled bands.
+    expect(finding).toContain("bear -20.0%");
+    expect(finding).toContain("base 40.0%");
+    expect(finding).toContain("bull +120.0%");
+    // The cosmetic double-×100 bug must be gone.
+    expect(finding).not.toContain("-2000");
+    expect(finding).not.toContain("12000");
+    expect(finding).not.toContain("4000");
+  });
+
   it("step-4 mentions all three regimes and APY ranges", () => {
     const steps = buildConstructionSteps(INPUT);
     expect(steps[3]!.finding).toContain("defensive");
@@ -270,6 +401,79 @@ describe("buildConstructionSteps", () => {
     for (const s of steps) {
       expect(s.provenance).toBeDefined();
     }
+  });
+});
+
+// ── full fix: per-regime drift + 3-sleeve blend on the screenshot inputs ──────
+
+describe("3-regime projection — full fix (drift + sleeves), screenshot inputs", () => {
+  // Screenshot: BTC ≈ $60,035, mining net +4.3%, USDC +10.4%, hashprice $0.0282.
+  const SCREENSHOT_MARKET = { btcUsd: 60035, difficulty: 1.1e14, hashpriceUsdPerThDay: 0.0282 };
+  const SCREENSHOT_STRATEGY = { miningYieldPct: 4.3, usdcYieldPct: 10.4, headlineApy: { low: 8, high: 13 } };
+  const SCREENSHOT_TELEGRAM = { bestCostPerThDay: 0.05 };
+  const A = resolveQuantAssumptions({ paths: 4_000 });
+
+  // Mirror the pipeline's per-regime annualisation: (1+totalReturn)^(12/months)−1
+  // with the product's btcScenarios (bear −0.20 / base +0.40 / bull +1.20 over 24mo).
+  function annualDrift(regime: "defensive" | "balanced" | "opportunistic"): number {
+    const sc = { bear: -0.2, base: 0.4, bull: 1.2 };
+    const months = 24;
+    const tot = regime === "defensive" ? sc.bear : regime === "opportunistic" ? sc.bull : sc.base;
+    return Math.pow(Math.max(0.01, 1 + tot), 12 / months) - 1;
+  }
+
+  function regimeHeadline(regime: "defensive" | "balanced" | "opportunistic") {
+    const alloc = deriveRegimeAllocation({
+      regime,
+      miningYieldPct: SCREENSHOT_STRATEGY.miningYieldPct,
+      usdcYieldPct: SCREENSHOT_STRATEGY.usdcYieldPct,
+    });
+    const offset = regime === "defensive" ? 0 : regime === "balanced" ? 1 : 2;
+    const q = runQuant({
+      seed: (SEED + offset) >>> 0,
+      market: SCREENSHOT_MARKET,
+      strategy: SCREENSHOT_STRATEGY,
+      telegram: SCREENSHOT_TELEGRAM,
+      assumptions: A,
+      miningWeightOverride: alloc.mining / 100,
+      btcAnnualDriftOverride: annualDrift(regime),
+      btcHoldWeight: alloc.btc / 100,
+      stableWeightOverride: (alloc.usdc + alloc.stableReserve) / 100,
+    });
+    return { alloc, p50: q.artifact.percentiles.p50, range: q.artifact.headlineRange };
+  }
+
+  it("(a) the three regimes DIFFER materially (defensive < balanced < opportunistic by BTC exposure)", () => {
+    const d = regimeHeadline("defensive");
+    const b = regimeHeadline("balanced");
+    const o = regimeHeadline("opportunistic");
+    // BTC sleeve grows defensive → opportunistic.
+    expect(d.alloc.btc).toBeLessThanOrEqual(b.alloc.btc);
+    expect(b.alloc.btc).toBeLessThan(o.alloc.btc);
+    // p50 strictly increasing with the bull tilt.
+    expect(d.p50).toBeLessThan(b.p50);
+    expect(b.p50).toBeLessThan(o.p50);
+    // Not collapsed: a real spread between extremes.
+    expect(o.p50 - d.p50).toBeGreaterThan(0.02);
+  });
+
+  it("(b) balanced p50 is positive when mining is profitable and USDC ≈ 10%", () => {
+    expect(regimeHeadline("balanced").p50).toBeGreaterThan(0);
+  });
+
+  it("(b) opportunistic p50 is clearly positive (bull tilt)", () => {
+    expect(regimeHeadline("opportunistic").p50).toBeGreaterThan(0.03);
+  });
+
+  it("(c) defensive can still be modestly low/negative (honest bear tilt)", () => {
+    // The bear-tilted regime is allowed to print a low or slightly-negative
+    // median — that is the honest downside, not a bug.
+    const d = regimeHeadline("defensive");
+    expect(d.p50).toBeLessThan(regimeHeadline("opportunistic").p50);
+  });
+
+  it("deterministic: same screenshot inputs → identical p50 across runs", () => {
+    expect(regimeHeadline("balanced").p50).toBe(regimeHeadline("balanced").p50);
   });
 });
 

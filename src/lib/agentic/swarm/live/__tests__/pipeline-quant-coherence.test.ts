@@ -224,6 +224,73 @@ describe("pipeline — draft.quant / balanced scenario coherence", () => {
     expect(uniqueSeeds.size).toBe(3);
   });
 
+  // ── Root-cause fix: regimes must DIFFER materially (#1 + #2) ───────────────
+
+  it("withScenarios=true: the 3 regimes produce DISTINCT headlines (not near-identical)", async () => {
+    // The mock has profitable mining (10%) + USDC 5%. With per-regime BTC drift +
+    // the BTC-hold sleeve, the three regimes must NO LONGER collapse to the same
+    // headline (the original bug). Use more paths so the percentiles are stable.
+    const result = await runProductConstructionPipeline(
+      "8-15% APY mining-backed structured yield",
+      { assumptions: resolveQuantAssumptions({ paths: 4_000 }), withScenarios: true },
+    );
+
+    expect(isProductConstructionError(result)).toBe(false);
+    if (isProductConstructionError(result)) return;
+
+    const byRegime = Object.fromEntries(
+      result.scenarios!.map((s) => [s.regime, s.quant]),
+    );
+    const defensive = byRegime["defensive"]!;
+    const balanced = byRegime["balanced"]!;
+    const opportunistic = byRegime["opportunistic"]!;
+
+    // The three p50s must be materially different (not within a hair of each
+    // other as in the original "identical regimes" bug).
+    const p50s = [
+      defensive.percentiles.p50,
+      balanced.percentiles.p50,
+      opportunistic.percentiles.p50,
+    ];
+    const spread = Math.max(...p50s) - Math.min(...p50s);
+    expect(spread).toBeGreaterThan(0.02); // > 2 percentage points apart
+  });
+
+  it("withScenarios=true: defensive is more conservative than opportunistic (lower p50)", async () => {
+    const result = await runProductConstructionPipeline(
+      "8-15% APY mining-backed structured yield",
+      { assumptions: resolveQuantAssumptions({ paths: 4_000 }), withScenarios: true },
+    );
+
+    expect(isProductConstructionError(result)).toBe(false);
+    if (isProductConstructionError(result)) return;
+
+    const byRegime = Object.fromEntries(
+      result.scenarios!.map((s) => [s.regime, s.quant]),
+    );
+    expect(byRegime["defensive"]!.percentiles.p50).toBeLessThan(
+      byRegime["opportunistic"]!.percentiles.p50,
+    );
+  });
+
+  it("withScenarios=true: opportunistic headline is clearly positive (not collapsed to the others)", async () => {
+    // With per-regime drift + the BTC-hold sleeve, the bull-tilted opportunistic
+    // regime must carry a clearly positive median — the original bug had all three
+    // collapsed near ~0. (The balanced-p50-positive-under-10%-USDC criterion is
+    // proved directly, without the fixed 5%-USDC mock, in
+    // scenario-orchestration.test.ts → "profitable-mining + 10% USDC".)
+    const result = await runProductConstructionPipeline(
+      "8-15% APY mining-backed structured yield",
+      { assumptions: resolveQuantAssumptions({ paths: 4_000 }), withScenarios: true },
+    );
+
+    expect(isProductConstructionError(result)).toBe(false);
+    if (isProductConstructionError(result)) return;
+
+    const opportunistic = result.scenarios!.find((s) => s.regime === "opportunistic")!;
+    expect(opportunistic.quant.percentiles.p50).toBeGreaterThan(0);
+  });
+
   // ── withScenarios = false (default path) ─────────────────────────────────
 
   it("withScenarios=false: draft.quant is defined and draft.scenarios is absent", async () => {

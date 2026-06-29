@@ -53,6 +53,7 @@ import {
 import { deriveRegimeAllocation } from "./strategy-allocation";
 import { buildConstructionSteps } from "./construction-steps";
 import type { VaultMode } from "@/lib/engine/types";
+import { BTC_MINING_PERFORMANCE_VAULT } from "@/lib/products/btc-mining-performance-vault";
 
 const DISCLAIMER =
   "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
@@ -66,6 +67,32 @@ function deriveSeed(objective: string, btcUsd: number): number {
     h = Math.imul(h, 16777619) >>> 0;
   }
   return h >>> 0;
+}
+
+/**
+ * Per-regime ANNUAL BTC drift for the Monte-Carlo GBM, derived from the product's
+ * btcScenarios. Those are TOTAL returns over the product's target cycle (~24mo):
+ * bear −0.20 / base +0.40 / bull +1.20. We annualise with compounding so the MC's
+ * one-year GBM drift reflects the regime's view:
+ *
+ *   annualDrift = (1 + totalReturn)^(12 / targetDurationMonths) − 1
+ *
+ * (base ≈ +0.18/yr, bear ≈ −0.11/yr, bull ≈ +0.48/yr over a 24-month cycle).
+ * Mapping: defensive → bear, balanced → base, opportunistic → bull. This is what
+ * makes the 3 regimes' headlines DIFFER (root cause #1): before this, every regime
+ * shared the single fixed `assumptions.btc.annualDrift` preset, so the MC produced
+ * near-identical fans regardless of the scenario tilt.
+ *
+ * Pure: reads the product constant + arithmetic only (no Math.random / Date / I/O).
+ */
+function regimeAnnualBtcDrift(regime: VaultMode): number {
+  const sc = BTC_MINING_PERFORMANCE_VAULT.levers.btcScenarios.value; // fractions
+  const months = BTC_MINING_PERFORMANCE_VAULT.targetDurationMonths || 24;
+  const totalReturn =
+    regime === "defensive" ? sc.bear : regime === "opportunistic" ? sc.bull : sc.base;
+  // (1 + r_total)^(12/months) − 1. Guard the base so a ≤ −100% scenario can't NaN.
+  const annualised = Math.pow(Math.max(0.01, 1 + totalReturn), 12 / months) - 1;
+  return annualised;
 }
 
 export interface PipelineOptions {
@@ -159,6 +186,20 @@ export async function runProductConstructionPipeline(
       // Per-regime seed: stable offset per regime so all 3 are distinct but
       // reproducible (no Math.random, no Date.now).
       const regimeSeedOffset = regime === "defensive" ? 0 : regime === "balanced" ? 1 : 2;
+
+      // Fold the real 4-sleeve allocation into the MC's three legs so the sim
+      // reflects the ACTUAL strategy, not a 2-sleeve approximation:
+      //   • mining leg   = allocation.mining            (carries hashprice vol)
+      //   • BTC-hold leg = allocation.btc               (carries BTC price return)
+      //   • stable leg   = allocation.usdc + reserve    (flat USDC yield)
+      // All three come from the same normalised percent fields (sum = 100), so the
+      // three weights sum to exactly 1 (the engine asserts this). The yield-overlay
+      // sleeve is already folded into usdc/btc upstream by deriveRegimeAllocation,
+      // so it is NOT double-counted here.
+      const miningWeight = allocation.mining / 100;
+      const btcHoldWeight = allocation.btc / 100;
+      const stableWeight = (allocation.usdc + allocation.stableReserve) / 100;
+
       const regimeQuant = runQuant({
         seed: (seed + regimeSeedOffset) >>> 0,
         market: {
@@ -173,7 +214,13 @@ export async function runProductConstructionPipeline(
         },
         telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
         assumptions,
-        miningWeightOverride: allocation.miningFraction,
+        miningWeightOverride: miningWeight,
+        // Per-regime BTC drift (defensive→bear, balanced→base, opportunistic→bull)
+        // — THIS is what makes the 3 regimes differ (root cause #1).
+        btcAnnualDriftOverride: regimeAnnualBtcDrift(regime),
+        // 3-sleeve blend: the BTC-hold leg realises BTC price return (root cause #2).
+        btcHoldWeight,
+        stableWeightOverride: stableWeight,
       });
       const result: ScenarioResult = {
         regime,
@@ -212,6 +259,14 @@ export async function runProductConstructionPipeline(
       miningYieldPct: strategy.artifact.miningYieldPct,
       usdcYieldPct: strategy.artifact.usdcYieldPct,
     });
+    // Fold the balanced 4-sleeve allocation into the MC's three legs (same as the
+    // scenario path's balanced run) and feed the balanced (base) BTC drift, so the
+    // default headline matches what the balanced scenario card shows and is no
+    // longer dragged negative by the missing BTC-hold sleeve (root causes #1, #2).
+    const balancedMiningWeight = balancedAllocation.mining / 100;
+    const balancedBtcHoldWeight = balancedAllocation.btc / 100;
+    const balancedStableWeight =
+      (balancedAllocation.usdc + balancedAllocation.stableReserve) / 100;
     const quant = runQuant({
       seed,
       market: {
@@ -227,7 +282,10 @@ export async function runProductConstructionPipeline(
       telegram: { bestCostPerThDay: telegram.bestCostPerThDay },
       assumptions,
       // Use the allocator-derived weight rather than the hardcoded 0.6 default.
-      miningWeightOverride: balancedAllocation.miningFraction,
+      miningWeightOverride: balancedMiningWeight,
+      btcAnnualDriftOverride: regimeAnnualBtcDrift("balanced"),
+      btcHoldWeight: balancedBtcHoldWeight,
+      stableWeightOverride: balancedStableWeight,
     });
     audit.push(quant.audit);
     quantArtifact = quant.artifact;

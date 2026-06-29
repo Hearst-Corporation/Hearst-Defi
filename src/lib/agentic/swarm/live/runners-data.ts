@@ -230,6 +230,25 @@ export interface QuantResult {
  * returns + the product's regime bounds, then pass it here so the MC reflects
  * the ACTUAL strategy, not the hardcoded 0.6 default. When absent, the
  * assumptions value is used unchanged (backward compatible).
+ *
+ * `btcAnnualDriftOverride` — when provided, it replaces `assumptions.btc.annualDrift`
+ * for the MC's BTC GBM. This is the bridge that makes the 3 regimes DIFFER: the
+ * pipeline derives a per-regime annual BTC drift (defensive→bear, balanced→base,
+ * opportunistic→bull) from the product's btcScenarios and passes it here. Without
+ * it every regime shared the same fixed preset drift → identical headlines.
+ * Clamped to the same [-1, 2] band as the assumptions drift.
+ *
+ * `btcHoldWeight` — when > 0, turns on the MC's 3-sleeve blend (mining + BTC-hold +
+ * stable). It is the regime's BTC HOLDING-sleeve fraction (0..1). The BTC-hold leg
+ * realises the path's BTC PRICE return (the honest HODL upside/drawdown), not the
+ * flat stable yield. When supplied, `stableWeightOverride` MUST also be supplied so
+ * the three weights sum to 1; the engine asserts the sum. When omitted (default 0),
+ * the MC stays the 2-sleeve blend (mining + stable) — backward compatible.
+ *
+ * `stableWeightOverride` — when supplied, replaces `1 − miningWeight` as the stable
+ * leg. Used together with `btcHoldWeight` so the real 4-sleeve allocation
+ * (mining / btc / usdc+reserve) folds into the MC's three legs. When omitted, the
+ * stable weight is `1 − effectiveMiningWeight` exactly as before (2-sleeve).
  */
 export function runQuant(args: {
   seed: number;
@@ -243,8 +262,35 @@ export function runQuant(args: {
    * Must be in [0, 1]. Values outside that range are clamped silently.
    */
   miningWeightOverride?: number;
+  /**
+   * When supplied, overrides `assumptions.btc.annualDrift` for the MC's BTC GBM.
+   * Use this to wire the REAL per-regime BTC drift. Clamped to [-1, 2].
+   */
+  btcAnnualDriftOverride?: number;
+  /**
+   * When > 0, enables the MC's 3-sleeve blend; the regime's BTC HOLDING fraction
+   * (0..1). Must be paired with `stableWeightOverride` so the 3 weights sum to 1.
+   * Clamped to [0, 1]. Default 0 → 2-sleeve (backward compatible).
+   */
+  btcHoldWeight?: number;
+  /**
+   * When supplied, replaces `1 − miningWeight` as the stable leg. Used with
+   * `btcHoldWeight` so the real 4-sleeve allocation folds into the MC's legs.
+   * Clamped to [0, 1].
+   */
+  stableWeightOverride?: number;
 }): QuantResult {
-  const { seed, market, strategy, telegram, assumptions, miningWeightOverride } = args;
+  const {
+    seed,
+    market,
+    strategy,
+    telegram,
+    assumptions,
+    miningWeightOverride,
+    btcAnnualDriftOverride,
+    btcHoldWeight,
+    stableWeightOverride,
+  } = args;
   const { horizonMonths, floorApyPct } = assumptions;
 
   // Resolve the effective mining weight: caller-supplied override (clamped to [0,1])
@@ -253,6 +299,25 @@ export function runQuant(args: {
     miningWeightOverride !== undefined
       ? Math.min(1, Math.max(0, miningWeightOverride))
       : assumptions.yield.miningWeight;
+
+  // Resolve the effective BTC drift: per-regime override (clamped to [-1, 2], the
+  // same band resolveQuantAssumptions clamps to) wins; else the assumptions drift.
+  const effectiveBtcDrift =
+    btcAnnualDriftOverride !== undefined
+      ? Math.min(2, Math.max(-1, btcAnnualDriftOverride))
+      : assumptions.btc.annualDrift;
+
+  // Resolve the BTC-hold + stable legs. When btcHoldWeight is supplied (> 0) the
+  // caller folds the real 4-sleeve allocation into 3 MC legs and MUST also pass
+  // stableWeightOverride; we clamp both and let the engine assert the sum.
+  // When absent, the stable leg is `1 − miningWeight` and the BTC-hold leg is 0,
+  // exactly the legacy 2-sleeve blend.
+  const effectiveBtcHoldWeight =
+    btcHoldWeight !== undefined ? Math.min(1, Math.max(0, btcHoldWeight)) : 0;
+  const effectiveStableWeight =
+    stableWeightOverride !== undefined
+      ? Math.min(1, Math.max(0, stableWeightOverride))
+      : 1 - effectiveMiningWeight;
 
   // Capital/TH derived from the best landed cost when available, else a
   // conservative industry default; cost/TH/day from the same source.
@@ -272,7 +337,7 @@ export function runQuant(args: {
     horizonMonths,
     btc: {
       startPriceUsd: market.btcUsd > 0 ? market.btcUsd : 60_000,
-      annualDrift: assumptions.btc.annualDrift,
+      annualDrift: effectiveBtcDrift,
       annualVol: assumptions.btc.annualVol,
     },
     difficulty: {
@@ -287,7 +352,8 @@ export function runQuant(args: {
     },
     yield: {
       miningWeight: effectiveMiningWeight,
-      stableWeight: 1 - effectiveMiningWeight,
+      btcHoldWeight: effectiveBtcHoldWeight,
+      stableWeight: effectiveStableWeight,
       stableApyMean: strategy.usdcYieldPct / 100,
       stableApyVol: assumptions.yield.stableApyVol,
       costPerThDay,

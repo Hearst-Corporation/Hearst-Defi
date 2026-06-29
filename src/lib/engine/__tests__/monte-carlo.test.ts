@@ -171,6 +171,109 @@ describe("runMonteCarlo GBM sanity", () => {
 });
 
 // ---------------------------------------------------------------------------
+// 3-sleeve blend (BTC HOLDING sleeve) — root cause #2
+// ---------------------------------------------------------------------------
+
+describe("runMonteCarlo — BTC HOLDING sleeve (3-sleeve blend)", () => {
+  it("btcHoldWeight=0 (or omitted) is byte-for-byte identical to the 2-sleeve blend", () => {
+    const twoSleeve = runMonteCarlo(BASE_INPUT);
+    const explicitZero = runMonteCarlo({
+      ...BASE_INPUT,
+      yield: { ...BASE_INPUT.yield, btcHoldWeight: 0 },
+    });
+    // Regression guard: adding the (zero) sleeve must NOT consume an extra PRNG
+    // draw or change any number — the whole distribution stays identical.
+    expect(explicitZero).toEqual(twoSleeve);
+  });
+
+  it("a bull BTC path lifts the median when the BTC-hold sleeve is on", () => {
+    // 3-sleeve with a real BTC-hold weight; positive drift ⇒ HODL contributes
+    // positive return ⇒ higher p50 than the same allocation with the BTC sleeve
+    // folded back into the (flat, lower-yielding) stable leg.
+    const withHold = runMonteCarlo({
+      ...BASE_INPUT,
+      paths: 20_000,
+      btc: { ...BASE_INPUT.btc, annualDrift: 0.5, annualVol: 0.4 },
+      yield: {
+        ...BASE_INPUT.yield,
+        miningWeight: 0.3,
+        btcHoldWeight: 0.5,
+        stableWeight: 0.2,
+        stableApyMean: 0.05,
+      },
+    });
+    const withoutHold = runMonteCarlo({
+      ...BASE_INPUT,
+      paths: 20_000,
+      btc: { ...BASE_INPUT.btc, annualDrift: 0.5, annualVol: 0.4 },
+      yield: {
+        ...BASE_INPUT.yield,
+        miningWeight: 0.3,
+        // No BTC-hold sleeve: the same fraction earns the flat stable yield.
+        stableWeight: 0.7,
+        stableApyMean: 0.05,
+      },
+    });
+    expect(withHold.percentiles.p50).toBeGreaterThan(withoutHold.percentiles.p50);
+  });
+
+  it("a bear BTC path drags the median down through the BTC-hold sleeve", () => {
+    const bull = runMonteCarlo({
+      ...BASE_INPUT,
+      paths: 20_000,
+      btc: { ...BASE_INPUT.btc, annualDrift: 0.4, annualVol: 0.4 },
+      yield: { ...BASE_INPUT.yield, miningWeight: 0.3, btcHoldWeight: 0.5, stableWeight: 0.2 },
+    });
+    const bear = runMonteCarlo({
+      ...BASE_INPUT,
+      paths: 20_000,
+      btc: { ...BASE_INPUT.btc, annualDrift: -0.3, annualVol: 0.4 },
+      yield: { ...BASE_INPUT.yield, miningWeight: 0.3, btcHoldWeight: 0.5, stableWeight: 0.2 },
+    });
+    // Same sleeves, only the BTC drift flips sign → the BTC-hold leg carries the
+    // honest directional exposure: bull median > bear median.
+    expect(bull.percentiles.p50).toBeGreaterThan(bear.percentiles.p50);
+  });
+
+  it("is still deterministic with the BTC-hold sleeve on (same seed → identical)", () => {
+    const input = {
+      ...BASE_INPUT,
+      yield: { ...BASE_INPUT.yield, miningWeight: 0.3, btcHoldWeight: 0.5, stableWeight: 0.2 },
+    };
+    expect(runMonteCarlo(input)).toEqual(runMonteCarlo(input));
+  });
+
+  it("throws when btcHoldWeight>0 and the three sleeve weights do not sum to 1", () => {
+    expect(() =>
+      runMonteCarlo({
+        ...BASE_INPUT,
+        yield: {
+          ...BASE_INPUT.yield,
+          miningWeight: 0.6,
+          btcHoldWeight: 0.5, // 0.6 + 0.5 + 0.4 = 1.5 ≠ 1
+          stableWeight: 0.4,
+        },
+      }),
+    ).toThrow(/sum to 1/);
+  });
+
+  it("accepts three weights that sum to 1 within float tolerance", () => {
+    expect(() =>
+      runMonteCarlo({
+        ...BASE_INPUT,
+        paths: 500,
+        yield: {
+          ...BASE_INPUT.yield,
+          miningWeight: 0.33,
+          btcHoldWeight: 0.33,
+          stableWeight: 0.34,
+        },
+      }),
+    ).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Snapshot tests — task A2 acceptance criteria
 // ---------------------------------------------------------------------------
 // These two tests fulfil the explicit A2 requirement:

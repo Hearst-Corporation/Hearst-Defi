@@ -54,6 +54,20 @@ export interface BlendedYieldAssumptions {
   miningWeight: number;
   /** Fraction earning the stable/T-bill leg (0..1). */
   stableWeight: number;
+  /**
+   * Fraction of NAV earning the BTC HOLDING sleeve's price return (0..1).
+   * OPTIONAL — defaults to 0 so existing 2-sleeve callers (scenario engine,
+   * vaults, other runQuant callers) are byte-for-byte unchanged: when it is
+   * 0 (or omitted) the blend collapses back to `miningWeight·miningApy +
+   * stableWeight·stableApy`, and `miningWeight + stableWeight` still sum to 1
+   * exactly as before. When `btcHoldWeight > 0` the three weights MUST sum to 1
+   * (asserted), and the BTC-hold leg realises the annualised BTC PRICE return of
+   * each simulated GBM path (the honest HODL exposure: positive in a bull path,
+   * negative in a bear path) — NOT the flat stable yield. The leg consumes NO
+   * extra PRNG draw: it is derived deterministically from the same `price` path
+   * the sim already evolves, so engine purity (#6) and seed-reproducibility hold.
+   */
+  btcHoldWeight?: number;
   /** Annualised stable/T-bill yield mean (e.g. 0.05 = 5%). */
   stableApyMean: number;
   /** Annualised stable/T-bill yield vol (low). */
@@ -158,10 +172,32 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloOutput {
   const rho = Math.max(-1, Math.min(1, rhoRaw));
   const rhoComplement = Math.sqrt(Math.max(0, 1 - rho * rho));
 
+  // BTC HOLDING sleeve weight (0 by default → 2-sleeve, backward compatible).
+  // When > 0 we model the third sleeve as the path's realised BTC price return;
+  // the three weights must then sum to 1 (the caller is responsible — we assert).
+  const btcHoldWeight = yld.btcHoldWeight ?? 0;
+  if (btcHoldWeight > 0) {
+    const weightSum = yld.miningWeight + btcHoldWeight + yld.stableWeight;
+    // Allow a tiny float tolerance; a real mis-spec (e.g. 1.3) still throws.
+    if (Math.abs(weightSum - 1) > 1e-6) {
+      throw new RangeError(
+        `monte-carlo: when btcHoldWeight > 0 the three sleeve weights must sum to 1 ` +
+          `(got mining=${yld.miningWeight}, btcHold=${btcHoldWeight}, stable=${yld.stableWeight}, sum=${weightSum}).`,
+      );
+    }
+  }
+
+  // Annualisation exponent for the BTC-hold sleeve's terminal price return
+  // (12 / horizonMonths). Computed once: the leg uses the WHOLE-PATH price ratio,
+  // not a per-step compounding, to avoid Jensen-inflating a single noisy monthly
+  // move by ^12 (which would blow the mean far above the GBM drift).
+  const annualiseExp = STEPS_PER_YEAR / steps;
+
   const pathApys = new Array<number>(paths);
 
   for (let p = 0; p < paths; p += 1) {
-    let price = btc.startPriceUsd;
+    const startPrice = btc.startPriceUsd;
+    let price = startPrice;
     let diff = difficulty.start;
     let yieldAcc = 0;
 
@@ -195,8 +231,20 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloOutput {
       yieldAcc += stepApy;
     }
 
-    // Average annualised APY over the horizon's monthly snapshots.
-    pathApys[p] = yieldAcc / steps;
+    // Mining + stable legs: average annualised APY over the monthly snapshots.
+    let pathApy = yieldAcc / steps;
+
+    // BTC HOLDING sleeve: the path's TERMINAL annualised price return — the honest
+    // HODL exposure (positive in a bull path, negative in a bear path). Derived
+    // from the SAME GBM `price` path (no extra PRNG draw — every zBtc was already
+    // consumed above), so determinism + purity hold. Added only when the leg is
+    // used (weight 0 ⇒ skipped ⇒ 2-sleeve blend byte-for-byte identical to before).
+    if (btcHoldWeight > 0 && startPrice > 0) {
+      const btcHoldApy = Math.pow(price / startPrice, annualiseExp) - 1;
+      pathApy += btcHoldWeight * btcHoldApy;
+    }
+
+    pathApys[p] = pathApy;
   }
 
   const sorted = pathApys.slice().sort((a, b) => a - b);
