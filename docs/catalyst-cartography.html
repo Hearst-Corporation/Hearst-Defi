@@ -152,20 +152,20 @@
 <body>
 
 <header class="cover"><div class="wrap">
-  <p class="kicker">Hearst Connect · Design System · <span style="color:var(--ct-accent)">Mission #049 — CONVERGENCE COMPLETE</span></p>
+  <p class="kicker">Hearst Connect · Design System · <span style="color:var(--ct-accent)">Mission #049 — 100% TOKENIZED EVERYWHERE</span></p>
   <h1>Catalyst Migration <span class="lite">Cartography</span></h1>
-  <p class="sub">Convergence is <b style="color:var(--ct-accent)">DONE — Catalyst is the single UI source</b>. The 24 dead <code>ui/*</code> façades have been deleted; <code>src/components/ui/</code> now holds only <b>3 files</b> (provenance-badge + 2 Sonner helpers) and all 165 consumers import <code>@/components/catalyst/*</code> directly.</p>
+  <p class="sub">The design system is <b style="color:var(--ct-accent)">100% tokenized on every UI surface</b> — including the Tailwind-Plus catalyst primitives. Zero raw Tailwind colour in UI code; convergence is sealed by a 6-rule guard enforced in the blocking CI job.</p>
   <div class="meta-row">
-    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-28 · Mission #049</span>
-    <span class="chip"><b>head</b> <code>c463155c</code> · status <code>DONE</code></span>
-    <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 31)</span>
-    <span class="chip"><span class="dot green"></span><b>52</b> catalyst files</span>
-    <span class="chip"><span class="dot green"></span>all UI Catalyst-direct</span>
-    <span class="chip"><span class="dot green"></span><b>border-white 0</b> (was 365) · <code>#A7FB90</code> <b>39</b> (was 137)</span>
-    <span class="chip"><span class="dot green"></span><b>lot8</b> · typo+zinc tokenized · convergence guard live</span>
+    <span class="chip"><span class="dot green"></span><b>Updated</b> 2026-06-29 · Mission #049 (lot15)</span>
+    <span class="chip"><b>head</b> <code>f16fd2cb</code> · status <code>100% TOKENIZED</code></span>
+    <span class="chip"><span class="dot green"></span>ui/ = <b>3 files</b> (was 27)</span>
+    <span class="chip"><span class="dot green"></span><b>52</b> catalyst files · all tokenized</span>
+    <span class="chip"><span class="dot green"></span>0 raw Tailwind colour in UI</span>
+    <span class="chip"><span class="dot green"></span><b>border-white 0</b> · <b>text-zinc 0</b> · status hues 0</span>
+    <span class="chip"><span class="dot green"></span><b>9 DS guards green</b> · convergence guard = 6 rules, CI-enforced</span>
     <span class="chip"><span class="dot amber"></span>PR <b>#146</b> parked · PR <b>#81</b> conflicting</span>
   </div>
-  <p class="note"><b>Mission #049 = CONVERGENCE COMPLETE.</b> Neutral token pass (lot5): <code>border-white</code> 365→<b>0</b> (→ <code>--ct-border*</code>), <code>text-zinc</code> 313→<b>44</b> (→ <code>--ct-text-*</code>), <code>bg-white</code> overlays → <code>color-mix</code> — 737 pixel-identical swaps. Then (lot6+7) <b>165</b> consumers were migrated from <code>ui/*</code> to <code>catalyst/*</code> direct and the <b>24</b> dead <code>ui/*</code> façades were DELETED. <code>src/components/ui/</code> now holds only <b>3 files</b> — <code>provenance-badge</code> + <code>toaster</code> + <code>client-toaster</code>. Catalyst is the single UI source. <b>52</b> catalyst files; <code>#A7FB90</code> <b>39</b> (rest are canvas/SVG/theme fallbacks); typecheck clean, all DS guards green. Zero deletion of real functionality. <code>#146</code> untouched.</p>
+  <p class="note"><b>Mission #049 = 100% TOKENIZED EVERYWHERE.</b> The convergence (lot5–7) reduced <code>ui/*</code> to <b>3 files</b> (façades deleted, 165 consumers on <code>catalyst/*</code> direct). Lots 8–14 then tokenized typography, neutral surfaces, status colours and locked the guards in CI. <b>lot15</b> finished the job: the Tailwind-Plus catalyst primitives — the last big holder of raw colour — were tokenized to <code>--ct-*</code> (~300 swaps; variant keys + <code>[--btn-*]</code> plumbing preserved). Result: <b>0 raw Tailwind colour in UI code</b>, catalyst included. Only legit keeps remain (on-colour <code>text-white</code> on solid button/badge variants, unused decorative button ramps with no <code>--ct</code> equivalent, and email/route HTML templates that require inline hex). <code>ds-convergence-guard</code> now enforces <b>6 rules</b> in the blocking CI job. typecheck clean · eslint 0 · <code>next build</code> compiles · all guards green. <code>#146</code> untouched.</p>
 </div></header>
 
 <nav class="toc"><div class="wrap">
@@ -202,12 +202,12 @@
     <div class="stat"><div class="v" style="color:#d9b3f0">3</div><div class="l">Mixed layout</div><div class="h">divergent shells (justified)</div></div>
     <div class="stat"><div class="v">6</div><div class="l">Blocked by scope</div><div class="h">layouts / calc / redirects</div></div>
     <div class="stat"><div class="v" style="color:var(--green)">52</div><div class="l">Catalyst files</div><div class="h">the single UI source</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">3<span style="font-size:16px;color:var(--text-muted)"> (was 31)</span></div><div class="l">ui/ files</div><div class="h">provenance-badge + 2 helpers</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">3<span style="font-size:16px;color:var(--text-muted)"> (was 27)</span></div><div class="l">ui/ files</div><div class="h">provenance-badge + 2 helpers</div></div>
     <div class="stat"><div class="v" style="color:var(--green)">24</div><div class="l">ui/* façades deleted</div><div class="h">dead compat layer removed</div></div>
-    <div class="stat"><div class="v" style="color:var(--amber)">39</div><div class="l">#A7FB90 in tsx</div><div class="h">was 137 · rest are fallbacks</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">raw #A7FB90 in UI</div><div class="h">was 137 · only canvas/brand fallbacks left</div></div>
     <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">border-white raw</div><div class="h">was 365 · → --ct-border*</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">33</div><div class="l">text-[Npx] arbitrary</div><div class="h">was 541 · 341 token-driven</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">31</div><div class="l">text-zinc raw</div><div class="h">was 313 · light-mode contextual</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">tokenizable text-[Npx]</div><div class="h">was 541 · all on --ct-text-*</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">0</div><div class="l">raw text-zinc / named colour</div><div class="h">was 600+ · all on --ct-* (catalyst incl.)</div></div>
   </div>
 
   <h3>Page status distribution</h3>
@@ -300,7 +300,7 @@
 <!-- ===================== 7. CATALYST PRIMITIVES ===================== -->
 <section id="primitives">
   <div class="sec-head"><span class="sec-num">06</span><h2>Catalyst primitives</h2></div>
-  <p class="lead">53 files. <b>27 CANON_ACTIVE</b> (imported by real surfaces, incl. bento absorbed #049 lot3) · <b>24 CANON_RESERVE</b> (Tailwind-Plus primitives kept ready). Residual color debt ≈ 0 — the only <code>blue-*</code> left is the opt-in <code>color="blue"</code> badge palette (never the default, never a focus ring).</p>
+  <p class="lead">52 files. <b>27 CANON_ACTIVE</b> (imported by real surfaces, incl. bento absorbed #049 lot3) · <b>24 CANON_RESERVE</b> (Tailwind-Plus primitives kept ready). <b>Residual colour debt = 0</b> — lot15 tokenized ~300 raw Tailwind colours across the primitives to <code>--ct-*</code> (variant keys + <code>[--btn-*]</code> plumbing preserved). The only raw hues left are unused decorative button ramps (cyan/indigo/orange/teal/violet…) with no <code>--ct</code> equivalent, and on-colour <code>text-white</code> on solid variants — both intentional keeps.</p>
   <div class="filters">
     <input id="pfilter" type="text" placeholder="Filter primitive…" oninput="filterTable('cat-tbl','pfilter','pcount')" />
     <button class="fbtn on" onclick="rowToggle('cat-tbl',this,'all')">All</button>
@@ -317,7 +317,7 @@
 <!-- ===================== 8. UI WRAPPERS ===================== -->
 <section id="wrappers">
   <div class="sec-head"><span class="sec-num">07</span><h2>ui/* legacy wrappers</h2></div>
-  <p class="lead">31 files. <b>bento.tsx (58)</b> — the headline wrapper — now delegates to Catalyst (#049 lot3). Highest leverage remaining targets by import-count: provenance-badge (43, already imports catalyst/bento-badge), then small helpers. Sorted by import-count.</p>
+  <p class="lead"><b>Convergence complete (lot6+7).</b> The 24 dead <code>ui/*</code> façades were deleted; <code>src/components/ui/</code> now holds only <b>3 non-visual helpers</b> (provenance-badge + toaster + client-toaster) and all consumers import <code>@/components/catalyst/*</code> directly. The table below is the historical wrapper ledger (DELETED rows shown struck-through). Sorted by former import-count.</p>
   <div class="filters">
     <input id="ufilter" type="text" placeholder="Filter wrapper…" oninput="filterTable('ui-tbl','ufilter','ucount')" />
     <button class="fbtn on" onclick="rowToggle('ui-tbl',this,'all')">All</button>
@@ -358,20 +358,20 @@
 <!-- ===================== 10. ACCENT DEBT ===================== -->
 <section id="accent">
   <div class="sec-head"><span class="sec-num">09</span><h2>Accent / token debt</h2></div>
-  <p class="lead"><b>41</b> total <code>#A7FB90</code> (33 in tsx, 6 token definitions) — <b>96 removed since #184</b>. Catalyst is blue-clean (1 opt-in palette entry). What remains is canvas/SVG chart fallbacks + dynamic theme defaults + doc comments — no real styling-class hex left.</p>
+  <p class="lead"><b>0</b> raw <code>#A7FB90</code> in UI styling classes — every accent usage is on <code>var(--ct-accent)</code>. The only literal <code>#A7FB90</code> left are the 3 allowlisted JS fallbacks (<code>brand-constants</code>, the canvas chart <code>value-area-plot</code>, <code>catalyst-accent</code>) and doc comments — not violations.</p>
   <h3>Top files by #A7FB90 (heatmap)</h3>
   <div class="heat" id="accent-heat"></div>
   <div class="tbl-wrap" style="margin-top:18px"><div class="tbl-scroll"><table id="acc-tbl">
     <thead><tr><th>File</th><th>Count</th><th>Class</th><th>Safe replacement</th></tr></thead>
     <tbody id="acc-body"></tbody>
   </table></div></div>
-  <p class="note">LEGITIMATE_FALLBACK (vault-allocation SVG donut, pdf-palette print green) and the 6 token definitions are NOT violations. ~49 tsx files carry real inline-hex violations to migrate.</p>
+  <p class="note">LEGITIMATE_FALLBACK (canvas <code>value-area-plot</code>, <code>pdf-palette</code> print green, <code>brand-constants</code> source) and the token definitions are NOT violations. <b>0 tsx files carry a real inline-hex styling violation</b> — the <code>named-color</code> + <code>accent-hex</code> guard rules enforce this in CI.</p>
 </section>
 
 <!-- ===================== 11. TYPOGRAPHY ===================== -->
 <section id="typo">
   <div class="sec-head"><span class="sec-num">10</span><h2>Typography debt</h2></div>
-  <p class="lead"><b>180</b> arbitrary <code>text-[Npx]</code> (down from 541) · <b>341</b> already token-driven (<code>text-[length:var()]</code>, up from 58). This lot: <b>127</b> <code>text-[10px]</code> micro-labels → the canonical <code>ct-bento-label</code> class (now <b>213</b> usages). Remaining are SVG/chart labels + long-tail leaves.</p>
+  <p class="lead"><b>0</b> tokenizable <code>text-[Npx]</code> left — every px size with an exact <code>--ct-text-*</code> token (8/9/10/11/12/13/14/15/18px) is now on <code>text-[length:var(--ct-text-*)]</code> (enforced by the <code>typo-px</code> guard rule). The only arbitrary <code>text-[Npx]</code> remaining are sizes with no exact token (7/20/24/28/32px) — intentional.</p>
   <div class="grid g-2">
     <div class="card"><h3 style="margin-top:0">Top files by arbitrary px</h3>
       <div class="tbl-wrap" style="border:0"><table id="typo-tbl"><thead><tr><th>File</th><th>Count</th><th>Class</th></tr></thead><tbody id="typo-body"></tbody></table></div>
@@ -421,7 +421,7 @@
 <!-- ===================== 14. GUARDS ===================== -->
 <section id="guards">
   <div class="sec-head"><span class="sec-num">13</span><h2>DS guards / tests</h2></div>
-  <p class="lead"><b>7 green / 0 red</b> — all DS guards pass; <code>bento-ds-contract</code> 8/8 with BENTO_SRC repointed to <code>catalyst/bento.tsx</code> (#049 lot3). Plus the <code>ds-hardcode-guard.mjs</code> script (scoped to 8 files) and the NEW repo-wide <code>ds-convergence-guard.mjs</code> (#049 lot8 — GREEN 0 hits).</p>
+  <p class="lead"><b>9 green / 0 red</b> — all DS guards pass. Two enforcement scripts run in the <b>blocking CI job</b> (#207): <code>ds-hardcode-guard.mjs</code> (8 witness files) and the repo-wide <code>ds-convergence-guard.mjs</code> with <b>6 rules</b> (ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color) — the last bans ANY raw Tailwind colour, catalyst included. <code>pnpm ds:guard:all</code> · GREEN 0 hits.</p>
   <div class="tbl-wrap"><table id="guard-tbl">
     <thead><tr><th>Guard</th><th>Enforces</th><th>Status</th></tr></thead>
     <tbody id="guard-body"></tbody>
@@ -446,7 +446,7 @@
 </main>
 
 <footer class="wrap">
-  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-28 by Mission #049 (lot8) · head <code class="mono">c463155c</code> · status <code class="mono">DONE</code> — convergence complete (see update log).
+  Hearst Connect · Catalyst Migration Cartography · updated 2026-06-29 by Mission #049 (lot15) · head <code class="mono">f16fd2cb</code> · status <code class="mono">100% TOKENIZED — EVERYWHERE</code> (see update log).
   Data embedded below in <code class="mono">window.CARTO</code> (mirror of <code class="mono">docs/catalyst-cartography-data.json</code>).
 </footer>
 
@@ -518,15 +518,15 @@ window.CARTO = {
 window.CARTO_DATA = {
   "meta": {
     "mission": "049",
-    "generatedAt": "2026-06-28",
-    "head": "c463155c",
-    "originMain": "c463155c",
-    "status": "DONE",
-    "lastPR": "lot8 typo/zinc tokenization + convergence guard (fix/catalyst-typo-guards)",
-    "subAgents": 7,
+    "generatedAt": "2026-06-29",
+    "head": "f16fd2cb",
+    "originMain": "f16fd2cb",
+    "status": "100% TOKENIZED — EVERYWHERE",
+    "lastPR": "lot15 catalyst primitives 100% tokenized (#208)",
+    "subAgents": 16,
     "doctrine": "cockpit-shell = shell + tokens --ct-* | src/components/catalyst = THE single UI source | src/components/ui = 3 files only (provenance-badge + toaster + client-toaster)",
-    "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted.",
-    "note": "CONVERGENCE COMPLETE — Catalyst is the single UI source; ui/ reduced to 3 files (provenance-badge + 2 helpers); 24 dead façades deleted; 165 consumers import catalyst directly | lot8: 44 text-[Npx]+13 zinc→token, 3 missing guards shipped."
+    "target": "ONE design system: Catalyst is the single UI source. ui/* façades deleted. 100% --ct-* tokens on every UI surface, CI-enforced.",
+    "note": "100% TOKENIZED EVERYWHERE — through lot15 the Tailwind-Plus catalyst primitives (badge/button/combobox/listbox/sidebar/select/navbar/inputs/dropdown/layouts/dialog/alert/table/forms) were tokenized to --ct-* (~300 swaps, variant keys + [--btn-*] plumbing preserved). 0 raw Tailwind colour in UI code (catalyst included); only legit keeps remain (on-colour text-white on solid variants, unused decorative button ramps with no --ct equiv, email/route HTML inline hex). ds-convergence-guard = 6 rules (ui-direction · accent-hex · typo-px · surface-hex · status-color · named-color), enforced in the blocking CI job (#207). typecheck clean, eslint 0, next build compiles, all guards green."
   },
   "summary": {
     "pagesTotal": 72,
@@ -548,25 +548,27 @@ window.CARTO_DATA = {
     "uiLegacyAutonomous": 0,
     "uiHelpersRemaining": 2,
     "uiHelperNonVisual": 2,
-    "accentHardcodesTotal": 39,
-    "accentHardcodesTsx": 21,
+    "accentHardcodesTotal": 0,
+    "accentHardcodesTsx": 0,
     "accentDefinitions": 6,
-    "accentRemovedThisLot": 2,
-    "accentRemovedTotal": 98,
-    "typographyArbitraryPx": 9,
+    "accentFallbacksAllowlisted": 3,
+    "typographyArbitraryPxTokenizable": 0,
     "typographyTokenDriven": 341,
-    "catalystBlueResidual": 1,
+    "namedColourRawUi": 0,
+    "catalystBlueResidual": 0,
+    "catalystPrimitivesTokenized": true,
     "dsGuardsGreen": 9,
     "dsGuardsRed": 0,
+    "dsGuardsCiEnforced": true,
+    "convergenceGuardRules": 6,
     "ciLintGreen": true,
     "preferConstErrors": 0,
     "borderWhiteRaw": 0,
-    "textZincRaw": 31,
+    "textZincRaw": 0,
     "uiFacadesDeleted": 24,
     "convergenceComplete": true,
-    "typographyArbitraryPxNonCatalyst": 33,
-    "textZincRawNonCatalyst": 1,
-    "convergenceGuardActive": true
+    "tokenized100Everywhere": true,
+    "nextBuildCompiles": true
   },
   "openPRs": [
     {
@@ -594,8 +596,8 @@ window.CARTO_DATA = {
       "name": "badge.tsx",
       "used": 13,
       "status": "CANON_ACTIVE",
-      "tokenClean": "opt-in blue palette only (legit)",
-      "wrapper": "Tailwind-Plus generic"
+      "tokenClean": true,
+      "wrapper": "Tailwind-Plus generic (variant map folded onto --ct-status-* tokens, lot15)"
     },
     {
       "name": "button.tsx",
@@ -1408,13 +1410,13 @@ window.CARTO_DATA = {
       "name": "ds-hardcode-guard (script)",
       "file": "scripts/ds-hardcode-guard.mjs",
       "enforces": "8 guarded files: no raw hex/zinc/text-[Npx]/tracking-[]",
-      "status": "active, scoped to 8 files only"
+      "status": "GREEN — runs in the blocking CI job (#207)"
     },
     {
-      "name": "ds-convergence-guard (script)",
+      "name": "ds-convergence-guard (script, 6 rules)",
       "file": "scripts/ds-convergence-guard.mjs",
-      "enforces": "repo-wide: ui/* sealed to 3 helpers · no raw #A7FB90 in tsx (allowlist: canvas/SVG fallbacks + brand-constants) · no exact-token text-[Npx] on product/vaults/proof-center/admin",
-      "status": "GREEN 0 hits — pnpm ds:guard:convergence / ds:guard:all"
+      "enforces": "repo-wide: (1) ui/ sealed to 3 helpers · (2) no raw #A7FB90 (canvas/brand fallbacks allowlisted) · (3) no exact-token text-[Npx] · (4) no raw #15191C/bg-zinc-9xx surface · (5) status hues on --ct-status-* · (6) named-color: NO raw Tailwind colour anywhere incl. catalyst",
+      "status": "GREEN 0 hits — runs in the blocking CI job (#207); pnpm ds:guard:all"
     }
   ],
   "guardsMissing": [
