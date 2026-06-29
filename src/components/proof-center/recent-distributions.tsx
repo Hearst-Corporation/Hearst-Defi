@@ -117,7 +117,7 @@ export function RecentDistributions({
               {/* Period + amount headline row */}
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="text-[length:var(--ct-text-xs)] font-medium text-white">
+                  <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">
                     Period {d.period}
                   </span>
                   <ProvenanceBadge variant="strip" kind={provenance} />

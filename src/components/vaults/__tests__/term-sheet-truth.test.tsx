@@ -84,7 +84,7 @@ describe("TermSheetPreview — LP term sheet (/vaults/[id])", () => {
     expect(html).toContain("border-b border-[var(--ct-border-soft)] py-3");
     // Type size is the --ct-text-xs token (13px) now, not the raw arbitrary class.
     expect(html).toContain(
-      "text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums",
+      "text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums",
     );
     expect(html).not.toContain("ct-proof-row");
   });

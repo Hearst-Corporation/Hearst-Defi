@@ -88,7 +88,7 @@ export function AgenticCapabilitiesBoard({
         subtitle="What the platform can do, by how much human oversight it needs."
         as="h3"
         trailing={
-          <span className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none text-white tabular-nums">
+          <span className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none text-[var(--ct-text-strong)] tabular-nums">
             {CAPABILITIES.length}
           </span>
         }
@@ -118,7 +118,7 @@ export function AgenticCapabilitiesBoard({
                   key={c.tier}
                   className="border-b border-[var(--ct-border-soft)] align-middle transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
                 >
-                  <td className="px-4 py-3 text-right font-medium text-white tabular-nums">
+                  <td className="px-4 py-3 text-right font-medium text-[var(--ct-text-strong)] tabular-nums">
                     {count}
                   </td>
                   <td className="px-4 py-3">

@@ -18,7 +18,7 @@ export function VaultPanelHeader({
             {eyebrow}
           </p>
         ) : null}
-        <h3 className="text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-wider text-white">
+        <h3 className="text-[length:var(--ct-text-xs)] font-semibold uppercase tracking-wider text-[var(--ct-text-strong)]">
           {title}
         </h3>
       </div>
@@ -43,7 +43,7 @@ export function VaultKpiCell({
       </span>
       <span
         className={cn(
-          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight text-white tabular-nums",
+          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight text-[var(--ct-text-strong)] tabular-nums",
           valueClassName,
         )}
       >
@@ -68,7 +68,7 @@ export function VaultDetailRow({
         <span className="ct-bento-label">
           {label}
         </span>
-        <span className="text-[length:var(--ct-text-xs)] font-medium text-white tabular-nums">
+        <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
           {value}
         </span>
       </div>

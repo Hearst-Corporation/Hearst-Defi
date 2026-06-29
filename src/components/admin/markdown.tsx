@@ -25,16 +25,16 @@ export function Markdown({
         components={{
           h1: ({ children }) =>
             demoteH1 ? (
-              <h2 className="mt-8 mb-3 text-[length:var(--ct-text-xl-fixed)] font-semibold tracking-tight text-white first:mt-0">
+              <h2 className="mt-8 mb-3 text-[length:var(--ct-text-xl-fixed)] font-semibold tracking-tight text-[var(--ct-text-strong)] first:mt-0">
                 {children}
               </h2>
             ) : (
-              <h1 className="mt-10 mb-4 text-[24px] font-semibold tracking-tight text-white first:mt-0">
+              <h1 className="mt-10 mb-4 text-[24px] font-semibold tracking-tight text-[var(--ct-text-strong)] first:mt-0">
                 {children}
               </h1>
             ),
           h2: ({ children }) => (
-            <h2 className="mt-8 mb-3 text-[length:var(--ct-text-xl-fixed)] font-semibold tracking-tight text-white">
+            <h2 className="mt-8 mb-3 text-[length:var(--ct-text-xl-fixed)] font-semibold tracking-tight text-[var(--ct-text-strong)]">
               {children}
             </h2>
           ),
@@ -115,7 +115,7 @@ export function Markdown({
           ),
           hr: () => <hr className="my-8 border-t border-[var(--ct-border)]" />,
           strong: ({ children }) => (
-            <strong className="font-semibold text-white">{children}</strong>
+            <strong className="font-semibold text-[var(--ct-text-strong)]">{children}</strong>
           ),
         }}
       >

@@ -193,7 +193,7 @@ function ProofArticle({
           <Icon className="w-4 h-4 text-[var(--ct-text-muted)]" />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-[length:var(--ct-text-14)] font-semibold text-white leading-snug">
+          <h4 className="text-[length:var(--ct-text-14)] font-semibold text-[var(--ct-text-strong)] leading-snug">
             {title}
           </h4>
           {description && (
@@ -235,7 +235,7 @@ function PlatformAddressRow({
             ) : (
               <span
                 title={entry.address}
-                className="font-mono text-[length:var(--ct-text-xs)] text-white truncate"
+                className="font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] truncate"
               >
                 {abbreviateAddress(entry.address)}
               </span>
@@ -285,7 +285,7 @@ function DeployedContractCard({
           )}
         </ProofRow>
         <ProofRow label="Deploy block">
-          <span className="font-mono text-[length:var(--ct-text-xs)] text-white">
+          <span className="font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)]">
             {contract.deployBlock || "Pending"}
           </span>
         </ProofRow>
@@ -395,7 +395,7 @@ export function ContractsAuditTrail({
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex flex-col gap-1 min-w-0">
-                      <span className="text-[length:var(--ct-text-xs)] font-medium text-white">
+                      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">
                         {entry.label}
                       </span>
                       <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">

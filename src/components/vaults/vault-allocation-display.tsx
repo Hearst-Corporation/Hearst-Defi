@@ -61,7 +61,7 @@ export function VaultAllocationAdminRows({
           <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">
             {row.label}
           </span>
-          <span className="text-sm font-bold text-white tabular-nums">
+          <span className="text-sm font-bold text-[var(--ct-text-strong)] tabular-nums">
             {bpsToPercent(row.bps)}%
           </span>
         </div>
@@ -150,7 +150,7 @@ export function VaultAllocationInvestorList({
           <span className="text-[length:var(--ct-text-deci)] uppercase tracking-[0.2em] font-bold text-[var(--ct-text-faint)]">
             Target
           </span>
-          <span className="text-[length:var(--ct-text-2xl)] font-medium text-white leading-none">
+          <span className="text-[length:var(--ct-text-2xl)] font-medium text-[var(--ct-text-strong)] leading-none">
             100%
           </span>
         </div>
@@ -175,7 +175,7 @@ export function VaultAllocationInvestorList({
                 {ALLOCATION_DESCRIPTIONS[s.bucket]}
               </p>
             </div>
-            <span className="text-sm font-bold text-white tabular-nums self-start">
+            <span className="text-sm font-bold text-[var(--ct-text-strong)] tabular-nums self-start">
               {bpsToPercent(s.bps, 0)}%
             </span>
           </div>

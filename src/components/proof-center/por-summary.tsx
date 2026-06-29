@@ -46,7 +46,7 @@ function BentoKpi({
       <span className="ct-bento-label">
         {label}
       </span>
-      <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-white leading-none tracking-tight tabular-nums">
+      <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
         {value}
       </span>
       {sublabel ? (
@@ -69,7 +69,7 @@ function BentoProofRow({
   return (
     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
       <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{label}</span>
-      <span className="text-[length:var(--ct-text-xs)] font-medium text-white font-mono tabular-nums">
+      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] font-mono tabular-nums">
         {children}
       </span>
     </div>
@@ -77,10 +77,10 @@ function BentoProofRow({
 }
 
 const explorerLinkClass =
-  "text-[var(--ct-text-muted)] hover:text-white transition-colors duration-150";
+  "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors duration-150";
 
 const bentoLinkButtonClass =
-  "inline-flex items-center justify-center border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-white font-medium rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
+  "inline-flex items-center justify-center border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-strong)] font-medium rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
 
 export function PorSummary({
   attestation,

@@ -37,16 +37,16 @@ export function DistributionPreview({
       {/* Summary */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <h3 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-white">
+          <h3 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-[var(--ct-text-strong)]">
             Distribution preview
           </h3>
-          <p className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums text-white">
+          <p className="text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums text-[var(--ct-text-strong)]">
             {formatUsdDetailed(totalUsdc)} USDC
           </p>
         </div>
         <div className="flex flex-col items-end gap-1.5 text-right">
           <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">Period</p>
-          <p className="font-mono text-[length:var(--ct-text-xs)] font-medium text-white">{period}</p>
+          <p className="font-mono text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">{period}</p>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export function DistributionPreview({
                 <td className="px-5 py-3 text-right text-[var(--ct-text-muted)]">
                   {r.sharesPct.toFixed(4)}%
                 </td>
-                <td className="px-5 py-3 text-right font-medium text-white">
+                <td className="px-5 py-3 text-right font-medium text-[var(--ct-text-strong)]">
                   {formatUsdDetailed(r.payoutUsdc)}
                 </td>
               </tr>
@@ -89,7 +89,7 @@ export function DistributionPreview({
               <td className="px-5 py-3 text-right text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                 100%
               </td>
-              <td className="px-5 py-3 text-right font-medium text-white">
+              <td className="px-5 py-3 text-right font-medium text-[var(--ct-text-strong)]">
                 {formatUsdDetailed(totalUsdc)}
               </td>
             </tr>

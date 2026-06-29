@@ -84,7 +84,7 @@ function SignalRow({ signal }: { signal: ReportingCrewSignal }) {
     <li className="flex items-start gap-2.5">
       <Chip tone={severityTone(signal.severity)}>{signal.severity}</Chip>
       <span className="flex-1 text-[length:var(--ct-text-xs)] leading-snug">
-        <span className="font-medium text-white">{signal.title}</span>
+        <span className="font-medium text-[var(--ct-text-strong)]">{signal.title}</span>
         <span className="text-[var(--ct-text-muted)]"> — {signal.detail}</span>
         <span className="text-[var(--ct-text-faint)]"> ({signal.source})</span>
       </span>
@@ -107,7 +107,7 @@ function SectionCard({ section }: { section: ReportingCrewSectionData }) {
                 <span className="ct-bento-label">
                   {m.label}
                 </span>
-                <span className="text-[length:var(--ct-text-14)] font-medium leading-none text-white tabular-nums">
+                <span className="text-[length:var(--ct-text-14)] font-medium leading-none text-[var(--ct-text-strong)] tabular-nums">
                   {m.value}
                 </span>
                 {m.detail && (

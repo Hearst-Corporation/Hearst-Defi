@@ -203,7 +203,7 @@ export function RebalancingEventsPanel({
                         href={`${EXPLORER_TX_BASE}${event.txHash}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="inline-flex items-center gap-1 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] hover:text-white transition-colors"
+                        className="inline-flex items-center gap-1 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors"
                         title={event.txHash}
                         aria-label={`View transaction ${event.txHash} on explorer`}
                       >

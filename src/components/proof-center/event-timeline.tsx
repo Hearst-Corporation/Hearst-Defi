@@ -119,7 +119,7 @@ function EventTimelineItem({
       <span
         aria-hidden="true"
         className={cn(
-          "relative mt-1.5 flex size-2 shrink-0 items-center justify-center rounded-full ring-4 ring-[#111417]",
+          "relative mt-1.5 flex size-2 shrink-0 items-center justify-center rounded-full ring-4 ring-[var(--ct-surface-page)]",
           eventDotClass(event.kind),
         )}
       />
@@ -167,7 +167,7 @@ function EventTimelineItem({
               href={payloadHref}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-white no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
+              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-strong)] no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
             >
               View payload (IPFS)
             </a>

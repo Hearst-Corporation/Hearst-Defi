@@ -87,7 +87,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
             disabled={isPending}
             value={ruleId}
             onChange={(e) => setRuleId(e.target.value)}
-            className="w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-white transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none disabled:opacity-50"
           >
             {RULE_IDS.map((r) => (
               <option key={r} value={r}>

@@ -30,7 +30,7 @@ const FIELD_LABEL =
 
 /** Native input/select/textarea chrome — bento canon. */
 const FIELD_CONTROL =
-  "w-full bg-surface-inset border border-[var(--ct-border)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-[var(--ct-text-faint)]";
+  "w-full bg-surface-inset border border-[var(--ct-border)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)]";
 
 /** Neutral badge pill used in the persona summary + base-agent echo. */
 function Pill({
@@ -116,7 +116,7 @@ export function AgentTemplateForm({
           </span>
           <span className="min-w-0 flex-1">
             <span className={cn("block", FIELD_LABEL)}>Base agent</span>
-            <span className="block text-[length:var(--ct-text-14)] font-semibold text-white">
+            <span className="block text-[length:var(--ct-text-14)] font-semibold text-[var(--ct-text-strong)]">
               {entry.label}
             </span>
             <span className="block text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">

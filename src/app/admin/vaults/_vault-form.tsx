@@ -117,7 +117,7 @@ function isValidSigner(raw: string): boolean {
 // Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
 // accent (#A7FB90) focus ring. One source for every native control in the form.
 const BENTO_INPUT =
-  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-white placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
 const BENTO_FIELD_HINT = "text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]";
 const BENTO_LABEL =
   "text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]";
@@ -129,7 +129,7 @@ function inputClass(extra?: string) {
 /** Bento section heading inside a panel body. */
 function StepHeader({ title }: { title: string }) {
   return (
-    <h2 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-white">
+    <h2 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-[var(--ct-text-strong)]">
       {title}
     </h2>
   );
@@ -418,7 +418,7 @@ export function VaultForm(props: VaultFormProps) {
                   className={cn(
                     "text-[length:var(--ct-text-2xs)] font-medium transition-colors",
                     isActive
-                      ? "text-white"
+                      ? "text-[var(--ct-text-strong)]"
                       : isCompleted
                         ? "text-[var(--ct-text-muted)]"
                         : "text-[var(--ct-text-faint)]",
@@ -677,7 +677,7 @@ export function VaultForm(props: VaultFormProps) {
                 <div key={key} className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-3">
                     <span className={BENTO_LABEL}>{label}</span>
-                    <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-white">
+                    <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">
                       {pct(form[key])}%
                     </span>
                   </div>
@@ -842,7 +842,7 @@ export function VaultForm(props: VaultFormProps) {
                     Your current admin identity:
                   </span>
                   <div className="flex items-center justify-between gap-3">
-                    <code className="select-all break-all font-mono text-[length:var(--ct-text-2xs)] text-white">{props.adminId}</code>
+                    <code className="select-all break-all font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-strong)]">{props.adminId}</code>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
@@ -927,7 +927,7 @@ export function VaultForm(props: VaultFormProps) {
             <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <FieldGrid columns={2} className="pb-4">
                 <RecapRow label="Ticker">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-white">{form.ticker}</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">{form.ticker}</span>
                 </RecapRow>
                 <RecapRow label="Name">
                   <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]" title={form.name}>{form.name}</span>
@@ -1049,12 +1049,12 @@ export function VaultForm(props: VaultFormProps) {
                 it requires the configured quorum of signers to approve before deployment.
               </p>
               <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">
-                Click <strong className="font-semibold text-white">Submit for Review</strong> below to enter the multisig queue.
+                Click <strong className="font-semibold text-[var(--ct-text-strong)]">Submit for Review</strong> below to enter the multisig queue.
               </p>
               <div className="flex flex-col gap-2 border-t border-[var(--ct-border-soft)] pt-3">
                 <div className="flex items-center justify-between gap-3">
                   <span className={BENTO_LABEL}>Vault</span>
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-white">{form.ticker || "—"}</span>
+                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">{form.ticker || "—"}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className={BENTO_LABEL}>Required signers</span>
