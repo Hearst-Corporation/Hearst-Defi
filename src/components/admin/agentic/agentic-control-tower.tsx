@@ -54,9 +54,9 @@ export function AgenticControlTower({
         title="Command Summary"
         subtitle="Autonomy, gates, forbidden actions, and simulated crews."
       >
-        <div className="p-5">
-          <AgenticStatusLine summary={summary} />
-        </div>
+        {/* Canon KPI strip — welded edge-to-edge under the card header (its own
+            inset surface + hairlines), like every other admin page. */}
+        <AgenticStatusLine summary={summary} />
       </AdminSectionCard>
 
       <AdminSectionCard

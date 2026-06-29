@@ -1,16 +1,14 @@
-// Admin · Agentic Control Tower — Status line (presentational).
+// Admin · Agentic Control Tower — Command Summary KPI strip (presentational).
 //
-// READ-ONLY. Replaces the hero box with a single dense status LINE: health on
-// the left, the headline metrics as inline value/label facts, and any attention
-// items as tight warning lines below. No box grid, no hardcoded values — every
-// token is var(--ct-*). Pure component.
-//
-// Canon migration (Mission #064): the bespoke `agentic-statusline*` /
-// `agentic-attention*` classes are inlined into tokenised Tailwind utilities
-// (still 100% --ct-* tokens, no new chrome). Tone → text-colour mapping below.
+// READ-ONLY. Renders the headline metrics as the CANON admin KPI strip
+// (DashboardKpiStrip — the same full-width, hairline-separated, 18px-value
+// strip every other admin page opens with) instead of a small inline status
+// line. The first tile is the platform health; the rest are the tower metrics.
+// Attention items (watch/alert) stay as tight warning lines below the strip.
 
-import type { TowerSummary } from "@/lib/agentic/system-map/tower-summary";
-import { cn } from "@/lib/cn";
+import { DashboardKpiStrip } from "@/components/admin/dashboard/kpi-strip";
+import type { HeroKpi } from "@/lib/data/cockpit";
+import type { TowerSummary, TowerMetric } from "@/lib/agentic/system-map/tower-summary";
 
 const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
   healthy: "All clear",
@@ -19,32 +17,12 @@ const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
   no_data: "Limited data",
 };
 
-type FactTone = "success" | "warning" | "danger" | "accent" | "neutral";
-
-const HEALTH_TONE: Record<TowerSummary["health"], FactTone> = {
-  healthy: "success",
-  watch: "warning",
-  alert: "danger",
-  no_data: "neutral",
-};
-
-// Tone → fact-value text colour (token-only). `neutral`/undefined keep the
-// default strong text colour from the base value class.
-const FACT_TONE_CLASS: Record<Exclude<FactTone, "neutral">, string> = {
-  success: "text-[var(--ct-status-success)]",
-  warning: "text-[var(--ct-status-warning)]",
-  danger: "text-[var(--ct-status-danger)]",
-  accent: "text-[var(--ct-accent)]",
-};
-
-const FACT_VALUE_BASE =
-  "text-[length:var(--ct-text-base)] font-bold tabular-nums tracking-tight text-[var(--ct-text-strong)]";
-const FACT_LABEL =
-  "text-[length:var(--ct-text-micro)] uppercase tracking-wider text-[var(--ct-text-muted)]";
-
-function factValueClass(tone: FactTone | undefined): string {
-  if (!tone || tone === "neutral") return FACT_VALUE_BASE;
-  return cn(FACT_VALUE_BASE, FACT_TONE_CLASS[tone]);
+/** Map a tower metric tone to the KPI strip's semantic value colour:
+ *  danger → alert (red), accent/success → accent (green), else neutral white. */
+function toneToKpiFlags(tone: TowerMetric["tone"]): Pick<HeroKpi, "alert" | "accent"> {
+  if (tone === "danger") return { alert: true };
+  if (tone === "accent" || tone === "success") return { accent: true };
+  return {};
 }
 
 export function AgenticStatusLine({
@@ -55,40 +33,38 @@ export function AgenticStatusLine({
   if (!summary) return null;
   const { health, metrics, attention } = summary;
 
-  return (
-    <div className="flex flex-col gap-[var(--ct-space-2)]">
-      <header
-        className="flex flex-wrap items-center gap-x-4 gap-y-2"
-        data-health={health}
-        aria-label="Agentic command summary"
-      >
-        <span className="mr-auto inline-flex items-baseline gap-2">
-          <span className={factValueClass(HEALTH_TONE[health])}>
-            {HEALTH_LABEL[health]}
-          </span>
-          <span className={FACT_LABEL}>platform</span>
-        </span>
+  // Canon KPI tiles: platform health first, then each tower metric. sublabel =
+  // the metric's one-line meaning; provenance is "manual" (a static registry
+  // read), matching the rest of the agentic control tower's read-only posture.
+  const kpis: HeroKpi[] = [
+    {
+      label: "Platform",
+      value: HEALTH_LABEL[health],
+      sublabel: "overall agentic health",
+      provenance: "manual",
+      ...(health === "healthy" ? { accent: true } : {}),
+      ...(health === "alert" ? { alert: true } : {}),
+    },
+    ...metrics.map(
+      (m): HeroKpi => ({
+        label: m.label,
+        value: m.value,
+        sublabel: m.hint,
+        provenance: "manual",
+        ...toneToKpiFlags(m.tone),
+      }),
+    ),
+  ];
 
-        {metrics.map((m) => (
-          <span
-            key={m.id}
-            className="inline-flex items-baseline gap-1.5 whitespace-nowrap"
-            title={m.hint}
-          >
-            <span
-              className={factValueClass(
-                m.tone === "neutral" ? undefined : (m.tone as FactTone),
-              )}
-            >
-              {m.value}
-            </span>
-            <span className={FACT_LABEL}>{m.label}</span>
-          </span>
-        ))}
-      </header>
+  return (
+    <div className="flex flex-col" aria-label="Agentic command summary">
+      <DashboardKpiStrip kpis={kpis} />
 
       {attention.length > 0 && (
-        <ul className="flex flex-col gap-1" aria-label="Attention items">
+        <ul
+          className="flex flex-col gap-1 p-5"
+          aria-label="Attention items"
+        >
           {attention.map((a) => (
             <li
               key={a}
