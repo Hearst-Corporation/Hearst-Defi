@@ -9,6 +9,7 @@ import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
 import { isSuppressed } from "@/lib/outreach/suppression";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
 import type { OutreachCampaignSendPayload } from "@/lib/outreach/events";
 
@@ -117,6 +118,26 @@ export async function outreachSendHandler({
             emailId: email.id,
           });
           return { ok: false as const, suppressed: true };
+        }
+
+        // Compliance gate (non-negotiable #5): an email is approved as a draft,
+        // but a hand-edit after approval (updateEmail re-guards, yet a direct
+        // DB edit or an older row would not) could slip an unconditional claim
+        // through. Re-check forbidden words at send time — parity with
+        // outreach-auto-send / sendDirectEmail. A hit blocks ONLY this row
+        // (marked failed, reason logged); the fan-out continues for the rest.
+        const forbidden = containsForbidden(`${email.subject}\n${email.body}`);
+        if (forbidden) {
+          await prisma.outreachEmail.update({
+            where: { id: email.id },
+            data: { status: "failed" },
+          });
+          logger.error("[outreach-send] blocked forbidden-words at send time", {
+            campaignId,
+            emailId: email.id,
+            found: forbidden.found,
+          });
+          return { ok: false as const, blocked: true };
         }
 
         const result = await sendTrackedEmail({
