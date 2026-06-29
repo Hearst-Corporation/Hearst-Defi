@@ -1,4 +1,3 @@
-import { BentoHeader } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
@@ -40,13 +39,20 @@ export function PlatformOverviewBand({
     >
       {view.clusters.map((cluster, index) => (
         <div key={cluster.label} className="flex flex-col p-5">
-          <BentoHeader
-            as="h3"
-            title={cluster.label}
-            subtitle={index === 0 ? view.caption : undefined}
-            trailing={<AdminLeafLink href={cluster.href} />}
-            className="border-b-0 p-0 pb-3"
-          />
+          {/* Cluster header — title + leaf link. Custom (not BentoHeader) so
+              the title and the "View full" link WRAP instead of overlapping in
+              a narrow column: flex-wrap + a min-w-0 title + a shrink-0 link, so
+              the link drops to its own line rather than sitting on top of the
+              heading. The caption (first cluster only) goes full-width below. */}
+          <div className="flex flex-col gap-1 pb-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h3 className="ct-bento-card-title min-w-0">{cluster.label}</h3>
+              <AdminLeafLink href={cluster.href} className="shrink-0" />
+            </div>
+            {index === 0 && view.caption ? (
+              <p className="ct-bento-card-subtitle">{view.caption}</p>
+            ) : null}
+          </div>
           <div className="flex flex-col">
             {cluster.kpis.map((kpi) => (
               <div
