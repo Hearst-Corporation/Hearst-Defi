@@ -34,7 +34,7 @@ import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 import { AdminLeafLink } from "./cockpit-panel-header";
 
 import { AllocationOrbit } from "./allocation-orbit";
-import { DashboardKpiStrip } from "./kpi-strip";
+import { AdminKpiStripPanel } from "./admin-kpi-strip-panel";
 import { NavSlot } from "./nav-slot";
 import { PlatformOverviewBand } from "./platform-overview-band";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
@@ -251,8 +251,12 @@ export function DashboardAssetsBoard({
 
       {/* ── KPI strip + charts ── */}
       <BentoPanel aria-label="Vault KPIs and charts">
-        <section aria-label="Vault KPIs" className="border-b border-[var(--ct-border-soft)]">
-          <DashboardKpiStrip kpis={stripKpis} />
+        {/* Canon KPI strip via AdminKpiStripPanel (embedded): grey inset
+            surface + centred cells + welded bottom hairline, like every other
+            admin strip. A bare DashboardKpiStrip is transparent + left-aligned,
+            which left APY/Risk/Mining/… sitting on the black panel, mis-centred. */}
+        <section aria-label="Vault KPIs">
+          <AdminKpiStripPanel kpis={stripKpis} embedded />
         </section>
 
         {showVaultAnalytics ? (
