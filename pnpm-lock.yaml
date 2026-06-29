@@ -31,9 +31,6 @@ importers:
       '@hearst/review-mode':
         specifier: file:./hearst-review-mode-0.1.0.tgz
         version: file:hearst-review-mode-0.1.0.tgz(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(zod@4.4.3)
-      '@heroicons/react':
-        specifier: ^2.2.0
-        version: 2.2.0(react@19.2.6)
       '@huggingface/inference':
         specifier: ^4.13.20
         version: 4.13.20

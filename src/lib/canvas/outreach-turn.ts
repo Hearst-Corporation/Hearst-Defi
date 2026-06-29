@@ -272,30 +272,6 @@ export function buildOutreachOpenCampaignMessage(state: OutreachWorkflowState): 
   return `J’ouvre la campagne “${state.campaignName}” · ${state.campaignType} dans le workspace Outreach.`;
 }
 
-export interface OutreachIntent {
-  isOutreach: boolean;
-}
-
-export function classifyOutreachIntent(message: string): OutreachIntent {
-  return { isOutreach: parseOutreachMessage(message).intent !== "none" };
-}
-
-export function buildOutreachFieldsAckMessage(args: {
-  name: string;
-  kind: "cold" | "newsletter";
-}): string {
-  return buildOutreachDraftPreparedMessage({
-    workflow: "outreach_campaign",
-    campaignName: args.name,
-    campaignType: args.kind,
-    draftStatus: "prepared",
-    draftContent: prepareOutreachDraftContent({
-      campaignName: args.name,
-      campaignType: args.kind,
-    }),
-  });
-}
-
 export function buildOutreachPostDraftMessage(name: string): string {
   return `Le draft de campagne “${clean(name) || name}” est enregistré avec un contenu non vide. Aucun envoi n’a été lancé.`;
 }

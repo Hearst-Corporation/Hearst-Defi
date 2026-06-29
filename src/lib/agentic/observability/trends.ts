@@ -136,22 +136,6 @@ export function buildRouterDecisionTrendBuckets(
 }
 
 /**
- * Bucket geometry for a window — exposed so the SQL-aggregate path can compute
- * the EXACT same slots (start, span, count) the in-memory path uses, and project
- * SQL-grouped counts into them by index. Keeps the two paths byte-identical.
- */
-export function getRouterTrendWindowGeometry(window: RouterTrendWindow): {
-  bucketCount: number;
-  bucketMs: number;
-  startMs: number;
-  nowMs: number;
-} {
-  const { buckets: bucketCount, bucketMs } = WINDOW_GEOMETRY[window];
-  const nowMs = Date.now();
-  return { bucketCount, bucketMs, startMs: nowMs - bucketCount * bucketMs, nowMs };
-}
-
-/**
  * Build the empty, oldest-first bucket slots for a window (same labels/start/end
  * as buildRouterDecisionTrendBuckets, with zero counts). The SQL-aggregate path
  * fills these by index so the rendered bars are identical to the in-memory path.
@@ -208,7 +192,3 @@ export function getTopMatchedRules(
     .sort((a, b) => b.count - a.count || a.ruleId.localeCompare(b.ruleId))
     .slice(0, Math.max(0, limit));
 }
-
-/** Honest, constant note about the capped v0 buffer the trends derive from. */
-export const ROUTER_TREND_BUFFER_NOTE =
-  "Trends are computed from the capped v0 router trace buffer: max 200 traces, TTL 7 days.";

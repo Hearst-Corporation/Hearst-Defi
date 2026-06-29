@@ -11,7 +11,6 @@ export {
   REAL_READ_TOOL_IDS,
   REAL_WRITE_TOOL_IDS,
   TOOL_REGISTRY_SOURCE,
-  TOOL_IDS_SOURCE,
   type ReflectedToolMeta,
   type ReflectedToolId,
 } from "./registry-reflection";

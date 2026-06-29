@@ -3,7 +3,7 @@ import {
   type ValueSeriesPoint,
   type ValueSeriesTx,
 } from "../value-series";
-import { PAD_X, PAD_Y_TOP, DRAW_W, DRAW_H, CHART_BASELINE_Y } from "./svgConstants";
+import { PAD_X, PAD_Y_TOP, DRAW_W, DRAW_H } from "./svgConstants";
 
 export interface ChartPoint {
   x: number;
@@ -156,17 +156,6 @@ function buildPolyline(points: ChartPoint[], step: boolean): string {
   }
 
   return d;
-}
-
-export function generateAreaPath(points: ChartPoint[], options?: PathOptions): string {
-  if (points.length < 2) return "";
-
-  const line = buildPolyline(points, options?.step ?? false);
-  const first = points[0]!;
-  const last = points[points.length - 1]!;
-  const baseline = CHART_BASELINE_Y;
-
-  return `${line} L${last.x.toFixed(2)},${baseline.toFixed(2)} L${first.x.toFixed(2)},${baseline.toFixed(2)} Z`;
 }
 
 export function generateLinePath(points: ChartPoint[], options?: PathOptions): string {
