@@ -44,37 +44,31 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
   const { summary } = report;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-(--ct-space-4)">
       {/* safety + summary banner */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-xs text-[var(--ct-text-muted)]">
+      <div className="flex flex-wrap items-center gap-x-(--ct-space-5) gap-y-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-4) py-(--ct-space-2_5) mono text-[length:var(--ct-text-xs)] ct-text-muted">
         <span>
-          Mode: <span className="text-[var(--ct-accent)]">{report.mode}</span>
+          Mode: <span className="ct-text-accent">{report.mode}</span>
         </span>
         <span>
           LLM used:{" "}
-          <span className="text-[var(--ct-accent)]">
+          <span className="ct-text-accent">
             {String(report.llmUsed)}
           </span>
         </span>
         <span>
           External side effects:{" "}
-          <span className="text-[var(--ct-accent)]">
+          <span className="ct-text-accent">
             {String(report.externalSideEffects)}
           </span>
         </span>
         <span>
           DB writes:{" "}
-          <span className="text-[var(--ct-accent)]">{report.dbWrites}</span>
+          <span className="ct-text-accent">{report.dbWrites}</span>
         </span>
         <span>
           Result:{" "}
-          <span
-            className={
-              summary.fail > 0
-                ? "text-[var(--ct-status-danger)]"
-                : "text-[var(--ct-accent)]"
-            }
-          >
+          <span className={summary.fail > 0 ? "ct-status-danger" : "ct-text-accent"}>
             {summary.pass}/{summary.total} PASS
             {summary.fail > 0 ? ` · ${summary.fail} FAIL` : ""}
             {summary.warn > 0 ? ` · ${summary.warn} WARN` : ""}
@@ -82,7 +76,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-(--ct-space-3)">
         <Button
           variant="primary"
           size="sm"
@@ -92,7 +86,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
           {loading ? "Running…" : "Run all chat actions"}
         </Button>
         {error ? (
-          <span className="text-xs text-[var(--ct-status-danger)]">
+          <span className="text-[length:var(--ct-text-xs)] ct-status-danger">
             {error}
           </span>
         ) : null}
@@ -100,7 +94,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
 
       <ChatActionScenarioTable results={report.results} />
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-(--ct-space-3) lg:grid-cols-2">
         {report.results.map((r) => (
           <ChatActionResultCard key={r.id} result={r} />
         ))}
@@ -111,12 +105,12 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
         <button
           type="button"
           onClick={() => setShowRaw((v) => !v)}
-          className="text-xs text-[var(--ct-text-muted)] underline-offset-2 hover:underline"
+          className="text-[length:var(--ct-text-xs)] ct-text-muted underline-offset-2 hover:underline"
         >
           {showRaw ? "Hide" : "Show"} raw diagnostic JSON
         </button>
         {showRaw ? (
-          <pre className="mt-2 max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-3 font-mono text-xs text-[var(--ct-text-muted)]">
+          <pre className="mt-(--ct-space-2) max-h-96 overflow-auto rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-page p-(--ct-space-3) mono text-[length:var(--ct-text-xs)] ct-text-muted">
             {JSON.stringify(report, null, 2)}
           </pre>
         ) : null}

@@ -1,19 +1,18 @@
+import { cn } from "@/lib/cn";
 import type {
   OutreachLifecyclePath,
   OutreachLifecycleReport,
 } from "@/lib/admin/diagnostics/outreach-lifecycle";
 
 const VERDICT_CLS: Record<OutreachLifecyclePath["verdict"], string> = {
-  SAFE: "text-[var(--ct-accent)]",
-  GATED: "text-[var(--ct-status-warning)]",
-  UNSAFE: "text-[var(--ct-status-danger)]",
+  SAFE: "ct-text-accent",
+  GATED: "ct-status-warning",
+  UNSAFE: "ct-status-danger",
 };
 
 function Bool({ on, yes, no }: { on: boolean; yes: string; no: string }) {
   return (
-    <span
-      className={on ? "text-[var(--ct-status-warning)]" : "text-[var(--ct-accent)]"}
-    >
+    <span className={on ? "ct-status-warning" : "ct-text-accent"}>
       {on ? yes : no}
     </span>
   );
@@ -21,30 +20,30 @@ function Bool({ on, yes, no }: { on: boolean; yes: string; no: string }) {
 
 function PathCard({ path }: { path: OutreachLifecyclePath }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-[var(--ct-text-strong)]">
+    <div className="flex flex-col gap-(--ct-space-2) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
+      <div className="flex items-center justify-between gap-(--ct-space-3)">
+        <p className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong">
           {path.path}
         </p>
-        <span className={`text-xs font-bold ${VERDICT_CLS[path.verdict]}`}>
+        <span className={cn("text-[length:var(--ct-text-xs)] font-bold", VERDICT_CLS[path.verdict])}>
           {path.verdict}
         </span>
       </div>
 
-      <p className="text-xs text-[var(--ct-text-secondary)]">
+      <p className="text-[length:var(--ct-text-xs)] ct-text-secondary">
         <span className="ct-bento-label">Trigger</span> · {path.trigger}
       </p>
 
       <div>
         <span className="ct-bento-label">Guard sequence</span>
-        <ol className="mt-1 flex flex-wrap items-center gap-1 text-xs text-[var(--ct-text-secondary)]">
+        <ol className="mt-(--ct-space-1) flex flex-wrap items-center gap-(--ct-space-1) text-[length:var(--ct-text-xs)] ct-text-secondary">
           {path.guardSequence.map((g, i) => (
-            <li key={g} className="flex items-center gap-1">
-              <span className="rounded-md border border-[var(--ct-border)] px-2 py-0.5">
+            <li key={g} className="flex items-center gap-(--ct-space-1)">
+              <span className="rounded-(--ct-radius-md) border border-[var(--ct-border)] px-(--ct-space-2) py-(--ct-space-0_5)">
                 {g}
               </span>
               {i < path.guardSequence.length - 1 ? (
-                <span aria-hidden className="text-[var(--ct-text-faint)]">
+                <span aria-hidden className="ct-text-faint">
                   →
                 </span>
               ) : null}
@@ -53,7 +52,7 @@ function PathCard({ path }: { path: OutreachLifecyclePath }) {
         </ol>
       </div>
 
-      <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-[var(--ct-text-muted)]">
+      <div className="flex flex-wrap gap-x-(--ct-space-5) gap-y-(--ct-space-1) text-[length:var(--ct-text-xs)] ct-text-muted">
         <span>
           Writes? <Bool on={path.wouldWrite} yes="yes" no="no" />
         </span>
@@ -71,10 +70,10 @@ function PathCard({ path }: { path: OutreachLifecyclePath }) {
         </span>
       </div>
 
-      <p className="text-xs text-[var(--ct-text-tertiary)]">
+      <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
         Diagnostic: {path.diagnostic}
       </p>
-      <p className="font-mono text-xs text-[var(--ct-text-faint)] break-all">
+      <p className="mono text-[length:var(--ct-text-xs)] ct-text-faint break-all">
         {path.source}
       </p>
     </div>
@@ -91,44 +90,38 @@ export function OutreachLifecycleDemo({
   report: OutreachLifecycleReport;
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-xs text-[var(--ct-text-muted)]">
+    <div className="flex flex-col gap-(--ct-space-4)">
+      <div className="flex flex-wrap items-center gap-x-(--ct-space-5) gap-y-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-4) py-(--ct-space-2_5) mono text-[length:var(--ct-text-xs)] ct-text-muted">
         <span>
-          Mode: <span className="text-[var(--ct-accent)]">{report.mode}</span>
+          Mode: <span className="ct-text-accent">{report.mode}</span>
         </span>
         <span>
           External send:{" "}
-          <span className="text-[var(--ct-accent)]">
+          <span className="ct-text-accent">
             {String(report.externalSend)}
           </span>
         </span>
         <span>
           Resend called:{" "}
-          <span className="text-[var(--ct-accent)]">
+          <span className="ct-text-accent">
             {String(report.resendCalled)}
           </span>
         </span>
         <span>
           Inngest triggered:{" "}
-          <span className="text-[var(--ct-accent)]">
+          <span className="ct-text-accent">
             {String(report.inngestTriggered)}
           </span>
         </span>
         <span>
           Overall:{" "}
-          <span
-            className={
-              report.ok
-                ? "text-[var(--ct-accent)]"
-                : "text-[var(--ct-status-danger)]"
-            }
-          >
+          <span className={report.ok ? "ct-text-accent" : "ct-status-danger"}>
             {report.ok ? "SAFE" : "UNSAFE — regression"}
           </span>
         </span>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-(--ct-space-3) lg:grid-cols-2">
         {report.paths.map((p) => (
           <PathCard key={p.id} path={p} />
         ))}

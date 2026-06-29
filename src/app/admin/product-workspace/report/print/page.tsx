@@ -26,7 +26,7 @@ export default async function ConstructionReportPrintPage() {
 
   if (!report) {
     return (
-      <main className="mx-auto max-w-3xl p-10 text-sm text-[var(--ct-text-muted)]">
+      <main className="mx-auto max-w-3xl p-(--ct-space-10) text-[length:var(--ct-text-sm)] ct-text-muted">
         No construction report found. Run a construction in the Product Workspace
         first, then open this page to print it.
       </main>
@@ -34,80 +34,83 @@ export default async function ConstructionReportPrintPage() {
   }
 
   return (
-    <main className="report-print mx-auto max-w-3xl bg-white p-10 text-[#11160f]">
+    // Print/PDF surface (white paper) — ink colours are an intentional print
+    // palette (analogous to src/lib/pdf/pdf-palette.ts); dark-mode --ct-* tokens
+    // are invisible on white. Spacing + type are fully tokenized.
+    <main className="report-print mx-auto max-w-3xl bg-white p-(--ct-space-10) text-[#11160f]">
       {/* Print affordance — hidden when printing. */}
-      <div className="no-print mb-6 flex items-center justify-between">
-        <span className="text-xs text-[#6b7363]">
+      <div className="no-print mb-(--ct-space-6) flex items-center justify-between">
+        <span className="text-[length:var(--ct-text-xs)] text-[#6b7363]">
           Construction report · read-only draft · not guaranteed
         </span>
         <PrintButton />
       </div>
 
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold">{report.vaultLabel}</h1>
-        <p className="text-sm text-[#3a3f36]">{report.objective}</p>
+      <header className="mb-(--ct-space-6)">
+        <h1 className="text-[length:var(--ct-text-2xl)] font-bold">{report.vaultLabel}</h1>
+        <p className="text-[length:var(--ct-text-sm)] text-[#3a3f36]">{report.objective}</p>
       </header>
 
-      <section className="mb-6">
-        <h2 className="mb-2 border-b border-[#d8ddd2] pb-1 text-base font-bold">
+      <section className="mb-(--ct-space-6)">
+        <h2 className="mb-(--ct-space-2) border-b border-[#d8ddd2] pb-(--ct-space-1) text-[length:var(--ct-text-base)] font-bold">
           Summary
         </h2>
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm sm:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-x-(--ct-space-8) gap-y-(--ct-space-1) text-[length:var(--ct-text-sm)] sm:grid-cols-4">
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Headline APY</dt>
-            <dd className="font-mono font-bold">
+            <dd className="mono font-bold">
               {pct(report.headlineLow)}–{pct(report.headlineHigh)}
             </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Vault</dt>
-            <dd className="font-mono font-bold">{report.vaultTicker}</dd>
+            <dd className="mono font-bold">{report.vaultTicker}</dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">
               P(below floor)
             </dt>
-            <dd className="font-mono font-bold">{report.probBelowFloorPct}%</dd>
+            <dd className="mono font-bold">{report.probBelowFloorPct}%</dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Machines</dt>
-            <dd className="font-mono font-bold">{report.machineCount}</dd>
+            <dd className="mono font-bold">{report.machineCount}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="mb-6">
-        <h2 className="mb-2 border-b border-[#d8ddd2] pb-1 text-base font-bold">
+      <section className="mb-(--ct-space-6)">
+        <h2 className="mb-(--ct-space-2) border-b border-[#d8ddd2] pb-(--ct-space-1) text-[length:var(--ct-text-base)] font-bold">
           Market inputs
         </h2>
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm sm:grid-cols-3">
+        <dl className="grid grid-cols-2 gap-x-(--ct-space-8) gap-y-(--ct-space-1) text-[length:var(--ct-text-sm)] sm:grid-cols-3">
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">BTC spot</dt>
-            <dd className="font-mono font-bold">
+            <dd className="mono font-bold">
               ${Math.round(report.btcUsd).toLocaleString("en-US")}
             </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Hashprice</dt>
-            <dd className="font-mono font-bold">
+            <dd className="mono font-bold">
               ${report.hashpriceUsdPerThDay.toFixed(3)}/TH
             </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Seed</dt>
-            <dd className="font-mono font-bold">{report.seed}</dd>
+            <dd className="mono font-bold">{report.seed}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="report-prose mb-6">
-        <h2 className="mb-2 border-b border-[#d8ddd2] pb-1 text-base font-bold">
+      <section className="report-prose mb-(--ct-space-6)">
+        <h2 className="mb-(--ct-space-2) border-b border-[#d8ddd2] pb-(--ct-space-1) text-[length:var(--ct-text-base)] font-bold">
           Write-up
         </h2>
         <Markdown content={report.prose} />
       </section>
 
-      <footer className="mt-10 border-t border-[#d8ddd2] pt-3 text-[length:var(--ct-text-deci)] text-[#6b7363]">
+      <footer className="mt-(--ct-space-10) border-t border-[#d8ddd2] pt-(--ct-space-3) text-[length:var(--ct-text-deci)] text-[#6b7363]">
         Hearst Connect · construction report · {report.updatedAtIso} · projection
         conditional on the stated assumptions — not guaranteed. No product is
         created, sent, or deployed by this report.

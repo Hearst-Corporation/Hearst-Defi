@@ -1,9 +1,10 @@
+import { cn } from "@/lib/cn";
 import type { ChatActionResult } from "@/lib/admin/diagnostics/chat-action-lab";
 
 const VERDICT_CLS: Record<ChatActionResult["verdict"], string> = {
-  PASS: "text-[var(--ct-accent)]",
-  WARN: "text-[var(--ct-status-warning)]",
-  FAIL: "text-[var(--ct-status-danger)]",
+  PASS: "ct-text-accent",
+  WARN: "ct-status-warning",
+  FAIL: "ct-status-danger",
 };
 
 const SOURCE_LABEL: Record<ChatActionResult["routingSource"], string> = {
@@ -22,14 +23,13 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="flex items-baseline gap-3">
-      <span className="ct-bento-label w-32 shrink-0">{label}</span>
+    <div className="grid grid-cols-[minmax(0,var(--ct-space-32))_minmax(0,1fr)] items-baseline gap-(--ct-space-3)">
+      <span className="ct-bento-label">{label}</span>
       <span
-        className={
-          mono
-            ? "font-mono text-xs text-[var(--ct-text-secondary)] break-all"
-            : "text-xs text-[var(--ct-text-secondary)]"
-        }
+        className={cn(
+          "text-[length:var(--ct-text-xs)] ct-text-secondary",
+          mono && "mono break-all",
+        )}
       >
         {children}
       </span>
@@ -39,13 +39,7 @@ function Row({
 
 function Flag({ on, yes, no }: { on: boolean; yes: string; no: string }) {
   return (
-    <span
-      className={
-        on
-          ? "text-[var(--ct-status-warning)]"
-          : "text-[var(--ct-accent)]"
-      }
-    >
+    <span className={on ? "ct-status-warning" : "ct-text-accent"}>
       {on ? yes : no}
     </span>
   );
@@ -58,12 +52,12 @@ function Flag({ on, yes, no }: { on: boolean; yes: string; no: string }) {
  */
 export function ChatActionResultCard({ result }: { result: ChatActionResult }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-[var(--ct-text-strong)]">
+    <div className="flex flex-col gap-(--ct-space-2) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
+      <div className="flex items-center justify-between gap-(--ct-space-3)">
+        <p className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong">
           {result.prompt}
         </p>
-        <span className={`text-xs font-bold ${VERDICT_CLS[result.verdict]}`}>
+        <span className={cn("text-[length:var(--ct-text-xs)] font-bold", VERDICT_CLS[result.verdict])}>
           {result.verdict}
         </span>
       </div>
@@ -71,10 +65,10 @@ export function ChatActionResultCard({ result }: { result: ChatActionResult }) {
       <Row label="Role">{result.role}</Row>
       <Row label="Expected">{result.expected}</Row>
       <Row label="Actual">
-        <span className="text-[var(--ct-text-strong)]">{result.actual}</span>
+        <span className="ct-text-strong">{result.actual}</span>
       </Row>
       <Row label="Routing source">
-        <span className="text-[var(--ct-accent)]">
+        <span className="ct-text-accent">
           {SOURCE_LABEL[result.routingSource]}
         </span>
       </Row>
@@ -86,14 +80,14 @@ export function ChatActionResultCard({ result }: { result: ChatActionResult }) {
       </Row>
       <Row label="Writes">
         {result.writes.length === 0 ? (
-          <span className="text-[var(--ct-accent)]">none</span>
+          <span className="ct-text-accent">none</span>
         ) : (
           result.writes.join(", ")
         )}
       </Row>
       <Row label="Records">
         {result.records.length === 0 ? (
-          <span className="text-[var(--ct-accent)]">none</span>
+          <span className="ct-text-accent">none</span>
         ) : (
           result.records.join(", ")
         )}
@@ -109,11 +103,11 @@ export function ChatActionResultCard({ result }: { result: ChatActionResult }) {
       </Row>
 
       {result.mismatches.length > 0 ? (
-        <div className="mt-1 rounded-lg border border-[var(--ct-status-danger)] px-3 py-2">
-          <span className="ct-bento-label text-[var(--ct-status-danger)]">
+        <div className="mt-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-status-danger)] px-(--ct-space-3) py-(--ct-space-2)">
+          <span className="ct-bento-label ct-status-danger">
             Mismatches
           </span>
-          <ul className="mt-1 list-disc pl-4 text-xs text-[var(--ct-text-secondary)]">
+          <ul className="mt-(--ct-space-1) list-disc pl-(--ct-space-4) text-[length:var(--ct-text-xs)] ct-text-secondary">
             {result.mismatches.map((m) => (
               <li key={m}>{m}</li>
             ))}

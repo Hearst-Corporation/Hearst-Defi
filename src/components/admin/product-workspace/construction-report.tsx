@@ -3,8 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Markdown } from "@/components/admin/markdown";
-import { HcChartCard, HcFanChart } from "@/components/dataviz/his";
-import type { HcSourceStatus } from "@/components/dataviz/his/types";
+import {
+  HcChartCard,
+  HcCompositionRing,
+  HcFanChart,
+} from "@/components/dataviz/his";
+import type {
+  HcLabeledValue,
+  HcSourceStatus,
+} from "@/components/dataviz/his/types";
 import { cn } from "@/lib/cn";
 import type {
   ChartArtifact,
@@ -62,7 +69,7 @@ function SectionHeading({ id, children }: { id: string; children: React.ReactNod
   return (
     <h2
       id={id}
-      className="ct-section-title scroll-mt-24 border-b border-[var(--ct-border-soft)] pb-2"
+      className="ct-section-title scroll-mt-(--ct-space-24) border-b border-[var(--ct-border-soft)] pb-(--ct-space-2)"
     >
       {children}
     </h2>
@@ -71,9 +78,9 @@ function SectionHeading({ id, children }: { id: string; children: React.ReactNod
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-xl border border-[var(--ct-border)] bg-surface-card p-4">
+    <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
       <span className="ct-bento-label">{label}</span>
-      <span className="font-mono text-base font-bold text-[var(--ct-text-strong)]">
+      <span className="mono text-[length:var(--ct-text-base)] font-bold ct-text-strong">
         {value}
       </span>
     </div>
@@ -117,20 +124,24 @@ export function ConstructionReport({
     p95: b.p95,
   }));
 
+  const allocationSegments: HcLabeledValue[] = (allocation?.allocation ?? []).map(
+    (seg) => ({ label: seg.label, value: seg.valuePct }),
+  );
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[180px_1fr]">
+    <div className="grid gap-(--ct-space-6) lg:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
       {/* Sticky table of contents — navigable. */}
       <nav className="hidden lg:block">
-        <ol className="sticky top-20 flex flex-col gap-1 text-xs">
+        <ol className="sticky top-(--ct-space-20) flex flex-col gap-(--ct-space-1) text-[length:var(--ct-text-xs)]">
           {SECTIONS.map((s, i) => (
             <li key={s.id}>
               <a
                 href={`#${s.id}`}
                 className={cn(
-                  "block rounded-md px-2 py-1",
+                  "block rounded-(--ct-radius-md) px-(--ct-space-2) py-(--ct-space-1) transition-colors",
                   shows(i)
-                    ? "text-[var(--ct-text-secondary)] hover:text-[var(--ct-accent)]"
-                    : "text-[var(--ct-text-faint)]",
+                    ? "ct-text-secondary hover:text-[var(--ct-accent)]"
+                    : "ct-text-faint",
                 )}
               >
                 {s.label}
@@ -140,13 +151,13 @@ export function ConstructionReport({
         </ol>
       </nav>
 
-      <article className="flex min-w-0 flex-col gap-8">
+      <article className="flex min-w-0 flex-col gap-(--ct-space-8)">
         {/* 1 — Summary */}
         {shows(0) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="summary">{draft.vault.label} — construction report</SectionHeading>
             <p className="body-sm ct-text-body">{draft.objective}</p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
               <Stat
                 label="Headline APY"
                 value={`${Pct(draft.quant.headlineRange.low)}–${Pct(draft.quant.headlineRange.high)}`}
@@ -161,7 +172,7 @@ export function ConstructionReport({
                 value={String(draft.telegram.machineCount)}
               />
             </div>
-            <p className="text-xs text-[var(--ct-text-tertiary)]">
+            <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
               {draft.disclaimer}
             </p>
           </section>
@@ -169,9 +180,9 @@ export function ConstructionReport({
 
         {/* 2 — Market inputs */}
         {shows(1) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="market">Market inputs</SectionHeading>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
               <Stat
                 label="BTC spot"
                 value={`$${Math.round(draft.market.btcUsd).toLocaleString("en-US")}`}
@@ -194,9 +205,9 @@ export function ConstructionReport({
 
         {/* 3 — Strategy */}
         {shows(2) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="strategy">Strategy</SectionHeading>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
               <Stat
                 label="Mining yield"
                 value={`${draft.strategy.miningYieldPct.toFixed(1)}%`}
@@ -218,32 +229,15 @@ export function ConstructionReport({
               <HcChartCard
                 title={allocation.title}
                 source={provenanceToSource(allocation.provenance)}
-                height={120}
+                height={160}
                 aria-label={allocation.ariaLabel}
               >
-                <div className="flex flex-col gap-2 p-2">
-                  {(allocation.allocation ?? []).map((seg, i) => (
-                    <div key={seg.label} className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between text-xs text-[var(--ct-text-secondary)]">
-                        <span>{seg.label}</span>
-                        <span className="font-mono text-[var(--ct-text-strong)]">
-                          {seg.valuePct}%
-                        </span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-surface-page">
-                        <div
-                          className="h-2 rounded-full"
-                          style={{
-                            width: `${Math.min(100, seg.valuePct)}%`,
-                            background:
-                              i === 0
-                                ? "var(--ct-accent)"
-                                : "var(--ct-status-info)",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div className="p-(--ct-space-2)">
+                  <HcCompositionRing
+                    segments={allocationSegments}
+                    bars
+                    aria-label={allocation.ariaLabel}
+                  />
                 </div>
               </HcChartCard>
             ) : null}
@@ -252,7 +246,7 @@ export function ConstructionReport({
 
         {/* 4 — Projection */}
         {shows(3) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="projection">Projection</SectionHeading>
             {fan ? (
               <HcChartCard
@@ -271,7 +265,7 @@ export function ConstructionReport({
                 />
               </HcChartCard>
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid gap-(--ct-space-3) sm:grid-cols-3 lg:grid-cols-5">
               <Stat label="p5" value={Pct(draft.quant.percentiles.p5)} />
               <Stat label="p25" value={Pct(draft.quant.percentiles.p25)} />
               <Stat label="p50" value={Pct(draft.quant.percentiles.p50)} />
@@ -283,9 +277,9 @@ export function ConstructionReport({
 
         {/* 5 — Assumptions */}
         {shows(4) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="assumptions">Assumptions (regime)</SectionHeading>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
               <Stat
                 label="BTC drift / vol"
                 value={`${Pct(draft.assumptions.btc.annualDrift, 0)} / ${Pct(draft.assumptions.btc.annualVol, 0)}`}
@@ -303,7 +297,7 @@ export function ConstructionReport({
                 value={`${draft.assumptions.paths.toLocaleString("en-US")} / ${draft.quant.seed}`}
               />
             </div>
-            <ul className="list-disc pl-5 body-sm ct-text-body">
+            <ul className="list-disc pl-(--ct-space-5) body-sm ct-text-body">
               {draft.strategy.assumptions.map((a) => (
                 <li key={a}>{a}</li>
               ))}
@@ -313,7 +307,7 @@ export function ConstructionReport({
 
         {/* 6 — Write-up */}
         {shows(5) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="writeup">Write-up</SectionHeading>
             <span className="ct-bento-label">
               {draft.writeup.llmAuthored ? "LLM-authored" : "deterministic"}
@@ -324,29 +318,24 @@ export function ConstructionReport({
 
         {/* 7 — Provenance & audit */}
         {shows(6) ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-(--ct-space-3)">
             <SectionHeading id="audit">Provenance &amp; audit</SectionHeading>
-            <ul className="flex flex-col gap-1 font-mono text-xs text-[var(--ct-text-secondary)]">
+            <ul className="flex flex-col gap-(--ct-space-1) mono text-[length:var(--ct-text-xs)] ct-text-secondary">
               {draft.audit.map((a) => (
-                <li key={a.stageId} className="flex items-center gap-3">
-                  <span
-                    className={
-                      a.degraded
-                        ? "text-[var(--ct-status-warning)]"
-                        : "text-[var(--ct-accent)]"
-                    }
-                  >
+                <li
+                  key={a.stageId}
+                  className="grid grid-cols-[auto_minmax(0,var(--ct-space-32))_minmax(0,var(--ct-space-20))_minmax(0,1fr)] items-center gap-(--ct-space-3)"
+                >
+                  <span className={a.degraded ? "ct-status-warning" : "ct-text-accent"}>
                     {a.degraded ? "○" : "●"}
                   </span>
-                  <span className="w-40 shrink-0">{a.stageId}</span>
-                  <span className="w-20 shrink-0">{a.provenance}</span>
-                  <span className="text-[var(--ct-text-tertiary)]">
-                    {a.reasonCode}
-                  </span>
+                  <span className="truncate">{a.stageId}</span>
+                  <span className="truncate">{a.provenance}</span>
+                  <span className="truncate ct-text-tertiary">{a.reasonCode}</span>
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-[var(--ct-text-tertiary)]">
+            <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
               No product is created, sent, or deployed by this report — it is a
               read-only construction draft. {draft.disclaimer}
             </p>
