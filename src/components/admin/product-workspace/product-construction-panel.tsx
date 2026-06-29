@@ -71,7 +71,6 @@ export function ProductConstructionPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showRaw, setShowRaw] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
   // Animate the report's progressive reveal only right after a fresh run.
   const [animateReport, setAnimateReport] = useState(false);
 
@@ -117,38 +116,12 @@ export function ProductConstructionPanel({
     }
   }, [objective, preset, driftPct, volPct, horizonMonths, miningWeightPct]);
 
-  // Download the current report as a PDF. POSTs the draft to the render route,
-  // which returns an application/pdf blob. Read-only — renders the existing
-  // draft, persists nothing new.
-  const downloadPdf = useCallback(async () => {
+  // Open the print view in a new tab. The run already persisted the report to
+  // the admin's draft, so the print page loads it server-side and the admin uses
+  // the browser's Print → Save as PDF (works in every runtime, no PDF lib).
+  const downloadPdf = useCallback(() => {
     if (!draft) return;
-    setPdfLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/product-construction/report/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draft }),
-      });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(body.error ?? `PDF HTTP ${res.status}`);
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${draft.vault.ticker}-construction-report.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "PDF request failed");
-    } finally {
-      setPdfLoading(false);
-    }
+    window.open("/admin/product-workspace/report/print", "_blank", "noopener");
   }, [draft]);
 
   if (!objective) {
@@ -257,13 +230,8 @@ export function ProductConstructionPanel({
             >
               Open in vault wizard (pre-filled)
             </Link>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => void downloadPdf()}
-              disabled={pdfLoading}
-            >
-              {pdfLoading ? "Building PDF…" : "Download PDF"}
+            <Button variant="secondary" size="sm" onClick={() => downloadPdf()}>
+              Open print view (PDF)
             </Button>
             <span className="text-xs text-[var(--ct-text-tertiary)]">
               Wizard hand-off carries ticker / APY range / allocations · no record
