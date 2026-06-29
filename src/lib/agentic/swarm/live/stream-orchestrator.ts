@@ -164,10 +164,8 @@ export async function streamProductConstruction(
         provenance: mkt.hashpriceStale ? "Stale" : "Live",
         headline: `${mkt.rows.length} machines priced · best margin ${topModel ?? "—"}`,
         metrics: [
-          { label: "Machines", value: String(mkt.rows.length) },
           { label: "Top by margin", value: topModel ?? "—" },
           { label: "Best margin", value: bestMargin !== null ? `$${bestMargin.toFixed(3)}/TH/day` : "—" },
-          { label: "Best landed", value: bestLanded !== null ? usd(bestLanded) : "—" },
           { label: "Customs dest.", value: COUNTRY_LABELS[mkt.destination] },
           { label: "Energy", value: `$${mkt.energyUsdPerKwh.toFixed(2)}/kWh` },
         ],

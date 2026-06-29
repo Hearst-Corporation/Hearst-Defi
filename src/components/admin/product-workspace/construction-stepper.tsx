@@ -9,6 +9,7 @@ import {
   cockpitButtonVariants,
 } from "@/components/catalyst/cockpit-button";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { BentoPanel, BentoHeader } from "@/components/catalyst/bento";
 import {
   CONSTRUCTION_STEPS,
   type ConstructionStepId,
@@ -41,7 +42,81 @@ import { DataScientistOutput } from "./data-scientist-output";
  * we currently render step 1 (bitcoin) alone. Add ids back here to reveal the
  * others — nothing in the pipeline/computation changes.
  */
-const VISIBLE_STEP_IDS: readonly ConstructionStepId[] = ["bitcoin"];
+const VISIBLE_STEP_IDS: readonly ConstructionStepId[] = [
+  "bitcoin",
+  "hashprice",
+  "mining_infra",
+  "defi",
+  "data_scientist",
+];
+
+/** Minimum on-screen "running" time per step (narration + search read as real). */
+const MIN_STEP_MS = 5_000;
+
+/**
+ * Per-step LOADING config — the narration that types out while the specialist
+ * works, plus how many source/asset placeholders to show. Logos are placeholders
+ * for now (real brand assets wired later, like step 1's bitcoin/coingecko/etc.).
+ * `mainLogo` is the big hero placeholder; `sourceCount` is the cross-checked row.
+ */
+const STEP_LOADING: Record<
+  ConstructionStepId,
+  { narration: string; mainLabel: string; sourcesLabel: string; sourceCount: number }
+> = {
+  bitcoin: {
+    narration:
+      "Notre Bitcoin Price Specialist recherche le prix BTC le plus juste et compare plusieurs sources…",
+    mainLabel: "Bitcoin",
+    sourcesLabel: "Sources croisées",
+    sourceCount: 3,
+  },
+  hashprice: {
+    narration:
+      "Notre Hashprice Specialist dérive le hashprice ($/TH/jour) et la difficulté réseau en temps réel…",
+    mainLabel: "Hashprice",
+    sourcesLabel: "Sources réseau",
+    sourceCount: 3,
+  },
+  mining_infra: {
+    narration:
+      "Notre Mining Infrastructure Specialist chiffre les machines (coût landed : ex-works + fret + douane) et les marges…",
+    mainLabel: "Machines",
+    sourcesLabel: "Fournisseurs",
+    sourceCount: 3,
+  },
+  defi: {
+    narration:
+      "Notre DeFi Specialist source les meilleurs rendements stables / BTC et la bande de scénario BTC…",
+    mainLabel: "DeFi",
+    sourcesLabel: "Protocoles",
+    sourceCount: 3,
+  },
+  data_scientist: {
+    narration:
+      "Notre Data Scientist rédige la thèse, trace la projection et dimensionne l'allocation (+2 versions)…",
+    mainLabel: "Modèle",
+    sourcesLabel: "Moteurs",
+    sourceCount: 3,
+  },
+};
+
+/**
+ * Generic loading placeholder — a neutral round chip with a label initial, used
+ * for the hero logo + the cross-checked sources row while real brand assets are
+ * being chosen. Step 1 already uses real BrandLogos; the others use these until
+ * we pick their logos.
+ */
+function StepLogoPlaceholder({ label, size = 28 }: { label: string; size?: number }) {
+  return (
+    <span
+      title={label}
+      className="inline-flex shrink-0 items-center justify-center rounded-(--ct-radius-full) border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] ct-text-muted"
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
+    >
+      {label.charAt(0).toUpperCase()}
+    </span>
+  );
+}
 
 type Lifecycle = "upcoming" | "running" | ConstructionStepStatus;
 
@@ -79,18 +154,20 @@ const CHECK = (
   </svg>
 );
 
-function StepNode({ life }: { life: Lifecycle }) {
+function StepNode({ life, pipelineRunning }: { life: Lifecycle; pipelineRunning: boolean }) {
   const tone = nodeTone(life);
   const isComplete = tone === "accent" || tone === "warning" || tone === "danger";
+  // Nodes in the queue pulse softly while the pipeline is active.
+  const isQueued = tone === "idle" && pipelineRunning;
   return (
     <span
       aria-current={tone === "current" ? "step" : undefined}
       className={cn(
-        "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) items-center justify-center rounded-(--ct-radius-full)",
+        "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) items-center justify-center rounded-(--ct-radius-full) transition-colors duration-300",
         tone === "accent" && "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
         tone === "warning" && "bg-[var(--ct-status-warning)] text-[var(--ct-bg-deep)]",
         tone === "danger" && "bg-[var(--ct-status-danger)] text-[var(--ct-bg-deep)]",
-        tone === "current" && "border-2 border-[var(--ct-accent)] bg-surface-page",
+        tone === "current" && "bg-surface-page",
         tone === "idle" && "border border-[var(--ct-border-soft)] bg-surface-page",
       )}
     >
@@ -99,7 +176,15 @@ function StepNode({ life }: { life: Lifecycle }) {
       ) : isComplete ? (
         CHECK
       ) : tone === "current" ? (
-        <span className="h-(--ct-space-2) w-(--ct-space-2) rounded-(--ct-radius-full) bg-[var(--ct-accent)] animate-pulse" />
+        // Spinning arc — accent arc over a faint track.
+        <span
+          aria-label="loading"
+          role="status"
+          className="h-(--ct-space-6) w-(--ct-space-6) animate-spin rounded-(--ct-radius-full) border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)]"
+        />
+      ) : isQueued ? (
+        // Queued: pulsing dot — "I'm next in line."
+        <span className="h-(--ct-space-2) w-(--ct-space-2) animate-pulse rounded-(--ct-radius-full) bg-[var(--ct-text-faint)]" />
       ) : (
         <span className="h-(--ct-space-2) w-(--ct-space-2) rounded-(--ct-radius-full) bg-[var(--ct-text-faint)] opacity-40" />
       )}
@@ -107,9 +192,136 @@ function StepNode({ life }: { life: Lifecycle }) {
   );
 }
 
-function MetricChip({ metric }: { metric: StepMetric }) {
+/**
+ * Typewriter — reveals `text` character by character while the step is running.
+ * Purely visual (the real work runs server-side). Restarts when `text` changes.
+ */
+function Typewriter({ text, speedMs = 28 }: { text: string; speedMs?: number }) {
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    setShown(0);
+    if (!text) return;
+    const id = setInterval(() => {
+      setShown((n) => {
+        if (n >= text.length) {
+          clearInterval(id);
+          return n;
+        }
+        return n + 1;
+      });
+    }, speedMs);
+    return () => clearInterval(id);
+  }, [text, speedMs]);
+  const done = shown >= text.length;
   return (
-    <div className="flex flex-col gap-px rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-3) py-(--ct-space-2)">
+    <span>
+      {text.slice(0, shown)}
+      {!done ? (
+        <span aria-hidden className="ct-text-accent animate-pulse">▍</span>
+      ) : null}
+    </span>
+  );
+}
+
+/**
+ * Brand logos — real downloaded official assets in /public/sources, rendered at
+ * original colours (never tinted) inside a neutral round chip.
+ */
+type BrandId = "bitcoin" | "coingecko" | "binance" | "kraken";
+
+const BRAND_LOGOS: Record<BrandId, { label: string; src: string }> = {
+  // Official square icon marks (vector SVG) so all four match in the round chips.
+  bitcoin: { label: "Bitcoin", src: "/sources/bitcoin.svg" },
+  coingecko: { label: "CoinGecko", src: "/sources/coingecko.svg" },
+  binance: { label: "Binance", src: "/sources/binance.svg" },
+  kraken: { label: "Kraken", src: "/sources/kraken.svg" },
+};
+
+/** Brand logo on a neutral round chip — original colours, never tinted. */
+function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
+  const brand = BRAND_LOGOS[id];
+  return (
+    <span
+      title={brand.label}
+      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--ct-border)] bg-[var(--ct-surface-inset)]"
+      style={{ width: size, height: size }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={brand.src}
+        alt={brand.label}
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        className="h-full w-full object-contain"
+      />
+    </span>
+  );
+}
+
+/**
+ * Bitcoin step result — a KPI strip tailored to the Bitcoin Price Specialist:
+ *  - Spot   : the Bitcoin logo next to the price.
+ *  - 24h    : the % with an up/down arrow (accent up, danger down).
+ *  - Source : the three cross-checked source logos (not text).
+ */
+function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
+  const find = (label: string) =>
+    metrics.find((m) => m.label.toLowerCase() === label.toLowerCase())?.value ??
+    "";
+  const spot = find("Spot");
+  const change = find("24h");
+  // Parse the signed % to pick the arrow + tone. "+1.2%" → up, "-0.8%" → down.
+  const pctNum = parseFloat(change.replace(/[^0-9.+-]/g, ""));
+  const up = Number.isFinite(pctNum) ? pctNum >= 0 : true;
+
+  const Cell = ({
+    label,
+    children,
+  }: {
+    label: string;
+    children: React.ReactNode;
+  }) => (
+    <div className="flex flex-col items-center gap-(--ct-space-2) p-5 md:px-6">
+      <span className="ct-bento-label">{label}</span>
+      <div className="flex items-center justify-center gap-(--ct-space-2)">
+        {children}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
+      <Cell label="Spot">
+        <BrandLogo id="bitcoin" size={24} />
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {spot}
+        </span>
+      </Cell>
+      <Cell label="24h">
+        <span
+          className={cn(
+            "text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums",
+            up ? "ct-text-accent" : "text-[var(--ct-status-danger)]",
+          )}
+        >
+          {up ? "↑" : "↓"} {change.replace(/^[+-]/, "")}
+        </span>
+      </Cell>
+      <Cell label="Sources">
+        <BrandLogo id="coingecko" size={24} />
+        <BrandLogo id="binance" size={24} />
+        <BrandLogo id="kraken" size={24} />
+      </Cell>
+    </div>
+  );
+}
+
+function MetricChip({ metric }: { metric: StepMetric }) {
+  // Lives INSIDE the black step box → gray inset so the price reads on black.
+  return (
+    <div className="flex flex-col gap-px rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-page px-(--ct-space-3) py-(--ct-space-2)">
       <span className="ct-bento-label">{metric.label}</span>
       <span className="mono text-[length:var(--ct-text-sm)] font-bold ct-text-strong">{metric.value}</span>
     </div>
@@ -148,6 +360,14 @@ export function ConstructionStepper({ objective }: { objective: string | null })
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buf = "";
+      // Each step must STAY visibly "running" for at least MIN_STEP_MS so the
+      // narration types out and the search reads as real work — even when the
+      // server resolves the data faster. We gate `step_done` on the elapsed time
+      // since that step's `step_start`. The stream loop is sequential, so the
+      // sleep naturally paces the whole pipeline.
+      let stepStartedAt = Date.now();
+      const sleep = (ms: number) =>
+        new Promise<void>((r) => setTimeout(r, ms));
       // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
@@ -165,8 +385,12 @@ export function ConstructionStepper({ objective }: { objective: string | null })
             continue;
           }
           if (frame.type === "step_start") {
+            stepStartedAt = Date.now();
             setCurrent(frame.step);
           } else if (frame.type === "step_done") {
+            // Hold the running state until the step has been on screen ≥ minimum.
+            const elapsed = Date.now() - stepStartedAt;
+            if (elapsed < MIN_STEP_MS) await sleep(MIN_STEP_MS - elapsed);
             setResults((prev) => ({
               ...prev,
               [frame.step]: {
@@ -230,39 +454,32 @@ export function ConstructionStepper({ objective }: { objective: string | null })
 
   return (
     <div className="flex flex-col gap-(--ct-space-6)">
-      {/* Status bar */}
-      <div className="flex flex-wrap items-center gap-(--ct-space-3) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-4) py-(--ct-space-3)">
-        {phase === "running" ? (
-          <span className="flex items-center gap-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-secondary">
-            <span aria-hidden className="h-(--ct-space-2) w-(--ct-space-2) rounded-(--ct-radius-full) bg-[var(--ct-accent)] animate-pulse" />
-            Specialists at work — each step streams as it finishes.
-          </span>
-        ) : phase === "done" ? (
-          <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            Construction complete from live data ·{" "}
-            <button type="button" onClick={() => void run()} className="underline-offset-2 hover:underline ct-text-muted">re-run</button>
-          </span>
-        ) : (
-          <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            live read · no write, no send, no deploy
-          </span>
-        )}
-        {error ? (
-          <span className="text-[length:var(--ct-text-xs)] ct-status-danger">
-            {error} ·{" "}
-            <button type="button" onClick={() => void run()} className="underline-offset-2 hover:underline">retry</button>
-          </span>
-        ) : null}
-      </div>
+      {/* Status bar removed (no value once each step renders its own state). A
+          failure still surfaces so it is never silent. */}
+      {error ? (
+        <span className="text-[length:var(--ct-text-xs)] ct-status-danger">
+          {error} ·{" "}
+          <button type="button" onClick={() => void run()} className="underline-offset-2 hover:underline">retry</button>
+        </span>
+      ) : null}
 
-      {/* Vertical stepper — DISPLAY filtered to VISIBLE_STEP_IDS while we iterate
-          the design step-by-step. The full pipeline still runs all five steps. */}
-      <ol className="flex flex-col">
+      {/* Vertical stepper. `relative` so the continuous connector spine can be
+          drawn at THIS level — outside every BentoPanel's overflow-hidden, which
+          would otherwise clip a per-box line at the box border and stop it from
+          crossing the inter-box gap. */}
+      <ol className="relative flex flex-col">
+        {/* Grey spine — one continuous line through every centered node. x = center
+            of the left-rail column (half its width). Spans the full list height so
+            it threads all centered nodes regardless of individual box heights. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-0 bottom-(--ct-space-8) left-[calc((var(--ct-space-32)+var(--ct-space-8))/2)] w-px -translate-x-1/2 bg-[var(--ct-border-soft)]"
+        />
         {CONSTRUCTION_STEPS.filter((s) => VISIBLE_STEP_IDS.includes(s.id)).map((step, i, visible) => {
           const life = lifecycleOf(step.id);
           const result = results[step.id];
           const isLast = i === visible.length - 1;
-          const connectorDone = result !== undefined; // step finished → fill the rail down
+          const connectorDone = result !== undefined; // step finished → green segment
           return (
             <li
               key={step.id}
@@ -271,68 +488,149 @@ export function ConstructionStepper({ objective }: { objective: string | null })
               }}
               className={cn("relative scroll-mt-(--ct-space-20)", !isLast && "pb-(--ct-space-8)")}
             >
-              {!isLast ? (
+              {/* Green connector — gap-crossing segment between this box and the
+                  next. Lives at the <li> level so it escapes the panel's
+                  overflow-hidden. Spans the full pb-(--ct-space-8) gap. */}
+              {!isLast && connectorDone ? (
                 <span
                   aria-hidden
-                  className={cn(
-                    "absolute top-(--ct-space-8) left-(--ct-space-4) h-full w-px -translate-x-1/2",
-                    connectorDone ? "bg-[var(--ct-accent)]" : "bg-[var(--ct-border-soft)]",
-                  )}
+                  className="pointer-events-none absolute bottom-0 left-[calc((var(--ct-space-32)+var(--ct-space-8))/2)] h-(--ct-space-8) w-px -translate-x-1/2 bg-[var(--ct-accent)]"
                 />
               ) : null}
-              <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-(--ct-space-4)">
-                <StepNode life={life} />
-                <div className="flex min-w-0 flex-col gap-(--ct-space-2) pb-(--ct-space-2)">
-                  {/* Header line */}
-                  <div className="flex flex-wrap items-baseline gap-x-(--ct-space-3) gap-y-px">
-                    <span
-                      className={cn(
-                        "ct-section-label",
-                        life === "upcoming" ? "ct-text-faint" : "ct-text-strong",
-                      )}
-                    >
-                      {step.index}. {step.persona}
-                    </span>
-                    {result?.provenance ? <ProvenanceBadge kind={liveToBadge(result.provenance)} compact /> : null}
-                    {result?.status === "unavailable" ? (
-                      <span className="ct-section-label ct-status-warning">unavailable</span>
+              {/* The step is a canonical DS compartment — BentoPanel (.ct-glass-panel).
+                  A left RAIL inside the box holds the stepper node, centered. */}
+              <BentoPanel>
+                <div className="grid grid-cols-[calc(var(--ct-space-32)+var(--ct-space-8))_minmax(0,1fr)]">
+                  {/* Left rail — node centered. Green half-segments inside the card:
+                      bottom half (node→bottom) when this step is done and not last;
+                      top half (top→node) when the previous step is done. */}
+                  <div className="relative flex items-center justify-center border-r border-[var(--ct-border-soft)]">
+                    {/* Top half: green from top of card to node center */}
+                    {i > 0 && results[visible[i - 1]!.id] !== undefined ? (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute top-0 left-1/2 w-px -translate-x-1/2 bg-[var(--ct-accent)]"
+                        style={{ height: "50%" }}
+                      />
                     ) : null}
+                    {/* Bottom half: green from node center to bottom of card */}
+                    {!isLast && connectorDone ? (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute bottom-0 left-1/2 w-px -translate-x-1/2 bg-[var(--ct-accent)]"
+                        style={{ height: "50%" }}
+                      />
+                    ) : null}
+                    <StepNode life={life} pipelineRunning={phase === "running"} />
                   </div>
-                  <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">{step.role}</span>
 
-                  {/* Result */}
-                  {result ? (
-                    <div className="flex flex-col gap-(--ct-space-3) pt-(--ct-space-1)">
-                      <span className="body-sm ct-text-body">{result.headline}</span>
-                      {result.metrics.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-(--ct-space-2) sm:grid-cols-3 lg:grid-cols-4">
-                          {result.metrics.map((m) => (
-                            <MetricChip key={m.label} metric={m} />
-                          ))}
+                  {/* Right column — header + body */}
+                  <div className="flex min-w-0 flex-col">
+                    <BentoHeader
+                      title={`${step.index}. ${step.persona}`}
+                      subtitle={step.role}
+                      trailing={
+                        <>
+                          {result?.provenance ? (
+                            <ProvenanceBadge kind={liveToBadge(result.provenance)} compact />
+                          ) : null}
+                          {result?.status === "unavailable" ? (
+                            <span className="ct-section-label ct-status-warning">unavailable</span>
+                          ) : null}
+                        </>
+                      }
+                    />
+                    {result ? (
+                      <>
+                        <p className="body-sm ct-text-body p-(--ct-space-5) pb-(--ct-space-4)">
+                          {result.headline}
+                        </p>
+                        {result.metrics.length > 0 ? (
+                          step.id === "bitcoin" ? (
+                            <BitcoinResultStrip metrics={result.metrics} />
+                          ) : (
+                            <div className="flex flex-wrap gap-(--ct-space-2) border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-(--ct-space-5) py-(--ct-space-4)">
+                              {result.metrics.map((m) => (
+                                <MetricChip key={m.label} metric={m} />
+                              ))}
+                            </div>
+                          )
+                        ) : null}
+                        {result.note ? (
+                          <p className="text-[length:var(--ct-text-xs)] ct-status-warning p-(--ct-space-5)">
+                            {result.note}
+                          </p>
+                        ) : null}
+                        {/* The Data Scientist's full report is NOT rendered inside
+                            the stepper box — it unrolls as a separate, decorrelated
+                            "Report Product" block below the stepper (see <ol> end). */}
+                      </>
+                    ) : life === "running" ? (
+                      // Same loading layout / size / typewriter for EVERY step.
+                      // Step 1 (bitcoin) uses real brand logos; the others use
+                      // neutral placeholders until their logos are chosen.
+                      // Negative left margin = half the stepper rail width, so the
+                      // loading content centers on the WHOLE box, not just the
+                      // content column (ignores the left stepper margin).
+                      <div className="flex flex-col items-center gap-(--ct-space-5) p-(--ct-space-6) ml-[calc((var(--ct-space-32)+var(--ct-space-8))/-2)]">
+                        {/* Hero logo */}
+                        {step.id === "bitcoin" ? (
+                          <BrandLogo id="bitcoin" size={72} />
+                        ) : (
+                          <StepLogoPlaceholder label={STEP_LOADING[step.id].mainLabel} size={72} />
+                        )}
+                        {/* Narration — types out while the specialist searches. */}
+                        <p className="max-w-prose text-center body-sm ct-text-secondary leading-relaxed">
+                          <Typewriter text={STEP_LOADING[step.id].narration} />
+                        </p>
+                        {/* Cross-checked sources row */}
+                        <div className="flex flex-col items-center gap-(--ct-space-2)">
+                          <span className="ct-bento-label">{STEP_LOADING[step.id].sourcesLabel}</span>
+                          <div className="flex items-center gap-(--ct-space-3)">
+                            {step.id === "bitcoin" ? (
+                              <>
+                                <BrandLogo id="coingecko" />
+                                <BrandLogo id="binance" />
+                                <BrandLogo id="kraken" />
+                              </>
+                            ) : (
+                              Array.from({ length: STEP_LOADING[step.id].sourceCount }).map(
+                                (_, idx) => (
+                                  <StepLogoPlaceholder
+                                    key={idx}
+                                    label={`${STEP_LOADING[step.id].sourcesLabel.charAt(0)}${idx + 1}`}
+                                  />
+                                ),
+                              )
+                            )}
+                          </div>
                         </div>
-                      ) : null}
-                      {result.note ? (
-                        <p className="text-[length:var(--ct-text-xs)] ct-status-warning">{result.note}</p>
-                      ) : null}
-                      {/* Data-scientist rich output */}
-                      {step.id === "data_scientist" && draft ? (
-                        <div className="mt-(--ct-space-3) rounded-(--ct-radius-2xl) border border-[var(--ct-border)] bg-surface-page p-(--ct-space-5)">
-                          <DataScientistOutput draft={draft} />
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : life === "running" ? (
-                    <span className="flex items-center gap-(--ct-space-2) pt-(--ct-space-1) text-[length:var(--ct-text-xs)] ct-text-secondary">
-                      <span aria-hidden className="h-(--ct-space-1) w-(--ct-space-1) rounded-(--ct-radius-full) bg-[var(--ct-accent)] animate-pulse" />
-                      working…
-                    </span>
-                  ) : null}
+                      </div>
+                    ) : (
+                      <div className="p-(--ct-space-5)" />
+                    )}
+                  </div>
                 </div>
-              </div>
+              </BentoPanel>
             </li>
           );
         })}
       </ol>
+
+      {/* Report Product — the Data Scientist's full report, DECORRELATED from the
+          stepper: once step 5 finishes, this unrolls as its own titled block below
+          the stepper, not inside a step box. */}
+      {draft ? (
+        <BentoPanel>
+          <BentoHeader
+            title="Report Product"
+            subtitle={draft.vault.label}
+          />
+          <div className="p-(--ct-space-5)">
+            <DataScientistOutput draft={draft} />
+          </div>
+        </BentoPanel>
+      ) : null}
 
       {/* Handoffs — wizard prefill (no DB write) */}
       {draft ? (

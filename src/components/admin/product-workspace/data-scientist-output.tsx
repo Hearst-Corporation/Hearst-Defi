@@ -1,18 +1,24 @@
 "use client";
 
 /**
- * Data Scientist output — the final step's body.
+ * Data Scientist output — the "Report Product" body.
  *
  * Renders what the data-scientist specialist produced from the assembled draft:
- * the written thesis, the live projection fan (p5/p50/p95), and the allocation as
- * a principal scenario + two alternatives. Pure presentation — it renders only
- * the numbers/charts/prose the pipeline already produced; no business math, no
- * I/O, no write. Token-only (`--ct-*`), dark, no hardcoded colours/fonts.
+ * the written thesis, the live projection fan (p5/p50/p95), the allocation
+ * scenarios, and the provenance audit. Pure presentation — only the
+ * numbers/charts/prose the pipeline already produced; no business math, no I/O,
+ * no write.
+ *
+ * DESIGN: token-only (`--ct-*`), dark. NO nested boxes — sections are separated
+ * by hairlines, KPIs use the canonical `BentoKpiStrip`, and charts render bare
+ * (no card frame around them). Flat, calm, DS-aligned.
  */
 
 import { Markdown } from "@/components/admin/markdown";
-import { HcChartCard, HcCompositionRing, HcFanChart } from "@/components/dataviz/his";
+import { ProjectionAreaChart } from "@/components/admin/product-workspace/projection-area-chart";
+import { HcCompositionRing } from "@/components/dataviz/his";
 import type { HcLabeledValue } from "@/components/dataviz/his/types";
+import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import type {
   LiveProvenance,
@@ -54,45 +60,46 @@ function sleeves(s: ScenarioResult): HcLabeledValue[] {
   ];
 }
 
-function ScenarioCard({ scenario, principal }: { scenario: ScenarioResult; principal?: boolean }) {
+/** A section heading — uppercase micro label, used between hairline-separated blocks. */
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <span className="ct-bento-label">{children}</span>;
+}
+
+/**
+ * One allocation scenario — a BARE ring + its figures, NO card box. Scenarios sit
+ * side by side separated by the grid gap; the principal is marked by an accent dot.
+ */
+function ScenarioBlock({
+  scenario,
+  principal,
+}: {
+  scenario: ScenarioResult;
+  principal?: boolean;
+}) {
   return (
-    <div
-      className={
-        "flex flex-col gap-(--ct-space-3) rounded-(--ct-radius-xl) bg-surface-card p-(--ct-space-4) " +
-        (principal ? "border border-[var(--ct-border-accent)]" : "border border-[var(--ct-border)]")
-      }
-    >
+    <div className="flex flex-col items-center gap-(--ct-space-3)">
       <div className="flex items-center gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">{REGIME_LABEL[scenario.regime]}</span>
         {principal ? (
-          <span className="ct-section-label ct-text-accent">· principal</span>
+          <span aria-hidden className="h-(--ct-space-1_5) w-(--ct-space-1_5) rounded-(--ct-radius-full) bg-[var(--ct-accent)]" />
         ) : null}
+        <span className="ct-section-label ct-text-strong">{REGIME_LABEL[scenario.regime]}</span>
         {scenario.governanceException ? (
-          <span className="ml-auto inline-flex items-center rounded-(--ct-radius-full) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-px text-[length:var(--ct-text-nano)] ct-text-tertiary">
-            mining floored
-          </span>
+          <span className="ct-section-label ct-text-tertiary">· mining floored</span>
         ) : null}
       </div>
       <HcCompositionRing
         segments={sleeves(scenario)}
-        size={principal ? 160 : 120}
+        size={principal ? 150 : 132}
         bars
         aria-label={`${REGIME_LABEL[scenario.regime]} allocation`}
       />
-      <div className="grid grid-cols-2 gap-(--ct-space-2)">
-        <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-surface-page p-(--ct-space-3)">
-          <span className="ct-bento-label">APY range</span>
-          <span className="mono text-[length:var(--ct-text-base)] font-bold ct-text-strong">
-            {pctFrac(scenario.quant.headlineRange.low)}–{pctFrac(scenario.quant.headlineRange.high)}
-          </span>
-        </div>
-        <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-surface-page p-(--ct-space-3)">
-          <span className="ct-bento-label">p5 / p50 / p95</span>
-          <span className="mono text-[length:var(--ct-text-sm)] font-medium ct-text-body">
-            {pctFrac(scenario.quant.percentiles.p5)} / {pctFrac(scenario.quant.percentiles.p50)} /{" "}
-            {pctFrac(scenario.quant.percentiles.p95)}
-          </span>
-        </div>
+      <div className="flex flex-col items-center gap-px text-center">
+        <span className="mono text-[length:var(--ct-text-base)] font-bold ct-text-strong">
+          {pctFrac(scenario.quant.headlineRange.low)}–{pctFrac(scenario.quant.headlineRange.high)}
+        </span>
+        <span className="mono text-[length:var(--ct-text-xs)] ct-text-tertiary">
+          p5 {pctFrac(scenario.quant.percentiles.p5)} · p50 {pctFrac(scenario.quant.percentiles.p50)} · p95 {pctFrac(scenario.quant.percentiles.p95)}
+        </span>
       </div>
     </div>
   );
@@ -106,85 +113,83 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
   const ca = draft.canonicalAllocation;
   const targets = formatTargetsSafely(BTC_MINING_PERFORMANCE_VAULT);
   const fanBands = (fan?.fanBands ?? []).map((b) => ({ m: b.m, p5: b.p5, p50: b.p50, p95: b.p95 }));
+  const headline = `${pctFrac(draft.quant.headlineRange.low)}–${pctFrac(draft.quant.headlineRange.high)}`;
 
   return (
-    <div className="flex flex-col gap-(--ct-space-6)">
-      {/* Thesis */}
-      <section className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-bento-label">
+    <div className="flex flex-col">
+      {/* Thesis — prose, no box. */}
+      <section className="flex flex-col gap-(--ct-space-3) pb-(--ct-space-6)">
+        <SectionLabel>
           Thesis · {draft.writeup.llmAuthored ? "written by the data scientist" : "deterministic draft"}
-        </span>
+        </SectionLabel>
         <Markdown content={draft.writeup.prose} />
       </section>
 
-      {/* Projection fan */}
+      {/* Projection — area chart (recharts on the DS) of the real p5/p50/p95 fan.
+          The headline range + a label sit above; the disclaimer below. */}
       {fan ? (
-        <section className="flex flex-col gap-(--ct-space-2)">
-          <HcChartCard
-            title={fan.title}
-            metric={`${pctFrac(draft.quant.headlineRange.low)}–${pctFrac(draft.quant.headlineRange.high)}`}
-            disclaimer={draft.disclaimer}
-            height={300}
-            aria-label={fan.ariaLabel}
-          >
-            <HcFanChart
-              bands={fanBands}
-              unit={fan.unit}
-              {...(fan.seedLabel ? { seedLabel: fan.seedLabel } : {})}
-              aria-label={fan.ariaLabel}
-            />
-          </HcChartCard>
+        <section className="flex flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+          <div className="flex items-baseline justify-between gap-(--ct-space-4)">
+            <SectionLabel>{fan.title}</SectionLabel>
+            <span className="mono text-[length:var(--ct-text-xl-fixed)] font-bold tabular-nums ct-text-strong">
+              {headline}
+            </span>
+          </div>
+          <ProjectionAreaChart bands={fanBands} unit={fan.unit} />
+          <p className="text-[length:var(--ct-text-xs)] ct-text-muted leading-relaxed">
+            {draft.disclaimer}
+          </p>
         </section>
       ) : null}
 
-      {/* Allocation — principal + 2 versions */}
-      <section className="flex flex-col gap-(--ct-space-3)">
-        <span className="ct-bento-label">Allocation — principal + 2 versions</span>
-        <div className="grid gap-(--ct-space-4) lg:grid-cols-3">
-          {principal ? <ScenarioCard scenario={principal} principal /> : null}
+      {/* Allocation scenarios — bare rings side by side, no boxes. */}
+      <section className="flex flex-col gap-(--ct-space-5) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+        <SectionLabel>Allocation — principal + 2 versions</SectionLabel>
+        <div className="grid gap-(--ct-space-6) sm:grid-cols-2 lg:grid-cols-3">
+          {principal ? <ScenarioBlock scenario={principal} principal /> : null}
           {alternatives.map((s) => (
-            <ScenarioCard key={s.regime} scenario={s} />
+            <ScenarioBlock key={s.regime} scenario={s} />
           ))}
-        </div>
-        {ca ? (
-          <div className="grid gap-(--ct-space-3) sm:grid-cols-2 lg:grid-cols-4">
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-3)">
-              <span className="ct-bento-label">Mining</span>
-              <span className="mono font-bold ct-text-strong">{pctOf(ca.mining)}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-3)">
-              <span className="ct-bento-label">BTC holding</span>
-              <span className="mono font-bold ct-text-strong">{pctOf(ca.btcHoldingCollateral)}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-3)">
-              <span className="ct-bento-label">Stable reserve</span>
-              <span className="mono font-bold ct-text-strong">{pctOf(ca.stableReserve)}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-3)">
-              <span className="ct-bento-label">Yield overlay</span>
-              <span className="mono font-bold ct-text-strong">{pctOf(ca.yieldOverlay)}</span>
-            </div>
-          </div>
-        ) : null}
-        <div className="grid gap-(--ct-space-2) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-surface-page p-(--ct-space-4)">
-          <div className="flex flex-col gap-px">
-            <span className="ct-bento-label">Monthly distribution target</span>
-            <span className="body-sm ct-text-body">{targets.distribution}</span>
-          </div>
-          <div className="flex flex-col gap-px">
-            <span className="ct-bento-label">Total performance target</span>
-            <span className="body-sm ct-text-body">{targets.total}</span>
-          </div>
-          <p className="text-[length:var(--ct-text-nano)] ct-text-faint">
-            The total target is inclusive of the distributions — the two layers never sum.
-          </p>
         </div>
       </section>
 
-      {/* Provenance & audit */}
-      <section className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-bento-label">Provenance &amp; audit</span>
-        <ul className="flex flex-col gap-(--ct-space-1) mono text-[length:var(--ct-text-xs)] ct-text-secondary">
+      {/* Canonical allocation — the canonical KPI strip (same primitive as every
+          other KPI surface), soldered edge to edge. */}
+      {ca ? (
+        <section className="border-t border-[var(--ct-border-soft)]">
+          <BentoKpiStrip
+            ariaLabel="Canonical allocation"
+            items={[
+              { label: "Mining", value: pctOf(ca.mining) },
+              { label: "BTC holding", value: pctOf(ca.btcHoldingCollateral) },
+              { label: "Stable reserve", value: pctOf(ca.stableReserve) },
+              { label: "Yield overlay", value: pctOf(ca.yieldOverlay) },
+            ]}
+          />
+        </section>
+      ) : null}
+
+      {/* Targets — plain label/value lines, no box. */}
+      <section className="flex flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+        <div className="grid gap-(--ct-space-4) sm:grid-cols-2">
+          <div className="flex flex-col gap-(--ct-space-1)">
+            <SectionLabel>Monthly distribution target</SectionLabel>
+            <span className="body-sm ct-text-body">{targets.distribution}</span>
+          </div>
+          <div className="flex flex-col gap-(--ct-space-1)">
+            <SectionLabel>Total performance target</SectionLabel>
+            <span className="body-sm ct-text-body">{targets.total}</span>
+          </div>
+        </div>
+        <p className="text-[length:var(--ct-text-nano)] ct-text-faint">
+          The total target is inclusive of the distributions — the two layers never sum.
+        </p>
+      </section>
+
+      {/* Provenance & audit — flat list, no box. */}
+      <section className="flex flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+        <SectionLabel>Provenance &amp; audit</SectionLabel>
+        <ul className="flex flex-col gap-(--ct-space-2) mono text-[length:var(--ct-text-xs)] ct-text-secondary">
           {draft.audit.map((a) => (
             <li key={a.stageId} className="flex items-center gap-(--ct-space-3)">
               <span className={a.degraded ? "ct-status-warning" : "ct-text-accent"}>{a.degraded ? "○" : "●"}</span>
@@ -194,7 +199,9 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
             </li>
           ))}
         </ul>
-        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">{draft.disclaimer}</p>
+        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary leading-relaxed">
+          {draft.disclaimer}
+        </p>
       </section>
     </div>
   );
