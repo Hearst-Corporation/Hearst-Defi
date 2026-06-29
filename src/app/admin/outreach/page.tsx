@@ -84,13 +84,12 @@ export default async function OutreachPage() {
           </div>
         </AdminSectionCard>
 
-        {/* Main Cockpit: Two-column layout for Prospects and Lead Engine.
-            min-w-0 on the grid + both tracks defeats the CSS "grid blowout":
-            without it, the wide prospect table refuses to shrink below its
-            intrinsic width and pushes the whole page into horizontal scroll. */}
-        <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)]">
-          {/* Left: Primary Operator Content */}
-          <div className="flex min-w-0 flex-col gap-5">
+        {/* Full-width vertical flow — matches the admin canon (e.g.
+            /admin/customers): every primary block spans the same width as the
+            page header, no side aside, no 50/50 split. min-w-0 still defeats the
+            CSS "grid/flex blowout" so wide tables shrink and scroll locally
+            instead of pushing the page into horizontal scroll. */}
+        <div className="flex min-w-0 flex-col gap-5">
             {/* Prospect directory */}
             <AdminSectionCard
               ariaLabel="Prospects"
@@ -251,12 +250,10 @@ export default async function OutreachPage() {
                 </Table>
               )}
             </AdminSectionCard>
-          </div>
 
-          {/* Right: Lead Engine Sidebar — mounted on the same shell card so its
-              header (title + caption left, "Define ICP" action right) matches
-              the Prospects / Campaigns sections exactly. */}
-          <aside className="flex min-w-0 flex-col">
+            {/* Lead engine — full-width block in the same vertical flow, sits
+                under Campaign queue. Header (title + caption left, "Define ICP"
+                action right) matches the Prospects / Campaigns sections. */}
             <AdminSectionCard
               ariaLabel="Lead engine"
               title="Lead engine"
@@ -276,7 +273,6 @@ export default async function OutreachPage() {
                 )}
               </div>
             </AdminSectionCard>
-          </aside>
         </div>
     </AdminPageShell>
   );
