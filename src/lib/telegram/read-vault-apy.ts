@@ -31,11 +31,23 @@ export interface VaultApyView {
   borrowDragPct: number;
 }
 
+/** One real USDC venue backing the stable-yield input (for logo display). */
+export interface UsdcVenue {
+  /** Raw DeFiLlama protocol slug (e.g. "aave-v3", "morpho-blue"). */
+  project: string;
+  /** Chain the pool lives on (e.g. "Ethereum", "Base"). */
+  chain: string;
+  /** Pool APY in percent. */
+  apyPct: number;
+}
+
 export interface VaultApySnapshot {
   configured: boolean;
   miningYieldPct: number;
   usdcYieldPct: number;
   usdcSource: string;
+  /** Top real USDC venues (DeFiLlama) backing the blended yield — drives logos. */
+  usdcVenues: UsdcVenue[];
   btcReturn: { bear: number; base: number; bull: number };
   vaults: VaultApyView[];
   assumptions: string[];
@@ -77,6 +89,13 @@ export async function loadVaultApy(
 
   const usdcYieldPct = round2(defi.apyMedianPct);
   const usdcSource = defi.topYields[0]?.project ?? "fallback";
+  // Real venues backing the blended yield — slug + chain + apy only (no logic
+  // change; pure view-model passthrough for the logo row on /admin/source).
+  const usdcVenues = defi.topYields.slice(0, 4).map((y) => ({
+    project: y.project,
+    chain: y.chain,
+    apyPct: round2(y.apy),
+  }));
 
   // Best achievable LP mining yield across the parsed fleet (machines that price
   // through end-to-end, i.e. have efficiency). Uses the live hashprice.
@@ -137,6 +156,7 @@ export async function loadVaultApy(
     miningYieldPct,
     usdcYieldPct,
     usdcSource,
+    usdcVenues,
     btcReturn: BTC_RETURN,
     vaults,
     assumptions: ref.assumptions,

@@ -7,6 +7,10 @@ import {
 } from "@/components/admin/admin-page-shell";
 import { DestinationFilter } from "@/components/admin/source/destination-filter";
 import { MachineTable } from "@/components/admin/source/machine-table";
+import {
+  ProviderChip,
+  ProviderLogo,
+} from "@/components/admin/source/provider-logo";
 import { Card } from "@/components/catalyst/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
@@ -121,6 +125,17 @@ export default async function SourcePage({
             >
               <h3 className="ct-panel-title">{brick.title}</h3>
               <p className="ct-metric-caption">{brick.detail}</p>
+              {brick.id === "stable-yields" && apy.usdcVenues.length > 0 ? (
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  {apy.usdcVenues.map((v) => (
+                    <ProviderChip
+                      key={`${v.project}-${v.chain}`}
+                      project={v.project}
+                      value={`${v.apyPct}%`}
+                    />
+                  ))}
+                </div>
+              ) : null}
             </Card>
           ))}
         </div>
@@ -189,12 +204,16 @@ export default async function SourcePage({
       <AdminSectionCard
         title="APY range par vault"
         subtitle={
-          <>
-            Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}% (
-            {apy.usdcSource}) · BTC scénario {apy.btcReturn.bear}/
-            {apy.btcReturn.base}/+{apy.btcReturn.bull}% · allocation dérivée
-            risk-adjusted
-          </>
+          <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+            Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}%
+            <span className="inline-flex items-center gap-1.5">
+              (
+              <ProviderLogo project={apy.usdcSource} size={16} />
+              {apy.usdcSource})
+            </span>
+            · BTC scénario {apy.btcReturn.bear}/{apy.btcReturn.base}/+
+            {apy.btcReturn.bull}% · allocation dérivée risk-adjusted
+          </span>
         }
         ariaLabel="APY range par vault"
       >
