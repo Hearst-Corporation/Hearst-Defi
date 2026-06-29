@@ -1,6 +1,6 @@
 {
   "meta": {
-    "mission": "055",
+    "mission": "060",
     "generatedAt": "2026-06-29",
     "head": "main",
     "originMain": "ddae124d",
@@ -1075,6 +1075,11 @@
       "date": "2026-06-29",
       "ref": "Mission #055 — Admin Visual Frame Unification",
       "note": "Owner screenshots showed admin pages still didn't LOOK the same despite being on the #051/#054 start-pattern: Investors table cropped right, frame width jumped with the chat rail, forms read as isolated slabs. Root cause = flexbox min-width:auto on AdminSectionCard (a flex item) — a wide Catalyst table's intrinsic width won, the card refused to shrink, the frame overflowed the slot. Fix at the SHARED PRIMITIVE so it lands on every admin page at once: min-w-0 on the page frame (admin-canon-page-frame) and on every AdminSectionCard (admin-canon-first-block), plus a named CSS contract in src/app/admin/admin-canon.css (page-frame / first-block / table-surface / form-surface, tokens only). The Catalyst table already had overflow-x-auto; min-w-0 is what lets it scroll locally instead of bleeding. feedback + vaults/[id]/edit form bodies → admin-canon-form-surface (framed card body, not a black slab). New guard src/app/admin/__tests__/admin-visual-frame.test.ts locks the CSS contract + the primitive min-w-0 and lists exemptions. Shipped: PR #222 (frame), PR #223 (outreach full-width — 50/50 split removed), PR #219 (#054 cartography). Mission #057 merged all three to main and ran the real browser visual QA (see report). No re-wrap churn, no internal refactor; engine/projection/outreach send/chat/HcValueChart/#146/Prisma untouched."
+    },
+    {
+      "date": "2026-06-29",
+      "ref": "Mission #060 — Left Rail DS Canonization",
+      "note": "The launcher rail (cockpit-shell/src/shell/RailLeft.tsx + .ct-rail-* in cockpit-shell/tokens.css) was off the DS: hardcoded bg-[#15191C] / ring-[#0B0E10] / border-white/10 / text-zinc-200 / hover:text-white on the profile button, and an inline per-product --p-color that drove a weak text-only 'active' state. Canonized: profile button fully tokenized (bg var(--ct-surface-card), border var(--ct-border-soft), text var(--ct-text-body), accent dot ring var(--ct-bg-deep)); --p-color inline removed; selected rail item is now FULL ACCENT GREEN — background var(--ct-accent), icon/text var(--ct-bg-deep) (black), font-weight 700, with the count/badge tokenized as a bg-deep chip INSIDE the item. Selected item exposed via aria-current=page + data-active; focus-visible tokenized (accent outline). The authoritative active rule lives NON-LAYERED in src/app/cockpit.css (the @layer(cockpit) base in tokens.css is beaten by the non-layered button reset) — verified live: active row computes rgb(167,251,144) bg + rgb(6,7,8) fg. Guard src/lib/ds/__tests__/rail-design-system.test.ts blocks the hardcodes and locks the green/black active state. Visual-only: no nav logic, route mapping, auth, permissions, chat/nav runtime, server actions, Prisma, or #146 touched."
     }
   ],
   "adminVisualFrame": {

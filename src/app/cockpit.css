@@ -4486,6 +4486,33 @@ button.ct-choice-card {
 .ct-rail-list                              { padding: var(--ct-space-1_5) 0; }
 .ct-rail-row                               { padding: clamp(10px, 1.3vh, 16px) 14px; }
 
+/* Left-rail SELECTED item — full accent green, bg-deep (black) foreground.
+   Authoritative copy lives here (NON-layered cockpit.css) so it wins over the
+   @layer(cockpit) base shipped via tokens.css — same canon values, tokens only.
+   Mission #060. `.active` (legacy) + [data-active] + [aria-current] all resolve
+   to the one selected state. */
+.ct-rail-row.active,
+.ct-rail-row[data-active="true"],
+.ct-rail-row[aria-current="page"] {
+  background: var(--ct-accent);
+  border-color: var(--ct-accent);
+  color: var(--ct-bg-deep);
+  font-weight: 700;
+}
+.ct-rail-row.active .ct-rail-row-icon,
+.ct-rail-row[data-active="true"] .ct-rail-row-icon,
+.ct-rail-row[aria-current="page"] .ct-rail-row-icon { color: var(--ct-bg-deep); }
+.ct-rail-row.active .ct-rail-row-name,
+.ct-rail-row[data-active="true"] .ct-rail-row-name,
+.ct-rail-row[aria-current="page"] .ct-rail-row-name { color: var(--ct-bg-deep); font-weight: 700; }
+.ct-rail-row.active .ct-rail-row-tag,
+.ct-rail-row[data-active="true"] .ct-rail-row-tag,
+.ct-rail-row[aria-current="page"] .ct-rail-row-tag {
+  color: var(--ct-bg-deep);
+  background: color-mix(in srgb, var(--ct-bg-deep) 14%, transparent);
+  border-color: color-mix(in srgb, var(--ct-bg-deep) 22%, transparent);
+}
+
 /* Logout hero */
 .ct-logout-hero                            { padding: var(--ct-space-5) var(--ct-space-4); }
 
