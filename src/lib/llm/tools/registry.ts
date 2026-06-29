@@ -3,6 +3,10 @@ import "server-only";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import {
+  runProductConstructionPipeline,
+  isProductConstructionError,
+} from "@/lib/agentic/swarm/live/pipeline";
+import {
   VAULT_YIELD,
   VAULT_DEFENSIVE,
   VAULT_BTC_PLUS,
@@ -422,6 +426,62 @@ async function fetchBtcLivePriceFromCoinGecko(): Promise<BtcLivePrice> {
     freshnessSeconds,
     freshness: freshnessSeconds * 1000 <= LIVE_PRICE_STALE_THRESHOLD_MS ? "fresh" : "stale",
     source: "coingecko",
+  };
+}
+
+/**
+ * run_product_construction — read-only tool that runs the six live-read swarms
+ * (Telegram pricing → market live → strategy cross → Monte-Carlo → charts →
+ * write-up) for an objective and returns the numeric/charted/written DRAFT. It
+ * FETCHES real data and COMPUTES, but never sends/deploys/marks-live/writes
+ * custodially — the pipeline asserts the floor and returns a typed error on any
+ * violation. The chat surfaces the draft; the admin reviews + runs manually.
+ */
+const ProductConstructionInputSchema = z.object({
+  objective: z.string().min(1).max(220),
+});
+
+async function runProductConstructionTool(input: unknown): Promise<{
+  title: string;
+  lines: string[];
+  payload: Record<string, unknown>;
+}> {
+  const parsed = ProductConstructionInputSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error("invalid_product_construction_input");
+  }
+  const result = await runProductConstructionPipeline(parsed.data.objective, {
+    deterministicWriteupOnly: true,
+  });
+  if (isProductConstructionError(result)) {
+    return {
+      title: "PRODUCT CONSTRUCTION — indisponible",
+      lines: [`- raison: ${result.reasonCode}`, `- detail: ${result.message}`],
+      payload: { error: result.kind, reasonCode: result.reasonCode },
+    };
+  }
+  const lo = (result.quant.headlineRange.low * 100).toFixed(1);
+  const hi = (result.quant.headlineRange.high * 100).toFixed(1);
+  return {
+    title: "PRODUCT CONSTRUCTION — brouillon (read-only, non garanti)",
+    lines: [
+      `- vault inféré: ${result.vault.ticker} (${result.vault.label})`,
+      `- BTC live: $${Math.round(result.market.btcUsd).toLocaleString("en-US")} · hashprice $${result.market.hashpriceUsdPerThDay.toFixed(3)}/TH/jour`,
+      `- machines Telegram: ${result.telegram.machineCount}${result.telegram.topMachine ? ` (top ${result.telegram.topMachine})` : ""}`,
+      `- APY fourchette cible: ${lo}–${hi}% (Monte-Carlo seed ${result.quant.seed}, ${result.quant.paths} chemins)`,
+      `- P(sous le plancher ${result.quant.floorApyPct}%): ${result.quant.probBelowFloorPct}%`,
+      `- aucun produit créé/déployé/envoyé · ${result.disclaimer}`,
+    ],
+    payload: {
+      objective: result.objective,
+      vault: result.vault,
+      headlineRange: result.quant.headlineRange,
+      seed: result.quant.seed,
+      safe: result.safe,
+      effects: result.effects,
+      // The full draft (charts + write-up + audit) for the workspace to render.
+      draft: result as unknown as Record<string, unknown>,
+    },
   };
 }
 
@@ -1113,6 +1173,26 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
       additionalProperties: false,
     },
     run: async (_context, input) => runGenerateDemoPlan(input),
+  },
+  {
+    id: "run_product_construction",
+    kind: "read",
+    description:
+      "Run the six live-read product-construction swarms for an objective (Telegram machine pricing, live BTC/hashprice/DeFi, strategy cross, seeded Monte-Carlo, charts, write-up) and return the numeric DRAFT. Read-only: fetches + computes, never sends/deploys/marks-live/writes custodially.",
+    riskLevel: "low",
+    confirmationRequired: false,
+    allowedChatModes: ["admin"],
+    allowedProfiles: ["admin"],
+    resultFormat: "json_object",
+    parameters: {
+      type: "object",
+      properties: {
+        objective: { type: "string" },
+      },
+      required: ["objective"],
+      additionalProperties: false,
+    },
+    run: async (_context, input) => runProductConstructionTool(input),
   },
   {
     id: "export_demo_pack",
