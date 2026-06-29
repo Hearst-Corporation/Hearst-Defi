@@ -62,8 +62,32 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-> Aucun lock actif. Dernières intégrations : HC-7631 methodology panel (PR #200),
-> fix CI Vitest HF deferral (PR #203).
+### fix/vitest-portfolio-vaults-nav
+Owner: Claude Opus — CI Vitest green-up (5 remaining red tests)
+Branch: fix/vitest-portfolio-vaults-nav
+Worktree: principal (integration tree)
+Started: 2026-06-29
+Status: active
+
+Goal: green the 5 remaining red Vitest tests so the suite is 100% green (4165/4165).
+All were stale tests vs intentional implementation/design decisions:
+- yield-stack ×2: assert BUCKET_COLOR tokens (var(--ct-bucket-*)) — the tokenized
+  impl was already merged; tests still asserted old literals.
+- portfolio-real-data ×1: assert HcValueChart (the real hero chart) not the dropped
+  HcMetricSparkline.
+- term-sheet ×1: section header "Vault Metrics" (renamed from redundant "Term Sheet").
+- ConfirmedS9 ×2: mock a real position (subscribedAt=now) so the audit-I16 soft-lock
+  progress bar renders "Day 0 of 60"; assert the generic (non-echoed) email notice.
+- route #5: drop the de-whitelisted portfolio sub-leaves (positions/distributions,
+  PR #149) from the "covered nav" list + add 5b proving they fall through to the LLM.
+
+Scope:
+- src/components/vaults/term-sheet-preview.tsx (header rename only)
+- 4 test files (yield-stack, portfolio-real-data, ConfirmedS9, route) — test-only
+- tokens --ct-bucket-* already in cockpit.css (not touched here)
+
+STOP: never touches engine/data/prisma schema/portfolio runtime/cockpit.css. Only
+aligns stale tests to intentional behaviour + one header label.
 
 ---
 

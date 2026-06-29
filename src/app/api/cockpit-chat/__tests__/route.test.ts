@@ -630,6 +630,12 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
   });
 
   it("5. covered navigation never calls LLM router/classifier", async () => {
+    // Phrases the deterministic router resolves WITHOUT any LLM call. NOTE:
+    // "Ouvre mes positions" / "Show distributions" were intentionally removed
+    // here — the 5 unwired portfolio sub-leaves (positions/activity/distributions/
+    // yield/tax) were dropped from the nav whitelist (PR #149) so the chat no
+    // longer routes investors to blank pages; they now fall through to the LLM by
+    // design (covered by test 5b).
     const coveredMessages = [
       "Amène-moi au dashboard",
       "Open my portfolio",
@@ -639,8 +645,6 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
       "Open outreach",
       "Montre les campagnes",
       "Va dans control tower",
-      "Ouvre mes positions",
-      "Show distributions",
     ];
 
     for (const message of coveredMessages) {
@@ -650,6 +654,22 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
       expect(res.status).toBe(200);
       expect(mockRunChatAgent).not.toHaveBeenCalled();
       expect(mockClassifyCanvasIntentLlm).not.toHaveBeenCalled();
+    }
+  });
+
+  it("5b. de-whitelisted portfolio sub-leaves fall through to the LLM (PR #149)", async () => {
+    // Regression guard for the whitelist pruning: these used to navigate to
+    // blank unwired pages. They must NO LONGER resolve via the deterministic
+    // router — they fall through to the normal chat turn instead.
+    const removedLeaves = ["Ouvre mes positions", "Show distributions"];
+
+    for (const message of removedLeaves) {
+      vi.clearAllMocks();
+      mockGetSession.mockResolvedValue({ role: "admin" } as never);
+      mockMasterAgentTurnWithoutNav();
+      const res = await POST(makeChatRequest(message));
+      expect(res.status).toBe(200);
+      expect(mockRunChatAgent).toHaveBeenCalled();
     }
   });
 

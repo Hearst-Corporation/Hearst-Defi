@@ -41,7 +41,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       {/* HEADLINE TERM TILES */}
       <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
         <BentoHeader
-          title="Term Sheet"
+          title="Vault Metrics"
           subtitle={`${vault.ticker} · ${strategyLabel}`}
           trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
         />

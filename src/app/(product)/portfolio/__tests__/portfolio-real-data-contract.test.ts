@@ -34,7 +34,9 @@ describe("portfolio binds real data (no static mock)", () => {
   it("renders on HIS data-viz primitives (not the legacy mock chart)", () => {
     expect(page).toMatch(/@\/components\/dataviz\/his/);
     expect(page).toMatch(/HcChartCard/);
-    expect(page).toMatch(/HcMetricSparkline/);
+    // Hero NAV chart = HcValueChart (fed by real NAV points); composition =
+    // HcCompositionRing. Both are HIS primitives — the legacy mock chart is gone.
+    expect(page).toMatch(/HcValueChart/);
     expect(page).toMatch(/HcCompositionRing/);
   });
 
