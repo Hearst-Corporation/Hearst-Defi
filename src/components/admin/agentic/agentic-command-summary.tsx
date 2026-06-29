@@ -17,11 +17,13 @@ const HEALTH_LABEL: Record<TowerSummary["health"], string> = {
   no_data: "Limited data",
 };
 
-/** Map a tower metric tone to the KPI strip's semantic value colour:
- *  danger → alert (red), accent/success → accent (green), else neutral white. */
-function toneToKpiFlags(tone: TowerMetric["tone"]): Pick<HeroKpi, "alert" | "accent"> {
-  if (tone === "danger") return { alert: true };
-  if (tone === "accent" || tone === "success") return { accent: true };
+// Colour discipline mirrors /admin/customers: ONE accent (the key positive)
+// + ONE alert (the key risk), everything else neutral white — not one colour
+// per metric. So only "autonomous" reads green and only "forbidden" reads red;
+// gated/agents/crews/platform stay white.
+function metricKpiFlags(id: TowerMetric["id"]): Pick<HeroKpi, "alert" | "accent"> {
+  if (id === "autonomous") return { accent: true };
+  if (id === "forbidden") return { alert: true };
   return {};
 }
 
@@ -42,7 +44,7 @@ export function AgenticStatusLine({
       value: HEALTH_LABEL[health],
       sublabel: "overall agentic health",
       provenance: "manual",
-      ...(health === "healthy" ? { accent: true } : {}),
+      // Platform health stays neutral white unless it's a real alert (red).
       ...(health === "alert" ? { alert: true } : {}),
     },
     ...metrics.map(
@@ -51,7 +53,7 @@ export function AgenticStatusLine({
         value: m.value,
         sublabel: m.hint,
         provenance: "manual",
-        ...toneToKpiFlags(m.tone),
+        ...metricKpiFlags(m.id),
       }),
     ),
   ];
