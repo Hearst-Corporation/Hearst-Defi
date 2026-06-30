@@ -629,14 +629,32 @@ async function runMasterAgentTurn(args: {
     (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
   );
 
+  // Admin product-creation/framing intent — the MOST SPECIFIC admin intent, so it
+  // is computed FIRST (before the speculative outreach/history canvas detection
+  // and before the nav fast-path) and wins over them. Without this, "Va faire un
+  // volt" (a vault-typo creation) is mis-parsed: the outreach grammar reads the
+  // capitalised "Va faire un X" as a campaign name, and the generic nav resolver
+  // reads a bare "vault" token as the /vaults page. A genuine creation must open
+  // the Product Workspace. Pure regex (no I/O, no LLM); admin-only; respects an
+  // explicit canvas marker (those set `canvasIntent` earlier → this stays null).
+  const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
+    (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
+  );
+  const productIntent =
+    !isReview && isAdmin && productWorkspaceNavEnabled && !canvasIntent
+      ? classifyProductWorkspaceIntent(message)
+      : null;
+
   // DETERMINISM FIRST (no LLM): the canonical outreach phrasing is detected by a
   // regex classifier BEFORE any model call, so opening the workshop never depends
   // on the LLM. The LLM classifier below stays only as a fallback for phrasings
-  // the regex misses.
+  // the regex misses. Gated on `!productIntent` so a product creation is never
+  // hijacked into the outreach workshop by a capitalised-name false positive.
   if (
     !isReview &&
     isAdmin &&
     !canvasIntent &&
+    !productIntent?.shouldOpenProductWorkspace &&
     (outreachParsed.intent === "outreach_start" ||
       outreachParsed.intent === "outreach_slots" ||
       outreachParsed.intent === "outreach_open_campaign" ||
@@ -690,12 +708,16 @@ async function runMasterAgentTurn(args: {
   }
 
   // ── 1. Fast-path navigation (router high-confidence) ──────────────────────
+  // A product-creation intent is more specific than a generic page nav and is
+  // handled by the dedicated Product Workspace block below — never let the
+  // fast-path divert it to /vaults.
   if (
     agenticDecision?.kind === "navigation" &&
     agenticDecision.routeKey &&
     agenticDecision.confidence >= 0.7 &&
     !isReview &&
-    !canvasIntent
+    !canvasIntent &&
+    !productIntent?.shouldOpenProductWorkspace
   ) {
     const routeKey = agenticDecision.routeKey;
     // PROFILE GUARD (P0): scope the destination to the REAL user, NOT the routeKey
@@ -803,20 +825,9 @@ async function runMasterAgentTurn(args: {
     ? isEducationalReadOnly(agenticDecision)
     : false;
 
-  // Admin product-creation/framing intent — computed AFTER the router-v2
-  // fast-path (which returns earlier for high-confidence nav, so a pure
-  // navigation never triggers this classify call) and BEFORE the legacy nav
-  // fallback. It is MORE SPECIFIC than the generic nav shortcut and must win:
-  // the legacy regex captures "on va créer un produit" as a `vaults` navigation
-  // (the verb "va" + the noun "produit"), which would wrongly send the admin to
-  // /vaults instead of opening the Product Workspace. Admin-only surface.
-  const productWorkspaceNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-    (d) => d.key === PRODUCT_WORKSPACE_DESTINATION_KEY,
-  );
-  const productIntent =
-    !isReview && isAdmin && productWorkspaceNavEnabled && !canvasIntent
-      ? classifyProductWorkspaceIntent(message)
-      : null;
+  // `productIntent` is computed above (before the nav fast-path) so a product
+  // creation wins over the generic nav shortcut — see the block after
+  // `agenticDecision`.
 
   // ── 4. Fallback legacy nav (router n'a pas capté ou manque de confiance) ──
   // Le regex legacy reste la sécurité en cas de miss du router. GARDE-FOU

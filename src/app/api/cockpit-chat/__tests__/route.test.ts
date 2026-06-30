@@ -431,7 +431,10 @@ describe("POST /api/cockpit-chat — admin nav regex shortcut", () => {
     expect(body).not.toContain("navIntent");
     expect(body.trim().length).toBeGreaterThan(0);
     expect(mockRunChatAgent).not.toHaveBeenCalled();
-    expect(mockClassify).not.toHaveBeenCalled();
+    // The product-workspace classifier (a cheap, pure regex) is now consulted
+    // before the nav fast-path so a product creation can win over a generic page
+    // nav. For a non-product nav it returns shouldOpenProductWorkspace=false and
+    // the fast-path proceeds — i.e. it never diverts this customers navigation.
     expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
       destinationKey: "admin-customers",
     });
