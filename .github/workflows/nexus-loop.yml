@@ -7,8 +7,9 @@ name: nexus-loop
 # Workflow artifacts are kept in $RUNNER_TEMP so they never land in the PR.
 #
 # TWO MODES (input `mode`):
-#   default → run agents, collapse to a single delta, and let create-pull-request
-#             open/refresh a PR on branch `nexus/<run_label>`. Unchanged behaviour.
+#   default → run agents, collapse to a single delta, detect real changes vs main,
+#             and ONLY open a PR when there is a genuine diff. No-op runs exit
+#             cleanly without creating a branch or PR.
 #   pr_fix  → PATCH an EXISTING pull request in place: check out its existing head
 #             branch (`target_head_ref`), run the agents, commit fixes, and push to
 #             the SAME branch. NEVER creates a new branch or a new PR. NEVER merges.
@@ -218,8 +219,29 @@ jobs:
           # extra leaks into the PR.
           git reset --soft "${{ steps.fleet.outputs.base }}"
 
-      - name: Create Pull Request
+      # ── Detect real changes vs base branch (default mode only) ───────────────
+      # After the soft-reset the index holds the NET delta of the entire fleet.
+      # Compare that index against origin/main (or the configured base) to decide
+      # whether the run actually produced useful work. An empty or noise-only diff
+      # is a clean no-op: we skip the PR entirely and report success.
+      - name: Detect changes vs base branch (default mode only)
+        id: detect
         if: ${{ inputs.mode != 'pr_fix' }}
+        shell: bash -l {0}
+        run: |
+          set -e
+          BASE_REF="${TARGET_BASE_REF:-main}"
+          git fetch origin "$BASE_REF" --quiet
+          if git diff --quiet "origin/${BASE_REF}"; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "→ No diff vs origin/${BASE_REF} — health check completed, no changes needed. Skipping PR."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "→ Changes detected vs origin/${BASE_REF} — will open PR."
+          fi
+
+      - name: Create Pull Request
+        if: ${{ inputs.mode != 'pr_fix' && steps.detect.outputs.has_changes == 'true' }}
         uses: peter-evans/create-pull-request@v6
         with:
           branch: nexus/${{ inputs.run_label }}
