@@ -236,11 +236,18 @@ const INTENT_RULES: readonly IntentRule[] = [
   },
 
   // --- REVIEW_CAMPAIGN ---
+  // Higher priority than open_outreach to catch "review campaign" before it matches nav
   {
     intent: "review_campaign",
-    re: /\b(review|revoir|vérif|vérifier|check|validate|valider|approuver|approve).*\b(campagne|campaign)\b/i,
+    re: /\b(review|revoir|vérif|vérifier|check|validate|valider|approuver|approve|relis|re-lis|relire|read).*\b(campagne|campaign|draft|brouillon)\b/i,
     action: "stage_action",
-    priority: 65,
+    priority: 110,
+  },
+  {
+    intent: "review_campaign",
+    re: /\b(campagne|campaign).*\b(review|validation|vérification|check|approve|approbation)\b/i,
+    action: "stage_action",
+    priority: 105,
   },
 
   // --- ANALYZE_RECIPIENTS ---

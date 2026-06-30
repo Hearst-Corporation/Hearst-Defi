@@ -31,11 +31,16 @@ test.describe("Outreach Master Agent E2E", () => {
   });
 
   test("navigation: 'ouvre outreach' navigates to outreach workspace", async ({ page }) => {
-    // Open chat and type navigation intent
-    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+    // Wait for admin shell to be fully hydrated
+    await expect(page.locator("[data-testid='admin-shell-ready'], body")).toBeVisible();
     
-    // Wait for chat input
-    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    // Open chat rail
+    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    await chatTrigger.waitFor({ state: "visible" });
+    await chatTrigger.click();
+    
+    // Wait for chat input with data-testid
+    const chatInput = page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: "visible" });
     
     // Type navigation intent
@@ -53,9 +58,16 @@ test.describe("Outreach Master Agent E2E", () => {
   });
 
   test("negative: 'outreach CSS bug' does not navigate", async ({ page }) => {
-    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+    // Wait for admin shell to be fully hydrated
+    await expect(page.locator("[data-testid='admin-shell-ready'], body")).toBeVisible();
     
-    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    // Open chat rail
+    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    await chatTrigger.waitFor({ state: "visible" });
+    await chatTrigger.click();
+    
+    // Wait for chat input with data-testid
+    const chatInput = page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: "visible" });
     
     // Type bug report (should not navigate)
@@ -77,10 +89,13 @@ test.describe("Outreach Master Agent E2E", () => {
     await page.goto("/admin/outreach");
     await page.waitForLoadState("networkidle");
     
-    // Open chat
-    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+    // Open chat rail
+    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    await chatTrigger.waitFor({ state: "visible" });
+    await chatTrigger.click();
     
-    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    // Wait for chat input with data-testid
+    const chatInput = page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: "visible" });
     
     // Request campaign creation
@@ -115,9 +130,13 @@ test.describe("Outreach Master Agent E2E", () => {
   });
 
   test("non-regression: 'créer un vault' does not go to outreach", async ({ page }) => {
-    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+    // Open chat rail
+    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    await chatTrigger.waitFor({ state: "visible" });
+    await chatTrigger.click();
     
-    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    // Wait for chat input with data-testid
+    const chatInput = page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: "visible" });
     
     // Type product workspace intent
@@ -139,10 +158,13 @@ test.describe("Outreach Master Agent E2E", () => {
     await page.goto("/admin/outreach");
     await page.waitForLoadState("networkidle");
     
-    // Open chat and request draft
-    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+    // Open chat rail
+    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    await chatTrigger.waitFor({ state: "visible" });
+    await chatTrigger.click();
     
-    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    // Wait for chat input with data-testid
+    const chatInput = page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: "visible" });
     
     await chatInput.fill("écris un email aux investisseurs");

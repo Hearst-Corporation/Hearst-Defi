@@ -471,6 +471,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
         >
           <textarea
             ref={textareaRef}
+            data-testid="chat-input"
             className="max-h-[10.5rem] min-h-10 flex-1 resize-none border-none bg-transparent py-1.5 text-[length:var(--ct-text-xs)] leading-normal text-[var(--ct-text-strong)] outline-none placeholder:text-[var(--ct-text-faint)]"
             rows={1}
             placeholder="Message the assistant…"

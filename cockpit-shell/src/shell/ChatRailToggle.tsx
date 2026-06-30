@@ -29,6 +29,7 @@ export function ChatRailToggle() {
   return (
     <button
       type="button"
+      data-testid="chat-trigger"
       onClick={toggle}
       aria-label={open ? "Close assistant" : "Open assistant"}
       aria-expanded={open}
