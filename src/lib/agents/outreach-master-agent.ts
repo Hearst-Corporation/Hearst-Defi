@@ -26,6 +26,7 @@ import type {
 } from "./outreach-master-types";
 import { classifyOutreachIntentRegex } from "./outreach-master-regex";
 import { classifyOutreachIntentSemantic, isSemanticClassificationAvailable } from "./outreach-master-semantic";
+import { runOutreachSwarmIfNeeded } from "./swarms";
 
 // ============================================================================
 // CONFIGURATION
@@ -46,6 +47,7 @@ class OutreachMasterAgent implements OutreachIntentClassifier {
    * 1. Regex déterministe
    * 2. HF semantic (si mode l'autorise)
    * 3. Unknown → no_action
+   * 4. Swarm orchestration (si intent = campaign/draft/follow-up)
    */
   async classify(ctx: OutreachIntentContext): Promise<OutreachAgentDecision> {
     const { message, isAdmin } = ctx;
@@ -59,7 +61,8 @@ class OutreachMasterAgent implements OutreachIntentClassifier {
     const regexDecision = classifyOutreachIntentRegex(ctx);
     if (regexDecision) {
       // Regex a matché (positif ou négatif)
-      return regexDecision;
+      // Si c'est une action complexe, on peut enrichir avec le swarm
+      return this.maybeEnrichWithSwarm(regexDecision, ctx);
     }
 
     // --- ÉTAPE 2: Semantic HF (si activé et disponible) ---
@@ -67,7 +70,7 @@ class OutreachMasterAgent implements OutreachIntentClassifier {
       const semanticDecision = await classifyOutreachIntentSemantic(ctx);
       if (semanticDecision) {
         // HF a trouvé un intent avec bonne confiance
-        return semanticDecision;
+        return this.maybeEnrichWithSwarm(semanticDecision, ctx);
       }
     }
 
@@ -81,6 +84,63 @@ class OutreachMasterAgent implements OutreachIntentClassifier {
       "Intent Outreach non reconnu — aucune action entreprise",
       message,
     );
+  }
+
+  /**
+   * Enrichit la décision avec le swarm si applicable.
+   * Les swarms ne tournent que pour les intents complexes (campaign/draft/etc),
+   * pas pour la simple navigation.
+   */
+  private maybeEnrichWithSwarm(
+    decision: OutreachAgentDecision,
+    ctx: OutreachIntentContext,
+  ): OutreachAgentDecision {
+    // Simple navigation doesn't need swarm
+    if (decision.action === "navigate" || decision.intent === "open_outreach") {
+      return decision;
+    }
+
+    // No-action doesn't need swarm
+    if (decision.intent === "no_action") {
+      return decision;
+    }
+
+    // Run swarm if this is a complex intent requiring preparation
+    const swarmRun = runOutreachSwarmIfNeeded({
+      message: ctx.message,
+      intent: decision.intent,
+      isAdmin: ctx.isAdmin,
+      userId: "master-agent",
+      recipientScope: decision.recipientsScope,
+      campaignName: decision.entities?.campaignName,
+      preferredChannel: decision.channel as "email" | "whatsapp" | "linkedin" | undefined,
+    });
+
+    if (swarmRun) {
+      // Create summary version for decision (avoid deep circular deps)
+      const swarmSummary = {
+        runId: swarmRun.runId,
+        status: swarmRun.status,
+        specialistCount: swarmRun.outputs.length,
+        safetyOk: swarmRun.safety.blockedReasons.length === 0,
+      };
+
+      return {
+        ...decision,
+        swarmRun: swarmSummary,
+        // If swarm blocked, reflect that in the decision
+        ...(swarmRun.status === "blocked"
+          ? {
+              safetyWarnings: [
+                ...(decision.safetyWarnings || []),
+                `Swarm blocked: ${swarmRun.safety.blockedReasons.join("; ")}`,
+              ],
+            }
+          : {}),
+      };
+    }
+
+    return decision;
   }
 
   /**

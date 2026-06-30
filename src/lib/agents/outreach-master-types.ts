@@ -99,6 +99,22 @@ export interface OutreachAgentDecision {
 
   /** Score semantic si HF utilisé */
   semanticScore?: number;
+
+  /** Run Swarm si campaign/draft/follow-up (optionnel) */
+  swarmRun?: {
+    runId: string;
+    status: string;
+    specialistCount: number;
+    safetyOk: boolean;
+  };
+
+  /** Entities extraites si disponibles */
+  entities?: {
+    campaignName?: string;
+    campaignType?: string;
+    channel?: string;
+    scope?: string;
+  };
 }
 
 /** Contexte pour la classification Outreach. */
