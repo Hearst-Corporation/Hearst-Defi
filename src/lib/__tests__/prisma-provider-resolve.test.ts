@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePrismaProvider } from "@/lib/prisma-provider-resolve";
+import { resolvePrismaProvider } from "@/lib/prisma-provider-resolve-core";
 
 describe("resolvePrismaProvider", () => {
   it("prefers explicit PRISMA_PROVIDER", () => {

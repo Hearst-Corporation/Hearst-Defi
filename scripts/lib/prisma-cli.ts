@@ -12,14 +12,30 @@
  * These scripts run under `tsx` and never touch the Next server runtime, so
  * `server-only` is intentionally NOT imported here.
  */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-import { resolvePrismaProvider } from "../../src/lib/prisma-provider-resolve";
+import { resolvePrismaProvider } from "../../src/lib/prisma-provider-resolve-core";
+
+/** Match the generated client provider (schema file), not env inference alone. */
+function readSchemaProvider(): "sqlite" | "postgresql" | null {
+  try {
+    const schema = readFileSync(resolve(process.cwd(), "prisma/schema.prisma"), "utf8");
+    const match = /datasource\s+\w+\s*\{[^}]*?\n\s*provider\s*=\s*"(\w+)"/s.exec(schema);
+    const provider = match?.[1];
+    if (provider === "sqlite" || provider === "postgresql") return provider;
+  } catch {
+    // fall through to env inference
+  }
+  return null;
+}
 
 export function makePrismaClient(): PrismaClient {
-  const provider = resolvePrismaProvider();
+  const provider = readSchemaProvider() ?? resolvePrismaProvider();
   const databaseUrl =
     process.env.DATABASE_URL?.trim() ?? "file:./prisma/dev.db";
 
