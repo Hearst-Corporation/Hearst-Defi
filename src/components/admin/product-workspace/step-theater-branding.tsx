@@ -81,7 +81,7 @@ export function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
           className="h-full w-full object-contain"
         />
       ) : (
-        <span className="text-[10px] font-medium tracking-tight ct-text-faint select-none">
+        <span className="text-[length:var(--ct-text-deci)] font-medium tracking-tight ct-text-faint select-none">
           {brand.initials}
         </span>
       )}
