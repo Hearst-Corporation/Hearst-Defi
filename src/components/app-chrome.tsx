@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { type ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { ConnectShell } from "@/components/ConnectShell";
 import { AppFooter } from "@/components/app-footer";
@@ -104,8 +104,15 @@ export function AppChrome({
       <AdminChatControls />
       {/* Master Agent auto-navigation bridge — only when chat is enabled on this
           route AND CHAT_MASTER_AGENT is ON (kill-switch). When =0 the route 503s
-          and no nav directive is published, so the poller would be dead load. */}
-      {chatEnabled && masterAgentEnabled ? <ChatNavBridge /> : null}
+          and no nav directive is published, so the poller would be dead load.
+          ChatNavBridge reads useSearchParams(); it MUST sit inside a Suspense
+          boundary or Next's static export bails out of CSR and the prerender of
+          every page (first tripped at /admin/dashboard) fails the build. */}
+      {chatEnabled && masterAgentEnabled ? (
+        <Suspense fallback={null}>
+          <ChatNavBridge />
+        </Suspense>
+      ) : null}
     </ConnectShell>
   );
 }
