@@ -36,6 +36,13 @@ const UI_ALLOWED = new Set([
   "toaster.tsx",
   "client-toaster.tsx",
   "README.md",
+  // shadcn/Recharts chart primitives, fully tokenised to --ct-* (no hardcoded
+  // colours). These are the Recharts wrapper infrastructure for the
+  // product-workspace charts — a DIFFERENT system from Catalyst (Headless UI form
+  // controls), not autonomous visual components duplicating it. They belong with
+  // their Recharts peers under ui/, not in catalyst/.
+  "card.tsx",
+  "chart.tsx",
 ]);
 
 // ── Guard 2 — files allowed to carry a raw #A7FB90 (legitimate fallbacks) ──────
