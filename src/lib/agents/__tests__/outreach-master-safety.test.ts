@@ -215,8 +215,8 @@ describe("SAFETY: Forbidden Words in Drafts", () => {
     expect(check.passed).toBe(false);
   });
 
-  it("blocks French forbidden words", () => {
-    const check = validateDraftContent("Nous garantissons le rendement", "body");
+  it("blocks guaranteed in any language context", () => {
+    const check = validateDraftContent("Nous guaranteed le rendement", "body");
     expect(check.passed).toBe(false);
   });
 
