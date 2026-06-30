@@ -53,7 +53,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         </span>
         <span
           className={cn(
-            "text-[28px] font-medium leading-none tracking-tight tabular-nums transition-all duration-150",
+            "text-[length:var(--ct-text-28)] font-medium leading-none tracking-tight tabular-nums transition-all duration-150",
             hasAmount ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-faint)]",
           )}
         >
