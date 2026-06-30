@@ -2,9 +2,9 @@
  * Catalyst Card — canonical module-surface container for Hearst Connect.
  *
  * Token-only (all surfaces, spacing and motion come from `--ct-*` / the
- * `.ct-*` class layer in cockpit.css). This is the canon: `src/components/ui/card`
- * is a thin compatibility wrapper that re-exports these symbols. New code should
- * import Card / CardHeader / CardTitle from `@/components/catalyst/card`.
+ * `.ct-*` class layer in cockpit.css). This is the single UI source for Card —
+ * import Card / CardHeader / CardTitle / CardDescription / CardContent / CardFooter
+ * from `@/components/catalyst/card`.
  *
  * `glass` (default) renders the opaque graphite module surface (legacy class name
  * `.ct-glass-panel`, no real frosted glass); `flat` keeps the same opaque fill for
@@ -70,4 +70,40 @@ export function CardTitle({
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return <h3 className={cn("h3 ct-text-strong", className)} {...props} />;
+}
+
+/**
+ * Sub-components below complete the shadcn-shaped Card API (description, content,
+ * footer) so every Card surface resolves to this single Catalyst source.
+ * Token-only; no hardcoded colours.
+ */
+export function CardDescription({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLParagraphElement>) {
+  return (
+    <p className={cn("ct-metric-caption ct-text-muted", className)} {...props} />
+  );
+}
+
+export function CardContent({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("ct-text-default", className)} {...props} />;
+}
+
+export function CardFooter({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        "mt-[var(--ct-space-6)] flex items-center gap-[var(--ct-space-3)]",
+        className,
+      )}
+      {...props}
+    />
+  );
 }

@@ -44,6 +44,9 @@ const UI_ALLOWED = new Set([
 const ACCENT_FALLBACK_ALLOW = [
   "src/lib/brand-constants.ts",
   "src/components/portfolio/chart/value-area-plot.tsx",
+  // Chart.js renders to <canvas>, which can't resolve CSS vars live, so the DS
+  // palette is mirrored as raw constants (same pattern as value-area-plot.tsx).
+  "src/components/admin/product-workspace/monte-carlo-chart.tsx",
   "src/lib/ui/catalyst-accent.ts",
 ];
 

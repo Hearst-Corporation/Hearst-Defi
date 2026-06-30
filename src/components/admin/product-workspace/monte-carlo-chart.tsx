@@ -19,7 +19,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/catalyst/card";
 
 ChartJS.register(
   CategoryScale,

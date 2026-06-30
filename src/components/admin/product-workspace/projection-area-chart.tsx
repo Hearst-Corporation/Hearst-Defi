@@ -21,7 +21,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
+} from "@/components/catalyst/chart";
 
 export interface FanBand {
   m: number;

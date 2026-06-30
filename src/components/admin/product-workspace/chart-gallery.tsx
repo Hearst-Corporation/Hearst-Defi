@@ -34,7 +34,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/catalyst/card";
 import {
   ChartContainer,
   ChartLegend,
@@ -42,7 +42,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
+} from "@/components/catalyst/chart";
 
 const areaData = [
   { date: "Apr 1", p50: 222, band: 150 },
