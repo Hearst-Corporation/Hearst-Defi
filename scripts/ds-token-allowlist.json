@@ -102,6 +102,12 @@
       "pkgValue": "#ffffff",
       "cockpitValue": "rgba(255, 255, 255, 0.92)",
       "reason": "Typographic softening — reduced contrast for institutional premium feel (Portfolio Premium)."
+    },
+    {
+      "token": "--ct-rail-right-eff",
+      "pkgValue": "var(--ct-rail-right-expanded)",
+      "cockpitValue": "0px",
+      "reason": "Intentional default-state override — cockpit.css pins the effective right-rail width to 0px (chat closed is the default layout; centering reads --ct-rail-right-eff). The package base derives it from the chat collapsed/expanded state via :has(); cockpit fixes the closed default. Not a regression."
     }
   ]
 }
