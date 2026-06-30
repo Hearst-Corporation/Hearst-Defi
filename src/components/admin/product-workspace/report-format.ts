@@ -34,11 +34,18 @@ export function computeFanYDomain(
 ): [number, number] {
   if (bands.length === 0) return percentPoints ? [-10, 20] : [-0.1, 0.2];
   const raw = bands.flatMap((b) => [b.p5, b.p95]);
-  const lo = Math.min(...raw);
-  const hi = Math.max(...raw);
+  let lo = Math.min(...raw);
+  let hi = Math.max(...raw);
   const span = hi - lo || (percentPoints ? 10 : 0.1);
   const pad = span * 0.08;
-  return [lo - pad, hi + pad];
+  lo -= pad;
+  hi += pad;
+  if (percentPoints) {
+    lo = Math.floor(lo / 5) * 5;
+    hi = Math.ceil(hi / 5) * 5;
+    if (hi - lo < 10) hi = lo + 10;
+  }
+  return [lo, hi];
 }
 
 export function formatFanMonthLabel(value: unknown): string {
