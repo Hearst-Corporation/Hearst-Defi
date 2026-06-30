@@ -58,5 +58,112 @@ describe("product workspace intent", () => {
     expect(objective).toHaveLength(220);
     expect(objective).toMatch(/^créer un produit/);
   });
+});
 
+// ── P0 stress suite — assistant navigation intent (vault / product workspace) ──
+// Every "claire intention" phrase must open the canonical Product Workspace
+// (admin-product-workspace). Negatives (electrical/math/css/bare-question) must
+// NOT. Navigation stays 100% deterministic — these are pure regex assertions.
+describe("product workspace intent — P0 navigation stress suite", () => {
+  // The exact failing logs from the bug report — these MUST navigate now.
+  const REGRESSION_LOGS = [
+    "Va faire un volt",
+    "go vault creation",
+    "On va faire un vault",
+    "Va créer un produit.",
+    "Va créer dans le workspace.",
+  ];
+
+  // 20 FR
+  const FR = [
+    "va faire un vault",
+    "faire un vault",
+    "on va faire un vault",
+    "créer un vault",
+    "crée un vault",
+    "créer un produit",
+    "crée un produit",
+    "lancer un produit",
+    "construire un produit",
+    "monter un produit",
+    "créer dans le workspace",
+    "va créer dans le workspace",
+    "aller dans le workspace",
+    "ouvre le workspace",
+    "ouvrir le workspace produit",
+    "workspace produit",
+    "création produit",
+    "construction produit",
+    "démarre un nouveau vault",
+    "structurer un produit defensive",
+  ];
+
+  // 15 EN
+  const EN = [
+    "go vault creation",
+    "open vault creation",
+    "create vault",
+    "create a vault",
+    "new vault",
+    "launch product",
+    "create product",
+    "build a product",
+    "open product workspace",
+    "go product workspace",
+    "product construction",
+    "product creation",
+    "new product",
+    "construction workspace",
+    "go to market with a new vault",
+  ];
+
+  // 10 typos (in a creation / nav context — bare ambiguous tokens are covered separately)
+  const TYPOS = [
+    "faire un volt",
+    "crée un vaut",
+    "créer un vaul",
+    "construire un veault",
+    "monter un vaultt",
+    "go vaut creation",
+    "new volt",
+    "create a vaul",
+    "faire un vautl",
+    "va faire un volt",
+  ];
+
+  // 5 mixed-language
+  const MIXED = [
+    "créer a new vault",
+    "go faire un vault",
+    "open le workspace produit",
+    "lance a product workspace",
+    "crée a product",
+  ];
+
+  it.each([...REGRESSION_LOGS, ...FR, ...EN, ...TYPOS, ...MIXED])(
+    "navigates to Product Workspace: %s",
+    (phrase) => {
+      const c = classifyProductWorkspaceIntent(phrase);
+      expect(c.shouldOpenProductWorkspace).toBe(true);
+      expect(c.primaryDestinationKey).toBe(PRODUCT_WORKSPACE_DESTINATION_KEY);
+    },
+  );
+
+  // Negatives — clear non-navigation / non-product intents must NOT route.
+  const NEGATIVES = [
+    "explique moi ce qu'est un volt",
+    "quelle est la tension en volts",
+    "voltage bitcoin mining",
+    "workspace CSS bug",
+    "produit scalaire math",
+    "comment créer un bon mot de passe",
+    "fais le rapport",
+    "explain what a vault is",
+    "what is the voltage of the miner",
+    "le produit scalaire de deux vecteurs",
+  ];
+
+  it.each(NEGATIVES)("does NOT navigate: %s", (phrase) => {
+    expect(isProductWorkspaceIntent(phrase)).toBe(false);
+  });
 });

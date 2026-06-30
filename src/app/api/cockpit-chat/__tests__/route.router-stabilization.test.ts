@@ -228,3 +228,61 @@ describe("cockpit-chat — router stabilization (negation, education, refusal)",
     }
   });
 });
+
+// ── P0 — assistant navigation intent (vault / product workspace) ──────────────
+// The exact failing logs must now navigate (admin) to the canonical Product
+// Workspace, deterministically: real classifier, no LLM, no "section not found".
+describe("cockpit-chat — vault/product creation routes to Product Workspace (admin)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRequireAuth.mockResolvedValue({ userId: USER_ID });
+    // ADMIN role → the product-workspace divert path is active.
+    mockGetSession.mockResolvedValue({ role: "admin" } as never);
+    mockAdminChatModeFindUnique.mockResolvedValue({
+      mode: "normal",
+      userId: USER_ID,
+      updatedAt: new Date(),
+    });
+    mockCockpitChatCreate.mockResolvedValue({ id: "chat-1", userId: USER_ID } as never);
+    mockCockpitMessageCreate.mockResolvedValue({} as never);
+    mockCockpitMessageCount.mockResolvedValue(1 as never);
+    mockLlmRunCreate.mockResolvedValue({} as never);
+    mockNavTraceCreate.mockResolvedValue({} as never);
+    mockPublishNav.mockResolvedValue(undefined);
+    mockTurn();
+  });
+
+  for (const msg of [
+    "Va faire un volt",
+    "go vault creation",
+    "On va faire un vault",
+    "Va créer un produit.",
+    "Va créer dans le workspace.",
+    "ouvre le workspace produit",
+    "construction produit",
+  ]) {
+    it(`"${msg}" → publishNav(admin-product-workspace), no LLM, no reject ack`, async () => {
+      const res = await POST(makeChatRequest(msg));
+      const body = await readStreamText(res);
+      await vi.waitFor(() => {
+        expect(mockPublishNav).toHaveBeenCalledWith(
+          USER_ID,
+          expect.objectContaining({ destinationKey: "admin-product-workspace" }),
+        );
+      });
+      // Deterministic nav short-circuit: the LLM is never consulted…
+      expect(mockRunChatAgent).not.toHaveBeenCalled();
+      // …and the "section not found" reject is never emitted.
+      expect(body).not.toContain("Je ne trouve pas cette section");
+    });
+  }
+
+  // A non-product message from the same admin must NOT divert to the workspace.
+  it('"quelle est la tension en volts" → no workspace nav (electrical, not a vault)', async () => {
+    await POST(makeChatRequest("quelle est la tension en volts"));
+    expect(mockPublishNav).not.toHaveBeenCalledWith(
+      USER_ID,
+      expect.objectContaining({ destinationKey: "admin-product-workspace" }),
+    );
+  });
+});
