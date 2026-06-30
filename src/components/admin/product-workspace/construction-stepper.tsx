@@ -23,7 +23,6 @@ import {
   encodeVaultFormPrefill,
 } from "@/lib/agentic/swarm/live/to-vault-form";
 import { DataScientistOutput } from "./data-scientist-output";
-import { ProductEngineReport } from "./product-engine-report";
 
 /**
  * Product construction — full-page vertical stepper.
@@ -675,12 +674,8 @@ export function ConstructionStepper({ objective }: { objective: string | null })
             title="Report Product"
             subtitle={draft.vault.label}
           />
-          <div className="p-(--ct-space-5)">
+          <div className="min-w-0 p-(--ct-space-5)">
             <DataScientistOutput draft={draft} />
-            {/* PROMPT 17 — wired product financial engines (funding / exit-recovery
-                / waterfalls / operator) + calculated-vs-documented disclosure.
-                Renders nothing for a non-mining draft. */}
-            <ProductEngineReport draft={draft} />
           </div>
         </BentoPanel>
       ) : null}
@@ -692,13 +687,19 @@ export function ConstructionStepper({ objective }: { objective: string | null })
             href={`/admin/vaults/new?prefill=${encodeURIComponent(encodeVaultFormPrefill(constructionDraftToVaultForm(draft)))}`}
             className={cn(cockpitButtonVariants({ variant: "primary", size: "sm" }), "self-start")}
           >
-            Open in vault wizard (pre-filled)
+            Open in vault wizard
           </Link>
-          <Button variant="secondary" size="sm" onClick={() => window.open("/admin/product-workspace/report/print", "_blank", "noopener")}>
-            Open print view (PDF)
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              window.open("/admin/product-workspace/report/print", "_blank", "noopener")
+            }
+          >
+            Print view
           </Button>
           <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            Hand-off carries ticker / APY range / allocations · no record created.
+            No record created · Manual admin validation required
           </span>
         </div>
       ) : null}
