@@ -326,12 +326,37 @@ function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
   );
 }
 
-function MetricChip({ metric }: { metric: StepMetric }) {
-  // Lives INSIDE the black step box → gray inset so the price reads on black.
+/**
+ * Generic step result strip — the FLAT KPI grammar (no rounded chip boxes): each
+ * metric is a full-width cell (label on top, large fixed value below), cells
+ * divided by thin vertical hairlines. Same grammar as the dashboard KPI tiles and
+ * the Bitcoin strip, so every step reads identically — no boxes-in-boxes. The
+ * Headline APY (data-scientist step) is the only accent-tinted value.
+ */
+function StepResultStrip({ metrics }: { metrics: StepMetric[] }) {
   return (
-    <div className="flex flex-col gap-px rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-page px-(--ct-space-3) py-(--ct-space-2)">
-      <span className="ct-bento-label">{metric.label}</span>
-      <span className="mono text-[length:var(--ct-text-sm)] font-bold ct-text-strong">{metric.value}</span>
+    <div className="dashboard-kpi-strip border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]">
+      {metrics.map((m, i, arr) => {
+        const accent = m.label.toLowerCase() === "headline apy";
+        return (
+          <div key={m.label} className="flex w-full min-w-0 items-center">
+            <div className="flex flex-1 flex-col gap-(--ct-space-2) px-(--ct-space-5) py-(--ct-space-4)">
+              <span className="ct-bento-label">{m.label}</span>
+              <span
+                className={cn(
+                  "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums",
+                  accent ? "ct-text-accent" : "ct-text-strong",
+                )}
+              >
+                {m.value}
+              </span>
+            </div>
+            {i < arr.length - 1 ? (
+              <div className="h-(--ct-space-8) w-px shrink-0 self-center bg-[var(--ct-border)]" aria-hidden="true" />
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -555,11 +580,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                           step.id === "bitcoin" ? (
                             <BitcoinResultStrip metrics={result.metrics} />
                           ) : (
-                            <div className="flex flex-wrap gap-(--ct-space-2) border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-(--ct-space-5) py-(--ct-space-4)">
-                              {result.metrics.map((m) => (
-                                <MetricChip key={m.label} metric={m} />
-                              ))}
-                            </div>
+                            <StepResultStrip metrics={result.metrics} />
                           )
                         ) : null}
                         {result.note ? (
