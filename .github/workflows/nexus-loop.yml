@@ -76,6 +76,11 @@ jobs:
       TARGET_HEAD_REF: ${{ inputs.target_head_ref }}
       TARGET_BASE_REF: ${{ inputs.target_base_ref }}
       GH_TOKEN: ${{ github.token }}
+      # User-controlled free-form input — routed through env so the shell never
+      # re-parses it. Interpolating ${{ inputs.prompt }} directly inside a bash
+      # string lets a prompt containing a double-quote / backtick / $() break the
+      # string (exit 127) or inject commands. Reference it as "$PROMPT" instead.
+      PROMPT: ${{ inputs.prompt }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,7 +151,7 @@ jobs:
           for i in $(seq 0 $((N-1))); do
             ROLE="${ROLES[$i]:-agent-$((i+1))}"
             echo "──── agent $((i+1))/$N : $ROLE ────"
-            AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${{ inputs.prompt }}"
+            AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${PROMPT}"
             claude -p "$AGENT_PROMPT" \
               --permission-mode acceptEdits \
               --allowedTools "Edit,Write,Bash(npm test)" \
@@ -199,7 +204,7 @@ jobs:
           {
             echo "Automated by **Hearst Nexus** loop run \`${{ inputs.run_label }}\` — fleet of ${{ inputs.agents }} agent(s)."
             echo
-            echo "**Mission:** ${{ inputs.prompt }}"
+            echo "**Mission:** ${PROMPT}"
             echo
             echo "Review before merge — Nexus never auto-merges."
             echo
