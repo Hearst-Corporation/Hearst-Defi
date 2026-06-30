@@ -14,11 +14,45 @@
  * - "No send" safety indicators visible
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 // Test admin credentials (from seed)
 const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL ?? "admin@hearst.io";
 const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD ?? "TestAdmin123!";
+
+/**
+ * Helper to ensure the assistant rail is open and the chat input is ready.
+ * Handles viewport, trigger visibility, rail opening, and input readiness.
+ */
+async function openAssistantRail(page: Page) {
+  // Ensure desktop viewport for right rail visibility
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  // Wait for page to be fully loaded
+  await page.waitForLoadState("domcontentloaded");
+  await page.waitForLoadState("networkidle");
+
+  // Check if rail is already open by looking for chat-rail-body
+  const railBody = page.locator('[data-testid="chat-rail-body"]').first();
+  const isRailOpen = await railBody.isVisible().catch(() => false);
+
+  if (!isRailOpen) {
+    // Find and click the chat trigger to open the rail
+    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    await chatTrigger.waitFor({ state: "visible", timeout: 10000 });
+    await chatTrigger.click();
+
+    // Wait for rail body to appear after click
+    await railBody.waitFor({ state: "visible", timeout: 15000 });
+  }
+
+  // Wait for chat input to be ready
+  const chatInput = page.locator('[data-testid="chat-input"]').first();
+  await chatInput.waitFor({ state: "visible", timeout: 15000 });
+  await expect(chatInput).toBeEnabled({ timeout: 10000 });
+
+  return chatInput;
+}
 
 test.describe("Outreach Master Agent E2E", () => {
   test.beforeEach(async ({ page }) => {
@@ -28,24 +62,14 @@ test.describe("Outreach Master Agent E2E", () => {
     await page.fill('input[type="password"]', ADMIN_PASSWORD);
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin/);
+
+    // Ensure desktop viewport after login
+    await page.setViewportSize({ width: 1440, height: 900 });
   });
 
   test("navigation: 'ouvre outreach' navigates to outreach workspace", async ({ page }) => {
-    // Wait for admin shell to be fully hydrated
-    await expect(page.locator("body")).toBeVisible();
-    
-    // Open chat rail
-    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
-    await chatTrigger.waitFor({ state: "visible" });
-    await chatTrigger.click();
-    
-    // Wait for rail body to appear (chat component renders here)
-    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
-    await chatRailBody.waitFor({ state: "visible" });
-    
-    // Wait for chat input with data-testid
-    const chatInput = page.locator('[data-testid="chat-input"]').first();
-    await chatInput.waitFor({ state: "visible" });
+    // Open assistant rail and get chat input
+    const chatInput = await openAssistantRail(page);
     
     // Type navigation intent
     await chatInput.fill("ouvre outreach");
@@ -62,21 +86,8 @@ test.describe("Outreach Master Agent E2E", () => {
   });
 
   test("negative: 'outreach CSS bug' does not navigate", async ({ page }) => {
-    // Wait for admin shell to be fully hydrated
-    await expect(page.locator("body")).toBeVisible();
-    
-    // Open chat rail
-    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
-    await chatTrigger.waitFor({ state: "visible" });
-    await chatTrigger.click();
-    
-    // Wait for rail body to appear (chat component renders here)
-    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
-    await chatRailBody.waitFor({ state: "visible" });
-    
-    // Wait for chat input with data-testid
-    const chatInput = page.locator('[data-testid="chat-input"]').first();
-    await chatInput.waitFor({ state: "visible" });
+    // Open assistant rail and get chat input
+    const chatInput = await openAssistantRail(page);
     
     // Type bug report (should not navigate)
     await chatInput.fill("outreach CSS bug");
@@ -96,19 +107,9 @@ test.describe("Outreach Master Agent E2E", () => {
     // Navigate to outreach workspace
     await page.goto("/admin/outreach");
     await page.waitForLoadState("networkidle");
-    
-    // Open chat rail
-    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
-    await chatTrigger.waitFor({ state: "visible" });
-    await chatTrigger.click();
-    
-    // Wait for rail body to appear (chat component renders here)
-    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
-    await chatRailBody.waitFor({ state: "visible" });
-    
-    // Wait for chat input with data-testid
-    const chatInput = page.locator('[data-testid="chat-input"]').first();
-    await chatInput.waitFor({ state: "visible" });
+
+    // Open assistant rail and get chat input
+    const chatInput = await openAssistantRail(page);
     
     // Request campaign creation
     await chatInput.fill("prépare une campagne test cold");
@@ -142,18 +143,8 @@ test.describe("Outreach Master Agent E2E", () => {
   });
 
   test("non-regression: 'créer un vault' does not go to outreach", async ({ page }) => {
-    // Open chat rail
-    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
-    await chatTrigger.waitFor({ state: "visible" });
-    await chatTrigger.click();
-    
-    // Wait for rail body to appear (chat component renders here)
-    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
-    await chatRailBody.waitFor({ state: "visible" });
-    
-    // Wait for chat input with data-testid
-    const chatInput = page.locator('[data-testid="chat-input"]').first();
-    await chatInput.waitFor({ state: "visible" });
+    // Open assistant rail and get chat input
+    const chatInput = await openAssistantRail(page);
     
     // Type product workspace intent
     await chatInput.fill("créer un vault");
@@ -173,19 +164,9 @@ test.describe("Outreach Master Agent E2E", () => {
   test("safety: no 'Send' button without 'Review' on action cards", async ({ page }) => {
     await page.goto("/admin/outreach");
     await page.waitForLoadState("networkidle");
-    
-    // Open chat rail
-    const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
-    await chatTrigger.waitFor({ state: "visible" });
-    await chatTrigger.click();
-    
-    // Wait for rail body to appear (chat component renders here)
-    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
-    await chatRailBody.waitFor({ state: "visible" });
-    
-    // Wait for chat input with data-testid
-    const chatInput = page.locator('[data-testid="chat-input"]').first();
-    await chatInput.waitFor({ state: "visible" });
+
+    // Open assistant rail and get chat input
+    const chatInput = await openAssistantRail(page);
     
     await chatInput.fill("écris un email aux investisseurs");
     await chatInput.press("Enter");
