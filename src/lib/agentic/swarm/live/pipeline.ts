@@ -66,6 +66,26 @@ import { buildEconomicsViews } from "@/lib/products/economics-views";
 const DISCLAIMER =
   "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
 
+/**
+ * Normalise the three MC sleeve legs so they sum to EXACTLY 1.
+ *
+ * The 4-sleeve allocation percentages are rounded to 2 decimals upstream
+ * (`round2` in strategy-allocation), so `mining/100 + btc/100 + (usdc+reserve)/100`
+ * can land at 1.0001 / 0.9999 — enough to trip the Monte-Carlo's strict
+ * `|sum − 1| ≤ 1e-6` guard and abort the whole projection. We re-base the three
+ * legs on their own total (never zero here: mining floor ≥ 30%), which preserves
+ * each leg's relative weight while guaranteeing an exact unit sum. Pure.
+ */
+function normalizeSleeveWeights(
+  mining: number,
+  btcHold: number,
+  stable: number,
+): { mining: number; btcHold: number; stable: number } {
+  const total = mining + btcHold + stable;
+  if (total <= 0) return { mining: 1, btcHold: 0, stable: 0 };
+  return { mining: mining / total, btcHold: btcHold / total, stable: stable / total };
+}
+
 /** Deterministic non-crypto seed from a string + spot (stable across runs). */
 function deriveSeed(objective: string, btcUsd: number): number {
   let h = 2166136261 >>> 0; // FNV-1a
@@ -215,9 +235,17 @@ export async function runProductConstructionPipeline(
       // three weights sum to exactly 1 (the engine asserts this). The yield-overlay
       // sleeve is already folded into usdc/btc upstream by deriveRegimeAllocation,
       // so it is NOT double-counted here.
-      const miningWeight = allocation.mining / 100;
-      const btcHoldWeight = allocation.btc / 100;
-      const stableWeight = (allocation.usdc + allocation.stableReserve) / 100;
+      // Normalise to an EXACT unit sum — the 2-decimal-rounded percents can
+      // otherwise sum to 100.01 and trip the MC's strict weight-sum guard.
+      const {
+        mining: miningWeight,
+        btcHold: btcHoldWeight,
+        stable: stableWeight,
+      } = normalizeSleeveWeights(
+        allocation.mining,
+        allocation.btc,
+        allocation.usdc + allocation.stableReserve,
+      );
 
       const regimeQuant = runQuant({
         seed: (seed + regimeSeedOffset) >>> 0,
@@ -282,10 +310,17 @@ export async function runProductConstructionPipeline(
     // scenario path's balanced run) and feed the balanced (base) BTC drift, so the
     // default headline matches what the balanced scenario card shows and is no
     // longer dragged negative by the missing BTC-hold sleeve (root causes #1, #2).
-    const balancedMiningWeight = balancedAllocation.mining / 100;
-    const balancedBtcHoldWeight = balancedAllocation.btc / 100;
-    const balancedStableWeight =
-      (balancedAllocation.usdc + balancedAllocation.stableReserve) / 100;
+    // Normalise to an EXACT unit sum (see normalizeSleeveWeights) so the rounded
+    // percents can't trip the Monte-Carlo's strict weight-sum guard.
+    const {
+      mining: balancedMiningWeight,
+      btcHold: balancedBtcHoldWeight,
+      stable: balancedStableWeight,
+    } = normalizeSleeveWeights(
+      balancedAllocation.mining,
+      balancedAllocation.btc,
+      balancedAllocation.usdc + balancedAllocation.stableReserve,
+    );
     const quant = runQuant({
       seed,
       market: {
