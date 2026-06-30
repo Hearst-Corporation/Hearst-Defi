@@ -13,13 +13,6 @@ import {
   type ChartOptions,
 } from "chart.js";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 ChartJS.register(
@@ -89,14 +82,13 @@ function mulberry32(seed: number): () => number {
 
 function runMonteCarloSimulation(
   initialCapital: number,
-  years: number,
+  steps: number,
   expectedReturn: number,
   volatility: number,
   simulationsCount: number,
   seed: number,
 ) {
   const rng = mulberry32(seed);
-  const steps = years;
   const allTrajectories: number[][] = [];
 
   for (let i = 0; i < simulationsCount; i++) {
@@ -137,13 +129,20 @@ function formatFullUsd(value: number): string {
   return `$${Math.round(value).toLocaleString("en-US")}`;
 }
 
-export function MonteCarloChart() {
+export function MonteCarloChart({
+  seed,
+  paths,
+  steps,
+  expectedReturn,
+  volatility,
+}: {
+  seed: number;
+  paths: number;
+  steps: number;
+  expectedReturn: number;
+  volatility: number;
+}) {
   const INITIAL_CAPITAL = 10000;
-  const YEARS = 10;
-  const EXPECTED_RETURN = 0.07;
-  const VOLATILITY = 0.15;
-  const SEED = 1878790276;
-  const SPAGHETTI_COUNT = 220; // thin faint paths drawn behind the principal line
 
   // Resolve the DS palette once on mount from the live --ct-* tokens. The
   // initializer runs under SSR too (window undefined → fallbacks), so we re-read
@@ -159,18 +158,18 @@ export function MonteCarloChart() {
     () =>
       runMonteCarloSimulation(
         INITIAL_CAPITAL,
-        YEARS,
-        EXPECTED_RETURN,
-        VOLATILITY,
-        SPAGHETTI_COUNT,
-        SEED,
+        steps,
+        expectedReturn,
+        volatility,
+        Math.min(paths, 500), // Cap spaghetti lines to 500 to avoid freezing the browser
+        seed,
       ),
-    [],
+    [steps, expectedReturn, volatility, paths, seed],
   );
 
   const labels = React.useMemo(
-    () => Array.from({ length: YEARS + 1 }, (_, i) => (i === 0 ? "Start" : `Y${i}`)),
-    [],
+    () => Array.from({ length: steps + 1 }, (_, i) => (i === 0 ? "Start" : `M${i}`)),
+    [steps],
   );
 
   const data = React.useMemo(() => {
@@ -226,7 +225,7 @@ export function MonteCarloChart() {
           callbacks: {
             title: (items) => {
               const raw = items[0]?.label ?? "";
-              return raw === "Start" ? "Start" : `Year ${raw.replace("Y", "")}`;
+              return raw === "Start" ? "Start" : `Month ${raw.replace("M", "")}`;
             },
             label: (ctx) =>
               `Principal · ${formatFullUsd(Number(ctx.raw))}`,
@@ -259,37 +258,24 @@ export function MonteCarloChart() {
     [data.datasets.length, ds.surfaceCard, ds.border, ds.textStrong, ds.muted, ds.gridSoft],
   );
 
-  const finalMid = median[YEARS] ?? 0;
+  const finalMid = median[steps] ?? 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-wrap items-start justify-between gap-(--ct-space-3)">
-          <div className="flex flex-col gap-(--ct-space-1)">
-            <CardTitle>Monte-Carlo projection</CardTitle>
-            <CardDescription>
-              {formatFullUsd(INITIAL_CAPITAL)} · {YEARS} years · {SPAGHETTI_COUNT} seeded paths
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-inset px-(--ct-space-2_5) py-(--ct-space-1_5)">
-            <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
-            />
-            <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
-            <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
-              {formatCompactUsd(finalMid)}
-            </span>
-          </div>
+    <div className="flex flex-col gap-(--ct-space-4)">
+      <div className="flex flex-wrap items-start justify-between gap-(--ct-space-3)">
+        <div className="flex items-center gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-(--ct-space-2_5) py-(--ct-space-1_5) ml-auto">
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+          />
+          <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
+          <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
+            {formatCompactUsd(finalMid)}
+          </span>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[360px] w-full">
-          <Line options={options} data={data} />
-        </div>
-        <p className="mt-(--ct-space-3) ct-metric-caption ct-text-faint">
-          Seeded simulation · illustrative dispersion, not guaranteed.
-        </p>
-      </CardContent>
-    </Card>
+      </div>
+      <div className="h-[min(300px,42vh)] min-h-[220px] w-full min-w-0">
+        <Line options={options} data={data} />
+      </div>
+    </div>
   );
 }

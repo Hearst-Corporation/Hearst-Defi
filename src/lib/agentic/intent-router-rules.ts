@@ -202,13 +202,12 @@ export const PRODUCT_VAULT_RULES: readonly IntentRule[] = [
     riskLevel: "medium",
     re: /\b(cree|creer|create|prepare|preparer|nouveau|nouvelle|monte|monter|build|structure|structurer).*(produit|product|vault|offre|strategie)\b|\bnew (product|vault)\b|\b(produit|vault) hearst\b/,
     requiresLLM: false,
-    requiresCanvas: true,
+    requiresCanvas: false,
     requiresHumanGate: true,
     prohibitedAutonomousAction: false,
-    canvasKey: "create-vault",
     targetCrew: "product",
     reason:
-      "Cadrage / création d'un produit ou vault : ouvre le canvas create-vault. Le draft reste DRAFT-only derrière HITL ; aucune mise en ligne.",
+      "Cadrage / création d'un produit ou vault : Product Workspace (lecture seule). Le draft vault reste HITL dans le wizard.",
   },
 ];
 

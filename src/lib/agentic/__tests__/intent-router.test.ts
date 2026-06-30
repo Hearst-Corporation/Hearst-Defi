@@ -218,10 +218,11 @@ describe("router — outreach", () => {
 // ---------------------------------------------------------------------------
 
 describe("router — product / vault", () => {
-  it("crée un draft de vault → product_draft, canvas create-vault, HITL", () => {
+  it("crée un draft de vault → product_draft, Product Workspace path, HITL", () => {
     const d = r("crée un draft de vault");
     expect(d.kind).toBe("product_draft");
-    expect(d.canvasKey).toBe("create-vault");
+    expect(d.requiresCanvas).toBe(false);
+    expect(d.canvasKey).toBeUndefined();
     expect(d.requiresHumanGate).toBe(true);
     expect(d.prohibitedAutonomousAction).toBe(false);
   });

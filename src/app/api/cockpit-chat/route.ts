@@ -66,6 +66,8 @@ import { withProductChatStreamEvents } from "@/lib/llm/product-chat-stream";
 import {
   detectCanvasIntent,
   detectActiveCanvasFromHistory,
+  resolveCanvasNavIntent,
+  resolveCanvasHistoryId,
   canvasOpenMarker,
   stripCanvasOpenMarker,
 } from "@/lib/canvas/intent";
@@ -554,8 +556,11 @@ async function runMasterAgentTurn(args: {
   // ([[canvas:<id>]]); we strip it so the model + the stored transcript only
   // ever see the human text, while the route opens the right canvas. A message
   // without the marker never opens a canvas (returns null).
-  let canvasIntent = detectCanvasIntent(rawMessage);
-  const message = canvasIntent ? canvasIntent.cleanedMessage || rawMessage : rawMessage;
+  const rawCanvasIntent = detectCanvasIntent(rawMessage);
+  const message = rawCanvasIntent
+    ? rawCanvasIntent.cleanedMessage || rawMessage
+    : rawMessage;
+  let canvasIntent = resolveCanvasNavIntent(rawCanvasIntent);
   const outreachParsed = parseOutreachMessage(message);
 
   const persistence = createUserScopedPersistence(userId, chatMode);
@@ -671,7 +676,7 @@ async function runMasterAgentTurn(args: {
   // WITHOUT re-navigating every turn.
   const freshCanvasThisTurn = canvasIntent !== null;
   if (!isReview && isAdmin && !canvasIntent) {
-    const fromHistory = detectActiveCanvasFromHistory(history);
+    const fromHistory = resolveCanvasHistoryId(detectActiveCanvasFromHistory(history));
     if (fromHistory) {
       canvasIntent = { canvasId: fromHistory, cleanedMessage: message };
     }

@@ -9,9 +9,8 @@ import { probeReviewMode } from "@/lib/admin/review-mode-probe";
 /**
  * Empty-state quick-action chips for the cockpit chat.
  *
- * A chip PRE-FILLS the chat input (editable, not auto-sent) via `onPick`. Admin
- * chips carry a stable marker (`[[canvas:<id>]]`) that the chat route detects to
- * open the matching agent canvas in Section 2; LP chips are plain read starters.
+ * A chip sends its prompt immediately via `onPick` (no extra Enter). Admin chips
+ * carry plain product-framing text routed to the Product Workspace; LP chips are
  *
  * Role is resolved by the lazy admin probe (`GET /api/admin/review-mode` → 200
  * means admin) — display-only, fails CLOSED (network error → LP set). It is NOT
@@ -37,8 +36,7 @@ const ADMIN_PRESETS: readonly Preset[] = [
   {
     id: "create-vault",
     label: "Create a product",
-    prompt:
-      "[[canvas:create-vault]] Help me frame a new vault and create it as a draft.",
+    prompt: "Help me frame a new vault and create it as a draft.",
   },
   {
     id: "outreach",
@@ -90,7 +88,7 @@ export function ChatPresets({
   onPick,
   masterAgentEnabled = true,
 }: {
-  /** Pre-fill the chat input with the preset prompt (editable). */
+  /** Send the preset prompt immediately (chip click). */
   onPick: (text: string) => void;
   masterAgentEnabled?: boolean;
 }) {

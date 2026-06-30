@@ -13,6 +13,7 @@ import {
   LP_NAV_DESTINATIONS,
   resolveNavDestination,
 } from "@/lib/llm/navigate-tool";
+import { isProductWorkspaceIntent } from "@/lib/llm/product-workspace-intent";
 
 
 export const ADMIN_CUSTOMERS_DESTINATION_KEY = "admin-customers";
@@ -264,7 +265,7 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "admin-roadmap": ["roadmap", "feuille de route"],
   "admin-projection": ["projection", "projections", "projetion", "projetion admin", "show me projection", "go to projection"],
   "admin-home": ["accueil admin", "operations admin", "console admin", "control tower", "tour de contrôle", "tour de controle", "admin"],
-  "admin-vaults-new": ["nouveau vault", "créer un vault", "new vault"],
+  "admin-vaults-new": ["vault wizard", "wizard vault", "nouveau vault wizard"],
   "admin-outreach-compose": ["composer un email", "rédiger un email", "compose"],
   // "proof center" is an admin keyword too: an ADMIN navigating there wants the
   // admin proof center (admin resolver is queried first for admins); the LP
@@ -476,6 +477,16 @@ function buildDerivedRules(
 const LP_DERIVED_RULES = buildDerivedRules(LP_NAV_DESTINATIONS);
 const ADMIN_DERIVED_RULES = buildDerivedRules(ADMIN_NAV_DESTINATIONS);
 
+/** Vault list/wizard nav must lose to Product Workspace creation/framing. */
+const VAULT_NAV_KEYS = new Set(["vaults", "admin-vaults", "admin-vaults-new"]);
+
+function vaultNavSupersededByProductWorkspace(
+  message: string,
+  key: string | null,
+): boolean {
+  return key !== null && VAULT_NAV_KEYS.has(key) && isProductWorkspaceIntent(message);
+}
+
 function firstMatchingKey(
   message: string,
   rules: ReadonlyArray<{ key: string; re: RegExp }>,
@@ -526,16 +537,20 @@ export function resolveNavFallbackDestinationKey(args: {
     if (adminKey === "admin-scenario-lab" && !scenarioLabNavEnabled) {
       return null;
     }
-    if (adminKey) return adminKey;
+    if (adminKey && !vaultNavSupersededByProductWorkspace(message, adminKey)) {
+      return adminKey;
+    }
   }
 
   if (navProfile === "lp" && !isAdmin) {
-    return resolveLpNavDestinationKey(message);
+    const lpKey = resolveLpNavDestinationKey(message);
+    return vaultNavSupersededByProductWorkspace(message, lpKey) ? null : lpKey;
   }
 
   // Admins can also ask for LP surfaces from either admin or normal mode.
   if (isAdmin) {
-    return resolveLpNavDestinationKey(message);
+    const lpKey = resolveLpNavDestinationKey(message);
+    return vaultNavSupersededByProductWorkspace(message, lpKey) ? null : lpKey;
   }
 
   return null;

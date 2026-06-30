@@ -5,7 +5,11 @@
 
 import { describe, expect, it } from "vitest";
 
-import { detectCanvasIntent } from "@/lib/canvas/intent";
+import {
+  detectCanvasIntent,
+  resolveCanvasHistoryId,
+  resolveCanvasNavIntent,
+} from "@/lib/canvas/intent";
 
 describe("detectCanvasIntent", () => {
   it("detects a known canvas marker and strips it", () => {
@@ -31,5 +35,26 @@ describe("detectCanvasIntent", () => {
   it("is case-insensitive on the marker keyword", () => {
     const r = detectCanvasIntent("[[Canvas:create-vault]] x");
     expect(r?.canvasId).toBe("create-vault");
+  });
+});
+
+describe("resolveCanvasNavIntent", () => {
+  it("retires create-vault — marker strips text but does not open agent-canvas", () => {
+    const detected = detectCanvasIntent(
+      "[[canvas:create-vault]] Help me frame a new vault.",
+    );
+    expect(resolveCanvasNavIntent(detected)).toBeNull();
+  });
+
+  it("passes outreach through unchanged", () => {
+    const detected = detectCanvasIntent("[[canvas:outreach]] start");
+    expect(resolveCanvasNavIntent(detected)?.canvasId).toBe("outreach");
+  });
+});
+
+describe("resolveCanvasHistoryId", () => {
+  it("drops retired create-vault from cross-turn memory", () => {
+    expect(resolveCanvasHistoryId("create-vault")).toBeNull();
+    expect(resolveCanvasHistoryId("outreach")).toBe("outreach");
   });
 });

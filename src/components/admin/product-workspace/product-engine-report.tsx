@@ -129,6 +129,44 @@ export function ProductEngineReport({ draft }: { draft: ProductConstructionDraft
   const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
   return (
+    <details className="group mt-(--ct-space-4) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)">
+      <summary className="ct-bento-label flex cursor-pointer list-none items-center gap-(--ct-space-2) transition-colors hover:text-[var(--ct-text-body)]">
+        <span
+          aria-hidden
+          className="inline-block h-1.5 w-1.5 rotate-45 border-b border-r border-current transition-transform group-open:rotate-[225deg]"
+        />
+        Engine detail (funding · recovery · waterfalls)
+      </summary>
+      <div className="pt-(--ct-space-4)">
+        <ProductEngineReportBody
+          funding={funding}
+          exit={exit}
+          wf={wf}
+          op={op}
+          mc={mc}
+          pct={pct}
+        />
+      </div>
+    </details>
+  );
+}
+
+function ProductEngineReportBody({
+  funding,
+  exit,
+  wf,
+  op,
+  mc,
+  pct,
+}: {
+  funding: ProductConstructionDraft["stableFundingDecision"];
+  exit: ProductConstructionDraft["exitRecovery"];
+  wf: ProductConstructionDraft["waterfalls"];
+  op: ProductConstructionDraft["operatorEconomics"];
+  mc: ProductConstructionDraft["monteCarloDisclosure"];
+  pct: (n: number) => string;
+}) {
+  return (
     <div className="flex flex-col">
       {/* Calculated-vs-documented disclosure removed at the admin's request. */}
 

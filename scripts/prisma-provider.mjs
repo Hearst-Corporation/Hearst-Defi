@@ -46,7 +46,7 @@ function resolvePrismaProvider() {
   return "sqlite";
 }
 
-const target = resolvePrismaProvider();
+let target = resolvePrismaProvider();
 
 if (!ALLOWED.has(target)) {
   console.error(
@@ -54,6 +54,36 @@ if (!ALLOWED.has(target)) {
       `Accepted values: ${[...ALLOWED].join(", ")}.`
   );
   process.exit(1);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HARD DATABASE LOCK — PRISMA_PROVIDER_LOCK
+// When set (e.g. PRISMA_PROVIDER_LOCK=postgresql in .env.local), the provider is
+// PINNED to that value: any attempt to switch away from it (notably the test
+// pipeline forcing sqlite) is REFUSED, and the locked provider is kept. This
+// stops a stray/crashed `pretest` or a rogue agent from leaving the schema on
+// sqlite and breaking the live postgres dev server. To run sqlite-isolated
+// tests, use the dedicated PRISMA_SQLITE_ISOLATED=1 path (own client dir), which
+// never rewrites the shared schema.
+const lock = process.env.PRISMA_PROVIDER_LOCK?.trim();
+if (lock) {
+  if (!ALLOWED.has(lock)) {
+    console.error(
+      `[prisma-provider] ERROR: PRISMA_PROVIDER_LOCK="${lock}" is not a recognised value. ` +
+        `Accepted values: ${[...ALLOWED].join(", ")}.`
+    );
+    process.exit(1);
+  }
+  // The isolated-sqlite test path is allowed to bypass the lock — it never
+  // touches the shared schema/client (it uses its own generated client dir).
+  const isolated = process.env.PRISMA_SQLITE_ISOLATED === "1";
+  if (target !== lock && !isolated) {
+    console.error(
+      `[prisma-provider] LOCKED: provider is pinned to "${lock}" by PRISMA_PROVIDER_LOCK; ` +
+        `refusing to switch to "${target}". Keeping "${lock}".`
+    );
+    target = lock;
+  }
 }
 
 let schema;

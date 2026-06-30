@@ -9,7 +9,6 @@
 
 import Link from "next/link";
 
-import { Badge } from "@/components/catalyst/badge";
 import {
   Table,
   TableBody,
@@ -25,9 +24,11 @@ import {
   type HcSourceStatus,
 } from "@/components/dataviz/his";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
+import { DistributionChart } from "@/components/portfolio/distribution-chart";
 import {
   loadPortfolio,
   loadAllocationDonutProps,
+  loadDistribCalendarProps,
   POSITION_STATUS_CONFIG,
 } from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
@@ -43,10 +44,10 @@ export const metadata = {
 
 const TABLE_HEAD = "bg-transparent ct-bento-label";
 const ROW =
-  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+  "border-transparent transition-all hover:bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.05)_0%,transparent_60%)]";
 // One KPI tile in the Account card (hairline-separated cells on the black grid).
 const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
-const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)]";
+const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)] tracking-tight";
 
 const BUCKET_LABEL: Record<string, string> = {
   mining: "Mining cashflow",
@@ -65,9 +66,9 @@ function SeeMore({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="ct-bento-label inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
+      className="ct-bento-label group inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
     >
-      See more <span aria-hidden="true">→</span>
+      See more <span aria-hidden="true" className="transition-transform ease-out group-hover:translate-x-0.5">→</span>
     </Link>
   );
 }
@@ -76,16 +77,16 @@ export default async function PortfolioPage() {
   // Call ONLY the two loaders this page renders (the value/positions data + the
   // allocation ring). Avoids loadPortfolioView's extra risk/distrib/proof/yield
   // props that this page doesn't consume — no wasted queries.
-  const [data, allocationDonutProps] = await Promise.all([
+  const [data, allocationDonutProps, distribCalendarProps] = await Promise.all([
     loadPortfolio(),
     loadAllocationDonutProps(),
+    loadDistribCalendarProps(),
   ]);
   const {
     positions,
     totalValueUsdc,
     deployedUsdc,
     accruedYieldUsdc,
-    nextDistributionAt,
     recentTransactions,
     hourlyValueSnapshots,
     source,
@@ -134,8 +135,16 @@ export default async function PortfolioPage() {
   const hasAllocation = allocSegments.length > 0;
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
+    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8 relative">
+      {/* Premium ambient glow */}
+      <div 
+        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.04]"
+        style={{
+          background: "radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="p-5 lg:p-6 flex flex-col gap-y-5 relative z-10">
         {/* HEADER */}
         <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[var(--ct-border-soft)] gap-4">
           <div className="flex flex-col gap-1.5">
@@ -147,7 +156,7 @@ export default async function PortfolioPage() {
         </div>
 
         {/* HERO — value instrument (HIS) + status tiles */}
-        <section className="grid grid-cols-1 lg:grid-cols-[1.8fr_minmax(300px,1fr)] gap-5">
+        <section className="grid grid-cols-1 lg:grid-cols-[1.6fr_minmax(256px,352px)] gap-5">
           <HcChartCard
             title="Portfolio value"
             subtitle={heroSubtitle}
@@ -169,7 +178,10 @@ export default async function PortfolioPage() {
 
           {/* Account key-metrics card — black surface, titled header, responsive
               KPI grid (1 col on narrow, 2 on wider). */}
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
+          <div 
+            className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
+            style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
+          >
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <h2 className="ct-section-title">Account</h2>
               <p className="ct-metric-caption">Key metrics</p>
@@ -192,7 +204,10 @@ export default async function PortfolioPage() {
               </div>
               <div className={KPI_TILE}>
                 <div className="ct-bento-label">Accrued yield</div>
-                <div className={`${KPI_VALUE} text-[var(--ct-accent)]`}>
+                <div 
+                  className={`${KPI_VALUE} text-transparent bg-clip-text font-bold`}
+                  style={{ backgroundImage: "linear-gradient(to right, var(--ct-text-primary), var(--ct-accent))" }}
+                >
                   {accruedYieldUsdc > 0
                     ? `+${formatUsdFull(accruedYieldUsdc)}`
                     : formatUsdFull(accruedYieldUsdc)}
@@ -235,26 +250,21 @@ export default async function PortfolioPage() {
         </HcChartCard>
 
         {/* DECK — Distribution calendar + Recent activity (real) */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col">
+        <section className="grid grid-cols-1 lg:grid-cols-[1.2fr_minmax(16rem,0.8fr)] gap-5">
+          <div 
+            className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
+            style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
+          >
             <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex flex-col gap-1.5">
                 <h2 className="ct-section-title">Distribution calendar</h2>
-                <p className="ct-metric-caption">Upcoming payouts</p>
+                <p className="ct-metric-caption">12m · USDC payout history</p>
               </div>
               <SeeMore href="/portfolio/distributions" />
             </div>
-            <div className="p-6 flex flex-col items-center justify-center min-h-[180px]">
-              <div className="ct-bento-label mb-3">Next distribution</div>
-              <div className="h1 mb-2">
-                {nextDistributionAt.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </div>
-              <div className="ct-metric-caption">
-                Monthly USDC · T+5 settlement
-              </div>
+            
+            <div className="p-5 flex flex-col justify-end min-h-[180px]">
+              <DistributionChart entries={distribCalendarProps.entries} />
             </div>
           </div>
 
@@ -269,20 +279,16 @@ export default async function PortfolioPage() {
 
         {/* POSITIONS — real rows */}
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden flex flex-col"
+          style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
           aria-label="Active positions"
         >
-          <div className="flex items-center gap-4 p-5 border-b border-[var(--ct-border-soft)]">
+          <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
               <h2 className="ct-section-title">Active positions</h2>
               <p className="ct-metric-caption">Your deployed capital</p>
             </div>
-            <div className="ml-auto flex shrink-0 items-center gap-3">
-              {activeCount > 0 ? (
-                <Badge color="zinc" className="uppercase">
-                  {activeCount} active
-                </Badge>
-              ) : null}
+            <div className="flex shrink-0 items-center gap-3">
               <SeeMore href="/portfolio/positions" />
             </div>
           </div>
@@ -299,10 +305,16 @@ export default async function PortfolioPage() {
               <TableHead>
                 <TableRow>
                   <TableHeader className={`${TABLE_HEAD} pl-5`}>
-                    Vault
+                    <div className="flex items-center gap-3">
+                      <div aria-hidden="true" className="w-1 shrink-0" />
+                      <span>Vault</span>
+                    </div>
                   </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} text-center`}>
-                    Status
+                  <TableHeader className={TABLE_HEAD}>
+                    <div className="flex items-center gap-2">
+                      <div aria-hidden="true" className="w-1.5 shrink-0" />
+                      <span>Status</span>
+                    </div>
                   </TableHeader>
                   <TableHeader className={`${TABLE_HEAD} text-right`}>
                     Position
@@ -331,19 +343,22 @@ export default async function PortfolioPage() {
                           </Link>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          color={
-                            p.status === "active"
-                              ? "green"
-                              : p.status === "matured"
-                                ? "amber"
-                                : "zinc"
-                          }
-                          className="uppercase"
-                        >
-                          {statusCfg.label}
-                        </Badge>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div
+                            aria-hidden="true"
+                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                              p.status === "active"
+                                ? "bg-[var(--ct-accent)]"
+                                : p.status === "matured"
+                                  ? "bg-amber-500"
+                                  : "bg-[var(--ct-text-muted)]"
+                            }`}
+                          />
+                          <span className="ct-metric-caption uppercase tracking-widest text-[length:var(--ct-text-nano)]">
+                            {statusCfg.label}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="ct-metric-value text-right">
                         {formatUsdFull(p.valueUsdc)}

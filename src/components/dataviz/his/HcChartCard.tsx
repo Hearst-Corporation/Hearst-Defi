@@ -75,11 +75,11 @@ export function HcChartCard({
         background: "var(--ct-surface-card)",
         border: "1px solid var(--ct-border)",
         borderRadius: "var(--ct-radius-xl)",
-        boxShadow: "var(--ct-shadow-depth)",
-        padding: compact ? "var(--ct-space-3_5)" : "var(--ct-space-6)",
+        boxShadow: "var(--ct-shadow-depth), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
+        padding: compact ? "var(--ct-space-3_5)" : "var(--ct-space-5)",
       }}
     >
-      <header className="flex items-start justify-between gap-3" style={{ minHeight: 40 }}>
+      <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p
             className="truncate"
@@ -147,7 +147,7 @@ export function HcChartCard({
         </div>
       )}
 
-      <div className="relative" style={{ marginTop: "var(--ct-space-3)", height }}>
+      <div className="relative" style={{ marginTop: "var(--ct-space-4)", height }}>
         {state === "loading" ? (
           <div
             className="h-full w-full animate-pulse"

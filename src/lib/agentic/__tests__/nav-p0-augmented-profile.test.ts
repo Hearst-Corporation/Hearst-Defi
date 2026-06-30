@@ -6,6 +6,7 @@ import {
   ADMIN_NAV_DESTINATIONS,
 } from "@/lib/llm/navigate-tool";
 import { resolveClientNav } from "@/lib/llm/client-nav";
+import { resolveNavFallbackDestinationKey } from "@/lib/llm/nav-fallback-intent";
 import {
   classifyProductWorkspaceIntent,
   SCENARIO_LAB_DESTINATION_KEY,
@@ -201,6 +202,24 @@ describe("projection ≠ product workspace", () => {
       "Créer un produit Defensive puis simuler un stress test",
     );
     expect(c.shouldOpenProductWorkspace).toBe(true);
+  });
+
+  it("va faire un vault does not resolve as generic LP vaults nav", () => {
+    const nav = resolveNavFallbackDestinationKey({
+      navProfile: "admin",
+      isAdmin: true,
+      message: "va faire un vault",
+      scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
+      scenarioLabNavEnabled: true,
+    });
+    expect(nav).toBeNull();
+    expect(
+      classifyAgenticIntent("va faire un vault", {
+        navProfile: "admin",
+        isAdmin: true,
+        scenarioLabNavEnabled: true,
+      }).routeKey,
+    ).toBeUndefined();
   });
 });
 

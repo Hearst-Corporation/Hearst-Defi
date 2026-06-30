@@ -35,6 +35,7 @@
 import {
   resolveNavFallbackDestinationKey,
 } from "@/lib/llm/nav-fallback-intent";
+import { isProductWorkspaceIntent } from "@/lib/llm/product-workspace-intent";
 import type {
   AgenticIntentContext,
   AgenticIntentDecision,
@@ -166,6 +167,7 @@ const BUG_REPORT_RE =
 
 function resolveAugmentedNav(
   normalized: string,
+  original: string,
   isAdmin: boolean,
 ): string | null {
   // Bug report / complaint → never navigate (let the chat answer/clarify).
@@ -182,7 +184,10 @@ function resolveAugmentedNav(
   // here would just risk drift.
   if (/^(?:dashbord|portofolio)$/.test(normalized)) return "portfolio";
 
-  if (navLed && /\bvaults?\b/.test(normalized)) return "vaults";
+  if (navLed && /\bvaults?\b/.test(normalized)) {
+    if (isProductWorkspaceIntent(original)) return null;
+    return "vaults";
+  }
   if (navLed && /\b(portefeuille|portfolio|portofolio|dashboard|dashbord)\b/.test(normalized)) {
     return "portfolio";
   }
@@ -355,7 +360,7 @@ export function classifyAgenticIntent(
         message: original,
         scenarioLabDestinationKey: "admin-scenario-lab",
         scenarioLabNavEnabled: ctx.scenarioLabNavEnabled ?? false,
-      }) ?? resolveAugmentedNav(normalized, ctx.isAdmin ?? false);
+      }) ?? resolveAugmentedNav(normalized, original, ctx.isAdmin ?? false);
     if (routeKey) {
       return {
         kind: "navigation",

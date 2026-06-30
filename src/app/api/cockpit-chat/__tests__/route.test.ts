@@ -314,6 +314,38 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
+  it("retired [[canvas:create-vault]] marker routes to Product Workspace, not agent-canvas", async () => {
+    mockClassify.mockReturnValue({
+      kind: "product_framing",
+      objective: "Help me frame a new vault and create it as a draft.",
+      primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+      autostart: true,
+      shouldOpenProductWorkspace: true,
+      shouldOpenScenarioLab: false,
+    });
+
+    const res = await POST(
+      makeChatRequest(
+        "[[canvas:create-vault]] Help me frame a new vault and create it as a draft.",
+      ),
+    );
+    expect(res.status).toBe(200);
+
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
+        destinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
+        objective: "Help me frame a new vault and create it as a draft.",
+        autostart: true,
+        intentKind: "product_framing",
+      });
+    });
+    expect(mockPublishNav).not.toHaveBeenCalledWith(
+      USER_ID,
+      expect.objectContaining({ destinationKey: "admin-agent-canvas" }),
+    );
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
+  });
+
   it("does NOT short-circuit when the regex says it is not a product intent — normal chat answer", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav({ text: "Le runbook a 5 étapes." });

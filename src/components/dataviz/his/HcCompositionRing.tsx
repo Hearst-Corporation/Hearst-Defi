@@ -11,6 +11,7 @@
  * total; percentages shown are each segment's share of the provided sum.
  */
 
+import { cn } from "@/lib/cn";
 import type { HcLabeledValue } from "./types";
 
 export interface HcCompositionRingProps {
@@ -24,6 +25,8 @@ export interface HcCompositionRingProps {
    * so dense legends stay text-only.
    */
   bars?: boolean;
+  /** When false, only the donut is rendered (compact report slots). */
+  showLegend?: boolean;
   "aria-label": string;
 }
 
@@ -41,6 +44,7 @@ export function HcCompositionRing({
   centerLabel,
   centerValue,
   bars = false,
+  showLegend = true,
   ...rest
 }: HcCompositionRingProps) {
   const ariaLabel = rest["aria-label"];
@@ -55,7 +59,13 @@ export function HcCompositionRing({
   let acc = 0; // preceding fraction → rotation start
 
   return (
-    <div className={`flex items-center gap-4${bars ? " w-full" : ""}`}>
+    <div
+      className={cn(
+        "flex items-center gap-6",
+        bars && showLegend ? "w-full" : "",
+        !showLegend ? "justify-center" : "",
+      )}
+    >
       <svg
         role="img"
         aria-label={ariaLabel}
@@ -122,7 +132,8 @@ export function HcCompositionRing({
         )}
       </svg>
 
-      <ul className={`flex flex-col gap-1.5${bars ? " min-w-0 flex-1" : ""}`}>
+      {showLegend ? (
+      <ul className={`flex flex-col gap-2${bars ? " min-w-0 flex-1" : ""}`}>
         {segments.map((s, i) => {
           const pct = total > 0 ? (Math.max(0, s.value) / total) * 100 : 0;
           const color = RAMP[i % RAMP.length];
@@ -188,6 +199,7 @@ export function HcCompositionRing({
           );
         })}
       </ul>
+      ) : null}
     </div>
   );
 }

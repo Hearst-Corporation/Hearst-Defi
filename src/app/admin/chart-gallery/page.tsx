@@ -33,7 +33,7 @@ export default function ChartGalleryPage() {
         <ChartGallery />
 
         {/* Monte-Carlo — already wrapped in its own Card inside the component. */}
-        <MonteCarloChart />
+        <MonteCarloChart seed={1878790276} paths={220} steps={10} expectedReturn={0.07} volatility={0.15} />
       </div>
     </div>
   );

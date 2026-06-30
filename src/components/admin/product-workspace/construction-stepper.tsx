@@ -10,6 +10,7 @@ import {
 } from "@/components/catalyst/cockpit-button";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { BentoPanel, BentoHeader } from "@/components/catalyst/bento";
+import { Skeleton } from "@/components/catalyst/skeleton";
 import {
   CONSTRUCTION_STEPS,
   type ConstructionStepId,
@@ -24,6 +25,11 @@ import {
 } from "@/lib/agentic/swarm/live/to-vault-form";
 import { DataScientistOutput } from "./data-scientist-output";
 import { ProductEngineReport } from "./product-engine-report";
+import {
+  BrandLogo,
+  StepHeroLogo,
+  StepSourceRow,
+} from "./step-theater-branding";
 
 /**
  * Product construction — full-page vertical stepper.
@@ -54,70 +60,42 @@ const VISIBLE_STEP_IDS: readonly ConstructionStepId[] = [
 /** Minimum on-screen "running" time per step (narration + search read as real). */
 const MIN_STEP_MS = 5_000;
 
+/** Stable scroll offset so step titles stay below the admin shell chrome. */
+const SCROLL_MARGIN_CLASS = "scroll-mt-[calc(var(--ct-space-20)+var(--ct-space-4))]";
+
 /**
- * Per-step LOADING config — the narration that types out while the specialist
- * works, plus how many source/asset placeholders to show. Logos are placeholders
- * for now (real brand assets wired later, like step 1's bitcoin/coingecko/etc.).
- * `mainLogo` is the big hero placeholder; `sourceCount` is the cross-checked row.
+ * Per-step LOADING copy — short narration while the specialist works server-side.
  */
 const STEP_LOADING: Record<
   ConstructionStepId,
-  { narration: string; mainLabel: string; sourcesLabel: string; sourceCount: number }
+  { narration: string; sourcesLabel: string }
 > = {
   bitcoin: {
     narration:
       "Notre Bitcoin Price Specialist recherche le prix BTC le plus juste et compare plusieurs sources…",
-    mainLabel: "Bitcoin",
     sourcesLabel: "Sources croisées",
-    sourceCount: 3,
   },
   hashprice: {
     narration:
       "Notre Hashprice Specialist dérive le hashprice ($/TH/jour) et la difficulté réseau en temps réel…",
-    mainLabel: "Hashprice",
     sourcesLabel: "Sources réseau",
-    sourceCount: 3,
   },
   mining_infra: {
     narration:
       "Notre Mining Infrastructure Specialist chiffre les machines (coût landed : ex-works + fret + douane) et les marges…",
-    mainLabel: "Machines",
     sourcesLabel: "Fournisseurs",
-    sourceCount: 3,
   },
   defi: {
     narration:
       "Notre DeFi Specialist source les meilleurs rendements stables / BTC et la bande de scénario BTC…",
-    mainLabel: "DeFi",
     sourcesLabel: "Protocoles",
-    sourceCount: 3,
   },
   data_scientist: {
     narration:
       "Notre Data Scientist rédige la thèse, trace la projection et dimensionne l'allocation (+2 versions)…",
-    mainLabel: "Modèle",
     sourcesLabel: "Moteurs",
-    sourceCount: 3,
   },
 };
-
-/**
- * Generic loading placeholder — a neutral round chip with a label initial, used
- * for the hero logo + the cross-checked sources row while real brand assets are
- * being chosen. Step 1 already uses real BrandLogos; the others use these until
- * we pick their logos.
- */
-function StepLogoPlaceholder({ label, size = 28 }: { label: string; size?: number }) {
-  return (
-    <span
-      title={label}
-      className="inline-flex shrink-0 items-center justify-center rounded-(--ct-radius-full) border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] ct-text-muted"
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
-    >
-      {label.charAt(0).toUpperCase()}
-    </span>
-  );
-}
 
 type Lifecycle = "upcoming" | "running" | ConstructionStepStatus;
 
@@ -211,14 +189,61 @@ function StepNode({
   );
 }
 
+function StepStatusBadge({ life }: { life: Lifecycle }) {
+  if (life === "running") {
+    return <span className="ct-section-label ct-text-accent">Running</span>;
+  }
+  if (life === "upcoming") {
+    return <span className="ct-section-label ct-text-faint">Waiting</span>;
+  }
+  if (life === "error") {
+    return <span className="ct-section-label ct-status-danger">Error</span>;
+  }
+  if (life === "unavailable" || life === "degraded") {
+    return <span className="ct-section-label ct-status-warning">Degraded</span>;
+  }
+  return <span className="ct-section-label ct-text-accent">Complete</span>;
+}
+
+function StepMetricSkeleton() {
+  return (
+    <div className="grid w-full max-w-md grid-cols-3 gap-(--ct-space-3) px-(--ct-space-5) pb-(--ct-space-5)">
+      {[0, 1, 2].map((i) => (
+        <Skeleton key={i} className="h-(--ct-space-10) w-full" />
+      ))}
+    </div>
+  );
+}
+
+function StepLoadingBody({ stepId }: { stepId: ConstructionStepId }) {
+  const copy = STEP_LOADING[stepId];
+  return (
+    <div className="flex flex-col items-center gap-(--ct-space-5) p-(--ct-space-6) ml-[calc((var(--ct-space-32)+var(--ct-space-8))/-2)]">
+      <StepHeroLogo stepId={stepId} size={72} />
+      <p className="max-w-prose text-center body-sm ct-text-secondary leading-relaxed">
+        <Typewriter text={copy.narration} />
+      </p>
+      <div className="flex flex-col items-center gap-(--ct-space-2)">
+        <span className="ct-bento-label">{copy.sourcesLabel}</span>
+        <StepSourceRow stepId={stepId} />
+      </div>
+      <StepMetricSkeleton />
+    </div>
+  );
+}
+
 /**
- * Typewriter — reveals `text` character by character while the step is running.
- * Purely visual (the real work runs server-side). Restarts when `text` changes.
+ * Typewriter — discreet reveal while a step runs. Disabled when reduced-motion.
  */
 function Typewriter({ text, speedMs = 28 }: { text: string; speedMs?: number }) {
   const [shown, setShown] = useState(0);
+  const [reducedMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+
   useEffect(() => {
-    // Intentional: restart the reveal from 0 whenever `text` changes.
+    if (reducedMotion) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setShown(0);
     if (!text) return;
@@ -232,7 +257,10 @@ function Typewriter({ text, speedMs = 28 }: { text: string; speedMs?: number }) 
       });
     }, speedMs);
     return () => clearInterval(id);
-  }, [text, speedMs]);
+  }, [text, speedMs, reducedMotion]);
+
+  if (reducedMotion) return <span>{text}</span>;
+
   const done = shown >= text.length;
   return (
     <span>
@@ -244,46 +272,9 @@ function Typewriter({ text, speedMs = 28 }: { text: string; speedMs?: number }) 
   );
 }
 
-/**
- * Brand logos — real downloaded official assets in /public/sources, rendered at
- * original colours (never tinted) inside a neutral round chip.
- */
-type BrandId = "bitcoin" | "coingecko" | "binance" | "kraken";
-
-const BRAND_LOGOS: Record<BrandId, { label: string; src: string }> = {
-  // Official square icon marks (vector SVG) so all four match in the round chips.
-  bitcoin: { label: "Bitcoin", src: "/sources/bitcoin.svg" },
-  coingecko: { label: "CoinGecko", src: "/sources/coingecko.svg" },
-  binance: { label: "Binance", src: "/sources/binance.svg" },
-  kraken: { label: "Kraken", src: "/sources/kraken.svg" },
-};
-
-/** Brand logo on a neutral round chip — original colours, never tinted. */
-function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
-  const brand = BRAND_LOGOS[id];
-  return (
-    <span
-      title={brand.label}
-      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--ct-border)] bg-[var(--ct-surface-inset)]"
-      style={{ width: size, height: size }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={brand.src}
-        alt={brand.label}
-        width={size}
-        height={size}
-        loading="lazy"
-        decoding="async"
-        className="h-full w-full object-contain"
-      />
-    </span>
-  );
-}
-
-/** One cell of the Bitcoin KPI strip. Declared at module scope (never inside the
+/** One cell of a KPI strip. Declared at module scope (never inside the
  *  render) so it keeps a stable identity — react-hooks/static-components. */
-function BitcoinStripCell({
+function KpiStripCell({
   label,
   children,
 }: {
@@ -315,7 +306,7 @@ function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
   // Parse the signed % to pick the arrow + tone. "+1.2%" → up, "-0.8%" → down.
   const pctNum = parseFloat(change.replace(/[^0-9.+-]/g, ""));
   const up = Number.isFinite(pctNum) ? pctNum >= 0 : true;
-  const Cell = BitcoinStripCell;
+  const Cell = KpiStripCell;
 
   return (
     <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
@@ -339,6 +330,103 @@ function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
         <BrandLogo id="coingecko" size={24} />
         <BrandLogo id="binance" size={24} />
         <BrandLogo id="kraken" size={24} />
+      </Cell>
+    </div>
+  );
+}
+
+function HashpriceResultStrip({ metrics }: { metrics: StepMetric[] }) {
+  const find = (label: string) =>
+    metrics.find((m) => m.label.toLowerCase() === label.toLowerCase())?.value ?? "";
+  const hashprice = find("hashprice");
+  const difficulty = find("difficulty");
+  const reward = find("block reward");
+  const Cell = KpiStripCell;
+
+  return (
+    <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
+      <Cell label="Hashprice">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {hashprice}
+        </span>
+      </Cell>
+      <Cell label="Difficulty">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {difficulty}
+        </span>
+      </Cell>
+      <Cell label="Block Reward">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {reward}
+        </span>
+      </Cell>
+    </div>
+  );
+}
+
+function MiningInfraResultStrip({ metrics }: { metrics: StepMetric[] }) {
+  const find = (label: string) =>
+    metrics.find((m) => m.label.toLowerCase() === label.toLowerCase())?.value ?? "";
+  const top = find("top by margin");
+  const bestMargin = find("best margin");
+  const customs = find("customs dest.");
+  const energy = find("energy");
+  const Cell = KpiStripCell;
+
+  return (
+    <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-4 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
+      <Cell label="Top by Margin">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {top}
+        </span>
+      </Cell>
+      <Cell label="Best Margin">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-accent">
+          {bestMargin}
+        </span>
+      </Cell>
+      <Cell label="Customs Dest.">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {customs}
+        </span>
+      </Cell>
+      <Cell label="Energy">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {energy}
+        </span>
+      </Cell>
+    </div>
+  );
+}
+
+function DefiResultStrip({ metrics }: { metrics: StepMetric[] }) {
+  const find = (label: string) =>
+    metrics.find((m) => m.label.toLowerCase() === label.toLowerCase())?.value ?? "";
+  const yield_ = find("usdc yield");
+  const source = find("source");
+  const miningNet = find("mining net yield");
+  const Cell = KpiStripCell;
+
+  // Render a logo if we know the source
+  const sourceLogoId = source.toLowerCase().includes("aave") ? "aave" : source.toLowerCase().includes("compound") ? "compound" : source.toLowerCase().includes("morpho") ? "morpho" : null;
+
+  return (
+    <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
+      <Cell label="USDC Yield">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {yield_}
+        </span>
+      </Cell>
+      <Cell label="Source">
+        {sourceLogoId && <BrandLogo id={sourceLogoId as any} size={24} />}
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {source}
+        </span>
+      </Cell>
+      <Cell label="Mining Net Yield">
+        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
+          {miningNet}
+        </span>
       </Cell>
     </div>
   );
@@ -388,6 +476,9 @@ export function ConstructionStepper({ objective }: { objective: string | null })
 
   const autoRanRef = useRef(false);
   const nodeRefs = useRef(new Map<ConstructionStepId, HTMLLIElement>());
+  const reportRef = useRef<HTMLDivElement>(null);
+  const lastScrollKeyRef = useRef<string | null>(null);
+  const userPausedScrollRef = useRef(false);
 
   const run = useCallback(async () => {
     if (!objective) return;
@@ -396,6 +487,8 @@ export function ConstructionStepper({ objective }: { objective: string | null })
     setError(null);
     setCurrent(null);
     setPhase("running");
+    userPausedScrollRef.current = false;
+    lastScrollKeyRef.current = null;
     try {
       const res = await fetch("/api/admin/product-construction/stream", {
         method: "POST",
@@ -473,19 +566,37 @@ export function ConstructionStepper({ objective }: { objective: string | null })
     void run();
   }, [objective, run]);
 
-  // Auto-scroll to the active step as the construction advances.
+  // Pause auto-scroll when the operator takes manual control.
   useEffect(() => {
-    if (!current) return;
-    const el = nodeRefs.current.get(current);
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [current]);
+    const pause = () => {
+      userPausedScrollRef.current = true;
+    };
+    window.addEventListener("wheel", pause, { passive: true });
+    window.addEventListener("touchmove", pause, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", pause);
+      window.removeEventListener("touchmove", pause);
+    };
+  }, []);
 
-  // When the data-scientist draft lands, scroll to its (rich) output.
+  // Calibrated scroll — center the active step or the final report once per transition.
   useEffect(() => {
-    if (!draft) return;
-    const el = nodeRefs.current.get("data_scientist");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [draft]);
+    if (userPausedScrollRef.current) return;
+    const scrollKey = draft ? "report" : current;
+    if (!scrollKey) return;
+    if (lastScrollKeyRef.current === scrollKey) return;
+    lastScrollKeyRef.current = scrollKey;
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior = prefersReduced ? "auto" : "smooth";
+    const target =
+      scrollKey === "report"
+        ? reportRef.current
+        : nodeRefs.current.get(scrollKey) ?? null;
+    requestAnimationFrame(() => {
+      target?.scrollIntoView({ behavior, block: "center" });
+    });
+  }, [current, draft]);
 
   if (!objective) {
     return (
@@ -539,7 +650,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
               ref={(el) => {
                 if (el) nodeRefs.current.set(step.id, el);
               }}
-              className={cn("relative scroll-mt-(--ct-space-20)", !isLast && "pb-(--ct-space-8)")}
+              className={cn("relative", SCROLL_MARGIN_CLASS, !isLast && "pb-(--ct-space-8)")}
             >
               {/* Green connector — gap-crossing segment between this box and the
                   next. Lives at the <li> level so it escapes the panel's
@@ -584,6 +695,9 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                       subtitle={step.role}
                       trailing={
                         <>
+                          {!result && life !== "upcoming" ? (
+                            <StepStatusBadge life={life} />
+                          ) : null}
                           {result?.provenance ? (
                             <ProvenanceBadge kind={liveToBadge(result.provenance)} compact />
                           ) : null}
@@ -601,6 +715,12 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                         {result.metrics.length > 0 ? (
                           step.id === "bitcoin" ? (
                             <BitcoinResultStrip metrics={result.metrics} />
+                          ) : step.id === "hashprice" ? (
+                            <HashpriceResultStrip metrics={result.metrics} />
+                          ) : step.id === "mining_infra" ? (
+                            <MiningInfraResultStrip metrics={result.metrics} />
+                          ) : step.id === "defi" ? (
+                            <DefiResultStrip metrics={result.metrics} />
                           ) : (
                             <StepResultStrip metrics={result.metrics} />
                           )
@@ -615,46 +735,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                             "Report Product" block below the stepper (see <ol> end). */}
                       </>
                     ) : life === "running" ? (
-                      // Same loading layout / size / typewriter for EVERY step.
-                      // Step 1 (bitcoin) uses real brand logos; the others use
-                      // neutral placeholders until their logos are chosen.
-                      // Negative left margin = half the stepper rail width, so the
-                      // loading content centers on the WHOLE box, not just the
-                      // content column (ignores the left stepper margin).
-                      <div className="flex flex-col items-center gap-(--ct-space-5) p-(--ct-space-6) ml-[calc((var(--ct-space-32)+var(--ct-space-8))/-2)]">
-                        {/* Hero logo */}
-                        {step.id === "bitcoin" ? (
-                          <BrandLogo id="bitcoin" size={72} />
-                        ) : (
-                          <StepLogoPlaceholder label={STEP_LOADING[step.id].mainLabel} size={72} />
-                        )}
-                        {/* Narration — types out while the specialist searches. */}
-                        <p className="max-w-prose text-center body-sm ct-text-secondary leading-relaxed">
-                          <Typewriter text={STEP_LOADING[step.id].narration} />
-                        </p>
-                        {/* Cross-checked sources row */}
-                        <div className="flex flex-col items-center gap-(--ct-space-2)">
-                          <span className="ct-bento-label">{STEP_LOADING[step.id].sourcesLabel}</span>
-                          <div className="flex items-center gap-(--ct-space-3)">
-                            {step.id === "bitcoin" ? (
-                              <>
-                                <BrandLogo id="coingecko" />
-                                <BrandLogo id="binance" />
-                                <BrandLogo id="kraken" />
-                              </>
-                            ) : (
-                              Array.from({ length: STEP_LOADING[step.id].sourceCount }).map(
-                                (_, idx) => (
-                                  <StepLogoPlaceholder
-                                    key={idx}
-                                    label={`${STEP_LOADING[step.id].sourcesLabel.charAt(0)}${idx + 1}`}
-                                  />
-                                ),
-                              )
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      <StepLoadingBody stepId={step.id} />
                     ) : (
                       <div className="p-(--ct-space-5)" />
                     )}
@@ -670,36 +751,39 @@ export function ConstructionStepper({ objective }: { objective: string | null })
           stepper: once step 5 finishes, this unrolls as its own titled block below
           the stepper, not inside a step box. */}
       {draft ? (
-        <BentoPanel>
-          <BentoHeader
-            title="Report Product"
-            subtitle={draft.vault.label}
-          />
-          <div className="p-(--ct-space-5)">
-            <DataScientistOutput draft={draft} />
-            {/* PROMPT 17 — wired product financial engines (funding / exit-recovery
-                / waterfalls / operator) + calculated-vs-documented disclosure.
-                Renders nothing for a non-mining draft. */}
-            <ProductEngineReport draft={draft} />
-          </div>
-        </BentoPanel>
-      ) : null}
-
-      {/* Handoffs — wizard prefill (no DB write) */}
-      {draft ? (
-        <div className="flex flex-wrap items-center gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-4)">
-          <Link
-            href={`/admin/vaults/new?prefill=${encodeURIComponent(encodeVaultFormPrefill(constructionDraftToVaultForm(draft)))}`}
-            className={cn(cockpitButtonVariants({ variant: "primary", size: "sm" }), "self-start")}
-          >
-            Open in vault wizard (pre-filled)
-          </Link>
-          <Button variant="secondary" size="sm" onClick={() => window.open("/admin/product-workspace/report/print", "_blank", "noopener")}>
-            Open print view (PDF)
-          </Button>
-          <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            Hand-off carries ticker / APY range / allocations · no record created.
-          </span>
+        <div ref={reportRef} className={SCROLL_MARGIN_CLASS}>
+          <BentoPanel>
+            <BentoHeader
+              title="Report Product"
+              subtitle={draft.vault.label}
+            />
+            <div className="p-(--ct-space-5)">
+              <DataScientistOutput draft={draft} />
+              <ProductEngineReport draft={draft} />
+              <div className="mt-(--ct-space-4) flex flex-col gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)">
+                <div className="flex flex-wrap items-center gap-(--ct-space-2)">
+                  <Link
+                    href={`/admin/vaults/new?prefill=${encodeURIComponent(encodeVaultFormPrefill(constructionDraftToVaultForm(draft)))}`}
+                    className={cn(cockpitButtonVariants({ variant: "primary", size: "sm" }))}
+                  >
+                    Open in vault wizard
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      window.open("/admin/product-workspace/report/print", "_blank", "noopener")
+                    }
+                  >
+                    Print view
+                  </Button>
+                </div>
+                <p className="text-[length:var(--ct-text-nano)] ct-text-faint">
+                  No record created · Manual admin validation required
+                </p>
+              </div>
+            </div>
+          </BentoPanel>
         </div>
       ) : null}
     </div>

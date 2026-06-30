@@ -66,10 +66,11 @@ export function RecentActivity({
 
   return (
     <section
-      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col"
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
+      style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
       aria-label="Recent account activity"
     >
-      <header className="flex items-start justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">
+      <header className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
         <div className="flex min-w-0 flex-col gap-1.5">
           <h2 className="ct-section-title">Recent activity</h2>
           <p className="ct-metric-caption">
@@ -85,9 +86,9 @@ export function RecentActivity({
           {leafHref ? (
             <Link
               href={leafHref}
-              className="ct-bento-label inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
+              className="ct-bento-label group inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
             >
-              See more <span aria-hidden="true">→</span>
+              See more <span aria-hidden="true" className="transition-transform ease-out group-hover:translate-x-0.5">→</span>
             </Link>
           ) : null}
         </div>
@@ -100,11 +101,11 @@ export function RecentActivity({
             return (
               <li
                 key={tx.id}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+                className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all hover:bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.06)_0%,transparent_70%)]"
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] text-[var(--ct-text-muted)]"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] text-[var(--ct-text-muted)] transition-all duration-300 group-hover:scale-110 group-hover:text-[var(--ct-text-primary)] group-hover:border-[var(--ct-border)]"
                 >
                   <TransactionIcon type={tx.type} dir={dir} />
                 </span>

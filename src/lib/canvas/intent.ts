@@ -6,18 +6,12 @@ import { CANVAS_DEFINITIONS } from "@/lib/canvas/registry";
 /**
  * Canvas-intent detection for the cockpit chat route.
  *
- * Unlike the product-workspace classifier (an LLM call), canvas presets send a
- * STABLE machine marker so detection is deterministic, zero-cost and cannot be
- * spoofed into the wrong canvas by phrasing. The preset chips emit:
+ * Canvas presets may send a STABLE machine marker (`[[canvas:<id>]]`) so detection
+ * is deterministic. The marker is stripped before the message reaches the model.
  *
- *   [[canvas:create-vault]] <human text the admin may have edited>
- *
- * The marker is stripped before the message reaches the model, so the agent
- * answers the human text normally while the route opens the right canvas.
- *
- * A free-typed message WITHOUT the marker never opens a canvas here — that path
- * stays a normal chat answer (or the existing product-workspace classifier).
- * This keeps the "agent can only open the canvases we built for it" invariant.
+ * Vault framing/creation is handled by the Product Workspace — the retired
+ * `create-vault` agent-canvas marker is detected (for marker stripping) but
+ * never opens a canvas (`resolveCanvasNavIntent` returns null).
  */
 
 const MARKER_RE = /\[\[canvas:([a-z-]+)\]\]/i;
@@ -39,6 +33,27 @@ export function detectCanvasIntent(message: string): CanvasIntent | null {
   if (!isKnownCanvasId(id)) return null;
   const cleanedMessage = message.replace(MARKER_RE, "").trim();
   return { canvasId: id, cleanedMessage };
+}
+
+/** Canvas ids that no longer open agent-canvas — Product Workspace owns framing. */
+const RETIRED_CANVAS_NAV_IDS = new Set<CanvasId>(["create-vault"]);
+
+/**
+ * Apply navigation policy after `detectCanvasIntent`. Retired canvases (notably
+ * `create-vault`) return null so the product-workspace classifier can run on the
+ * cleaned human text. Outreach + LP canvases pass through unchanged.
+ */
+export function resolveCanvasNavIntent(intent: CanvasIntent | null): CanvasIntent | null {
+  if (!intent) return null;
+  if (RETIRED_CANVAS_NAV_IDS.has(intent.canvasId)) return null;
+  return intent;
+}
+
+/** Cross-turn memory: retired canvases must not re-open agent-canvas. */
+export function resolveCanvasHistoryId(canvasId: CanvasId | null): CanvasId | null {
+  if (!canvasId) return null;
+  if (RETIRED_CANVAS_NAV_IDS.has(canvasId)) return null;
+  return canvasId;
 }
 
 /**

@@ -376,13 +376,7 @@ export function ChatKimi({ productName, productColor }: ChatKimiProps = {}) {
               <div className={cn("self-start", MICRO_LABEL)}>Suggested Actions</div>
               <ChatPresets
                 masterAgentEnabled={chatConfig.masterAgentEnabled ?? true}
-                onPick={(text) => {
-                  setInput(text);
-                  requestAnimationFrame(() => {
-                    autoGrow();
-                    textareaRef.current?.focus();
-                  });
-                }}
+                onPick={handleSend}
               />
             </div>
           </div>
