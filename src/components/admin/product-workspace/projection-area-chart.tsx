@@ -21,12 +21,12 @@ import {
   ChartTooltip,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { cn } from "@/lib/cn";
 import {
   computeFanYDomain,
   fanBandsArePercentPoints,
+  formatFanMonthLabel,
   formatFanValue,
-} from "@/components/admin/product-workspace/report-format";
+} from "./report-format";
 
 export interface FanBand {
   m: number;
@@ -41,30 +41,31 @@ const config = {
   p5: { label: "p5", color: "var(--ct-chart-series-2)" },
 } satisfies ChartConfig;
 
-type FanRow = FanBand & { bandLow: number; bandSpan: number };
+interface ProjectionTooltipProps {
+  active?: boolean;
+  label?: number | string;
+  payload?: Array<{
+    payload?: {
+      p5: number;
+      p50: number;
+      p95: number;
+    };
+  }>;
+  percentPoints: boolean;
+}
 
 function ProjectionTooltip({
   active,
+  label,
   payload,
   percentPoints,
-}: {
-  active?: boolean;
-  payload?: ReadonlyArray<{ payload?: FanRow }>;
-  percentPoints: boolean;
-}) {
-  if (!active || !payload?.length) return null;
-  const row = payload[0]?.payload;
-  if (!row || typeof row.m !== "number") return null;
-
+}: ProjectionTooltipProps) {
+  const row = payload?.[0]?.payload;
+  if (!active || !row) return null;
   return (
-    <div
-      className={cn(
-        "grid min-w-[9rem] gap-(--ct-space-1_5) rounded-(--ct-radius-lg) border border-[var(--ct-border)]",
-        "bg-surface-card px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] shadow-[var(--ct-shadow-elevated)]",
-      )}
-    >
-      <span className="font-medium ct-text-strong">Month {row.m}</span>
-      <div className="grid gap-(--ct-space-1)">
+    <div className="min-w-[11rem] rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-[var(--ct-surface-card)] p-(--ct-space-3) shadow-[var(--ct-shadow-depth)]">
+      <p className="ct-metric-caption ct-text-muted">{formatFanMonthLabel(label)}</p>
+      <div className="mt-(--ct-space-2) flex flex-col gap-(--ct-space-1_5)">
         {(
           [
             ["p5", row.p5],
@@ -72,12 +73,12 @@ function ProjectionTooltip({
             ["p95", row.p95],
           ] as const
         ).map(([name, value]) => (
-          <span key={name} className="flex justify-between gap-(--ct-space-4)">
-            <span className="ct-text-muted">{name}</span>
-            <span className="mono tabular-nums ct-text-strong">
+          <div key={name} className="flex items-center justify-between gap-(--ct-space-4)">
+            <span className="ct-metric-caption ct-text-muted">{name}</span>
+            <span className="mono text-[length:var(--ct-text-xs)] tabular-nums ct-text-strong">
               {formatFanValue(value, percentPoints)}
             </span>
-          </span>
+          </div>
         ))}
       </div>
     </div>
@@ -87,18 +88,12 @@ function ProjectionTooltip({
 export function ProjectionAreaChart({
   bands,
   unit = "%",
-  compact = false,
-  /** When true, values are already percent points (pipeline fan bands). Auto-detected when omitted. */
-  percentPoints,
 }: {
   bands: FanBand[];
   unit?: string;
-  compact?: boolean;
-  percentPoints?: boolean;
 }) {
-  const isPercentPoints = percentPoints ?? (unit === "%" && fanBandsArePercentPoints(bands));
-  const yDomain = unit === "%" ? computeFanYDomain(bands, isPercentPoints) : undefined;
-
+  // Plot the band as p5 (baseline) + the p95−p5 thickness stacked on top, so the
+  // shaded area sits exactly between p5 and p95; p50 is an overlaid line.
   const data = bands.map((b) => ({
     m: b.m,
     p5: b.p5,
@@ -107,19 +102,14 @@ export function ProjectionAreaChart({
     bandLow: b.p5,
     bandSpan: Math.max(0, b.p95 - b.p5),
   }));
-
+  const percentPoints = unit === "%" ? fanBandsArePercentPoints(bands) : false;
   const fmt = (v: number) =>
-    unit === "%" ? formatFanValue(v, isPercentPoints) : `${v}`;
+    unit === "%" ? formatFanValue(v, percentPoints) : `${v}`;
+  const yDomain = computeFanYDomain(bands, percentPoints);
 
   return (
-    <ChartContainer
-      config={config}
-      className={cn(
-        "aspect-auto w-full min-w-0",
-        compact ? "h-[240px] min-h-[220px] max-h-[280px]" : "h-[min(300px,42vh)] min-h-[220px]",
-      )}
-    >
-      <AreaChart data={data} margin={{ left: 4, right: 12, top: 8, bottom: 4 }}>
+    <ChartContainer config={config} className="aspect-auto h-[260px] w-full min-w-0">
+      <AreaChart data={data} margin={{ left: 4, right: 12, top: 8 }}>
         <defs>
           <linearGradient id="fillBand" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="var(--ct-accent)" stopOpacity={0.22} />
@@ -132,21 +122,22 @@ export function ProjectionAreaChart({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          minTickGap={28}
-          tickFormatter={(m) => (typeof m === "number" ? `M${m}` : "")}
+          minTickGap={24}
+          tickFormatter={(m) => `M${m}`}
         />
         <YAxis
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          width={48}
+          width={58}
+          domain={yDomain}
           tickFormatter={fmt}
-          {...(yDomain ? { domain: yDomain } : {})}
         />
         <ChartTooltip
           cursor={false}
-          content={<ProjectionTooltip percentPoints={isPercentPoints} />}
+          content={<ProjectionTooltip percentPoints={percentPoints} />}
         />
+        {/* Invisible baseline (p5) then the shaded span up to p95. */}
         <Area
           dataKey="bandLow"
           stackId="band"
@@ -157,12 +148,29 @@ export function ProjectionAreaChart({
         <Area
           dataKey="bandSpan"
           stackId="band"
-          stroke="var(--ct-chart-series-2)"
-          strokeWidth={1}
-          strokeDasharray="3 3"
+          stroke="none"
           fill="url(#fillBand)"
           isAnimationActive={false}
         />
+        <Area
+          dataKey="p5"
+          stroke="var(--ct-chart-series-2)"
+          strokeWidth={1}
+          strokeDasharray="3 3"
+          fill="none"
+          type="natural"
+          isAnimationActive={false}
+        />
+        <Area
+          dataKey="p95"
+          stroke="var(--ct-chart-series-2)"
+          strokeWidth={1}
+          strokeDasharray="3 3"
+          fill="none"
+          type="natural"
+          isAnimationActive={false}
+        />
+        {/* p50 median line on top. */}
         <Area
           dataKey="p50"
           stroke="var(--ct-accent)"

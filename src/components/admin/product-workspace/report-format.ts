@@ -41,6 +41,12 @@ export function computeFanYDomain(
   return [lo - pad, hi + pad];
 }
 
+export function formatFanMonthLabel(value: unknown): string {
+  if (typeof value === "number" && Number.isFinite(value)) return `Month ${value}`;
+  if (typeof value === "string" && value.trim().length > 0) return `Month ${value}`;
+  return "Month —";
+}
+
 export function formatBtcUsd(btcUsd: number): string {
   if (!Number.isFinite(btcUsd) || btcUsd <= 0) return "Unavailable";
   return `$${Math.round(btcUsd).toLocaleString("en-US")}`;
@@ -56,4 +62,16 @@ export function formatHashpriceUsd(hashpriceUsdPerThDay: number): string {
 
 export function formatApyFraction(n: number, digits = 1): string {
   return `${(n * 100).toFixed(digits)}%`;
+}
+
+export function formatPercentPoint(n: number, digits = 1): string {
+  if (!Number.isFinite(n)) return "Unavailable";
+  return `${n.toFixed(digits)}%`;
+}
+
+export function formatSignedPercentPoint(n: number): string {
+  if (!Number.isFinite(n)) return "Unavailable";
+  const rounded = Math.round(n * 10) / 10;
+  const body = Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1);
+  return `${rounded >= 0 ? "+" : "−"}${body.replace("-", "")}%`;
 }

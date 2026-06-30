@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeFanYDomain,
   fanBandsArePercentPoints,
+  formatFanMonthLabel,
   formatFanPercentPoint,
   formatFanValue,
   formatHashpriceUsd,
@@ -36,6 +37,11 @@ describe("report-format — fan percent points", () => {
   it("formatFanPercentPoint keeps sign", () => {
     expect(formatFanPercentPoint(-4.7)).toBe("−4.7%");
   });
+
+  it("never renders Month undefined in the tooltip label helper", () => {
+    expect(formatFanMonthLabel(6)).toBe("Month 6");
+    expect(formatFanMonthLabel(undefined)).toBe("Month —");
+  });
 });
 
 describe("report-format — hashprice canonical display", () => {
@@ -47,11 +53,14 @@ describe("report-format — hashprice canonical display", () => {
 });
 
 describe("construction-stepper footer copy", () => {
-  it("uses compact guardrail text without full-width PDF label", async () => {
+  it("uses compact guardrail text without the old PDF CTA label", async () => {
     const fs = await import("node:fs/promises");
     const path = await import("node:path");
     const src = await fs.readFile(
-      path.join(process.cwd(), "src/components/admin/product-workspace/construction-stepper.tsx"),
+      path.join(
+        process.cwd(),
+        "src/components/admin/product-workspace/construction-stepper.tsx",
+      ),
       "utf8",
     );
     expect(src).toContain("Print view");
