@@ -3,7 +3,7 @@
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { DashboardAssetsBoard } from "@/components/admin/dashboard";
 import type { AdminProofStatus } from "@/lib/data/admin-overview";
@@ -12,6 +12,12 @@ import type { DashboardData } from "@/lib/data/dashboard";
 import type { OverviewClusters } from "@/lib/data/overview-clusters";
 import type { PlatformTotals } from "@/lib/data/platform-totals";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
+
+vi.mock("@/components/admin/dashboard/market-prices-panel", () => ({
+  MarketPricesPanel: () => (
+    <div aria-label="Market prices panel" data-testid="market-prices-panel-stub" />
+  ),
+}));
 
 const PLATFORM_TOTALS: PlatformTotals = {
   investorCount: 0,

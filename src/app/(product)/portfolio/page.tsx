@@ -351,7 +351,7 @@ export default async function PortfolioPage() {
                               p.status === "active"
                                 ? "bg-[var(--ct-accent)]"
                                 : p.status === "matured"
-                                  ? "bg-amber-500"
+                                  ? "bg-[var(--ct-status-warning)]"
                                   : "bg-[var(--ct-text-muted)]"
                             }`}
                           />

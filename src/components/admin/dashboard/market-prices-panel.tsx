@@ -59,7 +59,7 @@ export async function MarketPricesPanel() {
           >
             <div className="ct-bento-label">
               {symbolLabel(t.symbol)}
-              <span className="ml-1.5 opacity-50">/ USDT</span>
+              <span className="ml-1.5 opacity-[var(--ct-opacity-50)]">/ USDT</span>
             </div>
             <div className="ct-bento-metric ct-bento-metric--accent">
               {formatUsd(t.lastPrice)}
