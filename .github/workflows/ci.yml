@@ -137,7 +137,8 @@ jobs:
     continue-on-error: true
 
     env:
-      DATABASE_URL: "file:./prisma/dev.db"
+      DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"
+      PRISMA_PROVIDER: sqlite
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' && secrets.OPENAI_API_KEY || 'sk-ci-e2e-placeholder' }}
       HF_TOKEN: ${{ secrets.HF_TOKEN != '' && secrets.HF_TOKEN || 'hf-ci-placeholder' }}
 
@@ -180,20 +181,12 @@ jobs:
         run: |
           pnpm db:generate
           pnpm exec prisma db push
-        env:
-          DATABASE_URL: "file:./prisma/dev.db"
 
       - name: Seed E2E test user
         run: pnpm seed:test
-        env:
-          DATABASE_URL: "file:./prisma/dev.db"
-          PRISMA_PROVIDER: sqlite
 
       - name: Seed E2E test admin
         run: pnpm seed:test:admin
-        env:
-          DATABASE_URL: "file:./prisma/dev.db"
-          PRISMA_PROVIDER: sqlite
 
       - name: Run Playwright E2E tests
         run: pnpm test:e2e
