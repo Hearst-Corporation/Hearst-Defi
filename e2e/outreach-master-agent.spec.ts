@@ -32,12 +32,16 @@ test.describe("Outreach Master Agent E2E", () => {
 
   test("navigation: 'ouvre outreach' navigates to outreach workspace", async ({ page }) => {
     // Wait for admin shell to be fully hydrated
-    await expect(page.locator("[data-testid='admin-shell-ready'], body")).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
     
     // Open chat rail
     const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
     await chatTrigger.waitFor({ state: "visible" });
     await chatTrigger.click();
+    
+    // Wait for rail body to appear (chat component renders here)
+    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
+    await chatRailBody.waitFor({ state: "visible" });
     
     // Wait for chat input with data-testid
     const chatInput = page.locator('[data-testid="chat-input"]').first();
@@ -59,12 +63,16 @@ test.describe("Outreach Master Agent E2E", () => {
 
   test("negative: 'outreach CSS bug' does not navigate", async ({ page }) => {
     // Wait for admin shell to be fully hydrated
-    await expect(page.locator("[data-testid='admin-shell-ready'], body")).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
     
     // Open chat rail
     const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
     await chatTrigger.waitFor({ state: "visible" });
     await chatTrigger.click();
+    
+    // Wait for rail body to appear (chat component renders here)
+    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
+    await chatRailBody.waitFor({ state: "visible" });
     
     // Wait for chat input with data-testid
     const chatInput = page.locator('[data-testid="chat-input"]').first();
@@ -93,6 +101,10 @@ test.describe("Outreach Master Agent E2E", () => {
     const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
     await chatTrigger.waitFor({ state: "visible" });
     await chatTrigger.click();
+    
+    // Wait for rail body to appear (chat component renders here)
+    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
+    await chatRailBody.waitFor({ state: "visible" });
     
     // Wait for chat input with data-testid
     const chatInput = page.locator('[data-testid="chat-input"]').first();
@@ -135,6 +147,10 @@ test.describe("Outreach Master Agent E2E", () => {
     await chatTrigger.waitFor({ state: "visible" });
     await chatTrigger.click();
     
+    // Wait for rail body to appear (chat component renders here)
+    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
+    await chatRailBody.waitFor({ state: "visible" });
+    
     // Wait for chat input with data-testid
     const chatInput = page.locator('[data-testid="chat-input"]').first();
     await chatInput.waitFor({ state: "visible" });
@@ -162,6 +178,10 @@ test.describe("Outreach Master Agent E2E", () => {
     const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
     await chatTrigger.waitFor({ state: "visible" });
     await chatTrigger.click();
+    
+    // Wait for rail body to appear (chat component renders here)
+    const chatRailBody = page.locator('[data-testid="chat-rail-body"]').first();
+    await chatRailBody.waitFor({ state: "visible" });
     
     // Wait for chat input with data-testid
     const chatInput = page.locator('[data-testid="chat-input"]').first();
