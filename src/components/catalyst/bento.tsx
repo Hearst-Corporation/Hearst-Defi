@@ -256,8 +256,8 @@ export function BentoKpiStrip({
 
 /** Accent-green primary CTA class string. */
 export const BENTO_PRIMARY_BTN =
-  "inline-flex items-center justify-center rounded-lg bg-[var(--ct-accent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-bold text-[var(--ct-bg-deep)] transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center rounded-lg bg-[var(--ct-accent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-bold text-[var(--ct-bg-deep)] transition-colors hover:opacity-[var(--ct-opacity-90)] disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]";
 
 /** Neutral secondary CTA class string. */
 export const BENTO_SECONDARY_BTN =
-  "inline-flex items-center justify-center rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center rounded-lg border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]";

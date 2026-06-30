@@ -23,7 +23,7 @@ export default function AccreditationLoading() {
           {[0, 1].map((block) => (
             <section
               key={block}
-              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
             >
               <div className="p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="h-5 w-1/3 bg-surface-inset animate-pulse rounded" />
@@ -40,7 +40,7 @@ export default function AccreditationLoading() {
         </div>
 
         {/* SOLE */}
-        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5">
+        <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5">
           <div className="h-12 w-full bg-surface-inset animate-pulse rounded-lg" />
         </div>
 

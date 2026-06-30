@@ -137,7 +137,7 @@ export function MemoryManager({
                 <button
                   type="button"
                   disabled={isPending}
-                  className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)] disabled:opacity-50"
+                  className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)] disabled:opacity-[var(--ct-opacity-50)]"
                   onClick={() => {
                     const fd = new FormData();
                     fd.set("id", m.id);
@@ -150,7 +150,7 @@ export function MemoryManager({
                 <button
                   type="button"
                   disabled={isPending}
-                  className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)] transition-colors hover:underline disabled:opacity-50"
+                  className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)] transition-colors hover:underline disabled:opacity-[var(--ct-opacity-50)]"
                   onClick={() => {
                     const fd = new FormData();
                     fd.set("id", m.id);

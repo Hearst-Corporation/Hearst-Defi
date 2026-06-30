@@ -37,7 +37,7 @@ export function CanvasSectionView({
   onSetField: (sectionId: string, fieldKey: string, value: string) => void;
 }) {
   return (
-    <BentoPanel className={cn(section.status === "building" && "opacity-70")}>
+    <BentoPanel className={cn(section.status === "building" && "opacity-[var(--ct-opacity-70)]")}>
       <BentoHeader
         as="h3"
         title={section.title}

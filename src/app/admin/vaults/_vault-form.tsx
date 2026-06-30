@@ -903,7 +903,7 @@ export function VaultForm(props: VaultFormProps) {
                           active
                             ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] text-[var(--ct-accent)]"
                             : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-body)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]",
-                          disabled && "cursor-not-allowed opacity-40",
+                          disabled && "cursor-not-allowed opacity-[var(--ct-opacity-40)]",
                         )}
                       >
                         {n} of {form.signersWhitelist.length}

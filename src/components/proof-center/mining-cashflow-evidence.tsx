@@ -18,7 +18,7 @@ const HEADER = {
 } as const;
 
 const PANEL_CLASS =
-  "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col";
+  "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col";
 
 /** Bento section header — title (h3) + subtitle + provenance badge. */
 function BentoHeader({

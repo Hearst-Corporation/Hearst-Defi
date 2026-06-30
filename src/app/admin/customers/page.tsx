@@ -44,7 +44,7 @@ const ROW =
 // Section card shell — shared by the two list cards (Investor Directory +
 // Pending submissions) so they stay in lockstep. Pure de-duplication.
 const CARD =
-  "flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm";
+  "flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]";
 
 export default async function CustomersPage({
   searchParams,

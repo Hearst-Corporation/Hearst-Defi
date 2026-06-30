@@ -30,7 +30,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
   const hasAmount = amount > 0;
 
   return (
-    <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
         <div className="flex flex-col gap-1.5">
@@ -95,7 +95,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           <div
             className={cn(
               "grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-opacity duration-150",
-              !hasAmount && "opacity-40",
+              !hasAmount && "opacity-[var(--ct-opacity-40)]",
             )}
           >
             <span className="size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] bg-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)]" />

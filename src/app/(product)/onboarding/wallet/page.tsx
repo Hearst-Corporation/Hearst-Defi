@@ -19,7 +19,7 @@ export default async function WalletPage() {
   if (gateStatus === "db_unavailable") {
     return (
       <section
-        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col mx-auto w-full max-w-2xl"
+        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col mx-auto w-full max-w-2xl"
         data-testid="onboarding-wallet"
       >
         <div className="flex flex-col gap-2 p-5 border-b border-[var(--ct-border-soft)]">

@@ -171,7 +171,7 @@ function AmountLedger({
       className={cn(
         "rounded-lg border bg-surface-inset transition-colors",
         isValid ? "border-[var(--ct-border)]" : "border-[var(--ct-status-danger-border)]",
-        isCalculating && "opacity-80",
+        isCalculating && "opacity-[var(--ct-opacity-80)]",
       )}
     >
       <div className="flex items-center justify-between px-4 pt-3">
@@ -453,7 +453,7 @@ function InvestFormUnconfigured({
       <BentoPanel>
         <div className="p-5 flex flex-col gap-5">
           <div>
-            <label className="flex items-start gap-3 cursor-default opacity-60">
+            <label className="flex items-start gap-3 cursor-default opacity-[var(--ct-opacity-60)]">
               <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-[var(--ct-border)] bg-surface-inset" />
               <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] leading-snug">
                 I have reviewed and accept the term sheet for {vault.name}.

@@ -18,7 +18,7 @@ export default function ProductWorkspaceLoading() {
       </div>
 
       {/* INPUT BAND */}
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-3">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5 flex flex-col gap-3">
         <div className="h-3 w-32 bg-surface-inset animate-pulse rounded" />
         <div className="h-10 w-full max-w-xl bg-surface-inset animate-pulse rounded-lg" />
       </section>
@@ -28,7 +28,7 @@ export default function ProductWorkspaceLoading() {
         {[0, 1].map((card) => (
           <section
             key={card}
-            className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-4"
+            className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5 flex flex-col gap-4"
           >
             <div className="h-5 w-1/3 bg-surface-inset animate-pulse rounded" />
             <div className="h-24 w-full bg-surface-inset animate-pulse rounded" />
@@ -47,7 +47,7 @@ export default function ProductWorkspaceLoading() {
           {[0, 1, 2].map((card) => (
             <section
               key={card}
-              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 flex flex-col gap-4"
+              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5 flex flex-col gap-4"
             >
               <div className="h-5 w-1/2 bg-surface-inset animate-pulse rounded" />
               <div className="h-24 w-full bg-surface-inset animate-pulse rounded" />

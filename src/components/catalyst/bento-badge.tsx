@@ -18,7 +18,7 @@ import { cn } from "@/lib/cn";
 export type BentoBadgeVariant = VariantProps<typeof bentoBadgeVariants>["variant"];
 
 const bentoBadgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[length:var(--ct-text-nano)] font-bold uppercase tracking-wider leading-none transition-colors whitespace-nowrap",
+  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[length:var(--ct-text-micro)] font-bold uppercase tracking-wider leading-none transition-colors whitespace-nowrap",
   {
     variants: {
       variant: {

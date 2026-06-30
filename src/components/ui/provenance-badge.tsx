@@ -60,7 +60,7 @@ const stripDotTone: Record<Provenance, string> = {
   estimated: "text-[var(--ct-text-muted)]",
   partial: "text-[var(--ct-text-muted)]",
   manual: "text-[var(--ct-text-body)]",
-  stale: "text-[var(--ct-text-muted)] opacity-60",
+  stale: "text-[var(--ct-text-muted)] opacity-[var(--ct-opacity-60)]",
   simulated: "text-[var(--ct-text-muted)]",
 };
 

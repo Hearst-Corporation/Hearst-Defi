@@ -28,7 +28,7 @@ export default function ProfileLoading() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
           {/* IDENTITY PANEL */}
-          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="h-3 w-20 bg-surface-inset animate-pulse rounded" />
             </div>
@@ -46,7 +46,7 @@ export default function ProfileLoading() {
           </section>
 
           {/* INVESTMENT SUMMARY PANEL */}
-          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
             <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
               <div className="h-3 w-36 bg-surface-inset animate-pulse rounded" />
             </div>
@@ -66,7 +66,7 @@ export default function ProfileLoading() {
         </div>
 
         {/* SECURITY PANEL */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
           <div className="p-5 border-b border-[var(--ct-border-soft)]">
             <div className="h-3 w-20 bg-surface-inset animate-pulse rounded" />
           </div>

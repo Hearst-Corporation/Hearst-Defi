@@ -108,7 +108,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       }
     >
       {/* CONFIRMATION HERO */}
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col items-center text-center p-8">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col items-center text-center p-8">
         <DepositSuccessIcon />
         <span className="mt-5 inline-flex items-center gap-1.5 ct-bento-label text-[var(--ct-accent)]">
           <span className="size-1.5 rounded-full bg-[var(--ct-accent)]" />
@@ -133,7 +133,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </section>
 
       {/* POSITION DETAILS */}
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
         <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
             <h2 className="ct-bento-label">Position Details</h2>
@@ -253,7 +253,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </section>
 
       {/* NEXT STEPS */}
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
         <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <h2 className="ct-bento-label">Next Steps</h2>
         </div>

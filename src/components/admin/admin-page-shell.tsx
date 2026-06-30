@@ -161,7 +161,7 @@ export function AdminSectionCard({
         // overflows the page frame → the table crops on the right (worse with the
         // chat rail open). `min-w-0` lets the card shrink to the slot width and
         // the table's own `overflow-x-auto` then scrolls LOCALLY inside the card.
-        "admin-canon-first-block flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
+        "admin-canon-first-block flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]",
         className,
       )}
       aria-label={ariaLabel}

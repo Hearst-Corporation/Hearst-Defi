@@ -66,7 +66,7 @@ export function DiagnosticRunCard({
             onRun();
           }}
           disabled={loading}
-          className="rounded-md border border-[var(--ct-accent)] px-3 py-1 text-xs font-semibold text-[var(--ct-accent)] transition-colors hover:bg-[var(--ct-accent)]/10 disabled:opacity-50"
+          className="rounded-md border border-[var(--ct-accent)] px-3 py-1 text-xs font-semibold text-[var(--ct-accent)] transition-colors hover:bg-[var(--ct-accent)]/10 disabled:opacity-[var(--ct-opacity-50)]"
         >
           {loading ? "…" : "Run suite"}
         </button>

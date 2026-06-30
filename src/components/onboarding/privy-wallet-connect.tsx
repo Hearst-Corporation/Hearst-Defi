@@ -44,7 +44,7 @@ function WalletSurface({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden p-6",
+        "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden p-6",
         className,
       )}
       {...props}
@@ -193,7 +193,7 @@ export function PrivyWalletConnect({
     return (
       <div
         role="note"
-        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card p-6 text-center shadow-sm"
+        className="rounded-2xl border border-[var(--ct-border)] bg-surface-card p-6 text-center shadow-[var(--ct-shadow-soft)]"
       >
         <p className="body-sm ct-text-strong m-0 font-medium">
           Wallet connection is not yet available for your account

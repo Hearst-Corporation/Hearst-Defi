@@ -24,7 +24,7 @@ export function VaultAdminKpiStrip({
     // tiles separated by hairlines (gap-px on the border color) instead of
     // floating individually-framed mini-cards. Anti cage-in-cage.
     <section
-      className="overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm"
+      className="overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]"
       aria-label="Vault terms"
     >
       <div

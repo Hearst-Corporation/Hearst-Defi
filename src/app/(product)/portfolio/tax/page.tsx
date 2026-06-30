@@ -47,7 +47,7 @@ export default async function PortfolioTaxPage() {
         />
 
         {/* 1099-INT */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
           <div className="p-5 border-b border-[var(--ct-border-soft)]">
             <h2 className="ct-section-title">Form 1099-INT</h2>
             <p className="ct-metric-caption">
@@ -71,7 +71,7 @@ export default async function PortfolioTaxPage() {
         </section>
 
         {/* 1099-B */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
           <div className="p-5 border-b border-[var(--ct-border-soft)]">
             <h2 className="ct-section-title">Form 1099-B</h2>
             <p className="ct-metric-caption">
@@ -107,7 +107,7 @@ export default async function PortfolioTaxPage() {
         </section>
 
         {/* CRS */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
           <div className="p-5 border-b border-[var(--ct-border-soft)]">
             <h2 className="ct-section-title">CRS preview</h2>
             <p className="ct-metric-caption">

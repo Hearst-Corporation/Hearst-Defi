@@ -40,7 +40,7 @@ export function DropdownMenu({
         // Popover background
         'bg-[color-mix(in_srgb,var(--ct-surface-card)_75%,transparent)] backdrop-blur-xl',
         // Shadows
-        'shadow-lg ring-1 ring-[var(--ct-border)] ring-inset',
+        'shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)] ring-inset',
         // Define grid at the menu level if subgrid is supported
         'supports-[grid-template-columns:subgrid]:grid supports-[grid-template-columns:subgrid]:grid-cols-[auto_1fr_1.5rem_0.5rem_auto]',
         // Transitions
@@ -66,7 +66,7 @@ export function DropdownItem({
     // Focus
     'data-focus:bg-[var(--ct-accent)] data-focus:text-[var(--ct-bg-deep)]',
     // Disabled state
-    'data-disabled:opacity-50',
+    'data-disabled:opacity-[var(--ct-opacity-50)]',
     // Forced colors mode
     'forced-color-adjust-none forced-colors:data-focus:bg-[Highlight] forced-colors:data-focus:text-[HighlightText] forced-colors:data-focus:*:data-[slot=icon]:text-[HighlightText]',
     // Use subgrid when available but fallback to an explicit grid layout if not

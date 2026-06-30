@@ -217,7 +217,7 @@ export function HcValueChart({
               y2={y}
               stroke="var(--ct-border-soft)"
               strokeWidth={1}
-              opacity={0.12}
+              opacity="var(--ct-opacity-12)"
               vectorEffect="non-scaling-stroke"
               data-hc-grid="y"
             />
@@ -254,7 +254,7 @@ export function HcValueChart({
               borderRadius: "50%",
               transform: "translate(-50%, -50%)",
               background: "var(--ct-chart-curve-color)",
-              opacity: 0.55,
+              opacity: "var(--ct-opacity-55)",
               pointerEvents: "none",
             }}
           />

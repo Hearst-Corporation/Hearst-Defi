@@ -99,7 +99,7 @@ export function RebalancingEventsPanel({
     return bare ? (
       empty
     ) : (
-      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
         {empty}
       </div>
     );
@@ -229,7 +229,7 @@ export function RebalancingEventsPanel({
   return bare ? (
     inner
   ) : (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
       {inner}
     </div>
   );

@@ -49,7 +49,7 @@ const base = [
   // Basic layout
   'relative isolate flex size-4.75 shrink-0 rounded-full sm:size-4.25',
   // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-  'before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-[var(--ct-surface-card)] before:shadow-sm',
+  'before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-[var(--ct-surface-card)] before:shadow-[var(--ct-shadow-soft)]',
   // Background color when checked
   'group-data-checked:before:bg-(--radio-checked-bg)',
   // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
@@ -69,7 +69,7 @@ const base = [
   // Focus ring
   'group-data-focus:outline group-data-focus:outline-2 group-data-focus:outline-offset-2 group-data-focus:[outline-color:var(--ct-accent)]',
   // Disabled state
-  'group-data-disabled:opacity-50',
+  'group-data-disabled:opacity-[var(--ct-opacity-50)]',
   'group-data-disabled:border-[var(--ct-border)] group-data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] group-data-disabled:[--radio-checked-indicator:color-mix(in_srgb,var(--ct-text-strong)_50%,transparent)] group-data-disabled:before:bg-transparent',
   'dark:group-data-disabled:border-[var(--ct-border-strong)] dark:group-data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:group-data-disabled:[--radio-checked-indicator:color-mix(in_srgb,var(--ct-text-strong)_50%,transparent)] dark:group-data-checked:group-data-disabled:after:hidden',
 ]

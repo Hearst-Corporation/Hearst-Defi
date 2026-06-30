@@ -67,7 +67,7 @@ export function ProofCenterColdShell({
           </div>
         </div>
         {variant === "product" ? (
-          <Button asChild variant="primary" className="proof-cold-cta no-underline mt-(--ct-space-2)">
+          <Button asChild variant="primary" size="md" className="proof-cold-cta no-underline mt-(--ct-space-2)">
             <Link href={PORTFOLIO_ONBOARDING_INVEST_HREF}>Explore products</Link>
           </Button>
         ) : null}

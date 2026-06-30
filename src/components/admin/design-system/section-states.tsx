@@ -42,10 +42,10 @@ export function SectionStates() {
       <DsBlock title="Disabled" hint="Reduced opacity + cursor, aria-disabled announced">
         <DsSpecimen caption="Disabled controls" stack>
           <div className="admin-doc-inline-row admin-doc-inline-row--loose">
-            <Button variant="primary" disabled>
+            <Button variant="primary" size="md" disabled>
               Submit
             </Button>
-            <Button variant="secondary" disabled>
+            <Button variant="secondary" size="md" disabled>
               Cancel
             </Button>
           </div>

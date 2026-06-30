@@ -169,7 +169,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               disabled={locked}
-              className={cn(BENTO_INPUT, "disabled:cursor-not-allowed disabled:opacity-60")}
+              className={cn(BENTO_INPUT, "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-60)]")}
             />
           </label>
 
@@ -181,7 +181,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               disabled={locked}
-              className={cn(BENTO_INPUT, "disabled:cursor-not-allowed disabled:opacity-60")}
+              className={cn(BENTO_INPUT, "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-60)]")}
             />
           </label>
 

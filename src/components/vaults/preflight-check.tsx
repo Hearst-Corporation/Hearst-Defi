@@ -225,8 +225,8 @@ export function PreFlightCheck({
               disabled={approving || !networkOk}
               className={cn(
                 "rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-micro)] font-bold uppercase tracking-wider text-[var(--ct-accent)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
-                "disabled:cursor-not-allowed disabled:opacity-50",
-                approving && "cursor-wait opacity-70",
+                "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]",
+                approving && "cursor-wait opacity-[var(--ct-opacity-70)]",
               )}
             >
               {approving ? (
@@ -251,7 +251,7 @@ export function PreFlightCheck({
   );
 
   return (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
       <div className="flex flex-col gap-1.5 p-5 border-b border-[var(--ct-border-soft)]">
         <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
           Pre-flight check

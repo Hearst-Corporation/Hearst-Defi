@@ -48,7 +48,7 @@ export default async function ProductWorkspacePage({
         subtitle="Framing captured from the cockpit agent — read-only documentation."
       >
         <div className="flex flex-col gap-2 p-5">
-          <Heading level={3} className={cn("text-balance", !objective && "italic opacity-40")}>
+          <Heading level={3} className={cn("text-balance", !objective && "italic opacity-[var(--ct-opacity-40)]")}>
             {objective ?? "Awaiting objective from the cockpit agent"}
           </Heading>
           <p className="ct-metric-caption leading-relaxed">

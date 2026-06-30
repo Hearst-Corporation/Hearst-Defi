@@ -86,7 +86,7 @@ function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
 
 function CustodyCard({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
+    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}

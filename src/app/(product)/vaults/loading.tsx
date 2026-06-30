@@ -22,7 +22,7 @@ export default function VaultsLoading() {
           {[0, 1].map((card) => (
             <section
               key={card}
-              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+              className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
             >
               <div className="flex flex-wrap items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="flex flex-col gap-2 min-w-0">

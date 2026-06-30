@@ -41,7 +41,7 @@ export default async function DistributionsPage() {
         />
 
         {/* Next distribution summary */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-6 flex flex-col items-center justify-center">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-6 flex flex-col items-center justify-center">
           <div className="ct-bento-label mb-3">Next distribution</div>
           <div className="h1 mb-2">
             {nextDistributionAt.toLocaleDateString("en-US", {
@@ -54,7 +54,7 @@ export default async function DistributionsPage() {
 
         {/* Payout history */}
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
           aria-label="Distribution history"
         >
           <div className="p-5 border-b border-[var(--ct-border-soft)]">

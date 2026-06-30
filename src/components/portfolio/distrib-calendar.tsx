@@ -288,7 +288,7 @@ function BarChart({
                 fill={`url(#${barGradId})`}
                 stroke="var(--ct-accent)"
                 strokeWidth={isCurrent ? "1.5" : "1"}
-                style={{ opacity: isCurrent ? 1 : 0.92 }}
+                style={{ opacity: isCurrent ? 1 : "var(--ct-opacity-92)" }}
                 rx="2"
                 className="pf-distrib-bar"
               />
@@ -307,7 +307,7 @@ function BarChart({
               rx="2"
               aria-label={`${periodLabel} distribution ${amountLabel}`}
               className="pf-distrib-chart__bar-group pf-distrib-bar"
-              style={{ opacity: isCurrent ? 1 : 0.92, "--index": i } as React.CSSProperties}
+              style={{ opacity: isCurrent ? 1 : "var(--ct-opacity-92)", "--index": i } as React.CSSProperties}
             />
           );
 

@@ -228,7 +228,7 @@ export function CanvasActionButton({
             <button
               type="button"
               className={cn(
-                "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)] disabled:cursor-not-allowed disabled:opacity-50",
+                "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-muted)] transition-colors hover:text-[var(--ct-text-strong)] disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]",
               )}
               disabled={busy}
               onClick={(event) => {

@@ -20,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
 ChartJS.register(
   CategoryScale,
@@ -37,26 +38,42 @@ ChartJS.register(
  * Hearst dark-green DS (resolved --ct-* values).
  */
 
-/* Resolved DS values — Chart.js renders to <canvas>, so it can't read CSS vars
-   live; these mirror cockpit.css tokens (one green #A7FB90, graphite surfaces). */
-const DS = {
-  accent: "#A7FB90", // --ct-accent
-  bg: "#18181b", // --ct-surface-page
-  surfaceCard: "#000000", // --ct-surface-card
-  textStrong: "#f4f5f3", // --ct-text-strong
-  muted: "#8b968a", // --ct-text-muted
-  border: "rgba(255,255,255,0.10)", // --ct-border
-  gridSoft: "rgba(255,255,255,0.04)", // --ct-border-soft
-} as const;
+/* Chart.js renders to <canvas> and can't read CSS vars live, so the DS palette is
+   resolved at runtime from the live --ct-* tokens (single source of truth in
+   cockpit.css). The accent is the sanctioned brand-constant literal; everything
+   else is read off document.documentElement. */
+type DsColors = {
+  accent: string;
+  surfaceCard: string;
+  textStrong: string;
+  muted: string;
+  border: string;
+  gridSoft: string;
+};
 
-/** Faint green tints for the spaghetti — luminance ramp of the single accent. */
-const SPAGHETTI_TINTS = [
-  "rgba(167, 251, 144, 0.18)",
-  "rgba(167, 251, 144, 0.13)",
-  "rgba(167, 251, 144, 0.22)",
-  "rgba(167, 251, 144, 0.10)",
-  "rgba(167, 251, 144, 0.16)",
-] as const;
+function readToken(token: string, fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  return raw || fallback;
+}
+
+function resolveDsColors(): DsColors {
+  return {
+    accent: readToken("--ct-accent", CONNECT_ACCENT_HEX),
+    surfaceCard: readToken("--ct-surface-card", "#000"),
+    textStrong: readToken("--ct-text-strong", CONNECT_ACCENT_HEX),
+    muted: readToken("--ct-text-muted", CONNECT_ACCENT_HEX),
+    border: readToken("--ct-border", "transparent"),
+    gridSoft: readToken("--ct-border-soft", "transparent"),
+  };
+}
+
+/** Faint accent tints for the spaghetti — luminance ramp of the single accent,
+ *  built from the resolved accent so there is no second green literal. */
+function buildSpaghettiTints(accent: string): readonly string[] {
+  const alphas = [0.18, 0.13, 0.22, 0.1, 0.16];
+  return alphas.map((a) => `color-mix(in srgb, ${accent} ${Math.round(a * 100)}%, transparent)`);
+}
 
 /** Seeded PRNG (mulberry32) so the simulation is deterministic — no Math.random. */
 function mulberry32(seed: number): () => number {
@@ -128,6 +145,16 @@ export function MonteCarloChart() {
   const SEED = 1878790276;
   const SPAGHETTI_COUNT = 220; // thin faint paths drawn behind the principal line
 
+  // Resolve the DS palette once on mount from the live --ct-* tokens. The
+  // initializer runs under SSR too (window undefined → fallbacks), so we re-read
+  // the real --ct-* values after hydration. Intentional one-shot sync on mount.
+  const [ds, setDs] = React.useState<DsColors>(() => resolveDsColors());
+  React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDs(resolveDsColors());
+  }, []);
+  const spaghettiTints = React.useMemo(() => buildSpaghettiTints(ds.accent), [ds.accent]);
+
   const { allTrajectories, median } = React.useMemo(
     () =>
       runMonteCarloSimulation(
@@ -150,7 +177,7 @@ export function MonteCarloChart() {
     const spaghetti = allTrajectories.map((traj, idx) => ({
       label: `path-${idx}`,
       data: traj,
-      borderColor: SPAGHETTI_TINTS[idx % SPAGHETTI_TINTS.length],
+      borderColor: spaghettiTints[idx % spaghettiTints.length],
       borderWidth: 0.8,
       pointRadius: 0,
       pointHoverRadius: 0,
@@ -162,12 +189,12 @@ export function MonteCarloChart() {
     const principal = {
       label: "Principal strategy (median)",
       data: median,
-      borderColor: DS.accent,
+      borderColor: ds.accent,
       borderWidth: 2.75,
       pointRadius: 0,
       pointHoverRadius: 4,
-      pointHoverBackgroundColor: DS.accent,
-      pointHoverBorderColor: DS.surfaceCard,
+      pointHoverBackgroundColor: ds.accent,
+      pointHoverBorderColor: ds.surfaceCard,
       pointHoverBorderWidth: 2,
       tension: 0.25,
       fill: false,
@@ -175,7 +202,7 @@ export function MonteCarloChart() {
     };
 
     return { labels, datasets: [...spaghetti, principal] };
-  }, [allTrajectories, median, labels]);
+  }, [allTrajectories, median, labels, spaghettiTints, ds.accent, ds.surfaceCard]);
 
   const options = React.useMemo<ChartOptions<"line">>(
     () => ({
@@ -186,11 +213,11 @@ export function MonteCarloChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: DS.surfaceCard,
-          borderColor: DS.border,
+          backgroundColor: ds.surfaceCard,
+          borderColor: ds.border,
           borderWidth: 1,
-          titleColor: DS.textStrong,
-          bodyColor: DS.muted,
+          titleColor: ds.textStrong,
+          bodyColor: ds.muted,
           padding: 10,
           cornerRadius: 8,
           displayColors: false,
@@ -211,17 +238,17 @@ export function MonteCarloChart() {
           grid: { display: false },
           border: { display: false },
           ticks: {
-            color: DS.muted,
+            color: ds.muted,
             font: { size: 11 },
             maxRotation: 0,
             autoSkipPadding: 16,
           },
         },
         y: {
-          grid: { color: DS.gridSoft },
+          grid: { color: ds.gridSoft },
           border: { display: false },
           ticks: {
-            color: DS.muted,
+            color: ds.muted,
             font: { size: 11 },
             maxTicksLimit: 6,
             callback: (value) => formatCompactUsd(Number(value)),
@@ -229,7 +256,7 @@ export function MonteCarloChart() {
         },
       },
     }),
-    [data.datasets.length],
+    [data.datasets.length, ds.surfaceCard, ds.border, ds.textStrong, ds.muted, ds.gridSoft],
   );
 
   const finalMid = median[YEARS] ?? 0;
@@ -246,8 +273,7 @@ export function MonteCarloChart() {
           </div>
           <div className="flex items-center gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-inset px-(--ct-space-2_5) py-(--ct-space-1_5)">
             <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full"
-              style={{ backgroundColor: DS.accent }}
+              className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
             />
             <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
             <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">

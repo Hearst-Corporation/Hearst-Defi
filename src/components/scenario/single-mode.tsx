@@ -106,6 +106,7 @@ export function SingleMode({
           <div className="flex justify-end">
             <Button
               variant="primary"
+              size="md"
               className="font-semibold"
               onClick={() => {
                 hasRunRef.current = true;

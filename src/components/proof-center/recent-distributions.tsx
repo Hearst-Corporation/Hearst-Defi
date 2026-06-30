@@ -73,7 +73,7 @@ export function RecentDistributions({
     return bare ? (
       empty
     ) : (
-      <section className="dark rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+      <section className="dark rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
         {empty}
       </section>
     );
@@ -175,7 +175,7 @@ export function RecentDistributions({
   return bare ? (
     inner
   ) : (
-    <section className="dark rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+    <section className="dark rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
       {inner}
     </section>
   );

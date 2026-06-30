@@ -30,7 +30,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
   return (
     <div
       aria-label={`${vault.name} — ${strategyLabel}`}
-      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_auto_minmax(220px,0.7fr)]"
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_auto_minmax(220px,0.7fr)]"
     >
       {/* Main */}
       <div className="flex flex-col gap-5 p-5">

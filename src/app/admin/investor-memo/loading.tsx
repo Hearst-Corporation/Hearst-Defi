@@ -20,7 +20,7 @@ export default function InvestorMemoLoading() {
         </div>
 
         {/* DOCUMENT PANEL */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 lg:p-6 flex flex-col gap-5">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5 lg:p-6 flex flex-col gap-5">
           <div className="h-9 w-2/3 bg-surface-inset animate-pulse rounded" />
           <div className="flex flex-col gap-3">
             <div className="h-4 w-full bg-surface-inset animate-pulse rounded" />

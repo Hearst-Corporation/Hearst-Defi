@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/cn";
+import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 import type { PlotGeometry } from "@/lib/portfolio/geometry/value-plot-geometry";
 
 const PAD = { top: 10, right: 8, bottom: 4, left: 8 };
@@ -127,13 +128,13 @@ export function ValueAreaPlot({ geometry, className }: ValueAreaPlotProps) {
       if (!ctx) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // canvas fallback — CSS var unavailable in 2d context
-      const accent = readCssColor(canvas, "--ct-accent", "#A7FB90");
-      // canvas fallback — CSS var unavailable in 2d context
+      // canvas fallback — CSS var unavailable in 2d context (canonical accent hex)
+      const accent = readCssColor(canvas, "--ct-accent", CONNECT_ACCENT_HEX);
+      // canvas fallback — CSS var unavailable in 2d context (canonical accent hex)
       const accentSoft = readCssColor(
         canvas,
         "--ct-chart-area-top",
-        "color-mix(in srgb, #A7FB90 28%, transparent)",
+        `color-mix(in srgb, ${CONNECT_ACCENT_HEX} 28%, transparent)`,
       );
       const grid = readCssColor(
         canvas,
