@@ -71,6 +71,13 @@ import {
   canvasOpenMarker,
   stripCanvasOpenMarker,
 } from "@/lib/canvas/intent";
+// Outreach Master Agent integration — shadow mode HF, deterministic regex first
+import {
+  integrateOutreachAgent,
+  shouldNavigateOutreach,
+  shouldOpenOutreachCanvas,
+  extractOutreachDiagnostics,
+} from "@/lib/agentic/outreach-integration";
 import {
   classifyCanvasIntentLlm,
   type ClassifyClient,
@@ -710,6 +717,92 @@ async function runMasterAgentTurn(args: {
   } catch {
     // Router indisponible → on continue en mode dégradé (legacy nav)
     agenticDecision = undefined;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Outreach Master Agent — shadow mode integration.
+  // Runs in parallel with the existing router for calibration; outcomes are
+  // logged but the existing router decisions take precedence for now.
+  // This is a safe rollout path: we observe divergence without changing behavior.
+  // ───────────────────────────────────────────────────────────────────────────
+  let outreachIntegration: Awaited<ReturnType<typeof integrateOutreachAgent>> | null = null;
+  try {
+    outreachIntegration = await integrateOutreachAgent({
+      message,
+      isAdmin,
+      userId,
+      chatId: chatId ?? undefined,
+      existingDecision: agenticDecision,
+    });
+  } catch {
+    // Outreach Master Agent unavailable → continue without it (fail-open)
+    outreachIntegration = null;
+  }
+
+  // ── 0.5 Outreach navigation fast-path (router v2 style, high-confidence) ───
+  // If the Outreach Master Agent detected a clear navigation intent and the
+  // existing router did not already decide on a different navigation, we
+  // can fast-path to the outreach workspace. This is consistent with the router
+  // v2 fast-path pattern above.
+  if (
+    outreachIntegration?.outreachDecision &&
+    shouldNavigateOutreach(outreachIntegration.outreachDecision) &&
+    !isReview &&
+    !canvasIntent &&
+    !productIntent?.shouldOpenProductWorkspace &&
+    agenticDecision?.kind !== "navigation"
+  ) {
+    const routeKey = "admin-outreach";
+    if (isAdmin) {
+      await publishNav(userId, { destinationKey: routeKey }).catch(() => {
+        /* best-effort nav publish */
+      });
+      prisma.navTrace
+        .create({
+          data: {
+            id: buildNavTraceId(turnId),
+            userId,
+            chatId,
+            profile: "admin",
+            mode: chatMode,
+            destinationKey: routeKey,
+            status: "published",
+            reason: "outreach_master_agent_nav",
+          },
+        })
+        .catch(() => {
+          /* best-effort trace */
+        });
+      // Router Observability: record the outcome.
+      void recordRouterDecisionSafe({
+        decision: {
+          kind: "navigation",
+          confidence: outreachIntegration.outreachDecision.confidence === "high" ? 0.95 : 0.75,
+          actionPolicy: "allow_navigation",
+          riskLevel: "none",
+          requiresLLM: false,
+          requiresCanvas: false,
+          requiresHumanGate: false,
+          requiresExistingPendingAction: false,
+          prohibitedAutonomousAction: false,
+          matchedRuleIds: ["outreach_master_agent"],
+          normalizedInput: outreachIntegration.outreachDecision.normalizedInput || "",
+          negated: false,
+          reason: outreachIntegration.outreachDecision.reason,
+        } as AgenticIntentDecision,
+        outcome: "nav_fast_path",
+        turnId,
+        chatId,
+      });
+      persistAssistantAckMessage({
+        persistence,
+        chatId,
+        turnId,
+        variant: "nav-outreach-fast-path",
+        text: buildNavShortcutAck(message),
+      });
+      return ackResponse(buildNavShortcutAck(message), chatId);
+    }
   }
 
   // ── 1. Fast-path navigation (router high-confidence) ──────────────────────
