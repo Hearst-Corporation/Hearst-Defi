@@ -64,7 +64,7 @@ export async function getRoadmap(): Promise<{
   phases: RoadmapPhaseWithState[];
 }> {
   const doc = await loadRoadmapFromDisk();
-  const validations = await prisma.roadmapValidation.findMany();
+  const validations = await prisma.roadmapValidation.findMany({ take: 5000 });
   const byId = new Map(validations.map((v) => [v.itemId, v]));
 
   const phases: RoadmapPhaseWithState[] = doc.phases.map((phase) => {

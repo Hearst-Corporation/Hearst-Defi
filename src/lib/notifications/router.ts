@@ -11,6 +11,8 @@
  *   Exception: the phrase "not guaranteed" is explicitly permitted.
  */
 
+import "server-only";
+
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";

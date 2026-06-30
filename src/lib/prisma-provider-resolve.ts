@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Single source for Prisma provider selection — must match
  * `scripts/prisma-provider.mjs` (schema swap) and `src/lib/db.ts` (adapter).
