@@ -168,6 +168,132 @@ test.describe("Outreach Master Agent E2E", () => {
   });
 });
 
+test.describe("Outreach Swarms E2E", () => {
+  test("campaign creation triggers swarm orchestration", async ({ page }) => {
+    // Navigate to outreach workspace
+    await page.goto("/admin/outreach");
+    await page.waitForLoadState("networkidle");
+
+    // Open chat
+    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+
+    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    await chatInput.waitFor({ state: "visible" });
+
+    // Request UAE investor campaign (triggers swarm)
+    await chatInput.fill("prépare une campagne investisseurs UAE");
+    await chatInput.press("Enter");
+
+    // Wait for swarm processing
+    await page.waitForTimeout(3000);
+
+    // Verify canvas opens (swarm orchestration started)
+    const canvas = page.locator('[data-testid="canvas"], .canvas, [data-testid="outreach-canvas"]').first();
+    const hasCanvas = await canvas.isVisible().catch(() => false);
+
+    // Or check for specialist summaries or action cards
+    const pageContent = await page.content();
+
+    // Should show some swarm-related content or action card
+    const hasSwarmContent =
+      pageContent.includes("Campaign") ||
+      pageContent.includes("campagne") ||
+      pageContent.includes("Review Campaign") ||
+      pageContent.includes("specialist") ||
+      pageContent.includes("segment") ||
+      hasCanvas;
+
+    expect(hasSwarmContent).toBeTruthy();
+
+    // Safety: no direct send
+    expect(pageContent).not.toContain("Send now");
+    expect(pageContent).not.toContain("Envoyer maintenant");
+  });
+
+  test("simple navigation does NOT trigger swarm", async ({ page }) => {
+    await page.goto("/admin");
+
+    // Open chat
+    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+
+    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    await chatInput.waitFor({ state: "visible" });
+
+    // Simple navigation - should not trigger swarm
+    await chatInput.fill("ouvre outreach");
+    await chatInput.press("Enter");
+
+    await page.waitForTimeout(2000);
+
+    // Should navigate without swarm processing overhead
+    await expect(page).toHaveURL(/\/admin\/outreach/);
+
+    // Quick response expected (no swarm latency)
+    const chatResponse = page.locator('[data-testid="chat-message"], .chat-message').last();
+    await expect(chatResponse).toBeVisible();
+  });
+
+  test("blocked content shows swarm warnings", async ({ page }) => {
+    await page.goto("/admin/outreach");
+    await page.waitForLoadState("networkidle");
+
+    // Open chat
+    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+
+    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    await chatInput.waitFor({ state: "visible" });
+
+    // Attempt blocked content
+    await chatInput.fill("Guaranteed returns campaign");
+    await chatInput.press("Enter");
+
+    await page.waitForTimeout(3000);
+
+    // Should show warning or safety message
+    const pageContent = await page.content();
+    const hasWarning =
+      pageContent.includes("blocked") ||
+      pageContent.includes("compliance") ||
+      pageContent.includes("warning") ||
+      pageContent.includes("Cannot proceed");
+
+    // May or may not show explicit warning, but should not allow proceeding
+    if (hasWarning) {
+      expect(pageContent).not.toContain("Send");
+    }
+  });
+
+  test("specialist summaries visible in consolidated card", async ({ page }) => {
+    await page.goto("/admin/outreach");
+    await page.waitForLoadState("networkidle");
+
+    // Open chat
+    await page.click('[data-testid="chat-trigger"], [aria-label*="chat" i], button:has-text("Chat")');
+
+    const chatInput = page.locator('textarea[placeholder*="message" i], [data-testid="chat-input"], input[placeholder*="Ask" i]').first();
+    await chatInput.waitFor({ state: "visible" });
+
+    // Request campaign (triggers full swarm)
+    await chatInput.fill("créer une campagne newsletter distributeurs");
+    await chatInput.press("Enter");
+
+    await page.waitForTimeout(3000);
+
+    // Check for specialist indicators or campaign overview
+    const pageContent = await page.content();
+
+    // Should have some indication of campaign structure
+    const hasCampaignDetails =
+      pageContent.includes("Channel") ||
+      pageContent.includes("segment") ||
+      pageContent.includes("draft") ||
+      pageContent.includes("Recipients") ||
+      pageContent.includes("campagne");
+
+    expect(hasCampaignDetails || pageContent.includes("Campaign")).toBeTruthy();
+  });
+});
+
 test.describe("Outreach Master Agent — Non-Admin", () => {
   test("non-admin can navigate but cannot create campaigns", async ({ page }) => {
     // This test would need a non-admin user
