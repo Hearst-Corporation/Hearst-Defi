@@ -134,24 +134,24 @@ function Disclosure({
 }
 
 function ScenarioStats({ scenario }: { scenario: ScenarioResult }) {
+  const range = `${formatApyFraction(scenario.quant.headlineRange.low)}–${formatApyFraction(scenario.quant.headlineRange.high)}`;
+  const p50 = formatApyFraction(scenario.quant.percentiles.p50);
   return (
-    <div className="grid flex-1 grid-cols-2 gap-(--ct-space-2)">
-      <MetricTile
-        label="APY range"
-        value={`${formatApyFraction(scenario.quant.headlineRange.low)}–${formatApyFraction(scenario.quant.headlineRange.high)}`}
-      />
-      <MetricTile
-        label="p50"
-        value={formatApyFraction(scenario.quant.percentiles.p50)}
-        note={scenario.governanceException ? "Mining floored" : undefined}
-      />
+    <div className="flex flex-wrap gap-x-(--ct-space-4) gap-y-(--ct-space-1)">
+      <span className="mono text-[length:var(--ct-text-sm)] tabular-nums ct-text-strong">
+        APY {range}
+      </span>
+      <span className="mono text-[length:var(--ct-text-sm)] tabular-nums ct-text-secondary">
+        p50 {p50}
+        {scenario.governanceException ? " · mining floored" : ""}
+      </span>
     </div>
   );
 }
 
 function SafeScenarioCard({ scenario }: { scenario: ScenarioResult }) {
   return (
-    <div className="grid gap-(--ct-space-4) rounded-(--ct-radius-2xl) border border-[var(--ct-border-accent)] bg-surface-card p-(--ct-space-5) lg:grid-cols-[auto_minmax(0,1fr)]">
+    <div className="grid gap-(--ct-space-3) rounded-(--ct-radius-2xl) border border-[var(--ct-border-accent)] bg-surface-card p-(--ct-space-4) lg:grid-cols-[auto_minmax(0,1fr)]">
       <div className="flex items-center justify-center">
         <HcCompositionRing
           segments={sleeves(scenario)}
@@ -161,7 +161,7 @@ function SafeScenarioCard({ scenario }: { scenario: ScenarioResult }) {
           aria-label="Safe allocation"
         />
       </div>
-      <div className="flex min-w-0 flex-col gap-(--ct-space-3)">
+      <div className="flex min-w-0 flex-col justify-center gap-(--ct-space-2)">
         <div className="flex flex-wrap items-center gap-(--ct-space-2)">
           <span className="ct-section-label ct-text-accent">Safe</span>
           <span className="ct-section-label ct-text-tertiary">principal construction</span>
@@ -177,27 +177,27 @@ function SafeScenarioCard({ scenario }: { scenario: ScenarioResult }) {
 
 function MiniScenarioCard({ scenario }: { scenario: ScenarioResult }) {
   return (
-    <div className="flex min-w-0 flex-col gap-(--ct-space-3) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
+    <div className="flex min-w-0 flex-col gap-(--ct-space-2) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-3)">
       <div className="flex items-center gap-(--ct-space-2)">
-        <div className="flex items-center gap-(--ct-space-2)">
-          <span className="ct-section-label ct-text-strong">
-            {REGIME_LABEL[scenario.regime]}
-          </span>
-          {scenario.governanceException ? (
-            <span className="ct-section-label ct-status-warning">floored</span>
-          ) : null}
-        </div>
-      </div>
-      <div className="flex justify-center">
         <HcCompositionRing
           segments={sleeves(scenario)}
-          size={84}
+          size={80}
           centerLabel={REGIME_LABEL[scenario.regime]}
           centerValue="100%"
           aria-label={`${REGIME_LABEL[scenario.regime]} allocation`}
         />
+        <div className="flex min-w-0 flex-1 flex-col gap-(--ct-space-1_5)">
+          <div className="flex flex-wrap items-center gap-(--ct-space-2)">
+            <span className="ct-section-label ct-text-strong">
+              {REGIME_LABEL[scenario.regime]}
+            </span>
+            {scenario.governanceException ? (
+              <span className="ct-section-label ct-status-warning">floored</span>
+            ) : null}
+          </div>
+          <ScenarioStats scenario={scenario} />
+        </div>
       </div>
-      <ScenarioStats scenario={scenario} />
     </div>
   );
 }
@@ -238,7 +238,7 @@ export function DataScientistOutput({
   ] as const;
 
   return (
-    <div className="flex min-w-0 flex-col gap-(--ct-space-6)">
+    <div className="flex min-w-0 flex-col gap-(--ct-space-5)">
       <section className="flex min-w-0 flex-col gap-(--ct-space-3)">
         <SectionLabel provenance={draft.writeup.provenance}>Framing</SectionLabel>
         <p className="body-sm max-w-3xl ct-text-body">{framing}</p>
@@ -255,7 +255,7 @@ export function DataScientistOutput({
         </ul>
       </section>
 
-      <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+      <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-5)">
         <SectionLabel provenance={draft.audit.find((item) => item.stageId === "market_live")?.provenance}>
           Key live inputs
         </SectionLabel>
@@ -285,7 +285,7 @@ export function DataScientistOutput({
       </section>
 
       {fan && fanBands.length > 0 ? (
-        <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+        <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-5)">
           <div className="flex flex-wrap items-start justify-between gap-(--ct-space-3)">
             <SectionLabel provenance={draft.quant.provenance}>
               Monte Carlo projection
@@ -301,10 +301,19 @@ export function DataScientistOutput({
             </div>
           </div>
           <ProjectionAreaChart bands={fanBands} unit={fan.unit} />
-          <div className="grid gap-(--ct-space-3) sm:grid-cols-3">
-            <MetricTile label="p5" value={formatApyFraction(draft.quant.percentiles.p5)} />
-            <MetricTile label="p50" value={formatApyFraction(draft.quant.percentiles.p50)} />
-            <MetricTile label="p95" value={formatApyFraction(draft.quant.percentiles.p95)} />
+          <div className="flex flex-wrap items-center gap-x-(--ct-space-5) gap-y-(--ct-space-1)">
+            {(
+              [
+                ["p5", draft.quant.percentiles.p5],
+                ["p50", draft.quant.percentiles.p50],
+                ["p95", draft.quant.percentiles.p95],
+              ] as const
+            ).map(([label, value]) => (
+              <span key={label} className="mono text-[length:var(--ct-text-sm)] tabular-nums ct-text-secondary">
+                <span className="ct-metric-caption ct-text-muted">{label}</span>{" "}
+                {formatApyFraction(value)}
+              </span>
+            ))}
           </div>
           <div className="flex flex-col gap-(--ct-space-1)">
             <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
@@ -318,7 +327,7 @@ export function DataScientistOutput({
       ) : null}
 
       {principal ? (
-        <section className="flex min-w-0 flex-col gap-(--ct-space-4) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+        <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-5)">
           <SectionLabel provenance={draft.strategy.provenance}>Allocation</SectionLabel>
           <div className="grid min-w-0 gap-(--ct-space-4) xl:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.9fr)]">
             <SafeScenarioCard scenario={principal} />
@@ -331,7 +340,7 @@ export function DataScientistOutput({
         </section>
       ) : null}
 
-      <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+      <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-5)">
         <SectionLabel>Targets &amp; guardrails</SectionLabel>
         <div className="grid gap-(--ct-space-3) md:grid-cols-2 xl:grid-cols-4">
           <MetricTile label="Monthly distribution target" value={targets.distribution} />
@@ -351,7 +360,7 @@ export function DataScientistOutput({
         </p>
       </section>
 
-      <div className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+      <div className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-5)">
         <Disclosure title="Full thesis draft">
           <Markdown content={draft.writeup.prose} />
         </Disclosure>

@@ -32,6 +32,16 @@ describe("report-format — fan percent points", () => {
     const [lo, hi] = computeFanYDomain(NORMAL_FAN, true);
     expect(lo).toBeGreaterThan(-50);
     expect(hi).toBeLessThan(50);
+    expect(lo / 5).toBeCloseTo(Math.round(lo / 5), 5);
+    expect(hi / 5).toBeCloseTo(Math.round(hi / 5), 5);
+  });
+
+  it("computeFanYDomain never produces 1000% scale for normal fan data", () => {
+    const [lo, hi] = computeFanYDomain(NORMAL_FAN, true);
+    expect(Math.abs(lo)).toBeLessThan(100);
+    expect(Math.abs(hi)).toBeLessThan(100);
+    const worstTick = formatFanValue(hi, true);
+    expect(worstTick).not.toContain("1000");
   });
 
   it("formatFanPercentPoint keeps sign", () => {
@@ -66,6 +76,25 @@ describe("construction-stepper footer copy", () => {
     expect(src).toContain("Print view");
     expect(src).not.toContain("Open print view (PDF)");
     expect(src).toContain('variant="ghost"');
+    expect(src).not.toMatch(/variant="primary"[^>]*className="[^"]*w-full/);
     expect(src).toContain("No record created · Manual admin validation required");
+  });
+});
+
+describe("data-scientist-output — compact report layout", () => {
+  it("uses inline percentile row instead of triple MetricTile grid under the fan", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const src = await fs.readFile(
+      path.join(
+        process.cwd(),
+        "src/components/admin/product-workspace/data-scientist-output.tsx",
+      ),
+      "utf8",
+    );
+    expect(src).toContain("Monte Carlo projection");
+    expect(src).toContain("ProjectionAreaChart");
+    expect(src).not.toMatch(/MetricTile label="p5"/);
+    expect(src).toContain("formatHashpriceUsd(draft.market.hashpriceUsdPerThDay)");
   });
 });
