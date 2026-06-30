@@ -232,7 +232,7 @@ jobs:
           set -e
           BASE_REF="${TARGET_BASE_REF:-main}"
           git fetch origin "$BASE_REF" --quiet
-          if git diff --quiet "origin/${BASE_REF}"; then
+          if git diff --cached --quiet "origin/${BASE_REF}"; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "→ No diff vs origin/${BASE_REF} — health check completed, no changes needed. Skipping PR."
           else
