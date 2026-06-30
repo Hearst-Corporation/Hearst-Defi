@@ -77,6 +77,12 @@ const PRIMARY_ALLOWLIST: ReadonlySet<string> = new Set([
   // Construction report print page — standalone print/PDF layout (light theme,
   // window.print), deliberately outside the admin canon shell.
   "src/app/admin/product-workspace/report/print/page.tsx",
+  // Chart gallery — internal dev tool (demo data only) to classify chart
+  // candidates. A plain scrollable gallery where each chart carries its own
+  // Card; the canon no-scroll shell + AdminPageHeader would fight the
+  // boxes-in-boxes layout. Deliberately outside the admin canon shell, like the
+  // print page above.
+  "src/app/admin/chart-gallery/page.tsx",
   // Agentic console — covered by the separate PR #81 redesign; exempt for now
   // so this guard doesn't conflict with that in-flight work. Re-fold it into
   // the enforced set (or its own contract) once #81 lands.

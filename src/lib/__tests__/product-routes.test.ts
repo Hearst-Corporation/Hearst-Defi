@@ -22,6 +22,7 @@ const EXPECTED_ROUTES = [
   "/admin/agents/[id]",
   "/admin/agents/new",
   "/admin/audit",
+  "/admin/chart-gallery",
   "/admin/customers",
   "/admin/customers/[id]",
   "/admin/dashboard",
