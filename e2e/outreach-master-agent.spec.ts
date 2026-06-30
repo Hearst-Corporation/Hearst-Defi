@@ -32,36 +32,80 @@ async function openAssistantRail(page: Page) {
   await page.waitForLoadState("domcontentloaded");
   await page.waitForLoadState("networkidle");
 
+  // Diagnostic: log current page state
+  const currentUrl = page.url();
+  console.log(`[E2E openAssistantRail] URL: ${currentUrl}`);
+
   // Check if rail is already open by looking for chat-rail-body
   const railBody = page.locator('[data-testid="chat-rail-body"]').first();
   const isRailOpen = await railBody.isVisible().catch(() => false);
+  console.log(`[E2E openAssistantRail] Rail already open: ${isRailOpen}`);
 
   if (!isRailOpen) {
     // Find and click the chat trigger to open the rail
     const chatTrigger = page.locator('[data-testid="chat-trigger"]').first();
+    const triggerCount = await chatTrigger.count();
+    console.log(`[E2E openAssistantRail] Chat trigger count: ${triggerCount}`);
+
+    if (triggerCount === 0) {
+      // No trigger found - take diagnostic screenshot
+      await page.screenshot({ path: 'test-results/no-chat-trigger.png', fullPage: true });
+      const bodyHtml = await page.locator('body').innerHTML().catch(() => 'NO BODY');
+      console.log(`[E2E openAssistantRail] Body HTML (first 500 chars): ${bodyHtml.slice(0, 500)}`);
+      throw new Error('Chat trigger not found - see test-results/no-chat-trigger.png');
+    }
+
     await chatTrigger.waitFor({ state: "visible", timeout: 10000 });
     await chatTrigger.click();
+    console.log(`[E2E openAssistantRail] Clicked chat trigger`);
 
     // Wait for rail body to appear after click
     await railBody.waitFor({ state: "visible", timeout: 15000 });
+    console.log(`[E2E openAssistantRail] Rail body now visible`);
   }
 
   // Wait for chat input to be ready
   const chatInput = page.locator('[data-testid="chat-input"]').first();
+  const inputCount = await chatInput.count();
+  console.log(`[E2E openAssistantRail] Chat input count: ${inputCount}`);
+
+  if (inputCount === 0) {
+    await page.screenshot({ path: 'test-results/no-chat-input.png', fullPage: true });
+    const railHtml = await page.locator('[data-testid="chat-rail-body"]').innerHTML().catch(() => 'NO RAIL');
+    console.log(`[E2E openAssistantRail] Rail body HTML (first 500 chars): ${railHtml.slice(0, 500)}`);
+    throw new Error('Chat input not found - see test-results/no-chat-input.png');
+  }
+
   await chatInput.waitFor({ state: "visible", timeout: 15000 });
   await expect(chatInput).toBeEnabled({ timeout: 10000 });
+  console.log(`[E2E openAssistantRail] Chat input ready`);
 
   return chatInput;
 }
 
 test.describe("Outreach Master Agent E2E", () => {
   test.beforeEach(async ({ page }) => {
-    // Login as admin
+    // Login as admin with diagnostic
     await page.goto("/admin");
+    
+    // Wait for login form to be ready
+    await expect(page.locator('input[type="email"]')).toBeVisible({ timeout: 10000 });
     await page.fill('input[type="email"]', ADMIN_EMAIL);
     await page.fill('input[type="password"]', ADMIN_PASSWORD);
     await page.click('button[type="submit"]');
-    await page.waitForURL(/\/admin/);
+    
+    // Wait for navigation with extended timeout and diagnostic
+    try {
+      await page.waitForURL(/\/admin/, { timeout: 15000 });
+    } catch (e) {
+      // Capture diagnostic info on login failure
+      const currentUrl = page.url();
+      const bodyText = await page.locator('body').textContent().catch(() => 'NO BODY') ?? 'NO BODY';
+      console.log(`[E2E DIAGNOSTIC] Login failed - URL: ${currentUrl}`);
+      console.log(`[E2E DIAGNOSTIC] Body preview: ${bodyText.slice(0, 200)}`);
+      await page.screenshot({ path: 'test-results/login-failed.png', fullPage: true });
+      throw e;
+    }
 
     // Ensure desktop viewport after login
     await page.setViewportSize({ width: 1440, height: 900 });

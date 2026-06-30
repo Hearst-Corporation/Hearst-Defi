@@ -186,11 +186,13 @@ jobs:
         run: pnpm seed:test
         env:
           DATABASE_URL: "file:./prisma/dev.db"
+          PRISMA_PROVIDER: sqlite
 
       - name: Seed E2E test admin
         run: pnpm seed:test:admin
         env:
           DATABASE_URL: "file:./prisma/dev.db"
+          PRISMA_PROVIDER: sqlite
 
       - name: Run Playwright E2E tests
         run: pnpm test:e2e

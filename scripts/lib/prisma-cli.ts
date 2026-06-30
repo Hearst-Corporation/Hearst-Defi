@@ -35,7 +35,12 @@ function readSchemaProvider(): "sqlite" | "postgresql" | null {
 }
 
 export function makePrismaClient(): PrismaClient {
-  const provider = readSchemaProvider() ?? resolvePrismaProvider();
+  // PRISMA_PROVIDER explicite > schema provider > DATABASE_URL inference
+  const provider =
+    process.env.PRISMA_PROVIDER?.trim() === "sqlite" ||
+    process.env.PRISMA_PROVIDER?.trim() === "postgresql"
+      ? (process.env.PRISMA_PROVIDER.trim() as "sqlite" | "postgresql")
+      : (readSchemaProvider() ?? resolvePrismaProvider());
   const databaseUrl =
     process.env.DATABASE_URL?.trim() ?? "file:./prisma/dev.db";
 
