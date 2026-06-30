@@ -1,4 +1,6 @@
 
+import { Suspense } from "react";
+
 import { cn } from "@/lib/cn";
 import { ActionQueue } from "@/components/admin/cockpit/action-queue";
 import { AuditTrailRolling } from "@/components/admin/cockpit/audit-trail-rolling";
@@ -40,6 +42,7 @@ import { PlatformOverviewBand } from "./platform-overview-band";
 import { DashboardRiskSummaryCard } from "./risk-summary-card";
 import { DashboardRecentEvents } from "./dashboard-recent-events";
 import { SystemReadinessModule } from "./system-readiness";
+import { MarketPricesPanel, MarketPricesPanelFallback } from "./market-prices-panel";
 
 /**
  * Layout scope:
@@ -315,6 +318,15 @@ export function DashboardAssetsBoard({
           </section>
         ) : null}
       </BentoPanel>
+
+      {/* ── Market prices — BTC / ETH spot (Binance) ──
+          MarketPricesPanel is an async Server Component (awaits the live Binance
+          snapshot). A Suspense boundary lets a synchronous SSR pass render the
+          skeleton fallback instead of suspending unbounded (e.g. the dashboard
+          tests' renderToStaticMarkup); in prod the streamed render fills it in. */}
+      <Suspense fallback={<MarketPricesPanelFallback />}>
+        <MarketPricesPanel />
+      </Suspense>
 
       {/* ── Ops trio — three independent panels (Portfolio canon) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

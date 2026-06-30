@@ -12,7 +12,6 @@ import {
   TABLE_WRAP,
   ROW,
 } from "@/components/admin/admin-page-shell";
-import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { Button } from "@/components/catalyst/button";
 import {
   Table,
@@ -23,8 +22,6 @@ import {
   TableRow,
 } from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
-import { OutreachStatsCards } from "@/components/admin/outreach/stats-cards";
-import { OutreachAutonomyPanel } from "@/components/admin/outreach/autonomy-panel";
 import { ProspectAddForm } from "@/components/admin/outreach/prospect-add-form";
 import { ProspectImportForm } from "@/components/admin/outreach/prospect-import-form";
 import { CampaignForm } from "@/components/admin/outreach/campaign-form";
@@ -38,9 +35,8 @@ import {
   loadCampaigns,
   loadIcps,
 } from "@/lib/data/outreach";
-import { getOutreachAutonomyStatus } from "@/lib/outreach/autonomy-status";
+import { buildOutreachKpiStrip } from "@/lib/admin/outreach-kpi-strip";
 import { formatAdminDate } from "@/lib/vaults/product-display";
-import { PROSPECT_VARIANT, CAMPAIGN_VARIANT } from "@/lib/outreach/status-variants";
 
 export const dynamic = "force-dynamic";
 
@@ -55,8 +51,8 @@ export default async function OutreachPage() {
     loadCampaigns(),
     loadIcps(),
   ]);
-  // Read-only posture for the autonomy panel — no DB, no send, no secret leak.
-  const autonomy = getOutreachAutonomyStatus();
+
+  const kpiCells = buildOutreachKpiStrip(stats);
 
   return (
     <AdminPageShell
@@ -69,20 +65,17 @@ export default async function OutreachPage() {
         </Button>
       }
     >
-        {/* Autonomy posture + engagement stats — welded into one shell card.
-            Engagement stats live in the section header (right slot), the
-            autonomy / readiness panel forms the body. The "Compose email" CTA
-            stays on the page title line; nothing crowds it here. */}
-        <AdminSectionCard
-          ariaLabel="Outreach status"
-          title="Autonomy & engagement"
-          subtitle="Send posture, run readiness, and recent delivery signals."
-          headerTrailing={<OutreachStatsCards stats={stats} />}
-        >
-          <div className="p-5">
-            <OutreachAutonomyPanel status={autonomy} />
-          </div>
-        </AdminSectionCard>
+        {/* Engagement KPI strip — canon admin (e.g. /admin/customers): an
+            AdminSectionCard with an embedded KPI strip (black header + tiles),
+            no side panel, no readiness ledger. */}
+        {kpiCells.length > 0 ? (
+          <AdminSectionCard
+            ariaLabel="Outreach engagement"
+            kpis={kpiCells}
+            kpiTitle="Engagement"
+            kpiSubtitle={`${prospects.total} prospect${prospects.total === 1 ? "" : "s"} · ${stats.emails.sent} sent`}
+          />
+        ) : null}
 
         {/* Full-width vertical flow — matches the admin canon (e.g.
             /admin/customers): every primary block spans the same width as the
@@ -161,13 +154,8 @@ export default async function OutreachPage() {
                         <TableCell>
                           <TierBadge prospectId={p.id} tier={p.tier} />
                         </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={PROSPECT_VARIANT[p.status] ?? "default"}
-                            className="font-medium"
-                          >
-                            {p.status}
-                          </Badge>
+                        <TableCell className="ct-metric-caption capitalize">
+                          {p.status}
                         </TableCell>
                         <TableCell className="ct-metric-caption hidden pr-5 tabular-nums lg:table-cell">
                           {formatAdminDate(p.createdAt)}
@@ -230,14 +218,9 @@ export default async function OutreachPage() {
                             {c.name}
                           </Link>
                         </TableCell>
-                        <TableCell className="ct-metric-caption">{c.kind}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={CAMPAIGN_VARIANT[c.status] ?? "default"}
-                            className="font-medium"
-                          >
-                            {c.status}
-                          </Badge>
+                        <TableCell className="ct-metric-caption capitalize">{c.kind}</TableCell>
+                        <TableCell className="ct-metric-caption capitalize">
+                          {c.status}
                         </TableCell>
                         <TableCell className="ct-metric-caption hidden text-right tabular-nums md:table-cell">
                           {c.total}
