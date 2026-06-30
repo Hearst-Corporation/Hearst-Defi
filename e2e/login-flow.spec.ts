@@ -67,7 +67,7 @@ test.describe("Login flow (real DB auth)", () => {
     await submitLogin(page, TEST_EMAIL, TEST_PASSWORD);
     await page.waitForURL("**/portfolio", { timeout: 15_000 });
     await expect(
-      page.getByRole("heading", { name: /^portfolio$/i }),
+      page.getByRole("heading", { name: /^Portfolio Cockpit$/i }),
     ).toBeVisible();
 
     // 2. Session cookie is set, httpOnly, and named hc_session.
