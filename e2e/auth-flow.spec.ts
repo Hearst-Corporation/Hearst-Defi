@@ -38,7 +38,7 @@ test.describe("Auth flow", () => {
 
     // 5. Verify auth success indicator (portfolio greeting is visible)
     await expect(
-      page.getByRole("heading", { name: /^portfolio$/i }),
+      page.getByRole("heading", { name: /^Portfolio Cockpit$/i }),
     ).toBeVisible();
 
     // 6. Sign out through the real profile form.

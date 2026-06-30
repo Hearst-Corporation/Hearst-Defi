@@ -23,6 +23,9 @@ import { test, expect } from "@playwright/test";
 
 const TEST_EMAIL = "test@hearst.local";
 const TEST_PASSWORD = "TestPassword123!";
+// The profile page shows the derived display name (capitalised email local-part
+// via profileDisplayName), not the raw email — so "test@hearst.local" → "Test".
+const TEST_DISPLAY_NAME = "Test";
 
 // Selector for the login form's inline error <p id="login-error">.
 // Avoids ambiguity with the empty <div role="alert" id="__next-route-announcer__">
@@ -67,7 +70,7 @@ test.describe("Login flow (real DB auth)", () => {
     await submitLogin(page, TEST_EMAIL, TEST_PASSWORD);
     await page.waitForURL("**/portfolio", { timeout: 15_000 });
     await expect(
-      page.getByRole("heading", { name: /^portfolio$/i }),
+      page.getByRole("heading", { name: /^Portfolio Cockpit$/i }),
     ).toBeVisible();
 
     // 2. Session cookie is set, httpOnly, and named hc_session.
@@ -86,9 +89,12 @@ test.describe("Login flow (real DB auth)", () => {
       .isVisible();
     expect(vaultsBody).toBe(true);
 
-    // 4. Navigate to /profile — must show the signed-in user's email.
+    // 4. Navigate to /profile — must show the signed-in user. The profile header
+    // renders the derived display name ("Welcome back" + profileDisplayName),
+    // not the raw email, so assert that instead.
     await page.goto("/profile");
-    await expect(page.getByText(TEST_EMAIL).first()).toBeVisible();
+    await expect(page.getByText(/Welcome back/i).first()).toBeVisible();
+    await expect(page.getByText(TEST_DISPLAY_NAME).first()).toBeVisible();
 
     // 5. Public legal pages remain reachable while signed in (200 OK).
     for (const path of [

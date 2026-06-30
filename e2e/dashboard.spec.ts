@@ -14,7 +14,7 @@ test.describe("Dashboard", () => {
     await page.getByRole("button", { name: /sign in/i }).click();
     await page.waitForURL("**/portfolio", { timeout: 10_000 });
     await expect(
-      page.getByRole("heading", { name: /^portfolio$/i }),
+      page.getByRole("heading", { name: /^Portfolio Cockpit$/i }),
     ).toBeVisible();
   });
 });
