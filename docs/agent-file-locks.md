@@ -62,6 +62,28 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
+### feat/product-workspace-report-product-polish
+Owner: GPT-5.4 — Product Workspace report product polish
+Branch: feat/product-workspace-report-product-polish
+Worktree: ../connect-product-workspace-report-polish
+Started: 2026-06-30 10:14
+Status: active
+
+Goal: polish the final Product Workspace report using existing chart-gallery / HIS
+primitives, fix the APY fan axis + tooltip formatting, surface honest live-input
+mapping (especially hashprice), simplify allocation for chat-open layouts, and clean
+the footer CTAs. No engine change, no Prisma, no nav, no send/deploy.
+
+Scope:
+- src/components/admin/product-workspace/construction-stepper.tsx
+- src/components/admin/product-workspace/data-scientist-output.tsx
+- src/components/admin/product-workspace/projection-area-chart.tsx
+- src/components/admin/product-workspace/report-format.ts
+- src/components/admin/product-workspace/__tests__/**
+
+STOP: never touches src/lib/engine/**, stable funding / exit recovery logic, Prisma,
+router/nav/chat guards, package.json scripts, cockpit.css, or DS tokens.
+
 ### feat/projection-safe-input-preset
 Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
 Branch: feat/projection-safe-input-preset
