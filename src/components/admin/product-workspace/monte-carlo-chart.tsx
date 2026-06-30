@@ -13,7 +13,15 @@ import {
   type ChartOptions,
 } from "chart.js";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
+import { cn } from "@/lib/cn";
 
 ChartJS.register(
   CategoryScale,
@@ -81,27 +89,30 @@ function mulberry32(seed: number): () => number {
 }
 
 function runMonteCarloSimulation(
-  initialCapital: number,
-  steps: number,
-  expectedReturn: number,
-  volatility: number,
+  initialValue: number,
+  horizonMonths: number,
+  expectedAnnualReturn: number,
+  annualVolatility: number,
   simulationsCount: number,
   seed: number,
 ) {
   const rng = mulberry32(seed);
+  const steps = Math.max(1, Math.round(horizonMonths));
+  const dt = 1 / 12;
   const allTrajectories: number[][] = [];
 
   for (let i = 0; i < simulationsCount; i++) {
-    const trajectory: number[] = [initialCapital];
-    let currentCapital = initialCapital;
+    const trajectory: number[] = [initialValue];
+    let currentValue = initialValue;
     for (let t = 1; t <= steps; t++) {
       const u1 = rng();
       const u2 = rng();
       const randNormal = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-      const drift = expectedReturn - 0.5 * Math.pow(volatility, 2);
-      const shock = volatility * randNormal;
-      currentCapital = currentCapital * Math.exp(drift + shock);
-      trajectory.push(Math.round(currentCapital));
+      const drift =
+        (expectedAnnualReturn - 0.5 * Math.pow(annualVolatility, 2)) * dt;
+      const shock = annualVolatility * Math.sqrt(dt) * randNormal;
+      currentValue = currentValue * Math.exp(drift + shock);
+      trajectory.push(Math.round(currentValue));
     }
     allTrajectories.push(trajectory);
   }
@@ -129,20 +140,44 @@ function formatFullUsd(value: number): string {
   return `$${Math.round(value).toLocaleString("en-US")}`;
 }
 
+function formatPct(value: number): string {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
 export function MonteCarloChart({
-  seed,
-  paths,
-  steps,
-  expectedReturn,
-  volatility,
+  initialValue = 10_000,
+  horizonMonths = 120,
+  expectedAnnualReturn = 0.07,
+  annualVolatility = 0.15,
+  seed = 1878790276,
+  renderedPaths = 220,
+  reportedPaths,
+  title = "Monte-Carlo projection",
+  description,
+  caption = "Seeded simulation · illustrative dispersion, not guaranteed.",
+  bare = false,
+  showHeader = true,
+  className,
 }: {
-  seed: number;
-  paths: number;
-  steps: number;
-  expectedReturn: number;
-  volatility: number;
+  initialValue?: number;
+  horizonMonths?: number;
+  expectedAnnualReturn?: number;
+  annualVolatility?: number;
+  seed?: number;
+  renderedPaths?: number;
+  reportedPaths?: number;
+  title?: string;
+  description?: string;
+  caption?: string;
+  bare?: boolean;
+  showHeader?: boolean;
+  className?: string;
 }) {
-  const INITIAL_CAPITAL = 10000;
+  const drawnPaths = Math.max(24, Math.min(renderedPaths, reportedPaths ?? renderedPaths));
+  const months = Math.max(1, Math.round(horizonMonths));
+  const summary =
+    description ??
+    `${months} months · ${drawnPaths} rendered${reportedPaths && reportedPaths !== drawnPaths ? ` from ${reportedPaths.toLocaleString("en-US")} seeded paths` : ` seeded paths`}`;
 
   // Resolve the DS palette once on mount from the live --ct-* tokens. The
   // initializer runs under SSR too (window undefined → fallbacks), so we re-read
@@ -157,19 +192,22 @@ export function MonteCarloChart({
   const { allTrajectories, median } = React.useMemo(
     () =>
       runMonteCarloSimulation(
-        INITIAL_CAPITAL,
-        steps,
-        expectedReturn,
-        volatility,
-        Math.min(paths, 500), // Cap spaghetti lines to 500 to avoid freezing the browser
+        initialValue,
+        months,
+        expectedAnnualReturn,
+        annualVolatility,
+        drawnPaths,
         seed,
       ),
-    [steps, expectedReturn, volatility, paths, seed],
+    [initialValue, months, expectedAnnualReturn, annualVolatility, drawnPaths, seed],
   );
 
   const labels = React.useMemo(
-    () => Array.from({ length: steps + 1 }, (_, i) => (i === 0 ? "Start" : `M${i}`)),
-    [steps],
+    () =>
+      Array.from({ length: months + 1 }, (_, i) =>
+        i === 0 ? "Start" : `M${i}`,
+      ),
+    [months],
   );
 
   const data = React.useMemo(() => {
@@ -258,24 +296,78 @@ export function MonteCarloChart({
     [data.datasets.length, ds.surfaceCard, ds.border, ds.textStrong, ds.muted, ds.gridSoft],
   );
 
-  const finalMid = median[steps] ?? 0;
-
-  return (
-    <div className="flex flex-col gap-(--ct-space-4)">
-      <div className="flex flex-wrap items-start justify-between gap-(--ct-space-3)">
-        <div className="flex items-center gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-(--ct-space-2_5) py-(--ct-space-1_5) ml-auto">
-          <span
-            className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
-          />
-          <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
-          <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
-            {formatCompactUsd(finalMid)}
-          </span>
+  const finalMid = median[months] ?? 0;
+  const chartBody = (
+    <>
+      {showHeader ? (
+        <div className="flex flex-wrap items-start justify-between gap-(--ct-space-3)">
+          <div className="flex flex-col gap-(--ct-space-1)">
+            <div className={cn(bare ? "ct-section-label ct-text-strong" : "")}>
+              {bare ? title : null}
+            </div>
+            {bare ? (
+              <p className="ct-metric-caption ct-text-muted">{summary}</p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-inset px-(--ct-space-2_5) py-(--ct-space-1_5)">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+            />
+            <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
+            <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
+              {formatCompactUsd(finalMid)}
+            </span>
+          </div>
         </div>
-      </div>
-      <div className="h-[min(300px,42vh)] min-h-[220px] w-full min-w-0">
+      ) : null}
+      <div className={cn("w-full", bare ? "h-[320px]" : "h-[360px]")}>
         <Line options={options} data={data} />
       </div>
-    </div>
+      <div className="flex flex-wrap items-center gap-x-(--ct-space-4) gap-y-(--ct-space-2)">
+        <span className="ct-metric-caption ct-text-faint">{caption}</span>
+        <span className="ct-metric-caption ct-text-muted">
+          μ {formatPct(expectedAnnualReturn)} · σ {formatPct(annualVolatility)} · seed {seed}
+        </span>
+      </div>
+    </>
+  );
+
+  if (bare) {
+    return <div className={cn("flex flex-col gap-(--ct-space-4)", className)}>{chartBody}</div>;
+  }
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <div className="flex flex-wrap items-start justify-between gap-(--ct-space-3)">
+          <div className="flex flex-col gap-(--ct-space-1)">
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{summary}</CardDescription>
+          </div>
+          <div className="flex items-center gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-inset px-(--ct-space-2_5) py-(--ct-space-1_5)">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+            />
+            <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
+            <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
+              {formatCompactUsd(finalMid)}
+            </span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-(--ct-space-4)">
+          <div className="h-[360px] w-full">
+            <Line options={options} data={data} />
+          </div>
+          <div className="flex flex-wrap items-center gap-x-(--ct-space-4) gap-y-(--ct-space-2)">
+            <p className="ct-metric-caption ct-text-faint">{caption}</p>
+            <span className="ct-metric-caption ct-text-muted">
+              μ {formatPct(expectedAnnualReturn)} · σ {formatPct(annualVolatility)} · seed {seed}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

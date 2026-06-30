@@ -6,7 +6,11 @@ import { cache } from "react";
 import type { Investor } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
-import { isDevAuthBypass, DEV_USER_EMAIL } from "@/lib/dev-bypass";
+import {
+  isDevAuthBypass,
+  DEV_USER_EMAIL,
+  DEV_USER_ROLE,
+} from "@/lib/dev-bypass";
 
 /**
  * Database-backed session layer for email/password authentication.
@@ -58,7 +62,7 @@ function normaliseRole(role: string): UserRole {
 }
 
 /**
- * Resolves (and lazily provisions) the seeded dev investor. The dev account's
+ * Resolves (and lazily provisions) the seeded dev bypass user. The dev account's
  * password hash is intentionally unusable, so it can never be logged into via
  * the normal email/password flow — only through the dev bypass or dev sign-in.
  *
@@ -68,25 +72,42 @@ export async function ensureDevUser() {
   if (process.env.NODE_ENV === "production") {
     throw new Error("Dev user is unavailable in production");
   }
-  return (
-    (await prisma.user.findUnique({
-      where: { email: DEV_USER_EMAIL },
-      include: { investor: true },
-    })) ??
-    (await prisma.user.create({
+  const existing = await prisma.user.findUnique({
+    where: { email: DEV_USER_EMAIL },
+    include: { investor: true },
+  });
+
+  if (!existing) {
+    return prisma.user.create({
       data: {
         email: DEV_USER_EMAIL,
         passwordHash: "!dev-bypass-no-password-login!",
-        role: "investor",
+        role: DEV_USER_ROLE,
         investor: { create: {} },
       },
       include: { investor: true },
-    }))
-  );
+    });
+  }
+
+  const needsRoleUpdate = existing.role !== DEV_USER_ROLE;
+  const needsInvestorProfile = !existing.investor;
+
+  if (!needsRoleUpdate && !needsInvestorProfile) {
+    return existing;
+  }
+
+  return prisma.user.update({
+    where: { id: existing.id },
+    data: {
+      ...(needsRoleUpdate ? { role: DEV_USER_ROLE } : {}),
+      ...(needsInvestorProfile ? { investor: { create: {} } } : {}),
+    },
+    include: { investor: true },
+  });
 }
 
 /**
- * Dev-only bypass session: returns the dev investor as a `SessionUser` without
+ * Dev-only bypass session: returns the dev bypass user as a `SessionUser` without
  * any cookie. Only ever called when `isDevAuthBypass()` is true.
  */
 async function getDevBypassSession(): Promise<SessionUser> {

@@ -2,7 +2,7 @@
  * Dev-only authentication bypass.
  *
  * When enabled, the edge gate (`proxy.ts`) lets every protected route through
- * and `getSession()` returns a seeded dev investor without requiring a login.
+ * and `getSession()` returns a seeded dev user without requiring a login.
  *
  * DOUBLE-GATED — both conditions are required, so this can NEVER activate in a
  * production build:
@@ -19,5 +19,9 @@ export function isDevAuthBypass(): boolean {
   );
 }
 
-/** Email of the auto-provisioned dev investor used by the bypass. */
+/** Email of the auto-provisioned dev user used by the bypass. */
 export const DEV_USER_EMAIL = process.env.DEV_USER_EMAIL ?? "dev@hearst.local";
+
+/** Role of the auto-provisioned dev user. Defaults to admin for admin QA. */
+export const DEV_USER_ROLE =
+  process.env.DEV_USER_ROLE === "investor" ? "investor" : "admin";

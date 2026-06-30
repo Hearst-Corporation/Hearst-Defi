@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { manufacturerOf } from "@/lib/telegram/manufacturer-catalog";
 import {
   CockpitButton as Button,
   cockpitButtonVariants,
 } from "@/components/catalyst/cockpit-button";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
-import { BentoPanel, BentoHeader } from "@/components/catalyst/bento";
+import { BentoHeader, BentoKpiStrip, BentoPanel } from "@/components/catalyst/bento";
 import {
   CONSTRUCTION_STEPS,
   type ConstructionStepId,
@@ -23,6 +24,7 @@ import {
   encodeVaultFormPrefill,
 } from "@/lib/agentic/swarm/live/to-vault-form";
 import { DataScientistOutput } from "./data-scientist-output";
+import { ProductEngineReport } from "./product-engine-report";
 
 /**
  * Product construction — full-page vertical stepper.
@@ -59,44 +61,73 @@ const MIN_STEP_MS = 5_000;
  * for now (real brand assets wired later, like step 1's bitcoin/coingecko/etc.).
  * `mainLogo` is the big hero placeholder; `sourceCount` is the cross-checked row.
  */
+type LoadingVisual =
+  | { kind: "brand"; id: BrandId }
+  | { kind: "placeholder"; label: string };
+
 const STEP_LOADING: Record<
   ConstructionStepId,
-  { narration: string; mainLabel: string; sourcesLabel: string; sourceCount: number }
+  {
+    narration: string;
+    mainVisual: LoadingVisual;
+    sourcesLabel: string;
+    sources: readonly LoadingVisual[];
+  }
 > = {
   bitcoin: {
     narration:
       "Notre Bitcoin Price Specialist recherche le prix BTC le plus juste et compare plusieurs sources…",
-    mainLabel: "Bitcoin",
+    mainVisual: { kind: "brand", id: "bitcoin" },
     sourcesLabel: "Sources croisées",
-    sourceCount: 3,
+    sources: [
+      { kind: "brand", id: "coingecko" },
+      { kind: "brand", id: "binance" },
+      { kind: "brand", id: "kraken" },
+    ],
   },
   hashprice: {
     narration:
       "Notre Hashprice Specialist dérive le hashprice ($/TH/jour) et la difficulté réseau en temps réel…",
-    mainLabel: "Hashprice",
+    mainVisual: { kind: "placeholder", label: "Hashprice" },
     sourcesLabel: "Sources réseau",
-    sourceCount: 3,
+    sources: [
+      { kind: "placeholder", label: "Luxor" },
+      { kind: "placeholder", label: "Hashrate Index" },
+      { kind: "placeholder", label: "mempool.space" },
+    ],
   },
   mining_infra: {
     narration:
       "Notre Mining Infrastructure Specialist chiffre les machines (coût landed : ex-works + fret + douane) et les marges…",
-    mainLabel: "Machines",
+    mainVisual: { kind: "brand", id: "bitmain" },
     sourcesLabel: "Fournisseurs",
-    sourceCount: 3,
+    sources: [
+      { kind: "brand", id: "bitmain" },
+      { kind: "brand", id: "microbt" },
+      { kind: "brand", id: "canaan" },
+    ],
   },
   defi: {
     narration:
       "Notre DeFi Specialist source les meilleurs rendements stables / BTC et la bande de scénario BTC…",
-    mainLabel: "DeFi",
+    mainVisual: { kind: "brand", id: "morpho" },
     sourcesLabel: "Protocoles",
-    sourceCount: 3,
+    sources: [
+      { kind: "brand", id: "morpho" },
+      { kind: "brand", id: "aave" },
+      { kind: "brand", id: "compound" },
+    ],
   },
   data_scientist: {
     narration:
       "Notre Data Scientist rédige la thèse, trace la projection et dimensionne l'allocation (+2 versions)…",
-    mainLabel: "Modèle",
+    mainVisual: { kind: "placeholder", label: "Modèle" },
     sourcesLabel: "Moteurs",
-    sourceCount: 3,
+    sources: [
+      { kind: "placeholder", label: "Quant" },
+      { kind: "placeholder", label: "Charts" },
+      { kind: "placeholder", label: "Write-up" },
+    ],
   },
 };
 
@@ -107,13 +138,19 @@ const STEP_LOADING: Record<
  * we pick their logos.
  */
 function StepLogoPlaceholder({ label, size = 28 }: { label: string; size?: number }) {
+  const initials = label
+    .split(/[\s./-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
   return (
     <span
       title={label}
       className="inline-flex shrink-0 items-center justify-center rounded-(--ct-radius-full) border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] ct-text-muted"
       style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
     >
-      {label.charAt(0).toUpperCase()}
+      {initials || label.charAt(0).toUpperCase()}
     </span>
   );
 }
@@ -247,14 +284,38 @@ function Typewriter({ text, speedMs = 28 }: { text: string; speedMs?: number }) 
  * Brand logos — real downloaded official assets in /public/sources, rendered at
  * original colours (never tinted) inside a neutral round chip.
  */
-type BrandId = "bitcoin" | "coingecko" | "binance" | "kraken";
+type BrandId =
+  | "bitcoin"
+  | "coingecko"
+  | "binance"
+  | "kraken"
+  | "usdc"
+  | "aave"
+  | "compound"
+  | "morpho"
+  | "ethena"
+  | "bitmain"
+  | "microbt"
+  | "canaan"
+  | "bitdeer"
+  | "bitaxe";
 
-const BRAND_LOGOS: Record<BrandId, { label: string; src: string }> = {
+const BRAND_LOGOS: Record<BrandId, { label: string; src: string; lightChip?: boolean }> = {
   // Official square icon marks (vector SVG) so all four match in the round chips.
   bitcoin: { label: "Bitcoin", src: "/sources/bitcoin.svg" },
   coingecko: { label: "CoinGecko", src: "/sources/coingecko.svg" },
   binance: { label: "Binance", src: "/sources/binance.svg" },
   kraken: { label: "Kraken", src: "/sources/kraken.svg" },
+  usdc: { label: "USDC", src: "/sources/usdc.svg" },
+  aave: { label: "Aave", src: "/sources/aave.svg" },
+  compound: { label: "Compound", src: "/sources/compound.svg" },
+  morpho: { label: "Morpho", src: "/sources/morpho.svg" },
+  ethena: { label: "Ethena", src: "/sources/ethena.svg" },
+  bitmain: { label: "Bitmain", src: "/manufacturers/bitmain.png", lightChip: true },
+  microbt: { label: "MicroBT", src: "/manufacturers/microbt.png", lightChip: true },
+  canaan: { label: "Canaan", src: "/manufacturers/canaan.png", lightChip: true },
+  bitdeer: { label: "Bitdeer", src: "/manufacturers/bitdeer.png", lightChip: true },
+  bitaxe: { label: "Bitaxe", src: "/manufacturers/bitaxe.png", lightChip: true },
 };
 
 /** Brand logo on a neutral round chip — original colours, never tinted. */
@@ -263,7 +324,10 @@ function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
   return (
     <span
       title={brand.label}
-      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--ct-border)] bg-[var(--ct-surface-inset)]"
+      className={cn(
+        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--ct-border)]",
+        brand.lightChip ? "bg-white" : "bg-[var(--ct-surface-inset)]",
+      )}
       style={{ width: size, height: size }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -280,22 +344,60 @@ function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
   );
 }
 
-/** One cell of the Bitcoin KPI strip. Declared at module scope (never inside the
- *  render) so it keeps a stable identity — react-hooks/static-components. */
-function BitcoinStripCell({
-  label,
+function LogoMetricValue({
+  logoId,
   children,
 }: {
-  label: string;
+  logoId?: BrandId | null;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-(--ct-space-2) p-5 md:px-6">
-      <span className="ct-bento-label">{label}</span>
-      <div className="flex items-center justify-center gap-(--ct-space-2)">
-        {children}
-      </div>
-    </div>
+    <span className="inline-flex items-center gap-(--ct-space-2)">
+      {logoId ? <BrandLogo id={logoId} size={20} /> : null}
+      <span>{children}</span>
+    </span>
+  );
+}
+
+function metricValue(metrics: StepMetric[], label: string): string {
+  return (
+    metrics.find((m) => m.label.toLowerCase() === label.toLowerCase())?.value ?? ""
+  );
+}
+
+function brandForDefiSource(source: string): BrandId | null {
+  const normalized = source.toLowerCase();
+  if (normalized.includes("morpho")) return "morpho";
+  if (normalized.includes("aave")) return "aave";
+  if (normalized.includes("compound") || normalized.includes("comp")) return "compound";
+  if (normalized.includes("ethena")) return "ethena";
+  return null;
+}
+
+function brandForManufacturer(model: string): BrandId | null {
+  if (!model || model === "—") return null;
+  const manufacturer = manufacturerOf(model);
+  switch (manufacturer) {
+    case "bitmain":
+      return "bitmain";
+    case "microbt":
+      return "microbt";
+    case "canaan":
+      return "canaan";
+    case "bitdeer":
+      return "bitdeer";
+    case "bitaxe":
+      return "bitaxe";
+    default:
+      return null;
+  }
+}
+
+function renderLoadingVisual(visual: LoadingVisual, size?: number) {
+  return visual.kind === "brand" ? (
+    <BrandLogo id={visual.id} size={size} />
+  ) : (
+    <StepLogoPlaceholder label={visual.label} size={size} />
   );
 }
 
@@ -306,40 +408,47 @@ function BitcoinStripCell({
  *  - Source : the three cross-checked source logos (not text).
  */
 function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
-  const find = (label: string) =>
-    metrics.find((m) => m.label.toLowerCase() === label.toLowerCase())?.value ??
-    "";
-  const spot = find("Spot");
-  const change = find("24h");
+  const spot = metricValue(metrics, "Spot");
+  const change = metricValue(metrics, "24h");
   // Parse the signed % to pick the arrow + tone. "+1.2%" → up, "-0.8%" → down.
   const pctNum = parseFloat(change.replace(/[^0-9.+-]/g, ""));
   const up = Number.isFinite(pctNum) ? pctNum >= 0 : true;
-  const Cell = BitcoinStripCell;
 
   return (
-    <div className="grid grid-cols-1 border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] md:grid-cols-3 [&>div:not(:last-child)]:border-b [&>div:not(:last-child)]:border-[var(--ct-border-soft)] md:[&>div:not(:last-child)]:border-b-0 md:[&>div:not(:last-child)]:border-r">
-      <Cell label="Spot">
-        <BrandLogo id="bitcoin" size={24} />
-        <span className="text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums ct-text-strong">
-          {spot}
-        </span>
-      </Cell>
-      <Cell label="24h">
-        <span
-          className={cn(
-            "text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight tabular-nums",
-            up ? "ct-text-accent" : "text-[var(--ct-status-danger)]",
-          )}
-        >
-          {up ? "↑" : "↓"} {change.replace(/^[+-]/, "")}
-        </span>
-      </Cell>
-      <Cell label="Sources">
-        <BrandLogo id="coingecko" size={24} />
-        <BrandLogo id="binance" size={24} />
-        <BrandLogo id="kraken" size={24} />
-      </Cell>
-    </div>
+    <BentoKpiStrip
+      ariaLabel="Bitcoin price specialist output"
+      items={[
+        {
+          label: "Spot",
+          value: <LogoMetricValue logoId="bitcoin">{spot}</LogoMetricValue>,
+        },
+        {
+          label: "24h",
+          value: (
+            <span
+              className={cn(
+                "inline-flex items-center gap-(--ct-space-1_5)",
+                up ? "ct-text-accent" : "text-[var(--ct-status-danger)]",
+              )}
+            >
+              <span>{up ? "↑" : "↓"}</span>
+              <span>{change.replace(/^[+-]/, "")}</span>
+            </span>
+          ),
+          accent: up,
+        },
+        {
+          label: "Sources",
+          value: (
+            <span className="inline-flex items-center gap-(--ct-space-2)">
+              <BrandLogo id="coingecko" size={20} />
+              <BrandLogo id="binance" size={20} />
+              <BrandLogo id="kraken" size={20} />
+            </span>
+          ),
+        },
+      ]}
+    />
   );
 }
 
@@ -350,31 +459,42 @@ function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
  * the Bitcoin strip, so every step reads identically — no boxes-in-boxes. The
  * Headline APY (data-scientist step) is the only accent-tinted value.
  */
-function StepResultStrip({ metrics }: { metrics: StepMetric[] }) {
+function StepResultStrip({
+  stepId,
+  metrics,
+}: {
+  stepId: ConstructionStepId;
+  metrics: StepMetric[];
+}) {
+  const items = metrics.map((metric) => {
+    const labelLower = metric.label.toLowerCase();
+    let value: React.ReactNode = metric.value;
+    let accent = false;
+
+    if (stepId === "mining_infra" && labelLower === "top by margin") {
+      value = (
+        <LogoMetricValue logoId={brandForManufacturer(metric.value)}>
+          {metric.value}
+        </LogoMetricValue>
+      );
+    } else if (stepId === "defi" && labelLower === "usdc yield") {
+      value = <LogoMetricValue logoId="usdc">{metric.value}</LogoMetricValue>;
+      accent = true;
+    } else if (stepId === "defi" && labelLower === "source") {
+      value = (
+        <LogoMetricValue logoId={brandForDefiSource(metric.value)}>
+          {metric.value}
+        </LogoMetricValue>
+      );
+    } else if (stepId === "data_scientist" && labelLower === "headline apy") {
+      accent = true;
+    }
+
+    return { label: metric.label, value, accent };
+  });
+
   return (
-    <div className="dashboard-kpi-strip border-b border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]">
-      {metrics.map((m, i, arr) => {
-        const accent = m.label.toLowerCase() === "headline apy";
-        return (
-          <div key={m.label} className="flex w-full min-w-0 items-center">
-            <div className="flex flex-1 flex-col gap-(--ct-space-2) px-(--ct-space-5) py-(--ct-space-4)">
-              <span className="ct-bento-label">{m.label}</span>
-              <span
-                className={cn(
-                  "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums",
-                  accent ? "ct-text-accent" : "ct-text-strong",
-                )}
-              >
-                {m.value}
-              </span>
-            </div>
-            {i < arr.length - 1 ? (
-              <div className="h-(--ct-space-8) w-px shrink-0 self-center bg-[var(--ct-border)]" aria-hidden="true" />
-            ) : null}
-          </div>
-        );
-      })}
-    </div>
+    <BentoKpiStrip ariaLabel={`${stepId} specialist output`} items={items} />
   );
 }
 
@@ -601,7 +721,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                           step.id === "bitcoin" ? (
                             <BitcoinResultStrip metrics={result.metrics} />
                           ) : (
-                            <StepResultStrip metrics={result.metrics} />
+                            <StepResultStrip stepId={step.id} metrics={result.metrics} />
                           )
                         ) : null}
                         {result.note ? (
@@ -622,11 +742,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                       // content column (ignores the left stepper margin).
                       <div className="flex flex-col items-center gap-(--ct-space-5) p-(--ct-space-6) ml-[calc((var(--ct-space-32)+var(--ct-space-8))/-2)]">
                         {/* Hero logo */}
-                        {step.id === "bitcoin" ? (
-                          <BrandLogo id="bitcoin" size={72} />
-                        ) : (
-                          <StepLogoPlaceholder label={STEP_LOADING[step.id].mainLabel} size={72} />
-                        )}
+                        {renderLoadingVisual(STEP_LOADING[step.id].mainVisual, 72)}
                         {/* Narration — types out while the specialist searches. */}
                         <p className="max-w-prose text-center body-sm ct-text-secondary leading-relaxed">
                           <Typewriter text={STEP_LOADING[step.id].narration} />
@@ -635,22 +751,11 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                         <div className="flex flex-col items-center gap-(--ct-space-2)">
                           <span className="ct-bento-label">{STEP_LOADING[step.id].sourcesLabel}</span>
                           <div className="flex items-center gap-(--ct-space-3)">
-                            {step.id === "bitcoin" ? (
-                              <>
-                                <BrandLogo id="coingecko" />
-                                <BrandLogo id="binance" />
-                                <BrandLogo id="kraken" />
-                              </>
-                            ) : (
-                              Array.from({ length: STEP_LOADING[step.id].sourceCount }).map(
-                                (_, idx) => (
-                                  <StepLogoPlaceholder
-                                    key={idx}
-                                    label={`${STEP_LOADING[step.id].sourcesLabel.charAt(0)}${idx + 1}`}
-                                  />
-                                ),
-                              )
-                            )}
+                            {STEP_LOADING[step.id].sources.map((source) => (
+                              <span key={source.kind === "brand" ? source.id : source.label}>
+                                {renderLoadingVisual(source)}
+                              </span>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -674,8 +779,12 @@ export function ConstructionStepper({ objective }: { objective: string | null })
             title="Report Product"
             subtitle={draft.vault.label}
           />
-          <div className="min-w-0 p-(--ct-space-5)">
+          <div className="p-(--ct-space-5)">
             <DataScientistOutput draft={draft} />
+            {/* PROMPT 17 — wired product financial engines (funding / exit-recovery
+                / waterfalls / operator) + calculated-vs-documented disclosure.
+                Renders nothing for a non-mining draft. */}
+            <ProductEngineReport draft={draft} />
           </div>
         </BentoPanel>
       ) : null}
@@ -687,19 +796,13 @@ export function ConstructionStepper({ objective }: { objective: string | null })
             href={`/admin/vaults/new?prefill=${encodeURIComponent(encodeVaultFormPrefill(constructionDraftToVaultForm(draft)))}`}
             className={cn(cockpitButtonVariants({ variant: "primary", size: "sm" }), "self-start")}
           >
-            Open in vault wizard
+            Open in vault wizard (pre-filled)
           </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              window.open("/admin/product-workspace/report/print", "_blank", "noopener")
-            }
-          >
-            Print view
+          <Button variant="secondary" size="sm" onClick={() => window.open("/admin/product-workspace/report/print", "_blank", "noopener")}>
+            Open print view (PDF)
           </Button>
           <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            No record created · Manual admin validation required
+            Hand-off carries ticker / APY range / allocations · no record created.
           </span>
         </div>
       ) : null}

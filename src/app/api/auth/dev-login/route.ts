@@ -12,6 +12,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import { isDevAuthBypass } from "@/lib/dev-bypass";
 import { ensureDevUser, createSession, setSessionCookie } from "@/lib/auth/session";
 
+function resolveRedirectPath(req: NextRequest, role: string): string {
+  const requested = req.nextUrl.searchParams.get("next")?.trim();
+  if (requested && requested.startsWith("/") && !requested.startsWith("//")) {
+    return requested;
+  }
+  return role === "admin" ? "/admin/dashboard" : "/portfolio";
+}
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!isDevAuthBypass()) {
     return NextResponse.json({ error: "Not available" }, { status: 404 });
@@ -21,8 +29,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const { token, expiresAt } = await createSession(user.id);
   await setSessionCookie(token, expiresAt);
 
-  // Land on the platform directly — onboarding is no longer a post-login gate
-  // (it lives inside the platform and only gates investing). Use the request
-  // origin so this works on any port/tunnel without hardcoding.
-  return NextResponse.redirect(new URL("/portfolio", req.nextUrl.origin));
+  // Respect an internal `?next=/...` handoff when provided; otherwise land on a
+  // sensible default for the bypassed role. Keep it same-origin only.
+  return NextResponse.redirect(
+    new URL(resolveRedirectPath(req, user.role), req.nextUrl.origin),
+  );
 }

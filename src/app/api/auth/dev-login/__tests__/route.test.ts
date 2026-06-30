@@ -10,7 +10,8 @@
  * This suite proves BOTH halves of the contract without touching the DB or
  * cookies (the session layer is mocked):
  *   • when the gate is OFF (prod build, or flag absent) → 404, no session minted
- *   • when the gate is ON  (dev + explicit flag)        → 307 redirect to /portfolio
+ *   • when the gate is ON  (dev + explicit flag)        → 307 redirect to `?next`
+ *     when supplied, otherwise to the default landing for the bypass role
  *
  * It also exercises the REAL `isDevAuthBypass()` against process.env so a
  * regression that loosens the gate (e.g. dropping the prod check) is caught.
@@ -50,8 +51,8 @@ const mockEnsureDevUser = vi.mocked(ensureDevUser);
 const mockCreateSession = vi.mocked(createSession);
 const mockSetSessionCookie = vi.mocked(setSessionCookie);
 
-function makeRequest(): NextRequest {
-  return new NextRequest(new URL("http://localhost:4105/api/auth/dev-login"), {
+function makeRequest(path = "http://localhost:4105/api/auth/dev-login"): NextRequest {
+  return new NextRequest(new URL(path), {
     method: "GET",
   });
 }
@@ -76,9 +77,9 @@ describe("GET /api/auth/dev-login — kill-switch (Mission #042)", () => {
     expect(mockSetSessionCookie).not.toHaveBeenCalled();
   });
 
-  it("mints a dev session and redirects to /portfolio only when the bypass is enabled (dev)", async () => {
+  it("mints a dev session and redirects to the internal ?next target when the bypass is enabled", async () => {
     mockIsDevAuthBypass.mockReturnValue(true);
-    mockEnsureDevUser.mockResolvedValue({ id: "dev_user_1" } as Awaited<
+    mockEnsureDevUser.mockResolvedValue({ id: "dev_user_1", role: "admin" } as Awaited<
       ReturnType<typeof ensureDevUser>
     >);
     mockCreateSession.mockResolvedValue({
@@ -87,12 +88,16 @@ describe("GET /api/auth/dev-login — kill-switch (Mission #042)", () => {
     });
     mockSetSessionCookie.mockResolvedValue(undefined);
 
-    const res = await GET(makeRequest());
+    const res = await GET(
+      makeRequest(
+        "http://localhost:4105/api/auth/dev-login?next=%2Fadmin%2Fproduct-workspace",
+      ),
+    );
 
     // 307 = NextResponse.redirect default.
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toBe(
-      "http://localhost:4105/portfolio",
+      "http://localhost:4105/admin/product-workspace",
     );
 
     expect(mockEnsureDevUser).toHaveBeenCalledOnce();
@@ -100,6 +105,25 @@ describe("GET /api/auth/dev-login — kill-switch (Mission #042)", () => {
     expect(mockSetSessionCookie).toHaveBeenCalledWith(
       "tok_dev",
       new Date("2099-01-01T00:00:00.000Z"),
+    );
+  });
+
+  it("falls back to the admin landing when no ?next is supplied", async () => {
+    mockIsDevAuthBypass.mockReturnValue(true);
+    mockEnsureDevUser.mockResolvedValue({ id: "dev_user_2", role: "admin" } as Awaited<
+      ReturnType<typeof ensureDevUser>
+    >);
+    mockCreateSession.mockResolvedValue({
+      token: "tok_admin",
+      expiresAt: new Date("2099-01-01T00:00:00.000Z"),
+    });
+    mockSetSessionCookie.mockResolvedValue(undefined);
+
+    const res = await GET(makeRequest());
+
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:4105/admin/dashboard",
     );
   });
 });
