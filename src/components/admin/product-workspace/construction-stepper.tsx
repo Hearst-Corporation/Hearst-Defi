@@ -155,21 +155,36 @@ const CHECK = (
   </svg>
 );
 
-function StepNode({ life, pipelineRunning }: { life: Lifecycle; pipelineRunning: boolean }) {
+function StepNode({
+  life,
+  pipelineRunning,
+  isNextUp = false,
+}: {
+  life: Lifecycle;
+  pipelineRunning: boolean;
+  isNextUp?: boolean;
+}) {
   const tone = nodeTone(life);
   const isComplete = tone === "accent" || tone === "warning" || tone === "danger";
-  // Nodes in the queue pulse softly while the pipeline is active.
-  const isQueued = tone === "idle" && pipelineRunning;
+  // The immediate next step's black ring spins while the pipeline works toward it
+  // (the transition gap: previous step done, this one not yet started).
+  const isLoadingNext = tone === "idle" && isNextUp;
+  // Other queued nodes pulse softly while the pipeline is active.
+  const isQueued = tone === "idle" && pipelineRunning && !isLoadingNext;
   return (
     <span
       aria-current={tone === "current" ? "step" : undefined}
+      aria-label={isLoadingNext ? "loading" : undefined}
+      role={isLoadingNext ? "status" : undefined}
       className={cn(
         "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) items-center justify-center rounded-(--ct-radius-full) transition-colors duration-300",
         tone === "accent" && "bg-[var(--ct-accent)] text-[var(--ct-bg-deep)]",
         tone === "warning" && "bg-[var(--ct-status-warning)] text-[var(--ct-bg-deep)]",
         tone === "danger" && "bg-[var(--ct-status-danger)] text-[var(--ct-bg-deep)]",
         tone === "current" && "bg-surface-page",
-        tone === "idle" && "border border-[var(--ct-border-soft)] bg-surface-page",
+        tone === "idle" && !isLoadingNext && "border border-[var(--ct-border-soft)] bg-surface-page",
+        // Next-up: the black ring itself becomes a spinning accent-topped loader.
+        isLoadingNext && "animate-spin border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)] bg-surface-page",
       )}
     >
       {tone === "danger" ? (
@@ -183,6 +198,9 @@ function StepNode({ life, pipelineRunning }: { life: Lifecycle; pipelineRunning:
           role="status"
           className="h-(--ct-space-6) w-(--ct-space-6) animate-spin rounded-(--ct-radius-full) border-2 border-[var(--ct-border-soft)] border-t-[var(--ct-accent)]"
         />
+      ) : isLoadingNext ? (
+        // The black ring itself spins — no inner dot.
+        null
       ) : isQueued ? (
         // Queued: pulsing dot — "I'm next in line."
         <span className="h-(--ct-space-2) w-(--ct-space-2) animate-pulse rounded-(--ct-radius-full) bg-[var(--ct-text-faint)]" />
@@ -511,6 +529,10 @@ export function ConstructionStepper({ objective }: { objective: string | null })
           const result = results[step.id];
           const isLast = i === visible.length - 1;
           const connectorDone = result !== undefined; // step finished → green segment
+          // Next-up: the previous step is done and this one hasn't started yet —
+          // its black ring spins during the transition gap.
+          const prevDone = i > 0 && results[visible[i - 1]!.id] !== undefined;
+          const isNextUp = phase === "running" && life === "upcoming" && prevDone;
           return (
             <li
               key={step.id}
@@ -552,7 +574,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                         style={{ height: "50%" }}
                       />
                     ) : null}
-                    <StepNode life={life} pipelineRunning={phase === "running"} />
+                    <StepNode life={life} pipelineRunning={phase === "running"} isNextUp={isNextUp} />
                   </div>
 
                   {/* Right column — header + body */}

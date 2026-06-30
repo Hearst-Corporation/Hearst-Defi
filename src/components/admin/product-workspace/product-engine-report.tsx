@@ -117,7 +117,6 @@ function WaterfallList({ wf }: { wf: Waterfall }) {
 }
 
 export function ProductEngineReport({ draft }: { draft: ProductConstructionDraft }) {
-  const cvd = draft.calculatedVsDocumented;
   const funding = draft.stableFundingDecision;
   const exit = draft.exitRecovery;
   const wf = draft.waterfalls;
@@ -125,47 +124,13 @@ export function ProductEngineReport({ draft }: { draft: ProductConstructionDraft
   const mc = draft.monteCarloDisclosure;
 
   // Nothing wired (non-mining product) → render nothing.
-  if (!cvd && !funding && !exit && !wf && !op) return null;
+  if (!funding && !exit && !wf && !op) return null;
 
   const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
   return (
     <div className="flex flex-col">
-      {/* ── Calculated vs documented (Phase A) ──────────────────────────── */}
-      {cvd ? (
-        <section className="flex flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
-          <SectionLabel>Calculated vs documented</SectionLabel>
-          <div className="grid gap-(--ct-space-5) sm:grid-cols-2">
-            <div className="flex flex-col gap-(--ct-space-2)">
-              <span className="ct-section-label ct-text-accent">Calculated now</span>
-              <ul className="flex flex-col gap-(--ct-space-1) body-sm ct-text-body">
-                {cvd.calculated.map((c) => (
-                  <li key={c} className="flex items-baseline gap-(--ct-space-2)">
-                    <span aria-hidden className="ct-text-accent">●</span>
-                    <span>{c}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-2)">
-              <span className="ct-section-label ct-status-warning">Documented — not yet computed</span>
-              <ul className="flex flex-col gap-(--ct-space-1) body-sm ct-text-secondary">
-                {cvd.documentedOnly.map((d) => (
-                  <li key={d} className="flex items-baseline gap-(--ct-space-2)">
-                    <span aria-hidden className="ct-status-warning">○</span>
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {cvd.scenarioLevelOnly.length > 0 ? (
-            <p className="text-[length:var(--ct-text-nano)] ct-text-faint leading-relaxed">
-              Scenario-level only (not path-by-path): {cvd.scenarioLevelOnly.join(" · ")}.
-            </p>
-          ) : null}
-        </section>
-      ) : null}
+      {/* Calculated-vs-documented disclosure removed at the admin's request. */}
 
       {/* ── Stable Funding Engine (Phase B) ─────────────────────────────── */}
       {funding ? (

@@ -19,9 +19,7 @@ import { ProjectionAreaChart } from "@/components/admin/product-workspace/projec
 import { HcCompositionRing } from "@/components/dataviz/his";
 import type { HcLabeledValue } from "@/components/dataviz/his/types";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import type {
-  LiveProvenance,
   ProductConstructionDraft,
   ScenarioResult,
 } from "@/lib/agentic/swarm/live/types";
@@ -34,17 +32,6 @@ function pctFrac(n: number, digits = 1): string {
 function pctOf(n: number, digits = 1): string {
   return `${n.toFixed(digits)}%`;
 }
-function liveToBadge(p: LiveProvenance): Provenance {
-  switch (p) {
-    case "Live": return "live";
-    case "Oracle": return "oracle";
-    case "Attested": return "attested";
-    case "Estimated": return "estimated";
-    case "Manual": return "manual";
-    case "Stale": return "stale";
-  }
-}
-
 const REGIME_LABEL: Record<ScenarioResult["regime"], string> = {
   defensive: "Safe",
   balanced: "Balanced",
@@ -186,19 +173,9 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
         </p>
       </section>
 
-      {/* Provenance & audit — flat list, no box. */}
-      <section className="flex flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
-        <SectionLabel>Provenance &amp; audit</SectionLabel>
-        <ul className="flex flex-col gap-(--ct-space-2) mono text-[length:var(--ct-text-xs)] ct-text-secondary">
-          {draft.audit.map((a) => (
-            <li key={a.stageId} className="flex items-center gap-(--ct-space-3)">
-              <span className={a.degraded ? "ct-status-warning" : "ct-text-accent"}>{a.degraded ? "○" : "●"}</span>
-              <span className="min-w-(--ct-space-32) truncate">{a.stageId}</span>
-              <ProvenanceBadge kind={liveToBadge(a.provenance)} compact />
-              <span className="truncate ct-text-tertiary">{a.reasonCode}</span>
-            </li>
-          ))}
-        </ul>
+      {/* Projection disclaimer — mandatory "not guaranteed" line (non-negotiable
+          #10). The provenance/audit stage list was removed at the admin's request. */}
+      <section className="border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
         <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary leading-relaxed">
           {draft.disclaimer}
         </p>
