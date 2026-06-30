@@ -27,7 +27,7 @@ function fmtRange(r?: { min: number; max: number; unit: string }): string | null
   return `${r.min}–${r.max}${r.unit === "%" ? "%" : ` ${r.unit}`}`;
 }
 
-const PANEL = "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col";
+const PANEL = "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col";
 const SUBTILE = "rounded-xl border border-[var(--ct-border)] bg-surface-inset";
 
 function Block({

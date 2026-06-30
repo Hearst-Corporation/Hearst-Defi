@@ -127,7 +127,7 @@ function VaultMetricRow({ vault }: { vault: VaultLiveMetric }) {
           />
         </div>
       ) : (
-        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)] opacity-60">
+        <p className="m-0 text-[length:var(--ct-text-nano)] uppercase tracking-[0.15em] font-bold text-[var(--ct-text-faint)] opacity-[var(--ct-opacity-60)]">
           Awaiting first telemetry close
         </p>
       )}

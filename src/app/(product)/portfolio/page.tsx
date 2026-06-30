@@ -169,7 +169,7 @@ export default async function PortfolioPage() {
 
           {/* Account key-metrics card — black surface, titled header, responsive
               KPI grid (1 col on narrow, 2 on wider). */}
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <h2 className="ct-section-title">Account</h2>
               <p className="ct-metric-caption">Key metrics</p>
@@ -236,7 +236,7 @@ export default async function PortfolioPage() {
 
         {/* DECK — Distribution calendar + Recent activity (real) */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col">
+          <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col">
             <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex flex-col gap-1.5">
                 <h2 className="ct-section-title">Distribution calendar</h2>
@@ -269,7 +269,7 @@ export default async function PortfolioPage() {
 
         {/* POSITIONS — real rows */}
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
           aria-label="Active positions"
         >
           <div className="flex items-center gap-4 p-5 border-b border-[var(--ct-border-soft)]">

@@ -262,6 +262,12 @@
   --ct-dur-pulse: 2s;     /* dash-pulse animation cycle (dashboard status dot) */
   --ct-dur-shimmer: 2s;   /* shimmer sweep (progress bars, skeletons) */
   --ct-dur-spin: 0.8s;    /* spinner rotation cycle (cp-spin loader) */
+  --ct-dur-micro: 180ms;  /* micro opacity fade (hover/intra-rail reveal) */
+  --ct-dur-quick: 0.3s;   /* quick property transition (opacity/border on toggles) */
+  --ct-dur-snap: 0.2s;    /* snappiest border-color transition (inputs/affordances) */
+  --ct-dur-entry: 0.6s;   /* one-shot entry animation (chart/list row reveal) */
+  --ct-dur-entry-slow: 0.8s; /* slower one-shot entry (bar grow-in) */
+  --ct-dur-pulse-slow: 1.4s; /* slow ambient pulse (rail id rule, chat ctx) */
   /* --ct-ease : source unique tokens.css (valeur identique, non redéfinie ici). */
   --ct-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* symmetric — loops (pulse/shimmer), reversible toggles */
   --ct-ease-out: cubic-bezier(0, 0, 0.2, 1);      /* decelerate — one-shot entries (fade-in, slide-up) */
@@ -3765,9 +3771,9 @@ button.ct-choice-card {
   width: var(--ct-rail-left);
   min-width: var(--ct-rail-left);
   max-width: var(--ct-rail-left);
-  transition: width 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              min-width 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              max-width 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: width var(--ct-dur-base) var(--ct-ease),
+              min-width var(--ct-dur-base) var(--ct-ease),
+              max-width var(--ct-dur-base) var(--ct-ease);
   position: relative;
 }
 
@@ -4028,7 +4034,7 @@ button.ct-choice-card {
   top: calc(var(--ct-shell-header-h) + var(--ct-space-1));
   bottom: var(--ct-rail-bottom-clearance);
   width: var(--ct-rail-left);
-  transition: width 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: width var(--ct-dur-base) var(--ct-ease);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4194,9 +4200,9 @@ button.ct-choice-card {
   z-index: var(--ct-z-rail-tooltip);
   position: relative;
   opacity: 1;
-  transition: opacity 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              font-size 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              max-height 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: opacity var(--ct-dur-micro) var(--ct-ease),
+              font-size var(--ct-dur-base) var(--ct-ease),
+              max-height var(--ct-dur-base) var(--ct-ease);
   max-height: 2em;
 }
 
@@ -4759,7 +4765,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   flex-direction: column; 
   padding: var(--ct-space-2) 0;
   font-size: var(--ct-text-sm); /* 15px — fixed */
-  animation: ct-chat-msg-fade-in 0.4s var(--ct-ease) forwards;
+  animation: ct-chat-msg-fade-in var(--ct-dur-slow) var(--ct-ease) forwards;
 }
 .ct-chat-msg.assistant code                { padding: 1px 4px; font-size: 0.875rem; }
 
@@ -4893,7 +4899,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 .ct-rail-right-id--live::after {
   background: var(--ct-accent);       /* THE single green, only when live */
-  animation: ct-rail-id-rule 1.4s var(--ct-ease) infinite;
+  animation: ct-rail-id-rule var(--ct-dur-pulse-slow) var(--ct-ease) infinite;
 }
 
 /* Breathe the live rule in lockstep with the existing dot pulse (1.4s/--ct-ease)
@@ -5107,7 +5113,7 @@ main#main-content>.admin-doc.admin-doc-shell {
    carries `box-shadow: 0 0 8px currentColor`; we layer an animated accent ring
    on top via box-shadow keyframes. */
 .ct-chat-ctx-dot--live {
-  animation: ct-chat-ctx-pulse 1.4s var(--ct-ease) infinite;
+  animation: ct-chat-ctx-pulse var(--ct-dur-pulse-slow) var(--ct-ease) infinite;
 }
 @keyframes ct-chat-ctx-pulse {
   0%, 100% {
@@ -5221,11 +5227,11 @@ main#main-content>.admin-doc.admin-doc-shell {
   justify-content: flex-start;
   padding: var(--ct-space-3) 0;
   opacity: 0;
-  transition: opacity 0.3s var(--ct-ease);
+  transition: opacity var(--ct-dur-quick) var(--ct-ease);
 }
 .ct-chat-thinking.active {
   opacity: 1;
-  animation: ct-chat-thinking-pulse 2s var(--ct-ease) infinite;
+  animation: ct-chat-thinking-pulse var(--ct-dur-pulse) var(--ct-ease) infinite;
 }
 
 /* Chat Chart Card — Flat integration.
@@ -5236,7 +5242,7 @@ main#main-content>.admin-doc.admin-doc-shell {
   border-radius: var(--ct-radius-md);
   padding: var(--ct-space-3);
   margin-top: var(--ct-space-2);
-  transition: border-color 0.2s var(--ct-ease);
+  transition: border-color var(--ct-dur-snap) var(--ct-ease);
 }
 .ct-chat-chart:hover {
   border-color: var(--ct-border);

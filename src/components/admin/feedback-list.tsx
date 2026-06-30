@@ -58,7 +58,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
     <div
       className={cn(
         "flex items-start justify-between gap-4 border-b border-[var(--ct-border-soft)] px-5 py-4 last:border-b-0 lg:px-6",
-        item.resolved && "opacity-50",
+        item.resolved && "opacity-[var(--ct-opacity-50)]",
       )}
     >
       <div className="min-w-0 flex-1">
@@ -89,7 +89,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
         type="button"
         onClick={onToggle}
         disabled={isPending}
-        className="ct-metric-caption shrink-0 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="ct-metric-caption shrink-0 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]"
       >
         {item.resolved ? "Reopen" : "Resolve"}
       </button>

@@ -166,7 +166,7 @@ export function Switch({
         'data-hover:ring-[color-mix(in_srgb,var(--ct-bg-deep)_15%,transparent)] data-hover:data-checked:ring-(--switch-bg-ring)',
         'dark:data-hover:ring-[color-mix(in_srgb,var(--ct-text-strong)_25%,transparent)] dark:data-hover:data-checked:ring-(--switch-bg-ring)',
         // Disabled
-        'data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] data-disabled:opacity-50 data-disabled:data-checked:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] data-disabled:data-checked:ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]',
+        'data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] data-disabled:opacity-[var(--ct-opacity-50)] data-disabled:data-checked:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] data-disabled:data-checked:ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]',
         'dark:data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] dark:data-disabled:data-checked:bg-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)] dark:data-disabled:data-checked:ring-[color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)]',
         // Color specific styles
         colors[color]
@@ -182,12 +182,12 @@ export function Switch({
           // Invisible border so the switch is still visible in forced-colors mode
           'border border-transparent',
           // Unchecked
-          'bg-[var(--ct-text-strong)] shadow-sm ring-1 ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]',
+          'bg-[var(--ct-text-strong)] shadow-[var(--ct-shadow-soft)] ring-1 ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]',
           // Checked
           'group-data-checked:bg-(--switch) group-data-checked:shadow-(--switch-shadow) group-data-checked:ring-(--switch-ring)',
           'group-data-checked:translate-x-4 sm:group-data-checked:translate-x-3',
           // Disabled
-          'group-data-checked:group-data-disabled:bg-[var(--ct-text-strong)] group-data-checked:group-data-disabled:shadow-sm group-data-checked:group-data-disabled:ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]'
+          'group-data-checked:group-data-disabled:bg-[var(--ct-text-strong)] group-data-checked:group-data-disabled:shadow-[var(--ct-shadow-soft)] group-data-checked:group-data-disabled:ring-[color-mix(in_srgb,var(--ct-bg-deep)_5%,transparent)]'
         )}
       />
     </Headless.Switch>

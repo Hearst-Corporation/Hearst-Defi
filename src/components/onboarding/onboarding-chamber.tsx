@@ -93,7 +93,7 @@ export function OnboardingChamber({
   return (
     <article
       className={cn(
-        "relative flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
+        "relative flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]",
         aside && "md:flex-row md:items-stretch",
         className,
       )}

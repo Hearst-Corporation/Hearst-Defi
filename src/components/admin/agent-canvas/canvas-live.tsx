@@ -160,7 +160,7 @@ export function CanvasLive({
       <div
         className={cn(
           "flex flex-col gap-y-5",
-          !state.agentLive && "opacity-60",
+          !state.agentLive && "opacity-[var(--ct-opacity-60)]",
         )}
       >
         {state.sections.map((section) => (

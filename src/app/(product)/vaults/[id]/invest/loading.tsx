@@ -28,7 +28,7 @@ export default function InvestDepositLoading() {
             {[0, 1].map((card) => (
               <section
                 key={card}
-                className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+                className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
               >
                 <div className="p-5 border-b border-[var(--ct-border-soft)]">
                   <div className="h-5 w-40 bg-surface-inset animate-pulse rounded" />
@@ -44,7 +44,7 @@ export default function InvestDepositLoading() {
           </div>
 
           {/* SUMMARY RAIL */}
-          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
             </div>

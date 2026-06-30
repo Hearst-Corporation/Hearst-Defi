@@ -215,6 +215,27 @@
   color: var(--ct-text-muted);
 }
 
+/* ── TABLE TYPO CALIBRATION (canon admin + user) ───────────────────────────
+   Les tables (Catalyst) étaient trop denses : en-têtes de colonne en nano 9px
+   muted, et données secondaires (company/name) en 12px muet identiques partout.
+   Calibration centrale, scopée AUX TABLES uniquement (thead/td), pour ne pas
+   toucher les micro-kickers `.ct-bento-label` hors table.
+
+   - En-têtes de colonne (thead .ct-bento-label) → +1 cran (micro 11px) + accent
+     vert : c'est un libellé structurel, le vert signale la colonne (cohérent
+     avec « titres = accent »), sans verdir les données.
+   - Données secondaires (td .ct-metric-caption : company, name, dates) → +1 cran
+     (xs 13px), restent neutres muted : le canon réserve l'accent aux titres, pas
+     aux données — les garder lisibles mais sobres préserve la hiérarchie. */
+:is(.product-doc, .admin-doc) thead .ct-bento-label {
+  font-size: var(--ct-text-micro);           /* 9 → 11px */
+  color: var(--ct-accent);
+}
+
+:is(.product-doc, .admin-doc) td .ct-metric-caption {
+  font-size: var(--ct-text-xs);              /* 12 → 13px */
+}
+
 /* Page header lead copy — sits below eyebrow/title with consistent inset */
 :is(.product-doc, .admin-doc)
   :is(.admin-page-header, .product-page-header)

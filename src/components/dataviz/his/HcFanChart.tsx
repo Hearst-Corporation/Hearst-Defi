@@ -91,7 +91,7 @@ export function HcFanChart({
               y2={y}
               stroke="var(--ct-border-soft)"
               strokeWidth={1}
-              opacity={0.08}
+              opacity="var(--ct-opacity-8)"
             />
             <text
               x={box.padX - 6}

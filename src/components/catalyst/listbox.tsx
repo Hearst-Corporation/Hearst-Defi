@@ -29,7 +29,7 @@ export function Listbox<T>({
           // Basic layout
           'group relative block w-full',
           // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-          'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-[var(--ct-surface-card)] before:shadow-sm',
+          'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-[var(--ct-surface-card)] before:shadow-[var(--ct-shadow-soft)]',
           // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
           'dark:before:hidden',
           // Hide default focus styles
@@ -37,7 +37,7 @@ export function Listbox<T>({
           // Focus ring
           'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset data-focus:after:ring-2 data-focus:after:ring-[var(--ct-accent)]',
           // Disabled state
-          'data-disabled:opacity-50 data-disabled:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-disabled:before:shadow-none',
+          'data-disabled:opacity-[var(--ct-opacity-50)] data-disabled:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-disabled:before:shadow-none',
         ])}
       >
         <Headless.ListboxSelectedOption
@@ -90,7 +90,7 @@ export function Listbox<T>({
           // Popover background
           'bg-[color-mix(in_srgb,var(--ct-surface-card)_75%,transparent)] backdrop-blur-xl dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
           // Shadows
-          'shadow-lg ring-1 ring-[var(--ct-border)] dark:ring-[var(--ct-border)] dark:ring-inset',
+          'shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)] dark:ring-[var(--ct-border)] dark:ring-inset',
           // Transitions
           'transition-opacity duration-100 ease-in data-closed:data-leave:opacity-0 data-transition:pointer-events-none'
         )}
@@ -139,7 +139,7 @@ export function ListboxOption<T>({
               // Forced colors mode
               'forced-color-adjust-none forced-colors:data-focus:bg-[Highlight] forced-colors:data-focus:text-[HighlightText]',
               // Disabled
-              'data-disabled:opacity-50'
+              'data-disabled:opacity-[var(--ct-opacity-50)]'
             )}
           >
             <svg

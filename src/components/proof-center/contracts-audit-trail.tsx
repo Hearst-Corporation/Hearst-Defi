@@ -132,7 +132,7 @@ function ExplorerLink({
       aria-label={ariaLabel}
     >
       <span className="truncate">{value}</span>
-      <ExternalLink className="w-3 h-3 opacity-50 shrink-0" aria-hidden="true" />
+      <ExternalLink className="w-3 h-3 opacity-[var(--ct-opacity-50)] shrink-0" aria-hidden="true" />
     </a>
   );
 }

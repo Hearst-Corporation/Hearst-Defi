@@ -50,7 +50,7 @@ export function AdminKpiStripPanel({
         "admin-kpi-strip-panel flex flex-col overflow-hidden",
         embedded
           ? "border-b border-[var(--ct-border-soft)]"
-          : "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm",
+          : "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]",
       )}
     >
       {hasHeader ? (

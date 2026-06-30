@@ -21,7 +21,7 @@ export default function ProjectionLoading() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-5">
 
           {/* CONTROLS */}
-          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
             </div>
@@ -36,7 +36,7 @@ export default function ProjectionLoading() {
           </section>
 
           {/* PROJECTION */}
-          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+          <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
             <div className="grid grid-cols-2 sm:grid-cols-3 border-b border-[var(--ct-border-soft)]">
               {[0, 1, 2].map((kpi) => (
                 <div

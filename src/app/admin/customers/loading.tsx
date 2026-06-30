@@ -19,7 +19,7 @@ export default function CustomersLoading() {
         </div>
 
         {/* TABLE */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
           <div className="flex items-center gap-4 p-5 border-b border-[var(--ct-border-soft)]">
             <div className="h-8 w-full bg-surface-inset animate-pulse rounded" />
           </div>

@@ -21,7 +21,7 @@
   stroke: var(--fc, var(--ct-accent));
   stroke-width: 2.6;
   stroke-dasharray: 7 7;
-  animation: dft-dash 0.5s linear infinite;
+  animation: dft-dash var(--ct-dur-slower) linear infinite;
 }
 @keyframes dft-dash { to { stroke-dashoffset: -28; } }
 
@@ -31,7 +31,7 @@
   border: 1px solid var(--ct-border);
   border-left: 3px solid var(--nc, var(--ct-border));
   border-radius: 9px; padding: 7px 10px; z-index: 2; opacity: 0.5;
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s, border-color 0.2s;
+  transition: transform var(--ct-dur-base), box-shadow var(--ct-dur-base), opacity var(--ct-dur-base), border-color var(--ct-dur-base);
 }
 .dft-node .nl { font-size: 0.72rem; font-weight: 700; color: var(--ct-text-strong); line-height: 1.2; }
 .dft-node .ns { font-size: 0.6rem; color: var(--ct-text-tertiary); margin-top: 2px; line-height: 1.25; }
@@ -51,7 +51,7 @@
 .dft-token {
   position: absolute; z-index: 5; left: 0; top: 0;
   transform: translate(-50%, -50%) scale(0.6); opacity: 0;
-  transition: left 0.72s cubic-bezier(.45,.05,.3,1), top 0.72s cubic-bezier(.45,.05,.3,1), opacity 0.3s, transform 0.3s;
+  transition: left var(--ct-dur-slower) var(--ct-ease-out), top var(--ct-dur-slower) var(--ct-ease-out), opacity var(--ct-dur-base), transform var(--ct-dur-base);
   max-width: 260px; background: var(--ct-surface-inset);
   border: 1px solid var(--ct-accent); border-radius: 20px; padding: 6px 13px;
   font-size: 0.7rem; color: var(--ct-text-strong);
@@ -61,8 +61,8 @@
 .dft-token .tic { color: var(--ct-accent); margin-right: 5px; }
 
 .dft-pulse { position: absolute; z-index: 3; width: 150px; height: 46px; border-radius: 9px; pointer-events: none; opacity: 0; }
-.dft-pulse.go { animation: dft-pr 0.7s ease-out; }
+.dft-pulse.go { animation: dft-pr var(--ct-dur-slower) var(--ct-ease-out); }
 @keyframes dft-pr { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 0; transform: scale(1.5); } }
 
-.dft-le { opacity: 0; transform: translateX(10px); transition: opacity 0.25s, transform 0.25s; }
+.dft-le { opacity: 0; transform: translateX(10px); transition: opacity var(--ct-dur-base), transform var(--ct-dur-base); }
 .dft-le.in { opacity: 1; transform: translateX(0); }

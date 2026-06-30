@@ -121,7 +121,7 @@ function SliderField({ label, value, min, max, step, onChange, format }: SliderP
         >
           {label}
           {isExtreme && (
-            <span className="ml-1.5 text-[length:var(--ct-text-deci)] uppercase tracking-wider opacity-80">
+            <span className="ml-1.5 text-[length:var(--ct-text-deci)] uppercase tracking-wider opacity-[var(--ct-opacity-80)]">
               (Extreme)
             </span>
           )}
@@ -293,7 +293,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 riskBgClass(cell.riskScore),
                 isSelected
                   ? "border-[var(--ct-border-strong)] opacity-100"
-                  : "border-[var(--ct-border-soft)] opacity-70 hover:opacity-100",
+                  : "border-[var(--ct-border-soft)] opacity-[var(--ct-opacity-70)] hover:opacity-100",
               )}
             >
               <div className="flex flex-col gap-1.5">
@@ -307,7 +307,7 @@ function Heatmap({ cells, xAxis, yAxis, xValues, yValues, selectedRunId, onSelec
                 </span>
                 <span
                   className={cn(
-                    "font-mono text-[length:var(--ct-text-deci)] uppercase tracking-wider opacity-80",
+                    "font-mono text-[length:var(--ct-text-deci)] uppercase tracking-wider opacity-[var(--ct-opacity-80)]",
                     isSelected ? "text-[var(--ct-text-strong)]" : "text-[var(--ct-text-muted)]",
                   )}
                 >
@@ -354,7 +354,7 @@ function ExecutionModeControl({
             className={cn(
               "ct-metric-caption rounded-md px-3 py-1.5 font-bold transition-colors",
               active
-                ? "bg-[var(--ct-text-strong)] text-[var(--ct-bg-deep)] shadow-sm"
+                ? "bg-[var(--ct-text-strong)] text-[var(--ct-bg-deep)] shadow-[var(--ct-shadow-soft)]"
                 : "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-body)]",
             )}
           >
@@ -501,7 +501,7 @@ export function ProjectionStudio() {
                 disabled={isPending}
                 aria-pressed={active}
                 className={cn(
-                  "flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors disabled:opacity-50",
+                  "flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors disabled:opacity-[var(--ct-opacity-50)]",
                   active
                     ? "border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
                     : "border-[var(--ct-border)] bg-surface-inset hover:border-[var(--ct-border-strong)]",

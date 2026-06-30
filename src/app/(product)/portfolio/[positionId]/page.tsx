@@ -75,7 +75,7 @@ export default async function PositionDetailPage({ params }: PageProps) {
         />
 
         {/* KPIs */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
           <div className="p-5 border-b border-[var(--ct-border-soft)]">
             <h2 className="ct-section-title">Position</h2>
             <p className="ct-metric-caption">Principal, value &amp; yield</p>
@@ -112,7 +112,7 @@ export default async function PositionDetailPage({ params }: PageProps) {
 
         {/* Transactions */}
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
           aria-label="Position transactions"
         >
           <div className="p-5 border-b border-[var(--ct-border-soft)]">

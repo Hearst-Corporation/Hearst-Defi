@@ -25,7 +25,7 @@ export default function VaultDetailLoading() {
         </div>
 
         {/* OVERVIEW HERO BAND */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
           <div className="grid grid-cols-1 sm:grid-cols-3 border-b lg:border-b-0 lg:border-r border-[var(--ct-border-soft)]">
             {[0, 1, 2].map((kpi) => (
               <div
@@ -50,7 +50,7 @@ export default function VaultDetailLoading() {
             {[0, 1].map((section) => (
               <section
                 key={section}
-                className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+                className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
               >
                 <div className="p-5 border-b border-[var(--ct-border-soft)]">
                   <div className="h-5 w-40 bg-surface-inset animate-pulse rounded" />
@@ -67,7 +67,7 @@ export default function VaultDetailLoading() {
 
           {/* SECONDARY RAIL */}
           <div className="flex flex-col gap-5">
-            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
               <div className="p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
               </div>
@@ -80,7 +80,7 @@ export default function VaultDetailLoading() {
                 </div>
               </div>
             </section>
-            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col">
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
               <div className="p-5 border-b border-[var(--ct-border-soft)]">
                 <div className="h-5 w-32 bg-surface-inset animate-pulse rounded" />
               </div>

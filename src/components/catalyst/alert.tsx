@@ -38,7 +38,7 @@ export function Alert({
             className={cn(
               className,
               sizes[size],
-              'row-start-2 w-full rounded-2xl bg-surface-page p-8 shadow-lg ring-1 ring-[var(--ct-border)] sm:rounded-2xl sm:p-6 forced-colors:outline',
+              'row-start-2 w-full rounded-2xl bg-surface-page p-8 shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)] sm:rounded-2xl sm:p-6 forced-colors:outline',
               'transition duration-100 will-change-transform data-closed:opacity-0 data-enter:ease-out data-closed:data-enter:scale-95 data-leave:ease-in'
             )}
           >

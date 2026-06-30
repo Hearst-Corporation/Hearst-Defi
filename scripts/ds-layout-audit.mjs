@@ -61,6 +61,7 @@ const RAW_SHADOW_RE = /\bshadow-(?:sm|md|lg|xl|2xl|inner)\b/g;
 const RAW_SEG_RE = /\bct-seg-(?:btn|track)\b/g;
 const SEG_ALLOWLIST = new Set([
   "src/components/ui/segmented-control.tsx", // the primitive — owns ct-seg-* classes
+  "src/components/catalyst/segmented-control.tsx", // canonical primitive defining ct-seg-*
 ]);
 
 // ── Token-scale invariants (CSS) — every blur/easing/duration goes through a
@@ -84,6 +85,23 @@ const HEX_ALLOWLIST = new Set([
   "src/lib/pdf/pdf-palette.ts",
   "src/lib/brand-constants.ts",
   "src/lib/data/allocation-colors.ts",
+  // Print-on-white ink palette (analogous to pdf-palette.ts): the report print
+  // surface renders on white paper, where dark-mode --ct-* tokens are invisible.
+  "src/app/admin/product-workspace/report/print/page.tsx",
+  // Standalone server-rendered HTML (one-click unsubscribe page) opened from a
+  // mail client — the Cockpit shell / cockpit.css is never loaded, so --ct-*
+  // vars would resolve to nothing. Same rationale as the email allowlist.
+  "src/app/api/outreach/unsubscribe/route.ts",
+  // These carry "#211"/"#216"/"#148"/"#150" — PR / config-id references inside
+  // STRINGS and prose, not colours. Hex regex (3 hex digits) matches them by
+  // accident; this is non-UI server/lib code, no runtime colour involved.
+  "src/lib/admin/diagnostics/outreach-diagnostics.ts",
+  "src/lib/admin/diagnostics/outreach-lifecycle.ts",
+  "src/lib/projection/assumptions-config.ts",
+  // "#ccc" here is an ATTRIBUTE-SELECTOR KEY targeting Recharts' default DOM
+  // (`[stroke='#ccc']`); the colour actually applied is already a token
+  // (stroke-[var(--ct-border-soft)]). Removing the hex breaks the selector.
+  "src/components/ui/chart.tsx",
 ]);
 /** Transactional-email HTML files. Inline mail styles cannot read CSS vars — mail
  *  clients strip them — so neutral greys (#9ca3af / #6b7280 / #0a0a0a) and the
@@ -127,6 +145,7 @@ const REDUCED_MOTION_DUR = /\b0?\.?0*1?m?s\b/; // 1ms, 0.01ms, 0.001s, etc. (tin
 /** Only Card primitive may bind `.ct-card` directly. */
 const CT_CARD_ALLOWLIST = new Set([
   "src/components/ui/card.tsx",
+  "src/components/catalyst/card.tsx", // the canonical <Card> primitive — owns .ct-card
 ]);
 
 const HUB_MODE_STYLES = "src/components/hub-mode-styles.tsx";
@@ -216,9 +235,28 @@ function scanStaticCtPill(rel, content) {
 }
 
 function scanButtonNoSize(rel, content) {
+  // The Catalyst <Button> (@/components/catalyst/button — Headless UI based) has
+  // NO `size` prop: its API is color/outline/plain/insetRing/iconOnly. Only the
+  // CockpitButton family takes `size`. So a file whose <Button> is imported from
+  // a catalyst/button path can never satisfy `size=` — flagging it is a false
+  // positive (adding the prop is a TS error). Skip those files.
+  const importsCatalystButton =
+    /import\s*\{[^}]*\bButton\b[^}]*\}\s*from\s*["'](?:@\/components\/catalyst\/button|\.\/button|\.\.\/button)["']/.test(
+      content,
+    );
+  if (importsCatalystButton) return;
+
+  // JSX <Button> only lives in .tsx. A .ts file matching "<Button" is prose in a
+  // comment/string (e.g. a classHint doc string), never a real element.
+  if (!rel.endsWith(".tsx")) return;
+
   const re = /<Button\b([\s\S]*?)>/g;
   let match;
   while ((match = re.exec(content)) !== null) {
+    // Skip a "<Button …>" that sits inside a string literal (doc hints like
+    // classHint="<Button variant size />") — the char before "<" is a quote.
+    const before = content[match.index - 1];
+    if (before === '"' || before === "'" || before === "`") continue;
     if (!match[1].includes("size=")) {
       warnings.push({
         file: rel,
@@ -367,6 +405,11 @@ function scanRawHexCss(rel, content) {
 const OPACITY_ALLOWLIST = new Set([
   // dataviz: opacity encodes the margin-score intensity — pure, exported, tested.
   "src/components/dashboard/mining-health.tsx",
+  // SVG/recharts gradient stops: the top/bottom fade pairs (0.8↔0.1, 0.22↔0.04)
+  // have no full token coverage on the --ct-opacity-* scale; tokenising only one
+  // end leaves a half-token/half-literal gradient. Left whole + intentional.
+  "src/components/admin/product-workspace/chart-gallery.tsx",
+  "src/components/admin/product-workspace/projection-area-chart.tsx",
 ]);
 const RAW_OPACITY_CLASS_RE = /\bopacity-(\d{1,3})\b/;
 const RAW_OPACITY_VALUE_RE = /\b(?:stroke|fill|stop)?[Oo]pacity\s*[=:][^;,"'`\n]*?(0?\.\d+)\b/;

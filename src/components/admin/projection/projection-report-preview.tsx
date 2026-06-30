@@ -45,7 +45,7 @@ type FieldErrors = Partial<Record<ProjectionDraftField, string>>;
 
 const alloc = PREVIEW_PROJECTION_INPUT.allocation ?? [];
 
-const PANEL = "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm";
+const PANEL = "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]";
 
 export function ProjectionReportPreview() {
   const [mode, setMode] = useState<Mode>("v0");
@@ -168,7 +168,7 @@ export function ProjectionReportPreview() {
           </div>
           <button
             type="button"
-            className="ct-metric-value px-3 py-1.5 rounded-lg border border-[var(--ct-border)] font-medium text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] hover:border-[var(--ct-border-strong)] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ct-metric-value px-3 py-1.5 rounded-lg border border-[var(--ct-border)] font-medium text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] hover:border-[var(--ct-border-strong)] transition-colors whitespace-nowrap disabled:opacity-[var(--ct-opacity-50)] disabled:cursor-not-allowed"
             onClick={reset}
             disabled={isLoading}
           >
@@ -178,7 +178,7 @@ export function ProjectionReportPreview() {
             type="button"
             className={cn(
               "ct-metric-value px-4 py-1.5 rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] font-semibold text-[var(--ct-accent)] transition-colors whitespace-nowrap hover:bg-[var(--ct-accent)] hover:text-[var(--ct-bg-deep)]",
-              isLoading && "opacity-60 cursor-progress hover:bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] hover:text-[var(--ct-accent)]",
+              isLoading && "opacity-[var(--ct-opacity-60)] cursor-progress hover:bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] hover:text-[var(--ct-accent)]",
             )}
             onClick={() => run(mode)}
             disabled={isLoading}

@@ -43,7 +43,7 @@ export function OnboardingShell({
           </header>
 
           {state.checklist.length > 0 && (
-            <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card p-5 shadow-sm">
+            <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card p-5 shadow-[var(--ct-shadow-soft)]">
               <OnboardingChecklistRail items={state.checklist} />
             </div>
           )}

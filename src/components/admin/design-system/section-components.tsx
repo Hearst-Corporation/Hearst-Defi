@@ -23,11 +23,11 @@ export function SectionComponents() {
     >
       <DsBlock title="Buttons" hint="primary · secondary · ghost · danger · sizes · disabled">
         <DsSpecimen caption="Variants" classHint="<Button variant size />">
-          <Button variant="primary">Primary</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button variant="danger">Danger</Button>
-          <Button variant="secondary" disabled>
+          <Button variant="primary" size="md">Primary</Button>
+          <Button variant="secondary" size="md">Secondary</Button>
+          <Button variant="ghost" size="md">Ghost</Button>
+          <Button variant="danger" size="md">Danger</Button>
+          <Button variant="secondary" size="md" disabled>
             Disabled
           </Button>
         </DsSpecimen>

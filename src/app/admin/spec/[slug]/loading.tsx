@@ -18,7 +18,7 @@ export default function Loading() {
         </aside>
 
         {/* ARTICLE */}
-        <article className="flex-1 min-w-0 rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5 lg:p-6 flex flex-col gap-5">
+        <article className="flex-1 min-w-0 rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5 lg:p-6 flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <div className="h-3 w-24 bg-surface-inset animate-pulse rounded" />
             <div className="h-9 w-2/3 bg-surface-inset animate-pulse rounded" />

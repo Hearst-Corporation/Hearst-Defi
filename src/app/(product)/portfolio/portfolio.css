@@ -1422,7 +1422,7 @@
 }
 
 .cy-v5-donut__seg {
-  transition: stroke-dasharray 0.6s var(--ct-ease);
+  transition: stroke-dasharray var(--ct-dur-entry) var(--ct-ease);
 }
 
 .cy-v5-donut__center {
@@ -1743,7 +1743,7 @@
 }
 
 .pf-distrib-chart__bar-group {
-  animation: pf-bar-entry 0.8s var(--ct-ease) both;
+  animation: pf-bar-entry var(--ct-dur-entry-slow) var(--ct-ease) both;
   animation-delay: calc(var(--index) * 0.05s);
 }
 
@@ -1843,7 +1843,7 @@
   border-bottom: 1px solid var(--ct-border-soft);
   position: relative;
   z-index: 1; /* Ensure row is above pane hover wash */
-  animation: pf-activity-entry 0.6s var(--ct-ease) both;
+  animation: pf-activity-entry var(--ct-dur-entry) var(--ct-ease) both;
 }
 
 .pf-activity__row--hero {
@@ -2273,7 +2273,7 @@
 }
 
 .pf-status-row {
-  animation: pf-status-row-entry 0.6s var(--ct-ease) both;
+  animation: pf-status-row-entry var(--ct-dur-entry) var(--ct-ease) both;
 }
 
 .pf-status-row:nth-child(1) { animation-delay: 0.05s; }
@@ -2934,7 +2934,7 @@
     box-shadow var(--ct-dur-base) var(--ct-ease);
   overflow: hidden;
   box-shadow: none;
-  animation: pf-card-entry 0.5s var(--ct-ease) both;
+  animation: pf-card-entry var(--ct-dur-slower) var(--ct-ease) both;
 }
 
 @keyframes pf-card-entry {

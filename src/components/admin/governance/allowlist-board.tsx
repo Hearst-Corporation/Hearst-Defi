@@ -213,7 +213,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   key={entry.id}
                   className={cn(
                     "border-transparent align-top transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]",
-                    !entry.active && "opacity-55",
+                    !entry.active && "opacity-[var(--ct-opacity-55)]",
                   )}
                 >
                   <TableCell className="pl-5">

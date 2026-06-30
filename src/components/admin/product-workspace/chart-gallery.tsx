@@ -213,7 +213,7 @@ export function ChartGallery() {
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
               <PolarAngleAxis dataKey="axis" />
               <PolarGrid />
-              <Radar dataKey="value" fill="var(--color-value)" fillOpacity={0.5} dot={{ r: 3, fillOpacity: 1 }} />
+              <Radar dataKey="value" fill="var(--color-value)" fillOpacity="var(--ct-opacity-50)" dot={{ r: 3, fillOpacity: 1 }} />
             </RadarChart>
           </ChartContainer>
         </CardContent>

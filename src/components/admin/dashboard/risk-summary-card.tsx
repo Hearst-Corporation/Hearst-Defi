@@ -142,7 +142,7 @@ export function DashboardRiskSummaryCard({
                 >
                   {dimension.status}
                 </Badge>
-                <p className="m-0 text-[length:var(--ct-text-micro)] leading-none text-[var(--ct-text-faint)] opacity-70 transition-opacity group-hover:opacity-100">
+                <p className="m-0 text-[length:var(--ct-text-micro)] leading-none text-[var(--ct-text-faint)] opacity-[var(--ct-opacity-70)] transition-opacity group-hover:opacity-100">
                   {dimension.detail}
                 </p>
               </div>

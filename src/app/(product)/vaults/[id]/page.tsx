@@ -70,7 +70,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       <section
         role="region"
         aria-label="Next action"
-        className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-5"
+        className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-5"
       >
         <div className="flex flex-col gap-1.5 min-w-0">
           <span

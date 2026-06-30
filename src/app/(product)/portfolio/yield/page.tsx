@@ -53,7 +53,7 @@ export default async function YieldPage() {
         />
 
         {/* Yield KPIs */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col overflow-hidden">
+        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
           <div className="p-5 border-b border-[var(--ct-border-soft)]">
             <h2 className="ct-section-title">Yield</h2>
             <p className="ct-metric-caption">Accrued vs distributed</p>
@@ -80,7 +80,7 @@ export default async function YieldPage() {
 
         {/* Allocation that drives the yield */}
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm p-6"
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-6"
           aria-label="Strategy allocation"
         >
           <div className="mb-4">

@@ -66,7 +66,7 @@ export function RecentActivity({
 
   return (
     <section
-      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm flex flex-col"
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col"
       aria-label="Recent account activity"
     >
       <header className="flex items-start justify-between gap-3 p-5 border-b border-[var(--ct-border-soft)]">

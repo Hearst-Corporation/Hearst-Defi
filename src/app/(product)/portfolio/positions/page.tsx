@@ -54,7 +54,7 @@ export default async function PositionsPage() {
         />
 
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm overflow-hidden flex flex-col"
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
           aria-label="Positions"
         >
           {positions.length > 0 ? (
