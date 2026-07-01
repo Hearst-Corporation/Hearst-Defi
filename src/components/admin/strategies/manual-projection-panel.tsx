@@ -3,13 +3,14 @@
 /**
  * Manual projection panel — data scientist lab UI.
  *
- * Admin configures a 24-month collateral + market scenario and runs the
- * deterministic ScenarioRunner client-side. Two-column layout (config | results)
- * on large screens, stacked on mobile. Pure engine call — no I/O, no DB write,
- * no LLM. Deterministic: same input → same report.
+ * Admin configures a 24-month collateral + market scenario; the deterministic
+ * ScenarioRunner recomputes live on every input change (no freeze gate).
+ * Two-column layout (config | results) on large screens, stacked on mobile.
+ * Pure engine call — no I/O, no DB write, no LLM.
+ * Deterministic: same input → same report.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
@@ -29,7 +30,6 @@ import {
 } from "recharts";
 import {
   runManualStrategyProjection,
-  BPS,
   type CollateralConfig,
   type ManualProjectionConfig,
   type RebalancingRule,
@@ -37,6 +37,29 @@ import {
   type ScenarioReport,
   type MonthlyEvent,
 } from "@/lib/scenario-runner";
+import {
+  LAB_BASE_COLLATERAL,
+  LAB_BASE_PROJECTION,
+  LAB_BASE_RULES,
+} from "@/lib/strategy-data-lab";
+
+// ─── Debounce hook (in-file, no new dependency) ──────────────────────────────
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState<T>(value);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // We intentionally trigger on every render so that the latest value is
+  // always picked up without a useEffect dep-array mismatch.
+  if (timerRef.current !== null) {
+    clearTimeout(timerRef.current);
+  }
+  timerRef.current = setTimeout(() => {
+    setDebounced(value);
+  }, delayMs);
+
+  return debounced;
+}
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -45,72 +68,6 @@ const inputCls =
 
 const sectionHeaderCls =
   "ct-bento-label text-[length:var(--ct-text-xs)] ct-text-tertiary uppercase tracking-widest pb-(--ct-space-1) border-b border-[var(--ct-border-soft)] mb-(--ct-space-2)";
-
-// ─── Defaults ────────────────────────────────────────────────────────────────
-
-const DEFAULT_COLLATERAL: CollateralConfig = {
-  collateralAsset: "BTC",
-  borrowAsset: "USDC",
-  initialBtcCollateral: 10,
-  initialDebtUsdc: 200_000,
-  initialReserveUsdc: 120_000,
-  liquidationLtvBps: 8000,
-  targetSafetyBufferBps: 2000,
-  targetRiskLtvBps: 6000,
-  borrowAprBps: 600,
-  electricityMonthlyCostUsdc: 3000,
-  minReserveUsdc: 40_000,
-  maxBtcExposureBps: 9000,
-};
-
-const DEFAULT_MARKET: ManualProjectionConfig = {
-  durationMonths: 24,
-  interval: "MONTHLY",
-  btcPriceStart: 60_000,
-  btcMonthlyDriftBps: 150,
-  btcMonthlyVolBps: 900,
-  stableYieldAprBps: 500,
-  overlayYieldAprBps: 900,
-  miningYieldAprBps: 400,
-  feeDragAprBps: 200,
-};
-
-const DEFAULT_RULES: RebalancingRule[] = [
-  {
-    id: "liq-ltv",
-    scenario: "balanced",
-    type: "LIQUIDATE",
-    priority: 100,
-    triggerMetric: "LTV",
-    operator: ">=",
-    value: 6500,
-    action: {
-      side: "SELL_BTC",
-      sizingMode: "PERCENT_OF_BTC_COLLATERAL",
-      sizingValue: 3000,
-      repayDebtRatioBps: 10_000,
-    },
-    cooldownMonths: 1,
-    enabled: true,
-  },
-  {
-    id: "rep-dist",
-    scenario: "balanced",
-    type: "REPURCHASE",
-    priority: 10,
-    triggerMetric: "LIQUIDATION_DISTANCE",
-    operator: ">=",
-    value: 4000,
-    action: {
-      side: "BUY_BTC",
-      sizingMode: "PERCENT_OF_USDC_RESERVE",
-      sizingValue: 2500,
-      maxLtvAfterActionBps: 5500,
-    },
-    cooldownMonths: 2,
-    enabled: true,
-  },
-];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -167,26 +124,20 @@ type ChartDatum = {
 
 interface ConfigPanelProps {
   scenario: Scenario;
-  duration: 12 | 24 | 36;
   c: CollateralConfig;
   m: ManualProjectionConfig;
   onScenario: (s: Scenario) => void;
-  onDuration: (d: 12 | 24 | 36) => void;
   onC: (c: CollateralConfig) => void;
   onM: (m: ManualProjectionConfig) => void;
-  onRun: () => void;
 }
 
 function ConfigPanel({
   scenario,
-  duration,
   c,
   m,
   onScenario,
-  onDuration,
   onC,
   onM,
-  onRun,
 }: ConfigPanelProps) {
   return (
     <div className="flex flex-col gap-(--ct-space-5) p-(--ct-space-5)">
@@ -209,22 +160,18 @@ function ConfigPanel({
               <option value="opportunistic">Opportunistic</option>
             </select>
           </div>
+          {/* Static read-only horizon label — durationMonths is fixed at 24 by the engine type */}
           <div className="flex flex-col gap-(--ct-space-1)">
-            <label htmlFor="duration-select" className="ct-bento-label">
-              Duration
-            </label>
-            <select
-              id="duration-select"
-              className={inputCls}
-              value={duration}
-              onChange={(e) =>
-                onDuration(Number(e.target.value) as 12 | 24 | 36)
-              }
+            <span className="ct-bento-label">Horizon</span>
+            <div
+              className={cn(
+                inputCls,
+                "ct-text-muted select-none cursor-default",
+              )}
+              aria-label="Fixed 24-month projection horizon"
             >
-              <option value={12}>12 months</option>
-              <option value={24}>24 months</option>
-              <option value={36}>36 months</option>
-            </select>
+              24 months
+            </div>
           </div>
         </div>
       </section>
@@ -368,15 +315,6 @@ function ConfigPanel({
           />
         </div>
       </section>
-
-      {/* Run button */}
-      <button
-        type="button"
-        onClick={onRun}
-        className="inline-flex items-center justify-center rounded-(--ct-radius-full) bg-[var(--ct-accent)] px-(--ct-space-5) py-(--ct-space-2) text-[length:var(--ct-text-sm)] font-bold text-[var(--ct-bg-deep)] transition-opacity hover:opacity-[var(--ct-opacity-90)] active:opacity-75 self-start"
-      >
-        Run Projection
-      </button>
     </div>
   );
 }
@@ -384,37 +322,10 @@ function ConfigPanel({
 // ─── Results Panel ────────────────────────────────────────────────────────────
 
 interface ResultsPanelProps {
-  report: ScenarioReport | null;
-  hasRun: boolean;
+  report: ScenarioReport;
 }
 
-function ResultsPanel({ report, hasRun }: ResultsPanelProps) {
-  if (!hasRun || !report) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-(--ct-space-3) p-(--ct-space-8) text-center">
-        <div
-          className="rounded-(--ct-radius-full) border border-[var(--ct-border-soft)] p-(--ct-space-4)"
-          aria-hidden
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="ct-text-tertiary"
-          >
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-          </svg>
-        </div>
-        <p className="text-[length:var(--ct-text-sm)] ct-text-tertiary">
-          Run projection to see results
-        </p>
-      </div>
-    );
-  }
-
+function ResultsPanel({ report }: ResultsPanelProps) {
   // Build chart data from snapshots (skip month 0 = initial state)
   const chartData: ChartDatum[] = report.snapshots.slice(1).map((s) => ({
     month: `M${s.month}`,
@@ -432,7 +343,7 @@ function ResultsPanel({ report, hasRun }: ResultsPanelProps) {
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
-      {/* KPI strip */}
+      {/* KPI strip — provenance: estimated (modelled projection, not live data) */}
       <BentoKpiStrip
         ariaLabel="Projection summary"
         items={[
@@ -440,18 +351,22 @@ function ResultsPanel({ report, hasRun }: ResultsPanelProps) {
             label: "Final ROI",
             value: pct(report.finalRoiBps),
             accent: report.finalRoiBps >= 0,
+            provenance: "estimated",
           },
           {
             label: "Min liq. distance",
             value: pct(report.minLiquidationDistanceBps),
+            provenance: "estimated",
           },
           {
             label: "BTC sold",
             value: report.totalBtcSold.toFixed(3),
+            provenance: "estimated",
           },
           {
             label: "Debt repaid",
             value: `$${Math.round(report.totalDebtRepaidUsdc).toLocaleString("en-US")}`,
+            provenance: "estimated",
           },
         ]}
       />
@@ -668,7 +583,8 @@ function ResultsPanel({ report, hasRun }: ResultsPanelProps) {
 
       {/* Disclaimer */}
       <p className="px-(--ct-space-5) pb-(--ct-space-4) text-[length:var(--ct-text-2xs)] ct-text-faint">
-        Deterministic simulation on the stated assumptions — not guaranteed.
+        Deterministic simulation on the stated assumptions — modelled projection,
+        conditional on inputs, not guaranteed.
       </p>
     </div>
   );
@@ -676,39 +592,30 @@ function ResultsPanel({ report, hasRun }: ResultsPanelProps) {
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
-/** Snapshot of inputs captured at the moment "Run" is pressed. */
-interface FrozenInput {
-  scenario: Scenario;
-  c: CollateralConfig;
-  m: ManualProjectionConfig;
-}
-
 export function ManualProjectionPanel() {
+  // TD.1: seed initial state from canonical lab defaults (shared with Data Lab)
   const [scenario, setScenario] = useState<Scenario>("balanced");
-  const [duration, setDuration] = useState<12 | 24 | 36>(24);
-  const [c, setC] = useState<CollateralConfig>(DEFAULT_COLLATERAL);
-  const [m, setM] = useState<ManualProjectionConfig>(DEFAULT_MARKET);
-  // Frozen input snapshot — only updated when the user clicks "Run Projection"
-  const [frozen, setFrozen] = useState<FrozenInput | null>(null);
+  const [c, setC] = useState<CollateralConfig>(LAB_BASE_COLLATERAL);
+  const [m, setM] = useState<ManualProjectionConfig>(LAB_BASE_PROJECTION);
 
-  // duration drives durationMonths; engine type is fixed at 24 so we carry it
-  // in state for future flexibility but don't wire it into the engine call yet.
-  void duration;
+  // P0.4: live recompute — debounce 120ms to smooth rapid number-field typing
+  const dScenario = useDebouncedValue(scenario, 120);
+  const dC = useDebouncedValue(c, 120);
+  const dM = useDebouncedValue(m, 120);
 
-  const report = useMemo<ScenarioReport | null>(() => {
-    if (!frozen) return null;
+  // P0.4: no freeze gate — result keys directly on debounced live states
+  const report = useMemo<ScenarioReport>(() => {
     return runManualStrategyProjection({
-      scenario: frozen.scenario,
-      collateral: frozen.c,
-      projection: { ...frozen.m, durationMonths: 24 },
-      rules: DEFAULT_RULES.map((r) => ({ ...r, scenario: frozen.scenario })),
+      scenario: dScenario,
+      collateral: dC,
+      projection: { ...dM, durationMonths: 24 },
+      // TD.1: use canonical lab rules, remapped to the active scenario
+      rules: LAB_BASE_RULES.map(
+        (r): RebalancingRule => ({ ...r, scenario: dScenario }),
+      ),
       seed: 7,
     });
-  }, [frozen]);
-
-  const handleRun = useCallback(() => {
-    setFrozen({ scenario, c, m });
-  }, [scenario, c, m]);
+  }, [dScenario, dC, dM]);
 
   return (
     <div className="flex flex-col gap-0 lg:grid lg:grid-cols-[1fr_1fr] lg:divide-x lg:divide-[var(--ct-border-soft)]">
@@ -716,20 +623,17 @@ export function ManualProjectionPanel() {
       <div className="border-b border-[var(--ct-border-soft)] lg:border-b-0">
         <ConfigPanel
           scenario={scenario}
-          duration={duration}
           c={c}
           m={m}
           onScenario={setScenario}
-          onDuration={setDuration}
           onC={setC}
           onM={setM}
-          onRun={handleRun}
         />
       </div>
 
-      {/* Right: results */}
+      {/* Right: results — always rendered (live recompute, no null state) */}
       <div className="min-h-80">
-        <ResultsPanel report={report} hasRun={frozen !== null} />
+        <ResultsPanel report={report} />
       </div>
     </div>
   );
