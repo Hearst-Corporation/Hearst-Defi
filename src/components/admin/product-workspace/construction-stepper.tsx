@@ -352,9 +352,9 @@ function LogoMetricValue({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-(--ct-space-2)">
+    <span className="inline-flex min-w-0 items-center gap-(--ct-space-2)">
       {logoId ? <BrandLogo id={logoId} size={20} /> : null}
-      <span>{children}</span>
+      <span className="min-w-0 [overflow-wrap:anywhere]">{children}</span>
     </span>
   );
 }
@@ -672,7 +672,9 @@ export function ConstructionStepper({ objective }: { objective: string | null })
               {/* The step is a canonical DS compartment — BentoPanel (.ct-glass-panel).
                   A left RAIL inside the box holds the stepper node, centered. */}
               <BentoPanel>
-                <div className="grid grid-cols-[calc(var(--ct-space-32)+var(--ct-space-8))_minmax(0,1fr)]">
+                {/* Left rail compact on narrow containers (chat rail open), full
+                    width only on wide. All widths from DS space tokens. */}
+                <div className="grid grid-cols-[var(--ct-space-20)_minmax(0,1fr)] lg:grid-cols-[calc(var(--ct-space-32)+var(--ct-space-8))_minmax(0,1fr)]">
                   {/* Left rail — node centered. Green half-segments inside the card:
                       bottom half (node→bottom) when this step is done and not last;
                       top half (top→node) when the previous step is done. */}
