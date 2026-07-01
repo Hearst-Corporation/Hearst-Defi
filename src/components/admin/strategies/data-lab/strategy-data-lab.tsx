@@ -25,6 +25,7 @@ import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { HcFanChart } from "@/components/dataviz/his/HcFanChart";
 import { HcWaterfall } from "@/components/dataviz/his/HcWaterfall";
 import type { Scenario } from "@/lib/scenario-runner";
+import type { ProductStrategy, RiskProfileKey } from "@/lib/product-strategies";
 import { runManualStrategyProjection } from "@/lib/scenario-runner";
 import {
   BacktestRunner,
@@ -48,6 +49,7 @@ import {
   SensitivityPanel,
   TriggerAnalyticsPanel,
 } from "./sensitivity-trigger-timeline";
+import { SCENARIO_DOT } from "@/lib/product-strategies/lab-colors";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -189,18 +191,19 @@ const RISK_TONE: Record<StressRiskLevel, string> = {
   CRITICAL: "bg-[var(--ct-status-danger)]",
 };
 
-// Scenario bar colours (spec-hardcoded, not DS tokens)
-const SCENARIO_COLORS = {
-  safe: "#60A5FA",
-  balanced: "#A7FB90",
-  opportunistic: "#F7931A",
-} as const;
+// Scenario bar colours — sourced from SCENARIO_DOT in lab-colors (single source of truth).
 
 const scenarios: Scenario[] = ["safe", "balanced", "opportunistic"];
 
-export function StrategyDataLab() {
+export function StrategyDataLab({
+  strategy,
+  scenario: scenarioProp,
+}: {
+  strategy?: ProductStrategy;
+  scenario?: RiskProfileKey;
+} = {}) {
   const [mode, setMode] = useState<DataLabMode>("BACKTEST");
-  const [scenario, setScenario] = useState<Scenario>("balanced");
+  const [scenario, setScenario] = useState<Scenario>(scenarioProp ?? "balanced");
   const [useHistorical, setUseHistorical] = useState(false);
 
   const regimes = useHistorical ? SYNTHETIC_HISTORICAL_REGIMES : MARKET_REGIMES;
@@ -270,6 +273,16 @@ export function StrategyDataLab() {
 
   return (
     <div className="flex flex-col gap-(--ct-space-6) p-(--ct-space-5)">
+      {/* Strategy pre-fill banner — shown only when opened from a strategy card */}
+      {strategy != null ? (
+        <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
+          Scenario context:{" "}
+          <span className="font-medium">{strategy.name}</span>
+          {" "}— the Lab runs on baseline market parameters (allocation-specific runs coming soon).
+          Projections are conditional on stated assumptions, not guaranteed.
+        </p>
+      ) : null}
+
       {/* Controls */}
       <div className="flex flex-col gap-(--ct-space-3)">
         <div className="flex flex-wrap items-center gap-(--ct-space-2)">
@@ -511,7 +524,7 @@ function BacktestBody({
                 strokeDasharray="3 3"
                 stroke="var(--ct-border-soft)"
                 vertical={false}
-                opacity={0.5}
+                opacity="var(--ct-opacity-50)"
               />
               <XAxis
                 dataKey="regime"
@@ -542,9 +555,9 @@ function BacktestBody({
                 iconSize={8}
                 wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
               />
-              <Bar dataKey="safe" name="Safe" fill={SCENARIO_COLORS.safe} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_COLORS.balanced} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_COLORS.opportunistic} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="safe" name="Safe" fill={SCENARIO_DOT.safe} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_DOT.balanced} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_DOT.opportunistic} radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -561,7 +574,7 @@ function BacktestBody({
             >
               <span
                 className="text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide"
-                style={{ color: SCENARIO_COLORS[sc] }}
+                style={{ color: SCENARIO_DOT[sc] }}
               >
                 {sc[0]!.toUpperCase() + sc.slice(1)}
               </span>
