@@ -227,7 +227,7 @@ export function PoolAllocationHero({
           <h2 className="text-[length:var(--ct-text-xl)] font-semibold ct-text-strong">
             Pool Allocation
           </h2>
-          <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
+          <p className="text-[length:var(--ct-text-sm)] ct-text-tertiary">
             {strategy.name} · {familyLabel}
           </p>
         </div>

@@ -209,7 +209,7 @@ export function StrategyCard({
       </div>
 
       {/* ── Meta row ───────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-(--ct-space-3) text-[length:var(--ct-text-2xs)] ct-text-secondary min-w-0">
+      <div className="flex flex-wrap gap-(--ct-space-3) text-[length:var(--ct-text-xs)] ct-text-secondary min-w-0">
         <span>
           <span className="ct-text-tertiary">Risk</span>{" "}
           <span className="font-medium ct-text-strong">
@@ -218,7 +218,7 @@ export function StrategyCard({
         </span>
         <span>
           <span className="ct-text-tertiary">Horizon</span>{" "}
-          <span className="font-medium ct-text-strong">
+          <span className="font-medium ct-text-strong tabular-nums">
             {strategy.defaultHorizonMonths}m
           </span>
         </span>

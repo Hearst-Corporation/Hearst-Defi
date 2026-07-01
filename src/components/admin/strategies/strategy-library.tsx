@@ -165,7 +165,7 @@ function ScenarioCard({
             </span>
           )}
         </div>
-        <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tabular-nums font-mono whitespace-nowrap">
+        <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] tabular-nums font-mono whitespace-nowrap">
           σ ×{asm.volatilityMultiplier} · {asm.horizonMonths}m
         </span>
       </div>
@@ -190,7 +190,7 @@ function ScenarioCard({
             <dt className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-tertiary)] self-center">
               Monthly dist.
             </dt>
-            <dd className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] tabular-nums text-right">
+            <dd className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-body)] tabular-nums text-right">
               {distRange}
             </dd>
           </>
@@ -200,7 +200,7 @@ function ScenarioCard({
             <dt className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-tertiary)] self-center">
               Floor
             </dt>
-            <dd className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] tabular-nums text-right">
+            <dd className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-body)] tabular-nums text-right">
               {floor}
             </dd>
           </>
@@ -213,7 +213,7 @@ function ScenarioCard({
           {scenario.narrativeBullets.map((b) => (
             <li
               key={b}
-              className="flex gap-(--ct-space-1_5) text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] [overflow-wrap:anywhere]"
+              className="flex gap-(--ct-space-1_5) text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] [overflow-wrap:anywhere]"
             >
               <span aria-hidden className="text-[var(--ct-text-tertiary)] flex-shrink-0">
                 ·
@@ -244,8 +244,8 @@ function SelectionRulesPanel({ strategy }: { strategy: ProductStrategy }) {
 
   return (
     <section className="flex flex-col gap-(--ct-space-4)">
-      <h4 className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-tertiary)] uppercase tracking-widest">
-        Selection Rules
+      <h4 className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-tertiary)] tracking-wide">
+        Selection rules
       </h4>
       <div className="overflow-hidden rounded-(--ct-radius-xl) border border-[var(--ct-border)]">
         <table className="w-full text-[length:var(--ct-text-xs)]">
@@ -369,7 +369,7 @@ function StrategyCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-left flex flex-col gap-(--ct-space-3) rounded-(--ct-radius-xl) border p-(--ct-space-4)",
+        "w-full min-w-0 text-left flex flex-col gap-(--ct-space-3) rounded-(--ct-radius-xl) border p-(--ct-space-4)",
         "transition-colors cursor-pointer",
         isSelected
           ? "border-[var(--ct-border-accent,var(--ct-border))] bg-[color-mix(in_srgb,var(--ct-accent)_6%,transparent)]"
@@ -389,7 +389,7 @@ function StrategyCard({
       {/* Name */}
       <span
         className={cn(
-          "text-[length:var(--ct-text-sm)] font-semibold leading-tight",
+          "text-[length:var(--ct-text-sm)] font-semibold leading-snug break-words min-w-0",
           isSelected ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]",
         )}
       >
@@ -487,7 +487,7 @@ function StrategyDetail({ strategy }: { strategy: ProductStrategy }) {
 
       {/* 3 scenario cards */}
       <section className="flex flex-col gap-(--ct-space-4)">
-        <h4 className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-tertiary)] uppercase tracking-widest">
+        <h4 className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-tertiary)] tracking-wide">
           Scenarios
         </h4>
         <div className="grid gap-(--ct-space-4) sm:grid-cols-3">
@@ -512,14 +512,14 @@ function StrategyDetail({ strategy }: { strategy: ProductStrategy }) {
       {/* Disclaimers */}
       {strategy.disclaimers.length > 0 && (
         <section className="flex flex-col gap-(--ct-space-2) rounded-(--ct-radius-xl) border border-[var(--ct-border)] p-(--ct-space-4) bg-[var(--ct-bg-surface)]">
-          <h4 className="text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-faint)] uppercase tracking-widest">
+          <h4 className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-faint)] tracking-wide">
             Disclaimers
           </h4>
           <ul className="flex flex-col gap-(--ct-space-1_5)">
             {strategy.disclaimers.map((d) => (
               <li
                 key={d}
-                className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] [overflow-wrap:anywhere]"
+                className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] [overflow-wrap:anywhere]"
               >
                 {d}
               </li>
@@ -554,7 +554,7 @@ export function StrategyLibrary() {
       {/* --- Library strip header --- */}
       <div className="flex flex-col gap-(--ct-space-1)">
         <div className="flex items-baseline justify-between gap-(--ct-space-3)">
-          <h2 className="text-[length:var(--ct-text-base)] font-semibold text-[var(--ct-text-strong)]">
+          <h2 className="text-[length:var(--ct-text-lg)] font-semibold text-[var(--ct-text-strong)]">
             Strategy Library
           </h2>
           <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] tabular-nums">

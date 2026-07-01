@@ -114,7 +114,7 @@ export function MiniMetric({
       className={cn(
         "flex flex-col gap-(--ct-space-0_5) rounded-(--ct-radius-md)",
         "border border-[var(--ct-border-soft)] px-(--ct-space-2) py-(--ct-space-1_5)",
-        "min-w-0",
+        "min-w-0 flex-1",
       )}
     >
       <span
