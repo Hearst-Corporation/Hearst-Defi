@@ -95,7 +95,7 @@ export function HcChartCard({
           </p>
           {subtitle && (
             <p
-              className="truncate"
+              className="[display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden"
               style={{
                 marginTop: 2,
                 fontSize: "var(--ct-text-2xs)",

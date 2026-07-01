@@ -110,7 +110,7 @@ export async function saveStrategyWorkspace(
     for (const rule of rules) {
       await tx.strategyRebalancingRule.create({
         data: {
-          id: rule.id,
+          id: `${upsertedStrategy.id}::${rule.id}`,
           strategyId: upsertedStrategy.id,
           scenario: rule.scenario,
           type: rule.type,
