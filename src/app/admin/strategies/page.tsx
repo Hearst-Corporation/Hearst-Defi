@@ -4,6 +4,7 @@ import {
 } from "@/components/admin/admin-page-shell";
 import { StrategyLibrary } from "@/components/admin/strategies/strategy-library";
 import { StrategyTestPanel } from "@/components/admin/strategies/strategy-test-panel";
+import { ManualProjectionPanel } from "@/components/admin/strategies/manual-projection-panel";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
   PRODUCT_STRATEGIES,
@@ -57,6 +58,14 @@ export default async function StrategiesPage() {
         subtitle="Play a structured request against the deterministic selection engine — the same engine the Product Workspace uses."
       >
         <StrategyTestPanel />
+      </AdminSectionCard>
+
+      <AdminSectionCard
+        ariaLabel="Manual 24-month projection"
+        title="Manual 24-month projection"
+        subtitle="Configure collateral + market assumptions and run the deterministic scenario runner — liquidation (red) and repurchase (green) milestones, final ROI, min liquidation distance. No product is created here."
+      >
+        <ManualProjectionPanel />
       </AdminSectionCard>
     </AdminPageShell>
   );
