@@ -35,28 +35,45 @@ export function computeMetrics(
   const downsideVar = downside.length ? downside.reduce((a, r) => a + r ** 2, 0) / downside.length : 0;
   const downsideDev = Math.sqrt(downsideVar);
 
-  // Max drawdown of the equity curve (bps) + recovery months.
+  // Max drawdown of the equity curve (bps) + recovery months + underwater series.
   let peak = equity[0] ?? 0;
   let maxDd = 0;
   let troughIdx = 0;
   let peakAtTrough = peak;
+  // Track the index at which peakAtTrough was reached (for duration calc).
+  let peakAtTroughIdx = 0;
+  const underwaterBps: number[] = [];
   equity.forEach((v, i) => {
     if (v > peak) peak = v;
     const dd = peak > 0 ? (peak - v) / peak : 0;
+    underwaterBps.push(Math.round(dd * BPS));
     if (dd > maxDd) {
       maxDd = dd;
       troughIdx = i;
       peakAtTrough = peak;
+      // The peak-at-trough was the running peak just before this new max drawdown.
+      // We approximate its index: walk back from troughIdx to find where equity hit peakAtTrough.
+      peakAtTroughIdx = i;
+      for (let k = i - 1; k >= 0; k -= 1) {
+        if ((equity[k] ?? 0) >= peakAtTrough) {
+          peakAtTroughIdx = k;
+          break;
+        }
+      }
     }
   });
   // Months from the trough back to (or above) the pre-trough peak.
   let recoveryMonths = 0;
+  let recoveryIdx = equity.length; // default: never recovered (use end)
   for (let i = troughIdx + 1; i < equity.length; i += 1) {
     if (equity[i]! >= peakAtTrough) {
       recoveryMonths = i - troughIdx;
+      recoveryIdx = i;
       break;
     }
   }
+  // Full peak→trough→recovery span (peak-at-trough to recovery; if never recovered, use end).
+  const maxDrawdownDurationMonths = recoveryIdx - peakAtTroughIdx;
 
   const maxLtvBps = Math.max(0, ...snaps.map((s) => s.ltvBps));
   const monthsBelowBuffer = snaps.filter(
@@ -83,12 +100,26 @@ export function computeMetrics(
   const nonBtcEquity = last.reserveUsdc - last.debtUsdc;
   const breakeven = last.btcCollateral > 0 ? Math.max(0, (start - nonBtcEquity) / last.btcCollateral) : 0;
 
+  // Wipeout fix: when the position ended liquidated, annualized ROI must floor at
+  // -100% (−10 000 bps) — compounding a wipeout into a small finite negative is dishonest.
   const annualizedRoi =
-    months > 0 && start !== 0 ? Math.pow(Math.max(0.0001, end / start), 12 / months) - 1 : 0;
+    months > 0 && start !== 0
+      ? report.endedLiquidated
+        ? -1
+        : Math.pow(Math.max(0.0001, end / start), 12 / months) - 1
+      : 0;
+
+  // Calmar-like: annualised ROI / max drawdown (fraction). Guard against zero maxDd.
+  const calmarLike = maxDd > 0 ? Math.round((annualizedRoi / maxDd) * 100) / 100 : 0;
+
+  // Tail ratio: |p95 return| / |p5 return| across monthly returns.
+  const p95ret = Math.abs(percentile(returns, 0.95));
+  const p5ret = Math.abs(percentile(returns, 0.05));
+  const tailRatio = p5ret > 0 ? Math.round((p95ret / p5ret) * 100) / 100 : 0;
 
   return {
     finalRoiBps: report.finalRoiBps,
-    annualizedRoiBps: round(annualizedRoi * BPS),
+    annualizedRoiBps: report.endedLiquidated ? -10_000 : round(annualizedRoi * BPS),
     maxDrawdownBps: round(maxDd * BPS),
     maxLtvBps,
     minLiquidationDistanceBps: report.minLiquidationDistanceBps,
@@ -108,6 +139,10 @@ export function computeMetrics(
     sharpeLike: std > 0 ? Math.round((mean / std) * 100) / 100 : 0,
     sortinoLike: downsideDev > 0 ? Math.round((mean / downsideDev) * 100) / 100 : 0,
     recoveryMonths,
+    underwaterBps,
+    calmarLike,
+    maxDrawdownDurationMonths,
+    tailRatio,
   };
 }
 
