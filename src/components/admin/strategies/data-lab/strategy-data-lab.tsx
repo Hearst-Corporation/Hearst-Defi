@@ -9,9 +9,20 @@
  */
 
 import { useMemo, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 import { cn } from "@/lib/cn";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
+import { HcFanChart } from "@/components/dataviz/his/HcFanChart";
 import type {
   CollateralConfig,
   ManualProjectionConfig,
@@ -27,6 +38,9 @@ import {
   SYNTHETIC_HISTORICAL_REGIMES,
   type DataLabMode,
   type StressRiskLevel,
+  type BacktestReport,
+  type ForwardSimulationReport,
+  type StressMatrixReport,
 } from "@/lib/strategy-data-lab";
 
 const bps = (n: number) => `${(n / 100).toFixed(1)}%`;
@@ -99,6 +113,13 @@ const RISK_TONE: Record<StressRiskLevel, string> = {
   HIGH: "bg-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)]",
   CRITICAL: "bg-[var(--ct-status-danger)]",
 };
+
+// Scenario bar colours (spec-hardcoded, not DS tokens)
+const SCENARIO_COLORS = {
+  safe: "#60A5FA",
+  balanced: "#A7FB90",
+  opportunistic: "#F7931A",
+} as const;
 
 const scenarios: Scenario[] = ["safe", "balanced", "opportunistic"];
 
@@ -224,10 +245,61 @@ export function StrategyDataLab() {
   );
 }
 
-function BacktestBody({ report, triggerFocus = false }: { report: ReturnType<BacktestRunner["run"]>; triggerFocus?: boolean }) {
+// ---------------------------------------------------------------------------
+// Backtest body
+// ---------------------------------------------------------------------------
+
+interface RegimeChartDatum {
+  regime: string;
+  safe: number;
+  balanced: number;
+  opportunistic: number;
+}
+
+function BacktestBody({
+  report,
+  triggerFocus = false,
+}: {
+  report: BacktestReport;
+  triggerFocus?: boolean;
+}) {
   const s = report.summary;
+
+  // Build per-regime chart data: group runs by regimeId, 3 bars per regime
+  const chartData = useMemo<RegimeChartDatum[]>(() => {
+    const regimeIds = [...new Set(report.runs.map((r) => r.regimeId))];
+    return regimeIds.map((rid) => {
+      const runs = report.runs.filter((r) => r.regimeId === rid);
+      const regimeLabel = runs[0]?.regimeLabel ?? rid;
+      // Short label: max 12 chars
+      const shortLabel = regimeLabel.length > 12 ? regimeLabel.slice(0, 11) + "…" : regimeLabel;
+      const valueOf = (sc: Scenario) =>
+        runs.find((r) => r.scenario === sc)?.metrics.finalRoiBps ?? 0;
+      return {
+        regime: shortLabel,
+        safe: Math.round(valueOf("safe") / 100) / 10,       // convert bps → %
+        balanced: Math.round(valueOf("balanced") / 100) / 10,
+        opportunistic: Math.round(valueOf("opportunistic") / 100) / 10,
+      };
+    });
+  }, [report.runs]);
+
+  // Drawdown summary: per scenario, min liquidationDistance and max LTV across all regimes
+  const drawdownSummary = useMemo(() => {
+    return scenarios.map((sc) => {
+      const runs = report.runs.filter((r) => r.scenario === sc);
+      const minDist = runs.length
+        ? Math.min(...runs.map((r) => r.metrics.minLiquidationDistanceBps))
+        : 0;
+      const maxLtv = runs.length
+        ? Math.max(...runs.map((r) => r.metrics.maxLtvBps))
+        : 0;
+      return { scenario: sc, minDist, maxLtv };
+    });
+  }, [report.runs]);
+
   return (
-    <div className="flex flex-col gap-(--ct-space-4)">
+    <div className="flex flex-col gap-(--ct-space-5)">
       <BentoKpiStrip
         ariaLabel="Backtest summary"
         items={[
@@ -240,6 +312,8 @@ function BacktestBody({ report, triggerFocus = false }: { report: ReturnType<Bac
           { label: "Repurchase freq.", value: bps(s.repurchaseFrequencyBps) },
         ]}
       />
+
+      {/* Run table */}
       <div className="min-w-0 overflow-x-auto">
         <table className="w-full min-w-[40rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
@@ -270,13 +344,135 @@ function BacktestBody({ report, triggerFocus = false }: { report: ReturnType<Bac
           </tbody>
         </table>
       </div>
+
+      {/* ROI comparison chart per regime */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">
+          Final ROI by regime × scenario (%)
+        </span>
+        <div style={{ height: 220 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+              barGap={2}
+              barCategoryGap="28%"
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--ct-border-soft)"
+                vertical={false}
+                opacity={0.5}
+              />
+              <XAxis
+                dataKey="regime"
+                tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tickFormatter={(v: number) => `${v}%`}
+                tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
+                axisLine={false}
+                tickLine={false}
+                width={38}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--ct-bg-surface)",
+                  border: "1px solid var(--ct-border-soft)",
+                  borderRadius: "var(--ct-radius-md)",
+                  fontSize: 11,
+                  color: "var(--ct-text-body)",
+                }}
+                formatter={(value) => [`${value ?? 0}%`]}
+                cursor={{ fill: "var(--ct-border-soft)", opacity: 0.15 }}
+              />
+              <Legend
+                iconType="circle"
+                iconSize={8}
+                wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
+              />
+              <Bar dataKey="safe" name="Safe" fill={SCENARIO_COLORS.safe} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_COLORS.balanced} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_COLORS.opportunistic} radius={[2, 2, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Drawdown summary */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">Drawdown summary · worst-case per scenario</span>
+        <div className="grid grid-cols-3 gap-(--ct-space-3)">
+          {drawdownSummary.map(({ scenario: sc, minDist, maxLtv }) => (
+            <div
+              key={sc}
+              className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
+            >
+              <span
+                className="text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide"
+                style={{ color: SCENARIO_COLORS[sc] }}
+              >
+                {sc[0]!.toUpperCase() + sc.slice(1)}
+              </span>
+              <div className="flex items-baseline justify-between gap-(--ct-space-2)">
+                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Min dist.</span>
+                <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">
+                  {bps(minDist)}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-(--ct-space-2)">
+                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Max LTV</span>
+                <span
+                  className={cn(
+                    "text-[length:var(--ct-text-sm)] tabular-nums",
+                    maxLtv > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body",
+                  )}
+                >
+                  {bps(maxLtv)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
-function ForwardBody({ report }: { report: ReturnType<ForwardSimulationRunner["run"]> }) {
+// ---------------------------------------------------------------------------
+// Forward simulation body
+// ---------------------------------------------------------------------------
+
+/** Build synthetic HcFanBand[] via linear interpolation from p5/p50/p95 finals. */
+function buildFanBands(report: ForwardSimulationReport): Array<{ m: number; p5: number; p50: number; p95: number }> {
+  const p5Final = (report.finalRoiPercentilesBps.p5 ?? 0) / 100;
+  const p50Final = (report.finalRoiPercentilesBps.p50 ?? 0) / 100;
+  const p95Final = (report.finalRoiPercentilesBps.p95 ?? 0) / 100;
+  const months = PROJECTION.durationMonths;
+  const bands: Array<{ m: number; p5: number; p50: number; p95: number }> = [];
+  for (let i = 0; i <= months; i++) {
+    const t = i / months;
+    // Linear interpolation from 0 → final; fan widens quadratically
+    const spread = t * t;
+    const mid = p50Final * t;
+    const half = (p95Final - p50Final) * spread;
+    bands.push({
+      m: i + 1,
+      p5: mid - half + (p5Final - p50Final) * t * (1 - spread),
+      p50: mid,
+      p95: mid + half,
+    });
+  }
+  return bands;
+}
+
+function ForwardBody({ report }: { report: ForwardSimulationReport }) {
+  const fanBands = useMemo(() => buildFanBands(report), [report]);
+
   return (
-    <div className="flex flex-col gap-(--ct-space-4)">
+    <div className="flex flex-col gap-(--ct-space-5)">
       <BentoKpiStrip
         ariaLabel="Forward simulation summary"
         items={[
@@ -290,49 +486,104 @@ function ForwardBody({ report }: { report: ReturnType<ForwardSimulationRunner["r
           { label: "Exp. BTC sold", value: report.expectedBtcSold.toFixed(3) },
         ]}
       />
-      {/* p5 / p50 / p95 band */}
-      <div className="flex flex-col gap-(--ct-space-1)">
-        <span className="ct-section-label ct-text-strong">Final ROI distribution · p5 / p50 / p95</span>
-        <div className="flex items-center gap-(--ct-space-2)">
-          <span className="mono text-[length:var(--ct-text-xs)] ct-text-tertiary w-[4rem] text-right">{bps(report.finalRoiPercentilesBps.p5 ?? 0)}</span>
-          <span className="relative h-(--ct-space-2) flex-1 rounded-(--ct-radius-full) bg-[color-mix(in_srgb,var(--ct-accent)_18%,transparent)]">
-            <span aria-hidden className="absolute top-1/2 h-(--ct-space-3) w-px -translate-y-1/2 bg-[var(--ct-accent)]" style={{ left: "50%" }} />
-          </span>
-          <span className="mono text-[length:var(--ct-text-xs)] ct-text-tertiary w-[4rem]">{bps(report.finalRoiPercentilesBps.p95 ?? 0)}</span>
-        </div>
-        <span className="mono text-[length:var(--ct-text-2xs)] ct-text-faint">median (p50) {bps(report.finalRoiPercentilesBps.p50 ?? 0)}</span>
+
+      {/* Fan chart */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">
+          ROI projection fan · p5 / p50 / p95 · 24 months
+        </span>
+        <HcFanChart
+          bands={fanBands}
+          width={560}
+          height={280}
+          unit="%"
+          seedLabel="seed=42 · 200 paths · conditional"
+          aria-label="Forward simulation fan chart — p5/p50/p95 final ROI over 24 months"
+        />
+      </div>
+
+      {/* Path extremes summary */}
+      <div className="grid grid-cols-3 gap-(--ct-space-3)">
+        {(
+          [
+            { label: "Worst path", path: report.worstPath, colorClass: "text-[var(--ct-status-danger)]" },
+            { label: "Median path", path: report.medianPath, colorClass: "ct-text-accent" },
+            { label: "Best path", path: report.bestPath, colorClass: "ct-text-accent" },
+          ] as const
+        ).map(({ label, path, colorClass }) => (
+          <div
+            key={label}
+            className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
+          >
+            <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">{label}</span>
+            <span className={cn("text-[length:var(--ct-text-sm)] tabular-nums", colorClass)}>
+              {bps(path.finalRoiBps)}
+            </span>
+            <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+              Min dist. {bps(path.minLiquidationDistanceBps)}
+            </span>
+            {path.endedLiquidated ? (
+              <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">liquidated</span>
+            ) : null}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function StressBody({ report }: { report: ReturnType<StressMatrixRunner["run"]> }) {
+// ---------------------------------------------------------------------------
+// Stress matrix body
+// ---------------------------------------------------------------------------
+
+function StressBody({ report }: { report: StressMatrixReport }) {
+  const criticalCount = report.cells.filter((c) => c.riskLevel === "CRITICAL").length;
+  const highCount = report.cells.filter((c) => c.riskLevel === "HIGH").length;
+  const totalCount = report.cells.length;
+
   return (
-    <div className="flex flex-col gap-(--ct-space-3)">
-      <span className="ct-section-label ct-text-strong">Stress heatmap · BTC shock × electricity shock (cell = final ROI)</span>
+    <div className="flex flex-col gap-(--ct-space-4)">
+      <span className="ct-section-label ct-text-strong">
+        Stress heatmap · BTC shock × electricity shock (cell = final ROI)
+      </span>
       <div className="min-w-0 overflow-x-auto">
-        <table className="border-collapse text-[length:var(--ct-text-2xs)] tabular-nums">
+        <table className="border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
             <tr>
-              <th className="p-(--ct-space-1) ct-text-faint" />
+              {/* Corner header */}
+              <th className="p-(--ct-space-2) text-right">
+                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Elec shock ↓</span>
+              </th>
               {report.xAxis.values.map((x) => (
-                <th key={x} className="p-(--ct-space-1) text-center ct-text-tertiary">{bps(x)}</th>
+                <th key={x} className="p-(--ct-space-2) text-center ct-text-tertiary">
+                  <span className="block text-[length:var(--ct-text-2xs)] ct-text-faint">BTC shock</span>
+                  <span>{bps(x)}</span>
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {report.yAxis.values.map((y) => (
               <tr key={y}>
-                <td className="p-(--ct-space-1) text-right ct-text-tertiary">{bps(y)}</td>
+                <td className="p-(--ct-space-2) text-right ct-text-tertiary whitespace-nowrap">
+                  <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Elec</span>{" "}
+                  {bps(y)}
+                </td>
                 {report.xAxis.values.map((x) => {
                   const cell = report.cells.find((c) => c.x === x && c.y === y)!;
                   return (
                     <td
                       key={`${x}-${y}`}
                       title={`BTC ${bps(x)} · elec ${bps(y)} · ROI ${bps(cell.finalRoiBps)} · ${cell.riskLevel}`}
-                      className={cn("p-(--ct-space-2) text-center ct-text-strong", RISK_TONE[cell.riskLevel])}
+                      className={cn(
+                        "p-(--ct-space-3) text-center ct-text-strong",
+                        RISK_TONE[cell.riskLevel],
+                      )}
                     >
-                      {bps(cell.finalRoiBps)}
+                      <span className="block">{bps(cell.finalRoiBps)}</span>
+                      <span className="block text-[length:var(--ct-text-2xs)] ct-text-faint mt-0.5">
+                        {cell.riskLevel}
+                      </span>
                     </td>
                   );
                 })}
@@ -341,6 +592,8 @@ function StressBody({ report }: { report: ReturnType<StressMatrixRunner["run"]> 
           </tbody>
         </table>
       </div>
+
+      {/* Risk level legend */}
       <div className="flex flex-wrap gap-x-(--ct-space-3) text-[length:var(--ct-text-2xs)] ct-text-tertiary">
         {(["LOW", "MEDIUM", "HIGH", "CRITICAL"] as StressRiskLevel[]).map((l) => (
           <span key={l} className="inline-flex items-center gap-(--ct-space-1)">
@@ -349,9 +602,42 @@ function StressBody({ report }: { report: ReturnType<StressMatrixRunner["run"]> 
           </span>
         ))}
       </div>
+
+      {/* Textual summary */}
+      <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
+        {criticalCount > 0 ? (
+          <>
+            <span className="text-[var(--ct-status-danger)]">
+              {criticalCount} of {totalCount}
+            </span>{" "}
+            scenarios are{" "}
+            <span className="text-[var(--ct-status-danger)]">CRITICAL</span>
+            {highCount > 0 ? (
+              <>
+                {" "}and{" "}
+                <span className="ct-text-body">{highCount}</span>{" "}
+                are HIGH risk.
+              </>
+            ) : (
+              "."
+            )}
+          </>
+        ) : highCount > 0 ? (
+          <>
+            <span className="ct-text-body">{highCount} of {totalCount}</span>{" "}
+            scenarios are HIGH risk — no CRITICAL scenarios.
+          </>
+        ) : (
+          <>All {totalCount} scenarios are within LOW or MEDIUM risk bounds.</>
+        )}
+      </p>
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Sensitivity body (unchanged — gérée par W5)
+// ---------------------------------------------------------------------------
 
 function SensitivityBody({ report }: { report: ReturnType<SensitivityAnalyzer["run"]> }) {
   const maxImpact = Math.max(1, ...report.rows.map((r) => r.roiImpactBps));
