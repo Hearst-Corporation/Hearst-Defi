@@ -4,15 +4,20 @@
  * StrategyHubClient — Strategy Hub root client component.
  *
  * Layout:
- *   1. Header block: title, subtitle, CTA row (New Strategy / Open Lab / Export).
- *   2. KPI strip: count, live, drafts, families, last-updated — honest/provenance-labelled.
+ *   1. CTA row: primary actions (New Strategy / Edit Selected / Open Data Lab /
+ *      Use for New Product) + secondary "More" menu (Export config).
+ *   2. KPI strip: count, live, drafts, families, last-updated — provenance-labelled.
  *   3. Tabs: Library · Builder · Data Lab.
  *
- * No DB, no server action, no vault creation. Product handoff = router.push with
- * query param only. No forbidden words. All tokens --ct-*, no raw hex.
+ * IA notes:
+ *   - No h1 inside this component: AdminPageShell owns the "Strategy Hub" title.
+ *   - Section headings use h2/h3 only.
+ *   - Numeric KPI values use tabular-nums; text labels do not.
+ *   - CTA row wraps at narrow widths; title is outside this component.
+ *   - No forbidden words. All tokens --ct-*, no raw hex.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/cn";
@@ -70,6 +75,85 @@ function latestUpdatedAt(strategies: ProductStrategy[]): string {
 
 function countDistinctFamilies(strategies: ProductStrategy[]): number {
   return new Set(strategies.map((s) => s.productFamily)).size;
+}
+
+// ---------------------------------------------------------------------------
+// More menu (secondary actions)
+// ---------------------------------------------------------------------------
+
+interface MoreMenuProps {
+  onExport: () => void;
+}
+
+function MoreMenu({ onExport }: MoreMenuProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <CockpitButton
+        variant="ghost"
+        size="md"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="More actions"
+        title="More actions"
+      >
+        •••
+      </CockpitButton>
+
+      {open && (
+        <div
+          role="menu"
+          className={cn(
+            "absolute right-0 top-full mt-(--ct-space-1) z-50 min-w-[160px]",
+            "rounded-(--ct-radius-md) border border-[var(--ct-border-soft)]",
+            "bg-[var(--ct-bg-panel)] shadow-lg py-(--ct-space-1)",
+          )}
+        >
+          <button
+            role="menuitem"
+            className={cn(
+              "w-full flex items-center gap-(--ct-space-2) px-(--ct-space-3) py-(--ct-space-2)",
+              "text-[length:var(--ct-text-sm)] ct-text-secondary text-left",
+              "hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)]",
+              "focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ct-accent)]",
+              "transition-colors",
+            )}
+            onClick={() => {
+              onExport();
+              setOpen(false);
+            }}
+          >
+            Export config
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -349,22 +433,25 @@ export function StrategyHubClient({
 
   return (
     <div className="flex flex-col gap-(--ct-space-5) min-w-0">
-      {/* ── Header block ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-(--ct-space-3) min-w-0">
-        <div className="min-w-0">
-          <h1 className="text-[length:var(--ct-text-xl)] font-bold ct-text-strong">
-            Product Strategies
-          </h1>
-          <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary mt-(--ct-space-1)">
-            Create, test, publish and deploy strategy templates for future vaults.
-          </p>
-        </div>
-
-        {/* CTA row */}
+      {/* ── CTA row ───────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-(--ct-space-2) min-w-0">
+        {/* Primary actions + More menu */}
         <div className="flex flex-wrap items-center gap-(--ct-space-2) min-w-0">
+          {/* Primary */}
           <CockpitButton variant="primary" size="md" onClick={openCreate}>
             + New Strategy
           </CockpitButton>
+
+          <CockpitButton
+            variant="secondary"
+            size="md"
+            onClick={selected ? () => openEdit(selected) : undefined}
+            disabled={!selected}
+            title={!selected ? "Select a strategy to edit it" : undefined}
+          >
+            Edit Selected
+          </CockpitButton>
+
           <CockpitButton
             variant="secondary"
             size="md"
@@ -374,15 +461,25 @@ export function StrategyHubClient({
           >
             Open Data Lab
           </CockpitButton>
-          <CockpitButton variant="secondary" size="md" onClick={handleExport}>
-            Export config
+
+          <CockpitButton
+            variant="secondary"
+            size="md"
+            onClick={selected ? () => handleUseForProduct(selected) : undefined}
+            disabled={!selected}
+            title={!selected ? "Select a strategy first" : undefined}
+          >
+            Use for New Product
           </CockpitButton>
 
-          {/* Persistence notice */}
+          {/* Secondary: More menu */}
+          <MoreMenu onExport={handleExport} />
+
+          {/* Persistence notice — subtle, muted, one line */}
           {persistencePending && (
-            <span className="ml-auto flex items-center gap-(--ct-space-1_5) text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+            <span className="ml-auto flex items-center gap-(--ct-space-1_5) text-[length:var(--ct-text-2xs)] ct-text-muted">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--ct-status-warning)] shrink-0" />
-              Local draft state — persistence pending
+              Local draft — persistence pending
             </span>
           )}
         </div>
@@ -438,17 +535,17 @@ export function StrategyHubClient({
         <div className="flex flex-col gap-(--ct-space-5) min-w-0">
           {selected ? (
             <>
-              {/* Edit CTA */}
+              {/* Strategy name + inline edit */}
               <div className="flex items-center justify-between gap-(--ct-space-3) min-w-0">
-                <p className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong truncate">
+                <h2 className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong truncate">
                   {selected.name}
-                </p>
+                </h2>
                 <CockpitButton
                   variant="secondary"
                   size="md"
                   onClick={() => openEdit(selected)}
                 >
-                  Edit this strategy
+                  Edit
                 </CockpitButton>
               </div>
 
@@ -464,7 +561,7 @@ export function StrategyHubClient({
                 onScenarioChange={setActiveScenario}
               />
 
-              {/* Use-for-Product CTA */}
+              {/* Use-for-Product + Data Lab CTAs */}
               <div className="flex items-center gap-(--ct-space-3) pt-(--ct-space-3) border-t border-[var(--ct-border-soft)] min-w-0">
                 <CockpitButton
                   variant="primary"
