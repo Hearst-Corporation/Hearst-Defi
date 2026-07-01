@@ -12,6 +12,3 @@ export const PAD_Y_BOT = 18;
 
 export const DRAW_W = VB_W - PAD_X * 2;
 export const DRAW_H = VB_H - PAD_Y_TOP - PAD_Y_BOT;
-
-/** Bottom of the drawable plot — area fill closes here, not at viewBox floor. */
-export const CHART_BASELINE_Y = PAD_Y_TOP + DRAW_H;

@@ -31,13 +31,6 @@ export const DIAGNOSTIC_SUITES = [
 ] as const;
 export type SuiteName = (typeof DIAGNOSTIC_SUITES)[number];
 
-export function isSuiteName(value: unknown): value is SuiteName {
-  return (
-    typeof value === "string" &&
-    (DIAGNOSTIC_SUITES as readonly string[]).includes(value)
-  );
-}
-
 export interface SuiteDeps {
   outreach?: OutreachDiagnosticsDeps;
   vaultHitl?: VaultHitlDiagnosticsDeps;
