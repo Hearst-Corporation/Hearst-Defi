@@ -15,15 +15,20 @@ export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
   // but may not exist yet in the target database (no migration applied). Treat a
   // missing table / any query failure the same as an empty DB: fall back to the
   // static PRODUCT_STRATEGIES below instead of throwing a 500.
-  let configs: Awaited<ReturnType<typeof db.strategyConfig.findMany>> = [];
-  try {
-    configs = await db.strategyConfig.findMany({
+  // Typed through a helper so `configs` carries the INCLUDED relations —
+  // typing it from a bare findMany() loses `scenarios`/`collateral`/`rules`
+  // and the filters below stop compiling.
+  const findConfigs = () =>
+    db.strategyConfig.findMany({
       include: {
         scenarios: true,
         collateral: true,
         rules: true,
       },
     });
+  let configs: Awaited<ReturnType<typeof findConfigs>> = [];
+  try {
+    configs = await findConfigs();
   } catch {
     configs = [];
   }
