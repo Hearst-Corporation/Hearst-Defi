@@ -144,6 +144,11 @@ function formatPct(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+/** Index formatter (base-100 framing) — a plain number, no currency. */
+function formatIndex(value: number): string {
+  return Math.round(value).toLocaleString("en-US");
+}
+
 export function MonteCarloChart({
   initialValue = 10_000,
   horizonMonths = 120,
@@ -157,6 +162,7 @@ export function MonteCarloChart({
   caption = "Seeded simulation · illustrative dispersion, not guaranteed.",
   bare = false,
   showHeader = true,
+  indexed = false,
   className,
 }: {
   initialValue?: number;
@@ -171,8 +177,14 @@ export function MonteCarloChart({
   caption?: string;
   bare?: boolean;
   showHeader?: boolean;
+  /** Render the Y axis as an INDEX (base = initialValue), not $. Honest framing
+   *  for the illustrative dispersion — the paths are not a real capital amount. */
+  indexed?: boolean;
   className?: string;
 }) {
+  const compactFmt = indexed ? formatIndex : formatCompactUsd;
+  const fullFmt = indexed ? formatIndex : formatFullUsd;
+  const tooltipLead = indexed ? "Principal · index" : "Principal";
   const drawnPaths = Math.max(24, Math.min(renderedPaths, reportedPaths ?? renderedPaths));
   const months = Math.max(1, Math.round(horizonMonths));
   const summary =
@@ -266,7 +278,7 @@ export function MonteCarloChart({
               return raw === "Start" ? "Start" : `Month ${raw.replace("M", "")}`;
             },
             label: (ctx) =>
-              `Principal · ${formatFullUsd(Number(ctx.raw))}`,
+              `${tooltipLead} ${fullFmt(Number(ctx.raw))}`,
           },
         },
       },
@@ -288,12 +300,12 @@ export function MonteCarloChart({
             color: ds.muted,
             font: { size: 11 },
             maxTicksLimit: 6,
-            callback: (value) => formatCompactUsd(Number(value)),
+            callback: (value) => compactFmt(Number(value)),
           },
         },
       },
     }),
-    [data.datasets.length, ds.surfaceCard, ds.border, ds.textStrong, ds.muted, ds.gridSoft],
+    [data.datasets.length, ds.surfaceCard, ds.border, ds.textStrong, ds.muted, ds.gridSoft, compactFmt, fullFmt, tooltipLead],
   );
 
   const finalMid = median[months] ?? 0;
@@ -315,7 +327,7 @@ export function MonteCarloChart({
             />
             <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
             <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
-              {formatCompactUsd(finalMid)}
+              {compactFmt(finalMid)}
             </span>
           </div>
         </div>
@@ -350,7 +362,7 @@ export function MonteCarloChart({
             />
             <span className="ct-metric-caption ct-text-muted">Principal strategy</span>
             <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
-              {formatCompactUsd(finalMid)}
+              {compactFmt(finalMid)}
             </span>
           </div>
         </div>
