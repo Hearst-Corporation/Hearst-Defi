@@ -1,12 +1,18 @@
 /**
  * PoolAllocationHero — hero-grade visual block for the Strategies Admin page.
  *
- * Shows the pool allocation breakdown for the active scenario with a donut
- * chart (HcCompositionRing) on the left and a custom legend + stats on the right.
- * Uses 4 hardcoded distinctive colours for the 4 sleeves as specified.
+ * Shows the pool allocation breakdown for the active scenario with a custom
+ * SVG donut on the left and a detailed legend + stat cards on the right.
  *
- * "use client" because this component is used interactively alongside
- * ScenarioComparisonCards which drives the activeScenario state.
+ * Sleeve colours come exclusively from `lab-colors.ts` (SLEEVE_COLORS) —
+ * no hex literals in this file.
+ *
+ * Scenario toggle: when `onScenarioChange` is provided, renders pill buttons
+ * (Safe / Balanced / Opportunistic) with a coloured dot from SCENARIO_DOT.
+ * When absent, displays a static label — backward-compatible with existing
+ * callers that pass only `{ strategy, activeScenario }`.
+ *
+ * "use client" — the scenario toggle buttons require client interactivity.
  */
 "use client";
 
@@ -14,35 +20,26 @@ import { cn } from "@/lib/cn";
 import {
   bpsToPct,
   PRODUCT_FAMILY_LABEL,
+  RISK_LABEL,
   type ProductStrategy,
   type RiskProfileKey,
 } from "@/lib/product-strategies";
-import { HcCompositionRing } from "@/components/dataviz/his/HcCompositionRing";
-
-// ---------------------------------------------------------------------------
-// Sleeve colour palette — hardcoded per spec, NOT DS monochrome tokens
-// ---------------------------------------------------------------------------
-
-const SLEEVE_COLORS = {
-  mining: "#A7FB90",
-  btc: "#F7931A",
-  stable: "#60A5FA",
-  yield: "#A78BFA",
-} as const;
+import {
+  SLEEVE_COLORS,
+  SLEEVE_LABEL,
+  SCENARIO_DOT,
+  sleeveOrder,
+} from "@/lib/product-strategies/lab-colors";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface SleeveRow {
-  label: string;
-  bps: number;
-  color: string;
-}
-
-interface PoolAllocationHeroProps {
+export interface PoolAllocationHeroProps {
   strategy: ProductStrategy;
   activeScenario: RiskProfileKey;
+  /** When provided, renders an interactive scenario toggle inside the hero. */
+  onScenarioChange?: (s: RiskProfileKey) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,6 +48,10 @@ interface PoolAllocationHeroProps {
 
 function pctStr(bps: number): string {
   return `${bpsToPct(bps).toFixed(1)}%`;
+}
+
+function bpsStr(bps: number): string {
+  return `${bps.toLocaleString()}bps`;
 }
 
 function formatRange(lowBps: number | undefined, highBps: number | undefined): string {
@@ -62,32 +63,6 @@ function formatRange(lowBps: number | undefined, highBps: number | undefined): s
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function SleeveChip({ label, bps, color }: SleeveRow) {
-  return (
-    <div
-      className="flex items-center gap-(--ct-space-1_5) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-(--ct-space-1)"
-      style={{ borderLeftColor: color, borderLeftWidth: 2 }}
-    >
-      <span
-        aria-hidden
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: 2,
-          background: color,
-          flexShrink: 0,
-        }}
-      />
-      <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary truncate">
-        {label}
-      </span>
-      <span className="text-[length:var(--ct-text-2xs)] ct-text-strong tabular-nums ml-auto">
-        {pctStr(bps)}
-      </span>
-    </div>
-  );
-}
-
 interface StatMiniCardProps {
   label: string;
   value: string;
@@ -95,131 +70,32 @@ interface StatMiniCardProps {
 
 function StatMiniCard({ label, value }: StatMiniCardProps) {
   return (
-    <div className="flex flex-col gap-(--ct-space-0_5) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-      <span className="text-[length:var(--ct-text-lg)] font-semibold ct-text-strong tabular-nums">
+    <div className="flex flex-col gap-(--ct-space-0_5) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] p-(--ct-space-3) min-w-0">
+      <span className="text-[length:var(--ct-text-lg)] font-semibold ct-text-strong tabular-nums truncate">
         {value}
       </span>
-      <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+      <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary truncate">
         {label}
       </span>
     </div>
   );
 }
 
+const SCENARIO_KEYS: RiskProfileKey[] = ["safe", "balanced", "opportunistic"];
+
 // ---------------------------------------------------------------------------
-// Main component
+// CustomDonut — sleeve colours come from SLEEVE_COLORS import
 // ---------------------------------------------------------------------------
 
-export function PoolAllocationHero({ strategy, activeScenario }: PoolAllocationHeroProps) {
-  const scenario = strategy.scenarios[activeScenario];
-  const asm = scenario.assumptions;
-  const alloc = scenario.allocation;
-
-  const sleeves: SleeveRow[] = [
-    { label: "Mining", bps: alloc.miningBps, color: SLEEVE_COLORS.mining },
-    { label: "BTC", bps: alloc.btcBps, color: SLEEVE_COLORS.btc },
-    { label: "Stable Reserve", bps: alloc.stableReserveBps, color: SLEEVE_COLORS.stable },
-    { label: "Yield Overlay", bps: alloc.yieldOverlayBps, color: SLEEVE_COLORS.yield },
-  ];
-
-  // HcCompositionRing expects HcLabeledValue[] — value is used as weight
-  const ringSegments = sleeves.map((s) => ({
-    label: s.label,
-    value: s.bps,
-  }));
-
-  // Override the ring's built-in RAMP by injecting inline SVG colours separately.
-  // Since HcCompositionRing uses its internal RAMP, we render our own custom donut.
-  const scenarioLabel = scenario.label;
-  const familyLabel = PRODUCT_FAMILY_LABEL[strategy.productFamily];
-
-  const distRange = formatRange(asm.distributionTargetLowBps, asm.distributionTargetHighBps);
-  const perfRange = formatRange(asm.totalPerformanceLowBps, asm.totalPerformanceHighBps);
-  const floorApy = asm.floorBps !== undefined ? pctStr(asm.floorBps) : "—";
-  const volMultiplier = `×${asm.volatilityMultiplier}`;
-
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-(--ct-space-6) rounded-(--ct-radius-2xl) border border-[var(--ct-border-soft)]",
-        "p-(--ct-space-6) bg-[var(--ct-bg-deep)]",
-      )}
-    >
-      {/* Header */}
-      <div className="flex flex-col gap-(--ct-space-1)">
-        <h2 className="text-[length:var(--ct-text-xl)] font-semibold ct-text-strong">
-          Pool Allocation
-        </h2>
-        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-          Active scenario: {scenarioLabel}
-        </p>
-      </div>
-
-      {/* Main grid: donut + legend */}
-      <div className="grid gap-(--ct-space-8) md:grid-cols-2 items-center">
-        {/* Left: custom donut with hardcoded colours */}
-        <div className="flex justify-center">
-          <CustomDonut sleeves={sleeves} centerLabel="Pool" centerValue={familyLabel} />
-        </div>
-
-        {/* Right: legend + sleeve chips */}
-        <div className="flex flex-col gap-(--ct-space-4)">
-          {/* Full legend rows */}
-          <ul className="flex flex-col gap-(--ct-space-2)">
-            {sleeves.map((s) => (
-              <li key={s.label} className="flex items-center gap-(--ct-space-2)">
-                <span
-                  aria-hidden
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 3,
-                    background: s.color,
-                    flexShrink: 0,
-                  }}
-                />
-                <span className="text-[length:var(--ct-text-xs)] ct-text-body flex-1">
-                  {s.label}
-                </span>
-                <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong tabular-nums">
-                  {pctStr(s.bps)}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Horizontal chips row */}
-          <div className="grid grid-cols-2 gap-(--ct-space-2)">
-            {sleeves.map((s) => (
-              <SleeveChip key={s.label} {...s} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats mini-cards */}
-      <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
-        <StatMiniCard label="Distribution target" value={distRange} />
-        <StatMiniCard label="Total performance" value={perfRange} />
-        <StatMiniCard label="Horizon" value={`${asm.horizonMonths}m`} />
-        <StatMiniCard label="Vol multiplier" value={volMultiplier} />
-      </div>
-
-      {/* Disclaimer */}
-      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-        Conditional on stated assumptions — not guaranteed.
-      </p>
-    </div>
-  );
+interface DonutSleeveRow {
+  key: string;
+  label: string;
+  bps: number;
+  color: string;
 }
 
-// ---------------------------------------------------------------------------
-// CustomDonut — SVG donut with hardcoded sleeve colours (bypasses HcCompositionRing
-// internal RAMP so Mining=green, BTC=orange, Stable=blue, Yield=purple)
-// ---------------------------------------------------------------------------
-
 interface CustomDonutProps {
-  sleeves: SleeveRow[];
+  sleeves: DonutSleeveRow[];
   centerLabel: string;
   centerValue: string;
 }
@@ -261,7 +137,7 @@ function CustomDonut({ sleeves, centerLabel, centerValue }: CustomDonutProps) {
           acc += fraction;
           return (
             <circle
-              key={s.label}
+              key={s.key}
               cx={cx}
               cy={cy}
               r={r}
@@ -275,7 +151,7 @@ function CustomDonut({ sleeves, centerLabel, centerValue }: CustomDonutProps) {
             </circle>
           );
         })}
-      {/* Center value (family label, shortened) */}
+      {/* Center value */}
       <text
         x={cx}
         y={cy - 4}
@@ -302,5 +178,197 @@ function CustomDonut({ sleeves, centerLabel, centerValue }: CustomDonutProps) {
   );
 }
 
-// Re-export for convenience
-export type { PoolAllocationHeroProps };
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+export function PoolAllocationHero({
+  strategy,
+  activeScenario,
+  onScenarioChange,
+}: PoolAllocationHeroProps) {
+  const scenario = strategy.scenarios[activeScenario];
+  const asm = scenario.assumptions;
+  const alloc = scenario.allocation;
+
+  // Build sleeve rows from the canonical order — colours from SLEEVE_COLORS
+  const sleeves: DonutSleeveRow[] = sleeveOrder.map((key) => ({
+    key,
+    label: SLEEVE_LABEL[key],
+    bps: (() => {
+      if (key === "mining") return alloc.miningBps;
+      if (key === "btc") return alloc.btcBps;
+      if (key === "stableReserve") return alloc.stableReserveBps;
+      return alloc.yieldOverlayBps;
+    })(),
+    color: SLEEVE_COLORS[key],
+  }));
+
+  const total = sleeves.reduce((sum, s) => sum + Math.max(0, s.bps), 0);
+
+  const scenarioLabel = scenario.label;
+  const familyLabel = PRODUCT_FAMILY_LABEL[strategy.productFamily];
+
+  const distRange = formatRange(asm.distributionTargetLowBps, asm.distributionTargetHighBps);
+  const perfRange = formatRange(asm.totalPerformanceLowBps, asm.totalPerformanceHighBps);
+  const floorApy = asm.floorBps !== undefined ? pctStr(asm.floorBps) : "—";
+  const volMultiplier = `${asm.volatilityMultiplier}`;
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-(--ct-space-6) rounded-(--ct-radius-2xl) border border-[var(--ct-border-soft)]",
+        "p-(--ct-space-6) bg-[var(--ct-bg-deep)]",
+      )}
+    >
+      {/* Header */}
+      <div className="flex flex-col gap-(--ct-space-1) sm:flex-row sm:items-center sm:justify-between min-w-0">
+        <div className="flex flex-col gap-(--ct-space-0_5) min-w-0">
+          <h2 className="text-[length:var(--ct-text-xl)] font-semibold ct-text-strong">
+            Pool Allocation
+          </h2>
+          <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
+            {strategy.name} · {familyLabel}
+          </p>
+        </div>
+
+        {/* Scenario toggle or static label */}
+        {onScenarioChange ? (
+          <div
+            className="flex items-center gap-(--ct-space-1) rounded-(--ct-radius-full) border border-[var(--ct-border-soft)] p-(--ct-space-1) shrink-0"
+            role="group"
+            aria-label="Select scenario"
+          >
+            {SCENARIO_KEYS.map((key) => {
+              const isActive = key === activeScenario;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => onScenarioChange(key)}
+                  className={cn(
+                    "flex items-center gap-(--ct-space-1_5) rounded-(--ct-radius-full)",
+                    "px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-xs)] font-medium",
+                    "transition-colors",
+                    isActive
+                      ? "bg-[var(--ct-surface-card)] ct-text-strong"
+                      : "ct-text-tertiary hover:ct-text-body",
+                  )}
+                  aria-pressed={isActive}
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: SCENARIO_DOT[key],
+                      flexShrink: 0,
+                    }}
+                  />
+                  {RISK_LABEL[key]}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <span
+            className="flex items-center gap-(--ct-space-1_5) text-[length:var(--ct-text-xs)] ct-text-tertiary shrink-0"
+          >
+            <span
+              aria-hidden
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: SCENARIO_DOT[activeScenario],
+                flexShrink: 0,
+              }}
+            />
+            Active: {scenarioLabel}
+          </span>
+        )}
+      </div>
+
+      {/* Main grid: donut + legend */}
+      <div className="grid gap-(--ct-space-8) md:grid-cols-2 items-center">
+        {/* Left: custom donut with SLEEVE_COLORS */}
+        <div className="flex justify-center">
+          <CustomDonut sleeves={sleeves} centerLabel="Pool" centerValue={familyLabel} />
+        </div>
+
+        {/* Right: legend rows with pct + bps */}
+        <div className="flex flex-col gap-(--ct-space-4) min-w-0">
+          <ul className="flex flex-col gap-(--ct-space-2)">
+            {sleeves.map((s) => {
+              const pct = total > 0 ? (Math.max(0, s.bps) / total) * 100 : 0;
+              return (
+                <li key={s.key} className="flex items-center gap-(--ct-space-2) min-w-0">
+                  {/* Colour square */}
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: 3,
+                      background: s.color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  {/* Label */}
+                  <span className="text-[length:var(--ct-text-xs)] ct-text-body min-w-0 truncate flex-1">
+                    {s.label}
+                  </span>
+                  {/* Percent */}
+                  <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong tabular-nums shrink-0">
+                    {pct.toFixed(1)}%
+                  </span>
+                  {/* Bps */}
+                  <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary tabular-nums shrink-0 w-[4.5rem] text-right">
+                    {bpsStr(s.bps)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Horizontal mini-bar gauge */}
+          <div
+            className="flex rounded-(--ct-radius-full) overflow-hidden"
+            style={{ height: 8 }}
+            aria-hidden
+          >
+            {total > 0 &&
+              sleeves.map((s) => (
+                <div
+                  key={s.key}
+                  style={{
+                    width: `${((Math.max(0, s.bps) / total) * 100).toFixed(2)}%`,
+                    background: s.color,
+                  }}
+                />
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats mini-cards */}
+      <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
+        <StatMiniCard label="Distribution target" value={distRange} />
+        <StatMiniCard label="Total performance" value={perfRange} />
+        <StatMiniCard label="Floor APY" value={floorApy} />
+        <StatMiniCard label="Horizon" value={`${asm.horizonMonths}m`} />
+      </div>
+
+      {/* Vol multiplier + disclaimer row */}
+      <div className="flex items-center justify-between gap-(--ct-space-4) min-w-0">
+        <p className="text-[length:var(--ct-text-2xs)] ct-text-faint min-w-0">
+          Conditional on stated assumptions — not guaranteed.
+        </p>
+        <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary tabular-nums shrink-0">
+          Vol ×{volMultiplier}
+        </span>
+      </div>
+    </div>
+  );
+}
