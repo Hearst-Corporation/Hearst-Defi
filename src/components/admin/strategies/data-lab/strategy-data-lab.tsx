@@ -23,12 +23,10 @@ import {
 import { cn } from "@/lib/cn";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { HcFanChart } from "@/components/dataviz/his/HcFanChart";
-import type {
-  CollateralConfig,
-  ManualProjectionConfig,
-  RebalancingRule,
-  Scenario,
-} from "@/lib/scenario-runner";
+import { HcWaterfall } from "@/components/dataviz/his/HcWaterfall";
+import { HcValueChart } from "@/components/dataviz/his/HcValueChart";
+import type { Scenario } from "@/lib/scenario-runner";
+import { runManualStrategyProjection } from "@/lib/scenario-runner";
 import {
   BacktestRunner,
   ForwardSimulationRunner,
@@ -36,14 +34,28 @@ import {
   SensitivityAnalyzer,
   MARKET_REGIMES,
   SYNTHETIC_HISTORICAL_REGIMES,
+  computeMetrics,
+  computeAttribution,
+  LAB_BASE_COLLATERAL,
+  LAB_BASE_PROJECTION,
+  LAB_BASE_RULES,
   type DataLabMode,
   type StressRiskLevel,
   type BacktestReport,
   type ForwardSimulationReport,
   type StressMatrixReport,
 } from "@/lib/strategy-data-lab";
+import {
+  SensitivityPanel,
+  TriggerAnalyticsPanel,
+} from "./sensitivity-trigger-timeline";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 const bps = (n: number) => `${(n / 100).toFixed(1)}%`;
+const usdcFmt = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 const MODES: { id: DataLabMode; label: string }[] = [
   { id: "BACKTEST", label: "Backtest" },
@@ -53,59 +65,10 @@ const MODES: { id: DataLabMode; label: string }[] = [
   { id: "REGIME_COMPARISON", label: "Trigger Analytics" },
 ];
 
-const COLLATERAL: CollateralConfig = {
-  collateralAsset: "BTC",
-  borrowAsset: "USDC",
-  initialBtcCollateral: 10,
-  initialDebtUsdc: 200_000,
-  initialReserveUsdc: 120_000,
-  liquidationLtvBps: 8000,
-  targetSafetyBufferBps: 2000,
-  targetRiskLtvBps: 6000,
-  borrowAprBps: 600,
-  electricityMonthlyCostUsdc: 3000,
-  minReserveUsdc: 40_000,
-  maxBtcExposureBps: 9000,
-};
-
-const PROJECTION: ManualProjectionConfig = {
-  durationMonths: 24,
-  interval: "MONTHLY",
-  btcPriceStart: 60_000,
-  btcMonthlyDriftBps: 100,
-  btcMonthlyVolBps: 800,
-  stableYieldAprBps: 500,
-  overlayYieldAprBps: 900,
-  miningYieldAprBps: 400,
-  feeDragAprBps: 200,
-};
-
-const RULES: RebalancingRule[] = [
-  {
-    id: "liq-ltv",
-    scenario: "balanced",
-    type: "LIQUIDATE",
-    priority: 100,
-    triggerMetric: "LTV",
-    operator: ">=",
-    value: 6500,
-    action: { side: "SELL_BTC", sizingMode: "PERCENT_OF_BTC_COLLATERAL", sizingValue: 3000, repayDebtRatioBps: 10_000 },
-    cooldownMonths: 1,
-    enabled: true,
-  },
-  {
-    id: "rep-dist",
-    scenario: "balanced",
-    type: "REPURCHASE",
-    priority: 10,
-    triggerMetric: "LIQUIDATION_DISTANCE",
-    operator: ">=",
-    value: 4000,
-    action: { side: "BUY_BTC", sizingMode: "PERCENT_OF_USDC_RESERVE", sizingValue: 2500, maxLtvAfterActionBps: 5500 },
-    cooldownMonths: 2,
-    enabled: true,
-  },
-];
+// ---------------------------------------------------------------------------
+// TD.1 — unified constants (imported from lib, local copies REMOVED)
+// ---------------------------------------------------------------------------
+// LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION, LAB_BASE_RULES imported above.
 
 const RISK_TONE: Record<StressRiskLevel, string> = {
   LOW: "bg-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)]",
@@ -134,9 +97,9 @@ export function StrategyDataLab() {
     () =>
       new BacktestRunner().run({
         strategyId: "strat-btc-mining-performance",
-        collateral: COLLATERAL,
-        projection: PROJECTION,
-        rules: RULES,
+        collateral: LAB_BASE_COLLATERAL,
+        projection: LAB_BASE_PROJECTION,
+        rules: LAB_BASE_RULES,
         regimes,
         scenarios,
       }),
@@ -147,9 +110,9 @@ export function StrategyDataLab() {
     () =>
       new ForwardSimulationRunner().run({
         scenario,
-        collateral: COLLATERAL,
-        projection: PROJECTION,
-        rules: RULES,
+        collateral: LAB_BASE_COLLATERAL,
+        projection: LAB_BASE_PROJECTION,
+        rules: LAB_BASE_RULES,
         monteCarlo: { enabled: true, paths: 200, seed: 42, confidenceBands: [0.05, 0.5, 0.95], includeJumpRisk: false, includeElectricityShock: false, includeBorrowAprShock: false },
       }),
     [scenario],
@@ -159,9 +122,9 @@ export function StrategyDataLab() {
     () =>
       new StressMatrixRunner().run({
         scenario,
-        collateral: COLLATERAL,
-        projection: PROJECTION,
-        rules: RULES,
+        collateral: LAB_BASE_COLLATERAL,
+        projection: LAB_BASE_PROJECTION,
+        rules: LAB_BASE_RULES,
         xAxis: { variable: "BTC_SHOCK", values: [-6000, -4000, -2000, 0, 2000] },
         yAxis: { variable: "ELECTRICITY_SHOCK", values: [0, 5000, 10_000, 15_000] },
       }),
@@ -172,10 +135,23 @@ export function StrategyDataLab() {
     () =>
       new SensitivityAnalyzer().run({
         scenario,
-        collateral: COLLATERAL,
-        projection: PROJECTION,
-        rules: RULES,
+        collateral: LAB_BASE_COLLATERAL,
+        projection: LAB_BASE_PROJECTION,
+        rules: LAB_BASE_RULES,
         sensitivity: { variables: ["BTC_PRICE", "BTC_VOL", "BORROW_APR", "ELECTRICITY_COST", "STABLE_YIELD", "LIQUIDATION_LTV"], stepBps: 1000, rangeSteps: 3 },
+      }),
+    [scenario],
+  );
+
+  // Task 5 — base run for attribution waterfall + underwater curve (shared)
+  const baseRun = useMemo(
+    () =>
+      runManualStrategyProjection({
+        scenario,
+        collateral: LAB_BASE_COLLATERAL,
+        projection: LAB_BASE_PROJECTION,
+        rules: LAB_BASE_RULES.map((r) => ({ ...r, scenario })),
+        seed: 1,
       }),
     [scenario],
   );
@@ -231,11 +207,13 @@ export function StrategyDataLab() {
       </div>
 
       {/* Mode body */}
-      {mode === "BACKTEST" ? <BacktestBody report={backtest} /> : null}
-      {mode === "FORWARD_SIMULATION" ? <ForwardBody report={forward} /> : null}
+      {mode === "BACKTEST" ? <BacktestBody report={backtest} baseRun={baseRun} /> : null}
+      {mode === "FORWARD_SIMULATION" ? <ForwardBody report={forward} baseRun={baseRun} scenario={scenario} /> : null}
       {mode === "STRESS_MATRIX" ? <StressBody report={stress} /> : null}
-      {mode === "SENSITIVITY" ? <SensitivityBody report={sensitivity} /> : null}
-      {mode === "REGIME_COMPARISON" ? <BacktestBody report={backtest} triggerFocus /> : null}
+      {/* Task 3 — wire SensitivityPanel */}
+      {mode === "SENSITIVITY" ? <SensitivityPanel report={sensitivity} /> : null}
+      {/* Task 3 — wire TriggerAnalyticsPanel */}
+      {mode === "REGIME_COMPARISON" ? <TriggerAnalyticsPanel report={backtest} /> : null}
 
       <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
         Conditional, seeded, modelled simulations — not guaranteed and not a
@@ -258,10 +236,10 @@ interface RegimeChartDatum {
 
 function BacktestBody({
   report,
-  triggerFocus = false,
+  baseRun,
 }: {
   report: BacktestReport;
-  triggerFocus?: boolean;
+  baseRun: ReturnType<typeof runManualStrategyProjection>;
 }) {
   const s = report.summary;
 
@@ -298,33 +276,54 @@ function BacktestBody({
     });
   }, [report.runs]);
 
+  // Task 5 — attribution waterfall
+  const attribution = useMemo(
+    () => computeAttribution(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
+    [baseRun],
+  );
+
+  // Task 6 — underwater curve from baseRun metrics
+  const m = useMemo(
+    () => computeMetrics(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
+    [baseRun],
+  );
+  const underwaterPoints = useMemo(
+    () => m.underwaterBps.map((bpsVal, i) => ({ at: i, value: -(bpsVal / 100) })),
+    [m.underwaterBps],
+  );
+
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
+      {/* Task 7 — provenance on KPI strip */}
       <BentoKpiStrip
         ariaLabel="Backtest summary"
         items={[
-          { label: "Avg final ROI", value: bps(s.averageFinalRoiBps), accent: s.averageFinalRoiBps >= 0 },
-          { label: "Best ROI", value: bps(s.bestFinalRoiBps), accent: true },
-          { label: "Worst ROI", value: bps(s.worstFinalRoiBps) },
-          { label: "Best scenario", value: s.bestScenarioByRoi },
-          { label: "Safest scenario", value: s.safestScenarioByMinDistance },
-          { label: "Liquidation freq.", value: bps(s.liquidationFrequencyBps) },
-          { label: "Repurchase freq.", value: bps(s.repurchaseFrequencyBps) },
+          { label: "Avg final ROI", value: bps(s.averageFinalRoiBps), accent: s.averageFinalRoiBps >= 0, provenance: "estimated" },
+          { label: "Best ROI", value: bps(s.bestFinalRoiBps), accent: true, provenance: "estimated" },
+          { label: "Worst ROI", value: bps(s.worstFinalRoiBps), provenance: "estimated" },
+          { label: "Best scenario", value: s.bestScenarioByRoi, provenance: "estimated" },
+          { label: "Safest scenario", value: s.safestScenarioByMinDistance, provenance: "estimated" },
+          { label: "Liquidation freq.", value: bps(s.liquidationFrequencyBps), provenance: "estimated" },
+          { label: "Repurchase freq.", value: bps(s.repurchaseFrequencyBps), provenance: "estimated" },
         ]}
       />
 
-      {/* Run table */}
+      {/* Task 9 — run table with new metric columns */}
       <div className="min-w-0 overflow-x-auto">
-        <table className="w-full min-w-[40rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+        <table className="w-full min-w-[52rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
             <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
               <th className="p-(--ct-space-2) text-left">Regime</th>
               <th className="p-(--ct-space-2) text-left">Scenario</th>
               <th className="p-(--ct-space-2) text-right">Final ROI</th>
+              <th className="p-(--ct-space-2) text-right">Ann. ROI</th>
               <th className="p-(--ct-space-2) text-right">Max DD</th>
               <th className="p-(--ct-space-2) text-right">Max LTV</th>
               <th className="p-(--ct-space-2) text-right">Min dist.</th>
-              <th className="p-(--ct-space-2) text-right">{triggerFocus ? "Liq / Rep" : "Sharpe~"}</th>
+              <th className="p-(--ct-space-2) text-right">Sharpe~</th>
+              <th className="p-(--ct-space-2) text-right">Sortino~</th>
+              <th className="p-(--ct-space-2) text-right">Calmar~</th>
+              <th className="p-(--ct-space-2) text-right">Recovery</th>
             </tr>
           </thead>
           <tbody>
@@ -333,16 +332,64 @@ function BacktestBody({
                 <td className="p-(--ct-space-2) ct-text-body [overflow-wrap:anywhere]">{run.regimeLabel}</td>
                 <td className="p-(--ct-space-2) ct-text-tertiary">{run.scenario}</td>
                 <td className={cn("p-(--ct-space-2) text-right", run.metrics.finalRoiBps >= 0 ? "ct-text-accent" : "ct-status-danger")}>{bps(run.metrics.finalRoiBps)}</td>
+                <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.annualizedRoiBps)}</td>
                 <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.maxDrawdownBps)}</td>
                 <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.maxLtvBps)}</td>
                 <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.minLiquidationDistanceBps)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">
-                  {triggerFocus ? `${run.metrics.liquidationEvents} / ${run.metrics.repurchaseEvents}` : run.metrics.sharpeLike.toFixed(2)}
-                </td>
+                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.sharpeLike.toFixed(2)}</td>
+                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.sortinoLike.toFixed(2)}</td>
+                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.calmarLike.toFixed(2)}</td>
+                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.recoveryMonths}mo</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Task 10 — CSV/JSON export */}
+      <div className="flex items-center gap-(--ct-space-2)">
+        <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Estimated / modelled</span>
+        <button
+          type="button"
+          onClick={() => {
+            void navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+          }}
+          className="rounded-(--ct-radius-sm) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-0.5 text-[length:var(--ct-text-2xs)] ct-text-tertiary hover:ct-text-body"
+        >
+          Copy JSON
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const headers = ["regime", "scenario", "finalRoiBps", "annualizedRoiBps", "maxDrawdownBps", "maxLtvBps", "minLiquidationDistanceBps", "sharpeLike", "sortinoLike", "calmarLike", "recoveryMonths"];
+            const rows = report.runs.map((run) =>
+              [
+                run.regimeLabel,
+                run.scenario,
+                run.metrics.finalRoiBps,
+                run.metrics.annualizedRoiBps,
+                run.metrics.maxDrawdownBps,
+                run.metrics.maxLtvBps,
+                run.metrics.minLiquidationDistanceBps,
+                run.metrics.sharpeLike,
+                run.metrics.sortinoLike,
+                run.metrics.calmarLike,
+                run.metrics.recoveryMonths,
+              ].join(","),
+            );
+            const csv = [headers.join(","), ...rows].join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "backtest-runs.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="rounded-(--ct-radius-sm) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-0.5 text-[length:var(--ct-text-2xs)] ct-text-tertiary hover:ct-text-body"
+        >
+          Download CSV
+        </button>
       </div>
 
       {/* ROI comparison chart per regime */}
@@ -437,6 +484,33 @@ function BacktestBody({
           ))}
         </div>
       </div>
+
+      {/* Task 5 — Return attribution waterfall */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">
+          Return attribution — BTC appreciation + yield − costs
+        </span>
+        <HcWaterfall
+          steps={attribution}
+          format={usdcFmt}
+          aria-label="Return attribution waterfall"
+          width={560}
+          height={240}
+        />
+      </div>
+
+      {/* Task 6 — Underwater / drawdown curve */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
+        <HcValueChart
+          points={underwaterPoints}
+          height={160}
+          valueFormat={(n) => `${n.toFixed(1)}%`}
+          endpointLabel="End"
+          showPointDots={false}
+          aria-label="Drawdown underwater curve — negative values indicate peak-to-trough drawdown percentage"
+        />
+      </div>
     </div>
   );
 }
@@ -445,60 +519,68 @@ function BacktestBody({
 // Forward simulation body
 // ---------------------------------------------------------------------------
 
-/** Build synthetic HcFanBand[] via linear interpolation from p5/p50/p95 finals. */
-function buildFanBands(report: ForwardSimulationReport): Array<{ m: number; p5: number; p50: number; p95: number }> {
-  const p5Final = (report.finalRoiPercentilesBps.p5 ?? 0) / 100;
-  const p50Final = (report.finalRoiPercentilesBps.p50 ?? 0) / 100;
-  const p95Final = (report.finalRoiPercentilesBps.p95 ?? 0) / 100;
-  const months = PROJECTION.durationMonths;
-  const bands: Array<{ m: number; p5: number; p50: number; p95: number }> = [];
-  for (let i = 0; i <= months; i++) {
-    const t = i / months;
-    // Linear interpolation from 0 → final; fan widens quadratically
-    const spread = t * t;
-    const mid = p50Final * t;
-    const half = (p95Final - p50Final) * spread;
-    bands.push({
-      m: i + 1,
-      p5: mid - half + (p5Final - p50Final) * t * (1 - spread),
-      p50: mid,
-      p95: mid + half,
-    });
-  }
-  return bands;
-}
+function ForwardBody({
+  report,
+  baseRun,
+  scenario,
+}: {
+  report: ForwardSimulationReport;
+  baseRun: ReturnType<typeof runManualStrategyProjection>;
+  scenario: Scenario;
+}) {
+  // Task 2 — real fan bands from report.monthlyEquityBands (no fabricated interpolation)
+  const fanBands = report.monthlyEquityBands;
 
-function ForwardBody({ report }: { report: ForwardSimulationReport }) {
-  const fanBands = useMemo(() => buildFanBands(report), [report]);
+  // Task 5 — attribution waterfall
+  const attribution = useMemo(
+    () => computeAttribution(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
+    [baseRun],
+  );
+
+  // Task 6 — underwater curve
+  const m = useMemo(
+    () => computeMetrics(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
+    [baseRun],
+  );
+  const underwaterPoints = useMemo(
+    () => m.underwaterBps.map((bpsVal, i) => ({ at: i, value: -(bpsVal / 100) })),
+    [m.underwaterBps],
+  );
+
+  // Task 2 — derive seedLabel from real config
+  const seedLabel = `seed=42 · 200 paths · conditional`;
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
+      {/* Task 7 — provenance on KPI strip; Task 4 — VaR / CVaR tiles */}
       <BentoKpiStrip
         ariaLabel="Forward simulation summary"
         items={[
-          { label: "Paths", value: String(report.paths) },
-          { label: "p5 ROI", value: bps(report.finalRoiPercentilesBps.p5 ?? 0) },
-          { label: "p50 ROI", value: bps(report.finalRoiPercentilesBps.p50 ?? 0), accent: true },
-          { label: "p95 ROI", value: bps(report.finalRoiPercentilesBps.p95 ?? 0) },
-          { label: "Liquidation prob.", value: bps(report.liquidationProbabilityBps) },
-          { label: "Repurchase prob.", value: bps(report.repurchaseProbabilityBps) },
-          { label: "Exp. debt repaid", value: `$${report.expectedDebtRepaidUsdc.toLocaleString("en-US")}` },
-          { label: "Exp. BTC sold", value: report.expectedBtcSold.toFixed(3) },
+          { label: "Paths", value: String(report.paths), provenance: "estimated" },
+          { label: "p5 ROI", value: bps(report.finalRoiPercentilesBps.p5 ?? 0), provenance: "estimated" },
+          { label: "p50 ROI", value: bps(report.finalRoiPercentilesBps.p50 ?? 0), accent: true, provenance: "estimated" },
+          { label: "p95 ROI", value: bps(report.finalRoiPercentilesBps.p95 ?? 0), provenance: "estimated" },
+          { label: "Liquidation prob.", value: bps(report.liquidationProbabilityBps), provenance: "estimated" },
+          { label: "Repurchase prob.", value: bps(report.repurchaseProbabilityBps), provenance: "estimated" },
+          { label: "Exp. debt repaid", value: `$${report.expectedDebtRepaidUsdc.toLocaleString("en-US")}`, provenance: "estimated" },
+          { label: "Exp. BTC sold", value: report.expectedBtcSold.toFixed(3), provenance: "estimated" },
+          { label: "VaR 95% (ROI)", value: bps(report.var95RoiBps), provenance: "estimated" },
+          { label: "CVaR 95% (ROI)", value: bps(report.cvar95RoiBps), provenance: "estimated" },
         ]}
       />
 
-      {/* Fan chart */}
+      {/* Task 2 — Real fan chart from monthlyEquityBands (equity in USDC) */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">
-          ROI projection fan · p5 / p50 / p95 · 24 months
+          Net equity projection fan · p5 / p50 / p95 · {LAB_BASE_PROJECTION.durationMonths} months
         </span>
         <HcFanChart
           bands={fanBands}
           width={560}
           height={280}
-          unit="%"
-          seedLabel="seed=42 · 200 paths · conditional"
-          aria-label="Forward simulation fan chart — p5/p50/p95 final ROI over 24 months"
+          unit="USDC"
+          seedLabel={seedLabel}
+          aria-label={`Forward simulation fan chart — p5/p50/p95 net equity over ${LAB_BASE_PROJECTION.durationMonths} months`}
         />
       </div>
 
@@ -527,6 +609,36 @@ function ForwardBody({ report }: { report: ForwardSimulationReport }) {
             ) : null}
           </div>
         ))}
+      </div>
+
+      {/* Task 5 — Return attribution waterfall */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">
+          Return attribution — BTC appreciation + yield − costs
+        </span>
+        <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+          Scenario: {scenario[0]!.toUpperCase() + scenario.slice(1)} · base run (seed=1) · modelled
+        </p>
+        <HcWaterfall
+          steps={attribution}
+          format={usdcFmt}
+          aria-label="Return attribution waterfall"
+          width={560}
+          height={240}
+        />
+      </div>
+
+      {/* Task 6 — Underwater / drawdown curve */}
+      <div className="flex flex-col gap-(--ct-space-2)">
+        <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
+        <HcValueChart
+          points={underwaterPoints}
+          height={160}
+          valueFormat={(n) => `${n.toFixed(1)}%`}
+          endpointLabel="End"
+          showPointDots={false}
+          aria-label="Drawdown underwater curve — negative values indicate peak-to-trough drawdown percentage"
+        />
       </div>
     </div>
   );
@@ -631,32 +743,10 @@ function StressBody({ report }: { report: StressMatrixReport }) {
           <>All {totalCount} scenarios are within LOW or MEDIUM risk bounds.</>
         )}
       </p>
-    </div>
-  );
-}
 
-// ---------------------------------------------------------------------------
-// Sensitivity body (unchanged — gérée par W5)
-// ---------------------------------------------------------------------------
-
-function SensitivityBody({ report }: { report: ReturnType<SensitivityAnalyzer["run"]> }) {
-  const maxImpact = Math.max(1, ...report.rows.map((r) => r.roiImpactBps));
-  return (
-    <div className="flex flex-col gap-(--ct-space-3)">
-      <span className="ct-section-label ct-text-strong">Sensitivity · ROI impact by variable</span>
-      <ul className="flex flex-col gap-(--ct-space-2)">
-        {[...report.rows].sort((a, b) => b.roiImpactBps - a.roiImpactBps).map((row) => (
-          <li key={row.variable} className="flex items-center gap-(--ct-space-2)">
-            <span className="w-[9rem] shrink-0 text-[length:var(--ct-text-xs)] ct-text-body [overflow-wrap:anywhere]">{row.variable}</span>
-            <span className="h-(--ct-space-3) flex-1 rounded-(--ct-radius-sm) bg-[color-mix(in_srgb,var(--ct-accent)_18%,transparent)]">
-              <span className="block h-full rounded-(--ct-radius-sm) bg-[var(--ct-accent)]" style={{ width: `${Math.round((row.roiImpactBps / maxImpact) * 100)}%` }} />
-            </span>
-            <span className="mono w-[5rem] text-right text-[length:var(--ct-text-xs)] tabular-nums ct-text-tertiary">{bps(row.roiImpactBps)}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Task 8 — correlated-shock honesty banner */}
       <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-        Top ROI driver: {report.topRoiDrivers[0]} · top risk driver: {report.topRiskDrivers[0]}.
+        Shocks are applied independently — true joint tail risk is higher than any single cell shows.
       </p>
     </div>
   );
