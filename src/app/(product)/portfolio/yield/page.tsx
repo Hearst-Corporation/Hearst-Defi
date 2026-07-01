@@ -40,7 +40,7 @@ export default async function YieldPage() {
           value: b.valueUsdc,
         }))
       : (["mining", "btc_tactical", "usdc_base", "stable_reserve"] as const).map(
-          (bucket) => ({ label: BUCKET_LABEL[bucket]!, value: 0 }),
+          (bucket) => ({ label: BUCKET_LABEL[bucket] ?? bucket, value: 0 }),
         );
 
   return (
