@@ -104,7 +104,7 @@ export function ScenarioComparisonCards({
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-(--ct-space-3) lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-(--ct-space-3) 2xl:grid-cols-3">
           {SCENARIO_KEYS.map((key) => {
             const scenario = strategy.scenarios[key];
             const isActive = key === activeScenario;
@@ -132,10 +132,10 @@ export function ScenarioComparisonCards({
                 <span className="text-[length:var(--ct-text-xs)] font-semibold ct-text-strong">
                   {RISK_LABEL[key]}
                 </span>
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+                <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary tabular-nums">
                   Perf. {perfRange}
                 </span>
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+                <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary tabular-nums">
                   Dist. {distRange}
                 </span>
               </button>
