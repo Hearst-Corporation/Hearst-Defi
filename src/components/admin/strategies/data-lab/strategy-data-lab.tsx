@@ -6,6 +6,13 @@
  * Stress Matrix (BTC × electricity), Sensitivity, Trigger Analytics. Everything
  * is memoised, seeded, and capped (≤ MAX_PATHS) — deterministic, no effect loop.
  * All outputs labelled conditional / modelled / not guaranteed.
+ *
+ * Progressive disclosure:
+ *  - The Lab starts COLLAPSED (compact summary card) — no charts on first paint.
+ *  - Each mode body shows ONE visual at a time via sub-tabs (Return / Risk /
+ *    Attribution / Drawdown).
+ *  - The backtest table defaults to a compact 5-column view; Advanced metrics
+ *    are behind a <details> collapsible.
  */
 
 import { useMemo, useState } from "react";
@@ -59,6 +66,49 @@ const bps = (n: number) => `${(n / 100).toFixed(1)}%`;
 const usdcFmt = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 // ---------------------------------------------------------------------------
+// Sub-tab types
+// ---------------------------------------------------------------------------
+
+type ViewTab = "return" | "risk" | "attribution" | "drawdown";
+
+const VIEW_TABS: { id: ViewTab; label: string }[] = [
+  { id: "return", label: "Return" },
+  { id: "risk", label: "Risk" },
+  { id: "attribution", label: "Attribution" },
+  { id: "drawdown", label: "Drawdown" },
+];
+
+function SubTabBar({
+  tabs,
+  active,
+  onChange,
+}: {
+  tabs: readonly ViewTab[];
+  active: ViewTab;
+  onChange: (v: ViewTab) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-(--ct-space-1) border-b border-[var(--ct-border-soft)] pb-(--ct-space-2)">
+      {VIEW_TABS.filter((t) => tabs.includes(t.id)).map((t) => (
+        <button
+          key={t.id}
+          type="button"
+          onClick={() => onChange(t.id)}
+          className={cn(
+            "rounded-(--ct-radius-full) border px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-xs)] transition-colors",
+            active === t.id
+              ? "border-[var(--ct-border-accent)] ct-text-accent bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
+              : "border-[var(--ct-border-soft)] ct-text-tertiary hover:ct-text-body",
+          )}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // UnderwaterChart — self-contained inline SVG drawdown area chart.
 // Domain: y-axis [minValue, 0] where values are drawdown% (≤0). The 0-baseline
 // is at the TOP of the plot (at peak equity); most-negative is at the BOTTOM.
@@ -67,7 +117,7 @@ const usdcFmt = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 function UnderwaterChart({ underwaterBps }: { underwaterBps: number[] }) {
   const W = 560;
-  const H = 120;
+  const H = 160;
   const PAD = { top: 8, right: 8, bottom: 24, left: 40 };
   const plotW = W - PAD.left - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
@@ -195,6 +245,77 @@ const RISK_TONE: Record<StressRiskLevel, string> = {
 
 const scenarios: Scenario[] = ["safe", "balanced", "opportunistic"];
 
+// ---------------------------------------------------------------------------
+// Lab collapsed summary card
+// ---------------------------------------------------------------------------
+
+function LabCollapsedCard({
+  avgRoiBps,
+  liqFreqBps,
+  bestRoiBps,
+  worstRoiBps,
+  onOpen,
+}: {
+  avgRoiBps: number;
+  liqFreqBps: number;
+  bestRoiBps: number;
+  worstRoiBps: number;
+  onOpen: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-(--ct-space-4) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-surface)_80%,transparent)] p-(--ct-space-5)">
+      <div className="flex items-start justify-between gap-(--ct-space-4)">
+        <div className="flex flex-col gap-(--ct-space-1)">
+          <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong">
+            Data Lab
+          </span>
+          <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
+            Backtest · Forward · Stress · Sensitivity · Triggers — seeded, modelled
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={onOpen}
+          className="shrink-0 rounded-(--ct-radius-full) border border-[var(--ct-border-accent)] px-(--ct-space-4) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent hover:bg-[color-mix(in_srgb,var(--ct-accent)_12%,transparent)] transition-colors"
+        >
+          Open Data Lab
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
+        <div className="flex flex-col gap-(--ct-space-1)">
+          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Avg ROI</span>
+          <span className={cn("text-[length:var(--ct-text-base)] tabular-nums font-semibold", avgRoiBps >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]")}>
+            {bps(avgRoiBps)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-(--ct-space-1)">
+          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Best ROI</span>
+          <span className="text-[length:var(--ct-text-base)] tabular-nums font-semibold ct-text-accent">
+            {bps(bestRoiBps)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-(--ct-space-1)">
+          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Worst ROI</span>
+          <span className="text-[length:var(--ct-text-base)] tabular-nums font-semibold ct-text-body">
+            {bps(worstRoiBps)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-(--ct-space-1)">
+          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Liq. freq.</span>
+          <span className={cn("text-[length:var(--ct-text-base)] tabular-nums font-semibold", liqFreqBps > 500 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+            {bps(liqFreqBps)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main export
+// ---------------------------------------------------------------------------
+
 export function StrategyDataLab({
   strategy,
   scenario: scenarioProp,
@@ -202,6 +323,7 @@ export function StrategyDataLab({
   strategy?: ProductStrategy;
   scenario?: RiskProfileKey;
 } = {}) {
+  const [labOpen, setLabOpen] = useState(false);
   const [mode, setMode] = useState<DataLabMode>("BACKTEST");
   const [scenario, setScenario] = useState<Scenario>(scenarioProp ?? "balanced");
   const [useHistorical, setUseHistorical] = useState(false);
@@ -271,6 +393,31 @@ export function StrategyDataLab({
     [scenario],
   );
 
+  const s = backtest.summary;
+
+  // Collapsed state — show compact card with a few headline KPIs
+  if (!labOpen) {
+    return (
+      <div className="flex flex-col gap-(--ct-space-4)">
+        {strategy != null ? (
+          <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
+            Scenario context:{" "}
+            <span className="font-medium">{strategy.name}</span>
+            {" "}— the Lab runs on baseline market parameters.
+            Projections are conditional on stated assumptions, not guaranteed.
+          </p>
+        ) : null}
+        <LabCollapsedCard
+          avgRoiBps={s.averageFinalRoiBps}
+          liqFreqBps={s.liquidationFrequencyBps}
+          bestRoiBps={s.bestFinalRoiBps}
+          worstRoiBps={s.worstFinalRoiBps}
+          onOpen={() => setLabOpen(true)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-(--ct-space-6) p-(--ct-space-5)">
       {/* Strategy pre-fill banner — shown only when opened from a strategy card */}
@@ -303,17 +450,17 @@ export function StrategyDataLab({
         </div>
         <div className="flex flex-wrap items-center gap-(--ct-space-2)">
           <span className="ct-bento-label shrink-0">Scenario</span>
-          {scenarios.map((s) => (
+          {scenarios.map((sc) => (
             <button
-              key={s}
+              key={sc}
               type="button"
-              onClick={() => setScenario(s)}
+              onClick={() => setScenario(sc)}
               className={cn(
                 "rounded-(--ct-radius-full) border px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-xs)]",
-                scenario === s ? "border-[var(--ct-border-accent)] ct-text-accent" : "border-[var(--ct-border-soft)] ct-text-tertiary",
+                scenario === sc ? "border-[var(--ct-border-accent)] ct-text-accent" : "border-[var(--ct-border-soft)] ct-text-tertiary",
               )}
             >
-              {s[0]!.toUpperCase() + s.slice(1)}
+              {sc[0]!.toUpperCase() + sc.slice(1)}
             </button>
           ))}
           {mode === "BACKTEST" ? (
@@ -328,6 +475,14 @@ export function StrategyDataLab({
               {useHistorical ? "Synthetic historical-style" : "Market regimes"}
             </button>
           ) : null}
+          {/* Collapse affordance */}
+          <button
+            type="button"
+            onClick={() => setLabOpen(false)}
+            className="ml-auto rounded-(--ct-radius-full) border border-[var(--ct-border-soft)] px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-2xs)] ct-text-faint hover:ct-text-tertiary"
+          >
+            Collapse ↑
+          </button>
         </div>
       </div>
 
@@ -337,11 +492,6 @@ export function StrategyDataLab({
       {mode === "STRESS_MATRIX" ? <StressBody report={stress} /> : null}
       {mode === "SENSITIVITY" ? <SensitivityPanel report={sensitivity} /> : null}
       {mode === "REGIME_COMPARISON" ? <TriggerAnalyticsPanel report={backtest} /> : null}
-
-      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-        Conditional, seeded, modelled simulations — not guaranteed and not a
-        representation of real historical prices.
-      </p>
     </div>
   );
 }
@@ -357,6 +507,16 @@ interface RegimeChartDatum {
   opportunistic: number;
 }
 
+// Compact regime row — derived per-regime aggregates
+interface CompactRegimeRow {
+  regimeId: string;
+  regimeLabel: string;
+  bestScenario: string;
+  roiRange: string;
+  worstMaxLtv: number;
+  anyLiquidated: boolean;
+}
+
 function BacktestBody({
   report,
   baseRun,
@@ -364,6 +524,7 @@ function BacktestBody({
   report: BacktestReport;
   baseRun: ReturnType<typeof runManualStrategyProjection>;
 }) {
+  const [view, setView] = useState<ViewTab>("return");
   const s = report.summary;
 
   // Build per-regime chart data: group runs by regimeId, 3 bars per regime
@@ -378,9 +539,34 @@ function BacktestBody({
         runs.find((r) => r.scenario === sc)?.metrics.finalRoiBps ?? 0;
       return {
         regime: shortLabel,
-        safe: Math.round(valueOf("safe") / 100) / 10,       // convert bps → %
+        safe: Math.round(valueOf("safe") / 100) / 10,
         balanced: Math.round(valueOf("balanced") / 100) / 10,
         opportunistic: Math.round(valueOf("opportunistic") / 100) / 10,
+      };
+    });
+  }, [report.runs]);
+
+  // Compact table data — one row per regime
+  const compactRows = useMemo<CompactRegimeRow[]>(() => {
+    const regimeIds = [...new Set(report.runs.map((r) => r.regimeId))];
+    return regimeIds.map((rid) => {
+      const runs = report.runs.filter((r) => r.regimeId === rid);
+      const regimeLabel = runs[0]?.regimeLabel ?? rid;
+      const rois = runs.map((r) => r.metrics.finalRoiBps);
+      const minRoi = Math.min(...rois);
+      const maxRoi = Math.max(...rois);
+      const bestRun = runs.reduce((a, b) =>
+        b.metrics.finalRoiBps > a.metrics.finalRoiBps ? b : a, runs[0]!
+      );
+      const worstMaxLtv = Math.max(...runs.map((r) => r.metrics.maxLtvBps));
+      const anyLiquidated = runs.some((r) => r.metrics.maxLtvBps >= 8000);
+      return {
+        regimeId: rid,
+        regimeLabel,
+        bestScenario: bestRun.scenario[0]!.toUpperCase() + bestRun.scenario.slice(1),
+        roiRange: `${bps(minRoi)}–${bps(maxRoi)}`,
+        worstMaxLtv,
+        anyLiquidated,
       };
     });
   }, [report.runs]);
@@ -411,212 +597,278 @@ function BacktestBody({
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
+      {/* Trimmed KPI strip — 4 headline metrics always visible */}
       <BentoKpiStrip
         ariaLabel="Backtest summary"
         items={[
           { label: "Avg final ROI", value: bps(s.averageFinalRoiBps), accent: s.averageFinalRoiBps >= 0, provenance: "estimated" },
           { label: "Best ROI", value: bps(s.bestFinalRoiBps), accent: true, provenance: "estimated" },
           { label: "Worst ROI", value: bps(s.worstFinalRoiBps), provenance: "estimated" },
-          { label: "Best scenario", value: s.bestScenarioByRoi, provenance: "estimated" },
-          { label: "Safest scenario", value: s.safestScenarioByMinDistance, provenance: "estimated" },
           { label: "Liquidation freq.", value: bps(s.liquidationFrequencyBps), provenance: "estimated" },
-          { label: "Repurchase freq.", value: bps(s.repurchaseFrequencyBps), provenance: "estimated" },
         ]}
       />
 
-      <div className="min-w-0 overflow-x-auto">
-        <table className="w-full min-w-[52rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-              <th className="p-(--ct-space-2) text-left">Regime</th>
-              <th className="p-(--ct-space-2) text-left">Scenario</th>
-              <th className="p-(--ct-space-2) text-right">Final ROI</th>
-              <th className="p-(--ct-space-2) text-right">Ann. ROI</th>
-              <th className="p-(--ct-space-2) text-right">Max DD</th>
-              <th className="p-(--ct-space-2) text-right">Max LTV</th>
-              <th className="p-(--ct-space-2) text-right">Min dist.</th>
-              <th className="p-(--ct-space-2) text-right">Sharpe~</th>
-              <th className="p-(--ct-space-2) text-right">Sortino~</th>
-              <th className="p-(--ct-space-2) text-right">Calmar~</th>
-              <th className="p-(--ct-space-2) text-right">Recovery</th>
-            </tr>
-          </thead>
-          <tbody>
-            {report.runs.map((run) => (
-              <tr key={`${run.regimeId}-${run.scenario}`} className="border-b border-[var(--ct-border-soft)]">
-                <td className="p-(--ct-space-2) ct-text-body [overflow-wrap:anywhere]">{run.regimeLabel}</td>
-                <td className="p-(--ct-space-2) ct-text-tertiary">{run.scenario}</td>
-                <td className={cn("p-(--ct-space-2) text-right", run.metrics.finalRoiBps >= 0 ? "ct-text-accent" : "ct-status-danger")}>{bps(run.metrics.finalRoiBps)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.annualizedRoiBps)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.maxDrawdownBps)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.maxLtvBps)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.minLiquidationDistanceBps)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.sharpeLike.toFixed(2)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.sortinoLike.toFixed(2)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.calmarLike.toFixed(2)}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.recoveryMonths}mo</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Sub-tab bar */}
+      <SubTabBar
+        tabs={["return", "risk", "attribution", "drawdown"]}
+        active={view}
+        onChange={setView}
+      />
 
-      <div className="flex items-center gap-(--ct-space-2)">
-        <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Estimated / modelled</span>
-        <button
-          type="button"
-          onClick={() => {
-            void navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-          }}
-          className="rounded-(--ct-radius-sm) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-0.5 text-[length:var(--ct-text-2xs)] ct-text-tertiary hover:ct-text-body"
-        >
-          Copy JSON
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const esc = (s: unknown) => `"${String(s).replace(/"/g, '""')}"`;
-            const headers = ["regime", "scenario", "finalRoiBps", "annualizedRoiBps", "maxDrawdownBps", "maxLtvBps", "minLiquidationDistanceBps", "sharpeLike", "sortinoLike", "calmarLike", "recoveryMonths"];
-            const rows = report.runs.map((run) =>
-              [
-                run.regimeLabel,
-                run.scenario,
-                run.metrics.finalRoiBps,
-                run.metrics.annualizedRoiBps,
-                run.metrics.maxDrawdownBps,
-                run.metrics.maxLtvBps,
-                run.metrics.minLiquidationDistanceBps,
-                run.metrics.sharpeLike,
-                run.metrics.sortinoLike,
-                run.metrics.calmarLike,
-                run.metrics.recoveryMonths,
-              ].map(esc).join(","),
-            );
-            const csv = [headers.map(esc).join(","), ...rows].join("\n");
-            const blob = new Blob([csv], { type: "text/csv" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "backtest-runs.csv";
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
-          className="rounded-(--ct-radius-sm) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-0.5 text-[length:var(--ct-text-2xs)] ct-text-tertiary hover:ct-text-body"
-        >
-          Download CSV
-        </button>
-      </div>
-
-      {/* ROI comparison chart per regime */}
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">
-          Final ROI by regime × scenario (%)
-        </span>
-        <div style={{ height: 220 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
-              barGap={2}
-              barCategoryGap="28%"
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--ct-border-soft)"
-                vertical={false}
-                opacity="var(--ct-opacity-50)"
-              />
-              <XAxis
-                dataKey="regime"
-                tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tickFormatter={(v: number) => `${v}%`}
-                tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
-                axisLine={false}
-                tickLine={false}
-                width={38}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--ct-bg-surface)",
-                  border: "1px solid var(--ct-border-soft)",
-                  borderRadius: "var(--ct-radius-md)",
-                  fontSize: 11,
-                  color: "var(--ct-text-body)",
-                }}
-                formatter={(value) => [`${value ?? 0}%`]}
-                cursor={{ fill: "var(--ct-border-soft)", opacity: 0.15 }}
-              />
-              <Legend
-                iconType="circle"
-                iconSize={8}
-                wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
-              />
-              <Bar dataKey="safe" name="Safe" fill={SCENARIO_DOT.safe} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_DOT.balanced} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_DOT.opportunistic} radius={[2, 2, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Drawdown summary */}
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">Drawdown summary · worst-case per scenario</span>
-        <div className="grid grid-cols-3 gap-(--ct-space-3)">
-          {drawdownSummary.map(({ scenario: sc, minDist, maxLtv }) => (
-            <div
-              key={sc}
-              className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
-            >
-              <span
-                className="text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide"
-                style={{ color: SCENARIO_DOT[sc] }}
-              >
-                {sc[0]!.toUpperCase() + sc.slice(1)}
-              </span>
-              <div className="flex items-baseline justify-between gap-(--ct-space-2)">
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Min dist.</span>
-                <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">
-                  {bps(minDist)}
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between gap-(--ct-space-2)">
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Max LTV</span>
-                <span
-                  className={cn(
-                    "text-[length:var(--ct-text-sm)] tabular-nums",
-                    maxLtv > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body",
-                  )}
+      {/* Return tab — ROI by regime bar chart + compact table */}
+      {view === "return" ? (
+        <div className="flex flex-col gap-(--ct-space-4)">
+          <div className="flex flex-col gap-(--ct-space-2)">
+            <span className="ct-section-label ct-text-strong">
+              Final ROI by regime × scenario (%)
+            </span>
+            <div style={{ minHeight: 280, maxHeight: 420 }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                  barGap={2}
+                  barCategoryGap="28%"
                 >
-                  {bps(maxLtv)}
-                </span>
-              </div>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--ct-border-soft)"
+                    vertical={false}
+                    opacity="var(--ct-opacity-50)"
+                  />
+                  <XAxis
+                    dataKey="regime"
+                    tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={(v: number) => `${v}%`}
+                    tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={38}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--ct-bg-surface)",
+                      border: "1px solid var(--ct-border-soft)",
+                      borderRadius: "var(--ct-radius-md)",
+                      fontSize: 11,
+                      color: "var(--ct-text-body)",
+                    }}
+                    formatter={(value) => [`${value ?? 0}%`]}
+                    cursor={{ fill: "var(--ct-border-soft)", opacity: 0.15 }}
+                  />
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
+                  />
+                  <Bar dataKey="safe" name="Safe" fill={SCENARIO_DOT.safe} radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_DOT.balanced} radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_DOT.opportunistic} radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          ))}
+          </div>
+
+          {/* Compact regime table */}
+          <div className="min-w-0 overflow-x-auto">
+            <table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+              <thead>
+                <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                  <th className="p-(--ct-space-2) text-left">Regime</th>
+                  <th className="p-(--ct-space-2) text-left">Best scenario</th>
+                  <th className="p-(--ct-space-2) text-right">Final ROI range</th>
+                  <th className="p-(--ct-space-2) text-right">Worst max LTV</th>
+                  <th className="p-(--ct-space-2) text-right">Liq. risk</th>
+                </tr>
+              </thead>
+              <tbody>
+                {compactRows.map((row) => (
+                  <tr key={row.regimeId} className="border-b border-[var(--ct-border-soft)]">
+                    <td className="p-(--ct-space-2) ct-text-body [overflow-wrap:anywhere]">{row.regimeLabel}</td>
+                    <td className="p-(--ct-space-2) ct-text-tertiary">{row.bestScenario}</td>
+                    <td className="p-(--ct-space-2) text-right ct-text-body">{row.roiRange}</td>
+                    <td className={cn("p-(--ct-space-2) text-right", row.worstMaxLtv > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+                      {bps(row.worstMaxLtv)}
+                    </td>
+                    <td className="p-(--ct-space-2) text-right">
+                      {row.anyLiquidated ? (
+                        <span className="text-[var(--ct-status-danger)]">High</span>
+                      ) : row.worstMaxLtv > 6000 ? (
+                        <span className="text-[var(--ct-status-warning)]">Medium</span>
+                      ) : (
+                        <span className="ct-text-accent">Low</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Advanced metrics — collapsed by default */}
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-(--ct-space-2) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-tertiary hover:ct-text-body select-none">
+              <span className="transition-transform group-open:rotate-90">▶</span>
+              Advanced metrics — all runs
+              <div className="ml-auto flex gap-(--ct-space-2)">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+                  }}
+                  className="rounded-(--ct-radius-sm) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-0.5 text-[length:var(--ct-text-2xs)] ct-text-tertiary hover:ct-text-body"
+                >
+                  Copy JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const esc = (sv: unknown) => `"${String(sv).replace(/"/g, '""')}"`;
+                    const headers = ["regime", "scenario", "finalRoiBps", "annualizedRoiBps", "maxDrawdownBps", "maxLtvBps", "minLiquidationDistanceBps", "sharpeLike", "sortinoLike", "calmarLike", "recoveryMonths"];
+                    const rows = report.runs.map((run) =>
+                      [
+                        run.regimeLabel,
+                        run.scenario,
+                        run.metrics.finalRoiBps,
+                        run.metrics.annualizedRoiBps,
+                        run.metrics.maxDrawdownBps,
+                        run.metrics.maxLtvBps,
+                        run.metrics.minLiquidationDistanceBps,
+                        run.metrics.sharpeLike,
+                        run.metrics.sortinoLike,
+                        run.metrics.calmarLike,
+                        run.metrics.recoveryMonths,
+                      ].map(esc).join(","),
+                    );
+                    const csv = [headers.map(esc).join(","), ...rows].join("\n");
+                    const blob = new Blob([csv], { type: "text/csv" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "backtest-runs.csv";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="rounded-(--ct-radius-sm) border border-[var(--ct-border-soft)] px-(--ct-space-2) py-0.5 text-[length:var(--ct-text-2xs)] ct-text-tertiary hover:ct-text-body"
+                >
+                  Download CSV
+                </button>
+              </div>
+            </summary>
+            <div className="mt-(--ct-space-3) min-w-0 overflow-x-auto">
+              <table className="w-full min-w-[52rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+                <thead>
+                  <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                    <th className="p-(--ct-space-2) text-left">Regime</th>
+                    <th className="p-(--ct-space-2) text-left">Scenario</th>
+                    <th className="p-(--ct-space-2) text-right">Final ROI</th>
+                    <th className="p-(--ct-space-2) text-right">Ann. ROI</th>
+                    <th className="p-(--ct-space-2) text-right">Max DD</th>
+                    <th className="p-(--ct-space-2) text-right">Max LTV</th>
+                    <th className="p-(--ct-space-2) text-right">Min dist.</th>
+                    <th className="p-(--ct-space-2) text-right">Sharpe~</th>
+                    <th className="p-(--ct-space-2) text-right">Sortino~</th>
+                    <th className="p-(--ct-space-2) text-right">Calmar~</th>
+                    <th className="p-(--ct-space-2) text-right">Recovery</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.runs.map((run) => (
+                    <tr key={`${run.regimeId}-${run.scenario}`} className="border-b border-[var(--ct-border-soft)]">
+                      <td className="p-(--ct-space-2) ct-text-body [overflow-wrap:anywhere]">{run.regimeLabel}</td>
+                      <td className="p-(--ct-space-2) ct-text-tertiary">{run.scenario}</td>
+                      <td className={cn("p-(--ct-space-2) text-right", run.metrics.finalRoiBps >= 0 ? "ct-text-accent" : "ct-status-danger")}>{bps(run.metrics.finalRoiBps)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.annualizedRoiBps)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.maxDrawdownBps)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.maxLtvBps)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{bps(run.metrics.minLiquidationDistanceBps)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.sharpeLike.toFixed(2)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.sortinoLike.toFixed(2)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.calmarLike.toFixed(2)}</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-body">{run.metrics.recoveryMonths}mo</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
-      </div>
+      ) : null}
 
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">
-          Return attribution — BTC appreciation + yield − costs
-        </span>
-        <HcWaterfall
-          steps={attribution}
-          format={usdcFmt}
-          aria-label="Return attribution waterfall"
-          width={560}
-          height={240}
-        />
-      </div>
+      {/* Risk tab — drawdown summary cards */}
+      {view === "risk" ? (
+        <div className="flex flex-col gap-(--ct-space-3)">
+          <span className="ct-section-label ct-text-strong">Drawdown summary · worst-case per scenario</span>
+          <div className="grid grid-cols-3 gap-(--ct-space-3)">
+            {drawdownSummary.map(({ scenario: sc, minDist, maxLtv }) => (
+              <div
+                key={sc}
+                className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
+              >
+                <span
+                  className="text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide"
+                  style={{ color: SCENARIO_DOT[sc] }}
+                >
+                  {sc[0]!.toUpperCase() + sc.slice(1)}
+                </span>
+                <div className="flex items-baseline justify-between gap-(--ct-space-2)">
+                  <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Min dist.</span>
+                  <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">
+                    {bps(minDist)}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-(--ct-space-2)">
+                  <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Max LTV</span>
+                  <span
+                    className={cn(
+                      "text-[length:var(--ct-text-sm)] tabular-nums",
+                      maxLtv > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body",
+                    )}
+                  >
+                    {bps(maxLtv)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
-        <UnderwaterChart underwaterBps={m.underwaterBps} />
-      </div>
+      {/* Attribution tab — waterfall */}
+      {view === "attribution" ? (
+        <div className="flex flex-col gap-(--ct-space-2)">
+          <span className="ct-section-label ct-text-strong">
+            Return attribution — BTC appreciation + yield − costs
+          </span>
+          <HcWaterfall
+            steps={attribution}
+            format={usdcFmt}
+            aria-label="Return attribution waterfall"
+            width={560}
+            height={280}
+          />
+        </div>
+      ) : null}
+
+      {/* Drawdown tab — underwater curve */}
+      {view === "drawdown" ? (
+        <div className="flex flex-col gap-(--ct-space-2)">
+          <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
+          <UnderwaterChart underwaterBps={m.underwaterBps} />
+        </div>
+      ) : null}
+
+      {/* Single disclaimer per mode body */}
+      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+        Conditional, seeded, modelled simulations — not guaranteed and not a
+        representation of real historical prices.
+      </p>
     </div>
   );
 }
@@ -634,6 +886,8 @@ function ForwardBody({
   baseRun: ReturnType<typeof runManualStrategyProjection>;
   scenario: Scenario;
 }) {
+  const [view, setView] = useState<ViewTab>("return");
+
   const fanBands = report.monthlyEquityBands;
 
   const attribution = useMemo(
@@ -653,80 +907,123 @@ function ForwardBody({
       <BentoKpiStrip
         ariaLabel="Forward simulation summary"
         items={[
-          { label: "Paths", value: String(report.paths), provenance: "estimated" },
           { label: "p5 ROI", value: bps(report.finalRoiPercentilesBps.p5 ?? 0), provenance: "estimated" },
           { label: "p50 ROI", value: bps(report.finalRoiPercentilesBps.p50 ?? 0), accent: true, provenance: "estimated" },
           { label: "p95 ROI", value: bps(report.finalRoiPercentilesBps.p95 ?? 0), provenance: "estimated" },
           { label: "Liquidation prob.", value: bps(report.liquidationProbabilityBps), provenance: "estimated" },
-          { label: "Repurchase prob.", value: bps(report.repurchaseProbabilityBps), provenance: "estimated" },
-          { label: "Exp. debt repaid", value: `$${report.expectedDebtRepaidUsdc.toLocaleString("en-US")}`, provenance: "estimated" },
-          { label: "Exp. BTC sold", value: report.expectedBtcSold.toFixed(3), provenance: "estimated" },
-          { label: "VaR 95% (ROI)", value: bps(report.var95RoiBps), provenance: "estimated" },
-          { label: "CVaR 95% (ROI)", value: bps(report.cvar95RoiBps), provenance: "estimated" },
         ]}
       />
 
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">
-          Net equity projection fan · p5 / p50 / p95 · {LAB_BASE_PROJECTION.durationMonths} months
-        </span>
-        <HcFanChart
-          bands={fanBands}
-          width={560}
-          height={280}
-          unit="USDC"
-          seedLabel={seedLabel}
-          aria-label={`Forward simulation fan chart — p5/p50/p95 net equity over ${LAB_BASE_PROJECTION.durationMonths} months`}
-        />
-      </div>
+      {/* Sub-tab bar */}
+      <SubTabBar
+        tabs={["return", "risk", "attribution", "drawdown"]}
+        active={view}
+        onChange={setView}
+      />
 
-      {/* Path extremes summary */}
-      <div className="grid grid-cols-3 gap-(--ct-space-3)">
-        {(
-          [
-            { label: "Worst path", path: report.worstPath, colorClass: "text-[var(--ct-status-danger)]" },
-            { label: "Median path", path: report.medianPath, colorClass: "ct-text-accent" },
-            { label: "Best path", path: report.bestPath, colorClass: "ct-text-accent" },
-          ] as const
-        ).map(({ label, path, colorClass }) => (
-          <div
-            key={label}
-            className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
-          >
-            <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">{label}</span>
-            <span className={cn("text-[length:var(--ct-text-sm)] tabular-nums", colorClass)}>
-              {bps(path.finalRoiBps)}
+      {/* Return tab — fan chart + path extremes */}
+      {view === "return" ? (
+        <div className="flex flex-col gap-(--ct-space-4)">
+          <div className="flex flex-col gap-(--ct-space-2)">
+            <span className="ct-section-label ct-text-strong">
+              Net equity projection fan · p5 / p50 / p95 · {LAB_BASE_PROJECTION.durationMonths} months
             </span>
-            <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
-              Min dist. {bps(path.minLiquidationDistanceBps)}
-            </span>
-            {path.endedLiquidated ? (
-              <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">liquidated</span>
-            ) : null}
+            <div style={{ minHeight: 280, maxHeight: 420 }}>
+              <HcFanChart
+                bands={fanBands}
+                width={560}
+                height={320}
+                unit="USDC"
+                seedLabel={seedLabel}
+                aria-label={`Forward simulation fan chart — p5/p50/p95 net equity over ${LAB_BASE_PROJECTION.durationMonths} months`}
+              />
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-3 gap-(--ct-space-3)">
+            {(
+              [
+                { label: "Worst path", path: report.worstPath, colorClass: "text-[var(--ct-status-danger)]" },
+                { label: "Median path", path: report.medianPath, colorClass: "ct-text-accent" },
+                { label: "Best path", path: report.bestPath, colorClass: "ct-text-accent" },
+              ] as const
+            ).map(({ label, path, colorClass }) => (
+              <div
+                key={label}
+                className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
+              >
+                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">{label}</span>
+                <span className={cn("text-[length:var(--ct-text-sm)] tabular-nums", colorClass)}>
+                  {bps(path.finalRoiBps)}
+                </span>
+                <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+                  Min dist. {bps(path.minLiquidationDistanceBps)}
+                </span>
+                {path.endedLiquidated ? (
+                  <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">liquidated</span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">
-          Return attribution — BTC appreciation + yield − costs
-        </span>
-        <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-          Scenario: {scenario[0]!.toUpperCase() + scenario.slice(1)} · base run (seed=1) · modelled
-        </p>
-        <HcWaterfall
-          steps={attribution}
-          format={usdcFmt}
-          aria-label="Return attribution waterfall"
-          width={560}
-          height={240}
-        />
-      </div>
+      {/* Risk tab — VaR / CVaR */}
+      {view === "risk" ? (
+        <div className="flex flex-col gap-(--ct-space-3)">
+          <span className="ct-section-label ct-text-strong">Risk metrics · {report.paths} paths · seed {report.seed}</span>
+          <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
+            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
+              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">VaR 95% (ROI)</span>
+              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{bps(report.var95RoiBps)}</span>
+            </div>
+            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
+              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">CVaR 95% (ROI)</span>
+              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{bps(report.cvar95RoiBps)}</span>
+            </div>
+            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
+              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Repurchase prob.</span>
+              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{bps(report.repurchaseProbabilityBps)}</span>
+            </div>
+            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
+              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Exp. debt repaid</span>
+              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">${report.expectedDebtRepaidUsdc.toLocaleString("en-US")}</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
-      <div className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
-        <UnderwaterChart underwaterBps={metrics.underwaterBps} />
-      </div>
+      {/* Attribution tab — waterfall */}
+      {view === "attribution" ? (
+        <div className="flex flex-col gap-(--ct-space-2)">
+          <span className="ct-section-label ct-text-strong">
+            Return attribution — BTC appreciation + yield − costs
+          </span>
+          <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+            Scenario: {scenario[0]!.toUpperCase() + scenario.slice(1)} · base run (seed=1) · modelled
+          </p>
+          <HcWaterfall
+            steps={attribution}
+            format={usdcFmt}
+            aria-label="Return attribution waterfall"
+            width={560}
+            height={280}
+          />
+        </div>
+      ) : null}
+
+      {/* Drawdown tab */}
+      {view === "drawdown" ? (
+        <div className="flex flex-col gap-(--ct-space-2)">
+          <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
+          <UnderwaterChart underwaterBps={metrics.underwaterBps} />
+        </div>
+      ) : null}
+
+      {/* Single disclaimer */}
+      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+        Conditional, seeded, modelled simulations — not guaranteed and not a
+        representation of real historical prices.
+      </p>
     </div>
   );
 }
@@ -831,8 +1128,10 @@ function StressBody({ report }: { report: StressMatrixReport }) {
         )}
       </p>
 
+      {/* Single disclaimer */}
       <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
         Shocks are applied independently — true joint tail risk is higher than any single cell shows.
+        Conditional, modelled — not guaranteed.
       </p>
     </div>
   );
