@@ -8,7 +8,7 @@
  * Exports: SensitivityPanel, TriggerAnalyticsPanel, EventTimeline
  */
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,

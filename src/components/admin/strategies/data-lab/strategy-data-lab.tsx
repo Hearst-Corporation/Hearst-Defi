@@ -182,11 +182,6 @@ const MODES: { id: DataLabMode; label: string }[] = [
   { id: "REGIME_COMPARISON", label: "Trigger Analytics" },
 ];
 
-// ---------------------------------------------------------------------------
-// TD.1 — unified constants (imported from lib, local copies REMOVED)
-// ---------------------------------------------------------------------------
-// LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION, LAB_BASE_RULES imported above.
-
 const RISK_TONE: Record<StressRiskLevel, string> = {
   LOW: "bg-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)]",
   MEDIUM: "bg-[color-mix(in_srgb,var(--ct-status-warning)_28%,transparent)]",
@@ -260,7 +255,7 @@ export function StrategyDataLab() {
     [scenario],
   );
 
-  // Task 5 — base run for attribution waterfall + underwater curve (shared)
+  // Base run for attribution waterfall + underwater curve (shared across modes)
   const baseRun = useMemo(
     () =>
       runManualStrategyProjection({
@@ -327,9 +322,7 @@ export function StrategyDataLab() {
       {mode === "BACKTEST" ? <BacktestBody report={backtest} baseRun={baseRun} /> : null}
       {mode === "FORWARD_SIMULATION" ? <ForwardBody report={forward} baseRun={baseRun} scenario={scenario} /> : null}
       {mode === "STRESS_MATRIX" ? <StressBody report={stress} /> : null}
-      {/* Task 3 — wire SensitivityPanel */}
       {mode === "SENSITIVITY" ? <SensitivityPanel report={sensitivity} /> : null}
-      {/* Task 3 — wire TriggerAnalyticsPanel */}
       {mode === "REGIME_COMPARISON" ? <TriggerAnalyticsPanel report={backtest} /> : null}
 
       <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
@@ -393,13 +386,11 @@ function BacktestBody({
     });
   }, [report.runs]);
 
-  // Task 5 — attribution waterfall
   const attribution = useMemo(
     () => computeAttribution(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
     [baseRun],
   );
 
-  // Task 6 — underwater curve from baseRun metrics
   const m = useMemo(
     () => computeMetrics(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
     [baseRun],
@@ -407,7 +398,6 @@ function BacktestBody({
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
-      {/* Task 7 — provenance on KPI strip */}
       <BentoKpiStrip
         ariaLabel="Backtest summary"
         items={[
@@ -421,7 +411,6 @@ function BacktestBody({
         ]}
       />
 
-      {/* Task 9 — run table with new metric columns */}
       <div className="min-w-0 overflow-x-auto">
         <table className="w-full min-w-[52rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
           <thead>
@@ -459,7 +448,6 @@ function BacktestBody({
         </table>
       </div>
 
-      {/* Task 10 — CSV/JSON export */}
       <div className="flex items-center gap-(--ct-space-2)">
         <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Estimated / modelled</span>
         <button
@@ -599,7 +587,6 @@ function BacktestBody({
         </div>
       </div>
 
-      {/* Task 5 — Return attribution waterfall */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">
           Return attribution — BTC appreciation + yield − costs
@@ -613,7 +600,6 @@ function BacktestBody({
         />
       </div>
 
-      {/* Task 6 — Underwater / drawdown curve */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
         <UnderwaterChart underwaterBps={m.underwaterBps} />
@@ -635,27 +621,22 @@ function ForwardBody({
   baseRun: ReturnType<typeof runManualStrategyProjection>;
   scenario: Scenario;
 }) {
-  // Task 2 — real fan bands from report.monthlyEquityBands (no fabricated interpolation)
   const fanBands = report.monthlyEquityBands;
 
-  // Task 5 — attribution waterfall
   const attribution = useMemo(
     () => computeAttribution(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
     [baseRun],
   );
 
-  // Task 6 — underwater curve
   const metrics = useMemo(
     () => computeMetrics(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
     [baseRun],
   );
 
-  // Task 2 — seedLabel derived from the actual report (P3 fix)
   const seedLabel = `seed=${report.seed} · ${report.paths} paths · conditional`;
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
-      {/* Task 7 — provenance on KPI strip; Task 4 — VaR / CVaR tiles */}
       <BentoKpiStrip
         ariaLabel="Forward simulation summary"
         items={[
@@ -672,7 +653,6 @@ function ForwardBody({
         ]}
       />
 
-      {/* Task 2 — Real fan chart from monthlyEquityBands (equity in USDC) */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">
           Net equity projection fan · p5 / p50 / p95 · {LAB_BASE_PROJECTION.durationMonths} months
@@ -714,7 +694,6 @@ function ForwardBody({
         ))}
       </div>
 
-      {/* Task 5 — Return attribution waterfall */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">
           Return attribution — BTC appreciation + yield − costs
@@ -731,7 +710,6 @@ function ForwardBody({
         />
       </div>
 
-      {/* Task 6 — Underwater / drawdown curve */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
         <UnderwaterChart underwaterBps={metrics.underwaterBps} />
@@ -840,7 +818,6 @@ function StressBody({ report }: { report: StressMatrixReport }) {
         )}
       </p>
 
-      {/* Task 8 — correlated-shock honesty banner */}
       <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
         Shocks are applied independently — true joint tail risk is higher than any single cell shows.
       </p>
