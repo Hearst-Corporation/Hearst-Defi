@@ -11,13 +11,22 @@ export interface StrategyWorkspaceData {
 }
 
 export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
-  const configs = await db.strategyConfig.findMany({
-    include: {
-      scenarios: true,
-      collateral: true,
-      rules: true,
-    },
-  });
+  // The strategy_configs tables were added to the Prisma schema on this branch
+  // but may not exist yet in the target database (no migration applied). Treat a
+  // missing table / any query failure the same as an empty DB: fall back to the
+  // static PRODUCT_STRATEGIES below instead of throwing a 500.
+  let configs: Awaited<ReturnType<typeof db.strategyConfig.findMany>> = [];
+  try {
+    configs = await db.strategyConfig.findMany({
+      include: {
+        scenarios: true,
+        collateral: true,
+        rules: true,
+      },
+    });
+  } catch {
+    configs = [];
+  }
 
   if (configs.length === 0) {
     // If DB is empty, return the static ones combined with lab defaults
