@@ -49,6 +49,7 @@ import {
   SensitivityPanel,
   TriggerAnalyticsPanel,
 } from "./sensitivity-trigger-timeline";
+import { SCENARIO_DOT } from "@/lib/product-strategies/lab-colors";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -190,12 +191,7 @@ const RISK_TONE: Record<StressRiskLevel, string> = {
   CRITICAL: "bg-[var(--ct-status-danger)]",
 };
 
-// Scenario bar colours (spec-hardcoded, not DS tokens)
-const SCENARIO_COLORS = {
-  safe: "#60A5FA",
-  balanced: "#A7FB90",
-  opportunistic: "#F7931A",
-} as const;
+// Scenario bar colours — sourced from SCENARIO_DOT in lab-colors (single source of truth).
 
 const scenarios: Scenario[] = ["safe", "balanced", "opportunistic"];
 
@@ -526,7 +522,7 @@ function BacktestBody({
                 strokeDasharray="3 3"
                 stroke="var(--ct-border-soft)"
                 vertical={false}
-                opacity={0.5}
+                opacity="var(--ct-opacity-50)"
               />
               <XAxis
                 dataKey="regime"
@@ -557,9 +553,9 @@ function BacktestBody({
                 iconSize={8}
                 wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
               />
-              <Bar dataKey="safe" name="Safe" fill={SCENARIO_COLORS.safe} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_COLORS.balanced} radius={[2, 2, 0, 0]} />
-              <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_COLORS.opportunistic} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="safe" name="Safe" fill={SCENARIO_DOT.safe} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_DOT.balanced} radius={[2, 2, 0, 0]} />
+              <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_DOT.opportunistic} radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -576,7 +572,7 @@ function BacktestBody({
             >
               <span
                 className="text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide"
-                style={{ color: SCENARIO_COLORS[sc] }}
+                style={{ color: SCENARIO_DOT[sc] }}
               >
                 {sc[0]!.toUpperCase() + sc.slice(1)}
               </span>

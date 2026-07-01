@@ -1,12 +1,15 @@
 /**
  * Lab Colors — canonical sleeve color palette for the Strategy Hub.
  *
- * DOCUMENTED EXCEPTION: The four SLEEVE_COLORS hex values below are the ONE
- * acted exception to the token-only rule (documented in CLAUDE.md). They are
- * hardcoded because they represent external brand conventions (Bitcoin orange,
- * accent green already matched by --ct-accent, etc.) that must stay consistent
- * across charts, legends, and tables. Everything else in the codebase must use
- * --ct-* CSS tokens; these four hexes must not proliferate outside this file.
+ * Green rule: mining sleeve ALWAYS uses `var(--ct-accent)` — never a literal
+ * hex. This keeps the brand green in sync with the single DS token.
+ *
+ * DOCUMENTED EXCEPTION (the only hex literals allowed here):
+ *   btc: "#F7931A" — Bitcoin brand orange (no --ct token exists)
+ *   stableReserve: "#60A5FA" — sky blue (no --ct token exists)
+ *   yieldOverlay: "#A78BFA" — soft violet (no --ct token exists)
+ * These three are defined ONCE here. Never re-declare them in components.
+ * They must not proliferate outside this file.
  *
  * Import from here — never re-declare these colors in individual components.
  */
@@ -16,13 +19,13 @@
 // ---------------------------------------------------------------------------
 
 export const SLEEVE_COLORS = {
-  /** Accent green — matches --ct-accent #A7FB90. */
-  mining: "#A7FB90",
-  /** Bitcoin brand orange. */
+  /** Accent green — DS token var(--ct-accent). Never a hex literal. */
+  mining: "var(--ct-accent)",
+  /** Bitcoin brand orange. Documented single-source exception (no --ct token). */
   btc: "#F7931A",
-  /** Stable reserve — sky blue. */
+  /** Stable reserve — sky blue. Documented single-source exception (no --ct token). */
   stableReserve: "#60A5FA",
-  /** Yield overlay — soft violet. */
+  /** Yield overlay — soft violet. Documented single-source exception (no --ct token). */
   yieldOverlay: "#A78BFA",
 } as const;
 
@@ -53,7 +56,10 @@ export const sleeveOrder: readonly SleeveKey[] = [
 // ---------------------------------------------------------------------------
 
 export const SCENARIO_DOT: Record<"safe" | "balanced" | "opportunistic", string> = {
+  /** Sky blue — documented single-source exception (no --ct token). */
   safe: "#60A5FA",
-  balanced: "#A7FB90",
+  /** Accent green — DS token var(--ct-accent). Never a hex literal. */
+  balanced: "var(--ct-accent)",
+  /** Bitcoin brand orange — documented single-source exception (no --ct token). */
   opportunistic: "#F7931A",
 };

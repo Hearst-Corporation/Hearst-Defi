@@ -17,6 +17,10 @@ import {
   type StrategyStatus,
 } from "@/lib/product-strategies";
 import { cn } from "@/lib/cn";
+import {
+  SLEEVE_COLORS,
+  SLEEVE_LABEL,
+} from "@/lib/product-strategies/lab-colors";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -25,17 +29,6 @@ import { cn } from "@/lib/cn";
 function pct(bps: number): string {
   return `${bpsToPct(bps)}%`;
 }
-
-// ---------------------------------------------------------------------------
-// Sleeve colours — 4 explicit brand colours (spec-allowed hardcodes)
-// ---------------------------------------------------------------------------
-
-const SLEEVE_STYLES = {
-  Mining: { bg: "#A7FB90", label: "Mining" },
-  BTC: { bg: "#F7931A", label: "BTC" },
-  Stable: { bg: "#60A5FA", label: "Stable" },
-  Yield: { bg: "#A78BFA", label: "Yield" },
-} as const;
 
 // ---------------------------------------------------------------------------
 // StatusPill
@@ -77,10 +70,10 @@ function StatusPill({ status }: { status: StrategyStatus }) {
 function AllocationBar({ scenario }: { scenario: ProductStrategyScenario }) {
   const a = scenario.allocation;
   const sleeves = [
-    { key: "Mining" as const, bps: a.miningBps },
-    { key: "BTC" as const, bps: a.btcBps },
-    { key: "Stable" as const, bps: a.stableReserveBps },
-    { key: "Yield" as const, bps: a.yieldOverlayBps },
+    { key: "mining" as const, bps: a.miningBps },
+    { key: "btc" as const, bps: a.btcBps },
+    { key: "stableReserve" as const, bps: a.stableReserveBps },
+    { key: "yieldOverlay" as const, bps: a.yieldOverlayBps },
   ];
 
   return (
@@ -93,9 +86,9 @@ function AllocationBar({ scenario }: { scenario: ProductStrategyScenario }) {
               key={s.key}
               style={{
                 width: `${bpsToPct(s.bps)}%`,
-                backgroundColor: SLEEVE_STYLES[s.key].bg,
+                backgroundColor: SLEEVE_COLORS[s.key],
               }}
-              title={`${SLEEVE_STYLES[s.key].label} ${pct(s.bps)}`}
+              title={`${SLEEVE_LABEL[s.key]} ${pct(s.bps)}`}
             />
           ) : null,
         )}
@@ -110,9 +103,9 @@ function AllocationBar({ scenario }: { scenario: ProductStrategyScenario }) {
             <span
               aria-hidden
               className="block h-[6px] w-[6px] rounded-[2px] flex-shrink-0"
-              style={{ backgroundColor: SLEEVE_STYLES[s.key].bg }}
+              style={{ backgroundColor: SLEEVE_COLORS[s.key] }}
             />
-            {SLEEVE_STYLES[s.key].label} {pct(s.bps)}
+            {SLEEVE_LABEL[s.key]} {pct(s.bps)}
           </span>
         ))}
       </div>
@@ -422,10 +415,10 @@ function StrategyCard({
       <div className="flex h-[4px] w-full overflow-hidden rounded-(--ct-radius-full) bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)]">
         {(
           [
-            { key: "Mining" as const, bps: strategy.scenarios.balanced.allocation.miningBps },
-            { key: "BTC" as const, bps: strategy.scenarios.balanced.allocation.btcBps },
-            { key: "Stable" as const, bps: strategy.scenarios.balanced.allocation.stableReserveBps },
-            { key: "Yield" as const, bps: strategy.scenarios.balanced.allocation.yieldOverlayBps },
+            { key: "mining" as const, bps: strategy.scenarios.balanced.allocation.miningBps },
+            { key: "btc" as const, bps: strategy.scenarios.balanced.allocation.btcBps },
+            { key: "stableReserve" as const, bps: strategy.scenarios.balanced.allocation.stableReserveBps },
+            { key: "yieldOverlay" as const, bps: strategy.scenarios.balanced.allocation.yieldOverlayBps },
           ] as const
         ).map((s) =>
           s.bps > 0 ? (
@@ -433,7 +426,7 @@ function StrategyCard({
               key={s.key}
               style={{
                 width: `${bpsToPct(s.bps)}%`,
-                backgroundColor: SLEEVE_STYLES[s.key].bg,
+                backgroundColor: SLEEVE_COLORS[s.key],
               }}
             />
           ) : null,

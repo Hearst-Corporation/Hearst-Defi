@@ -192,7 +192,7 @@ export function StrategyCard({
         selected
           ? "border-[var(--ct-accent)] shadow-[0_0_0_1px_var(--ct-accent)]"
           : "border-[var(--ct-border-soft)]",
-        strategy.status === "archived" && "opacity-70",
+        strategy.status === "archived" && "opacity-[var(--ct-opacity-70)]",
       )}
     >
       {/* ── Header ─────────────────────────────────────────────────────────── */}

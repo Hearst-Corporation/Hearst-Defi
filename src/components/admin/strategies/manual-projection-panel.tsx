@@ -391,7 +391,7 @@ function ResultsPanel({ report }: ResultsPanelProps) {
                 <stop
                   offset="5%"
                   stopColor="var(--ct-status-danger)"
-                  stopOpacity={0.35}
+                  stopOpacity="var(--ct-opacity-35)"
                 />
                 <stop
                   offset="95%"
@@ -416,7 +416,7 @@ function ResultsPanel({ report }: ResultsPanelProps) {
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="var(--ct-border-soft)"
-              opacity={0.5}
+              opacity="var(--ct-opacity-50)"
             />
 
             <XAxis
@@ -446,7 +446,7 @@ function ResultsPanel({ report }: ResultsPanelProps) {
               y={8000}
               stroke="var(--ct-status-danger)"
               strokeDasharray="4 4"
-              strokeOpacity={0.7}
+              strokeOpacity="var(--ct-opacity-70)"
               label={{
                 value: "Liq 80%",
                 position: "insideTopRight",
@@ -458,14 +458,14 @@ function ResultsPanel({ report }: ResultsPanelProps) {
             {/* Target risk LTV at 65% = 6500 bps */}
             <ReferenceLine
               y={6500}
-              stroke="#f59e0b"
+              stroke="var(--ct-status-warning)"
               strokeDasharray="4 4"
-              strokeOpacity={0.6}
+              strokeOpacity="var(--ct-opacity-60)"
               label={{
                 value: "Risk 65%",
                 position: "insideTopRight",
                 fontSize: 9,
-                fill: "#f59e0b",
+                fill: "var(--ct-status-warning)",
               }}
             />
 
@@ -524,7 +524,7 @@ function ResultsPanel({ report }: ResultsPanelProps) {
               className="inline-block h-0.5 w-4"
               style={{
                 borderTop: "2px dashed var(--ct-status-danger)",
-                opacity: 0.7,
+                opacity: "var(--ct-opacity-70)",
               }}
             />
             Liq. threshold
@@ -532,7 +532,7 @@ function ResultsPanel({ report }: ResultsPanelProps) {
           <span className="flex items-center gap-(--ct-space-1)">
             <span
               className="inline-block h-0.5 w-4"
-              style={{ borderTop: "2px dashed #f59e0b", opacity: 0.7 }}
+              style={{ borderTop: "2px dashed var(--ct-status-warning)", opacity: "var(--ct-opacity-70)" }}
             />
             Risk target
           </span>

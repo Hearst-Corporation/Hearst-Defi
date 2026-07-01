@@ -15,27 +15,10 @@ import {
   type RiskProfileKey,
   type ProductStrategyScenario,
 } from "@/lib/product-strategies";
-
-// ---------------------------------------------------------------------------
-// Sleeve colours — same palette as PoolAllocationHero
-// ---------------------------------------------------------------------------
-
-const SLEEVE_COLORS = {
-  mining: "#A7FB90",
-  btc: "#F7931A",
-  stable: "#60A5FA",
-  yield: "#A78BFA",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Scenario accent colours (dot indicator)
-// ---------------------------------------------------------------------------
-
-const SCENARIO_DOT: Record<RiskProfileKey, string> = {
-  safe: "#A7FB90",     // green
-  balanced: "#FBBF24", // yellow
-  opportunistic: "#F97316", // orange
-};
+import {
+  SLEEVE_COLORS,
+  SCENARIO_DOT,
+} from "@/lib/product-strategies/lab-colors";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -73,8 +56,8 @@ function AllocationBar({ scenario }: AllocationBarProps) {
   const segments = [
     { label: "Mining", bps: a.miningBps, color: SLEEVE_COLORS.mining },
     { label: "BTC", bps: a.btcBps, color: SLEEVE_COLORS.btc },
-    { label: "Stable", bps: a.stableReserveBps, color: SLEEVE_COLORS.stable },
-    { label: "Yield", bps: a.yieldOverlayBps, color: SLEEVE_COLORS.yield },
+    { label: "Stable", bps: a.stableReserveBps, color: SLEEVE_COLORS.stableReserve },
+    { label: "Yield", bps: a.yieldOverlayBps, color: SLEEVE_COLORS.yieldOverlay },
   ];
 
   const total = segments.reduce((sum, s) => sum + Math.max(0, s.bps), 0);
