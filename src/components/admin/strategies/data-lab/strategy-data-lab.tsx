@@ -34,6 +34,7 @@ import { HcWaterfall } from "@/components/dataviz/his/HcWaterfall";
 import type { Scenario } from "@/lib/scenario-runner";
 import type { ProductStrategy, RiskProfileKey } from "@/lib/product-strategies";
 import { runManualStrategyProjection } from "@/lib/scenario-runner";
+import type { CollateralConfig, RebalancingRule, ManualProjectionConfig } from "@/lib/scenario-runner";
 import {
   BacktestRunner,
   ForwardSimulationRunner,
@@ -319,9 +320,13 @@ function LabCollapsedCard({
 export function StrategyDataLab({
   strategy,
   scenario: scenarioProp,
+  collateral,
+  rules,
 }: {
   strategy?: ProductStrategy;
   scenario?: RiskProfileKey;
+  collateral?: CollateralConfig;
+  rules?: RebalancingRule[];
 } = {}) {
   const [labOpen, setLabOpen] = useState(false);
   const [mode, setMode] = useState<DataLabMode>("BACKTEST");
@@ -336,54 +341,66 @@ export function StrategyDataLab({
 
   const regimes = useHistorical ? SYNTHETIC_HISTORICAL_REGIMES : MARKET_REGIMES;
 
+  const activeCollateral = collateral ?? LAB_BASE_COLLATERAL;
+  const activeRules = rules ?? LAB_BASE_RULES;
+  
+  const projection = useMemo<ManualProjectionConfig>(() => {
+    const activeScenarioConfig = strategy?.scenarios[scenario] ?? null;
+    return activeScenarioConfig ? {
+      ...LAB_BASE_PROJECTION,
+      durationMonths: 24, // Runner is 24 months
+      btcMonthlyVolBps: Math.round((activeScenarioConfig.assumptions.btcAnnualVol / Math.sqrt(12)) * 10000),
+    } : LAB_BASE_PROJECTION;
+  }, [strategy, scenario]);
+
   const backtest = useMemo(
     () =>
       new BacktestRunner().run({
-        strategyId: "strat-btc-mining-performance",
-        collateral: LAB_BASE_COLLATERAL,
-        projection: LAB_BASE_PROJECTION,
-        rules: LAB_BASE_RULES,
+        strategyId: strategy?.id ?? "strat-btc-mining-performance",
+        collateral: activeCollateral,
+        projection,
+        rules: activeRules,
         regimes,
         scenarios,
       }),
-    [regimes],
+    [regimes, strategy?.id, activeCollateral, projection, activeRules],
   );
 
   const forward = useMemo(
     () =>
       new ForwardSimulationRunner().run({
         scenario,
-        collateral: LAB_BASE_COLLATERAL,
-        projection: LAB_BASE_PROJECTION,
-        rules: LAB_BASE_RULES,
+        collateral: activeCollateral,
+        projection,
+        rules: activeRules,
         monteCarlo: { enabled: true, paths: 200, seed: 42, confidenceBands: [0.05, 0.5, 0.95], includeJumpRisk: false, includeElectricityShock: false, includeBorrowAprShock: false },
       }),
-    [scenario],
+    [scenario, activeCollateral, projection, activeRules],
   );
 
   const stress = useMemo(
     () =>
       new StressMatrixRunner().run({
         scenario,
-        collateral: LAB_BASE_COLLATERAL,
-        projection: LAB_BASE_PROJECTION,
-        rules: LAB_BASE_RULES,
+        collateral: activeCollateral,
+        projection,
+        rules: activeRules,
         xAxis: { variable: "BTC_SHOCK", values: [-6000, -4000, -2000, 0, 2000] },
         yAxis: { variable: "ELECTRICITY_SHOCK", values: [0, 5000, 10_000, 15_000] },
       }),
-    [scenario],
+    [scenario, activeCollateral, projection, activeRules],
   );
 
   const sensitivity = useMemo(
     () =>
       new SensitivityAnalyzer().run({
         scenario,
-        collateral: LAB_BASE_COLLATERAL,
-        projection: LAB_BASE_PROJECTION,
-        rules: LAB_BASE_RULES,
+        collateral: activeCollateral,
+        projection,
+        rules: activeRules,
         sensitivity: { variables: ["BTC_PRICE", "BTC_VOL", "BORROW_APR", "ELECTRICITY_COST", "STABLE_YIELD", "LIQUIDATION_LTV"], stepBps: 1000, rangeSteps: 3 },
       }),
-    [scenario],
+    [scenario, activeCollateral, projection, activeRules],
   );
 
   // Base run for attribution waterfall + underwater curve (shared across modes)
@@ -391,12 +408,12 @@ export function StrategyDataLab({
     () =>
       runManualStrategyProjection({
         scenario,
-        collateral: LAB_BASE_COLLATERAL,
-        projection: LAB_BASE_PROJECTION,
-        rules: LAB_BASE_RULES.map((r) => ({ ...r, scenario })),
+        collateral: activeCollateral,
+        projection,
+        rules: activeRules.map((r) => ({ ...r, scenario })),
         seed: 1,
       }),
-    [scenario],
+    [scenario, activeCollateral, projection, activeRules],
   );
 
   const s = backtest.summary;
@@ -854,13 +871,15 @@ function BacktestBody({
           <span className="ct-section-label ct-text-strong">
             Return attribution — BTC appreciation + yield − costs
           </span>
-          <HcWaterfall
-            steps={attribution}
-            format={usdcFmt}
-            aria-label="Return attribution waterfall"
-            width={560}
-            height={280}
-          />
+          <div className="min-w-0 overflow-x-auto">
+            <HcWaterfall
+              steps={attribution}
+              format={usdcFmt}
+              aria-label="Return attribution waterfall"
+              width={700}
+              height={304}
+            />
+          </div>
         </div>
       ) : null}
 
@@ -936,15 +955,17 @@ function ForwardBody({
             <span className="ct-section-label ct-text-strong">
               Net equity projection fan · p5 / p50 / p95 · {LAB_BASE_PROJECTION.durationMonths} months
             </span>
-            <div style={{ minHeight: 280, maxHeight: 420 }}>
-              <HcFanChart
-                bands={fanBands}
-                width={560}
-                height={320}
-                unit="USDC"
-                seedLabel={seedLabel}
-                aria-label={`Forward simulation fan chart — p5/p50/p95 net equity over ${LAB_BASE_PROJECTION.durationMonths} months`}
-              />
+            <div className="min-w-0 overflow-x-auto">
+              <div style={{ minWidth: 640, minHeight: 280, maxHeight: 420 }}>
+                <HcFanChart
+                  bands={fanBands}
+                  width={640}
+                  height={320}
+                  unit="USDC"
+                  seedLabel={seedLabel}
+                  aria-label={`Forward simulation fan chart — p5/p50/p95 net equity over ${LAB_BASE_PROJECTION.durationMonths} months`}
+                />
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-(--ct-space-3)">
@@ -1009,13 +1030,15 @@ function ForwardBody({
           <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
             Scenario: {scenario[0]!.toUpperCase() + scenario.slice(1)} · base run (seed=1) · modelled
           </p>
-          <HcWaterfall
-            steps={attribution}
-            format={usdcFmt}
-            aria-label="Return attribution waterfall"
-            width={560}
-            height={280}
-          />
+          <div className="min-w-0 overflow-x-auto">
+            <HcWaterfall
+              steps={attribution}
+              format={usdcFmt}
+              aria-label="Return attribution waterfall"
+              width={700}
+              height={304}
+            />
+          </div>
         </div>
       ) : null}
 

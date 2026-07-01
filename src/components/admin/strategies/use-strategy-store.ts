@@ -10,6 +10,7 @@
  * This module intentionally:
  *  - Accepts timestamps as args (no Date.now() / new Date() calls inside)
  *  - Derives ids deterministically from slugs + a counter seed
+ *  - Defends against Fast Refresh counter resets by uniquifying draft ids/slugs
  *  - Uses no Math.random()
  *  - Emits no forbidden words (guarantee/promise/certain/will deliver/risk-free)
  */
@@ -34,7 +35,7 @@ export const persistencePending = true as const;
 
 // ---------------------------------------------------------------------------
 // Counter — purely module-level, deterministic across the session.
-// Resets to 0 on HMR but that is acceptable for draft local state.
+// HMR can reset it, so store-level create/duplicate also de-dupe ids defensively.
 // ---------------------------------------------------------------------------
 
 let _draftCounter = 0;
@@ -54,6 +55,45 @@ function toSlug(name: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
+}
+
+function makeDraftId(slug: string): string {
+  return `draft-${slug}`;
+}
+
+/**
+ * Fast Refresh can preserve the surrounding React tree while resetting this
+ * module's `_draftCounter`. When that happens, the next generated draft id may
+ * collide with an already-mounted strategy. Normalize the incoming draft to a
+ * unique id/slug pair against the current store snapshot.
+ */
+export function ensureUniqueDraftIdentity(
+  draft: ProductStrategy,
+  existing: readonly ProductStrategy[],
+): ProductStrategy {
+  const existingIds = new Set(existing.map((strategy) => strategy.id));
+  const existingSlugs = new Set(existing.map((strategy) => strategy.slug));
+
+  if (!existingIds.has(draft.id) && !existingSlugs.has(draft.slug)) {
+    return draft;
+  }
+
+  const baseSlug = draft.slug;
+  let suffix = 2;
+  let nextSlug = `${baseSlug}-${suffix}`;
+  let nextId = makeDraftId(nextSlug);
+
+  while (existingIds.has(nextId) || existingSlugs.has(nextSlug)) {
+    suffix += 1;
+    nextSlug = `${baseSlug}-${suffix}`;
+    nextId = makeDraftId(nextSlug);
+  }
+
+  return {
+    ...draft,
+    id: nextId,
+    slug: nextSlug,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -324,7 +364,7 @@ export function useStrategyStore(initial: ProductStrategy[]): StrategyStore {
   }
 
   function create(draft: ProductStrategy): ProductStrategy {
-    const copy = cloneStrategy(draft);
+    const copy = ensureUniqueDraftIdentity(cloneStrategy(draft), strategies);
     setStrategies((prev) => [...prev, copy]);
     return copy;
   }
@@ -358,8 +398,9 @@ export function useStrategyStore(initial: ProductStrategy[]): StrategyStore {
       updatedAt: now,
     };
 
-    setStrategies((prev) => [...prev, copy]);
-    return copy;
+    const uniqueCopy = ensureUniqueDraftIdentity(copy, strategies);
+    setStrategies((prev) => [...prev, uniqueCopy]);
+    return uniqueCopy;
   }
 
   function archive(id: string): void {

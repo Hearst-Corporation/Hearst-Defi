@@ -176,6 +176,18 @@ describe("HcWaterfall", () => {
     expect(html).toContain("var(--ct-status-success)");
     expect(html).toContain("+40");
   });
+  it("keeps long labels readable with wrapped tspans and intrinsic sizing", () => {
+    const longLabel: HcWaterfallStep[] = [
+      { label: "Start equity", value: 100, kind: "total" },
+      { label: "Borrow interest drag", value: -20, kind: "delta" },
+    ];
+    const html = renderToStaticMarkup(
+      <HcWaterfall steps={longLabel} aria-label="long waterfall" />,
+    );
+    expect(html).toContain("preserveAspectRatio=\"xMidYMid meet\"");
+    expect(html).toContain("min-width:560px");
+    expect(html).toContain("<tspan");
+  });
 });
 
 // 11 ─ HcCompositionRing uses multiple <circle> segments

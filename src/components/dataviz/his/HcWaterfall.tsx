@@ -31,6 +31,27 @@ interface LaidOutStep extends HcWaterfallStep {
   end: number;
 }
 
+function splitLabel(label: string): string[] {
+  const words = label.split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return [label];
+
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= 14 || current.length === 0) {
+      current = candidate;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+  }
+
+  if (current) lines.push(current);
+  return lines.length <= 2 ? lines : [lines[0]!, lines.slice(1).join(" ")];
+}
+
 export function HcWaterfall({
   steps,
   width = 560,
@@ -55,9 +76,12 @@ export function HcWaterfall({
     );
   }
 
-  const padX = 8;
-  const padTop = 16;
-  const padBottom = 28;
+  const labelLines = steps.map((step) => splitLabel(step.label));
+  const maxLabelLines = Math.max(1, ...labelLines.map((lines) => lines.length));
+  const chartWidth = Math.max(width, steps.length * 104);
+  const padX = 16;
+  const padTop = 20;
+  const padBottom = 30 + Math.max(0, maxLabelLines - 1) * 12;
   const innerH = height - padTop - padBottom;
 
   // Graphical running cumulative — purely for bar placement. Folded (no
@@ -80,20 +104,21 @@ export function HcWaterfall({
 
   const n = steps.length;
   const gap = 12;
-  const barW = Math.max(8, (width - padX * 2 - gap * (n - 1)) / n);
+  const barW = Math.max(16, (chartWidth - padX * 2 - gap * (n - 1)) / n);
 
   return (
     <svg
       role="img"
       aria-label={ariaLabel}
       width="100%"
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
+      viewBox={`0 0 ${chartWidth} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
+      style={{ display: "block", minWidth: `${chartWidth}px` }}
     >
       <line
         x1={padX}
         y1={yOf(0)}
-        x2={width - padX}
+        x2={chartWidth - padX}
         y2={yOf(0)}
         stroke="var(--ct-border-strong)"
         strokeWidth={1}
@@ -135,18 +160,26 @@ export function HcWaterfall({
             />
             <text
               x={x + barW / 2}
-              y={height - 14}
+              y={height - padBottom + 14}
               textAnchor="middle"
-              fontSize={9}
+              fontSize={10}
               fill="var(--ct-text-muted)"
             >
-              {l.label}
+              {splitLabel(l.label).map((line, lineIndex) => (
+                <tspan
+                  key={`${l.label}-${lineIndex}`}
+                  x={x + barW / 2}
+                  dy={lineIndex === 0 ? 0 : 11}
+                >
+                  {line}
+                </tspan>
+              ))}
             </text>
             <text
               x={x + barW / 2}
-              y={yTop - 4}
+              y={Math.max(12, yTop - 6)}
               textAnchor="middle"
-              fontSize={9}
+              fontSize={10}
               fill="var(--ct-text-body)"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >

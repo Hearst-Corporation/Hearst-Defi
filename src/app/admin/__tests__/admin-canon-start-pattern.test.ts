@@ -121,10 +121,14 @@ const SECONDARY_ALLOWLIST: ReadonlyMap<string, string> = new Map([
   [
     "src/app/admin/strategies/page.tsx",
     // The page is a shell-only server entrypoint. Its first welded canon blocks
-    // are rendered inside <StrategyHubClient> (Strategy Library / Strategy Studio
-    // / Advanced Data Lab as AdminSectionCard surfaces). Wrapping page.tsx again
-    // in AdminSectionCard would double-frame the studio.
-    "shell-only page delegating welded AdminSectionCard surfaces to StrategyHubClient",
+    // are rendered inside <StrategyIndexClient> (Strategy Library as AdminSectionCard).
+    "shell-only page delegating welded AdminSectionCard surfaces to StrategyIndexClient",
+  ],
+  [
+    "src/app/admin/strategies/[slug]/page.tsx",
+    // The page is a shell-only server entrypoint. Its first welded canon blocks
+    // are rendered inside <StrategyWorkspaceClient> (Strategy Studio / Advanced Data Lab as AdminSectionCard surfaces).
+    "shell-only page delegating welded AdminSectionCard surfaces to StrategyWorkspaceClient",
   ],
 ]);
 

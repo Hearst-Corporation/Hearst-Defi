@@ -62,6 +62,28 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
+### fix/strategy-dupkey-fix
+Owner: GPT-5.4 — Strategies duplicate key fix
+Branch: fix/strategy-dupkey-fix
+Worktree: ../connect-strategy-dupkey-fix
+Started: 2026-07-01 20:37
+Status: active
+
+Goal: fix duplicate React keys in `/admin/strategies` caused by duplicate draft
+strategy ids during create/duplicate flows. No engine/auth/nav/config/Prisma work.
+
+Scope:
+- src/components/admin/strategies/use-strategy-store.ts
+- src/components/admin/strategies/create-strategy-modal.tsx
+- src/components/admin/strategies/data-lab/strategy-data-lab.tsx
+- src/components/dataviz/his/HcWaterfall.tsx
+- src/components/dataviz/his/__tests__/**
+- src/components/admin/strategies/__tests__/**
+- docs/agent-file-locks.md
+
+STOP: never touches src/lib/engine/**, auth/wallet/session, next.config.ts,
+package.json, Prisma/schema/migrations, nav/chat guards, or deployment.
+
 ### feat/product-workspace-report-product-polish
 Owner: GPT-5.4 — Product Workspace report product polish
 Branch: feat/product-workspace-report-product-polish

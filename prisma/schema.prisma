@@ -1266,3 +1266,161 @@ model OutreachSuppression {
   @@index([domain])
   @@index([reason])
 }
+
+// ---------------------------------------------------------------------------
+// STRATEGY BUILDER
+// ---------------------------------------------------------------------------
+
+model StrategyConfig {
+  id                   String   @id @default(cuid())
+  slug                 String   @unique
+  name                 String
+  description          String
+  status               String   // "draft" | "active" | "archived"
+  productFamily        String   @map("product_family") // btc_mining | stable_income | btc_upside | defi_yield | generic
+  defaultRiskProfile   String   @map("default_risk_profile") // safe | balanced | opportunistic
+  defaultHorizonMonths Int      @map("default_horizon_months") // 12 | 24 | 36
+  defaultPriority      String   @map("default_priority") // monthly_income | capital_protection | btc_upside | total_return | liquidity
+  isFallback           Boolean  @default(false) @map("is_fallback")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  scenarios  StrategyScenario[]
+  collateral StrategyCollateralConfig[]
+  rules      StrategyRebalancingRule[]
+  runs       StrategyProjectionRun[]
+
+  @@index([status])
+  @@index([productFamily])
+  @@map("strategy_configs")
+}
+
+model StrategyScenario {
+  id                       String @id @default(cuid())
+  strategyId               String @map("strategy_id")
+  scenario                 String // safe | balanced | opportunistic
+  miningBps                Int    @map("mining_bps")
+  btcBps                   Int    @map("btc_bps")
+  stableReserveBps         Int    @map("stable_reserve_bps")
+  yieldOverlayBps          Int    @map("yield_overlay_bps")
+  horizonMonths            Int    @map("horizon_months")
+  btcAnnualVolBps          Int    @map("btc_annual_vol_bps")
+  volMultiplierBps         Int    @map("vol_multiplier_bps")
+  distributionTargetLowBps  Int?  @map("distribution_target_low_bps")
+  distributionTargetHighBps Int?  @map("distribution_target_high_bps")
+  totalPerformanceLowBps    Int?  @map("total_performance_low_bps")
+  totalPerformanceHighBps   Int?  @map("total_performance_high_bps")
+  floorBps                 Int?   @map("floor_bps")
+  narrativeBullets         Json   @default("[]") @map("narrative_bullets")
+
+  strategy StrategyConfig @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@unique([strategyId, scenario])
+  @@index([strategyId])
+  @@map("strategy_scenarios")
+}
+
+model StrategyCollateralConfig {
+  id                        String  @id @default(cuid())
+  strategyId                String  @map("strategy_id")
+  collateralAsset           String  @default("BTC")  @map("collateral_asset")
+  borrowAsset               String  @default("USDC") @map("borrow_asset")
+  initialBtcCollateral      Decimal @map("initial_btc_collateral")
+  initialDebtUsdc           Decimal @map("initial_debt_usdc")
+  initialReserveUsdc        Decimal? @map("initial_reserve_usdc")
+  liquidationLtvBps         Int     @map("liquidation_ltv_bps")
+  targetSafetyBufferBps     Int     @map("target_safety_buffer_bps")
+  targetRiskLtvBps          Int     @map("target_risk_ltv_bps")
+  borrowAprBps              Int     @map("borrow_apr_bps")
+  electricityMonthlyCostUsdc Decimal @map("electricity_monthly_cost_usdc")
+  minReserveUsdc            Decimal @map("min_reserve_usdc")
+  maxBtcExposureBps         Int     @map("max_btc_exposure_bps")
+
+  strategy StrategyConfig @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId])
+  @@map("strategy_collateral_configs")
+}
+
+model StrategyRebalancingRule {
+  id                   String  @id @default(cuid())
+  strategyId           String  @map("strategy_id")
+  scenario             String  // safe | balanced | opportunistic
+  type                 String  // LIQUIDATE | REPURCHASE
+  priority             Int
+  triggerMetric        String  @map("trigger_metric") // BTC_PRICE | LTV | LIQUIDATION_DISTANCE | PORTFOLIO_DRAWDOWN | TARGET_ENTRY_PRICE | MONTH
+  operator             String  // <= | >= | < | > | ==
+  value                Decimal
+  actionSide           String  @map("action_side") // SELL_BTC | BUY_BTC | REPAY_DEBT | HOLD
+  sizingMode           String  @map("sizing_mode")  // PERCENT_OF_BTC_COLLATERAL | PERCENT_OF_USDC_RESERVE | FIXED_BTC | FIXED_USDC
+  sizingValue          Decimal @map("sizing_value")
+  repayDebtRatioBps    Int?    @map("repay_debt_ratio_bps")
+  maxLtvAfterActionBps Int?    @map("max_ltv_after_action_bps")
+  cooldownMonths       Int?    @map("cooldown_months")
+  maxExecutions        Int?    @map("max_executions")
+  enabled              Boolean @default(true)
+
+  strategy StrategyConfig @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId])
+  @@index([strategyId, scenario])
+  @@map("strategy_rebalancing_rules")
+}
+
+model StrategyProjectionRun {
+  id                       String   @id @default(cuid())
+  strategyId               String   @map("strategy_id")
+  inputJson                Json     @map("input_json")
+  reportJson               Json     @map("report_json")
+  finalRoiBps              Int      @map("final_roi_bps")
+  minLiquidationDistanceBps Int     @map("min_liquidation_distance_bps")
+  totalBtcSold             Decimal  @map("total_btc_sold")
+  totalBtcBought           Decimal  @map("total_btc_bought")
+  totalDebtRepaidUsdc      Decimal  @map("total_debt_repaid_usdc")
+  createdAt                DateTime @default(now()) @map("created_at")
+
+  strategy  StrategyConfig               @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  snapshots StrategyProjectionSnapshot[]
+  events    StrategyProjectionEvent[]
+
+  @@index([strategyId])
+  @@index([createdAt])
+  @@map("strategy_projection_runs")
+}
+
+model StrategyProjectionSnapshot {
+  id                     String  @id @default(cuid())
+  runId                  String  @map("run_id")
+  month                  Int
+  btcPrice               Decimal @map("btc_price")
+  btcCollateral          Decimal @map("btc_collateral")
+  collateralValueUsdc    Decimal @map("collateral_value_usdc")
+  debtUsdc               Decimal @map("debt_usdc")
+  reserveUsdc            Decimal @map("reserve_usdc")
+  ltvBps                 Int     @map("ltv_bps")
+  liquidationDistanceBps Int     @map("liquidation_distance_bps")
+  netEquityUsdc          Decimal @map("net_equity_usdc")
+
+  run StrategyProjectionRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@unique([runId, month])
+  @@map("strategy_projection_snapshots")
+}
+
+model StrategyProjectionEvent {
+  id         String  @id @default(cuid())
+  runId      String  @map("run_id")
+  month      Int
+  ruleId     String  @map("rule_id")
+  type       String  // LIQUIDATE | REPURCHASE
+  side       String  // SELL_BTC | BUY_BTC | REPAY_DEBT | HOLD
+  btcDelta   Decimal @map("btc_delta")
+  debtRepaid Decimal @map("debt_repaid")
+  reason     String
+
+  run StrategyProjectionRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@map("strategy_projection_events")
+}
+

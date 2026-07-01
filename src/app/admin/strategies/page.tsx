@@ -1,7 +1,7 @@
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
-import { StrategyHubClient } from "@/components/admin/strategies/strategy-hub-client";
+import { StrategyIndexClient } from "@/components/admin/strategies/strategy-index-client";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { PRODUCT_STRATEGIES } from "@/lib/product-strategies";
+import { getStrategiesFromDb } from "./queries";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +11,8 @@ export const metadata = {
 
 export default async function StrategyHubPage() {
   await requireAdmin();
+  const workspaces = await getStrategiesFromDb();
+  const strategies = workspaces.map(w => w.strategy);
 
   return (
     <AdminPageShell
@@ -18,7 +20,7 @@ export default async function StrategyHubPage() {
       titleAccent="Hub"
       contextLabel="Strategy"
     >
-      <StrategyHubClient initialStrategies={PRODUCT_STRATEGIES} />
+      <StrategyIndexClient initialStrategies={strategies} />
     </AdminPageShell>
   );
 }
