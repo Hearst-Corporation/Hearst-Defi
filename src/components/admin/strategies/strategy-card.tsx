@@ -1,12 +1,9 @@
 /**
- * StrategyCard — compact strategy entry for the Strategy Hub library grid.
+ * StrategyCard — calmer library card for the Strategy Studio.
  *
- * Renders name, status pill, family, meta row, AllocationMiniBar, MiniMetric chips
- * (conditional/modelled outputs only — no fabricated numbers), tags, and an action
- * row. selected state triggers an accent border.
- *
- * Token-only. Sleeve colours come from AllocationMiniBar (lab-colors.ts) — no hex
- * literals in this file. No forbidden words.
+ * The card now acts primarily as a selector into the Studio, not as a dense
+ * inline command bar. It keeps only the most useful read-ahead information and
+ * three focused actions.
  */
 
 "use client";
@@ -20,27 +17,15 @@ import {
   type ProductStrategy,
   type RiskProfileKey,
 } from "@/lib/product-strategies";
-import { AllocationMiniBar, MiniMetric } from "./strategy-card-charts";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { AllocationMiniBar } from "./strategy-card-charts";
 
 export interface StrategyCardProps {
   strategy: ProductStrategy;
   selected?: boolean;
   onSelect: (id: string) => void;
-  onEdit: (strategy: ProductStrategy) => void;
-  onDuplicate: (id: string) => void;
   onOpenLab: (strategy: ProductStrategy) => void;
-  onTogglePublish: (strategy: ProductStrategy) => void;
   onUseForProduct: (strategy: ProductStrategy) => void;
-  onArchive: (id: string) => void;
 }
-
-// ---------------------------------------------------------------------------
-// Status pill
-// ---------------------------------------------------------------------------
 
 const STATUS_LABEL: Record<string, string> = {
   active: "Live",
@@ -48,21 +33,34 @@ const STATUS_LABEL: Record<string, string> = {
   archived: "Archived",
 };
 
+function formatDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
+
 function StatusPill({ status }: { status: string }) {
   const isLive = status === "active";
   const isArchived = status === "archived";
+
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-(--ct-space-2) py-(--ct-space-0_5)",
+        "inline-flex items-center rounded-full border px-(--ct-space-2) py-(--ct-space-0_5)",
         "text-[length:var(--ct-text-2xs)] font-semibold tabular-nums shrink-0",
         isLive &&
-          "bg-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)] text-[var(--ct-accent)] border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)]",
+          "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_14%,transparent)] text-[var(--ct-accent)]",
         isArchived &&
-          "bg-[color-mix(in_srgb,var(--ct-text-muted)_8%,transparent)] text-[var(--ct-text-muted)] border border-[var(--ct-border-soft)]",
+          "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-muted)_8%,transparent)] text-[var(--ct-text-muted)]",
         !isLive &&
           !isArchived &&
-          "bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,transparent)] text-[var(--ct-text-secondary)] border border-[var(--ct-border-soft)]",
+          "border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,transparent)] text-[var(--ct-text-secondary)]",
       )}
     >
       {STATUS_LABEL[status] ?? status}
@@ -70,32 +68,14 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Tag chip
-// ---------------------------------------------------------------------------
-
-function Tag({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center rounded-(--ct-radius-sm) bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)] border border-[var(--ct-border-soft)] px-(--ct-space-1_5) py-(--ct-space-0_5) text-[length:var(--ct-text-2xs)] ct-text-tertiary">
-      {label}
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Action button (compact ghost)
-// ---------------------------------------------------------------------------
-
 function ActionBtn({
   label,
   onClick,
   accent,
-  danger,
 }: {
   label: string;
   onClick: (e: React.MouseEvent) => void;
   accent?: boolean;
-  danger?: boolean;
 }) {
   return (
     <button
@@ -105,16 +85,11 @@ function ActionBtn({
         onClick(e);
       }}
       className={cn(
-        "inline-flex items-center rounded-(--ct-radius-sm) px-(--ct-space-2) py-(--ct-space-1)",
-        "text-[length:var(--ct-text-2xs)] font-medium ct-transition-base",
-        "border border-[var(--ct-border-soft)]",
-        accent &&
-          "text-[var(--ct-accent)] border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)]",
-        danger &&
-          "text-[var(--ct-status-danger)] border-[color-mix(in_srgb,var(--ct-status-danger)_25%,transparent)] hover:bg-[color-mix(in_srgb,var(--ct-status-danger)_6%,transparent)]",
-        !accent &&
-          !danger &&
-          "ct-text-secondary hover:ct-surface-2 hover:ct-text-strong",
+        "inline-flex items-center rounded-(--ct-radius-sm) border px-(--ct-space-2_5) py-(--ct-space-1_5)",
+        "text-[length:var(--ct-text-2xs)] font-medium transition-colors",
+        accent
+          ? "border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] text-[var(--ct-accent)] hover:bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
+          : "border-[var(--ct-border-soft)] ct-text-secondary hover:ct-text-strong hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_4%,transparent)]",
       )}
     >
       {label}
@@ -122,59 +97,48 @@ function ActionBtn({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Projection range helper — honest display of scenario performance range
-// ---------------------------------------------------------------------------
+function rangeLabel(
+  strategy: ProductStrategy,
+  profile: RiskProfileKey,
+  kind: "performance" | "distribution",
+): string {
+  const assumptions = strategy.scenarios[profile].assumptions;
+  const low =
+    kind === "performance"
+      ? assumptions.totalPerformanceLowBps
+      : assumptions.distributionTargetLowBps;
+  const high =
+    kind === "performance"
+      ? assumptions.totalPerformanceHighBps
+      : assumptions.distributionTargetHighBps;
 
-function scenarioPerfRange(strategy: ProductStrategy, profile: RiskProfileKey): string {
-  const sc = strategy.scenarios[profile];
-  const low = sc.assumptions.totalPerformanceLowBps;
-  const high = sc.assumptions.totalPerformanceHighBps;
   if (low === undefined || high === undefined) return "—";
-  return `${bpsToPct(low).toFixed(0)}–${bpsToPct(high).toFixed(0)}%`;
+  return `${bpsToPct(low).toFixed(1)}–${bpsToPct(high).toFixed(1)}%`;
 }
 
-function scenarioDistRange(strategy: ProductStrategy, profile: RiskProfileKey): string {
-  const sc = strategy.scenarios[profile];
-  const low = sc.assumptions.distributionTargetLowBps;
-  const high = sc.assumptions.distributionTargetHighBps;
-  if (low === undefined || high === undefined) return "—";
-  return `${bpsToPct(low).toFixed(0)}–${bpsToPct(high).toFixed(0)}%`;
+function MetaStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-(--ct-space-0_5)">
+      <span className="ct-bento-label">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] font-medium ct-text-strong tabular-nums">
+        {value}
+      </span>
+    </div>
+  );
 }
-
-// ---------------------------------------------------------------------------
-// StrategyCard
-// ---------------------------------------------------------------------------
 
 export function StrategyCard({
   strategy,
   selected,
   onSelect,
-  onEdit,
-  onDuplicate,
   onOpenLab,
-  onTogglePublish,
   onUseForProduct,
-  onArchive,
 }: StrategyCardProps) {
-  const defaultScenario: RiskProfileKey = strategy.defaultRiskProfile;
-  const allocation = strategy.scenarios[defaultScenario].allocation;
-
-  const perfRange = scenarioPerfRange(strategy, defaultScenario);
-  const distRange = scenarioDistRange(strategy, defaultScenario);
-
-  // Tags: derive from family / risk / priority
-  const tags: string[] = [
-    PRODUCT_FAMILY_LABEL[strategy.productFamily] ?? strategy.productFamily,
-    RISK_LABEL[defaultScenario] ?? defaultScenario,
-    PRIORITY_LABEL[strategy.defaultPriority] ?? strategy.defaultPriority,
-  ];
-
-  const publishLabel =
-    strategy.status === "active" ? "Unpublish" : "Publish";
+  const scenarioKey = strategy.defaultRiskProfile;
+  const scenario = strategy.scenarios[scenarioKey];
 
   return (
-    <div
+    <article
       role="button"
       tabIndex={0}
       aria-pressed={selected}
@@ -186,108 +150,52 @@ export function StrategyCard({
         }
       }}
       className={cn(
-        "flex flex-col gap-(--ct-space-3) min-w-0 rounded-(--ct-radius-lg) border",
-        "bg-[var(--ct-surface-card)] p-(--ct-space-4) ct-transition-base cursor-pointer",
-        "hover:border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)]",
+        "flex min-w-0 cursor-pointer flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border bg-[var(--ct-surface-card)] p-(--ct-space-5) transition-colors",
         selected
           ? "border-[var(--ct-accent)] shadow-[0_0_0_1px_var(--ct-accent)]"
-          : "border-[var(--ct-border-soft)]",
+          : "border-[var(--ct-border-soft)] hover:border-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)]",
         strategy.status === "archived" && "opacity-[var(--ct-opacity-70)]",
       )}
     >
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-start gap-(--ct-space-2) min-w-0">
-        <div className="flex-1 min-w-0">
-          <p className="text-[length:var(--ct-text-sm)] font-bold ct-text-strong leading-snug break-words">
+      <div className="flex items-start justify-between gap-(--ct-space-3)">
+        <div className="min-w-0 flex-1">
+          <p className="text-[length:var(--ct-text-sm)] font-semibold leading-snug ct-text-strong break-words">
             {strategy.name}
           </p>
-          <p className="text-[length:var(--ct-text-2xs)] ct-text-tertiary mt-(--ct-space-0_5)">
-            {PRODUCT_FAMILY_LABEL[strategy.productFamily] ?? strategy.productFamily}
+          <p className="mt-(--ct-space-1) text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+            {PRODUCT_FAMILY_LABEL[strategy.productFamily]} · {RISK_LABEL[strategy.defaultRiskProfile]}
           </p>
         </div>
         <StatusPill status={strategy.status} />
       </div>
 
-      {/* ── Meta row ───────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-(--ct-space-3) text-[length:var(--ct-text-xs)] ct-text-secondary min-w-0">
-        <span>
-          <span className="ct-text-tertiary">Risk</span>{" "}
-          <span className="font-medium ct-text-strong">
-            {RISK_LABEL[strategy.defaultRiskProfile] ?? strategy.defaultRiskProfile}
-          </span>
-        </span>
-        <span>
-          <span className="ct-text-tertiary">Horizon</span>{" "}
-          <span className="font-medium ct-text-strong tabular-nums">
-            {strategy.defaultHorizonMonths}m
-          </span>
-        </span>
-        <span>
-          <span className="ct-text-tertiary">Priority</span>{" "}
-          <span className="font-medium ct-text-strong">
-            {PRIORITY_LABEL[strategy.defaultPriority] ?? strategy.defaultPriority}
-          </span>
-        </span>
-      </div>
-
-      {/* ── Allocation bar ─────────────────────────────────────────────────── */}
-      <AllocationMiniBar allocation={allocation} />
-
-      {/* ── Metric chips — modelled, honest ───────────────────────────────── */}
-      <div className="flex flex-wrap gap-(--ct-space-2) min-w-0">
-        <MiniMetric
-          label="Perf. range (mod.)"
-          value={perfRange}
-          tone="muted"
-        />
-        <MiniMetric
-          label="Dist. target (mod.)"
-          value={distRange}
-          tone="muted"
-        />
-        <MiniMetric
-          label="Horizon"
-          value={`${strategy.defaultHorizonMonths}mo`}
-          tone="muted"
-        />
-      </div>
-      <p className="text-[length:var(--ct-text-2xs)] ct-text-tertiary italic">
-        Modelled — conditional on stated assumptions, not guaranteed.
+      <p className="text-[length:var(--ct-text-xs)] leading-relaxed ct-text-tertiary [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+        {strategy.description}
       </p>
 
-      {/* ── Tags ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-(--ct-space-1_5) min-w-0">
-        {tags.map((t) => (
-          <Tag key={t} label={t} />
-        ))}
+      <AllocationMiniBar allocation={scenario.allocation} />
+
+      <div className="grid grid-cols-2 gap-(--ct-space-3) lg:grid-cols-4">
+        <MetaStat label="Perf. range" value={rangeLabel(strategy, scenarioKey, "performance")} />
+        <MetaStat label="Dist. target" value={rangeLabel(strategy, scenarioKey, "distribution")} />
+        <MetaStat label="Horizon" value={`${strategy.defaultHorizonMonths}m`} />
+        <MetaStat label="Updated" value={formatDate(strategy.updatedAt)} />
       </div>
 
-      {/* ── Actions ────────────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-(--ct-space-2) text-[length:var(--ct-text-2xs)] ct-text-muted">
+        <span>{PRIORITY_LABEL[strategy.defaultPriority]}</span>
+        <span>·</span>
+        <span>Modelled, conditional, not guaranteed.</span>
+      </div>
+
       <div
-        className="flex flex-wrap gap-(--ct-space-1_5) pt-(--ct-space-2) border-t border-[var(--ct-border-soft)] min-w-0"
+        className="flex flex-wrap gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)"
         onClick={(e) => e.stopPropagation()}
       >
-        <ActionBtn label="Edit" onClick={() => onEdit(strategy)} />
-        <ActionBtn label="Duplicate" onClick={() => onDuplicate(strategy.id)} />
-        <ActionBtn label="Open Lab" onClick={() => onOpenLab(strategy)} accent />
-        <ActionBtn
-          label={publishLabel}
-          onClick={() => onTogglePublish(strategy)}
-          accent={strategy.status !== "active"}
-        />
-        <ActionBtn
-          label="Use for Product"
-          onClick={() => onUseForProduct(strategy)}
-          accent
-        />
-        {strategy.status !== "archived" && (
-          <ActionBtn
-            label="Archive"
-            onClick={() => onArchive(strategy.id)}
-            danger
-          />
-        )}
+        <ActionBtn label={selected ? "Studio Open" : "Open Studio"} onClick={() => onSelect(strategy.id)} accent />
+        <ActionBtn label="Data Lab" onClick={() => onOpenLab(strategy)} />
+        <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
       </div>
-    </div>
+    </article>
   );
 }

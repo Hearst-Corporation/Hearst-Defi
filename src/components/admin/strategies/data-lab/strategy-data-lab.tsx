@@ -15,7 +15,7 @@
  *    are behind a <details> collapsible.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -328,6 +328,12 @@ export function StrategyDataLab({
   const [scenario, setScenario] = useState<Scenario>(scenarioProp ?? "balanced");
   const [useHistorical, setUseHistorical] = useState(false);
 
+  useEffect(() => {
+    if (scenarioProp) {
+      setScenario(scenarioProp);
+    }
+  }, [scenarioProp]);
+
   const regimes = useHistorical ? SYNTHETIC_HISTORICAL_REGIMES : MARKET_REGIMES;
 
   const backtest = useMemo(
@@ -403,7 +409,8 @@ export function StrategyDataLab({
           <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
             Scenario context:{" "}
             <span className="font-medium">{strategy.name}</span>
-            {" "}— the Lab runs on baseline market parameters.
+            {" "}· {scenario[0]!.toUpperCase() + scenario.slice(1)} scenario.
+            The Lab still runs on baseline market parameters for deep studies.
             Projections are conditional on stated assumptions, not guaranteed.
           </p>
         ) : null}
@@ -419,13 +426,14 @@ export function StrategyDataLab({
   }
 
   return (
-    <div className="flex flex-col gap-(--ct-space-6) p-(--ct-space-5)">
+    <div className="flex flex-col gap-(--ct-space-6)">
       {/* Strategy pre-fill banner — shown only when opened from a strategy card */}
       {strategy != null ? (
         <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
           Scenario context:{" "}
           <span className="font-medium">{strategy.name}</span>
-          {" "}— the Lab runs on baseline market parameters (allocation-specific runs coming soon).
+          {" "}· {scenario[0]!.toUpperCase() + scenario.slice(1)} scenario.
+          Deep studies still run on baseline market parameters while allocation-specific runs are being wired.
           Projections are conditional on stated assumptions, not guaranteed.
         </p>
       ) : null}

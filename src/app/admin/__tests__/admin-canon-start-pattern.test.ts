@@ -118,6 +118,14 @@ const SECONDARY_ALLOWLIST: ReadonlyMap<string, string> = new Map([
     // exception — EmptySurface needs no enclosing card).
     "redirect page; only rendered fallback is EmptySurface alone (DS exception)",
   ],
+  [
+    "src/app/admin/strategies/page.tsx",
+    // The page is a shell-only server entrypoint. Its first welded canon blocks
+    // are rendered inside <StrategyHubClient> (Strategy Library / Strategy Studio
+    // / Advanced Data Lab as AdminSectionCard surfaces). Wrapping page.tsx again
+    // in AdminSectionCard would double-frame the studio.
+    "shell-only page delegating welded AdminSectionCard surfaces to StrategyHubClient",
+  ],
 ]);
 
 const ALL_ALLOWLISTED: ReadonlySet<string> = new Set([
