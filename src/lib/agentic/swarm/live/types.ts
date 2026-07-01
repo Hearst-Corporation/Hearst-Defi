@@ -19,6 +19,8 @@
  */
 
 import type { QuantAssumptions } from "./quant-assumptions";
+import type { ObjectiveIntentProfile } from "./objective-profile";
+import type { ObjectiveAdjustment } from "./objective-adjustments";
 import type { CanonicalAllocation } from "@/lib/products/canonical-allocation";
 import type { EconomicsViews } from "@/lib/products/economics-views";
 import type {
@@ -170,6 +172,17 @@ export interface WriteupArtifact {
 export interface ProductConstructionDraft {
   /** Objective the construction was framed around. */
   objective: string;
+  /**
+   * Deterministic reading of the objective (product family, risk, income,
+   * horizon…) — additive, optional. Drives the bounded projection adjustments
+   * below and the "Objective interpretation" UI. No LLM, no invented data.
+   */
+  objectiveProfile?: ObjectiveIntentProfile;
+  /**
+   * The bounded, traced adjustments the objective applied to the projection
+   * (horizon / vol / allocation tilt). Empty array = default product assumptions.
+   */
+  objectiveAdjustments?: ObjectiveAdjustment[];
   /** Vault inferred for the objective (label/ticker only — no state mutated). */
   vault: { ticker: string; label: string };
   /**

@@ -116,6 +116,75 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <span className="ct-bento-label">{children}</span>;
 }
 
+const FAMILY_LABEL: Record<string, string> = {
+  mining: "Mining",
+  defi_yield: "DeFi yield",
+  btc_treasury: "BTC treasury",
+  stable_income: "Stable income",
+  generic: "Generic",
+};
+const RISK_LABEL: Record<string, string> = {
+  conservative: "Conservative",
+  balanced: "Balanced",
+  opportunistic: "Opportunistic",
+};
+const INCOME_LABEL: Record<string, string> = {
+  monthly_distribution: "Monthly income",
+  growth: "Growth",
+  mixed: "Mixed",
+};
+
+/**
+ * Compact read-out of how the objective was interpreted + which bounded
+ * adjustments it applied. Quiet, token-only, no nested box — one label line, one
+ * summary line, then the adjustment list (or a "default assumptions" note).
+ */
+function ObjectiveInterpretation({
+  profile,
+  adjustments,
+}: {
+  profile: import("@/lib/agentic/swarm/live/objective-profile").ObjectiveIntentProfile;
+  adjustments: import("@/lib/agentic/swarm/live/objective-adjustments").ObjectiveAdjustment[];
+}) {
+  const family = FAMILY_LABEL[profile.productFamily] ?? "Generic";
+  const risk = RISK_LABEL[profile.riskProfile] ?? "Balanced";
+  const income = INCOME_LABEL[profile.incomePreference] ?? "Mixed";
+  const horizon = profile.horizon === "unknown" ? null : profile.horizon;
+  const summary = [family, risk, income, horizon].filter(Boolean).join(" · ");
+
+  return (
+    <section className="flex flex-col gap-(--ct-space-2) pb-(--ct-space-6)">
+      <SectionLabel>Objective interpretation</SectionLabel>
+      <p className="body-sm ct-text-strong [overflow-wrap:anywhere]">{summary}</p>
+      {profile.matchedSignals.length > 0 ? (
+        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary [overflow-wrap:anywhere]">
+          Matched: {profile.matchedSignals.join(", ")}
+        </p>
+      ) : null}
+      {adjustments.length > 0 ? (
+        <ul className="mt-(--ct-space-1) flex flex-col gap-(--ct-space-1)">
+          {adjustments.map((a, i) => (
+            <li
+              key={`${a.field}-${i}`}
+              className="flex flex-wrap items-baseline gap-x-(--ct-space-2) text-[length:var(--ct-text-xs)]"
+            >
+              <span className="mono ct-text-accent">{a.field}</span>
+              <span className="ct-text-body tabular-nums">
+                {a.from} → {a.to}
+              </span>
+              <span className="ct-text-faint">· {a.reason}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[length:var(--ct-text-xs)] ct-text-faint">
+          No adjustments — default product assumptions used.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function AllocationDonut({
   data,
   centerLabel,
@@ -276,6 +345,15 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
 
   return (
     <div className="flex flex-col">
+      {/* Objective interpretation — how the objective text was read and what
+          bounded adjustments it applied. Compact, quiet, above the thesis. */}
+      {draft.objectiveProfile ? (
+        <ObjectiveInterpretation
+          profile={draft.objectiveProfile}
+          adjustments={draft.objectiveAdjustments ?? []}
+        />
+      ) : null}
+
       {/* Thesis — prose, no box. */}
       <section className="flex flex-col gap-(--ct-space-3) pb-(--ct-space-6)">
         <SectionLabel>

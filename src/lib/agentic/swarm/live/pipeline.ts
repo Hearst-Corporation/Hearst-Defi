@@ -50,6 +50,8 @@ import {
   resolveQuantAssumptions,
   type QuantAssumptionsOverrides,
 } from "./quant-assumptions";
+import { parseObjectiveProfile } from "./objective-profile";
+import { deriveObjectiveAssumptionOverrides } from "./objective-adjustments";
 import { deriveRegimeAllocation, deriveRawAllocation } from "./strategy-allocation";
 import { buildConstructionSteps } from "./construction-steps";
 import { buildProductEngineOutputs } from "./product-engine-bridge";
@@ -168,9 +170,22 @@ export async function runProductConstructionPipeline(
     };
   }
 
+  // Objective-aware layer: a PURE, deterministic reading of the objective text
+  // produces BOUNDED assumption overrides (horizon / vol) + a traced list of
+  // adjustments. Explicit admin `opts.assumptions` win over objective-derived
+  // ones (a calibrated override is intentional). No LLM, no invented data.
+  const objectiveProfile = parseObjectiveProfile(trimmed);
+  const objectiveDerived = deriveObjectiveAssumptionOverrides(objectiveProfile);
+  const mergedOverrides: QuantAssumptionsOverrides = {
+    ...objectiveDerived.overrides,
+    ...opts.assumptions,
+    btc: { ...objectiveDerived.overrides.btc, ...opts.assumptions?.btc },
+  };
+
   // Resolve + clamp the calibratable Monte-Carlo assumptions (defaults when
-  // none were supplied). Every hardcode is now a value in here.
-  const assumptions = resolveQuantAssumptions(opts.assumptions);
+  // none were supplied). Every hardcode is now a value in here. The clamp makes
+  // every objective-derived override automatically safe.
+  const assumptions = resolveQuantAssumptions(mergedOverrides);
   const audit: LiveSwarmStepAudit[] = [];
 
   // Product identity (root cause #A): a BTC-mining objective MUST surface as the
@@ -465,6 +480,8 @@ export async function runProductConstructionPipeline(
 
   const draft: ProductConstructionDraft = {
     objective: trimmed,
+    objectiveProfile,
+    objectiveAdjustments: objectiveDerived.adjustments,
     vault: { ticker: vault.ticker, label: vault.label },
     productId,
     telegram: {
