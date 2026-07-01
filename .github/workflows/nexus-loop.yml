@@ -139,7 +139,24 @@ jobs:
           MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
           ROLES=(architect coder tester reviewer refactorer documenter optimizer integrator analyst hardener cleaner planner builder verifier auditor finisher)
 
+          # ── Live progress bus → Nexus. GitHub's API withholds job logs until the
+          # job completes; the Nexus Postgres runs ON THIS BOX, so each progress
+          # event is inserted locally and the Nexus run page streams it live.
+          # Best-effort by design: a dead bus must never break a run.
+          RUN_LABEL="${{ inputs.run_label }}"
+          progress() {
+            docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+              -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
+              -c "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
+              >/dev/null 2>&1 || true
+          }
+          # Retention: the bus is a live window, not an archive (full logs land in
+          # the run row at reconcile). Prune anything older than 7 days.
+          docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+            -c "DELETE FROM run_progress WHERE created_at < now() - interval '7 days';" >/dev/null 2>&1 || true
+
           echo "Nexus run ${{ inputs.run_label }} — fleet of $N agent(s), model $MODEL"
+          progress "fleet dispatched — $N agent(s), model $MODEL"
           # Base checkpoint so each agent's file delta is measurable precisely.
           BASE=$(git rev-parse HEAD)
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
@@ -151,6 +168,7 @@ jobs:
           for i in $(seq 0 $((N-1))); do
             ROLE="${ROLES[$i]:-agent-$((i+1))}"
             echo "──── agent $((i+1))/$N : $ROLE ────"
+            progress "agent $((i+1))/$N ($ROLE) started"
             AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${PROMPT}"
             claude -p "$AGENT_PROMPT" \
               --permission-mode acceptEdits \
@@ -164,19 +182,31 @@ jobs:
             git commit -q --allow-empty -m "nexus agent $i ($ROLE)"
             echo "$i|$ROLE|$ST|$NF" >> "$TMP/agent-rows.txt"
             echo "agent $ROLE → status=$ST files=$NF"
+            progress "agent $((i+1))/$N ($ROLE) → status=$ST files=$NF"
           done
           echo "---- agent-rows ----"; cat "$TMP/agent-rows.txt"
+          progress "fleet complete — entering validation gate"
 
       - name: Run tests (validation gate)
         id: tests
         shell: bash -l {0}
         run: |
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
+          RUN_LABEL="${{ inputs.run_label }}"
+          progress() {
+            docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+              -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
+              -c "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
+              >/dev/null 2>&1 || true
+          }
+          progress "validation gate — npm test running"
           if npm test 2>&1 | tee "$RUNNER_TEMP/test-output.txt"; then
             echo "status=done" >> "$GITHUB_OUTPUT"
+            progress "validation gate → passed"
           else
             echo "tests failed (PR still opens for review)"
             echo "status=error" >> "$GITHUB_OUTPUT"
+            progress "validation gate → FAILED (PR still opens for review)"
           fi
 
       - name: Build manifest + PR body
@@ -235,14 +265,23 @@ jobs:
         shell: bash -l {0}
         run: |
           set -e
+          RUN_LABEL="${{ inputs.run_label }}"
+          progress() {
+            docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+              -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
+              -c "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
+              >/dev/null 2>&1 || true
+          }
           BASE_REF="${TARGET_BASE_REF:-main}"
           git fetch origin "$BASE_REF" --quiet
           if git diff --cached --quiet "origin/${BASE_REF}"; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "→ No diff vs origin/${BASE_REF} — health check completed, no changes needed. Skipping PR."
+            progress "no diff vs origin/${BASE_REF} — clean no-op, no PR"
           else
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
             echo "→ Changes detected vs origin/${BASE_REF} — will open PR."
+            progress "changes detected vs origin/${BASE_REF} — opening PR"
           fi
 
       - name: Create Pull Request
