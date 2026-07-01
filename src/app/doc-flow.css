@@ -551,6 +551,80 @@
   gap: var(--ct-space-3);
 }
 
+/* SECTION-NAV base (ANY container width, incl. chat rail open) — the horizontal
+   spacing/altitude below only kicks in at ≥40rem via @container. Without this
+   base the list fell back to the default <ul> block flow and stacked VERTICALLY
+   in the narrow slot, stealing ~200px of cockpit height. Base = a single-line,
+   discreetly scrollable horizontal rail. Never a vertical column. */
+.admin-doc .section-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-2) var(--ct-space-3);
+  flex: 0 0 auto;
+  margin-top: var(--ct-space-3);
+  margin-bottom: calc(-1 * var(--ct-space-3));
+}
+.admin-doc .section-nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--ct-space-1) var(--ct-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Narrow slot: keep one line, scroll horizontally instead of wrapping into a
+     tall stack; the scrollbar is hidden for a clean eyebrow rail. */
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.admin-doc .section-nav__list::-webkit-scrollbar {
+  display: none;
+}
+.admin-doc .section-nav__item {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+/* Link + interactive states at BASE scope so active / hover / focus / the accent
+   dot work at ANY container width — not only ≥40rem. Otherwise the narrow slot
+   (chat rail open) would lose the active marker. */
+.admin-doc .section-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ct-space-1_5);
+  padding: var(--ct-space-1) 0;
+  color: var(--ct-text-muted);
+  font-size: var(--ct-text-sm);
+  line-height: var(--ct-leading-snug);
+  font-weight: var(--ct-font-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--ct-dur-fast) var(--ct-ease);
+}
+.admin-doc .section-nav__dot {
+  width: var(--ct-space-1_5);
+  height: var(--ct-space-1_5);
+  border-radius: var(--ct-radius-full);
+  background: var(--ct-accent);
+  opacity: 0;
+  transition: opacity var(--ct-dur-fast) var(--ct-ease);
+}
+.admin-doc .section-nav__link:hover {
+  color: var(--ct-text-body);
+}
+.admin-doc .section-nav__link:focus-visible {
+  outline: none;
+  border-radius: var(--ct-radius-sm);
+  box-shadow: var(--ct-shadow-focus-ring);
+}
+.admin-doc .section-nav__link--active {
+  color: var(--ct-text-strong);
+  font-weight: var(--ct-font-semibold);
+}
+.admin-doc .section-nav__link--active .section-nav__dot {
+  opacity: 1;
+}
+
 @container admin-doc (min-width: 40rem) {
   /* =============================================================================
      SECTION-NAV (canon « section-nav » family) — navigation secondaire de section.
@@ -578,7 +652,9 @@
 .admin-doc .section-nav__list {
   display: flex;
   align-items: center;
+  /* Wide slot: enough room to wrap onto lines instead of scrolling. */
   flex-wrap: wrap;
+  overflow-x: visible;
   gap: var(--ct-space-1) var(--ct-space-4);
   margin: 0;
   padding: 0;
