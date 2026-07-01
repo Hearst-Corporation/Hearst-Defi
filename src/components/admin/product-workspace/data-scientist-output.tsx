@@ -313,7 +313,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
           sections. */}
       <section className="flex flex-col gap-(--ct-space-5) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
         <SectionLabel>Allocation — scenarios + canonical mix</SectionLabel>
-        <div className="grid gap-x-(--ct-space-6) gap-y-(--ct-space-8) md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-x-(--ct-space-6) gap-y-(--ct-space-8) lg:grid-cols-2 xl:grid-cols-4">
           {scenarios.map((scenario) => (
             <ScenarioBlock
               key={scenario.regime}

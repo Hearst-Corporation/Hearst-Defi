@@ -232,7 +232,9 @@ export function BentoKpiStrip({
           <div
             key={i}
             className={cn(
-              "flex flex-col gap-2 p-5 md:px-6",
+              // min-w-0 lets long values wrap instead of forcing horizontal
+              // overflow (grid children default to min-width:auto).
+              "flex min-w-0 flex-col gap-2 p-5 md:px-6",
               // Hairline between tiles: bottom on stacked mobile, right on desktop.
               i < items.length - 1 &&
                 "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
@@ -241,7 +243,9 @@ export function BentoKpiStrip({
             <div className="ct-bento-label">{item.label}</div>
             <div
               className={cn(
-                "text-[length:var(--ct-text-2xl)] font-medium leading-none tracking-tight",
+                // Value scales down in the narrow shell slot (chat rail open) and
+                // rises to the 22px canon on wide; long tokens wrap, never clip.
+                "min-w-0 text-[length:var(--ct-text-lg)] font-medium leading-tight tracking-tight [overflow-wrap:anywhere] lg:text-[length:var(--ct-text-2xl)]",
                 item.accent ? "ct-text-accent" : "ct-text-strong",
               )}
             >
