@@ -504,11 +504,15 @@ export function ConstructionStepper({ objective }: { objective: string | null })
   const [draft, setDraft] = useState<ProductConstructionDraft | null>(null);
   const [phase, setPhase] = useState<"idle" | "running" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  // Objective driving the run. Seeded from the URL/chat prop, but editable here so
+  // the admin can trigger a construction straight from this page — no chat needed.
+  const [objectiveInput, setObjectiveInput] = useState(objective ?? "");
 
   const autoRanRef = useRef(false);
   const nodeRefs = useRef(new Map<ConstructionStepId, HTMLLIElement>());
 
-  const run = useCallback(async () => {
+  const run = useCallback(async (rawObjective: string) => {
+    const objective = rawObjective.trim();
     if (!objective) return;
     setResults({});
     setDraft(null);
@@ -583,13 +587,13 @@ export function ConstructionStepper({ objective }: { objective: string | null })
       setError(err instanceof Error ? err.message : "request failed");
       setPhase("error");
     }
-  }, [objective]);
+  }, []);
 
-  // Auto-run once when the workspace opens with an objective.
+  // Auto-run once when the workspace opens with an objective from the URL/chat.
   useEffect(() => {
     if (autoRanRef.current || !objective) return;
     autoRanRef.current = true;
-    void run();
+    void run(objective);
   }, [objective, run]);
 
   // Auto-scroll to the active step as the construction advances.
@@ -606,11 +610,49 @@ export function ConstructionStepper({ objective }: { objective: string | null })
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [draft]);
 
-  if (!objective) {
+  const isRunning = phase === "running";
+  const trimmedObjective = objectiveInput.trim();
+
+  // Launcher — trigger a construction straight from this page (input + Run
+  // button), no chat round-trip. Shown above the stepper; disabled while running.
+  const launcher = (
+    <form
+      className="flex flex-wrap items-center gap-(--ct-space-3) border-b border-[var(--ct-border-soft)] p-(--ct-space-4)"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!isRunning && trimmedObjective) void run(trimmedObjective);
+      }}
+    >
+      <label htmlFor="construction-objective" className="ct-bento-label shrink-0">
+        Objective
+      </label>
+      <input
+        id="construction-objective"
+        type="text"
+        value={objectiveInput}
+        onChange={(e) => setObjectiveInput(e.target.value)}
+        disabled={isRunning}
+        maxLength={220}
+        placeholder="e.g. Frame a new Hearst Yield Vault and project its APY range"
+        className="min-w-0 flex-1 rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-inset px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-sm)] ct-text-strong placeholder:ct-text-faint focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)] disabled:opacity-[var(--ct-opacity-50)]"
+      />
+      <Button type="submit" variant="primary" size="sm" disabled={isRunning || !trimmedObjective}>
+        {isRunning ? "Running…" : draft || phase === "done" ? "Re-run projection" : "Run projection →"}
+      </Button>
+    </form>
+  );
+
+  // No objective anywhere yet (fresh page, no URL/chat seed): show ONLY the
+  // launcher so the admin can start a construction without the chat.
+  if (!objective && phase === "idle" && !draft) {
     return (
-      <p className="body-sm ct-text-muted">
-        No objective yet — describe the product in the cockpit chat to start the construction.
-      </p>
+      <BentoPanel>
+        {launcher}
+        <p className="body-sm ct-text-muted p-(--ct-space-4)">
+          Enter an objective and run — five specialists build a read-only draft from
+          live data. Nothing is created, sent, or deployed here.
+        </p>
+      </BentoPanel>
     );
   }
 
@@ -622,12 +664,21 @@ export function ConstructionStepper({ objective }: { objective: string | null })
 
   return (
     <div className="flex flex-col gap-(--ct-space-6)">
+      {/* Launcher — always available so a run can be (re)triggered from the page. */}
+      <BentoPanel>{launcher}</BentoPanel>
+
       {/* Status bar removed (no value once each step renders its own state). A
           failure still surfaces so it is never silent. */}
       {error ? (
         <span className="text-[length:var(--ct-text-xs)] ct-status-danger">
           {error} ·{" "}
-          <button type="button" onClick={() => void run()} className="underline-offset-2 hover:underline">retry</button>
+          <button
+            type="button"
+            onClick={() => void run(trimmedObjective || objective || "")}
+            className="underline-offset-2 hover:underline"
+          >
+            retry
+          </button>
         </span>
       ) : null}
 
