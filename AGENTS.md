@@ -19,10 +19,13 @@ contexte du domaine concerné, **pas** tout le README.
 
 ## Workflow worktree (règle d'or)
 
-Un agent = **un worktree isolé créé depuis `origin/main`** ; jamais de dev dans le
-working tree principal. Staging chirurgical (jamais `git add -A`), push branche only
-(jamais `main`), merge = PR gatée sur accord. Détail + STOP conditions :
-[`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md).
+**Agent unique séquentiel** → travail dans le repo courant, branche courante ou feature
+dédiée (le worktree isolé n'est PAS obligatoire). **Plusieurs agents en parallèle · fan-out ·
+run long · repo fragile/dirty** → **worktree isolé obligatoire** (créé depuis `origin/main`).
+Jamais deux agents en écriture dans le même working tree ; fichiers partagés → repasser en
+séquentiel. Toujours : staging chirurgical (jamais `git add -A`), push branche only (jamais
+`main` — cf. prod Vercel ci-dessous), merge sur accord. Socle : [`~/.claude/dev-agent-rules.md`](~/.claude/dev-agent-rules.md).
+Détail + STOP conditions : [`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md).
 
 ## Docs protégées (lecture obligatoire · jamais supprimer)
 
@@ -45,17 +48,20 @@ Mise à jour autorisée **in place** si les tokens/breakpoints CSS changent. Sup
 - **Pas de cross-project import** depuis `Dev/Projects/hearst-connect` (réf. read-only) — tout recodé ici.
 - **Pas d'envoi email réel**, pas de mutation prod, pas de migration DB sans demande explicite.
 
-## Réutilisation obligatoire — jamais de double, jamais de code mort (GATE EXÉCUTABLE)
+## Réutilisation obligatoire — jamais de double, jamais de code mort (ADVISORY)
 
 Avant de créer **tout** composant / fonction / module :
 1. **Cherche d'abord** dans `docs/COMPONENT_INDEX.md` (index généré de tous les composants). S'il existe → **réutilise-le**.
 2. S'il existe mais est en mauvais état → **refactore-le EN PLACE et supprime l'ancien**. Jamais un 2ᵉ exemplaire.
-3. Tu remplaces un composant ? **Supprime l'ancien dans le même change** — un export orphelin bloque le push.
+3. Tu remplaces un composant ? **Supprime l'ancien dans le même change** — pas d'export orphelin.
 
-Ces règles ne sont pas que du discours, elles **bloquent le commit/push** (cliquet, ne régresse jamais) :
-- **pre-commit** → `jscpd` refuse tout commit qui ajoute du code dupliqué (baseline 143 clones) + régénère l'index.
-- **pre-push** → `knip` refuse tout push qui laisse du code mort (baseline 22 findings).
-- Inspecter : `pnpm quality` (tout), `pnpm quality:dup:report` / `pnpm quality:dead:report`. Baseline : `scripts/quality-baseline.json` (abaisser via `pnpm quality:update` après nettoyage). Bypass délibéré seulement : `--no-verify`.
+> **Statut réel : advisory, PAS bloquant.** Les hooks ne câblent plus ces gates —
+> `.husky/pre-commit` ne lance que `secrets-scan` (jscpd retiré 2026-06-26),
+> `.husky/pre-push` ne câble pas knip (retiré 2026-06-18). La discipline repose sur
+> l'étape 1 + les commandes ci-dessous lancées à la main. Détail : `.cursor/rules/no-duplication.mdc`.
+- **Duplication** → `pnpm quality:dup:report` (jscpd, baseline 143 clones) — manuel.
+- **Code mort** → `pnpm quality:dead:report` (knip, baseline 22 findings) — manuel.
+- `pnpm quality` lance les deux. Baseline : `scripts/quality-baseline.json` (abaisser via `pnpm quality:update` après nettoyage).
 
 ## Discipline de commit — staging chirurgical (OBLIGATOIRE)
 

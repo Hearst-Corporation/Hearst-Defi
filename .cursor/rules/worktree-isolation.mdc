@@ -1,13 +1,19 @@
 ---
-description: Multi-agent worktree isolation — one agent = one isolated worktree from origin/main
+description: Multi-agent worktree isolation — worktree obligatoire dès qu'il y a du parallèle/fan-out ; agent unique séquentiel = branche courante
 alwaysApply: true
 ---
 
-# Worktree isolation (s'applique à TOUT agent, toute passe)
+# Worktree isolation (s'applique dès qu'il y a plusieurs agents / du parallèle)
 
-Règle d'or : **un agent = un worktree git ISOLÉ, créé depuis `origin/main`.**
-Personne ne développe dans le working tree principal (il sert à fetch / créer-supprimer
-des worktrees / inspecter `main`).
+Règle d'or : **worktree isolé obligatoire dès qu'il y a plusieurs agents en parallèle,
+du fan-out, un run long, ou un repo fragile/dirty.** Pour un **agent unique séquentiel**,
+le worktree n'est PAS obligatoire : travail dans le repo courant, branche courante ou
+feature dédiée (cf. socle [`~/.claude/dev-agent-rules.md`](~/.claude/dev-agent-rules.md) §3).
+
+Quand un worktree est requis, il est **créé depuis `origin/main`** ; personne ne développe
+en parallèle dans le working tree principal (il sert à fetch / créer-supprimer des worktrees
+/ inspecter `main`). **Jamais deux agents en écriture dans le même working tree** ; fichiers
+partagés → repasser en séquentiel.
 
 ```bash
 git fetch origin

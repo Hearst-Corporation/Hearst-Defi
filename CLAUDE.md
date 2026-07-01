@@ -5,8 +5,12 @@ This repository uses a strict multi-agent workflow.
 These rules are mandatory for every agent, every task, and every code change.
 
 Core rules:
-1. One agent = one isolated git worktree.
-2. One task = one short-lived branch.
+1. Worktree isolation is REQUIRED whenever there is parallelism: several agents at once,
+   fan-out, a long run, or a fragile/dirty tree. A SINGLE sequential agent may work in the
+   current repo on the current branch or a dedicated feature branch (no worktree required).
+   Never two agents writing the same working tree; shared files → go sequential.
+   (Global baseline: `~/.claude/dev-agent-rules.md` §3.)
+2. One task = one short-lived branch (in a worktree when rule 1 requires isolation).
 3. One integration step (when user asks) = commit, push branch, PR, merge into `main`.
 4. Every agent must reserve files before editing.
 5. No agent may edit files owned by another active agent.
@@ -59,7 +63,14 @@ Checkpoint / merge protocol (level C — prod integration only):
 - push branch (`git push -u origin HEAD`) — never push `main` directly from an agent worktree;
 - create PR into main;
 - merge if PR is mergeable and checks are acceptable;
-- wait for Vercel READY if production-facing (`push main` triggers Vercel prod — cf. `docs/DEPLOYMENT.md`).
+- wait for Vercel READY if production-facing.
+
+> **Prod reality (no CI gate).** Any `push`/`merge` to `main` deploys straight to Vercel
+> production (`connect.hearst.app`) — Vercel's Git integration is NOT blocked by `ci.yml`
+> (see `docs/DEPLOYMENT.md`). So `main` is a *deploy trigger*, not a gated integration branch
+> today. **Never push or merge to `main` without explicit confirmation from the user** —
+> that push IS the production deploy. Branch protection requiring `ci.yml` is a separate,
+> not-yet-wired chantier.
 
 Never use:
 - git add -A

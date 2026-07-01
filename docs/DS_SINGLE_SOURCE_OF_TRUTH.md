@@ -43,8 +43,12 @@ When a new visual direction arrives (HTML mockup, Figma, screenshot, description
 1. **Identify the gap.** Map each visual concept to a layer (token / primitive / pattern / doc).
 2. **Token gaps** → add or update a `--ct-*` token in `cockpit-shell/tokens.css` (base) or
    `cockpit.css` (runtime override). If it's a product override, add to `ds-token-allowlist.json`.
-3. **Shape / primitive gaps** → update the component in `src/components/ui/`. Update the DS page
-   section that documents it (`src/components/admin/design-system/section-*.tsx`).
+3. **Shape / primitive gaps** → **new primitives go to `src/components/catalyst/`** (the current
+   component authority, branded with `--ct-*`). Only edit an existing `src/components/ui/*`
+   component when you are fixing that already-consumed legacy primitive in place — never add a
+   *new* visual primitive to `ui/`. **Catalyst/DS first · reuse before create · no homemade
+   component · no hardcoded visual language.** Update the DS page section that documents it
+   (`src/components/admin/design-system/section-*.tsx`).
 4. **Composition gaps** → add a CSS pattern in the appropriate `.css` file; annotate with a
    reference to the motivating direction (one-line comment max).
 5. **Documentation** → update `docs/DESIGN_SYSTEM.md` + `/admin/design-system` section.

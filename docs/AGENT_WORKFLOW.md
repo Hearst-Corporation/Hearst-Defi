@@ -16,16 +16,24 @@
 ## 1. Règle d'or
 
 ```txt
-Chaque nouvel agent travaille dans un git worktree ISOLÉ, créé depuis origin/main.
-AUCUN agent ne développe directement dans le working tree principal.
+Worktree isolé OBLIGATOIRE dès qu'il y a : plusieurs agents en parallèle, du fan-out,
+un run long, ou un repo fragile/dirty. Chaque worktree est créé depuis origin/main.
+
+Agent UNIQUE séquentiel : worktree NON obligatoire — repo courant, branche courante
+ou feature dédiée suffit (cf. ~/.claude/dev-agent-rules.md §3).
+
+Dans TOUS les cas : jamais deux agents en écriture dans le même working tree.
 ```
 
-- Le working tree principal (`connect — Hearst Defi/`) **n'est pas une zone de dev**.
-  Il sert à `git fetch`, à créer/supprimer des worktrees, et à inspecter `main`.
-- Un arbre partagé, sale ou actif = absorption de fichiers, conflits, HEAD qui bouge.
-  Un worktree isolé = arbre toujours clean, scope contenu, intégration gatée.
-- Si le worktree de départ n'est pas clean → **STOP** et rapport. On ne développe
-  jamais par-dessus du travail non committé.
+- **Dès qu'il y a du parallèle**, le working tree principal (`connect — Hearst Defi/`)
+  **n'est pas une zone de dev partagée** : il sert à `git fetch`, à créer/supprimer des
+  worktrees, et à inspecter `main`. Un arbre partagé, sale ou actif entre plusieurs agents
+  = absorption de fichiers, conflits, HEAD qui bouge. Un worktree isolé = arbre toujours
+  clean, scope contenu.
+- **Fichiers partagés entre deux agents → repasser en séquentiel** (pas deux worktrees qui
+  éditent les mêmes fichiers).
+- Si le worktree/branche de départ n'est pas clean et que le dirty n'est pas le tien →
+  **STOP** et rapport. On ne développe jamais par-dessus du travail non committé d'autrui.
 
 ---
 
