@@ -55,15 +55,15 @@ export function AllocationMiniBar({
           })}
       </div>
 
-      {/* Percent legend */}
-      <div className="flex gap-(--ct-space-2) flex-wrap">
+      {/* Legend — sleeve name + percent, so the bar is readable without hovering */}
+      <div className="flex gap-x-(--ct-space-3) gap-y-(--ct-space-1) flex-wrap">
         {sleeveOrder.map((key, i) => {
           const bps = Math.max(0, bpsValues[i] ?? 0);
           const pct = total > 0 ? bpsToPct(bps).toFixed(0) : "0";
           return (
             <span
               key={key}
-              className="flex items-center gap-(--ct-space-1) text-[length:var(--ct-text-2xs)] ct-text-tertiary tabular-nums"
+              className="flex items-center gap-(--ct-space-1) text-[length:var(--ct-text-2xs)] ct-text-tertiary tabular-nums whitespace-nowrap"
             >
               <span
                 aria-hidden
@@ -75,7 +75,7 @@ export function AllocationMiniBar({
                   flexShrink: 0,
                 }}
               />
-              {pct}%
+              {SLEEVE_LABEL[key]} {pct}%
             </span>
           );
         })}
