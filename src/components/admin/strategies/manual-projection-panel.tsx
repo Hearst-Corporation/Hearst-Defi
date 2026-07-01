@@ -37,6 +37,7 @@ import {
   type ScenarioReport,
   type MonthlyEvent,
 } from "@/lib/scenario-runner";
+import type { RiskProfileKey } from "@/lib/product-strategies";
 import {
   LAB_BASE_COLLATERAL,
   LAB_BASE_PROJECTION,
@@ -595,9 +596,15 @@ function ResultsPanel({ report }: ResultsPanelProps) {
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
-export function ManualProjectionPanel() {
+export function ManualProjectionPanel({
+  scenario: scenarioProp,
+}: {
+  scenario?: RiskProfileKey;
+} = {}) {
   // TD.1: seed initial state from canonical lab defaults (shared with Data Lab)
-  const [scenario, setScenario] = useState<Scenario>("balanced");
+  // If a scenario prop is passed (e.g. from "Open in Projection" on a strategy card),
+  // use it as the initial value — keeping all no-arg call sites working unchanged.
+  const [scenario, setScenario] = useState<Scenario>(scenarioProp ?? "balanced");
   const [c, setC] = useState<CollateralConfig>(LAB_BASE_COLLATERAL);
   const [m, setM] = useState<ManualProjectionConfig>(LAB_BASE_PROJECTION);
 

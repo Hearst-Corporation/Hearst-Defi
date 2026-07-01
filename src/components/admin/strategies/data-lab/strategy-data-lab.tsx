@@ -25,6 +25,7 @@ import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { HcFanChart } from "@/components/dataviz/his/HcFanChart";
 import { HcWaterfall } from "@/components/dataviz/his/HcWaterfall";
 import type { Scenario } from "@/lib/scenario-runner";
+import type { ProductStrategy, RiskProfileKey } from "@/lib/product-strategies";
 import { runManualStrategyProjection } from "@/lib/scenario-runner";
 import {
   BacktestRunner,
@@ -198,9 +199,15 @@ const SCENARIO_COLORS = {
 
 const scenarios: Scenario[] = ["safe", "balanced", "opportunistic"];
 
-export function StrategyDataLab() {
+export function StrategyDataLab({
+  strategy,
+  scenario: scenarioProp,
+}: {
+  strategy?: ProductStrategy;
+  scenario?: RiskProfileKey;
+} = {}) {
   const [mode, setMode] = useState<DataLabMode>("BACKTEST");
-  const [scenario, setScenario] = useState<Scenario>("balanced");
+  const [scenario, setScenario] = useState<Scenario>(scenarioProp ?? "balanced");
   const [useHistorical, setUseHistorical] = useState(false);
 
   const regimes = useHistorical ? SYNTHETIC_HISTORICAL_REGIMES : MARKET_REGIMES;
@@ -270,6 +277,14 @@ export function StrategyDataLab() {
 
   return (
     <div className="flex flex-col gap-(--ct-space-6) p-(--ct-space-5)">
+      {/* Strategy pre-fill banner — shown only when opened from a strategy card */}
+      {strategy != null ? (
+        <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
+          Loaded from strategy:{" "}
+          <span className="font-medium">{strategy.name}</span>
+        </p>
+      ) : null}
+
       {/* Controls */}
       <div className="flex flex-col gap-(--ct-space-3)">
         <div className="flex flex-wrap items-center gap-(--ct-space-2)">
