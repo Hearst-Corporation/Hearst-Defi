@@ -350,12 +350,12 @@ export function buildWhatsAppFollowUpTemplate(
   if (language === "fr") {
     return daysSince < 3
       ? `Bonjour ${prospectName}, petit relance sur le Hearst Yield Vault (rendement ${APY_RANGE_LABEL}). Ça vous parle ? Le formulaire est ici si vous voulez voir les détails.`
-      : `Bonjour ${prospectName}, je reviens vers vous sur le Hearst Yield Vault. Produit structuré DeFi, distributions mensuelles USDC. Intéressé pour en discuter ?`;
+      : `Bonjour ${prospectName}, je reviens vers vous sur le Hearst Yield Vault (rendement cible ${APY_RANGE_LABEL}). Produit structuré DeFi, distributions mensuelles USDC. Intéressé pour en discuter ?`;
   }
 
   return daysSince < 3
     ? `Hi ${prospectName}, quick follow-up on Hearst Yield Vault (target ${APY_RANGE_LABEL}). Does this resonate? Link here if you want details.`
-    : `Hi ${prospectName}, following up on Hearst Yield Vault. Structured DeFi, monthly USDC distributions. Interested to discuss?`;
+    : `Hi ${prospectName}, following up on Hearst Yield Vault (target ${APY_RANGE_LABEL} APY). Structured DeFi, monthly USDC distributions. Interested to discuss?`;
 }
 
 /**

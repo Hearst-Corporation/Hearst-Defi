@@ -110,17 +110,24 @@ interface IntentRule {
 }
 
 // Navigation verbs shared
-const NAV_VERB = "(?:ouvre|ouvrir|va|vas|aller|montre|affiche|navigue|accede|acceder|open|go|show|view|take|bring|navigate)";
+const NAV_VERB = "(?:ouvre|ouvrir|va|vas|aller|montre|affiche|navigue|accede|acceder|accede|open|go|show|view|take|bring|navigate)";
 const CREATE_VERB = "(?:créer|crée|créons|lance|lancer|lançons|prépare|préparer|préparons|monte|monter|setup|set up|create|launch|prepare|build)";
-const DRAFT_VERB = "(?:rédige|rédiger|rédigeons|écris|écrire|écrivez|draft|write|compose|prépare.*un)";
+const DRAFT_VERB = "(?:rédige|rédiger|rédigeons|écris|écrire|écrivez|draft|write|compose)";
 const FOLLOWUP_VERB = "(?:relance|relancer|relançons|follow.?up|followup|re.?engage|nudge)";
 const SOURCE_VERB = "(?:source|sourcer|sourcez|trouve|trouver|trouvez|find|search|look for)";
 
 const INTENT_RULES: readonly IntentRule[] = [
   // --- NAVIGATION: open_outreach (highest priority for direct nav) ---
+  // Pipeline/distributor space access patterns (priority 105)
   {
     intent: "open_outreach",
-    re: new RegExp(`${NAV_VERB}.*(?:outreach|investor pipeline|pipeline investisseur|prospect|campaign|campagne|espace prospection)`, "i"),
+    re: new RegExp(`${NAV_VERB}.*\\b(pipeline|distributeurs?|investor pipeline|pipeline investisseur|espace distributeur)\\b`, "i"),
+    action: "navigate",
+    priority: 105,
+  },
+  {
+    intent: "open_outreach",
+    re: new RegExp(`${NAV_VERB}.*(?:outreach|prospect|campaign|campagne|espace prospection)`, "i"),
     action: "navigate",
     priority: 100,
   },
@@ -138,109 +145,171 @@ const INTENT_RULES: readonly IntentRule[] = [
     priority: 90,
   },
 
-  // --- CREATE_CAMPAIGN ---
+  // --- FOLLOW_UP_LEADS (priority 88 - above create_campaign to catch relancer/relance) ---
+  // Simple patterns for bare follow-up commands
   {
-    intent: "create_campaign",
-    re: /(?:creer|cree|lance|lancer|prepare|preparer|setup|create|launch|prepare|build).*(?:campagne|campaign|outreach|prospection|distributeur|investisseur|lead|prospect)/i,
-    action: "open_canvas",
+    intent: "follow_up_leads",
+    re: /\b(?:follow\s*up|followup|relance|relancer|re-engage|nudge)\b.*\b(?:leads?|prospects?|investisseurs?|distributeurs?)\b/i,
+    action: "stage_action",
+    priority: 88,
+  },
+  {
+    intent: "follow_up_leads",
+    re: new RegExp(`\\b${FOLLOWUP_VERB}\\b.*\\b(?:prospect|lead|investisseur|distributeur|ceux|those|no\\s*answer|not\\s*respond|repondu|silencieux|silent|non\\s*responsive|reply|attente|waiting|didn|nudge)\\b`, "i"),
+    action: "stage_action",
+    priority: 88,
+  },
+  {
+    intent: "follow_up_leads",
+    re: /\b(?:relance|relancer)\b.*\b(?:ceux|qui|who|pas|not|repondu|answer|respond|attente|waiting|distributeurs?)\b/i,
+    action: "stage_action",
+    priority: 87,
+  },
+
+  // --- DRAFT_EMAIL (priority 86 - above create_campaign for email-specific contexts) ---
+  {
+    intent: "draft_email",
+    re: new RegExp(`\\b${DRAFT_VERB}\\b.*\\b(email|mail|e-mail|courriel|message\\s*(?:texte|de\\s*prospection|aux?))\\b`, "i"),
+    action: "draft",
+    channel: "email",
+    priority: 86,
+  },
+  // "prépare un email" pattern (specific email drafting context)
+  {
+    intent: "draft_email",
+    re: /\b(?:prépare|préparer|prepar)\b.*\b(?:un|une)\b.*\b(?:email|mail|e-mail|message)\b/i,
+    action: "draft",
+    channel: "email",
+    priority: 86,
+  },
+  {
+    intent: "draft_email",
+    re: /\b(?:email|mail|e-mail)\b.*\b(?:aux?|pour|to|for|investisseur|distributeur|prospect|lead)\b/i,
+    action: "draft",
+    channel: "email",
     priority: 85,
   },
   {
+    intent: "draft_email",
+    re: /\b(?:ecris|ecrire|write|draft)\b.*\b(?:mail|email|prospection|courriel)\b/i,
+    action: "draft",
+    channel: "email",
+    priority: 84,
+  },
+
+  // --- CREATE_CAMPAIGN (priority 82 - below draft and follow-up to avoid false positives) ---
+  // Must use word boundaries to avoid matching partial words like "relancer" matching "lancer"
+  {
     intent: "create_campaign",
-    re: /(?:nouvelle|new).*(?:campagne|campaign|outreach)|cold outreach/i,
+    re: /\b(?:creer|cree|créer|crée|créons)\b.*\b(?:campagne|campaign|outreach|prospection|newsletter|sequence)\b/i,
     action: "open_canvas",
-    priority: 80,
+    priority: 82,
+  },
+  {
+    intent: "create_campaign",
+    re: /\b(?:lance|lancer|lançons|monte|monter|prépare|préparer|préparons)\b.*\b(?:campagne|campaign|outreach|prospection|newsletter|distributeur|investisseur|lead|prospect)\b/i,
+    action: "open_canvas",
+    priority: 82,
+  },
+  // "set up" patterns (specific handling for the space in "set up")
+  // Also includes "prospecting" (EN) for cases like "launch distributor prospecting"
+  {
+    intent: "create_campaign",
+    re: /\b(?:setup|set\s+up|create|launch|prepare|build)\b.*\b(?:campagne|campaign|outreach|prospection|prospecting|cold\s+email|sequence|newsletter)\b/i,
+    action: "open_canvas",
+    priority: 82,
+  },
+  // Pattern for "launch X prospecting/distributor" combinations
+  {
+    intent: "create_campaign",
+    re: /\b(?:launch|lance|lancer|monte|monter|start)\b.*\b(?:distributeur|distributor|investisseur|investor|prospect|lead)\b.*\b(?:prospecting|prospection|campagne|campaign|outreach)\b/i,
+    action: "open_canvas",
+    priority: 82,
+  },
+  {
+    intent: "create_campaign",
+    re: /\b(?:nouvelle|new)\b.*\b(?:campagne|campaign|outreach|newsletter)\b|\bcold\s+outreach\b/i,
+    action: "open_canvas",
+    priority: 81,
   },
 
-  // --- DRAFT_EMAIL ---
-  {
-    intent: "draft_email",
-    re: new RegExp(`\\b${DRAFT_VERB}\\b.*\\b(email|mail|e-mail|courriel|message.*investisseur|message.*distributeur)\\b`, "i"),
-    action: "draft",
-    channel: "email",
-    priority: 75,
-  },
-  {
-    intent: "draft_email",
-    re: /(?:email|mail|e-mail).*(?:aux?|pour|to|for|investisseur|distributeur|prospect|lead)/i,
-    action: "draft",
-    channel: "email",
-    priority: 70,
-  },
-  {
-    intent: "draft_email",
-    re: /(?:ecris|ecrire|prepar|write|draft).*(?:mail|email|prospection)/i,
-    action: "draft",
-    channel: "email",
-    priority: 65,
-  },
-
-  // --- DRAFT_WHATSAPP ---
+  // --- DRAFT_WHATSAPP (priority 83 - below email, above create_campaign) ---
   {
     intent: "draft_whatsapp",
     re: /\b(whatsapp|wa|message whatsapp|whatsapp message|message sur whatsapp)\b/i,
     action: "draft",
     channel: "whatsapp",
-    priority: 75,
+    priority: 83,
   },
   {
     intent: "draft_whatsapp",
-    re: /\b(?:écris|écrire|write|draft).*\b(?:whatsapp|sur whatsapp|lui sur wa|wa)\b/i,
+    re: /\b(?:écris|écrire|write|draft)\b.*\b(?:whatsapp|sur whatsapp|lui sur wa|wa)\b/i,
     action: "draft",
     channel: "whatsapp",
-    priority: 70,
+    priority: 82,
   },
 
-  // --- DRAFT_LINKEDIN ---
+  // --- DRAFT_LINKEDIN (priority 83 - below email, above create_campaign) ---
   {
     intent: "draft_linkedin",
     re: /\b(linkedin|li|message linkedin|inmail|linkedin message|connection request)\b/i,
     action: "draft",
     channel: "linkedin",
-    priority: 75,
+    priority: 83,
   },
   {
     intent: "draft_linkedin",
-    re: /(?:ecris|ecrire|write|draft).*(?:linkedin|inmail|connection)/i,
+    re: /\b(?:ecris|ecrire|write|draft)\b.*\b(?:linkedin|inmail|connection)\b/i,
     action: "draft",
     channel: "linkedin",
-    priority: 70,
+    priority: 82,
   },
 
-  // --- FOLLOW_UP_LEADS ---
-  {
-    intent: "follow_up_leads",
-    re: /(?:follow.?up|followup|relance|relancer|re.?engage|nudge).*(?:prospect|lead|investisseur|distributeur|ceux|those|no.*answer|not.*respond|repondu|didn.*t)/i,
-    action: "stage_action",
-    priority: 75,
-  },
-  {
-    intent: "follow_up_leads",
-    re: /(?:relance|relancer).*(?:ceux|qui|who|pas|not|repondu|answer|respond)/i,
-    action: "stage_action",
-    priority: 70,
-  },
-
-  // --- SOURCE_LEADS ---
+  // --- SOURCE_LEADS (priority 80 - above create_campaign) ---
+  // Simple pattern for bare source commands with numbers (source 20 new leads)
+  // Includes both singular and plural forms
   {
     intent: "source_leads",
-    re: /(?:source|sourcer|sourcing|trouve|touver|find|search).*(?:lead|prospect|distributeur|investisseur|contact|email|uae)/i,
+    re: /\b(?:source|sourcer|sourcing|trouve|trouver|trouvez|find|search|look\s*for)\b.*\b(?:leads?|prospects?|distributeurs?|investisseurs?|contacts?|uae)\b/i,
     action: "stage_action",
-    priority: 75,
+    priority: 80,
   },
+  // Bare command: just "source leads" or "find leads" without extra qualifiers
   {
     intent: "source_leads",
-    re: /(?:sourcing|source|find).*(?:new|nouveau|plus|more|uae).*(?:lead|prospect)/i,
+    re: /\b(?:source|sourcer|trouve|find)\b\s+\b(?:leads?|prospects?|distributeurs?|investisseurs?)\b/i,
     action: "stage_action",
-    priority: 70,
+    priority: 80,
+  },
+  // Pattern for "find new X leads/prospects" with numbers allowed between
+  {
+    intent: "source_leads",
+    re: /\b(?:sourcing|source|trouve|find|search)\b.*\b(?:new|nouveau|neufs?|\d+)\b.*\b(?:leads?|prospects?|contacts?|distributeurs?)\b/i,
+    action: "stage_action",
+    priority: 79,
+  },
+  // Pattern for "find distributor contacts" (contacts added)
+  // Also covers "trouve des prospects distributeurs"
+  {
+    intent: "source_leads",
+    re: /\b(?:find|trouve|search|trouver)\b.*\b(?:new|nouveau|des)?\b.*\b(?:distributeurs?|investisseurs?|prospects?|leads?|contacts?)\b.*\b(?:contacts?|leads?|prospects?|distributeurs?)?\b/i,
+    action: "stage_action",
+    priority: 78,
   },
 
   // --- REVIEW_CAMPAIGN ---
+  // Higher priority than open_outreach to catch "review campaign" before it matches nav
   {
     intent: "review_campaign",
-    re: /\b(review|revoir|vérif|vérifier|check|validate|valider|approuver|approve).*\b(campagne|campaign)\b/i,
+    re: /\b(review|revoir|vérif|vérifier|check|validate|valider|approuver|approve|relis|re-lis|relire|read).*\b(campagne|campaign|draft|brouillon)\b/i,
     action: "stage_action",
-    priority: 65,
+    priority: 110,
+  },
+  {
+    intent: "review_campaign",
+    re: /\b(campagne|campaign).*\b(review|validation|vérification|check|approve|approbation)\b/i,
+    action: "stage_action",
+    priority: 105,
   },
 
   // --- ANALYZE_RECIPIENTS ---

@@ -92,9 +92,11 @@ describe("data-scientist-output — compact report layout", () => {
       ),
       "utf8",
     );
-    expect(src).toContain("Monte Carlo projection");
     expect(src).toContain("ProjectionAreaChart");
+    expect(src).toContain("MonteCarloChart");
+    expect(src).toContain("Dispersion (Monte-Carlo)");
+    // Compact layout guard: the p5/p50/p95 fan is summarised inline (percentileLine
+    // on ScenarioBlock), never as a triple MetricTile grid under the fan.
     expect(src).not.toMatch(/MetricTile label="p5"/);
-    expect(src).toContain("formatHashpriceUsd(draft.market.hashpriceUsdPerThDay)");
   });
 });

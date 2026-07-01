@@ -168,7 +168,7 @@ export function RailRight() {
           doesn't fully close / overflows" bug. Gating the render here is the root
           fix; cockpit.css also hides it as a CSS-side belt-and-braces. */}
       {open && (
-        <div className="ct-rail-right-body flex min-h-0 flex-1 flex-col">
+        <div className="ct-rail-right-body flex min-h-0 flex-1 flex-col" data-testid="chat-rail-body">
           {view === "settings" && <ChatSettings productName={product.name} />}
           {view === "history" && <ChatHistory productColor={product.color} />}
           {view === "chat" && <ChatKimi productName={product.name} productColor={product.color} />}

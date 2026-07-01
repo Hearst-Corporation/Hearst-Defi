@@ -39,11 +39,11 @@ export default defineConfig({
     // The login-flow spec seeds a real user via `pnpm seed:test` and signs in
     // through the actual form + server action.
     env: {
-      // Absolute path avoids Turbopack CWD ambiguity — relative "file:./..." was
-      // resolved against the compiled chunk directory, not the project root.
+      // Use environment variable or resolve from project root using process.cwd()
+      // to ensure consistency with the seed scripts and CI workflow.
       DATABASE_URL:
         process.env.DATABASE_URL ??
-        `file:${require("path").resolve(__dirname, "prisma/dev.db")}`,
+        `file:${require("path").resolve(process.cwd(), "prisma/dev.db")}`,
       // Pin provider to sqlite for e2e — overrides PRISMA_PROVIDER=postgresql
       // in .env.local so the Better-SQLite3 adapter is used against dev.db.
       PRISMA_PROVIDER: "sqlite",
