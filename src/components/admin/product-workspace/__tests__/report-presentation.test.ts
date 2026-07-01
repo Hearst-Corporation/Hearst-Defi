@@ -94,10 +94,49 @@ describe("data-scientist-output — compact report layout", () => {
     );
     expect(src).toContain("ProjectionAreaChart");
     expect(src).toContain("MonteCarloChart");
-    expect(src).toContain("Dispersion (Monte-Carlo)");
+    expect(src).toContain("Dispersion (Monte-Carlo");
     // Compact layout guard: the p5/p50/p95 fan is summarised inline (percentileLine
     // on ScenarioBlock), never as a triple MetricTile grid under the fan.
     expect(src).not.toMatch(/MetricTile label="p5"/);
+  });
+
+  it("is KPI-first: the KPI summary strip renders before the thesis prose", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const src = await fs.readFile(
+      path.join(process.cwd(), "src/components/admin/product-workspace/data-scientist-output.tsx"),
+      "utf8",
+    );
+    // Selected-strategy header + KPI summary + executive bullets exist.
+    expect(src).toContain("Selected strategy");
+    expect(src).toContain("Report summary KPIs");
+    expect(src).toContain("ExecutiveBullets");
+    // The KPI summary strip appears BEFORE the Thesis prose in source order.
+    const kpiIdx = src.indexOf("Report summary KPIs");
+    const thesisIdx = src.indexOf("written by the data scientist");
+    expect(kpiIdx).toBeGreaterThan(-1);
+    expect(thesisIdx).toBeGreaterThan(-1);
+    expect(kpiIdx).toBeLessThan(thesisIdx);
+  });
+
+  it("Monte-Carlo is framed as an INDEX, never implying a real $ capital base", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const src = await fs.readFile(
+      path.join(process.cwd(), "src/components/admin/product-workspace/data-scientist-output.tsx"),
+      "utf8",
+    );
+    // Indexed framing (base 100), not the old "$100k sample capital base".
+    expect(src).toContain("indexed");
+    expect(src).toContain("initialValue={100}");
+    expect(src).toContain("base 100");
+    expect(src).not.toContain("normalised to $100k");
+    expect(src).not.toContain("initialValue={100_000}");
+    // No positive guarantee — every "guaranteed" occurrence must be negated.
+    for (const m of src.matchAll(/guaranteed/gi)) {
+      const before = src.slice(Math.max(0, m.index - 5), m.index).toLowerCase();
+      expect(before).toContain("not ");
+    }
   });
 
   it("allocation section shows the 3 risk profiles only — no 'Canonical' / 'published mix' card", async () => {
