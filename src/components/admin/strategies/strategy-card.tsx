@@ -12,7 +12,6 @@ import { Card } from "@/components/catalyst/card";
 import { cn } from "@/lib/cn";
 import {
   PRODUCT_FAMILY_LABEL,
-  PRIORITY_LABEL,
   RISK_LABEL,
   bpsToPct,
   type ProductStrategy,
@@ -179,26 +178,28 @@ export function StrategyCard({
 
       <AllocationMiniBar allocation={scenario.allocation} />
 
-      <div className="grid grid-cols-2 gap-(--ct-space-3) lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-(--ct-space-3)">
         <MetaStat label="Perf. range" value={rangeLabel(strategy, scenarioKey, "performance")} />
         <MetaStat label="Dist. target" value={rangeLabel(strategy, scenarioKey, "distribution")} />
         <MetaStat label="Horizon" value={`${strategy.defaultHorizonMonths}m`} />
         <MetaStat label="Updated" value={formatDate(strategy.updatedAt)} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-(--ct-space-2) text-[length:var(--ct-text-2xs)] ct-text-muted">
-        <span>{PRIORITY_LABEL[strategy.defaultPriority]}</span>
-        <span>·</span>
-        <span>Modelled, conditional, not guaranteed.</span>
-      </div>
-
       <div
-        className="flex flex-wrap gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)"
+        className="flex flex-wrap items-center justify-between gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)"
         onClick={(e) => e.stopPropagation()}
       >
-        <ActionBtn label={selected ? "Studio Open" : "Open Studio"} onClick={() => onSelect(strategy.id)} accent />
-        <ActionBtn label="Data Lab" onClick={() => onOpenLab(strategy)} />
-        <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
+        <div className="flex flex-wrap gap-(--ct-space-2)">
+          <ActionBtn label="Data Lab" onClick={() => onOpenLab(strategy)} />
+          <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
+        </div>
+        <button
+          type="button"
+          onClick={() => onSelect(strategy.id)}
+          className="text-[length:var(--ct-text-2xs)] font-medium ct-text-accent hover:underline"
+        >
+          Open Studio →
+        </button>
       </div>
     </Card>
   );

@@ -7,15 +7,15 @@
  * is memoised, seeded, and capped (≤ MAX_PATHS) — deterministic, no effect loop.
  * All outputs labelled conditional / modelled / not guaranteed.
  *
- * Progressive disclosure:
- *  - The Lab starts COLLAPSED (compact summary card) — no charts on first paint.
- *  - Each mode body shows ONE visual at a time via sub-tabs (Return / Risk /
- *    Attribution / Drawdown).
- *  - The backtest table defaults to a compact 5-column view; Advanced metrics
- *    are behind a <details> collapsible.
+ * Progressive disclosure — ONE gate:
+ *  - The Lab starts COLLAPSED as a compact summary card (backtest headline
+ *    KPIs + scenario verdicts). Only the backtest runs while collapsed; the
+ *    forward / stress / sensitivity runners execute on first open.
+ *  - Each mode shows ONE visual at a time via sub-tabs (Return / Risk /
+ *    Attribution / Drawdown). Advanced metrics stay behind a <details>.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -29,6 +29,13 @@ import {
 
 import { cn } from "@/lib/cn";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Metric } from "@/components/catalyst/metric";
+import {
+  SegmentedControl,
+  type SegmentedItem,
+} from "@/components/catalyst/segmented-control";
+import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
 import { HcFanChart } from "@/components/dataviz/his/HcFanChart";
 import { HcWaterfall } from "@/components/dataviz/his/HcWaterfall";
 import type { Scenario } from "@/lib/scenario-runner";
@@ -42,11 +49,13 @@ import {
   SensitivityAnalyzer,
   MARKET_REGIMES,
   SYNTHETIC_HISTORICAL_REGIMES,
+  analyzeTriggers,
   computeMetrics,
   computeAttribution,
   LAB_BASE_COLLATERAL,
   LAB_BASE_PROJECTION,
   LAB_BASE_RULES,
+  type AttributionStep,
   type DataLabMode,
   type StressRiskLevel,
   type BacktestReport,
@@ -65,6 +74,7 @@ import { SCENARIO_DOT } from "@/lib/product-strategies/lab-colors";
 
 const bps = (n: number) => `${(n / 100).toFixed(1)}%`;
 const usdcFmt = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+const scLabel = (sc: string) => sc.charAt(0).toUpperCase() + sc.slice(1);
 
 // ---------------------------------------------------------------------------
 // Sub-tab types
@@ -72,42 +82,12 @@ const usdcFmt = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 type ViewTab = "return" | "risk" | "attribution" | "drawdown";
 
-const VIEW_TABS: { id: ViewTab; label: string }[] = [
-  { id: "return", label: "Return" },
-  { id: "risk", label: "Risk" },
-  { id: "attribution", label: "Attribution" },
-  { id: "drawdown", label: "Drawdown" },
+const VIEW_TAB_ITEMS: ReadonlyArray<SegmentedItem<ViewTab>> = [
+  { value: "return", label: "Return" },
+  { value: "risk", label: "Risk" },
+  { value: "attribution", label: "Attribution" },
+  { value: "drawdown", label: "Drawdown" },
 ];
-
-function SubTabBar({
-  tabs,
-  active,
-  onChange,
-}: {
-  tabs: readonly ViewTab[];
-  active: ViewTab;
-  onChange: (v: ViewTab) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-(--ct-space-1) border-b border-[var(--ct-border-soft)] pb-(--ct-space-2)">
-      {VIEW_TABS.filter((t) => tabs.includes(t.id)).map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          onClick={() => onChange(t.id)}
-          className={cn(
-            "rounded-(--ct-radius-full) border px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-xs)] transition-colors",
-            active === t.id
-              ? "border-[var(--ct-border-accent)] ct-text-accent bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)]"
-              : "border-[var(--ct-border-soft)] ct-text-tertiary hover:ct-text-body",
-          )}
-        >
-          {t.label}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // UnderwaterChart — self-contained inline SVG drawdown area chart.
@@ -195,7 +175,7 @@ function UnderwaterChart({ underwaterBps }: { underwaterBps: number[] }) {
           x={xAt(i)}
           y={PAD.top + plotH + 16}
           textAnchor="middle"
-          fontSize={9}
+          fontSize={10}
           fill="var(--ct-text-muted)"
         >
           {`M${i}`}
@@ -216,7 +196,7 @@ function UnderwaterChart({ underwaterBps }: { underwaterBps: number[] }) {
             x={PAD.left - 5}
             y={yAt(v) + 4}
             textAnchor="end"
-            fontSize={9}
+            fontSize={10}
             fill="var(--ct-text-muted)"
           >
             {`${v.toFixed(1)}%`}
@@ -227,12 +207,18 @@ function UnderwaterChart({ underwaterBps }: { underwaterBps: number[] }) {
   );
 }
 
-const MODES: { id: DataLabMode; label: string }[] = [
-  { id: "BACKTEST", label: "Backtest" },
-  { id: "FORWARD_SIMULATION", label: "Forward Simulation" },
-  { id: "STRESS_MATRIX", label: "Stress Matrix" },
-  { id: "SENSITIVITY", label: "Sensitivity" },
-  { id: "REGIME_COMPARISON", label: "Trigger Analytics" },
+const MODE_ITEMS: ReadonlyArray<SegmentedItem<DataLabMode>> = [
+  { value: "BACKTEST", label: "Backtest" },
+  { value: "FORWARD_SIMULATION", label: "Forward Simulation" },
+  { value: "STRESS_MATRIX", label: "Stress Matrix" },
+  { value: "SENSITIVITY", label: "Sensitivity" },
+  { value: "REGIME_COMPARISON", label: "Trigger Analytics" },
+];
+
+const SCENARIO_ITEMS: ReadonlyArray<SegmentedItem<Scenario>> = [
+  { value: "safe", label: "Safe" },
+  { value: "balanced", label: "Balanced" },
+  { value: "opportunistic", label: "Opportunistic" },
 ];
 
 const RISK_TONE: Record<StressRiskLevel, string> = {
@@ -247,20 +233,62 @@ const RISK_TONE: Record<StressRiskLevel, string> = {
 const scenarios: Scenario[] = ["safe", "balanced", "opportunistic"];
 
 // ---------------------------------------------------------------------------
+// Shared blocks — identical between Backtest and Forward bodies
+// ---------------------------------------------------------------------------
+
+function AttributionBlock({
+  attribution,
+  subtitle,
+}: {
+  attribution: AttributionStep[];
+  subtitle: string;
+}) {
+  return (
+    <HcChartCard
+      title="Return Attribution"
+      subtitle={subtitle}
+      source="estimated"
+      state="ready"
+      height={304}
+      aria-label="Return attribution waterfall"
+    >
+      <div className="min-w-0 overflow-x-auto">
+        <HcWaterfall
+          steps={attribution}
+          format={usdcFmt}
+          aria-label="Return attribution waterfall — BTC appreciation + yield − costs"
+          width={700}
+          height={304}
+        />
+      </div>
+    </HcChartCard>
+  );
+}
+
+function DrawdownBlock({ underwaterBps }: { underwaterBps: number[] }) {
+  return (
+    <HcChartCard
+      title="Drawdown"
+      subtitle="Underwater curve — running drawdown from peak equity"
+      source="estimated"
+      state="ready"
+      height={160}
+      aria-label="Drawdown underwater chart"
+    >
+      <UnderwaterChart underwaterBps={underwaterBps} />
+    </HcChartCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Lab collapsed summary card
 // ---------------------------------------------------------------------------
 
 function LabCollapsedCard({
-  avgRoiBps,
-  liqFreqBps,
-  bestRoiBps,
-  worstRoiBps,
+  summary,
   onOpen,
 }: {
-  avgRoiBps: number;
-  liqFreqBps: number;
-  bestRoiBps: number;
-  worstRoiBps: number;
+  summary: BacktestReport["summary"];
   onOpen: () => void;
 }) {
   return (
@@ -274,41 +302,46 @@ function LabCollapsedCard({
             Backtest · Forward · Stress · Sensitivity · Triggers — seeded, modelled
           </span>
         </div>
-        <button
-          type="button"
-          onClick={onOpen}
-          className="shrink-0 rounded-(--ct-radius-full) border border-[var(--ct-border-accent)] px-(--ct-space-4) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent hover:bg-[color-mix(in_srgb,var(--ct-accent)_12%,transparent)] transition-colors"
-        >
+        <CockpitButton variant="secondary" size="sm" onClick={onOpen}>
           Open Data Lab
-        </button>
+        </CockpitButton>
       </div>
 
       <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
         <div className="flex flex-col gap-(--ct-space-1)">
-          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Avg ROI</span>
-          <span className={cn("text-[length:var(--ct-text-base)] tabular-nums font-semibold", avgRoiBps >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]")}>
-            {bps(avgRoiBps)}
+          <span className="ct-bento-label">Avg ROI</span>
+          <span className={cn("text-[length:var(--ct-text-base)] tabular-nums font-semibold", summary.averageFinalRoiBps >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]")}>
+            {bps(summary.averageFinalRoiBps)}
           </span>
         </div>
         <div className="flex flex-col gap-(--ct-space-1)">
-          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Best ROI</span>
+          <span className="ct-bento-label">Best ROI</span>
           <span className="text-[length:var(--ct-text-base)] tabular-nums font-semibold ct-text-accent">
-            {bps(bestRoiBps)}
+            {bps(summary.bestFinalRoiBps)}
           </span>
         </div>
         <div className="flex flex-col gap-(--ct-space-1)">
-          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Worst ROI</span>
+          <span className="ct-bento-label">Worst ROI</span>
           <span className="text-[length:var(--ct-text-base)] tabular-nums font-semibold ct-text-body">
-            {bps(worstRoiBps)}
+            {bps(summary.worstFinalRoiBps)}
           </span>
         </div>
         <div className="flex flex-col gap-(--ct-space-1)">
-          <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Liq. freq.</span>
-          <span className={cn("text-[length:var(--ct-text-base)] tabular-nums font-semibold", liqFreqBps > 500 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
-            {bps(liqFreqBps)}
+          <span className="ct-bento-label">Liq. freq.</span>
+          <span className={cn("text-[length:var(--ct-text-base)] tabular-nums font-semibold", summary.liquidationFrequencyBps > 500 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+            {bps(summary.liquidationFrequencyBps)}
           </span>
         </div>
       </div>
+
+      <p className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+        Backtest verdicts — best ROI:{" "}
+        <span className="ct-text-strong">{scLabel(summary.bestScenarioByRoi)}</span>
+        {" · "}safest:{" "}
+        <span className="ct-text-strong">{scLabel(summary.safestScenarioByMinDistance)}</span>
+        {" · "}highest liquidation risk:{" "}
+        <span className="ct-text-strong">{scLabel(summary.highestLiquidationRiskScenario)}</span>
+      </p>
     </div>
   );
 }
@@ -322,28 +355,32 @@ export function StrategyDataLab({
   scenario: scenarioProp,
   collateral,
   rules,
+  initialOpen = false,
 }: {
   strategy?: ProductStrategy;
   scenario?: RiskProfileKey;
   collateral?: CollateralConfig;
   rules?: RebalancingRule[];
+  initialOpen?: boolean;
 } = {}) {
-  const [labOpen, setLabOpen] = useState(false);
+  const [labOpen, setLabOpen] = useState(initialOpen);
   const [mode, setMode] = useState<DataLabMode>("BACKTEST");
   const [scenario, setScenario] = useState<Scenario>(scenarioProp ?? "balanced");
   const [useHistorical, setUseHistorical] = useState(false);
 
-  useEffect(() => {
-    if (scenarioProp) {
-      setScenario(scenarioProp);
-    }
-  }, [scenarioProp]);
+  // Follow the Studio's active scenario when it changes — state adjustment
+  // during render (React-sanctioned pattern), no effect, no cascading render.
+  const [prevScenarioProp, setPrevScenarioProp] = useState(scenarioProp);
+  if (scenarioProp !== prevScenarioProp) {
+    setPrevScenarioProp(scenarioProp);
+    if (scenarioProp) setScenario(scenarioProp);
+  }
 
   const regimes = useHistorical ? SYNTHETIC_HISTORICAL_REGIMES : MARKET_REGIMES;
 
   const activeCollateral = collateral ?? LAB_BASE_COLLATERAL;
   const activeRules = rules ?? LAB_BASE_RULES;
-  
+
   const projection = useMemo<ManualProjectionConfig>(() => {
     const activeScenarioConfig = strategy?.scenarios[scenario] ?? null;
     return activeScenarioConfig ? {
@@ -353,6 +390,7 @@ export function StrategyDataLab({
     } : LAB_BASE_PROJECTION;
   }, [strategy, scenario]);
 
+  // The backtest powers the collapsed summary card — it always runs.
   const backtest = useMemo(
     () =>
       new BacktestRunner().run({
@@ -366,157 +404,151 @@ export function StrategyDataLab({
     [regimes, strategy?.id, activeCollateral, projection, activeRules],
   );
 
+  // Heavy runners are DEFERRED until the lab is opened (null while collapsed).
   const forward = useMemo(
     () =>
-      new ForwardSimulationRunner().run({
-        scenario,
-        collateral: activeCollateral,
-        projection,
-        rules: activeRules,
-        monteCarlo: { enabled: true, paths: 200, seed: 42, confidenceBands: [0.05, 0.5, 0.95], includeJumpRisk: false, includeElectricityShock: false, includeBorrowAprShock: false },
-      }),
-    [scenario, activeCollateral, projection, activeRules],
+      labOpen
+        ? new ForwardSimulationRunner().run({
+            scenario,
+            collateral: activeCollateral,
+            projection,
+            rules: activeRules,
+            monteCarlo: { enabled: true, paths: 200, seed: 42, confidenceBands: [0.05, 0.5, 0.95], includeJumpRisk: false, includeElectricityShock: false, includeBorrowAprShock: false },
+          })
+        : null,
+    [labOpen, scenario, activeCollateral, projection, activeRules],
   );
 
   const stress = useMemo(
     () =>
-      new StressMatrixRunner().run({
-        scenario,
-        collateral: activeCollateral,
-        projection,
-        rules: activeRules,
-        xAxis: { variable: "BTC_SHOCK", values: [-6000, -4000, -2000, 0, 2000] },
-        yAxis: { variable: "ELECTRICITY_SHOCK", values: [0, 5000, 10_000, 15_000] },
-      }),
-    [scenario, activeCollateral, projection, activeRules],
+      labOpen
+        ? new StressMatrixRunner().run({
+            scenario,
+            collateral: activeCollateral,
+            projection,
+            rules: activeRules,
+            xAxis: { variable: "BTC_SHOCK", values: [-6000, -4000, -2000, 0, 2000] },
+            yAxis: { variable: "ELECTRICITY_SHOCK", values: [0, 5000, 10_000, 15_000] },
+          })
+        : null,
+    [labOpen, scenario, activeCollateral, projection, activeRules],
   );
 
   const sensitivity = useMemo(
     () =>
-      new SensitivityAnalyzer().run({
-        scenario,
-        collateral: activeCollateral,
-        projection,
-        rules: activeRules,
-        sensitivity: { variables: ["BTC_PRICE", "BTC_VOL", "BORROW_APR", "ELECTRICITY_COST", "STABLE_YIELD", "LIQUIDATION_LTV"], stepBps: 1000, rangeSteps: 3 },
-      }),
-    [scenario, activeCollateral, projection, activeRules],
+      labOpen
+        ? new SensitivityAnalyzer().run({
+            scenario,
+            collateral: activeCollateral,
+            projection,
+            rules: activeRules,
+            sensitivity: { variables: ["BTC_PRICE", "BTC_VOL", "BORROW_APR", "ELECTRICITY_COST", "STABLE_YIELD", "LIQUIDATION_LTV"], stepBps: 1000, rangeSteps: 3 },
+          })
+        : null,
+    [labOpen, scenario, activeCollateral, projection, activeRules],
   );
 
   // Base run for attribution waterfall + underwater curve (shared across modes)
   const baseRun = useMemo(
     () =>
-      runManualStrategyProjection({
-        scenario,
-        collateral: activeCollateral,
-        projection,
-        rules: activeRules.map((r) => ({ ...r, scenario })),
-        seed: 1,
-      }),
-    [scenario, activeCollateral, projection, activeRules],
+      labOpen
+        ? runManualStrategyProjection({
+            scenario,
+            collateral: activeCollateral,
+            projection,
+            rules: activeRules.map((r) => ({ ...r, scenario })),
+            seed: 1,
+          })
+        : null,
+    [labOpen, scenario, activeCollateral, projection, activeRules],
   );
 
-  const s = backtest.summary;
+  const triggerInsights = useMemo(
+    () => (baseRun ? analyzeTriggers(baseRun) : null),
+    [baseRun],
+  );
 
-  // Collapsed state — show compact card with a few headline KPIs
+  // Single context line — one copy, rendered in both collapsed and open states.
+  const contextLine =
+    strategy != null ? (
+      <p className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+        Context: <span className="font-medium ct-text-body">{strategy.name}</span>
+        {" "}· {scLabel(scenario)} scenario · deep studies run on baseline market
+        parameters · conditional, not guaranteed.
+      </p>
+    ) : null;
+
+  // Collapsed state — compact card with headline KPIs + scenario verdicts
   if (!labOpen) {
     return (
-      <div className="flex flex-col gap-(--ct-space-4)">
-        {strategy != null ? (
-          <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
-            Scenario context:{" "}
-            <span className="font-medium">{strategy.name}</span>
-            {" "}· {scenario[0]!.toUpperCase() + scenario.slice(1)} scenario.
-            The Lab still runs on baseline market parameters for deep studies.
-            Projections are conditional on stated assumptions, not guaranteed.
-          </p>
-        ) : null}
-        <LabCollapsedCard
-          avgRoiBps={s.averageFinalRoiBps}
-          liqFreqBps={s.liquidationFrequencyBps}
-          bestRoiBps={s.bestFinalRoiBps}
-          worstRoiBps={s.worstFinalRoiBps}
-          onOpen={() => setLabOpen(true)}
-        />
+      <div className="flex flex-col gap-(--ct-space-3)">
+        {contextLine}
+        <LabCollapsedCard summary={backtest.summary} onOpen={() => setLabOpen(true)} />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-(--ct-space-6)">
-      {/* Strategy pre-fill banner — shown only when opened from a strategy card */}
-      {strategy != null ? (
-        <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
-          Scenario context:{" "}
-          <span className="font-medium">{strategy.name}</span>
-          {" "}· {scenario[0]!.toUpperCase() + scenario.slice(1)} scenario.
-          Deep studies still run on baseline market parameters while allocation-specific runs are being wired.
-          Projections are conditional on stated assumptions, not guaranteed.
-        </p>
-      ) : null}
+    <div className="flex flex-col gap-(--ct-space-5)">
+      {contextLine}
 
-      {/* Controls */}
+      {/* Controls — mode row, then scenario row */}
       <div className="flex flex-col gap-(--ct-space-3)">
-        <div className="flex flex-wrap items-center gap-(--ct-space-2)">
-          <span className="ct-bento-label shrink-0">Mode</span>
-          {MODES.map((mo) => (
-            <button
-              key={mo.id}
-              type="button"
-              onClick={() => setMode(mo.id)}
-              className={cn(
-                "rounded-(--ct-radius-full) border px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-xs)]",
-                mode === mo.id ? "border-[var(--ct-border-accent)] ct-text-accent" : "border-[var(--ct-border-soft)] ct-text-tertiary",
-              )}
-            >
-              {mo.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-(--ct-space-3)">
+          <SegmentedControl
+            items={MODE_ITEMS}
+            value={mode}
+            onChange={setMode}
+            ariaLabel="Data Lab mode"
+            variant="tablist"
+          />
+          <CockpitButton variant="ghost" size="sm" onClick={() => setLabOpen(false)}>
+            Collapse
+          </CockpitButton>
         </div>
-        <div className="flex flex-wrap items-center gap-(--ct-space-2)">
+        <div className="flex flex-wrap items-center gap-(--ct-space-3)">
           <span className="ct-bento-label shrink-0">Scenario</span>
-          {scenarios.map((sc) => (
-            <button
-              key={sc}
-              type="button"
-              onClick={() => setScenario(sc)}
-              className={cn(
-                "rounded-(--ct-radius-full) border px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-xs)]",
-                scenario === sc ? "border-[var(--ct-border-accent)] ct-text-accent" : "border-[var(--ct-border-soft)] ct-text-tertiary",
-              )}
-            >
-              {sc[0]!.toUpperCase() + sc.slice(1)}
-            </button>
-          ))}
+          <SegmentedControl
+            items={SCENARIO_ITEMS}
+            value={scenario}
+            onChange={setScenario}
+            ariaLabel="Data Lab scenario"
+            variant="radiogroup"
+            scroll={false}
+          />
           {mode === "BACKTEST" ? (
-            <button
-              type="button"
+            <CockpitButton
+              variant="ghost"
+              size="sm"
               onClick={() => setUseHistorical((v) => !v)}
-              className={cn(
-                "ml-auto rounded-(--ct-radius-full) border px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-2xs)]",
-                useHistorical ? "border-[var(--ct-border-accent)] ct-text-accent" : "border-[var(--ct-border-soft)] ct-text-tertiary",
-              )}
+              aria-pressed={useHistorical}
             >
               {useHistorical ? "Synthetic historical-style" : "Market regimes"}
-            </button>
+            </CockpitButton>
           ) : null}
-          {/* Collapse affordance */}
-          <button
-            type="button"
-            onClick={() => setLabOpen(false)}
-            className="ml-auto rounded-(--ct-radius-full) border border-[var(--ct-border-soft)] px-(--ct-space-3) py-(--ct-space-1) text-[length:var(--ct-text-2xs)] ct-text-faint hover:ct-text-tertiary"
-          >
-            Collapse ↑
-          </button>
         </div>
       </div>
 
       {/* Mode body */}
-      {mode === "BACKTEST" ? <BacktestBody report={backtest} baseRun={baseRun} /> : null}
-      {mode === "FORWARD_SIMULATION" ? <ForwardBody report={forward} baseRun={baseRun} scenario={scenario} /> : null}
-      {mode === "STRESS_MATRIX" ? <StressBody report={stress} /> : null}
-      {mode === "SENSITIVITY" ? <SensitivityPanel report={sensitivity} /> : null}
-      {mode === "REGIME_COMPARISON" ? <TriggerAnalyticsPanel report={backtest} /> : null}
+      {mode === "BACKTEST" && baseRun ? (
+        <BacktestBody report={backtest} baseRun={baseRun} />
+      ) : null}
+      {mode === "FORWARD_SIMULATION" && forward && baseRun ? (
+        <ForwardBody report={forward} baseRun={baseRun} scenario={scenario} />
+      ) : null}
+      {mode === "STRESS_MATRIX" && stress ? <StressBody report={stress} /> : null}
+      {mode === "SENSITIVITY" && sensitivity ? (
+        <SensitivityPanel report={sensitivity} />
+      ) : null}
+      {mode === "REGIME_COMPARISON" ? (
+        <TriggerAnalyticsPanel report={backtest} insights={triggerInsights} />
+      ) : null}
+
+      {/* Single disclaimer for the whole lab */}
+      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+        Conditional, seeded, modelled simulations — not guaranteed and not a
+        representation of real historical prices.
+      </p>
     </div>
   );
 }
@@ -588,7 +620,7 @@ function BacktestBody({
       return {
         regimeId: rid,
         regimeLabel,
-        bestScenario: bestRun.scenario[0]!.toUpperCase() + bestRun.scenario.slice(1),
+        bestScenario: scLabel(bestRun.scenario),
         roiRange: `${bps(minRoi)}–${bps(maxRoi)}`,
         worstMaxLtv,
         anyLiquidated,
@@ -634,69 +666,73 @@ function BacktestBody({
       />
 
       {/* Sub-tab bar */}
-      <SubTabBar
-        tabs={["return", "risk", "attribution", "drawdown"]}
-        active={view}
+      <SegmentedControl
+        items={VIEW_TAB_ITEMS}
+        value={view}
         onChange={setView}
+        ariaLabel="Backtest view"
+        variant="tablist"
       />
 
       {/* Return tab — ROI by regime bar chart + compact table */}
       {view === "return" ? (
         <div className="flex flex-col gap-(--ct-space-4)">
-          <div className="flex flex-col gap-(--ct-space-2)">
-            <span className="ct-section-label ct-text-strong">
-              Final ROI by regime × scenario (%)
-            </span>
-            <div style={{ minHeight: 280, maxHeight: 420 }}>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
-                  barGap={2}
-                  barCategoryGap="28%"
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--ct-border-soft)"
-                    vertical={false}
-                    opacity="var(--ct-opacity-50)"
-                  />
-                  <XAxis
-                    dataKey="regime"
-                    tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={(v: number) => `${v}%`}
-                    tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={38}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--ct-bg-surface)",
-                      border: "1px solid var(--ct-border-soft)",
-                      borderRadius: "var(--ct-radius-md)",
-                      fontSize: 11,
-                      color: "var(--ct-text-body)",
-                    }}
-                    formatter={(value) => [`${value ?? 0}%`]}
-                    cursor={{ fill: "var(--ct-border-soft)", opacity: 0.15 }}
-                  />
-                  <Legend
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
-                  />
-                  <Bar dataKey="safe" name="Safe" fill={SCENARIO_DOT.safe} radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_DOT.balanced} radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_DOT.opportunistic} radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <HcChartCard
+            title="Final ROI by Regime × Scenario"
+            subtitle="Per-regime final ROI for the three scenarios (%)"
+            source="estimated"
+            state="ready"
+            height={300}
+            aria-label="Final ROI by regime and scenario bar chart"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                barGap={2}
+                barCategoryGap="28%"
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--ct-border-soft)"
+                  vertical={false}
+                  opacity="var(--ct-opacity-50)"
+                />
+                <XAxis
+                  dataKey="regime"
+                  tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tickFormatter={(v: number) => `${v}%`}
+                  tick={{ fontSize: 10, fill: "var(--ct-text-muted)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={38}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--ct-bg-surface)",
+                    border: "1px solid var(--ct-border-soft)",
+                    borderRadius: "var(--ct-radius-md)",
+                    fontSize: 11,
+                    color: "var(--ct-text-body)",
+                  }}
+                  formatter={(value) => [`${value ?? 0}%`]}
+                  cursor={{ fill: "var(--ct-border-soft)", opacity: 0.15 }}
+                />
+                <Legend
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 11, color: "var(--ct-text-tertiary)" }}
+                />
+                <Bar dataKey="safe" name="Safe" fill={SCENARIO_DOT.safe} radius={[2, 2, 0, 0]} />
+                <Bar dataKey="balanced" name="Balanced" fill={SCENARIO_DOT.balanced} radius={[2, 2, 0, 0]} />
+                <Bar dataKey="opportunistic" name="Opportunistic" fill={SCENARIO_DOT.opportunistic} radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </HcChartCard>
 
           {/* Compact regime table */}
           <div className="min-w-0 overflow-x-auto">
@@ -830,17 +866,19 @@ function BacktestBody({
       {view === "risk" ? (
         <div className="flex flex-col gap-(--ct-space-3)">
           <span className="ct-section-label ct-text-strong">Drawdown summary · worst-case per scenario</span>
-          <div className="grid grid-cols-3 gap-(--ct-space-3)">
+          <div className="grid grid-cols-1 gap-(--ct-space-3) sm:grid-cols-3">
             {drawdownSummary.map(({ scenario: sc, minDist, maxLtv }) => (
               <div
                 key={sc}
                 className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
               >
-                <span
-                  className="text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide"
-                  style={{ color: SCENARIO_DOT[sc] }}
-                >
-                  {sc[0]!.toUpperCase() + sc.slice(1)}
+                <span className="flex items-center gap-(--ct-space-1_5) text-[length:var(--ct-text-2xs)] ct-text-tertiary uppercase tracking-wide">
+                  <span
+                    aria-hidden
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: SCENARIO_DOT[sc] }}
+                  />
+                  {scLabel(sc)}
                 </span>
                 <div className="flex items-baseline justify-between gap-(--ct-space-2)">
                   <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Min dist.</span>
@@ -867,35 +905,14 @@ function BacktestBody({
 
       {/* Attribution tab — waterfall */}
       {view === "attribution" ? (
-        <div className="flex flex-col gap-(--ct-space-2)">
-          <span className="ct-section-label ct-text-strong">
-            Return attribution — BTC appreciation + yield − costs
-          </span>
-          <div className="min-w-0 overflow-x-auto">
-            <HcWaterfall
-              steps={attribution}
-              format={usdcFmt}
-              aria-label="Return attribution waterfall"
-              width={700}
-              height={304}
-            />
-          </div>
-        </div>
+        <AttributionBlock
+          attribution={attribution}
+          subtitle="BTC appreciation + yield − costs · base run (seed=1)"
+        />
       ) : null}
 
       {/* Drawdown tab — underwater curve */}
-      {view === "drawdown" ? (
-        <div className="flex flex-col gap-(--ct-space-2)">
-          <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
-          <UnderwaterChart underwaterBps={m.underwaterBps} />
-        </div>
-      ) : null}
-
-      {/* Single disclaimer per mode body */}
-      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-        Conditional, seeded, modelled simulations — not guaranteed and not a
-        representation of real historical prices.
-      </p>
+      {view === "drawdown" ? <DrawdownBlock underwaterBps={m.underwaterBps} /> : null}
     </div>
   );
 }
@@ -915,7 +932,18 @@ function ForwardBody({
 }) {
   const [view, setView] = useState<ViewTab>("return");
 
-  const fanBands = report.monthlyEquityBands;
+  // Equity in $k keeps the fan chart's y-axis labels short enough for its
+  // fixed 40-unit axis gutter (raw USDC values clip on the left).
+  const fanBands = useMemo(
+    () =>
+      report.monthlyEquityBands.map((b) => ({
+        m: b.m,
+        p5: Math.round(b.p5 / 100) / 10,
+        p50: Math.round(b.p50 / 100) / 10,
+        p95: Math.round(b.p95 / 100) / 10,
+      })),
+    [report.monthlyEquityBands],
+  );
 
   const attribution = useMemo(
     () => computeAttribution(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
@@ -942,33 +970,36 @@ function ForwardBody({
       />
 
       {/* Sub-tab bar */}
-      <SubTabBar
-        tabs={["return", "risk", "attribution", "drawdown"]}
-        active={view}
+      <SegmentedControl
+        items={VIEW_TAB_ITEMS}
+        value={view}
         onChange={setView}
+        ariaLabel="Forward simulation view"
+        variant="tablist"
       />
 
       {/* Return tab — fan chart + path extremes */}
       {view === "return" ? (
         <div className="flex flex-col gap-(--ct-space-4)">
-          <div className="flex flex-col gap-(--ct-space-2)">
-            <span className="ct-section-label ct-text-strong">
-              Net equity projection fan · p5 / p50 / p95 · {LAB_BASE_PROJECTION.durationMonths} months
-            </span>
-            <div className="min-w-0 overflow-x-auto">
-              <div style={{ minWidth: 640, minHeight: 280, maxHeight: 420 }}>
-                <HcFanChart
-                  bands={fanBands}
-                  width={640}
-                  height={320}
-                  unit="USDC"
-                  seedLabel={seedLabel}
-                  aria-label={`Forward simulation fan chart — p5/p50/p95 net equity over ${LAB_BASE_PROJECTION.durationMonths} months`}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-(--ct-space-3)">
+          <HcChartCard
+            title="Net Equity Projection"
+            subtitle={`Net equity in $k · p5 / p50 / p95 · ${LAB_BASE_PROJECTION.durationMonths} months · ${seedLabel}`}
+            source="estimated"
+            state="ready"
+            height={320}
+            aria-label="Forward simulation net equity projection"
+          >
+            <HcFanChart
+              bands={fanBands}
+              width={1000}
+              height={320}
+              unit="USDC"
+              seedLabel={seedLabel}
+              aria-label={`Forward simulation fan chart — p5/p50/p95 net equity in thousands of USDC over ${LAB_BASE_PROJECTION.durationMonths} months`}
+            />
+          </HcChartCard>
+
+          <div className="grid grid-cols-1 gap-(--ct-space-3) sm:grid-cols-3">
             {(
               [
                 { label: "Worst path", path: report.worstPath, colorClass: "text-[var(--ct-status-danger)]" },
@@ -980,16 +1011,16 @@ function ForwardBody({
                 key={label}
                 className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)"
               >
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">{label}</span>
+                <span className="ct-bento-label">{label}</span>
                 <span className={cn("text-[length:var(--ct-text-sm)] tabular-nums", colorClass)}>
                   {bps(path.finalRoiBps)}
                 </span>
                 <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
                   Min dist. {bps(path.minLiquidationDistanceBps)}
+                  {path.endedLiquidated ? (
+                    <span className="text-[var(--ct-status-danger)]"> · liquidated</span>
+                  ) : null}
                 </span>
-                {path.endedLiquidated ? (
-                  <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">liquidated</span>
-                ) : null}
               </div>
             ))}
           </div>
@@ -1001,60 +1032,24 @@ function ForwardBody({
         <div className="flex flex-col gap-(--ct-space-3)">
           <span className="ct-section-label ct-text-strong">Risk metrics · {report.paths} paths · seed {report.seed}</span>
           <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">VaR 95% (ROI)</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{bps(report.var95RoiBps)}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">CVaR 95% (ROI)</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{bps(report.cvar95RoiBps)}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Repurchase prob.</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{bps(report.repurchaseProbabilityBps)}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint">Exp. debt repaid</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">${report.expectedDebtRepaidUsdc.toLocaleString("en-US")}</span>
-            </div>
+            <Metric variant="nested" label="VaR 95% (ROI)" value={bps(report.var95RoiBps)} />
+            <Metric variant="nested" label="CVaR 95% (ROI)" value={bps(report.cvar95RoiBps)} />
+            <Metric variant="nested" label="Repurchase prob." value={bps(report.repurchaseProbabilityBps)} />
+            <Metric variant="nested" label="Exp. debt repaid" value={`$${report.expectedDebtRepaidUsdc.toLocaleString("en-US")}`} />
           </div>
         </div>
       ) : null}
 
       {/* Attribution tab — waterfall */}
       {view === "attribution" ? (
-        <div className="flex flex-col gap-(--ct-space-2)">
-          <span className="ct-section-label ct-text-strong">
-            Return attribution — BTC appreciation + yield − costs
-          </span>
-          <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-            Scenario: {scenario[0]!.toUpperCase() + scenario.slice(1)} · base run (seed=1) · modelled
-          </p>
-          <div className="min-w-0 overflow-x-auto">
-            <HcWaterfall
-              steps={attribution}
-              format={usdcFmt}
-              aria-label="Return attribution waterfall"
-              width={700}
-              height={304}
-            />
-          </div>
-        </div>
+        <AttributionBlock
+          attribution={attribution}
+          subtitle={`${scLabel(scenario)} scenario · base run (seed=1) · modelled`}
+        />
       ) : null}
 
       {/* Drawdown tab */}
-      {view === "drawdown" ? (
-        <div className="flex flex-col gap-(--ct-space-2)">
-          <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
-          <UnderwaterChart underwaterBps={metrics.underwaterBps} />
-        </div>
-      ) : null}
-
-      {/* Single disclaimer */}
-      <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
-        Conditional, seeded, modelled simulations — not guaranteed and not a
-        representation of real historical prices.
-      </p>
+      {view === "drawdown" ? <DrawdownBlock underwaterBps={metrics.underwaterBps} /> : null}
     </div>
   );
 }
@@ -1107,10 +1102,7 @@ function StressBody({ report }: { report: StressMatrixReport }) {
                         RISK_TONE[cell.riskLevel],
                       )}
                     >
-                      <span className="block">{bps(cell.finalRoiBps)}</span>
-                      <span className="block text-[length:var(--ct-text-2xs)] ct-text-faint mt-0.5">
-                        {cell.riskLevel}
-                      </span>
+                      {bps(cell.finalRoiBps)}
                     </td>
                   );
                 })}
@@ -1159,10 +1151,8 @@ function StressBody({ report }: { report: StressMatrixReport }) {
         )}
       </p>
 
-      {/* Single disclaimer */}
       <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
         Shocks are applied independently — true joint tail risk is higher than any single cell shows.
-        Conditional, modelled — not guaranteed.
       </p>
     </div>
   );

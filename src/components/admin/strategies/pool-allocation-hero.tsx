@@ -1,9 +1,11 @@
 /**
  * PoolAllocationHero — live Strategy Studio core.
  *
- * This is the new central builder zone: scenario selection, allocation sliders,
- * central KPI strip, a configured fan chart, and a composition ring. Everything
- * reacts immediately to the current in-memory strategy state.
+ * One builder zone: scenario switch + allocation sliders on the left, the
+ * live outcome on the right (KPI strip, configured fan chart, composition
+ * ring). Everything reacts immediately to the current in-memory strategy
+ * state. No duplicated titles, no duplicated numbers — each figure appears
+ * exactly once in this zone.
  */
 "use client";
 
@@ -15,7 +17,6 @@ import { SegmentedControl } from "@/components/catalyst/segmented-control";
 import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
 import { HcCompositionRing } from "@/components/dataviz/his/HcCompositionRing";
 import { HcFanChart, type HcFanBand } from "@/components/dataviz/his/HcFanChart";
-import { cn } from "@/lib/cn";
 import {
   bpsToPct,
   PRODUCT_FAMILY_LABEL,
@@ -71,13 +72,26 @@ function pctStr(bps: number): string {
   return `${bpsToPct(bps).toFixed(1)}%`;
 }
 
-function bpsStr(bps: number): string {
-  return `${bps.toLocaleString("en-US")}bps`;
-}
-
 function formatRange(lowBps: number | undefined, highBps: number | undefined): string {
   if (lowBps === undefined || highBps === undefined) return "—";
   return `${pctStr(lowBps)}–${pctStr(highBps)}`;
+}
+
+/** Human caption of the active scenario's hard guardrails, or null when none. */
+function guardrailCaption(strategy: ProductStrategy, scenario: RiskProfileKey): string | null {
+  const constraints = strategy.scenarios[scenario].constraints;
+  const parts: string[] = [];
+  if (constraints.minStableReserveBps !== undefined) {
+    parts.push(`stable reserve ≥ ${pctStr(constraints.minStableReserveBps)}`);
+  }
+  if (constraints.maxBtcBps !== undefined) {
+    parts.push(`BTC ≤ ${pctStr(constraints.maxBtcBps)}`);
+  }
+  if (constraints.maxYieldOverlayBps !== undefined) {
+    parts.push(`yield overlay ≤ ${pctStr(constraints.maxYieldOverlayBps)}`);
+  }
+  if (parts.length === 0) return null;
+  return `Guardrails: ${parts.join(" · ")}`;
 }
 
 function buildPreviewBands(strategy: ProductStrategy, activeScenario: RiskProfileKey): HcFanBand[] {
@@ -142,14 +156,9 @@ function SleeveSlider({
             {caption}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-(--ct-space-2)">
-          <span className="text-[length:var(--ct-text-xs)] font-semibold ct-text-strong tabular-nums">
-            {percent.toFixed(1)}%
-          </span>
-          <span className="text-[length:var(--ct-text-2xs)] ct-text-muted tabular-nums">
-            {bpsStr(valueBps)}
-          </span>
-        </div>
+        <span className="shrink-0 text-[length:var(--ct-text-xs)] font-semibold ct-text-strong tabular-nums">
+          {percent.toFixed(1)}%
+        </span>
       </div>
 
       <div className="grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-(--ct-space-3)">
@@ -190,7 +199,6 @@ export function PoolAllocationHero({
   const allocation = scenario.allocation;
   const familyLabel = PRODUCT_FAMILY_LABEL[strategy.productFamily];
 
-  const growthMix = allocation.miningBps + allocation.btcBps;
   const protectionMix = allocation.stableReserveBps + allocation.yieldOverlayBps;
   const perfRange = formatRange(
     assumptions.totalPerformanceLowBps,
@@ -201,6 +209,7 @@ export function PoolAllocationHero({
     assumptions.distributionTargetHighBps,
   );
   const floorApy = assumptions.floorBps !== undefined ? pctStr(assumptions.floorBps) : "—";
+  const guardrails = guardrailCaption(strategy, activeScenario);
   const fanBands = buildPreviewBands(strategy, activeScenario);
 
   const kpiItems: Parameters<typeof BentoKpiStrip>[0]["items"] = [
@@ -216,153 +225,116 @@ export function PoolAllocationHero({
       provenance: "manual",
     },
     {
-      label: "Protection mix",
-      value: pctStr(protectionMix),
+      label: "Distribution floor",
+      value: floorApy,
       provenance: "manual",
     },
     {
-      label: "Growth mix",
-      value: pctStr(growthMix),
+      label: "Volatility profile",
+      value: `${assumptions.volatilityMultiplier.toFixed(2)}x`,
       provenance: "manual",
     },
   ];
 
   return (
-    <div className="flex min-w-0 flex-col gap-(--ct-space-5)">
-      <div className="flex flex-col gap-(--ct-space-1)">
-        <h2 className="ct-section-title">Strategy Studio</h2>
-        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-          Adjust the active scenario live. The central KPI band and charts respond immediately to the current mix.
-        </p>
-      </div>
-
-      <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-5) 2xl:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)]">
-        <aside className="flex min-w-0 flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-5)">
-          <div className="flex flex-col gap-(--ct-space-1)">
+    // Container queries (not viewport breakpoints): the admin slot narrows when
+    // the chat rail opens, so the split must follow the slot width, not the
+    // screen. The query container must be an ANCESTOR of the queried grid.
+    <div className="@container/hero min-w-0">
+      <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-5) @[56rem]/hero:grid-cols-[minmax(17rem,21rem)_minmax(0,1fr)]">
+      <aside className="flex min-w-0 flex-col gap-(--ct-space-5) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-5)">
+        <div className="flex flex-col gap-(--ct-space-1_5)">
+          <div className="flex items-center justify-between gap-(--ct-space-2)">
             <span className="ct-bento-label">Active scenario</span>
-            <SegmentedControl
-              items={SCENARIO_ITEMS}
-              value={activeScenario}
-              onChange={onScenarioChange}
-              ariaLabel="Strategy scenarios"
-              variant="radiogroup"
+            <span className="text-[length:var(--ct-text-2xs)] ct-text-muted">
+              {familyLabel}
+            </span>
+          </div>
+          <SegmentedControl
+            items={SCENARIO_ITEMS}
+            value={activeScenario}
+            onChange={onScenarioChange}
+            ariaLabel="Strategy scenarios"
+            variant="radiogroup"
+          />
+        </div>
+
+        <div className="flex flex-col gap-(--ct-space-3)">
+          <div className="flex items-center justify-between gap-(--ct-space-2)">
+            <span className="ct-bento-label">Allocation</span>
+            <span className="text-[length:var(--ct-text-2xs)] ct-text-muted tabular-nums">
+              Locked at 100% · {assumptions.horizonMonths}m horizon
+            </span>
+          </div>
+
+          {SLEEVES.map((sleeve) => (
+            <SleeveSlider
+              key={sleeve.key}
+              label={sleeve.label}
+              caption={sleeve.caption}
+              valueBps={allocation[sleeve.key]}
+              onChange={(nextPercent) => onAllocationChange(sleeve.key, nextPercent)}
             />
-          </div>
+          ))}
 
-          <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] p-(--ct-space-3)">
-            <div className="flex items-center justify-between gap-(--ct-space-2)">
-              <span className="ct-bento-label">Studio context</span>
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-muted">
-                {familyLabel}
-              </span>
-            </div>
-            <div className="mt-(--ct-space-2) grid grid-cols-2 gap-(--ct-space-3)">
-              <div className="flex flex-col gap-(--ct-space-0_5)">
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">Scenario</span>
-                <span className="text-[length:var(--ct-text-xs)] font-medium ct-text-strong">
-                  {RISK_LABEL[activeScenario]}
-                </span>
-              </div>
-              <div className="flex flex-col gap-(--ct-space-0_5)">
-                <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">Horizon</span>
-                <span className="text-[length:var(--ct-text-xs)] font-medium ct-text-strong tabular-nums">
-                  {assumptions.horizonMonths}m
-                </span>
-              </div>
-            </div>
-          </div>
+          {guardrails ? (
+            <p className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+              {guardrails}
+            </p>
+          ) : null}
+        </div>
+      </aside>
 
-          <div className="flex flex-col gap-(--ct-space-3)">
-            <div className="flex items-center justify-between gap-(--ct-space-2)">
-              <span className="ct-bento-label">Allocation controls</span>
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-muted">
-                Total locked at 100%
-              </span>
-            </div>
+      <div className="flex min-w-0 flex-col gap-(--ct-space-4)">
+        <BentoKpiStrip items={kpiItems} ariaLabel="Strategy studio live KPIs" />
 
-            {SLEEVES.map((sleeve) => (
-              <SleeveSlider
-                key={sleeve.key}
-                label={sleeve.label}
-                caption={sleeve.caption}
-                valueBps={allocation[sleeve.key]}
-                onChange={(nextPercent) => onAllocationChange(sleeve.key, nextPercent)}
+        <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-4) @[62rem]/hero:grid-cols-[minmax(0,1.45fr)_minmax(16rem,0.95fr)]">
+          <HcChartCard
+            title="Configured Outlook"
+            subtitle={`${strategy.name} · ${RISK_LABEL[activeScenario]} scenario`}
+            metric={perfRange}
+            metricCompact
+            source="configured"
+            state="ready"
+            disclaimer="Configured preview based on the current strategy mix. Conditional on stated assumptions, not guaranteed."
+            height={300}
+            aria-label="Configured strategy outlook"
+          >
+            <HcFanChart
+              bands={fanBands}
+              unit="%"
+              seedLabel="studio-preview"
+              aria-label="Configured strategy outlook fan chart"
+            />
+          </HcChartCard>
+
+          <HcChartCard
+            title="Pool Composition"
+            subtitle="Allocation of the active scenario"
+            metric={pctStr(protectionMix)}
+            metricCompact
+            source="configured"
+            state="ready"
+            disclaimer="Composition updates live as sleeves move. Figures are configuration-level, not execution results."
+            height={300}
+            aria-label="Pool composition chart"
+          >
+            <div className="flex h-full items-center justify-center">
+              <HcCompositionRing
+                size={168}
+                centerLabel="Protection"
+                centerValue={pctStr(protectionMix)}
+                bars
+                segments={[
+                  { label: "Mining", value: allocation.miningBps },
+                  { label: "BTC", value: allocation.btcBps },
+                  { label: "Stable reserve", value: allocation.stableReserveBps },
+                  { label: "Yield overlay", value: allocation.yieldOverlayBps },
+                ]}
+                aria-label="Pool allocation composition"
               />
-            ))}
-          </div>
-        </aside>
-
-        <div className="flex min-w-0 flex-col gap-(--ct-space-4)">
-          <BentoKpiStrip items={kpiItems} ariaLabel="Strategy studio live KPIs" />
-
-          <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-4) 2xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.95fr)]">
-            <HcChartCard
-              title="Configured Outlook"
-              subtitle={`${strategy.name} · ${RISK_LABEL[activeScenario]} scenario`}
-              metric={perfRange}
-              metricCompact
-              source="configured"
-              state="ready"
-              disclaimer="Configured preview based on the current strategy mix. Conditional on stated assumptions, not guaranteed."
-              height={300}
-              aria-label="Configured strategy outlook"
-            >
-              <HcFanChart
-                bands={fanBands}
-                unit="%"
-                seedLabel="studio-preview"
-                aria-label="Configured strategy outlook fan chart"
-              />
-            </HcChartCard>
-
-            <HcChartCard
-              title="Pool Composition"
-              subtitle="Allocation of the active scenario"
-              metric={pctStr(protectionMix)}
-              metricCompact
-              source="configured"
-              state="ready"
-              disclaimer="Composition updates live as sleeves move. Figures are configuration-level, not execution results."
-              height={300}
-              aria-label="Pool composition chart"
-            >
-              <div className="flex h-full items-center justify-center">
-                <HcCompositionRing
-                  size={168}
-                  centerLabel="Protection"
-                  centerValue={pctStr(protectionMix)}
-                  bars
-                  segments={[
-                    { label: "Mining", value: allocation.miningBps },
-                    { label: "BTC", value: allocation.btcBps },
-                    { label: "Stable reserve", value: allocation.stableReserveBps },
-                    { label: "Yield overlay", value: allocation.yieldOverlayBps },
-                  ]}
-                  aria-label="Pool allocation composition"
-                />
-              </div>
-            </HcChartCard>
-          </div>
-
-          <div className="grid grid-cols-1 gap-(--ct-space-3) md:grid-cols-3">
-            <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-4)">
-              <span className="ct-bento-label">Distribution floor</span>
-              <p className="mt-(--ct-space-2) text-[length:var(--ct-text-lg)] font-semibold ct-text-strong tabular-nums">
-                {floorApy}
-              </p>
             </div>
-            <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-4)">
-              <span className="ct-bento-label">Volatility profile</span>
-              <p className="mt-(--ct-space-2) text-[length:var(--ct-text-lg)] font-semibold ct-text-strong tabular-nums">
-                {assumptions.volatilityMultiplier.toFixed(2)}x
-              </p>
-            </div>
-            <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-4)">
-              <span className="ct-bento-label">Studio note</span>
-              <p className="mt-(--ct-space-2) text-[length:var(--ct-text-xs)] leading-relaxed ct-text-tertiary">
-                Growth sleeves expand upside participation. Protection sleeves stabilize the monthly distribution path.
-              </p>
-            </div>
+          </HcChartCard>
           </div>
         </div>
       </div>

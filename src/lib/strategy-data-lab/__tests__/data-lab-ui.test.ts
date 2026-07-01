@@ -72,13 +72,30 @@ describe("Strategy Data Lab UI", () => {
     expect(src).toContain('"Risk"');
     expect(src).toContain('"Attribution"');
     expect(src).toContain('"Drawdown"');
-    // SubTabBar component
-    expect(src).toContain("SubTabBar");
+    // Sub-tabs render through the DS SegmentedControl primitive (tablist)
+    expect(src).toContain("VIEW_TAB_ITEMS");
+    expect(src).toContain("SegmentedControl");
     // View state
     expect(src).toContain("view === \"return\"");
     expect(src).toContain("view === \"risk\"");
     expect(src).toContain("view === \"attribution\"");
     expect(src).toContain("view === \"drawdown\"");
+  });
+
+  it("defers the heavy runners until the lab is opened", async () => {
+    const src = await labSrc();
+    // Forward / stress / sensitivity / base run are gated on labOpen.
+    expect(src).toContain("labOpen\n        ? new ForwardSimulationRunner()");
+    expect(src).toContain("labOpen\n        ? new StressMatrixRunner()");
+    expect(src).toContain("labOpen\n        ? new SensitivityAnalyzer()");
+    expect(src).toContain("? runManualStrategyProjection(");
+  });
+
+  it("surfaces backtest scenario verdicts on the collapsed card", async () => {
+    const src = await labSrc();
+    expect(src).toContain("bestScenarioByRoi");
+    expect(src).toContain("safestScenarioByMinDistance");
+    expect(src).toContain("highestLiquidationRiskScenario");
   });
 
   it("has an Advanced metrics collapsible for the backtest table", async () => {
