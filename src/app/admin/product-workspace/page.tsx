@@ -49,7 +49,7 @@ export default async function ProductWorkspacePage({
       >
         <div className="flex flex-col gap-2 p-5">
           <Heading level={3} className={cn("text-balance", !objective && "italic opacity-[var(--ct-opacity-40)]")}>
-            {objective ?? "Awaiting objective from the cockpit agent"}
+            {objective ?? "Set an objective below to start — or capture one from the cockpit agent"}
           </Heading>
           <p className="ct-metric-caption leading-relaxed">
             Five specialists construct a read-only draft from live data — nothing is
