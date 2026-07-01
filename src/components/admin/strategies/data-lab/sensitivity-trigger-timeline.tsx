@@ -15,8 +15,13 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { Metric } from "@/components/catalyst/metric";
 import { cn } from "@/lib/cn";
-import type { SensitivityAnalyzer, BacktestRunner } from "@/lib/strategy-data-lab";
+import type {
+  SensitivityAnalyzer,
+  BacktestRunner,
+  TriggerAnalyticsReport,
+} from "@/lib/strategy-data-lab";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -65,12 +70,10 @@ export function SensitivityPanel({ report }: { report: SensitivityReport }) {
 
   return (
     <div className="flex flex-col gap-(--ct-space-4)">
-      {/* Header */}
+      {/* Header — same grammar as the other lab mode bodies */}
       <div className="flex flex-col gap-(--ct-space-1)">
-        <h3 className="text-[length:var(--ct-text-lg)] font-semibold ct-text-strong">
-          Sensitivity Analysis
-        </h3>
-        <p className="text-[length:var(--ct-text-sm)] ct-text-muted">
+        <span className="ct-section-label ct-text-strong">Sensitivity Analysis</span>
+        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
           ROI sensitivity ranked by impact — which inputs move the needle most
         </p>
       </div>
@@ -180,7 +183,14 @@ export function SensitivityPanel({ report }: { report: SensitivityReport }) {
 type BacktestReport = ReturnType<InstanceType<typeof BacktestRunner>["run"]>;
 
 /** Trigger analytics panel: liquidation/repurchase frequency + per-run table. */
-export function TriggerAnalyticsPanel({ report }: { report: BacktestReport }) {
+export function TriggerAnalyticsPanel({
+  report,
+  insights,
+}: {
+  report: BacktestReport;
+  /** Rule-level analytics for the base run (analyzeTriggers) — optional. */
+  insights?: TriggerAnalyticsReport | null;
+}) {
   const { runs, summary } = report;
 
   const liqFreqPct = (summary.liquidationFrequencyBps / 100).toFixed(1);
@@ -188,15 +198,45 @@ export function TriggerAnalyticsPanel({ report }: { report: BacktestReport }) {
 
   return (
     <div className="flex flex-col gap-(--ct-space-4)">
-      {/* Header */}
+      {/* Header — same grammar as the other lab mode bodies */}
       <div className="flex flex-col gap-(--ct-space-1)">
-        <h3 className="text-[length:var(--ct-text-lg)] font-semibold ct-text-strong">
-          Trigger Analytics
-        </h3>
-        <p className="text-[length:var(--ct-text-sm)] ct-text-muted">
+        <span className="ct-section-label ct-text-strong">Trigger Analytics</span>
+        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
           Liquidation and repurchase trigger frequency across market regimes
         </p>
       </div>
+
+      {/* Rule-level insights — base run, deterministic */}
+      {insights ? (
+        <div className="grid grid-cols-1 gap-(--ct-space-3) sm:grid-cols-3">
+          <Metric
+            variant="nested"
+            label="Most frequent trigger"
+            value={
+              // Persisted rule ids are composite "<strategyId>::<ruleId>" —
+              // show only the human-scale rule part.
+              insights.mostFrequentTriggerRuleId?.split("::").pop() ?? "None"
+            }
+            sublabel="base run · rule id"
+          />
+          <Metric
+            variant="nested"
+            label="First liquidation"
+            value={
+              insights.firstLiquidationMonth !== null
+                ? `Month ${insights.firstLiquidationMonth}`
+                : "None"
+            }
+            sublabel={`${insights.liquidationCount} liquidation event${insights.liquidationCount === 1 ? "" : "s"}`}
+          />
+          <Metric
+            variant="nested"
+            label="Typical sequence"
+            value={insights.typicalSequence || "No events"}
+            sublabel={`${insights.repurchaseCount} repurchase event${insights.repurchaseCount === 1 ? "" : "s"}`}
+          />
+        </div>
+      ) : null}
 
       {/* Global KPIs */}
       <div className="grid grid-cols-2 gap-(--ct-space-3)">

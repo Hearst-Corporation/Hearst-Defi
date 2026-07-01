@@ -14,7 +14,6 @@
  */
 
 import { useCallback, useMemo, useState, type ChangeEvent } from "react";
-import { cn } from "@/lib/cn";
 import { Modal } from "@/components/catalyst/modal";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { Input } from "@/components/catalyst/input";
@@ -30,10 +29,7 @@ import {
   type Priority,
 } from "@/lib/product-strategies/types";
 import { validateStrategy, type StrategyViolation } from "@/lib/product-strategies/validate";
-import {
-  newStrategyDraft,
-  persistencePending,
-} from "@/components/admin/strategies/use-strategy-store";
+import { newStrategyDraft } from "@/components/admin/strategies/use-strategy-store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -144,14 +140,17 @@ export function CreateStrategyModal({
   // newStrategyDraft (and its _draftCounter) is only called once per mount.
   const baseline: ProductStrategy = useMemo(
     () => initial ?? newStrategyDraft({}, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [initial, now],
   );
 
   // ---- Identity state ----
-  const [name, setName] = useState(baseline.name);
-  const [slug, setSlug] = useState(baseline.slug);
-  const [description, setDescription] = useState(baseline.description);
+  // Create mode opens EMPTY so the operator names the strategy deliberately
+  // (the auto "Draft Strategy N" default made zero-thought creation valid).
+  const [name, setName] = useState(mode === "edit" ? baseline.name : "");
+  const [slug, setSlug] = useState(mode === "edit" ? baseline.slug : "");
+  const [description, setDescription] = useState(
+    mode === "edit" ? baseline.description : "",
+  );
   const [slugManual, setSlugManual] = useState(false);
 
   // ---- Family metadata state ----
@@ -206,7 +205,8 @@ export function CreateStrategyModal({
       {
         name,
         slug,
-        description,
+        // Empty description → let newStrategyDraft fill its honest default.
+        description: description.trim() === "" ? undefined : description,
         productFamily: family,
         defaultRiskProfile: riskProfile,
         defaultHorizonMonths: horizon,
@@ -330,16 +330,6 @@ export function CreateStrategyModal({
           Allocation, assumptions, and rebalancing rules are calibrated in the Studio after
           creation.
         </p>
-
-        {persistencePending && (
-          <div className="flex items-center gap-[var(--ct-space-2)] rounded-md border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_4%,transparent)] px-[var(--ct-space-3)] py-[var(--ct-space-2)]">
-            <span className="h-2 w-2 rounded-full bg-[var(--ct-status-warning)] shrink-0" />
-            <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-muted)]">
-              Local draft — persistence pending. This strategy lives in browser memory only
-              and will be lost on page reload until a DB save is wired.
-            </p>
-          </div>
-        )}
 
         <ViolationList violations={violations} />
 

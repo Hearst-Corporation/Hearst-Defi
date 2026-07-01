@@ -1,11 +1,23 @@
 "use client";
 
+/**
+ * StrategyWorkspaceClient — the Strategy Studio page body.
+ *
+ * Section order (calm → deep):
+ *   1. Strategy Studio    — scenario switch + sliders + live outcome (hero).
+ *      Actions (Archive / Publish / Save) live in this section's header.
+ *   2. Scenario Comparison — the three scenarios side by side (tap to switch).
+ *   3. Engine Configuration — collateral geometry + rebalancing rules,
+ *      read-only reference that seeds the Data Lab.
+ *   4. Data Lab            — one gate (the lab's own collapsed summary card),
+ *      heavy runners only execute once opened.
+ */
+
 import { useState, useCallback, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { Metric } from "@/components/catalyst/metric";
-import { cn } from "@/lib/cn";
 import type {
   ProductStrategy,
   RiskProfileKey,
@@ -13,11 +25,7 @@ import type {
   ScenarioAssumptions,
 } from "@/lib/product-strategies";
 import { bpsToPct } from "@/lib/product-strategies";
-import {
-  useStrategyStore,
-  persistencePending,
-  strategyToProductPayload,
-} from "@/components/admin/strategies/use-strategy-store";
+import { useStrategyStore } from "@/components/admin/strategies/use-strategy-store";
 import { PoolAllocationHero } from "@/components/admin/strategies/pool-allocation-hero";
 import { ScenarioComparisonCards } from "@/components/admin/strategies/scenario-comparison-cards";
 import { StrategyDataLab } from "@/components/admin/strategies/data-lab/strategy-data-lab";
@@ -36,56 +44,17 @@ const ALLOCATION_KEYS: readonly SleeveKey[] = [
 
 const DATA_LAB_SECTION_ID = "strategy-data-lab";
 
+const STATUS_LABEL: Record<string, string> = {
+  active: "Live",
+  draft: "Draft",
+  archived: "Archived",
+};
+
 function scrollToSection(id: string): void {
   if (typeof document === "undefined") return;
   const element = document.getElementById(id);
   if (!element) return;
   element.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-/**
- * CollapsibleSection — progressive disclosure wrapper for secondary Strategy
- * Studio sections (Collateral Engine / Rebalancing Rules / Advanced Data Lab).
- * Collapsed by default; body is not rendered until expanded so heavy children
- * (the Data Lab) don't mount off-screen. Tokenized, accessible affordance.
- */
-function CollapsibleSection({
-  label,
-  defaultOpen = false,
-  children,
-}: {
-  label: string;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className="flex flex-col">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className={cn(
-          "flex w-full items-center gap-(--ct-space-2) px-5 py-(--ct-space-3) lg:px-6",
-          "text-[length:var(--ct-text-xs)] font-medium ct-text-secondary hover:ct-text-strong",
-          "transition-colors text-left",
-        )}
-      >
-        <span
-          aria-hidden
-          className={cn(
-            "inline-block transition-transform ease-[var(--ct-ease)]",
-            open && "rotate-90",
-          )}
-        >
-          ▸
-        </span>
-        {label}
-      </button>
-      {open ? children : null}
-    </div>
-  );
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -218,7 +187,6 @@ export function StrategyWorkspaceClient({
   initialWorkspace: StrategyWorkspaceData;
   allInitialStrategies: ProductStrategy[];
 }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const wantLab = searchParams?.get("tab") === "lab";
   const store = useStrategyStore(allInitialStrategies);
@@ -232,7 +200,7 @@ export function StrategyWorkspaceClient({
     }
   }, [initialStrategy.id, store]);
 
-  // Deep-link: `?tab=lab` opens the Data Lab and scrolls to it once on mount.
+  // Deep-link: `?tab=lab` scrolls to the (already open) Data Lab once on mount.
   useEffect(() => {
     if (!wantLab) return;
     scrollToSection(DATA_LAB_SECTION_ID);
@@ -243,6 +211,9 @@ export function StrategyWorkspaceClient({
   const [activeScenario, setActiveScenario] = useState<RiskProfileKey>(
     strategy.defaultRiskProfile,
   );
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [mutating, setMutating] = useState(false);
 
   const now = useCallback(() => new Date().toISOString(), []);
 
@@ -270,39 +241,93 @@ export function StrategyWorkspaceClient({
         },
         updatedAt: now(),
       });
+      setDirty(true);
     },
     [activeScenario, now, strategy, store],
   );
 
-  const handleOpenDataLab = useCallback(() => {
-    scrollToSection(DATA_LAB_SECTION_ID);
-  }, []);
-
   const handleSave = useCallback(async () => {
-    await saveStrategyWorkspace(strategy, initialWorkspace.collateral, initialWorkspace.rules);
+    setSaving(true);
+    try {
+      await saveStrategyWorkspace(strategy, initialWorkspace.collateral, initialWorkspace.rules);
+      setDirty(false);
+    } catch {
+      // Save rejected — keep `dirty` truthful ("Unsaved changes" stays up).
+    } finally {
+      setSaving(false);
+    }
   }, [strategy, initialWorkspace.collateral, initialWorkspace.rules]);
 
+  // Publish/Archive mirror the server mutation into the local store so the
+  // header status stays truthful (the store seeds useState once — a
+  // revalidate alone would not refresh it). On failure, nothing changes.
   const handleMakeLive = useCallback(async () => {
-    await publishStrategy(strategy.id);
-  }, [strategy.id]);
+    setMutating(true);
+    try {
+      await publishStrategy(strategy.id);
+      store.publish(strategy.id);
+    } catch {
+      // Server rejected (e.g. static fallback strategy not in DB) — keep the
+      // local state honest by not flipping the status.
+    } finally {
+      setMutating(false);
+    }
+  }, [strategy.id, store]);
 
   const handleArchive = useCallback(async () => {
-    await archiveStrategy(strategy.id);
-  }, [strategy.id]);
+    setMutating(true);
+    try {
+      await archiveStrategy(strategy.id);
+      store.archive(strategy.id);
+    } catch {
+      // Same contract as publish: no local flip on server failure.
+    } finally {
+      setMutating(false);
+    }
+  }, [strategy.id, store]);
+
+  const statusLabel = STATUS_LABEL[strategy.status] ?? strategy.status;
 
   return (
     <div className="flex flex-col gap-(--ct-space-5) min-w-0">
-      <div className="flex items-center justify-end gap-(--ct-space-2)">
-        <CockpitButton variant="secondary" size="sm" onClick={handleArchive}>Archive</CockpitButton>
-        {strategy.status === "draft" && (
-          <CockpitButton variant="primary" size="sm" onClick={handleMakeLive}>Publish</CockpitButton>
-        )}
-        <CockpitButton variant="primary" size="sm" onClick={handleSave}>Save Changes</CockpitButton>
-      </div>
-
       <AdminSectionCard
         title="Strategy Studio"
-        subtitle={`Editing ${strategy.name}`}
+        subtitle={`${strategy.name} · ${statusLabel} — adjust the active scenario live`}
+        headerTrailing={
+          <div className="flex flex-wrap items-center justify-end gap-(--ct-space-2)">
+            {dirty ? (
+              <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+                Unsaved changes
+              </span>
+            ) : null}
+            <CockpitButton
+              variant="ghost"
+              size="sm"
+              onClick={handleArchive}
+              disabled={mutating || strategy.status === "archived"}
+            >
+              Archive
+            </CockpitButton>
+            {strategy.status === "draft" && (
+              <CockpitButton
+                variant="secondary"
+                size="sm"
+                onClick={handleMakeLive}
+                disabled={mutating}
+              >
+                Publish
+              </CockpitButton>
+            )}
+            <CockpitButton
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? "Saving…" : "Save Changes"}
+            </CockpitButton>
+          </div>
+        }
       >
         <div className="p-5 lg:p-6">
           <PoolAllocationHero
@@ -314,7 +339,10 @@ export function StrategyWorkspaceClient({
         </div>
       </AdminSectionCard>
 
-      <AdminSectionCard title="Scenario Summary" subtitle="Outcome & constraints">
+      <AdminSectionCard
+        title="Scenario Comparison"
+        subtitle="Safe / Balanced / Opportunistic side by side — tap a tile to switch the Studio"
+      >
         <div className="p-5 lg:p-6">
           <ScenarioComparisonCards
             strategy={strategy}
@@ -324,10 +352,15 @@ export function StrategyWorkspaceClient({
         </div>
       </AdminSectionCard>
 
-      <AdminSectionCard title="Collateral Engine" subtitle="Initial pool geometry & risk limits">
-        <CollapsibleSection label="Collateral Engine details">
-          <div className="p-5 lg:p-6 pt-0 flex flex-col gap-(--ct-space-4)">
-            <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
+      <AdminSectionCard
+        title="Engine Configuration"
+        subtitle="Collateral geometry & rebalancing rules — read-only, seeds the Data Lab runs"
+      >
+        <div className="@container min-w-0 p-5 lg:p-6">
+          <div className="grid min-w-0 gap-(--ct-space-5) @[52rem]:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div className="flex min-w-0 flex-col gap-(--ct-space-3)">
+            <span className="ct-bento-label">Collateral</span>
+            <div className="grid grid-cols-2 gap-(--ct-space-3)">
               <Metric
                 variant="nested"
                 label="Initial BTC Collateral"
@@ -336,7 +369,7 @@ export function StrategyWorkspaceClient({
               <Metric
                 variant="nested"
                 label="Initial Debt"
-                value={`$${initialWorkspace.collateral.initialDebtUsdc.toLocaleString()}`}
+                value={`$${initialWorkspace.collateral.initialDebtUsdc.toLocaleString("en-US")}`}
               />
               <Metric
                 variant="nested"
@@ -357,16 +390,10 @@ export function StrategyWorkspaceClient({
                 }
               />
             </div>
-            <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-              These parameters seed the collateral engine in the Data Lab.
-            </p>
           </div>
-        </CollapsibleSection>
-      </AdminSectionCard>
 
-      <AdminSectionCard title="Rebalancing Rules" subtitle="Liquidation and repurchase automation">
-        <CollapsibleSection label="Rebalancing Rules details">
-          <div className="p-5 lg:p-6 pt-0 flex flex-col gap-(--ct-space-4)">
+          <div className="flex min-w-0 flex-col gap-(--ct-space-3)">
+            <span className="ct-bento-label">Rebalancing rules</span>
             <div className="min-w-0 overflow-x-auto">
               <table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
                 <thead>
@@ -390,24 +417,24 @@ export function StrategyWorkspaceClient({
               </table>
             </div>
           </div>
-        </CollapsibleSection>
+          </div>
+        </div>
       </AdminSectionCard>
 
-      <div id={DATA_LAB_SECTION_ID} className="scroll-mt-[100px]">
+      <div id={DATA_LAB_SECTION_ID} className="scroll-mt-24">
         <AdminSectionCard
-          title="Advanced Data Lab"
-          subtitle="Modelled backtests, forward simulations & stress matrices"
+          title="Data Lab"
+          subtitle="Backtest · Forward simulation · Stress · Sensitivity · Triggers — seeded, modelled"
         >
-          <CollapsibleSection label="Advanced Data Lab" defaultOpen={wantLab}>
-            <div className="p-5 lg:p-6 pt-0">
-              <StrategyDataLab
-                strategy={strategy}
-                scenario={activeScenario}
-                collateral={initialWorkspace.collateral}
-                rules={initialWorkspace.rules}
-              />
-            </div>
-          </CollapsibleSection>
+          <div className="p-5 lg:p-6">
+            <StrategyDataLab
+              strategy={strategy}
+              scenario={activeScenario}
+              collateral={initialWorkspace.collateral}
+              rules={initialWorkspace.rules}
+              initialOpen={wantLab}
+            />
+          </div>
         </AdminSectionCard>
       </div>
     </div>
