@@ -519,6 +519,7 @@ export function StrategyHubClient({
 
       {/* ── Create / Edit modal ───────────────────────────────────────────── */}
       <CreateStrategyModal
+        key={`${modalMode}-${modalInitial?.id ?? "new"}`}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         mode={modalMode}

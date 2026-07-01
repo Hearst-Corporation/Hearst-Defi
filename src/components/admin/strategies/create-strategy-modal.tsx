@@ -9,7 +9,7 @@
  * spacing via var(--ct-space-*). No forbidden words.
  */
 
-import { useState, useCallback, type ChangeEvent } from "react";
+import { useState, useCallback, useMemo, type ChangeEvent } from "react";
 import { cn } from "@/lib/cn";
 import { Modal } from "@/components/catalyst/modal";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
@@ -25,7 +25,7 @@ import {
   type HorizonMonths,
   type Priority,
 } from "@/lib/product-strategies/types";
-import { validateStrategySet, type StrategyViolation } from "@/lib/product-strategies/validate";
+import { validateStrategy, type StrategyViolation } from "@/lib/product-strategies/validate";
 import {
   newStrategyDraft,
   persistencePending,
@@ -842,8 +842,13 @@ export function CreateStrategyModal({
   onOpenLab,
   now,
 }: CreateStrategyModalProps) {
-  // Build baseline draft from initial or fresh defaults
-  const baseline: ProductStrategy = initial ?? newStrategyDraft({}, now);
+  // Build baseline draft from initial or fresh defaults — memoised so
+  // newStrategyDraft (and its _draftCounter) is only called once per mount.
+  const baseline: ProductStrategy = useMemo(
+    () => initial ?? newStrategyDraft({}, now),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [initial, now],
+  );
 
   // ---- Step state ----
   const [step, setStep] = useState<StepIndex>(1);
@@ -973,7 +978,7 @@ export function CreateStrategyModal({
       if (next === 6) {
         // Run validation before showing the review step
         const built = buildStrategy();
-        const violations = validateStrategySet([built]);
+        const violations = validateStrategy(built);
         setReviewViolations(violations);
       }
       setStep(next);

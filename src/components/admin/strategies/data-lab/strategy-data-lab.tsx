@@ -276,8 +276,10 @@ export function StrategyDataLab({
       {/* Strategy pre-fill banner — shown only when opened from a strategy card */}
       {strategy != null ? (
         <p className="rounded-(--ct-radius-md) border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-accent">
-          Loaded from strategy:{" "}
+          Scenario context:{" "}
           <span className="font-medium">{strategy.name}</span>
+          {" "}— the Lab runs on baseline market parameters (allocation-specific runs coming soon).
+          Projections are conditional on stated assumptions, not guaranteed.
         </p>
       ) : null}
 
