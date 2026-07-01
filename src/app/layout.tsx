@@ -8,6 +8,7 @@ import { Analytics } from "@/components/analytics";
 import { PrivyProvider } from "@/components/auth/privy-provider";
 import { ClientToaster } from "@/components/ui/client-toaster";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
+import { isDevAuthBypass } from "@/lib/dev-bypass";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 
 export const metadata: Metadata = {
@@ -54,7 +55,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <AppChrome masterAgentEnabled={FEATURE_FLAGS.CHAT_MASTER_AGENT}>
-          <PrivyProvider appId={PRIVY_APP_ID}>
+          <PrivyProvider appId={isDevAuthBypass() ? "" : PRIVY_APP_ID}>
             <main id="main-content">{children}</main>
             <ClientToaster />
           </PrivyProvider>

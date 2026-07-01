@@ -39,6 +39,9 @@ const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 /** Sliding-window renewal threshold: renew when < 7 days remain. */
 const SESSION_RENEWAL_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** Dev bypass session lifetime: 24 hours (avoids re-login on every server restart). */
+const DEV_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -107,11 +110,47 @@ export async function ensureDevUser() {
 }
 
 /**
- * Dev-only bypass session: returns the dev bypass user as a `SessionUser` without
- * any cookie. Only ever called when `isDevAuthBypass()` is true.
+ * Dev-only bypass session: persists a real DB session + cookie (24h) so the
+ * dev user stays logged in across server restarts. On each request we first
+ * check whether the existing cookie is still valid; only when it's absent or
+ * expired do we provision a fresh one.
+ *
+ * This eliminates the "re-login on every next dev restart" pain while keeping
+ * the bypass strictly dev-only (double-gated in isDevAuthBypass()).
  */
 async function getDevBypassSession(): Promise<SessionUser> {
+  const store = await cookies();
+  const existingToken = store.get(SESSION_COOKIE)?.value;
+
+  if (existingToken) {
+    const existing = await prisma.session.findUnique({
+      where: { id: existingToken },
+      include: { user: { include: { investor: true } } },
+    });
+    if (existing && existing.expiresAt.getTime() > Date.now()) {
+      return {
+        userId: existing.user.id,
+        email: existing.user.email,
+        role: normaliseRole(existing.user.role),
+        walletAddress: existing.user.investor?.walletAddress ?? null,
+      };
+    }
+    // Stale cookie — clean up and fall through to create a fresh session.
+    await prisma.session.delete({ where: { id: existingToken } }).catch(() => {});
+  }
+
   const user = await ensureDevUser();
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + DEV_SESSION_TTL_MS);
+  await prisma.session.create({ data: { id: token, userId: user.id, expiresAt } });
+  store.set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+    expires: expiresAt,
+  });
+
   return {
     userId: user.id,
     email: user.email,
