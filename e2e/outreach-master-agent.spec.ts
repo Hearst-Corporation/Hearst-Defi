@@ -20,6 +20,16 @@ import { test, expect, type Page } from "@playwright/test";
 const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL ?? "admin@hearst.io";
 const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD ?? "TestAdmin123!";
 
+// The Master Agent chat calls OpenAI server-side. CI injects a placeholder key
+// (`sk-ci-*`) when no real secret is set, which OpenAI rejects with a 401 — so the
+// chat-driven scenarios below cannot run. Skip them unless a real OPENAI_API_KEY is
+// present (they auto-run once the secret is configured). The deterministic
+// intent-router logic itself is covered by Vitest with mocks.
+const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
+const HAS_REAL_OPENAI_KEY = OPENAI_KEY.length > 0 && !OPENAI_KEY.startsWith("sk-ci-");
+const NO_LLM_REASON =
+  "Requires a real OPENAI_API_KEY — the chat backend rejects the CI placeholder (401)";
+
 /**
  * Helper to ensure the assistant rail is open and the chat input is ready.
  * Handles viewport, trigger visibility, rail opening, and input readiness.
@@ -84,6 +94,7 @@ async function openAssistantRail(page: Page) {
 }
 
 test.describe("Outreach Master Agent E2E", () => {
+  test.skip(!HAS_REAL_OPENAI_KEY, NO_LLM_REASON);
   test.beforeEach(async ({ page }) => {
     // Login as admin with diagnostic
     await page.goto("/admin");
@@ -236,6 +247,7 @@ test.describe("Outreach Master Agent E2E", () => {
 });
 
 test.describe("Outreach Swarms E2E", () => {
+  test.skip(!HAS_REAL_OPENAI_KEY, NO_LLM_REASON);
   test("campaign creation triggers swarm orchestration", async ({ page }) => {
     // Navigate to outreach workspace
     await page.goto("/admin/outreach");
