@@ -6,6 +6,11 @@
  * Returns a LOCAL AttributionStep type (structurally identical to HcWaterfallStep)
  * so this lib module stays UI-free: no import of any component type.
  *
+ * Steps reconcile: start + Σ(deltas) ≈ end (within rounding).
+ * The engine applies NET yield (gross − feeDrag) to the reserve, so the
+ * attribution mirrors that exactly: "+Yield" uses GROSS and "−Fee drag" deducts
+ * the same monthly feeDrag fraction from the positive reserve.
+ *
  * Pure: no I/O, no Math.random, no Date, no fetch.
  */
 
@@ -29,12 +34,14 @@ export interface AttributionStep {
  * Steps:
  *  1. "Start equity"        (total)  = snapshots[0].netEquityUsdc
  *  2. "+BTC appreciation"   (delta)  = Σ btcCollateral_{m-1} × (price_m − price_{m-1})
- *  3. "+Yield"              (delta)  = Σ reserveUsdc_{m-1} × monthlyYieldRate
- *  4. "−Electricity"        (delta)  = −(electricityMonthlyCostUsdc × months)
- *  5. "−Borrow interest"    (delta)  = −Σ debtUsdc_{m-1} × (borrowAprBps / 12 / BPS)
- *  6. "End equity"          (total)  = snapshots[last].netEquityUsdc
+ *  3. "+Yield"              (delta)  = Σ reserveUsdc_{m-1} × (grossYieldApr / 12 / BPS)
+ *  4. "−Fee drag"           (delta)  = −Σ reserveUsdc_{m-1} × (feeDragApr / 12 / BPS)
+ *  5. "−Electricity"        (delta)  = −(electricityMonthlyCostUsdc × months)
+ *  6. "−Borrow interest"    (delta)  = −Σ debtUsdc_{m-1} × (borrowAprBps / 12 / BPS)
+ *  7. "End equity"          (total)  = snapshots[last].netEquityUsdc
  *
- * The sum of deltas + start ≈ end (rounding tolerance accepted).
+ * Steps 3+4 together equal the NET yield the engine applies (gross − feeDrag),
+ * so start + Σ(deltas) ≈ end within rounding.
  */
 export function computeAttribution(
   report: ScenarioReport,
@@ -56,16 +63,23 @@ export function computeAttribution(
     btcAppreciation += prev.btcCollateral * (curr.btcPrice - prev.btcPrice);
   }
 
-  // Yield earned: same formula as metrics.ts
-  const monthlyYieldRate =
+  // Gross yield earned: Σ reserve_{m-1} × (grossYieldApr / 12 / BPS)
+  const monthlyGrossYieldRate =
     (projection.stableYieldAprBps +
       projection.overlayYieldAprBps +
       projection.miningYieldAprBps) /
     12 /
     BPS;
+  // Fee drag: same base (positive reserve), same monthly fraction — mirrors the
+  // engine's `yieldNetBps = monthlyYieldBps − monthlyFeeDragBps` applied to reserve.
+  const monthlyFeeDragRate = projection.feeDragAprBps / 12 / BPS;
+
   let totalYield = 0;
+  let totalFeeDrag = 0;
   for (let m = 1; m < snaps.length; m += 1) {
-    totalYield += Math.max(0, snaps[m - 1]!.reserveUsdc) * monthlyYieldRate;
+    const reserve = Math.max(0, snaps[m - 1]!.reserveUsdc);
+    totalYield += reserve * monthlyGrossYieldRate;
+    totalFeeDrag += reserve * monthlyFeeDragRate;
   }
 
   // Electricity: fixed monthly cost × months
@@ -82,6 +96,7 @@ export function computeAttribution(
     { label: "Start equity", value: Math.round(startEquity), kind: "total" },
     { label: "+BTC appreciation", value: Math.round(btcAppreciation), kind: "delta" },
     { label: "+Yield", value: Math.round(totalYield), kind: "delta" },
+    { label: "−Fee drag", value: -Math.round(totalFeeDrag), kind: "delta" },
     { label: "−Electricity", value: -Math.round(totalElectricity), kind: "delta" },
     { label: "−Borrow interest", value: -Math.round(totalBorrow), kind: "delta" },
     { label: "End equity", value: Math.round(endEquity), kind: "total" },

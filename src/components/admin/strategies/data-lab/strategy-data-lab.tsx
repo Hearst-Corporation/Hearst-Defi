@@ -24,7 +24,6 @@ import { cn } from "@/lib/cn";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { HcFanChart } from "@/components/dataviz/his/HcFanChart";
 import { HcWaterfall } from "@/components/dataviz/his/HcWaterfall";
-import { HcValueChart } from "@/components/dataviz/his/HcValueChart";
 import type { Scenario } from "@/lib/scenario-runner";
 import { runManualStrategyProjection } from "@/lib/scenario-runner";
 import {
@@ -56,6 +55,124 @@ import {
 
 const bps = (n: number) => `${(n / 100).toFixed(1)}%`;
 const usdcFmt = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+
+// ---------------------------------------------------------------------------
+// UnderwaterChart — self-contained inline SVG drawdown area chart.
+// Domain: y-axis [minValue, 0] where values are drawdown% (≤0). The 0-baseline
+// is at the TOP of the plot (at peak equity); most-negative is at the BOTTOM.
+// No external deps, viewBox-based, deterministic.
+// ---------------------------------------------------------------------------
+
+function UnderwaterChart({ underwaterBps }: { underwaterBps: number[] }) {
+  const W = 560;
+  const H = 120;
+  const PAD = { top: 8, right: 8, bottom: 24, left: 40 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const n = underwaterBps.length;
+  // Convert bps → drawdown% (≤ 0): -(bps / 100)
+  const values = underwaterBps.map((b) => -(b / 100));
+  const minVal = n > 0 ? Math.min(...values) : 0;
+  // Guard all-zero case (flat at 0 — no drawdown).
+  const domainMin = minVal < 0 ? minVal : -1;
+  const domainMax = 0;
+  const domainSpan = domainMax - domainMin; // positive
+
+  const xAt = (i: number) => PAD.left + (n <= 1 ? 0 : (i / (n - 1)) * plotW);
+  const yAt = (v: number) =>
+    PAD.top + ((domainMax - v) / domainSpan) * plotH;
+
+  // Build area path: start at 0-baseline (left), trace values, close to 0-baseline (right).
+  const y0 = yAt(0); // top of plot
+  const points = values.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" L ");
+  const areaPath =
+    n > 0
+      ? `M ${xAt(0).toFixed(1)},${y0.toFixed(1)} L ${points} L ${xAt(n - 1).toFixed(1)},${y0.toFixed(1)} Z`
+      : "";
+  const linePath =
+    n > 0 ? `M ${points}` : "";
+
+  // x-tick every ~6 months
+  const xTicks: number[] = [];
+  const step = Math.max(1, Math.floor((n - 1) / 6));
+  for (let i = 0; i < n; i += step) xTicks.push(i);
+  if (n > 1 && (xTicks[xTicks.length - 1] ?? 0) !== n - 1) xTicks.push(n - 1);
+
+  // y-ticks: 0 and min
+  const yTicks = [0, domainMin / 2, domainMin].filter((v, i, arr) => arr.indexOf(v) === i);
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      width="100%"
+      height={H}
+      aria-label="Drawdown underwater curve — negative values indicate peak-to-trough drawdown percentage"
+    >
+      {/* Area fill */}
+      {areaPath ? (
+        <path
+          d={areaPath}
+          fill="color-mix(in srgb, var(--ct-status-danger) 22%, transparent)"
+        />
+      ) : null}
+      {/* Baseline at 0 (top) */}
+      <line
+        x1={PAD.left}
+        y1={y0}
+        x2={PAD.left + plotW}
+        y2={y0}
+        stroke="var(--ct-border-soft)"
+        strokeWidth={1}
+        strokeDasharray="3 3"
+      />
+      {/* Drawdown stroke */}
+      {linePath ? (
+        <path
+          d={linePath}
+          fill="none"
+          stroke="var(--ct-status-danger)"
+          strokeWidth={1.5}
+        />
+      ) : null}
+      {/* x-ticks */}
+      {xTicks.map((i) => (
+        <text
+          key={i}
+          x={xAt(i)}
+          y={PAD.top + plotH + 16}
+          textAnchor="middle"
+          fontSize={9}
+          fill="var(--ct-text-muted)"
+        >
+          {`M${i}`}
+        </text>
+      ))}
+      {/* y-ticks */}
+      {yTicks.map((v) => (
+        <g key={v}>
+          <line
+            x1={PAD.left - 3}
+            y1={yAt(v)}
+            x2={PAD.left}
+            y2={yAt(v)}
+            stroke="var(--ct-border-soft)"
+            strokeWidth={1}
+          />
+          <text
+            x={PAD.left - 5}
+            y={yAt(v) + 4}
+            textAnchor="end"
+            fontSize={9}
+            fill="var(--ct-text-muted)"
+          >
+            {`${v.toFixed(1)}%`}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
 
 const MODES: { id: DataLabMode; label: string }[] = [
   { id: "BACKTEST", label: "Backtest" },
@@ -287,10 +404,6 @@ function BacktestBody({
     () => computeMetrics(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
     [baseRun],
   );
-  const underwaterPoints = useMemo(
-    () => m.underwaterBps.map((bpsVal, i) => ({ at: i, value: -(bpsVal / 100) })),
-    [m.underwaterBps],
-  );
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
@@ -361,6 +474,7 @@ function BacktestBody({
         <button
           type="button"
           onClick={() => {
+            const esc = (s: unknown) => `"${String(s).replace(/"/g, '""')}"`;
             const headers = ["regime", "scenario", "finalRoiBps", "annualizedRoiBps", "maxDrawdownBps", "maxLtvBps", "minLiquidationDistanceBps", "sharpeLike", "sortinoLike", "calmarLike", "recoveryMonths"];
             const rows = report.runs.map((run) =>
               [
@@ -375,9 +489,9 @@ function BacktestBody({
                 run.metrics.sortinoLike,
                 run.metrics.calmarLike,
                 run.metrics.recoveryMonths,
-              ].join(","),
+              ].map(esc).join(","),
             );
-            const csv = [headers.join(","), ...rows].join("\n");
+            const csv = [headers.map(esc).join(","), ...rows].join("\n");
             const blob = new Blob([csv], { type: "text/csv" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -502,14 +616,7 @@ function BacktestBody({
       {/* Task 6 — Underwater / drawdown curve */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
-        <HcValueChart
-          points={underwaterPoints}
-          height={160}
-          valueFormat={(n) => `${n.toFixed(1)}%`}
-          endpointLabel="End"
-          showPointDots={false}
-          aria-label="Drawdown underwater curve — negative values indicate peak-to-trough drawdown percentage"
-        />
+        <UnderwaterChart underwaterBps={m.underwaterBps} />
       </div>
     </div>
   );
@@ -538,17 +645,13 @@ function ForwardBody({
   );
 
   // Task 6 — underwater curve
-  const m = useMemo(
+  const metrics = useMemo(
     () => computeMetrics(baseRun, LAB_BASE_COLLATERAL, LAB_BASE_PROJECTION),
     [baseRun],
   );
-  const underwaterPoints = useMemo(
-    () => m.underwaterBps.map((bpsVal, i) => ({ at: i, value: -(bpsVal / 100) })),
-    [m.underwaterBps],
-  );
 
-  // Task 2 — derive seedLabel from real config
-  const seedLabel = `seed=42 · 200 paths · conditional`;
+  // Task 2 — seedLabel derived from the actual report (P3 fix)
+  const seedLabel = `seed=${report.seed} · ${report.paths} paths · conditional`;
 
   return (
     <div className="flex flex-col gap-(--ct-space-5)">
@@ -631,14 +734,7 @@ function ForwardBody({
       {/* Task 6 — Underwater / drawdown curve */}
       <div className="flex flex-col gap-(--ct-space-2)">
         <span className="ct-section-label ct-text-strong">Drawdown (underwater)</span>
-        <HcValueChart
-          points={underwaterPoints}
-          height={160}
-          valueFormat={(n) => `${n.toFixed(1)}%`}
-          endpointLabel="End"
-          showPointDots={false}
-          aria-label="Drawdown underwater curve — negative values indicate peak-to-trough drawdown percentage"
-        />
+        <UnderwaterChart underwaterBps={metrics.underwaterBps} />
       </div>
     </div>
   );

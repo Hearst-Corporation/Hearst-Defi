@@ -110,6 +110,7 @@ export class ForwardSimulationRunner {
     return {
       scenario: config.scenario,
       paths,
+      seed: mc.seed,
       finalRoiPercentilesBps: roiPct,
       finalEquityPercentilesUsdc: eqPct,
       liquidationProbabilityBps: Math.round((liquidations / paths) * BPS),

@@ -177,6 +177,8 @@ export interface PathSummary {
 export interface ForwardSimulationReport {
   scenario: Scenario;
   paths: number;
+  /** Base seed used for this simulation run (for display / audit trail). */
+  seed: number;
   /** Percentile → final ROI bps (keys from confidenceBands). */
   finalRoiPercentilesBps: Record<string, number>;
   finalEquityPercentilesUsdc: Record<string, number>;

@@ -95,7 +95,10 @@ function NumField({ id, label: l, value, onChange, step = 1 }: NumFieldProps) {
         className={inputCls}
         value={value}
         step={step}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          if (!Number.isNaN(v)) onChange(v);
+        }}
       />
     </div>
   );
