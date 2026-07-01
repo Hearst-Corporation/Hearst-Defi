@@ -51,7 +51,10 @@ import {
   type QuantAssumptionsOverrides,
 } from "./quant-assumptions";
 import { parseObjectiveProfile } from "./objective-profile";
-import { deriveObjectiveAssumptionOverrides } from "./objective-adjustments";
+import {
+  deriveObjectiveAssumptionOverrides,
+  applyObjectiveAllocationTilt,
+} from "./objective-adjustments";
 import { deriveRegimeAllocation, deriveRawAllocation } from "./strategy-allocation";
 import { buildConstructionSteps } from "./construction-steps";
 import { buildProductEngineOutputs } from "./product-engine-bridge";
@@ -375,7 +378,7 @@ export async function runProductConstructionPipeline(
     miningYieldPct: strategy.artifact.miningYieldPct,
     usdcYieldPct: strategy.artifact.usdcYieldPct,
   });
-  const canonicalAllocation = buildCanonicalAllocation({
+  const canonicalAllocationBase = buildCanonicalAllocation({
     productId,
     productName: vault.label,
     enforced: {
@@ -394,6 +397,36 @@ export async function runProductConstructionPipeline(
       yieldOverlay: rawBalanced.usdc,
     },
   });
+
+  // Apply the objective allocation tilt to the NON-MINING sleeves (mining is
+  // never touched → the floor holds). Clamped to the CONFIGURED bands, re-based
+  // to keep the total at 100. Every applied sleeve move is traced. Mining
+  // fraction (the MC weight) is unchanged so the projection's mining leg is
+  // untouched — only the reported allocation split shifts.
+  const tiltResult = applyObjectiveAllocationTilt(
+    {
+      mining: canonicalAllocationBase.mining,
+      btcHoldingCollateral: canonicalAllocationBase.btcHoldingCollateral,
+      stableReserve: canonicalAllocationBase.stableReserve,
+      yieldOverlay: canonicalAllocationBase.yieldOverlay,
+    },
+    objectiveDerived.allocationTilt,
+    {
+      btcHoldingCollateral: canonicalAllocationBase.bands.btcHoldingCollateral,
+      stableReserve: canonicalAllocationBase.bands.stableReserve,
+      yieldOverlay: canonicalAllocationBase.bands.yieldOverlay,
+    },
+  );
+  const canonicalAllocation = {
+    ...canonicalAllocationBase,
+    btcHoldingCollateral: tiltResult.allocation.btcHoldingCollateral,
+    stableReserve: tiltResult.allocation.stableReserve,
+    yieldOverlay: tiltResult.allocation.yieldOverlay,
+  };
+  const objectiveAdjustments = [
+    ...objectiveDerived.adjustments,
+    ...tiltResult.adjustments,
+  ];
 
   // Raw vs allocator-adjusted economics (root cause #D): never mask a negative.
   const economics = buildEconomicsViews({
@@ -481,7 +514,7 @@ export async function runProductConstructionPipeline(
   const draft: ProductConstructionDraft = {
     objective: trimmed,
     objectiveProfile,
-    objectiveAdjustments: objectiveDerived.adjustments,
+    objectiveAdjustments,
     vault: { ticker: vault.ticker, label: vault.label },
     productId,
     telegram: {
