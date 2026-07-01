@@ -5,6 +5,7 @@ import {
 import { StrategyLibrary } from "@/components/admin/strategies/strategy-library";
 import { StrategyTestPanel } from "@/components/admin/strategies/strategy-test-panel";
 import { ManualProjectionPanel } from "@/components/admin/strategies/manual-projection-panel";
+import { StrategyDataLab } from "@/components/admin/strategies/data-lab/strategy-data-lab";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
   PRODUCT_STRATEGIES,
@@ -61,11 +62,19 @@ export default async function StrategiesPage() {
       </AdminSectionCard>
 
       <AdminSectionCard
-        ariaLabel="Manual 24-month projection"
-        title="Manual 24-month projection"
+        ariaLabel="Quick 24-month projection"
+        title="Quick projection"
         subtitle="Configure collateral + market assumptions and run the deterministic scenario runner — liquidation (red) and repurchase (green) milestones, final ROI, min liquidation distance. No product is created here."
       >
         <ManualProjectionPanel />
+      </AdminSectionCard>
+
+      <AdminSectionCard
+        ariaLabel="Strategy Data Lab"
+        title="Strategy Data Lab"
+        subtitle="Backtest across market regimes, run a seeded Monte-Carlo forward simulation, stress-test BTC × electricity shocks, rank sensitivity drivers, and analyse liquidation/repurchase triggers. Conditional, modelled — not guaranteed."
+      >
+        <StrategyDataLab />
       </AdminSectionCard>
     </AdminPageShell>
   );
