@@ -102,6 +102,14 @@ export interface DataLabMetrics {
   sortinoLike: number;
   /** Months from the max-drawdown trough back to the prior peak (0 = recovered instantly / never). */
   recoveryMonths: number;
+  /** Running drawdown at each month in bps (length = snapshots.length). */
+  underwaterBps: number[];
+  /** Annualized ROI / maxDD — honest "Calmar-like" ratio (guard: 0 when maxDD = 0). */
+  calmarLike: number;
+  /** Full peak→trough→recovery span in months. */
+  maxDrawdownDurationMonths: number;
+  /** |p95 return| / |p5 return| — gain/pain tail ratio (0 when denominator is 0). */
+  tailRatio: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -180,6 +188,12 @@ export interface ForwardSimulationReport {
   worstPath: PathSummary;
   bestPath: PathSummary;
   medianPath: PathSummary;
+  /** Monthly equity percentile bands across all paths. Length = durationMonths + 1. */
+  monthlyEquityBands: { m: number; p5: number; p50: number; p95: number }[];
+  /** 5th-percentile final ROI in bps (Value at Risk, 95% confidence). */
+  var95RoiBps: number;
+  /** Expected Shortfall: mean of paths whose final ROI ≤ var95RoiBps. */
+  cvar95RoiBps: number;
 }
 
 // ---------------------------------------------------------------------------

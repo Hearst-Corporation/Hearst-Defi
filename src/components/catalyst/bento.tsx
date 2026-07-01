@@ -5,6 +5,7 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 
 /**
  * Shared bento primitives — token-backed surfaces for product + admin pages.
@@ -184,6 +185,8 @@ export interface BentoKpiItem {
   value: ReactNode;
   /** Accent-green value (single green) when true. */
   accent?: boolean;
+  /** Optional provenance dot rendered next to the label. Non-breaking: omit to keep existing layout. */
+  provenance?: Provenance;
 }
 
 export function BentoKpiStrip({
@@ -240,7 +243,14 @@ export function BentoKpiStrip({
                 "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
             )}
           >
-            <div className="ct-bento-label">{item.label}</div>
+            {item.provenance != null ? (
+              <div className="flex items-center gap-1.5">
+                <ProvenanceBadge kind={item.provenance} variant="strip" />
+                <span className="ct-bento-label">{item.label}</span>
+              </div>
+            ) : (
+              <div className="ct-bento-label">{item.label}</div>
+            )}
             <div
               className={cn(
                 // Value scales down in the narrow shell slot (chat rail open) and

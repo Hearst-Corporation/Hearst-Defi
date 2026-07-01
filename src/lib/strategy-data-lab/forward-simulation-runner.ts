@@ -35,6 +35,10 @@ export class ForwardSimulationRunner {
     let btcSoldSum = 0;
     let btcBoughtSum = 0;
 
+    // equityByMonth[m] collects the netEquityUsdc of every path at month m.
+    // We allocate lazily after the first path sets the snapshot count.
+    let equityByMonth: number[][] = [];
+
     for (let i = 0; i < paths; i += 1) {
       const seed = (mc.seed + i * 2654435761) >>> 0;
       const report = runManualStrategyProjection({
@@ -58,6 +62,18 @@ export class ForwardSimulationRunner {
         minLiquidationDistanceBps: report.minLiquidationDistanceBps,
         endedLiquidated: report.endedLiquidated,
       });
+
+      // Capture monthly equity trajectory for band computation.
+      if (i === 0) {
+        // First path: initialise one slot per month.
+        equityByMonth = report.snapshots.map(() => []);
+      }
+      for (let m = 0; m < report.snapshots.length; m += 1) {
+        const slot = equityByMonth[m];
+        if (slot !== undefined) {
+          slot.push(report.snapshots[m]!.netEquityUsdc);
+        }
+      }
     }
 
     const bands = mc.confidenceBands.length ? mc.confidenceBands : [0.05, 0.5, 0.95];
@@ -68,6 +84,23 @@ export class ForwardSimulationRunner {
       roiPct[key] = Math.round(percentile(finalRois, q));
       eqPct[key] = Math.round(percentile(finalEquity, q));
     }
+
+    // Monthly equity bands: p5/p50/p95 at each month index.
+    const monthlyEquityBands = equityByMonth.map((slot, m) => ({
+      m,
+      p5: Math.round(percentile(slot, 0.05)),
+      p50: Math.round(percentile(slot, 0.5)),
+      p95: Math.round(percentile(slot, 0.95)),
+    }));
+
+    // VaR (95% confidence): 5th-percentile of final ROIs (left tail).
+    const var95RoiBps = Math.round(percentile(finalRois, 0.05));
+    // CVaR / Expected Shortfall: mean of paths at or below VaR.
+    const tailPaths = finalRois.filter((r) => r <= var95RoiBps);
+    const cvar95RoiBps =
+      tailPaths.length > 0
+        ? Math.round(tailPaths.reduce((a, b) => a + b, 0) / tailPaths.length)
+        : var95RoiBps;
 
     const sortedByRoi = [...summaries].sort((a, b) => a.finalRoiBps - b.finalRoiBps);
     const worstPath = sortedByRoi[0]!;
@@ -87,6 +120,9 @@ export class ForwardSimulationRunner {
       worstPath,
       bestPath,
       medianPath,
+      monthlyEquityBands,
+      var95RoiBps,
+      cvar95RoiBps,
     };
   }
 }
