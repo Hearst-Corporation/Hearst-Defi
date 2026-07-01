@@ -361,3 +361,34 @@ describe("pipeline — draft.quant / balanced scenario coherence", () => {
   });
 });
 
+
+describe("pipeline — strategySelection metadata", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("attaches a selected strategy + a 'why' sentence to the draft", async () => {
+    const result = await runProductConstructionPipeline(
+      "Frame a BTC mining vault with monthly distributions",
+      { assumptions: FAST_ASSUMPTIONS },
+    );
+    expect(isProductConstructionError(result)).toBe(false);
+    if (isProductConstructionError(result)) return;
+    expect(result.strategySelection).toBeDefined();
+    expect(result.strategySelection!.strategySlug).toBe("btc-mining-performance");
+    expect(result.strategySelection!.fallbackUsed).toBe(false);
+    expect(result.strategySelection!.why.length).toBeGreaterThan(0);
+    // Never a promise.
+    expect(result.strategySelection!.why).not.toMatch(/guarantee|risk-free/i);
+  });
+
+  it("falls back to the generic strategy for an unclassifiable objective", async () => {
+    const result = await runProductConstructionPipeline("build me something", {
+      assumptions: FAST_ASSUMPTIONS,
+    });
+    expect(isProductConstructionError(result)).toBe(false);
+    if (isProductConstructionError(result)) return;
+    expect(result.strategySelection).toBeDefined();
+    expect(result.strategySelection!.fallbackUsed).toBe(true);
+  });
+});

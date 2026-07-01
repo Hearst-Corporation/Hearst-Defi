@@ -67,6 +67,11 @@ import {
   buildCanonicalAllocation,
 } from "@/lib/products/canonical-allocation";
 import { buildEconomicsViews } from "@/lib/products/economics-views";
+import {
+  selectProductStrategy,
+  PRODUCT_STRATEGIES,
+  objectiveProfileToSelectionRequest,
+} from "@/lib/product-strategies";
 
 const DISCLAIMER =
   "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
@@ -178,6 +183,24 @@ export async function runProductConstructionPipeline(
   // adjustments. Explicit admin `opts.assumptions` win over objective-derived
   // ones (a calibrated override is intentional). No LLM, no invented data.
   const objectiveProfile = parseObjectiveProfile(trimmed);
+
+  // Deterministic strategy selection (additive, pure, no LLM): map the parsed
+  // objective profile to a structured request and pick the best-matching
+  // admin-defined product strategy. This does NOT drive the numeric projection —
+  // it only records which strategy was selected and why so Report Product can
+  // surface it. The scenario pipeline below is unchanged.
+  const strategySelection = selectProductStrategy(
+    objectiveProfileToSelectionRequest(objectiveProfile, trimmed),
+    PRODUCT_STRATEGIES,
+  );
+  const strategyWhy = strategySelection.fallbackUsed
+    ? "No specific match — using the generic fallback."
+    : `Selected ${strategySelection.strategy.name}${
+        strategySelection.matchedRules.length > 0
+          ? ` (${strategySelection.matchedRules.join(", ")})`
+          : ""
+      }.`;
+
   const objectiveDerived = deriveObjectiveAssumptionOverrides(objectiveProfile);
   const mergedOverrides: QuantAssumptionsOverrides = {
     ...objectiveDerived.overrides,
@@ -515,6 +538,14 @@ export async function runProductConstructionPipeline(
     objective: trimmed,
     objectiveProfile,
     objectiveAdjustments,
+    strategySelection: {
+      strategySlug: strategySelection.strategy.slug,
+      strategyName: strategySelection.strategy.name,
+      score: strategySelection.score,
+      matchedRules: strategySelection.matchedRules,
+      fallbackUsed: strategySelection.fallbackUsed,
+      why: strategyWhy,
+    },
     vault: { ticker: vault.ticker, label: vault.label },
     productId,
     telegram: {
