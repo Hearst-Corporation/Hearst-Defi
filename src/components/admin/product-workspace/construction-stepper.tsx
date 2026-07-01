@@ -739,10 +739,14 @@ export function ConstructionStepper({ objective }: { objective: string | null })
                       // Same loading layout / size / typewriter for EVERY step.
                       // Step 1 (bitcoin) uses real brand logos; the others use
                       // neutral placeholders until their logos are chosen.
-                      // Negative left margin = half the stepper rail width, so the
-                      // loading content centers on the WHOLE box, not just the
-                      // content column (ignores the left stepper margin).
-                      <div className="flex flex-col items-center gap-(--ct-space-5) p-(--ct-space-6) ml-[calc((var(--ct-space-32)+var(--ct-space-8))/-2)]">
+                      // The loading block spans the WHOLE box (rail + content
+                      // column) and centres its children exactly on the box: it
+                      // breaks out over the left rail with a negative margin equal
+                      // to the rail width AND widens by the same amount, so
+                      // `items-center` lands dead-centre regardless of rail width.
+                      // Both values track the responsive rail (compact --ct-space-20
+                      // narrow → full --ct-space-32+8 at lg) so it never drifts.
+                      <div className="flex flex-col items-center gap-(--ct-space-5) p-(--ct-space-6) ml-[calc(var(--ct-space-20)*-1)] w-[calc(100%+var(--ct-space-20))] lg:ml-[calc((var(--ct-space-32)+var(--ct-space-8))*-1)] lg:w-[calc(100%+var(--ct-space-32)+var(--ct-space-8))]">
                         {/* Hero logo */}
                         {renderLoadingVisual(STEP_LOADING[step.id].mainVisual, 72)}
                         {/* Narration — types out while the specialist searches. */}
