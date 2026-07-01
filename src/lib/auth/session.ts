@@ -143,13 +143,21 @@ async function getDevBypassSession(): Promise<SessionUser> {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + DEV_SESSION_TTL_MS);
   await prisma.session.create({ data: { id: token, userId: user.id, expiresAt } });
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
-  });
+  // Next.js only permits cookie writes inside a Server Action / Route Handler.
+  // When this bypass resolves during a Server Component render (a plain GET),
+  // `store.set` throws — swallow it: the DB session row already exists so the
+  // returned user is valid, and the cookie persists on the next writable path.
+  try {
+    store.set(SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      expires: expiresAt,
+    });
+  } catch {
+    // Read-only cookie context (render pass) — dev-only, safe to ignore.
+  }
 
   return {
     userId: user.id,
