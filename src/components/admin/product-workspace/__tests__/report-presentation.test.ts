@@ -99,4 +99,29 @@ describe("data-scientist-output — compact report layout", () => {
     // on ScenarioBlock), never as a triple MetricTile grid under the fan.
     expect(src).not.toMatch(/MetricTile label="p5"/);
   });
+
+  it("allocation section shows the 3 risk profiles only — no 'Canonical' / 'published mix' card", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const src = await fs.readFile(
+      path.join(
+        process.cwd(),
+        "src/components/admin/product-workspace/data-scientist-output.tsx",
+      ),
+      "utf8",
+    );
+    // The three risk profiles map to Safe / Balanced / Opportunistic.
+    expect(src).toContain('defensive: "Safe"');
+    expect(src).toContain('balanced: "Balanced"');
+    expect(src).toContain('opportunistic: "Opportunistic"');
+    // Section header reads "risk profiles", not "scenarios + canonical mix".
+    expect(src).toContain("Allocation — risk profiles");
+    // The fourth "Canonical / published mix" card is gone from Report Product.
+    expect(src).not.toContain('title="Canonical"');
+    expect(src).not.toContain("published mix");
+    expect(src).not.toContain("scenarios + canonical mix");
+    // The three scenarios are rendered (one ScenarioBlock per regime), no 4th block.
+    expect(src).toContain("scenarios.map((scenario) =>");
+    expect(src).not.toContain("canonicalAllocationData(draft)");
+  });
 });
