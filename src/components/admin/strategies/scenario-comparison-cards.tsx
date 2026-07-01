@@ -63,7 +63,7 @@ function AllocationBar({ scenario }: AllocationBarProps) {
   const total = segments.reduce((sum, s) => sum + Math.max(0, s.bps), 0);
 
   return (
-    <div className="flex flex-col gap-(--ct-space-1)">
+    <div className="flex flex-col gap-(--ct-space-1) min-w-0">
       <div
         className="flex h-(--ct-space-2) w-full overflow-hidden rounded-(--ct-radius-full)"
         role="img"
@@ -84,7 +84,7 @@ function AllocationBar({ scenario }: AllocationBarProps) {
           ) : null,
         )}
       </div>
-      <div className="flex flex-wrap gap-x-(--ct-space-2) gap-y-(--ct-space-0_5) text-[length:var(--ct-text-2xs)] ct-text-tertiary tabular-nums">
+      <div className="flex flex-wrap gap-x-(--ct-space-2) gap-y-(--ct-space-0_5) text-[length:var(--ct-text-xs)] ct-text-tertiary tabular-nums">
         {segments.map((s) => (
           <span key={s.label} className="flex items-center gap-(--ct-space-1)">
             <span
@@ -112,9 +112,9 @@ function AllocationBar({ scenario }: AllocationBarProps) {
 
 function MetricRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-(--ct-space-2)">
-      <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">{label}</span>
-      <span className="text-[length:var(--ct-text-2xs)] ct-text-body tabular-nums">{value}</span>
+    <div className="flex items-center justify-between gap-(--ct-space-2) min-w-0">
+      <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary min-w-0">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] ct-text-body tabular-nums shrink-0">{value}</span>
     </div>
   );
 }
@@ -147,7 +147,7 @@ function ScenarioCard({ scenarioKey, scenario, isActive, onSelect }: ScenarioCar
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex min-w-0 flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border p-(--ct-space-4)",
+        "flex min-w-0 w-full flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border p-(--ct-space-5)",
         "text-left transition-colors duration-150",
         isActive
           ? "border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)]"
@@ -156,8 +156,8 @@ function ScenarioCard({ scenarioKey, scenario, isActive, onSelect }: ScenarioCar
       aria-pressed={isActive}
     >
       {/* Header: label + dot */}
-      <div className="flex items-center justify-between gap-(--ct-space-2)">
-        <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong">
+      <div className="flex items-center justify-between gap-(--ct-space-2) min-w-0">
+        <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong min-w-0">
           {scenario.label}
         </span>
         <span
@@ -176,32 +176,32 @@ function ScenarioCard({ scenarioKey, scenario, isActive, onSelect }: ScenarioCar
       <AllocationBar scenario={scenario} />
 
       {/* KPIs */}
-      <dl className="flex flex-col gap-(--ct-space-1)">
-        <div className="flex items-center justify-between gap-(--ct-space-2)">
-          <dt className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">Distribution target</dt>
-          <dd className="text-[length:var(--ct-text-2xs)] ct-text-body tabular-nums">{distRange}</dd>
+      <dl className="flex flex-col gap-(--ct-space-1_5)">
+        <div className="flex items-center justify-between gap-(--ct-space-2) min-w-0">
+          <dt className="text-[length:var(--ct-text-xs)] ct-text-tertiary min-w-0">Distribution target</dt>
+          <dd className="text-[length:var(--ct-text-xs)] font-medium ct-text-body tabular-nums shrink-0">{distRange}</dd>
         </div>
-        <div className="flex items-center justify-between gap-(--ct-space-2)">
-          <dt className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">Total performance</dt>
-          <dd className="text-[length:var(--ct-text-2xs)] ct-text-body tabular-nums">{perfRange}</dd>
+        <div className="flex items-center justify-between gap-(--ct-space-2) min-w-0">
+          <dt className="text-[length:var(--ct-text-xs)] ct-text-tertiary min-w-0">Total performance</dt>
+          <dd className="text-[length:var(--ct-text-xs)] font-medium ct-text-body tabular-nums shrink-0">{perfRange}</dd>
         </div>
-        <div className="flex items-center justify-between gap-(--ct-space-2)">
-          <dt className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">Floor APY</dt>
-          <dd className="text-[length:var(--ct-text-2xs)] ct-text-body tabular-nums">{floorApy}</dd>
+        <div className="flex items-center justify-between gap-(--ct-space-2) min-w-0">
+          <dt className="text-[length:var(--ct-text-xs)] ct-text-tertiary min-w-0">Floor APY</dt>
+          <dd className="text-[length:var(--ct-text-xs)] font-medium ct-text-body tabular-nums shrink-0">{floorApy}</dd>
         </div>
-        <div className="flex items-center justify-between gap-(--ct-space-2)">
-          <dt className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">Horizon</dt>
-          <dd className="text-[length:var(--ct-text-2xs)] ct-text-body tabular-nums">{asm.horizonMonths}m</dd>
+        <div className="flex items-center justify-between gap-(--ct-space-2) min-w-0">
+          <dt className="text-[length:var(--ct-text-xs)] ct-text-tertiary min-w-0">Horizon</dt>
+          <dd className="text-[length:var(--ct-text-xs)] font-medium ct-text-body tabular-nums shrink-0">{asm.horizonMonths}m</dd>
         </div>
       </dl>
 
       {/* Narrative bullets */}
       {scenario.narrativeBullets.length > 0 ? (
-        <ul className="flex flex-col gap-(--ct-space-1) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)">
+        <ul className="flex flex-col gap-(--ct-space-1) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3) min-w-0">
           {scenario.narrativeBullets.slice(0, 2).map((bullet) => (
             <li
               key={bullet}
-              className="text-[length:var(--ct-text-2xs)] ct-text-faint [overflow-wrap:anywhere]"
+              className="text-[length:var(--ct-text-xs)] ct-text-faint [overflow-wrap:anywhere]"
             >
               · {bullet}
             </li>
@@ -210,7 +210,7 @@ function ScenarioCard({ scenarioKey, scenario, isActive, onSelect }: ScenarioCar
       ) : null}
 
       {/* Constraint metric rows */}
-      <div className="flex flex-col gap-(--ct-space-1) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)">
+      <div className="flex flex-col gap-(--ct-space-1_5) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3) min-w-0">
         <MetricRow label="Max BTC" value={maxBtc} />
         <MetricRow label="Min stable reserve" value={minStable} />
       </div>
@@ -230,7 +230,7 @@ export function ScenarioComparisonCards({
   onScenarioChange,
 }: ScenarioComparisonCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-(--ct-space-4) lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-(--ct-space-4) sm:grid-cols-2 lg:grid-cols-3 min-w-0">
       {SCENARIO_KEYS.map((key) => (
         <ScenarioCard
           key={key}
