@@ -798,11 +798,11 @@ export function ConstructionStepper({ objective }: { objective: string | null })
           >
             Open in vault wizard (pre-filled)
           </Link>
-          <Button variant="secondary" size="sm" onClick={() => window.open("/admin/product-workspace/report/print", "_blank", "noopener")}>
-            Open print view (PDF)
+          <Button variant="ghost" size="sm" onClick={() => window.open("/admin/product-workspace/report/print", "_blank", "noopener")}>
+            Print view
           </Button>
           <span className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            Hand-off carries ticker / APY range / allocations · no record created.
+            No record created · Manual admin validation required
           </span>
         </div>
       ) : null}
