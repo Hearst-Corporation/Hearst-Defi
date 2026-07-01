@@ -166,7 +166,7 @@ export function StrategyIndexClient({
       const created = store.create(s);
       
       // Persist to DB
-      const rulesWithScenario = LAB_BASE_RULES.map(r => ({ ...r, scenario: created.defaultRiskProfile as any }));
+      const rulesWithScenario = LAB_BASE_RULES.map(r => ({ ...r, scenario: created.defaultRiskProfile }));
       await saveStrategyWorkspace(created, LAB_BASE_COLLATERAL, rulesWithScenario);
 
       router.push(`/admin/strategies/${created.slug}`);

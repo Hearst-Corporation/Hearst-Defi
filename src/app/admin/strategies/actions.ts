@@ -64,7 +64,7 @@ export async function saveStrategyWorkspace(
         totalPerformanceLowBps: data.assumptions.totalPerformanceLowBps,
         totalPerformanceHighBps: data.assumptions.totalPerformanceHighBps,
         floorBps: data.assumptions.floorBps,
-        narrativeBullets: JSON.stringify(data.narrativeBullets),
+        narrativeBullets: data.narrativeBullets,
       };
 
       await tx.strategyScenario.upsert({

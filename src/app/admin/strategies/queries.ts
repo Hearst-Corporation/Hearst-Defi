@@ -1,8 +1,8 @@
 import { prisma as db } from "@/lib/db";
 import { PRODUCT_STRATEGIES } from "@/lib/product-strategies";
 import { LAB_BASE_COLLATERAL, LAB_BASE_RULES } from "@/lib/strategy-data-lab";
-import type { ProductStrategy } from "@/lib/product-strategies";
-import type { CollateralConfig, RebalancingRule } from "@/lib/scenario-runner";
+import type { ProductStrategy, HorizonMonths, Priority, ProductFamily, RiskProfileKey, StrategyStatus } from "@/lib/product-strategies";
+import type { CollateralConfig, RebalancingRule, Scenario, TriggerMetric, Operator, ActionSide, SizingMode } from "@/lib/scenario-runner";
 
 export interface StrategyWorkspaceData {
   strategy: ProductStrategy;
@@ -37,15 +37,20 @@ export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
     }));
   }
 
-  return configs.map((c: any) => {
+  const REQUIRED_SCENARIOS = ["safe", "balanced", "opportunistic"] as const;
+
+  return configs
+    .filter((c) =>
+      REQUIRED_SCENARIOS.every((sc) => c.scenarios.some((s) => s.scenario === sc)),
+    )
+    .map((c) => {
     // Map StrategyConfig back to ProductStrategy
-    // We expect scenarios to have 'safe', 'balanced', 'opportunistic'
-    const safeData = c.scenarios.find((s: any) => s.scenario === "safe")!;
-    const balancedData = c.scenarios.find((s: any) => s.scenario === "balanced")!;
-    const oppData = c.scenarios.find((s: any) => s.scenario === "opportunistic")!;
+    const safeData = c.scenarios.find((s) => s.scenario === "safe")!;
+    const balancedData = c.scenarios.find((s) => s.scenario === "balanced")!;
+    const oppData = c.scenarios.find((s) => s.scenario === "opportunistic")!;
 
     const mapScenario = (data: typeof safeData) => ({
-      label: data.scenario.charAt(0).toUpperCase() + data.scenario.slice(1) as any,
+      label: (data.scenario.charAt(0).toUpperCase() + data.scenario.slice(1)) as "Safe" | "Balanced" | "Opportunistic",
       allocation: {
         miningBps: data.miningBps,
         btcBps: data.btcBps,
@@ -53,7 +58,7 @@ export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
         yieldOverlayBps: data.yieldOverlayBps,
       },
       assumptions: {
-        horizonMonths: data.horizonMonths as any,
+        horizonMonths: data.horizonMonths as HorizonMonths,
         btcAnnualVol: data.btcAnnualVolBps / 10000,
         volatilityMultiplier: data.volMultiplierBps / 10000,
         distributionTargetLowBps: data.distributionTargetLowBps ?? undefined,
@@ -63,7 +68,12 @@ export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
         floorBps: data.floorBps ?? undefined,
       },
       constraints: {}, // Not persisted explicitly, can leave empty or map if added later
-      narrativeBullets: JSON.parse(data.narrativeBullets as string) as string[],
+      narrativeBullets: (() => {
+        const v = data.narrativeBullets;
+        if (Array.isArray(v)) return v as string[];
+        if (typeof v === "string") return JSON.parse(v) as string[];
+        return [];
+      })(),
     });
 
     const strategy: ProductStrategy = {
@@ -71,11 +81,11 @@ export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
       slug: c.slug,
       name: c.name,
       description: c.description,
-      status: c.status as any,
-      productFamily: c.productFamily as any,
-      defaultRiskProfile: c.defaultRiskProfile as any,
-      defaultHorizonMonths: c.defaultHorizonMonths as any,
-      defaultPriority: c.defaultPriority as any,
+      status: c.status as StrategyStatus,
+      productFamily: c.productFamily as ProductFamily,
+      defaultRiskProfile: c.defaultRiskProfile as RiskProfileKey,
+      defaultHorizonMonths: c.defaultHorizonMonths as HorizonMonths,
+      defaultPriority: c.defaultPriority as Priority,
       isFallback: c.isFallback,
       createdAt: c.createdAt.toISOString(),
       updatedAt: c.updatedAt.toISOString(),
@@ -110,17 +120,17 @@ export async function getStrategiesFromDb(): Promise<StrategyWorkspaceData[]> {
       maxBtcExposureBps: collateralRow.maxBtcExposureBps,
     } : LAB_BASE_COLLATERAL;
 
-    const rules: RebalancingRule[] = c.rules.map((r: any) => ({
+    const rules: RebalancingRule[] = c.rules.map((r) => ({
       id: r.id,
-      scenario: r.scenario as any,
-      type: r.type as any,
+      scenario: r.scenario as Scenario,
+      type: r.type as "LIQUIDATE" | "REPURCHASE",
       priority: r.priority,
-      triggerMetric: r.triggerMetric as any,
-      operator: r.operator as any,
+      triggerMetric: r.triggerMetric as TriggerMetric,
+      operator: r.operator as Operator,
       value: Number(r.value),
       action: {
-        side: r.actionSide as any,
-        sizingMode: r.sizingMode as any,
+        side: r.actionSide as ActionSide,
+        sizingMode: r.sizingMode as SizingMode,
         sizingValue: Number(r.sizingValue),
         repayDebtRatioBps: r.repayDebtRatioBps ?? undefined,
         maxLtvAfterActionBps: r.maxLtvAfterActionBps ?? undefined,
