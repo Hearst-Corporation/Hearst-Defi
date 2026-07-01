@@ -27,7 +27,8 @@ describe("Strategy Data Lab UI", () => {
     expect(src).toContain("BacktestBody");
     expect(src).toContain("ForwardBody");
     expect(src).toContain("StressBody");
-    expect(src).toContain("SensitivityBody");
+    expect(src).toContain("SensitivityPanel");
+    expect(src).toContain("TriggerAnalyticsPanel");
   });
 
   it("runs the real deterministic engines (memoised, capped)", async () => {
