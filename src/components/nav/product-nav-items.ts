@@ -114,6 +114,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     href: "/admin/product-workspace",
     tabs: [
       { id: "product-workspace", label: "Overview", href: "/admin/product-workspace", icon: "FileText" },
+      { id: "strategies", label: "Strategies", href: "/admin/strategies", icon: "SlidersHorizontal" },
       { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
       { id: "source", label: "Source", href: "/admin/source", icon: "Database" },
       { id: "projection", label: "Projection", href: "/admin/projection", icon: "FileText" },

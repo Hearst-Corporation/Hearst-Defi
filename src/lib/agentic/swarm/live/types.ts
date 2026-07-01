@@ -183,6 +183,21 @@ export interface ProductConstructionDraft {
    * (horizon / vol / allocation tilt). Empty array = default product assumptions.
    */
   objectiveAdjustments?: ObjectiveAdjustment[];
+  /**
+   * Which admin-defined product strategy the deterministic selector matched for
+   * this objective, and why — additive, optional. Pure metadata (no LLM); lets
+   * Report Product show the selected strategy and its match rationale. The
+   * projection itself still comes from the scenario pipeline; this only records
+   * the selection.
+   */
+  strategySelection?: {
+    strategySlug: string;
+    strategyName: string;
+    score: number;
+    matchedRules: string[];
+    fallbackUsed: boolean;
+    why: string;
+  };
   /** Vault inferred for the objective (label/ticker only — no state mutated). */
   vault: { ticker: string; label: string };
   /**

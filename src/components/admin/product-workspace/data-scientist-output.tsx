@@ -117,9 +117,11 @@ const INCOME_LABEL: Record<string, string> = {
 function ObjectiveInterpretation({
   profile,
   adjustments,
+  strategySelection,
 }: {
   profile: import("@/lib/agentic/swarm/live/objective-profile").ObjectiveIntentProfile;
   adjustments: import("@/lib/agentic/swarm/live/objective-adjustments").ObjectiveAdjustment[];
+  strategySelection?: ProductConstructionDraft["strategySelection"];
 }) {
   const family = FAMILY_LABEL[profile.productFamily] ?? "Generic";
   const risk = RISK_LABEL[profile.riskProfile] ?? "Balanced";
@@ -131,6 +133,13 @@ function ObjectiveInterpretation({
     <section className="flex flex-col gap-(--ct-space-2) pb-(--ct-space-6)">
       <SectionLabel>Objective interpretation</SectionLabel>
       <p className="body-sm ct-text-strong [overflow-wrap:anywhere]">{summary}</p>
+      {strategySelection ? (
+        <p className="text-[length:var(--ct-text-xs)] ct-text-body [overflow-wrap:anywhere]">
+          <span className="ct-text-tertiary">Strategy: </span>
+          <span className="ct-text-strong">{strategySelection.strategyName}</span>
+          <span className="ct-text-faint"> · {strategySelection.why}</span>
+        </p>
+      ) : null}
       {profile.matchedSignals.length > 0 ? (
         <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary [overflow-wrap:anywhere]">
           Matched: {profile.matchedSignals.join(", ")}
@@ -325,6 +334,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
         <ObjectiveInterpretation
           profile={draft.objectiveProfile}
           adjustments={draft.objectiveAdjustments ?? []}
+          strategySelection={draft.strategySelection}
         />
       ) : null}
 
