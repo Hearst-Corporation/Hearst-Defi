@@ -82,31 +82,6 @@ function scenarioAllocationData(s: ScenarioResult): AllocationDatum[] {
   ];
 }
 
-function canonicalAllocationData(
-  draft: ProductConstructionDraft,
-): AllocationDatum[] | null {
-  const ca = draft.canonicalAllocation;
-  if (!ca) return null;
-  return [
-    { label: "Mining", value: ca.mining, fill: ALLOCATION_FILL_BY_INDEX[0] },
-    {
-      label: "BTC holding",
-      value: ca.btcHoldingCollateral,
-      fill: ALLOCATION_FILL_BY_INDEX[1],
-    },
-    {
-      label: "Stable reserve",
-      value: ca.stableReserve,
-      fill: ALLOCATION_FILL_BY_INDEX[2],
-    },
-    {
-      label: "Yield overlay",
-      value: ca.yieldOverlay,
-      fill: ALLOCATION_FILL_BY_INDEX[3],
-    },
-  ];
-}
-
 function rangePct(low: number, high: number, digits = 1): string {
   return `${pctFrac(low, digits)}–${pctFrac(high, digits)}`;
 }
@@ -339,7 +314,6 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
     draft.quant.headlineRange.low,
     draft.quant.headlineRange.high,
   );
-  const canonicalData = canonicalAllocationData(draft);
   const monteCarloExpectedReturn = draft.quant.percentiles.p50;
   const monteCarloVolatility = draft.assumptions.btc.annualVol;
 
@@ -386,12 +360,14 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
         </section>
       ) : null}
 
-      {/* Allocation scenarios — ONE harmonised chart grammar for all regimes +
-          the canonical mix. No cards-in-cards: just a regular grid and hairline
-          sections. */}
-      <section className="flex flex-col gap-(--ct-space-5) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
-        <SectionLabel>Allocation — scenarios + canonical mix</SectionLabel>
-        <div className="grid gap-x-(--ct-space-6) gap-y-(--ct-space-8) lg:grid-cols-2 xl:grid-cols-4">
+      {/* Allocation — the three RISK PROFILES only (Safe / Balanced /
+          Opportunistic). The canonical allocation stays an internal pipeline
+          artifact (drives the wizard prefill) and is deliberately NOT shown here:
+          the reader compares the three risk options, not a fourth card. One
+          harmonised chart grammar, no cards-in-cards. */}
+      <section className="flex flex-col gap-(--ct-space-6) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+        <SectionLabel>Allocation — risk profiles</SectionLabel>
+        <div className="grid gap-x-(--ct-space-6) gap-y-(--ct-space-8) sm:grid-cols-2 lg:grid-cols-3">
           {scenarios.map((scenario) => (
             <ScenarioBlock
               key={scenario.regime}
@@ -403,16 +379,9 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
               )}
               percentileLine={`p5 ${pctFrac(scenario.quant.percentiles.p5)} · p50 ${pctFrac(scenario.quant.percentiles.p50)} · p95 ${pctFrac(scenario.quant.percentiles.p95)}`}
               data={scenarioAllocationData(scenario)}
-              highlight={scenario.regime === "defensive"}
+              highlight={scenario.regime === "balanced"}
             />
           ))}
-          {canonicalData ? (
-            <ScenarioBlock
-              title="Canonical"
-              caption={draft.canonicalAllocation?.governanceException ? "governance floor" : "published mix"}
-              data={canonicalData}
-            />
-          ) : null}
         </div>
       </section>
 

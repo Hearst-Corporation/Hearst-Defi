@@ -55,6 +55,10 @@ const VISIBLE_STEP_IDS: readonly ConstructionStepId[] = [
 /** Minimum on-screen "running" time per step (narration + search read as real). */
 const MIN_STEP_MS = 5_000;
 
+/** Delay before the view auto-scrolls to the next step, so the KPIs a step just
+ *  produced stay readable for a beat before the page moves on. */
+const SCROLL_ADVANCE_DELAY_MS = 2_000;
+
 /**
  * Per-step LOADING config — the narration that types out while the specialist
  * works, plus how many source/asset placeholders to show. Logos are placeholders
@@ -596,18 +600,27 @@ export function ConstructionStepper({ objective }: { objective: string | null })
     void run(objective);
   }, [objective, run]);
 
-  // Auto-scroll to the active step as the construction advances.
+  // Auto-scroll to the active step as the construction advances — but DELAYED so
+  // the just-finished step's KPIs stay on screen long enough to read before the
+  // view moves on. Cleared on the next advance so it never double-fires.
   useEffect(() => {
     if (!current) return;
     const el = nodeRefs.current.get(current);
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const id = setTimeout(() => {
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, SCROLL_ADVANCE_DELAY_MS);
+    return () => clearTimeout(id);
   }, [current]);
 
-  // When the data-scientist draft lands, scroll to its (rich) output.
+  // When the data-scientist draft lands, scroll to its (rich) output — also
+  // delayed so the final KPI strip is readable before the jump.
   useEffect(() => {
     if (!draft) return;
     const el = nodeRefs.current.get("data_scientist");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const id = setTimeout(() => {
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, SCROLL_ADVANCE_DELAY_MS);
+    return () => clearTimeout(id);
   }, [draft]);
 
   const isRunning = phase === "running";
