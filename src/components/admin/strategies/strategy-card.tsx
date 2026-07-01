@@ -8,6 +8,7 @@
 
 "use client";
 
+import { Card } from "@/components/catalyst/card";
 import { cn } from "@/lib/cn";
 import {
   PRODUCT_FAMILY_LABEL,
@@ -138,7 +139,9 @@ export function StrategyCard({
   const scenario = strategy.scenarios[scenarioKey];
 
   return (
-    <article
+    <Card
+      material="flat"
+      hoverOverlay={false}
       role="button"
       tabIndex={0}
       aria-pressed={selected}
@@ -150,12 +153,13 @@ export function StrategyCard({
         }
       }}
       className={cn(
-        "flex min-w-0 cursor-pointer flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border bg-[var(--ct-surface-card)] p-(--ct-space-5) transition-colors",
+        "min-w-0 cursor-pointer transition-colors",
         selected
-          ? "border-[var(--ct-accent)] shadow-[0_0_0_1px_var(--ct-accent)]"
-          : "border-[var(--ct-border-soft)] hover:border-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)]",
+          ? "border border-[var(--ct-accent)] shadow-[0_0_0_1px_var(--ct-accent)]"
+          : "border border-transparent hover:border-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)]",
         strategy.status === "archived" && "opacity-[var(--ct-opacity-70)]",
       )}
+      contentClassName="flex min-w-0 flex-col gap-(--ct-space-4) p-(--ct-space-5)"
     >
       <div className="flex items-start justify-between gap-(--ct-space-3)">
         <div className="min-w-0 flex-1">
@@ -196,6 +200,6 @@ export function StrategyCard({
         <ActionBtn label="Data Lab" onClick={() => onOpenLab(strategy)} />
         <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
       </div>
-    </article>
+    </Card>
   );
 }

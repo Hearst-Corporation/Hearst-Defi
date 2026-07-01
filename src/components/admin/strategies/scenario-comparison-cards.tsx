@@ -7,6 +7,8 @@
  */
 "use client";
 
+import { Card } from "@/components/catalyst/card";
+import { NestedPanel } from "@/components/catalyst/nested-panel";
 import {
   bpsToPct,
   RISK_LABEL,
@@ -57,7 +59,12 @@ export function ScenarioComparisonCards({
 
   return (
     <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-4) xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-      <section className="flex min-w-0 flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-5)">
+      <Card
+        material="flat"
+        hoverOverlay={false}
+        className="min-w-0"
+        contentClassName="flex min-w-0 flex-col gap-(--ct-space-4) p-(--ct-space-5)"
+      >
         <div className="flex flex-col gap-(--ct-space-1)">
           <h3 className="ct-section-title">Scenario Summary</h3>
           <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
@@ -135,9 +142,14 @@ export function ScenarioComparisonCards({
             );
           })}
         </div>
-      </section>
+      </Card>
 
-      <section className="flex min-w-0 flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-5)">
+      <Card
+        material="flat"
+        hoverOverlay={false}
+        className="min-w-0"
+        contentClassName="flex min-w-0 flex-col gap-(--ct-space-4) p-(--ct-space-5)"
+      >
         <div className="flex flex-col gap-(--ct-space-1)">
           <h3 className="ct-section-title">Reading Notes</h3>
           <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
@@ -146,7 +158,7 @@ export function ScenarioComparisonCards({
         </div>
 
         <div className="grid grid-cols-1 gap-(--ct-space-3) sm:grid-cols-2">
-          <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] p-(--ct-space-3)">
+          <NestedPanel>
             <span className="ct-bento-label">Guardrails</span>
             <dl className="mt-(--ct-space-2) flex flex-col gap-(--ct-space-2)">
               <div className="flex items-center justify-between gap-(--ct-space-2)">
@@ -172,31 +184,33 @@ export function ScenarioComparisonCards({
                 </dd>
               </div>
             </dl>
-          </div>
+          </NestedPanel>
 
-          <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] p-(--ct-space-3)">
+          <NestedPanel>
             <span className="ct-bento-label">Current intent</span>
             <p className="mt-(--ct-space-2) text-[length:var(--ct-text-xs)] leading-relaxed ct-text-body">
               {strategy.description}
             </p>
-          </div>
+          </NestedPanel>
         </div>
 
-        <ul className="flex flex-col gap-(--ct-space-2) rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] p-(--ct-space-4)">
-          {active.narrativeBullets.map((bullet) => (
-            <li
-              key={bullet}
-              className="text-[length:var(--ct-text-xs)] leading-relaxed ct-text-body [overflow-wrap:anywhere]"
-            >
-              · {bullet}
-            </li>
-          ))}
-        </ul>
+        <NestedPanel className="flex flex-col gap-(--ct-space-2)">
+          <ul className="flex flex-col gap-(--ct-space-2)">
+            {active.narrativeBullets.map((bullet) => (
+              <li
+                key={bullet}
+                className="text-[length:var(--ct-text-xs)] leading-relaxed ct-text-body [overflow-wrap:anywhere]"
+              >
+                · {bullet}
+              </li>
+            ))}
+          </ul>
+        </NestedPanel>
 
         <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
           Modelled guidance only. Use the Data Lab for deeper stress, sensitivity, and backtest views.
         </p>
-      </section>
+      </Card>
     </div>
   );
 }

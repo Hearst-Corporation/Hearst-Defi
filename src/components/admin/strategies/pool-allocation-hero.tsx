@@ -72,7 +72,7 @@ function pctStr(bps: number): string {
 }
 
 function bpsStr(bps: number): string {
-  return `${bps.toLocaleString()}bps`;
+  return `${bps.toLocaleString("en-US")}bps`;
 }
 
 function formatRange(lowBps: number | undefined, highBps: number | undefined): string {
@@ -236,7 +236,7 @@ export function PoolAllocationHero({
         </p>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-5) xl:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)]">
+      <div className="grid min-w-0 grid-cols-1 gap-(--ct-space-5) 2xl:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)]">
         <aside className="flex min-w-0 flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-5)">
           <div className="flex flex-col gap-(--ct-space-1)">
             <span className="ct-bento-label">Active scenario</span>

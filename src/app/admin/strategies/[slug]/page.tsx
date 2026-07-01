@@ -7,12 +7,14 @@ import { getStrategiesFromDb } from "../queries";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  params: { slug: string };
+  // Next.js 16: dynamic route params are async and must be awaited.
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
   const workspaces = await getStrategiesFromDb();
-  const strategy = workspaces.find((w) => w.strategy.slug === params.slug)?.strategy;
+  const strategy = workspaces.find((w) => w.strategy.slug === slug)?.strategy;
   if (!strategy) return { title: "Strategy Not Found" };
   return {
     title: `${strategy.name} — Strategy Workspace`,
@@ -22,8 +24,9 @@ export async function generateMetadata({ params }: Props) {
 export default async function StrategyWorkspacePage({ params }: Props) {
   await requireAdmin();
 
+  const { slug } = await params;
   const workspaces = await getStrategiesFromDb();
-  const workspace = workspaces.find((w) => w.strategy.slug === params.slug);
+  const workspace = workspaces.find((w) => w.strategy.slug === slug);
   if (!workspace) {
     notFound();
   }

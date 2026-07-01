@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AdminSectionCard } from "@/components/admin/admin-page-shell";
+import { Metric } from "@/components/catalyst/metric";
+import { cn } from "@/lib/cn";
 import type {
   ProductStrategy,
   RiskProfileKey,
@@ -39,6 +41,51 @@ function scrollToSection(id: string): void {
   const element = document.getElementById(id);
   if (!element) return;
   element.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/**
+ * CollapsibleSection — progressive disclosure wrapper for secondary Strategy
+ * Studio sections (Collateral Engine / Rebalancing Rules / Advanced Data Lab).
+ * Collapsed by default; body is not rendered until expanded so heavy children
+ * (the Data Lab) don't mount off-screen. Tokenized, accessible affordance.
+ */
+function CollapsibleSection({
+  label,
+  defaultOpen = false,
+  children,
+}: {
+  label: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="flex flex-col">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={cn(
+          "flex w-full items-center gap-(--ct-space-2) px-5 py-(--ct-space-3) lg:px-6",
+          "text-[length:var(--ct-text-xs)] font-medium ct-text-secondary hover:ct-text-strong",
+          "transition-colors text-left",
+        )}
+      >
+        <span
+          aria-hidden
+          className={cn(
+            "inline-block transition-transform ease-[var(--ct-ease)]",
+            open && "rotate-90",
+          )}
+        >
+          ▸
+        </span>
+        {label}
+      </button>
+      {open ? children : null}
+    </div>
+  );
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -172,6 +219,8 @@ export function StrategyWorkspaceClient({
   allInitialStrategies: ProductStrategy[];
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const wantLab = searchParams?.get("tab") === "lab";
   const store = useStrategyStore(allInitialStrategies);
 
   const initialStrategy = initialWorkspace.strategy;
@@ -182,6 +231,12 @@ export function StrategyWorkspaceClient({
       store.select(initialStrategy.id);
     }
   }, [initialStrategy.id, store]);
+
+  // Deep-link: `?tab=lab` opens the Data Lab and scrolls to it once on mount.
+  useEffect(() => {
+    if (!wantLab) return;
+    scrollToSection(DATA_LAB_SECTION_ID);
+  }, [wantLab]);
 
   const strategy = store.strategies.find((s) => s.id === initialStrategy.id) ?? initialStrategy;
 
@@ -270,56 +325,72 @@ export function StrategyWorkspaceClient({
       </AdminSectionCard>
 
       <AdminSectionCard title="Collateral Engine" subtitle="Initial pool geometry & risk limits">
-        <div className="p-5 lg:p-6 flex flex-col gap-(--ct-space-4)">
-          <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Initial BTC Collateral</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">{initialWorkspace.collateral.initialBtcCollateral} BTC</span>
+        <CollapsibleSection label="Collateral Engine details">
+          <div className="p-5 lg:p-6 pt-0 flex flex-col gap-(--ct-space-4)">
+            <div className="grid grid-cols-2 gap-(--ct-space-3) sm:grid-cols-4">
+              <Metric
+                variant="nested"
+                label="Initial BTC Collateral"
+                value={`${initialWorkspace.collateral.initialBtcCollateral} BTC`}
+              />
+              <Metric
+                variant="nested"
+                label="Initial Debt"
+                value={`$${initialWorkspace.collateral.initialDebtUsdc.toLocaleString()}`}
+              />
+              <Metric
+                variant="nested"
+                label="Liquidation LTV"
+                value={
+                  <span className="ct-status-danger tabular-nums">
+                    {(initialWorkspace.collateral.liquidationLtvBps / 100).toFixed(1)}%
+                  </span>
+                }
+              />
+              <Metric
+                variant="nested"
+                label="Target Risk LTV"
+                value={
+                  <span className="ct-text-accent tabular-nums">
+                    {(initialWorkspace.collateral.targetRiskLtvBps / 100).toFixed(1)}%
+                  </span>
+                }
+              />
             </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Initial Debt</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-body">${initialWorkspace.collateral.initialDebtUsdc.toLocaleString()}</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Liquidation LTV</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums text-[var(--ct-status-danger)]">{(initialWorkspace.collateral.liquidationLtvBps / 100).toFixed(1)}%</span>
-            </div>
-            <div className="flex flex-col gap-(--ct-space-1) rounded-(--ct-radius-md) border border-[var(--ct-border-soft)] p-(--ct-space-3)">
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-faint uppercase tracking-wide">Target Risk LTV</span>
-              <span className="text-[length:var(--ct-text-sm)] tabular-nums ct-text-accent">{(initialWorkspace.collateral.targetRiskLtvBps / 100).toFixed(1)}%</span>
-            </div>
+            <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
+              These parameters seed the collateral engine in the Data Lab.
+            </p>
           </div>
-          <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary">
-            These parameters seed the collateral engine in the Data Lab.
-          </p>
-        </div>
+        </CollapsibleSection>
       </AdminSectionCard>
 
       <AdminSectionCard title="Rebalancing Rules" subtitle="Liquidation and repurchase automation">
-        <div className="p-5 lg:p-6 flex flex-col gap-(--ct-space-4)">
-          <div className="min-w-0 overflow-x-auto">
-            <table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-              <thead>
-                <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-                  <th className="p-(--ct-space-2) text-left">Type</th>
-                  <th className="p-(--ct-space-2) text-left">Trigger</th>
-                  <th className="p-(--ct-space-2) text-left">Action</th>
-                  <th className="p-(--ct-space-2) text-right">Cooldown</th>
-                </tr>
-              </thead>
-              <tbody>
-                {initialWorkspace.rules.map((rule) => (
-                  <tr key={rule.id} className="border-b border-[var(--ct-border-soft)]">
-                    <td className="p-(--ct-space-2) ct-text-strong">{rule.type}</td>
-                    <td className="p-(--ct-space-2) ct-text-body">{rule.triggerMetric} {rule.operator} {rule.value}</td>
-                    <td className="p-(--ct-space-2) ct-text-body">{rule.action.side} ({rule.action.sizingMode})</td>
-                    <td className="p-(--ct-space-2) text-right ct-text-tertiary">{rule.cooldownMonths ?? 0}m</td>
+        <CollapsibleSection label="Rebalancing Rules details">
+          <div className="p-5 lg:p-6 pt-0 flex flex-col gap-(--ct-space-4)">
+            <div className="min-w-0 overflow-x-auto">
+              <table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+                <thead>
+                  <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                    <th className="p-(--ct-space-2) text-left">Type</th>
+                    <th className="p-(--ct-space-2) text-left">Trigger</th>
+                    <th className="p-(--ct-space-2) text-left">Action</th>
+                    <th className="p-(--ct-space-2) text-right">Cooldown</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {initialWorkspace.rules.map((rule) => (
+                    <tr key={rule.id} className="border-b border-[var(--ct-border-soft)]">
+                      <td className="p-(--ct-space-2) ct-text-strong">{rule.type}</td>
+                      <td className="p-(--ct-space-2) ct-text-body">{rule.triggerMetric} {rule.operator} {rule.value}</td>
+                      <td className="p-(--ct-space-2) ct-text-body">{rule.action.side} ({rule.action.sizingMode})</td>
+                      <td className="p-(--ct-space-2) text-right ct-text-tertiary">{rule.cooldownMonths ?? 0}m</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </CollapsibleSection>
       </AdminSectionCard>
 
       <div id={DATA_LAB_SECTION_ID} className="scroll-mt-[100px]">
@@ -327,14 +398,16 @@ export function StrategyWorkspaceClient({
           title="Advanced Data Lab"
           subtitle="Modelled backtests, forward simulations & stress matrices"
         >
-          <div className="p-5 lg:p-6">
-            <StrategyDataLab 
-              strategy={strategy} 
-              scenario={activeScenario} 
-              collateral={initialWorkspace.collateral}
-              rules={initialWorkspace.rules}
-            />
-          </div>
+          <CollapsibleSection label="Advanced Data Lab" defaultOpen={wantLab}>
+            <div className="p-5 lg:p-6 pt-0">
+              <StrategyDataLab
+                strategy={strategy}
+                scenario={activeScenario}
+                collateral={initialWorkspace.collateral}
+                rules={initialWorkspace.rules}
+              />
+            </div>
+          </CollapsibleSection>
         </AdminSectionCard>
       </div>
     </div>
