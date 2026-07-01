@@ -1,7 +1,30 @@
 import { describe, it, expect } from "vitest";
 
 import { parseObjectiveProfile } from "../objective-profile";
-import { deriveObjectiveAssumptionOverrides } from "../objective-adjustments";
+import {
+  deriveObjectiveAssumptionOverrides,
+  applyObjectiveAllocationTilt,
+  type SleeveAllocation,
+  type SleeveBands,
+} from "../objective-adjustments";
+
+// A representative balanced base allocation + the product's CONFIGURED bands
+// (mining 30–40, btc 15–35, stable 8–20, yield 10–30). Sums to 100.
+const BASE: SleeveAllocation = {
+  mining: 34,
+  btcHoldingCollateral: 26,
+  stableReserve: 12,
+  yieldOverlay: 28,
+};
+const BANDS: SleeveBands = {
+  btcHoldingCollateral: [15, 35],
+  stableReserve: [8, 20],
+  yieldOverlay: [10, 30],
+};
+const sum = (a: SleeveAllocation) =>
+  a.mining + a.btcHoldingCollateral + a.stableReserve + a.yieldOverlay;
+const tiltFor = (obj: string) =>
+  deriveObjectiveAssumptionOverrides(parseObjectiveProfile(obj)).allocationTilt;
 
 describe("parseObjectiveProfile — deterministic objective reading", () => {
   it("is pure: same input → identical output", () => {
@@ -87,7 +110,7 @@ describe("deriveObjectiveAssumptionOverrides — bounded, traced", () => {
   it("generic/balanced/unknown → empty overrides + zero tilt + no adjustments", () => {
     const r = deriveObjectiveAssumptionOverrides(parseObjectiveProfile("a product"));
     expect(r.overrides).toEqual({});
-    expect(r.allocationTilt).toEqual({ stableReservePp: 0, btcHoldPp: 0 });
+    expect(r.allocationTilt).toEqual({ stableReservePp: 0, btcHoldPp: 0, yieldOverlayPp: 0 });
     expect(r.adjustments).toEqual([]);
   });
 
@@ -137,6 +160,103 @@ describe("deriveObjectiveAssumptionOverrides — bounded, traced", () => {
     );
     for (const a of r.adjustments) {
       expect(a.reason).not.toMatch(/guarantee|guaranteed|risk-free|will deliver/i);
+    }
+  });
+});
+
+describe("applyObjectiveAllocationTilt — floor/cap-respecting, traced", () => {
+  it("balanced objective → allocation unchanged, no adjustments", () => {
+    const r = applyObjectiveAllocationTilt(BASE, tiltFor("balanced mining vault"), BANDS);
+    expect(r.allocation).toEqual(BASE);
+    expect(r.adjustments).toEqual([]);
+  });
+
+  it("conservative monthly income increases stable reserve", () => {
+    const r = applyObjectiveAllocationTilt(
+      BASE,
+      tiltFor("conservative monthly income vault"),
+      BANDS,
+    );
+    expect(r.allocation.stableReserve).toBeGreaterThan(BASE.stableReserve);
+    expect(r.adjustments.some((a) => a.field === "allocation.stableReserve")).toBe(true);
+  });
+
+  it("conservative reduces BTC exposure", () => {
+    const r = applyObjectiveAllocationTilt(BASE, tiltFor("conservative vault"), BANDS);
+    expect(r.allocation.btcHoldingCollateral).toBeLessThan(BASE.btcHoldingCollateral);
+  });
+
+  it("opportunistic BTC upside increases BTC exposure", () => {
+    const r = applyObjectiveAllocationTilt(
+      BASE,
+      tiltFor("high yield opportunistic BTC upside"),
+      BANDS,
+    );
+    expect(r.allocation.btcHoldingCollateral).toBeGreaterThan(BASE.btcHoldingCollateral);
+    expect(r.allocation.stableReserve).toBeLessThanOrEqual(BASE.stableReserve);
+  });
+
+  it("mining sleeve is NEVER touched (floor respected)", () => {
+    for (const obj of [
+      "conservative monthly income mining vault",
+      "opportunistic BTC upside",
+      "stable usdc income",
+    ]) {
+      const r = applyObjectiveAllocationTilt(BASE, tiltFor(obj), BANDS);
+      expect(r.allocation.mining).toBe(BASE.mining);
+    }
+  });
+
+  it("total allocation stays exactly 100%", () => {
+    for (const obj of [
+      "conservative monthly income vault",
+      "opportunistic BTC upside product",
+      "stable usdc high liquidity income vault",
+      "balanced vault",
+    ]) {
+      const r = applyObjectiveAllocationTilt(BASE, tiltFor(obj), BANDS);
+      expect(sum(r.allocation)).toBeCloseTo(100, 5);
+    }
+  });
+
+  it("no sleeve is ever negative", () => {
+    for (const obj of [
+      "conservative monthly income high liquidity vault",
+      "opportunistic BTC upside",
+    ]) {
+      const r = applyObjectiveAllocationTilt(BASE, tiltFor(obj), BANDS);
+      for (const v of Object.values(r.allocation)) expect(v).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("flags `limited` + notes the cap when a requested move is clipped by a band", () => {
+    // Base stable already at its 20 cap → a conservative +tilt can't lift it.
+    const cappedBase: SleeveAllocation = { mining: 34, btcHoldingCollateral: 26, stableReserve: 20, yieldOverlay: 20 };
+    const r = applyObjectiveAllocationTilt(
+      cappedBase,
+      tiltFor("conservative high liquidity vault"),
+      BANDS,
+    );
+    expect(r.limited).toBe(true);
+    expect(r.adjustments.some((a) => /limited by allocation band/i.test(a.reason))).toBe(true);
+  });
+
+  it("trace lists only sleeves that actually moved", () => {
+    const r = applyObjectiveAllocationTilt(BASE, tiltFor("conservative vault"), BANDS);
+    for (const a of r.adjustments) {
+      const key = a.field.replace("allocation.", "").replace("btcHolding", "btcHoldingCollateral") as keyof SleeveAllocation;
+      expect(r.allocation[key]).not.toBe(BASE[key]);
+    }
+  });
+
+  it("no guaranteed wording in any allocation adjustment reason", () => {
+    const r = applyObjectiveAllocationTilt(
+      BASE,
+      tiltFor("conservative monthly income high liquidity 24 month vault"),
+      BANDS,
+    );
+    for (const a of r.adjustments) {
+      expect(a.reason).not.toMatch(/guarantee|guaranteed|risk-free|will deliver|optimized/i);
     }
   });
 });
