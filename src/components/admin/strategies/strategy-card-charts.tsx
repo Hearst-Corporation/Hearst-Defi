@@ -16,12 +16,15 @@ import { SLEEVE_COLORS, SLEEVE_LABEL, sleeveOrder } from "@/lib/product-strategi
 
 /**
  * A compact 8px-tall horizontal stacked bar (4 sleeves, SLEEVE_COLORS) with a
- * tiny percentage legend below each segment.
+ * tiny name+percentage legend below each segment. `showLegend={false}` keeps
+ * only the bar (dense contexts: table cells).
  */
 export function AllocationMiniBar({
   allocation,
+  showLegend = true,
 }: {
   allocation: ScenarioAllocation;
+  showLegend?: boolean;
 }) {
   const bpsValues = sleeveOrder.map((key) => {
     if (key === "mining") return allocation.miningBps;
@@ -56,6 +59,7 @@ export function AllocationMiniBar({
       </div>
 
       {/* Legend — sleeve name + percent, so the bar is readable without hovering */}
+      {showLegend ? (
       <div className="flex gap-x-(--ct-space-3) gap-y-(--ct-space-1) flex-wrap">
         {sleeveOrder.map((key, i) => {
           const bps = Math.max(0, bpsValues[i] ?? 0);
@@ -80,6 +84,7 @@ export function AllocationMiniBar({
           );
         })}
       </div>
+      ) : null}
     </div>
   );
 }

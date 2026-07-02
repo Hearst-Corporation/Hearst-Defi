@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hearst House Strategy — v0.1 (document de travail)</title>
+<style>
+  :root{
+    --bg:#0a0c0b; --card:#000; --ink:#f2f5f3; --muted:rgba(242,245,243,.62);
+    --faint:rgba(242,245,243,.4); --accent:#A7FB90; --danger:#ff6b6b; --warn:#f5c451;
+    --btc:#F7931A; --stable:#60A5FA; --overlay:#A78BFA; --border:rgba(242,245,243,.14);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,"Segoe UI",Roboto,sans-serif;padding:48px 24px}
+  main{max-width:920px;margin:0 auto}
+  h1{font-size:28px;margin:0 0 4px} h1 em{color:var(--accent);font-style:normal}
+  h2{font-size:19px;margin:40px 0 12px;color:var(--accent)}
+  h3{font-size:15px;margin:20px 0 8px}
+  .kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:14px 0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  td.num{font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:1px 10px;font-size:11px;color:var(--muted)}
+  .todo{color:var(--warn);font-weight:600;font-size:11px;letter-spacing:.06em}
+  .ok{color:var(--accent);font-weight:600;font-size:11px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:7px;vertical-align:baseline}
+  .muted{color:var(--muted)} .faint{color:var(--faint);font-size:12px}
+  code{background:rgba(242,245,243,.07);border-radius:5px;padding:1px 6px;font-size:12.5px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px}
+  .flow .step{border:1px solid var(--border);border-radius:10px;padding:8px 12px;background:rgba(242,245,243,.03)}
+  .flow .arr{color:var(--faint)}
+  .danger{color:var(--danger)} .warn{color:var(--warn)} .accent{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Hearst Connect · document de travail · à itérer ensemble</p>
+  <h1>Hearst <em>House Strategy</em> — v0.1</h1>
+  <p class="muted">Rédigé le 2026-07-02 · owner : Adrien · rédaction : Fable (data scientist DeFi / Bitcoin Mining).
+  Tout chiffre marqué <span class="todo">[À VALIDER]</span> est une proposition à trancher ensemble.
+  Rien ici n'est une promesse de rendement — tout est modélisé, conditionnel, non garanti.</p>
+
+  <h2>1 · La thèse — le mining est la source</h2>
+  <div class="card">
+    <p><strong>Hearst est une société de mining : on vend du mining.</strong> Le vault RWA a une base mining
+    non pas parce que c'est la poche la plus rentable, mais parce que c'est <em>le métier</em> et l'actif réel
+    (machines + hashrate) qui adosse le produit. Le capital déposé achète des <strong>machines</strong>
+    (durée de vie <strong>4–5 ans</strong>) ; le vault a une durée plus courte (ex. <strong>2 ans</strong>) —
+    le hashrate survit donc au vault et est <strong>réalloué</strong> aux vaults suivants. C'est le moteur
+    industriel du produit : un pool de hashrate réallouable, vendu tranche par tranche.</p>
+    <p class="faint">Déjà codé : plancher mining structurel 30&nbsp;% (guard <code>canonical-allocation.ts</code> —
+    une allocation &lt;30&nbsp;% mining est rejetée ou clampée + exception de gouvernance).</p>
+  </div>
+
+  <h2>2 · Cycle de vie du vault</h2>
+  <div class="card">
+    <div class="flow">
+      <span class="step">Dépôt USDC (min $250k)</span><span class="arr">→</span>
+      <span class="step">Achat machines (hardware pricé au marché)</span><span class="arr">→</span>
+      <span class="step">Mining → production BTC en continu</span><span class="arr">→</span>
+      <span class="step">Gestion des 4 poches + collatéral</span><span class="arr">→</span>
+      <span class="step">Distributions mensuelles USDC</span><span class="arr">→</span>
+      <span class="step accent">Early close si cible atteinte</span><span class="arr">→</span>
+      <span class="step">Hashrate réalloué au vault suivant</span>
+    </div>
+    <p><strong>Cible client : 8–12&nbsp;% / an</strong> (toujours affiché en fourchette).
+    <strong>Clause d'early close</strong> : si la performance cumulée cible du vault est atteinte en avance —
+    ex. vault 2 ans ≈ 24&nbsp;% cumulé atteint en 6 mois grâce à la hausse BTC — on a le droit de
+    <strong>fermer le vault</strong>, payer le client, et réallouer les ~3,5–4,5 ans de machines restants
+    à de nouveaux clients. L'early close transforme la hausse BTC en rotation commerciale du hashrate.</p>
+  </div>
+
+  <h2>3 · Les quatre poches</h2>
+  <div class="card">
+    <table>
+      <tr><th>Poche</th><th>Rôle</th><th>Pilotée par</th></tr>
+      <tr>
+        <td><span class="dot" style="background:var(--accent)"></span><strong>Mining</strong></td>
+        <td>La source. Produit du BTC chaque mois (hashprice − électricité). Plancher structurel 30&nbsp;%.</td>
+        <td>Hashprice live (mempool.space), prix machines (Telegram), électricité <strong>6&nbsp;¢/kWh</strong> (hypothèse maison).</td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:var(--btc)"></span><strong>BTC / wBTC</strong></td>
+        <td>Poche opportuniste (BTC bas aujourd'hui → potentiel). Sert AUSSI de collatéral — y compris le BTC miné — pour emprunter/minter du stablecoin sur les protocoles plutôt que vider la poche USDC quand c'est plus avantageux. ETH possible dans cette poche selon le marché <span class="todo">[À VALIDER — sleeve ETH non modélisée]</span>.</td>
+        <td>Régime de marché, vue directionnelle, règles de collatéral (§4).</td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:var(--stable)"></span><strong>Réserve USDC</strong></td>
+        <td>Hodl / sécurisation. Paye l'électricité si la marge mining ne suffit pas (déficit → emprunt).
+        Finance les rachats de wBTC. Encaisse le produit du reverse DCA. Peut tendre vers 0 en régime très favorable.</td>
+        <td>Poids du sleeve = taille de la réserve dans le moteur ; yields USDC live (Morpho / DefiLlama).</td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:var(--overlay)"></span><strong>Yield overlay</strong></td>
+        <td>Rendement stable déployé sur les protocoles (lending USDC) — soutient la distribution mensuelle.</td>
+        <td>Yields live DefiLlama/Morpho.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>4 · Le moteur de collatéral (règles maison — codées)</h2>
+  <div class="card">
+    <table>
+      <tr><th>Règle</th><th>Déclencheur</th><th>Action</th><th>Statut</th></tr>
+      <tr>
+        <td class="warn"><strong>Délestage</strong></td>
+        <td class="num">LTV ≥ <strong>45&nbsp;%</strong></td>
+        <td>Vendre ~27&nbsp;% du wBTC, produit → remboursement de dette. Math : f = (0.45 − 0.25)/(1 − 0.25) ≈ 26,7&nbsp;% ⇒ LTV 45&nbsp;% → 25&nbsp;% (on regagne ~20 pts de sur-collatéralisation). Cooldown 1 mois.</td>
+        <td><span class="ok">CODÉ</span> <code>delever-ltv-45</code></td>
+      </tr>
+      <tr>
+        <td class="accent"><strong>Rachat</strong></td>
+        <td class="num">Distance de liquidation ≥ 45&nbsp;% (marché en reprise) <span class="todo">[À VALIDER]</span></td>
+        <td>Racheter le wBTC vendu avec 25&nbsp;% de la réserve — <strong>jamais au-dessus de 55&nbsp;% de LTV post-achat</strong>. Cooldown 2 mois.</td>
+        <td><span class="ok">CODÉ</span> <code>buyback-55cap</code></td>
+      </tr>
+      <tr>
+        <td class="accent"><strong>Reverse DCA</strong></td>
+        <td class="num">BTC ≥ +25&nbsp;% vs entrée (palier) <span class="todo">[À VALIDER : palier, pas]</span></td>
+        <td>Vendre 10&nbsp;% du wBTC par palier, produit → <strong>réserve USDC</strong> (0&nbsp;% vers la dette) = sécurisation progressive des gains. Max 4 paliers, espacés de 2 mois.</td>
+        <td><span class="ok">CODÉ</span> <code>reverse-dca-secure</code></td>
+      </tr>
+      <tr>
+        <td class="danger"><strong>Liquidation dure</strong></td>
+        <td class="num">LTV ≥ <strong>80&nbsp;%</strong></td>
+        <td>Liquidation forcée par le protocole — la zone à ne JAMAIS approcher ; tout le système au-dessus sert à s'en tenir loin.</td>
+        <td><span class="ok">CODÉ</span> (config collatéral)</td>
+      </tr>
+    </table>
+    <p class="faint">Ces trois seuils (45 / 55 / 80) sont tracés sur la vue LTV du Studio, lus depuis les vraies règles.</p>
+  </div>
+
+  <h2>5 · Sources live branchées (la calibration vient de là)</h2>
+  <div class="card">
+    <table>
+      <tr><th>Source</th><th>Donnée</th><th>Où</th></tr>
+      <tr><td>mempool.space × prix BTC</td><td>Hashprice $/TH/jour (formule pure)</td><td><code>/admin/source</code></td></tr>
+      <tr><td>Canal Telegram</td><td>Prix machines (le hardware a un prix)</td><td><code>/admin/source</code> — table machines</td></tr>
+      <tr><td>Hypothèse maison</td><td>Électricité <strong>6&nbsp;¢/kWh</strong></td><td>Constante produit</td></tr>
+      <tr><td>DefiLlama / Morpho</td><td>Yields USDC réels (réserve + overlay)</td><td><code>/admin/source</code> — ligne USDC</td></tr>
+      <tr><td>Swarms</td><td>Projections automatisées (pipeline produit)</td><td><code>/admin/product-workspace</code></td></tr>
+    </table>
+    <p class="faint">Prochaine itération : injecter ces valeurs live dans le moteur du Studio à la place des constantes
+    de labo (BTC 60k, drift 100 bps/m, yields 500/900/400 bps) — avec badge de provenance par entrée.</p>
+  </div>
+
+  <h2>6 · Ce que le moteur simule déjà vs à modéliser</h2>
+  <div class="card">
+    <table>
+      <tr><th>Mécanique</th><th>Statut</th></tr>
+      <tr><td>Prix BTC (GBM seedé, déterministe), LTV, distance, équité nette, drawdown</td><td><span class="ok">SIMULÉ</span></td></tr>
+      <tr><td>Électricité payée par la réserve, déficit → dette (ton « payer l'élec si le mining ne suffit pas »)</td><td><span class="ok">SIMULÉ</span></td></tr>
+      <tr><td>Délestage 45 → 25, rachat cap 55, reverse DCA par paliers, liquidation dure 80</td><td><span class="ok">SIMULÉ</span></td></tr>
+      <tr><td>Yields pondérés par l'allocation ; réserve dimensionnée par le poids stable</td><td><span class="ok">SIMULÉ</span> (Studio, 2026-07-02)</td></tr>
+      <tr><td>Monte Carlo (150 chemins, seed 42, p5/p50/p95) + backtests 10 régimes</td><td><span class="ok">SIMULÉ</span></td></tr>
+      <tr><td>Early close (trigger sur ROI cumulé ≥ cible du vault) + réallocation hashrate multi-vaults</td><td><span class="todo">À MODÉLISER</span> (le rule engine n'a pas de métrique ROI cumulé)</td></tr>
+      <tr><td>Hashprice stochastique corrélé BTC (le mining yield est un APR plat aujourd'hui)</td><td><span class="todo">À MODÉLISER</span></td></tr>
+      <tr><td>Amortissement machines (CAPEX 4–5 ans) et P&amp;L hardware dans l'équité</td><td><span class="todo">À MODÉLISER</span></td></tr>
+      <tr><td>Sleeve ETH ; frais/slippage sur SELL/BUY</td><td><span class="todo">À MODÉLISER</span></td></tr>
+    </table>
+  </div>
+
+  <h2>7 · Paramètres à trancher ensemble</h2>
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Paramètre</th><th>Proposition v0.1</th></tr>
+      <tr><td>1</td><td>Cible LTV post-délestage</td><td class="num">25&nbsp;% (≈ −20 pts) — dit par toi, encodé</td></tr>
+      <tr><td>2</td><td>Trigger de rachat</td><td class="num">distance ≥ 45&nbsp;% <span class="todo">[À VALIDER]</span> (alternative : prix &gt; prix de vente du délestage)</td></tr>
+      <tr><td>3</td><td>Paliers reverse DCA</td><td class="num">+25&nbsp;% / vente 10&nbsp;% / max 4 / cooldown 2 mois <span class="todo">[À VALIDER]</span></td></tr>
+      <tr><td>4</td><td>Early close</td><td class="num">ROI cumulé ≥ (durée vault × 12&nbsp;%) ⇒ clôture autorisée <span class="todo">[À VALIDER]</span></td></tr>
+      <tr><td>5</td><td>Allocation optimale par scénario</td><td>Grid search Monte Carlo multi-régimes sous contrainte mining ≥ 30&nbsp;% : Safe = max protection sous cible de distribution ; Balanced = max Sharpe-like ; Opportunistic = max p95 sous prob. de liquidation bornée. <span class="todo">[À LANCER — moteur prêt]</span></td></tr>
+    </table>
+  </div>
+
+  <p class="faint">v0.1 · Modélisé, conditionnel, non garanti. Ce document est un outil de travail interne —
+  pas un document client. On itère ici, puis le Studio encode ce qui est validé.</p>
+</main>
+</body>
+</html>

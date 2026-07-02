@@ -12,3 +12,18 @@ export { ForwardSimulationRunner, MAX_PATHS } from "./forward-simulation-runner"
 export { StressMatrixRunner, type StressMatrixConfig } from "./stress-matrix";
 export { SensitivityAnalyzer, type SensitivityRunConfig } from "./sensitivity-analysis";
 export { analyzeTriggers } from "./trigger-analytics";
+export {
+  recommendAllocation,
+  derivePricePoints,
+  deriveAssumptions,
+  projectionForAllocation,
+  collateralForAllocation,
+  rescaleRulesToPrice,
+  ALLOCATOR_MINING_FLOOR_BPS,
+  ALLOCATOR_PATHS,
+  ALLOCATOR_SEED,
+  REF_WEIGHTS,
+  type AllocationCandidate,
+  type AllocatorInput,
+  type StrategyPricePoint,
+} from "./allocator";

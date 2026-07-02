@@ -156,13 +156,6 @@ export function StrategyIndexClient({
     [store.strategies, router],
   );
 
-  const handleOpenLabFromCard = useCallback(
-    (strategy: ProductStrategy) => {
-      router.push(`/admin/strategies/${strategy.slug}?tab=lab`);
-    },
-    [router],
-  );
-
   const handleUseForProduct = useCallback(
     (strategy: ProductStrategy) => {
       const { objective } = strategyToProductPayload(
@@ -236,7 +229,6 @@ export function StrategyIndexClient({
                     strategy={s}
                     selected={false}
                     onSelect={handleSelectStrategy}
-                    onOpenLab={handleOpenLabFromCard}
                     onUseForProduct={handleUseForProduct}
                   />
                 ))}

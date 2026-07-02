@@ -23,7 +23,6 @@ export interface StrategyCardProps {
   strategy: ProductStrategy;
   selected?: boolean;
   onSelect: (id: string) => void;
-  onOpenLab: (strategy: ProductStrategy) => void;
   onUseForProduct: (strategy: ProductStrategy) => void;
 }
 
@@ -131,7 +130,6 @@ export function StrategyCard({
   strategy,
   selected,
   onSelect,
-  onOpenLab,
   onUseForProduct,
 }: StrategyCardProps) {
   const scenarioKey = strategy.defaultRiskProfile;
@@ -190,7 +188,6 @@ export function StrategyCard({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-wrap gap-(--ct-space-2)">
-          <ActionBtn label="Data Lab" onClick={() => onOpenLab(strategy)} />
           <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
         </div>
         <button

@@ -41,37 +41,49 @@ export const LAB_BASE_PROJECTION: ManualProjectionConfig = {
 };
 
 /**
- * Canonical rebalancing rule pair: LTV-triggered liquidation (liq-ltv) +
- * distance-triggered repurchase (rep-dist). Scenario = "balanced" as default;
- * callers that run other scenarios must remap the `scenario` field accordingly
- * (the forward runner already does this via its rules.map override).
+ * Canonical rebalancing rule pair — the HOUSE collateral strategy (owner
+ * decision, 2026-07-02): the vault posts (w)BTC — including mined BTC — as
+ * collateral to borrow/mint stablecoin on lending protocols.
+ *
+ *  - DELEVER at LTV ≥ 45%: sell ~27% of the wBTC collateral and repay debt,
+ *    winning back ~20 points of over-collateralisation (45% → ~25% LTV).
+ *  - BUY BACK on recovery: when liquidation distance is comfortable again,
+ *    redeploy 25% of the USDC reserve into wBTC — but NEVER above 55% LTV
+ *    post-action (maxLtvAfterActionBps).
+ *  - The protocol's hard liquidation stays at 80% LTV (collateral config).
+ *
+ * Scenario = "balanced" as default; callers that run other scenarios must
+ * remap the `scenario` field accordingly (the forward runner already does
+ * this via its rules.map override).
  */
 export const LAB_BASE_RULES: RebalancingRule[] = [
   {
-    id: "liq-ltv",
+    id: "delever-ltv-45",
     scenario: "balanced",
     type: "LIQUIDATE",
     priority: 100,
     triggerMetric: "LTV",
     operator: ">=",
-    value: 6500,
+    value: 4500,
     action: {
       side: "SELL_BTC",
+      // f = (0.45 − 0.25) / (1 − 0.25) ≈ 26.7% of collateral brings
+      // LTV 45% → 25% when proceeds fully repay debt.
       sizingMode: "PERCENT_OF_BTC_COLLATERAL",
-      sizingValue: 3000,
+      sizingValue: 2700,
       repayDebtRatioBps: 10_000,
     },
     cooldownMonths: 1,
     enabled: true,
   },
   {
-    id: "rep-dist",
+    id: "buyback-55cap",
     scenario: "balanced",
     type: "REPURCHASE",
     priority: 10,
     triggerMetric: "LIQUIDATION_DISTANCE",
     operator: ">=",
-    value: 4000,
+    value: 4500,
     action: {
       side: "BUY_BTC",
       sizingMode: "PERCENT_OF_USDC_RESERVE",
@@ -79,6 +91,30 @@ export const LAB_BASE_RULES: RebalancingRule[] = [
       maxLtvAfterActionBps: 5500,
     },
     cooldownMonths: 2,
+    enabled: true,
+  },
+  {
+    // REVERSE DCA (owner, 2026-07-02): when BTC performs, secure the position
+    // in stages — sell 10% of the (w)BTC per +25% price step and park the
+    // proceeds in the USDC reserve (repayDebtRatioBps 0 → nothing goes to
+    // debt, everything de-risks into stable). Max 4 steps, 2-month spacing.
+    // Modelling note: expressed as type LIQUIDATE (the engine's only SELL
+    // type) — it is a take-profit, not a distress sale.
+    id: "reverse-dca-secure",
+    scenario: "balanced",
+    type: "LIQUIDATE",
+    priority: 50,
+    triggerMetric: "BTC_PRICE",
+    operator: ">=",
+    value: 75_000,
+    action: {
+      side: "SELL_BTC",
+      sizingMode: "PERCENT_OF_BTC_COLLATERAL",
+      sizingValue: 1000,
+      repayDebtRatioBps: 0,
+    },
+    cooldownMonths: 2,
+    maxExecutions: 4,
     enabled: true,
   },
 ];
