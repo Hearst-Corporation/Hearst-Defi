@@ -563,3 +563,7 @@ Quatre spécialistes sous `.claude/agents/`, à invoquer via `Agent` avec
 
 Chaque agent a une liste « forbidden » plus stricte que ce README. **Si un
 agent rencontre un cas non couvert, il s'arrête et demande à Adrien.**
+
+---
+
+_Last automated check: 2026-07-01 — repo healthy (typecheck, lint, tests green; no secrets detected)._
