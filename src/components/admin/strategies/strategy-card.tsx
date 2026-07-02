@@ -24,6 +24,7 @@ export interface StrategyCardProps {
   selected?: boolean;
   onSelect: (id: string) => void;
   onUseForProduct: (strategy: ProductStrategy) => void;
+  onOpenCollateral?: (strategy: ProductStrategy) => void;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -131,6 +132,7 @@ export function StrategyCard({
   selected,
   onSelect,
   onUseForProduct,
+  onOpenCollateral,
 }: StrategyCardProps) {
   const scenarioKey = strategy.defaultRiskProfile;
   const scenario = strategy.scenarios[scenarioKey];
@@ -189,6 +191,13 @@ export function StrategyCard({
       >
         <div className="flex flex-wrap gap-(--ct-space-2)">
           <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
+          {onOpenCollateral ? (
+            <ActionBtn
+              label="Collateral Studio"
+              accent
+              onClick={() => onOpenCollateral(strategy)}
+            />
+          ) : null}
         </div>
         <button
           type="button"

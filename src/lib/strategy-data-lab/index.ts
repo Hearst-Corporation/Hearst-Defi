@@ -27,3 +27,4 @@ export {
   type AllocatorInput,
   type StrategyPricePoint,
 } from "./allocator";
+export * from "./collateral-rebalancing";

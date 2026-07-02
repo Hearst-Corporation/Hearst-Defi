@@ -22,6 +22,7 @@
  */
 
 import { useMemo, useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
@@ -36,6 +37,7 @@ import type { ProductStrategy } from "@/lib/product-strategies";
 import { bpsToPct } from "@/lib/product-strategies";
 import { SCENARIO_DOT } from "@/lib/product-strategies/lab-colors";
 import { useStrategyStore } from "@/components/admin/strategies/use-strategy-store";
+import { CollateralRebalancingStudio } from "@/components/admin/strategies/collateral-rebalancing-studio";
 import {
   StrategyStudioChart,
   type StudioChartSeries,
@@ -103,6 +105,8 @@ export function StrategyWorkspaceClient({
   btcPriceUsd: number;
   btcPriceProvenance: string;
 }) {
+  const searchParams = useSearchParams();
+  const wantCollateral = searchParams?.get("tab") === "collateral";
   const store = useStrategyStore(allInitialStrategies);
   const initialStrategy = initialWorkspace.strategy;
 
@@ -373,6 +377,41 @@ export function StrategyWorkspaceClient({
   }, [strategy.id, store]);
 
   const statusLabel = STATUS_LABEL[strategy.status] ?? strategy.status;
+
+  if (wantCollateral) {
+    return (
+      <CollateralRebalancingStudio
+        strategyName={strategy.name}
+        statusLabel={statusLabel}
+        collateral={initialWorkspace.collateral}
+        rules={initialWorkspace.rules}
+        initialBtcSpotPriceUsd={btcPriceUsd}
+        initialScrollToStudio
+        headerActions={
+          <>
+            <CockpitButton
+              variant="ghost"
+              size="sm"
+              onClick={handleArchive}
+              disabled={mutating || strategy.status === "archived"}
+            >
+              Archive
+            </CockpitButton>
+            {strategy.status === "draft" ? (
+              <CockpitButton
+                variant="secondary"
+                size="sm"
+                onClick={handleMakeLive}
+                disabled={mutating}
+              >
+                Publish
+              </CockpitButton>
+            ) : null}
+          </>
+        }
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-(--ct-space-5) min-w-0">

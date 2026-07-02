@@ -156,6 +156,13 @@ export function StrategyIndexClient({
     [store.strategies, router],
   );
 
+  const handleOpenCollateralStudio = useCallback(
+    (strategy: ProductStrategy) => {
+      router.push(`/admin/strategies/${strategy.slug}?tab=collateral`);
+    },
+    [router],
+  );
+
   const handleUseForProduct = useCallback(
     (strategy: ProductStrategy) => {
       const { objective } = strategyToProductPayload(
@@ -230,6 +237,7 @@ export function StrategyIndexClient({
                     selected={false}
                     onSelect={handleSelectStrategy}
                     onUseForProduct={handleUseForProduct}
+                    onOpenCollateral={handleOpenCollateralStudio}
                   />
                 ))}
               </div>
