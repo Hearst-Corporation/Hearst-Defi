@@ -276,20 +276,79 @@ jobs:
           CMDS="$VALIDATION"
           [ -z "$CMDS" ] && CMDS="npm test"
           : > "$RUNNER_TEMP/test-output.txt"
+
+          # GATE MODE — 'ratchet' vs 'strict'. Repair loops (recovery /
+          # maintenance / stabilization) start from an ALREADY-red repo: their
+          # job is to reduce errors, so blocking on "not 100% green" would throw
+          # away real progress and force a human to finish by hand. In ratchet
+          # mode the gate opens a PR as long as the loop does NOT make a command
+          # WORSE than origin/main. strict mode keeps "all green required".
+          GATE_MODE=$(printf '%s' "${{ inputs.prompt }}" | grep -oE '^gateMode: [a-z]+' | head -1 | awk '{print $2}')
+          [ -z "$GATE_MODE" ] && GATE_MODE=strict
+          progress "validation gate — mode: $GATE_MODE"
+
+          # score() prints a numeric "badness" for a command's output:
+          #   typecheck → count of "error TS" ; lint → count of "error" lines ;
+          #   otherwise → 0 on success, 1 on failure (binary). Lower is better.
+          score() {
+            local cmd="$1" out="$2" code="$3"
+            case "$cmd" in
+              *typecheck*) grep -c "error TS" "$out" 2>/dev/null || echo 0 ;;
+              *lint*)      grep -cE "[0-9]+ error|Error:" "$out" 2>/dev/null || echo 0 ;;
+              *)           [ "$code" = "0" ] && echo 0 || echo 1 ;;
+            esac
+          }
+
+          run_cmd() { # $1=cmd $2=outfile → sets global RC
+            bash -lc "$1" > "$2" 2>&1; RC=$?; cat "$2" >> "$RUNNER_TEMP/test-output.txt"; return 0
+          }
+
+          FAILED=0
           while IFS= read -r CMD; do
             [ -z "$CMD" ] && continue
             progress "validation gate — running: $CMD"
-            if bash -lc "$CMD" 2>&1 | tee -a "$RUNNER_TEMP/test-output.txt"; then
+            AFTER_OUT="$RUNNER_TEMP/after.txt"
+            run_cmd "$CMD" "$AFTER_OUT"; AFTER_RC=$RC
+            AFTER=$(score "$CMD" "$AFTER_OUT" "$AFTER_RC")
+
+            if [ "$AFTER_RC" = "0" ]; then
               progress "validation gate — passed: $CMD"
+              continue
+            fi
+
+            if [ "$GATE_MODE" != "ratchet" ]; then
+              progress "validation gate → FAILED: $CMD — STOP, no PR (strict)"
+              echo "::error::validation gate failed on: $CMD (strict) — no PR"
+              FAILED=1; break
+            fi
+
+            # RATCHET: measure the SAME command on the pristine base (origin/main)
+            # via a worktree, so the agent's own changes are excluded from BEFORE.
+            BASE_WT="$RUNNER_TEMP/base-wt"
+            rm -rf "$BASE_WT"
+            git worktree add -q --detach "$BASE_WT" origin/main 2>/dev/null || git worktree add -q --detach "$BASE_WT" HEAD~1 2>/dev/null || true
+            BEFORE=999999
+            if [ -d "$BASE_WT" ]; then
+              ( cd "$BASE_WT" && bash -lc "$CMD" > "$RUNNER_TEMP/before.txt" 2>&1 ); BRC=$?
+              BEFORE=$(score "$CMD" "$RUNNER_TEMP/before.txt" "$BRC")
+              git worktree remove --force "$BASE_WT" 2>/dev/null || true
+            fi
+
+            if [ "$AFTER" -le "$BEFORE" ]; then
+              progress "validation gate — ratchet OK: $CMD ($BEFORE → $AFTER, n'aggrave pas)"
             else
-              progress "validation gate → FAILED: $CMD — STOP, no PR"
-              echo "status=error" >> "$GITHUB_OUTPUT"
-              echo "::error::validation gate failed on: $CMD — no PR will be opened"
-              exit 1
+              progress "validation gate → RATCHET FAIL: $CMD a AGGRAVÉ ($BEFORE → $AFTER) — STOP, no PR"
+              echo "::error::ratchet: $CMD worsened the repo ($BEFORE → $AFTER)"
+              FAILED=1; break
             fi
           done <<< "$CMDS"
+
+          if [ "$FAILED" = "1" ]; then
+            echo "status=error" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
           echo "status=done" >> "$GITHUB_OUTPUT"
-          progress "validation gate → all commands passed"
+          progress "validation gate → passed (mode: $GATE_MODE)"
 
       - name: Build manifest + PR body
         shell: bash -l {0}
