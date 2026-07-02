@@ -147,6 +147,11 @@ jobs:
       - name: Run agent fleet (sequential fan-out)
         id: fleet
         shell: bash -l {0}
+        env:
+          # UTC: the self-hosted box runs America/Los_Angeles; date-sensitive
+          # tests are written against GitHub-hosted CI (UTC). Same reason on
+          # the validation gate step below — keep both in sync.
+          TZ: UTC
         run: |
           set -e
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
@@ -232,6 +237,10 @@ jobs:
         shell: bash -l {0}
         env:
           VALIDATION: ${{ inputs.validation }}
+          # UTC: align the self-hosted gate (box is PDT) with GitHub-hosted CI —
+          # date-sensitive tests ("Last Jun 12") are UTC-written and go red
+          # under a -0700 clock. ci.yml runs UTC; the gate must judge likewise.
+          TZ: UTC
         run: |
           # pipefail: without it, `cmd | tee` reports tee's exit status (always 0)
           # and a red validation command passes the gate green.
