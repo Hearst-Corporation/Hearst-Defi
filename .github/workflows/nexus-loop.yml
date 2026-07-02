@@ -155,13 +155,17 @@ jobs:
         run: |
           set -e
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          # Multi-account Claude auth: Nexus (/settings) picks the active account in
+          # Multi-account Claude auth: Nexus (/settings) manages accounts in
           # runner_config; each account is a ~/.nexus-claude-accounts/<name>.env slot
-          # (CLAUDE_CODE_OAUTH_TOKEN=…). Lets Adrien rotate accounts when a
-          # subscription session hits its limit. Falls back to the legacy single
-          # ~/.nexus-claude.env if the table/slot is missing. Only the account NAME
-          # is ever logged — never the token.
+          # (CLAUDE_CODE_OAUTH_TOKEN=…). Resolution order:
+          #   1. per-repo binding  (claude_account_binding:<owner/repo>) — lets two
+          #      repos run in parallel on two different subscription sessions;
+          #   2. global active     (claude_account_active);
+          #   3. legacy single     (~/.nexus-claude.env).
+          # Only the account NAME is ever logged — never the token.
           ACTIVE_CLAUDE_ACCOUNT=$(docker exec nexus-postgres psql -U postgres -d nexus -t -A \
+            -c "SELECT value FROM runner_config WHERE key='claude_account_binding:${GITHUB_REPOSITORY}'" 2>/dev/null || true)
+          [ -z "$ACTIVE_CLAUDE_ACCOUNT" ] && ACTIVE_CLAUDE_ACCOUNT=$(docker exec nexus-postgres psql -U postgres -d nexus -t -A \
             -c "SELECT value FROM runner_config WHERE key='claude_account_active'" 2>/dev/null || true)
           if [ -n "$ACTIVE_CLAUDE_ACCOUNT" ] && [ -f "$HOME/.nexus-claude-accounts/$ACTIVE_CLAUDE_ACCOUNT.env" ]; then
             set -a; . "$HOME/.nexus-claude-accounts/$ACTIVE_CLAUDE_ACCOUNT.env"; set +a
