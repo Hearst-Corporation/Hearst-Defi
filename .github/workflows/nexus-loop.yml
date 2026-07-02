@@ -166,10 +166,12 @@ jobs:
           # Best-effort by design: a dead bus must never break a run.
           RUN_LABEL="${{ inputs.run_label }}"
           progress() {
-            docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-              -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
-              -c "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
-              >/dev/null 2>&1 || true
+            # SQL via STDIN, not -c: psql only interpolates -v variables when the
+            # command comes from stdin — with -c the :'var' syntax is a hard error.
+            printf '%s' "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
+              | docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+                  -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
+                  >/dev/null 2>&1 || true
           }
           # Retention: the bus is a live window, not an archive (full logs land in
           # the run row at reconcile). Prune anything older than 7 days.
@@ -204,8 +206,21 @@ jobs:
             echo "$i|$ROLE|$ST|$NF" >> "$TMP/agent-rows.txt"
             echo "agent $ROLE → status=$ST files=$NF"
             progress "agent $((i+1))/$N ($ROLE) → status=$ST files=$NF"
+            if [ "$ST" = "error" ]; then
+              ERRMSG=$(python3 -c "import json;print((json.load(open('$TMP/claude-$i.json')).get('result') or '')[:200])" 2>/dev/null || true)
+              echo "::warning::agent $ROLE errored: ${ERRMSG:-see $TMP/claude-$i.err}"
+              progress "agent $((i+1))/$N ($ROLE) ERROR: ${ERRMSG:-see runner logs}"
+            fi
           done
           echo "---- agent-rows ----"; cat "$TMP/agent-rows.txt"
+          # A fleet where EVERY agent errored must fail loudly — a silent clean
+          # no-op here reads as "repo healthy" when nothing was even attempted
+          # (e.g. subscription session limit → instant 429 on each agent).
+          if ! grep -q "|done|" "$TMP/agent-rows.txt"; then
+            progress "ALL agents errored — failing the run, nothing was attempted"
+            echo "::error::every agent errored — see the warnings above (rate limit? auth?)"
+            exit 1
+          fi
           progress "fleet complete — entering validation gate"
 
       # ── Validation gate. Runs the LOOP'S OWN validation commands (input
@@ -221,10 +236,12 @@ jobs:
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
           RUN_LABEL="${{ inputs.run_label }}"
           progress() {
-            docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-              -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
-              -c "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
-              >/dev/null 2>&1 || true
+            # SQL via STDIN, not -c: psql only interpolates -v variables when the
+            # command comes from stdin — with -c the :'var' syntax is a hard error.
+            printf '%s' "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
+              | docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+                  -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
+                  >/dev/null 2>&1 || true
           }
           CMDS="$VALIDATION"
           [ -z "$CMDS" ] && CMDS="npm test"
@@ -313,10 +330,12 @@ jobs:
           set -e
           RUN_LABEL="${{ inputs.run_label }}"
           progress() {
-            docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-              -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
-              -c "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
-              >/dev/null 2>&1 || true
+            # SQL via STDIN, not -c: psql only interpolates -v variables when the
+            # command comes from stdin — with -c the :'var' syntax is a hard error.
+            printf '%s' "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
+              | docker exec -i nexus-postgres psql -U postgres -d nexus -q \
+                  -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
+                  >/dev/null 2>&1 || true
           }
           BASE_REF="${TARGET_BASE_REF:-main}"
           git fetch origin "$BASE_REF" --quiet
