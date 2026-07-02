@@ -233,6 +233,9 @@ jobs:
         env:
           VALIDATION: ${{ inputs.validation }}
         run: |
+          # pipefail: without it, `cmd | tee` reports tee's exit status (always 0)
+          # and a red validation command passes the gate green.
+          set -o pipefail
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
           RUN_LABEL="${{ inputs.run_label }}"
           progress() {
