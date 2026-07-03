@@ -65,24 +65,26 @@ Auth, cockpit-chat, cockpit-chats, agent-canvas, search, health/deep, inngest, w
 
 ## 5. Corrections Sprint (agent-e-sprint-correctness.md) — Statut par item
 
+> Mis à jour : 2026-07-03 (batch 2 — Truth Audit, vérification code par grep ciblé).
+
 | ID | Description | Statut observé |
 |---|---|---|
 | **C-01** | Gate KYC sur dépôt | ✅ FAIT — `kycStatus !== "approved"` à `subscribe.ts:49,81` |
 | **C-02** | Alias env vault (HEARST_YIELD / HEARST) | ✅ FAIT — double alias dans `vault.ts:59-60,76-77` |
-| **C-03** | Share class réelle dans widgets portfolio | ⚠️ À VÉRIFIER — BACKLOG non coché |
+| **C-03** | Share class réelle dans widgets portfolio | ✅ CONFIRMÉ FAIT — `loadDistribCalendarProps()` lit `terms.shareClass` depuis DB ; `LockMeter` reçoit `softLockupDays` depuis `vaultDeployment` |
 | **C-04** | Fees défaut Prisma 2 %→1 % | ✅ FAIT — `mgmtFeeBps @default(100)` ligne 459 |
-| **C-05** | Tax preview off (chiffres inventés) | ❌ NON FAIT — `12_000 + userSeed * 100` toujours présent dans `tax.ts:198` |
+| **C-05** | Tax preview off (chiffres inventés) | ❌ CONFIRMÉ OUVERT — `tax.ts:194-201` : `12_000 + userSeed * 100` et `250_000 + userSeed * 1_000` toujours actifs |
 | **C-06** | APY range PDF lu depuis bps | ✅ FAIT — `targetApyLowBps ?? 940` et `formatApyRange` à `route.tsx:60,396,747` |
 | **C-07** | Règle Model B dans prompt investor-memo | ✅ FAIT — ligne 140 `investor-memo.ts` |
-| **C-08** | Persistance accreditation attest | ✅ FAIT — `accreditationAttestedAt` dans schema ligne 376 (server action à vérifier) |
-| **C-09** | MFA TOTP admin câblé | ⚠️ À VÉRIFIER — deps présentes (otpauth, qrcode) ; câblage flux inconnu |
+| **C-08** | Persistance accreditation attest | ✅ CONFIRMÉ FAIT — `attestAccreditation()` existe dans `app/actions/accreditation.ts:28` et câblée dans `accreditation-attestations.tsx:68` |
+| **C-09** | MFA TOTP admin câblé | ✅ CONFIRMÉ FAIT — flow 3 étapes complet : `TotpEnrolmentClient`, `startEnrolment`/`confirmEnrolment` wired, QR + `otpauth` en place |
 | **C-10** | CSP connect-src resserré | ✅ PARTIEL — `connect-src` restreint (`connectHosts`) ; `script-src 'unsafe-inline' 'unsafe-eval'` toujours présent |
-| **C-11** | Cookie sameSite "lax"→"strict" | ❌ NON FAIT — `session.ts:154` encore `"lax"` (ligne 200 = cookie différent) |
-| **C-12** | Flow reset password (Resend) | ⚠️ À VÉRIFIER — route `forgot-password` existe ; implémentation Resend à confirmer |
-| **C-13** | Model B one-liner LP (vaults detail) | ⚠️ À VÉRIFIER — non trouvé dans `vaults/[id]/page.tsx` surface LP |
+| **C-11** | Cookie sameSite "lax"→"strict" | ❌ CONFIRMÉ OUVERT — `session.ts:154` encore `"lax"` (ligne 200 = cookie différent — `"strict"` là n'est pas le cookie principal) |
+| **C-12** | Flow reset password (Resend) | ✅ CONFIRMÉ FAIT — `password-reset.ts` complet : Resend REST direct, anti-enumeration, single-use token, révocation sessions |
+| **C-13** | Model B one-liner LP (vaults detail) | ❌ CONFIRMÉ MANQUANT — grep exhaustif : aucune occurrence de "principal held in a USDC cash reserve" ou équivalent Model B sur la surface LP `vaults/[id]/page.tsx` et composants term-sheet |
 | **C-14** | Playwright CI bloquant | ❌ NON FAIT — `continue-on-error: true` à `ci.yml:137` |
 
-**Résumé C-items :** 6 faits ✅, 2 non faits ❌, 5 à vérifier/partiels ⚠️.
+**Résumé C-items :** 9 faits ✅, 3 non faits ❌, 1 partiel ⚠️ — vs 6/2/5 au batch 1.
 
 ---
 
