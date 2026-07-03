@@ -113,7 +113,7 @@ export default async function PositionsPage() {
                         {POSITION_STATUS_CONFIG[p.status].label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="ct-metric-caption text-right">
+                    <TableCell className="ct-metric-caption text-right tabular-nums">
                       {formatUsdFull(p.principalUsdc)}
                     </TableCell>
                     <TableCell className="ct-metric-value text-right">
@@ -122,7 +122,7 @@ export default async function PositionsPage() {
                     <TableCell className="ct-metric-value text-right text-[var(--ct-accent)]">
                       {apyLabel(p.apyLow, p.apyHigh)}
                     </TableCell>
-                    <TableCell className="ct-metric-caption pr-5 text-right">
+                    <TableCell className="ct-metric-caption pr-5 text-right tabular-nums">
                       {formatAdminDate(p.subscribedAt)}
                     </TableCell>
                   </TableRow>
