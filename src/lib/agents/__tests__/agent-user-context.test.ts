@@ -277,7 +277,7 @@ describe("runScenarioNarrative — user-context injection", () => {
     expect(blocks[1]).not.toHaveProperty("cache_control");
     expect(blocks[1]?.type).toBe("text");
     expect(typeof blocks[1]?.text).toBe("string");
-    expect(blocks[1]?.text).toMatch(/PERSONNALISATION UTILISATEUR/);
+    expect(blocks[1]?.text).toMatch(/USER PERSONALISATION/);
   });
 
   it("with userId but null profile + empty memory → params.system has 1 block (no injection)", async () => {
@@ -381,7 +381,7 @@ describe("runInvestorMemo — user-context injection + P1 best-effort", () => {
     expect(blocks[0]).toHaveProperty("cache_control");
     // Block 1: user-context — no cache_control
     expect(blocks[1]).not.toHaveProperty("cache_control");
-    expect(blocks[1]?.text).toMatch(/PERSONNALISATION UTILISATEUR/);
+    expect(blocks[1]?.text).toMatch(/USER PERSONALISATION/);
   });
 
   it("P1: loader throws → runInvestorMemo does NOT throw, falls back to 1 block", async () => {

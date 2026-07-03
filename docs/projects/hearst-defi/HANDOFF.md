@@ -2,6 +2,181 @@
 
 ---
 
+## Batch 2c (rerun de confirmation) : re-validation indépendante — 2026-07-03
+
+**Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), même rôle
+"Stabilization" (owner zone : fixes cross-cutting lint/typecheck/test rouges, dette TS)
+que le batch 2c ci-dessous.
+
+RELAIS relu intégralement (`PROJECT_STATE.md`, `BATCHES.md`, `HANDOFF.md`) avant de coder.
+`docs/agent-file-locks.md` vérifié : aucun lock actif sur les fichiers du diff déjà présent
+(`src/lib/vaults/product-display.ts`, `src/components/admin/admin-page-shell.tsx`,
+`src/lib/llm/huggingface.ts`, les 9 fichiers de tests, `docs/projects/hearst-defi/*`) ; le
+seul lock touchant `huggingface.ts` référencé (PR #203, HF deferral) est déjà **mergé et
+libéré** — confirmé ancêtre de `HEAD` (`git merge-base --is-ancestor 5ed5f5fd HEAD`), et le
+diff actuel du fichier est un ajout distinct par-dessus (garde `VITEST==="true"` en plus de
+`NODE_ENV==="test"`), pas un doublon.
+
+Le working tree contenait déjà, non commité, l'implémentation complète du batch 2c
+(diff relu — cohérent avec la description ci-dessous). Plutôt que dupliquer le travail,
+cette session a **ré-exécuté les 3 validations de façon indépendante** (nouvel environnement
+runner, permissions non bloquées cette fois) :
+
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` (suite complète, wrapper pretest/posttest sqlite↔postgresql) →
+  **448/448 fichiers, 5323/5323 tests**, `prisma/schema.prisma` restauré proprement en
+  `postgresql` (aucun diff résiduel après coup).
+- `pnpm run lint` → **0 erreur**, 46 warnings pré-existants identiques (advisory, non
+  bloquant), aucun nouveau warning.
+
+**Conclusion** : le scope owner-zone "typecheck/lint/test rouges, dette TS" pour ce batch
+est confirmé complet et vert avec le diff déjà présent dans le working tree — aucun
+changement de code additionnel nécessaire cette session. Aucun fichier de code modifié
+dans cette passe (uniquement cet addendum HANDOFF). Le diff reste non commité/non pushé/
+sans PR ; laissé pour l'étape d'intégration suivante (hors scope de ce rôle "builder").
+
+---
+
+## Batch 2c — Stabilization : typecheck/test verts, dette TS bloquante — 2026-07-03
+
+**Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), rôle
+"Stabilization" (owner zone : fixes cross-cutting lint/typecheck/test rouges, dette TS).
+**Batch projet** : équivaut au Batch 2 (Baseline Verification) du `PROJECT_PLAN.md`,
+enregistré ici comme 2c car batch 2/2b avaient déjà consommé ce numéro pour le Truth
+Audit / Data Truth.
+**Date** : 2026-07-03
+**Agent** : nexus builder (+ 1 agent délégué pour l'investigation/fix des 9 fichiers rouges)
+
+### RELAIS (avant code)
+
+Lu intégralement : `PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`, `DECISIONS.md`,
+`HANDOFF.md`. Vérifié `docs/agent-file-locks.md` : aucun lock actif sur les fichiers
+finalement touchés (`src/lib/vaults/product-display.ts`, `src/components/admin/
+admin-page-shell.tsx`, `src/lib/llm/huggingface.ts`, les 9 fichiers de tests) — aucun
+conflit avec les locks actifs listés (`fix/strategy-dupkey-fix`,
+`feat/product-workspace-report-product-polish`, `feat/projection-safe-input-preset`,
+`fix/machine-logo-visible`). Batch 2/2b (dont dépendait ce batch selon `PROJECT_PLAN.md`)
+n'était pas mergé (PR "à créer") mais son diff était déjà présent, cohérent, et relu — pas
+de blocage réel.
+
+### État de départ trouvé (avant toute action)
+
+Le working tree contenait déjà, non commité :
+- `prisma/schema.prisma` : `datasource.provider` bloqué sur `"sqlite"` — résidu d'un
+  `pnpm test` précédent interrompu avant son hook `posttest` (`restore-prisma-provider.mjs`).
+  **Fichier interdit pour ce batch** — corrigé en relançant directement
+  `node scripts/restore-prisma-provider.mjs` (aucune édition manuelle du schema), qui l'a
+  remis sur `"postgresql"` proprement. Aucun serveur dev local actif sur :4105 au moment
+  du fix (vérifié avant).
+- `src/lib/agents/__tests__/{agent-user-context,user-context}.test.ts` +
+  `src/lib/llm/huggingface.ts` : diff déjà présent et correct (chaînes FR→EN déjà
+  synchronisées avec `user-context.ts` ; garde `VITEST=true` en plus de
+  `NODE_ENV==="test"` dans `huggingface.ts`) — laissés tels quels, intégrés au commit final.
+
+### Ce qui a été fait
+
+1. `pnpm typecheck` → **0 erreur** (déjà vert après le fix schema.prisma).
+2. `pnpm test` (suite complète, via le wrapper `pretest`/`posttest` sqlite↔postgresql) →
+   **9 fichiers rouges / 15 tests rouges** sur 448 fichiers / 5323 tests.
+3. Root-cause par fichier (investigation déléguée à un agent, vérifiée moi-même sur les
+   2 fix source avant clôture) :
+   - **7 fichiers = test stale FR→EN** : une migration antérieure des system prompts LLM
+     (`src/lib/llm/prompts.ts`, `src/lib/llm/tools/registry.ts`) était passée du français à
+     l'anglais côté source, mais plusieurs suites de tests avaient été laissées sur les
+     anciennes chaînes françaises (`"ALLOCATIONS CANONIQUES"`, `"INTENT : question
+     ÉDUCATIVE read-only"`, `"fourchette"`, `"non garanti"`, `/mot interdit\|garanti/i`,
+     etc.). Chaque assertion a été mise à jour vers son équivalent anglais réel présent
+     dans le source (vérifié par grep direct sur `prompts.ts`/`registry.ts` avant édition,
+     pas de suppression/affaiblissement d'assertion) :
+     `calibration.test.ts`, `admin-context.test.ts`, `admin-tools-registry.test.ts`,
+     `chat-p2-coherence.test.ts`, `route.router-stabilization.test.ts`, et les 2 fichiers
+     `user-context`/`agent-user-context` déjà présents dans le diff de départ.
+   - **`latest-study-run.test.ts`** : faux positif — la migration EN a fait que le
+     disclaimer obligatoire "not guaranteed" (non-négociable #10) contient littéralement
+     le mot "guaranteed", ce qui collisionnait avec une assertion `not.toMatch(/\bguaranteed\b/i)`
+     trop large. Comportement source correct et requis ; test corrigé pour retirer la
+     négation honnête avant de vérifier l'absence d'une promesse positive (même pattern
+     que le strip déjà existant pour "unaudited" dans le même test).
+   - **2 vrais bugs source** (pas de la traduction) :
+     - `src/lib/vaults/product-display.ts` — `ADMIN_MONTH_DAY` (`Intl.DateTimeFormat`)
+       n'avait pas de `timeZone` fixé → une date UTC minuit pouvait s'afficher la veille
+       selon le fuseau local de la machine d'exécution (ex. "Jun 11" au lieu de "Jun 12"
+       en PDT). Fix : `timeZone: "UTC"`, aligné sur les autres formatters UTC-pinnés du
+       code (`nav-bar-chart.ts`, `memo-data.ts`).
+     - `src/components/admin/admin-page-shell.tsx` — `AdminSectionCard` rendait son
+       sous-titre de section en `<h1 className="ct-section-title">` alors que tous les
+       autres consommateurs de `ct-section-title` utilisent `<h2>` ; sur le Proof Center en
+       état vide, ça produisait 3 `<h1>` sur la page au lieu d'1 (hiérarchie de heading
+       cassée). Fix : `<h1>` → `<h2>`, un seul caractère de balise changé.
+4. Validation finale (relancée moi-même, indépendamment de l'agent délégué) :
+   `pnpm test` → **448/448 fichiers, 5323/5323 tests** ; `pnpm typecheck` → **0 erreur** ;
+   `prisma/schema.prisma` confirmé propre (`postgresql`, aucun diff).
+5. `pnpm run lint` : **0 erreur**, 46 warnings pré-existants (`no-unused-vars`,
+   `no-explicit-any`, eslint-disable inutilisés) — advisory (`eslint src || true`, pas un
+   gate CI par `CLAUDE.md`), non touché ce batch (hors scope "rouge").
+
+### Fichiers modifiés
+
+| Fichier | Nature |
+|---|---|
+| `src/lib/vaults/product-display.ts` | Fix source — `timeZone: "UTC"` sur `ADMIN_MONTH_DAY` |
+| `src/components/admin/admin-page-shell.tsx` | Fix source — `<h1>`→`<h2>` sous-titre de section |
+| `src/lib/llm/huggingface.ts` | Pré-existant (garde `VITEST=true`), conservé tel quel |
+| `src/lib/agents/__tests__/agent-user-context.test.ts` | Pré-existant, conservé tel quel |
+| `src/lib/agents/__tests__/user-context.test.ts` | Pré-existant, conservé tel quel |
+| `src/lib/agents/__tests__/calibration.test.ts` | Test stale FR→EN |
+| `src/lib/llm/__tests__/admin-context.test.ts` | Test stale FR→EN |
+| `src/lib/llm/__tests__/admin-tools-registry.test.ts` | Test stale FR→EN |
+| `src/lib/llm/__tests__/chat-p2-coherence.test.ts` | Test stale FR→EN |
+| `src/lib/projection/__tests__/latest-study-run.test.ts` | Test — assertion trop large corrigée |
+| `src/app/api/cockpit-chat/__tests__/route.router-stabilization.test.ts` | Test stale FR→EN |
+| `docs/projects/hearst-defi/PROJECT_STATE.md` | §2 baseline rafraîchie (typecheck/test → ✅ vérifiés) |
+| `docs/projects/hearst-defi/BATCHES.md` | Ligne 2c ajoutée (FAIT) |
+| `docs/projects/hearst-defi/HANDOFF.md` | Ce fichier — section batch 2c ajoutée |
+
+**Fichiers exclus (owner zone respectée)** : aucun `prisma/**` (migrations) édité — seul
+le résidu `schema.prisma` a été restauré via le script officiel, pas d'édition manuelle ;
+aucune UI redesign (2 fixes source = un seul attribut/une seule balise, comportement
+existant préservé, pas de restylage) ; `.github/workflows/**`, secrets/`.env*`,
+`vercel.json` non touchés ; `src/lib/llm/tools/registry.ts` et `src/app/api/cockpit-chat/
+route.ts` lus mais non édités (référence seulement, pour vérifier les chaînes source
+avant de corriger les tests).
+
+### Validations lancées
+
+- `pnpm typecheck` → 0 erreur (lancé 2×, avant et après les fixs).
+- `pnpm test` (suite complète) → 448/448 fichiers, 5323/5323 tests (lancé par l'agent
+  délégué puis re-lancé indépendamment par l'agent orchestrateur pour confirmation).
+- `pnpm run lint` → 0 erreur, 46 warnings pré-existants (non bloquant, non touché).
+- `forge test` — **non relancé** ce batch (hors owner zone TS/test ; dernière vérité
+  toujours 73/73 au 2026-05-29 par `PROJECT_STATE.md`).
+- `pnpm build` — **non relancé** ce batch (hors scope, coûteux ; typecheck+test suffisent
+  pour la stabilisation demandée).
+
+### Risques
+
+| Risque | Impact | Note |
+|---|---|---|
+| `pnpm build` non vérifié ce batch | Faible-Moyen | typecheck 0 erreur réduit le risque, mais un build Next complet peut révéler des soucis distincts (bundling, RSC boundaries) |
+| `forge test` non relancé | Faible | Contrats gelés depuis `898991c`, aucun fichier `contracts/**` touché ce batch |
+| 46 warnings ESLint pré-existants non traités | Faible | Advisory uniquement, hors scope "rouge" de ce batch |
+
+### Aucune régression de comportement attendue
+
+Les 2 fixes source sont chacun un changement d'un seul attribut/tag, alignés sur des
+conventions déjà établies ailleurs dans le code (formatters UTC-pinnés, hiérarchie
+`h2` pour `ct-section-title`) — pas de nouvelle abstraction, pas de fallback ajouté.
+
+### Prochain batch recommandé
+
+**Batch 3 — Corrections P0 restantes** (déjà planifié dans `PROJECT_PLAN.md`, prérequis
+satisfait par ce batch : baseline typecheck/test maintenant vérifiée verte) :
+- C-05 (décision produit résiduelle sur `tax/page.tsx`), C-11 (cookie `sameSite`), C-13
+  (Model B one-liner LP), T-02 (décision Adrien sur promesse email reçu). Voir
+  `DECISIONS.md` §"Questions en attente pour Adrien".
+
+---
+
 ## Batch 2b (2e rerun de vérification) : extension du spot-check — 2026-07-03
 
 **Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`).

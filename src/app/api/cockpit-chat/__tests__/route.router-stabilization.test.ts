@@ -193,10 +193,10 @@ describe("cockpit-chat — router stabilization (negation, education, refusal)",
         await POST(makeChatRequest(msg));
         expect(mockRunChatAgent).toHaveBeenCalledTimes(1);
         const sys = systemPromptOfLastTurn();
-        expect(sys).toContain("INTENT : question ÉDUCATIVE read-only");
+        expect(sys).toContain("INTENT: read-only EDUCATIONAL question about");
         // The directive reinforces (never relaxes) compliance.
-        expect(sys).toContain("fourchette");
-        expect(sys).toMatch(/mot interdit|garanti/i);
+        expect(sys).toContain("as a range");
+        expect(sys).toMatch(/forbidden word|guaranteed/i);
       });
     }
 
@@ -204,7 +204,7 @@ describe("cockpit-chat — router stabilization (negation, education, refusal)",
       await POST(makeChatRequest("bonjour, tu vas bien ?"));
       expect(mockRunChatAgent).toHaveBeenCalledTimes(1);
       expect(systemPromptOfLastTurn()).not.toContain(
-        "INTENT : question ÉDUCATIVE read-only",
+        "INTENT: read-only EDUCATIONAL question about",
       );
     });
   });

@@ -40,7 +40,7 @@ describe("prompts — deterministic navigation, no navigate tool", () => {
     });
 
     it(`${name} prompt states navigation is system-resolved / deterministic`, () => {
-      expect(prompt).toMatch(/déterministe|résolue par le système|gérée par le système/i);
+      expect(prompt).toMatch(/deterministic|resolved by the system|handled by the system/i);
     });
   }
 });
@@ -54,13 +54,13 @@ describe("prompts — forbidden-words wording aligned with the guard", () => {
     expect(COCKPIT_DEFAULT_SYSTEM_PROMPT).toMatch(/output guard|garde-fou serveur/i);
   });
 
-  it("lists the canonical forbidden claims (FR ∪ EN) the guard enforces", () => {
+  it("lists the canonical forbidden claims the guard enforces", () => {
     const p = COCKPIT_DEFAULT_SYSTEM_PROMPT;
     for (const needle of [
-      "garantie",
-      "sans risque",
-      "rendement assuré",
-      "capital protégé",
+      "promise",
+      "certain",
+      "will deliver",
+      "capital protected",
       "guarantee",
       "risk-free",
       "no risk",

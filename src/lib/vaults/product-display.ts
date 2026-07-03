@@ -98,6 +98,7 @@ export function formatAdminDate(d: Date): string {
 const ADMIN_MONTH_DAY = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
+  timeZone: "UTC",
 });
 
 export function formatAdminMonthDay(d: Date): string {
