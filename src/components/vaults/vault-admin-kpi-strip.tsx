@@ -35,7 +35,7 @@ export function VaultAdminKpiStrip({
       >
         {/* Target APY */}
         <div className="bg-surface-card p-5 flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 min-h-5">
             <span className="ct-bento-label">
               Target APY
             </span>
@@ -54,9 +54,12 @@ export function VaultAdminKpiStrip({
 
         {/* Fees */}
         <div className="bg-surface-card p-5 flex flex-col gap-2">
-          <span className="ct-bento-label">
-            Fees
-          </span>
+          <div className="flex items-center justify-between gap-2 min-h-5">
+            <span className="ct-bento-label">
+              Fees
+            </span>
+            <span />
+          </div>
           <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
             {bpsToPercent(facts.mgmtFeeBps)}% / {bpsToPercent(facts.perfFeeBps)}%
           </span>
@@ -65,9 +68,12 @@ export function VaultAdminKpiStrip({
 
         {/* Lock-up */}
         <div className="bg-surface-card p-5 flex flex-col gap-2">
-          <span className="ct-bento-label">
-            Lock-up
-          </span>
+          <div className="flex items-center justify-between gap-2 min-h-5">
+            <span className="ct-bento-label">
+              Lock-up
+            </span>
+            <span />
+          </div>
           <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
             {facts.softLockupDays}d
           </span>
@@ -77,7 +83,7 @@ export function VaultAdminKpiStrip({
         {/* AUM */}
         {showAumCard ? (
           <div className="bg-surface-card p-5 flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 min-h-5">
               <span className="ct-bento-label">
                 AUM
               </span>
