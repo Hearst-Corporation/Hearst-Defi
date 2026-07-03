@@ -84,9 +84,9 @@ export function PreviewSourceBanner({
           <PreviewBadge tone="neutral">Illustrative only</PreviewBadge>
         </div>
         <p className="ct-metric-caption mt-2">
-          Aucun ProjectionStudyRun trouvé. Aperçu illustratif du format de
-          rapport — ne reflète pas une projection réelle. Lance une étude depuis
-          /admin/projection pour brancher l’aperçu sur un vrai run.
+          No ProjectionStudyRun found. Illustrative preview of the report format
+          — does not reflect a real projection. Run a study from
+          /admin/projection to wire the preview to a real run.
         </p>
         {validation ? <ValidationLine validation={validation} /> : null}
       </div>
@@ -114,7 +114,7 @@ export function PreviewSourceBanner({
           </div>
         </div>
         <div>
-          <div className="ct-bento-label">Scénarios</div>
+          <div className="ct-bento-label">Scenarios</div>
           <div className="ct-metric-caption tabular-nums">
             {latestRun.scenarioRunCount}
           </div>
@@ -129,11 +129,11 @@ export function PreviewSourceBanner({
         </div>
       </div>
       {latestRun.label ? (
-        <p className="ct-metric-caption mt-2">Label : {latestRun.label}</p>
+        <p className="ct-metric-caption mt-2">Label: {latestRun.label}</p>
       ) : null}
       <p className="ct-metric-caption mt-2 italic text-[var(--ct-text-faint)]">
-        Aperçu admin — projection, non garantie. Statut GO ADMIN ONLY :
-        assumptions configurées non validées, risk baselines pré-audit.
+        Admin preview — projection, not guaranteed. GO ADMIN ONLY status:
+        configured assumptions not validated, risk baselines pre-audit.
       </p>
       {validation ? <ValidationLine validation={validation} /> : null}
     </div>
