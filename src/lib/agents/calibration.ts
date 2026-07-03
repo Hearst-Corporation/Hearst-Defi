@@ -78,31 +78,31 @@ function registerForPlatform(p: PlatformType | null | undefined): {
       return {
         label: "crypto-native",
         instruction:
-          "Interlocuteur crypto-native : ton direct, lexique DeFi/on-chain (ERC-4626, PoR, oracle), mets en avant la transparence on-chain et les proofs.",
+          "Crypto-native counterpart: direct tone, DeFi/on-chain lexicon (ERC-4626, PoR, oracle), emphasise on-chain transparency and proofs.",
       };
     case "exchange":
       return {
         label: "exchange",
         instruction:
-          "Interlocuteur exchange : insiste sur l'activation du float client, l'intégration API/custody et la distribution USDC.",
+          "Exchange counterpart: stress client float activation, API/custody integration and USDC distribution.",
       };
     case "wealth":
       return {
         label: "wealth-platform",
         instruction:
-          "Interlocuteur wealth platform : registre institutionnel feutré, vocabulaire structuré (fourchette APY, méthodologie, PPM/LPA), mets en avant la structure Cayman SPV et la conformité.",
+          "Wealth-platform counterpart: understated institutional register, structured vocabulary (APY range, methodology, PPM/LPA), emphasise the Cayman SPV structure and compliance.",
       };
     case "custody":
       return {
         label: "custody-infra",
         instruction:
-          "Interlocuteur custody/infra : focalise sur l'architecture, la sécurité, les garde-fous custody (modèle cash, zéro sortie owner) et la provenance/attestation.",
+          "Custody/infra counterpart: focus on architecture, security, custody guardrails (cash model, zero owner outflow) and provenance/attestation.",
       };
     default:
       return {
         label: "segment-inconnu",
         instruction:
-          "Segment de plateforme non précisé : reste générique et institutionnel, pose une question de découverte sur le métier avant d'orienter.",
+          "Platform segment unspecified: stay generic and institutional, ask a discovery question about their business before steering.",
       };
   }
 }
@@ -117,7 +117,7 @@ function pedagogyFor(
       level: "peer",
       label: "averti",
       instruction:
-        "Interlocuteur averti (yield déjà live) : va droit au but en pair-à-pair, parle méthodologie, backtest et audit ; saute les explications de base.",
+        "Sophisticated counterpart (yield already live): get straight to the point peer-to-peer, talk methodology, backtest and audit; skip the basic explanations.",
     };
   }
   if (yieldStatus === "in_progress" || fundsUsage === "mix" || fundsUsage === "earning") {
@@ -125,14 +125,14 @@ function pedagogyFor(
       level: "compare",
       label: "migrateur",
       instruction:
-        "Interlocuteur en cours de structuration : positionne Hearst par rapport à leur produit existant, insiste sur la différenciation et la migration.",
+        "Counterpart mid-structuring: position Hearst against their existing product, stress differentiation and migration.",
     };
   }
   return {
     level: "teach",
     label: "greenfield",
     instruction:
-      "Interlocuteur greenfield (fonds dormants, pas encore de yield) : explique le yield structuré depuis la base, reste pédagogue et accompagne les disclaimers.",
+      "Greenfield counterpart (idle funds, no yield yet): explain structured yield from the ground up, stay pedagogical and walk through the disclaimers.",
   };
 }
 
@@ -149,7 +149,7 @@ function tierFor(
       tier: "tier1",
       label: "tier-1 white-glove",
       instruction:
-        "Compte tier-1 (poids fort) : registre premium, priorité haute, propose un contact humain et un accompagnement white-glove.",
+        "Tier-1 account (heavyweight): premium register, high priority, offer a human contact and white-glove support.",
     };
   }
   if (mid) {
@@ -157,14 +157,14 @@ function tierFor(
       tier: "mid",
       label: "mid-market",
       instruction:
-        "Compte mid-market : flux guidé standard, efficace et concret.",
+        "Mid-market account: standard guided flow, efficient and concrete.",
     };
   }
   return {
     tier: "explorer",
     label: "explorer / small",
     instruction:
-      "Compte exploratoire (petit ticket / incertain) : persona self-serve découverte, qualifie sans surinvestir, reste utile et bref.",
+      "Exploratory account (small ticket / uncertain): self-serve discovery persona, qualify without over-investing, stay useful and brief.",
   };
 }
 
@@ -178,25 +178,25 @@ function vaultFor(y: YieldType | null | undefined): {
       return {
         vault: "defensive",
         instruction:
-          "Appétit faible risque : mets en avant le Hearst Defensive Vault (fourchette APY basse, préservation du capital).",
+          "Low risk appetite: highlight the Hearst Defensive Vault (lower APY range, capital preservation).",
       };
     case "growth":
       return {
         vault: "btc-plus",
         instruction:
-          "Appétit croissance : mets en avant le Hearst BTC Plus (fourchette APY haute) en chargeant clairement les disclaimers « non garanti ».",
+          'Growth appetite: highlight the Hearst BTC Plus (higher APY range) while clearly loading the "not guaranteed" disclaimers.',
       };
     case "balanced":
       return {
         vault: "yield",
         instruction:
-          "Appétit équilibré : mets en avant le Hearst Yield Vault (cœur de gamme).",
+          "Balanced appetite: highlight the Hearst Yield Vault (core of the range).",
       };
     default:
       return {
         vault: "yield",
         instruction:
-          "Appétit risque non précisé : persona diagnostic, pose des questions de découverte avant de recommander un vault ; par défaut présente le Hearst Yield Vault.",
+          "Risk appetite unspecified: diagnostic persona, ask discovery questions before recommending a vault; default to presenting the Hearst Yield Vault.",
       };
   }
 }
@@ -206,12 +206,12 @@ function timelineInstruction(t: Timeline | null | undefined): string {
   switch (t) {
     case "asap":
     case "1_3m":
-      return "Timeline courte : persona closer, propose des next steps concrets et une trame d'onboarding.";
+      return "Short timeline: closer persona, propose concrete next steps and an onboarding outline.";
     case "3_6m":
-      return "Timeline moyenne : entretiens l'intérêt avec des jalons clairs.";
+      return "Medium timeline: keep interest alive with clear milestones.";
     case "exploring":
     default:
-      return "Juste en exploration : persona nurturing, éducation et ressources, aucune pression commerciale.";
+      return "Just exploring: nurturing persona, education and resources, no commercial pressure.";
   }
 }
 
