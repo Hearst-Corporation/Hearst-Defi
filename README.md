@@ -566,4 +566,4 @@ agent rencontre un cas non couvert, il s'arrête et demande à Adrien.**
 
 ---
 
-_Last automated check: 2026-07-01 — repo healthy (typecheck, lint, tests green; no secrets detected)._
+_Last automated check: 2026-07-03 — repo healthy (typecheck, lint, tests green; no secrets detected)._
