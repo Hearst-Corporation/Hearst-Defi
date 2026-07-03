@@ -124,7 +124,7 @@ export default async function CustomersPage({
                   >
                     Positions
                   </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} text-center`}>
+                  <TableHeader className={`${TABLE_HEAD} text-right`}>
                     Total principal
                   </TableHeader>
                   <TableHeader
@@ -164,7 +164,7 @@ export default async function CustomersPage({
                     >
                       {c.activePositions}
                     </TableCell>
-                    <TableCell className="ct-metric-value text-center">
+                    <TableCell className="ct-metric-value text-right tabular-nums">
                       {formatUsdFull(c.totalPrincipalUsdc)}
                     </TableCell>
                     <TableCell
@@ -210,15 +210,15 @@ export default async function CustomersPage({
                   <TableHeader className={`${TABLE_HEAD} pl-5`}>
                     Email
                   </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} text-center`}>
+                  <TableHeader className={`${TABLE_HEAD} text-left`}>
                     Name
                   </TableHeader>
                   <TableHeader
-                    className={`${TABLE_HEAD} hidden text-center md:table-cell`}
+                    className={`${TABLE_HEAD} hidden text-left md:table-cell`}
                   >
                     Source
                   </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} pr-5 text-center`}>
+                  <TableHeader className={`${TABLE_HEAD} pr-5 text-left`}>
                     Submitted
                   </TableHeader>
                 </TableRow>
@@ -229,13 +229,13 @@ export default async function CustomersPage({
                     <TableCell className="ct-metric-value pl-5 truncate">
                       {s.email ?? "—"}
                     </TableCell>
-                    <TableCell className="ct-metric-caption truncate text-center">
+                    <TableCell className="ct-metric-caption truncate text-left">
                       {[s.firstName, s.lastName].filter(Boolean).join(" ") || "—"}
                     </TableCell>
-                    <TableCell className="ct-metric-caption hidden text-center md:table-cell">
+                    <TableCell className="ct-metric-caption hidden text-left md:table-cell">
                       {s.source}
                     </TableCell>
-                    <TableCell className="ct-metric-caption pr-5 text-center">
+                    <TableCell className="ct-metric-caption pr-5 text-left">
                       {formatAdminDate(s.submittedAt)}
                     </TableCell>
                   </TableRow>

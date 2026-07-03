@@ -1,6 +1,14 @@
 "use client";
 
 import type { BuybackStep } from "@/lib/strategy-data-lab";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 
 function usd(value: number): string {
@@ -32,72 +40,70 @@ export function CollateralBuybackLadder({
 
   return (
     <div className="flex flex-col gap-(--ct-space-4)">
-      <div className="min-w-0 overflow-x-auto">
-        <table className="w-full min-w-[48rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-              <th className="p-(--ct-space-2) text-left">Step</th>
-              <th className="p-(--ct-space-2) text-right">BTC trigger price</th>
-              <th className="p-(--ct-space-2) text-right">Distance before</th>
-              <th className="p-(--ct-space-2) text-right">USDC deployed</th>
-              <th className="p-(--ct-space-2) text-right">BTC bought</th>
-              <th className="p-(--ct-space-2) text-right">Reserve after</th>
-              <th className="p-(--ct-space-2) text-right">LTV after</th>
-              <th className="p-(--ct-space-2) text-left">Allowed / Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            {steps.map((step) => (
-              <tr
-                key={step.step}
-                className="border-b border-[var(--ct-border-soft)] align-top"
+      <Table className="min-w-[48rem] text-[length:var(--ct-text-xs)] tabular-nums">
+        <TableHead>
+          <TableRow className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+            <TableHeader className="p-(--ct-space-2) text-left">Step</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-right">BTC trigger price</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-right">Distance before</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-right">USDC deployed</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-right">BTC bought</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-right">Reserve after</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-right">LTV after</TableHeader>
+            <TableHeader className="p-(--ct-space-2) text-left">Allowed / Reason</TableHeader>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {steps.map((step) => (
+            <TableRow
+              key={step.step}
+              className="border-b border-[var(--ct-border-soft)] align-top"
+            >
+              <TableCell className="p-(--ct-space-2) ct-text-strong">{`B${step.step}`}</TableCell>
+              <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                {usd(step.triggerPriceUsd)}
+              </TableCell>
+              <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                {pct(step.distanceBeforePct)}
+              </TableCell>
+              <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                {step.usdcDeployed > 0 ? usd(step.usdcDeployed) : "—"}
+              </TableCell>
+              <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                {step.btcBought > 0 ? btc(step.btcBought) : "—"}
+              </TableCell>
+              <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                {usd(step.workingReserveAfterUsdc)}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "p-(--ct-space-2) text-right",
+                  step.allowed ? "ct-text-accent" : "text-[var(--ct-status-warning)]",
+                )}
               >
-                <td className="p-(--ct-space-2) ct-text-strong">{`B${step.step}`}</td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">
-                  {usd(step.triggerPriceUsd)}
-                </td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">
-                  {pct(step.distanceBeforePct)}
-                </td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">
-                  {step.usdcDeployed > 0 ? usd(step.usdcDeployed) : "—"}
-                </td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">
-                  {step.btcBought > 0 ? btc(step.btcBought) : "—"}
-                </td>
-                <td className="p-(--ct-space-2) text-right ct-text-body">
-                  {usd(step.workingReserveAfterUsdc)}
-                </td>
-                <td
-                  className={cn(
-                    "p-(--ct-space-2) text-right",
-                    step.allowed ? "ct-text-accent" : "text-[var(--ct-status-warning)]",
-                  )}
-                >
-                  {pct(step.ltvAfterPct)}
-                </td>
-                <td className="p-(--ct-space-2) text-left">
-                  <div className="flex flex-col gap-(--ct-space-1)">
-                    <span
-                      className={cn(
-                        "text-[length:var(--ct-text-2xs)] font-medium uppercase tracking-wide",
-                        step.allowed
-                          ? "ct-text-accent"
-                          : "text-[var(--ct-status-warning)]",
-                      )}
-                    >
-                      {step.allowed ? "Allowed" : "Blocked"}
-                    </span>
-                    <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
-                      {step.reason}
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                {pct(step.ltvAfterPct)}
+              </TableCell>
+              <TableCell className="p-(--ct-space-2) text-left">
+                <div className="flex flex-col gap-(--ct-space-1)">
+                  <span
+                    className={cn(
+                      "text-[length:var(--ct-text-2xs)] font-medium uppercase tracking-wide",
+                      step.allowed
+                        ? "ct-text-accent"
+                        : "text-[var(--ct-status-warning)]",
+                    )}
+                  >
+                    {step.allowed ? "Allowed" : "Blocked"}
+                  </span>
+                  <span className="text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+                    {step.reason}
+                  </span>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       <details
         className="group rounded-(--ct-radius-md) border border-[var(--ct-border-soft)]"
@@ -107,44 +113,44 @@ export function CollateralBuybackLadder({
           <span className="transition-transform group-open:rotate-90">▶</span>
           Advanced buyback details
         </summary>
-        <div className="min-w-0 overflow-x-auto border-t border-[var(--ct-border-soft)] p-(--ct-space-3)">
-          <table className="w-full min-w-[52rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-            <thead>
-              <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-                <th className="p-(--ct-space-2) text-left">Step</th>
-                <th className="p-(--ct-space-2) text-right">Reserve floor ok</th>
-                <th className="p-(--ct-space-2) text-right">Max LTV ok</th>
-                <th className="p-(--ct-space-2) text-right">Distance ok</th>
-                <th className="p-(--ct-space-2) text-right">wBTC collateral after</th>
-                <th className="p-(--ct-space-2) text-left">Formula note</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="border-t border-[var(--ct-border-soft)] p-(--ct-space-3)">
+          <Table className="min-w-[52rem] text-[length:var(--ct-text-xs)] tabular-nums">
+            <TableHead>
+              <TableRow className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                <TableHeader className="p-(--ct-space-2) text-left">Step</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Reserve floor ok</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Max LTV ok</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Distance ok</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">wBTC collateral after</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-left">Formula note</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {steps.map((step) => (
-                <tr
+                <TableRow
                   key={`advanced-${step.step}`}
                   className="border-b border-[var(--ct-border-soft)] align-top"
                 >
-                  <td className="p-(--ct-space-2) ct-text-strong">{`B${step.step}`}</td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  <TableCell className="p-(--ct-space-2) ct-text-strong">{`B${step.step}`}</TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {step.reserveFloorOk ? "Yes" : "No"}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {step.maxLtvOk ? "Yes" : "No"}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {step.distanceOk ? "Yes" : "No"}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {btc(step.wbtcCollateralAfter)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-left text-[length:var(--ct-text-2xs)] ct-text-tertiary">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-left text-[length:var(--ct-text-2xs)] ct-text-tertiary">
                     buyAllowed = distanceOk && maxLtvOk && reserveFloorOk.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </details>
     </div>
