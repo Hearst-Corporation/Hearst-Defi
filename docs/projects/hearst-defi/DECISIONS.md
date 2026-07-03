@@ -126,6 +126,80 @@ const principalUsd = overrides.actualPrincipalUsd ?? 250_000 + userSeed * 1_000;
 
 ---
 
+## Rapport batch "Data Truth" (anti-mock guard, 2026-07-03)
+
+> Batch builder ciblé couche données/API (owner zone: sources réelles, gardes
+> anti-mock). Fichiers interdits pour ce batch : UI pages, `prisma/**`
+> (migrations), `.github/workflows/**`, secrets, `vercel.json`. Aucune mutation
+> de données prod. Objectif : reprendre les findings T-01→T-12 du Truth Audit
+> et, pour ceux qui relèvent de la couche données (pas juste UI/business
+> decision), remplacer le mock non signalé par une source réelle ou un état
+> honnête.
+
+### Revue des findings T-01 à T-12 — ce qui est réellement dans cette owner zone
+
+| ID | Verdict de ce batch | Action |
+|---|---|---|
+| **T-01** (tax preview fake data) | **Corrigé partiellement — surface live déjà réelle, gap de provenance comblé** | Voir détail ci-dessous |
+| T-02 (promesse email reçu) | Hors zone — décision produit + UI page (`confirmed/page.tsx`) | Aucune action (reste batch 3 / décision Adrien) |
+| T-03 (Model B one-liner) | Hors zone — UI page (`vaults/[id]/page.tsx`) interdite à ce batch | Aucune action (reste batch 3) |
+| T-04 (cookie sameSite) | Hors zone — auth, pas données/API mock | Aucune action (reste batch 3) |
+| **T-05** (distribution `0xMOCK_`) | **Déjà honnêtement signalé** — vérifié : `admin/distributions/page.tsx:173-191` affiche déjà un badge `estimated` + libellé "simulated" pour tout `txHash` préfixé `0xMOCK`. Pas un mock non signalé. | Aucune action de code — reste gated sur D7 (batch 9) |
+| **T-06** (governance sans appel Solidity) | **Déjà honnêtement signalé** — vérifié : `admin/governance/proposal/[id]/page.tsx:334` affiche déjà "Actions are recorded on-chain mock only — no Solidity calls at this stage." | Aucune action de code — reste gated sur D1 (batch 9) |
+| **T-07** (attestation mock key) | **Confiné et déjà guardé** — `buildMockAttestation`/`signMockAttestation` (`attestation/mock.ts`) ne sont appelés que par `prisma/seed.ts` et les tests, jamais par un chemin runtime app. La vérification (`stored.ts::isAttestorAllowlisted`) fail-closed en production (allowlist vide → badge "Attested" jamais accordé) et le bypass dev (`ATTESTATION_DEV_ACCEPT_ANY`) est désactivé en production. | Aucune action de code nécessaire |
+| T-08 (bell notifications) | Hors zone — composant UI + décision batch 8 | Aucune action |
+| T-09 (lp.redemption / memo.publish) | Hors zone — nécessite modèle Prisma (migration interdite à ce batch) | Aucune action |
+| **T-10** (Apollo sourcing mock) | **Déjà guardé** — vérifié : `admin/outreach/actions.ts:894-898` refuse `runSourcing` en production sans `APOLLO_API_KEY` ("refusing to source mock leads"). | Aucune action de code nécessaire |
+| T-11 (NavSparkline label) | Hors zone — cosmétique UI, batch 4 | Aucune action |
+| T-12 (Export coming soon) | Hors zone — feature scope, batch 7 | Aucune action |
+
+### T-01 — détail de la correction (couche données, pas UI)
+
+Le composant original cité par le sprint correctness et le Truth Audit —
+`src/components/portfolio/tax-docs-drawer.tsx:243-259` — **n'existe plus** :
+il a été supprimé lors du refactor "unify dashboard into MergedSurface premium
+panels" (commit `79c9b2c2`), remplacé par une page dédiée
+`src/app/(product)/portfolio/tax/page.tsx`. Cette page **appelle déjà**
+`loadPortfolio()` et passe les trois montants réels (`totalYieldYtdUsdc`,
+`deployedUsdc`, `accruedYieldUsdc`) en overrides à `getTaxPreview()` — le
+chemin qui fabrique les chiffres factices (`12_000 + userSeed*100`,
+`250_000 + userSeed*1_000`) n'est donc **plus jamais emprunté par la seule
+surface LP-facing existante**.
+
+Le vrai gap restant (raison pour laquelle T-01 n'était pas entièrement clos) :
+`getTaxPreview()` ne retournait **aucun signal de provenance** — un futur
+appelant qui oublierait de passer les overrides obtiendrait silencieusement
+les mêmes chiffres fabriqués, indiscernables de données réelles côté type
+system. Corrigé :
+
+- `TaxPreview` porte désormais un champ `dataSource: "live" | "stub"`
+  (`src/lib/portfolio/tax.ts`) — `"live"` uniquement si les trois overrides
+  réels (`actualInterestIncomeUsd`, `actualPrincipalUsd`,
+  `actualAccruedYieldUsd`) sont explicitement fournis (y compris à `0` pour un
+  nouvel investisseur), `"stub"` sinon.
+- Guard de régression ajouté dans `src/lib/__tests__/data-honesty-guards.test.ts`
+  (POINT 6, même convention que POINT 1-5 : lecture statique du code source,
+  pas de DB) — vérifie que `portfolio/tax/page.tsx` et
+  `tax-preview-loader.ts` continuent bien de fournir les trois overrides
+  réels.
+- Tests ajoutés dans `src/lib/portfolio/__tests__/tax.test.ts` (bloc 19,
+  5 cas) + assertion `dataSource: "live"` ajoutée dans
+  `tax-preview-loader.test.ts`.
+- **Aucun changement de comportement** pour les appelants existants (tous
+  passent déjà les 3 overrides → `dataSource: "live"` dans les deux cas) —
+  changement additif, tests existants inchangés.
+
+**Impact sur C-05 / batch 3** : le scope original de C-05 ("désactiver le
+trigger Tax Docs Preview + tooltip 2027 Q1") référence un fichier disparu.
+Batch 3 doit vérifier s'il reste un besoin produit sur la page `tax/page.tsx`
+actuelle (ex: mention du `docStatus: "preview"` déjà présente dans le footer
+"Preview only — final tax documents are issued annually"), mais **le risque
+CRITICAL "chiffres inventés présentés comme réels" documenté par T-01 est
+neutralisé** sur la seule surface LP existante, avec un guard de régression en
+place.
+
+---
+
 ## Mises à jour du statut sprint correctness (post-audit vérité)
 
 | C-Item | Ancien statut | Statut vérifié (2026-07-03) |

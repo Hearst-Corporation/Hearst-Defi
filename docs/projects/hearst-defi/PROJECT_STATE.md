@@ -73,7 +73,7 @@ Auth, cockpit-chat, cockpit-chats, agent-canvas, search, health/deep, inngest, w
 | **C-02** | Alias env vault (HEARST_YIELD / HEARST) | ✅ FAIT — double alias dans `vault.ts:59-60,76-77` |
 | **C-03** | Share class réelle dans widgets portfolio | ✅ CONFIRMÉ FAIT — `loadDistribCalendarProps()` lit `terms.shareClass` depuis DB ; `LockMeter` reçoit `softLockupDays` depuis `vaultDeployment` |
 | **C-04** | Fees défaut Prisma 2 %→1 % | ✅ FAIT — `mgmtFeeBps @default(100)` ligne 459 |
-| **C-05** | Tax preview off (chiffres inventés) | ❌ CONFIRMÉ OUVERT — `tax.ts:194-201` : `12_000 + userSeed * 100` et `250_000 + userSeed * 1_000` toujours actifs |
+| **C-05** | Tax preview off (chiffres inventés) | ⚠️ PARTIEL (2026-07-03, batch Data Truth) — `tax-docs-drawer.tsx` (fichier cité par le sprint) n'existe plus, remplacé par `portfolio/tax/page.tsx` qui passe déjà les 3 montants réels à `getTaxPreview()`. Gap de provenance comblé (`dataSource: "live"|"stub"` ajouté + guard régression). Reste à trancher batch 3 : besoin produit résiduel sur la page actuelle ? Voir `DECISIONS.md` détail T-01. |
 | **C-06** | APY range PDF lu depuis bps | ✅ FAIT — `targetApyLowBps ?? 940` et `formatApyRange` à `route.tsx:60,396,747` |
 | **C-07** | Règle Model B dans prompt investor-memo | ✅ FAIT — ligne 140 `investor-memo.ts` |
 | **C-08** | Persistance accreditation attest | ✅ CONFIRMÉ FAIT — `attestAccreditation()` existe dans `app/actions/accreditation.ts:28` et câblée dans `accreditation-attestations.tsx:68` |
@@ -84,7 +84,7 @@ Auth, cockpit-chat, cockpit-chats, agent-canvas, search, health/deep, inngest, w
 | **C-13** | Model B one-liner LP (vaults detail) | ❌ CONFIRMÉ MANQUANT — grep exhaustif : aucune occurrence de "principal held in a USDC cash reserve" ou équivalent Model B sur la surface LP `vaults/[id]/page.tsx` et composants term-sheet |
 | **C-14** | Playwright CI bloquant | ❌ NON FAIT — `continue-on-error: true` à `ci.yml:137` |
 
-**Résumé C-items :** 9 faits ✅, 3 non faits ❌, 1 partiel ⚠️ — vs 6/2/5 au batch 1.
+**Résumé C-items :** 9 faits ✅, 2 non faits ❌, 2 partiels ⚠️ (batch Data Truth 2026-07-03 : C-05 passé de ❌ à ⚠️) — vs 6/2/5 au batch 1.
 
 ---
 
@@ -179,4 +179,4 @@ Module `src/lib/product-strategies/` + `src/app/admin/strategies/` ajouté lors 
 
 ---
 
-*Mis à jour : 2026-07-02. Prochain refresh : batch 2.*
+*Mis à jour : 2026-07-03 (batch Data Truth — anti-mock guard). Prochain refresh : batch 3.*

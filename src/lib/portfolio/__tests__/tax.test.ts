@@ -23,6 +23,8 @@
  * 16. compute1099B directly: ST/LT split at ≤365/> 365 days boundary.
  * 17. computeCrs directly: otherIncomeUsd 62% ratio.
  * 18. Forbidden words absent from all string fields.
+ * 19. dataSource provenance: "stub" when overrides are absent, "live" only
+ *     when all three real-ledger overrides are supplied.
  */
 
 import { describe, it, expect } from "vitest";
@@ -352,6 +354,50 @@ describe("Forbidden words — tax preview strings", () => {
     for (const word of FORBIDDEN) {
       expect(preview.crs.residenceCountry.toLowerCase()).not.toContain(word);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 19. dataSource provenance
+// ---------------------------------------------------------------------------
+
+describe("getTaxPreview — dataSource provenance", () => {
+  it("19. no overrides at all → dataSource is 'stub'", () => {
+    const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR);
+    expect(preview.dataSource).toBe("stub");
+  });
+
+  it("19b. only a partial override (e.g. residenceCountry) → still 'stub'", () => {
+    const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR, {
+      residenceCountry: "GB",
+    });
+    expect(preview.dataSource).toBe("stub");
+  });
+
+  it("19c. only actualInterestIncomeUsd supplied → still 'stub' (principal/accrued missing)", () => {
+    const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR, {
+      actualInterestIncomeUsd: 5_000,
+    });
+    expect(preview.dataSource).toBe("stub");
+  });
+
+  it("19d. all three real ledger overrides supplied → 'live'", () => {
+    const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR, {
+      actualInterestIncomeUsd: 5_000,
+      actualPrincipalUsd: 250_000,
+      actualAccruedYieldUsd: 4_250,
+    });
+    expect(preview.dataSource).toBe("live");
+  });
+
+  it("19e. 'live' holds even when the real ledger values are all zero (new investor)", () => {
+    const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR, {
+      actualInterestIncomeUsd: 0,
+      actualPrincipalUsd: 0,
+      actualAccruedYieldUsd: 0,
+    });
+    expect(preview.dataSource).toBe("live");
+    expect(preview.form1099Int.interestIncomeUsd).toBe(0);
   });
 });
 
