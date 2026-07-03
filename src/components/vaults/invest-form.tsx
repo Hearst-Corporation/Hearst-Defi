@@ -356,7 +356,7 @@ function AmountSection({
             <div className="flex items-baseline gap-1.5">
               <span
                 aria-hidden
-                className="text-[20px] font-medium text-[var(--ct-text-faint)] tabular-nums"
+                className="text-[length:var(--ct-text-hero-sym)] font-medium text-[var(--ct-text-faint)] tabular-nums"
               >
                 $
               </span>
@@ -376,7 +376,7 @@ function AmountSection({
                 aria-describedby={helperId}
                 aria-invalid={!disabled && amount > 0 && !amountValid}
                 className={cn(
-                  "w-full bg-transparent border-0 p-0 text-[28px] font-medium text-[var(--ct-text-strong)] tabular-nums leading-none outline-none placeholder:text-[var(--ct-text-faint)] focus:outline-none",
+                  "w-full bg-transparent border-0 p-0 text-[length:var(--ct-text-28-fixed)] font-medium text-[var(--ct-text-strong)] tabular-nums leading-none outline-none placeholder:text-[var(--ct-text-faint)] focus-visible:rounded-[var(--ct-radius-sm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ct-accent)]",
                   disabled && "text-[var(--ct-text-faint)]",
                   !disabled && amount > 0 && !amountValid && "text-[var(--ct-status-danger)]",
                 )}
