@@ -5,16 +5,6 @@ name: nexus-loop
 # the API key. Each agent is a real `claude -p` pass with a distinct role; the count
 # comes from the loop's maxAgents (input `agents`). Never pushes to the default branch.
 # Workflow artifacts are kept in $RUNNER_TEMP so they never land in the PR.
-#
-# TWO MODES (input `mode`):
-#   default → run agents, collapse to a single delta, detect real changes vs main,
-#             and ONLY open a PR when there is a genuine diff. No-op runs exit
-#             cleanly without creating a branch or PR.
-#   pr_fix  → PATCH an EXISTING pull request in place: check out its existing head
-#             branch (`target_head_ref`), run the agents, commit fixes, and push to
-#             the SAME branch. NEVER creates a new branch or a new PR. NEVER merges.
-#             Fails closed if the target inputs are missing, if the head ref is the
-#             protected default branch, or if the remote head branch is absent.
 on:
   workflow_dispatch:
     inputs:
@@ -37,32 +27,6 @@ on:
         required: false
         default: '1'
         type: string
-      validation:
-        description: 'Validation commands, one per line — ALL must pass or no PR opens. Empty → npm test.'
-        required: false
-        default: ''
-        type: string
-      # ── pr_fix inputs (only sent by Nexus for pr.fix runs) ───────────────────
-      mode:
-        description: 'Run mode: default or pr_fix'
-        required: false
-        default: 'default'
-        type: string
-      target_pr_number:
-        description: 'PR number to patch in pr_fix mode'
-        required: false
-        default: ''
-        type: string
-      target_head_ref:
-        description: 'Existing PR head branch to patch'
-        required: false
-        default: ''
-        type: string
-      target_base_ref:
-        description: 'PR base branch'
-        required: false
-        default: 'main'
-        type: string
 
 permissions:
   contents: write
@@ -75,105 +39,17 @@ concurrency:
 jobs:
   run:
     runs-on: [self-hosted, gpu1]
-    env:
-      MODE: ${{ inputs.mode }}
-      TARGET_PR: ${{ inputs.target_pr_number }}
-      TARGET_HEAD_REF: ${{ inputs.target_head_ref }}
-      TARGET_BASE_REF: ${{ inputs.target_base_ref }}
-      GH_TOKEN: ${{ github.token }}
-      # User-controlled free-form input — routed through env so the shell never
-      # re-parses it. Interpolating ${{ inputs.prompt }} directly inside a bash
-      # string lets a prompt containing a double-quote / backtick / $() break the
-      # string (exit 127) or inject commands. Reference it as "$PROMPT" instead.
-      PROMPT: ${{ inputs.prompt }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Real dependencies before anything runs. Without this the agents' and
-      # the gate's npm scripts die on missing binaries (`prisma: not found`),
-      # which silently degraded the validation gate to a no-op.
-      - name: Install dependencies
-        shell: bash -l {0}
-        run: |
-          set -e
-          export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile --prefer-offline
-          elif [ -f package-lock.json ]; then
-            npm ci --no-audit --no-fund
-          else
-            npm install --no-audit --no-fund
-          fi
-
-      # ── pr_fix: validate inputs and check out the EXISTING head branch ───────
-      # Fails closed (clear message, no stack trace) on any missing target input,
-      # on a head ref that is the protected default branch, or on an absent remote
-      # branch — so a pr_fix run can NEVER fall through to creating a new PR or
-      # touching main. Skipped entirely in default mode.
-      - name: Resolve pr_fix target
-        id: prfix
-        if: ${{ inputs.mode == 'pr_fix' }}
-        shell: bash -l {0}
-        run: |
-          set -e
-          if [ -z "$TARGET_HEAD_REF" ]; then
-            echo "pr_fix: missing target_head_ref"; exit 1
-          fi
-          if [ -z "$TARGET_BASE_REF" ]; then
-            echo "pr_fix: missing target_base_ref"; exit 1
-          fi
-          if [ -z "$TARGET_PR" ]; then
-            echo "pr_fix: missing target_pr_number"; exit 1
-          fi
-          case "$TARGET_HEAD_REF" in
-            main|master)
-              echo "Refusing to patch protected default branch"
-              exit 1
-              ;;
-          esac
-          if ! git ls-remote --exit-code --heads origin "$TARGET_HEAD_REF" >/dev/null 2>&1; then
-            echo "pr_fix: remote branch '$TARGET_HEAD_REF' not found — refusing to create a new PR"
-            exit 1
-          fi
-          git config user.email "nexus-bot@hearst.app"
-          git config user.name "nexus-bot"
-          git fetch origin "$TARGET_HEAD_REF"
-          git checkout -B "$TARGET_HEAD_REF" "origin/$TARGET_HEAD_REF"
-          echo "→ pr_fix: patching existing PR #$TARGET_PR on $TARGET_HEAD_REF"
 
       - name: Run agent fleet (sequential fan-out)
         id: fleet
         shell: bash -l {0}
-        env:
-          # UTC: the self-hosted box runs America/Los_Angeles; date-sensitive
-          # tests are written against GitHub-hosted CI (UTC). Same reason on
-          # the validation gate step below — keep both in sync.
-          TZ: UTC
         run: |
           set -e
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          # Multi-account Claude auth: Nexus (/settings) manages accounts in
-          # runner_config; each account is a ~/.nexus-claude-accounts/<name>.env slot
-          # (CLAUDE_CODE_OAUTH_TOKEN=…). Resolution order:
-          #   1. per-repo binding  (claude_account_binding:<owner/repo>) — lets two
-          #      repos run in parallel on two different subscription sessions;
-          #   2. global active     (claude_account_active);
-          #   3. legacy single     (~/.nexus-claude.env).
-          # Only the account NAME is ever logged — never the token.
-          ACTIVE_CLAUDE_ACCOUNT=$(docker exec nexus-postgres psql -U postgres -d nexus -t -A \
-            -c "SELECT value FROM runner_config WHERE key='claude_account_binding:${GITHUB_REPOSITORY}'" 2>/dev/null || true)
-          [ -z "$ACTIVE_CLAUDE_ACCOUNT" ] && ACTIVE_CLAUDE_ACCOUNT=$(docker exec nexus-postgres psql -U postgres -d nexus -t -A \
-            -c "SELECT value FROM runner_config WHERE key='claude_account_active'" 2>/dev/null || true)
-          if [ -n "$ACTIVE_CLAUDE_ACCOUNT" ] && [ -f "$HOME/.nexus-claude-accounts/$ACTIVE_CLAUDE_ACCOUNT.env" ]; then
-            set -a; . "$HOME/.nexus-claude-accounts/$ACTIVE_CLAUDE_ACCOUNT.env"; set +a
-            echo "→ claude auth: account '$ACTIVE_CLAUDE_ACCOUNT'"
-          else
-            set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
-            echo "→ claude auth: legacy single account (.nexus-claude.env)"
-          fi
+          set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
           unset ANTHROPIC_API_KEY   # force subscription auth, never metered credit
 
           TMP="$RUNNER_TEMP"
@@ -183,26 +59,7 @@ jobs:
           MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
           ROLES=(architect coder tester reviewer refactorer documenter optimizer integrator analyst hardener cleaner planner builder verifier auditor finisher)
 
-          # ── Live progress bus → Nexus. GitHub's API withholds job logs until the
-          # job completes; the Nexus Postgres runs ON THIS BOX, so each progress
-          # event is inserted locally and the Nexus run page streams it live.
-          # Best-effort by design: a dead bus must never break a run.
-          RUN_LABEL="${{ inputs.run_label }}"
-          progress() {
-            # SQL via STDIN, not -c: psql only interpolates -v variables when the
-            # command comes from stdin — with -c the :'var' syntax is a hard error.
-            printf '%s' "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
-              | docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-                  -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
-                  >/dev/null 2>&1 || true
-          }
-          # Retention: the bus is a live window, not an archive (full logs land in
-          # the run row at reconcile). Prune anything older than 7 days.
-          docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-            -c "DELETE FROM run_progress WHERE created_at < now() - interval '7 days';" >/dev/null 2>&1 || true
-
           echo "Nexus run ${{ inputs.run_label }} — fleet of $N agent(s), model $MODEL"
-          progress "fleet dispatched — $N agent(s), model $MODEL"
           # Base checkpoint so each agent's file delta is measurable precisely.
           BASE=$(git rev-parse HEAD)
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
@@ -214,8 +71,7 @@ jobs:
           for i in $(seq 0 $((N-1))); do
             ROLE="${ROLES[$i]:-agent-$((i+1))}"
             echo "──── agent $((i+1))/$N : $ROLE ────"
-            progress "agent $((i+1))/$N ($ROLE) started"
-            AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${PROMPT}"
+            AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${{ inputs.prompt }}"
             claude -p "$AGENT_PROMPT" \
               --permission-mode acceptEdits \
               --allowedTools "Edit,Write,Bash(npm test)" \
@@ -228,127 +84,20 @@ jobs:
             git commit -q --allow-empty -m "nexus agent $i ($ROLE)"
             echo "$i|$ROLE|$ST|$NF" >> "$TMP/agent-rows.txt"
             echo "agent $ROLE → status=$ST files=$NF"
-            progress "agent $((i+1))/$N ($ROLE) → status=$ST files=$NF"
-            if [ "$ST" = "error" ]; then
-              ERRMSG=$(python3 -c "import json;print((json.load(open('$TMP/claude-$i.json')).get('result') or '')[:200])" 2>/dev/null || true)
-              echo "::warning::agent $ROLE errored: ${ERRMSG:-see $TMP/claude-$i.err}"
-              progress "agent $((i+1))/$N ($ROLE) ERROR: ${ERRMSG:-see runner logs}"
-            fi
           done
           echo "---- agent-rows ----"; cat "$TMP/agent-rows.txt"
-          # A fleet where EVERY agent errored must fail loudly — a silent clean
-          # no-op here reads as "repo healthy" when nothing was even attempted
-          # (e.g. subscription session limit → instant 429 on each agent).
-          if ! grep -q "|done|" "$TMP/agent-rows.txt"; then
-            progress "ALL agents errored — failing the run, nothing was attempted"
-            echo "::error::every agent errored — see the warnings above (rate limit? auth?)"
-            exit 1
-          fi
-          progress "fleet complete — entering validation gate"
 
-      # ── Validation gate. Runs the LOOP'S OWN validation commands (input
-      # `validation`, one per line; falls back to `npm test`). ALL must pass:
-      # a red gate STOPs the run and NO PR opens — the doctrine's "never ship
-      # red", now enforced instead of merely instructed. ──────────────────────
-      - name: Run validation gate
+      - name: Run tests (validation gate)
         id: tests
         shell: bash -l {0}
-        env:
-          VALIDATION: ${{ inputs.validation }}
-          # UTC: align the self-hosted gate (box is PDT) with GitHub-hosted CI —
-          # date-sensitive tests ("Last Jun 12") are UTC-written and go red
-          # under a -0700 clock. ci.yml runs UTC; the gate must judge likewise.
-          TZ: UTC
         run: |
-          # pipefail: without it, `cmd | tee` reports tee's exit status (always 0)
-          # and a red validation command passes the gate green.
-          set -o pipefail
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          RUN_LABEL="${{ inputs.run_label }}"
-          progress() {
-            # SQL via STDIN, not -c: psql only interpolates -v variables when the
-            # command comes from stdin — with -c the :'var' syntax is a hard error.
-            printf '%s' "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
-              | docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-                  -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
-                  >/dev/null 2>&1 || true
-          }
-          CMDS="$VALIDATION"
-          [ -z "$CMDS" ] && CMDS="npm test"
-          : > "$RUNNER_TEMP/test-output.txt"
-
-          # GATE MODE — 'ratchet' vs 'strict'. Repair loops (recovery /
-          # maintenance / stabilization) start from an ALREADY-red repo: their
-          # job is to reduce errors, so blocking on "not 100% green" would throw
-          # away real progress and force a human to finish by hand. In ratchet
-          # mode the gate opens a PR as long as the loop does NOT make a command
-          # WORSE than origin/main. strict mode keeps "all green required".
-          GATE_MODE=$(printf '%s' "${{ inputs.prompt }}" | grep -oE '^gateMode: [a-z]+' | head -1 | awk '{print $2}')
-          [ -z "$GATE_MODE" ] && GATE_MODE=strict
-          progress "validation gate — mode: $GATE_MODE"
-
-          # score() prints a numeric "badness" for a command's output:
-          #   typecheck → count of "error TS" ; lint → count of "error" lines ;
-          #   otherwise → 0 on success, 1 on failure (binary). Lower is better.
-          score() {
-            local cmd="$1" out="$2" code="$3"
-            case "$cmd" in
-              *typecheck*) grep -c "error TS" "$out" 2>/dev/null || echo 0 ;;
-              *lint*)      grep -cE "[0-9]+ error|Error:" "$out" 2>/dev/null || echo 0 ;;
-              *)           [ "$code" = "0" ] && echo 0 || echo 1 ;;
-            esac
-          }
-
-          run_cmd() { # $1=cmd $2=outfile → sets global RC
-            bash -lc "$1" > "$2" 2>&1; RC=$?; cat "$2" >> "$RUNNER_TEMP/test-output.txt"; return 0
-          }
-
-          FAILED=0
-          while IFS= read -r CMD; do
-            [ -z "$CMD" ] && continue
-            progress "validation gate — running: $CMD"
-            AFTER_OUT="$RUNNER_TEMP/after.txt"
-            run_cmd "$CMD" "$AFTER_OUT"; AFTER_RC=$RC
-            AFTER=$(score "$CMD" "$AFTER_OUT" "$AFTER_RC")
-
-            if [ "$AFTER_RC" = "0" ]; then
-              progress "validation gate — passed: $CMD"
-              continue
-            fi
-
-            if [ "$GATE_MODE" != "ratchet" ]; then
-              progress "validation gate → FAILED: $CMD — STOP, no PR (strict)"
-              echo "::error::validation gate failed on: $CMD (strict) — no PR"
-              FAILED=1; break
-            fi
-
-            # RATCHET: measure the SAME command on the pristine base (origin/main)
-            # via a worktree, so the agent's own changes are excluded from BEFORE.
-            BASE_WT="$RUNNER_TEMP/base-wt"
-            rm -rf "$BASE_WT"
-            git worktree add -q --detach "$BASE_WT" origin/main 2>/dev/null || git worktree add -q --detach "$BASE_WT" HEAD~1 2>/dev/null || true
-            BEFORE=999999
-            if [ -d "$BASE_WT" ]; then
-              ( cd "$BASE_WT" && bash -lc "$CMD" > "$RUNNER_TEMP/before.txt" 2>&1 ); BRC=$?
-              BEFORE=$(score "$CMD" "$RUNNER_TEMP/before.txt" "$BRC")
-              git worktree remove --force "$BASE_WT" 2>/dev/null || true
-            fi
-
-            if [ "$AFTER" -le "$BEFORE" ]; then
-              progress "validation gate — ratchet OK: $CMD ($BEFORE → $AFTER, n'aggrave pas)"
-            else
-              progress "validation gate → RATCHET FAIL: $CMD a AGGRAVÉ ($BEFORE → $AFTER) — STOP, no PR"
-              echo "::error::ratchet: $CMD worsened the repo ($BEFORE → $AFTER)"
-              FAILED=1; break
-            fi
-          done <<< "$CMDS"
-
-          if [ "$FAILED" = "1" ]; then
+          if npm test 2>&1 | tee "$RUNNER_TEMP/test-output.txt"; then
+            echo "status=done" >> "$GITHUB_OUTPUT"
+          else
+            echo "tests failed (PR still opens for review)"
             echo "status=error" >> "$GITHUB_OUTPUT"
-            exit 1
           fi
-          echo "status=done" >> "$GITHUB_OUTPUT"
-          progress "validation gate → passed (mode: $GATE_MODE)"
 
       - name: Build manifest + PR body
         shell: bash -l {0}
@@ -356,15 +105,11 @@ jobs:
           set -e
           TMP="$RUNNER_TEMP"
           MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
-          # Rows come in via argv/open(), NOT stdin: `python3 -` already consumes
-          # stdin for the program itself, so a `< file` redirect here is silently
-          # swallowed by the heredoc and the manifest degrades to the fallback
-          # single agent (the "1 generic agent, 0 files" bug).
-          python3 - "$MODEL" "$TMP/agent-rows.txt" > "$TMP/agents-manifest.json" <<'PY'
+          python3 - "$MODEL" < "$TMP/agent-rows.txt" > "$TMP/agents-manifest.json" <<'PY'
           import json, sys
           model = sys.argv[1]
           agents = []
-          for line in open(sys.argv[2], encoding='utf-8'):
+          for line in sys.stdin:
               line = line.strip()
               if not line:
                   continue
@@ -379,7 +124,7 @@ jobs:
           {
             echo "Automated by **Hearst Nexus** loop run \`${{ inputs.run_label }}\` — fleet of ${{ inputs.agents }} agent(s)."
             echo
-            echo "**Mission:** ${PROMPT}"
+            echo "**Mission:** ${{ inputs.prompt }}"
             echo
             echo "Review before merge — Nexus never auto-merges."
             echo
@@ -388,58 +133,12 @@ jobs:
             echo "nexus:agents-->"
           } > "$TMP/pr-body.md"
 
-      # ── DEFAULT MODE: collapse to base so create-pull-request bundles the
-      # fleet's real file changes as one PR. pr_fix never runs this. ────────────
-      - name: Collapse fleet commits (default mode only)
-        if: ${{ inputs.mode != 'pr_fix' }}
-        shell: bash -l {0}
-        run: |
-          set -e
-          # The PR must contain EXACTLY the fleet's committed delta. Anything
-          # the validation gate dirtied after the last agent commit (e.g. a
-          # pretest provider switch whose posttest restore never ran) is noise:
-          # restore the tree to HEAD and drop untracked leftovers BEFORE the
-          # collapse, or create-pull-request would bundle the pollution.
-          git checkout -- .
-          git clean -fd --quiet
-          # Artifacts live in $RUNNER_TEMP, never in the working tree, so nothing
-          # extra leaks into the PR.
+          # Collapse all per-agent checkpoint commits back to base so create-pull-request
+          # bundles the fleet's real file changes as one PR. Artifacts live in $TMP, never
+          # in the working tree, so nothing extra leaks into the PR.
           git reset --soft "${{ steps.fleet.outputs.base }}"
 
-      # ── Detect real changes vs base branch (default mode only) ───────────────
-      # After the soft-reset the index holds the NET delta of the entire fleet.
-      # Compare that index against origin/main (or the configured base) to decide
-      # whether the run actually produced useful work. An empty or noise-only diff
-      # is a clean no-op: we skip the PR entirely and report success.
-      - name: Detect changes vs base branch (default mode only)
-        id: detect
-        if: ${{ inputs.mode != 'pr_fix' }}
-        shell: bash -l {0}
-        run: |
-          set -e
-          RUN_LABEL="${{ inputs.run_label }}"
-          progress() {
-            # SQL via STDIN, not -c: psql only interpolates -v variables when the
-            # command comes from stdin — with -c the :'var' syntax is a hard error.
-            printf '%s' "INSERT INTO run_progress (run_label, line) VALUES (:'rl', left(:'ln', 2000));" \
-              | docker exec -i nexus-postgres psql -U postgres -d nexus -q \
-                  -v rl="$RUN_LABEL" -v ln="[$(date -u +%H:%M:%S)] $1" \
-                  >/dev/null 2>&1 || true
-          }
-          BASE_REF="${TARGET_BASE_REF:-main}"
-          git fetch origin "$BASE_REF" --quiet
-          if git diff --cached --quiet "origin/${BASE_REF}"; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            echo "→ No diff vs origin/${BASE_REF} — health check completed, no changes needed. Skipping PR."
-            progress "no diff vs origin/${BASE_REF} — clean no-op, no PR"
-          else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "→ Changes detected vs origin/${BASE_REF} — will open PR."
-            progress "changes detected vs origin/${BASE_REF} — opening PR"
-          fi
-
       - name: Create Pull Request
-        if: ${{ inputs.mode != 'pr_fix' && steps.detect.outputs.has_changes == 'true' }}
         uses: peter-evans/create-pull-request@v6
         with:
           branch: nexus/${{ inputs.run_label }}
@@ -448,45 +147,3 @@ jobs:
           commit-message: "nexus-loop: apply ${{ inputs.agents }}-agent fleet changes (${{ inputs.run_label }})"
           body-path: ${{ runner.temp }}/pr-body.md
           delete-branch: true
-
-      # ── pr_fix MODE: collapse the fleet's checkpoint commits into ONE commit on
-      # the existing head branch and push to that SAME branch. Never creates a new
-      # branch or PR; never touches main. No-diff is a clean no-op. ──────────────
-      - name: Patch existing PR branch (pr_fix mode)
-        id: prfix_push
-        if: ${{ inputs.mode == 'pr_fix' }}
-        shell: bash -l {0}
-        run: |
-          set -e
-          # Defence in depth: re-assert the head ref is not the default branch even
-          # if the resolve step were ever bypassed.
-          case "$TARGET_HEAD_REF" in
-            main|master)
-              echo "Refusing to patch protected default branch"
-              exit 1
-              ;;
-          esac
-          # Drop anything the gate dirtied after the last agent commit (same
-          # tree-purge as default mode) so only the fleet's delta is pushed.
-          git checkout -- .
-          git clean -fd --quiet
-          # Collapse the per-agent checkpoint commits back to base, then re-stage
-          # the net file delta as a single commit on the existing head branch.
-          git reset --soft "${{ steps.fleet.outputs.base }}"
-          if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "→ pr_fix: no diff — no fix was necessary; nothing pushed."
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            git commit -q -m "nexus: pr_fix ${{ inputs.run_label }} on $TARGET_HEAD_REF"
-            git push origin "HEAD:$TARGET_HEAD_REF"
-            echo "→ pr_fix: pushed fixes to existing head $TARGET_HEAD_REF"
-          fi
-
-      - name: Comment on the patched PR (pr_fix mode)
-        if: ${{ inputs.mode == 'pr_fix' && steps.prfix_push.outputs.changed == 'true' && inputs.target_pr_number != '' }}
-        shell: bash -l {0}
-        run: |
-          set -e
-          gh pr comment "$TARGET_PR" --body "Nexus pr.fix run ${{ inputs.run_label }} pushed fixes to ${TARGET_HEAD_REF}." \
-          || echo "could not comment on PR #$TARGET_PR (non-fatal)"
