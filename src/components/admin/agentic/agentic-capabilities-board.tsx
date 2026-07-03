@@ -11,6 +11,14 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import type {
   ActionReadinessMatrix,
   ActionReadinessTier,
@@ -82,42 +90,42 @@ export function AgenticCapabilitiesBoard({
 
   return (
     <div id="capabilities" className="min-w-0 overflow-x-auto">
-        <table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)]">
-              <th className="ct-bento-label bg-transparent px-4 py-3 text-right whitespace-nowrap">
+        <Table className="min-w-full text-left text-[length:var(--ct-text-xs)]">
+          <TableHead>
+            <TableRow className="border-b border-[var(--ct-border-soft)]">
+              <TableHeader className="ct-bento-label bg-transparent px-4 py-3 text-right whitespace-nowrap">
                 Count
-              </th>
-              <th className="ct-bento-label bg-transparent px-4 py-3">
+              </TableHeader>
+              <TableHeader className="ct-bento-label bg-transparent px-4 py-3">
                 Tier
-              </th>
-              <th className="ct-bento-label bg-transparent px-4 py-3">
+              </TableHeader>
+              <TableHeader className="ct-bento-label bg-transparent px-4 py-3">
                 Meaning
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+              </TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {CAPABILITIES.map((c) => {
               const count = matrix.items.filter(
                 (i) => i.tier === c.tier,
               ).length;
               return (
-                <tr
+                <TableRow
                   key={c.tier}
                   className="border-b border-[var(--ct-border-soft)] align-middle transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
                 >
-                  <td className="px-4 py-3 text-right font-medium text-[var(--ct-text-strong)] tabular-nums">
+                  <TableCell className="px-4 py-3 text-right font-medium text-[var(--ct-text-strong)] tabular-nums">
                     {count}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <Chip tone={c.tone}>{c.title}</Chip>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--ct-text-muted)]">{c.meaning}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-[var(--ct-text-muted)]">{c.meaning}</TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
     </div>
   );
 }
