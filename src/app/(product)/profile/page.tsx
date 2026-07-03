@@ -24,6 +24,7 @@ import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 import { WalletDisconnectButton } from "@/components/profile/wallet-disconnect-button";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
+import { isDevAuthBypass } from "@/lib/dev-bypass";
 
 export const dynamic = "force-dynamic";
 
@@ -200,7 +201,7 @@ export default async function ProfilePage() {
                 </div>
               ) : (
                 <PrivyWalletConnect
-                  appId={PRIVY_APP_ID}
+                  appId={isDevAuthBypass() ? "" : PRIVY_APP_ID}
                   boundAddress={null}
                   surface="bare"
                 />
