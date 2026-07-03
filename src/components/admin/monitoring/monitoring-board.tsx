@@ -2,6 +2,14 @@ import type { ReactNode } from "react";
 
 import { BentoHeader, BentoPanel } from "@/components/catalyst/bento";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 import type { MonitoringStats } from "@/lib/data/monitoring";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
@@ -10,6 +18,9 @@ const EMPTY_COPY = {
   message: "No monitoring activity recorded yet.",
   detail: "Agent runs, traces, and admin-tool activity will appear here after the first execution.",
 } as const;
+
+const HEAD_CLASS = "ct-bento-label bg-transparent";
+const CELL_CLASS = "ct-metric-caption align-middle";
 
 export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
   if (stats.totalRuns === 0) {
@@ -32,24 +43,42 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         }
         header={
           <>
-            <Th className="pl-5 text-left">Agent</Th>
-            <Th className="text-right">Runs</Th>
-            <Th className="pr-5 text-right">Cost (USD)</Th>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Agent
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-right")}>
+              Runs
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-right")}>
+              Cost (USD)
+            </TableHeader>
           </>
         }
       >
         {stats.runsByAgent.map((row) => (
-          <Tr key={row.agentName}>
-            <Td className="pl-5 font-medium text-[var(--ct-text-strong)]">
+          <TableRow key={row.agentName} className={ROW_CLASS}>
+            <TableCell
+              className={cn(CELL_CLASS, "font-medium text-[var(--ct-text-strong)]")}
+            >
               {row.agentName}
-            </Td>
-            <Td className="text-right tabular-nums text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right tabular-nums text-[var(--ct-text-secondary)]",
+              )}
+            >
               {row.count}
-            </Td>
-            <Td className="pr-5 text-right tabular-nums text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right tabular-nums text-[var(--ct-text-secondary)]",
+              )}
+            >
               ${row.costUsd.toFixed(4)}
-            </Td>
-          </Tr>
+            </TableCell>
+          </TableRow>
         ))}
       </MonitoringPanel>
 
@@ -71,45 +100,89 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         }
         header={
           <>
-            <Th className="pl-5 text-left">Agent</Th>
-            <Th className="text-left">Model</Th>
-            <Th className="text-left whitespace-nowrap">Status</Th>
-            <Th className="text-right whitespace-nowrap">Tokens (in/out)</Th>
-            <Th className="text-right whitespace-nowrap">Latency</Th>
-            <Th className="text-right">Cost</Th>
-            <Th className="pr-5 text-right">Time</Th>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Agent
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Model
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left whitespace-nowrap")}>
+              Status
+            </TableHeader>
+            <TableHeader
+              className={cn(HEAD_CLASS, "text-right whitespace-nowrap")}
+            >
+              Tokens (in/out)
+            </TableHeader>
+            <TableHeader
+              className={cn(HEAD_CLASS, "text-right whitespace-nowrap")}
+            >
+              Latency
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-right")}>
+              Cost
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-right")}>
+              Time
+            </TableHeader>
           </>
         }
       >
         {stats.recentRuns.map((run) => (
-          <Tr key={run.id}>
-            <Td className="pl-5 font-medium text-[var(--ct-text-strong)]">
+          <TableRow key={run.id} className={ROW_CLASS}>
+            <TableCell
+              className={cn(CELL_CLASS, "font-medium text-[var(--ct-text-strong)]")}
+            >
               {run.agentName}
-            </Td>
-            <Td className="text-[var(--ct-text-secondary)]">{run.model}</Td>
-            <Td className="whitespace-nowrap">
+            </TableCell>
+            <TableCell
+              className={cn(CELL_CLASS, "text-[var(--ct-text-secondary)]")}
+            >
+              {run.model}
+            </TableCell>
+            <TableCell className={cn(CELL_CLASS, "whitespace-nowrap")}>
               <RunStatusBadge status={run.status} />
               {run.errorType ? (
                 <span className="ml-2 text-[var(--ct-text-muted)]">
                   {run.errorType}
                 </span>
               ) : null}
-            </Td>
-            <Td className="text-right tabular-nums whitespace-nowrap text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right tabular-nums whitespace-nowrap text-[var(--ct-text-secondary)]",
+              )}
+            >
               {run.inputTokens === null || run.outputTokens === null
                 ? "—"
                 : `${run.inputTokens} / ${run.outputTokens}`}
-            </Td>
-            <Td className="text-right tabular-nums text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right tabular-nums text-[var(--ct-text-secondary)]",
+              )}
+            >
               {run.latencyMs ? `${run.latencyMs}ms` : "—"}
-            </Td>
-            <Td className="text-right tabular-nums text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right tabular-nums text-[var(--ct-text-secondary)]",
+              )}
+            >
               {run.costUsd ? `$${run.costUsd.toFixed(4)}` : "—"}
-            </Td>
-            <Td className="pr-5 text-right text-[var(--ct-text-muted)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right text-[var(--ct-text-muted)]",
+              )}
+            >
               {formatAdminDateTime(run.createdAt)}
-            </Td>
-          </Tr>
+            </TableCell>
+          </TableRow>
         ))}
       </MonitoringPanel>
 
@@ -130,34 +203,67 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         }
         header={
           <>
-            <Th className="pl-5 text-left whitespace-nowrap">Profile</Th>
-            <Th className="text-left whitespace-nowrap">Mode</Th>
-            <Th className="text-left">Destination</Th>
-            <Th className="text-left whitespace-nowrap">Status</Th>
-            <Th className="text-left">Reason</Th>
-            <Th className="pr-5 text-right">Time</Th>
+            <TableHeader
+              className={cn(HEAD_CLASS, "text-left whitespace-nowrap")}
+            >
+              Profile
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left whitespace-nowrap")}>
+              Mode
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Destination
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left whitespace-nowrap")}>
+              Status
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Reason
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-right")}>
+              Time
+            </TableHeader>
           </>
         }
       >
         {stats.recentNavTraces.map((trace) => (
-          <Tr key={trace.id}>
-            <Td className="pl-5 whitespace-nowrap font-medium text-[var(--ct-text-strong)]">
+          <TableRow key={trace.id} className={ROW_CLASS}>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "whitespace-nowrap font-medium text-[var(--ct-text-strong)]",
+              )}
+            >
               {trace.profile}
-            </Td>
-            <Td className="whitespace-nowrap text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "whitespace-nowrap text-[var(--ct-text-secondary)]",
+              )}
+            >
               {trace.mode}
-            </Td>
-            <Td className="text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(CELL_CLASS, "text-[var(--ct-text-secondary)]")}
+            >
               {trace.destinationKey ?? "—"}
-            </Td>
-            <Td className="whitespace-nowrap">
+            </TableCell>
+            <TableCell className={cn(CELL_CLASS, "whitespace-nowrap")}>
               <RunStatusBadge status={trace.status} />
-            </Td>
-            <Td className="text-[var(--ct-text-muted)]">{trace.reason ?? "—"}</Td>
-            <Td className="pr-5 text-right text-[var(--ct-text-muted)]">
+            </TableCell>
+            <TableCell className={cn(CELL_CLASS, "text-[var(--ct-text-muted)]")}>
+              {trace.reason ?? "—"}
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right text-[var(--ct-text-muted)]",
+              )}
+            >
               {formatAdminDateTime(trace.createdAt)}
-            </Td>
-          </Tr>
+            </TableCell>
+          </TableRow>
         ))}
       </MonitoringPanel>
 
@@ -177,39 +283,64 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
         }
         header={
           <>
-            <Th className="pl-5 text-left">Tool</Th>
-            <Th className="text-left whitespace-nowrap">Kind</Th>
-            <Th className="text-left whitespace-nowrap">Status</Th>
-            <Th className="text-left">Error</Th>
-            <Th className="pr-5 text-right">Time</Th>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Tool
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left whitespace-nowrap")}>
+              Kind
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left whitespace-nowrap")}>
+              Status
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-left")}>
+              Error
+            </TableHeader>
+            <TableHeader className={cn(HEAD_CLASS, "text-right")}>
+              Time
+            </TableHeader>
           </>
         }
       >
         {stats.recentToolRuns.map((run) => (
-          <Tr key={run.id}>
-            <Td className="pl-5 font-medium text-[var(--ct-text-strong)]">
+          <TableRow key={run.id} className={ROW_CLASS}>
+            <TableCell
+              className={cn(CELL_CLASS, "font-medium text-[var(--ct-text-strong)]")}
+            >
               {run.toolId}
-            </Td>
-            <Td className="whitespace-nowrap text-[var(--ct-text-secondary)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "whitespace-nowrap text-[var(--ct-text-secondary)]",
+              )}
+            >
               {run.toolKind}
-            </Td>
-            <Td className="whitespace-nowrap">
+            </TableCell>
+            <TableCell className={cn(CELL_CLASS, "whitespace-nowrap")}>
               <RunStatusBadge status={run.status} />
-            </Td>
-            <Td className="text-[var(--ct-text-muted)]">
+            </TableCell>
+            <TableCell className={cn(CELL_CLASS, "text-[var(--ct-text-muted)]")}>
               {run.errorMessage ?? "—"}
-            </Td>
-            <Td className="pr-5 text-right text-[var(--ct-text-muted)]">
+            </TableCell>
+            <TableCell
+              className={cn(
+                CELL_CLASS,
+                "text-right text-[var(--ct-text-muted)]",
+              )}
+            >
               {formatAdminDateTime(run.createdAt)}
-            </Td>
-          </Tr>
+            </TableCell>
+          </TableRow>
         ))}
       </MonitoringPanel>
     </div>
   );
 }
 
-/** Bento panel wrapping a Portfolio-style fixed table (header + body). */
+const ROW_CLASS =
+  "transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+
+/** Bento panel wrapping a Portfolio-style table (header + body) via Catalyst primitives. */
 function MonitoringPanel({
   title,
   subtitle,
@@ -230,72 +361,27 @@ function MonitoringPanel({
   return (
     <BentoPanel>
       <BentoHeader title={title} subtitle={subtitle} as="h3" />
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed">
-          {colgroup}
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)]">{header}</tr>
-          </thead>
-          <tbody>
-            {isEmpty ? (
-              <tr>
-                <td colSpan={colSpan} className="px-5 py-8 text-center">
-                  <p className="ct-metric-value text-[var(--ct-text-secondary)]">
-                    {EMPTY_COPY.message}
-                  </p>
-                  <p className="ct-metric-caption mt-1">
-                    {EMPTY_COPY.detail}
-                  </p>
-                </td>
-              </tr>
-            ) : (
-              children
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        {colgroup}
+        <TableHead>
+          <TableRow>{header}</TableRow>
+        </TableHead>
+        <TableBody>
+          {isEmpty ? (
+            <TableRow>
+              <TableCell colSpan={colSpan} className="py-8 text-center">
+                <p className="ct-metric-value text-[var(--ct-text-secondary)]">
+                  {EMPTY_COPY.message}
+                </p>
+                <p className="ct-metric-caption mt-1">{EMPTY_COPY.detail}</p>
+              </TableCell>
+            </TableRow>
+          ) : (
+            children
+          )}
+        </TableBody>
+      </Table>
     </BentoPanel>
-  );
-}
-
-function Th({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <th
-      className={cn(
-        "ct-bento-label bg-transparent px-4 py-3 text-left",
-        className,
-      )}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Tr({ children }: { children: ReactNode }) {
-  return (
-    <tr className="border-b border-[var(--ct-border-soft)] transition-colors last:border-b-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
-      {children}
-    </tr>
-  );
-}
-
-function Td({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <td className={cn("ct-metric-caption px-4 py-3 align-middle", className)}>
-      {children}
-    </td>
   );
 }
 
