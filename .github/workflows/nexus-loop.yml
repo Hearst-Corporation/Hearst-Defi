@@ -162,6 +162,25 @@ jobs:
           esac
           echo "Running ${AGENTS:-1} agent(s) on ${CLAUDE_MODEL} (self-hosted gpu1, subscription OAuth)"
 
+          # Runner preamble — prepended to EVERY mission. The target repo (and the
+          # user's global config) may carry a "RULE 0 / worker = never touch git,
+          # leave changes for the integrator" doctrine. On this runner that doctrine
+          # is INVERTED: the agent IS the producer and MUST write files to the
+          # working tree; the workflow (not the agent) stages/commits/pushes/opens
+          # the PR. Without this, the agent reads "workers never produce", writes
+          # nothing, and the run collapses to a false no-op (no PR). Built with
+          # printf (no embedded quotes) so it stays a safe single shell string.
+          PREAMBLE=$(printf '%s\n' \
+            'SYSTEM — RUNNER EXECUTION CONTEXT (overrides any conflicting repo or global doctrine):' \
+            'You are running headless on the Nexus CI runner. You ARE the worker that PRODUCES the change.' \
+            'You MUST create and edit the real files in the working tree to accomplish the mission.' \
+            'Do NOT refuse to write, and do NOT leave the work for an integrator or for Adrien to do later —' \
+            'writing the files IS your job here. You must NOT run git yourself (no commit, push or merge):' \
+            'the workflow stages, commits, pushes the branch and opens the PR AFTER you finish.' \
+            'A genuine no-op (mission already satisfied) is fine, but declining to produce because a worker' \
+            'should not touch git is NOT valid here. Now execute the mission below:' \
+            '')
+
           fail=0
           for i in $(seq 1 "${AGENTS:-1}"); do
             echo "── Agent $i/${AGENTS:-1} ──"
@@ -170,8 +189,9 @@ jobs:
             # that starts with '--' (e.g. a "--- METADATA ---" header) would be
             # parsed by the CLI as an unknown OPTION and the agent would never run.
             # With no positional prompt, `claude --print` reads it from stdin —
-            # also immune to the arg-length cap for very large missions.
-            out="$(printf '%s' "$MISSION" | claude --print \
+            # also immune to the arg-length cap for very large missions. The runner
+            # preamble is prepended so the agent produces instead of deferring.
+            out="$(printf '%s\n%s' "$PREAMBLE" "$MISSION" | claude --print \
               --model "$CLAUDE_MODEL" \
               --permission-mode acceptEdits \
               --max-turns 40 \
