@@ -1,3 +1,11 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import type { DiagnosticResult } from "@/lib/admin/diagnostics/types";
 
 const STATUS: Record<DiagnosticResult["status"], { label: string; cls: string }> = {
@@ -32,54 +40,51 @@ export function DiagnosticResultTable({
   if (results.length === 0) return null;
   return (
     <div className="overflow-x-auto rounded-xl border border-[var(--ct-border)]">
-      <table className="w-full text-left text-xs">
-        <thead className="ct-bento-label">
-          <tr>
+      <Table className="text-[length:var(--ct-text-xs)]">
+        <TableHead className="ct-bento-label">
+          <TableRow>
             {HEADS.map((h) => (
-              <th key={h} className="px-3 py-2 font-semibold whitespace-nowrap">
+              <TableHeader key={h} className="font-semibold whitespace-nowrap">
                 {h}
-              </th>
+              </TableHeader>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {results.map((r) => {
             const s = STATUS[r.status];
             return (
-              <tr
-                key={r.id}
-                className="border-t border-[var(--ct-border)] align-top"
-              >
-                <td className={`px-3 py-2 font-bold ${s.cls}`}>{s.label}</td>
-                <td className={`px-3 py-2 font-bold ${SEV[r.severity]}`}>
+              <TableRow key={r.id} className="align-top">
+                <TableCell className={`font-bold ${s.cls}`}>{s.label}</TableCell>
+                <TableCell className={`font-bold ${SEV[r.severity]}`}>
                   {r.severity}
-                </td>
-                <td className="px-3 py-2 text-[var(--ct-text-strong)]">
+                </TableCell>
+                <TableCell className="text-[var(--ct-text-strong)]">
                   {r.label}
                   {r.guard ? (
-                    <span className="block text-xs text-[var(--ct-text-tertiary)]">
+                    <span className="block text-[length:var(--ct-text-xs)] text-[var(--ct-text-tertiary)]">
                       guard: {r.guard}
                     </span>
                   ) : null}
-                </td>
-                <td className="px-3 py-2 text-[var(--ct-text-muted)]">
+                </TableCell>
+                <TableCell className="text-[var(--ct-text-muted)]">
                   {r.expected}
-                </td>
-                <td className="px-3 py-2 text-[var(--ct-text-muted)]">
+                </TableCell>
+                <TableCell className="text-[var(--ct-text-muted)]">
                   {r.actual}
-                </td>
-                <td className="px-3 py-2 font-mono text-xs text-[var(--ct-text-tertiary)]">
+                </TableCell>
+                <TableCell className="font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-tertiary)]">
                   {r.likelyFile}
                   {r.likelyFunction ? ` · ${r.likelyFunction}` : ""}
-                </td>
-                <td className="px-3 py-2 text-[var(--ct-text-tertiary)]">
+                </TableCell>
+                <TableCell className="text-[var(--ct-text-tertiary)]">
                   {r.sideEffect}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
