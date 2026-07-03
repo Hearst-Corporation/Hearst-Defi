@@ -102,7 +102,10 @@ describe("preview banner — truth wording (source check)", () => {
     expect(BANNER_SRC).toContain("UNAUDITED");
     expect(BANNER_SRC).toContain("CONFIGURED");
     expect(BANNER_SRC).toContain("GO ADMIN ONLY");
-    expect(BANNER_SRC).not.toMatch(/\bguaranteed\b/i);
+    // "not guaranteed" is the mandatory disclaimer (CLAUDE.md #10) — an honest
+    // negative, not a positive claim. Strip it before asserting no bare
+    // "guaranteed" claim slips through.
+    expect(BANNER_SRC.replace(/not guaranteed/gi, "")).not.toMatch(/\bguaranteed\b/i);
     // No POSITIVE claim rendered to the admin (strip comments + the unaudited
     // tone/badge, which are honest negatives, before checking).
     const rendered = BANNER_SRC

@@ -266,8 +266,8 @@ describe("admin read tools registry", () => {
     const result = await executeAdminReadTool(tool, context);
     expect(result.id).toBe("read_runtime_capabilities");
     expect(result.format).toBe("multiline_text_block");
-    expect(result.title).toBe("CAPACITES OUTILLEES (RUNTIME APP)");
-    expect(result.lines.some((line) => line.includes("internet_live_outille: yes"))).toBe(
+    expect(result.title).toBe("TOOLED CAPABILITIES (RUNTIME APP)");
+    expect(result.lines.some((line) => line.includes("live_internet_tooled: yes"))).toBe(
       true,
     );
     expect(mockAdminToolRunCreate).toHaveBeenCalledTimes(1);

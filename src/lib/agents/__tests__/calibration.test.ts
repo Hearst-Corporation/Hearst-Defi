@@ -41,7 +41,7 @@ describe("calibratePersona", () => {
     expect(p.tone).toBe("detailed");
     expect(p.verbosity).toBe("high");
     // growth vault loads disclaimers — must stay forbidden-words clean
-    expect(p.customInstructions).toMatch(/non garanti/);
+    expect(p.customInstructions).toMatch(/not guaranteed/);
   });
 
   it("is total: an empty profile yields a valid neutral persona", () => {
@@ -98,7 +98,7 @@ describe("calibratePersona", () => {
     expect(["fr", "en"]).toContain(p.language);
     // Without yieldType the growth-disclaimer block is not loaded; the persona
     // is still complete and on-brand (crypto-native register present).
-    expect(p.customInstructions).toMatch(/crypto-native/);
+    expect(p.customInstructions).toMatch(/Crypto-native/);
   });
 
   it("dropping the three retired questions still yields a stable tier", () => {

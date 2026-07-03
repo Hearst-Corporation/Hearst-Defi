@@ -28,8 +28,11 @@ import { env } from "@/lib/env";
 
 const IS_BUILD_PHASE = process.env.NEXT_PHASE === "phase-production-build";
 /** Vitest/CI without an HF secret: defer the missing-token error to first use so
- *  module import succeeds and the fail-open semantic guard can skip HF. */
-const IS_TEST = process.env.NODE_ENV === "test";
+ *  module import succeeds and the fail-open semantic guard can skip HF.
+ *  `VITEST` is Vitest's own reliable marker — `NODE_ENV` alone is not: a
+ *  parent shell that already exports `NODE_ENV=development` is inherited
+ *  as-is (Vitest only sets it when unset), so `NODE_ENV === "test"` can miss. */
+const IS_TEST = process.env.NODE_ENV === "test" || process.env.VITEST === "true";
 
 /** Resolved HF token, or null when neither env var is set. */
 const HF_TOKEN_RESOLVED: string | null =

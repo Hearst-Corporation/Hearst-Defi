@@ -21,13 +21,14 @@
 
 | Validation | État | Notes |
 |---|---|---|
-| `pnpm typecheck` | **INCONNU** (non exécuté — permissions runner bloquées) | Dernière vérité = PROGRAM_MASTER §1 : "pnpm typecheck 0" au 2026-05-29 ; des PRs ajoutées depuis (strategies) |
-| `pnpm test` (Vitest) | **INCONNU** | Dernière vérité = 1766/1766 (2026-05-29) ; 441 fichiers test — possibles régressions strategies |
-| `forge test` (Foundry) | Dernière vérité = 73/73 (2026-05-29) — gel contrat @ `898991c` intact |
-| `pnpm build` | **INCONNU** | Non exécuté |
-| Playwright E2E | `continue-on-error: true` — **jamais bloquant en CI** |
+| `pnpm typecheck` | ✅ **0 erreur** (vérifié 2026-07-03, batch Stabilization) | `tsc --noEmit` clean sur `main` + working tree de ce batch |
+| `pnpm test` (Vitest) | ✅ **5323/5323, 448/448 fichiers** (vérifié 2026-07-03, batch Stabilization) | Baseline verte confirmée — 9 fichiers rouges trouvés et corrigés cette session (voir HANDOFF batch Stabilization) |
+| `forge test` (Foundry) | Dernière vérité = 73/73 (2026-05-29) — gel contrat @ `898991c` intact | Non ré-exécuté ce batch (hors owner zone TS/test) |
+| `pnpm build` | **INCONNU** | Non exécuté ce batch |
+| `pnpm run lint` (ESLint) | ✅ **0 erreur**, 46 warnings pré-existants (advisory, non bloquant — `eslint src \|\| true`) | Non touché ce batch (warnings hors scope "rouge") |
+| Playwright E2E | `continue-on-error: true` — **jamais bloquant en CI** | Non exécuté ce batch |
 
-> **IMPÉRATIF batch 2** : exécuter `pnpm db:generate && pnpm typecheck && pnpm test` avant tout travail de code. Ne pas supposer que la baseline est verte — les commits strategies ajoutés post-2026-05-29 peuvent avoir introduit des erreurs.
+> **Batch 2 (baseline verification) satisfait** par le batch Stabilization du 2026-07-03 : `pnpm typecheck` + `pnpm test` sont désormais verts et vérifiés en exécution réelle (les permissions runner qui bloquaient batch 2/2b/2 rerun ne bloquaient plus cette session).
 
 ---
 

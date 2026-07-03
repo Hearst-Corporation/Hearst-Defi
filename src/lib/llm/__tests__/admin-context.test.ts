@@ -70,14 +70,14 @@ describe("buildAdminContextBlock", () => {
   it("includes allocations, market snapshot, indexes, and capability lines", async () => {
     const block = await buildAdminContextBlock();
     expect(block).toContain("ADMIN LIVE CONTEXT");
-    expect(block).toContain("ALLOCATIONS CANONIQUES");
+    expect(block).toContain("CANONICAL ALLOCATIONS");
     expect(block).toContain("HYV: mining 60%");
     expect(block).toContain("MARKET SNAPSHOT");
     expect(block).toContain("btc_price_usd: 69250");
     expect(block).toContain("apy_target_range: 8.00% to 15.00%");
     expect(block).toContain("- /portfolio");
     expect(block).toContain("09-agents");
-    expect(block).toContain("internet_live_outille: yes");
+    expect(block).toContain("live_internet_tooled: yes");
   });
 
   it("degrades gracefully when no db rows are available", async () => {
@@ -92,7 +92,7 @@ describe("buildAdminContextBlock", () => {
     mockMining.mockRejectedValue(new Error("db unavailable"));
     const block = await buildAdminContextBlock();
     expect(block).toContain("TOOL UNAVAILABLE (read_market_snapshot)");
-    expect(block).toContain("ALLOCATIONS CANONIQUES");
+    expect(block).toContain("CANONICAL ALLOCATIONS");
     expect(block).toContain("ROUTES INDEX (sample)");
     expect(mockWarn).toHaveBeenCalledWith(
       "admin-context tool execution failed — continuing with partial context",
