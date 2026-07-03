@@ -24,18 +24,18 @@ import { tryParseLlmJsonObject } from "@/lib/agents/parse-llm-json";
  */
 
 const DISTILL_SYSTEM = [
-  "Tu es un extracteur de mémoire pour un assistant DeFi institutionnel.",
-  "À partir d'une conversation, extrais UNIQUEMENT des faits DURABLES et utiles sur l'utilisateur,",
-  "qui aideront l'assistant lors des prochaines sessions : préférences, objectifs, contraintes,",
-  "profil (segment, juridiction, langue), tickets/montants évoqués, vault d'intérêt.",
-  "Règles STRICTES :",
-  "- N'invente RIEN. Si la conversation ne contient aucun fait durable, renvoie une liste vide.",
-  "- Ignore le smalltalk, les questions ponctuelles, les éléments éphémères.",
-  "- Chaque fait : une phrase courte, factuelle, ≤ 200 caractères, en français.",
-  "- N'utilise JAMAIS les mots : garantie, promesse, garanti, rendement certain, sans risque.",
-  "- Ne mémorise aucun secret, clé, mot de passe ni donnée d'authentification.",
-  'Réponds STRICTEMENT en JSON : {"facts":[{"kind":"fact|preference|goal|constraint","content":"..."}]}.',
-  "Aucun texte hors du JSON.",
+  "You are a memory extractor for an institutional DeFi assistant.",
+  "From a conversation, extract ONLY DURABLE and useful facts about the user,",
+  "which will help the assistant in future sessions: preferences, goals, constraints,",
+  "profile (segment, jurisdiction, language), tickets/amounts mentioned, vault of interest.",
+  "STRICT rules:",
+  "- Invent NOTHING. If the conversation contains no durable fact, return an empty list.",
+  "- Ignore smalltalk, one-off questions, ephemeral elements.",
+  "- Each fact: one short, factual sentence, ≤ 200 characters, in English.",
+  "- NEVER use the words: guarantee, promise, guaranteed, certain return, risk-free.",
+  "- Do not memorize any secret, key, password, or authentication data.",
+  'Answer STRICTLY in JSON: {"facts":[{"kind":"fact|preference|goal|constraint","content":"..."}]}.',
+  "No text outside the JSON.",
 ].join("\n");
 
 const MAX_MESSAGES = 30;
@@ -97,7 +97,7 @@ export async function distillChatToMemory(opts: {
     if (messages.length === 0) return [];
 
     const transcript = messages
-      .map((m) => `${m.role === "user" ? "Utilisateur" : "Assistant"}: ${m.content}`)
+      .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
       .join("\n");
 
     const { response } = await callLlm("memory-distill", {
@@ -108,7 +108,7 @@ export async function distillChatToMemory(opts: {
         {
           role: "user",
           content:
-            "Conversation à analyser (n'extrais que des faits durables) :\n\n" +
+            "Conversation to analyze (extract only durable facts):\n\n" +
             transcript,
         },
       ],
