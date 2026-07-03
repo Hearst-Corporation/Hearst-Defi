@@ -455,22 +455,22 @@ async function runProductConstructionTool(input: unknown): Promise<{
   });
   if (isProductConstructionError(result)) {
     return {
-      title: "PRODUCT CONSTRUCTION — indisponible",
-      lines: [`- raison: ${result.reasonCode}`, `- detail: ${result.message}`],
+      title: "PRODUCT CONSTRUCTION — unavailable",
+      lines: [`- reason: ${result.reasonCode}`, `- detail: ${result.message}`],
       payload: { error: result.kind, reasonCode: result.reasonCode },
     };
   }
   const lo = (result.quant.headlineRange.low * 100).toFixed(1);
   const hi = (result.quant.headlineRange.high * 100).toFixed(1);
   return {
-    title: "PRODUCT CONSTRUCTION — brouillon (read-only, non garanti)",
+    title: "PRODUCT CONSTRUCTION — draft (read-only, not guaranteed)",
     lines: [
-      `- vault inféré: ${result.vault.ticker} (${result.vault.label})`,
-      `- BTC live: $${Math.round(result.market.btcUsd).toLocaleString("en-US")} · hashprice $${result.market.hashpriceUsdPerThDay.toFixed(3)}/TH/jour`,
-      `- machines Telegram: ${result.telegram.machineCount}${result.telegram.topMachine ? ` (top ${result.telegram.topMachine})` : ""}`,
-      `- APY fourchette cible: ${lo}–${hi}% (Monte-Carlo seed ${result.quant.seed}, ${result.quant.paths} chemins)`,
-      `- P(sous le plancher ${result.quant.floorApyPct}%): ${result.quant.probBelowFloorPct}%`,
-      `- aucun produit créé/déployé/envoyé · ${result.disclaimer}`,
+      `- inferred vault: ${result.vault.ticker} (${result.vault.label})`,
+      `- BTC live: $${Math.round(result.market.btcUsd).toLocaleString("en-US")} · hashprice $${result.market.hashpriceUsdPerThDay.toFixed(3)}/TH/day`,
+      `- Telegram machines: ${result.telegram.machineCount}${result.telegram.topMachine ? ` (top ${result.telegram.topMachine})` : ""}`,
+      `- target APY range: ${lo}–${hi}% (Monte-Carlo seed ${result.quant.seed}, ${result.quant.paths} paths)`,
+      `- P(below floor ${result.quant.floorApyPct}%): ${result.quant.probBelowFloorPct}%`,
+      `- no product created/deployed/sent · ${result.disclaimer}`,
     ],
     payload: {
       objective: result.objective,
@@ -1008,7 +1008,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
         const a = vault.allocationTargets;
         return `- ${key}: mining ${a.mining}%, btc_tactical ${a.btc_tactical}%, usdc_base ${a.usdc_base}%, stable_reserve ${a.stable_reserve}%`;
       });
-      return { title: "ALLOCATIONS CANONIQUES", lines: rows };
+      return { title: "CANONICAL ALLOCATIONS", lines: rows };
     },
   }),
   defineAdminReadTool({
@@ -1047,7 +1047,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
 
       const miningLines = latestMiningMetric
         ? [
-            "- MARCHE BTC / MINING (latest)",
+            "- BTC MARKET / MINING (latest)",
             `  - taken_at: ${formatIso(latestMiningMetric.takenAt)}`,
             `  - btc_price_usd: ${latestMiningMetric.btcPrice.toString()}`,
             `  - btc_price_usd_exact_live: ${btcLive ? btcLive.priceUsd.toFixed(2) : "unavailable"}`,
@@ -1062,7 +1062,7 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
             `  - mining_margin_score: ${latestMiningMetric.miningMarginScore}`,
           ]
         : [
-            "- MARCHE BTC / MINING (latest)",
+            "- BTC MARKET / MINING (latest)",
             "  - unavailable: no MiningMetric row",
           ];
 
@@ -1119,15 +1119,15 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
     id: "read_runtime_capabilities",
     description: "Runtime capabilities matrix",
     run: async () => ({
-      title: "CAPACITES OUTILLEES (RUNTIME APP)",
+      title: "TOOLED CAPABILITIES (RUNTIME APP)",
       lines: [
-        `- navigation_deterministe: ${FEATURE_FLAGS.CHAT_MASTER_AGENT ? "yes" : "no"} (regex router avant LLM, aucun navigate tool)`,
-        "- internet_live_outille: yes (coingecko btc price live)",
-        "- deploy_execute_outille: no",
-        "- db_write_outille: no",
-        "- fireblocks_sign_outille: no",
-        "- chart_renderer_outille: no",
-        "- demo_runner_outille: no",
+        `- deterministic_navigation: ${FEATURE_FLAGS.CHAT_MASTER_AGENT ? "yes" : "no"} (regex router before LLM, no navigate tool)`,
+        "- live_internet_tooled: yes (coingecko btc price live)",
+        "- deploy_execute_tooled: no",
+        "- db_write_tooled: no",
+        "- fireblocks_sign_tooled: no",
+        "- chart_renderer_tooled: no",
+        "- demo_runner_tooled: no",
       ],
     }),
   }),
