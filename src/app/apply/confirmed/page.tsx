@@ -44,20 +44,20 @@ export default function ConfirmedPage() {
         </div>
       }
       body={
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col items-center gap-5 text-center">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] ct-text-accent">
             <svg
-              width="18"
-              height="18"
-              viewBox="0 0 12 12"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
               fill="none"
               aria-hidden
               className="shrink-0"
             >
               <path
-                d="M2 6l3 3 5-5"
+                d="M5 13l4 4L19 7"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />

@@ -133,7 +133,7 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
   return (
     <OnboardingChamber
       testId="apply-qualification"
-      aside={<ApplyAside irContact={irContact} />}
+      aside={irContact ? <ApplyAside irContact={irContact} /> : undefined}
       crown={
         <div className="product-doc-stack onboarding-shell__stepper text-left">
           <WizardStepProgress
