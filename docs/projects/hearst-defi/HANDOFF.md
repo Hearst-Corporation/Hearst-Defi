@@ -2,6 +2,153 @@
 
 ---
 
+## Batch 5/9 (builder, Data Truth) : nouvelle invocation, sweep étendu, no-op — 2026-07-03
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data
+Truth" (owner zone : couche données/API — sources réelles, gardes anti-mock). Nouvelle
+invocation sur la même branche (`nexus/loop_mr3jnyjv-mr5jfrcd`, non poussée sur origin —
+`git ls-remote` confirme).
+
+RELAIS relu intégralement (`PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md`) avant toute action. `docs/agent-file-locks.md` vérifié :
+locks actifs (`fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
++ ceux listés dans l'entrée précédente) tous scopés UI, aucun chevauchement avec l'owner
+zone données/API. `git log b3487a69..HEAD -- src/lib src/app/api` → toujours un seul
+commit (`0e378906`, forbidden-words guard, hors scope mocks). `HEAD` = `9a48f266` =
+`origin/main`, inchangé depuis la dernière passe de cette série. Aucune PR ouverte ne
+chevauche cet owner zone (pas d'accès `gh` dans cet environnement ; vérifié via
+`git ls-remote` — aucune branche remote ne correspond à cette branche locale).
+
+**Constat** : le working tree contenait déjà, non commité, un addendum HANDOFF complet
+de la passe précédente sur cette même branche (section ci-dessous) — état identique,
+aucune régression, rien à dédupliquer côté contenu.
+
+**Ce que cette session a fait de nouveau** (plutôt que republier la même conclusion) :
+élargi le balayage anti-mock à des répertoires pas explicitement listés dans les passes
+précédentes :
+
+1. `grep -rniE "mock|fake|hardcod|placeholder|dummy"` sur `src/lib/governance`,
+   `src/lib/distribution`, `src/lib/notifications`, `src/lib/onchain` — seuls hits :
+   `distribution/events.ts:33` (commentaire documentant T-05), `governance/actions.ts:268,331`
+   (commentaires documentant T-06, déjà signalés en UI), `distribution/atomic-exec.ts:132`
+   (`0xMOCK_` déjà badgé "estimated" en admin, T-05), `onchain/vault.ts:10,73` (commentaires
+   de garde anti-fake, pas un mock). Rien de nouveau.
+2. `grep` sur `NOTIFICATION_MATRIX`/`resolveChannels` (T-08) : toujours 0 consommateur
+   hors `router.ts` lui-même — état inchangé, hors owner zone (UI bell + batch 8).
+3. Balayage `Math.random()` élargi à **tout** `src/lib` hors `__tests__`/`engine/`/
+   `simulation`/`seed` (liste de fichiers plus large que les passes précédentes —
+   `products/*`, `vault-drafts/*`, `agentic/swarm/live/*`, `vaults/profile.ts`,
+   `vaults/blueprint.ts`, `strategy-data-lab/allocator.ts`) : **tous** les hits sont des
+   commentaires de garde de pureté ("no Math.random()", engine purity rule #6), sauf deux
+   usages réels déjà connus et non-financiers — `rate-limit.ts:137` (id de fenêtre
+   rate-limit) et `agents/swarms/outreach-swarm-orchestrator.ts:155` (`runId` de
+   corrélation, pas une donnée LP-visible). Aucun calcul financier ou métrique affichée au
+   LP ne dépend d'un random ungouverné.
+4. Re-vérification T-01 : `dataSource: "live" | "stub"` toujours présent sur `TaxPreview`
+   (`src/lib/portfolio/tax.ts:80,251`).
+
+**Validations** (environnement déjà chaud — `node_modules/` et `prisma/dev.db` présents) :
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm exec vitest run src/lib/portfolio/__tests__/tax.test.ts
+  src/lib/portfolio/__tests__/tax-preview-loader.test.ts
+  src/lib/__tests__/data-honesty-guards.test.ts` → **3 fichiers, 68 tests, tous verts**
+  (guard de régression T-01 confirmé fonctionnel).
+
+**Conclusion** : owner zone "couche données/API — sources réelles, gardes anti-mock"
+confirmée sans item actionnable restant, y compris sur le périmètre élargi
+(governance/distribution/notifications/onchain/products/vault-drafts/agentic-swarm-live).
+**Aucun changement de fichier source cette session** — uniquement cet addendum HANDOFF.
+Pas de PR nécessaire (no-op sain, cohérent avec les 3+ passes précédentes sur ce même
+batch dans la série).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02
+décision Adrien email de reçu). Voir `DECISIONS.md` §"Questions en attente pour Adrien".
+
+---
+
+## Batch 5/9 (builder, Data Truth) : re-confirmation indépendante, no-op — 2026-07-03
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data
+Truth" (owner zone : couche données/API — sources réelles, gardes anti-mock). Nouvelle
+invocation de loop sur ce même scope (`nexus/loop_mr3jnyjv-mr5jfrcd`).
+
+RELAIS relu intégralement (`PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md`) avant de coder. `docs/agent-file-locks.md` vérifié : 3 locks
+actifs (`fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
+`feat/projection-safe-input-preset`) + `fix/machine-logo-visible` — tous scopés à des
+fichiers UI étroits (strategies admin, product-workspace, projection handoff, logo chip),
+aucun chevauchement avec l'owner zone données/API de ce batch. `git status` de départ :
+propre, `HEAD` = `origin/main` (`9a48f266`), aucune PR ouverte ne chevauche cet owner zone.
+Dépendance batch 01 (Stabilization) vérifiée : `git merge-base --is-ancestor 9b01f8b3 HEAD`
+→ ancêtre, satisfaite.
+
+**Constat de départ** : le travail concret de ce rôle ("Data Truth" — reprendre les
+findings T-01→T-12 du Truth Audit et remplacer les mocks non signalés côté données/API par
+des sources réelles ou des états honnêtes) avait déjà été fait et **mergé dans `main`** par
+un run antérieur — commit `b3487a69` (PR #369, `loop_mr3jnyjv-mr58ghru`), qui correspond
+exactement au "Rapport batch Data Truth" documenté dans `DECISIONS.md`. Cette branche part
+de `main` et contient déjà ce commit. `src/lib/portfolio/tax.ts` porte bien le champ
+`dataSource: "live" | "stub"`, et le guard de régression POINT 6 est présent dans
+`src/lib/__tests__/data-honesty-guards.test.ts`.
+
+**Ce que cette session a fait** : au lieu de dupliquer, elle a (1) refait l'inventaire
+indépendant des findings T-01→T-12 pour confirmer qu'aucun n'est retombé dans un état non
+honnête, et (2) balayé le code data/API touché **depuis** le rapport Data Truth original
+pour détecter tout nouveau mock non signalé :
+
+1. `git log b3487a69..HEAD -- src/lib src/app/api` → un seul commit dans l'owner zone :
+   `0e378906 fix(chat): stop blocking honest risk disclosures` (fix du garde-fou
+   `forbidden-words`, faux positif de compliance — sans rapport avec des données mockées,
+   déjà mergé directement, hors scope Data Truth).
+2. Re-vérification T-01 : `dataSource` toujours présent, tests `tax.test.ts` bloc 19 et
+   `tax-preview-loader.test.ts` toujours verts.
+3. Re-vérification T-05/T-06/T-07/T-10 (déjà honnêtement signalés au batch précédent) :
+   `admin/distributions/page.tsx:173-191` toujours badge `estimated` sur `0xMOCK`,
+   `admin/governance/proposal/[id]/page.tsx:334` toujours le texte "mock only — no
+   Solidity calls", `attestation/mock.ts` toujours confiné à `prisma/seed.ts`/tests,
+   `src/app/admin/outreach/actions.ts:894-898` toujours le refus prod sans
+   `APOLLO_API_KEY`.
+4. Balayage large `mock|fake|hardcod|placeholder|dummy` sur `src/lib` (hors tests) : tous
+   les hits restants sont soit des commentaires de garde (`isPlaceholderTxHash`,
+   `isMock`/`isPlaceholderVault`, `dataSource`), soit des mocks déjà confinés/testés
+   (`src/lib/attestation/__mocks__/mock-key.ts`) — aucun nouveau mock non signalé trouvé.
+5. Balayage `Math.random()` hors `__tests__`/`engine/`/`simulation`/`seed` : tous les hits
+   sont soit des commentaires documentant une contrainte de pureté ("no Math.random()"),
+   soit un usage légitime non-données (`rate-limit.ts:137`, id unique de fenêtre de rate
+   limit) — aucun calcul financier/donnée LP-visible ne dépend d'un random ungouverné.
+6. Balayage rapide des routes `src/app/api/**/route.ts` sans appel `prisma`/`fetch` direct
+   au niveau du fichier route — tous délèguent à des loaders `lib/` déjà couverts par les
+   points précédents (pas de nouvelle route retournant des données statiques déguisées en
+   réelles).
+
+**Validations** (checkout vierge — `node_modules` et `prisma/dev.db` absents au démarrage,
+même piège que documenté au batch 4/9 précédent) :
+- `pnpm install` puis `pnpm db:generate` — requis.
+- `PRISMA_PROVIDER=sqlite node scripts/prisma-provider.mjs && prisma db push
+  --accept-data-loss` puis restauration provider — requis avant premier `pnpm test`
+  (`dev.db` gitignored, 0 octet sur ce runner).
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` → **448/448 fichiers, 5352/5352 tests** (progression vs 5323 documentée au
+  batch 4/9 — delta expliqué par les tests `forbidden-words` ajoutés par le commit
+  `0e378906` entre-temps, hors scope de ce batch). `prisma/schema.prisma` restauré
+  proprement en `postgresql` après coup (`git diff --stat prisma/schema.prisma` vide).
+
+**Conclusion** : l'owner zone "couche données/API — sources réelles, gardes anti-mock"
+**n'a aucun item actionnable restant** au 2026-07-03 : le seul finding qui relevait
+réellement de cette zone (T-01) est corrigé et gardé par un test de régression ; les
+findings déjà honnêtement signalés (T-05/T-06/T-07/T-10) le restent ; les autres (T-02,
+T-03, T-04, T-08, T-09, T-11, T-12) nécessitent une page UI, une migration Prisma, ou une
+décision produit Adrien — hors owner zone data/API par construction, inchangés. **Aucun
+changement de fichier source cette session** — uniquement cet addendum HANDOFF +
+correction du statut PR mergée dans `BATCHES.md`. Pas de PR nécessaire (no-op sain).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02
+décision Adrien email de reçu). Voir `DECISIONS.md` §"Questions en attente pour Adrien".
+
+---
+
 ## Batch 4/9 (builder, Stabilization) : 4e confirmation indépendante, no-op — 2026-07-03
 
 **Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), même rôle
