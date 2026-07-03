@@ -21,6 +21,14 @@ import {
   SegmentedControl,
   type SegmentedItem,
 } from "@/components/catalyst/segmented-control";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 
 type TimelineMetric = "price" | "ltv" | "debt";
@@ -368,63 +376,66 @@ export function CollateralTimeline({
           Advanced month-by-month timeline
         </summary>
         <div className="max-h-[24rem] min-w-0 overflow-auto border-t border-[var(--ct-border-soft)] p-(--ct-space-3)">
-          <table className="w-full min-w-[60rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-            <thead>
-              <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-                <th className="p-(--ct-space-2) text-left">Month</th>
-                <th className="p-(--ct-space-2) text-right">BTC price</th>
-                <th className="p-(--ct-space-2) text-right">Debt</th>
-                <th className="p-(--ct-space-2) text-right">Working reserve</th>
-                <th className="p-(--ct-space-2) text-right">wBTC collateral</th>
-                <th className="p-(--ct-space-2) text-right">Collateral value</th>
-                <th className="p-(--ct-space-2) text-right">LTV</th>
-                <th className="p-(--ct-space-2) text-right">Liq. price</th>
-                <th className="p-(--ct-space-2) text-right">Distance</th>
-                <th className="p-(--ct-space-2) text-left">Event</th>
-                <th className="p-(--ct-space-2) text-left">Zone</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table
+            dense
+            className="w-full min-w-[60rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums"
+          >
+            <TableHead>
+              <TableRow className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                <TableHeader className="p-(--ct-space-2) text-left">Month</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">BTC price</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Debt</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Working reserve</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">wBTC collateral</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Collateral value</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">LTV</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Liq. price</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-right">Distance</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-left">Event</TableHeader>
+                <TableHeader className="p-(--ct-space-2) text-left">Zone</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {rows.map((row) => (
-                <tr
+                <TableRow
                   key={`${row.month}-${row.eventType}`}
                   className="border-b border-[var(--ct-border-soft)] align-top"
                 >
-                  <td className="p-(--ct-space-2) ct-text-strong">{`M${row.month}`}</td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  <TableCell className="p-(--ct-space-2) ct-text-strong">{`M${row.month}`}</TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {usd(row.btcPriceUsd)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {usd(row.debtUsdc)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {usd(row.workingReserveUsdc)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {row.wbtcCollateralAmount.toFixed(3)} BTC
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {usd(row.collateralValueUsdc)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {pct(row.ltvPct)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {usd(row.liquidationPriceUsd)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-right ct-text-body">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-right ct-text-body">
                     {pct(row.distanceToLiquidationPct)}
-                  </td>
-                  <td className="p-(--ct-space-2) text-left ct-text-tertiary">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-left ct-text-tertiary">
                     {row.eventType}
-                  </td>
-                  <td className="p-(--ct-space-2) text-left ct-text-tertiary">
+                  </TableCell>
+                  <TableCell className="p-(--ct-space-2) text-left ct-text-tertiary">
                     {row.riskZone}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </details>
     </div>
