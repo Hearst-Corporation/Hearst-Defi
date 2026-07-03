@@ -1,0 +1,180 @@
+# PROJECT_STATE.md — Hearst DeFi (hearst-defi)
+
+> Instantané pris le 2026-07-02 par le batch Intake (batch 1/9).
+> Source de vérité : `docs/BACKLOG.md`, `docs/PROGRAM_MASTER.md`, `docs/execution/agent-e-sprint-correctness.md`, code source (read-only).
+
+---
+
+## 1. État du dépôt
+
+| Champ | Valeur |
+|---|---|
+| Branche courante | `main` |
+| Commits devant origin/main | 1 (`e31c1706` nexus base loop — fichiers CI/nexus uniquement, pas de code applicatif) |
+| Working tree | propre (`git status` = clean) |
+| PR ouverte touchant le code | #146 (purge-css-final, DRAFT/PARKED — ne pas toucher) |
+| Lock file stale possible | `feat/kimi-deterministic-intent-router-v2` dans `agent-file-locks.md` (Kimi retiré per ADR-011 — à confirmer et libérer) |
+
+---
+
+## 2. Baseline de santé
+
+| Validation | État | Notes |
+|---|---|---|
+| `pnpm typecheck` | **INCONNU** (non exécuté — permissions runner bloquées) | Dernière vérité = PROGRAM_MASTER §1 : "pnpm typecheck 0" au 2026-05-29 ; des PRs ajoutées depuis (strategies) |
+| `pnpm test` (Vitest) | **INCONNU** | Dernière vérité = 1766/1766 (2026-05-29) ; 441 fichiers test — possibles régressions strategies |
+| `forge test` (Foundry) | Dernière vérité = 73/73 (2026-05-29) — gel contrat @ `898991c` intact |
+| `pnpm build` | **INCONNU** | Non exécuté |
+| Playwright E2E | `continue-on-error: true` — **jamais bloquant en CI** |
+
+> **IMPÉRATIF batch 2** : exécuter `pnpm db:generate && pnpm typecheck && pnpm test` avant tout travail de code. Ne pas supposer que la baseline est verte — les commits strategies ajoutés post-2026-05-29 peuvent avoir introduit des erreurs.
+
+---
+
+## 3. Schéma Prisma
+
+| Champ | Valeur |
+|---|---|
+| Modèles | 65 (VaultSnapshot → StrategyProjectionEvent) |
+| Lignes schema.prisma | 1 426 |
+| Provider cible | PostgreSQL (prod Supabase) / SQLite (local dev) |
+| État dev.db | **DRIFTÉE** — manque contraintes uniques (`Distribution[period,vaultRef]`, `InvestorTransaction[txHash]`, `Position[txHashOpen]`) + index (`UserAgentProfile`, `VaultDraft`) → `db push` bloqué sans `--accept-data-loss` |
+| Migrations Prisma | Stale — workflow officiel = `db push` (sans historique) |
+
+---
+
+## 4. Routes & Modules
+
+### Pages applicatives (product)
+- **Onboarding** : accreditation, identity, wallet, racine (`/onboarding`)
+- **Portfolio** : racine, positions, activité, distributions, tax, yield, `[positionId]`
+- **Vaults** : liste, `[id]`, invest, invest/confirmed
+- **Proof Center** : racine, full
+- **Profile**
+
+### Pages admin (~25 routes)
+agents, agent-canvas, agentic, audit, chart-gallery, customers `[id]`, dashboard, design-system, diagnostics, distributions, feedback, governance (+ allowlist, proposal `[id]`, propose), investor-memo, marketplace, monitoring, onboarding-test, outreach (+ compose, prospects, `[campaignId]`), product-workspace (+ report/print), products/btc-mining-performance-vault, projection (+ preview), proof-center (+ full), proofs, roadmap, scenario-lab, security, signals, source, spec, strategies `[slug]`, vaults (new, `[id]`, `[id]/edit`).
+
+### Routes API (37 routes)
+Auth, cockpit-chat, cockpit-chats, agent-canvas, search, health/deep, inngest, webhooks (docusign, hubspot, resend, sumsub, typeform), outreach (inbound, unsubscribe), admin (agentic/projection, registry, simulate, simulations, agents/graph, chat-tools, diagnostics/*, product-construction/stream, review-document, review-mode), docs/methodology.
+
+### Modules lib principaux
+`engine/` (15 fichiers — pure TS, déterministe), `agents/` (outreach, narrative, risk, memo, mémoire), `agentic/` (intent-router, swarm, reporting, observability, system-map, tool-boundary, action-readiness, control-center, crew-simulation, product-projection), `llm/` (openai, chat, output-guard, nav), `swarms/` (client MySwarms, flag OFF), `product-strategies/` (nouveau — strategies hub), et domaines métier (onchain, governance, distribution, outreach, email, etc.).
+
+---
+
+## 5. Corrections Sprint (agent-e-sprint-correctness.md) — Statut par item
+
+| ID | Description | Statut observé |
+|---|---|---|
+| **C-01** | Gate KYC sur dépôt | ✅ FAIT — `kycStatus !== "approved"` à `subscribe.ts:49,81` |
+| **C-02** | Alias env vault (HEARST_YIELD / HEARST) | ✅ FAIT — double alias dans `vault.ts:59-60,76-77` |
+| **C-03** | Share class réelle dans widgets portfolio | ⚠️ À VÉRIFIER — BACKLOG non coché |
+| **C-04** | Fees défaut Prisma 2 %→1 % | ✅ FAIT — `mgmtFeeBps @default(100)` ligne 459 |
+| **C-05** | Tax preview off (chiffres inventés) | ❌ NON FAIT — `12_000 + userSeed * 100` toujours présent dans `tax.ts:198` |
+| **C-06** | APY range PDF lu depuis bps | ✅ FAIT — `targetApyLowBps ?? 940` et `formatApyRange` à `route.tsx:60,396,747` |
+| **C-07** | Règle Model B dans prompt investor-memo | ✅ FAIT — ligne 140 `investor-memo.ts` |
+| **C-08** | Persistance accreditation attest | ✅ FAIT — `accreditationAttestedAt` dans schema ligne 376 (server action à vérifier) |
+| **C-09** | MFA TOTP admin câblé | ⚠️ À VÉRIFIER — deps présentes (otpauth, qrcode) ; câblage flux inconnu |
+| **C-10** | CSP connect-src resserré | ✅ PARTIEL — `connect-src` restreint (`connectHosts`) ; `script-src 'unsafe-inline' 'unsafe-eval'` toujours présent |
+| **C-11** | Cookie sameSite "lax"→"strict" | ❌ NON FAIT — `session.ts:154` encore `"lax"` (ligne 200 = cookie différent) |
+| **C-12** | Flow reset password (Resend) | ⚠️ À VÉRIFIER — route `forgot-password` existe ; implémentation Resend à confirmer |
+| **C-13** | Model B one-liner LP (vaults detail) | ⚠️ À VÉRIFIER — non trouvé dans `vaults/[id]/page.tsx` surface LP |
+| **C-14** | Playwright CI bloquant | ❌ NON FAIT — `continue-on-error: true` à `ci.yml:137` |
+
+**Résumé C-items :** 6 faits ✅, 2 non faits ❌, 5 à vérifier/partiels ⚠️.
+
+---
+
+## 6. Bugs BACKLOG (Lot 1 — fixes sûrs sans schéma)
+
+| # | Item | Statut |
+|---|---|---|
+| 1 | Search href `/admin/governance/${r.proposalId}` | ✅ CORRIGÉ — `indexer.ts:284` : `/admin/governance/proposal/${r.proposalId}` |
+| 2 | NavSparkline label "Monte Carlo" trompeur | ⚠️ À VÉRIFIER |
+| 3 | Command registry `nav-governance` href | ✅ OK — `commands.ts:122` = `/admin/governance` (correct) |
+
+---
+
+## 7. Risques Ouverts (PROGRAM_MASTER §8)
+
+| ID | Risque | Sévérité | État |
+|---|---|---|---|
+| RP-1 | Distribution mock `0xMOCK_` — pas de transfert USDC réel | **Critique** | Ouvert — décision D7 non prise |
+| RP-2 | Dépôt sans KYC | Critique | ✅ RÉSOLU (C-01) |
+| RP-3 | Comm "mining-backed" sans Model B | Élevé | Partiel — C-07 ✅, C-13 ⚠️ |
+| RP-4 | NAV sur CoinGecko (Chainlink non appelé) | Élevé (mainnet) | Ouvert — testnet pilote |
+| RP-5 | Attestation mining mock (EIP-191, signers vides) | Élevé | Ouvert — vendor non engagé |
+| RP-6 | Gouvernance/PoR/exécution simulées | Élevé | Ouvert — Safe non déployé |
+| RP-7 | Fees défaut 2 % vs spec 1 % | Moyen | ✅ RÉSOLU (C-04) |
+| RP-8 | Env prod manquants (Inngest/Redis/Privy/Persona/DocuSign) | Élevé | Ouvert |
+| RP-9 | MFA TOTP admin non câblé ; CSP wildcards | Moyen | Partiel (C-09 ⚠️, C-10 partiel ✅) |
+
+---
+
+## 8. Décisions Exécutives (PROGRAM_MASTER §9) — Statut
+
+| Décision | Statut |
+|---|---|
+| D1 — Signataires Safe 3/5 + guardian 2/3 | ❌ À exécuter |
+| D2 — Counsel Maples | ❌ À exécuter |
+| D3 — Lever gel app-code (sprint correctness) | ✅ Validé |
+| D4 — Engagement Spearbit (NDA + scope) | ❌ À exécuter |
+| D5 — Périmètre juridictionnel pilotes | ❌ À exécuter |
+| D6 — Model B comme vérité produit V1 | ✅ Validé |
+| D7 — Politique distribution V1 (transfer USDC réel) | ❌ À exécuter |
+
+---
+
+## 9. Smart Contracts
+
+| Champ | Valeur |
+|---|---|
+| Contrats custom | `HearstYieldVault.sol`, `PoRRegistry.sol`, `EventLogger.sol` |
+| Freeze SHA | `898991c` (intact — gel contrat Spearbit) |
+| OZ version | v5.6.1 @ `5fd1781b` |
+| Forge tests | 73/73 (dernière vérité 2026-05-29) |
+| Instance testnet | `0xEc733c6dbD69F862489a9Da01338aA5D39C1F60d` — **PRÉDATE le guardian (5 args)** → à redéployer |
+| Safe/Timelock | Non déployés |
+| Mainnet | NO-GO ferme (gate audit Spearbit + remédiation — ADR-006) |
+
+---
+
+## 10. Architecture Agentic — Évolution (ADR-018)
+
+| Champ | Valeur |
+|---|---|
+| ADR-018 | Accepté 2026-06-24 — migration vers Swarms/Crew (MySwarms crewai-engine externe) |
+| Swarms integration | Scaffoldé (`src/lib/swarms/`, `SWARMS_ENGINE` flag, **default OFF**) |
+| Intent router | Migré vers déterministe (regex/règles, pas LLM) |
+| Navigation | Déterministe (nav LLM retiré) |
+| Lock stale | `feat/kimi-deterministic-intent-router-v2` dans `agent-file-locks.md` — Kimi retiré per ADR-011 ; lock probablement à libérer |
+
+---
+
+## 11. Features Intentionnellement Non Câblées (Lot 5 BACKLOG — NE PAS TOUCHER)
+
+Ces features ont un code existant mais **non monté** par décision Adrien (2026-06-10, "plus tard") :
+
+- ⌘K command palette (`src/lib/power/commands.ts` — registre OK, composant UI absent)
+- Batch actions multi-select
+- Keyboard shortcuts cheatsheet
+- Global search ⌘/ (`GlobalSearch`, `/api/search` — non montés)
+- Notifications bell feed (bell non montée, backend 0 consommateur)
+- Saved views 8 templates (non montées)
+
+---
+
+## 12. Strategies Hub (nouveau — ajouté post-BACKLOG)
+
+Module `src/lib/product-strategies/` + `src/app/admin/strategies/` ajouté lors du sprint strategies (PR #350-358 mergées fin juin). Comprend :
+- Hub, Studio, Data Lab (redesign)
+- Create flow short-flow
+- Collateral rebalancing engine + studio
+- Allocation advisor studio
+
+**Status** : mergé dans main. Tests à vérifier. `StrategyConfig`, `StrategyScenario`, `StrategyCollateralConfig`, `StrategyRebalancingRule`, `StrategyProjectionRun`, `StrategyProjectionSnapshot`, `StrategyProjectionEvent` ajoutés au schéma.
+
+---
+
+*Mis à jour : 2026-07-02. Prochain refresh : batch 2.*
