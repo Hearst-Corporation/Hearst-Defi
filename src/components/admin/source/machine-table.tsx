@@ -92,7 +92,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
         value: f,
         label: (
           <span className="capitalize">
-            {f === "all" ? "Tous" : f} {counts[f]}
+            {f === "all" ? "All" : f} {counts[f]}
           </span>
         ),
       })),
@@ -107,7 +107,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
           items={coolingItems}
           value={filter}
           onChange={setFilter}
-          ariaLabel="Filtrer par refroidissement"
+          ariaLabel="Filter by cooling"
           variant="radiogroup"
         />
       </div>
@@ -115,17 +115,17 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
       <Table className="[&_td]:whitespace-nowrap [&_th]:whitespace-nowrap">
         <TableHead>
           <TableRow>
-            <SortHeader label="Modèle" k="model" sort={sort} onSort={toggleSort} className="pl-5" />
+            <SortHeader label="Model" k="model" sort={sort} onSort={toggleSort} className="pl-5" />
             <SortHeader label="Cooling" k="cooling" sort={sort} onSort={toggleSort} />
-            <SortHeader label="Région" k="region" sort={sort} onSort={toggleSort} />
+            <SortHeader label="Region" k="region" sort={sort} onSort={toggleSort} />
             <SortHeader label="TH/s" k="thPerUnit" sort={sort} onSort={toggleSort} num />
             <SortHeader label="J/TH" k="efficiencyJTh" sort={sort} onSort={toggleSort} num />
             <SortHeader label="Ex-works" k="exWorksUsd" sort={sort} onSort={toggleSort} num />
             <SortHeader label="Landed" k="landedUsd" sort={sort} onSort={toggleSort} num />
-            <SortHeader label="CAPEX $/TH/j" k="capexUsdPerThDay" sort={sort} onSort={toggleSort} num />
-            <SortHeader label="Énergie $/TH/j" k="energyUsdPerThDay" sort={sort} onSort={toggleSort} num />
-            <SortHeader label="Coût total $/TH/j" k="totalCostUsdPerThDay" sort={sort} onSort={toggleSort} num />
-            <SortHeader label="Marge $/TH/j" k="marginUsdPerThDay" sort={sort} onSort={toggleSort} num className="pr-5" />
+            <SortHeader label="CAPEX $/TH/d" k="capexUsdPerThDay" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Energy $/TH/d" k="energyUsdPerThDay" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Total cost $/TH/d" k="totalCostUsdPerThDay" sort={sort} onSort={toggleSort} num />
+            <SortHeader label="Margin $/TH/d" k="marginUsdPerThDay" sort={sort} onSort={toggleSort} num className="pr-5" />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -146,7 +146,7 @@ export function MachineTable({ rows }: { rows: MachineRow[] }) {
                 </Badge>
               </TableCell>
               <TableCell className="ct-metric-caption uppercase">
-                {r.region === "usa" ? "USA" : "Chine"}
+                {r.region === "usa" ? "USA" : "China"}
               </TableCell>
               <Num>{r.thPerUnit}</Num>
               <Num muted={r.efficiencyJTh === null}>{r.efficiencyJTh ?? "—"}</Num>

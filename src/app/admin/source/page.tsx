@@ -56,24 +56,24 @@ const BRICKS: ReadonlyArray<{
   {
     id: "btc-price",
     title: "BTC price",
-    detail: "Coingecko (fetchBtcPrice) → prix USD, fallback conservateur.",
+    detail: "Coingecko (fetchBtcPrice) → USD price, conservative fallback.",
   },
   {
     id: "hashprice",
     title: "Hashprice / difficulty",
     detail:
-      "mempool.space (difficulté) × BTC price → hashprice $/TH/jour (formule pure).",
+      "mempool.space (difficulty) × BTC price → hashprice $/TH/day (pure formula).",
   },
   {
     id: "stable-yields",
     title: "Stable yields (USDC)",
-    detail: "DefiLlama → médiane des APY de pools USDC, fallback conservateur.",
+    detail: "DefiLlama → median USDC pool APY, conservative fallback.",
   },
   {
     id: "machine-prices",
-    title: "Prix machines (Telegram)",
+    title: "Machine prices (Telegram)",
     detail:
-      "Canaux Telegram → moyenne journalière → amortissement (air 3 ans / hydro 5 ans) → $/TH/jour.",
+      "Telegram channels → daily average → amortization (air 3 yrs / hydro 5 yrs) → $/TH/day.",
   },
 ];
 
@@ -103,17 +103,17 @@ export default async function SourcePage({
 
   return (
     <AdminPageShell
-      titleLead="Sources de"
-      titleAccent="données"
+      titleLead="Data"
+      titleAccent="sources"
       contextLabel="Strategy"
     >
       {/* Canon frame around the GROUP of ingestion bricks — a single
           AdminSectionCard, NOT a frame per panel (no double-frame). The bricks
           inside are DS Cards (flat material = dense module surface). */}
       <AdminSectionCard
-        title="Pipeline de données"
-        subtitle="Sources d'ingestion live qui alimentent le moteur — toutes câblées."
-        ariaLabel="Pipeline de données"
+        title="Data pipeline"
+        subtitle="Live ingestion sources that feed the engine — all wired."
+        ariaLabel="Data pipeline"
       >
         <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2">
           {BRICKS.map((brick) => (
@@ -142,16 +142,16 @@ export default async function SourcePage({
       </AdminSectionCard>
 
       <AdminSectionCard
-        title={`Prix machines — ${market.channel}`}
+        title={`Machine prices — ${market.channel}`}
         subtitle={
           <>
-            Liste {market.listDate ?? "n/a"} · {market.rows.length} machines ·{" "}
-            {profitable} rentables · Énergie {market.energyUsdPerKwh * 100} ¢/kWh
-            · Landed = ex-works + port ${FREIGHT_USD_PER_UNIT} + douane{" "}
+            List {market.listDate ?? "n/a"} · {market.rows.length} machines ·{" "}
+            {profitable} profitable · Energy {market.energyUsdPerKwh * 100} ¢/kWh
+            · Landed = ex-works + freight ${FREIGHT_USD_PER_UNIT} + duty{" "}
             {CUSTOMS_DUTY_PCT[destination]}% ({COUNTRY_LABELS[destination]})
           </>
         }
-        ariaLabel="Prix machines"
+        ariaLabel="Machine prices"
       >
         <div className="flex flex-col gap-5 p-5">
           {/* Hashprice (revenue) metric — DS stat block. Full-width; stacks
@@ -163,9 +163,9 @@ export default async function SourcePage({
             contentClassName="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"
           >
             <div className="flex flex-col gap-1">
-              <span className="ct-bento-label">Revenu (hashprice live)</span>
+              <span className="ct-bento-label">Revenue (live hashprice)</span>
               <span className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
-                ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/jour
+                ${market.hashpriceUsdPerThDay.toFixed(5)}/TH/day
                 {market.hashpriceStale ? " (stale)" : ""}
               </span>
             </div>
@@ -178,8 +178,8 @@ export default async function SourcePage({
 
           {!market.configured ? (
             <p className="ct-metric-caption">
-              Telegram non configuré. Renseignez TELEGRAM_API_ID /
-              TELEGRAM_API_HASH / TELEGRAM_SESSION dans .env.local (login via{" "}
+              Telegram not configured. Set TELEGRAM_API_ID /
+              TELEGRAM_API_HASH / TELEGRAM_SESSION in .env.local (login via{" "}
               <code className="font-mono text-[var(--ct-text-secondary)]">
                 node scripts/telegram-login.mjs
               </code>
@@ -187,11 +187,11 @@ export default async function SourcePage({
             </p>
           ) : market.error ? (
             <p className="ct-metric-caption text-[var(--ct-status-danger)]">
-              Lecture Telegram impossible : {market.error}
+              Unable to read Telegram: {market.error}
             </p>
           ) : market.rows.length === 0 ? (
             <p className="ct-metric-caption">
-              Aucune liste de prix exploitable dans les derniers messages.
+              No usable price list in the latest messages.
             </p>
           ) : (
             <AdminTableSurface>
@@ -202,7 +202,7 @@ export default async function SourcePage({
       </AdminSectionCard>
 
       <AdminSectionCard
-        title="APY range par vault"
+        title="APY range per vault"
         subtitle={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
             Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}%
@@ -211,11 +211,11 @@ export default async function SourcePage({
               <ProviderLogo project={apy.usdcSource} size={16} />
               {apy.usdcSource})
             </span>
-            · BTC scénario {apy.btcReturn.bear}/{apy.btcReturn.base}/+
-            {apy.btcReturn.bull}% · allocation dérivée risk-adjusted
+            · BTC scenario {apy.btcReturn.bear}/{apy.btcReturn.base}/+
+            {apy.btcReturn.bull}% · risk-adjusted derived allocation
           </span>
         }
-        ariaLabel="APY range par vault"
+        ariaLabel="APY range per vault"
       >
         <div className="flex flex-col gap-4 p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -235,7 +235,7 @@ export default async function SourcePage({
                   USDC {v.allocation.usdcPct}%
                 </div>
                 <div className="ct-metric-caption">
-                  drag emprunt −{v.borrowDragPct}%
+                  borrow drag −{v.borrowDragPct}%
                 </div>
               </Card>
             ))}
