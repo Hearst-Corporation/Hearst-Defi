@@ -1,5 +1,7 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { verifyStoredAttestation } from "@/lib/attestation";
 import { prisma } from "@/lib/db";
 import type { ProofItem, ProofType } from "@/lib/proof-center-types";
@@ -26,6 +28,51 @@ const TYPE_LABEL: Record<ProofType, string> = {
 
 function isProofType(value: string): value is ProofType {
   return PROOF_TYPES.has(value);
+}
+
+/**
+ * ECDSA attestation verification is CPU-bound (a `secp256k1` recover per row)
+ * and its result is **immutable** for a fixed `(payloadJson, digest, signature,
+ * signer)` tuple — the canonical encoding, the recovered address, and the
+ * signer match are all deterministic. The only runtime-variable input is the
+ * env allowlist, which is stable within a deployment.
+ *
+ * Wrapping the verification in `unstable_cache` keyed by the immutable columns
+ * lets us skip re-running N ECDSA recovers on every uncached request: within
+ * the TTL we replay the memoized boolean instead. We return only the
+ * serializable `attestationVerified` value (`boolean | null`) rather than the
+ * full result object — `unstable_cache` requires a pure function with
+ * serializable inputs and output.
+ *
+ * `null` fields collapse to the empty string in the key; a row missing any of
+ * them yields `null` from `verifyStoredAttestation` anyway (no signature to
+ * verify), so distinct such rows sharing an empty key are equivalent.
+ */
+async function verifyAttestationForRow(input: {
+  payloadJson: string | null;
+  digest: string | null;
+  signature: string | null;
+  signer: string | null;
+}): Promise<boolean | null> {
+  const run = unstable_cache(
+    async (): Promise<boolean | null> => {
+      const verification = await verifyStoredAttestation({
+        payloadJson: input.payloadJson,
+        digest: input.digest,
+        signature: input.signature,
+        signer: input.signer,
+      });
+      return verification === null ? null : verification.valid;
+    },
+    [
+      "proof-attestation-verify",
+      input.digest ?? "",
+      input.signature ?? "",
+      input.signer ?? "",
+    ],
+    { revalidate: 3600, tags: ["proof-attestation-verify"] },
+  );
+  return run();
 }
 
 /**
@@ -65,7 +112,7 @@ export async function getProofs(
     rows.map(async (row): Promise<ProofItem | null> => {
       if (!isProofType(row.proofType)) return null;
 
-      const verification = await verifyStoredAttestation({
+      const attestationVerified = await verifyAttestationForRow({
         payloadJson: row.payloadJson,
         digest: row.hash,
         signature: row.signature,
@@ -83,7 +130,7 @@ export async function getProofs(
         postedBy: row.postedBy,
         txHash: row.txHash,
         signer: row.signer,
-        attestationVerified: verification === null ? null : verification.valid,
+        attestationVerified,
       };
     }),
   );
