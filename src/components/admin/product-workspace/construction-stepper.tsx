@@ -80,9 +80,9 @@ const STEP_LOADING: Record<
 > = {
   bitcoin: {
     narration:
-      "Notre Bitcoin Price Specialist recherche le prix BTC le plus juste et compare plusieurs sources…",
+      "Our Bitcoin Price Specialist finds the fairest BTC price and cross-checks several sources…",
     mainVisual: { kind: "brand", id: "bitcoin" },
-    sourcesLabel: "Sources croisées",
+    sourcesLabel: "Cross-sourced",
     sources: [
       { kind: "brand", id: "coingecko" },
       { kind: "brand", id: "binance" },
@@ -91,9 +91,9 @@ const STEP_LOADING: Record<
   },
   hashprice: {
     narration:
-      "Notre Hashprice Specialist dérive le hashprice ($/TH/jour) et la difficulté réseau en temps réel…",
+      "Our Hashprice Specialist derives the hashprice ($/TH/day) and network difficulty in real time…",
     mainVisual: { kind: "placeholder", label: "Hashprice" },
-    sourcesLabel: "Sources réseau",
+    sourcesLabel: "Network sources",
     sources: [
       { kind: "placeholder", label: "Luxor" },
       { kind: "placeholder", label: "Hashrate Index" },
@@ -102,9 +102,9 @@ const STEP_LOADING: Record<
   },
   mining_infra: {
     narration:
-      "Notre Mining Infrastructure Specialist chiffre les machines (coût landed : ex-works + fret + douane) et les marges…",
+      "Our Mining Infrastructure Specialist prices the machines (landed cost: ex-works + freight + customs) and the margins…",
     mainVisual: { kind: "brand", id: "bitmain" },
-    sourcesLabel: "Fournisseurs",
+    sourcesLabel: "Suppliers",
     sources: [
       { kind: "brand", id: "bitmain" },
       { kind: "brand", id: "microbt" },
@@ -113,9 +113,9 @@ const STEP_LOADING: Record<
   },
   defi: {
     narration:
-      "Notre DeFi Specialist source les meilleurs rendements stables / BTC et la bande de scénario BTC…",
+      "Our DeFi Specialist sources the best stable / BTC yields and the BTC scenario band…",
     mainVisual: { kind: "brand", id: "morpho" },
-    sourcesLabel: "Protocoles",
+    sourcesLabel: "Protocols",
     sources: [
       { kind: "brand", id: "morpho" },
       { kind: "brand", id: "aave" },
@@ -124,9 +124,9 @@ const STEP_LOADING: Record<
   },
   data_scientist: {
     narration:
-      "Notre Data Scientist rédige la thèse, trace la projection et dimensionne l'allocation (+2 versions)…",
-    mainVisual: { kind: "placeholder", label: "Modèle" },
-    sourcesLabel: "Moteurs",
+      "Our Data Scientist writes the thesis, plots the projection and sizes the allocation (+2 versions)…",
+    mainVisual: { kind: "placeholder", label: "Model" },
+    sourcesLabel: "Engines",
     sources: [
       { kind: "placeholder", label: "Quant" },
       { kind: "placeholder", label: "Charts" },
