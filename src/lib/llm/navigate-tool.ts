@@ -21,7 +21,7 @@ export interface NavDestination {
   profile: NavProfile;
   /** The SPA route the client pushes. LP-facing list/landing pages only. */
   route: string;
-  /** Human label (FR) shown in the navigation toast. */
+  /** Human label shown in the navigation toast. */
   label: string;
   /** What the model reads to decide whether this destination fits. */
   description: string;
@@ -41,9 +41,9 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
     key: "portfolio",
     profile: "lp",
     route: "/portfolio",
-    label: "Portefeuille",
+    label: "Portfolio",
     description:
-      "Tableau de bord du portefeuille de l'investisseur : valeur, rendement YTD, prochaine distribution, allocation, positions.",
+      "Investor portfolio dashboard: value, YTD return, next distribution, allocation, positions.",
   },
   // The portfolio sub-leaves (positions / activity / distributions / yield / tax)
   // are intentionally NOT chat-navigable destinations: the leaf pages are unwired
@@ -53,9 +53,9 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
     key: "vaults",
     profile: "lp",
     route: "/vaults",
-    label: "Produits / Vaults",
+    label: "Products / Vaults",
     description:
-      "Liste des produits / vaults disponibles à la souscription (point de départ d'un dépôt).",
+      "List of products / vaults available for subscription (starting point for a deposit).",
   },
   {
     key: "proof-center",
@@ -63,51 +63,51 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/proof-center",
     label: "Proof Center",
     description:
-      "Preuve de réserves, événements on-chain, attestations, distributions, statut d'audit et version de méthodologie.",
+      "Proof of reserves, on-chain events, attestations, distributions, audit status and methodology version.",
   },
   {
     key: "proof-center-full",
     profile: "lp",
     route: "/proof-center/full",
-    label: "Proof Center — Vue complète",
+    label: "Proof Center — Full view",
     description:
-      "Vue exhaustive du proof center : tout l'historique des preuves, attestations et événements.",
+      "Exhaustive proof center view: the full history of proofs, attestations and events.",
   },
   {
     key: "profile",
     profile: "lp",
     route: "/profile",
-    label: "Profil",
+    label: "Profile",
     description:
-      "Profil et préférences du compte : email, wallet, statut KYC, positions actives.",
+      "Account profile and preferences: email, wallet, KYC status, active positions.",
   },
   {
     key: "legal",
     profile: "lp",
     route: "/legal",
-    label: "Mentions légales",
-    description: "Index des documents légaux : disclaimer, confidentialité, conditions.",
+    label: "Legal notices",
+    description: "Index of legal documents: disclaimer, privacy, terms.",
   },
   {
     key: "legal-disclaimer",
     profile: "lp",
     route: "/legal/disclaimer",
-    label: "Légal — Disclaimer",
-    description: "Avertissement légal / disclaimer produit (non garanti, risques).",
+    label: "Legal — Disclaimer",
+    description: "Legal warning / product disclaimer (not guaranteed, risks).",
   },
   {
     key: "legal-privacy",
     profile: "lp",
     route: "/legal/privacy",
-    label: "Légal — Confidentialité",
-    description: "Politique de confidentialité et traitement des données.",
+    label: "Legal — Privacy",
+    description: "Privacy policy and data processing.",
   },
   {
     key: "legal-terms",
     profile: "lp",
     route: "/legal/terms",
-    label: "Légal — Conditions",
-    description: "Conditions d'utilisation du service.",
+    label: "Legal — Terms",
+    description: "Terms of use of the service.",
   },
   {
     key: "lp-agent-canvas",
@@ -115,7 +115,7 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/agent-canvas",
     label: "Agent Canvas",
     description:
-      "Page de travail centrale, en lecture seule, que l'agent remplit en direct pour expliquer le produit (sources de yield, hypothèses, risques). Le canvasId précise quel atelier ouvrir. Aucune action d'écriture.",
+      "Central read-only workspace that the agent fills in live to explain the product (yield sources, assumptions, risks). The canvasId specifies which workshop to open. No write action.",
   },
 ] as const;
 
@@ -127,7 +127,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/product-workspace",
     label: "Admin Product Workspace",
     description:
-      "Page indépendante générée depuis l'intention agent pour cadrer un nouveau produit: décision, graph specs, notes de calcul, hypothèses et garde-fous.",
+      "Standalone page generated from the agent intent to frame a new product: decision, graph specs, calculation notes, assumptions and guardrails.",
   },
   {
     key: "admin-scenario-lab",
@@ -135,7 +135,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/scenario-lab",
     label: "Admin Scenario Lab",
     description:
-      "Laboratoire de scénarios et stress tests pour un produit déjà cadré: paramètres moteur, hypothèses et runbook de simulation.",
+      "Scenario and stress-test lab for an already-framed product: engine parameters, assumptions and simulation runbook.",
   },
   {
     key: "admin-agent-canvas",
@@ -143,7 +143,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/agent-canvas",
     label: "Agent Canvas",
     description:
-      "Page de travail centrale que l'agent remplit en direct (sections, champs, propositions d'action HITL) pour cadrer un produit ou une campagne outreach. Le canvasId précise quel atelier ouvrir. Admin uniquement (gate du layout /admin).",
+      "Central workspace that the agent fills in live (sections, fields, HITL action proposals) to frame a product or an outreach campaign. The canvasId specifies which workshop to open. Admin only (gated by the /admin layout).",
   },
   {
     key: "admin-dashboard",
@@ -151,7 +151,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/dashboard",
     label: "Admin Dashboard",
     description:
-      "Tableau de bord admin: monitoring, alerts, état opérationnel.",
+      "Admin dashboard: monitoring, alerts, operational status.",
   },
   {
     key: "admin-vaults",
@@ -159,7 +159,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/vaults",
     label: "Admin Vaults",
     description:
-      "Gestion des vaults: création, édition, statut, paramètres et gouvernance.",
+      "Vault management: creation, editing, status, parameters and governance.",
   },
   {
     key: "admin-customers",
@@ -167,7 +167,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/customers",
     label: "Admin Customers",
     description:
-      "Gestion des investisseurs / clients: liste, fiches, KYC, positions et création de compte.",
+      "Investor / customer management: list, records, KYC, positions and account creation.",
   },
   {
     key: "admin-outreach",
@@ -175,7 +175,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/outreach",
     label: "Admin Outreach",
     description:
-      "Campagnes email et prospection: brouillons, compose, envoi tracké (human-in-the-loop).",
+      "Email campaigns and prospecting: drafts, compose, tracked sending (human-in-the-loop).",
   },
   {
     key: "admin-proofs",
@@ -183,7 +183,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/proofs",
     label: "Admin Proofs",
     description:
-      "Attestations, proofs, publications et cohérence des evidences.",
+      "Attestations, proofs, publications and evidence consistency.",
   },
   {
     key: "admin-governance",
@@ -191,7 +191,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/governance",
     label: "Admin Governance",
     description:
-      "Propositions, signatures, timelock et suivi des décisions de gouvernance.",
+      "Proposals, signatures, timelock and tracking of governance decisions.",
   },
   {
     key: "admin-roadmap",
@@ -199,7 +199,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/roadmap",
     label: "Admin Roadmap",
     description:
-      "Suivi d'exécution produit/technique, validations et blocages.",
+      "Product/technical execution tracking, validations and blockers.",
   },
   {
     key: "admin-projection",
@@ -207,29 +207,29 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/projection",
     label: "Admin Projection",
     description:
-      "Projections/scénarios internes et analyses de risques opérationnels.",
+      "Internal projections/scenarios and operational risk analyses.",
   },
   {
     key: "admin-home",
     profile: "admin",
     route: "/admin",
-    label: "Admin — Operations (accueil)",
+    label: "Admin — Operations (home)",
     description:
-      "Accueil admin / cockpit Operations : point d'entrée des surfaces internes.",
+      "Admin home / Operations cockpit: entry point for internal surfaces.",
   },
   {
     key: "admin-vaults-new",
     profile: "admin",
     route: "/admin/vaults/new",
-    label: "Admin — Nouveau vault",
-    description: "Formulaire de création d'un nouveau vault.",
+    label: "Admin — New vault",
+    description: "Form to create a new vault.",
   },
   {
     key: "admin-outreach-compose",
     profile: "admin",
     route: "/admin/outreach/compose",
-    label: "Admin — Outreach (composer)",
-    description: "Composer un email / message d'outreach (human-in-the-loop).",
+    label: "Admin — Outreach (compose)",
+    description: "Compose an outreach email / message (human-in-the-loop).",
   },
   {
     key: "admin-proof-center",
@@ -237,28 +237,28 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/proof-center",
     label: "Admin — Proof Center",
     description:
-      "Proof center côté admin : preuves de réserve, attestations, événements.",
+      "Admin-side proof center: proof of reserves, attestations, events.",
   },
   {
     key: "admin-proof-center-full",
     profile: "admin",
     route: "/admin/proof-center/full",
-    label: "Admin — Proof Center (complet)",
-    description: "Vue exhaustive du proof center admin.",
+    label: "Admin — Proof Center (full)",
+    description: "Exhaustive admin proof center view.",
   },
   {
     key: "admin-governance-allowlist",
     profile: "admin",
     route: "/admin/governance/allowlist",
-    label: "Admin — Gouvernance (allowlist)",
-    description: "Gestion de l'allowlist de gouvernance (adresses autorisées).",
+    label: "Admin — Governance (allowlist)",
+    description: "Governance allowlist management (authorized addresses).",
   },
   {
     key: "admin-governance-propose",
     profile: "admin",
     route: "/admin/governance/propose",
-    label: "Admin — Gouvernance (proposer)",
-    description: "Créer une nouvelle proposition de gouvernance.",
+    label: "Admin — Governance (propose)",
+    description: "Create a new governance proposal.",
   },
   {
     key: "admin-agents",
@@ -266,21 +266,21 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/agents",
     label: "Admin — Agents",
     description:
-      "Console agents : templates, instances, calibration et mémoire des agents.",
+      "Agents console: templates, instances, calibration and agent memory.",
   },
   {
     key: "admin-agents-new",
     profile: "admin",
     route: "/admin/agents/new",
-    label: "Admin — Nouvel agent",
-    description: "Créer un nouveau template / instance d'agent.",
+    label: "Admin — New agent",
+    description: "Create a new agent template / instance.",
   },
   {
     key: "admin-audit",
     profile: "admin",
     route: "/admin/audit",
     label: "Admin — Audit",
-    description: "Journal d'audit : actions admin, mutations et traçabilité.",
+    description: "Audit log: admin actions, mutations and traceability.",
   },
   {
     key: "admin-distributions",
@@ -288,49 +288,49 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/distributions",
     label: "Admin — Distributions",
     description:
-      "Gestion des distributions mensuelles USDC : calcul, planification, exécution.",
+      "Monthly USDC distribution management: calculation, scheduling, execution.",
   },
   {
     key: "admin-feedback",
     profile: "admin",
     route: "/admin/feedback",
     label: "Admin — Feedback",
-    description: "Retours / feedback collectés (clients, internes).",
+    description: "Feedback collected (customers, internal).",
   },
   {
     key: "admin-investor-memo",
     profile: "admin",
     route: "/admin/investor-memo",
     label: "Admin — Investor Memo",
-    description: "Génération et suivi des investor memos.",
+    description: "Generation and tracking of investor memos.",
   },
   {
     key: "admin-monitoring",
     profile: "admin",
     route: "/admin/monitoring",
     label: "Admin — Monitoring",
-    description: "Monitoring opérationnel : santé système, jobs, alertes.",
+    description: "Operational monitoring: system health, jobs, alerts.",
   },
   {
     key: "admin-security",
     profile: "admin",
     route: "/admin/security",
-    label: "Admin — Sécurité",
-    description: "Surface sécurité : accès, rôles, sessions, posture.",
+    label: "Admin — Security",
+    description: "Security surface: access, roles, sessions, posture.",
   },
   {
     key: "admin-signals",
     profile: "admin",
     route: "/admin/signals",
     label: "Admin — Signals",
-    description: "Signaux marché / mining et indicateurs internes.",
+    description: "Market / mining signals and internal indicators.",
   },
   {
     key: "admin-spec",
     profile: "admin",
     route: "/admin/spec",
-    label: "Admin — Specs produit",
-    description: "Index des specs produit (docs/spec) consultables en interne.",
+    label: "Admin — Product specs",
+    description: "Index of product specs (docs/spec) viewable internally.",
   },
   {
     key: "admin-source",
@@ -338,7 +338,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/source",
     label: "Admin — Source",
     description:
-      "Source de données / ingestion (signaux, bricks de données) consultée côté admin. Visible dans le sub-nav Strategy.",
+      "Data source / ingestion (signals, data bricks) viewed admin-side. Visible in the Strategy sub-nav.",
   },
   {
     key: "admin-agentic",
@@ -346,7 +346,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/agentic",
     label: "Admin — Agentic Console",
     description:
-      "Console agentique (lecture seule) : carte du système, observabilité du routeur, frontière des outils, garde-fous. Visible dans le rail Dashboard.",
+      "Agentic console (read-only): system map, router observability, tool boundary, guardrails. Visible in the Dashboard rail.",
   },
 ] as const;
 

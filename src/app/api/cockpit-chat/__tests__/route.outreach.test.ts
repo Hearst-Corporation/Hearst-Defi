@@ -193,17 +193,17 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
     const draft = frames[0]!.sections.find((s) => s.id === "outreach-draft")!;
     expect(draft.fields.find((f) => f.key === "subject")!.value).toBe("—");
     expect(draft.fields.find((f) => f.key === "body")!.value).toBe("—");
-    expect(text).toContain("Il me manque");
+    expect(text).toContain("I'm missing");
     expect(text).toContain("`cold`");
     expect(text).toContain("`newsletter`");
-    expect(text.toLowerCase()).not.toContain("confirmation nécessaire");
+    expect(text.toLowerCase()).not.toContain("confirmation required");
     expect(text).not.toContain("I can guide and analyze, not transact.");
 
     await vi.waitFor(() => {
       const assistant = mockMsgCreate.mock.calls
         .map((c) => c[0].data)
         .find((d: { role?: string }) => d.role === "assistant");
-      expect(assistant?.content).toContain("Il me manque");
+      expect(assistant?.content).toContain("I'm missing");
     });
     expect(vi.mocked(prisma.llmRun.create)).not.toHaveBeenCalled();
   });
@@ -241,11 +241,11 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
     expect(kindValue).toBe("cold");
     expect(subject.trim().length).toBeGreaterThan(0);
     expect(body.trim().length).toBeGreaterThan(0);
-    expect(text).toContain("J’ai préparé un brouillon");
+    expect(text).toContain("I prepared a draft");
     expect(text).toContain("Adrien");
-    expect(text).toContain("Aucun envoi n’a été lancé");
-    expect(text.toLowerCase()).not.toContain("souhaites-tu continuer");
-    expect(text.toLowerCase()).not.toContain("confirmation nécessaire");
+    expect(text).toContain("No send has been triggered");
+    expect(text.toLowerCase()).not.toContain("do you want to continue");
+    expect(text.toLowerCase()).not.toContain("confirmation required");
     expect(text.toLowerCase()).not.toContain("source");
     expect(text).not.toContain("I can guide and analyze, not transact.");
 
@@ -273,10 +273,10 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
     expect(campaign3.fields.find((f) => f.key === "kind")!.value).toBe("cold");
     expect(draft3.fields.find((f) => f.key === "subject")!.value.trim().length).toBeGreaterThan(0);
     expect(draft3.fields.find((f) => f.key === "body")!.value.trim().length).toBeGreaterThan(0);
-    expect(turn3.text).toContain("Tu as raison");
+    expect(turn3.text).toContain("You’re right");
     expect(turn3.text).toContain("Adrien");
-    expect(turn3.text).toContain("Aucun envoi n’est lancé");
-    expect(turn3.text.toLowerCase()).not.toContain("quel nom");
+    expect(turn3.text).toContain("No send has been triggered");
+    expect(turn3.text.toLowerCase()).not.toContain("what name");
     expect(turn3.text.toLowerCase()).not.toContain("newsletter");
     expect(turn3.text.toLowerCase()).not.toContain("source");
     expect(turn3.text.toLowerCase()).not.toContain("created");

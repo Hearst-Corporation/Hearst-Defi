@@ -62,7 +62,7 @@ export interface ProjectionInvestorReportViewModel {
 }
 
 const BASE_DISCLAIMER =
-  "Projection — pas une garantie. Les résultats dépendent du prix BTC, du hashprice, de la difficulté, des taux et des coûts.";
+  "Projection — not a guarantee. Results depend on the BTC price, hashprice, difficulty, rates and costs.";
 
 /**
  * Build the report view model. Pure transform of run + validation.
@@ -77,13 +77,13 @@ export function buildInvestorReportViewModel(
       mode: "NO_RUN",
       status: validation.status,
       investorEligible: false,
-      headline: "Aucune projection réelle — aperçu démo",
+      headline: "No real projection — demo preview",
       metrics: [],
       scenarios: [],
       sourceBadges: [{ tone: "demo", label: "Demo Fixture" }],
       warnings: validation.warnings,
       disclaimers: [
-        "Non lié à une projection réelle. Aperçu illustratif uniquement.",
+        "Not tied to a real projection. Illustrative preview only.",
         BASE_DISCLAIMER,
       ],
     };
@@ -120,11 +120,11 @@ export function buildInvestorReportViewModel(
   // Disclaimers — one per truth condition, never silent.
   const disclaimers: string[] = [BASE_DISCLAIMER];
   if (sb.configured > 0)
-    disclaimers.push("Hypothèses configurées (non validées métier).");
+    disclaimers.push("Configured assumptions (not business-validated).");
   if (sb.unaudited > 0)
-    disclaimers.push("Baselines de risque non auditées (pré-audit Spearbit).");
+    disclaimers.push("Unaudited risk baselines (pre-Spearbit audit).");
   if (sb.fallback > 0)
-    disclaimers.push("Certaines sources sont en fallback.");
+    disclaimers.push("Some sources are on fallback.");
 
   // ── NEEDS_REVIEW → BLOCKED ──────────────────────────────────────────────────
   if (validation.status === "NEEDS_REVIEW") {
@@ -134,7 +134,7 @@ export function buildInvestorReportViewModel(
       createdAt: run.ranAt,
       status: validation.status,
       investorEligible: false,
-      headline: "Run à revoir — rapport bloqué",
+      headline: "Run to review — report blocked",
       metrics,
       scenarios,
       sourceBadges,
@@ -151,7 +151,7 @@ export function buildInvestorReportViewModel(
       createdAt: run.ranAt,
       status: validation.status,
       investorEligible: true,
-      headline: "Projection éligible — revue investisseur",
+      headline: "Eligible projection — investor review",
       metrics,
       scenarios,
       sourceBadges,
@@ -167,14 +167,14 @@ export function buildInvestorReportViewModel(
     createdAt: run.ranAt,
     status: validation.status,
     investorEligible: false,
-    headline: "Aperçu admin — dérivé du dernier ProjectionStudyRun",
+    headline: "Admin preview — derived from the latest ProjectionStudyRun",
     metrics,
     scenarios,
     sourceBadges,
     warnings: validation.warnings,
     disclaimers: [
       ...disclaimers,
-      "GO ADMIN ONLY — non destiné à un investisseur en l'état.",
+      "GO ADMIN ONLY — not intended for an investor as-is.",
     ],
   };
 }

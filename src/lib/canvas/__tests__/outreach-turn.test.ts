@@ -129,7 +129,7 @@ describe("Outreach deterministic workflow state", () => {
 
   it("builds deterministic copy for ask/prepared/complaint", () => {
     const ask = buildOutreachAskFieldsMessage({ workflow: "outreach_campaign" });
-    expect(ask).toContain("nom");
+    expect(ask).toContain("name");
     const prepared = buildOutreachDraftPreparedMessage({
       workflow: "outreach_campaign",
       campaignName: "Adrien",
@@ -140,7 +140,7 @@ describe("Outreach deterministic workflow state", () => {
         campaignType: "cold",
       }),
     });
-    expect(prepared).toContain("Aucun envoi n’a été lancé");
+    expect(prepared).toContain("No send has been triggered");
     const fixed = buildOutreachDraftComplaintFixedMessage({
       workflow: "outreach_campaign",
       campaignName: "Adrien",
@@ -151,7 +151,7 @@ describe("Outreach deterministic workflow state", () => {
         campaignType: "cold",
       }),
     });
-    expect(fixed).toContain("Tu as raison");
+    expect(fixed).toContain("You’re right");
     expect(fixed.toLowerCase()).not.toContain("sourcing");
   });
 });

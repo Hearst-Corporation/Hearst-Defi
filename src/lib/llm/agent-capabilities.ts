@@ -24,220 +24,220 @@ export interface AgentCapabilityDefinition {
 export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
   {
     id: "normal-product-qa",
-    label: "Produit / vault Q&A",
+    label: "Product / vault Q&A",
     mode: "normal",
     kind: "response",
     description:
-      "Répond aux questions produit, vaults, rendement, custody et proof center avec garde-fous compliance.",
-    testPrompt: "Explique le Hearst Yield Vault en 3 phrases.",
+      "Answers product, vaults, yield, custody and proof center questions with compliance guardrails.",
+    testPrompt: "Explain the Hearst Yield Vault in 3 sentences.",
     successCriteria:
-      "Réponse concise, française, sans promesse, avec APY en fourchette et ton produit correct.",
+      "Concise, English response, no promise, with APY as a range and a correct product tone.",
     initialStatus: "green",
     initialNote:
-      "Câblé + testé via runChatAgent (ADR-017). route.guard.test : une réponse 'rendement garanti' / 'APY 11%' est bloquée (BLOCK_SENTINEL) avant le LP ; une réponse en fourchette passe. CHAT_MASTER_AGENT=0 → 503 (kill-switch), pas de second moteur.",
+      "Wired + tested via runChatAgent (ADR-017). route.guard.test: a 'guaranteed yield' / 'APY 11%' response is blocked (BLOCK_SENTINEL) before the LP; a range response passes. CHAT_MASTER_AGENT=0 → 503 (kill-switch), no second engine.",
   },
   {
     id: "normal-portfolio-context",
-    label: "Contexte portefeuille utilisateur",
+    label: "User portfolio context",
     mode: "normal",
     kind: "response",
     description:
-      "Utilise le contexte portefeuille injecté quand il existe pour répondre sans inventer les chiffres.",
-    testPrompt: "Pourquoi mon portefeuille est stale ?",
+      "Uses the injected portfolio context when present to answer without fabricating figures.",
+    testPrompt: "Why is my portfolio stale?",
     successCriteria:
-      "La réponse s'appuie sur le contexte réel ou dit explicitement qu'une donnée manque.",
+      "The answer relies on the real context or explicitly states that a data point is missing.",
     initialStatus: "green",
     initialNote:
-      "buildPortfolioContextBlock(userId) injecté dans enrichedSystemPrompt (route.ts). Scope strict userId, null si 0 position. Couvert par chat-context.test (scoping cross-tenant + fraîcheur).",
+      "buildPortfolioContextBlock(userId) injected into enrichedSystemPrompt (route.ts). Strict userId scope, null if 0 position. Covered by chat-context.test (cross-tenant scoping + freshness).",
   },
   {
     id: "normal-lp-navigation",
-    label: "Navigation LP whitelistee",
+    label: "Whitelisted LP navigation",
     mode: "normal",
     kind: "navigation",
     description:
-      "Peut ouvrir une page produit whitelistee quand le Master Agent décide de naviguer.",
-    testPrompt: "Ouvre mon portefeuille.",
+      "Can open a whitelisted product page when the Master Agent decides to navigate.",
+    testPrompt: "Open my portfolio.",
     successCriteria:
-      "Le chat ouvre la bonne route produit sans sortir de la whitelist autorisee.",
+      "The chat opens the correct product route without leaving the authorized whitelist.",
     initialStatus: "green",
     initialNote:
-      "navigation 100% déterministe via regex (resolveNavFallbackDestinationKey) — avant le LLM, aucun navigate tool exposé au modèle. Couvert par nav-fallback-intent + route tests.",
+      "Navigation is 100% deterministic via regex (resolveNavFallbackDestinationKey) — before the LLM, no navigate tool exposed to the model. Covered by nav-fallback-intent + route tests.",
   },
   {
     id: "review-distill-chat",
-    label: "Distillation review document",
+    label: "Review document distillation",
     mode: "review",
     kind: "review",
     description:
-      "Distille la conversation en document de modifications structure quand on lance la generation.",
-    testPrompt: "Passe en Review puis clique Generer le document.",
+      "Distills the conversation into a structured change document when generation is triggered.",
+    testPrompt: "Switch to Review then click Generate the document.",
     successCriteria:
-      "Le stream se termine avec un document exploitable dans la modale review.",
+      "The stream ends with a usable document in the review modal.",
     initialStatus: "green",
     initialNote:
-      "Tests ciblés review/admin chat controls passés. Le chemin Review est branché et validé une fois automatiquement.",
+      "Targeted review/admin chat controls tests passing. The Review path is wired and validated once automatically.",
   },
   {
     id: "admin-ops-qa",
-    label: "Ops / architecture interne",
+    label: "Internal ops / architecture",
     mode: "admin",
     kind: "response",
     description:
-      "Repond comme copilote interne sur architecture, allocations, proofs, deploiements et runbooks.",
-    testPrompt: "Explique le runbook de deploiement du vault en 5 etapes.",
+      "Answers as an internal copilot on architecture, allocations, proofs, deployments and runbooks.",
+    testPrompt: "Explain the vault deployment runbook in 5 steps.",
     successCriteria:
-      "La reponse reste interne, actionnable, sans execution autonome ni fuite sensible.",
+      "The answer stays internal, actionable, with no autonomous execution or sensitive leak.",
     initialStatus: "green",
     initialNote:
-      "COCKPIT_ADMIN_SYSTEM_PROMPT + buildAdminContextBlock (snapshot read-tools lintés). Write tools jamais auto-exécutés (chat-agent). Q&A et read tools model-driven passent par runChatAgent ; CHAT_MASTER_AGENT=0 coupe tout le chat (503).",
+      "COCKPIT_ADMIN_SYSTEM_PROMPT + buildAdminContextBlock (linted read-tools snapshot). Write tools never auto-executed (chat-agent). Model-driven Q&A and read tools go through runChatAgent; CHAT_MASTER_AGENT=0 shuts down the whole chat (503).",
   },
   {
     id: "admin-product-workspace-open",
-    label: "Ouvrir Product Workspace",
+    label: "Open Product Workspace",
     mode: "admin",
     kind: "navigation",
     description:
-      "Ouvre automatiquement Product Workspace pour une creation ou un cadrage de vault/produit.",
-    testPrompt: "Creer un nouveau vault Defensive.",
+      "Automatically opens Product Workspace for a vault/product creation or framing.",
+    testPrompt: "Create a new Defensive vault.",
     successCriteria:
-      "Le chat ouvre /admin/product-workspace avec autostart et objective pre-remplis.",
+      "The chat opens /admin/product-workspace with autostart and objective pre-filled.",
     initialStatus: "green",
     initialNote:
-      "Override navigate + fallback intent (route.ts). autostart+objective → ChatNavBridge. Indisponible si CHAT_MASTER_AGENT=0 (503).",
+      "Navigate override + fallback intent (route.ts). autostart+objective → ChatNavBridge. Unavailable if CHAT_MASTER_AGENT=0 (503).",
   },
   {
     id: "admin-scenario-lab-open",
-    label: "Ouvrir Scenario Lab",
+    label: "Open Scenario Lab",
     mode: "admin",
     kind: "navigation",
     description:
-      "Ouvre Scenario Lab pour une intention de simulation explicite ou en secondaire d'un cadrage produit.",
-    testPrompt: "Simuler un scenario BTC bear sur le vault.",
+      "Opens Scenario Lab for an explicit simulation intent or as a secondary step of a product framing.",
+    testPrompt: "Simulate a BTC bear scenario on the vault.",
     successCriteria:
-      "Le chat ouvre /admin/scenario-lab ou l'ajoute comme etape secondaire pertinente.",
+      "The chat opens /admin/scenario-lab or adds it as a relevant secondary step.",
     initialStatus: "green",
     initialNote:
-      "Parité Product Workspace : navigate(admin-scenario-lab) + fallback intent simulation. Indisponible si CHAT_MASTER_AGENT=0 (503).",
+      "Product Workspace parity: navigate(admin-scenario-lab) + fallback simulation intent. Unavailable if CHAT_MASTER_AGENT=0 (503).",
   },
   {
     id: "admin-new-client-action",
-    label: "Nouveau client / create investor",
+    label: "New client / create investor",
     mode: "admin",
     kind: "write_tool",
     description:
-      "Créer un nouveau client/investor depuis le chat ou ouvrir directement la surface customer adaptée.",
-    testPrompt: "Crée un nouveau client et ouvre la fiche customer.",
+      "Create a new client/investor from the chat or open the right customer surface directly.",
+    testPrompt: "Create a new client and open the customer record.",
     successCriteria:
-      "Le chat sait au minimum ouvrir la bonne surface customer, idéalement préremplir sans sortie de scope.",
+      "The chat can at least open the right customer surface, ideally pre-fill without leaving scope.",
     initialStatus: "orange",
     initialNote:
-      "Navigation admin-customers + fallback keyword. Pas de write tool create_investor — ouverture surface seulement (write tool HITL à brancher si besoin).",
+      "admin-customers navigation + keyword fallback. No create_investor write tool — surface opening only (HITL write tool to wire if needed).",
   },
   {
     id: "admin-email-send-action",
-    label: "Envoyer des emails / outreach",
+    label: "Send emails / outreach",
     mode: "admin",
     kind: "write_tool",
     description:
-      "Préparer ou envoyer un email/outreach depuis le chat sur une surface dédiée.",
-    testPrompt: "Prépare puis envoie un email de prospection à un nouveau client.",
+      "Prepare or send an email/outreach from the chat on a dedicated surface.",
+    testPrompt: "Prepare then send a prospecting email to a new client.",
     successCriteria:
-      "Le chat doit soit ouvrir une surface outreach dédiée, soit exécuter un flux explicitement confirmé.",
+      "The chat must either open a dedicated outreach surface or run an explicitly confirmed flow.",
     initialStatus: "orange",
     initialNote:
-      "Navigation admin-outreach + write tools HITL (outreach_source_leads, outreach_draft_email, outreach_trigger_send_run) via panneau Actions admin — pas d'auto-exec modèle. Envoi réel gouverné par OUTREACH_AUTONOMY (ADR-016).",
+      "admin-outreach navigation + HITL write tools (outreach_source_leads, outreach_draft_email, outreach_trigger_send_run) via the admin Actions panel — no model auto-exec. Real sending governed by OUTREACH_AUTONOMY (ADR-016).",
   },
   {
     id: "admin-read-allocations",
-    label: "Lire allocations canoniques",
+    label: "Read canonical allocations",
     mode: "admin",
     kind: "read_tool",
-    description: "Lit les allocations canoniques des vaults.",
-    testPrompt: "Donne-moi les allocations canoniques des vaults.",
+    description: "Reads the canonical vault allocations.",
+    testPrompt: "Give me the canonical vault allocations.",
     successCriteria:
-      "Le resultat restitue les allocations attendues sans mutation ni invention.",
+      "The result returns the expected allocations without mutation or fabrication.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
+      "Read tool wired + registry/chat-tools tests. (a) admin execute_read panel — independent of the chat kill-switch. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-read-market-snapshot",
-    label: "Lire market snapshot",
+    label: "Read market snapshot",
     mode: "admin",
     kind: "read_tool",
-    description: "Lit le dernier snapshot mining et vault.",
-    testPrompt: "Quel est le dernier market snapshot ?",
+    description: "Reads the latest mining and vault snapshot.",
+    testPrompt: "What is the latest market snapshot?",
     successCriteria:
-      "Le resultat renvoie les signaux de marche disponibles avec fraicheur honnete.",
+      "The result returns the available market signals with honest freshness.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
+      "Read tool wired + registry/chat-tools tests. (a) admin execute_read panel — independent of the chat kill-switch. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-read-routes-index",
-    label: "Lire routes index",
+    label: "Read routes index",
     mode: "admin",
     kind: "read_tool",
-    description: "Lit un index d'exemple des routes produit/admin.",
-    testPrompt: "Liste les routes cle pour une demo admin.",
+    description: "Reads an example index of the product/admin routes.",
+    testPrompt: "List the key routes for an admin demo.",
     successCriteria:
-      "Le resultat cite les routes pertinentes pour la demo sans sortir du scope.",
+      "The result cites the relevant demo routes without leaving scope.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
+      "Read tool wired + registry/chat-tools tests. (a) admin execute_read panel — independent of the chat kill-switch. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-read-specs-index",
-    label: "Lire specs index",
+    label: "Read specs index",
     mode: "admin",
     kind: "read_tool",
-    description: "Lit un index d'exemple des spec docs.",
-    testPrompt: "Quelles specs couvrent les vaults et la gouvernance ?",
+    description: "Reads an example index of the spec docs.",
+    testPrompt: "Which specs cover vaults and governance?",
     successCriteria:
-      "Le resultat pointe les specs indexees pertinentes.",
+      "The result points to the relevant indexed specs.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché + tests registry/chat-tools. (a) Panneau admin execute_read — indépendant du kill-switch chat. (b) Model-driven via runChatAgent en mode admin.",
+      "Read tool wired + registry/chat-tools tests. (a) admin execute_read panel — independent of the chat kill-switch. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-read-runtime-capabilities",
-    label: "Lire runtime capabilities",
+    label: "Read runtime capabilities",
     mode: "admin",
     kind: "read_tool",
-    description: "Expose la matrice de capacites runtime actuellement outillees.",
-    testPrompt: "Dis-moi ce que tu peux faire reellement dans ce chat.",
+    description: "Exposes the matrix of currently tooled runtime capabilities.",
+    testPrompt: "Tell me what you can really do in this chat.",
     successCriteria:
-      "Le resultat distingue clairement navigation, lecture, limites et actions non outillees.",
+      "The result clearly distinguishes navigation, reading, limits and non-tooled actions.",
     initialStatus: "green",
     initialNote:
-      "Read tool branché et cohérent avec l'audit runtime actuel.",
+      "Read tool wired and consistent with the current runtime audit.",
   },
   {
     id: "admin-generate-chart-spec",
     label: "Generate chart spec",
     mode: "admin",
     kind: "read_tool",
-    description: "Genere une spec de graphique deterministe a partir des donnees disponibles.",
-    testPrompt: "Genere un chart spec pour APY vs risk sur 30 jours.",
+    description: "Generates a deterministic chart spec from the available data.",
+    testPrompt: "Generate a chart spec for APY vs risk over 30 days.",
     successCriteria:
-      "Le JSON/tool output contient une spec exploitable avec type, serie, timeframe et provenance.",
+      "The JSON/tool output contains a usable spec with type, series, timeframe and provenance.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
+      "Admin utility wired + tested. (a) Form panel /api/admin/chat-tools. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-generate-demo-plan",
     label: "Generate demo plan",
     mode: "admin",
     kind: "read_tool",
-    description: "Genere un plan de demo ordonne pour l'admin a partir des routes/specs.",
-    testPrompt: "Genere un demo plan pour presenter le produit a des stakeholders internes.",
+    description: "Generates an ordered demo plan for the admin from the routes/specs.",
+    testPrompt: "Generate a demo plan to present the product to internal stakeholders.",
     successCriteria:
-      "Le resultat ordonne correctement les etapes et les routes a presenter.",
+      "The result correctly orders the steps and the routes to present.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
+      "Admin utility wired + tested. (a) Form panel /api/admin/chat-tools. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-export-demo-pack",
@@ -245,13 +245,13 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     mode: "admin",
     kind: "read_tool",
     description:
-      "Produit un pack de demo structure avec plan, graphiques et checklist.",
-    testPrompt: "Exporte un demo pack pour un walkthrough admin.",
+      "Produces a structured demo pack with plan, charts and checklist.",
+    testPrompt: "Export a demo pack for an admin walkthrough.",
     successCriteria:
-      "Le resultat contient un pack structure avec metadata, plan, charts et checklist.",
+      "The result contains a structured pack with metadata, plan, charts and checklist.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
+      "Admin utility wired + tested. (a) Form panel /api/admin/chat-tools. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-export-briefing-pack",
@@ -259,13 +259,13 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     mode: "admin",
     kind: "read_tool",
     description:
-      "Produit un executive briefing pack structure pour usage interne.",
-    testPrompt: "Exporte un briefing pack pour un IC interne.",
+      "Produces a structured executive briefing pack for internal use.",
+    testPrompt: "Export a briefing pack for an internal IC.",
     successCriteria:
-      "Le resultat contient un briefing executive exploitable avec synthese et action plan.",
+      "The result contains a usable executive briefing with a summary and an action plan.",
     initialStatus: "green",
     initialNote:
-      "Utility admin branchée + testée. (a) Panneau form /api/admin/chat-tools. (b) Model-driven via runChatAgent en mode admin.",
+      "Admin utility wired + tested. (a) Form panel /api/admin/chat-tools. (b) Model-driven via runChatAgent in admin mode.",
   },
   {
     id: "admin-create-review-note-draft",
@@ -273,13 +273,13 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     mode: "admin",
     kind: "write_tool",
     description:
-      "Prepare un draft de review note via confirmation humaine obligatoire.",
-    testPrompt: "Prepare une review note draft sur le vault.",
+      "Prepares a review note draft via mandatory human confirmation.",
+    testPrompt: "Prepare a review note draft on the vault.",
     successCriteria:
-      "Le systeme demande d'abord une confirmation, puis execute seulement apres validation.",
+      "The system first asks for confirmation, then executes only after validation.",
     initialStatus: "green",
     initialNote:
-      "Write tool UI + confirmation flow couverts par les tests admin chat tools / controls.",
+      "Write tool UI + confirmation flow covered by the admin chat tools / controls tests.",
   },
   {
     id: "admin-create-governance-proposal-draft",
@@ -287,12 +287,12 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
     mode: "admin",
     kind: "write_tool",
     description:
-      "Prepare un draft de proposal governance via confirmation humaine obligatoire.",
-    testPrompt: "Prepare une governance proposal draft pour un changement de parametre.",
+      "Prepares a governance proposal draft via mandatory human confirmation.",
+    testPrompt: "Prepare a governance proposal draft for a parameter change.",
     successCriteria:
-      "Le systeme demande d'abord une confirmation et n'execute rien automatiquement.",
+      "The system first asks for confirmation and executes nothing automatically.",
     initialStatus: "green",
     initialNote:
-      "Write tool UI + confirmation flow couverts par les tests admin chat tools / controls.",
+      "Write tool UI + confirmation flow covered by the admin chat tools / controls tests.",
   },
 ];

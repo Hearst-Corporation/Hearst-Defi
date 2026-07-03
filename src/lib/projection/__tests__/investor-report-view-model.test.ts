@@ -94,7 +94,7 @@ describe("disclaimers per truth condition", () => {
 
   it("always carries the base not-a-guarantee disclaimer", () => {
     const r = buildInvestorReportViewModel(RUN, validation());
-    expect(r.disclaimers.join(" ").toLowerCase()).toContain("garantie");
+    expect(r.disclaimers.join(" ").toLowerCase()).toContain("guarantee");
   });
 });
 

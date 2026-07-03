@@ -90,8 +90,8 @@ export function buildRiskReferences(args: {
       // Risk baselines are never live without a real audit feed.
       riskBaselineSource: "CONFIGURED",
       notes: [
-        "Smart-contract & counterparty restent CONFIGURED (pré-audit Spearbit) — jamais REAL sans source d'audit.",
-        "Une référence non injectée retombe sur le défaut engine (FALLBACK), jamais présentée comme live.",
+        "Smart-contract & counterparty stay CONFIGURED (pre-Spearbit audit) — never REAL without an audit source.",
+        "A non-injected reference falls back to the engine default (FALLBACK), never presented as live.",
       ],
     },
   };

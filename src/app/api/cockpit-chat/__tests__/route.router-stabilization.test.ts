@@ -221,7 +221,7 @@ describe("cockpit-chat — router stabilization (negation, education, refusal)",
         const res = await POST(makeChatRequest(msg));
         expect(res.status).toBe(200);
         const body = await res.text();
-        expect(body).toContain("Je ne peux pas exécuter cette demande");
+        expect(body).toContain("I can't carry out this request");
         expect(mockRunChatAgent).not.toHaveBeenCalled();
         expect(mockPublishNav).not.toHaveBeenCalled();
       });

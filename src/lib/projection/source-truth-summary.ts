@@ -100,14 +100,14 @@ export async function loadSourceTruthSummary(): Promise<SourceTruthSummary> {
     detail: `markup ${cfg.company.markupPct}% · share ${cfg.company.revenueSharePct}%`,
   });
   rows.push({ kind: "input", label: "Risk references", status: "CONFIGURED" });
-  rows.push({ kind: "input", label: "Smart-contract risk", status: "UNAUDITED", reason: "pré-audit Spearbit" });
-  rows.push({ kind: "input", label: "Counterparty risk", status: "UNAUDITED", reason: "pré-audit Spearbit" });
+  rows.push({ kind: "input", label: "Smart-contract risk", status: "UNAUDITED", reason: "pre-Spearbit audit" });
+  rows.push({ kind: "input", label: "Counterparty risk", status: "UNAUDITED", reason: "pre-Spearbit audit" });
   rows.push({ kind: "input", label: "Mining cost assumptions", status: "CONFIGURED" });
-  rows.push({ kind: "input", label: "Vol index", status: "MOCK", reason: "pas de feed vol 30j live" });
+  rows.push({ kind: "input", label: "Vol index", status: "MOCK", reason: "no live 30d vol feed" });
 
   // ── Outputs ────────────────────────────────────────────────────────────────
   rows.push({ kind: "output", label: "APY range", status: "MIXED", reason: "live inputs + configured assumptions" });
-  rows.push({ kind: "output", label: "p5/p50/p95", status: "PARTIAL", reason: "déterministe, inputs partiels" });
+  rows.push({ kind: "output", label: "p5/p50/p95", status: "PARTIAL", reason: "deterministic, partial inputs" });
   rows.push({ kind: "output", label: "Risk score", status: "CONFIGURED" });
 
   // Tally.

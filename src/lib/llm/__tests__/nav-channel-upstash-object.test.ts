@@ -37,7 +37,7 @@ describe("nav-channel (Upstash auto-deserialize round-trip)", () => {
   it("consumes a directive even when getdel returns a parsed object (regression)", async () => {
     await publishNav("u1", "vaults");
     const consumed = await consumeNav("u1");
-    expect(consumed).toEqual({ route: "/vaults", label: "Produits / Vaults" });
+    expect(consumed).toEqual({ route: "/vaults", label: "Products / Vaults" });
   });
 
   it("preserves workspace objective + autostart through the object round-trip", async () => {

@@ -131,12 +131,12 @@ interface ConsumeResult {
 export const DEFAULT_CHAT_TURN_TIMEOUT_MS = 60_000;
 
 
-/** Generic FR error surfaced to the user on an upstream/LLM failure. The
+/** Generic error surfaced to the user on an upstream/LLM failure. The
  *  cockpit-shell client shows the text after `\x00ERROR:` verbatim, so this must
  *  never carry the raw provider error (which can leak model ids / quota detail /
  *  internal hostnames). The real error stays in server logs. */
 const LLM_ERROR_MESSAGE =
-  "\x00ERROR:Le service est momentanément indisponible — réessayez dans un instant.";
+  "\x00ERROR:The service is temporarily unavailable — please try again in a moment.";
 
 const ADMIN_WRITE_TOOL_ID_SET = new Set<string>(ADMIN_WRITE_TOOL_IDS);
 

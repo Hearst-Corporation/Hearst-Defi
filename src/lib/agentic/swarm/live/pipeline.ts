@@ -74,7 +74,7 @@ import {
 } from "@/lib/product-strategies";
 
 const DISCLAIMER =
-  "Projection conditionnelle aux hypothèses affichées — non garantie. Aucun produit n'est créé, déployé ou mis en ligne depuis cette construction ; c'est un brouillon que l'admin valide et exécute manuellement.";
+  "Projection conditional on the assumptions shown — not guaranteed. No product is created, deployed or taken live from this construction; it is a draft that the admin reviews and executes manually.";
 
 /**
  * Normalise the three MC sleeve legs so they sum to EXACTLY 1.

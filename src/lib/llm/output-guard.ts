@@ -18,7 +18,7 @@
  *   `@/lib/agents/apy-range` — see that module for the full detection contract.
  * - On a violation the stream emits the `\x00ERROR:` sentinel understood by the
  *   cockpit-shell client (no new client contract). The text AFTER the marker is
- *   what the client shows the user via `setError(...)`, so it is a human FR
+ *   what the client shows the user via `setError(...)`, so it is a human
  *   message — not a raw technical token (the client would otherwise surface
  *   "content_blocked" verbatim to an investor).
  */
@@ -31,10 +31,10 @@ import { hasSinglePointApy } from "@/lib/agents/apy-range";
 /**
  * Sentinel the cockpit-shell client parses to surface a stream error. The
  * client takes the first line AFTER `\x00ERROR:` and calls `setError(...)` with
- * it, so the suffix must be a user-readable FR message, not a technical token.
+ * it, so the suffix must be a user-readable message, not a technical token.
  */
 export const BLOCK_SENTINEL =
-  "\x00ERROR:Réponse bloquée — elle ne respectait pas nos règles de conformité.";
+  "\x00ERROR:Response blocked — it did not meet our compliance rules.";
 
 /** Chars held back from emission so a needle/sentence completing across a
  *  chunk boundary is caught before any of it is streamed. Must exceed the

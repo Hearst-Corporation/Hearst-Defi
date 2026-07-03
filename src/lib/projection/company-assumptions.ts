@@ -86,9 +86,9 @@ export const DEFAULT_PROJECTION_COMPANY_ASSUMPTIONS: ProjectionCompanyAssumption
       source: "code:src/lib/projection/company-assumptions.ts",
       status: "CONFIGURED",
       notes: [
-        "Hypothèses société configurées en code — PAS validées par métier/DB/admin UI.",
-        "Ne pas présenter comme live ou investor-facing.",
-        "P1: externaliser vers DB / admin config / env.",
+        "Company assumptions configured in code — NOT validated by business/DB/admin UI.",
+        "Do not present as live or investor-facing.",
+        "P1: externalize to DB / admin config / env.",
       ],
     },
   };

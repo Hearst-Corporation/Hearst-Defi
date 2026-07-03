@@ -694,7 +694,7 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
     const body = await readStreamText(res);
     const parsed = JSON.parse(body);
     expect(parsed.role).toBe("assistant");
-    expect(parsed.content).toContain("Je ne peux pas");
+    expect(parsed.content).toContain("I can't carry out this request");
     expect(parsed.metadata.intent).toBe("refusal");
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockPublishNav).not.toHaveBeenCalled();

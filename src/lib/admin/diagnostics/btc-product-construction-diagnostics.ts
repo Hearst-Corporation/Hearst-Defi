@@ -88,7 +88,7 @@ function syntheticStrategy(
     btcReturn: { bear: -20, base: 40, bull: 120 },
     headlineApy: { low: 8, high: 13 },
     assumptions: ["BTC scenario band is CONFIGURED, not validated."],
-    disclaimer: "Projection conditionnelle aux hypothèses — non garantie.",
+    disclaimer: "Projection conditional on the assumptions — not guaranteed.",
     companyLevers: {
       source: "assumptions-config",
       status: "CONFIGURED",

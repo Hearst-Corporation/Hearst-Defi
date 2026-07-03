@@ -238,40 +238,40 @@ export function buildOutreachWorkflowStateFromMessages(
 
 export function buildOutreachAskFieldsMessage(state: OutreachWorkflowState): string {
   const missing = [];
-  if (!state.campaignName) missing.push("nom de campagne");
-  if (!state.campaignType) missing.push("type (`cold` ou `newsletter`)");
+  if (!state.campaignName) missing.push("the campaign name");
+  if (!state.campaignType) missing.push("the type (`cold` or `newsletter`)");
   const suffix =
     missing.length > 0
-      ? `Il me manque ${missing.join(" et ")}.`
-      : "Je peux préparer le draft dès que les slots sont complets.";
-  return `J’ouvre le workspace Outreach. ${suffix}`;
+      ? `I'm missing ${missing.join(" and ")}.`
+      : "I can prepare the draft as soon as the slots are complete.";
+  return `Opening the Outreach workspace. ${suffix}`;
 }
 
 export function buildOutreachDraftPreparedMessage(state: OutreachWorkflowState): string {
   const name = state.campaignName ?? "Campaign";
   const kind = state.campaignType ?? "cold";
-  return `J’ai préparé un brouillon pour “${name}” · ${kind}. Aucun envoi n’a été lancé.`;
+  return `I prepared a draft for “${name}” · ${kind}. No send has been triggered.`;
 }
 
 export function buildOutreachDraftComplaintFixedMessage(state: OutreachWorkflowState): string {
   const name = state.campaignName ?? "Campaign";
   const kind = state.campaignType ?? "cold";
-  return `Tu as raison. Je corrige : le contenu du draft “${name}” · ${kind} est maintenant prêt. Aucun envoi n’est lancé.`;
+  return `You’re right. Fixing it: the draft content “${name}” · ${kind} is now ready. No send has been triggered.`;
 }
 
 export function buildOutreachOpenCampaignMessage(state: OutreachWorkflowState): string {
   if (!state.campaignName && !state.campaignType) {
-    return "Je peux ouvrir la campagne dès que tu me donnes son nom et son type (`cold` ou `newsletter`).";
+    return "I can open the campaign as soon as you give me its name and type (`cold` or `newsletter`).";
   }
   if (!state.campaignName) {
-    return "Je peux ouvrir la campagne, il me manque seulement le nom.";
+    return "I can open the campaign, I'm only missing the name.";
   }
   if (!state.campaignType) {
-    return "Je peux ouvrir la campagne, il me manque seulement le type (`cold` ou `newsletter`).";
+    return "I can open the campaign, I'm only missing the type (`cold` or `newsletter`).";
   }
-  return `J’ouvre la campagne “${state.campaignName}” · ${state.campaignType} dans le workspace Outreach.`;
+  return `Opening the campaign “${state.campaignName}” · ${state.campaignType} in the Outreach workspace.`;
 }
 
 export function buildOutreachPostDraftMessage(name: string): string {
-  return `Le draft de campagne “${clean(name) || name}” est enregistré avec un contenu non vide. Aucun envoi n’a été lancé.`;
+  return `The campaign draft “${clean(name) || name}” is saved with non-empty content. No send has been triggered.`;
 }

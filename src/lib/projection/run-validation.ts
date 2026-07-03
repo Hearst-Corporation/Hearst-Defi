@@ -110,8 +110,8 @@ export function validateProjectionRun(
     return {
       status: "NO_RUN",
       investorEligible: false,
-      reasons: ["Aucun ProjectionStudyRun réel (fixture démo)."],
-      warnings: ["Aperçu illustratif — non lié à une projection réelle."],
+      reasons: ["No real ProjectionStudyRun (demo fixture)."],
+      warnings: ["Illustrative preview — not tied to a real projection."],
       sourceSummary: emptySummary({ demo: c.isDemoFixture ? 1 : 0 }),
     };
   }
@@ -119,14 +119,14 @@ export function validateProjectionRun(
   // ── Structural completeness ─────────────────────────────────────────────────
   let structurallyOk = true;
   if (!run.apyRange) {
-    reasons.push("APY range absent des outputs du run.");
+    reasons.push("APY range missing from the run outputs.");
     structurallyOk = false;
   } else if (run.apyRange.low > run.apyRange.high) {
-    reasons.push("APY range incohérent (low > high).");
+    reasons.push("APY range inconsistent (low > high).");
     structurallyOk = false;
   }
   if (run.scenarioRunCount <= 0) {
-    reasons.push("Aucun scenario run rattaché.");
+    reasons.push("No scenario run attached.");
     structurallyOk = false;
   }
 
@@ -134,20 +134,20 @@ export function validateProjectionRun(
   if (c.percentiles) {
     const { p5, p50, p95 } = c.percentiles;
     if (!(p5 <= p50 && p50 <= p95)) {
-      reasons.push("Percentiles invalides (p5 ≤ p50 ≤ p95 violé).");
+      reasons.push("Invalid percentiles (p5 ≤ p50 ≤ p95 violated).");
       structurallyOk = false;
     }
   }
 
   // ── Investor-eligibility blockers ───────────────────────────────────────────
   const blockers: string[] = [];
-  if (c.hasMockSource) blockers.push("Source MOCK présente.");
+  if (c.hasMockSource) blockers.push("MOCK source present.");
   if (c.assumptionsConfigured)
-    blockers.push("Assumptions CONFIGURED (non validées métier).");
+    blockers.push("Assumptions CONFIGURED (not business-validated).");
   if (c.riskUnaudited)
-    blockers.push("Risk baselines UNAUDITED (pré-audit Spearbit).");
+    blockers.push("Risk baselines UNAUDITED (pre-Spearbit audit).");
   if (c.hasUnjustifiedFallback)
-    blockers.push("Fallback critique non justifié.");
+    blockers.push("Critical fallback not justified.");
 
   const sourceSummary = emptySummary({
     configured: c.assumptionsConfigured ? 1 : 0,
@@ -171,7 +171,7 @@ export function validateProjectionRun(
     return {
       status: "VALIDATED_ADMIN",
       investorEligible: false,
-      reasons: ["Run structurellement valide pour usage ADMIN."],
+      reasons: ["Run structurally valid for ADMIN use."],
       warnings: blockers,
       sourceSummary,
     };
@@ -181,7 +181,7 @@ export function validateProjectionRun(
   return {
     status: "INVESTOR_ELIGIBLE",
     investorEligible: true,
-    reasons: ["Run validé, aucune source bloquante."],
+    reasons: ["Run validated, no blocking source."],
     warnings: [],
     sourceSummary,
   };

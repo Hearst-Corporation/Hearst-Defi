@@ -883,13 +883,13 @@ async function runMasterAgentTurn(args: {
     }
   }
 
-  // ── 2. Refus immédiat des intents dangereux ─────────────────────────────
+  // ── 2. Immediate refusal of dangerous intents ──────────────────────────
   if (
     agenticDecision?.actionPolicy === "refuse_autonomous" ||
     agenticDecision?.prohibitedAutonomousAction
   ) {
     const refusalAck =
-      "Je ne peux pas exécuter cette demande. Si vous souhaitez effectuer une action, merci de la réaliser manuellement depuis l'interface.";
+      "I can't carry out this request. If you want to perform an action, please do it manually from the interface.";
     // Router Observability: dangerous refusal is recorded AFTER the refusal is
     // decided and BEFORE returning — still no LLM, no tool, no write, no HITL.
     void recordRouterDecisionSafe({

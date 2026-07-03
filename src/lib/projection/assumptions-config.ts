@@ -86,10 +86,10 @@ export function getDefaultProjectionAssumptionsConfig(): ProjectionAssumptionsCo
     metadata: {
       source: "CODE_DEFAULT",
       notes: [
-        "Valeurs par défaut du code (#148/#150) — PAS encore DB/admin.",
-        "CONFIGURED ≠ REAL : hypothèses société/risk/mining, non validées métier.",
-        "smart-contract & counterparty = pré-audit Spearbit (jamais REAL sans audit).",
-        "P-suivant: persister en DB + admin UI; brancher Preview sur ProjectionStudyRun.",
+        "Code default values (#148/#150) — NOT yet DB/admin.",
+        "CONFIGURED ≠ REAL: company/risk/mining assumptions, not business-validated.",
+        "smart-contract & counterparty = pre-Spearbit audit (never REAL without an audit).",
+        "Next-P: persist in DB + admin UI; wire Preview to ProjectionStudyRun.",
       ],
     },
   };
