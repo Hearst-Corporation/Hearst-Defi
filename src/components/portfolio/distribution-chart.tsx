@@ -73,8 +73,11 @@ export function DistributionChart({ entries }: DistributionChartProps) {
           content={
             <ChartTooltipContent
               hideLabel
-              formatter={(value, name, item: any, index) => {
-                const isForecast = item.payload.isForecast;
+              formatter={(value, name, item, index) => {
+                const { payload } = item as {
+                  payload?: { isForecast?: boolean };
+                };
+                const isForecast = payload?.isForecast ?? false;
                 const formatted = formatUsdFull(value as number);
                 return (
                   <div className="flex items-center gap-2">
