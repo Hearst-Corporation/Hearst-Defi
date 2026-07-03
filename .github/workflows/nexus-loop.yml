@@ -227,24 +227,49 @@ jobs:
           fi
 
       # ── Open a PR — DEFAULT MODE ONLY, only when real changes exist. ─────────
+      # Uses the GitHub REST API via curl, NOT the `gh` CLI: the self-hosted gpu1
+      # runner does not ship `gh` on its PATH, and a template must be self-contained.
+      # A pre-existing open PR for this head (HTTP 422) is a clean success, not a
+      # failure. Any OTHER non-2xx is a real error and FAILS the step (never masked
+      # by `|| true` — a run that produced a diff but no PR must not report success).
       - name: Open pull request (default mode only)
         if: ${{ inputs.mode != 'pr_fix' && steps.push.outputs.changed == 'true' && steps.detect.outputs.has_changes == 'true' }}
         shell: bash -l {0}
+        env:
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          BRANCH="${{ steps.branch.outputs.branch }}"
-          gh pr create \
-            --head "$BRANCH" \
-            --base "${TARGET_BASE_REF:-main}" \
-            --title "nexus: ${RUN_LABEL}" \
-            --body "Automated Nexus run ${RUN_LABEL}. <!--nexus:agents {\"schemaVersion\":1,\"agents\":[]} nexus:agents-->" \
-          || echo "::warning::gh pr create failed (a PR for this head may already exist)"
+          export BRANCH="${{ steps.branch.outputs.branch }}"
+          export BASE="${TARGET_BASE_REF:-main}"
+          export BODY="Automated Nexus run ${RUN_LABEL}. <!--nexus:agents {\"schemaVersion\":1,\"agents\":[]} nexus:agents-->"
+          PAYLOAD=$(python3 -c "import json,os; print(json.dumps({'title': f\"nexus: {os.environ['RUN_LABEL']}\", 'head': os.environ['BRANCH'], 'base': os.environ['BASE'], 'body': os.environ['BODY']}))")
+          HTTP=$(curl -s -o /tmp/pr-resp.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pulls" \
+            -d "$PAYLOAD")
+          if [ "$HTTP" = "201" ]; then
+            echo "→ PR opened: $(python3 -c 'import json;print(json.load(open("/tmp/pr-resp.json"))["html_url"])')"
+          elif [ "$HTTP" = "422" ] && grep -q "already exists\|pull request already exists" /tmp/pr-resp.json; then
+            echo "→ A PR for $BRANCH already exists — nothing to do."
+          else
+            echo "::error::PR creation failed (HTTP $HTTP): $(cat /tmp/pr-resp.json)"
+            exit 1
+          fi
 
       # ── pr_fix: report back on the EXISTING PR (no new PR) ──────────────────
       - name: Comment on the patched PR (pr_fix mode)
         if: ${{ inputs.mode == 'pr_fix' && steps.push.outputs.changed == 'true' && inputs.target_pr_number != '' }}
         shell: bash -l {0}
+        env:
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          gh pr comment "$TARGET_PR" --body "Nexus pr.fix run ${RUN_LABEL} pushed fixes to ${TARGET_HEAD_REF}." \
+          export BODY="Nexus pr.fix run ${RUN_LABEL} pushed fixes to ${TARGET_HEAD_REF}."
+          PAYLOAD=$(python3 -c "import json,os; print(json.dumps({'body': os.environ['BODY']}))")
+          curl -s -o /dev/null -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/issues/${TARGET_PR}/comments" \
+            -d "$PAYLOAD" \
           || echo "::warning::could not comment on PR #$TARGET_PR"
