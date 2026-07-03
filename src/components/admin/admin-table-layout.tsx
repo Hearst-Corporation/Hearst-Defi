@@ -2,6 +2,13 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { BentoPanel } from "@/components/catalyst/bento";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 
 interface AdminTableProps<T> {
@@ -28,35 +35,33 @@ export function AdminTable<T>({
 }: AdminTableProps<T>) {
   return (
     <BentoPanel className={className}>
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left text-[length:var(--ct-text-xs)]">
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)]">
-              {headers.map((h, i) => (
-                <th
-                  key={i}
-                  className={cn(
-                    "ct-bento-label px-5 py-3 whitespace-nowrap",
-                    colWidths?.[i],
-                  )}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, i) => (
-              <tr
+      <Table className="[&_table]:table-fixed [&_table]:text-[length:var(--ct-text-xs)]">
+        <TableHead>
+          <TableRow className="border-b border-[var(--ct-border-soft)]">
+            {headers.map((h, i) => (
+              <TableHeader
                 key={i}
-                className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+                className={cn(
+                  "ct-bento-label px-5 py-3 whitespace-nowrap",
+                  colWidths?.[i],
+                )}
               >
-                {renderRow(item)}
-              </tr>
+                {h}
+              </TableHeader>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((item, i) => (
+            <TableRow
+              key={i}
+              className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+            >
+              {renderRow(item)}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </BentoPanel>
   );
 }
