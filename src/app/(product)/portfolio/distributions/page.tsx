@@ -43,7 +43,7 @@ export default async function DistributionsPage() {
         {/* Next distribution summary */}
         <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] p-6 flex flex-col items-center justify-center">
           <div className="ct-bento-label mb-3">Next distribution</div>
-          <div className="h1 mb-2">
+          <div className="ct-metric-value text-[length:var(--ct-text-2xl)] mb-2">
             {nextDistributionAt.toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",

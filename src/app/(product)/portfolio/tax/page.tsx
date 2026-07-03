@@ -21,7 +21,7 @@ export const metadata = {
 const TAX_YEAR = 2026;
 
 const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
-const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-lg)]";
+const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)]";
 
 export default async function PortfolioTaxPage() {
   const investor = await getInvestor();
