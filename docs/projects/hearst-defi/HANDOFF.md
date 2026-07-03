@@ -2,6 +2,138 @@
 
 ---
 
+## Batch 4/9 (builder, Stabilization) : 4e confirmation indépendante, no-op — 2026-07-03
+
+**Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), même rôle
+"Stabilization". Nouvelle invocation de loop sur ce même scope (`nexus/loop_mr3jny8d-mr5e4hpx`).
+
+RELAIS relu intégralement avant de coder. `docs/agent-file-locks.md` vérifié : seul lock
+actif = `fix/strategy-dupkey-fix` (scope UI strategies étroit), aucun chevauchement avec
+l'owner zone cross-cutting lint/typecheck/test de ce batch. `git merge-base --is-ancestor
+9b01f8b3 HEAD` → oui, le commit de stabilisation (PR #370) est bien dans l'historique de
+cette branche. `git status` de départ : seuls les 3 fichiers doc de la passe précédente
+non commités (aucun diff de code).
+
+Environnement déjà chaud (`node_modules/` présent, `prisma/dev.db` peuplé). Validations
+relancées intégralement, sans aucun changement de code source :
+
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm run lint` → **0 erreur**, 46 warnings pré-existants identiques.
+- `pnpm test` → **448/448 fichiers, 5323/5323 tests**. `prisma/schema.prisma` sans diff
+  après coup (`git diff --stat` vide).
+
+**Conclusion** : 4e confirmation indépendante que la baseline est verte et que la mission
+de ce batch reste satisfaite par le commit déjà mergé `9b01f8b3` (PR #370). Aucun changement
+de fichier source cette session — uniquement cet addendum HANDOFF + horodatage BATCHES.md.
+Pas de PR nécessaire (no-op sain).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02
+décision Adrien email de reçu). Voir `DECISIONS.md` §"Questions en attente pour Adrien".
+
+---
+
+## Batch 4/9 (builder, Stabilization) : re-confirmation supplémentaire, checkout chaud — 2026-07-03
+
+**Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), même rôle
+"Stabilization". Nouvelle invocation de loop sur ce même scope.
+
+RELAIS relu intégralement (`PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md`) avant de coder. `docs/agent-file-locks.md` vérifié : locks
+actifs (`fix/strategy-dupkey-fix` + autres, cf. entrée précédente) tous scopés à des
+fichiers UI étroits, aucun chevauchement avec l'owner zone cross-cutting de ce batch.
+`git status` de départ : seuls `BATCHES.md`/`HANDOFF.md`/`PROJECT_STATE.md` non commités
+(addendum de la passe "checkout vierge" précédente, non un diff de code) ; aucune PR
+ouverte ne chevauche cet owner zone.
+
+Contrairement à la passe précédente (checkout vierge, `node_modules` absent,
+`prisma/dev.db` 0 octet), cet environnement était déjà chaud : `node_modules/` présent,
+`prisma/dev.db` déjà peuplé (1.2 Mo). Validations relancées intégralement et
+indépendamment, sans aucun changement de code source :
+
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm run lint` → **0 erreur**, 46 warnings pré-existants identiques (advisory).
+- `pnpm test` (suite complète, wrapper `pretest`/`posttest` sqlite↔postgresql) →
+  **448/448 fichiers, 5323/5323 tests**. `prisma/schema.prisma` restauré proprement en
+  `postgresql` après coup (`git diff --stat prisma/schema.prisma` vide).
+
+**Conclusion** : troisième confirmation indépendante que la baseline
+typecheck/lint/test est verte et que la mission de ce batch reste satisfaite par le
+commit déjà mergé `9b01f8b3` (PR #370). **Aucun changement de fichier source cette
+session** — uniquement cet addendum HANDOFF. Pas de PR nécessaire (no-op sain).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02
+décision Adrien email de reçu). Voir `DECISIONS.md` §"Questions en attente pour Adrien".
+
+---
+
+## Batch 4/9 (builder, Stabilization) : re-vérification sur checkout vierge — 2026-07-03
+
+**Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), rôle
+"Stabilization" (owner zone : fixes cross-cutting lint/typecheck/test rouges, dette TS).
+
+RELAIS relu intégralement (`PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md`) avant de coder. `docs/agent-file-locks.md` vérifié : 4 locks
+actifs (`fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
+`feat/projection-safe-input-preset`, `fix/machine-logo-visible`) — tous scopés à des
+fichiers UI étroits, aucun chevauchement avec l'owner zone cross-cutting de ce batch.
+`git status` de départ : propre, aucun diff en attente.
+
+**Constat de départ** : le travail de ce batch (rendre lint/typecheck/test verts) avait
+déjà été fait et **mergé dans `main`** par un run précédent — commit `9b01f8b3` (PR #370,
+`loop_mr3jny8d-mr5cdfk8`), qui correspond exactement au diff décrit dans la section
+"Batch 2c" ci-dessous. Cette branche (`nexus/loop_mr3jny8d-mr5e4hpx`) part de `main` et
+contient déjà ce commit.
+
+**Ce que cette session a fait** : au lieu de dupliquer, elle a ré-exécuté les 3 validations
+sur un **checkout totalement vierge** (`node_modules` absent, `prisma/dev.db` à 0 octet) —
+un scénario jamais testé par les runs précédents, qui trouvaient tous `node_modules` et
+`dev.db` déjà en place. Ça a révélé un écart de setup (pas un bug de code) :
+
+1. `pnpm install` — requis, `node_modules/` absent au démarrage.
+2. `pnpm db:generate` — requis, sinon `tsc --noEmit` échoue en cascade (`Module
+   "@prisma/client" has no exported member 'PrismaClient'/'Prisma'/'VaultDeployment'/...`
+   + dizaines de `TS7006 implicit any` dérivés) — **pas de la vraie dette TS**, juste un
+   client Prisma non généré.
+3. `prisma/dev.db` faisait **0 octet** (jamais poussé sur ce runner) → `pnpm test` échouait
+   avec `PrismaClientKnownRequestError: The table 'main.LlmRun' does not exist`. Corrigé en
+   poussant le schéma sqlite (`PRISMA_PROVIDER=sqlite node scripts/prisma-provider.mjs &&
+   prisma db push --accept-data-loss`, DB vide donc aucune perte réelle, provider restauré
+   ensuite via `scripts/restore-prisma-provider.mjs` — même mécanisme que le wrapper
+   `pretest`/`posttest` officiel). `prisma/dev.db` est gitignored (`.gitignore:37`) — aucun
+   impact git.
+
+**Validations, une fois l'environnement initialisé (aucun changement de code source)** :
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` → **448/448 fichiers, 5323/5323 tests**.
+- `pnpm run lint` → **0 erreur**, 46 warnings pré-existants identiques (advisory,
+  inchangés vs baseline documentée).
+- Recherche ciblée de dette TS non détectée par `tsc` (`@ts-ignore`/`@ts-expect-error`,
+  `as any`, `as unknown as`) hors `__tests__` : 1 `@ts-expect-error` légitime
+  (`studio.tsx:185`, style CSS custom property non typée par React), ~10 `as unknown as`
+  tous des patterns délibérés et documentés (singleton `globalThis` anti-HMR dans
+  `db.ts`/`observability/store.ts`/`simulation-store.ts`/`nav-channel.ts`, contexte mock
+  diagnostics dans `safe-dry-run.ts`/`guard-diagnostics.ts`, narrow typing wallet dans
+  `preflight-check.tsx`) — aucune régression, aucune dette bloquante cachée.
+
+**Conclusion** : mission de ce batch ("rends lint/typecheck/test verts, résous la dette TS
+bloquante") **déjà satisfaite** par le commit mergé `9b01f8b3`, confirmée indépendamment
+sur un environnement complètement neuf. **Aucun changement de fichier source cette
+session** — uniquement cet addendum HANDOFF. Pas de PR nécessaire (no-op sain).
+
+**Risque résiduel / note pour les prochains batches** : un checkout vierge nécessite
+`pnpm install && pnpm db:generate` avant `pnpm typecheck`, et `pnpm db:push` (provider
+sqlite) avant un premier `pnpm test` si `prisma/dev.db` est absent ou vide. Ce n'est pas
+documenté explicitement dans `PROJECT_PLAN.md` batch 2 au-delà de `db:generate` — à ajouter
+si un futur agent retombe sur le même piège sur un runner fraîchement provisionné.
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02
+décision Adrien email de reçu). Voir `DECISIONS.md` §"Questions en attente pour Adrien".
+
+---
+
 ## Batch 2c (rerun de confirmation) : re-validation indépendante — 2026-07-03
 
 **Batch série** : builder, `batch 4/9` (série `series_recovery_hearst-defi_0`), même rôle
