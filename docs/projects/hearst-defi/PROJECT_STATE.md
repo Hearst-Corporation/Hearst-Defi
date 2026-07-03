@@ -29,6 +29,12 @@
 | Playwright E2E | `continue-on-error: true` — **jamais bloquant en CI** | Non exécuté ce batch |
 
 > **Batch 2 (baseline verification) satisfait** par le batch Stabilization du 2026-07-03 : `pnpm typecheck` + `pnpm test` sont désormais verts et vérifiés en exécution réelle (les permissions runner qui bloquaient batch 2/2b/2 rerun ne bloquaient plus cette session).
+>
+> **Re-confirmé sur checkout vierge (batch série 4/9, 2026-07-03)** : `pnpm install` +
+> `pnpm db:generate` + `pnpm db:push` (schéma sqlite, `dev.db` local à 0 octet sur ce
+> runner, gitignored) requis avant les 3 validations sur un environnement neuf — une fois
+> fait, `pnpm typecheck` (0 erreur), `pnpm test` (448/448, 5323/5323) et `pnpm run lint`
+> (0 erreur, 46 warnings pré-existants) confirmés verts sans aucun changement de code.
 
 ---
 
