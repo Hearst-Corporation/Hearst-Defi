@@ -95,9 +95,9 @@ const STEP_LOADING: Record<
     mainVisual: { kind: "placeholder", label: "Hashprice" },
     sourcesLabel: "Network sources",
     sources: [
-      { kind: "placeholder", label: "Luxor" },
-      { kind: "placeholder", label: "Hashrate Index" },
-      { kind: "placeholder", label: "mempool.space" },
+      { kind: "brand", id: "luxor" },
+      { kind: "brand", id: "hashrateindex" },
+      { kind: "brand", id: "mempool" },
     ],
   },
   mining_infra: {
@@ -302,7 +302,10 @@ type BrandId =
   | "microbt"
   | "canaan"
   | "bitdeer"
-  | "bitaxe";
+  | "bitaxe"
+  | "luxor"
+  | "hashrateindex"
+  | "mempool";
 
 const BRAND_LOGOS: Record<BrandId, { label: string; src: string; lightChip?: boolean }> = {
   // Official square icon marks (vector SVG) so all four match in the round chips.
@@ -320,6 +323,9 @@ const BRAND_LOGOS: Record<BrandId, { label: string; src: string; lightChip?: boo
   canaan: { label: "Canaan", src: "/manufacturers/canaan.png", lightChip: true },
   bitdeer: { label: "Bitdeer", src: "/manufacturers/bitdeer.png", lightChip: true },
   bitaxe: { label: "Bitaxe", src: "/manufacturers/bitaxe.png", lightChip: true },
+  luxor: { label: "Luxor", src: "/sources/luxor.png", lightChip: true },
+  hashrateindex: { label: "Hashrate Index", src: "/sources/hashrateindex.png", lightChip: true },
+  mempool: { label: "mempool.space", src: "/sources/mempool.svg" },
 };
 
 /** Brand logo on a neutral round chip — original colours, never tinted. */
