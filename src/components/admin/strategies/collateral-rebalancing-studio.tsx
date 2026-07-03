@@ -24,6 +24,14 @@ import { CollateralBuybackLadder } from "@/components/admin/strategies/collatera
 import { CollateralSellLadder } from "@/components/admin/strategies/collateral-sell-ladder";
 import { CollateralTimeline } from "@/components/admin/strategies/collateral-timeline";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
+import {
   COLLATERAL_PATH_PRESET_OPTIONS,
   applyCollateralPathPreset,
   buildCollateralOptimizerSearchConfig,
@@ -1210,51 +1218,49 @@ export function CollateralRebalancingStudio({
                   Ranked candidates and path scores
                 </summary>
                 <div className="flex flex-col gap-(--ct-space-4) border-t border-[var(--ct-border-soft)] p-(--ct-space-3)">
-                  <div className="min-w-0 overflow-x-auto">
-                    <table className="w-full min-w-[56rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-                      <thead>
-                        <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-                          <th className="p-(--ct-space-2) text-left">Rank</th>
-                          <th className="p-(--ct-space-2) text-right">Score</th>
-                          <th className="p-(--ct-space-2) text-right">Liq. avoided</th>
-                          <th className="p-(--ct-space-2) text-right">ROI</th>
-                          <th className="p-(--ct-space-2) text-right">Debt</th>
-                          <th className="p-(--ct-space-2) text-right">Reserve</th>
-                          <th className="p-(--ct-space-2) text-right">BTC retained</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {optimizerResult?.rankedCandidates.slice(0, 4).map((candidate) => (
-                          <tr
-                            key={candidate.rank}
-                            className="border-b border-[var(--ct-border-soft)]"
-                          >
-                            <td className="p-(--ct-space-2) ct-text-strong">
-                              {candidate.rank}
-                            </td>
-                            <td className="p-(--ct-space-2) text-right ct-text-body">
-                              {candidate.summary.objectiveScore.toFixed(0)}
-                            </td>
-                            <td className="p-(--ct-space-2) text-right ct-text-body">
-                              {candidate.summary.liquidationAvoided ? "Yes" : "No"}
-                            </td>
-                            <td className="p-(--ct-space-2) text-right ct-text-body">
-                              {pct(candidate.summary.modelledRoiPct)}
-                            </td>
-                            <td className="p-(--ct-space-2) text-right ct-text-body">
-                              {usdCompact(candidate.summary.finalDebtUsdc)}
-                            </td>
-                            <td className="p-(--ct-space-2) text-right ct-text-body">
-                              {usdCompact(candidate.summary.finalWorkingReserveUsdc)}
-                            </td>
-                            <td className="p-(--ct-space-2) text-right ct-text-body">
-                              {btc(candidate.summary.finalWbtcCollateralAmount)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <Table className="w-full min-w-[56rem] border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+                    <TableHead>
+                      <TableRow className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                        <TableHeader className="p-(--ct-space-2) text-left">Rank</TableHeader>
+                        <TableHeader className="p-(--ct-space-2) text-right">Score</TableHeader>
+                        <TableHeader className="p-(--ct-space-2) text-right">Liq. avoided</TableHeader>
+                        <TableHeader className="p-(--ct-space-2) text-right">ROI</TableHeader>
+                        <TableHeader className="p-(--ct-space-2) text-right">Debt</TableHeader>
+                        <TableHeader className="p-(--ct-space-2) text-right">Reserve</TableHeader>
+                        <TableHeader className="p-(--ct-space-2) text-right">BTC retained</TableHeader>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {optimizerResult?.rankedCandidates.slice(0, 4).map((candidate) => (
+                        <TableRow
+                          key={candidate.rank}
+                          className="border-b border-[var(--ct-border-soft)]"
+                        >
+                          <TableCell className="p-(--ct-space-2) ct-text-strong">
+                            {candidate.rank}
+                          </TableCell>
+                          <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                            {candidate.summary.objectiveScore.toFixed(0)}
+                          </TableCell>
+                          <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                            {candidate.summary.liquidationAvoided ? "Yes" : "No"}
+                          </TableCell>
+                          <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                            {pct(candidate.summary.modelledRoiPct)}
+                          </TableCell>
+                          <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                            {usdCompact(candidate.summary.finalDebtUsdc)}
+                          </TableCell>
+                          <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                            {usdCompact(candidate.summary.finalWorkingReserveUsdc)}
+                          </TableCell>
+                          <TableCell className="p-(--ct-space-2) text-right ct-text-body">
+                            {btc(candidate.summary.finalWbtcCollateralAmount)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
 
                   <details className="group rounded-(--ct-radius-md) border border-[var(--ct-border-soft)]">
                     <summary className="flex cursor-pointer list-none items-center gap-(--ct-space-2) px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-tertiary select-none hover:ct-text-body">
