@@ -353,18 +353,3 @@ export async function classifyOutreachIntentSemantic(
 export function isSemanticClassificationAvailable(): boolean {
   return HF_AVAILABLE;
 }
-
-/**
- * Récupère les hypothèses pour introspection/diagnostic.
- */
-export function getSemanticHypotheses(): {
-  positive: readonly OutreachHypothesis[];
-  negative: readonly string[];
-  threshold: number;
-} {
-  return {
-    positive: OUTREACH_HYPOTHESES,
-    negative: NEGATIVE_HYPOTHESES,
-    threshold: SEMANTIC_THRESHOLD,
-  };
-}

@@ -1,5 +1,13 @@
 import type { DistributionRecipient } from "@/app/admin/distributions/actions";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { cn } from "@/lib/cn";
 import { formatUsdDetailed } from "@/lib/vaults/product-display";
 
@@ -52,49 +60,49 @@ export function DistributionPreview({
 
       {/* Recipients table */}
       <div className="overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-inset">
-        <table className="w-full table-fixed text-left text-[length:var(--ct-text-xs)] tabular-nums">
-          <thead>
-            <tr className="border-b border-[var(--ct-border-soft)]">
-              <th className="w-[42%] px-5 py-3 text-left ct-bento-label">
+        <Table className="[&_table]:w-full [&_table]:table-fixed [&_table]:text-[length:var(--ct-text-xs)] [&_table]:tabular-nums">
+          <TableHead>
+            <TableRow className="border-b border-[var(--ct-border-soft)]">
+              <TableHeader className="w-[42%] px-5 py-3 text-left ct-bento-label">
                 Investor wallet
-              </th>
-              <th className="w-[18%] px-5 py-3 text-right ct-bento-label">
+              </TableHeader>
+              <TableHeader className="w-[18%] px-5 py-3 text-right ct-bento-label">
                 Share %
-              </th>
-              <th className="w-[40%] px-5 py-3 text-right ct-bento-label">
+              </TableHeader>
+              <TableHeader className="w-[40%] px-5 py-3 text-right ct-bento-label">
                 Payout (USDC)
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+              </TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {recipients.map((r) => (
-              <tr key={r.investorId} className="border-b border-[var(--ct-border-soft)] last:border-0">
-                <td className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
+              <TableRow key={r.investorId} className="border-b border-[var(--ct-border-soft)] last:border-0">
+                <TableCell className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                   {abbrWallet(r.walletAddress)}
-                </td>
-                <td className="px-5 py-3 text-right text-[var(--ct-text-muted)]">
+                </TableCell>
+                <TableCell className="px-5 py-3 text-right text-[var(--ct-text-muted)]">
                   {r.sharesPct.toFixed(4)}%
-                </td>
-                <td className="px-5 py-3 text-right font-medium text-[var(--ct-text-strong)]">
+                </TableCell>
+                <TableCell className="px-5 py-3 text-right font-medium text-[var(--ct-text-strong)]">
                   {formatUsdDetailed(r.payoutUsdc)}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
+          </TableBody>
           <tfoot>
-            <tr className="border-t border-[var(--ct-border)]">
-              <td className="px-5 py-3 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
+            <TableRow className="border-t border-[var(--ct-border)]">
+              <TableCell className="px-5 py-3 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                 Total ({recipients.length} recipients)
-              </td>
-              <td className="px-5 py-3 text-right text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
+              </TableCell>
+              <TableCell className="px-5 py-3 text-right text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                 100%
-              </td>
-              <td className="px-5 py-3 text-right font-medium text-[var(--ct-text-strong)]">
+              </TableCell>
+              <TableCell className="px-5 py-3 text-right font-medium text-[var(--ct-text-strong)]">
                 {formatUsdDetailed(totalUsdc)}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           </tfoot>
-        </table>
+        </Table>
       </div>
 
       {/* Disclaimer — CLAUDE.md #10 */}

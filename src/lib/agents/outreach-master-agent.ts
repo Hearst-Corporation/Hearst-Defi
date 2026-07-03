@@ -275,15 +275,6 @@ class OutreachMasterAgent implements OutreachIntentClassifier {
 export const outreachMasterAgent = new OutreachMasterAgent();
 
 /**
- * Convenience: classify a message (async).
- */
-export async function classifyOutreachIntent(
-  ctx: OutreachIntentContext,
-): Promise<OutreachAgentDecision> {
-  return outreachMasterAgent.classify(ctx);
-}
-
-/**
  * Convenience: classify a message (sync, regex-only).
  */
 export function classifyOutreachIntentSync(
