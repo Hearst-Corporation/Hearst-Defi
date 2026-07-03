@@ -169,4 +169,26 @@ _(vide — batch 1 et 2 sont lecture seule)_
 
 ---
 
-*Mis à jour : 2026-07-03 (batch 2 — Truth Audit).*
+## Corrections de chemins — Loop 3 (Planner, 2026-07-03)
+
+En préparant `BATCHES.md`, vérification read-only de chaque chemin de fichier cité ci-dessus
+(spot-check, pas un re-audit complet). Deux corrections matérielles trouvées :
+
+- **T-01 / C-05** : le chemin `src/components/portfolio/tax-docs-drawer.tsx:243-259` cité dans
+  `PROJECT_PLAN.md` (Batch 3) **n'existe pas** dans le dépôt (recherche `find`/`grep` exhaustive,
+  aucun résultat). Le flow réel est une route complète `src/app/(product)/portfolio/tax/page.tsx`
+  qui appelle `getTaxPreview()` (`src/lib/portfolio/tax.ts`) sans gate — pas de pattern "drawer +
+  trigger". Aucun lien nav vers `/portfolio/tax` trouvé par grep statique (probablement construit
+  dynamiquement) — l'exécutant Work Batch 3 devra localiser le point d'entrée nav réel avant de
+  désactiver l'accès.
+- **T-03 / C-13** : confirmé absent (`term-sheet-preview.tsx` — 0 occurrence "Model B"/"cash
+  reserve"), mais le texte exact et une contrainte de placement sont déjà verrouillés par
+  `src/components/vaults/__tests__/term-sheet-truth.test.tsx:60-64` : le one-liner ne doit **pas**
+  être placé au-dessus de la grille d'allocation. Ce test devra être inversé (assertion positive,
+  bon emplacement) une fois le one-liner câblé — sinon Work Batch 3 casse la suite.
+
+Détail complet et owner-zones à jour : `BATCHES.md` (Work Batch 3).
+
+---
+
+*Mis à jour : 2026-07-03 (loop 3 — Planner).*
