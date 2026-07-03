@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
 
@@ -20,8 +20,26 @@ import { cn } from "@/lib/cn";
 import { approveEmail, updateEmail } from "@/app/admin/outreach/actions";
 import { buildEmailHtmlShell } from "@/lib/email/html-shell";
 
+/**
+ * SSR-safe email preview renderer.
+ *
+ * dompurify v3's default export is a *factory* until it is bound to a real
+ * `window`; on the server (no `window`) `DOMPurify.sanitize` is `undefined`,
+ * so calling it throws `TypeError: dompurify.default.sanitize is not a function`
+ * and 500s the page. We therefore sanitise **only in the browser** and never at
+ * SSR — the preview iframe is client-only (gated on `mounted`), so the server
+ * never needs the sanitised markup. If sanitisation is somehow unavailable we
+ * fall back to an empty shell rather than injecting un-sanitised HTML.
+ */
 function renderPreviewHtml(body: string): string {
-  const safe = DOMPurify.sanitize(body, { ALLOWED_TAGS: ["br", "b", "i", "a", "p", "em", "strong"] });
+  const purify =
+    typeof window !== "undefined" && typeof DOMPurify.sanitize === "function"
+      ? DOMPurify
+      : null;
+  if (!purify) return buildEmailHtmlShell("");
+  const safe = purify.sanitize(body, {
+    ALLOWED_TAGS: ["br", "b", "i", "a", "p", "em", "strong"],
+  });
   return buildEmailHtmlShell(safe);
 }
 
@@ -86,6 +104,10 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
   const [savePending, startSave] = useTransition();
   const [approvePending, startApprove] = useTransition();
   const [previewOpen, setPreviewOpen] = useState(false);
+  // Sanitisation (DOMPurify) only works once bound to a real browser `window`.
+  // Gate the preview iframe on client mount so it never renders during SSR.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const variant = STATUS_VARIANT[email.status] ?? "default";
   const dirty = subject !== email.subject || body !== email.body;
@@ -214,13 +236,15 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
         className="max-w-2xl"
       >
         <div className="overflow-hidden rounded-lg border border-[var(--ct-border)] bg-surface-inset">
-          <iframe
-            title="Email preview"
-            srcDoc={renderPreviewHtml(body)}
-            sandbox="allow-same-origin"
-            className="w-full border-0"
-            style={{ minHeight: "340px" }}
-          />
+          {mounted && (
+            <iframe
+              title="Email preview"
+              srcDoc={renderPreviewHtml(body)}
+              sandbox="allow-same-origin"
+              className="w-full border-0"
+              style={{ minHeight: "340px" }}
+            />
+          )}
         </div>
         <p className="ct-metric-caption mt-3">
           Read-only preview. Actual send uses the same HTML shell via Resend.
