@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { unbindWallet } from "@/lib/onboarding/actions";
 
 /**
@@ -36,13 +37,15 @@ export function WalletDisconnectButton() {
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="danger"
+      size="md"
       onClick={onDisconnect}
       disabled={isPending}
-      className="inline-flex items-center justify-center rounded-lg border border-[var(--ct-status-danger-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-4 py-2.5 text-[length:var(--ct-text-xs)] font-bold text-[var(--ct-status-danger)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-60)]"
+      aria-busy={isPending}
     >
       {isPending ? "Disconnecting…" : "Disconnect / change wallet"}
-    </button>
+    </Button>
   );
 }

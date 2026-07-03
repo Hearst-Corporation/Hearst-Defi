@@ -178,7 +178,7 @@ export default async function ProfilePage() {
 
       <BentoPanel aria-labelledby="prof-security-label">
         <BentoHeader id="prof-security-label" title="Security" />
-        <div className="divide-y ct-bento-divider" role="list">
+        <div className="divide-y ct-bento-divider px-5" role="list">
           <ProfileSecurityRow
             status="ok"
             title="Email / password"
