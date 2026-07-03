@@ -7,6 +7,15 @@
 export { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
+/**
+ * Print-dense ink of the brand accent (--ct-accent, CONNECT_ACCENT_HEX #A7FB90).
+ * The canonical accent is a light green tuned for a dark screen; on white paper
+ * it washes out and fails contrast, so print uses a darkened rendering of the
+ * SAME green. This is NOT a second brand green — it is the ink form of the one
+ * accent, kept traceable to it here rather than as a magic hex at each callsite.
+ */
+export const PRINT_SUCCESS_INK = "#16a34a" as const;
+
 /** Dark statement PDF — flattened colours for react-pdf on deep background. */
 export const PDF_DARK = {
   accent: CONNECT_ACCENT_HEX,
@@ -31,7 +40,8 @@ export const PDF_LIGHT = {
   border: "#e5e5e5",
   borderStrong: "#cfcfcf",
   // Print ink — intentionally denser than web --ct-status-* (glow on dark UI).
-  statusSuccess: "#16a34a",
+  // Derived from the single brand accent (see PRINT_SUCCESS_INK), not a 2nd green.
+  statusSuccess: PRINT_SUCCESS_INK,
   statusSuccessSoft: "#dcfce7",
   statusSuccessBrandTint: "#e9fde0",
   statusWarning: "#d97706",
