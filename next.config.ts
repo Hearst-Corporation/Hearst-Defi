@@ -48,6 +48,7 @@ const nextConfig: NextConfig = {
       // adding it there breaks Turbopack (native binary conflict with canvas/pdfkit)
       "@react-pdf/renderer",
       "lucide-react",
+      "recharts",
     ],
   },
   reactStrictMode: true,
