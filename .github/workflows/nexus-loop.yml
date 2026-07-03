@@ -166,18 +166,26 @@ jobs:
           for i in $(seq 1 "${AGENTS:-1}"); do
             echo "── Agent $i/${AGENTS:-1} ──"
             set +e
-            out="$(claude --print \
+            # The mission is fed on STDIN, never as a positional arg: a mission
+            # that starts with '--' (e.g. a "--- METADATA ---" header) would be
+            # parsed by the CLI as an unknown OPTION and the agent would never run.
+            # With no positional prompt, `claude --print` reads it from stdin —
+            # also immune to the arg-length cap for very large missions.
+            out="$(printf '%s' "$MISSION" | claude --print \
               --model "$CLAUDE_MODEL" \
               --permission-mode acceptEdits \
               --max-turns 40 \
-              "$MISSION" 2>&1)"
+              2>&1)"
             code=$?
             set -e
             printf '%s\n' "$out"
             if [ $code -ne 0 ]; then
-              # Non-recoverable account/environment errors — not a no-op.
-              if printf '%s' "$out" | grep -qiE 'credit balance is too low|insufficient|quota|authentication|invalid api key|unauthorized|rate limit|oauth'; then
-                echo "::error::Agent $i failed on an account/environment error — no code was produced. Check the active slot in ~/.nexus-claude-accounts and its OAuth token."
+              # A CLI invocation/parse error means the agent NEVER RAN — that is a
+              # hard failure, NOT a clean no-op (a no-op is the agent running and
+              # choosing to change nothing). Fail the run so it can't masquerade as
+              # success. Same for account/environment errors (no code produced).
+              if printf '%s' "$out" | grep -qiE "unknown option|unknown argument|invalid option|error: unknown|usage:|missing required|credit balance is too low|insufficient|quota|authentication|invalid api key|unauthorized|rate limit|oauth"; then
+                echo "::error::Agent $i did not run — CLI/parse or account error (no code produced). First line: $(printf '%s' "$out" | head -n1)"
                 fail=1
                 break
               fi
