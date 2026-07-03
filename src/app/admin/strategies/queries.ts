@@ -21,6 +21,115 @@ export interface StrategyWorkspaceData {
   rules: RebalancingRule[];
 }
 
+/**
+ * On-read validation for raw Prisma `String`/`Int` columns.
+ *
+ * These columns are persisted as loose scalars (see `schema.prisma`), so a
+ * partial save, a manual DB edit, or schema drift can leave a value that does
+ * NOT belong to the app-level union. Rather than widen with an unchecked
+ * `as` cast (which lies to the compiler and lets a bad value flow into the
+ * pure engine), every field is parsed against an allow-list of the union's
+ * members and coerced to a safe fallback — the same default the schema
+ * declares (or the union's canonical neutral value) — when it doesn't match.
+ */
+const RISK_PROFILE_KEYS = ["safe", "balanced", "opportunistic"] as const;
+const STRATEGY_STATUSES = ["draft", "active", "archived"] as const;
+const PRODUCT_FAMILIES = [
+  "btc_mining",
+  "stable_income",
+  "btc_upside",
+  "defi_yield",
+  "generic",
+] as const;
+const PRIORITIES = [
+  "monthly_income",
+  "capital_protection",
+  "btc_upside",
+  "total_return",
+  "liquidity",
+] as const;
+const HORIZON_MONTHS = [12, 24, 36] as const;
+const COLLATERAL_ASSETS = ["BTC"] as const;
+const BORROW_ASSETS = ["USDC"] as const;
+const RULE_TYPES = ["LIQUIDATE", "REPURCHASE"] as const;
+const TRIGGER_METRICS = [
+  "BTC_PRICE",
+  "LTV",
+  "LIQUIDATION_DISTANCE",
+  "PORTFOLIO_DRAWDOWN",
+  "TARGET_ENTRY_PRICE",
+  "MONTH",
+] as const;
+const OPERATORS = ["<=", ">=", "<", ">", "=="] as const;
+const ACTION_SIDES = ["SELL_BTC", "BUY_BTC", "REPAY_DEBT", "HOLD"] as const;
+const SIZING_MODES = [
+  "PERCENT_OF_BTC_COLLATERAL",
+  "PERCENT_OF_USDC_RESERVE",
+  "FIXED_BTC",
+  "FIXED_USDC",
+] as const;
+
+/** Coerce a raw value to a member of `allowed`, or `fallback` when unknown. */
+function coerce<const T extends readonly (string | number)[]>(
+  raw: string | number,
+  allowed: T,
+  fallback: T[number],
+): T[number] {
+  return allowed.includes(raw) ? raw : fallback;
+}
+
+function toRiskProfileKey(raw: string): RiskProfileKey {
+  return coerce(raw, RISK_PROFILE_KEYS, "balanced");
+}
+
+function toStrategyStatus(raw: string): StrategyStatus {
+  return coerce(raw, STRATEGY_STATUSES, "draft");
+}
+
+function toProductFamily(raw: string): ProductFamily {
+  return coerce(raw, PRODUCT_FAMILIES, "generic");
+}
+
+function toPriority(raw: string): Priority {
+  return coerce(raw, PRIORITIES, "total_return");
+}
+
+function toHorizonMonths(raw: number): HorizonMonths {
+  return coerce(raw, HORIZON_MONTHS, 24);
+}
+
+function toCollateralAsset(raw: string): CollateralConfig["collateralAsset"] {
+  return coerce(raw, COLLATERAL_ASSETS, "BTC");
+}
+
+function toBorrowAsset(raw: string): CollateralConfig["borrowAsset"] {
+  return coerce(raw, BORROW_ASSETS, "USDC");
+}
+
+function toRuleScenario(raw: string): RebalancingRule["scenario"] {
+  return coerce(raw, RISK_PROFILE_KEYS, "balanced");
+}
+
+function toRuleType(raw: string): RebalancingRule["type"] {
+  return coerce(raw, RULE_TYPES, "LIQUIDATE");
+}
+
+function toTriggerMetric(raw: string): RebalancingRule["triggerMetric"] {
+  return coerce(raw, TRIGGER_METRICS, "LTV");
+}
+
+function toOperator(raw: string): RebalancingRule["operator"] {
+  return coerce(raw, OPERATORS, ">=");
+}
+
+function toActionSide(raw: string): RebalancingRule["action"]["side"] {
+  return coerce(raw, ACTION_SIDES, "HOLD");
+}
+
+function toSizingMode(raw: string): RebalancingRule["action"]["sizingMode"] {
+  return coerce(raw, SIZING_MODES, "PERCENT_OF_BTC_COLLATERAL");
+}
+
 type StrategyConfigRow = Prisma.StrategyConfigGetPayload<{
   include: { scenarios: true; collateral: true; rules: true };
 }>;
@@ -46,7 +155,7 @@ function parseNarrativeBullets(raw: Prisma.JsonValue): string[] {
 }
 
 function mapScenario(data: ScenarioRow): ProductStrategyScenario {
-  const scenarioKey = data.scenario as RiskProfileKey;
+  const scenarioKey = toRiskProfileKey(data.scenario);
   return {
     label: RISK_LABEL[scenarioKey] ?? "Balanced",
     allocation: {
@@ -56,7 +165,7 @@ function mapScenario(data: ScenarioRow): ProductStrategyScenario {
       yieldOverlayBps: data.yieldOverlayBps,
     },
     assumptions: {
-      horizonMonths: data.horizonMonths as HorizonMonths,
+      horizonMonths: toHorizonMonths(data.horizonMonths),
       btcAnnualVol: data.btcAnnualVolBps / 10000,
       volatilityMultiplier: data.volMultiplierBps / 10000,
       distributionTargetLowBps: data.distributionTargetLowBps ?? undefined,
@@ -84,11 +193,11 @@ function mapConfig(c: StrategyConfigRow): StrategyWorkspaceData | null {
     slug: c.slug,
     name: c.name,
     description: c.description,
-    status: c.status as StrategyStatus,
-    productFamily: c.productFamily as ProductFamily,
-    defaultRiskProfile: c.defaultRiskProfile as RiskProfileKey,
-    defaultHorizonMonths: c.defaultHorizonMonths as HorizonMonths,
-    defaultPriority: c.defaultPriority as Priority,
+    status: toStrategyStatus(c.status),
+    productFamily: toProductFamily(c.productFamily),
+    defaultRiskProfile: toRiskProfileKey(c.defaultRiskProfile),
+    defaultHorizonMonths: toHorizonMonths(c.defaultHorizonMonths),
+    defaultPriority: toPriority(c.defaultPriority),
     isFallback: c.isFallback,
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString(),
@@ -110,8 +219,8 @@ function mapConfig(c: StrategyConfigRow): StrategyWorkspaceData | null {
   const collateralRow = c.collateral[0];
   const collateral: CollateralConfig = collateralRow
     ? {
-        collateralAsset: collateralRow.collateralAsset as CollateralConfig["collateralAsset"],
-        borrowAsset: collateralRow.borrowAsset as CollateralConfig["borrowAsset"],
+        collateralAsset: toCollateralAsset(collateralRow.collateralAsset),
+        borrowAsset: toBorrowAsset(collateralRow.borrowAsset),
         initialBtcCollateral: Number(collateralRow.initialBtcCollateral),
         initialDebtUsdc: Number(collateralRow.initialDebtUsdc),
         initialReserveUsdc:
@@ -130,15 +239,15 @@ function mapConfig(c: StrategyConfigRow): StrategyWorkspaceData | null {
 
   const rules: RebalancingRule[] = c.rules.map((r) => ({
     id: r.id,
-    scenario: r.scenario as RebalancingRule["scenario"],
-    type: r.type as RebalancingRule["type"],
+    scenario: toRuleScenario(r.scenario),
+    type: toRuleType(r.type),
     priority: r.priority,
-    triggerMetric: r.triggerMetric as RebalancingRule["triggerMetric"],
-    operator: r.operator as RebalancingRule["operator"],
+    triggerMetric: toTriggerMetric(r.triggerMetric),
+    operator: toOperator(r.operator),
     value: Number(r.value),
     action: {
-      side: r.actionSide as RebalancingRule["action"]["side"],
-      sizingMode: r.sizingMode as RebalancingRule["action"]["sizingMode"],
+      side: toActionSide(r.actionSide),
+      sizingMode: toSizingMode(r.sizingMode),
       sizingValue: Number(r.sizingValue),
       repayDebtRatioBps: r.repayDebtRatioBps ?? undefined,
       maxLtvAfterActionBps: r.maxLtvAfterActionBps ?? undefined,
