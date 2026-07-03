@@ -181,7 +181,7 @@ export function AdminSectionCard({
       {hasSubHeader ? (
         <div className="flex items-center justify-between gap-4 border-b border-[var(--ct-border-soft)] p-5">
           <div className="flex min-w-0 flex-col gap-1">
-            {title ? <h2 className="ct-section-title">{title}</h2> : null}
+            {title ? <h1 className="ct-section-title">{title}</h1> : null}
             {subtitle ? <p className="ct-metric-caption">{subtitle}</p> : null}
           </div>
           {headerTrailing ? (
