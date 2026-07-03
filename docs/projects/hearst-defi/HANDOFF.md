@@ -134,3 +134,11 @@ Durée estimée : 3-4h.
 ---
 
 *Handoff complété : 2026-07-03*
+
+---
+
+## QA preamble check 1783093112150
+
+- Repo state at check time : branche `nexus/qa_preamble_1783093112150`, working tree clean (`git status` sans modifications en attente).
+- Dernier commit visible : `99a37f89 fix(nexus): preambule runner (force l agent a produire)` — la chaîne de fixes nexus-loop récente (mission via stdin, PR via REST API, sync nexus-loop.yml) est en place.
+- Ce check confirme que le runner CI est capable d'écrire un fichier réel dans `docs/projects/hearst-defi/` et de le laisser prêt pour commit/push/PR par le workflow (aucune action git exécutée par l'agent lui-même).
