@@ -1,31 +1,73 @@
-name: nexus-loop
+# =============================================================================
+# nexus-loop.yml — Hearst Nexus headless runner (CANONICAL TEMPLATE)
+#
+# This is the runner Nexus dispatches via workflow_dispatch. It is the SOURCE OF
+# TRUTH: copy it into each TARGET repo (e.g. Hearst-Corporation/Hearst-Defi,
+# adrien-debug/nexus-loop-sandbox) under .github/workflows/. It is dispatch-only
+# (no push/PR triggers) so it never auto-runs on the Nexus control-plane repo.
+#
+# EXECUTION — READ docs/RUNNER_INFRA.md BEFORE TOUCHING THIS:
+#   Runs on the SELF-HOSTED gpu1 runner, authenticated by the Claude Max
+#   SUBSCRIPTION (OAuth token from ~/.nexus-claude.env), NOT a metered sk-ant API
+#   key. `unset ANTHROPIC_API_KEY` forces subscription auth so no credit is spent.
+#   NEVER switch to ubuntu-latest / npm install -g @anthropic-ai/claude-code /
+#   ANTHROPIC_API_KEY — that path hits "Credit balance is too low".
+#
+# TWO MODES (input `mode`):
+#   default  (health/ux/preprod) → create branch `nexus/<run_label>`, run agents,
+#            commit, push, and OPEN a new PR into the base branch.
+#   pr_fix   → PATCH an EXISTING pull request in place: check out its existing
+#            head branch (`target_head_ref`), commit fixes, push to the SAME
+#            branch. NEVER create a new branch or a new PR. NEVER merge/close.
+#            If the remote head branch is absent → STOP (fail closed).
+#
+# PERMISSION BOUNDARY: agents edit/test/commit/push a branch and open/update a PR.
+# They NEVER merge or push the default branch, deploy, touch secrets, or run
+# destructive DB ops. Adrien merges (from the Nexus cockpit). No auto-merge.
+# =============================================================================
+name: Nexus Loop
 
-# Dispatched by Hearst Nexus. Runs a SEQUENTIAL FLEET of Claude Code agents on the
-# self-hosted GPU runner, authenticated by the Max subscription (OAuth token) — NOT
-# the API key. Each agent is a real `claude -p` pass with a distinct role; the count
-# comes from the loop's maxAgents (input `agents`). Never pushes to the default branch.
-# Workflow artifacts are kept in $RUNNER_TEMP so they never land in the PR.
 on:
   workflow_dispatch:
     inputs:
       prompt:
-        description: 'Mission for Claude Code (already carries scope + policies)'
+        description: Mission prompt forwarded verbatim to the agent(s)
         required: true
         type: string
       run_label:
-        description: 'Nexus run id / label'
-        required: false
-        default: 'manual'
+        description: Nexus run label (used for the default-mode branch name)
+        required: true
         type: string
       model:
-        description: 'Model alias (opus | sonnet | gemini)'
+        description: Model id (opus|sonnet|gemini)
         required: false
-        default: 'opus'
+        default: opus
         type: string
       agents:
-        description: 'Number of sequential Claude agents to run (fan-out fleet size)'
+        description: Number of sequential agents to run
         required: false
-        default: '1'
+        default: "1"
+        type: string
+      # ── pr_fix inputs (optional; only sent by Nexus for pr.fix runs) ──────────
+      mode:
+        description: "default | pr_fix"
+        required: false
+        default: default
+        type: string
+      target_pr_number:
+        description: (pr_fix) the PR number to patch
+        required: false
+        default: ""
+        type: string
+      target_head_ref:
+        description: (pr_fix) the EXISTING head branch to patch in place
+        required: false
+        default: ""
+        type: string
+      target_base_ref:
+        description: (pr_fix) the PR base branch (for context only; never targeted)
+        required: false
+        default: main
         type: string
 
 permissions:
@@ -39,111 +81,170 @@ concurrency:
 jobs:
   run:
     runs-on: [self-hosted, gpu1]
+    env:
+      # Fallback only. On the self-hosted runner this is normally EMPTY and the
+      # agent authenticates via the OAuth token in ~/.nexus-claude.env. It is
+      # referenced here (never inline) so target-repo copies that DO set the GH
+      # secret keep working; `unset ANTHROPIC_API_KEY` below forces subscription
+      # auth regardless. See docs/RUNNER_INFRA.md.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      MODE: ${{ inputs.mode }}
+      RUN_LABEL: ${{ inputs.run_label }}
+      MISSION: ${{ inputs.prompt }}
+      MODEL: ${{ inputs.model }}
+      AGENTS: ${{ inputs.agents }}
+      TARGET_PR: ${{ inputs.target_pr_number }}
+      TARGET_HEAD_REF: ${{ inputs.target_head_ref }}
+      TARGET_BASE_REF: ${{ inputs.target_base_ref }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Run agent fleet (sequential fan-out)
-        id: fleet
+      # ── Resolve the working branch ─────────────────────────────────────────
+      # pr_fix: check out the EXISTING head branch; STOP if it's not on the
+      # remote (refusing prevents accidentally creating a new branch/PR).
+      # default: create a fresh nexus/<run_label> branch from the current ref.
+      - name: Resolve branch
+        id: branch
         shell: bash -l {0}
         run: |
-          set -e
-          export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
-          unset ANTHROPIC_API_KEY   # force subscription auth, never metered credit
-
-          TMP="$RUNNER_TEMP"
-          N="${{ inputs.agents }}"; N="${N:-1}"
-          case "$N" in ''|*[!0-9]*) N=1 ;; esac
-          [ "$N" -lt 1 ] && N=1
-          MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
-          ROLES=(architect coder tester reviewer refactorer documenter optimizer integrator analyst hardener cleaner planner builder verifier auditor finisher)
-
-          echo "Nexus run ${{ inputs.run_label }} — fleet of $N agent(s), model $MODEL"
-          # Base checkpoint so each agent's file delta is measurable precisely.
-          BASE=$(git rev-parse HEAD)
-          echo "base=$BASE" >> "$GITHUB_OUTPUT"
-          git config user.email "nexus-bot@hearst.app"
+          set -euo pipefail
           git config user.name "nexus-bot"
-          git add -A && git commit -q --allow-empty -m "nexus base ${{ inputs.run_label }}"
-
-          : > "$TMP/agent-rows.txt"
-          for i in $(seq 0 $((N-1))); do
-            ROLE="${ROLES[$i]:-agent-$((i+1))}"
-            echo "──── agent $((i+1))/$N : $ROLE ────"
-            AGENT_PROMPT="You are the ${ROLE} agent (agent $((i+1)) of ${N}) in a sequential fleet working the same checkout. Build on the prior agents' changes; do not redo their work. ${{ inputs.prompt }}"
-            claude -p "$AGENT_PROMPT" \
-              --permission-mode acceptEdits \
-              --allowedTools "Edit,Write,Bash(npm test)" \
-              --model "$MODEL" \
-              --output-format json \
-              > "$TMP/claude-$i.json" 2> "$TMP/claude-$i.err" || true
-            if grep -q '"is_error":true' "$TMP/claude-$i.json" 2>/dev/null; then ST=error; else ST=done; fi
-            git add -A
-            NF=$(git diff --cached --name-only | wc -l | tr -d ' ')
-            git commit -q --allow-empty -m "nexus agent $i ($ROLE)"
-            echo "$i|$ROLE|$ST|$NF" >> "$TMP/agent-rows.txt"
-            echo "agent $ROLE → status=$ST files=$NF"
-          done
-          echo "---- agent-rows ----"; cat "$TMP/agent-rows.txt"
-
-      - name: Run tests (validation gate)
-        id: tests
-        shell: bash -l {0}
-        run: |
-          export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null
-          if npm test 2>&1 | tee "$RUNNER_TEMP/test-output.txt"; then
-            echo "status=done" >> "$GITHUB_OUTPUT"
+          git config user.email "nexus-bot@users.noreply.github.com"
+          if [ "$MODE" = "pr_fix" ]; then
+            if [ -z "$TARGET_HEAD_REF" ]; then
+              echo "::error::pr_fix requires target_head_ref"; exit 1
+            fi
+            if ! git ls-remote --exit-code --heads origin "$TARGET_HEAD_REF" >/dev/null 2>&1; then
+              echo "::error::Remote branch '$TARGET_HEAD_REF' not found — refusing to create a new PR."
+              exit 1
+            fi
+            git fetch origin "$TARGET_HEAD_REF"
+            git checkout -B "$TARGET_HEAD_REF" "origin/$TARGET_HEAD_REF"
+            echo "branch=$TARGET_HEAD_REF" >> "$GITHUB_OUTPUT"
+            echo "→ pr_fix mode: patching existing PR #$TARGET_PR on $TARGET_HEAD_REF"
           else
-            echo "tests failed (PR still opens for review)"
-            echo "status=error" >> "$GITHUB_OUTPUT"
+            BR="nexus/$RUN_LABEL"
+            git checkout -B "$BR"
+            echo "branch=$BR" >> "$GITHUB_OUTPUT"
+            echo "→ default mode: new branch $BR"
           fi
 
-      - name: Build manifest + PR body
+      # ── Run the agent fleet ────────────────────────────────────────────────
+      # Real Claude Code invocation on the SELF-HOSTED gpu1 runner. Authenticated
+      # by the Claude Max subscription (OAuth token in ~/.nexus-claude.env) — NOT
+      # a metered API key. `unset ANTHROPIC_API_KEY` guarantees subscription auth
+      # even if a GH secret leaked one into the env. $AGENTS sequential agents run
+      # against $MISSION; each pass sees the previous pass's edits. A failing agent
+      # invocation must NOT hard-fail the run — a no-op (empty diff) is a legitimate
+      # health-check outcome — UNLESS the failure is an account/environment error
+      # (which produces no code and must not masquerade as a clean no-op).
+      - name: Run Claude Code agents
         shell: bash -l {0}
         run: |
-          set -e
-          TMP="$RUNNER_TEMP"
-          MODEL="${{ inputs.model }}"; MODEL="${MODEL:-opus}"
-          python3 - "$MODEL" < "$TMP/agent-rows.txt" > "$TMP/agents-manifest.json" <<'PY'
-          import json, sys
-          model = sys.argv[1]
-          agents = []
-          for line in sys.stdin:
-              line = line.strip()
-              if not line:
-                  continue
-              idx, role, st, nf = line.split('|')
-              agents.append({"index": int(idx), "role": role, "model": model, "status": st, "filesTouched": int(nf)})
-          if not agents:
-              agents = [{"index": 0, "role": "agent", "model": model, "status": "done", "filesTouched": 0}]
-          print(json.dumps({"schemaVersion": 1, "model": model, "agents": agents}))
-          PY
-          echo "---- agents-manifest.json ----"; cat "$TMP/agents-manifest.json"
+          set -uo pipefail
+          export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null 2>&1 || true
+          # Load the active Claude subscription slot (OAuth token), then FORCE
+          # subscription auth by clearing any metered API key. See RUNNER_INFRA.md.
+          set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
+          unset ANTHROPIC_API_KEY   # subscription auth only, never metered credit
 
-          {
-            echo "Automated by **Hearst Nexus** loop run \`${{ inputs.run_label }}\` — fleet of ${{ inputs.agents }} agent(s)."
-            echo
-            echo "**Mission:** ${{ inputs.prompt }}"
-            echo
-            echo "Review before merge — Nexus never auto-merges."
-            echo
-            echo "<!--nexus:agents"
-            cat "$TMP/agents-manifest.json"
-            echo "nexus:agents-->"
-          } > "$TMP/pr-body.md"
+          # Map the loop model (opus|sonnet|gemini) to a Claude model id.
+          case "${MODEL:-opus}" in
+            opus)   CLAUDE_MODEL="claude-opus-4-8" ;;
+            sonnet) CLAUDE_MODEL="claude-sonnet-5" ;;
+            gemini) CLAUDE_MODEL="claude-sonnet-5"
+                    echo "::warning::model 'gemini' is not supported by Claude Code — falling back to sonnet." ;;
+            *)      CLAUDE_MODEL="claude-sonnet-5" ;;
+          esac
+          echo "Running ${AGENTS:-1} agent(s) on ${CLAUDE_MODEL} (self-hosted gpu1, subscription OAuth)"
 
-          # Collapse all per-agent checkpoint commits back to base so create-pull-request
-          # bundles the fleet's real file changes as one PR. Artifacts live in $TMP, never
-          # in the working tree, so nothing extra leaks into the PR.
-          git reset --soft "${{ steps.fleet.outputs.base }}"
+          fail=0
+          for i in $(seq 1 "${AGENTS:-1}"); do
+            echo "── Agent $i/${AGENTS:-1} ──"
+            set +e
+            out="$(claude --print \
+              --model "$CLAUDE_MODEL" \
+              --permission-mode acceptEdits \
+              --max-turns 40 \
+              "$MISSION" 2>&1)"
+            code=$?
+            set -e
+            printf '%s\n' "$out"
+            if [ $code -ne 0 ]; then
+              # Non-recoverable account/environment errors — not a no-op.
+              if printf '%s' "$out" | grep -qiE 'credit balance is too low|insufficient|quota|authentication|invalid api key|unauthorized|rate limit|oauth'; then
+                echo "::error::Agent $i failed on an account/environment error — no code was produced. Check the active slot in ~/.nexus-claude-accounts and its OAuth token."
+                fail=1
+                break
+              fi
+              echo "::warning::agent $i exited non-zero — treating as a possible no-op and continuing."
+            fi
+          done
+          if [ "$fail" -eq 1 ]; then exit 1; fi
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          branch: nexus/${{ inputs.run_label }}
-          base: main
-          title: "nexus-loop: ${{ inputs.run_label }}"
-          commit-message: "nexus-loop: apply ${{ inputs.agents }}-agent fleet changes (${{ inputs.run_label }})"
-          body-path: ${{ runner.temp }}/pr-body.md
-          delete-branch: true
+      # ── Commit + push (mode-aware) ─────────────────────────────────────────
+      - name: Commit and push
+        id: push
+        shell: bash -l {0}
+        run: |
+          set -euo pipefail
+          BRANCH="${{ steps.branch.outputs.branch }}"
+          git add -A
+          # No-diff is a clean success; if/else avoids a mid-script exit that a
+          # login shell can turn into a spurious non-zero status.
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "→ No diff — no changes were necessary / no fix was produced."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git commit -m "chore(nexus): ${MODE} run ${RUN_LABEL}"
+            # Push to the SAME branch in both modes; pr_fix pushes to the existing head.
+            git push origin "HEAD:$BRANCH"
+          fi
+
+      # ── Detect real changes (default mode only) ───────────────────────────────
+      # The index holds the fleet's staged delta. git diff --cached vs
+      # origin/<base> is the right check: it catches noise changes that weren't
+      # reverted and reports no-op when the agent touched nothing useful.
+      - name: Detect changes against base (default mode only)
+        id: detect
+        if: ${{ inputs.mode != 'pr_fix' }}
+        shell: bash -l {0}
+        run: |
+          set -euo pipefail
+          BASE_REF="${TARGET_BASE_REF:-main}"
+          git fetch origin "$BASE_REF" --quiet
+          if git diff --cached --quiet "origin/${BASE_REF}"; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "→ No staged diff vs origin/${BASE_REF} — health check no-op, skipping PR."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "→ Staged changes detected vs origin/${BASE_REF} — will open PR."
+          fi
+
+      # ── Open a PR — DEFAULT MODE ONLY, only when real changes exist. ─────────
+      - name: Open pull request (default mode only)
+        if: ${{ inputs.mode != 'pr_fix' && steps.push.outputs.changed == 'true' && steps.detect.outputs.has_changes == 'true' }}
+        shell: bash -l {0}
+        run: |
+          set -euo pipefail
+          BRANCH="${{ steps.branch.outputs.branch }}"
+          gh pr create \
+            --head "$BRANCH" \
+            --base "${TARGET_BASE_REF:-main}" \
+            --title "nexus: ${RUN_LABEL}" \
+            --body "Automated Nexus run ${RUN_LABEL}. <!--nexus:agents {\"schemaVersion\":1,\"agents\":[]} nexus:agents-->" \
+          || echo "::warning::gh pr create failed (a PR for this head may already exist)"
+
+      # ── pr_fix: report back on the EXISTING PR (no new PR) ──────────────────
+      - name: Comment on the patched PR (pr_fix mode)
+        if: ${{ inputs.mode == 'pr_fix' && steps.push.outputs.changed == 'true' && inputs.target_pr_number != '' }}
+        shell: bash -l {0}
+        run: |
+          set -euo pipefail
+          gh pr comment "$TARGET_PR" --body "Nexus pr.fix run ${RUN_LABEL} pushed fixes to ${TARGET_HEAD_REF}." \
+          || echo "::warning::could not comment on PR #$TARGET_PR"
