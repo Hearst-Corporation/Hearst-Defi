@@ -36,7 +36,7 @@
      faux positif ds-token-drift, ils cascadent du shell). */
   --ct-text-strong:  rgba(255, 255, 255, 0.94);
   --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
-  --ct-text-faint:   rgba(245, 245, 245, 0.40);
+  --ct-text-faint:   rgba(245, 245, 245, 0.62);  /* WCAG AA: 0.40 → 0.62 */
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
   --ct-figma-neutral: #747575;
   --ct-figma-accent-light: #cffdc2;
