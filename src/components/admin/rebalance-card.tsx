@@ -10,6 +10,14 @@ import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { BentoPanel } from "@/components/catalyst/bento";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
+import {
   approveRebalance,
   rejectRebalance,
   executeRebalance,
@@ -92,65 +100,63 @@ function AllocationDiffTable({
   if (buckets.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[var(--ct-border)] bg-surface-inset">
-      <table className="w-full table-fixed text-left tabular-nums">
-        <thead>
-          <tr className="border-b border-[var(--ct-border-soft)]">
-            <th className="ct-bento-label w-[34%] px-5 py-3 text-left">
-              Bucket
-            </th>
-            <th className="ct-bento-label w-[22%] px-5 py-3 text-right">
-              Current %
-            </th>
-            <th className="ct-bento-label w-[22%] px-5 py-3 text-right">
-              Target %
-            </th>
-            <th className="ct-bento-label w-[22%] px-5 py-3 text-right">
-              Delta
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {buckets.map((bucket) => {
-            const f = from.find((b) => b.bucket === bucket);
-            const t = to.find((b) => b.bucket === bucket);
-            const fromPct = f?.pct ?? 0;
-            const toPct = t?.pct ?? 0;
-            const delta = toPct - fromPct;
+    <Table className="rounded-2xl border border-[var(--ct-border)] bg-surface-inset [&_table]:table-fixed [&_table]:tabular-nums">
+      <TableHead>
+        <TableRow className="border-b border-[var(--ct-border-soft)]">
+          <TableHeader className="ct-bento-label w-[34%] px-5 py-3 text-left">
+            Bucket
+          </TableHeader>
+          <TableHeader className="ct-bento-label w-[22%] px-5 py-3 text-right">
+            Current %
+          </TableHeader>
+          <TableHeader className="ct-bento-label w-[22%] px-5 py-3 text-right">
+            Target %
+          </TableHeader>
+          <TableHeader className="ct-bento-label w-[22%] px-5 py-3 text-right">
+            Delta
+          </TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {buckets.map((bucket) => {
+          const f = from.find((b) => b.bucket === bucket);
+          const t = to.find((b) => b.bucket === bucket);
+          const fromPct = f?.pct ?? 0;
+          const toPct = t?.pct ?? 0;
+          const delta = toPct - fromPct;
 
-            return (
-              <tr
-                key={bucket}
-                className="border-b border-[var(--ct-border-soft)] last:border-0"
+          return (
+            <TableRow
+              key={bucket}
+              className="border-b border-[var(--ct-border-soft)] last:border-0"
+            >
+              <TableCell className="ct-metric-caption truncate px-5 py-3 font-mono capitalize">
+                {bucket.replace(/_/g, " ")}
+              </TableCell>
+              <TableCell className="ct-metric-caption px-5 py-3 text-right">
+                {fromPct.toFixed(1)}%
+              </TableCell>
+              <TableCell className="ct-metric-caption px-5 py-3 text-right text-[var(--ct-text-secondary)]">
+                {toPct.toFixed(1)}%
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "ct-metric-caption px-5 py-3 text-right font-semibold",
+                  delta > 0
+                    ? "text-[var(--ct-accent)]"
+                    : delta < 0
+                      ? "text-[var(--ct-status-danger)]"
+                      : "text-[var(--ct-text-secondary)]",
+                )}
               >
-                <td className="ct-metric-caption truncate px-5 py-3 font-mono capitalize">
-                  {bucket.replace(/_/g, " ")}
-                </td>
-                <td className="ct-metric-caption px-5 py-3 text-right">
-                  {fromPct.toFixed(1)}%
-                </td>
-                <td className="ct-metric-caption px-5 py-3 text-right text-[var(--ct-text-secondary)]">
-                  {toPct.toFixed(1)}%
-                </td>
-                <td
-                  className={cn(
-                    "ct-metric-caption px-5 py-3 text-right font-semibold",
-                    delta > 0
-                      ? "text-[var(--ct-accent)]"
-                      : delta < 0
-                        ? "text-[var(--ct-status-danger)]"
-                        : "text-[var(--ct-text-secondary)]",
-                  )}
-                >
-                  {delta > 0 ? "+" : ""}
-                  {delta.toFixed(1)}%
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                {delta > 0 ? "+" : ""}
+                {delta.toFixed(1)}%
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }
 
