@@ -44,7 +44,7 @@ export const Input = forwardRef(function Input(
         // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
         'dark:before:hidden',
         // Focus ring
-        'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-[var(--ct-accent)]',
+        'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset focus-within:after:ring-2 focus-within:after:ring-[var(--ct-accent)]',
         // Disabled state
         'has-data-disabled:opacity-[var(--ct-opacity-50)] has-data-disabled:before:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] has-data-disabled:before:shadow-none',
       ])}
