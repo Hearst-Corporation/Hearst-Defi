@@ -1,3 +1,11 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { truncateWallet } from "@/lib/wallet-display";
 import { formatAdminRollingTimestamp } from "@/lib/vaults/product-display";
@@ -30,39 +38,32 @@ export function AuditTrailRolling({ entries }: AuditTrailRollingProps) {
   }
 
   return (
-    <div aria-label="Audit trail" className="overflow-x-auto">
-      {/* table-fixed + explicit per-column widths so the columns don't all get
-          an equal 1/5 share (which let long Action/Entity/Actor values overflow
-          and overlap the next column). Widths are responsive-aware: Entity is
-          md+, Entity ID is lg+, so the remaining columns widen when those are
-          hidden. Every cell truncates, so nothing can spill past its column. */}
-      <table className="w-full table-fixed" aria-label="Audit trail">
-        <thead>
-          <tr className="border-b border-[var(--ct-border-soft)]">
-            <th className="w-[28%] truncate text-left px-3 py-2 ct-bento-label md:w-[22%] lg:w-[16%]">
-              Time
-            </th>
-            <th className="w-[34%] truncate text-left px-3 py-2 ct-bento-label md:w-[24%] lg:w-[18%]">
-              Actor
-            </th>
-            <th className="w-[38%] truncate text-left px-3 py-2 ct-bento-label md:w-[26%] lg:w-[24%]">
-              Action
-            </th>
-            <th className="hidden w-[28%] truncate text-left px-3 py-2 ct-bento-label md:table-cell lg:w-[24%]">
-              Entity
-            </th>
-            <th className="hidden w-[18%] truncate text-left px-3 py-2 ct-bento-label lg:table-cell">
-              Entity ID
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map((entry) => (
-            <AuditRow key={entry.id} entry={entry} />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table aria-label="Audit trail" className="table-fixed">
+      <TableHead>
+        <TableRow className="border-b border-[var(--ct-border-soft)]">
+          <TableHeader className="w-[28%] truncate text-left px-3 py-2 ct-bento-label md:w-[22%] lg:w-[16%]">
+            Time
+          </TableHeader>
+          <TableHeader className="w-[34%] truncate text-left px-3 py-2 ct-bento-label md:w-[24%] lg:w-[18%]">
+            Actor
+          </TableHeader>
+          <TableHeader className="w-[38%] truncate text-left px-3 py-2 ct-bento-label md:w-[26%] lg:w-[24%]">
+            Action
+          </TableHeader>
+          <TableHeader className="hidden w-[28%] truncate text-left px-3 py-2 ct-bento-label md:table-cell lg:w-[24%]">
+            Entity
+          </TableHeader>
+          <TableHeader className="hidden w-[18%] truncate text-left px-3 py-2 ct-bento-label lg:table-cell">
+            Entity ID
+          </TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {entries.map((entry) => (
+          <AuditRow key={entry.id} entry={entry} />
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -73,22 +74,22 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
     : entry.entityId;
 
   return (
-    <tr className="group border-b border-[var(--ct-border-soft)] last:border-b-0 cursor-default transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
-      <td className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] tabular-nums">
+    <TableRow className="group border-b border-[var(--ct-border-soft)] last:border-b-0 cursor-default transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]">
+      <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] tabular-nums">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
-      </td>
-      <td className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-[var(--ct-text-faint)] group-hover:text-[var(--ct-text-muted)]">
+      </TableCell>
+      <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-[var(--ct-text-faint)] group-hover:text-[var(--ct-text-muted)]">
         {wallet}
-      </td>
-      <td className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] uppercase">
+      </TableCell>
+      <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] uppercase">
         {entry.action}
-      </td>
-      <td className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] uppercase md:table-cell">
+      </TableCell>
+      <TableCell className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] uppercase md:table-cell">
         {entry.entityType}
-      </td>
-      <td className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-[var(--ct-text-faint)] lg:table-cell">
+      </TableCell>
+      <TableCell className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-[var(--ct-text-faint)] lg:table-cell">
         {entityId}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
