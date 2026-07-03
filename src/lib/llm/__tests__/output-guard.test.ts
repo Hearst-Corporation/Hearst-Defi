@@ -32,6 +32,28 @@ describe("chatOutputViolation — forbidden vocabulary", () => {
       chatOutputViolation("Projection conditionnelle, sans garantie de résultat.", true),
     ).toBeNull();
   });
+
+  // Prod bug: "What are the primary risks of this vault?" was answered honestly
+  // but blocked as "forbidden_words" — the answer uses negated forbidden words
+  // ("we cannot guarantee", "not risk-free", "will deliver ... only if").
+  it.each([
+    "The primary risks are BTC drawdowns, hashprice compression, and smart-contract risk. This vault is not risk-free and returns are not guaranteed.",
+    "Key risks: mining yield can fall, BTC can lose value, and there is no guarantee your capital is protected.",
+    "Main risks include liquidity and market risk; we do not promise or guarantee any specific return.",
+    "We cannot promise the vault will deliver any specific return.",
+    "The vault doesn't guarantee returns and is not risk-free.",
+  ])("does NOT block an honest risk disclaimer: %s", (answer) => {
+    expect(chatOutputViolation(answer, true)).toBeNull();
+  });
+
+  it.each([
+    "This vault is risk-free.",
+    "We guarantee 12% returns.",
+    "The vault will deliver 12% every year.",
+    "We do not charge fees, and we guarantee 12% returns.",
+  ])("STILL blocks a genuine forbidden claim: %s", (answer) => {
+    expect(chatOutputViolation(answer, true)).toBe("forbidden_words");
+  });
 });
 
 describe("chatOutputViolation — product education is allowed (compliant phrasing)", () => {

@@ -451,6 +451,57 @@ describe("containsForbiddenChat — AFTER-window negation does NOT exempt", () =
 });
 
 // ---------------------------------------------------------------------------
+// BUG (prod) — honest RISK disclaimers were wrongly blocked.
+//
+// "What are the primary risks of this vault?" → the model answers with a
+// truthful, NEGATIVE use of forbidden words ("we cannot guarantee", "the vault
+// will deliver ... only if", "not risk-free"). Two root causes:
+//   1. The negation set lacked modal / contracted negations (cannot, can't,
+//      won't, doesn't) — so "we cannot guarantee X" fired.
+//   2. The BEFORE window was a fixed 3 words, so a negation separated from the
+//      needle by a subject clause ("we cannot promise the vault WILL DELIVER
+//      any return") was out of range and fired.
+// Fix: add the modal negations + bound the BEFORE scan to the current clause
+// (stops at , ; : . ! ? / newline) so an in-clause negation exempts, while a
+// negation in a PRIOR clause still cannot launder a real claim.
+// ---------------------------------------------------------------------------
+
+describe("containsForbiddenChat — honest risk disclaimers are NOT blocked", () => {
+  it.each([
+    "The primary risks are BTC drawdowns, hashprice compression, and smart-contract risk. This vault is not risk-free and returns are not guaranteed.",
+    "Key risks: mining yield can fall, BTC can lose value, and there is no guarantee your capital is protected.",
+    "Main risks include liquidity and market risk; we do not promise or guarantee any specific return.",
+    "There is no guarantee against loss of capital.",
+    "We cannot promise the vault will deliver any specific return.",
+    "We can't guarantee any return.",
+    "We won't promise a fixed yield.",
+    "The vault doesn't guarantee returns.",
+    "We cannot guarantee the vault will preserve capital.",
+    "No product can promise you a fixed return.",
+  ])("passes an honest risk answer clean: %s", (text) => {
+    expect(containsForbiddenChat(text)).toBeNull();
+  });
+});
+
+describe("containsForbiddenChat — real claims STILL blocked (no guard hole)", () => {
+  it.each([
+    "This vault is risk-free.",
+    "We guarantee 12% returns.",
+    "Returns are guaranteed.",
+    "The vault will deliver 12% every year.",
+    "We promise a fixed return.",
+    "Le rendement est garanti.",
+    "C'est un placement sans risque.",
+    // negation in a PRIOR clause must NOT exempt a genuine claim
+    "We do not charge management fees, and we guarantee 12% returns.",
+    "There is no lock-up penalty; the vault will deliver 12% every month.",
+    "We never sell your data. We guarantee a fixed 12% return.",
+  ])("still flags the forbidden claim: %s", (text) => {
+    expect(containsForbiddenChat(text)).not.toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // BUG — curation holes: assured / certain (multi-word) / zero-risk / protected
 // ---------------------------------------------------------------------------
 

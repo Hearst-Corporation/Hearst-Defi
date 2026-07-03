@@ -142,8 +142,40 @@ export interface ForbiddenScanResult {
   found: ForbiddenWord[];
 }
 
-/** English negation vocabulary — the default, used by `containsForbidden`. */
-const EN_NEGATIONS = new Set(["not", "no", "never", "without"]);
+/** English negation vocabulary — the default, used by `containsForbidden`.
+ *  Includes the modal / contracted negations that carry the disclaimer in
+ *  natural compliance prose ("we CANNOT guarantee", "the vault DOESN'T
+ *  guarantee returns", "we WON'T promise a fixed yield"). Contractions are
+ *  listed in their `stripPunct`-normalised form (apostrophe removed) because
+ *  the negation lookup runs on `stripPunct(word)` — so `can't` → `cant`,
+ *  `won't` → `wont`, `doesn't` → `doesnt`. Without these a perfectly honest
+ *  "we cannot guarantee X" answer was flagged as a forbidden claim (the old
+ *  set only had the bare adverbs "not"/"no"/"never"/"without"). */
+const EN_NEGATIONS = new Set([
+  "not",
+  "no",
+  "never",
+  "without",
+  // modal + auxiliary negations (spelled-out and contracted → apostrophe-stripped)
+  "cannot",
+  "cant",
+  "wont",
+  "dont",
+  "doesnt",
+  "didnt",
+  "isnt",
+  "arent",
+  "wasnt",
+  "werent",
+  "couldnt",
+  "wouldnt",
+  "shouldnt",
+  "hasnt",
+  "havent",
+  "hadnt",
+  "neither",
+  "nor",
+]);
 
 /** Chat negation vocabulary — English ∪ French, used by `containsForbiddenChat`
  *  so French disclaimers ("non garanti", "sans garantie", "aucune garantie",
@@ -225,19 +257,55 @@ function startsWithNegation(needle: string, negations: Set<string>): boolean {
 }
 
 /**
+ * Index of the start of the CLAUSE that `index` sits in: the position just
+ * after the last clause-breaking punctuation (`, ; : . ! ?` or newline) before
+ * `index`, or 0 if none. Used to bound the BEFORE negation scan to the current
+ * clause so a negation that governs the match ("we cannot promise the vault
+ * will deliver X") exempts it, while a negation in a PRIOR clause ("we do not
+ * charge fees, and we guarantee 12 %") does NOT leak across the boundary and
+ * launder a genuine claim.
+ */
+function clauseStart(text: string, index: number): number {
+  for (let i = index - 1; i >= 0; i--) {
+    const c = text.charCodeAt(i);
+    // , ; : . ! ?  or \n
+    if (
+      c === 44 ||
+      c === 59 ||
+      c === 58 ||
+      c === 46 ||
+      c === 33 ||
+      c === 63 ||
+      c === 10
+    ) {
+      return i + 1;
+    }
+  }
+  return 0;
+}
+
+/**
  * Returns `true` when a match at `[index, index+matchLength)` is exempted
- * because a negation word from `negations` appears within a 3-word window
- * BEFORE the match — and, when `checkAfter` is `true`, the 3-word window AFTER
- * the match as well.
+ * because a negation word from `negations` appears BEFORE the match anywhere in
+ * the SAME clause (bounded by clause-breaking punctuation `, ; : . ! ?` /
+ * newline, or the text start) — and, when `checkAfter` is `true`, within the
+ * 3-word window AFTER the match as well.
  *
- * The window is clamped to 100 chars on each side; words split on whitespace
- * or hyphens so "money-back guarantee, not applicable" surfaces "not".
+ * The BEFORE scan is clause-bounded rather than a fixed 3-word window: honest
+ * risk disclaimers legitimately separate the negation from the needle by a
+ * subject clause ("we cannot promise the vault WILL DELIVER any specific
+ * return", "the vault DOESN'T guarantee returns"). A fixed 3-word window missed
+ * those and blocked a compliant answer. Bounding on clause punctuation keeps a
+ * negation in a DIFFERENT clause from exempting a real claim ("we do not charge
+ * fees, and we GUARANTEE 12 %" stays blocked). Words split on whitespace or
+ * hyphens so "money-back guarantee, not applicable" surfaces "not". The before
+ * slice is still clamped to 100 chars for a bounded scan cost.
  *
  * `checkAfter` rationale: the EN matcher relies on bidirectional exemption
  * ("money-back guarantee, not applicable" must pass), so it sets
  * `checkAfter: true`. The French chat matcher MUST NOT exempt on a trailing
  * negation — "garanti, sans aucun doute" is a non-compliant claim, not a
- * disclaimer — so it sets `checkAfter: false` (BEFORE-window only).
+ * disclaimer — so it sets `checkAfter: false` (BEFORE-clause only).
  *
  * Needles that themselves START with a negation word (e.g. "no risk",
  * "sans risque") are never exempted, because the negation prefix is the needle.
@@ -265,8 +333,12 @@ function isNegated(
   }
 
   const WINDOW = 3;
-  const before = text.slice(Math.max(0, index - 100), index);
-  const beforeWords = before.split(/[\s-]+/).filter(Boolean).slice(-WINDOW);
+  // BEFORE: scan every word from the start of the current clause up to the
+  // match (clamped to 100 chars). A clause boundary stops the scan, so a
+  // negation in a prior clause never exempts a genuine claim.
+  const beforeFrom = Math.max(clauseStart(text, index), index - 100);
+  const before = text.slice(beforeFrom, index);
+  const beforeWords = before.split(/[\s-]+/).filter(Boolean);
 
   if (beforeWords.some((w) => negations.has(stripPunct(w)))) return true;
   if (!checkAfter) return false;
