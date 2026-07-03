@@ -130,7 +130,7 @@ function ObjectiveInterpretation({
   const summary = [family, risk, income, horizon].filter(Boolean).join(" · ");
 
   return (
-    <section className="flex flex-col gap-(--ct-space-2) pb-(--ct-space-6)">
+    <section className="flex flex-col gap-(--ct-space-2)">
       <SectionLabel>Objective interpretation</SectionLabel>
       <p className="body-sm ct-text-strong [overflow-wrap:anywhere]">{summary}</p>
       {strategySelection ? (
@@ -322,7 +322,7 @@ function StrategyHeader({
   selection: NonNullable<ProductConstructionDraft["strategySelection"]>;
 }) {
   return (
-    <section className="flex flex-col gap-(--ct-space-2) pb-(--ct-space-6)">
+    <section className="flex flex-col gap-(--ct-space-2)">
       <SectionLabel>Selected strategy</SectionLabel>
       <div className="flex flex-wrap items-baseline gap-x-(--ct-space-3) gap-y-(--ct-space-1)">
         <span className="text-[length:var(--ct-text-lg)] font-semibold ct-text-strong [overflow-wrap:anywhere]">
@@ -347,7 +347,7 @@ function StrategyHeader({
 function ExecutiveBullets({ bullets }: { bullets: string[] }) {
   if (bullets.length === 0) return null;
   return (
-    <section className="flex flex-col gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+    <section className="flex flex-col gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
       <SectionLabel>Executive summary</SectionLabel>
       <ul className="flex flex-col gap-(--ct-space-1_5) body-sm ct-text-body">
         {bullets.map((b, i) => (
@@ -416,21 +416,26 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
   ];
 
   return (
-    <div className="flex flex-col">
-      {/* 1 — Selected strategy header (what + why), first. */}
-      {draft.strategySelection ? <StrategyHeader selection={draft.strategySelection} /> : null}
+    // Dense one-pager grid: 12 cols on lg+, single column on mobile. Sections are
+    // "bare" zones separated by grid gap + column hairlines — no nested cards.
+    <div className="grid grid-cols-1 items-start gap-(--ct-space-6) lg:grid-cols-12">
+      {/* ── TOP, full width: Selected strategy header + KPI decision strip ── */}
+      <div className="flex min-w-0 flex-col gap-(--ct-space-5) lg:col-span-12">
+        {/* 1 — Selected strategy header (what + why), first. */}
+        {draft.strategySelection ? <StrategyHeader selection={draft.strategySelection} /> : null}
 
-      {/* 2 — KPI summary strip — the decision metrics, immediately. */}
-      <section className="border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
-        <BentoKpiStrip ariaLabel="Report summary KPIs" items={kpis} />
-        <p className="pt-(--ct-space-3) text-[length:var(--ct-text-2xs)] ct-text-faint">
-          Conditional on the stated assumptions — not guaranteed.
-        </p>
-      </section>
+        {/* 2 — KPI summary strip — the decision metrics, immediately. */}
+        <section className="border-t border-[var(--ct-border-soft)] pt-(--ct-space-6)">
+          <BentoKpiStrip ariaLabel="Report summary KPIs" items={kpis} />
+          <p className="pt-(--ct-space-3) text-[length:var(--ct-text-2xs)] ct-text-faint">
+            Conditional on the stated assumptions — not guaranteed.
+          </p>
+        </section>
+      </div>
 
-      {/* 3 — Projection fan (the real p5/p50/p95, in %). */}
+      {/* ── MIDDLE ROW: Projection fan (wide, 8) beside Executive bullets (4) ── */}
       {fan ? (
-        <section className="flex flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+        <section className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6) lg:col-span-8">
           <div className="flex items-baseline justify-between gap-(--ct-space-4)">
             <div className="flex min-w-0 items-center gap-(--ct-space-3)">
               <SectionLabel>{fan.title}</SectionLabel>
@@ -449,9 +454,14 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
         </section>
       ) : null}
 
-      {/* 4 — Allocation FIRST: the three RISK PROFILES only (Safe / Balanced /
-          Opportunistic). Balanced is the base case. No fourth canonical card. */}
-      <section className="flex flex-col gap-(--ct-space-6) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+      {/* Executive bullets — beside the chart, filling the right column. */}
+      <div className={fan ? "min-w-0 lg:col-span-4" : "min-w-0 lg:col-span-12"}>
+        <ExecutiveBullets bullets={bullets} />
+      </div>
+
+      {/* ── ALLOCATION ROW, full width: three risk profiles (Safe / Balanced /
+          Opportunistic). Keeps its own internal 3-col grid. ── */}
+      <section className="flex min-w-0 flex-col gap-(--ct-space-6) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6) lg:col-span-12">
         <SectionLabel>Allocation — risk profiles</SectionLabel>
         <div className="grid gap-x-(--ct-space-6) gap-y-(--ct-space-8) sm:grid-cols-2 lg:grid-cols-3">
           {scenarios.map((scenario) => (
@@ -479,22 +489,12 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
         </div>
       </section>
 
-      {/* 5 — Executive bullets (short, institutional). */}
-      <ExecutiveBullets bullets={bullets} />
-
-      {/* 6 — Objective / strategy interpretation (moved down from the top). */}
-      {draft.objectiveProfile ? (
-        <ObjectiveInterpretation
-          profile={draft.objectiveProfile}
-          adjustments={draft.objectiveAdjustments ?? []}
-          strategySelection={draft.strategySelection}
-        />
-      ) : null}
-
+      {/* ── BOTTOM ROW: Monte-Carlo dispersion (7) beside Targets + Objective
+          interpretation (5) — fill the width, don't stack. ── */}
       {/* 7 — Monte-Carlo dispersion — INDEXED (base 100), not $. The paths are an
           illustrative dispersion texture, not a capital amount (audit: the $100k
           base was purely a UI anchor, never a real investor projection). */}
-      <section className="flex flex-col gap-(--ct-space-4) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
+      <section className="flex min-w-0 flex-col gap-(--ct-space-4) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6) lg:col-span-7">
         <div className="flex flex-wrap items-baseline justify-between gap-(--ct-space-3)">
           <SectionLabel>Dispersion (Monte-Carlo · indexed)</SectionLabel>
           <span className="mono text-[length:var(--ct-text-xs)] tabular-nums ct-text-tertiary">
@@ -517,28 +517,43 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
         />
       </section>
 
-      {/* 8 — Targets + assumptions detail (the longer prose lives here, below). */}
-      <section className="flex flex-col gap-(--ct-space-4) border-t border-[var(--ct-border-soft)] py-(--ct-space-6)">
-        <div className="grid gap-(--ct-space-4) sm:grid-cols-2">
-          <div className="flex flex-col gap-(--ct-space-1)">
-            <SectionLabel>Monthly distribution target</SectionLabel>
-            <span className="body-sm ct-text-body">{targets.distribution}</span>
+      {/* Targets + Objective interpretation — beside the dispersion chart. */}
+      <div className="flex min-w-0 flex-col gap-(--ct-space-6) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6) lg:col-span-5">
+        <section className="flex flex-col gap-(--ct-space-4)">
+          <div className="grid gap-(--ct-space-4) sm:grid-cols-2">
+            <div className="flex flex-col gap-(--ct-space-1)">
+              <SectionLabel>Monthly distribution target</SectionLabel>
+              <span className="body-sm ct-text-body">{targets.distribution}</span>
+            </div>
+            <div className="flex flex-col gap-(--ct-space-1)">
+              <SectionLabel>Total performance target</SectionLabel>
+              <span className="body-sm ct-text-body">{targets.total}</span>
+            </div>
           </div>
-          <div className="flex flex-col gap-(--ct-space-1)">
-            <SectionLabel>Total performance target</SectionLabel>
-            <span className="body-sm ct-text-body">{targets.total}</span>
-          </div>
-        </div>
-        <p className="text-[length:var(--ct-text-nano)] ct-text-faint">
-          The total target is inclusive of the distributions — the two layers never sum.
-        </p>
-        <div className="flex flex-col gap-(--ct-space-3) pt-(--ct-space-2)">
-          <SectionLabel>
-            Thesis · {draft.writeup.llmAuthored ? "written by the data scientist" : "deterministic draft"}
-          </SectionLabel>
+          <p className="text-[length:var(--ct-text-nano)] ct-text-faint">
+            The total target is inclusive of the distributions — the two layers never sum.
+          </p>
+        </section>
+
+        {/* 6 — Objective / strategy interpretation. */}
+        {draft.objectiveProfile ? (
+          <ObjectiveInterpretation
+            profile={draft.objectiveProfile}
+            adjustments={draft.objectiveAdjustments ?? []}
+            strategySelection={draft.strategySelection}
+          />
+        ) : null}
+      </div>
+
+      {/* ── LAST, full width: the longer thesis prose, in two text columns. ── */}
+      <section className="flex min-w-0 flex-col gap-(--ct-space-4) border-t border-[var(--ct-border-soft)] pt-(--ct-space-6) lg:col-span-12">
+        <SectionLabel>
+          Thesis · {draft.writeup.llmAuthored ? "written by the data scientist" : "deterministic draft"}
+        </SectionLabel>
+        <div className="lg:columns-2 lg:gap-(--ct-space-8) [&_*]:break-inside-avoid">
           <Markdown content={draft.writeup.prose} />
         </div>
-        <p className="pt-(--ct-space-2) text-[length:var(--ct-text-xs)] ct-text-tertiary leading-relaxed">
+        <p className="text-[length:var(--ct-text-xs)] ct-text-tertiary leading-relaxed">
           {draft.disclaimer}
         </p>
       </section>
