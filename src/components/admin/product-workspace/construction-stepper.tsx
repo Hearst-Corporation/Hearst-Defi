@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { TokenIcon } from "@web3icons/react/dynamic";
 
 import { cn } from "@/lib/cn";
 import { manufacturerOf } from "@/lib/telegram/manufacturer-catalog";
@@ -328,8 +329,80 @@ const BRAND_LOGOS: Record<BrandId, { label: string; src: string; lightChip?: boo
   mempool: { label: "mempool.space", src: "/sources/mempool.svg" },
 };
 
-/** Brand logo on a neutral round chip — original colours, never tinted. */
+/**
+ * Crypto TOKENS rendered from the official `@web3icons/react` set (branded logos),
+ * keyed by their BrandId. Only real tokens live here — company/brand marks
+ * (exchanges, data providers, miner manufacturers, mining pools) keep their
+ * `/sources/*` asset via {@link BRAND_LOGOS} and are NOT in this map.
+ *
+ * `symbol` covers the tokens indexed by @web3icons; `address`+`network` covers a
+ * token addressed on-chain. `ethena` (ENA) and `morpho` are not yet in the
+ * package's metadata at this version, so they carry no lookup key and fall back
+ * to their official `/sources/*.svg` asset (see the `fallback` below) — the chip
+ * still shows the real logo, never a broken/empty icon.
+ */
+type TokenSpec =
+  | { symbol: string; address?: never; network?: never }
+  | { symbol?: never; address: string; network: string }
+  | { symbol?: never; address?: never; network?: never };
+
+const CRYPTO_TOKENS: Partial<Record<BrandId, TokenSpec>> = {
+  bitcoin: { symbol: "btc" },
+  usdc: { symbol: "usdc" },
+  aave: { symbol: "aave" },
+  compound: { symbol: "comp" },
+  // Not indexed by symbol in @web3icons — addressed on-chain.
+  morpho: { address: "0x9994E35Db50125E0DF82e4c2dde62496CE330999", network: "ethereum" },
+  // Not resolvable at this @web3icons version — falls back to /sources/ethena.svg.
+  ethena: {},
+};
+
+/** Crypto token icon (branded) on the same neutral round chip as BrandLogo. */
+function TokenChip({ id, size = 28 }: { id: BrandId; size?: number }) {
+  const brand = BRAND_LOGOS[id];
+  const spec = CRYPTO_TOKENS[id]!;
+  const fallback = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={brand.src}
+      alt={brand.label}
+      width={size}
+      height={size}
+      loading="lazy"
+      decoding="async"
+      className="h-full w-full object-contain"
+    />
+  );
+  return (
+    <span
+      title={brand.label}
+      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--ct-border)] bg-[var(--ct-surface-inset)]"
+      style={{ width: size, height: size }}
+    >
+      {"symbol" in spec && spec.symbol ? (
+        <TokenIcon symbol={spec.symbol} variant="branded" size={size} fallback={fallback} />
+      ) : "address" in spec && spec.address ? (
+        <TokenIcon
+          address={spec.address}
+          network={spec.network}
+          variant="branded"
+          size={size}
+          fallback={fallback}
+        />
+      ) : (
+        fallback
+      )}
+    </span>
+  );
+}
+
+/** Brand logo on a neutral round chip — original colours, never tinted. Crypto
+ *  TOKENS route to {@link TokenChip} (official @web3icons); company/brand marks
+ *  keep their downloaded `/sources/*` asset. */
 function BrandLogo({ id, size = 28 }: { id: BrandId; size?: number }) {
+  if (id in CRYPTO_TOKENS) {
+    return <TokenChip id={id} size={size} />;
+  }
   const brand = BRAND_LOGOS[id];
   return (
     <span
