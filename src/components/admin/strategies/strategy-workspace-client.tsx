@@ -28,6 +28,14 @@ import { AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
+import {
   SegmentedControl,
   type SegmentedItem,
 } from "@/components/catalyst/segmented-control";
@@ -623,24 +631,24 @@ export function StrategyWorkspaceClient({
             </div>
 
             <div className="min-w-0 overflow-x-auto">
-              <table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
-                <thead>
-                  <tr className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
-                    <th className="p-(--ct-space-2) text-left">Candidate</th>
-                    <th className="p-(--ct-space-2) text-left">Mix</th>
-                    <th className="p-(--ct-space-2) text-right">p50 ROI</th>
-                    <th className="p-(--ct-space-2) text-right">p5</th>
-                    <th className="p-(--ct-space-2) text-right">p95</th>
-                    <th className="p-(--ct-space-2) text-right">Delever prob.</th>
-                    <th className="p-(--ct-space-2) text-right">Max DD</th>
-                    <th className="p-(--ct-space-2) text-right">Max LTV</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+                <TableHead>
+                  <TableRow className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                    <TableHeader className="p-(--ct-space-2) text-left">Candidate</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-left">Mix</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-right">p50 ROI</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-right">p5</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-right">p95</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-right">Delever prob.</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-right">Max DD</TableHeader>
+                    <TableHeader className="p-(--ct-space-2) text-right">Max LTV</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {candidateRuns.map(({ candidate: c, metrics: m }) => {
                     const isFocused = c.key === focusKey;
                     return (
-                      <tr
+                      <TableRow
                         key={c.key}
                         onClick={() => setFocusKey(c.key)}
                         aria-selected={isFocused}
@@ -651,7 +659,7 @@ export function StrategyWorkspaceClient({
                             : "hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]",
                         )}
                       >
-                        <td className="p-(--ct-space-2)">
+                        <TableCell className="p-(--ct-space-2)">
                           <span className="flex items-center gap-(--ct-space-2)">
                             <span
                               aria-hidden
@@ -662,27 +670,27 @@ export function StrategyWorkspaceClient({
                               {c.label}
                             </span>
                           </span>
-                        </td>
-                        <td className="p-(--ct-space-2) min-w-32">
+                        </TableCell>
+                        <TableCell className="p-(--ct-space-2) min-w-32">
                           <AllocationMiniBar allocation={c.allocation} showLegend={false} />
-                        </td>
-                        <td className={cn("p-(--ct-space-2) text-right", c.p50RoiBps >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]")}>
+                        </TableCell>
+                        <TableCell className={cn("p-(--ct-space-2) text-right", c.p50RoiBps >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]")}>
                           {bps(c.p50RoiBps)}
-                        </td>
-                        <td className="p-(--ct-space-2) text-right ct-text-body">{bps(c.p5RoiBps)}</td>
-                        <td className="p-(--ct-space-2) text-right ct-text-body">{bps(c.p95RoiBps)}</td>
-                        <td className={cn("p-(--ct-space-2) text-right", c.liquidationProbabilityBps > 2500 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+                        </TableCell>
+                        <TableCell className="p-(--ct-space-2) text-right ct-text-body">{bps(c.p5RoiBps)}</TableCell>
+                        <TableCell className="p-(--ct-space-2) text-right ct-text-body">{bps(c.p95RoiBps)}</TableCell>
+                        <TableCell className={cn("p-(--ct-space-2) text-right", c.liquidationProbabilityBps > 2500 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
                           {bps(c.liquidationProbabilityBps)}
-                        </td>
-                        <td className="p-(--ct-space-2) text-right ct-text-body">{bps(m.maxDrawdownBps)}</td>
-                        <td className={cn("p-(--ct-space-2) text-right", m.maxLtvBps > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+                        </TableCell>
+                        <TableCell className="p-(--ct-space-2) text-right ct-text-body">{bps(m.maxDrawdownBps)}</TableCell>
+                        <TableCell className={cn("p-(--ct-space-2) text-right", m.maxLtvBps > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
                           {bps(m.maxLtvBps)}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
 
             <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
