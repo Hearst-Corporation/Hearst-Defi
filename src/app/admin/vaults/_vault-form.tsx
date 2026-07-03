@@ -12,6 +12,7 @@ import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { SHARE_CLASS_A } from "@/lib/engine/share-class";
+import { BENTO_INPUT } from "@/components/admin/outreach/bento-form";
 import { cn } from "@/lib/cn";
 import {
   createDraftVault,
@@ -114,16 +115,15 @@ function isValidSigner(raw: string): boolean {
   return /^0x[0-9a-fA-F]{40}$/.test(v) || /^[a-z0-9]{25}$/.test(v);
 }
 
-// Bento form chrome — sub-surface input on #15191C, micro uppercase labels,
-// accent (#A7FB90) focus ring. One source for every native control in the form.
-const BENTO_INPUT =
-  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-4 py-2.5 text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
+// Bento form chrome — shared sub-surface input (BENTO_INPUT), overridden to the
+// denser text-xs variant this wizard uses. Micro uppercase labels, accent
+// (#A7FB90) focus ring. One source for every native control in the form.
 const BENTO_FIELD_HINT = "text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]";
 const BENTO_LABEL =
   "text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em] text-[var(--ct-text-faint)]";
 
 function inputClass(extra?: string) {
-  return extra ? `${BENTO_INPUT} ${extra}` : BENTO_INPUT;
+  return cn(BENTO_INPUT, "text-[length:var(--ct-text-xs)]", extra);
 }
 
 /** Bento section heading inside a panel body. */
