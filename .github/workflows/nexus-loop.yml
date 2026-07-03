@@ -191,9 +191,18 @@ jobs:
             # With no positional prompt, `claude --print` reads it from stdin —
             # also immune to the arg-length cap for very large missions. The runner
             # preamble is prepended so the agent produces instead of deferring.
+            #
+            # --dangerously-skip-permissions: on this headless CI runner the
+            # workspace is NOT "trusted", so the previous --permission-mode
+            # acceptEdits let the agent edit files but BLOCKED Bash — it could not
+            # run `pnpm typecheck`/`test` to diagnose failing checks, burned all 40
+            # turns and gave up (the pr_fix runs that "took 30 min and fixed
+            # nothing"). This is a controlled, ephemeral runner: the agent must be
+            # able to execute the repo's own validation commands, so we bypass the
+            # trust dialog + permission prompts here (never on a dev's machine).
             out="$(printf '%s\n%s' "$PREAMBLE" "$MISSION" | claude --print \
               --model "$CLAUDE_MODEL" \
-              --permission-mode acceptEdits \
+              --dangerously-skip-permissions \
               --max-turns 40 \
               2>&1)"
             code=$?
