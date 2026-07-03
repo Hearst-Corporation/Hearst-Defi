@@ -2,8 +2,11 @@
 // Decoupled from prisma/seed.ts so we never trigger resetTables() in prod.
 //
 // USAGE (run AFTER flipping schema provider to postgresql):
-//   PRISMA_PROVIDER=postgresql DATABASE_URL='postgresql://...' \
+//   ALLOW_PROD_WRITES=1 PRISMA_PROVIDER=postgresql DATABASE_URL='postgresql://...' \
 //     pnpm exec tsx scripts/seed-vaults-prod.ts
+//
+// This script is LEGITIMATELY prod-facing, so it opts in through the prisma-cli
+// prod guard with ALLOW_PROD_WRITES=1 (see scripts/lib/prisma-cli.ts).
 //
 // SAFE: only touches the 3 well-known VaultDeployment ids
 // (hearst-yield-vault, hearst-defensive-vault, hearst-btc-plus-vault).
