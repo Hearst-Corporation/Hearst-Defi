@@ -1,4 +1,193 @@
-# HANDOFF.md — Batch 2 : Truth Audit
+# HANDOFF.md — Recovery Series (log chronologique, dernier batch en premier)
+
+---
+
+## Batch 2b (2e rerun de vérification) : extension du spot-check — 2026-07-03
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`).
+Troisième invocation de loop sur ce même scope owner-zone. RELAIS relu
+intégralement (`PROJECT_STATE.md`, `BATCHES.md`, `DECISIONS.md`, `HANDOFF.md`) ;
+`docs/agent-file-locks.md` vérifié — aucun lock actif sur `src/lib/portfolio/`,
+`src/lib/product-strategies/`, ou `docs/projects/hearst-defi/` (seul lock
+adjacent trouvé : `src/lib/agents/apy-range.ts` par un autre agent, hors
+scope de ce batch). Le diff non commité de `tax.ts` + 3 fichiers de tests a
+été relu ligne à ligne une seconde fois (logique `isLive`, cohérence des
+guards `POINT 6`, cohérence entre `tax-preview-loader.ts` / `portfolio/tax/page.tsx`
+et les assertions de test) — toujours correct, rien à changer.
+
+Plutôt que de re-dupliquer le spot-check déjà fait sur `src/lib/data/**`,
+`src/lib/portfolio/**`, `src/app/api/**`, `src/lib/agents/**`,
+`src/lib/onchain/**` (rerun précédent), cette session a étendu la couverture
+à un module de la couche données/API **pas encore audité** : `src/lib/product-strategies/**`
+(Strategies Hub — collateral rebalancing, allocation advisor, data lab,
+mergé fin juin, PR #350-358). Agent Explore dédié, lecture complète de
+`strategies.config.ts`, `validate.ts`, `types.ts`, `select.ts`,
+`from-objective.ts`, `lab-colors.ts`, `index.ts` + `src/lib/strategy-data-lab/*`
+(collateral-rebalancing, lab-defaults) consommés par ce module.
+
+**Résultat : aucun finding.** Toutes les valeurs numériques (allocations bps,
+ranges de performance, prix BTC de départ des simulations) sont structurées
+dans des objets `ScenarioAssumptions` / constantes de base explicitement
+nommées, jamais présentées comme des données live ; `validate.ts` fait déjà
+respecter le vocabulaire non-négociable #5 (mots interdits) sur toute la
+config ; zéro `Math.random()`, zéro TODO/FIXME de câblage data incomplet.
+
+**Validations** : `pnpm vitest run` sur les 3 fichiers ciblés toujours
+bloqué par permissions runner (`This command requires approval`) — identique
+aux 2 passes précédentes, retenté explicitement cette session, même blocage.
+
+**Conclusion** : owner-zone "données/API — sources réelles, gardes anti-mock"
+reste complète. Aucun changement de code additionnel cette session (au-delà
+du diff déjà présent dans le working tree). Couverture d'audit étendue à
+`product-strategies` = valeur ajoutée réelle de cette 3e passe, même si le
+résultat est "rien à corriger".
+
+---
+
+## Batch 2b (rerun de vérification) : confirmation indépendante — 2026-07-03
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`).
+Cette invocation de loop a repris exactement le même scope que le batch 2b
+ci-dessous (RELAIS relu intégralement : `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md` ; `docs/agent-file-locks.md` vérifié — aucun
+lock actif sur `src/lib/portfolio/` ni `docs/projects/hearst-defi/`). Le
+working tree contenait déjà, non commité, l'implémentation complète du
+batch 2b (`tax.ts` + 3 fichiers de tests + docs — diff relu ligne à ligne,
+cohérent avec la description ci-dessous).
+
+Plutôt que dupliquer ce travail, cette session a :
+- Relu et validé manuellement le diff existant de `src/lib/portfolio/tax.ts`
+  (logique `isLive` correcte, couvre le cas `0` explicite).
+- Lancé un spot-check indépendant (agent Explore dédié) sur tout
+  `src/lib/data/**`, `src/lib/portfolio/**` (hors `tax.ts`), `src/app/api/**`,
+  `src/lib/agents/**` et `src/lib/onchain/**`, à la recherche de mocks non
+  signalés **au-delà** des findings T-01→T-12 déjà répertoriés. **Résultat :
+  aucun nouveau finding.** Tous les fallbacks observés (`defillama.ts`,
+  `fear-greed.ts`, `stablecoin-prices.ts`, `portfolio.ts`, `dashboard.ts`,
+  `risk-framework.ts`, `cockpit.ts`, `history.ts`, `energy-cost.ts`) portent
+  déjà un champ `source`/`provenance`/`stale` explicite ; `proof-center.ts`,
+  `proofs.ts` et `onchain/vault.ts` lisent des données réelles (Prisma /
+  contrats on-chain via viem) sans fabrication.
+- Re-confirmé le blocage permissions runner sur `pnpm typecheck` / `pnpm test`
+  (identique aux batches 2 et 2b précédents — aucune commande de validation
+  n'a pu s'exécuter dans ce contexte headless).
+
+**Conclusion** : le scope owner-zone "données/API — sources réelles, gardes
+anti-mock" pour ce batch est complet avec le diff déjà présent dans le
+working tree ; aucun changement de code additionnel nécessaire cette session.
+Aucun fichier de code modifié dans cette passe (uniquement cet addendum
+HANDOFF). **Risque résiduel inchangé** : validations (`typecheck`/`test`) à
+lancer avant merge dès que les permissions runner le permettent.
+
+---
+
+## Batch 2b : Data Truth — anti-mock guard (couche données/API)
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`)
+**Batch projet** : 2b/9 — Builder (owner zone : couche données/API, sources réelles, gardes anti-mock)
+**Role** : Reprendre les findings T-01→T-12 du Truth Audit (batch 2) et, pour ceux qui relèvent
+de la couche données (pas UI/business decision), remplacer le mock non signalé par une source
+réelle ou un état honnête. Aucune mutation de données prod.
+**Date** : 2026-07-03
+**Agent** : nexus builder
+
+### Ce qui a été fait
+
+- RELAIS lu : `PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`, `DECISIONS.md`, `HANDOFF.md`
+  (batch 1 + batch 2 Truth Audit). Vérifié : batch 1 mergé (PR #361), aucune PR ouverte ne
+  chevauche l'owner zone (`docs/agent-file-locks.md` inspecté — aucun lock actif sur
+  `src/lib/portfolio/`, `src/lib/data/`, ou `docs/projects/hearst-defi/`).
+- Revue systématique des 12 findings T-01→T-12 (table complète dans `DECISIONS.md` §"Rapport
+  batch Data Truth") pour trier ce qui est réellement dans l'owner zone "données/API" vs UI/décision
+  produit/migration (hors scope de ce batch) :
+  - **T-01** (tax preview fake data) — seul finding réellement dans l'owner zone. Corrigé (détail
+    ci-dessous).
+  - **T-05, T-06, T-07, T-10** — vérifiés déjà honnêtement signalés/guardés en code (badges
+    "estimated"/"simulated", disclaimer on-chain mock, allowlist fail-closed, refus prod sans clé
+    API) — aucune action de code nécessaire, confirmé par lecture directe des fichiers cités.
+  - **T-02, T-03, T-04, T-08, T-09, T-11, T-12** — hors owner zone (UI pages interdites, décision
+    produit, migration Prisma interdite) — laissés pour batch 3/4/6/7/8 selon `BATCHES.md`.
+- **Correction T-01** — `src/lib/portfolio/tax.ts` :
+  - Ajout du champ `dataSource: "live" | "stub"` sur `TaxPreview` (non-négociable #2 — provenance
+    badge sur chaque métrique). `"live"` uniquement quand les 3 overrides réels
+    (`actualInterestIncomeUsd`, `actualPrincipalUsd`, `actualAccruedYieldUsd`) sont fournis
+    explicitement (y compris `0` pour un nouvel investisseur) ; `"stub"` sinon.
+  - Aucun changement de comportement pour les appelants existants — `portfolio/tax/page.tsx` et
+    `tax-preview-loader.ts` passent déjà les 3 overrides réels → `dataSource: "live"` dans les
+    deux cas. Changement additif.
+  - Le composant historiquement cité par le sprint correctness (`tax-docs-drawer.tsx:243-259`)
+    n'existe plus (supprimé au refactor `79c9b2c2`) ; la seule surface LP-facing vivante
+    (`portfolio/tax/page.tsx`) n'emprunte déjà plus le chemin stub — voir détail complet dans
+    `DECISIONS.md`.
+- **Guard de régression** ajouté dans `src/lib/__tests__/data-honesty-guards.test.ts` (POINT 6,
+  lecture statique du code source, même convention que POINT 1-5) — vérifie que
+  `portfolio/tax/page.tsx` et `tax-preview-loader.ts` continuent de fournir les 3 overrides réels.
+- **Tests unitaires** ajoutés dans `src/lib/portfolio/__tests__/tax.test.ts` (bloc 19, 5 cas :
+  aucun override → stub, override partiel → stub, 3 overrides dont valeurs à `0` → live) +
+  assertion `dataSource: "live"` ajoutée dans `tax-preview-loader.test.ts`.
+- Mise à jour `DECISIONS.md` (rapport complet batch Data Truth + table de statut C-items) et
+  `BATCHES.md` (batch 2b → FAIT).
+- Spot-check indépendant (hors scope T-01→T-12) sur `src/lib/data/{vaults,stablecoin-prices,
+  energy-cost}.ts` pour chercher d'autres mocks non signalés dans l'owner zone — rien trouvé :
+  placeholders déjà explicitement filtrés (`isPlaceholderVault`) ou marqués `stale`/`fallback`.
+
+### Fichiers modifiés
+
+| Fichier | Action |
+|---|---|
+| `src/lib/portfolio/tax.ts` | Ajout `dataSource: "live"\|"stub"` sur `TaxPreview` + logique `isLive` |
+| `src/lib/__tests__/data-honesty-guards.test.ts` | POINT 6 — guard régression provenance tax |
+| `src/lib/portfolio/__tests__/tax.test.ts` | Bloc 19 (5 cas) — provenance `dataSource` |
+| `src/lib/portfolio/__tests__/tax-preview-loader.test.ts` | Assertion `dataSource: "live"` ajoutée |
+| `docs/projects/hearst-defi/DECISIONS.md` | Rapport batch Data Truth (T-01→T-12 triés, détail T-01) |
+| `docs/projects/hearst-defi/BATCHES.md` | Batch 2b → ✅ FAIT |
+| `docs/projects/hearst-defi/PROJECT_STATE.md` | §5 rafraîchi (C-05 → ⚠️ partiel, cf. ci-dessous) |
+| `docs/projects/hearst-defi/HANDOFF.md` | Ce fichier — section batch 2b ajoutée |
+
+**Fichiers exclus (hors owner zone, non touchés)** : toute UI page (`tax-docs-drawer.tsx` n'existe
+plus de toute façon), `prisma/**`, `.github/workflows/**`, secrets/`.env*`, `vercel.json`.
+
+### Ce qui reste
+
+- **C-05** passe de ❌ à ⚠️ PARTIEL (pas ✅) : le gap de provenance type-system est comblé, mais la
+  question produit reste ouverte pour batch 3 — faut-il encore désactiver/disclaim le trigger sur
+  `portfolio/tax/page.tsx` actuel (au-delà du footer "Preview only" déjà présent) ? Décision Adrien.
+- T-02, T-03, T-04 restent ouverts (hors owner zone ce batch) — cf. `DECISIONS.md` pour scope batch 3.
+- Aucune régression de comportement attendue ; changement additif pur côté type/valeur retournée.
+
+### Validations lancées
+
+- **Bloquées par permissions runner** (même contrainte que batch 2 — confirmé à nouveau ce batch) :
+  `pnpm typecheck`, `pnpm test`, `node --check` retournent tous "this command requires approval"
+  en exécution headless, aucune approbation possible dans ce contexte. Seules les commandes
+  read-only (`git status`, `git diff`, `ls`, `grep`, lecture de fichiers) ont pu être exécutées.
+- **Revue manuelle à la place** : diff complet de `tax.ts` relu ligne à ligne (logique `isLive`
+  correcte — les 3 `!== undefined` couvrent le cas `0` explicite requis par le test 19e) ; les 3
+  fichiers de test relus pour cohérence de style avec les tests existants (mêmes fixtures
+  `FIXED_USER_ID`/`FIXED_YEAR`, même style `describe`/`it`).
+  **Risque résiduel** : la suite n'a pas été exécutée dans cette session — recommander de lancer
+  `pnpm typecheck && pnpm test src/lib/portfolio/__tests__/tax.test.ts
+  src/lib/portfolio/__tests__/tax-preview-loader.test.ts
+  src/lib/__tests__/data-honesty-guards.test.ts` dès que les permissions runner le permettent,
+  avant merge.
+
+### Risques
+
+| Risque | Impact | Note |
+|---|---|---|
+| Validations non exécutées (permissions runner) | Moyen | Changement de type additif et localisé — risque de régression faible, mais à valider avant merge |
+| C-05 encore ⚠️ (pas ✅) | Faible-Moyen | Décision produit résiduelle, pas un risque légal — le risque CRITIQUE (chiffres inventés non distingables) est neutralisé |
+
+### Prochain batch recommandé
+
+**Batch 3 — Corrections P0 restantes** (déjà planifié, scope réduit par ce batch) :
+- C-05 (décision produit résiduelle sur `tax/page.tsx`), C-11 (cookie `sameSite`), C-13 (Model B
+  one-liner LP), T-02 (décision Adrien sur promesse email reçu). Voir `DECISIONS.md` §"Questions
+  en attente pour Adrien" pour les 2 décisions bloquantes avant batch 3.
+
+---
+
+## Batch 2 : Truth Audit
 
 **Batch** : 2/9 — Auditor (Truth Audit)
 **Role** : Read-only audit — données mockées, hardcodes, actions non branchées, faux compteurs

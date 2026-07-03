@@ -300,3 +300,36 @@ describe("POINT 5 — portfolio real-data (canary; full contract elsewhere)", ()
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// POINT 6 — tax preview never renders the userId-seeded stub as if it were live.
+// ---------------------------------------------------------------------------
+//
+// `getTaxPreview` (src/lib/portfolio/tax.ts) falls back to a deterministic
+// userId-seeded placeholder ($12,000 + seed*100 etc.) whenever a real ledger
+// override is missing, and flags that in the `dataSource` field ("live" vs
+// "stub"). The LP-facing tax page must always supply all three real-ledger
+// overrides so it can never surface the placeholder — this is a static-source
+// regression guard, not a runtime check, matching the rest of this file.
+describe("POINT 6 — tax preview page always sources real ledger overrides", () => {
+  it("the tax page passes actualInterestIncomeUsd/actualPrincipalUsd/actualAccruedYieldUsd from loadPortfolio()", () => {
+    const page = stripComments(
+      read("src/app/(product)/portfolio/tax/page.tsx"),
+    );
+    expect(page).toMatch(/loadPortfolio\(\)/);
+    expect(page).toMatch(/actualInterestIncomeUsd:\s*totalYieldYtdUsdc/);
+    expect(page).toMatch(/actualPrincipalUsd:\s*deployedUsdc/);
+    expect(page).toMatch(/actualAccruedYieldUsd:\s*accruedYieldUsdc/);
+  });
+
+  it("loadTaxPreview() (the Prisma-backed loader) also sources all three from real queries", () => {
+    const loader = stripComments(
+      read("src/lib/portfolio/tax-preview-loader.ts"),
+    );
+    expect(loader).toMatch(/actualInterestIncomeUsd/);
+    expect(loader).toMatch(/actualPrincipalUsd/);
+    expect(loader).toMatch(/actualAccruedYieldUsd/);
+    expect(loader).toMatch(/prisma\.position\.findMany/);
+    expect(loader).toMatch(/prisma\.investorTransaction\.findMany/);
+  });
+});

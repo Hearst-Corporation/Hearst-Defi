@@ -69,6 +69,15 @@ export interface TaxPreview {
   userId: string;
   /** "preview" — final docs are issued annually. */
   docStatus: "preview";
+  /**
+   * Provenance of the dollar figures above (non-negotiable #2 — every metric
+   * carries a badge). "live" when the caller supplied real ledger amounts
+   * (`actualInterestIncomeUsd` / `actualPrincipalUsd` / `actualAccruedYieldUsd`
+   * overrides); "stub" when one or more of those were omitted and the
+   * deterministic userId-seeded placeholder was used instead. A caller-facing
+   * surface must never present a "stub" preview as if it were real.
+   */
+  dataSource: "live" | "stub";
 }
 
 // ---------------------------------------------------------------------------
@@ -190,8 +199,14 @@ export function getTaxPreview(
   overrides: TaxPreviewOverrides = {},
 ): TaxPreview {
   // Deterministic stub keyed on userId length + year — stable across calls,
-  // no Math.random() or Date.now().
+  // no Math.random() or Date.now(). Used only when the caller has no real
+  // ledger figures yet (e.g. local fixtures); `dataSource` below flags it.
   const userSeed = userId.length + (userId.charCodeAt(0) ?? 65);
+
+  const isLive =
+    overrides.actualInterestIncomeUsd !== undefined &&
+    overrides.actualPrincipalUsd !== undefined &&
+    overrides.actualAccruedYieldUsd !== undefined;
 
   const interestIncomeUsd =
     overrides.actualInterestIncomeUsd ??
@@ -233,5 +248,6 @@ export function getTaxPreview(
     crs,
     userId,
     docStatus: "preview",
+    dataSource: isLive ? "live" : "stub",
   };
 }

@@ -34,5 +34,6 @@ describe("loadTaxPreview", () => {
     expect(preview).not.toBeNull();
     expect(preview!.form1099Int.interestIncomeUsd).toBe(5_000);
     expect(preview!.docStatus).toBe("preview");
+    expect(preview!.dataSource).toBe("live");
   });
 });
