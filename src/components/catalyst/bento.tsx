@@ -130,11 +130,18 @@ export function BentoKpiTile({
   const ValueTag = dl ? "dd" : "div";
   const SubTag = dl ? "p" : "div";
   return (
-    <div className={cn("flex flex-col gap-2 p-5", className)}>
-      <LabelTag className="ct-bento-label">{label}</LabelTag>
+    <div
+      className={cn(
+        "flex min-w-0 flex-col items-center gap-2 p-5 text-center",
+        className,
+      )}
+    >
+      <LabelTag className="ct-bento-label block w-full min-w-0 truncate">
+        {label}
+      </LabelTag>
       <ValueTag
         className={cn(
-          "ct-bento-metric",
+          "ct-bento-metric block w-full min-w-0 truncate [&>*]:justify-center",
           dl && "m-0",
           accent && "ct-bento-metric--accent",
         )}
@@ -144,7 +151,7 @@ export function BentoKpiTile({
       {sub ? (
         <SubTag
           className={cn(
-            "text-[length:var(--ct-text-nano)] ct-text-muted tracking-wide",
+            "block w-full min-w-0 truncate text-[length:var(--ct-text-nano)] ct-text-muted tracking-wide",
             dl && "m-0",
           )}
         >
@@ -235,27 +242,36 @@ export function BentoKpiStrip({
           <div
             key={i}
             className={cn(
-              // min-w-0 lets long values wrap instead of forcing horizontal
-              // overflow (grid children default to min-width:auto).
-              "flex min-w-0 flex-col gap-2 p-5 md:px-6",
+              // min-w-0 lets long labels/values truncate instead of forcing
+              // horizontal overflow (grid children default to min-width:auto).
+              // items-center + text-center: label, value and any inline logo are
+              // centered horizontally in the box.
+              "flex min-w-0 flex-col items-center gap-2 p-5 text-center md:px-6",
               // Hairline between tiles: bottom on stacked mobile, right on desktop.
               i < items.length - 1 &&
                 "border-b border-[var(--ct-border-soft)] md:border-b-0 md:border-r",
             )}
           >
             {item.provenance != null ? (
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 items-center justify-center gap-1.5">
                 <ProvenanceBadge kind={item.provenance} variant="strip" />
-                <span className="ct-bento-label">{item.label}</span>
+                <span className="ct-bento-label min-w-0 truncate">
+                  {item.label}
+                </span>
               </div>
             ) : (
-              <div className="ct-bento-label">{item.label}</div>
+              <div className="ct-bento-label block w-full min-w-0 truncate">
+                {item.label}
+              </div>
             )}
             <div
               className={cn(
-                // Value scales down in the narrow shell slot (chat rail open) and
-                // rises to the 22px canon on wide; long tokens wrap, never clip.
-                "min-w-0 text-[length:var(--ct-text-lg)] font-medium leading-tight tracking-tight [overflow-wrap:anywhere] lg:text-[length:var(--ct-text-2xl)]",
+                // Value on a SINGLE line (line-clamp-1): a long token like
+                // "A3 Pro Hyd 660T 12.5J mix" truncates cleanly instead of
+                // wrapping into an uncadred multi-line overflow. Value scales
+                // down in the narrow shell slot (chat rail open) and rises to
+                // the 22px canon on wide. Inline logo/value flex is centered.
+                "block w-full min-w-0 truncate text-[length:var(--ct-text-lg)] font-medium leading-tight tracking-tight lg:text-[length:var(--ct-text-2xl)] [&>*]:justify-center",
                 item.accent ? "ct-text-accent" : "ct-text-strong",
               )}
             >
