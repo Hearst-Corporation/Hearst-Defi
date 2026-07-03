@@ -42,7 +42,7 @@ describe("ProjectionHandoff — Projection input draft block", () => {
     expect(html).toContain("Revenue share");
     expect(html).toContain("BTC scenario band");
     // Honest note carried from assumptions metadata.
-    expect(html.toLowerCase()).toContain("pas validées");
+    expect(html.toLowerCase()).toContain("not validated by business/db/admin ui");
   });
 
   it("renders the projection preset block — safe fields + review required, no business number", () => {
