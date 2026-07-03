@@ -2,8 +2,8 @@
 
 | Batch | Role | Statut | PR | Mergé |
 |---|---|---|---|---|
-| 1 | Intake — inventaire état réel | ✅ EN COURS (2026-07-02) | À créer | Non |
-| 2 | Baseline Verification (typecheck/tests) | ⏳ En attente | — | — |
+| 1 | Intake — inventaire état réel | ✅ MERGÉ | PR #361 | Oui — commit `5d933f8b` |
+| 2 | Truth Audit (données mockées, hardcodes, actions non branchées) | ✅ FAIT (2026-07-03) | À créer | Non |
 | 3 | Corrections P0 restantes (C-05, C-11, C-13) | ⏳ En attente | — | — |
 | 4 | Corrections P1 sécurité (C-09, C-14, NavSparkline) | ⏳ En attente | — | — |
 | 5 | dev.db Alignment | ⏳ En attente (décision Adrien) | — | — |
@@ -12,4 +12,4 @@
 | 8 | Notification Matrix + Bell (Lot 6) | ⏳ Différé | — | — |
 | 9 | Lancement / Intégrations Tierces (D1-D7) | ⏳ Différé | — | — |
 
-*Mis à jour : 2026-07-02*
+*Mis à jour : 2026-07-03*
