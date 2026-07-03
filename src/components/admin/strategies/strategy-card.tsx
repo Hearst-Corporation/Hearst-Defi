@@ -152,13 +152,13 @@ export function StrategyCard({
         }
       }}
       className={cn(
-        "min-w-0 cursor-pointer transition-colors",
+        "h-full min-w-0 cursor-pointer transition-colors",
         selected
           ? "border border-[var(--ct-accent)] shadow-[0_0_0_1px_var(--ct-accent)]"
           : "border border-transparent hover:border-[color-mix(in_srgb,var(--ct-accent)_22%,transparent)]",
         strategy.status === "archived" && "opacity-[var(--ct-opacity-70)]",
       )}
-      contentClassName="flex min-w-0 flex-col gap-(--ct-space-4) p-(--ct-space-5)"
+      contentClassName="flex h-full min-w-0 flex-col gap-(--ct-space-4) p-(--ct-space-5)"
     >
       <div className="flex items-start justify-between gap-(--ct-space-3)">
         <div className="min-w-0 flex-1">
@@ -186,10 +186,10 @@ export function StrategyCard({
       </div>
 
       <div
-        className="flex flex-wrap items-center justify-between gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)"
+        className="mt-auto flex flex-wrap items-center justify-between gap-(--ct-space-2) border-t border-[var(--ct-border-soft)] pt-(--ct-space-3)"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex flex-wrap gap-(--ct-space-2)">
+        <div className="flex min-w-0 flex-wrap gap-(--ct-space-2)">
           <ActionBtn label="Use for Product" onClick={() => onUseForProduct(strategy)} />
           {onOpenCollateral ? (
             <ActionBtn
@@ -202,7 +202,7 @@ export function StrategyCard({
         <button
           type="button"
           onClick={() => onSelect(strategy.id)}
-          className="text-[length:var(--ct-text-2xs)] font-medium ct-text-accent hover:underline"
+          className="shrink-0 text-[length:var(--ct-text-2xs)] font-medium ct-text-accent hover:underline"
         >
           Open Studio →
         </button>
