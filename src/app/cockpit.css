@@ -5546,13 +5546,13 @@ main#main-content>.admin-doc.admin-doc-shell {
   overflow: hidden;
 }
 
-/* Brand-panel background video — fills the right column, sits under the frame. */
+/* Brand-panel video — small, centered in the right column (not full-bleed). */
 .login-split__brand-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: min(100%, calc(var(--ct-space-32) * 3));
+  height: auto;
+  max-height: 55%;
+  object-fit: contain;
+  border-radius: var(--ct-radius-lg);
   display: block;
 }
 

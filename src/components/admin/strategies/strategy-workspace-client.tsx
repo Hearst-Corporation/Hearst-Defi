@@ -40,6 +40,8 @@ import {
   type SegmentedItem,
 } from "@/components/catalyst/segmented-control";
 import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
+import { Card } from "@/components/catalyst/card";
+import { Metric } from "@/components/catalyst/metric";
 import { cn } from "@/lib/cn";
 import type { ProductStrategy } from "@/lib/product-strategies";
 import { bpsToPct } from "@/lib/product-strategies";
@@ -229,8 +231,11 @@ export function StrategyWorkspaceClient({
         .filter(({ candidate }) => candidate.key === focusKey || visible[candidate.key])
         .map(({ candidate, report, metrics: m }) => {
           let points;
+          // When plotting equity in dollar terms, we map the starting $250k initial ticket.
+          // The base engine ran on a $1B internal TVL or whatever baseCollateral was, so we scale it to $250k base.
+          const baseScale = 250_000 / (baseCollateral.initialDebtUsdc + baseCollateral.initialBtcCollateral * btcPriceUsd);
           if (metric === "equity") {
-            points = report.snapshots.map((s) => ({ m: s.month, v: s.netEquityUsdc / 1000 }));
+            points = report.snapshots.map((s) => ({ m: s.month, v: (s.netEquityUsdc * baseScale) }));
           } else if (metric === "ltv") {
             points = report.snapshots.map((s) => ({ m: s.month, v: s.ltvBps / 100 }));
           } else if (metric === "distance") {
@@ -253,15 +258,17 @@ export function StrategyWorkspaceClient({
   );
 
   const chartBand = useMemo<StudioChartBandPoint[] | undefined>(
-    () =>
-      metric === "equity"
+    () => {
+      const baseScale = 250_000 / (baseCollateral.initialDebtUsdc + baseCollateral.initialBtcCollateral * btcPriceUsd);
+      return metric === "equity"
         ? forward.monthlyEquityBands.map((b) => ({
             m: b.m,
-            lo: b.p5 / 1000,
-            hi: b.p95 / 1000,
+            lo: b.p5 * baseScale,
+            hi: b.p95 * baseScale,
           }))
-        : undefined,
-    [metric, forward.monthlyEquityBands],
+        : undefined;
+    },
+    [metric, forward.monthlyEquityBands, baseCollateral, btcPriceUsd],
   );
 
   const refLines = useMemo(() => {
@@ -300,7 +307,7 @@ export function StrategyWorkspaceClient({
   const chartFormat = metric === "equity" ? usdKTick : pctTick;
 
   const metricTitle: Record<ChartMetric, string> = {
-    equity: "Net Equity ($k)",
+    equity: "Capital Trajectory",
     ltv: "Loan-to-Value (%)",
     distance: "Liquidation Distance (%)",
     drawdown: "Drawdown (%)",
@@ -429,7 +436,7 @@ export function StrategyWorkspaceClient({
         headerTrailing={
           <div className="flex flex-wrap items-center justify-end gap-(--ct-space-2)">
             {adopted ? (
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-accent">
+              <span className="ct-metric-caption ct-text-accent">
                 Adopted ✓
               </span>
             ) : null}
@@ -462,20 +469,26 @@ export function StrategyWorkspaceClient({
           </div>
         }
       >
-        <div className="@container min-w-0">
-          {/* Zones 1–3: agent panel | chart + results */}
-          <div className="grid min-w-0 gap-(--ct-space-4) p-5 lg:p-6 @[56rem]:grid-cols-[minmax(17rem,20rem)_minmax(0,1fr)]">
+        <div className="w-full min-w-0">
+          <div className="grid grid-cols-1 items-stretch gap-(--ct-space-5) lg:grid-cols-[minmax(16rem,22rem)_1.6fr]">
+            
             {/* 1 — AGENT PANEL */}
-            <aside className="flex min-w-0 flex-col gap-(--ct-space-4) rounded-(--ct-radius-xl) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-card)] p-(--ct-space-4)">
-              <div className="flex flex-col gap-(--ct-space-2)">
+            <Card contentClassName="flex h-full min-h-[420px] flex-col gap-(--ct-space-4) p-(--ct-space-5)">
+              {/* Subtle radial glow */}
+              <div 
+                className="absolute inset-0 pointer-events-none opacity-50 z-[-1]" 
+                style={{ background: 'radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--ct-accent) 15%, transparent), transparent 60%)' }} 
+              />
+              <div className="relative z-10 flex flex-col gap-(--ct-space-4)">
+                 <div className="flex flex-col gap-(--ct-space-2)">
                 <div className="flex items-center justify-between gap-(--ct-space-2)">
                   <span className="ct-bento-label">Agent allocation</span>
-                  <span className="text-[length:var(--ct-text-2xs)] ct-text-accent font-medium">
+                  <span className="ct-metric-caption font-medium ct-text-accent">
                     Recommended
                   </span>
                 </div>
                 <AllocationMiniBar allocation={recommended.allocation} />
-                <p className="text-[length:var(--ct-text-2xs)] leading-relaxed ct-text-tertiary">
+                <p className="ct-metric-caption leading-relaxed ct-text-tertiary">
                   {recommended.rationale}
                 </p>
               </div>
@@ -483,7 +496,7 @@ export function StrategyWorkspaceClient({
               <div className="flex flex-col gap-(--ct-space-2)">
                 <div className="flex items-center justify-between gap-(--ct-space-2)">
                   <span className="ct-bento-label">Price points — today</span>
-                  <span className="text-[length:var(--ct-text-2xs)] ct-text-muted tabular-nums">
+                  <span className="ct-metric-caption tabular-nums">
                     LTV now {startLtvPct.toFixed(1)}%
                   </span>
                 </div>
@@ -495,17 +508,17 @@ export function StrategyWorkspaceClient({
                     >
                       <span
                         className={cn(
-                          "min-w-0 text-[length:var(--ct-text-2xs)] leading-snug",
-                          p.tone === "danger" && "text-[var(--ct-status-danger)]",
-                          p.tone === "warning" && "text-[var(--ct-status-warning)]",
+                          "min-w-0 ct-metric-caption leading-snug",
+                          p.tone === "danger" && "ct-status-danger",
+                          p.tone === "warning" && "ct-status-warning",
                           p.tone === "accent" && "ct-text-accent",
                         )}
                       >
                         {p.label}
                       </span>
-                      <span className="shrink-0 text-[length:var(--ct-text-xs)] font-semibold ct-text-strong tabular-nums">
+                      <span className="shrink-0 ct-metric-value tabular-nums">
                         {usd(p.priceUsd)}
-                        <span className="ml-(--ct-space-1) text-[length:var(--ct-text-2xs)] font-normal ct-text-muted">
+                        <span className="ml-(--ct-space-1) ct-metric-caption">
                           {p.movePct > 0 ? "+" : ""}
                           {p.movePct}%
                         </span>
@@ -513,15 +526,16 @@ export function StrategyWorkspaceClient({
                     </li>
                   ))}
                 </ul>
-                <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+                <p className="ct-metric-caption ct-text-faint">
                   Levels derived from the live rules and today&apos;s price — they move
                   with the market.
                 </p>
               </div>
-            </aside>
+              </div>
+            </Card>
 
             {/* 2 + 3 — MAIN CHART with filters, then RESULTS strip */}
-            <div className="flex min-w-0 flex-col gap-(--ct-space-4)">
+            <div className="flex flex-col gap-(--ct-space-5)">
               <div className="flex flex-wrap items-center justify-between gap-(--ct-space-3)">
                 <SegmentedControl
                   items={METRIC_ITEMS}
@@ -552,10 +566,10 @@ export function StrategyWorkspaceClient({
                               : `Show ${c.label}`
                         }
                         className={cn(
-                          "inline-flex items-center gap-(--ct-space-1_5) rounded-(--ct-radius-full) border px-(--ct-space-2_5) py-(--ct-space-1) text-[length:var(--ct-text-2xs)] font-medium transition-colors",
+                          "inline-flex items-center gap-(--ct-space-1_5) rounded-(--ct-radius-full) border px-(--ct-space-2_5) py-(--ct-space-1) ct-metric-caption font-medium transition-colors",
                           shown
-                            ? "border-[var(--ct-border-soft)] ct-text-strong"
-                            : "border-[var(--ct-border-soft)] ct-text-muted opacity-[var(--ct-opacity-50)]",
+                            ? "ct-bc-soft ct-text-strong"
+                            : "ct-bc-soft ct-text-muted opacity-[var(--ct-opacity-50)]",
                           c.key !== focusKey && "cursor-pointer hover:ct-text-strong",
                         )}
                       >
@@ -590,50 +604,41 @@ export function StrategyWorkspaceClient({
                 />
               </HcChartCard>
 
-              <BentoKpiStrip
-                ariaLabel="Focused candidate simulation results"
-                items={[
-                  {
-                    label: "p50 ROI",
-                    value: bps(forward.finalRoiPercentilesBps.p50 ?? 0),
-                    accent: true,
-                    provenance: "estimated",
-                  },
-                  {
-                    label: "p5 ROI",
-                    value: bps(forward.finalRoiPercentilesBps.p5 ?? 0),
-                    provenance: "estimated",
-                  },
-                  {
-                    label: "p95 ROI",
-                    value: bps(forward.finalRoiPercentilesBps.p95 ?? 0),
-                    provenance: "estimated",
-                  },
-                  {
-                    // POLICY activity, not ruin: probability of touching the
-                    // 45% delever rule at least once over the horizon.
-                    label: "Delever prob.",
-                    value: bps(forward.liquidationProbabilityBps),
-                    provenance: "estimated",
-                  },
-                ]}
-              />
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-(--ct-space-3)">
+                 <Metric
+                     label="p50 ROI"
+                     value={<span className="ct-text-accent">{bps(forward.finalRoiPercentilesBps.p50 ?? 0)}</span>}
+                 />
+                 <Metric
+                     label="p5 ROI"
+                     value={bps(forward.finalRoiPercentilesBps.p5 ?? 0)}
+                 />
+                 <Metric
+                     label="p95 ROI"
+                     value={bps(forward.finalRoiPercentilesBps.p95 ?? 0)}
+                 />
+                 <Metric
+                     label="Delever Prob."
+                     value={<span className="ct-status-warning">{bps(forward.liquidationProbabilityBps)}</span>}
+                 />
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* 4 — RESULTS TABLE */}
-          <div className="flex min-w-0 flex-col gap-(--ct-space-3) border-t border-[var(--ct-border-soft)] px-5 py-(--ct-space-4) lg:px-6">
+        {/* 4 — RESULTS TABLE */}
+        <div className="flex min-w-0 flex-col gap-(--ct-space-3) border-t ct-bc-soft px-5 py-(--ct-space-4) lg:px-6">
             <div className="flex items-center justify-between gap-(--ct-space-2)">
               <span className="ct-bento-label">Agent candidates — live engine runs</span>
-              <span className="text-[length:var(--ct-text-2xs)] ct-text-muted">
+              <span className="ct-metric-caption">
                 Click a row to focus
               </span>
             </div>
 
             <div className="min-w-0 overflow-x-auto">
-              <Table className="w-full border-collapse text-[length:var(--ct-text-xs)] tabular-nums">
+              <Table className="w-full border-collapse tabular-nums">
                 <TableHead>
-                  <TableRow className="border-b border-[var(--ct-border-soft)] ct-text-tertiary">
+                  <TableRow className="border-b ct-bc-soft ct-text-tertiary">
                     <TableHeader className="p-(--ct-space-2) text-left">Candidate</TableHeader>
                     <TableHeader className="p-(--ct-space-2) text-left">Mix</TableHeader>
                     <TableHeader className="p-(--ct-space-2) text-right">p50 ROI</TableHeader>
@@ -653,7 +658,7 @@ export function StrategyWorkspaceClient({
                         onClick={() => setFocusKey(c.key)}
                         aria-selected={isFocused}
                         className={cn(
-                          "cursor-pointer border-b border-[var(--ct-border-soft)] transition-colors",
+                          "cursor-pointer border-b ct-bc-soft transition-colors",
                           isFocused
                             ? "bg-[color-mix(in_srgb,var(--ct-accent)_6%,transparent)]"
                             : "hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]",
@@ -674,16 +679,16 @@ export function StrategyWorkspaceClient({
                         <TableCell className="p-(--ct-space-2) min-w-32">
                           <AllocationMiniBar allocation={c.allocation} showLegend={false} />
                         </TableCell>
-                        <TableCell className={cn("p-(--ct-space-2) text-right", c.p50RoiBps >= 0 ? "ct-text-accent" : "text-[var(--ct-status-danger)]")}>
+                        <TableCell className={cn("p-(--ct-space-2) text-right", c.p50RoiBps >= 0 ? "ct-text-accent" : "ct-status-danger")}>
                           {bps(c.p50RoiBps)}
                         </TableCell>
                         <TableCell className="p-(--ct-space-2) text-right ct-text-body">{bps(c.p5RoiBps)}</TableCell>
                         <TableCell className="p-(--ct-space-2) text-right ct-text-body">{bps(c.p95RoiBps)}</TableCell>
-                        <TableCell className={cn("p-(--ct-space-2) text-right", c.liquidationProbabilityBps > 2500 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+                        <TableCell className={cn("p-(--ct-space-2) text-right", c.liquidationProbabilityBps > 2500 ? "ct-status-danger" : "ct-text-body")}>
                           {bps(c.liquidationProbabilityBps)}
                         </TableCell>
                         <TableCell className="p-(--ct-space-2) text-right ct-text-body">{bps(m.maxDrawdownBps)}</TableCell>
-                        <TableCell className={cn("p-(--ct-space-2) text-right", m.maxLtvBps > 7000 ? "text-[var(--ct-status-danger)]" : "ct-text-body")}>
+                        <TableCell className={cn("p-(--ct-space-2) text-right", m.maxLtvBps > 7000 ? "ct-status-danger" : "ct-text-body")}>
                           {bps(m.maxLtvBps)}
                         </TableCell>
                       </TableRow>
@@ -693,7 +698,7 @@ export function StrategyWorkspaceClient({
               </Table>
             </div>
 
-            <p className="text-[length:var(--ct-text-2xs)] ct-text-faint">
+            <p className="ct-metric-caption ct-text-faint">
               Agent allocation under the {(ALLOCATOR_MINING_FLOOR_BPS / 100).toFixed(0)}%
               mining floor · grid-searched on the deterministic engine · seeded,
               modelled ({MC_PATHS} paths · seed {MC_SEED} · 24-month horizon) —
@@ -704,7 +709,6 @@ export function StrategyWorkspaceClient({
               {bpsToPct(recommended.allocation.yieldOverlayBps).toFixed(0)}%.
             </p>
           </div>
-        </div>
       </AdminSectionCard>
     </div>
   );
