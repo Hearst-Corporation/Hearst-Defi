@@ -49,14 +49,25 @@ de hex en dur détecté dans le code produit, pas de `dark:` hors la lib Catalys
 concentration de `lg:` (57% des breakpoints), quelques `rgba()` inline en data-viz, routes orphelines
 côté admin. Voir `PROJECT_STATE.md` pour le détail et les recommandations batch 2.
 
-## Batches 2-8 — non définis par cette intake
+## Batch 2 — Planner — Information Architecture ✅ FAIT (2026-07-04)
 
-La metadata de série fournie à ce batch ne spécifie que le rôle du batch 1 (`intake`). Les rôles des
-batches 2 à 8 **ne sont pas connus de ce batch** et ne sont pas inventés ici (principe d'honnêteté du
-projet — pas de contenu fictif dans les artefacts de suivi). Recommandation pour le batch 2, à valider
-par l'humain qui arme la série : cibler en priorité les 3 points d'attention réels remontés dans
-`PROJECT_STATE.md` §"Incohérences" plutôt qu'un audit visuel généraliste redondant avec
-`docs/UI_CONTEXT.md`/`docs/DESIGN_SYSTEM.md` qui sont déjà à jour et détaillés.
+**Rôle** : planner, read-only. Définit l'IA cible (navigation, hiérarchie) à partir de la source de
+nav unique (`src/components/nav/product-nav-items.ts`) et affine les 3 points d'attention du batch 1
+par vérification directe du code (au lieu de les reporter tels quels). Zéro ligne de code touchée.
+
+**Livrable** : `IA_TARGET.md` (ce dossier) — IA actuelle vérifiée (nav 2 vs 3 niveaux, pas de
+breadcrumb, pas de duplication de source), verdict affiné sur les 3 points hérités (canonisation
+headers = plus étroite qu'annoncé, routes orphelines = moitié déjà résolues, `rgba()` = hors
+périmètre IA), 7 décisions (D1-D7, détail dans `DECISIONS.md`).
+
+**Découpage batch 3-8** : voir `BATCHES.md` (ce dossier) — implémentation canonisation panel
+headers (3), registre nav complet (4), politique data-viz conditionnelle (5), audit breakpoints
+(6), QA visuelle (7), clôture série (8).
+
+## Batches 3-8 — définis par ce batch (2), non démarrés
+
+Voir `BATCHES.md` pour le détail complet. Séquentiel strict (`executionMode:
+sequential-orchestrated`) — un seul batch actif à la fois, pas de parallélisme entre eux.
 
 ## Non-négociables rappelés (héritage CLAUDE.md, applicables à toute la série)
 
