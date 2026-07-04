@@ -75,6 +75,7 @@ function PrivyConnectInner({
   });
   const { wallets } = useWallets();
   const persistRef = useRef<string | null>(boundAddress?.toLowerCase() ?? null);
+  const [isBinding, setIsBinding] = useState(false);
 
   const connectedWallet = wallets[0];
   const address = connectedWallet?.address ?? boundAddress;
@@ -87,15 +88,18 @@ function PrivyConnectInner({
     if (normalized === persistRef.current) return;
 
     persistRef.current = normalized;
+    setIsBinding(true);
     void bindWallet(next).then((result) => {
       if (!result.ok) {
         console.error("[PrivyWalletConnect] bindWallet failed:", result.error);
         setError(result.error ?? "Could not link this wallet. Please try again.");
         persistRef.current = null;
+        setIsBinding(false);
       } else {
         setError(null);
         // revalidatePath in bindWallet invalidates the server cache; refresh
-        // triggers the RSC re-fetch so /profile reflects the new walletAddress.
+        // triggers the RSC re-fetch so /profile reflects the new walletAddress
+        // and swaps this component out for the host page's connected UI.
         router.refresh();
       }
     });
@@ -119,7 +123,14 @@ function PrivyConnectInner({
     );
   }
 
-  if (authenticated && address) {
+  // On "bare" surfaces (Profile's security row) the host page already owns
+  // the connected-state UI (Badge + WalletDisconnectButton), driven by the
+  // DB-backed session.walletAddress — not by Privy's client-side wallet
+  // state. Rendering our own "connected" card here too would (a) duplicate
+  // that UI and (b) flicker based on Privy's local rehydration timing rather
+  // than the source of truth. So bare surfaces only ever show the connect
+  // prompt; the host page swaps this component out once the DB is updated.
+  if (authenticated && address && surface === "card") {
     return (
       <WalletSurface
         surface={surface}
@@ -159,12 +170,14 @@ function PrivyConnectInner({
         variant="primary"
         size={surface === "bare" ? "md" : "lg"}
         className={surface === "bare" ? undefined : "w-full"}
+        disabled={isBinding}
+        aria-busy={isBinding}
         onClick={() => {
           setError(null);
           void connectWallet();
         }}
       >
-        Connect wallet
+        {isBinding ? "Linking wallet…" : "Connect wallet"}
       </Button>
 
       {error ? (
