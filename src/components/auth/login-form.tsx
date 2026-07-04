@@ -40,8 +40,7 @@ export function LoginForm() {
 
   return (
     <form action={onSubmit} className="auth-form" aria-label="Sign in">
-      <label className="auth-field" htmlFor="login-email">
-        <span className="ct-form-label">Email</span>
+      <div className="auth-field">
         <input
           id="login-email"
           name="email"
@@ -51,14 +50,14 @@ export function LoginForm() {
           required
           disabled={isPending}
           placeholder="you@institution.com"
+          aria-label="Email"
           className="ct-input ct-input-bare"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "login-error" : undefined}
         />
-      </label>
+      </div>
 
-      <label className="auth-field" htmlFor="login-password">
-        <span className="ct-form-label">Password</span>
+      <div className="auth-field">
         <input
           id="login-password"
           name="password"
@@ -67,11 +66,12 @@ export function LoginForm() {
           required
           disabled={isPending}
           placeholder="••••••••"
+          aria-label="Password"
           className="ct-input ct-input-bare"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "login-error" : undefined}
         />
-      </label>
+      </div>
 
       {error ? (
         <p id="login-error" className="ct-status-danger body-xs" role="alert">
