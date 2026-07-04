@@ -1,5 +1,155 @@
 # HANDOFF.md — UI/UX Rebuild Series (log chronologique, dernier batch en premier)
 
+## Batch 4/8 (builder, 2e re-dispatch) — vérification, aucun nouveau code — 2026-07-04
+
+Quatrième invocation de la même mission (batch 4/8, `series_ui_hearst-defi_0`, même branche
+`nexus/loop_mr6t63e1-mr6yzkwp`) sur un tree qui contient toujours, non commité, le même diff complet
+du batch 4 (3 entrées `hideFromSubNav: true` dans `product-nav-items.ts` + docs de série) déjà
+vérifié par les deux entrées précédentes ci-dessous. Le pipeline n'a toujours pas commité/
+poussé/ouvert de PR entre les runs — hors du contrôle de ce rôle (builder ne commite/push jamais).
+
+La métadonnée de mission reçue à ce run porte, une nouvelle fois, `OWNER ZONE: pages principales →
+contracts/test/, docs/agentic/` et une description de rôle ("Batch 2 — Core Pages") qui ne
+correspond à aucun batch réel de `ui-rebuild/{BATCHES,DECISIONS,IA_TARGET,PROJECT_PLAN}.md` — même
+bruit déjà noté et écarté deux fois. Source de vérité suivie : les docs `ui-rebuild/` de ce
+sous-dossier, seule série dont le batch numéroté 4/8 correspond réellement à cette branche.
+
+Vérifications refaites avant de conclure à un troisième no-op légitime :
+- `git rev-parse HEAD origin/main` (après `git fetch origin main`) → identiques (`5f226ee7`) :
+  aucune divergence depuis le dernier run, aucun merge intervenu entre-temps.
+- `docs/agent-file-locks.md` : lock batch 4 toujours réservé pour cette branche exacte, scope
+  inchangé ; le seul autre lock actif (`nexus/loop_mr3jnywz-mr5ma2tp`, Recovery Series) ne chevauche
+  ni `product-nav-items.ts` ni `ui-rebuild/*.md`.
+- `git diff --stat` : diff identique (5 fichiers, mêmes tailles) à celui déjà vérifié par les deux
+  entrées précédentes — aucune dérive.
+- `grep` des 3 ids (`diagnostics`, `btc-mining-performance-vault`, `agent-canvas`) : chacun présent
+  une seule fois, `hideFromSubNav: true` intact.
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm vitest run src/components/nav` → **4 fichiers, 20 tests, tous verts**.
+- `git ls-remote origin` : pas de branche `nexus/loop_mr6t63e1-mr6yzkwp` distante — confirmé jamais
+  poussée, donc pas de PR ouverte à vérifier pour chevauchement (`gh` indisponible sur ce runner).
+
+Aucun fichier modifié par ce run au-delà de cette entrée `HANDOFF.md`. Conformément à
+`mayContinueAfterNoop: false`, ce run ne démarre ni le batch 5 ni le batch 6. Le diff substantiel du
+batch 4 reste intact, prêt pour commit/push/PR par le pipeline.
+
+---
+
+## Batch 4/8 (builder, re-dispatch) — vérification, aucun nouveau code — 2026-07-04
+
+Nouvelle invocation de la même mission (batch 4/8, `series_ui_hearst-defi_0`, même branche
+`nexus/loop_mr6t63e1-mr6yzkwp`) sur un tree qui contient toujours, non commité, le diff complet
+du batch 4 (3 entrées `hideFromSubNav: true` dans `product-nav-items.ts` + docs de série) que
+l'entrée ci-dessous documente déjà. Le pipeline n'a toujours pas commité/poussé/ouvert de PR entre
+les runs — cause probable du re-dispatch, hors du contrôle de ce rôle (builder ne commite/push
+jamais).
+
+La métadonnée de mission reçue à ce run porte, comme bruit déjà noté par les runs précédents de
+cette série, `OWNER ZONE: pages principales → contracts/test/, docs/agentic/` et une description
+de rôle ("Batch 2 — Core Pages", refonte pages principales) qui ne correspond à aucun batch réel
+de `ui-rebuild/{BATCHES,DECISIONS,IA_TARGET,PROJECT_PLAN}.md` — ces chemins/rôle ne sont référencés
+nulle part dans les artefacts de cette série et n'ont pas été touchés. Source de vérité suivie :
+les docs `ui-rebuild/` de ce sous-dossier, seule série dont le batch numéroté 4/8 correspond
+réellement à cette branche (confirmé par `docs/agent-file-locks.md` ligne ~76-91, lock déjà
+réservé pour cette branche exacte avec le scope D5).
+
+Vérifications refaites avant de conclure à un nouveau no-op légitime :
+- `git rev-parse HEAD origin/main` → identiques (`5f226ee7`) : la branche part toujours de
+  `origin/main` HEAD, aucune divergence depuis le dernier run.
+- `docs/agent-file-locks.md` relu en entier : lock batch 4 toujours réservé pour cette branche,
+  scope inchangé ; aucun autre lock actif (`nexus/loop_mr3jnywz-mr5ma2tp` Recovery Series,
+  `fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
+  `feat/projection-safe-input-preset`, `fix/machine-logo-visible`) ne chevauche
+  `product-nav-items.ts` ni `ui-rebuild/*.md`.
+- `git diff src/components/nav/product-nav-items.ts` : les 3 entrées (`agent-canvas`,
+  `btc-mining-performance-vault`, `diagnostics`, toutes `hideFromSubNav: true`) sont identiques à
+  celles documentées dans `DECISIONS.md` §Batch 4 — aucune dérive.
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm vitest run src/components/nav` → **4 fichiers, 20 tests, tous verts**.
+
+Aucun fichier modifié par ce run au-delà de cette entrée `HANDOFF.md`. Conformément à
+`mayContinueAfterNoop: false`, ce run ne démarre ni le batch 5 (`rgba()` inline, D6 — explicitement
+conditionnel à l'arbitrage owner, ne pas armer par réflexe) ni le batch 6 (audit breakpoints) même
+si `BATCHES.md` les recommande comme prochaine étape — armement laissé à une décision explicite
+ultérieure. Le diff substantiel du batch 4 reste intact, prêt pour commit/push/PR par le pipeline.
+
+---
+
+## Batch 4/8 (builder — Implémentation, Registre nav complet D5) — 2026-07-04
+
+### Relais fait avant le travail
+- Métadonnée de mission reçue (`dependsOn: batch.01.shell-navigation`, `OWNER ZONE: pages
+  principales → contracts/test/, docs/agentic/`, `FICHIERS INTERDITS: shell/navigation, ...`)
+  ne correspond à aucun batch/owner-zone réel de cette série — même bruit générique déjà noté
+  et écarté par le run batch 3 ci-dessous (chemins `contracts/test/`, `docs/agentic/` non
+  référencés dans `PROJECT_PLAN.md`/`BATCHES.md`/`DECISIONS.md` de `ui-rebuild/`, pré-existants,
+  non touchés). Source de vérité suivie : `docs/projects/hearst-defi/ui-rebuild/{BATCHES,
+  DECISIONS,IA_TARGET,PROJECT_PLAN}.md`, lus en entier avant de coder.
+- `docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md`
+  (racine, Recovery Series) : lus, confirmés hors scope (série différente, non touchés).
+- Batch 3 (dépendance directe, D4 rename panel header) vérifié **mergé sur `origin/main`** :
+  `git rev-parse HEAD origin/main` identiques (`5f226ee7`), `admin-leaf-link.tsx` présent,
+  `cockpit-panel-header.tsx` absent — le lock batch 3 dans `docs/agent-file-locks.md` était
+  stale (travail déjà intégré via commit `5f226ee7`/PR #381) ; marqué RELEASED, remplacé par le
+  lock batch 4 sur la branche courante.
+- `docs/agent-file-locks.md` relu en entier : aucun autre lock actif ne touche
+  `src/components/nav/product-nav-items.ts`. Lock réservé pour cette session.
+- `gh` indisponible sur ce runner — pas de vérification API des PR ouvertes ; `git log`/`git
+  ls-remote` ne montrent aucune autre branche touchant ce fichier.
+
+### Ce que cette session a fait
+- Lu `product-nav-items.ts` en entier : confirmé que les 3 routes citées par `IA_TARGET.md`/
+  `DECISIONS.md` §D5 (`diagnostics`, `btc-mining-performance-vault`, `agent-canvas`) n'avaient
+  effectivement aucune entrée (grep + lecture directe du fichier, pas une supposition héritée).
+- Ajouté 3 entrées `hideFromSubNav: true` (voir `DECISIONS.md` §Batch 4 pour le détail du
+  placement par section et le raisonnement).
+- Vérifié que `AdminSubNav` ne rend jamais l'icône (`section-nav__link` = label + dot
+  uniquement) et filtre les entrées `hideFromSubNav` avant rendu (`visibleSubNavTabs`) —
+  confirme "zéro changement visuel" annoncé par `BATCHES.md`.
+
+### Validations
+- `pnpm install` (node_modules absent au démarrage du checkout) puis provisioning sqlite
+  (`node scripts/prisma-provider.mjs` → `prisma db push --accept-data-loss` →
+  `node scripts/restore-prisma-provider.mjs`) — `prisma/schema.prisma` sans diff après coup,
+  même procédure documentée par la Recovery Series et le batch 3.
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm vitest run src/components/nav` → **4 fichiers, 20 tests, tous verts**.
+- `pnpm test` (suite complète) → **452/453 fichiers, 5416/5420 tests**. 4 échecs, tous dans
+  `src/lib/inngest/functions/__tests__/custody-snapshot-hourly.test.ts` (`revalidateTag`
+  invariant "static generation store missing") — **mêmes échecs pré-existants déjà documentés
+  par le batch 3** (introduits par le commit `e7e8e659`/`7a948cf2`, hors owner-zone de ce
+  batch), non corrigés ici.
+
+### Fichiers modifiés cette session
+| Fichier | Action |
+|---|---|
+| `src/components/nav/product-nav-items.ts` | 3 entrées nav ajoutées (`agent-canvas`, `btc-mining-performance-vault`, `diagnostics`), toutes `hideFromSubNav: true` |
+| `docs/agent-file-locks.md` | Lock batch 3 marqué RELEASED (déjà mergé) ; lock batch 4 ajouté pour cette session |
+| `docs/projects/hearst-defi/ui-rebuild/BATCHES.md` | Batch 4 marqué ✅ FAIT |
+| `docs/projects/hearst-defi/ui-rebuild/DECISIONS.md` | Décision D5 documentée en détail |
+| `docs/projects/hearst-defi/ui-rebuild/HANDOFF.md` | Ce fichier — section ajoutée |
+
+### Fichiers exclus (owner zone respectée)
+Aucun `docs/projects/hearst-defi/*.md` racine (Recovery Series active) ; aucun `prisma/**`,
+`.github/workflows/**`, secret/`.env*`, `vercel.json` ; aucun composant shell/nav global
+(`cockpit-shell/**`) ; aucune page métier interne modifiée — changement limité au registre de
+données de nav, comme prévu par `BATCHES.md`.
+
+### Statut d'intégration
+Diff non commité/non poussé — pas de PR ouverte par ce batch (rôle builder, commit/push/PR
+laissés au pipeline nexus après ce run).
+
+### Prochain batch recommandé
+Batch 5 (politique `rgba()` inline data-viz, D6 — **conditionnel à l'arbitrage owner**, ne pas
+armer par réflexe) ou batch 6 (audit discipline breakpoints). Voir `BATCHES.md` §"Notes de
+séquencement".
+
+### Commit & PR
+Aucun — ce rôle ne commite/push/merge jamais. Travail réel produit (diff nav + docs de série),
+laissé au pipeline pour commit/push/PR après cette exécution (`gateMode: auto`, pas de no-op).
+
+---
+
 ## Batch 3/8 (builder, 2e re-dispatch) — vérification, aucun nouveau code — 2026-07-04
 
 Troisième invocation de la même mission (batch 3/8, `series_ui_hearst-defi_0`, branche
