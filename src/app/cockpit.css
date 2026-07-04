@@ -5525,6 +5525,13 @@ main#main-content>.admin-doc.admin-doc-shell {
   z-index: var(--ct-z-raised);
 }
 
+/* Sign-in 40% · video 60% (desktop). Below lg the grid stays single-column. */
+@media (min-width: 64rem) {
+  .login-split__grid {
+    grid-template-columns: 2fr 3fr;
+  }
+}
+
 .login-split__brand {
   display: flex;
   flex-direction: column;
@@ -5535,12 +5542,18 @@ main#main-content>.admin-doc.admin-doc-shell {
   /* Sign-in is the left column; the vertical divider lives on the brand (right). */
   border-left: 1px solid var(--ct-border-soft);
   padding-block: var(--ct-space-16);
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: var(--ct-space-6) var(--ct-space-6);
+  /* No dot-grid here — the background video fills this column. */
+  overflow: hidden;
+}
+
+/* Brand-panel background video — fills the right column, sits under the frame. */
+.login-split__brand-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .login-split__title-accent {
@@ -5560,10 +5573,8 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 
 /* Brand mark pinned to the top-left corner of the sign-in column. */
-.login-split__signin-logo {
-  position: absolute;
-  top: var(--ct-space-10);
-  left: var(--ct-space-10);
+/* Brand logo — first item of the sign-in stack, left-aligned with the rest. */
+.auth-login-panel__logo {
   width: var(--ct-space-32);
   height: auto;
   display: block;

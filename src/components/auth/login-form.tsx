@@ -79,7 +79,7 @@ export function LoginForm() {
         </p>
       ) : null}
 
-      <div className="flex justify-center">
+      <div className="flex justify-start">
         <Button
           type="submit"
           variant="primary"
@@ -92,7 +92,7 @@ export function LoginForm() {
         </Button>
       </div>
 
-      <p className="body-xs ct-text-muted text-center">
+      <p className="body-xs ct-text-muted text-left">
         <Link href="/forgot-password" className="ct-link-accent">
           Forgot password?
         </Link>
