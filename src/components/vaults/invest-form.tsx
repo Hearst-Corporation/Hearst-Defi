@@ -530,10 +530,16 @@ function InvestFormLive({
 
   const amountValid = amount >= vault.minTicketUsdc && amount <= maxAmount;
 
+  // Demo accounts subscribe off-chain, so the wallet/network/allowance preflight
+  // is presented satisfied and never blocks the flow.
+  const demoMode = isDemoAccount(session?.email);
+
   // Epoch gating is status-only (no real deadline feed) — see preflight-check.
   const epochIndicative = { status: "ACTIVE" as const };
 
-  const preFlightOk = isPreFlightReady(walletAddress, allowanceApproved, epochIndicative);
+  const preFlightOk =
+    demoMode ||
+    isPreFlightReady(walletAddress, allowanceApproved, epochIndicative);
 
   function ctaState(): CtaState {
     if (depositing) return "confirming";
@@ -685,6 +691,7 @@ function InvestFormLive({
           onApproveStart={() => setApproving(true)}
           onApproveEnd={() => setApproving(false)}
           onApproveError={(msg) => setDepositError(msg)}
+          demoMode={demoMode}
         />
       )}
 

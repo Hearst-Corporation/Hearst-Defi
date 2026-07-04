@@ -6,7 +6,8 @@ export type EligibilityResult =
   | { ok: false; error: string };
 
 import { prisma } from "@/lib/db";
-import { getInvestor } from "@/lib/auth/session";
+import { getInvestor, getSession } from "@/lib/auth/session";
+import { isDemoAccount } from "@/lib/demo/allowlist";
 import { getVault } from "@/lib/data/vaults";
 import {
   CapacityError,
@@ -113,7 +114,19 @@ export async function subscribe(
   // tx hash; only the explicit, audited pilot path may create an off-chain
   // position with no settlement (`allowOffChain`). A malformed hash is rejected
   // so a typo can neither poison the ledger nor the txHashOpen idempotency key.
-  const allowOffChain = opts?.allowOffChain ?? false;
+  //
+  // SECURITY: `subscribe` is a server action reachable as an RPC, so `opts` is
+  // client-controlled. `allowOffChain` (settlement-free position, the audited
+  // pilot + demo shortcut) is therefore honored ONLY for a TRUSTED operator —
+  // an admin session or a demo account (both server-resolved). A plain investor
+  // POSTing `{allowOffChain:true}` is silently downgraded to false and still
+  // needs a confirmed on-chain deposit, so the public invest-form can never
+  // fabricate a position without settlement.
+  const session = await getSession();
+  const isTrustedOffChainCaller =
+    session?.role === "admin" || isDemoAccount(session?.email);
+  const requestedOffChain = opts?.allowOffChain ?? false;
+  const allowOffChain = requestedOffChain && isTrustedOffChainCaller;
   const txHashClean =
     txHash && txHash.trim().length > 0 ? txHash.trim() : undefined;
   if (txHashClean && !/^0x[0-9a-fA-F]{64}$/.test(txHashClean)) {

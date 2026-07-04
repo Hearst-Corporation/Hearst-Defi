@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import type { ConnectedWallet } from "@privy-io/react-auth";
 
@@ -60,6 +61,14 @@ interface PreFlightCheckProps {
   onApproveStart: () => void;
   onApproveEnd: () => void;
   onApproveError?: (msg: string) => void;
+  /**
+   * Demo accounts subscribe off-chain (no wallet / chain / USDC allowance), so
+   * the on-chain readiness rows (Wallet, Network, Allowance) are shown satisfied
+   * and their APPROVE / Switch actions are suppressed. Purely presentational —
+   * the real deposit path is unchanged; the demo "Simulate deposit" action does
+   * the settlement-free subscribe.
+   */
+  demoMode?: boolean;
 }
 
 export function PreFlightCheck({
@@ -71,9 +80,11 @@ export function PreFlightCheck({
   onApproveStart,
   onApproveEnd,
   onApproveError,
+  demoMode = false,
 }: PreFlightCheckProps) {
   const { ready } = usePrivy();
   const { wallets } = useWallets();
+  const [switching, setSwitching] = useState(false);
 
   const privyWallet: ConnectedWallet | undefined = wallets[0];
   const liveAddress = privyWallet?.address ?? null;
@@ -89,9 +100,11 @@ export function PreFlightCheck({
   })();
 
   const networkOk =
-    walletChainId === null ? true : walletChainId === BASE_SEPOLIA_CHAIN_ID;
-  const networkDetail =
-    walletChainId === null
+    demoMode ||
+    (walletChainId === null ? true : walletChainId === BASE_SEPOLIA_CHAIN_ID);
+  const networkDetail = demoMode
+    ? "Base Sepolia · simulated"
+    : walletChainId === null
       ? "Base Sepolia"
       : networkOk
         ? "Base Sepolia"
@@ -99,6 +112,25 @@ export function PreFlightCheck({
 
   const vaultConfigured = VAULT_ADDRESS !== null;
   const vaultStale = isVaultStale();
+
+  async function handleSwitchNetwork() {
+    if (!privyWallet) {
+      onApproveError?.("No wallet connected. Connect a wallet first.");
+      return;
+    }
+    setSwitching(true);
+    try {
+      await privyWallet.switchChain(BASE_SEPOLIA_CHAIN_ID);
+    } catch (e) {
+      const msg =
+        e instanceof Error
+          ? e.message
+          : "Could not switch network. Switch to Base Sepolia in your wallet.";
+      onApproveError?.(msg);
+    } finally {
+      setSwitching(false);
+    }
+  }
 
   async function handleApprove() {
     if (!privyWallet) {
@@ -146,8 +178,8 @@ export function PreFlightCheck({
     status: "ACTIVE",
   };
 
-  const walletOk = resolvedAddress !== null;
-  const allowanceOk = allowanceApproved;
+  const walletOk = demoMode || resolvedAddress !== null;
+  const allowanceOk = demoMode || allowanceApproved;
   const epochOk = epochIndicative.status === "ACTIVE";
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
@@ -195,9 +227,11 @@ export function PreFlightCheck({
         label="Wallet"
         status={walletOk ? "ok" : "action"}
         detail={
-          walletOk
-            ? abbreviateAddress(resolvedAddress!)
-            : "Connect a wallet to continue"
+          demoMode
+            ? "Simulated — no wallet required"
+            : walletOk
+              ? abbreviateAddress(resolvedAddress!)
+              : "Connect a wallet to continue"
         }
       />
 
@@ -205,17 +239,42 @@ export function PreFlightCheck({
         label="Network"
         status={networkOk ? "ok" : "action"}
         detail={networkDetail}
+        action={
+          !networkOk ? (
+            <button
+              type="button"
+              onClick={() => void handleSwitchNetwork()}
+              disabled={switching}
+              className={cn(
+                "rounded-lg border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-micro)] font-bold uppercase tracking-wider text-[var(--ct-accent)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)]",
+                "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]",
+                switching && "cursor-wait opacity-[var(--ct-opacity-70)]",
+              )}
+            >
+              {switching ? (
+                <span className="flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-current animate-ping" />
+                  Switching…
+                </span>
+              ) : (
+                "Switch"
+              )}
+            </button>
+          ) : undefined
+        }
       />
 
       <CheckRow
         label="Allowance"
         status={allowanceOk ? "ok" : "action"}
         detail={
-          allowanceOk
-            ? "USDC approved"
-            : amount > 0
-              ? `Approve ${formatUsdAmount(amount)} USDC`
-              : "Enter amount first"
+          demoMode
+            ? "Simulated — no approval needed"
+            : allowanceOk
+              ? "USDC approved"
+              : amount > 0
+                ? `Approve ${formatUsdAmount(amount)} USDC`
+                : "Enter amount first"
         }
         action={
           !allowanceOk && amount > 0 && walletOk ? (

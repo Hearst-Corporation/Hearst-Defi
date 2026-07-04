@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { prisma } from "@/lib/db";
 import { requireInvestor } from "@/lib/auth/require-investor";
@@ -55,6 +55,16 @@ export async function resetDemoAccount(): Promise<ResetDemoResult> {
     prisma.position.deleteMany({ where: { investorId } }),
     prisma.investorNavSnapshot.deleteMany({ where: { investorId } }),
   ]);
+
+  // Also clear the demo-seeded vault-level snapshot (the "Capital & Yield"
+  // allocation donut). It is NOT investor-scoped, so it survives the deletes
+  // above; a demo reset should still take the portfolio fully back to empty.
+  // Only rows we ourselves stamped source="demo_seed" are removed — real
+  // live/computed snapshots are never touched. Allocation rows cascade.
+  await prisma.vaultSnapshot.deleteMany({ where: { source: "demo_seed" } });
+  // Evict the unstable_cache(tags:["yield"]) entry so the donut reflects the
+  // now-empty state immediately instead of the stale cached snapshot.
+  revalidateTag("yield", "max");
 
   // Refresh every surface the reset touches.
   revalidatePath("/profile");

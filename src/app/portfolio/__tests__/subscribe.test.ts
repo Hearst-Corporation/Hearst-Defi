@@ -19,6 +19,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/auth/session", () => ({
   getInvestor: vi.fn(),
+  // subscribe() resolves the session to gate the off-chain pilot path on a
+  // trusted operator (admin/demo). Default to an admin session so the existing
+  // allowOffChain pilot tests keep exercising that path; individual tests
+  // override this to assert the investor-facing denial.
+  getSession: vi.fn().mockResolvedValue({
+    userId: "user_cuid_001",
+    email: "admin@hearst.local",
+    role: "admin",
+  }),
 }));
 
 vi.mock("@/lib/data/vaults", () => ({
@@ -53,7 +62,7 @@ vi.mock("next/cache", () => ({
 
 // ── Imports (after mocks) ─────────────────────────────────────────────────
 
-import { getInvestor } from "@/lib/auth/session";
+import { getInvestor, getSession } from "@/lib/auth/session";
 import { getVault } from "@/lib/data/vaults";
 import { prisma } from "@/lib/db";
 import { subscribe } from "@/app/actions/subscribe";
@@ -463,6 +472,31 @@ describe("subscribe — ledger integrity (on-chain deposit required)", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error).toMatch(/invalid.*hash/i);
+    }
+    expect(prisma.position.create).not.toHaveBeenCalled();
+  });
+
+  it("SECURITY: a plain investor cannot use allowOffChain to skip settlement", async () => {
+    // A non-admin, non-demo session that POSTs the server action with
+    // {allowOffChain:true} must be DOWNGRADED — the off-chain flag is ignored,
+    // so the on-chain deposit is still required and no position is written.
+    vi.mocked(getSession).mockResolvedValueOnce({
+      userId: "user_cuid_001",
+      email: "attacker@example.com",
+      role: "investor",
+    } as never);
+
+    const result = await subscribe(
+      "hearst-yield-vault",
+      250_000,
+      "A",
+      undefined,
+      { allowOffChain: true },
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/on-chain deposit/i);
     }
     expect(prisma.position.create).not.toHaveBeenCalled();
   });

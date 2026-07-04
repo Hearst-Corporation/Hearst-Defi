@@ -1,5 +1,7 @@
 import "server-only";
 
+import { revalidateTag } from "next/cache";
+
 import { inngest } from "@/lib/inngest/client";
 import { loadCustody } from "@/lib/data/custody";
 import { prisma } from "@/lib/db";
@@ -131,6 +133,12 @@ export async function custodySnapshotHourlyHandler({
   });
 
   await markComplete(CUSTODY_SNAPSHOT_HOURLY_ID, now);
+
+  // Bust the `unstable_cache(tags:["yield"])` entry backing loadAllocationDonut /
+  // yield-stack reads: a fresh VaultSnapshot+Allocation just landed, so the
+  // cached (and now stale) snapshot must be evicted or the donut/Capital & Yield
+  // panel would show the previous hour's mix up to the 1h TTL.
+  revalidateTag("yield", "max");
 
   return {
     aumUsdc:    custody.totalUsdcReserves,
