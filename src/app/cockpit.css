@@ -5532,6 +5532,8 @@ main#main-content>.admin-doc.admin-doc-shell {
   justify-content: center;
   gap: var(--ct-space-12);
   height: 100%;
+  /* Sign-in is the left column; the vertical divider lives on the brand (right). */
+  border-left: 1px solid var(--ct-border-soft);
   padding-block: var(--ct-space-16);
   background-image: radial-gradient(
     circle,
@@ -5598,7 +5600,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid var(--ct-border-soft);
   height: 100%;
   padding-block: var(--ct-space-16);
 }
@@ -5606,6 +5607,8 @@ main#main-content>.admin-doc.admin-doc-shell {
 @media (max-width: 63.999rem) {
   .login-split__brand {
     min-height: auto;
+    border-left: none;
+    border-top: 1px solid var(--ct-border-soft);
     padding-block: var(--ct-space-12) var(--ct-space-10);
   }
 
@@ -5618,8 +5621,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   }
 
   .login-split__signin {
-    border-left: none;
-    border-top: 1px solid var(--ct-border-soft);
     padding-block: var(--ct-space-10);
   }
 }

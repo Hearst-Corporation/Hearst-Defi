@@ -19,6 +19,14 @@ export async function LoginSplit() {
       </div>
 
       <div className="login-split__grid grid grid-cols-1 lg:grid-cols-2">
+        <section className="login-split__signin auth-split__signin-inset">
+          <div className="flex w-full justify-center">
+            <div className="login-split__signin-card">
+              <LoginPanel />
+            </div>
+          </div>
+        </section>
+
         <section className="login-split__brand auth-split__brand-inset relative">
           <Image
             src="/logos/hearst-connect-dark.svg"
@@ -52,14 +60,6 @@ export async function LoginSplit() {
                   <ProvenanceBadge kind="estimated" variant="strip" />
                 </div>
               )}
-            </div>
-          </div>
-        </section>
-
-        <section className="login-split__signin auth-split__signin-inset">
-          <div className="flex w-full justify-center">
-            <div className="login-split__signin-card">
-              <LoginPanel />
             </div>
           </div>
         </section>
