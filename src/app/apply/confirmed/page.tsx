@@ -50,23 +50,24 @@ export default function ConfirmedPage() {
           </div>
         </div>
       }
-      body={null}
+      body={
+        <div className="flex flex-col items-center">
+          <Button asChild variant="primary" size="md">
+            <Link href="/login">Go to login →</Link>
+          </Button>
+        </div>
+      }
       sole={
         <OnboardingChamberSole
           irContact={irContact}
           actions={
-            <div className="flex flex-col items-center gap-3">
-              <Button asChild variant="primary" size="md">
-                <Link href="/login">Go to login →</Link>
-              </Button>
-              <p className="body-xs m-0 text-center text-pretty">
-                Didn&apos;t receive the email?{" "}
-                <Link href="/forgot-password" className="ct-link-accent">
-                  Request a new activation link
-                </Link>
-                .
-              </p>
-            </div>
+            <p className="body-xs m-0 text-center text-pretty">
+              Didn&apos;t receive the email?{" "}
+              <Link href="/forgot-password" className="ct-link-accent">
+                Request a new activation link
+              </Link>
+              .
+            </p>
           }
         />
       }
