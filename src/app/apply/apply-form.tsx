@@ -82,6 +82,8 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
   // Four persona questions: platformType (who) + aum (capacity)
   // + vaultSize (intended first allocation) + timeline (next step).
   const [platformType, setPlatformType] = useState("");
+  // Free-text detail revealed when the "Other" platform option is selected.
+  const [platformTypeOther, setPlatformTypeOther] = useState("");
   const [aum, setAum] = useState("");
   const [vaultSize, setVaultSize] = useState("");
   const [timeline, setTimeline] = useState("");
@@ -103,6 +105,12 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
     if (next) setStep(next);
   }
 
+  function selectPlatformType(value: string) {
+    setPlatformType(value);
+    // Drop any free-text detail when leaving "Other" so no orphan text is sent.
+    if (value !== "other") setPlatformTypeOther("");
+  }
+
   function goBack() {
     setError(null);
     const previous = STEP_ORDER[stepIndex - 1];
@@ -116,6 +124,8 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
     if (lastName.trim()) fd.set("lastName", lastName.trim());
     if (phone.trim()) fd.set("phone", phone.trim());
     if (platformType) fd.set("platformType", platformType);
+    if (platformType === "other" && platformTypeOther.trim())
+      fd.set("platformTypeOther", platformTypeOther.trim());
     if (aum) fd.set("aum", aum);
     if (vaultSize) fd.set("vaultSize", vaultSize);
     if (timeline) fd.set("timeline", timeline);
@@ -142,17 +152,12 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             ariaLabel="Qualification progress"
             hideLabelsBelow="sm"
           />
-          <div className="product-doc-stack--tight">
-            <p className="eyebrow ct-text-muted m-0">
-              Qualification · Step {stepIndex + 1} of {totalSteps}
+          <div className="product-doc-stack--compact">
+            <h1 className="h1 m-0 text-pretty">Qualification for institutional access</h1>
+            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
+              A few quick steps to assess fit for Hearst Connect&apos;s
+              institutional USDC yield program. No commitment required.
             </p>
-            <div className="product-doc-stack--compact">
-              <h1 className="h1 m-0 text-pretty">Qualification for institutional access</h1>
-              <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
-                A few quick steps to assess fit for Hearst Connect&apos;s
-                institutional USDC yield program. No commitment required.
-              </p>
-            </div>
           </div>
           <div className="product-doc-inline-row product-doc-inline-row--start">
             {META_CHIPS.map((chip) => (
@@ -164,7 +169,7 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
         </div>
       }
       body={
-        <div className="product-doc-stack">
+        <div className="product-doc-stack apply-body-fixed">
           {step === "about" && (
             <div className="product-doc-stack--relaxed">
               <StepHeading
@@ -236,10 +241,23 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
                     key={o.value}
                     label={o.label}
                     selected={platformType === o.value}
-                    onClick={() => setPlatformType(o.value)}
+                    onClick={() => selectPlatformType(o.value)}
                   />
                 ))}
               </ChoiceGroup>
+              {platformType === "other" ? (
+                <label className="block" htmlFor="apply-platform-other">
+                  <span className="ct-form-label">Tell us more</span>
+                  <input
+                    id="apply-platform-other"
+                    type="text"
+                    value={platformTypeOther}
+                    onChange={(e) => setPlatformTypeOther(e.target.value)}
+                    placeholder="Tell us about your platform"
+                    className="ct-input ct-input-bare"
+                  />
+                </label>
+              ) : null}
             </div>
           )}
 
@@ -300,11 +318,16 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             </div>
           )}
 
-          {error ? (
-            <p className="body-xs ct-status-danger m-0" role="alert">
-              {error}
-            </p>
-          ) : null}
+          {/* Permanent error slot — the line stays reserved whether or not an
+             error is present so the box never grows/shrinks when validation
+             fails. Only the text (and the alert role) toggle. */}
+          <div className="apply-error-slot" aria-live="polite">
+            {error ? (
+              <p className="body-xs ct-status-danger m-0" role="alert">
+                {error}
+              </p>
+            ) : null}
+          </div>
         </div>
       }
       sole={

@@ -9,6 +9,7 @@ import {
   upsertQualification,
   applyCalibrationToUser,
 } from "@/lib/agents/qualification";
+import type { PlatformType, Timeline } from "@/lib/agents/calibration";
 import { sendWelcomeEmail } from "@/lib/auth/send-welcome-email";
 import { upsertHubSpotContact } from "@/lib/hubspot/sync-qualification";
 import {
@@ -27,6 +28,11 @@ const Input = z.object({
   lastName: z.string().trim().max(100).optional(),
   phone: z.string().trim().max(40).optional(),
   platformType: z.enum(PLATFORM_TYPE_VALUES).optional(),
+  // Free-text detail captured when "Other" is selected on the profile step.
+  // Accepted + validated here so the form submit never rejects, but there is
+  // no dedicated QualificationProfile column to persist it today — it is not
+  // written to the DB (see submit handler). Wire a column before persisting.
+  platformTypeOther: z.string().trim().max(200).optional(),
   aum: z.enum(AUM_VALUES).optional(),
   fundsUsage: z.enum(FUNDS_USAGE_VALUES).optional(),
   yieldStatus: z.enum(YIELD_STATUS_VALUES).optional(),
@@ -53,6 +59,7 @@ export async function submitApplication(
     lastName: opt(formData.get("lastName")),
     phone: opt(formData.get("phone")),
     platformType: opt(formData.get("platformType")),
+    platformTypeOther: opt(formData.get("platformTypeOther")),
     aum: opt(formData.get("aum")),
     fundsUsage: opt(formData.get("fundsUsage")),
     yieldStatus: opt(formData.get("yieldStatus")),
@@ -95,13 +102,21 @@ export async function submitApplication(
     lastName: input.lastName ?? null,
     phone: input.phone ?? null,
     website: null,
-    platformType: input.platformType ?? null,
+    // `platformType`/`timeline` accept the new "other"/"unsure" values (they
+    // are persisted verbatim into the QualificationProfile String? columns).
+    // The calibration `PlatformType`/`Timeline` literal unions in
+    // `src/lib/agents/calibration.ts` don't yet list them, so we narrow here
+    // — same string→literal pattern as `toAnswers()` in that module. The
+    // calibration mappers fall through to their generic `default:` for these
+    // values, which is the intended behaviour. See report: the durable fix is
+    // to derive those unions from the qualification OPTIONS.
+    platformType: (input.platformType ?? null) as PlatformType | null,
     aum: input.aum ?? null,
     fundsUsage: input.fundsUsage ?? null,
     yieldStatus: input.yieldStatus ?? null,
     yieldType: input.yieldType ?? null,
     vaultSize: input.vaultSize ?? null,
-    timeline: input.timeline ?? null,
+    timeline: (input.timeline ?? null) as Timeline | null,
   });
 
   // Calibrate agent persona (best-effort).

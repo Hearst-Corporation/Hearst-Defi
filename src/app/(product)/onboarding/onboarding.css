@@ -116,6 +116,35 @@ body:has([data-testid="apply-shell"]) {
   padding-top: var(--ct-space-2);
 }
 
+/* ── /apply wizard — constant body height ──
+   Every qualification step (About you / Profile / Capacity / Allocation /
+   Timing) must render at the SAME card height so the chamber never grows or
+   shrinks between steps, when a validation error appears, or when the Profile
+   "Other" free-text field is revealed. Two parts:
+
+   1. `.apply-body-fixed` reserves a floor tall enough for the largest step —
+      Profile with 5 choice cards + the revealed "Other" input. The target is
+      composed from `--ct-space-*` tokens (no magic px): 7 × --ct-space-16
+      (4rem / 64px each) = 28rem. `clamp()` lets very short viewports shrink
+      toward --ct-space-16 × 4 (16rem) so the card can never overflow the
+      screen, while the preferred value stays the fixed 28rem shared by all
+      steps.
+   2. `.apply-error-slot` keeps a permanent line for the inline error so the
+      layout never shifts when the message toggles on/off. */
+.apply-body-fixed {
+  min-height: clamp(
+    calc(var(--ct-space-16) * 4),
+    60vh,
+    calc(var(--ct-space-16) * 7)
+  );
+}
+
+.apply-error-slot {
+  min-height: var(--ct-space-5);
+  display: flex;
+  align-items: flex-start;
+}
+
 /* ── Institutional Chamber ── */
 
 .onboarding-chamber {

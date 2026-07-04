@@ -24,6 +24,7 @@ export const PLATFORM_TYPE_OPTIONS = [
   { value: "crypto", label: "Crypto-native / DeFi" },
   { value: "exchange", label: "Crypto exchange / OTC desk" },
   { value: "custody", label: "Custodian / infrastructure" },
+  { value: "other", label: "Other" },
 ] as const satisfies readonly QualificationOption[];
 
 export const AUM_OPTIONS = [
@@ -66,6 +67,7 @@ export const TIMELINE_OPTIONS = [
   { value: "1_3m", label: "1 – 3 months" },
   { value: "3_6m", label: "3 – 6 months" },
   { value: "exploring", label: "Just exploring" },
+  { value: "unsure", label: "Not sure yet" },
 ] as const satisfies readonly QualificationOption[];
 
 export const QUALIFICATION_FIELD_DEFINITIONS = [
