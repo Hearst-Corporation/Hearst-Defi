@@ -5552,11 +5552,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   max-width: 35rem;
 }
 
-.login-split__logo {
-  width: 27.5rem;
-  height: auto;
-  display: block;
-}
 
 .login-split__tagline {
   display: flex;
@@ -5616,10 +5611,6 @@ main#main-content>.admin-doc.admin-doc-shell {
     gap: var(--ct-space-8);
   }
 
-  .login-split__logo {
-    width: min(100%, 20rem);
-  }
-
   .login-split__signin {
     padding-block: var(--ct-space-10);
   }
@@ -5632,10 +5623,6 @@ main#main-content>.admin-doc.admin-doc-shell {
 
   .login-split__brand-inner {
     gap: var(--ct-space-6);
-  }
-
-  .login-split__logo {
-    width: min(100%, 16rem);
   }
 
   .login-split__signin {

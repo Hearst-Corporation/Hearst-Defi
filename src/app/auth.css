@@ -145,10 +145,10 @@
   text-align: center;
 }
 
-/* Small brand mark pinned top-left of the sign-in panel. */
+/* Brand mark pinned top-left of the sign-in panel. */
 .auth-login-panel__logo {
   align-self: flex-start;
-  width: var(--ct-space-20);
+  width: var(--ct-space-32);
   height: auto;
   display: block;
 }

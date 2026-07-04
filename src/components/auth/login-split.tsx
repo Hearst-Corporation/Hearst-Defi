@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { LoginPanel } from "@/components/auth/login-panel";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { listVaults } from "@/lib/data/vaults";
@@ -28,15 +26,6 @@ export async function LoginSplit() {
         </section>
 
         <section className="login-split__brand auth-split__brand-inset relative">
-          <Image
-            src="/logos/hearst-connect-dark.svg"
-            alt="Hearst Connect"
-            width={831}
-            height={294}
-            className="login-split__logo"
-            priority
-          />
-
           <div className="login-split__brand-inner">
             <div className="login-split__tagline">
               <span className="eyebrow login-split__eyebrow-accent">
