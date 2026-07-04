@@ -101,6 +101,9 @@ export default async function ProfilePage() {
         <BentoPanel aria-labelledby="prof-account-label">
           <BentoHeader id="prof-account-label" title="Identity" as="h2" />
           <div className="px-5">
+            <BentoDetailRow label="Email">
+              {session.email}
+            </BentoDetailRow>
             <BentoDetailRow label="Member since">
               {investor ? formatProfileDate(investor.createdAt) : "—"}
             </BentoDetailRow>

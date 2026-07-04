@@ -157,8 +157,8 @@ function PrivyConnectInner({
       <Button
         type="button"
         variant="primary"
-        size="lg"
-        className="w-full"
+        size={surface === "bare" ? "md" : "lg"}
+        className={surface === "bare" ? undefined : "w-full"}
         onClick={() => {
           setError(null);
           void connectWallet();
