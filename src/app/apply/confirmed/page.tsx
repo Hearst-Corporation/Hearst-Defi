@@ -55,8 +55,8 @@ export default function ConfirmedPage() {
         <OnboardingChamberSole
           irContact={irContact}
           actions={
-            <div className="flex flex-col gap-3">
-              <Button asChild variant="primary" size="lg" className="w-full">
+            <div className="flex flex-col items-center gap-3">
+              <Button asChild variant="primary" size="md">
                 <Link href="/login">Go to login →</Link>
               </Button>
               <p className="body-xs m-0 text-center text-pretty">
