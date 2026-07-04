@@ -139,12 +139,6 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
       aside={irContact ? <ApplyAside irContact={irContact} /> : undefined}
       crown={
         <div className="product-doc-stack onboarding-shell__stepper text-left">
-          <WizardStepProgress
-            steps={STEPS}
-            active={step}
-            ariaLabel="Qualification progress"
-            hideLabelsBelow="sm"
-          />
           <div className="product-doc-stack--compact text-left items-start">
             <h1 className="h1 m-0 text-pretty" style={{ color: "var(--ct-accent)" }}>Qualification for institutional access</h1>
             <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
@@ -152,6 +146,12 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
               institutional USDC yield program. No commitment required.
             </p>
           </div>
+          <WizardStepProgress
+            steps={STEPS}
+            active={step}
+            ariaLabel="Qualification progress"
+            hideLabelsBelow="sm"
+          />
         </div>
       }
       body={
