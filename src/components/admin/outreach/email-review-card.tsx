@@ -107,7 +107,11 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
   // Sanitisation (DOMPurify) only works once bound to a real browser `window`.
   // Gate the preview iframe on client mount so it never renders during SSR.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // Post-hydration mount flag (SSR/CSR gate above) — not an avoidable cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const variant = STATUS_VARIANT[email.status] ?? "default";
   const dirty = subject !== email.subject || body !== email.body;

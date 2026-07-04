@@ -17,40 +17,46 @@ Agents must reserve files here before editing.
 
 ---
 
-## WORKTREE & BRANCH STATE — SNAPSHOT 2026-06-28 (rafraîchi)
+## WORKTREE & BRANCH STATE — SNAPSHOT 2026-07-03 (rafraîchi, batch série 8/9 intégrateur)
 
 > Vue de coordination des worktrees / branches / PRs réellement vivants. À tenir
-> à jour quand un worktree naît ou meurt. `origin/main` HEAD = `a5d05fb1`
-> (PR #183 — HcValueChart test — mergée).
+> à jour quand un worktree naît ou meurt. `origin/main` HEAD = `3030b46c`.
+>
+> **Note environnement nexus** : chaque loop de cette série peut s'exécuter sur un
+> runner physique distinct — `git worktree list` ne montre donc que le worktree du
+> runner courant, pas ceux des autres agents actifs ailleurs. Les entrées de la
+> section `ACTIVE LOCKS` ci-dessous restent la source de vérité pour les agents en
+> cours, même sans worktree visible localement ; ce tableau ne couvre que ce qui
+> est vérifiable par le runner de ce batch.
 
-### Worktrees vivants (vérité `git worktree list`)
+### Worktrees vivants (vérité `git worktree list`, ce runner)
 
 | Worktree | Branche | vs origin/main | Statut | Action |
 |---|---|---|---|---|
-| `connect — Hearst Defi/` (principal) | `main` | aligné | propre | tree d'intégration / orchestrateur |
-| `connect-catalyst-absorption` | `fix/catalyst-absorption` | ahead (en cours) | **active** (lock posé) | MISSION #043 Catalyst absorption |
+| `Hearst-Defi/` (principal, ce runner) | `nexus/loop_mr3jnzid-mr5o14ko` | aligné (HEAD = origin/main) | propre | batch série 8/9, rôle intégrateur |
 
-> Tous les autres worktrees référencés dans les snapshots précédents (connect-ds-canon,
-> connect-ds-authority-lock, connect-defi-market-data, wt-nav-p0, wt-chat-catalyst,
-> connect-outreach-draft-fix, connect-outreach-regex) **n'existent plus physiquement** —
-> retirés ou jamais recréés. `git worktree list` ne connaît que les deux ci-dessus.
+> **Correction de cohérence (batch 8/9)** : le précédent snapshot (2026-06-28) listait
+> `connect-catalyst-absorption` / `fix/catalyst-absorption` comme **active** — contredit
+> par la propre section `RELEASED LOCKS` de ce même fichier, qui documente ce lock
+> **merged** le même jour (PR #184, confirmé fusionné : `git log --oneline --all` trouve
+> le merge commit, `git ls-remote origin` ne montre plus la branche). Corrigé ici.
 
-### PRs ouvertes
+### PRs ouvertes / branches parquées (2026-06-28) — statut vérifié ce batch
 
-- **#146** — `purge-css-final` — purge CSS finale, **DRAFT / PARKED**, ne pas toucher.
-- **#81** — `feat/agentic-premium-redesign-from-local` — agentic redesign, `CONFLICTING`.
+- **#146** (`purge-css-final`) et **#81** (`feat/agentic-premium-redesign-from-local`) —
+  aucune des deux branches n'apparaît plus dans `git ls-remote origin` : fermées/mergées/
+  supprimées depuis le snapshot du 2026-06-28. Rien à traiter côté intégrateur ; si un
+  futur batch a besoin du contenu de ces PRs, vérifier d'abord leur statut réel via `gh`
+  (indisponible dans cet environnement d'exécution) plutôt que de se fier à ce tableau.
 
-### Branches parquées / à statuer (NE PAS merger dans une passe docs)
-
-- **`purge-css-final`** (#146) — purge CSS finale **parquée**. **Ne pas merger, ne pas rebase.**
-- `feat/agentic-premium-redesign-from-local` (#81) — `CONFLICTING`, l'agent rebasera.
-
-### Branches obsolètes confirmées (remote présent mais entièrement sur main)
+### Branches obsolètes confirmées (remote absent — vérifié `git ls-remote origin`, 2026-07-03)
 
 - `feat/ds-canon-propagation` — mergée dans main (commit `a505985e`). Lock retiré.
 - `feat/kimi-deterministic-intent-router-v2`, `feat/nav-deterministic-backfill`,
-  `fix/projection-truth-source` — `CONFLICT_REBASE` (cf. rapport orchestrateur) ;
-  contenu partiellement/intégralement dépassé par main. À rebaser par leurs agents ou clôturer.
+  `fix/projection-truth-source` — plus aucune trace remote ; contenu visé (routeur
+  d'intent déterministe, retrait Kimi/ADR-011) déjà mergé dans `main`. Lock
+  `feat/kimi-deterministic-intent-router-v2` déplacé vers `RELEASED LOCKS` ce batch
+  (voir section correspondante ci-dessous pour le détail de la vérification).
 
 ---
 
@@ -1017,21 +1023,22 @@ Result:
 - short summary
 ```
 
-### feat/kimi-deterministic-intent-router-v2
+### feat/kimi-deterministic-intent-router-v2 (stale — retiré, batch 8/9 intégrateur)
 Owner: Kimi Code — Deterministic Intent Router Owner
 Branch: feat/kimi-deterministic-intent-router-v2
 Worktree: ../connect-kimi-intent-router
 Started: 2026-06-25
-Status: active
+Released: 2026-07-03 (batch série 8/9, rôle intégrateur — cohérence transverse)
+Status: stale, retiré
 
-Scope:
+Scope (historique) :
 - src/lib/agentic/intent-router.ts
 - src/lib/agentic/intent-router-*.ts
 - src/lib/agentic/__tests__/intent-router.test.ts
 - src/app/api/cockpit-chat/route.ts (non-shadow wiring, safe paths only)
 - docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md
 
-Notes:
+Notes (historique) :
 - Build deterministic intent router v2 (non-shadow).
 - Centralize regex/rule routing.
 - Fix negation handling gaps.
@@ -1040,3 +1047,18 @@ Notes:
 - No DB migration.
 - No deploy/send/source execution.
 - No HITL bypass.
+
+Résultat — pourquoi retiré : ce lock était déjà signalé stale dans
+`PROJECT_PLAN.md`/`PROJECT_STATE.md` (Kimi retiré per ADR-011). Vérifié
+indépendamment ce batch : `git ls-remote origin` ne montre plus aucune branche
+`feat/kimi-deterministic-intent-router-v2` (ni `feat/nav-deterministic-backfill`,
+`fix/projection-truth-source` — les deux autres branches "CONFLICT_REBASE" citées
+dans le snapshot ci-dessus, également absentes du remote) ; le travail visé
+(router déterministe, Kimi retiré) est déjà mergé dans `main` (ADR-011 rename
+`kimi.ts`→`openai.ts`, ADR-018 migration intent-router vers déterministe —
+`src/lib/agentic/intent-router*.ts` existent et sont déjà le routeur régles/regex
+déterministe, aucune trace `Kimi`/`KIMI_*` dans `src/lib/llm/**`). Bloquait
+inutilement toute future édition de `intent-router.ts`/`cockpit-chat/route.ts`
+(cf. garde-fou explicite dans `PROJECT_PLAN.md` §Contraintes). Retiré sans
+`--force`/suppression destructive — déplacé en RELEASED, contenu conservé pour
+traçabilité.
