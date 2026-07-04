@@ -13,7 +13,8 @@ export function LoginPanel() {
         <span className="login-split__title-accent">Bitcoin mining</span>
       </h1>
 
-      <div className="w-full">
+      <div className="flex w-full max-w-xs flex-col gap-4 self-start">
+        <h2 className="h2 m-0 text-left">Sign in</h2>
         <LoginForm />
       </div>
     </div>
