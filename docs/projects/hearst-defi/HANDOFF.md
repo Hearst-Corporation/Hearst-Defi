@@ -2,6 +2,221 @@
 
 ---
 
+## Batch 5/9 (builder, Data Truth) : nouvelle invocation, 2e finding réel T-14 corrigé — 2026-07-04
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data
+Truth". Nouvelle invocation sur la **même branche** (`nexus/loop_mr3jnyjv-mr5larbn`) — le
+working tree contenait déjà, non commité, le fix T-13 complet (2 sessions précédentes l'ont
+relu et validé sans y toucher).
+
+RELAIS relu intégralement avant toute action. `docs/agent-file-locks.md` relu : mêmes 4 locks
+actifs (`fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
+`feat/projection-safe-input-preset`, `fix/machine-logo-visible`), tous UI, aucun chevauchement.
+`git log` confirme `HEAD` toujours sur `5b339d38` = `origin/main`.
+
+**Ce que cette session a fait différemment** : plutôt que de re-balayer les mêmes répertoires
+(déjà couverts ~6 fois), elle a poussé plus loin l'investigation du **même fichier** que le
+fix T-13 (`src/lib/agents/loaders/mining.ts`) : `loadLatestMiningMetrics` (corrigé par T-13)
+n'est **pas** la seule fonction exportée de ce loader qui expose `uptime_pct`/hashrate au monde
+extérieur. `loadMiningOpsSnapshot` (même fichier, lignes 198-260) alimente un consommateur
+**distinct** — l'Investor Memo PDF — via `src/lib/pdf/memo-data.ts` →
+`src/lib/pdf/memo-pages/mining-health.tsx`. Ça a révélé un second finding réel :
+
+**T-14 — Investor Memo PDF badge "attested" le hashrate/uptime miniers alors que ce sont
+toujours des placeholders codés en dur [CRITICAL — document PDF envoyé aux LPs].**
+`mining-health.tsx:46` calculait `opsProvenance = data.miningOps.is_fallback ? "estimated" :
+"attested"` pour les KPI "Hashrate deployed" et "Uptime". Or `is_fallback` signale seulement
+"aucune ligne `MiningMetric` dans la fenêtre 30j" — pas "cette ligne est une vraie mesure". Le
+cron `market-data-hourly.ts` tourne toutes les heures et écrit toujours `uptimePct: 98.5` /
+`deployedHashrate: 182_000` en dur (même placeholder que T-13) : `is_fallback` est donc quasi
+toujours `false`, et le PDF affichait quasi systématiquement ces deux métriques comme
+"attested" avec un hint trompeur ("JV operator fleet, paper-attested" / "Trailing 30d, paper
+attestation"). Sévérité équivalente à T-01 (document formel LP-visible), plus grave que T-13
+(qui touchait seulement la narrative de l'agent Mining Health, pas un PDF envoyé aux
+investisseurs). Seul consommateur visuel de `miningOps` trouvé dans le code (vérifié par
+grep sur `src/app`/`src/components`) ; le dashboard admin charge aussi
+`loadMiningOpsSnapshot()` mais aucune page/composant ne restitue `miningOps` visuellement à
+ce jour.
+
+**Fix appliqué** (2 fichiers, owner zone respectée — `src/lib/pdf/**` est un template de rendu
+lib, pas une route `src/app/**`) :
+- `src/lib/pdf/memo-pages/mining-health.tsx` : `opsProvenance` toujours `"estimated"` pour
+  Hashrate/Uptime, jamais dérivé de `is_fallback` ; hints reformulés pour ne jamais impliquer
+  une mesure réelle.
+- `src/lib/__tests__/data-honesty-guards.test.ts` : POINT 8 ajouté — verrouille que
+  `opsProvenance = "estimated"` en dur et que le ternaire `is_fallback ? "estimated" :
+  "attested"` ne réapparaît pas.
+
+**Non touché délibérément** : `loaders/mining.ts` n'a pas eu besoin d'un nouveau champ — le
+fix est entièrement côté consommateur PDF, `MiningOpsSnapshot`/`is_fallback` gardent leur
+sémantique actuelle (légitime ailleurs, ex. `dashboard-page-view.ts` preview-vault scoping).
+`src/lib/data/dashboard.ts`/`dashboard-page-view.ts` non touchés : aucune UI actuelle n'y
+restitue `miningOps` visuellement.
+
+**Validations** (environnement chaud) :
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` → **448/448 fichiers, 5355/5355 tests** (5354 baseline + 1 nouveau POINT 8).
+  `prisma/schema.prisma` restauré proprement en `postgresql`.
+- Suite ciblée `data-honesty-guards.test.ts` → 23/23, verte.
+
+**Fichiers modifiés cette session** :
+| Fichier | Action |
+|---|---|
+| `src/lib/pdf/memo-pages/mining-health.tsx` | Fix — hashrate/uptime toujours `"estimated"`, jamais dérivé de `is_fallback` |
+| `src/lib/__tests__/data-honesty-guards.test.ts` | POINT 8 — guard régression provenance PDF mining ops |
+| `docs/projects/hearst-defi/DECISIONS.md` | T-14 documenté (détail complet) |
+| `docs/projects/hearst-defi/BATCHES.md` | Ligne 2b + horodatage mis à jour |
+| `docs/projects/hearst-defi/PROJECT_STATE.md` | RP-10 enrichi (T-14) |
+| `docs/projects/hearst-defi/HANDOFF.md` | Ce fichier — section ajoutée |
+
+**Fichiers exclus (owner zone respectée)** : aucune UI page (`src/app/**`), aucun
+`prisma/**`, aucun `.github/workflows/**`, aucun secret/`.env*`, aucun `vercel.json` ;
+`src/lib/llm/tools/registry.ts` toujours non touché (sensible single-owner).
+
+**Statut d'intégration** : diff non commité/non poussé (T-13 + T-14 cumulés sur cette
+branche) — pas de PR ouverte par ce batch (rôle builder ; intégration = étape suivante du
+pipeline nexus, hors scope de ce rôle).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02 décision
+Adrien email de reçu). Les fixes T-13/T-14 de cette série peuvent être intégrés
+indépendamment (isolés, testés, hors scope batch 3).
+
+---
+
+## Batch 5/9 (builder, Data Truth) : re-confirmation + sweep étendu (agentic/outreach/email), no-op additionnel — 2026-07-04
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data
+Truth". Nouvelle invocation, **même branche** que la passe précédente
+(`nexus/loop_mr3jnyjv-mr5larbn`) — le working tree contenait déjà, non commité, le fix T-13
+complet (`src/lib/agents/loaders/mining.ts` + POINT 7 dans `data-honesty-guards.test.ts` + les
+4 fichiers docs), décrit dans la section juste en dessous.
+
+RELAIS relu intégralement avant toute action. `docs/agent-file-locks.md` relu en entier (1025
+lignes) : locks actifs inchangés (`fix/strategy-dupkey-fix`, `feat/product-workspace-report-
+product-polish`, `feat/projection-safe-input-preset`, `fix/machine-logo-visible`) — tous UI,
+aucun chevauchement avec l'owner zone données/API. `gh` non disponible dans cet environnement
+(`command not found`) — pas d'accès direct aux PR ouvertes ; `git log`/`git status` ne montrent
+aucune autre branche/PR touchant cette owner zone.
+
+**Ce que cette session a fait** :
+1. Relu ligne à ligne le diff déjà présent (`mining.ts` + POINT 7) — correct, cohérent avec la
+   description de la passe précédente, rien à changer.
+2. Étendu le balayage anti-mock (`mock|fake|hardcod|placeholder|dummy`) à des répertoires
+   pas explicitement couverts par les passes précédentes de cette série : `src/lib/agentic/**`
+   (swarm/live, observability, crew-simulation, reporting, product-projection),
+   `src/lib/outreach/**`, `src/lib/email/**`, `src/lib/power/**`. **Aucun nouveau finding** :
+   tous les hits sont soit des `vi.mock(...)` de tests (attendus), soit des commentaires
+   documentant un refactor passé ("was hardcoded, now configurable" — `quant-assumptions.ts`,
+   `pipeline.ts`, `runners-data.ts`), soit le fallback Apollo déjà honnêtement flaggé
+   (`src/lib/outreach/icp.ts` — `mock: true` sur chaque candidat généré, statut documenté en
+   commentaire de tête "SOURCING RUNNER — STATUS: REAL (with mock fallback when
+   APOLLO_API_KEY absent)", déjà couvert par T-10 et déjà guardé côté prod dans
+   `admin/outreach/actions.ts`).
+3. Validations complètes relancées indépendamment sur environnement chaud (`node_modules`,
+   `prisma/dev.db` déjà présents) :
+   - `pnpm typecheck` → **0 erreur**.
+   - `pnpm test` (suite complète, wrapper `pretest`/`posttest` sqlite↔postgresql) →
+     **448/448 fichiers, 5354/5354 tests**. `prisma/schema.prisma` confirmé propre
+     (`postgresql`, `git diff --stat` vide après coup).
+
+**Conclusion** : le fix T-13 déjà présent dans le working tree reste la seule action de code
+réelle et nécessaire pour cette owner zone à ce jour ; le sweep étendu à agentic/outreach/email/
+power ne révèle aucun mock non signalé supplémentaire. **Aucun changement de fichier source
+additionnel cette session** — diff inchangé vs la passe précédente, uniquement cet addendum
+HANDOFF. Le diff reste non commité/non poussé (rôle builder — intégration hors scope).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05
+décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02 décision
+Adrien email de reçu).
+
+---
+
+## Batch 5/9 (builder, Data Truth) : nouvelle invocation, finding réel T-13 corrigé — 2026-07-04
+
+**Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data
+Truth" (owner zone : couche données/API — sources réelles, gardes anti-mock). Nouvelle
+invocation sur une branche fraîche (`nexus/loop_mr3jnyjv-mr5larbn`), checkout vierge
+(`node_modules`/`prisma/dev.db` absents au démarrage).
+
+**RELAIS relu intégralement** (`PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md`) avant tout code. `docs/agent-file-locks.md` vérifié : 4 locks actifs
+(`fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
+`feat/projection-safe-input-preset`, `fix/machine-logo-visible`), tous scopés UI étroits, aucun
+chevauchement avec `src/lib/agents/loaders/mining.ts` ni `src/lib/__tests__/data-honesty-guards.test.ts`.
+`git fetch origin main` + `git merge-base --is-ancestor b3487a69 HEAD` → HEAD (`5b339d38`) =
+`origin/main`, aucune divergence ; `git log b3487a69..HEAD -- src/lib src/app/api` → seul
+`0e378906` (forbidden-words fix, déjà documenté, hors scope mocks). Aucune PR ouverte ne chevauche
+cet owner zone.
+
+**Ce que cette session a fait différemment** : au lieu de répéter le même balayage
+(`portfolio/`, `data/`, `agents/`, `onchain/`, `governance/`, `distribution/`, `notifications/`,
+`product-strategies/` — déjà couverts ~5 fois, toujours no-op), elle a étendu le grep
+`mock|fake|hardcod|placeholder|dummy` à `src/lib/inngest/functions/*` (les crons de market data /
+mining health), un répertoire pas explicitement cité par les passes précédentes. Ça a trouvé un
+finding réel :
+
+**T-13 — mining fleet uptime badgé "attested" alors que c'est un placeholder codé en dur.**
+`src/lib/inngest/functions/market-data-hourly.ts:117-118` écrit `uptimePct: 98.5` /
+`deployedHashrate: 182_000` en dur sur chaque ligne `MiningMetric` (commentaire du code lui-même :
+`// placeholder until real uptime feed`). `src/lib/agents/loaders/mining.ts`
+(`loadLatestMiningMetrics`, le loader de l'agent Mining Health) appliquait pourtant à `uptime_pct`
+le même tag de provenance que `hashprice`/`difficulty`/`margin` (`"attested"` ou `"stale"` selon
+la fraîcheur de la ligne) — alors que le vocabulaire officiel de `attested` (`src/lib/agents/
+schemas.ts`) exige "measured row + verified mining_attestation Proof". Un chiffre codé en dur
+n'est jamais mesuré : le badger `attested` viole le non-négociable #2 (CLAUDE.md — chaque métrique
+doit porter un badge de provenance honnête), et empêchait l'agent de recevoir l'instruction
+"FLAG IN-LINE" (réservée aux tags dégradés) pour ce chiffre précis dans sa narrative LP quotidienne.
+
+**Fix appliqué** (2 fichiers, owner zone respectée — aucune UI, aucun Prisma, aucun workflow) :
+- `src/lib/agents/loaders/mining.ts` : `uptime_pct` est désormais toujours tagué `"estimated"`
+  (jamais `rowTag`), peu importe la fraîcheur — `hashprice_usd_per_th`/`difficulty_change_pct`/
+  `margin_pct` restent sur `rowTag` (ce sont, eux, de vraies valeurs mesurées/dérivées d'un
+  feed live). `estimated` est un tag dégradé → l'agent flague désormais correctement ce chiffre.
+- `src/lib/__tests__/data-honesty-guards.test.ts` : POINT 7 ajouté (même convention lecture
+  statique que POINT 1-6) — verrouille que `uptime_pct` reste `"estimated"` et que les 3 autres
+  métriques restent sur `rowTag`, + ancre sur le placeholder `98.5` documenté dans le cron.
+
+**Non touché délibérément** : `src/lib/llm/tools/registry.ts` (`read_market_snapshot`, expose
+aussi `uptime_pct` en texte brut au modèle de chat) est un fichier **sensible single-owner**
+listé dans CLAUDE.md — non édité par prudence de coordination ; le vrai gap de provenance côté
+agent structuré JSON (le chemin réellement utilisé par la narrative LP quotidienne) est, lui,
+corrigé. Détail complet + inventaire des zones déjà auditées (aucun autre finding) dans
+`DECISIONS.md` §"Rapport batch Data Truth — nouvelle invocation, fix réel".
+
+**Validations** (checkout vierge — `pnpm install` + `pnpm db:generate` + `prisma db push
+--accept-data-loss` requis avant premier test, comme documenté par les batches précédents) :
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` (suite complète, wrapper `pretest`/`posttest` sqlite↔postgresql) → **448/448
+  fichiers, 5354/5354 tests** (5352 baseline + 2 nouveaux POINT 7). `prisma/schema.prisma`
+  restauré proprement en `postgresql` après coup (`git diff --stat prisma/schema.prisma` vide).
+- Suite ciblée (`mining-ops-fallback.test.ts`, `mining-health-daily.test.ts`,
+  `data-honesty-guards.test.ts`, `provenance.test.ts`, `agent-parsers.test.ts`) → 72/72, verte.
+
+**Fichiers modifiés** :
+| Fichier | Action |
+|---|---|
+| `src/lib/agents/loaders/mining.ts` | Fix — `uptime_pct` provenance toujours `"estimated"`, jamais hérité de `rowTag` |
+| `src/lib/__tests__/data-honesty-guards.test.ts` | POINT 7 — guard régression provenance uptime |
+| `docs/projects/hearst-defi/DECISIONS.md` | T-13 documenté (détail complet) |
+| `docs/projects/hearst-defi/BATCHES.md` | Ligne 2b mise à jour |
+| `docs/projects/hearst-defi/HANDOFF.md` | Ce fichier — section ajoutée |
+
+**Fichiers exclus (owner zone respectée)** : aucune UI page, aucun `prisma/**` (migration),
+aucun `.github/workflows/**`, aucun secret/`.env*`, aucun `vercel.json`, `src/lib/llm/tools/
+registry.ts` non édité (sensible single-owner, cf. ci-dessus).
+
+**Statut d'intégration** : diff non commité/non poussé — pas de PR ouverte par ce batch (rôle
+builder ; l'étape d'intégration/commit/push/PR est hors scope de ce rôle, laissée à l'étape
+suivante du pipeline nexus).
+
+**Prochain batch recommandé** : inchangé — **Batch 3 — Corrections P0 restantes** (C-05 décision
+produit résiduelle, C-11 cookie `sameSite`, C-13 Model B one-liner LP, T-02 décision Adrien email
+de reçu). Le fix T-13 de cette session peut être intégré indépendamment (isolé, testé, hors
+scope batch 3).
+
+---
+
 ## Batch 5/9 (builder, Data Truth) : nouvelle invocation, sweep étendu, no-op — 2026-07-03
 
 **Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data

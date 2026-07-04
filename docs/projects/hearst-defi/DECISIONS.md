@@ -200,6 +200,198 @@ place.
 
 ---
 
+## Rapport batch "Data Truth" — nouvelle invocation, fix réel (2026-07-04)
+
+> Contrairement aux ~5 passes précédentes sur ce même batch (toutes no-op —
+> voir `HANDOFF.md`), cette session a trouvé et corrigé un **nouveau finding**
+> réel dans l'owner zone données/API, en élargissant le balayage à
+> `src/lib/inngest/functions/*` (crons de market data / mining health), pas
+> explicitement couvert par les balayages précédents (qui s'étaient concentrés
+> sur `portfolio/`, `data/`, `agents/`, `onchain/`, `governance/`,
+> `distribution/`, `notifications/`, `product-strategies/`).
+
+### T-13 — Mining fleet uptime badgé "attested" alors que c'est un placeholder codé en dur [HIGH — data/API, alimente l'agent Mining Health + le chat]
+
+**Fichiers** :
+- `src/lib/inngest/functions/market-data-hourly.ts:117-118` — écrit `uptimePct: 98.5` et
+  `deployedHashrate: 182_000` en dur sur CHAQUE ligne `MiningMetric` créée par le cron horaire,
+  avec un commentaire explicite `// placeholder until real uptime feed`.
+- `src/lib/agents/loaders/mining.ts:122-136` (`loadLatestMiningMetrics`) — calculait un SEUL tag
+  de provenance (`rowTag`, `"attested"` ou `"stale"` selon la fraîcheur de la ligne) et l'appliquait
+  aux 4 métriques (`hashprice_usd_per_th`, `difficulty_change_pct`, `margin_pct`, `uptime_pct`) —
+  y compris `uptime_pct`, qui n'est **jamais** mesuré.
+
+**Impact** : le non-négociable #2 (CLAUDE.md — "every metric has a provenance badge") exige que
+`attested` signifie "measured row + verified mining_attestation Proof" (vocabulaire exact de
+`src/lib/agents/schemas.ts`). Une constante codée en dur (`98.5`) n'est par construction jamais
+mesurée — la badger `attested` (ou `stale` selon la fraîcheur, ce qui est encore pire : ça implique
+qu'une vraie mesure a vieilli) est un badge de provenance mensonger. Ce champ alimente :
+- l'agent Mining Health (narrative LP via `runMiningHealth` — cron quotidien 08:00 UTC), qui
+  n'aurait jamais reçu l'instruction de "FLAG IN-LINE" ce chiffre puisque `attested` n'est pas un
+  tag dégradé (`isDegradedProvenance`) ;
+- potentiellement le chat cockpit via `read_market_snapshot`
+  (`src/lib/llm/tools/registry.ts:1061`, fichier sensible single-owner — non modifié, hors scope
+  prudence de ce batch) qui expose `uptime_pct` sans annotation de provenance dans le texte du
+  tool.
+
+**Ce qui était déjà honnête (pas un bug)** : `hashprice`, `difficulty_change_pct` (dérivé de
+hashprice réel via mempool.space) et `margin_pct` (calculé par l'engine pur à partir de hashprice/
+BTC price réels) restent correctement `attested`/`stale` selon la fraîcheur — ce sont de vraies
+valeurs mesurées/dérivées. Seul `uptime_pct` était mal badgé. `src/lib/agents/loaders/coverage.ts`
+(P1 distribution coverage) consomme aussi `uptimePct`/`deployedHashrate`, mais son provenance
+global était déjà plafonné à `Estimated` (jamais `Live`) car `anyManual` est toujours vrai en P1 —
+pas de fix nécessaire là.
+
+**Correction appliquée (couche données uniquement, aucune UI, aucun Prisma)** :
+- `src/lib/agents/loaders/mining.ts` — `uptime_pct` est désormais toujours tagué `"estimated"`
+  (jamais `rowTag`), peu importe la fraîcheur de la ligne. `estimated` est un tag dégradé
+  (`isDegradedProvenance`), donc l'agent Mining Health reçoit maintenant l'instruction
+  "FLAG IN-LINE, do not present as attested" pour ce chiffre — comportement déjà cablé dans
+  `mining-health.ts`, seul l'input était faux.
+- Guard de régression ajouté : `src/lib/__tests__/data-honesty-guards.test.ts` POINT 7 (même
+  convention lecture statique que POINT 1-6) — vérifie que `uptime_pct` reste `"estimated"` et que
+  les 3 autres métriques restent sur `rowTag`.
+
+**Non touché (délibérément, prudence sur fichier sensible)** : `src/lib/llm/tools/registry.ts`
+est listé "sensitive single-owner" dans CLAUDE.md — le texte brut `uptime_pct: 98.5` exposé au
+modèle par `read_market_snapshot` n'a pas été annoté ; à considérer par l'owner de ce fichier si
+jugé nécessaire (le vrai gap de provenance côté agent structuré JSON, lui, est corrigé).
+
+**Validations** : `pnpm typecheck` → 0 erreur. `pnpm test` → 448/448 fichiers, 5354/5354 tests
+(5352 baseline + 2 nouveaux POINT 7). Suite ciblée (`mining-ops-fallback`, `mining-health-daily`,
+`data-honesty-guards`, `provenance`, `agent-parsers`) → 72/72 tests, verte.
+
+---
+
+## Rapport batch "Data Truth" — nouvelle invocation, 2e fix réel (2026-07-04)
+
+> Après ~6 passes précédentes sur ce même batch (5 no-op + le fix T-13), cette session a
+> trouvé un **second finding réel**, distinct de T-13 bien que même cause racine, en
+> poursuivant l'investigation du même fichier (`src/lib/agents/loaders/mining.ts`) vers un
+> **autre consommateur** de `MiningOpsSnapshot` que celui déjà couvert par T-13
+> (`loadLatestMiningMetrics`, agent Mining Health narrative).
+
+### T-14 — Investor Memo PDF badge "attested" le hashrate/uptime miniers alors qu'ils restent des placeholders codés en dur [CRITICAL — LP visible, document PDF envoyé aux LPs]
+
+**Fichiers** :
+- `src/lib/agents/loaders/mining.ts:198-260` (`loadMiningOpsSnapshot`) — alimente
+  `MemoPdfData.miningOps` (Investor Memo PDF, page "Mining Health"), un consommateur
+  **distinct** de `loadLatestMiningMetrics` (déjà corrigé par T-13). `hashrate_ph_s` est la
+  moyenne de `MiningMetric.deployedHashrate` et `uptime_pct` la moyenne de
+  `MiningMetric.uptimePct` — les deux colonnes toujours écrites en dur
+  (`deployedHashrate: 182_000`, `uptimePct: 98.5`) par `market-data-hourly.ts:117-118` (même
+  cron que T-13/RP-10).
+- `src/lib/pdf/memo-pages/mining-health.tsx:46-52` — badgeait ces deux métriques
+  `opsProvenance = data.miningOps.is_fallback ? "estimated" : "attested"`. Or `is_fallback`
+  ne signale que "aucune ligne DB dans la fenêtre 30j" — pas "cette ligne est une vraie
+  mesure". Le cron tourne toutes les heures, donc `is_fallback` est quasi toujours `false` →
+  le PDF affichait quasi systématiquement "Hashrate deployed" et "Uptime" avec le hint
+  trompeur "JV operator fleet, paper-attested" / "Trailing 30d, paper attestation", alors que
+  ce sont des constantes codées en dur, jamais mesurées.
+
+**Impact** : viole le non-négociable #2 (CLAUDE.md — chaque métrique doit porter un badge de
+provenance honnête) sur un document **LP-visible** (l'Investor Memo PDF, généré par
+`admin/investor-memo/pdf-action.tsx` et envoyé/téléchargé pour les investisseurs) — sévérité
+équivalente à T-01, plus élevée que T-13 (qui touchait la narrative agent, pas un document
+formel envoyé aux LPs). Seul consommateur visuel de `miningOps` trouvé dans le code
+(`grep -rl "miningOps" src/app src/components` → uniquement `pdf-action.tsx`) ; le dashboard
+admin (`src/lib/data/dashboard.ts`) charge aussi `loadMiningOpsSnapshot()` mais aucune page/
+composant ne restitue `dashboardData.miningOps` visuellement à ce jour (vérifié par grep).
+
+**Ce qui était déjà honnête (pas un bug)** : `margin_score` est déjà codé en dur `"estimated"`
+dans `mining-health.tsx:75` (composite engine, jamais "attested") ; `attestations_count` est un
+vrai comptage Prisma (`Proof.proofType = "mining_attestation"`), pas fabriqué ; `is_fallback`
+reste correctement utilisé ailleurs (`dashboard-page-view.ts:32`, scoping preview vault) — non
+touché, sémantique différente et légitime.
+
+**Fix appliqué (2 fichiers, owner zone respectée — pas de page `src/app/**`, `src/lib/pdf/**`
+est un template de rendu lib, pas une route)** :
+- `src/lib/pdf/memo-pages/mining-health.tsx` — `opsProvenance` est désormais toujours
+  `"estimated"` (jamais dérivé de `is_fallback`) pour les KPI "Hashrate deployed" et "Uptime" ;
+  les hints distinguent toujours "aucune ligne DB" vs "ligne présente mais valeur placeholder"
+  sans jamais impliquer une mesure réelle.
+- Guard de régression ajouté : `src/lib/__tests__/data-honesty-guards.test.ts` POINT 8 — vérifie
+  que `opsProvenance = "estimated"` en dur et que le ternaire `is_fallback ? "estimated" :
+  "attested"` ne réapparaît pas.
+
+**Non touché (délibérément)** : `src/lib/agents/loaders/mining.ts` lui-même n'a pas eu besoin
+d'un nouveau champ — le snapshot `MiningOpsSnapshot`/`is_fallback` garde sa sémantique actuelle
+(légitime pour d'autres usages) ; le fix est entièrement côté consommateur PDF. Le dashboard
+admin (`src/lib/data/dashboard.ts`, `dashboard-page-view.ts`) n'a pas été touché : aucune UI
+actuelle n'y restitue `miningOps` visuellement, donc pas de risque LP-visible actif là — à
+surveiller si un futur composant l'affiche.
+
+**Validations** : `pnpm typecheck` → 0 erreur. `pnpm test` → **448/448 fichiers, 5355/5355
+tests** (5354 baseline + 1 nouveau POINT 8). Suite ciblée `data-honesty-guards.test.ts` → 23/23.
+`prisma/schema.prisma` restauré proprement en `postgresql` après coup.
+
+---
+
+## Rapport batch "Data Truth" — nouvelle invocation, 3e fix réel (2026-07-04)
+
+> Nouvelle invocation batch série 5/9 sur la même branche. Le working tree contenait déjà
+> T-13 + T-14 non commités (relus et validés, rien à changer). Plutôt que de refaire un sweep
+> mock/hardcode déjà couvert ~7 fois, cette session a suivi le même fil que T-13/T-14 vers un
+> **troisième consommateur distinct** : le loader `loadMemoInput` (`src/lib/agents/loaders/
+> vault.ts`), qui alimente le MÊME document LP-visible (Investor Memo PDF) mais pour les champs
+> `vault`/`mining` (AUM, APY, risk score) plutôt que `miningOps`.
+
+### T-15 — Investor Memo PDF peut badger un `VaultSnapshot` seed/preset comme "attested" [CRITICAL — LP visible, document PDF envoyé aux LPs]
+
+**Fichier** : `src/lib/agents/loaders/vault.ts:97-158` (`loadMemoInput`) — appelé par
+`admin/investor-memo/actions.ts`, `admin/investor-memo/pdf-action.tsx` et le cron
+`inngest/functions/investor-memo-monthly.ts`.
+
+**Root cause** : `loadMemoInput` lit `prisma.vaultSnapshot.findFirst({ orderBy: { takenAt:
+"desc" } })` — **sans aucun filtre `where` sur `source`**. Il peut donc remonter n'importe quelle
+ligne `VaultSnapshot`, y compris une ligne `source: "daily-seed"` (timeline synthétique
+sinusoïdale de `prisma/seed.ts`, datée jusqu'à "aujourd'hui" — `seedDailyVaultTimeline()`) ou
+`source: "computed"` (run engine sur preset, jamais une mesure réelle — `seedPresetVaultSnapshots
+()`), et pas seulement une vraie ligne de custody `"live"`/`"oracle"`. Le tag de provenance
+`snapshotTag` était calculé **uniquement** à partir de la fraîcheur de `takenAt`
+(`evaluateFreshness`), sans jamais regarder `source` — donc une ligne fraîchement seedée
+(synthétique) se voyait badgée `"attested"`, exactement la même classe de bug que T-13/T-14
+(fraîcheur ≠ authenticité), sur le MÊME document LP-visible (Investor Memo PDF), cette fois pour
+AUM/APY/risk score/mining margin plutôt que hashrate/uptime.
+
+**Ce qui prouve que ce n'est pas une fausse alerte** : `src/lib/data/timeline-snapshot.ts` encode
+déjà cette règle explicitement pour le dashboard admin — `LIVE_TIMELINE_SOURCES = new Set(["live",
+"oracle", "attested"])`, avec le commentaire : *"`daily-seed` is valid timeline data for
+charts/history but MUST NOT trigger Live/Attested provenance badges"* — et `dashboard.ts:402`
+calcule `hasLiveTimelineSnapshot: isLiveTimelineSource(latestSnapshotSource)` en conséquence.
+`loadMemoInput` n'importait pas cette fonction et ignorait `source` entièrement : le garde-fou
+existe déjà dans le codebase pour UNE surface (dashboard) mais pas pour l'AUTRE surface qui lit la
+même table (memo PDF).
+
+**Ce qui n'a PAS été changé (délibérément, portée minimale)** : la requête `findFirst` elle-même
+(quelle ligne choisir) reste inchangée — en production, une fois que `custody-snapshot-hourly.ts`
+écrit des lignes `source: "live"` (dès que le vault a des fonds réels), c'est bien la ligne "live"
+la plus récente qui doit gagner, ce qui est déjà le comportement actuel de la requête non filtrée.
+Retoucher la sélection de ligne aurait été plus risqué et hors scope ; le vrai bug était
+uniquement le badge de provenance, pas le choix de ligne — même logique que T-13/T-14 (fix du tag,
+pas de la requête).
+
+**Fix appliqué (1 fichier, owner zone respectée — `src/lib/agents/loaders/**`, aucune UI, aucun
+Prisma)** :
+- `src/lib/agents/loaders/vault.ts` — importe `isLiveTimelineSource` depuis
+  `@/lib/data/timeline-snapshot` ; `snapshotTag` (utilisé pour `provenance.vault` ET
+  `provenance.mining`) est désormais `"estimated"` dès que `!isLiveTimelineSource(snapshot.
+  source)`, et ne retombe sur la logique fraîcheur (`attested`/`stale`) que pour un `source` déjà
+  reconnu comme réel (`"live"`, `"oracle"`, `"attested"`).
+- Guard de régression ajouté : `src/lib/__tests__/data-honesty-guards.test.ts` POINT 9 — vérifie
+  l'import + la garde `!isLiveTimelineSource(snapshot.source) ? "estimated"` dans le loader, plus
+  deux ancres de sanité (seed.ts écrit toujours `"computed"`/`"daily-seed"`, et
+  `timeline-snapshot.ts` exclut toujours ces deux valeurs du set "live").
+
+**Validations** : `pnpm typecheck` → 0 erreur. `pnpm test` → **448/448 fichiers, 5358/5358 tests**
+(5355 baseline + 3 nouveaux POINT 9). Suite ciblée `data-honesty-guards.test.ts` → 26/26.
+`pnpm run lint` → 1 erreur pré-existante, hors scope (`src/components/admin/outreach/
+email-review-card.tsx:110`, React Hook `setState` dans un effet — fichier UI non touché par ce
+batch, `eslint src || true` reste advisory par CLAUDE.md). `prisma/schema.prisma` restauré
+proprement en `postgresql` après coup.
+
+---
+
 ## Mises à jour du statut sprint correctness (post-audit vérité)
 
 | C-Item | Ancien statut | Statut vérifié (2026-07-03) |

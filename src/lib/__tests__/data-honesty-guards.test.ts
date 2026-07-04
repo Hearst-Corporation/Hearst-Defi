@@ -333,3 +333,94 @@ describe("POINT 6 — tax preview page always sources real ledger overrides", ()
     expect(loader).toMatch(/prisma\.investorTransaction\.findMany/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// POINT 7 — mining fleet uptime is never badged "attested".
+// ---------------------------------------------------------------------------
+//
+// `market-data-hourly.ts` writes `uptimePct: 98.5` (a hardcoded placeholder,
+// pending a real fleet uptime feed) into `MiningMetric` on every hourly run —
+// see the comment at that call site. `loadLatestMiningMetrics()` (the Mining
+// Health Agent's data loader) must never let a fabricated constant inherit
+// the row's freshness-derived `attested`/`stale` tag: that would present a
+// placeholder as attested fact, violating CLAUDE.md non-negotiable #2. The
+// other three metrics on the same row (hashprice/difficulty/margin) ARE
+// measured/derived from live feeds, so they keep the freshness-derived tag.
+describe("POINT 7 — mining uptime provenance is never fabricated as attested", () => {
+  it("market-data-hourly.ts still writes the documented placeholder (sanity anchor)", () => {
+    const cron = stripComments(
+      read("src/lib/inngest/functions/market-data-hourly.ts"),
+    );
+    expect(cron).toMatch(/uptimePct:\s*98\.5/);
+  });
+
+  it("loadLatestMiningMetrics() hardcodes uptime_pct provenance to 'estimated', not the row's freshness tag", () => {
+    const loader = stripComments(read("src/lib/agents/loaders/mining.ts"));
+    expect(loader).toMatch(/uptime_pct:\s*"estimated"/);
+    // The other three metrics still ride the freshness-derived `rowTag`.
+    expect(loader).toMatch(/hashprice_usd_per_th:\s*rowTag/);
+    expect(loader).toMatch(/difficulty_change_pct:\s*rowTag/);
+    expect(loader).toMatch(/margin_pct:\s*rowTag/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// POINT 8 — Investor Memo PDF never badges mining hashrate/uptime "attested".
+// ---------------------------------------------------------------------------
+//
+// `loadMiningOpsSnapshot()` (src/lib/agents/loaders/mining.ts) feeds the
+// Investor Memo PDF's Mining Health page (`memo-pages/mining-health.tsx`) via
+// `MemoPdfData.miningOps`. `hashrate_ph_s` and `uptime_pct` on that snapshot
+// are averages of `MiningMetric.deployedHashrate`/`uptimePct` — both columns
+// are still written as hardcoded placeholders (`182_000` / `98.5`) by the
+// hourly cron regardless of freshness (RP-10, same root cause as T-13/POINT 7,
+// different consumer). The page used to badge them "attested" whenever
+// `is_fallback` was false, i.e. whenever the DB had ANY row — which is true
+// almost always since the cron runs hourly. This is a CRITICAL, LP-visible
+// provenance-badge violation (CLAUDE.md non-negotiable #2): the Investor Memo
+// PDF is sent to LPs. Fixed (T-14) to always badge "estimated" for these two
+// metrics, independent of `is_fallback`.
+describe("POINT 8 — Investor Memo PDF never badges placeholder mining ops as attested", () => {
+  it("MiningHealthPage hardcodes hashrate/uptime provenance to 'estimated', never derives it from is_fallback", () => {
+    const page = stripComments(
+      read("src/lib/pdf/memo-pages/mining-health.tsx"),
+    );
+    expect(page).toMatch(/opsProvenance\s*=\s*"estimated"/);
+    // Regression: must not resurrect the `is_fallback ? "estimated" : "attested"` ternary.
+    expect(page).not.toMatch(/is_fallback\s*\?\s*"estimated"\s*:\s*"attested"/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// POINT 9 — Investor Memo PDF never badges a seed/preset VaultSnapshot as attested.
+// ---------------------------------------------------------------------------
+//
+// `loadMemoInput()` (src/lib/agents/loaders/vault.ts) reads the single most
+// recent `VaultSnapshot` with NO `where` filter on `source` — it can pick up a
+// "daily-seed" row (prisma/seed.ts's synthetic sinusoidal timeline, dated up to
+// "today") or a "computed" preset row (engine dry-run, never a real
+// measurement), not only a genuine "live"/"oracle" custody snapshot. Before
+// this fix, the loader tagged `vault`/`mining` provenance purely from
+// `takenAt` freshness, so a freshly-seeded synthetic row was badged
+// "attested" — the exact same class of bug as T-13/T-14 (freshness ≠
+// authenticity), on the SAME LP-visible Investor Memo PDF document. The admin
+// dashboard already encodes the correct rule via `isLiveTimelineSource()`
+// (`src/lib/data/timeline-snapshot.ts`) — the memo loader must honour it too.
+describe("POINT 9 — Investor Memo vault/mining provenance respects VaultSnapshot.source", () => {
+  it("loadMemoInput downgrades non-live snapshot sources to 'estimated' before applying freshness", () => {
+    const loader = stripComments(read("src/lib/agents/loaders/vault.ts"));
+    expect(loader).toMatch(/import\s*\{\s*isLiveTimelineSource\s*\}\s*from\s*"@\/lib\/data\/timeline-snapshot"/);
+    expect(loader).toMatch(/!isLiveTimelineSource\(snapshot\.source\)\s*\?\s*"estimated"/);
+  });
+
+  it("seed.ts still writes non-live sources 'computed'/'daily-seed' (sanity anchor)", () => {
+    const seed = stripComments(read("prisma/seed.ts"));
+    expect(seed).toMatch(/source:\s*"computed"/);
+    expect(seed).toMatch(/source:\s*"daily-seed"/);
+  });
+
+  it("isLiveTimelineSource excludes 'computed'/'daily-seed' from the live set (sanity anchor)", () => {
+    const tl = stripComments(read("src/lib/data/timeline-snapshot.ts"));
+    expect(tl).toMatch(/new Set\(\[\s*"live",\s*"oracle",\s*"attested",?\s*\]\)/);
+  });
+});

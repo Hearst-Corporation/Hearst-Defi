@@ -119,20 +119,26 @@ export async function loadLatestMiningMetrics(): Promise<MiningHealthInput> {
     throw new Error("MiningMetric.uptimePct is null — invalid seed data.");
   }
 
-  // Provenance (CLAUDE.md #2): the columns are measured/attested operational
-  // rows. They are `attested` while the snapshot is within its freshness SLO;
-  // a row older than the SLO is `stale` (no fabrication — the value is real,
-  // just aged). We resolve ONE freshness verdict for the row and apply it to
-  // every metric since they all come from the same `takenAt` snapshot.
+  // Provenance (CLAUDE.md #2): hashprice/difficulty/margin are measured/derived
+  // operational columns. They are `attested` while the snapshot is within its
+  // freshness SLO; a row older than the SLO is `stale` (no fabrication — the
+  // value is real, just aged). We resolve ONE freshness verdict for the row
+  // and apply it to those three metrics since they all come from the same
+  // `takenAt` snapshot.
   const rowTag: ProvenanceTag =
     evaluateFreshness(row.takenAt, STALE_THRESHOLDS.portfolio_snapshot) === "stale"
       ? "stale"
       : "attested";
+  // `uptimePct` is NOT measured: `market-data-hourly.ts` writes a hardcoded
+  // placeholder (98.5) on every row pending a real fleet uptime feed — no
+  // freshness verdict can make a fabricated constant "attested". Always
+  // `estimated` so the agent flags it in-line instead of presenting it as
+  // attested fact.
   const provenance: MiningHealthProvenance = {
     hashprice_usd_per_th: rowTag,
     difficulty_change_pct: rowTag,
     margin_pct: rowTag,
-    uptime_pct: rowTag,
+    uptime_pct: "estimated",
   };
 
   // Decimal → number at the loader boundary (engine/agent shapes are `number`).
