@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { resetPassword } from "./actions";
@@ -60,19 +59,13 @@ export function ResetPasswordForm({ token }: Props) {
       <Button
         type="submit"
         variant="primary"
-        size="md"
+        size="lg"
         className="w-full"
         disabled={isPending}
         aria-busy={isPending}
       >
         {isPending ? "Updating…" : "Set new password"}
       </Button>
-
-      <p className="body-xs ct-text-muted text-center">
-        <Link href="/login" className="ct-link-accent">
-          Back to sign in
-        </Link>
-      </p>
     </form>
   );
 }
