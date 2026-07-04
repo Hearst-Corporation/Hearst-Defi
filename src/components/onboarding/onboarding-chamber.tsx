@@ -74,19 +74,23 @@ export function OnboardingChamber({
       <header className="flex flex-col gap-4 p-5">
         {crown}
       </header>
-      <div className="flex flex-col gap-5 p-5 border-t border-[var(--ct-border-soft)]">
-        {body}
-      </div>
-      <footer
-        className={cn(
-          "p-5",
-          aside
-            ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-[var(--ct-border-soft)]"
-            : "border-t border-[var(--ct-border-soft)] bg-surface-inset",
-        )}
-      >
-        {sole}
-      </footer>
+      {body != null ? (
+        <div className="flex flex-col gap-5 p-5 border-t border-[var(--ct-border-soft)]">
+          {body}
+        </div>
+      ) : null}
+      {sole != null ? (
+        <footer
+          className={cn(
+            "p-5",
+            aside
+              ? "[&>*]:pt-5 [&>*]:border-t [&>*]:border-[var(--ct-border-soft)]"
+              : "border-t border-[var(--ct-border-soft)] bg-surface-inset",
+          )}
+        >
+          {sole}
+        </footer>
+      ) : null}
     </>
   );
 
