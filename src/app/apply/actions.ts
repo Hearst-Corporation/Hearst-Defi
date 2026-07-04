@@ -76,22 +76,27 @@ export async function submitApplication(
   const input = parsed.data;
   const email = input.email.toLowerCase();
 
-  // Find or auto-create investor account.
-  let userId: string;
+  // Block registration if this email already has an account. We do not reuse
+  // or update the existing record — the applicant is told to sign in instead.
   const existing = await prisma.user.findUnique({
     where: { email },
     select: { id: true },
   });
 
   if (existing) {
-    userId = existing.id;
-  } else {
-    const newUser = await createInvestorFromWebhook(email);
-    if (!newUser) {
-      return { ok: false, error: "Could not create account. Please try again." };
-    }
-    userId = newUser.userId;
+    return {
+      ok: false,
+      error: "An account already exists for this email. Please sign in instead.",
+      field: "email",
+    };
   }
+
+  // Create the investor account for a brand-new email.
+  const newUser = await createInvestorFromWebhook(email);
+  if (!newUser) {
+    return { ok: false, error: "Could not create account. Please try again." };
+  }
+  const userId = newUser.userId;
 
   // Upsert qualification answers.
   const qualification = await upsertQualification({
