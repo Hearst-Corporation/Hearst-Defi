@@ -140,11 +140,18 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
       crown={
         <div className="product-doc-stack onboarding-shell__stepper text-left">
           <div className="product-doc-stack--compact text-left items-start">
-            <h1 className="h1 m-0 text-pretty" style={{ color: "var(--ct-accent)" }}>Qualification for institutional access</h1>
-            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
-              A few quick steps to assess fit for Hearst Connect&apos;s
-              institutional USDC yield program. No commitment required.
-            </p>
+            <h1
+              className="m-0 text-pretty"
+              style={{
+                color: "var(--ct-accent)",
+                fontSize: "var(--ct-text-display)",
+                fontWeight: "var(--ct-font-extrabold)",
+                letterSpacing: "var(--ct-tracking-tighter)",
+                lineHeight: "var(--ct-leading-tight)",
+              }}
+            >
+              Qualification for institutional access
+            </h1>
           </div>
           <WizardStepProgress
             steps={STEPS}
