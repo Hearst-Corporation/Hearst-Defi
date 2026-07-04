@@ -9,7 +9,7 @@
 |---|---|---|---|
 | 1 | Intake — Current State | ✅ FAIT (2026-07-04) | `PROJECT_STATE.md` — inventaire 78 routes, verdict 4 axes |
 | 2 | Planner — Information Architecture | ✅ FAIT (2026-07-04, ce batch) | `IA_TARGET.md` — IA cible (nav/hiérarchie), 7 décisions (D1-D7) |
-| 3 | Implémentation — Canonisation panel headers (D4) | ⏳ Défini, non démarré | Audit + fusion éventuelle `dashboard-panel-header` (Catalyst) vs `cockpit-panel-header` (maison), scope proof-center + admin/dashboard + portfolio |
+| 3 | Implémentation — Canonisation panel headers (D4) | ✅ FAIT (2026-07-04) | Audit conclu : pas de doublon réel — `cockpit-panel-header.tsx` n'exportait que `AdminLeafLink` (un lien "View full →", pas un header). Renommé en `admin-leaf-link.tsx` pour lever l'ambiguïté de nom ; `dashboard-panel-header.tsx` (Catalyst) reste l'unique vrai header de section, inchangé sur le fond. Voir `DECISIONS.md` §Batch 3 |
 | 4 | Implémentation — Registre nav complet (D5) | ⏳ Défini, non démarré | Ajouter 3 entrées `hideFromSubNav: true` dans `product-nav-items.ts` pour `diagnostics`, `btc-mining-performance-vault`, `agent-canvas` — zéro changement visuel |
 | 5 | Implémentation — Politique data-viz `rgba()` (D6, conditionnel) | ⏳ Défini, conditionnel à arbitrage owner | Remplacer les `rgba()` inline (4 fichiers identifiés batch 1) par tokens `--ct-*` ou documenter l'exception. **Skip si l'owner juge le risque/gain insuffisant** — ne pas forcer |
 | 6 | Audit — Discipline breakpoints | ⏳ Défini, non démarré | Vérifier les surfaces admin denses à plus fort trafic (dashboard, product-workspace, strategies) aux seuils `md:`/`sm:` — batch 1 a noté une concentration `lg:` (57%) sans anomalie détectée, ce batch confirme ou corrige au cas par cas |

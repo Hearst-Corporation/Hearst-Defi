@@ -68,6 +68,25 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
+### nexus/loop_mr6t639m-mr6ybrmr
+Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 3/8,
+"Implémentation — Canonisation panel headers (D4)"
+Branch: nexus/loop_mr6t639m-mr6ybrmr
+Started: 2026-07-04
+Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
+
+Scope:
+- src/components/admin/dashboard/cockpit-panel-header.tsx → renamed to admin-leaf-link.tsx
+- src/components/admin/dashboard/{assets-board,market-prices-panel,platform-overview-band}.tsx (import path only)
+- src/components/catalyst/dashboard-panel-header.tsx (header comment only)
+- src/components/proof-center/proof-center-hub.tsx (import path only)
+- src/app/admin/{proofs,proof-center/full}/page.tsx (import path only)
+- docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md
+
+STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no
+docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md
+at root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp above).
+
 ### nexus/loop_mr3jnywz-mr5ma2tp
 Owner: nexus builder — Recovery Series batch 6/9, "UI/Layout" (loading/error/empty, responsive)
 Branch: nexus/loop_mr3jnywz-mr5ma2tp

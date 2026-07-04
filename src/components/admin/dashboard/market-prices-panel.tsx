@@ -1,6 +1,6 @@
 import { BentoPanel } from "@/components/catalyst/bento";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { AdminLeafLink } from "./cockpit-panel-header";
+import { AdminLeafLink } from "./admin-leaf-link";
 import { fetchBinancePrices } from "@/lib/data/binance-price";
 import { cn } from "@/lib/cn";
 

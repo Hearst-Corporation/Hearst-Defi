@@ -2,7 +2,7 @@ import {
   AdminPageShell,
   AdminSectionCard,
 } from "@/components/admin/admin-page-shell";
-import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
+import { AdminLeafLink } from "@/components/admin/dashboard/admin-leaf-link";
 import { ProofList } from "@/components/admin/proof-list";
 import { prisma } from "@/lib/db";
 

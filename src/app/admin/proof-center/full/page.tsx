@@ -4,7 +4,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { AdminLeafLink } from "@/components/admin/dashboard/cockpit-panel-header";
+import { AdminLeafLink } from "@/components/admin/dashboard/admin-leaf-link";
 import { ProofCenterFullLogLayout } from "@/components/proof-center/proof-center-full-log-layout";
 import { parseFilter } from "@/components/proof/proof-filter-types";
 import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";

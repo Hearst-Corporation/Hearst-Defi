@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import type { DashboardAllocation } from "@/lib/data/dashboard";
 
-import { AdminLeafLink } from "./cockpit-panel-header";
+import { AdminLeafLink } from "./admin-leaf-link";
 import { DistributionStrip } from "./distribution-strip";
 
 /**

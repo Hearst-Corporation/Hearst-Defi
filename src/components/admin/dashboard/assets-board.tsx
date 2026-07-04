@@ -31,7 +31,7 @@ import type { OverviewClusters } from "@/lib/data/overview-clusters";
 import type { PlatformTotals } from "@/lib/data/platform-totals";
 import type { RiskFrameworkData } from "@/lib/data/risk-framework";
 
-import { AdminLeafLink } from "./cockpit-panel-header";
+import { AdminLeafLink } from "./admin-leaf-link";
 
 import { AllocationOrbit } from "./allocation-orbit";
 import { AdminKpiStripPanel } from "./admin-kpi-strip-panel";
