@@ -52,23 +52,13 @@
   color: var(--ct-accent);
 }
 
-:is(.auth-shell, .auth-login-panel, .login-split)
-  .eyebrow:not(.login-split__eyebrow-accent) {
+:is(.auth-shell, .auth-login-panel, .login-split) .eyebrow {
   font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-semibold);
   line-height: normal;
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
   color: var(--ct-text-secondary);
-}
-
-/* Brand-panel eyebrow keeps its deliberate accent tint + sizing/tracking canon. */
-.login-split .eyebrow.login-split__eyebrow-accent {
-  font-size: var(--ct-text-nano);
-  font-weight: var(--ct-font-semibold);
-  line-height: normal;
-  letter-spacing: var(--ct-tracking-widest);
-  text-transform: uppercase;
 }
 
 /* Keep the ≥80rem doc-flow fluid bump from re-inflating the auth H1 (canon =
@@ -143,13 +133,6 @@
   align-items: center;
   gap: var(--ct-space-10);
   text-align: center;
-}
-
-.auth-login-panel__header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-3);
 }
 
 /* -----------------------------------------------------------------------------

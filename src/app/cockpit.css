@@ -5543,52 +5543,12 @@ main#main-content>.admin-doc.admin-doc-shell {
   background-size: var(--ct-space-6) var(--ct-space-6);
 }
 
-.login-split__brand-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-12);
-  text-align: center;
-  max-width: 35rem;
-}
-
-
-.login-split__tagline {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ct-space-5);
-}
-
-.login-split__eyebrow-accent {
-  color: var(--ct-accent);
-  opacity: var(--ct-opacity-70);
-}
-
 .login-split__title-accent {
   color: var(--ct-accent);
 }
 
 .login-split__title-wrap {
   max-width: 22ch;
-}
-
-.login-split__apy-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ct-space-2_5);
-  padding: var(--ct-space-2) var(--ct-space-4);
-  border-radius: var(--ct-radius-full);
-  border: 1px solid var(--ct-border-soft);
-  background: var(--ct-surface-inset);
-}
-
-.login-split__apy-dot {
-  width: var(--ct-space-1_5);
-  height: var(--ct-space-1_5);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-status-success);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--ct-status-success) 45%, transparent);
 }
 
 .login-split__signin {
@@ -5638,11 +5598,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   .login-split__signin {
     padding-inline: var(--ct-space-4);
     padding-block: var(--ct-space-8);
-  }
-
-  .login-split__apy-chip {
-    flex-wrap: wrap;
-    justify-content: center;
   }
 }
 

@@ -16,13 +16,10 @@ import { LoginForm } from "@/components/auth/login-form";
 export function LoginPanel() {
   return (
     <div className="auth-login-panel w-full max-w-sm">
-      <header className="auth-login-panel__header">
-        <span className="eyebrow ct-text-muted">Investor access</span>
-        <h2 className="h2 m-0">Sign in</h2>
-        <p className="body-sm ct-text-muted">
-          Secure access to your portfolio, proofs, and vault activity
-        </p>
-      </header>
+      <h1 className="h1 login-split__title-wrap m-0 self-start text-left">
+        Institutional yield, backed by{" "}
+        <span className="login-split__title-accent">Bitcoin mining</span>
+      </h1>
 
       <div className="w-full">
         <LoginForm />
