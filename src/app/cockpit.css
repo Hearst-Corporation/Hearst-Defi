@@ -5527,8 +5527,10 @@ main#main-content>.admin-doc.admin-doc-shell {
 
 .login-split__brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--ct-space-12);
   height: 100%;
   padding-block: var(--ct-space-16);
   background-image: radial-gradient(
