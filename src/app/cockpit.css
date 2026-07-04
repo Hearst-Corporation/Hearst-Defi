@@ -3582,6 +3582,32 @@ button.ct-choice-card {
   color: var(--ct-text-strong);
 }
 
+/* Expanded variant — the selected card becomes a container that stacks its
+   trigger row (dot + label) on top of revealed content (e.g. an "Other"
+   free-text input) inside the SAME box. */
+.ct-choice-card--expanded {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ct-space-3);
+  cursor: default;
+}
+
+.ct-choice-card__trigger {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: var(--ct-space-3);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
 .ct-choice-card__dot {
   margin-top: var(--ct-space-0_5);
   display: inline-flex;

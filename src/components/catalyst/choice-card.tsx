@@ -6,10 +6,61 @@ interface ChoiceCardProps {
   label: string;
   selected: boolean;
   onClick: () => void;
+  /**
+   * Optional content revealed inside the card once it is selected (e.g. an
+   * "Other" free-text input). When present and selected, the card renders as a
+   * container (an input cannot live inside a <button>) with the label row on
+   * top and this content directly below — same box, no separate field.
+   */
+  expandedContent?: ReactNode;
 }
 
 /** Single-select option card for qualification / onboarding flows. */
-export function ChoiceCard({ label, selected, onClick }: ChoiceCardProps) {
+export function ChoiceCard({
+  label,
+  selected,
+  onClick,
+  expandedContent,
+}: ChoiceCardProps) {
+  const dot = (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "ct-choice-card__dot",
+        selected && "ct-choice-card__dot--selected",
+      )}
+    />
+  );
+  const labelEl = (
+    <span
+      className={cn(
+        "ct-choice-card__label",
+        selected && "ct-choice-card__label--selected",
+      )}
+    >
+      {label}
+    </span>
+  );
+
+  // Selected + has revealable content → container card holding label + content.
+  if (expandedContent && selected) {
+    return (
+      <div className="ct-choice-card ct-choice-card--selected ct-choice-card--expanded">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={selected}
+          onClick={onClick}
+          className="ct-choice-card__trigger ct-focus-ring"
+        >
+          {dot}
+          {labelEl}
+        </button>
+        {expandedContent}
+      </div>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -18,21 +69,8 @@ export function ChoiceCard({ label, selected, onClick }: ChoiceCardProps) {
       onClick={onClick}
       className={cn("ct-choice-card ct-focus-ring", selected && "ct-choice-card--selected")}
     >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "ct-choice-card__dot",
-          selected && "ct-choice-card__dot--selected",
-        )}
-      />
-      <span
-        className={cn(
-          "ct-choice-card__label",
-          selected && "ct-choice-card__label--selected",
-        )}
-      >
-        {label}
-      </span>
+      {dot}
+      {labelEl}
     </button>
   );
 }

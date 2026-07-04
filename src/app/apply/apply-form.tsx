@@ -230,36 +230,35 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
           )}
 
           {step === "who" && (
-            <div className="product-doc-stack--relaxed apply-body-fixed__step">
+            <div className="product-doc-stack--relaxed">
               <StepHeading
                 title="Who are you?"
                 description="The profile that best describes your platform."
               />
-              <div className="product-doc-stack--relaxed apply-body-fixed__grow">
-                <ChoiceGroup legend="Who are you?">
-                  {PLATFORM_TYPE_OPTIONS.map((o) => (
-                    <ChoiceCard
-                      key={o.value}
-                      label={o.label}
-                      selected={platformType === o.value}
-                      onClick={() => selectPlatformType(o.value)}
-                    />
-                  ))}
-                </ChoiceGroup>
-                {platformType === "other" ? (
-                  <label className="block" htmlFor="apply-platform-other">
-                    <span className="ct-form-label">Tell us more</span>
-                    <input
-                      id="apply-platform-other"
-                      type="text"
-                      value={platformTypeOther}
-                      onChange={(e) => setPlatformTypeOther(e.target.value)}
-                      placeholder="Tell us about your platform"
-                      className="ct-input ct-input-bare"
-                    />
-                  </label>
-                ) : null}
-              </div>
+              <ChoiceGroup legend="Who are you?">
+                {PLATFORM_TYPE_OPTIONS.map((o) => (
+                  <ChoiceCard
+                    key={o.value}
+                    label={o.label}
+                    selected={platformType === o.value}
+                    onClick={() => selectPlatformType(o.value)}
+                    expandedContent={
+                      o.value === "other" ? (
+                        <input
+                          id="apply-platform-other"
+                          type="text"
+                          value={platformTypeOther}
+                          onChange={(e) => setPlatformTypeOther(e.target.value)}
+                          placeholder="Tell us about your platform"
+                          className="ct-input ct-input-bare"
+                          aria-label="Tell us about your platform"
+                          autoFocus
+                        />
+                      ) : undefined
+                    }
+                  />
+                ))}
+              </ChoiceGroup>
             </div>
           )}
 

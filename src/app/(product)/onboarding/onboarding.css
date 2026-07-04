@@ -143,18 +143,24 @@ body:has([data-testid="apply-shell"]) {
   min-height: 0;
 }
 
-/* A step that must stay inside the fixed body when extra content appears
-   (Profile + "Other" free-text): it fills the column and its choice list soaks
-   up the slack, tightening its own gap rather than growing the chamber. */
-.apply-body-fixed__step {
+/* The active step (the only rendered step block, plus the trailing error slot)
+   fills the fixed body and distributes its content across the full height:
+   the heading stays on top, the fields/choices spread down so no dead space
+   pools at the bottom. */
+.apply-body-fixed > div:first-child {
   flex: 1 1 auto;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.apply-body-fixed__grow {
-  flex: 1 1 auto;
-  min-height: 0;
-  justify-content: space-between;
+/* Nested group (heading's sibling — the field/choice list) also spreads so its
+   own items breathe across the reclaimed space rather than clumping. */
+.apply-body-fixed > div:first-child > .ct-choice-group,
+.apply-body-fixed > div:first-child > .grid,
+.apply-body-fixed > div:first-child > label {
+  flex-shrink: 0;
 }
 
 .apply-error-slot {
