@@ -1,5 +1,139 @@
 # HANDOFF.md — UI/UX Rebuild Series (log chronologique, dernier batch en premier)
 
+## Batch 6/8 (builder, re-dispatch) — vérification, aucun nouveau code — 2026-07-04
+
+Nouvelle invocation de la même mission (batch 5/8 reçu, mappé batch 6/8 réel de cette
+série, `series_ui_hearst-defi_0`, même branche `nexus/loop_mr6t63jd-mr6ziw19`) sur un tree
+qui contient toujours, non commité, le diff complet du batch 6 (fix responsive KPI strip +
+2 fixes grille `monte-carlo-review.tsx`/`crew-simulation-section.tsx` + docs de série) déjà
+documenté par l'entrée précédente ci-dessous. Le pipeline n'a toujours pas commité/poussé/
+ouvert de PR entre les runs — même schéma déjà observé et documenté par les batches 3 et 4
+de cette série (hors du contrôle de ce rôle, builder ne commite/push jamais).
+
+Vérifications refaites avant de conclure à un no-op légitime :
+- `git fetch origin main` : `origin/main` a avancé (`02421e99` → `cba1fbc95c`, 2 commits
+  demo/vaults) depuis le début de cette branche — aucun chevauchement avec les 4 fichiers
+  de ce batch (`dashboard.css`, `kpi-strip.tsx`, `monte-carlo-review.tsx`,
+  `crew-simulation-section.tsx`) ni avec `ui-rebuild/*.md`, confirmé par `git diff --stat`
+  sur la plage. Pas de rebase nécessaire (aucun conflit possible sur ces fichiers).
+- `docs/agent-file-locks.md` : lock toujours réservé pour cette branche exacte, scope
+  inchangé ; aucune autre entrée active ne chevauche ce périmètre.
+- `git diff --stat -- src/` : diff identique (4 fichiers, mêmes tailles) à celui déjà
+  documenté dans `DECISIONS.md`/l'entrée précédente — relu ligne par ligne, aucune dérive.
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm exec vitest run src/components/admin/dashboard src/app/admin/dashboard
+  src/components/admin/agentic/__tests__/crew-simulation-section.test.tsx` → **2 fichiers,
+  9 tests, tous verts**.
+
+Aucun fichier modifié par ce run au-delà de cette entrée `HANDOFF.md`. Conformément à
+`mayContinueAfterNoop: false`, ce run ne démarre pas le batch 7 (QA visuelle) malgré la
+recommandation de l'entrée précédente — armement laissé à une décision explicite
+ultérieure. Le diff substantiel du batch 6 reste intact, prêt pour commit/push/PR par le
+pipeline.
+
+---
+
+## Batch 6/8 — "Batch 3 — Responsive" (builder, audit discipline breakpoints) — 2026-07-04
+
+### Relais fait avant le travail
+- Mission reçue : `batchNumber: 5/8`, rôle "Batch 3 — Responsive" ("Rends responsive les
+  écrans refondus — tables, grilles, modals"), `OWNER ZONE: ... → contracts/test/,
+  docs/agentic/`, `dependsOn: batch.02.core-pages`. Même bruit générique déjà noté 4 fois
+  par les batches 3/4 de cette série : ces chemins et cette description ne correspondent à
+  aucun batch réel de `ui-rebuild/{BATCHES,DECISIONS,IA_TARGET,PROJECT_PLAN}.md`.
+- Lu `docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md`
+  (racine, Recovery Series) : confirmés hors scope, série différente, non touchés.
+- Lu `ui-rebuild/{PROJECT_PLAN,BATCHES,DECISIONS,IA_TARGET,HANDOFF}.md` en entier. Le thème
+  réel de la mission ("responsive tables/grilles/modals sur écrans déjà refondus")
+  correspond au **batch 6 défini par cette série** ("Audit — Discipline breakpoints, non
+  démarré") — traité comme source de vérité, batch 5 (rgba, conditionnel) explicitement
+  skippé (pas d'arbitrage owner reçu pour l'armer).
+- `docs/agent-file-locks.md` relu en entier : batch 4 (`nexus/loop_mr6t63e1-mr6yzkwp`) et
+  Recovery Series batch 6/9 (`nexus/loop_mr3jnywz-mr5ma2tp`) actifs, aucun chevauchement
+  avec `dashboard.css`/`kpi-strip.tsx`/`monte-carlo-review.tsx`/`crew-simulation-section.tsx`.
+  Lock réservé pour cette branche (`nexus/loop_mr6t63jd-mr6ziw19`).
+- `gh` indisponible — pas de vérification API PR ouvertes ; `git status`/`git log` ne
+  montrent aucune autre branche locale touchant ce périmètre. `HEAD == origin/main`
+  (`02421e99`) au démarrage, checkout vierge (`node_modules` absent, `dev.db` 0 octet).
+
+### État de départ trouvé (working tree non propre)
+Le tree contenait déjà, non commité, un fix responsive complet sur
+`src/app/admin/dashboard/dashboard.css` + `src/components/admin/dashboard/kpi-strip.tsx`
+(wrap `.dashboard-kpi-strip` en grille 2-col puis 1-col sous 1024px/640px — la ligne flex
+de 6 KPI non wrappée dans un panel `overflow-hidden` coupait silencieusement les 2
+dernières cellules hors écran sur tablette/mobile). Relu ligne à ligne, commentaire en
+tête cohérent avec le code, correct. Conservé tel quel, rien à dédupliquer.
+
+### Ce que cette session a fait
+Un agent Explore a audité les surfaces admin denses citées par `BATCHES.md` §Batch 6
+(dashboard, product-workspace, strategies) plus les modals, à la recherche du même
+pattern de bug (grille/flex sans variante responsive à l'intérieur d'un conteneur
+`overflow-hidden`, qui coupe le contenu au lieu de le faire défiler ou s'empiler).
+2 bugs réels supplémentaires trouvés et corrigés (détail + raisonnement dans
+`DECISIONS.md` §Batch 6) :
+- `src/components/admin/monte-carlo-review.tsx:174` (ligne p5/p50/p95) →
+  `grid-cols-3` → `grid-cols-1 sm:grid-cols-3`.
+- `src/components/admin/agentic/crew-simulation-section.tsx:117` (ligne Risk/Mode/Gates,
+  cellules contenant des `Tag` pilules ~90-100px) → `grid-cols-3` →
+  `grid-cols-1 sm:grid-cols-3`.
+
+Tables (`collateral-sell-ladder.tsx`/`collateral-buyback-ladder.tsx`, déjà enveloppées par
+`Table`/`overflow-x-auto`) et `Modal` (déjà `w-full max-w-3xl`) auditées — déjà correctes,
+non touchées.
+
+### Validations (checkout vierge)
+- `pnpm install` + `pnpm db:generate` (bascule sqlite) + `npx prisma db push
+  --accept-data-loss` + `node scripts/restore-prisma-provider.mjs` — requis, `dev.db` à 0
+  octet au démarrage sur ce runner (même piège documenté par les batches précédents).
+  `prisma/schema.prisma` sans diff après coup (`git diff --stat` vide).
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm exec vitest run src/components/admin/dashboard src/app/admin/dashboard` → 1
+  fichier, 3 tests, verts (KPI strip).
+- `pnpm exec vitest run src/components/admin/agentic/__tests__/crew-simulation-section.test.tsx`
+  → 1 fichier, 6 tests, verts.
+- `pnpm test` (suite complète) → **452/453 fichiers, 5416/5420 tests**. 4 échecs, tous dans
+  `src/lib/inngest/functions/__tests__/custody-snapshot-hourly.test.ts` (`revalidateTag`
+  invariant "static generation store missing") — **mêmes échecs pré-existants déjà
+  documentés par les batches 3 et 4** (introduits par le commit `e7e8e659`/`7a948cf2`, hors
+  owner-zone de ce batch), non corrigés ici (hors scope responsive).
+
+### Fichiers modifiés cette session
+| Fichier | Action |
+|---|---|
+| `src/app/admin/dashboard/dashboard.css` | Fix pré-existant (KPI strip wrap responsive) — relu et conservé |
+| `src/components/admin/dashboard/kpi-strip.tsx` | Fix pré-existant (classe divider) — relu et conservé |
+| `src/components/admin/monte-carlo-review.tsx` | Fix nouveau — `grid-cols-1 sm:grid-cols-3` sur la ligne p5/p50/p95 |
+| `src/components/admin/agentic/crew-simulation-section.tsx` | Fix nouveau — `grid-cols-1 sm:grid-cols-3` sur la ligne Risk/Mode/Gates |
+| `docs/agent-file-locks.md` | Lock réservé pour cette session |
+| `docs/projects/hearst-defi/ui-rebuild/BATCHES.md` | Batch 6 marqué ✅ FAIT |
+| `docs/projects/hearst-defi/ui-rebuild/DECISIONS.md` | Décision batch 6 documentée en détail |
+| `docs/projects/hearst-defi/ui-rebuild/HANDOFF.md` | Ce fichier — section ajoutée |
+
+### Fichiers exclus (owner zone respectée)
+Aucun `docs/projects/hearst-defi/*.md` racine (Recovery Series active) ; aucun
+`prisma/**`, `.github/workflows/**`, secret/`.env*`, `vercel.json` ; aucune nouvelle
+logique/contenu ajoutée (uniquement des classes Tailwind responsive sur des grilles
+existantes) ; `contracts/test/`, `docs/agentic/` (owner-zone bruitée reçue par la
+métadonnée mission) non touchés — pré-existants, sans rapport avec le scope responsive de
+cette série, cf. précédent établi par les batches 3/4.
+
+### Statut d'intégration
+Diff non commité/non poussé — pas de PR ouverte par ce batch (rôle builder, commit/push/PR
+laissés au pipeline nexus après ce run, conformément aux gardes de la mission).
+
+### Prochain batch recommandé
+Batch 7 (QA visuelle — skill `visual-review`/Playwright sur portfolio, vaults,
+proof-center, admin dashboard, admin strategy à 3 breakpoints) une fois ce diff mergé.
+Batch 5 (`rgba()` inline, D6) reste conditionnel — ne pas armer sans arbitrage owner
+explicite. Batch 8 (intégrateur) ne doit pas être armé avant 5(si armé)/6/7.
+
+### Commit & PR
+Aucun — ce rôle ne commite/push/merge jamais. Travail réel produit (2 fixes responsive +
+docs de série), laissé au pipeline pour commit/push/PR après cette exécution (`gateMode:
+auto`, pas de no-op ici).
+
+---
+
 ## Batch 4/8 (builder, 2e re-dispatch) — vérification, aucun nouveau code — 2026-07-04
 
 Quatrième invocation de la même mission (batch 4/8, `series_ui_hearst-defi_0`, même branche

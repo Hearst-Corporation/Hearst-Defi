@@ -114,7 +114,7 @@ export function CrewSimulationSection({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-px overflow-hidden border-y border-[var(--ct-border-soft)] bg-surface-card">
+                <div className="grid grid-cols-1 gap-px overflow-hidden border-y border-[var(--ct-border-soft)] bg-surface-card sm:grid-cols-3">
                   <KpiCell label="Risk">
                     {showRisk ? (
                       <Tag tone={riskTone(scenario.risk)}>{scenario.risk}</Tag>
