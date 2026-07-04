@@ -21,6 +21,8 @@ import { eligibilityVerdict, kycBadgeVariant, kycLabel } from "@/lib/profile/kyc
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { DemoResetButton } from "@/components/profile/demo-reset-button";
+import { isDemoAccount } from "@/lib/demo/allowlist";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 import { WalletDisconnectButton } from "@/components/profile/wallet-disconnect-button";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
@@ -50,6 +52,7 @@ export default async function ProfilePage() {
 
   const firstSubAt = positions[0]?.subscribedAt ?? null;
   const hasPositions = positions.length > 0;
+  const showDemoReset = isDemoAccount(session.email);
   const kycStatus = investor?.kycStatus ?? "";
   const kycApproved = kycStatus === "approved";
   const kycPending = kycStatus === "pending";
@@ -237,6 +240,11 @@ export default async function ProfilePage() {
             }
           />
         </div>
+        {showDemoReset ? (
+          <div className="border-t p-5 ct-bento-divider">
+            <DemoResetButton />
+          </div>
+        ) : null}
         <div className="flex justify-end border-t p-5 ct-bento-divider">
           <SignOutButton />
         </div>
