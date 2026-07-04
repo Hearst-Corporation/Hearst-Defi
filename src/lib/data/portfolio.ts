@@ -653,7 +653,11 @@ export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { s
 
 /**
  * Build YieldStackProps from vault allocation data.
- * Cached cross-request for 1 hour.
+ * Short-cached cross-request: allocation snapshots change at most hourly (custody
+ * cron), but a 1h TTL meant a freshly-landed snapshot — or a just-cleared one —
+ * left the Capital & Yield donut stale/empty for up to an hour. A 60s window
+ * keeps the read cheap while letting the donut self-heal quickly; the "yield"
+ * tag is still busted explicitly on snapshot writes/demo reset for immediacy.
  */
 const fetchYieldStackData = unstable_cache(
   async () => {
@@ -670,7 +674,7 @@ const fetchYieldStackData = unstable_cache(
     return snapshot;
   },
   ["yield-stack-data"],
-  { revalidate: 3600, tags: ["yield"] }
+  { revalidate: 60, tags: ["yield"] }
 );
 
 export const loadYieldStackProps = cache(async (_hasPositions: boolean = true): Promise<YieldStackProps & { source: "live" | "stale"; updatedAt?: Date }> => {
