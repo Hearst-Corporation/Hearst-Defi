@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getInvestor } from "@/lib/auth/session";
 import { isDemoAccount } from "@/lib/demo/allowlist";
+import { subscribe } from "@/app/actions/subscribe";
+import { shareClassCode } from "@/lib/vaults/product-display";
 
 // =============================================================================
 // resetDemoAccount — wipes the CALLER'S demo state back to square one.
@@ -59,4 +61,75 @@ export async function resetDemoAccount(): Promise<ResetDemoResult> {
   revalidatePath("/portfolio");
 
   return { ok: true };
+}
+
+// =============================================================================
+// simulateKycApproval — demo shortcut that "passes" KYC without Sumsub.
+// =============================================================================
+//
+// Flips the demo account's kycStatus to `approved` (and attests accreditation)
+// so the reviewer can watch the verified state without a real vendor round-trip.
+// Allowlist-gated + scoped to the caller's own investor. Never touches a real
+// investor; the real KYC path (Sumsub webhook → markKycComplete) is unchanged.
+
+export type SimulateResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function simulateKycApproval(): Promise<SimulateResult> {
+  const session = await requireInvestor("/onboarding/identity");
+  if (!isDemoAccount(session.email)) {
+    return { ok: false, error: "This action is only available on demo accounts." };
+  }
+
+  const investor = await getInvestor();
+  if (!investor) return { ok: false, error: "Authentication required." };
+
+  await prisma.investor.update({
+    where: { id: investor.id },
+    data: { kycStatus: "approved", accreditationAttestedAt: new Date() },
+  });
+
+  revalidatePath("/onboarding/identity");
+  revalidatePath("/profile");
+  revalidatePath("/portfolio");
+  return { ok: true };
+}
+
+// =============================================================================
+// simulateDeposit — demo shortcut that subscribes WITHOUT an on-chain tx.
+// =============================================================================
+//
+// The real invest flow requires a connected wallet + a confirmed Base Sepolia
+// deposit tx. For the demo account we create the Position off-chain via the
+// audited `allowOffChain` path in subscribe(), so the reviewer sees a funded
+// portfolio without any testnet wallet or USDC. Allowlist-gated; subscribe()
+// still enforces KYC/accreditation/capacity/min-ticket, so nothing is bypassed
+// except the on-chain settlement requirement.
+
+export type SimulateDepositResult =
+  | { ok: true; positionId: string }
+  | { ok: false; error: string };
+
+export async function simulateDeposit(
+  vaultId: string,
+  amountUsdc: number,
+  shareClass: string = "A",
+): Promise<SimulateDepositResult> {
+  const session = await requireInvestor(`/vaults/${vaultId}/invest`);
+  if (!isDemoAccount(session.email)) {
+    return { ok: false, error: "This action is only available on demo accounts." };
+  }
+
+  const result = await subscribe(
+    vaultId,
+    amountUsdc,
+    shareClassCode(shareClass),
+    undefined,
+    { allowOffChain: true },
+  );
+  if (!result.ok) return result;
+
+  revalidatePath("/portfolio");
+  return { ok: true, positionId: result.positionId };
 }

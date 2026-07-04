@@ -32,6 +32,8 @@ import {
 } from "@/lib/onchain/vault";
 import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe, checkSubscribeEligibility } from "@/app/actions/subscribe";
+import { DemoDepositSimulate } from "@/components/vaults/demo-deposit-simulate";
+import { isDemoAccount } from "@/lib/demo/allowlist";
 import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import type { VaultProduct } from "@/lib/data/vaults";
 import type { Investor } from "@prisma/client";
@@ -840,6 +842,13 @@ function InvestFormLive({
                       : `Confirm ${formatUsdAmount(amount)} deposit`}
                   </button>
                 </div>
+                {isDemoAccount(session?.email) ? (
+                  <DemoDepositSimulate
+                    vaultId={vault.id}
+                    amountUsdc={amount}
+                    shareClass={vault.shareClass}
+                  />
+                ) : null}
               </div>
             ) : (
               <>

@@ -19,6 +19,8 @@ interface IdentityChamberProps {
   isProduction: boolean;
   /** Investor's real KYC state, or null when no investor row resolved yet. */
   kycStatus: "pending" | "approved" | "rejected" | string | null;
+  /** Demo-only shortcut controls, rendered in the sole. Null for real accounts. */
+  demoTools?: React.ReactNode;
 }
 
 export function IdentityChamber({
@@ -26,6 +28,7 @@ export function IdentityChamber({
   mayContinue,
   isProduction,
   kycStatus,
+  demoTools,
 }: IdentityChamberProps) {
   const { irContact } = useOnboardingShell();
 
@@ -123,6 +126,8 @@ export function IdentityChamber({
               <Button variant="ghost" size="md" asChild className="w-full">
                 <Link href="/onboarding/accreditation">← Back</Link>
               </Button>
+
+              {demoTools}
             </div>
           }
         />

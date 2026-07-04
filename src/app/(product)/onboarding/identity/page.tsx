@@ -8,9 +8,11 @@
  */
 
 import { IdentityChamber } from "@/components/onboarding/identity-chamber";
+import { DemoKycSimulate } from "@/components/onboarding/demo-kyc-simulate";
 import { getSession, getInvestor } from "@/lib/auth/session";
 import { isSumsubConfigured } from "@/lib/onboarding/config";
 import { canProceedToWallet } from "@/lib/onboarding/gates";
+import { isDemoAccount } from "@/lib/demo/allowlist";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +25,15 @@ export default async function IdentityPage() {
       ? await canProceedToWallet(session.userId)
       : false;
 
+  const showDemoTools = isDemoAccount(session?.email);
+
   return (
     <IdentityChamber
       kycVendorReady={kycVendorReady}
       mayContinue={mayContinue}
       isProduction={process.env.NODE_ENV === "production"}
       kycStatus={investor?.kycStatus ?? null}
+      demoTools={showDemoTools ? <DemoKycSimulate /> : null}
     />
   );
 }
