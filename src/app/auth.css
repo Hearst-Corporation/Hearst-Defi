@@ -145,6 +145,14 @@
   text-align: center;
 }
 
+/* Small brand mark pinned top-left of the sign-in panel. */
+.auth-login-panel__logo {
+  align-self: flex-start;
+  width: var(--ct-space-20);
+  height: auto;
+  display: block;
+}
+
 .auth-login-panel__header {
   display: flex;
   flex-direction: column;
