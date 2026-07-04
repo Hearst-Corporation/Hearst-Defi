@@ -135,6 +135,24 @@
   text-align: center;
 }
 
+/* Login inputs sit on the deep black split — keep them flat and dark so they
+   read as part of the surface instead of the lighter default inset. Scoped to
+   the login split only; the global .ct-input primitive is untouched. */
+.login-split .ct-input {
+  background: color-mix(in srgb, var(--ct-bg-deep) 70%, transparent);
+  border-color: var(--ct-border-soft);
+}
+
+.login-split .ct-input:hover {
+  border-color: var(--ct-border);
+}
+
+.login-split .ct-input:focus,
+.login-split .ct-input:focus-visible {
+  border-color: var(--ct-border-accent);
+  outline-color: color-mix(in srgb, var(--ct-accent) 30%, transparent);
+}
+
 /* -----------------------------------------------------------------------------
    4. SPLIT-SCREEN COLUMN INSETS
    The structural skin lives in cockpit.css (.login-split__*); these classes
