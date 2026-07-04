@@ -5528,7 +5528,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 .login-split__brand {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: var(--ct-space-10);
   height: 100%;
@@ -5544,9 +5544,9 @@ main#main-content>.admin-doc.admin-doc-shell {
 .login-split__brand-inner {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--ct-space-12);
-  text-align: center;
+  text-align: left;
   max-width: 35rem;
 }
 
@@ -5559,7 +5559,7 @@ main#main-content>.admin-doc.admin-doc-shell {
 .login-split__tagline {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--ct-space-5);
 }
 
