@@ -40,7 +40,8 @@ export function LoginForm() {
 
   return (
     <form action={onSubmit} className="auth-form" aria-label="Sign in">
-      <div className="auth-field">
+      <label className="auth-field" htmlFor="login-email">
+        <span className="ct-form-label">Email</span>
         <input
           id="login-email"
           name="email"
@@ -50,14 +51,14 @@ export function LoginForm() {
           required
           disabled={isPending}
           placeholder="you@institution.com"
-          aria-label="Email"
           className="ct-input ct-input-bare"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "login-error" : undefined}
         />
-      </div>
+      </label>
 
-      <div className="auth-field">
+      <label className="auth-field" htmlFor="login-password">
+        <span className="ct-form-label">Password</span>
         <input
           id="login-password"
           name="password"
@@ -66,12 +67,11 @@ export function LoginForm() {
           required
           disabled={isPending}
           placeholder="••••••••"
-          aria-label="Password"
           className="ct-input ct-input-bare"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "login-error" : undefined}
         />
-      </div>
+      </label>
 
       {error ? (
         <p id="login-error" className="ct-status-danger body-xs" role="alert">
@@ -79,7 +79,7 @@ export function LoginForm() {
         </p>
       ) : null}
 
-      <div className="flex justify-start">
+      <div className="flex justify-center">
         <Button
           type="submit"
           variant="primary"
@@ -92,7 +92,7 @@ export function LoginForm() {
         </Button>
       </div>
 
-      <p className="body-xs ct-text-muted text-left">
+      <p className="body-xs ct-text-muted text-center">
         <Link href="/forgot-password" className="ct-link-accent">
           Forgot password?
         </Link>

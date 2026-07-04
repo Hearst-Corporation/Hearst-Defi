@@ -52,13 +52,23 @@
   color: var(--ct-accent);
 }
 
-:is(.auth-shell, .auth-login-panel, .login-split) .eyebrow {
+:is(.auth-shell, .auth-login-panel, .login-split)
+  .eyebrow:not(.login-split__eyebrow-accent) {
   font-size: var(--ct-text-nano);
   font-weight: var(--ct-font-semibold);
   line-height: normal;
   letter-spacing: var(--ct-tracking-widest);
   text-transform: uppercase;
   color: var(--ct-text-secondary);
+}
+
+/* Brand-panel eyebrow keeps its deliberate accent tint + sizing/tracking canon. */
+.login-split .eyebrow.login-split__eyebrow-accent {
+  font-size: var(--ct-text-nano);
+  font-weight: var(--ct-font-semibold);
+  line-height: normal;
+  letter-spacing: var(--ct-tracking-widest);
+  text-transform: uppercase;
 }
 
 /* Keep the ≥80rem doc-flow fluid bump from re-inflating the auth H1 (canon =
@@ -135,22 +145,11 @@
   text-align: center;
 }
 
-/* Login inputs sit on the deep black split — keep them flat and dark so they
-   read as part of the surface instead of the lighter default inset. Scoped to
-   the login split only; the global .ct-input primitive is untouched. */
-.login-split .ct-input {
-  background: color-mix(in srgb, var(--ct-bg-deep) 70%, transparent);
-  border-color: var(--ct-border-soft);
-}
-
-.login-split .ct-input:hover {
-  border-color: var(--ct-border);
-}
-
-.login-split .ct-input:focus,
-.login-split .ct-input:focus-visible {
-  border-color: var(--ct-border-accent);
-  outline-color: color-mix(in srgb, var(--ct-accent) 30%, transparent);
+.auth-login-panel__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ct-space-3);
 }
 
 /* -----------------------------------------------------------------------------
