@@ -42,14 +42,18 @@ export function MiningHealthPage({
   const hashrateDeployed = `${data.miningOps.hashrate_ph_s.toFixed(0)} PH/s`;
   const uptime = `${data.miningOps.uptime_pct.toFixed(1)}%`;
   const attestationsCount = data.miningOps.attestations_count;
-  // B3 — fallback ops figures (DB empty) are estimates, never attested.
-  const opsProvenance = data.miningOps.is_fallback ? "estimated" : "attested";
+  // Hashrate/uptime are read from `MiningMetric.deployedHashrate`/`uptimePct`,
+  // both still hardcoded placeholders written by the hourly cron
+  // (`market-data-hourly.ts`, RP-10) regardless of `is_fallback` — that flag
+  // only signals "no DB rows yet", not "this row is a real measurement".
+  // Never badge them `attested` until a real fleet feed lands (T-14).
+  const opsProvenance = "estimated";
   const opsHint = data.miningOps.is_fallback
     ? "Fallback estimate — no operator rows yet"
-    : "JV operator fleet, paper-attested";
+    : "Placeholder pending real fleet feed (RP-10)";
   const uptimeHint = data.miningOps.is_fallback
     ? "Fallback estimate — no operator rows yet"
-    : "Trailing 30d, paper attestation";
+    : "Placeholder pending real uptime feed (RP-10)";
 
   return (
     <Page size="A4" style={styles.page}>

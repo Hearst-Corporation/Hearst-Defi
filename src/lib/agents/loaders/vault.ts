@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import type { InvestorMemoProvenance } from "@/lib/agents/investor-memo";
 import type { ProvenanceTag } from "@/lib/agents/schemas";
 import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
+import { isLiveTimelineSource } from "@/lib/data/timeline-snapshot";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import type { CoverageViewProvenance } from "@/lib/engine/coverage-view";
 import type {
@@ -140,13 +141,21 @@ export async function loadMemoInput(
 
   // Provenance (CLAUDE.md #2):
   //   - vault / mining numbers come from the latest VaultSnapshot — attested
-  //     while the snapshot is within its freshness SLO, else stale.
+  //     while the snapshot is within its freshness SLO, else stale. BUT
+  //     freshness alone doesn't prove authenticity: `source` values like
+  //     "computed" (engine preset run) and "daily-seed" (synthetic seeded
+  //     timeline, see prisma/seed.ts) are never real measurements, no matter
+  //     how recent `takenAt` is — `isLiveTimelineSource()` already encodes
+  //     this distinction for the admin dashboard (`timeline-snapshot.ts`);
+  //     the memo loader must honour the same rule so an unfiltered
+  //     "latest snapshot" query can never badge seed/preset data as attested.
   //   - coverage carries its own resolved provenance (live/estimated/pending).
   //   - scenarios + backtests are engine artifacts persisted on a prior tick:
   //     reproducible, deterministic outputs → attested.
-  const snapshotTag: ProvenanceTag =
-    evaluateFreshness(snapshot.takenAt, STALE_THRESHOLDS.portfolio_snapshot) ===
-    "stale"
+  const snapshotTag: ProvenanceTag = !isLiveTimelineSource(snapshot.source)
+    ? "estimated"
+    : evaluateFreshness(snapshot.takenAt, STALE_THRESHOLDS.portfolio_snapshot) ===
+        "stale"
       ? "stale"
       : "attested";
   const provenance: InvestorMemoProvenance = {

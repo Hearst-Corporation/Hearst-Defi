@@ -118,6 +118,8 @@ Auth, cockpit-chat, cockpit-chats, agent-canvas, search, health/deep, inngest, w
 | RP-7 | Fees défaut 2 % vs spec 1 % | Moyen | ✅ RÉSOLU (C-04) |
 | RP-8 | Env prod manquants (Inngest/Redis/Privy/Persona/DocuSign) | Élevé | Ouvert |
 | RP-9 | MFA TOTP admin non câblé ; CSP wildcards | Moyen | Partiel (C-09 ⚠️, C-10 partiel ✅) |
+| RP-10 | Mining fleet uptime/hashrate = placeholders codés en dur (`market-data-hourly.ts`, `uptimePct: 98.5`, `deployedHashrate: 182_000`) | Moyen | Partiel — provenance corrigée en `estimated` côté agent Mining Health (T-13, 2026-07-04, `loaders/mining.ts`) ET côté Investor Memo PDF (T-14, 2026-07-04, `pdf/memo-pages/mining-health.tsx`) ; vraie source d'uptime/hashrate toujours absente, pas un risque légal (chiffre flaggé, plus jamais présenté comme attesté sur les 2 surfaces connues) |
+| RP-11 | Investor Memo PDF (AUM/APY/risk score) pouvait badger "attested" un `VaultSnapshot` seed/preset (`source: "daily-seed"`/`"computed"`) sur la seule fraîcheur de `takenAt`, sans vérifier `source` | Élevé | ✅ RÉSOLU (T-15, 2026-07-04, `loaders/vault.ts` — `isLiveTimelineSource()` désormais requis avant `attested`/`stale`, sinon `estimated`) |
 
 ---
 
@@ -186,4 +188,4 @@ Module `src/lib/product-strategies/` + `src/app/admin/strategies/` ajouté lors 
 
 ---
 
-*Mis à jour : 2026-07-03 (batch Data Truth — anti-mock guard). Prochain refresh : batch 3.*
+*Mis à jour : 2026-07-04 (batch série 5/9, 3e fix réel T-15 — RP-11 ajouté). Prochain refresh : batch 3.*
