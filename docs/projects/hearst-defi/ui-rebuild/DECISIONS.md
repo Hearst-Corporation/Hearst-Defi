@@ -6,6 +6,24 @@
 > une décision non-triviale au sens `CLAUDE.md` (ex. fusion de composants partagés hors périmètre
 > UI, changement de contrat de données).
 
+## Batch 4 (builder, implémentation D5) — 2026-07-04
+
+**D5 exécuté — 3 entrées ajoutées à `product-nav-items.ts`.** Toutes `hideFromSubNav: true`
+(zéro changement visuel, jamais rendues par `AdminSubNav` qui filtre via `visibleSubNavTabs`
+avant tout rendu — l'icône n'est même pas affichée pour ces entrées, cohérent avec le
+précédent `projection-preview` qui utilise déjà une icône `Eye` absente du `ICON_MAP` du rail).
+Placement par section (logique de contenu, aucun impact car masqué) :
+- `agent-canvas` → section `dashboard`, à côté de `agentic`/`agents` (même famille agentic).
+- `btc-mining-performance-vault` → section `strategy`, à côté de `product-workspace`/`strategies`
+  (page de documentation produit read-only, même famille que les autres pages "Strategy").
+- `diagnostics` → section `proof-system`, à côté de `monitoring`/`security` (Live Diagnostic
+  Center = probes de santé, même famille "système").
+*Pourquoi ces sections précisément* : aucune des trois n'a de section "évidente" imposée par le
+code (aucune ne référence une section admin) ; le choix suit le contenu réel de chaque page
+(vérifié par lecture directe, pas par supposition) plutôt qu'un défaut arbitraire — cohérent
+avec le risque noté par batch 2 (D5) : l'objectif est l'exhaustivité de la source de vérité,
+pas une réorganisation de nav visible.
+
 ## Batch 3 (builder, implémentation D4) — 2026-07-04
 
 **D4 résolu — pas de fusion, un renommage.** Lecture complète des deux fichiers (batch 2 ne les

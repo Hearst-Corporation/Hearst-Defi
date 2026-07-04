@@ -104,6 +104,10 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "agents", label: "Agent Library", railLabel: "Agents", href: "/admin/agents", icon: "Bot" },
       { id: "outreach", label: "Outreach", href: "/admin/outreach", icon: "Send" },
       { id: "onboarding-test", label: "Onboarding test", href: "/admin/onboarding-test", icon: "ClipboardCheck", hideFromSubNav: true },
+      // Agent Canvas = the live workspace the agent fills in to frame a product
+      // or outreach campaign (canvasId picks the workshop). Reachable by URL /
+      // agent action, not a destination an operator browses to directly.
+      { id: "agent-canvas", label: "Agent Canvas", href: "/admin/agent-canvas", icon: "Workflow", hideFromSubNav: true },
       { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
     ],
   },
@@ -125,6 +129,9 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       // Projection Preview = aperçu rapport démo (fixture), PAS une page produit
       // normale. Retirée du menu, route conservée. Label clarifié.
       { id: "projection-preview", label: "Investor Report Preview — Demo Fixture", railLabel: "Preview", href: "/admin/projection/preview", icon: "Eye", hideFromSubNav: true },
+      // Read-only product documentation page for the committed BTC product
+      // (src/lib/products/*) — not a workspace/editor, not a nav destination.
+      { id: "btc-mining-performance-vault", label: "BTC Mining Performance Vault", railLabel: "BTC Vault", href: "/admin/products/btc-mining-performance-vault", icon: "FileText", hideFromSubNav: true },
     ],
   },
   {
@@ -153,6 +160,9 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "security", label: "Security", href: "/admin/security", icon: "ShieldCheck" },
       { id: "governance", label: "Governance", href: "/admin/governance", icon: "Scale" },
       { id: "allowlist", label: "Allowlist", href: "/admin/governance/allowlist", icon: "Users" },
+      // Live Diagnostic Center — dry-run health probes across chat/outreach/
+      // vault-hitl/projection. Operator tool, reachable by URL, not a nav tab.
+      { id: "diagnostics", label: "Live Diagnostics", href: "/admin/diagnostics", icon: "Activity", hideFromSubNav: true },
     ],
   },
   {
