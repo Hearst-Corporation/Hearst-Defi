@@ -48,6 +48,11 @@ on:
         required: false
         default: "1"
         type: string
+      identity_check:
+        description: "true = resolve/log Claude account only, skip model execution"
+        required: false
+        default: "false"
+        type: string
       # ── pr_fix inputs (optional; only sent by Nexus for pr.fix runs) ──────────
       mode:
         description: "default | pr_fix"
@@ -81,19 +86,27 @@ concurrency:
 jobs:
   run:
     runs-on: [self-hosted, gpu1]
+    # Hard ceiling so a wedged run (agent hung, network stall) can't burn the
+    # 6h GitHub default. The daemon's staleness backstop (45 min, see
+    # src/lib/runs/reconcile-core.ts RUN_STALENESS_THRESHOLD_MS) sits above this,
+    # so a job that hits this timeout is observed as `completed`/failed and
+    # reconciled — never left dangling.
+    timeout-minutes: 30
     env:
       # Fallback only. On the self-hosted runner this is normally EMPTY and the
-      # agent authenticates via the OAuth token in ~/.nexus-claude.env. It is
+      # agent authenticates via the resolved OAuth slot. It is
       # referenced here (never inline) so target-repo copies that DO set the GH
       # secret keep working; `unset ANTHROPIC_API_KEY` below forces subscription
       # auth regardless. See docs/RUNNER_INFRA.md.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GH_TOKEN: ${{ github.token }}
+      REPO_FULL_NAME: ${{ github.repository }}
       MODE: ${{ inputs.mode }}
       RUN_LABEL: ${{ inputs.run_label }}
       MISSION: ${{ inputs.prompt }}
       MODEL: ${{ inputs.model }}
       AGENTS: ${{ inputs.agents }}
+      IDENTITY_CHECK: ${{ inputs.identity_check }}
       TARGET_PR: ${{ inputs.target_pr_number }}
       TARGET_HEAD_REF: ${{ inputs.target_head_ref }}
       TARGET_BASE_REF: ${{ inputs.target_base_ref }}
@@ -133,9 +146,34 @@ jobs:
             echo "→ default mode: new branch $BR"
           fi
 
+      - name: Resolve Claude account
+        id: claude_account
+        shell: bash -l {0}
+        run: |
+          set -euo pipefail
+          python3 ".github/scripts/resolve-active-claude-account.py" \
+            --repo "$REPO_FULL_NAME" \
+            --run-label "$RUN_LABEL" \
+            > "$RUNNER_TEMP/claude-account.json"
+          python3 - <<'PY'
+          import json, os
+          data = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "claude-account.json"), "r", encoding="utf-8"))
+          line = (
+              f"→ claude auth: account '{data['account_id']}' source '{data['source']}' "
+              f"label '{data['label_masked'] or 'n/a'}' env '{data['env_file']}' "
+              f"resolved_at '{data['resolved_at']}' "
+              f"token_fingerprint '{data['token_fingerprint'] or 'n/a'}' "
+              f"session_fingerprint '{data['session_fingerprint'] or 'n/a'}'"
+          )
+          print(line)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              for key in ("repo", "account_id", "label_masked", "source", "resolved_at", "env_file", "env_file_is_legacy", "token_fingerprint", "session_file", "session_fingerprint", "legacy_file", "legacy_fingerprint"):
+                  fh.write(f"{key}={data.get(key, '')}\n")
+          PY
+
       # ── Run the agent fleet ────────────────────────────────────────────────
       # Real Claude Code invocation on the SELF-HOSTED gpu1 runner. Authenticated
-      # by the Claude Max subscription (OAuth token in ~/.nexus-claude.env) — NOT
+      # by the Claude Max subscription (OAuth token in the resolved slot file) — NOT
       # a metered API key. `unset ANTHROPIC_API_KEY` guarantees subscription auth
       # even if a GH secret leaked one into the env. $AGENTS sequential agents run
       # against $MISSION; each pass sees the previous pass's edits. A failing agent
@@ -143,14 +181,41 @@ jobs:
       # health-check outcome — UNLESS the failure is an account/environment error
       # (which produces no code and must not masquerade as a clean no-op).
       - name: Run Claude Code agents
+        if: ${{ inputs.identity_check != 'true' }}
         shell: bash -l {0}
         run: |
           set -uo pipefail
           export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm use 20 >/dev/null 2>&1 || true
-          # Load the active Claude subscription slot (OAuth token), then FORCE
+          # Load the resolved Claude subscription slot (OAuth token), then FORCE
           # subscription auth by clearing any metered API key. See RUNNER_INFRA.md.
-          set -a; [ -f "$HOME/.nexus-claude.env" ] && . "$HOME/.nexus-claude.env"; set +a
+          set -a; [ -f "${{ steps.claude_account.outputs.env_file }}" ] && . "${{ steps.claude_account.outputs.env_file }}"; set +a
           unset ANTHROPIC_API_KEY   # subscription auth only, never metered credit
+
+          # ── TRUST the workspace (root cause of the false no-ops) ──────────────
+          # Claude Code gates ALL Bash behind a per-workspace "trust dialog". On a
+          # headless runner that dialog can never be answered, so every command —
+          # even with --dangerously-skip-permissions, which only skips permission
+          # PROMPTS, not the trust barrier — was refused. Symptom in the logs:
+          # "Ignoring N permissions.allow entries: this workspace has not been
+          # trusted." The agents then burned all 40 turns unable to run
+          # typecheck/test and collapsed to a false no-op (0 files, no PR).
+          # Fix: pre-mark THIS workspace hasTrustDialogAccepted:true in
+          # ~/.claude.json before the agent starts. Idempotent, survives the
+          # ephemeral runner (re-applied every run), scoped to the checkout dir.
+          WS="$(pwd)"
+          CLAUDE_JSON="$HOME/.claude.json"
+          CLAUDE_JSON="$CLAUDE_JSON" WS="$WS" node -e '
+            const fs = require("fs");
+            const p = process.env.CLAUDE_JSON, ws = process.env.WS;
+            let c = {};
+            try { c = JSON.parse(fs.readFileSync(p, "utf8")); } catch {}
+            c.projects = c.projects || {};
+            c.projects[ws] = { ...(c.projects[ws] || {}), hasTrustDialogAccepted: true };
+            // A first-run global flag some versions also consult before any project.
+            c.hasCompletedProjectOnboarding = true;
+            fs.writeFileSync(p, JSON.stringify(c, null, 2));
+            console.log("trusted workspace:", ws);
+          ' || echo "::warning::could not pre-trust workspace — Bash may be blocked"
 
           # Map the loop model (opus|sonnet|gemini) to a Claude model id.
           case "${MODEL:-opus}" in
@@ -213,7 +278,7 @@ jobs:
               # hard failure, NOT a clean no-op (a no-op is the agent running and
               # choosing to change nothing). Fail the run so it can't masquerade as
               # success. Same for account/environment errors (no code produced).
-              if printf '%s' "$out" | grep -qiE "unknown option|unknown argument|invalid option|error: unknown|usage:|missing required|credit balance is too low|insufficient|quota|authentication|invalid api key|unauthorized|rate limit|oauth"; then
+              if printf '%s' "$out" | grep -qiE "unknown option|unknown argument|invalid option|error: unknown|usage:|missing required|credit balance is too low|insufficient|quota|weekly limit|session limit|authentication|invalid api key|unauthorized|rate limit|oauth"; then
                 echo "::error::Agent $i did not run — CLI/parse or account error (no code produced). First line: $(printf '%s' "$out" | head -n1)"
                 fail=1
                 break
@@ -225,6 +290,7 @@ jobs:
 
       # ── Commit + push (mode-aware) ─────────────────────────────────────────
       - name: Commit and push
+        if: ${{ inputs.identity_check != 'true' }}
         id: push
         shell: bash -l {0}
         run: |
@@ -249,7 +315,7 @@ jobs:
       # reverted and reports no-op when the agent touched nothing useful.
       - name: Detect changes against base (default mode only)
         id: detect
-        if: ${{ inputs.mode != 'pr_fix' }}
+        if: ${{ inputs.identity_check != 'true' && inputs.mode != 'pr_fix' }}
         shell: bash -l {0}
         run: |
           set -euo pipefail
@@ -270,7 +336,7 @@ jobs:
       # failure. Any OTHER non-2xx is a real error and FAILS the step (never masked
       # by `|| true` — a run that produced a diff but no PR must not report success).
       - name: Open pull request (default mode only)
-        if: ${{ inputs.mode != 'pr_fix' && steps.push.outputs.changed == 'true' && steps.detect.outputs.has_changes == 'true' }}
+        if: ${{ inputs.identity_check != 'true' && inputs.mode != 'pr_fix' && steps.push.outputs.changed == 'true' && steps.detect.outputs.has_changes == 'true' }}
         shell: bash -l {0}
         env:
           REPO: ${{ github.repository }}
@@ -296,7 +362,7 @@ jobs:
 
       # ── pr_fix: report back on the EXISTING PR (no new PR) ──────────────────
       - name: Comment on the patched PR (pr_fix mode)
-        if: ${{ inputs.mode == 'pr_fix' && steps.push.outputs.changed == 'true' && inputs.target_pr_number != '' }}
+        if: ${{ inputs.identity_check != 'true' && inputs.mode == 'pr_fix' && steps.push.outputs.changed == 'true' && inputs.target_pr_number != '' }}
         shell: bash -l {0}
         env:
           REPO: ${{ github.repository }}
