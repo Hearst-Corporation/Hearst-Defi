@@ -7,7 +7,6 @@ import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
-import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { ChoiceCard, ChoiceGroup } from "@/components/catalyst/choice-card";
 import {
@@ -45,12 +44,6 @@ const STEPS: readonly WizardStep<Step>[] = [
   { id: "aum", label: "Capacity", index: 3 },
   { id: "allocation", label: "Allocation", index: 4 },
   { id: "timing", label: "Timing", index: 5 },
-] as const;
-
-const META_CHIPS = [
-  "5 quick steps",
-  "Under a minute",
-  "For qualified investors only",
 ] as const;
 
 function StepHeading({
@@ -152,19 +145,12 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             ariaLabel="Qualification progress"
             hideLabelsBelow="sm"
           />
-          <div className="product-doc-stack--compact">
-            <h1 className="h1 m-0 text-pretty" style={{ color: "var(--ct-accent)" }}>Qualification for institutional access</h1>
-            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
+          <div className="product-doc-stack--compact text-center items-center">
+            <h1 className="h1 m-0 text-balance" style={{ color: "var(--ct-accent)" }}>Qualification for institutional access</h1>
+            <p className="body-md ct-text-muted m-0 text-balance ct-prose-lg mx-auto">
               A few quick steps to assess fit for Hearst Connect&apos;s
               institutional USDC yield program. No commitment required.
             </p>
-          </div>
-          <div className="product-doc-inline-row product-doc-inline-row--start">
-            {META_CHIPS.map((chip) => (
-              <Badge key={chip} variant="default">
-                {chip}
-              </Badge>
-            ))}
           </div>
         </div>
       }
