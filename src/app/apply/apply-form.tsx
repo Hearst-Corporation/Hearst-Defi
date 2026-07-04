@@ -145,9 +145,9 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
             ariaLabel="Qualification progress"
             hideLabelsBelow="sm"
           />
-          <div className="product-doc-stack--compact text-center items-center">
-            <h1 className="h1 m-0 text-balance" style={{ color: "var(--ct-accent)" }}>Qualification for institutional access</h1>
-            <p className="body-md ct-text-muted m-0 text-balance ct-prose-lg mx-auto">
+          <div className="product-doc-stack--compact text-left items-start">
+            <h1 className="h1 m-0 text-pretty" style={{ color: "var(--ct-accent)" }}>Qualification for institutional access</h1>
+            <p className="body-md ct-text-muted m-0 text-pretty ct-prose-lg">
               A few quick steps to assess fit for Hearst Connect&apos;s
               institutional USDC yield program. No commitment required.
             </p>
