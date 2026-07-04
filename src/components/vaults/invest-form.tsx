@@ -34,6 +34,7 @@ import { monthsToTarget } from "@/lib/projection-chart";
 import { subscribe, checkSubscribeEligibility } from "@/app/actions/subscribe";
 import { DemoDepositSimulate } from "@/components/vaults/demo-deposit-simulate";
 import { isDemoAccount } from "@/lib/demo/allowlist";
+import { simulateDeposit } from "@/lib/demo/actions";
 import { isPrivyConfigured } from "@/lib/auth/is-privy-configured";
 import type { VaultProduct } from "@/lib/data/vaults";
 import type { Investor } from "@prisma/client";
@@ -543,6 +544,13 @@ function InvestFormLive({
 
   function ctaState(): CtaState {
     if (depositing) return "confirming";
+    // Demo accounts subscribe off-chain — skip the wallet + on-chain-config
+    // gates entirely; only the product gates (amount, terms) still apply.
+    if (demoMode) {
+      if (!amountValid) return "enter_amount";
+      if (!agreedToTermSheet) return "accept_terms";
+      return "ready";
+    }
     if (!ready || walletAddress === null) return "no_wallet";
     if (!VAULT_ADDRESS) return "no_vault_config";
     if (!amountValid) return "enter_amount";
@@ -588,6 +596,25 @@ function InvestFormLive({
     if (!ctaEnabled || depositing) {
       setAwaitingConfirm(false);
       setDepositError(null);
+      return;
+    }
+
+    // Demo accounts subscribe off-chain: no wallet, no chain switch, no on-chain
+    // deposit. Route Confirm straight through simulateDeposit so the wallet /
+    // chain-guard (ChainError "switch to Base Sepolia") is never hit.
+    if (demoMode) {
+      setDepositing(true);
+      setDepositError(null);
+      const sub = await simulateDeposit(vault.id, amount, vault.shareClass);
+      if (!sub.ok) {
+        setDepositError(sub.error);
+        setDepositing(false);
+        setAwaitingConfirm(false);
+        return;
+      }
+      router.push(
+        `${investConfirmedPath(vault.id)}?amount=${amount}&positionId=${sub.positionId}&demo=1`,
+      );
       return;
     }
 
@@ -653,7 +680,7 @@ function InvestFormLive({
       setDepositing(false);
       setAwaitingConfirm(false);
     }
-  }, [ctaEnabled, depositing, privyWallet, amount, vault, router]);
+  }, [ctaEnabled, depositing, privyWallet, amount, vault, router, demoMode]);
 
   const handleCancelConfirm = useCallback(() => {
     setAwaitingConfirm(false);
