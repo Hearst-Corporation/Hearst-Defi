@@ -267,6 +267,45 @@ describe("POST /api/sumsub/webhook", () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Reset / deleted lifecycle events never approve (invariant lock)
+  // ---------------------------------------------------------------------------
+
+  it.each(["applicantReset", "applicantDeleted", "applicantOnHold"])(
+    "archives a %s event verbatim without approving the investor",
+    async (eventType) => {
+      const payload = JSON.stringify({
+        type: eventType,
+        applicantId: "appl_test123",
+        externalUserId: "user_abc",
+      });
+
+      const { POST } = await import("../webhook/route");
+      const { NextRequest } = await import("next/server");
+
+      const req = new NextRequest("http://localhost/api/sumsub/webhook", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-payload-digest": buildDigest(SECRET, payload),
+        },
+        body: payload,
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+
+      expect(mockCreate).toHaveBeenCalledOnce();
+      const createCall = mockCreate.mock.calls[0]?.[0] as {
+        data: { status: string };
+      };
+      // Non-review events are archived under their raw Sumsub type…
+      expect(createCall.data.status).toBe(eventType);
+      // …and NEVER move the investor to approved.
+      expect(mockUpdateMany).not.toHaveBeenCalled();
+    },
+  );
+
+  // ---------------------------------------------------------------------------
   // Idempotence — duplicate delivery (P2002)
   // ---------------------------------------------------------------------------
 
