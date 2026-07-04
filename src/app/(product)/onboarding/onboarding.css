@@ -54,6 +54,23 @@ body:has([data-testid="apply-shell"]) {
   );
 }
 
+/* Dot-grid — same sober pattern as the login split-screen brand panel
+   (.login-split__brand, cockpit.css). Points only, no added glow: this sits
+   underneath the ::before ambient halo above, it does not duplicate it. */
+.onboarding-shell--wide::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ct-accent) 18%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: var(--ct-space-6) var(--ct-space-6);
+}
+
 .onboarding-shell--wide .onboarding-shell__frame {
   padding-block: clamp(var(--ct-space-6), 5vh, var(--ct-space-12));
 }
