@@ -144,7 +144,7 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
               className="m-0 text-pretty"
               style={{
                 color: "var(--ct-accent)",
-                fontSize: "var(--ct-text-display)",
+                fontSize: "var(--ct-text-5xl)",
                 fontWeight: "var(--ct-font-extrabold)",
                 letterSpacing: "var(--ct-tracking-tighter)",
                 lineHeight: "var(--ct-leading-tight)",
