@@ -5951,22 +5951,21 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 
 .wizard-step-progress__dot--done {
-  border-color: var(--ct-border-strong);
-  background: var(--ct-text-strong);
+  border-color: var(--ct-accent);
+  background: var(--ct-accent);
   color: var(--ct-bg-deep);
 }
 
 .wizard-step-progress__dot--active {
-  border-color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-border));
-  background: var(--ct-surface-inset);
-  color: var(--ct-text-strong);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ct-accent) 35%, transparent);
+  border-color: var(--ct-accent);
+  background: var(--ct-accent);
+  color: var(--ct-bg-deep);
 }
 
 .wizard-step-progress__dot--pending {
-  border-color: var(--ct-border-soft);
+  border-color: color-mix(in srgb, var(--ct-accent) 55%, var(--ct-border));
   background: var(--ct-surface-inset);
-  color: var(--ct-text-muted);
+  color: var(--ct-text-strong);
 }
 
 .wizard-step-progress__label {
@@ -5979,11 +5978,11 @@ main#main-content>.admin-doc.admin-doc-shell {
 }
 
 .wizard-step-progress__label--done {
-  color: var(--ct-text-primary);
+  color: var(--ct-text-strong);
 }
 
 .wizard-step-progress__label--pending {
-  color: var(--ct-text-muted);
+  color: var(--ct-text-strong);
 }
 
 /* ── Rail variant — premium product stepper (invest flow) ────────────────────
