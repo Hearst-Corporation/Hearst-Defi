@@ -183,7 +183,17 @@ export default async function PortfolioPage() {
             style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
           >
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
-              <h2 className="ct-section-title">Account</h2>
+              <div className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/crypto-icons/btc.svg"
+                  alt="Bitcoin"
+                  width={20}
+                  height={20}
+                  className="size-5 shrink-0"
+                />
+                <h2 className="ct-section-title">Account</h2>
+              </div>
               <p className="ct-metric-caption">Key metrics</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)] flex-1">
