@@ -12,8 +12,9 @@ import { resetDemoAccount } from "@/lib/demo/actions";
  * /profile ONLY for demo accounts (allowlist-gated server-side + at the render
  * site) — a real investor never sees it, and the server action refuses them too.
  *
- * Two-step confirm: the reset destroys positions, transactions, NAV history, and
- * KYC progress for the demo account, so an accidental single click is guarded.
+ * Two-step confirm: the reset destroys positions, transactions and NAV history
+ * for the demo account (KYC/accreditation/wallet are kept so it stays verified),
+ * so an accidental single click is guarded.
  */
 export function DemoResetButton() {
   const router = useRouter();
@@ -71,8 +72,9 @@ export function DemoResetButton() {
       )}
 
       <p className="body-xs ct-text-faint m-0">
-        Unsubscribes from every vault and clears positions, distributions and KYC
-        progress so the full flow can be re-run. Demo accounts only.
+        Unsubscribes from every vault and clears positions, distributions and NAV
+        history so the flow can be re-run. Keeps you verified (KYC stays approved).
+        Demo accounts only.
       </p>
 
       {error ? (
