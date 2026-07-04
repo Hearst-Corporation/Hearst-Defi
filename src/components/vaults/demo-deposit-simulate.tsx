@@ -28,8 +28,13 @@ export function DemoDepositSimulate({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // Latched once a simulate succeeds: the off-chain position has no unique tx
+  // hash, so a second click would create a duplicate. Stays true through the
+  // navigation so the button can't fire twice.
+  const [done, setDone] = useState(false);
 
   function onSimulate() {
+    if (isPending || done) return;
     setError(null);
     startTransition(async () => {
       const result = await simulateDeposit(vaultId, amountUsdc, shareClass);
@@ -37,6 +42,7 @@ export function DemoDepositSimulate({
         setError(result.error);
         return;
       }
+      setDone(true);
       router.push(
         `${investConfirmedPath(vaultId)}?amount=${amountUsdc}&positionId=${result.positionId}&demo=1`,
       );
@@ -55,10 +61,10 @@ export function DemoDepositSimulate({
           variant="secondary"
           size="md"
           onClick={onSimulate}
-          disabled={isPending || !(amountUsdc > 0)}
+          disabled={isPending || done || !(amountUsdc > 0)}
           aria-busy={isPending}
         >
-          {isPending ? "Simulating…" : "Simulate deposit"}
+          {isPending || done ? "Simulating…" : "Simulate deposit"}
         </Button>
       </div>
       {error ? (

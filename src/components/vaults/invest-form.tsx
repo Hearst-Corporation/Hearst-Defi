@@ -856,33 +856,46 @@ function InvestFormLive({
                   range — indicative estimate, not a return projection. See
                   methodology v1.0.
                 </p>
-                <div className="flex items-center justify-between gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleCancelConfirm}
-                    disabled={depositing}
-                    className={BENTO_SECONDARY_BTN}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleConfirm()}
-                    disabled={!ctaEnabled || depositing}
-                    className={BENTO_PRIMARY_BTN}
-                  >
-                    {depositing
-                      ? "Confirming…"
-                      : `Confirm ${formatUsdAmount(amount)} deposit`}
-                  </button>
-                </div>
-                {isDemoAccount(session?.email) ? (
-                  <DemoDepositSimulate
-                    vaultId={vault.id}
-                    amountUsdc={amount}
-                    shareClass={vault.shareClass}
-                  />
-                ) : null}
+                {demoMode ? (
+                  // Demo accounts subscribe off-chain — the simulate action IS the
+                  // confirm here. Hide the on-chain Confirm/Cancel row so there is
+                  // a single, unambiguous CTA that never waits on a wallet.
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleCancelConfirm}
+                      className={BENTO_SECONDARY_BTN}
+                    >
+                      Cancel
+                    </button>
+                    <DemoDepositSimulate
+                      vaultId={vault.id}
+                      amountUsdc={amount}
+                      shareClass={vault.shareClass}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleCancelConfirm}
+                      disabled={depositing}
+                      className={BENTO_SECONDARY_BTN}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleConfirm()}
+                      disabled={!ctaEnabled || depositing}
+                      className={BENTO_PRIMARY_BTN}
+                    >
+                      {depositing
+                        ? "Confirming…"
+                        : `Confirm ${formatUsdAmount(amount)} deposit`}
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <>

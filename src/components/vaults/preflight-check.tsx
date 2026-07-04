@@ -183,11 +183,11 @@ export function PreFlightCheck({
   const epochOk = epochIndicative.status === "ACTIVE";
   const checksComplete = [walletOk, networkOk, allowanceOk, epochOk].filter(Boolean).length;
 
-  const panelBody = !ready ? (
+  const panelBody = !demoMode && !ready ? (
     <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] animate-pulse py-4 text-center">
       Loading wallet…
     </p>
-  ) : !vaultConfigured ? (
+  ) : !demoMode && !vaultConfigured ? (
     <div className="flex flex-col gap-2 py-2">
       <span className="self-start text-[length:var(--ct-text-deci)] font-bold uppercase tracking-[0.15em] text-[var(--ct-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--ct-accent)_20%,transparent)] rounded-full px-2.5 py-1">
         Configuration pending
