@@ -41,7 +41,7 @@ export function DashboardKpiStrip({ kpis }: DashboardKpiStripProps) {
           <DashboardKpiCell kpi={kpi} />
           {index < kpis.length - 1 && (
             <div
-              className="h-8 w-px shrink-0 self-center bg-[var(--ct-border)]"
+              className="dashboard-kpi-strip__divider h-8 w-px shrink-0 self-center bg-[var(--ct-border)]"
               aria-hidden="true"
             />
           )}

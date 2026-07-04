@@ -67,6 +67,32 @@
   gap: 0;
 }
 
+/* Below lg (1024px) the strip's parent panel is `overflow-hidden` (rounded
+   card chrome) — a single non-wrapping row of 6 cells was silently clipping
+   the trailing KPIs (Top allocation / Operator queue) off-screen on tablet
+   and mobile. Wrap into a 2-col then 1-col grid instead; the vertical
+   dividers only read correctly in a single unbroken row, so they're hidden
+   once wrapping kicks in. Desktop (>1024px) is untouched. */
+@media (max-width: 64rem) {
+  .dashboard-kpi-strip {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-kpi-strip > div {
+    flex: 1 1 50%;
+  }
+
+  .dashboard-kpi-strip__divider {
+    display: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .dashboard-kpi-strip > div {
+    flex: 1 1 100%;
+  }
+}
+
 /* =============================================================================
    9. ADMIN HEADER REFINEMENT — Command Center status indicators
    ============================================================================= */

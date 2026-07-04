@@ -73,6 +73,28 @@ Batch 3/8 (D4 panel header rename) confirmed on `origin/main` (verified by batch
 `admin-leaf-link.tsx` present, `cockpit-panel-header.tsx` gone, `HEAD == origin/main`).
 Lock entry kept only as history pointer; superseded by the batch 4 entry below.
 
+### nexus/loop_mr6t63jd-mr6ziw19
+Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 5/8,
+"Responsive — tables/grilles/modals sur écrans déjà refondus" (mission metadata calls it
+"Batch 3 — Responsive"; no batch of that exact name exists in `ui-rebuild/BATCHES.md` —
+closest real match is batch 6, "Audit — Discipline breakpoints", treated as the
+authoritative scope per the precedent set by batch 3/4 runs on this series)
+Branch: nexus/loop_mr6t63jd-mr6ziw19
+Started: 2026-07-04
+Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
+
+Scope:
+- src/app/admin/dashboard/dashboard.css (pre-existing uncommitted work found in working
+  tree at session start — KPI strip responsive wrap fix, reviewed and kept)
+- src/components/admin/dashboard/kpi-strip.tsx (same, divider class hook only)
+- further responsive-only CSS/markup fixes on already-redesigned admin/product screens
+  found by this session's audit (tables, grids, modals)
+- docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md
+
+STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no new
+content/logic, no docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,
+HANDOFF}.md at root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp below).
+
 ### nexus/loop_mr6t63e1-mr6yzkwp
 Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 4/8,
 "Implémentation — Registre nav complet (D5)"

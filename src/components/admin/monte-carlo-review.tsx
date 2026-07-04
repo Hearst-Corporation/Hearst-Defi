@@ -171,7 +171,7 @@ export function MonteCarloReview({
       <div className="flex flex-col gap-4 p-5">
         {/* Percentile row — p5 · p50 · p95 */}
         <div
-          className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-[var(--ct-border)] bg-surface-inset"
+          className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--ct-border)] bg-surface-inset sm:grid-cols-3"
           aria-label={`p5: ${fmtPct(p5)}%, p50: ${fmtPct(p50)}%, p95: ${fmtPct(p95)}%`}
         >
           <MetricCell label="p5" value={fmtPct(p5)} tone="muted" />

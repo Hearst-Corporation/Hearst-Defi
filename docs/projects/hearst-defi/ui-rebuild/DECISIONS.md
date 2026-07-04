@@ -6,6 +6,53 @@
 > une décision non-triviale au sens `CLAUDE.md` (ex. fusion de composants partagés hors périmètre
 > UI, changement de contrat de données).
 
+## Batch 6 (builder, audit discipline breakpoints) — 2026-07-04
+
+**Mission reçue sous le nom "Batch 3 — Responsive" (batch 5/8), owner zone bruitée
+`contracts/test/, docs/agentic/`** — même schéma déjà noté par batch 3/4 (métadonnée
+générique sans rapport avec cette série). Aucun batch de ce nom exact n'existe dans
+`BATCHES.md` de ce sous-dossier ; le thème réel de la mission ("rendre responsive les
+tables/grilles/modals des écrans déjà refondus") correspond au **batch 6 défini ici**
+("Audit — Discipline breakpoints", non démarré) — traité comme la source de vérité.
+
+**Constat de départ** : le working tree contenait déjà, non commité, un fix responsive
+complet et correct sur `src/app/admin/dashboard/dashboard.css` +
+`src/components/admin/dashboard/kpi-strip.tsx` (`.dashboard-kpi-strip` : une ligne flex de
+6 cellules non wrappée à l'intérieur d'un panel `overflow-hidden` coupait silencieusement
+les 2 derniers KPI hors écran sous 1024px). Relu, vérifié, conservé tel quel.
+
+**2 bugs réels supplémentaires trouvés et corrigés (même famille — grille CSS non
+responsive dans un conteneur `overflow-hidden`)** :
+- `src/components/admin/monte-carlo-review.tsx:174` — la ligne p5/p50/p95 (`grid
+  grid-cols-3 overflow-hidden`) n'avait aucune variante responsive ; sur mobile étroit,
+  les items de grille CSS ne rétrécissent pas sous leur largeur de contenu par défaut
+  (`min-width: auto` implicite), donc la grille peut dépasser son conteneur et se faire
+  couper par `overflow-hidden` — même mécanisme que le bug flex déjà corrigé sur le KPI
+  strip, transposé à `display: grid`. Fix : `grid-cols-1 sm:grid-cols-3` (empile en
+  colonne unique sous 640px, 3 colonnes au-delà — même seuil `40rem` que la 2e media
+  query du fix KPI strip).
+- `src/components/admin/agentic/crew-simulation-section.tsx:117` — même pattern pour la
+  ligne Risk/Mode/Gates : les cellules contiennent des `Tag` (pilules `inline-flex` avec
+  padding + bordure, ex. "write blocked" ~90-100px) qui ne s'enroulent pas en dessous de
+  leur largeur de contenu ; sur mobile étroit dans une carte déjà empilée en 1 colonne
+  (`grid-cols-1 lg:grid-cols-2` au niveau parent), 3 cellules dans ~113px chacune peuvent
+  faire déborder la grille hors du conteneur `overflow-hidden`. Même fix : `grid-cols-1
+  sm:grid-cols-3`.
+
+*Pourquoi ce fix précis (et pas un simple `overflow-x-auto` ou une réduction de
+padding)* : le pattern déjà validé par le fix KPI strip (empiler en dessous d'un seuil
+plutôt que scroller horizontalement une rangée de 3 KPI) est le plus cohérent visuellement
+pour ce type de contenu court (label + valeur/tag), et réutilise le même seuil `sm`
+(640px) déjà établi dans cette série pour "mobile étroit" — pas de nouveau token/seuil
+inventé.
+
+**Autres surfaces auditées, aucun bug trouvé** : les échelles collatérales
+(`collateral-sell-ladder.tsx`/`collateral-buyback-ladder.tsx`, `min-w-[52rem]`/
+`min-w-[48rem]`) sont déjà correctement enveloppées par le composant `Table`
+(`overflow-x-auto`) — scroll horizontal fonctionnel, pas un bug. Le composant `Modal`
+utilise déjà `w-full` avec un `max-w-3xl` de secours — se redimensionne correctement sur
+mobile, pas un bug.
+
 ## Batch 4 (builder, implémentation D5) — 2026-07-04
 
 **D5 exécuté — 3 entrées ajoutées à `product-nav-items.ts`.** Toutes `hideFromSubNav: true`
