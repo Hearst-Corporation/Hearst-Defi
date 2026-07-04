@@ -11,6 +11,7 @@ import {
 } from "@/components/onboarding/onboarding-chamber";
 import { StepProgressBar } from "@/components/onboarding/StepProgressBar";
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { cn } from "@/lib/cn";
 
 interface IdentityChamberProps {
   kycVendorReady: boolean;
@@ -27,6 +28,12 @@ export function IdentityChamber({
   kycStatus,
 }: IdentityChamberProps) {
   const { irContact } = useOnboardingShell();
+
+  // A submission is already on file (submitted, in review, or verified) — the
+  // upload form must NOT re-render, or it contradicts the "already submitted"
+  // copy in the sole. Only `null` (nothing yet) and `rejected` (resubmit) show
+  // the live form.
+  const submissionOnFile = kycStatus === "pending" || kycStatus === "approved";
 
   // Honest, status-aware compliance copy — never claims a verdict the investor
   // doesn't hold. Pending → it's being reviewed; rejected → how to resubmit;
@@ -73,7 +80,9 @@ export function IdentityChamber({
       }
       body={
         <>
-          {kycVendorReady ? (
+          {submissionOnFile ? (
+            <IdentitySubmittedPanel verified={kycStatus === "approved"} />
+          ) : kycVendorReady ? (
             <IdentityStep />
           ) : (
             <IdentityVendorPanel isProduction={isProduction} />
@@ -90,14 +99,14 @@ export function IdentityChamber({
                 <Button variant="primary" size="lg" asChild className="w-full">
                   <Link href="/onboarding/wallet">Continue to wallet binding</Link>
                 </Button>
-              ) : kycVendorReady ? (
+              ) : kycVendorReady && kycStatus == null ? (
                 <p
                   className="ct-metric-caption m-0 text-center"
                   role="status"
                 >
                   Launch identity verification above to continue.
                 </p>
-              ) : (
+              ) : kycVendorReady ? null : (
                 // Sumsub not configured. In every environment (prod included)
                 // we still offer an in-app way forward to the optional wallet
                 // step — identity review is then completed manually by Investor
@@ -119,5 +128,46 @@ export function IdentityChamber({
         />
       }
     />
+  );
+}
+
+/**
+ * Read-only status panel shown in place of the upload form once a document is
+ * already on file — either in review (`pending`) or cleared (`approved`).
+ * Prevents a live "Submit for verification" form from contradicting the
+ * "already submitted / verified" copy rendered in the sole.
+ */
+function IdentitySubmittedPanel({ verified }: { verified: boolean }) {
+  return (
+    <div
+      className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
+      role="region"
+      aria-label="Identity verification status"
+    >
+      <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-center justify-between gap-4">
+        <h2 className="ct-bento-label">Identity document</h2>
+        <span
+          className={cn(
+            "ct-bento-label inline-flex items-center rounded-full px-2.5 py-0.5",
+            verified ? "ct-status-success-bg" : "ct-status-warning-bg",
+          )}
+        >
+          {verified ? "Verified" : "In review"}
+        </span>
+      </div>
+
+      <div className="p-5 flex flex-col gap-2" role="note">
+        <p className="body-sm m-0 ct-text-strong">
+          {verified
+            ? "Your identity has been verified."
+            : "Your document has been submitted."}
+        </p>
+        <p className="body-xs m-0">
+          {verified
+            ? "You can continue to wallet binding below."
+            : "It is now under review — no further action is needed. You will be notified by email once a decision is made."}
+        </p>
+      </div>
+    </div>
   );
 }
