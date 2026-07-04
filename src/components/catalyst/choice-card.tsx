@@ -46,15 +46,17 @@ export function ChoiceCard({
   if (expandedContent && selected) {
     return (
       <div className="ct-choice-card ct-choice-card--selected ct-choice-card--expanded">
+        {/* Trigger kept for radio semantics but visually hidden once selected —
+            only the revealed field shows, so the box becomes just the input. */}
         <button
           type="button"
           role="radio"
           aria-checked={selected}
+          aria-label={label}
           onClick={onClick}
-          className="ct-choice-card__trigger ct-focus-ring"
+          className="sr-only"
         >
-          {dot}
-          {labelEl}
+          {label}
         </button>
         {expandedContent}
       </div>
