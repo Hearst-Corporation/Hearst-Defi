@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { LoginForm } from "@/components/auth/login-form";
 
 /**
@@ -18,15 +16,6 @@ import { LoginForm } from "@/components/auth/login-form";
 export function LoginPanel() {
   return (
     <div className="auth-login-panel w-full max-w-sm">
-      <Image
-        src="/logos/hearst-connect-dark.svg"
-        alt="Hearst Connect"
-        width={831}
-        height={294}
-        className="auth-login-panel__logo"
-        priority
-      />
-
       <header className="auth-login-panel__header">
         <span className="eyebrow ct-text-muted">Investor access</span>
         <h2 className="h2 m-0">Sign in</h2>

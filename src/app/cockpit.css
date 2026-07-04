@@ -5599,6 +5599,16 @@ main#main-content>.admin-doc.admin-doc-shell {
   padding-block: var(--ct-space-16);
 }
 
+/* Brand mark pinned to the top-left corner of the sign-in column. */
+.login-split__signin-logo {
+  position: absolute;
+  top: var(--ct-space-10);
+  left: var(--ct-space-10);
+  width: var(--ct-space-32);
+  height: auto;
+  display: block;
+}
+
 @media (max-width: 63.999rem) {
   .login-split__brand {
     min-height: auto;
