@@ -137,8 +137,8 @@ export default async function PortfolioPage() {
   return (
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8 relative">
       {/* Premium ambient glow */}
-      <div 
-        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.04]"
+      <div
+        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[min(800px,100%)] h-[min(400px,50vw)] opacity-[0.04]"
         style={{
           background: "radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%)",
         }}

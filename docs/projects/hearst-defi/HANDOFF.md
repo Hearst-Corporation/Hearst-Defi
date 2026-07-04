@@ -2,6 +2,218 @@
 
 ---
 
+## Batch 6/9 (builder, UI/Layout) : nouvelle invocation — audit étendu vaults/proof-center, 2 gaps loading comblés — 2026-07-03
+
+**Batch série** : builder, `batch 6/9` (série `series_recovery_hearst-defi_0`), rôle
+"UI/Layout" — owner zone **pages UI + composants**. Nouvelle invocation sur la **même
+branche** (`nexus/loop_mr3jnywz-mr5ma2tp`) — le working tree contenait déjà, non commité,
+le travail complet de la passe précédente (section juste en dessous : 6 skeletons
+`portfolio/**` + fix responsive glow + restauration `prisma/schema.prisma`).
+
+RELAIS relu intégralement avant tout code. `docs/agent-file-locks.md` relu en entier :
+lock de cette branche déjà présent (réservé par la passe précédente), aucun autre lock
+actif ne touche `vaults/**`/`proof-center/**` (les 4 locks actifs restants —
+`fix/strategy-dupkey-fix`, `feat/product-workspace-report-product-polish`,
+`feat/projection-safe-input-preset`, `fix/machine-logo-visible` — sont scopés à des
+fichiers étroits sans chevauchement). Diff de départ relu ligne à ligne, conforme à la
+description de la passe précédente — rien à dédupliquer.
+
+**Ce que cette session a fait différemment** : la passe précédente avait épuisé
+`portfolio/**` et recommandait explicitement d'étendre la même méthode (skeleton miroir +
+audit `w-[Npx]`/`h-[Npx]`) à `vaults/**`/`admin/**` si ce batch était réinvoqué. Plutôt que
+republier la même conclusion, cette session a :
+
+1. Généré la liste complète des segments `page.tsx` sous `src/app/(product)/**` et
+   `src/app/admin/**` sans `loading.tsx` sibling. La grande majorité des gaps `admin/**`
+   sont hors du périmètre produit LP-visible prioritaire de cette piste (tooling interne) —
+   non traités cette session pour rester dans un scope contrôlé et vérifiable en une passe.
+2. Sur le périmètre produit (LP-visible), 2 gaps réels trouvés et comblés (les deux
+   `page.tsx` correspondants sont `async` avec des fetch réels — candidats légitimes à un
+   skeleton, contrairement à `(product)/onboarding/page.tsx` qui est un simple `redirect()`
+   synchrone, donc non concerné) :
+   - **`src/app/(product)/vaults/[id]/invest/confirmed/page.tsx`** — retombait sur
+     `invest/loading.tsx` (le skeleton du formulaire de dépôt, étape précédente) faute de
+     `loading.tsx` dédié : layout shift visible (skeleton "formulaire" puis bascule vers le
+     contenu réel "confirmation" à la résolution du fetch NAV on-chain + lookup Prisma de la
+     position). Ajouté `confirmed/loading.tsx`, miroir de la structure réelle (header +
+     stepper, hero de confirmation centré, détails de position en 4 lignes + barre de
+     soft-lock, next steps, 2 CTA).
+   - **`src/app/(product)/proof-center/full/page.tsx`** — aucun `loading.tsx` du tout (page
+     "force-dynamic" avec fetch `loadProofCenterFullLog()`) : feuille blanche neutre pendant
+     le chargement. Ajouté `full/loading.tsx`, miroir de `ProofCenterFullLogLayout` /
+     `ProofCenterFullSections` (event log, grille de preuves, 3 cartes contrats/audit trail,
+     timelocks de gouvernance, footer de provenance).
+3. Audit responsive élargi au-delà du scope précédent (`src/app/(product)/**` uniquement) :
+   `grep` de `w-[Npx]`/`h-[Npx]` sur **`src/app/**` + `src/components/**`** entier. 9 fichiers
+   touchés, tous relus avec contexte — **aucun nouveau bug trouvé** : chaque hit est soit un
+   faux positif (`min-h-[180px]` matché par erreur de pattern regex sur la sous-chaîne
+   `h-[180px]`), soit un pattern légitime hauteur-fixe/largeur-fluide pour un conteneur de
+   chart (`h-[220px] w-full`, `aspect-auto`, `ChartContainer` Recharts) — l'exact inverse du
+   bug corrigé précédemment (largeur ET hauteur fixes sur un élément décoratif absolument
+   positionné pouvant déborder). Aucune modification faite sur ces fichiers (pas de bug réel,
+   pas dans le scope "layout").
+
+**Validations** (environnement chaud) :
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` (suite complète, wrapper `pretest`/`posttest` sqlite↔postgresql) →
+  **448/448 fichiers, 5358/5358 tests**, identique à la baseline de la passe précédente
+  (les 2 nouveaux fichiers sont des skeletons statiques, aucun nouveau test requis).
+  `prisma/schema.prisma` confirmé propre (`postgresql`, `git diff --stat` vide après coup).
+- `pnpm run lint` → même **1 erreur pré-existante** (`email-review-card.tsx:110`, hors
+  scope, non introduite par cette session) + 46 warnings identiques — aucune régression.
+
+**Fichiers modifiés cette session** :
+| Fichier | Action |
+|---|---|
+| `src/app/(product)/vaults/[id]/invest/confirmed/loading.tsx` | Nouveau — skeleton dédié (gap trouvé, comblé) |
+| `src/app/(product)/proof-center/full/loading.tsx` | Nouveau — skeleton dédié (gap trouvé, comblé) |
+| `docs/agent-file-locks.md` | Scope du lock mis à jour avec les 2 nouveaux fichiers |
+| `docs/projects/hearst-defi/HANDOFF.md` | Ce fichier — section ajoutée |
+
+**Fichiers exclus (owner zone respectée)** : aucune couche données/API modifiée ; aucun
+`prisma/**`, `.github/workflows/**`, secret/`.env*`, `vercel.json` ; aucun composant chart
+touché (audit responsive élargi n'a révélé aucun bug réel, cf. point 3 ci-dessus) ; les
+~25 gaps `loading.tsx` sous `admin/**` recensés au point 1 sont délibérément non traités
+cette session (hors périmètre produit LP-visible prioritaire, scope volontairement contrôlé).
+
+**Statut d'intégration** : diff non commité/non poussé — pas de PR ouverte par ce batch
+(rôle builder, `executionMode: sequential-manual` — commit/push/PR laissés au pipeline
+nexus après ce run).
+
+**Risque résiduel / note pour les prochains batches** : la liste des ~25 `page.tsx` sous
+`admin/**` sans `loading.tsx` sibling (générée au point 1, non retraitée ici) reste
+disponible via la même commande (`find` des segments avec `page.tsx` mais sans
+`loading.tsx`) si un futur batch "UI/Layout" veut l'attaquer — filtrer d'abord par pages
+réellement `async`/`force-dynamic` (beaucoup sont probablement synchrones/statiques et ne
+bénéficieraient d'aucun skeleton). L'erreur ESLint `email-review-card.tsx:110` (identique à
+celle notée par la passe précédente) reste non triée.
+
+**Prochain batch recommandé** : inchangé pour la piste P0 — **Batch 3 — Corrections P0
+restantes** (C-05 décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B
+one-liner LP). Pour la piste UI/Layout : le périmètre produit (product) LP-visible n'a
+plus de gap loading/error/responsive identifié ; un prochain passage pourrait attaquer les
+gaps `admin/**` recensés ci-dessus avec la même méthode (filtrer async, skeleton miroir).
+
+---
+
+## Batch 6/9 (builder, UI/Layout) : loading states portfolio + fix prisma-provider footgun — 2026-07-03
+
+**Batch série** : builder, `batch 6/9` (série `series_recovery_hearst-defi_0`), rôle
+"UI/Layout" — owner zone **pages UI + composants**. Dépend de `batch.02.data-truth`
+(satisfait — voir batches 5/9 ci-dessous, mergés/no-op). Première invocation de ce
+batch précis dans la série (aucune entrée "UI/Layout"/"batch 6/9" antérieure dans ce
+fichier).
+
+RELAIS relu intégralement (`PROJECT_PLAN.md`, `PROJECT_STATE.md`, `BATCHES.md`,
+`DECISIONS.md`, `HANDOFF.md`) avant tout code. `docs/agent-file-locks.md` relu en
+entier : aucun lock actif ne touche `src/app/(product)/portfolio/**` (le seul lock
+historique sur `portfolio/page.tsx`, `fix/portfolio-surface-atoms`, est **released**
+depuis 2026-06-26). `gh` indisponible dans cet environnement — pas de vérification PR
+ouverte via l'API GitHub ; `git branch -r`/`git fetch` ne montrent aucune branche
+remote concurrente touchant `portfolio/`. Lock réservé pour cette session (entrée
+ajoutée à `agent-file-locks.md`).
+
+**État de départ trouvé (working tree non propre)** : deux artefacts non commités
+préexistants sur cette branche fraîche (checkout `origin/main` HEAD `e7a88f00`, 0
+commit d'écart) :
+1. `prisma/schema.prisma` — `datasource.provider` bloqué sur `"sqlite"` (même footgun
+   documenté aux batches Stabilization précédents : un `pnpm test` interrompu avant son
+   hook `posttest`). **Fichier interdit pour ce batch** (owner zone data/schema) —
+   corrigé sans édition manuelle, via l'outillage officiel
+   (`node scripts/restore-prisma-provider.mjs`), qui l'a remis proprement sur
+   `"postgresql"`.
+2. `src/app/(product)/portfolio/page.tsx` (2 lignes) + 5 fichiers `loading.tsx` neufs
+   sous `portfolio/{[positionId],activity,distributions,positions,yield}/` — travail
+   UI déjà complet et non commité, exactement dans le scope de ce batch (skeletons
+   miroir de chaque page réelle, `aria-busy`/`aria-label`, tokens `surface-page/
+   surface-card/surface-inset` + `--ct-*`, pas de nouvelle primitive DS). Relu ligne à
+   ligne contre les 5 `page.tsx` correspondants — fidèles à la structure réelle
+   (header, grilles KPI, tableaux), corrects. La modif de `portfolio/page.tsx` change
+   la glow ambiante décorative de `w-[800px] h-[400px]` fixe vers
+   `w-[min(800px,100%)] h-[min(400px,50vw)]` — seul fix responsive nécessaire trouvé
+   sur cette page (évite un overflow horizontal sur viewport étroit). Les deux
+   artefacts ont été conservés (ni annulés ni dupliqués).
+
+**Gap trouvé et corrigé par cette session** : `src/app/(product)/portfolio/tax/
+page.tsx` était la seule feuille `portfolio/*` sans `loading.tsx` dédié — elle
+retombait donc sur le skeleton générique `portfolio/loading.tsx` (feuille blanche
+neutre), causant le même layout shift que les 5 autres feuilles corrigeaient déjà
+(le générique ne matche pas la forme réelle à 3 sections 1099-INT/1099-B/CRS). Ajouté
+`src/app/(product)/portfolio/tax/loading.tsx` sur le même pattern exact que les 5
+skeletons existants (header + 3 sections avec grilles KPI 2 colonnes, dimensions
+dérivées de `tax/page.tsx` réel).
+
+**Audit responsive complémentaire** : `grep` de tous les `w-[Npx]`/`h-[Npx]` non
+enveloppés dans `min()` sous `src/app/(product)/**/*.tsx` → un seul hit avant fix
+(la glow `portfolio/page.tsx`, déjà traitée ci-dessus) ; après fix, plus aucun. Pas
+d'autre gap loading/error trouvé : `vaults/`, `profile/`, `proof-center/`,
+`onboarding/` ont déjà chacun leur `loading.tsx` dédié ; error boundary top-level
+(`(product)/error.tsx` + `not-found.tsx`) déjà en place et suffisant (pas de besoin
+produit identifié pour des error boundaries par feuille — non ajouté pour éviter une
+abstraction non demandée). Empty states portfolio déjà honnêtes (positions/activity/
+distributions rendent un message texte simple si vide) — non retouchés, hors scope
+(comportement déjà correct, CLAUDE.md interdit le faux contrat ghost).
+
+**Validations** (environnement chaud — `node_modules`/`prisma/dev.db` déjà présents) :
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm test` (suite complète, wrapper `pretest`/`posttest` sqlite↔postgresql) →
+  **448/448 fichiers, 5358/5358 tests**, tous verts. `prisma/schema.prisma` restauré
+  proprement en `postgresql` après coup (`git diff --stat prisma/schema.prisma` vide).
+- `pnpm run lint` → **1 erreur pré-existante, hors scope** (`src/components/admin/
+  outreach/email-review-card.tsx:110`, `setState` synchrone dans un effect — fichier
+  admin/outreach, pas touché par ce batch, pas dans l'owner zone "pages UI +
+  composants" produit) + 46 warnings pré-existants identiques (advisory). Note pour
+  le prochain batch cross-cutting : `PROJECT_STATE.md` documentait lint à "0 erreur"
+  au 2026-07-03 (batch Stabilization) — cette erreur est donc apparue entre-temps
+  (probablement via une des PRs strategies/outreach mergées depuis), non introduite
+  par cette session (vérifié : fichier non touché par ce diff).
+- `pnpm build` — non relancé ce batch (coûteux, hors scope UI-only ; typecheck+test
+  suffisent pour valider des skeletons statiques sans logique).
+
+**Fichiers modifiés cette session** :
+| Fichier | Action |
+|---|---|
+| `src/app/(product)/portfolio/tax/loading.tsx` | Nouveau — skeleton dédié (gap trouvé, comblé) |
+| `prisma/schema.prisma` | Restauré `postgresql` via script officiel (résidu footgun test, pas une édition manuelle) |
+| `docs/agent-file-locks.md` | Lock réservé pour cette session |
+| `docs/projects/hearst-defi/HANDOFF.md` | Ce fichier — section ajoutée |
+
+**Fichiers conservés du working tree (pré-existants, non produits par cette session,
+relus et validés)** :
+| Fichier | Nature |
+|---|---|
+| `src/app/(product)/portfolio/page.tsx` | Glow ambiante → `min()` responsive (2 lignes) |
+| `src/app/(product)/portfolio/[positionId]/loading.tsx` | Skeleton position detail |
+| `src/app/(product)/portfolio/activity/loading.tsx` | Skeleton activité |
+| `src/app/(product)/portfolio/distributions/loading.tsx` | Skeleton distributions |
+| `src/app/(product)/portfolio/positions/loading.tsx` | Skeleton positions |
+| `src/app/(product)/portfolio/yield/loading.tsx` | Skeleton yield |
+
+**Fichiers exclus (owner zone respectée)** : aucune couche données/API modifiée ;
+`prisma/schema.prisma` restauré via tooling officiel, pas édité à la main ; aucun
+`.github/workflows/**`, secret/`.env*`, `vercel.json` ; `email-review-card.tsx`
+délibérément non touché (hors owner zone, cf. note lint ci-dessus).
+
+**Statut d'intégration** : diff non commité/non poussé — pas de PR ouverte par ce
+batch (rôle builder, `executionMode: sequential-manual` — commit/push/PR laissés au
+pipeline nexus après ce run, conformément aux gardes de la mission).
+
+**Risque résiduel / note pour les prochains batches** : l'erreur ESLint dans
+`email-review-card.tsx:110` (React Compiler / `setState` synchrone dans un effect)
+est réelle et devrait être triée par un batch touchant `src/components/admin/
+outreach/**` ou par un futur batch "Stabilization" cross-cutting — non bloquante
+(lint = advisory, `eslint src || true`) mais c'est une régression vs la baseline
+documentée "0 erreur" du 2026-07-03.
+
+**Prochain batch recommandé** : inchangé pour la piste P0 — **Batch 3 — Corrections
+P0 restantes** (C-05 décision produit résiduelle, C-11 cookie `sameSite`, C-13 Model B
+one-liner LP). Pour la piste UI/Layout spécifiquement : owner zone "pages UI +
+composants" n'a plus de gap loading/error identifié sur `portfolio/**` ; un prochain
+passage pourrait auditer `vaults/**`/`admin/**` avec la même méthode (skeleton miroir
++ audit `w-[Npx]`/`h-[Npx]` responsive) si le batch suivant de cette piste le demande.
+
+---
+
 ## Batch 5/9 (builder, Data Truth) : nouvelle invocation, 2e finding réel T-14 corrigé — 2026-07-04
 
 **Batch série** : builder, `batch 5/9` (série `series_recovery_hearst-defi_0`), rôle "Data

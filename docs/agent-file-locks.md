@@ -62,6 +62,23 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
+### nexus/loop_mr3jnywz-mr5ma2tp
+Owner: nexus builder — Recovery Series batch 6/9, "UI/Layout" (loading/error/empty, responsive)
+Branch: nexus/loop_mr3jnywz-mr5ma2tp
+Started: 2026-07-03
+Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
+
+Scope:
+- src/app/(product)/portfolio/tax/loading.tsx (new)
+- src/app/(product)/portfolio/page.tsx (responsive-only tweak, pre-existing in working tree)
+- src/app/(product)/portfolio/{[positionId],activity,distributions,positions,yield}/loading.tsx
+  (pre-existing uncommitted work found in working tree at session start, reviewed and kept)
+- src/app/(product)/vaults/[id]/invest/confirmed/loading.tsx (new — this session)
+- src/app/(product)/proof-center/full/loading.tsx (new — this session)
+- docs/projects/hearst-defi/HANDOFF.md
+
+STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no data/API layer.
+
 ### fix/strategy-dupkey-fix
 Owner: GPT-5.4 — Strategies duplicate key fix
 Branch: fix/strategy-dupkey-fix
