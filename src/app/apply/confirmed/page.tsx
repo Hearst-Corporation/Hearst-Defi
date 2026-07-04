@@ -5,6 +5,7 @@ import {
   OnboardingChamber,
   OnboardingChamberSole,
 } from "@/components/onboarding/onboarding-chamber";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { getIrContact } from "@/lib/ir-contact";
 
 export const metadata: Metadata = {
@@ -21,8 +22,8 @@ export default function ConfirmedPage() {
       crown={
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="flex flex-col gap-2">
-            <h1 className="h1 text-pretty">
-              Application <span className="h1-accent">received</span>
+            <h1 className="h1 text-pretty" style={{ color: "var(--ct-accent)" }}>
+              Application received
             </h1>
             <p className="body-sm text-pretty">
               Thank you. We&apos;ve emailed you an activation link to set your
@@ -54,16 +55,18 @@ export default function ConfirmedPage() {
         <OnboardingChamberSole
           irContact={irContact}
           actions={
-            <p className="body-xs m-0 text-center text-pretty">
-              Didn&apos;t receive the email?{" "}
-              <Link href="/forgot-password" className="ct-link-accent">
-                Request a new activation link
-              </Link>
-              .
-            </p>
-          }
-          compliance={
-            <>Institutional USDC yield. For qualified investors only. Cayman SPV structure.</>
+            <div className="flex flex-col gap-3">
+              <Button asChild variant="primary" size="lg" className="w-full">
+                <Link href="/login">Go to login →</Link>
+              </Button>
+              <p className="body-xs m-0 text-center text-pretty">
+                Didn&apos;t receive the email?{" "}
+                <Link href="/forgot-password" className="ct-link-accent">
+                  Request a new activation link
+                </Link>
+                .
+              </p>
+            </div>
           }
         />
       }

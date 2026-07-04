@@ -177,14 +177,16 @@ export function OnboardingChamberSole({
   actions,
 }: {
   irContact: IrContact | null;
-  compliance: ReactNode;
+  compliance?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-5">
       {actions}
 
-      <p className="body-xs m-0 text-pretty text-center">{compliance}</p>
+      {compliance != null ? (
+        <p className="body-xs m-0 text-pretty text-center">{compliance}</p>
+      ) : null}
 
       {irContact ? (
         <p className="body-xs m-0 text-pretty text-center">
