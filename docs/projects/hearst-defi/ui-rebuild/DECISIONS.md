@@ -6,6 +6,24 @@
 > une décision non-triviale au sens `CLAUDE.md` (ex. fusion de composants partagés hors périmètre
 > UI, changement de contrat de données).
 
+## Batch 3 (builder, implémentation D4) — 2026-07-04
+
+**D4 résolu — pas de fusion, un renommage.** Lecture complète des deux fichiers (batch 2 ne les
+avait vérifiés qu'au niveau call-sites) : `dashboard-panel-header.tsx` (Catalyst, 100 lignes)
+rend un vrai en-tête de section (titre, eyebrow, status chip, `ProvenanceBadge`) ; `cockpit-panel-header.tsx`
+(38 lignes) n'exportait qu'`AdminLeafLink`, un petit lien "View full →" consommé *par* le slot
+`trailing` de `DashboardPanelHeader` ailleurs (proof-center, admin/dashboard, portfolio) — les deux
+ne sont pas des composants concurrents, le second est un accessoire du premier. Le chevauchement
+apparent (batch 1/2) venait uniquement du nom du fichier (`cockpit-panel-header.tsx` suggérait un
+header alors qu'il n'en contient aucun). Fix : renommé en `admin-leaf-link.tsx` (nom = export), 5
+call-sites mis à jour (`assets-board.tsx`, `market-prices-panel.tsx`, `platform-overview-band.tsx`,
+`proof-center-hub.tsx`, `admin/proofs/page.tsx`, `admin/proof-center/full/page.tsx`), commentaire de
+`dashboard-panel-header.tsx` clarifié (la façade legacy `ui/dashboard-panel-header` a déjà été
+retirée, plus une note sur un état futur). Aucun changement de comportement/visuel.
+*Pourquoi pas de fusion* : fusionner un composant "header" et un composant "lien" sous un même
+fichier créerait un vrai couplage artificiel (le lien est utilisé par d'autres composants que le
+header Catalyst) — le renommage règle l'ambiguïté sans introduire de dépendance nouvelle.
+
 ## Batch 2 (planner, IA) — 2026-07-04
 
 **D1 — Nav actuelle confirmée comme cible.** Asymétrie 2 niveaux (produit) / 3 niveaux (admin) est

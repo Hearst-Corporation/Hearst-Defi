@@ -5,7 +5,7 @@ import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-head
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminLeafLink,
-} from "@/components/admin/dashboard/cockpit-panel-header";
+} from "@/components/admin/dashboard/admin-leaf-link";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { Card } from "@/components/catalyst/card";
 import { EmptySurface } from "@/components/catalyst/empty-surface";

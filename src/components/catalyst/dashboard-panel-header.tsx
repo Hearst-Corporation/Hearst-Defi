@@ -1,8 +1,8 @@
 // CANON — single-DS convergence.
-// This is the canonical source for <DashboardPanelHeader />. The legacy path
-// `@/components/ui/dashboard-panel-header` is now a thin re-export façade of this
-// module. Token-only (ct-* classes), composes ProvenanceBadge + an inline status
-// chip. Edit the primitive here; do not fork the ui/ façade.
+// This is the canonical source for <DashboardPanelHeader />; the legacy
+// `@/components/ui/dashboard-panel-header` façade has since been removed and all
+// call sites import this module directly. Token-only (ct-* classes), composes
+// ProvenanceBadge + an inline status chip. Edit the primitive here; do not fork it.
 import type { ReactNode } from "react";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
