@@ -23,7 +23,7 @@ import {
 import type { IrContact } from "@/lib/ir-contact";
 
 import { ApplyAside } from "./apply-assistant-panel";
-import { submitApplication } from "./actions";
+import { checkEmailAvailable, submitApplication } from "./actions";
 
 // One question per step — a true wizard. Step 1 collects contact details; the
 // four persona questions (who / capacity / first allocation / timing) each get
@@ -86,16 +86,31 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
   const isFirstStep = stepIndex === 0;
   const isLastStep = stepIndex === totalSteps - 1;
 
+  function advance() {
+    setError(null);
+    const next = STEP_ORDER[stepIndex + 1];
+    if (next) setStep(next);
+  }
+
   function goNext() {
     if (step === "about") {
       if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
         setError("Please enter a valid email address.");
         return;
       }
+      // Reject a duplicate email up front, before leaving the first step.
+      setError(null);
+      startTransition(async () => {
+        const result = await checkEmailAvailable(email.trim());
+        if (!result.available) {
+          setError(result.error ?? "This email cannot be used.");
+          return;
+        }
+        advance();
+      });
+      return;
     }
-    setError(null);
-    const next = STEP_ORDER[stepIndex + 1];
-    if (next) setStep(next);
+    advance();
   }
 
   function selectPlatformType(value: string) {
@@ -336,8 +351,15 @@ export function ApplyForm({ irContact }: { irContact: IrContact | null }) {
           actions={
             <div className="product-doc-stack--actions">
               {isFirstStep ? (
-                <Button type="button" onClick={goNext} variant="primary" size="lg" className="w-full">
-                  Continue →
+                <Button
+                  type="button"
+                  onClick={goNext}
+                  disabled={pending}
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
+                >
+                  {pending ? "Checking…" : "Continue →"}
                 </Button>
               ) : (
                 <div className="product-doc-inline-row product-doc-inline-row--actions w-full">

@@ -50,6 +50,33 @@ const opt = (v: FormDataEntryValue | null): string | undefined => {
   return s.length > 0 ? s : undefined;
 };
 
+const EmailInput = z.string().trim().email().max(200);
+
+/**
+ * Early availability check for the first step: returns whether an account
+ * already exists for this email, so registration is rejected up front rather
+ * than only at final submit. Read-only, no mutation.
+ */
+export async function checkEmailAvailable(
+  rawEmail: string,
+): Promise<{ available: boolean; error?: string }> {
+  const parsed = EmailInput.safeParse(rawEmail);
+  if (!parsed.success) {
+    return { available: false, error: "Please enter a valid email address." };
+  }
+  const existing = await prisma.user.findUnique({
+    where: { email: parsed.data.toLowerCase() },
+    select: { id: true },
+  });
+  if (existing) {
+    return {
+      available: false,
+      error: "An account already exists for this email. Please sign in instead.",
+    };
+  }
+  return { available: true };
+}
+
 export async function submitApplication(
   formData: FormData,
 ): Promise<ApplyResult> {
