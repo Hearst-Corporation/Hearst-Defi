@@ -48,15 +48,12 @@ export default function ConfirmedPage() {
               />
             </svg>
           </div>
-        </div>
-      }
-      body={
-        <div className="flex flex-col items-center">
-          <Button asChild variant="primary" size="md">
+          <Button asChild variant="primary" size="lg">
             <Link href="/login">Go to login →</Link>
           </Button>
         </div>
       }
+      body={null}
       sole={
         <OnboardingChamberSole
           irContact={irContact}
