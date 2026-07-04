@@ -122,21 +122,39 @@ body:has([data-testid="apply-shell"]) {
    shrinks between steps, when a validation error appears, or when the Profile
    "Other" free-text field is revealed. Two parts:
 
-   1. `.apply-body-fixed` reserves a floor tall enough for the largest step —
-      Profile with 5 choice cards + the revealed "Other" input. The target is
-      composed from `--ct-space-*` tokens (no magic px): 7 × --ct-space-16
-      (4rem / 64px each) = 28rem. `clamp()` lets very short viewports shrink
-      toward --ct-space-16 × 4 (16rem) so the card can never overflow the
-      screen, while the preferred value stays the fixed 28rem shared by all
-      steps.
+   1. `.apply-body-fixed` locks a CONSTANT height (both floor and ceiling) tall
+      enough for the largest step — Profile with 5 choice cards + the revealed
+      "Other" input. Height is composed from `--ct-space-*` tokens (no magic
+      px): 7 × --ct-space-16 (4rem / 64px each) = 28rem, with a `clamp()` so
+      very short viewports shrink toward 16rem. Because `height` is fixed (not
+      just `min-height`), revealing the "Other" field can never grow the card:
+      the step is a flex column whose choice list (`.apply-body-fixed__grow`)
+      absorbs the change — its gap tightens instead of pushing the chamber.
    2. `.apply-error-slot` keeps a permanent line for the inline error so the
       layout never shifts when the message toggles on/off. */
 .apply-body-fixed {
-  min-height: clamp(
+  height: clamp(
     calc(var(--ct-space-16) * 4),
     60vh,
     calc(var(--ct-space-16) * 7)
   );
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* A step that must stay inside the fixed body when extra content appears
+   (Profile + "Other" free-text): it fills the column and its choice list soaks
+   up the slack, tightening its own gap rather than growing the chamber. */
+.apply-body-fixed__step {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.apply-body-fixed__grow {
+  flex: 1 1 auto;
+  min-height: 0;
+  justify-content: space-between;
 }
 
 .apply-error-slot {
