@@ -340,6 +340,15 @@ jobs:
         shell: bash -l {0}
         env:
           REPO: ${{ github.repository }}
+          # GATE-HOLE FIX: open the PR with NEXUS_PAT, NOT the job-level
+          # github.token. GitHub's anti-recursion rule suppresses workflow runs for
+          # events (incl. pull_request) triggered by GITHUB_TOKEN, so this repo's
+          # real CI never fired on nexus/* PRs — the Nexus daemon then auto-merged
+          # on Vercel-green alone and pushed a red main. A PAT-opened PR fires
+          # pull_request so CI runs and can actually gate the auto-merge. The
+          # pr_fix comment step below deliberately keeps github.token (it must NOT
+          # re-trigger CI). Env-referenced only, never inlined.
+          GH_TOKEN: ${{ secrets.NEXUS_PAT }}
         run: |
           set -euo pipefail
           export BRANCH="${{ steps.branch.outputs.branch }}"
