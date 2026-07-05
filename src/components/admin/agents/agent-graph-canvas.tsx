@@ -220,15 +220,14 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         return;
       }
 
-      // Edges (curved) + flowing particles on hot edges.
+      // Edges (straight) + flowing particles on hot edges.
       for (const e of g.edges) {
         const a = nodeById(e.from);
         const b = nodeById(e.to);
         if (!a || !b) continue;
-        const midX = (a.x + b.x) / 2;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
-        ctx.bezierCurveTo(midX, a.y, midX, b.y, b.x, b.y);
+        ctx.lineTo(b.x, b.y);
         ctx.strokeStyle = e.hot
           ? rgba(STATE_COLOR.active, 0.4)
           : rgba(NEUTRAL_RGB, 0.08);
@@ -238,7 +237,10 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
         if (e.hot && !reduceMotion) {
           for (let k = 0; k < 3; k++) {
             const p = ((t * 0.4 + k / 3) % 1);
-            const pt = bezier(a.x, a.y, midX, a.y, midX, b.y, b.x, b.y, p);
+            const pt = {
+              x: a.x + (b.x - a.x) * p,
+              y: a.y + (b.y - a.y) * p,
+            };
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, 2.2, 0, Math.PI * 2);
             ctx.fillStyle = rgba(STATE_COLOR.active, 0.9 * (1 - p) + 0.2);
@@ -455,23 +457,4 @@ function RuntimePanel({
       )}
     </div>
   );
-}
-
-/** Cubic-bezier point at parameter `p`. */
-function bezier(
-  x0: number, y0: number,
-  x1: number, y1: number,
-  x2: number, y2: number,
-  x3: number, y3: number,
-  p: number,
-): { x: number; y: number } {
-  const u = 1 - p;
-  const a = u * u * u;
-  const b = 3 * u * u * p;
-  const c = 3 * u * p * p;
-  const d = p * p * p;
-  return {
-    x: a * x0 + b * x1 + c * x2 + d * x3,
-    y: a * y0 + b * y1 + c * y2 + d * y3,
-  };
 }

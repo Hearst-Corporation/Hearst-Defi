@@ -59,6 +59,7 @@ const EXPECTED_ROUTES = [
   "/admin/spec/[slug]",
   "/admin/strategies",
   "/admin/strategies/[slug]",
+  "/admin/system/architecture",
   "/admin/vaults",
   "/admin/vaults/[id]",
   "/admin/vaults/[id]/edit",

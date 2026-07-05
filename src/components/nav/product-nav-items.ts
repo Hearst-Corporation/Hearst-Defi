@@ -163,6 +163,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       // Live Diagnostic Center — dry-run health probes across chat/outreach/
       // vault-hitl/projection. Operator tool, reachable by URL, not a nav tab.
       { id: "diagnostics", label: "Live Diagnostics", href: "/admin/diagnostics", icon: "Activity", hideFromSubNav: true },
+      { id: "architecture", label: "Architecture", href: "/admin/system/architecture", icon: "Network" },
     ],
   },
   {
