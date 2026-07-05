@@ -8,8 +8,9 @@
 #
 # EXECUTION — READ docs/RUNNER_INFRA.md BEFORE TOUCHING THIS:
 #   Runs on the SELF-HOSTED gpu1 runner, authenticated by the Claude Max
-#   SUBSCRIPTION (OAuth token from ~/.nexus-claude.env), NOT a metered sk-ant API
-#   key. `unset ANTHROPIC_API_KEY` forces subscription auth so no credit is spent.
+#   SUBSCRIPTION (OAuth token from a resolved account slot under
+#   ~/.nexus-claude-accounts/), NOT a metered sk-ant API key. `unset
+#   ANTHROPIC_API_KEY` forces subscription auth so no credit is spent.
 #   NEVER switch to ubuntu-latest / npm install -g @anthropic-ai/claude-code /
 #   ANTHROPIC_API_KEY — that path hits "Credit balance is too low".
 #
@@ -26,6 +27,10 @@
 # destructive DB ops. Adrien merges (from the Nexus cockpit). No auto-merge.
 # =============================================================================
 name: Nexus Loop
+# run-name embeds run_label in the display title so Nexus can correlate a
+# workflow_dispatch back to the run that triggered it via the Actions API
+# (workflow_dispatch inputs are otherwise invisible on list/get run responses).
+run-name: "Nexus Loop — ${{ inputs.run_label }}"
 
 on:
   workflow_dispatch:
@@ -47,6 +52,11 @@ on:
         description: Number of sequential agents to run
         required: false
         default: "1"
+        type: string
+      validation:
+        description: Multiline shell commands to run before commit/PR
+        required: false
+        default: ""
         type: string
       identity_check:
         description: "true = resolve/log Claude account only, skip model execution"
@@ -106,6 +116,7 @@ jobs:
       MISSION: ${{ inputs.prompt }}
       MODEL: ${{ inputs.model }}
       AGENTS: ${{ inputs.agents }}
+      VALIDATION_COMMANDS: ${{ inputs.validation }}
       IDENTITY_CHECK: ${{ inputs.identity_check }}
       TARGET_PR: ${{ inputs.target_pr_number }}
       TARGET_HEAD_REF: ${{ inputs.target_head_ref }}
@@ -288,6 +299,20 @@ jobs:
           done
           if [ "$fail" -eq 1 ]; then exit 1; fi
 
+      - name: Run validation commands
+        if: ${{ inputs.identity_check != 'true' && inputs.validation != '' }}
+        shell: bash -l {0}
+        run: |
+          set -euo pipefail
+          echo "Running loop validation commands..."
+          while IFS= read -r cmd; do
+            if [[ -z "${cmd//[[:space:]]/}" ]]; then
+              continue
+            fi
+            echo "→ $cmd"
+            bash -lc "$cmd"
+          done <<< "$VALIDATION_COMMANDS"
+
       # ── Commit + push (mode-aware) ─────────────────────────────────────────
       - name: Commit and push
         if: ${{ inputs.identity_check != 'true' }}
@@ -340,14 +365,14 @@ jobs:
         shell: bash -l {0}
         env:
           REPO: ${{ github.repository }}
-          # GATE-HOLE FIX: open the PR with NEXUS_PAT, NOT the job-level
+          # GATE-HOLE FIX: open the PR with the workspace PAT, NOT the job-level
           # github.token. GitHub's anti-recursion rule suppresses workflow runs for
-          # events (incl. pull_request) triggered by GITHUB_TOKEN, so this repo's
-          # real CI never fired on nexus/* PRs — the Nexus daemon then auto-merged
-          # on Vercel-green alone and pushed a red main. A PAT-opened PR fires
-          # pull_request so CI runs and can actually gate the auto-merge. The
-          # pr_fix comment step below deliberately keeps github.token (it must NOT
-          # re-trigger CI). Env-referenced only, never inlined.
+          # events (incl. pull_request) triggered by GITHUB_TOKEN, so the target
+          # repo's real CI workflow NEVER fired on nexus/* PRs — the daemon then
+          # auto-merged on Vercel-green alone and pushed a red main. NEXUS_PAT is the
+          # already-provisioned identity the daemon merges with (no new secret,
+          # no new blast radius); a PAT-opened PR fires pull_request so CI runs and
+          # can actually gate the auto-merge. Env-referenced only, never inlined.
           GH_TOKEN: ${{ secrets.NEXUS_PAT }}
         run: |
           set -euo pipefail
