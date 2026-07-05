@@ -50,6 +50,16 @@ vi.mock("@/lib/idempotency", () => ({
   markComplete: markCompleteMock,
 }));
 
+// ─── Mock: next/cache ─────────────────────────────────────────────────────────
+// The handler calls revalidateTag("yield") to evict the yield cache after a fresh
+// snapshot lands. Outside a request / static-generation context (a plain unit
+// test) Next throws "Invariant: static generation store missing in revalidateTag".
+// Same pattern the admin action tests use for revalidatePath — stub it to a no-op.
+vi.mock("next/cache", () => ({
+  revalidateTag:  vi.fn(),
+  revalidatePath: vi.fn(),
+}));
+
 // ─── Step shim ────────────────────────────────────────────────────────────────
 // Executes each step inline so tests run synchronously without Inngest runtime.
 const stepShim = {
