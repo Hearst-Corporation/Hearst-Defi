@@ -143,6 +143,21 @@
   /* Bevel — rim light en haut des cards (1px blanc semi-transparent). */
   --ct-glass-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --ct-glass-bevel-hover: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  /* Bevel fin — variante à 4% utilisée en second calque de box-shadow sur les
+     cards portfolio / dataviz (à côté de --ct-shadow-soft|depth). Répétée en
+     dur (rgba(255,255,255,0.04)) dans plusieurs fichiers avant tokenisation. */
+  --ct-glass-bevel-subtle: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* Ligne de grille chart (SVG inline — les CSS vars s'y résolvent, contrairement
+     au canvas 2D). Même valeur que le bevel fin ci-dessus mais rôle distinct
+     (trait, pas box-shadow) : token séparé pour ne pas coupler les deux usages. */
+  --ct-chart-grid-stroke: rgba(255, 255, 255, 0.04);
+  /* Lueur radiale au hover d'une ligne de liste (portfolio table, activité
+     récente). Quatre intensités déjà en usage avant tokenisation — conservées
+     telles quelles (pas d'unification de valeur, juste extraction du hardcode). */
+  --ct-row-hover-glow-faint: rgba(255, 255, 255, 0.02);
+  --ct-row-hover-glow-subtle: rgba(255, 255, 255, 0.04);
+  --ct-row-hover-glow: rgba(255, 255, 255, 0.05);
+  --ct-row-hover-glow-strong: rgba(255, 255, 255, 0.06);
 
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success/live/positive = the single brand green. The semantic token NAME

@@ -1073,7 +1073,7 @@
 }
 
 .pf-positions__row--body:hover {
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
+  background: radial-gradient(circle at center, var(--ct-row-hover-glow-subtle) 0%, transparent 100%);
 }
 
 .pf-positions__row--body:last-child {
@@ -1170,7 +1170,7 @@
 }
 
 .pf-positions-view-all:hover {
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+  background: radial-gradient(circle at center, var(--ct-row-hover-glow-faint) 0%, transparent 100%);
 }
 
 .pf-positions-view-all__label {

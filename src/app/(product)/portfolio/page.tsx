@@ -44,7 +44,7 @@ export const metadata = {
 
 const TABLE_HEAD = "bg-transparent ct-bento-label";
 const ROW =
-  "border-transparent transition-all hover:bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.05)_0%,transparent_60%)]";
+  "border-transparent transition-all hover:bg-[radial-gradient(circle_at_20%_50%,var(--ct-row-hover-glow)_0%,transparent_60%)]";
 // One KPI tile in the Account card (hairline-separated cells on the black grid).
 const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
 const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)] tracking-tight";
@@ -180,7 +180,7 @@ export default async function PortfolioPage() {
               KPI grid (1 col on narrow, 2 on wider). */}
           <div 
             className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
-            style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
+            style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
           >
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export default async function PortfolioPage() {
         <section className="grid grid-cols-1 lg:grid-cols-[1.2fr_minmax(16rem,0.8fr)] gap-5">
           <div 
             className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
-            style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
+            style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
           >
             <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex flex-col gap-1.5">
@@ -290,7 +290,7 @@ export default async function PortfolioPage() {
         {/* POSITIONS — real rows */}
         <section
           className="rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden flex flex-col"
-          style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
+          style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
           aria-label="Active positions"
         >
           <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">

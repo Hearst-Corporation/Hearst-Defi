@@ -6,6 +6,46 @@
 > une décision non-triviale au sens `CLAUDE.md` (ex. fusion de composants partagés hors périmètre
 > UI, changement de contrat de données).
 
+## Batch 5 (builder, politique data-viz `rgba()`) — 2026-07-04
+
+**Mission reçue sous le nom "Batch 4 — DS Hardening" (batch 6/8), owner zone bruitée
+`tokens/primitives du DS → contracts/test/, docs/agentic/`** — même schéma déjà noté par les
+batches 3/4/6 (métadonnée générique sans rapport avec cette série ; les vrais fichiers touchés
+n'ont jamais été sous `contracts/test/` ni `docs/agentic/`). Le thème réel de la mission ("hardcodes
+→ tokens, primitives cohérentes, UI-only") correspond au **batch 5 défini ici** ("Implémentation —
+Politique data-viz `rgba()`, D6, conditionnel") — traité comme la source de vérité, conformément au
+précédent posé par batch 3/4/6.
+
+**Constat de départ** : le working tree contenait déjà, non commité, l'essentiel de ce travail —
+3 des 4 sites `rgba(255,255,255,0.0x)` identifiés par le batch 1 (`portfolio/page.tsx`,
+`HcChartCard.tsx`, `time-to-target-chart.tsx`) déjà remplacés par des tokens `--ct-*` dans
+`cockpit.css` (`--ct-glass-bevel-subtle`, `--ct-chart-grid-stroke`, `--ct-row-hover-glow`,
+`--ct-row-hover-glow-strong`), plus un 5e site trouvé et corrigé en cours de route
+(`recent-activity.tsx`, même pattern de glow radial au hover). Relu, vérifié, conservé tel quel.
+
+**1 site supplémentaire trouvé et corrigé** (même famille, pas dans la liste batch 1 — grep élargi
+aux fichiers `.css` du DS, pas seulement `.tsx`) : `portfolio/portfolio.css:1076,1173` —
+`.pf-positions__row--body:hover` et `.pf-positions-view-all:hover` utilisaient encore
+`rgba(255,255,255,0.04)` / `rgba(255,255,255,0.02)` en dur dans des `radial-gradient`. Deux
+primitives supplémentaires ajoutées à la même échelle (`--ct-row-hover-glow-faint` 0.02,
+`--ct-row-hover-glow-subtle` 0.04) plutôt que de réutiliser un token existant à une valeur proche
+mais sémantiquement différente — même principe déjà posé dans le commentaire `cockpit.css`
+("token séparé pour ne pas coupler les deux usages").
+
+**Vérifié et laissé tel quel (déjà conforme)** : `src/components/ui/chart.tsx` remappe déjà les
+couleurs par défaut Recharts (`#ccc`/`#fff` — attribute selectors CSS, pas des props JS) vers
+`var(--ct-border-soft)` / `transparent`. Balayage élargi (canvas 2D `agent-graph-canvas.tsx`, emails
+transactionnels `password-reset.ts`/`send-welcome-email.ts`, page d'impression
+`report/print/page.tsx`, `lab-colors.ts` BTC brand orange) — tous des hardcodes **justifiés** (canvas
+2D ne résout pas les CSS vars ; emails HTML consommés hors navigateur ; page imprimée en mode clair,
+palette distincte du DS sombre par design ; couleur de marque tierce sans token DS existant) — non
+touchés, pas le périmètre de ce batch (pas des cards/graphiques produit).
+
+*Pourquoi 6 tokens et pas 1 seul* : les valeurs (0.02/0.04/0.05/0.06/0.08/0.14) étaient déjà
+distinctes en usage avant tokenisation — objectif = extraire le hardcode dans un nom, pas unifier
+des intensités qui servent des rôles visuels différents (bevel de card vs glow de ligne de liste vs
+trait de grille de graphique) sans arbitrage design explicite.
+
 ## Batch 6 (builder, audit discipline breakpoints) — 2026-07-04
 
 **Mission reçue sous le nom "Batch 3 — Responsive" (batch 5/8), owner zone bruitée

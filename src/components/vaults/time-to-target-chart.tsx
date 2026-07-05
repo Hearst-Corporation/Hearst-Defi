@@ -16,7 +16,7 @@ const TARGET_CUMULATIVE_PCT = 10; // 10% cumulative yield as "milestone"
 
 // Inline SVG paints resolve CSS vars (unlike 2d-canvas charts) — use the token.
 const ACCENT = "var(--ct-accent)";
-const GRID_STROKE = "rgba(255,255,255,0.04)";
+const GRID_STROKE = "var(--ct-chart-grid-stroke)";
 
 const VB_W = 300;
 const VB_H = 120;

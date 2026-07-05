@@ -68,6 +68,32 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
+### nexus/loop_mr6t63nq-mr70d3qg
+Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 6/8,
+"Batch 4 — DS Hardening" (mission metadata calls owner zone "tokens/primitives du DS →
+contracts/test/, docs/agentic/"; no file under `contracts/test/` or `docs/agentic/` matches
+the real theme — closest real match is `ui-rebuild/BATCHES.md` batch 5, "Politique data-viz
+`rgba()`", treated as the authoritative scope per the precedent set by batch 3/4/6 runs on
+this series)
+Branch: nexus/loop_mr6t63nq-mr70d3qg
+Started: 2026-07-04
+Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
+
+Scope:
+- src/app/cockpit.css (6 `rgba(255,255,255,0.0x)` hardcodes → tokens: 4 pre-existing
+  uncommitted in the working tree at session start, `--ct-row-hover-glow-{faint,subtle}`
+  added this session)
+- src/app/(product)/portfolio/page.tsx, src/components/dataviz/his/HcChartCard.tsx,
+  src/components/portfolio/recent-activity.tsx, src/components/vaults/time-to-target-chart.tsx
+  (pre-existing uncommitted work found in working tree at session start, reviewed and kept)
+- src/app/(product)/portfolio/portfolio.css (2 sites wired to the 2 new tokens, this session)
+- docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md
+- docs/agent-file-locks.md (this entry)
+
+STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no business
+pages, no docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md
+at root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp below).
+
 ### nexus/loop_mr6t639m-mr6ybrmr (RELEASED — merged via commit `5f226ee7`, PR #381)
 Batch 3/8 (D4 panel header rename) confirmed on `origin/main` (verified by batch 4 run:
 `admin-leaf-link.tsx` present, `cockpit-panel-header.tsx` gone, `HEAD == origin/main`).

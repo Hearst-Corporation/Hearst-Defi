@@ -67,7 +67,7 @@ export function RecentActivity({
   return (
     <section
       className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
-      style={{ boxShadow: "var(--ct-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.04)" }}
+      style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
       aria-label="Recent account activity"
     >
       <header className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
@@ -101,7 +101,7 @@ export function RecentActivity({
             return (
               <li
                 key={tx.id}
-                className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all hover:bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.06)_0%,transparent_70%)]"
+                className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all hover:bg-[radial-gradient(circle_at_20%_50%,var(--ct-row-hover-glow-strong)_0%,transparent_70%)]"
               >
                 <span
                   aria-hidden="true"
