@@ -216,6 +216,39 @@ chat-nav/cockpit.css/#146. Pure visual.
 
 ## RELEASED LOCKS
 
+### nexus/loop_mr6ee1jx-mr77jvoy — Agentic Full Test Series batch 1/6 (architect)
+Owner: nexus architect — Project Build Series (`series_opus_agentic_hearst-defi`)
+batch 1/6, rôle "architect" (composed by opus).
+Branch: nexus/loop_mr6ee1jx-mr77jvoy (pas de worktree dédié — agent séquentiel
+unique, dépôt courant propre au démarrage, cf. règle 1 du workflow multi-agent).
+Released: 2026-07-04
+Status: released (docs-only, prêt pour PR par le pipeline nexus)
+
+Scope:
+- docs/projects/agentic-full-test/** (owner zone, création)
+- docs/agent-file-locks.md (cette entrée)
+
+Résultat : cartographie complète de la ligne agentique (22 composants recensés —
+8 agents produit LLM en Partie A : Scenario Narrative, Mining Health, Risk
+Explanation, Investor Memo, moteur de chat cockpit unique ADR-017 3 modes,
+Master Agent outreach, writers outreach, Daily Executive Brief Crew planifié ;
+15 composants d'orchestration en Partie B sous src/lib/agentic/*) +
+protocole de test (budget DLLM dur ≤50 requêtes réelles cumulées sur la série,
+jamais 100 ; mock-first ; matrice de formulations valide/reject/limite) +
+découpage en 5 zones de test disjointes mappées batchs 2-6 + squelette du
+rapport final + squelette du futur schéma unifié de la ligne agentique.
+Coordination explicite avec la série sœur `docs/projects/outreach-audit/` pour
+éviter tout doublon sur les fichiers outreach-spécifiques. Confirmé que
+`electron/__tests__/` et `contracts/test/` sont sans rapport avec la ligne
+agentique malgré les métadonnées de mission — batchs 2-6 redirigés vers les
+vraies zones de test (`src/lib/agentic/**/__tests__`, `src/lib/agents/**/__tests__`,
+`src/lib/llm/**/__tests__`, routes API `__tests__`). Aucun code touché, aucun
+autre fichier édité. Pas de merge/push sur main, pas de dispatch de la loop
+suivante (batch 2/6 reste manuel, `executionMode: sequential-manual`).
+
+Fichiers créés : `docs/projects/agentic-full-test/{PROJECT_PLAN,INVENTORY,
+COVERAGE_MATRIX,BATCHES,REPORT_SKELETON,PIPELINE_SCHEMA,PROJECT_STATE,HANDOFF}.md`.
+
 ### fix/admin-visual-canon — MISSION #051 (terminé — mergé)
 Owner: Claude Opus (orchestrateur) — Admin visual canon start pattern
 Branch: fix/admin-visual-canon
