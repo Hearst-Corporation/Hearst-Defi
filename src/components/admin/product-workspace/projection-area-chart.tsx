@@ -108,7 +108,7 @@ export function ProjectionAreaChart({
   const yDomain = computeFanYDomain(bands, percentPoints);
 
   return (
-    <ChartContainer config={config} className="aspect-auto h-[220px] w-full min-w-0">
+    <ChartContainer config={config} className="aspect-auto h-[var(--ct-chart-h)] w-full min-w-0">
       <AreaChart data={data} margin={{ left: 4, right: 12, top: 8 }}>
         <defs>
           <linearGradient id="fillBand" x1="0" y1="0" x2="0" y2="1">

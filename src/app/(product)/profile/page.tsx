@@ -77,7 +77,7 @@ export default async function ProfilePage() {
         }
         media={
           <div
-            className="ct-glass-panel flex size-14 shrink-0 items-center justify-center text-[20px] font-semibold ct-text-accent"
+            className="ct-glass-panel flex size-14 shrink-0 items-center justify-center text-[length:var(--ct-text-2xl-fixed)] font-semibold ct-text-accent"
             aria-hidden="true"
           >
             {session.email.charAt(0).toUpperCase()}

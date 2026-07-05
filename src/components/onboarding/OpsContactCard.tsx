@@ -36,7 +36,7 @@ export function OpsContactCard({
         </span>
 
         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-          <span className="text-[length:var(--ct-text-14)] font-semibold text-white tracking-tight truncate">
+          <span className="text-[length:var(--ct-text-14)] font-semibold text-[var(--ct-text-strong)] tracking-tight truncate">
             {name}
           </span>
           <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] truncate">{title}</span>

@@ -133,7 +133,7 @@ export function ChartGallery() {
           <CardDescription>p50 vs dispersion band (demo)</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={areaConfig} className="aspect-auto h-[220px] w-full">
+          <ChartContainer config={areaConfig} className="aspect-auto h-[var(--ct-chart-h)] w-full">
             <AreaChart data={areaData}>
               <defs>
                 <linearGradient id="fillP50" x1="0" y1="0" x2="0" y2="1">
@@ -163,7 +163,7 @@ export function ChartGallery() {
           <CardDescription>per-month target (demo)</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={barConfig} className="aspect-auto h-[220px] w-full">
+          <ChartContainer config={barConfig} className="aspect-auto h-[var(--ct-chart-h)] w-full">
             <BarChart data={barData}>
               <CartesianGrid vertical={false} />
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
@@ -181,7 +181,7 @@ export function ChartGallery() {
           <CardDescription>canonical sleeves (demo)</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 pb-0">
-          <ChartContainer config={allocConfig} className="mx-auto aspect-square max-h-[220px]">
+          <ChartContainer config={allocConfig} className="mx-auto aspect-square max-h-[var(--ct-chart-h)]">
             <PieChart>
               <ChartTooltip content={<ChartTooltipContent nameKey="sleeve" hideLabel />} />
               <Pie data={allocData} dataKey="value" nameKey="sleeve" innerRadius={50} outerRadius={85}>
@@ -208,7 +208,7 @@ export function ChartGallery() {
           <CardDescription>risk / return axes (demo)</CardDescription>
         </CardHeader>
         <CardContent className="pb-0">
-          <ChartContainer config={radarConfig} className="mx-auto aspect-square max-h-[220px]">
+          <ChartContainer config={radarConfig} className="mx-auto aspect-square max-h-[var(--ct-chart-h)]">
             <RadarChart data={radarData}>
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
               <PolarAngleAxis dataKey="axis" />
@@ -226,7 +226,7 @@ export function ChartGallery() {
           <CardDescription>stepped (demo)</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={lineConfig} className="aspect-auto h-[220px] w-full">
+          <ChartContainer config={lineConfig} className="aspect-auto h-[var(--ct-chart-h)] w-full">
             <LineChart data={lineData} margin={{ left: 12, right: 12 }}>
               <CartesianGrid vertical={false} />
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
@@ -244,7 +244,7 @@ export function ChartGallery() {
           <CardDescription>natural + dots (demo)</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={lineConfig} className="aspect-auto h-[220px] w-full">
+          <ChartContainer config={lineConfig} className="aspect-auto h-[var(--ct-chart-h)] w-full">
             <LineChart data={lineData} margin={{ left: 12, right: 12 }}>
               <CartesianGrid vertical={false} />
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
@@ -262,7 +262,7 @@ export function ChartGallery() {
           <CardDescription>two series stacked (demo)</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={areaConfig} className="aspect-auto h-[220px] w-full">
+          <ChartContainer config={areaConfig} className="aspect-auto h-[var(--ct-chart-h)] w-full">
             <BarChart data={areaData}>
               <CartesianGrid vertical={false} />
               <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
@@ -281,7 +281,7 @@ export function ChartGallery() {
           <CardDescription>sleeves as radial bars (demo)</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 pb-0">
-          <ChartContainer config={allocConfig} className="mx-auto aspect-square max-h-[220px]">
+          <ChartContainer config={allocConfig} className="mx-auto aspect-square max-h-[var(--ct-chart-h)]">
             <RadialBarChart data={radialData} startAngle={-90} endAngle={270} innerRadius={30} outerRadius={100}>
               <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel nameKey="sleeve" />} />
               <RadialBar dataKey="value" background>

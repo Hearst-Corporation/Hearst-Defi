@@ -76,8 +76,8 @@ const styles = {
   ],
   colors: {
     'dark/zinc': [
-      'text-white [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
-      'dark:text-white dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
+      'text-[var(--ct-text-strong)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
+      'dark:text-[var(--ct-text-strong)] dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     light: [
@@ -86,12 +86,12 @@ const styles = {
       '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     'dark/white': [
-      'text-white [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
+      'text-[var(--ct-text-strong)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
       'dark:text-[var(--ct-bg-deep)] dark:[--btn-bg:var(--ct-text-strong)] dark:[--btn-hover-overlay:var(--ct-bg-deep)]/5',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     dark: [
-      'text-white [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
+      'text-[var(--ct-text-strong)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
       'dark:[--btn-hover-overlay:var(--ct-text-strong)]/5 dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
@@ -101,7 +101,7 @@ const styles = {
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)]',
     ],
     zinc: [
-      'text-white [--btn-hover-overlay:var(--ct-text-strong)]/10 [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90',
+      'text-[var(--ct-text-strong)] [--btn-hover-overlay:var(--ct-text-strong)]/10 [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90',
       'dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],

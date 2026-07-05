@@ -9,10 +9,10 @@ export const metadata = {
 function StatusBadge({ status }: { status: NodeStatus }) {
   const colorMap: Record<NodeStatus, string> = {
     Live: "bg-[var(--ct-accent)]/10 text-[var(--ct-accent)] border-[var(--ct-accent)]/20",
-    Partial: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    Planned: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    Blocked: "bg-red-500/10 text-red-400 border-red-500/20",
-    "Not configured": "bg-neutral-500/10 text-neutral-400 border-neutral-500/20",
+    Partial: "bg-[var(--ct-status-warning)]/10 text-[var(--ct-status-warning)] border-[var(--ct-status-warning)]/20",
+    Planned: "bg-[var(--ct-status-info)]/10 text-[var(--ct-status-info)] border-[var(--ct-status-info)]/20",
+    Blocked: "bg-[var(--ct-status-danger)]/10 text-[var(--ct-status-danger)] border-[var(--ct-status-danger)]/20",
+    "Not configured": "bg-[var(--ct-status-neutral)]/10 text-[var(--ct-status-neutral)] border-[var(--ct-status-neutral)]/20",
   };
 
   return (
@@ -50,16 +50,16 @@ export default function ArchitecturePage() {
               <span className="h-2 w-2 rounded-full bg-[var(--ct-accent)]" /> Live
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-amber-400" /> Partial
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-status-warning)]" /> Partial
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-blue-400" /> Planned
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-status-info)]" /> Planned
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-red-400" /> Blocked
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-status-danger)]" /> Blocked
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-neutral-400" /> Not configured
+              <span className="h-2 w-2 rounded-full bg-[var(--ct-status-neutral)]" /> Not configured
             </span>
           </div>
           <div className="mt-2 text-xs text-[var(--ct-text-muted)]">

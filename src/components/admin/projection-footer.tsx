@@ -38,14 +38,14 @@ export function ProjectionFooter({ vaultDraft }: ProjectionFooterProps) {
 
         <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           Lockup:&nbsp;
-          <span className="font-medium text-white">{projection.lockupDays}d</span>
+          <span className="font-medium text-[var(--ct-text-strong)]">{projection.lockupDays}d</span>
         </span>
 
         <Separator />
 
         <span className="whitespace-nowrap text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
           M-of-N:&nbsp;
-          <span className="font-medium text-white">{projection.quorum}</span>
+          <span className="font-medium text-[var(--ct-text-strong)]">{projection.quorum}</span>
         </span>
 
         <span className="flex-1" />

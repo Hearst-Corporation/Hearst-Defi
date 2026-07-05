@@ -412,6 +412,7 @@
   --ct-cell-note-max: 10rem;       /* regime scenario note column */
   --ct-step-dot-size: 1.75rem;     /* wizard step circle diameter */
   --ct-chart-empty-h: 8.75rem;     /* empty-state chart placeholder height */
+  --ct-chart-h: 13.75rem;          /* full chart container height */
 
   /* Icon size scale — use these for w/h on <svg> and icon primitives. */
   --ct-icon-xs:  0.75rem;  /* 12px — inline status dot */

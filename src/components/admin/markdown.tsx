@@ -29,7 +29,7 @@ export function Markdown({
                 {children}
               </h2>
             ) : (
-              <h1 className="mt-10 mb-4 text-[24px] font-semibold tracking-tight text-[var(--ct-text-strong)] first:mt-0">
+              <h1 className="mt-10 mb-4 text-[length:var(--ct-text-3xl-fixed)] font-semibold tracking-tight text-[var(--ct-text-strong)] first:mt-0">
                 {children}
               </h1>
             ),
