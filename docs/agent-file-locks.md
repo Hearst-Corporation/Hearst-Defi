@@ -68,74 +68,49 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
-### nexus/loop_mr6t63nq-mr70d3qg
-Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 6/8,
-"Batch 4 — DS Hardening" (mission metadata calls owner zone "tokens/primitives du DS →
-contracts/test/, docs/agentic/"; no file under `contracts/test/` or `docs/agentic/` matches
-the real theme — closest real match is `ui-rebuild/BATCHES.md` batch 5, "Politique data-viz
-`rgba()`", treated as the authoritative scope per the precedent set by batch 3/4/6 runs on
-this series)
-Branch: nexus/loop_mr6t63nq-mr70d3qg
+### nexus/loop_mr6t63rz-mr711kr8
+Owner: nexus tester — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 7/8, "QA
+visuelle" (mission metadata calls owner zone "tests visuels/e2e → contracts/test/ (repo
+réel)" — `contracts/test/` is the Foundry test dir, unrelated to visual QA; no real match
+there. Authoritative scope is `ui-rebuild/BATCHES.md` batch 7: "Skill visual-review /
+Playwright sur routes représentatives (portfolio, vaults, proof-center, admin dashboard,
+admin strategy) à 3 breakpoints, après batches 3-6" — same precedent as batch 3/4/5/6 runs
+on this series re: metadata noise. Dependency confirmed merged this session: batches 4
+(nav registry, PR #382/`02421e99`), 6-mapped-responsive (PR #383/`7c8d799e`), 5-mapped-DS-
+hardening (PR #384/`c94398ea`) all verified present on `origin/main` HEAD.)
+Branch: nexus/loop_mr6t63rz-mr711kr8
 Started: 2026-07-04
 Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
 
 Scope:
-- src/app/cockpit.css (6 `rgba(255,255,255,0.0x)` hardcodes → tokens: 4 pre-existing
-  uncommitted in the working tree at session start, `--ct-row-hover-glow-{faint,subtle}`
-  added this session)
-- src/app/(product)/portfolio/page.tsx, src/components/dataviz/his/HcChartCard.tsx,
-  src/components/portfolio/recent-activity.tsx, src/components/vaults/time-to-target-chart.tsx
-  (pre-existing uncommitted work found in working tree at session start, reviewed and kept)
-- src/app/(product)/portfolio/portfolio.css (2 sites wired to the 2 new tokens, this session)
+- e2e/visual-qa.spec.ts (new — Playwright visual/responsive/a11y QA on portfolio, vaults,
+  proof-center, admin/dashboard, admin/strategies at 3 breakpoints)
 - docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md
-- docs/agent-file-locks.md (this entry)
+- docs/agent-file-locks.md (this entry + releasing the 3 merged batch 4/5/6 entries below)
 
-STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no business
-pages, no docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md
-at root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp below).
+STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no
+production code changes beyond a fix strictly required to make a real bug visible, no
+docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md at
+root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp below).
+
+### nexus/loop_mr6t63nq-mr70d3qg (RELEASED — merged via commit `c94398ea`, PR #384)
+Batch "DS Hardening" (rgba → `--ct-row-hover-glow-*` tokens) confirmed on `origin/main`
+(verified by batch 7 run: tokens present in `src/app/cockpit.css`, `HEAD == origin/main`).
 
 ### nexus/loop_mr6t639m-mr6ybrmr (RELEASED — merged via commit `5f226ee7`, PR #381)
 Batch 3/8 (D4 panel header rename) confirmed on `origin/main` (verified by batch 4 run:
 `admin-leaf-link.tsx` present, `cockpit-panel-header.tsx` gone, `HEAD == origin/main`).
 Lock entry kept only as history pointer; superseded by the batch 4 entry below.
 
-### nexus/loop_mr6t63jd-mr6ziw19
-Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 5/8,
-"Responsive — tables/grilles/modals sur écrans déjà refondus" (mission metadata calls it
-"Batch 3 — Responsive"; no batch of that exact name exists in `ui-rebuild/BATCHES.md` —
-closest real match is batch 6, "Audit — Discipline breakpoints", treated as the
-authoritative scope per the precedent set by batch 3/4 runs on this series)
-Branch: nexus/loop_mr6t63jd-mr6ziw19
-Started: 2026-07-04
-Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
+### nexus/loop_mr6t63jd-mr6ziw19 (RELEASED — merged via commit `7c8d799e`, PR #383)
+Batch "Responsive — Discipline breakpoints" confirmed on `origin/main` (verified by batch 7
+run: `sm:grid-cols-3` present in `monte-carlo-review.tsx` + `crew-simulation-section.tsx`,
+`HEAD == origin/main`).
 
-Scope:
-- src/app/admin/dashboard/dashboard.css (pre-existing uncommitted work found in working
-  tree at session start — KPI strip responsive wrap fix, reviewed and kept)
-- src/components/admin/dashboard/kpi-strip.tsx (same, divider class hook only)
-- further responsive-only CSS/markup fixes on already-redesigned admin/product screens
-  found by this session's audit (tables, grids, modals)
-- docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md
-
-STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no new
-content/logic, no docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,
-HANDOFF}.md at root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp below).
-
-### nexus/loop_mr6t63e1-mr6yzkwp
-Owner: nexus builder — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 4/8,
-"Implémentation — Registre nav complet (D5)"
-Branch: nexus/loop_mr6t63e1-mr6yzkwp
-Started: 2026-07-04
-Status: active (no merge by this role — commit/push/PR handled by the pipeline after this run)
-
-Scope:
-- src/components/nav/product-nav-items.ts (3 new `hideFromSubNav: true` entries: diagnostics,
-  btc-mining-performance-vault, agent-canvas — zero visual change)
-- docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md
-
-STOP: no prisma/**, no .github/workflows/**, no secrets/.env*, no vercel.json, no
-docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md
-at root (Recovery Series owner-zone, see nexus/loop_mr3jnywz-mr5ma2tp below).
+### nexus/loop_mr6t63e1-mr6yzkwp (RELEASED — merged via commit `02421e99`, PR #382)
+Batch 4/8 (D5 nav registry) confirmed on `origin/main` (verified by batch 7 run:
+`diagnostics`/`btc-mining-performance-vault`/`agent-canvas` `hideFromSubNav: true` entries
+present in `product-nav-items.ts`, `HEAD == origin/main`).
 
 ### nexus/loop_mr3jnywz-mr5ma2tp
 Owner: nexus builder — Recovery Series batch 6/9, "UI/Layout" (loading/error/empty, responsive)

@@ -6,6 +6,89 @@
 > une décision non-triviale au sens `CLAUDE.md` (ex. fusion de composants partagés hors périmètre
 > UI, changement de contrat de données).
 
+## Batch 7 (tester, QA visuelle) — 2026-07-04
+
+**Mission reçue** : `batchNumber: 7/8`, rôle "tester" — "QA visuelle des écrans refondus (états,
+responsive, a11y)", `OWNER ZONE: tests visuels/e2e → contracts/test/ (repo réel)`. Même bruit de
+métadonnée déjà noté par les batches 3/4/5/6 de cette série — `contracts/test/` est le dossier de
+tests Foundry (Solidity), sans rapport avec de la QA visuelle Next.js ; aucun fichier réel sous ce
+chemin ne correspond au thème. Source de vérité suivie : `ui-rebuild/BATCHES.md` ligne "Batch 7 |
+QA visuelle | Skill `visual-review` / Playwright sur routes représentatives (portfolio, vaults,
+proof-center, admin dashboard, admin strategy) à 3 breakpoints, après batches 3-6".
+
+**Dépendance vérifiée avant tout code** : `BATCHES.md` marque batch 7 comme dépendant des batches
+3-6. À l'ouverture de cette session, `docs/agent-file-locks.md` listait encore 3 des 4 batches
+(4/8 nav registry, "5/8"→6 réel responsive, "6/8"→5 réel DS hardening) comme `active` — mais
+`git log` sur `origin/main` montrait déjà les 3 commits de merge correspondants
+(`02421e99`/PR #382, `7c8d799e`/PR #383, `c94398ea`/PR #384). Vérifié par grep direct sur le tree
+courant (pas seulement le message de commit) : `hideFromSubNav: true` présent pour `diagnostics`/
+`btc-mining-performance-vault`/`agent-canvas` dans `product-nav-items.ts` ; tokens
+`--ct-row-hover-glow-*` présents dans `cockpit.css` ; `sm:grid-cols-3` présent dans
+`monte-carlo-review.tsx` et `crew-simulation-section.tsx`. Les 4 batches (3 déjà release, 4/5/6
+confirmés ce run) sont donc bien mergés — dépendance `requiresPreviousMerge: true` satisfaite.
+Les 3 entrées de lock stale marquées RELEASED dans `docs/agent-file-locks.md` (avec pointeur vers
+le commit de merge), pas supprimées (traçabilité).
+
+**Ce qui a été produit** : `e2e/visual-qa.spec.ts` (nouveau) — suite Playwright réelle, exécutée
+avec succès contre le dev server local (7/7 tests verts, ~1.7 min) :
+- 5 routes représentatives (`/portfolio`, `/vaults`, `/proof-center` — session investisseur ;
+  `/admin/dashboard`, `/admin/strategies` — session admin), chacune vérifiée à 3 breakpoints
+  (mobile 390×844, tablette 768×1024, desktop 1440×900) : heading `<h1>` visible, aucun overflow
+  horizontal du document (`document.documentElement.scrollWidth <= viewport width` — la même
+  classe de bug que le batch 6 avait corrigée sur 2 grilles), et un smoke-test a11y DOM
+  (exactement un `<h1>`, tout `<img>` a un `alt`, tout `<button>` a un nom accessible, landmark
+  `<main>`/`[role=main]` présent).
+- 2 tests "honnêteté des états" : les 3 routes produit + les 2 routes admin redirigent bien vers
+  `/login` quand non authentifié (aucune fuite de contenu cockpit à un visiteur anonyme).
+
+**Pourquoi pas d'axe-core** : `axe-core` n'existe dans ce repo qu'en dépendance transitive
+(`pnpm-lock.yaml`), aucun wrapper `@axe-core/playwright` n'est câblé et `package.json` est un
+fichier sensible single-owner (`CLAUDE.md`) hors de l'owner-zone de ce batch (tester, pas
+infra/deps). Le smoke-test DOM ci-dessus couvre les mêmes invariants qu'un premier passage axe
+(heading unique, alt text, nom accessible des boutons, landmark) sans ajouter de dépendance.
+
+**Auth** : réutilise exactement les conventions déjà en place — `test@hearst.local` /
+`TestPassword123!` (mêmes constantes que `e2e/dashboard.spec.ts`/`login-flow.spec.ts`, nécessite
+`pnpm seed:test`) pour les routes produit ; `admin@hearst.io` / `TestAdmin123!` avec override
+`TEST_ADMIN_EMAIL`/`TEST_ADMIN_PASSWORD` (mêmes constantes que
+`e2e/outreach-master-agent.spec.ts`, nécessite `pnpm seed:test:admin`) pour les routes admin — ces
+deux seeds tournent déjà automatiquement en CI avant `pnpm test:e2e` (`.github/workflows/ci.yml`).
+Pas de nouveau pattern d'auth introduit.
+
+**Validations lancées** (checkout vierge — `node_modules`/`prisma/dev.db` absents au démarrage) :
+- `pnpm install` + `pnpm db:generate` (bascule sqlite) + `prisma db push --accept-data-loss` +
+  `pnpm seed:test` + `pnpm seed:test:admin` + `pnpm exec playwright install --with-deps chromium`.
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm exec playwright test e2e/visual-qa.spec.ts` → **7/7 tests verts** (contre le vrai dev
+  server, pas un mock).
+- `node scripts/restore-prisma-provider.mjs` → `prisma/schema.prisma` sans diff après coup
+  (`git status --short` vide sur ce fichier).
+- `pnpm run lint` → **0 erreur**, 49 warnings pré-existants (aucun dans `e2e/visual-qa.spec.ts`).
+- `pnpm test` (suite complète) → **452/453 fichiers, 5416/5420 tests** — identique à la baseline
+  documentée par les batches 3/4/6 précédents ; les 4 échecs restent uniquement
+  `custody-snapshot-hourly.test.ts` (invariant Next.js `revalidateTag` pré-existant, introduit par
+  un commit hors scope de cette série, déjà documenté 3 fois).
+
+**Fichiers exclus (owner zone respectée)** : aucun `prisma/**` (schema restauré via tooling
+officiel, pas édité à la main), aucun `.github/workflows/**`, aucun secret/`.env*`, aucun
+`vercel.json`, aucun `package.json`/`pnpm-lock.yaml` (pas de nouvelle dépendance ajoutée),
+`contracts/test/` non touché (bruit de métadonnée, aucun rapport réel avec le thème QA visuelle).
+
+**Décision de routage doc** : cette entrée + `BATCHES.md`/`HANDOFF.md` mis à jour dans
+`docs/projects/hearst-defi/ui-rebuild/` (sous-dossier de cette série), **pas** dans les fichiers
+racine `docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md` —
+la métadonnée de mission demande génériquement le fichier racine, mais celui-ci reste l'owner-zone
+active de la Recovery Series (série différente), même précédent déjà posé et documenté par les 6
+batches précédents de cette série.
+
+**Prochain batch recommandé** : batch 8 (intégrateur / clôture série) — commit/push/PR de ce diff
+(`e2e/visual-qa.spec.ts` + docs) et des 3 diffs batch 4/5/6 encore non intégrés au moment de ce
+run (nav registry, DS hardening rgba, responsive breakpoints — tous vérifiés mergés sur
+`origin/main` par cette session, donc déjà couverts côté intégration réelle ; seul le diff de ce
+batch 7 reste à committer/pousser/merger).
+
+---
+
 ## Batch 5 (builder, politique data-viz `rgba()`) — 2026-07-04
 
 **Mission reçue sous le nom "Batch 4 — DS Hardening" (batch 6/8), owner zone bruitée
