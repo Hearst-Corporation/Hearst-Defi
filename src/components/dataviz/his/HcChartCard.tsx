@@ -75,7 +75,7 @@ export function HcChartCard({
         background: "var(--ct-surface-card)",
         border: "1px solid var(--ct-border)",
         borderRadius: "var(--ct-radius-xl)",
-        boxShadow: "var(--ct-shadow-depth), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
+        boxShadow: "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)",
         padding: compact ? "var(--ct-space-3_5)" : "var(--ct-space-5)",
       }}
     >

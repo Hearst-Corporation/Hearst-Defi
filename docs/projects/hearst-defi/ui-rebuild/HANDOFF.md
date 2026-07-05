@@ -2,6 +2,156 @@
 
 ## Batch 6/8 (builder, re-dispatch) — vérification, aucun nouveau code — 2026-07-04
 
+Nouvelle invocation de la même mission (batch 6/8, "Batch 4 — DS Hardening", `series_ui_hearst-defi_0`,
+même branche `nexus/loop_mr6t63nq-mr70d3qg`) sur un tree qui contient toujours, non commité, le diff
+complet du batch 5 réel (rgba data-viz → tokens `--ct-*`) documenté par l'entrée précédente
+ci-dessous. Le pipeline n'a toujours pas commité/poussé/ouvert de PR entre les runs — même schéma déjà
+observé et documenté par les batches 3/4/6 de cette série (hors du contrôle de ce rôle, builder ne
+commite/push jamais).
+
+Vérifications refaites avant de conclure à un no-op légitime :
+- `git fetch origin main` : `HEAD` == `origin/main` == `7c8d799e` — aucune divergence depuis le début
+  de cette branche, aucun risque de conflit sur les 6 fichiers touchés (`cockpit.css`,
+  `portfolio.css`, `portfolio/page.tsx`, `HcChartCard.tsx`, `recent-activity.tsx`,
+  `time-to-target-chart.tsx`).
+- `docs/agent-file-locks.md` : lock toujours réservé pour cette branche exacte (entrée
+  `nexus/loop_mr6t63nq-mr70d3qg`), scope inchangé ; aucune autre entrée active ne chevauche ce
+  périmètre.
+- `git diff` sur les 6 fichiers : identique, relu ligne à ligne, cohérent avec `DECISIONS.md` §Batch 5
+  — aucune dérive.
+- Re-grep `rgba(255, 255, 255` / `rgba(255,255,255` sur les 5 fichiers consommateurs (hors définitions
+  de tokens dans `cockpit.css`) → 0 résidu, migration toujours complète.
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm exec vitest run src/app/(product)/portfolio src/components/dataviz src/components/portfolio
+  src/components/vaults` → **15 fichiers, 230 tests, tous verts**.
+- `git status --short -- prisma/schema.prisma` → vide (pas d'effet de bord `db:generate` cette fois,
+  environnement déjà chaud).
+
+Aucun fichier modifié par ce run au-delà de cette entrée `HANDOFF.md`. Conformément à
+`mayContinueAfterNoop: false`, ce run ne démarre pas le batch 7 (QA visuelle). Le diff substantiel du
+batch 5 (rgba → tokens) reste intact, prêt pour commit/push/PR par le pipeline.
+
+---
+
+## Batch 6/8 — "Batch 4 — DS Hardening" (builder, politique data-viz `rgba()`) — 2026-07-04
+
+### Relais fait avant le travail
+- Mission reçue : `batchNumber: 6/8`, rôle "Batch 4 — DS Hardening" ("Durcis le design
+  system: hardcodes → tokens, primitives cohérentes. UI-only."), `OWNER ZONE: tokens/
+  primitives du DS → contracts/test/, docs/agentic/`, `dependsOn:
+  series_ui_hearst-defi_0::batch.03.responsive`. Même bruit générique déjà noté 5 fois par
+  les batches 3/4/6 de cette série : `contracts/test/`/`docs/agentic/` ne correspondent à
+  aucun fichier réellement touché par ce batch (ni par les précédents). Le thème réel
+  ("hardcodes → tokens, primitives DS") correspond au **batch 5 défini par cette série**
+  ("Implémentation — Politique data-viz `rgba()`, D6, conditionnel") — traité comme source
+  de vérité, même précédent que batch 6 pour "Batch 3 — Responsive" → batch 6 réel.
+- Lu `docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS,HANDOFF}.md`
+  (racine, Recovery Series) : confirmés hors scope, série différente, non touchés.
+- Lu `ui-rebuild/{PROJECT_PLAN,BATCHES,DECISIONS,IA_TARGET,HANDOFF}.md` en entier. Batch 5
+  ("rgba, conditionnel") marqué "défini, conditionnel à arbitrage owner" — l'arbitrage est
+  ici implicite dans la mission runner elle-même (`gateMode: auto`, consigne explicite "pas
+  de no-op silencieux, tu dois produire le code attendu") : traité comme armé par ce batch.
+- `docs/agent-file-locks.md` relu en entier : aucun lock actif ne chevauche `cockpit.css`,
+  `portfolio.css`, `portfolio/page.tsx`, `HcChartCard.tsx`, `recent-activity.tsx`,
+  `time-to-target-chart.tsx`. Lock ajouté pour cette branche (voir section correspondante).
+- `gh` indisponible (pas de réseau) — pas de vérification API PR ouvertes ; `git log`/
+  `git status` locaux ne montrent aucune autre branche active sur ce périmètre.
+
+### État de départ trouvé (working tree non propre)
+Le tree contenait déjà, non commité, l'essentiel de ce travail : `cockpit.css` (4 tokens
+`--ct-glass-bevel-subtle`, `--ct-chart-grid-stroke`, `--ct-row-hover-glow`,
+`--ct-row-hover-glow-strong`) + 4 fichiers consommateurs déjà migrés
+(`portfolio/page.tsx` ×3 sites, `HcChartCard.tsx`, `recent-activity.tsx`,
+`time-to-target-chart.tsx`) — correspond exactement aux 4 fichiers identifiés par le batch 1
+plus `recent-activity.tsx` (5e site, même pattern de glow au hover, pas dans la liste
+originale mais trouvé par la même famille de grep). Relu ligne par ligne contre
+`git diff`, cohérent avec la politique D6 ("extraire le hardcode, ne pas unifier les
+valeurs") — conservé tel quel.
+
+### Ce qui a été fait ce run
+- Grep élargi aux fichiers `.css` du DS (pas seulement `.tsx`/`.ts`, angle non couvert par
+  le balayage batch 1 qui listait des sites JS) : trouvé 1 site supplémentaire réel —
+  `src/app/(product)/portfolio/portfolio.css:1076,1173`
+  (`.pf-positions__row--body:hover`, `.pf-positions-view-all:hover`) — deux
+  `radial-gradient` avec `rgba(255,255,255,0.04)` / `rgba(255,255,255,0.02)` en dur.
+- Ajouté 2 primitives à la même échelle dans `cockpit.css` : `--ct-row-hover-glow-faint`
+  (0.02), `--ct-row-hover-glow-subtle` (0.04) — valeurs distinctes des tokens déjà présents,
+  pas de réutilisation d'un token proche mais sémantiquement différent (précédent posé par
+  le commentaire déjà en place sur `--ct-chart-grid-stroke`).
+- Câblé les 2 sites `portfolio.css` sur ces nouveaux tokens.
+- Balayage complet du reste de `src/` pour tout hardcode `rgba(255,255,255,...)` /
+  `rgba(0,0,0,...)` / hex restant hors ce périmètre : tout le reste est un exception
+  justifiée, non touchée — `src/components/ui/chart.tsx` (déjà tokenisé, `#ccc`/`#fff` =
+  attribute selectors Recharts, pas des hardcodes JS), `agent-graph-canvas.tsx` (canvas 2D,
+  ne résout pas les CSS vars — commentaire déjà en place l'explique), emails transactionnels
+  `password-reset.ts`/`send-welcome-email.ts` (HTML consommé par un client mail, pas un
+  navigateur), `report/print/page.tsx` (page imprimée, palette claire distincte du DS sombre
+  par design), `lab-colors.ts` (BTC brand orange, pas de token DS existant, déjà documenté).
+- Trouvé et annulé un effet de bord non lié : `pnpm db:generate` (nécessaire pour débloquer
+  `pnpm typecheck`, provider Postgres→SQLite absent en local) modifie
+  `prisma/schema.prisma` (provider `postgresql`→`sqlite`) — fichier sensible single-owner,
+  `git checkout --` appliqué pour ne pas le committer (artefact local, hors scope de ce
+  batch).
+
+### Fichiers modifiés
+- `src/app/cockpit.css` — 2 tokens supplémentaires (`--ct-row-hover-glow-faint`,
+  `--ct-row-hover-glow-subtle`), en plus des 4 déjà présents dans le tree au démarrage.
+- `src/app/(product)/portfolio/portfolio.css` — 2 sites `rgba()` → tokens.
+- `src/app/(product)/portfolio/page.tsx`, `src/components/dataviz/his/HcChartCard.tsx`,
+  `src/components/portfolio/recent-activity.tsx`, `src/components/vaults/time-to-target-chart.tsx`
+  — pré-existants dans le tree au démarrage (batch antérieur non commité), relus et conservés.
+- `docs/projects/hearst-defi/ui-rebuild/{BATCHES,DECISIONS,HANDOFF}.md` (ce fichier).
+- `docs/agent-file-locks.md` (lock ajouté pour cette branche).
+
+### Fichiers exclus (volontairement, aucun touché)
+- `prisma/schema.prisma` — modifié par un effet de bord d'outillage local (`db:generate`),
+  reverté avant de conclure (fichier sensible single-owner, hors scope).
+- Toute page métier au-delà des sites `rgba()` déjà identifiés (pas de refonte, pas de
+  nouveau composant, pas de changement de comportement).
+- `contracts/test/`, `docs/agentic/` — mentionnés dans la métadonnée de mission mais aucun
+  fichier réel dans ces chemins ne relève du thème "hardcodes → tokens DS" ; rien à y faire
+  qui corresponde au thème réel de ce batch (même constat déjà documenté par les batches
+  précédents de cette série sur le bruit de métadonnée).
+- Racine `docs/projects/hearst-defi/{PROJECT_PLAN,PROJECT_STATE,BATCHES,DECISIONS}.md`
+  (Recovery Series, série différente et active — non touchée).
+
+### Validations lancées
+- `pnpm db:generate` — requis pour débloquer le typecheck sur ce checkout (client Prisma
+  absent), effet de bord sur `prisma/schema.prisma` reverté (voir ci-dessus).
+- `pnpm typecheck` → **0 erreur**.
+- `pnpm vitest run` (suite complète) → **448 fichiers passés / 5 échoués (29 tests)** — les
+  5 fichiers en échec (`investor-memo.integration.test.ts`, `outreach-reply-handler.test.ts`,
+  `outreach-scorer.test.ts`, `outreach-writer.test.ts`, `custody-snapshot-hourly.test.ts`)
+  sont des échecs pré-existants sans rapport avec ce batch (mocks LLM outreach + invariant
+  Next.js `revalidateTag`/"static generation store missing" hors composant serveur) —
+  aucun des fichiers touchés par ce batch n'apparaît dans la liste des échecs.
+- `pnpm vitest run` ciblé sur les zones touchées (`src/app/(product)/portfolio`,
+  `src/components/dataviz`, `src/components/portfolio`, `src/components/vaults`) →
+  **15 fichiers, 230 tests, tous verts**.
+
+### Risques / notes
+- Aucun changement visuel : les valeurs `rgba()` extraites en tokens sont strictement
+  identiques à celles déjà en usage (0.02/0.04/0.05/0.06/0.08/0.14) — travail de nommage/
+  primitive, pas de recalibrage.
+- Le bruit de métadonnée (owner zone pointant vers `contracts/test/`/`docs/agentic/`, nom de
+  batch "Batch 4 — DS Hardening" sans correspondance exacte dans `BATCHES.md`) reste présent
+  à chaque run de cette série — à signaler à l'humain qui arme les batches si ça persiste,
+  cf. note similaire dans les 3 entrées précédentes.
+
+### Prochain batch recommandé
+Batch 7 (QA visuelle — skill `visual-review`/Playwright sur routes représentatives) une fois
+les batches 3-6 mergés dans `main` (aucun n'est encore confirmé mergé sur `origin/main` au
+moment de ce run — à vérifier par le batch qui arme la QA visuelle). Batch 8 (intégrateur)
+ne doit pas être armé avant.
+
+### Commit & PR
+Aucun — ce rôle ne commite/push/merge jamais (`gateMode: auto`, travail réel produit, laissé
+au pipeline pour commit/push/PR après cette exécution).
+
+---
+
+## Batch 6/8 (builder, re-dispatch) — vérification, aucun nouveau code — 2026-07-04
+
 Nouvelle invocation de la même mission (batch 5/8 reçu, mappé batch 6/8 réel de cette
 série, `series_ui_hearst-defi_0`, même branche `nexus/loop_mr6t63jd-mr6ziw19`) sur un tree
 qui contient toujours, non commité, le diff complet du batch 6 (fix responsive KPI strip +
