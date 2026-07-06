@@ -285,16 +285,35 @@ jobs:
             set -e
             printf '%s\n' "$out"
             if [ $code -ne 0 ]; then
-              # A CLI invocation/parse error means the agent NEVER RAN — that is a
-              # hard failure, NOT a clean no-op (a no-op is the agent running and
-              # choosing to change nothing). Fail the run so it can't masquerade as
-              # success. Same for account/environment errors (no code produced).
+              # Doctrine for a non-zero exit — a real no-op is ONLY the agent
+              # exiting ZERO and producing no diff (handled at the git-diff step
+              # below). A non-zero exit is NEVER itself a clean no-op:
+              #   • CLI/parse or account error  → the agent NEVER RAN (no code
+              #     produced) → FAIL.
+              #   • turn-limit cutoff           → the agent was CUT OFF mid-work
+              #     (incomplete, partial/empty diff) → FAIL.
+              #   • anything else               → cannot be positively identified
+              #     as benign → FAIL (a masked failure is worse than a spurious
+              #     fail the operator can just re-run).
+              # All three set fail=1 and break so nothing can masquerade as success.
               if printf '%s' "$out" | grep -qiE "unknown option|unknown argument|invalid option|error: unknown|usage:|missing required|credit balance is too low|insufficient|quota|weekly limit|session limit|authentication|invalid api key|unauthorized|rate limit|oauth"; then
                 echo "::error::Agent $i did not run — CLI/parse or account error (no code produced). First line: $(printf '%s' "$out" | head -n1)"
                 fail=1
                 break
               fi
-              echo "::warning::agent $i exited non-zero — treating as a possible no-op and continuing."
+              # Turn-limit cutoff ("Reached max turns (40)") = incomplete work, not
+              # a no-op. Fail-closed, exactly like the CLI/account branch above.
+              if printf '%s' "$out" | grep -qiE "reached max turns|max.turns|max_turns|turn limit|exceeded.*turns"; then
+                echo "::error::Agent $i was cut off at the turn limit (no complete result — not a no-op). First line: $(printf '%s' "$out" | head -n1)"
+                fail=1
+                break
+              fi
+              # Last-resort ambiguous non-zero: neither a CLI/account error nor a
+              # turn-limit cutoff. We cannot positively identify it as benign, so
+              # lean fail-closed rather than let a masked failure report clean.
+              echo "::error::Agent $i exited non-zero for an unrecognized reason (not identified as benign — failing closed). First line: $(printf '%s' "$out" | head -n1)"
+              fail=1
+              break
             fi
           done
           if [ "$fail" -eq 1 ]; then exit 1; fi
