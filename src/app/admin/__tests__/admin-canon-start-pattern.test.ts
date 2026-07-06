@@ -83,10 +83,10 @@ const PRIMARY_ALLOWLIST: ReadonlySet<string> = new Set([
   // boxes-in-boxes layout. Deliberately outside the admin canon shell, like the
   // print page above.
   "src/app/admin/chart-gallery/page.tsx",
-  // Agentic console — covered by the separate PR #81 redesign; exempt for now
-  // so this guard doesn't conflict with that in-flight work. Re-fold it into
-  // the enforced set (or its own contract) once #81 lands.
-  "src/app/admin/agentic/page.tsx",
+  // Detailed archive — mounts the AgenticControlTower orchestrator (not a
+  // first-level AdminSectionCard), so it stays exempt. The simplified console
+  // root (/admin/agentic/page.tsx) is now canon-conformant and enforced.
+  "src/app/admin/agentic/detailed/page.tsx",
 ]);
 
 /**
@@ -129,6 +129,14 @@ const SECONDARY_ALLOWLIST: ReadonlyMap<string, string> = new Map([
     // The page is a shell-only server entrypoint. Its first welded canon blocks
     // are rendered inside <StrategyWorkspaceClient> (Strategy Studio / Advanced Data Lab as AdminSectionCard surfaces).
     "shell-only page delegating welded AdminSectionCard surfaces to StrategyWorkspaceClient",
+  ],
+  [
+    "src/app/admin/agentic/page.tsx",
+    // Shell-only server entrypoint. Its welded canon blocks (Agents / Tool
+    // boundary / Observability) are three AdminSectionCards rendered inside
+    // <AgenticConsoleSimple>. Shell + no-h1 are still enforced; only the
+    // first-block substring check is delegated to the child (same as strategies).
+    "shell-only page delegating welded AdminSectionCard surfaces to AgenticConsoleSimple",
   ],
 ]);
 

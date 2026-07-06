@@ -102,7 +102,10 @@ const FRAME_EXEMPTIONS: ReadonlyMap<string, string> = new Map([
   ["src/app/admin/proof-center/full/page.tsx", "product proof layout"],
   ["src/app/admin/agent-canvas/[canvasId]/page.tsx", "bespoke live canvas"],
   ["src/app/admin/vaults/new/page.tsx", "multi-step wizard"],
-  ["src/app/admin/agentic/page.tsx", "control-tower cockpit — covered by PR #81"],
+  [
+    "src/app/admin/agentic/detailed/page.tsx",
+    "control-tower archive — mounts the AgenticControlTower orchestrator",
+  ],
 ]);
 
 describe("admin visual frame — exemptions are explicit", () => {
@@ -113,8 +116,10 @@ describe("admin visual frame — exemptions are explicit", () => {
     }
   });
 
-  it("keeps dashboard cockpit and agentic console exempt (never forced onto the canon)", () => {
+  it("keeps dashboard cockpit and the agentic control-tower archive exempt (never forced onto the canon)", () => {
     expect(FRAME_EXEMPTIONS.has("src/app/admin/dashboard/page.tsx")).toBe(true);
-    expect(FRAME_EXEMPTIONS.has("src/app/admin/agentic/page.tsx")).toBe(true);
+    expect(FRAME_EXEMPTIONS.has("src/app/admin/agentic/detailed/page.tsx")).toBe(
+      true,
+    );
   });
 });
