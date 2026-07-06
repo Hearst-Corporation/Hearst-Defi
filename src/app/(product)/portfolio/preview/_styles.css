@@ -1,0 +1,47 @@
+/*
+ * LOCAL, isolated styles for /portfolio/preview ONLY.
+ * Reads existing --ct-* tokens; changes NONE of them. Not part of the design system.
+ * Delete this folder to revert. No token value, no DS color is modified here.
+ */
+
+/* Live heartbeat — used ONLY on genuinely-Live surfaces (hashprice). */
+@keyframes hyv-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--ct-accent);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 4px transparent;
+    opacity: 0.78;
+  }
+}
+.hyv-pulse {
+  animation: hyv-pulse 2.4s var(--ct-ease-in-out, ease-in-out) infinite;
+}
+
+/* Meter fill glides when its value changes (SSR re-render / mount). */
+.hyv-meter-fill {
+  transition: width var(--ct-dur-base, 240ms) var(--ct-ease, ease);
+}
+
+/* Open (not-closed) production bar breathes to read "in progress". */
+@keyframes hyv-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.hyv-breathe {
+  animation: hyv-breathe 2.8s var(--ct-ease-in-out, ease-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hyv-pulse,
+  .hyv-breathe {
+    animation: none;
+  }
+}

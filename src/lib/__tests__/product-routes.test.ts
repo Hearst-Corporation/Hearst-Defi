@@ -83,6 +83,7 @@ const EXPECTED_ROUTES = [
   "/portfolio/activity",
   "/portfolio/distributions",
   "/portfolio/positions",
+  "/portfolio/preview",
   "/portfolio/tax",
   "/portfolio/yield",
   "/profile",
