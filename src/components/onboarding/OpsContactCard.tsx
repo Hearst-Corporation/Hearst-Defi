@@ -46,7 +46,7 @@ export function OpsContactCard({
       <div className="flex flex-col">
         <a
           href={`mailto:${email}`}
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors truncate"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-[var(--ct-text-strong)] transition-colors truncate"
           aria-label={`Email ${name} at ${email}`}
         >
           <span className="ct-bento-label">
@@ -59,7 +59,7 @@ export function OpsContactCard({
           href={calendlyHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-white transition-colors"
+          className="flex items-center justify-between gap-4 px-5 py-3.5 border-t border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:text-[var(--ct-text-strong)] transition-colors"
           aria-label={`Book a call with ${name} (opens in new tab)`}
         >
           <span className="ct-bento-label">

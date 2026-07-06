@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/catalyst/badge";
 import { SegmentedControl } from "@/components/catalyst/segmented-control";
 import { cn } from "@/lib/cn";
-import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
+import { CONNECT_ACCENT_HEX, CONNECT_STATUS_DANGER_HEX } from "@/lib/brand-constants";
 import type {
   AgentGraphNode,
   AgentGraphView,
@@ -38,11 +38,18 @@ function hexToRgb(hex: string): RGB {
 // Brand accent for "active" nodes — derived from the single JS source of truth
 // (canvas 2D draws to a bitmap and cannot read CSS vars like --ct-accent).
 const ACCENT_RGB = hexToRgb(CONNECT_ACCENT_HEX);
+// DS status colour for "failed" nodes — derived from the single JS source of
+// truth (mirrors --ct-status-danger; canvas cannot read CSS vars).
+const DANGER_RGB = hexToRgb(CONNECT_STATUS_DANGER_HEX);
 
 const STATE_COLOR: Record<GraphNodeState, RGB> = {
   active: ACCENT_RGB,
+  failed: DANGER_RGB,
+  // idle/static are canvas-specific neutral wiring greys (blue-grey) with no
+  // matching DS status token — --ct-figma-neutral (#747575) is a flat grey and
+  // --ct-status-info (#60a5fa) is a vivid blue, neither fits this decorative
+  // wiring. Kept as named channels rather than forcing a wrong token.
   idle: { r: 122, g: 134, b: 154 },
-  failed: { r: 232, g: 90, b: 90 },
   static: { r: 96, g: 110, b: 140 },
 };
 // Neutral white for edges/labels — canvas cannot read --ct-text-primary/--ct-border,

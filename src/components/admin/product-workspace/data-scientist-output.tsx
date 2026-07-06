@@ -172,7 +172,7 @@ function AllocationLegend({ data }: { data: AllocationDatum[] }) {
           <span className="inline-flex items-center gap-(--ct-space-2)">
             <span
               aria-hidden
-              className="h-(--ct-space-2_5) w-(--ct-space-2_5) rounded-[3px]"
+              className="h-(--ct-space-2_5) w-(--ct-space-2_5) rounded-[var(--ct-radius-xs)]"
               style={{ backgroundColor: item.fill }}
             />
             <span className="ct-metric-caption ct-text-muted">{item.label}</span>
@@ -305,7 +305,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
                 <ul className="flex flex-col justify-center gap-(--ct-space-3) ct-metric-value ct-text-body h-full">
                    {mainDrivers.map((b, i) => (
                       <li key={i} className="flex gap-(--ct-space-3) items-start leading-relaxed">
-                        <span aria-hidden className="ct-text-accent mt-[2px] opacity-70">·</span>
+                        <span aria-hidden className="ct-text-accent mt-(--ct-space-0_5) opacity-70">·</span>
                         <span>{b}</span>
                       </li>
                    ))}
