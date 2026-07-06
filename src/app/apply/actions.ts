@@ -1,9 +1,11 @@
 "use server";
 
+import { headers } from "next/headers";
 import { after } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { assertRateLimit } from "@/lib/rate-limit";
 import {
   createInvestorFromWebhook,
   upsertQualification,
@@ -52,6 +54,12 @@ const opt = (v: FormDataEntryValue | null): string | undefined => {
 
 const EmailInput = z.string().trim().email().max(200);
 
+/** Best-effort client IP for rate-limiting, from the proxy `x-forwarded-for`. */
+async function clientIp(): Promise<string> {
+  const h = await headers();
+  return (h.get("x-forwarded-for")?.split(",")[0] ?? "unknown").trim();
+}
+
 /**
  * Early availability check for the first step: returns whether an account
  * already exists for this email, so registration is rejected up front rather
@@ -60,6 +68,18 @@ const EmailInput = z.string().trim().email().max(200);
 export async function checkEmailAvailable(
   rawEmail: string,
 ): Promise<{ available: boolean; error?: string }> {
+  // Rate-limit by IP: 10 checks / 15min. This endpoint reveals whether an email
+  // is registered, so it is an enumeration vector; a throttle blunts scripted
+  // enumeration while staying loose enough for a typing/typo-correction flow.
+  // On limit, return a generic non-committal message that does NOT disclose
+  // account existence.
+  const ip = await clientIp();
+  try {
+    await assertRateLimit(`apply-check:${ip}`, 10, 900_000);
+  } catch {
+    return { available: false, error: "Too many requests. Please try again in a few minutes." };
+  }
+
   const parsed = EmailInput.safeParse(rawEmail);
   if (!parsed.success) {
     return { available: false, error: "Please enter a valid email address." };
@@ -80,6 +100,17 @@ export async function checkEmailAvailable(
 export async function submitApplication(
   formData: FormData,
 ): Promise<ApplyResult> {
+  // Rate-limit by IP: 5 registrations / 15min. This endpoint creates a User,
+  // sends a welcome email, and syncs HubSpot, so it is abusable for spam /
+  // resource exhaustion. On limit, return a generic failure that gives no
+  // enumeration signal.
+  const ip = await clientIp();
+  try {
+    await assertRateLimit(`apply:${ip}`, 5, 900_000);
+  } catch {
+    return { ok: false, error: "Too many requests. Please try again in a few minutes." };
+  }
+
   const parsed = Input.safeParse({
     email: formData.get("email"),
     firstName: opt(formData.get("firstName")),

@@ -1,11 +1,13 @@
 "use server";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 
 import { consumeResetToken } from "@/lib/auth/password-reset";
 import { createSession, setSessionCookie } from "@/lib/auth/session";
 import { resolvePostLoginRedirect } from "@/lib/onboarding/post-login-redirect";
+import { assertRateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
   token: z.string().min(1, "Missing reset token."),
@@ -46,6 +48,17 @@ export async function resetPassword(
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     return { ok: false, error: first?.message ?? "Invalid input." };
+  }
+
+  // Rate-limit by IP: 10 attempts / 15min. The token is already opaque, so this
+  // is defence-in-depth to close residual brute-forcing of the consume endpoint.
+  const ip = (
+    (await headers()).get("x-forwarded-for")?.split(",")[0] ?? "unknown"
+  ).trim();
+  try {
+    await assertRateLimit(`reset-pw:${ip}`, 10, 900_000);
+  } catch {
+    return { ok: false, error: "Too many attempts. Please try again later." };
   }
 
   const { token, password } = parsed.data;
