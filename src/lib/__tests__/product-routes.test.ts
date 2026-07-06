@@ -18,6 +18,7 @@ const EXPECTED_ROUTES = [
   "/admin",
   "/admin/agent-canvas/[canvasId]",
   "/admin/agentic",
+  "/admin/agentic/detailed",
   "/admin/agents",
   "/admin/agents/[id]",
   "/admin/agents/new",
