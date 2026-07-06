@@ -12,7 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
+import { PositionCapitalProtection } from "@/components/portfolio/position-capital-protection";
+import { PositionInfrastructureProofs } from "@/components/portfolio/position-infrastructure-proofs";
+import { PositionStrategyAllocation } from "@/components/portfolio/position-strategy-allocation";
 import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
+import { explorerTxUrl } from "@/lib/chain/explorer";
 import { loadPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
@@ -51,6 +55,9 @@ export default async function PositionDetailPage({ params }: PageProps) {
         })
       : "—";
   const value = position.principalUsdc + position.accruedYieldUsdc;
+  const openTxUrl = position.txHashOpen
+    ? explorerTxUrl(position.txHashOpen)
+    : null;
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
@@ -166,6 +173,54 @@ export default async function PositionDetailPage({ params }: PageProps) {
               <p className="ct-metric-caption">No transactions on this position yet.</p>
             </div>
           )}
+        </section>
+
+        {/* Capital Protection */}
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
+          aria-label="Capital protection"
+        >
+          <div className="p-5 border-b border-[var(--ct-border-soft)]">
+            <h2 className="ct-section-title">Capital protection</h2>
+            <p className="ct-metric-caption">Structural safeguards on deployed capital</p>
+          </div>
+          <PositionCapitalProtection
+            principalUsdc={position.principalUsdc}
+            accruedYieldUsdc={position.accruedYieldUsdc}
+            distributedUsdc={position.distributedUsdc}
+            status={position.status}
+            softLockupDays={position.softLockupDays}
+            aria-label="Capital protection safeguards"
+          />
+        </section>
+
+        {/* Strategy Allocation */}
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
+          aria-label="Strategy allocation"
+        >
+          <div className="p-5 border-b border-[var(--ct-border-soft)]">
+            <h2 className="ct-section-title">Strategy allocation</h2>
+            <p className="ct-metric-caption">Structural vault strategy, identical across clients</p>
+          </div>
+          <PositionStrategyAllocation aria-label="Structural vault strategy allocation" />
+        </section>
+
+        {/* Infrastructure & Proofs */}
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
+          aria-label="Infrastructure and proofs"
+        >
+          <div className="p-5 border-b border-[var(--ct-border-soft)]">
+            <h2 className="ct-section-title">Infrastructure &amp; proofs</h2>
+            <p className="ct-metric-caption">On-chain proofs &amp; mining infrastructure</p>
+          </div>
+          <PositionInfrastructureProofs
+            txHashOpen={position.txHashOpen}
+            explorerUrl={openTxUrl}
+            transactions={position.transactions}
+            aria-label="Infrastructure and on-chain proofs"
+          />
         </section>
       </div>
     </div>
