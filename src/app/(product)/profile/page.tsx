@@ -26,6 +26,7 @@ import { isDemoAccount } from "@/lib/demo/allowlist";
 import { PrivyWalletConnect } from "@/components/onboarding/privy-wallet-connect";
 import { WalletDisconnectButton } from "@/components/profile/wallet-disconnect-button";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
+import { isDevAuthBypass } from "@/lib/dev-bypass";
 
 export const dynamic = "force-dynamic";
 
@@ -206,7 +207,14 @@ export default async function ProfilePage() {
                 </div>
               ) : (
                 <PrivyWalletConnect
-                  appId={PRIVY_APP_ID}
+                  // Must mirror the root layout's provider gate
+                  // (isDevAuthBypass ? "" : PRIVY_APP_ID). In a dev-bypass
+                  // session the PrivyProvider is a pass-through (no context),
+                  // so mounting the Privy consumer with a real appId crashes
+                  // inside @privy-io (usePrivy → ref.current undefined). An
+                  // empty appId makes PrivyWalletConnect render its own
+                  // graceful "not available" fallback instead.
+                  appId={isDevAuthBypass() ? "" : PRIVY_APP_ID}
                   boundAddress={null}
                   surface="bare"
                 />
