@@ -192,6 +192,8 @@ export interface BentoKpiItem {
   value: ReactNode;
   /** Accent-green value (single green) when true. */
   accent?: boolean;
+  /** Optional muted caption under the value (e.g. "Net deposits", "3-year lock"). */
+  caption?: ReactNode;
   /** Optional provenance dot rendered next to the label. Non-breaking: omit to keep existing layout. */
   provenance?: Provenance;
 }
@@ -277,6 +279,11 @@ export function BentoKpiStrip({
             >
               {item.value}
             </div>
+            {item.caption != null ? (
+              <div className="ct-metric-caption block w-full min-w-0 truncate">
+                {item.caption}
+              </div>
+            ) : null}
           </div>
         ))}
       </div>

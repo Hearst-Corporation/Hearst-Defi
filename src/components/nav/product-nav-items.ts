@@ -26,36 +26,42 @@ export type NavItem = {
 };
 
 /**
- * Investor-facing navigation. A signed-in user sees the main cockpit routes:
- * portfolio, invest, and proof center. Profile/settings stay behind the user
- * badge instead of duplicating a top-level rail entry. Operator/analyst
- * surfaces live in the admin rail.
+ * Investor-facing navigation (Visual Direction 2026 — Archive 4).
+ *
+ * Four cockpit routes: Portfolio (dashboard) · Vault (held positions) · Invest
+ * (subscribe to admin-created vaults) · Profile. "Proofs" is removed as a
+ * standalone entry — its transparency content now lives inside each Vault Details
+ * page (the "Infrastructure & Proofs" section). The `/proof-center` route stays
+ * reachable (deep link + admin), just off the investor rail.
+ *
+ * Routing note: "Invest" → `/vaults` (the shipped 4-step catalog/flow, kept to
+ * avoid breaking invest-routes + the LLM nav whitelist); "Vault" → `/my-vaults`
+ * (held positions index) whose rows open the per-position detail.
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
     id: "portfolio",
     label: "Portfolio",
     href: "/portfolio",
-    icon: "Wallet",
+    icon: "PieChart",
   },
   {
-    id: "vaults",
-    label: "Vaults",
-    href: "/vaults",
+    id: "vault",
+    label: "Vault",
+    href: "/my-vaults",
     icon: "Vault",
   },
   {
-    id: "proof-center",
-    label: "Proofs & Documents",
-    railLabel: "Proofs",
-    href: "/proof-center",
-    icon: "ShieldCheck",
+    id: "invest",
+    label: "Invest",
+    href: "/vaults",
+    icon: "TrendingUp",
   },
   {
     id: "profile",
     label: "Profile",
     href: "/profile",
-    icon: "Settings", // On utilisera une icône Settings par défaut pour commencer
+    icon: "User",
   },
 ];
 

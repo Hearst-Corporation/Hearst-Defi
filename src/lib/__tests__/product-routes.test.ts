@@ -74,6 +74,7 @@ const EXPECTED_ROUTES = [
   "/legal/privacy",
   "/legal/terms",
   "/login",
+  "/my-vaults",
   "/onboarding",
   "/onboarding/accreditation",
   "/onboarding/identity",

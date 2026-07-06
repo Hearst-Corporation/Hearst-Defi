@@ -8,30 +8,31 @@ import {
   type VaultAllocationFacts,
 } from "@/lib/vaults/vault-detail-facts";
 
-// Bento accent tiers — a single green (#A7FB90) stepped down by opacity so the
-// donut + dots read as one colour family (matches the Portfolio Capital & Yield
-// bento). Index 0 = full accent, then 50%, 25%, 12% for any further sleeves.
-// Inline SVG paints resolve CSS vars — token + color-mix mirror the dot classes.
-const ACCENT = "var(--ct-accent)";
-const ACCENT_STROKES = [
-  "var(--ct-accent)",
-  "color-mix(in srgb, var(--ct-accent) 50%, transparent)",
-  "color-mix(in srgb, var(--ct-accent) 25%, transparent)",
-  "color-mix(in srgb, var(--ct-accent) 12%, transparent)",
-] as const;
-const ACCENT_DOT_CLASSES = [
-  "bg-[var(--ct-accent)]",
-  "bg-[color-mix(in_srgb,var(--ct-accent)_50%,transparent)]",
-  "bg-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)]",
-  "bg-[color-mix(in_srgb,var(--ct-accent)_12%,transparent)]",
-] as const;
+type Bucket = (typeof ALLOCATION_BUCKETS)[number];
 
-function accentStrokeFor(index: number): string {
-  return ACCENT_STROKES[index] ?? ACCENT;
+// Categorical data-viz palette (Archive 4): each asset class gets a distinct hue
+// so the strategy pockets never read as "two near-identical greens" — mining
+// green, BTC amber, USDC blue, reserve graphite. Every value is an alias of an
+// existing status token (--ct-cat-*, no new hex, --ct-accent unchanged). The dot
+// classes mirror the SVG strokes so donut and legend stay in sync.
+const BUCKET_STROKE: Record<Bucket, string> = {
+  mining: "var(--ct-cat-mining)",
+  btc_tactical: "var(--ct-cat-btc)",
+  usdc_base: "var(--ct-cat-usdc)",
+  stable_reserve: "var(--ct-cat-hedge)",
+};
+const BUCKET_DOT_CLASS: Record<Bucket, string> = {
+  mining: "bg-[var(--ct-cat-mining)]",
+  btc_tactical: "bg-[var(--ct-cat-btc)]",
+  usdc_base: "bg-[var(--ct-cat-usdc)]",
+  stable_reserve: "bg-[var(--ct-cat-hedge)]",
+};
+
+function strokeFor(bucket: Bucket): string {
+  return BUCKET_STROKE[bucket] ?? "var(--ct-accent)";
 }
-
-function accentDotClassFor(index: number): string {
-  return ACCENT_DOT_CLASSES[index] ?? ACCENT_DOT_CLASSES[0];
+function dotClassFor(bucket: Bucket): string {
+  return BUCKET_DOT_CLASS[bucket] ?? "bg-[var(--ct-accent)]";
 }
 
 export function VaultAllocationAdminRows({
@@ -54,9 +55,7 @@ export function VaultAllocationAdminRows({
           className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-[var(--ct-border-soft)] last:border-b-0 last:pb-0"
         >
           <div
-            className={`size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] ${accentDotClassFor(
-              row.index,
-            )}`}
+            className={`size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] ${dotClassFor(row.bucket)}`}
           />
           <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">
             {row.label}
@@ -110,7 +109,7 @@ export function VaultAllocationInvestorList({
     const arc = pct * circumference;
     acc.push({
       bucket: s.bucket,
-      stroke: accentStrokeFor(index),
+      stroke: strokeFor(s.bucket),
       bps: s.bps,
       strokeDasharray: `${arc} ${circumference - arc}`,
       rotation: (precedingBps / 10000) * 360,
@@ -163,9 +162,7 @@ export function VaultAllocationInvestorList({
             className="grid grid-cols-[auto_1fr_auto] items-center gap-4 pb-3 border-b border-[var(--ct-border-soft)] last:border-b-0 last:pb-0"
           >
             <div
-              className={`size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] ${accentDotClassFor(
-                s.index,
-              )}`}
+              className={`size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] ${dotClassFor(s.bucket)}`}
             />
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">

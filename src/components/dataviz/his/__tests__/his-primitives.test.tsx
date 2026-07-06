@@ -9,13 +9,15 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { extent, project, type PlotBox } from "../geometry";
+import { extent, niceCeil, project, type PlotBox } from "../geometry";
 import { HcSourceBadge } from "../HcSourceBadge";
 import { HcChartCard } from "../HcChartCard";
 import { HcMetricSparkline } from "../HcMetricSparkline";
 import { HcFanChart, type HcFanBand } from "../HcFanChart";
 import { HcWaterfall, type HcWaterfallStep } from "../HcWaterfall";
 import { HcCompositionRing } from "../HcCompositionRing";
+import { HcBarChart, type HcBar } from "../HcBarChart";
+import { HcStackedBar } from "../HcStackedBar";
 import { HcAssumptionLedger } from "../HcAssumptionLedger";
 import type { HcAssumption } from "../types";
 
@@ -218,7 +220,99 @@ describe("HcCompositionRing", () => {
   });
 });
 
-// 12 ─ HcAssumptionLedger shows a configured badge and never renders live
+// 11b ─ HcCompositionRing categorical palette swaps to per-class hues
+describe("HcCompositionRing — categorical palette", () => {
+  it("colours segments with --ct-cat-* tokens instead of the green ramp", () => {
+    const html = renderToStaticMarkup(
+      <HcCompositionRing
+        palette="categorical"
+        segments={[
+          { label: "RWA Mining", value: 40 },
+          { label: "USDC Yield", value: 30 },
+          { label: "BTC Hedged", value: 30 },
+        ]}
+        aria-label="strategy pockets"
+      />,
+    );
+    expect(html).toContain("var(--ct-cat-mining)");
+    expect(html).toContain("var(--ct-cat-usdc)");
+    expect(html).toContain("var(--ct-cat-btc)");
+  });
+});
+
+// 13 ─ geometry.niceCeil picks nice axis ceilings and is safe on bad input
+describe("geometry.niceCeil", () => {
+  it("rounds up to a nice ceiling", () => {
+    expect(niceCeil(2100)).toBe(3000);
+    expect(niceCeil(2480)).toBe(3000);
+    expect(niceCeil(950)).toBe(1000);
+  });
+  it("returns 1 for non-positive / non-finite input", () => {
+    expect(niceCeil(0)).toBe(1);
+    expect(niceCeil(-5)).toBe(1);
+    expect(niceCeil(Number.NaN)).toBe(1);
+  });
+});
+
+// 14 ─ HcBarChart honest empty vs populated
+describe("HcBarChart", () => {
+  const bars: HcBar[] = [
+    { label: "M1", value: 2100 },
+    { label: "M2", value: 2200 },
+    { label: "M3", value: 2480 },
+  ];
+  it("renders a bar per datum with an accessible <title> tooltip", () => {
+    const html = renderToStaticMarkup(
+      <HcBarChart bars={bars} aria-label="yield paid" />,
+    );
+    expect(count(html, "<rect")).toBe(bars.length);
+    expect(html).toContain("<title>M3:");
+    expect(html).not.toContain('data-hc-empty="true"');
+  });
+  it("brightens the last bar when highlightLast is set", () => {
+    const html = renderToStaticMarkup(
+      <HcBarChart bars={bars} highlightLast aria-label="yield paid" />,
+    );
+    expect(html).toContain('data-hc-bar="latest"');
+    expect(html).toContain("var(--ct-accent-light)");
+  });
+  it("renders an honest empty state (no bars) when the series is empty or all zero", () => {
+    const empty = renderToStaticMarkup(<HcBarChart bars={[]} aria-label="yp" />);
+    expect(empty).toContain('data-hc-empty="true"');
+    expect(empty).not.toContain("<rect");
+
+    const zero = renderToStaticMarkup(
+      <HcBarChart bars={[{ label: "M1", value: 0 }]} aria-label="yp" />,
+    );
+    expect(zero).toContain('data-hc-empty="true"');
+  });
+});
+
+// 15 ─ HcStackedBar proportion + categorical palette + honest empty
+describe("HcStackedBar", () => {
+  const segments = [
+    { label: "RWA Mining", value: 40 },
+    { label: "USDC Yield", value: 30 },
+    { label: "BTC Hedged", value: 30 },
+  ];
+  it("renders one segment span per non-zero value with categorical hues", () => {
+    const html = renderToStaticMarkup(
+      <HcStackedBar segments={segments} palette="categorical" aria-label="regime" />,
+    );
+    expect(count(html, 'data-hc-bar="segment"')).toBe(3);
+    expect(html).toContain("var(--ct-cat-mining)");
+    expect(html).toContain("var(--ct-cat-usdc)");
+    expect(html).toContain("40%"); // legend off → title only; width uses %
+  });
+  it("renders only the neutral track (no fill) when total is zero", () => {
+    const html = renderToStaticMarkup(
+      <HcStackedBar segments={[{ label: "x", value: 0 }]} aria-label="empty" />,
+    );
+    expect(count(html, 'data-hc-bar="segment"')).toBe(0);
+  });
+});
+
+// 16 ─ HcAssumptionLedger shows a configured badge and never renders live
 describe("HcAssumptionLedger", () => {
   const assumptions: HcAssumption[] = [
     { key: "Energy cost", value: "$0.05 / kWh", source: "configured", displayRule: "configured baseline, not audited" },

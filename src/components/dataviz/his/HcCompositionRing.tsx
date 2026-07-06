@@ -4,8 +4,16 @@
  * Follows the canonical DS donut convention (DESIGN_SYSTEM §5): each segment is
  * its own rotated `<circle>` with `strokeDasharray = "arc (C - arc)"` — the gap
  * is the *remaining* circumference, never the full C (which repeats the dash and
- * paints phantom arcs). Segments are colored by the single-accent opacity ramp
- * (`--ct-chart-series-1..4`, then neutral), never by hue.
+ * paints phantom arcs).
+ *
+ * Two colour modes:
+ *  - `accent` (default) — the single-accent opacity ramp (`--ct-chart-series-1..4`,
+ *    then neutral). Encodes by LUMINANCE, one green family. Use when segments are
+ *    tiers of the same thing (yield-stack buckets).
+ *  - `categorical` — distinguishable per-class hues via the sanctioned semantic
+ *    palette (`--ct-cat-*`, each an alias of an existing status token — no new hex,
+ *    accent unchanged). Use when segments are DIFFERENT asset classes and must not
+ *    read as near-identical greens (allocation across RWA Mining / USDC / BTC).
  *
  * The component normalizes values for DISPLAY only — it never invents a business
  * total; percentages shown are each segment's share of the provided sum.
@@ -27,14 +35,28 @@ export interface HcCompositionRingProps {
   bars?: boolean;
   /** When false, only the donut is rendered (compact report slots). */
   showLegend?: boolean;
+  /**
+   * `accent` (default) = single-green luminance ramp; `categorical` = per-class
+   * hues (green/blue/amber/graphite) for allocation across distinct asset classes.
+   * Segments are coloured by index, so order them mining → usdc → btc → hedge.
+   */
+  palette?: "accent" | "categorical";
   "aria-label": string;
 }
 
-const RAMP: readonly string[] = [
+const ACCENT_RAMP: readonly string[] = [
   "var(--ct-chart-series-1)",
   "var(--ct-chart-series-2)",
   "var(--ct-chart-series-3)",
   "var(--ct-chart-series-4)",
+  "var(--ct-chart-neutral)",
+];
+
+const CATEGORICAL_RAMP: readonly string[] = [
+  "var(--ct-cat-mining)",
+  "var(--ct-cat-usdc)",
+  "var(--ct-cat-btc)",
+  "var(--ct-cat-hedge)",
   "var(--ct-chart-neutral)",
 ];
 
@@ -45,9 +67,11 @@ export function HcCompositionRing({
   centerValue,
   bars = false,
   showLegend = true,
+  palette = "accent",
   ...rest
 }: HcCompositionRingProps) {
   const ariaLabel = rest["aria-label"];
+  const RAMP = palette === "categorical" ? CATEGORICAL_RAMP : ACCENT_RAMP;
 
   const total = segments.reduce((sum, s) => sum + Math.max(0, s.value), 0);
   const cx = size / 2;

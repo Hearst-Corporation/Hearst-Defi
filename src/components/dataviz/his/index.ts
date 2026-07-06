@@ -5,13 +5,18 @@
  * (portfolio, payments, projection, investor report) consume these in later
  * lots (P1/P2); this lot ships the library + tests only, nothing is wired yet.
  *
- * Not yet implemented (P1+): HcLineChart, HcBandChart, HcStackedBar,
- * HcContributionBar, HcTimeline, HcHeatmap, HcTornado, HcBullet, HcSourceMatrix,
- * HcDependencyDiagram.
+ * Not yet implemented (P1+): HcLineChart, HcBandChart, HcContributionBar,
+ * HcHeatmap, HcTornado, HcBullet, HcSourceMatrix, HcDependencyDiagram.
  */
 
 export * from "./types";
 export * from "./geometry";
+
+export { HcBarChart } from "./HcBarChart";
+export type { HcBarChartProps, HcBar } from "./HcBarChart";
+
+export { HcStackedBar } from "./HcStackedBar";
+export type { HcStackedBarProps } from "./HcStackedBar";
 
 export { HcChartCard } from "./HcChartCard";
 export type { HcChartCardProps, HcChartCardState } from "./HcChartCard";

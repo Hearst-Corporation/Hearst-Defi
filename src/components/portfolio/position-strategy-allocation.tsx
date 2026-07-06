@@ -17,11 +17,13 @@ interface StrategyPocket {
 }
 
 // Structural allocation targets for the Hearst Yield Vault — product facts,
-// the same for every client of this vault. Not per-investor data.
+// the same for every client of this vault. Not per-investor data. Colours use the
+// categorical data-viz palette (Archive 4) so the three classes read as clearly
+// distinct — mining green, wBTC amber, USDC blue — never near-identical greens.
 const POCKETS: readonly StrategyPocket[] = [
-  { id: "mining", label: "Mining power", targetPct: 55, color: "var(--ct-accent)" },
-  { id: "wbtc", label: "wBTC collateral", targetPct: 25, color: "var(--ct-status-warning)" },
-  { id: "usdc", label: "USDC buffer", targetPct: 20, color: "var(--ct-text-muted)" },
+  { id: "mining", label: "Mining power", targetPct: 55, color: "var(--ct-cat-mining)" },
+  { id: "wbtc", label: "wBTC collateral", targetPct: 25, color: "var(--ct-cat-btc)" },
+  { id: "usdc", label: "USDC buffer", targetPct: 20, color: "var(--ct-cat-usdc)" },
 ];
 
 interface PositionStrategyAllocationProps {

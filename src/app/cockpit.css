@@ -131,6 +131,22 @@
   --ct-bucket-btc: color-mix(in srgb, var(--ct-accent) 46%, var(--ct-text-neutral));
   --ct-bucket-reserve: color-mix(in srgb, var(--ct-accent) 28%, var(--ct-text-neutral));
 
+  /* ── Palette catégorielle data-viz (direction Archive 4, 2026-07) ────────────
+     Les buckets ci-dessus encodent par LUMINANCE (une seule famille verte). Mais
+     l'allocation multi-classes doit rester LISIBLE : la direction owner exige
+     « avoid two near-identical greens; use clearly distinguishable colors ». Ces
+     tokens mappent chaque classe d'actif sur un token de STATUT DÉJÀ EXISTANT —
+     aucun hex neuf, --ct-accent inchangé, l'invariant un-seul-vert tient (le vert
+     reste réservé au positif / RWA / Live). Ici la TEINTE porte la sémantique de
+     classe (pas de la décoration), ce qui est le seul cas où l'on sort de la
+     rampe de luminance. Consommés par HcCompositionRing/HcStackedBar en mode
+     palette="categorical" et par les barres d'allocation. */
+  --ct-cat-mining: var(--ct-accent);          /* vert     — RWA mining / positif   */
+  --ct-cat-usdc: var(--ct-status-info);       /* bleu     — USDC / stablecoin yield */
+  --ct-cat-btc: var(--ct-status-warning);     /* ambre    — BTC-corrélé / exposition */
+  --ct-cat-hedge: var(--ct-chart-neutral);    /* graphite — BTC hedged / neutre     */
+  --ct-cat-negative: var(--ct-status-danger); /* rouge    — deltas négatifs (réservé) */
+
   /* Bordures de modules graphite (les surfaces graphite-* ont été supprimées :
      toute surface passe désormais par les 3 niveaux canoniques ci-dessus). */
   --ct-graphite-border: var(--ct-figma-border-20);

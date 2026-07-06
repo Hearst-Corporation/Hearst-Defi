@@ -64,7 +64,11 @@ describe("Product rail intra (fixed column)", () => {
     expect(html).toContain("ct-rail-intra");
     expect(html).toContain("ct-rail-intra__stack");
     expect(html).toContain('aria-label="Portfolio"');
-    expect(html).toContain('aria-label="Vaults"');
+    // Visual Direction 2026 rail: Portfolio · Vault · Invest · Profile (Proofs removed).
+    expect(html).toContain('aria-label="Vault"');
+    expect(html).toContain('aria-label="Invest"');
+    expect(html).toContain('aria-label="Profile"');
+    expect(html).not.toContain('aria-label="Proofs & Documents"');
     expect(html).not.toContain("ct-rail-item");
     expect(html).not.toContain("ct-rail-toggle");
     expect(html).not.toContain("Collapse navigation");

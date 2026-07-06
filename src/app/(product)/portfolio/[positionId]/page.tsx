@@ -1,9 +1,17 @@
-// Portfolio › Position detail (/portfolio/[positionId]) — single position bound
-// to real data (loadPosition) on the DS canon. Next.js 16 async params.
+// Vault Details (/portfolio/[positionId]) — recomposed on the /portfolio/preview
+// canon: ONE dominant shadowed hero (value trajectory + edge stat band) followed
+// by titled hairline "acts" — NO collapsible accordions, no cage-in-cage. Every
+// support surface is a bare hairline card; the chrome budget reserves elevation
+// for the hero alone. Symmetric 1fr/1fr grids. Bound to real data (loadPosition);
+// every projection an honest range, never a promise. Next.js 16 async params.
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { StepTimeline } from "@/components/catalyst/step-timeline";
+import { StatBand, type StatCell } from "@/app/(product)/portfolio/preview/_charts/stat-band";
 import {
   Table,
   TableBody,
@@ -12,10 +20,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ValueTrajectory } from "@/components/portfolio/value-trajectory";
+import { LockArc } from "@/components/portfolio/lock-arc";
+import { CumulativeTargetBullet } from "@/components/portfolio/cumulative-target-bullet";
+import { PositionYieldHistory } from "@/components/portfolio/position-yield-history";
 import { PositionCapitalProtection } from "@/components/portfolio/position-capital-protection";
-import { PositionInfrastructureProofs } from "@/components/portfolio/position-infrastructure-proofs";
 import { PositionStrategyAllocation } from "@/components/portfolio/position-strategy-allocation";
-import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
+import { PositionInfrastructureProofs } from "@/components/portfolio/position-infrastructure-proofs";
+import { projectValueTrajectory } from "@/lib/engine/value-projection";
+import { buildYieldHistory } from "@/lib/portfolio/yield-history";
 import { explorerTxUrl } from "@/lib/chain/explorer";
 import { loadPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
@@ -23,7 +37,7 @@ import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Position" };
+export const metadata = { title: "Vault" };
 
 interface PageProps {
   params: Promise<{ positionId: string }>;
@@ -32,8 +46,6 @@ interface PageProps {
 const TABLE_HEAD = "bg-transparent ct-bento-label";
 const ROW =
   "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
-const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
-const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)]";
 
 const TX_LABEL: Record<string, string> = {
   deposit: "Deposit",
@@ -42,186 +54,494 @@ const TX_LABEL: Record<string, string> = {
   distribution: "Payout",
 };
 
-export default async function PositionDetailPage({ params }: PageProps) {
+const DAY_MS = 86_400_000;
+
+/** Bare-hairline support surface — the chrome budget reserves elevation for the hero. */
+const SUPPORT =
+  "rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden";
+const HERO_SHADOW = "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)";
+
+/** Compact meta chip — label + tabular value on a hairline pill. Token-only. */
+function MetaChip({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-2 py-0.5">
+      <span className="ct-bento-label">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] ct-text-strong tabular-nums">
+        {value}
+      </span>
+    </span>
+  );
+}
+
+/** Titled hairline divider — opens an act without boxing it in a card (kills cage-in-cage). */
+function TitledDivider({ title, trailing }: { title: string; trailing?: ReactNode }) {
+  return (
+    <div className="flex items-center gap-4 pt-2">
+      <h2 className="ct-section-title shrink-0">{title}</h2>
+      <span
+        aria-hidden="true"
+        className="h-px flex-1"
+        style={{ background: "var(--ct-border-soft)" }}
+      />
+      {trailing ? <div className="shrink-0">{trailing}</div> : null}
+    </div>
+  );
+}
+
+/** Hairline card header — micro label + optional trailing slot. */
+function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
+      <span className="ct-bento-label">{title}</span>
+      {trailing ? <div className="shrink-0">{trailing}</div> : null}
+    </div>
+  );
+}
+
+export default async function VaultDetailPage({ params }: PageProps) {
   const { positionId } = await params;
   const position = await loadPosition(positionId);
   if (!position) notFound();
 
-  const apy =
-    position.realizedApyLow !== null && position.realizedApyHigh !== null
-      ? formatApyRange({
-          low: position.realizedApyLow,
-          high: position.realizedApyHigh,
-        })
-      : "—";
+  const now = new Date();
   const value = position.principalUsdc + position.accruedYieldUsdc;
-  const openTxUrl = position.txHashOpen
-    ? explorerTxUrl(position.txHashOpen)
-    : null;
+  const perfPct =
+    position.principalUsdc > 0
+      ? ((value - position.principalUsdc) / position.principalUsdc) * 100
+      : 0;
+  const up = perfPct >= 0;
+
+  const hasApy =
+    position.realizedApyLow !== null && position.realizedApyHigh !== null;
+  const apyLowPct = position.realizedApyLow ?? 0;
+  const apyHighPct = position.realizedApyHigh ?? 0;
+  const apyLabel = hasApy
+    ? formatApyRange({ low: apyLowPct, high: apyHighPct })
+    : "—";
+
+  const openTxUrl = position.txHashOpen ? explorerTxUrl(position.txHashOpen) : null;
+
+  // Engines (pure, clock injected) — the honest value cone + yield series.
+  const projection = projectValueTrajectory({
+    principalUsdc: position.principalUsdc,
+    currentValueUsdc: value,
+    realizedApyLowPct: apyLowPct,
+    realizedApyHighPct: apyHighPct,
+    subscribedAt: position.subscribedAt,
+    now,
+    maturityAt: position.maturedAt,
+    softLockupDays: position.softLockupDays,
+  });
+  const yieldHistory = buildYieldHistory({
+    transactions: position.transactions.map((t) => ({
+      type: t.type,
+      amountUsdc: t.amountUsdc,
+      occurredAt: t.occurredAt,
+    })),
+    principalUsdc: position.principalUsdc,
+    realizedApyLowPct: apyLowPct,
+    realizedApyHighPct: apyHighPct,
+    subscribedAt: position.subscribedAt,
+    maturityAt: position.maturedAt,
+    now,
+  });
+
+  const daysHeld = Math.max(
+    0,
+    Math.floor((now.getTime() - position.subscribedAt.getTime()) / DAY_MS),
+  );
+  const horizonLabel =
+    position.status === "matured" || projection.matured
+      ? "Matured"
+      : formatAdminDate(new Date(projection.horizonMs));
+
+  // Transactions summary — real distribution figures only, no fabricated reports.
+  const distributions = position.transactions.filter(
+    (t) => t.type === "distribution",
+  );
+  const lastPayout =
+    distributions.length > 0
+      ? formatAdminDate(
+          distributions.reduce((a, b) => (a.occurredAt > b.occurredAt ? a : b))
+            .occurredAt,
+        )
+      : "—";
+
+  const statusColor =
+    position.status === "active"
+      ? "green"
+      : position.status === "matured"
+        ? "amber"
+        : "zinc";
+
+  const isActive = position.status === "active";
+
+  // Hero edge stat band — the position's four real headline metrics (4-up = a
+  // perfectly symmetric rail, StatBand caps at 4 cols). Deposited (Manual) ·
+  // Current value (Attested + delta) · Yield paid (Attested) · APY range
+  // (Estimated). Maturity moves to a header chip. No red anywhere.
+  const heroStats: StatCell[] = [
+    {
+      label: "Deposited",
+      value: formatUsdFull(position.principalUsdc),
+      provenance: "manual",
+    },
+    {
+      label: "Current value",
+      value: formatUsdFull(value),
+      delta: {
+        text: `${up ? "+" : ""}${perfPct.toFixed(2)}%`,
+        tone: up ? "up" : "down",
+      },
+      provenance: "attested",
+    },
+    {
+      label: "Yield paid",
+      value: formatUsdFull(position.distributedUsdc),
+      provenance: "attested",
+    },
+    {
+      label: "Current APY",
+      value: apyLabel,
+      provenance: "estimated",
+    },
+  ];
+
+  // Transactions summary band.
+  const txStats: StatCell[] = [
+    {
+      label: "Total distributed",
+      value: formatUsdFull(position.distributedUsdc),
+      provenance: "attested",
+    },
+    {
+      label: "Payouts",
+      value: `${distributions.length}`,
+      provenance: "attested",
+    },
+    {
+      label: "Last payout",
+      value: lastPayout,
+      provenance: "attested",
+    },
+  ];
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8">
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5">
-        <PortfolioLeafHeader
-          titleLead={position.vaultName ?? "Hearst Yield Vault"}
-          kicker={`${position.vaultTicker} · SUBSCRIBED ${formatAdminDate(position.subscribedAt).toUpperCase()}`}
-          trailing={
-            <Badge
-              color={
-                position.status === "active"
-                  ? "green"
-                  : position.status === "matured"
-                    ? "amber"
-                    : "zinc"
-              }
-              className="uppercase"
-            >
+    <div className="dark mb-8 flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)]">
+      <div className="flex flex-col gap-y-8 p-5 lg:p-6">
+        {/* HEADER */}
+        <header className="flex flex-col gap-3 pb-1">
+          <Link
+            href="/my-vaults"
+            className="ct-metric-caption w-fit transition-colors hover:text-[var(--ct-text-strong)]"
+          >
+            ← Vaults
+          </Link>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-1">
+              <h1 className="h1 shrink-0">{position.vaultName ?? "Hearst Yield Vault"}</h1>
+              <p className="page-canon-kicker">
+                {position.vaultTicker} · SUBSCRIBED{" "}
+                {formatAdminDate(position.subscribedAt).toUpperCase()}
+              </p>
+            </div>
+            <Badge color={statusColor} className="shrink-0 uppercase">
               {POSITION_STATUS_CONFIG[position.status].label}
             </Badge>
-          }
-        />
-
-        {/* KPIs */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Position</h2>
-            <p className="ct-metric-caption">Principal, value &amp; yield</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Principal</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(position.principalUsdc)}
-              </div>
-              <div className="ct-metric-caption">Net deposits</div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Current value</div>
-              <div className={KPI_VALUE}>{formatUsdFull(value)}</div>
-              <div className="ct-metric-caption">Principal + accrued</div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Accrued yield</div>
-              <div className={`${KPI_VALUE} text-[var(--ct-accent)]`}>
-                {position.accruedYieldUsdc > 0
-                  ? `+${formatUsdFull(position.accruedYieldUsdc)}`
-                  : formatUsdFull(position.accruedYieldUsdc)}
-              </div>
-              <div className="ct-metric-caption">Pending</div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Target APY</div>
-              <div className={`${KPI_VALUE} text-[var(--ct-accent)]`}>{apy}</div>
-              <div className="ct-metric-caption">Conditional, not guaranteed</div>
-            </div>
-          </div>
-        </section>
+          <div className="page-canon-rule" aria-hidden="true" />
+        </header>
 
-        {/* Transactions */}
+        {/* HERO — the one dominant band (glow + value trajectory + edge stat band) */}
         <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-          aria-label="Position transactions"
+          className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
+          style={{ boxShadow: HERO_SHADOW }}
+          aria-label="Position value"
         >
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Transactions</h2>
-            <p className="ct-metric-caption">Deposits &amp; payouts on this position</p>
-          </div>
-          {position.transactions.length > 0 ? (
-            <Table
-              dense
-              className="[--gutter:0px] max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
-            >
-              <TableHead>
-                <TableRow>
-                  <TableHeader className={`${TABLE_HEAD} pl-5`}>Date</TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} text-center`}>
-                    Type
-                  </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
-                    Amount
-                  </TableHeader>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {position.transactions.map((t) => {
-                  const out = t.type === "withdraw";
-                  return (
-                    <TableRow key={t.id} className={ROW}>
-                      <TableCell className="ct-metric-caption pl-5">
-                        {formatAdminDate(t.occurredAt)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge color="zinc" className="uppercase">
-                          {TX_LABEL[t.type] ?? t.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell
-                        className={`ct-metric-value pr-5 text-right ${
-                          out ? "" : "text-[var(--ct-accent)]"
-                        }`}
-                      >
-                        {out ? "−" : "+"}
-                        {formatUsdFull(t.amountUsdc)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="p-10 text-center">
-              <p className="ct-metric-caption">No transactions on this position yet.</p>
-            </div>
-          )}
-        </section>
-
-        {/* Capital Protection */}
-        <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-          aria-label="Capital protection"
-        >
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Capital protection</h2>
-            <p className="ct-metric-caption">Structural safeguards on deployed capital</p>
-          </div>
-          <PositionCapitalProtection
-            principalUsdc={position.principalUsdc}
-            accruedYieldUsdc={position.accruedYieldUsdc}
-            distributedUsdc={position.distributedUsdc}
-            status={position.status}
-            softLockupDays={position.softLockupDays}
-            aria-label="Capital protection safeguards"
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 left-1/4 h-64 w-[min(680px,80%)] opacity-[0.07]"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%)",
+            }}
           />
+          <div className="relative z-10 flex flex-col">
+            <div className="flex flex-wrap items-start justify-between gap-3 px-5 pt-5 lg:px-6 lg:pt-6">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="ct-bento-label">Position overview · realized & projected range</span>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
+                    {formatUsdFull(value)}
+                  </span>
+                  <span
+                    className="text-[length:var(--ct-text-sm)] font-semibold tabular-nums"
+                    style={{ color: "var(--ct-text-body)" }}
+                  >
+                    {up ? "+" : ""}
+                    {perfPct.toFixed(2)}%
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <MetaChip label="Maturity" value={horizonLabel} />
+                  <MetaChip
+                    label="Lock-up"
+                    value={
+                      position.softLockupDays > 0
+                        ? `${position.softLockupDays}d soft`
+                        : "Open term"
+                    }
+                  />
+                </div>
+              </div>
+              {isActive ? (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-body"
+                  style={{ borderColor: "var(--ct-border-soft)" }}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
+                    style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+                  />
+                  Active
+                </span>
+              ) : (
+                <Badge color={statusColor} className="shrink-0 uppercase">
+                  {POSITION_STATUS_CONFIG[position.status].label}
+                </Badge>
+              )}
+            </div>
+
+            <ValueTrajectory
+              projection={projection}
+              apyLowPct={apyLowPct}
+              apyHighPct={apyHighPct}
+              nowValueLabel={formatUsdFull(value)}
+              startLabel={formatAdminDate(position.subscribedAt)}
+              endLabel={horizonLabel}
+              aria-label="Position value trajectory: realized to date and projected range"
+            />
+
+            <div className="border-t border-[var(--ct-border-soft)]">
+              <StatBand items={heroStats} />
+            </div>
+          </div>
         </section>
 
-        {/* Strategy Allocation */}
-        <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-          aria-label="Strategy allocation"
-        >
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Strategy allocation</h2>
-            <p className="ct-metric-caption">Structural vault strategy, identical across clients</p>
+        {/* ── Act: Position mechanics ──────────────────────────────────────── */}
+        <TitledDivider
+          title="Position mechanics"
+          trailing={<ProvenanceBadge kind="attested" variant="compact" />}
+        />
+        <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
+          <div className={SUPPORT}>
+            <CardHeader title="Lock progress" />
+            <LockArc daysHeld={daysHeld} lockupDays={position.softLockupDays} />
           </div>
-          <PositionStrategyAllocation aria-label="Structural vault strategy allocation" />
+          <div className={SUPPORT}>
+            <CardHeader
+              title="Cumulative target"
+              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+            />
+            <CumulativeTargetBullet distributedUsdc={position.distributedUsdc} />
+          </div>
+        </section>
+        <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
+          Your invested capital unlocks for withdrawal when the cumulative
+          distribution target is reached or at the soft lock-up horizon, whichever
+          comes first. Projections are conditional and not guaranteed.
+        </p>
+
+        {/* ── Act: Yield history ───────────────────────────────────────────── */}
+        <TitledDivider
+          title="Yield history · monthly distributions"
+          trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+        />
+        <div className={SUPPORT}>
+          <PositionYieldHistory
+            distributedUsdc={position.distributedUsdc}
+            accruedYieldUsdc={position.accruedYieldUsdc}
+            apyRangeLabel={apyLabel}
+            apyLowPct={apyLowPct}
+            apyHighPct={apyHighPct}
+            nextPayoutLo={yieldHistory.nextPayoutLo}
+            nextPayoutHi={yieldHistory.nextPayoutHi}
+            months={yieldHistory.months}
+            cumulative={yieldHistory.cumulative}
+          />
+        </div>
+
+        {/* ── Act: Capital protection ──────────────────────────────────────── */}
+        <TitledDivider
+          title="Capital protection"
+          trailing={<ProvenanceBadge kind="manual" variant="compact" />}
+        />
+        <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
+          {/* Safeguard status + how-it-works timeline */}
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader title="Safeguard status" />
+            <div className="flex flex-col gap-5 p-5">
+              <div className="flex items-start gap-3 rounded-[var(--ct-radius-lg)] border border-[var(--ct-status-success-border)] bg-[var(--ct-status-success-soft)] p-4">
+                <span
+                  aria-hidden="true"
+                  className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--ct-status-success-border)]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"
+                      stroke="var(--ct-accent)"
+                      strokeWidth="1.6"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="var(--ct-accent)"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="ct-metric-value" style={{ color: "var(--ct-accent)" }}>
+                    Not triggered
+                  </span>
+                  <p className="ct-metric-caption">
+                    Your principal is protected under the vault&apos;s structural
+                    waterfall. The safeguard would only engage if value fell below
+                    deposited capital at maturity.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <span className="ct-bento-label">How capital protection works</span>
+                <StepTimeline
+                  aria-label="How capital protection works"
+                  steps={[
+                    {
+                      title: "Continuous monitoring",
+                      description:
+                        "The vault NAV is monitored against your deposited capital throughout the term.",
+                    },
+                    {
+                      title: "Trigger condition",
+                      description:
+                        "If value is below the initial deposit at maturity, the safeguard engages automatically.",
+                    },
+                    {
+                      title: "Capital recovery",
+                      description:
+                        "Mining proceeds are prioritised toward restoring principal ahead of new yield. Deterministic in ordering, not guaranteed in outcome.",
+                    },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Structural safeguards + capital-at-work (real USDC figures) */}
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader title="Structural safeguards" />
+            <PositionCapitalProtection
+              principalUsdc={position.principalUsdc}
+              accruedYieldUsdc={position.accruedYieldUsdc}
+              distributedUsdc={position.distributedUsdc}
+              status={position.status}
+              softLockupDays={position.softLockupDays}
+              aria-label="Capital protection safeguards"
+            />
+          </div>
         </section>
 
-        {/* Infrastructure & Proofs */}
-        <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-          aria-label="Infrastructure and proofs"
-        >
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Infrastructure &amp; proofs</h2>
-            <p className="ct-metric-caption">On-chain proofs &amp; mining infrastructure</p>
+        {/* ── Act: Strategy & transactions ─────────────────────────────────── */}
+        <TitledDivider title="Strategy allocation & transactions" />
+        <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader
+              title="Strategy allocation"
+              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+            />
+            <PositionStrategyAllocation aria-label="Structural vault strategy allocation" />
           </div>
+
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader
+              title="Transactions"
+              trailing={<ProvenanceBadge kind="attested" variant="compact" />}
+            />
+            <StatBand items={txStats} />
+            {position.transactions.length > 0 ? (
+              <Table
+                dense
+                className="[--gutter:0px] max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableHeader className={`${TABLE_HEAD} pl-5`}>Date</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} text-center`}>Type</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>Amount</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {position.transactions.map((t) => {
+                    const out = t.type === "withdraw";
+                    return (
+                      <TableRow key={t.id} className={ROW}>
+                        <TableCell className="ct-metric-caption pl-5">
+                          {formatAdminDate(t.occurredAt)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge color="zinc" className="uppercase">
+                            {TX_LABEL[t.type] ?? t.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell
+                          className={`ct-metric-value pr-5 text-right ${
+                            out ? "" : "text-[var(--ct-accent)]"
+                          }`}
+                        >
+                          {out ? "−" : "+"}
+                          {formatUsdFull(t.amountUsdc)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="p-10 text-center">
+                <p className="ct-metric-caption">No transactions on this position yet.</p>
+              </div>
+            )}
+            <p className="ct-metric-caption mt-auto border-t border-[var(--ct-border-soft)] p-5">
+              Distributions are paid monthly once yield and performance fees are
+              calculated. Amounts settle in USDC to your wallet.
+            </p>
+          </div>
+        </section>
+
+        {/* ── Act: Infrastructure & proofs ─────────────────────────────────── */}
+        <TitledDivider
+          title="Infrastructure & proofs"
+          trailing={<ProvenanceBadge kind="attested" variant="compact" />}
+        />
+        <div className={SUPPORT}>
           <PositionInfrastructureProofs
             txHashOpen={position.txHashOpen}
             explorerUrl={openTxUrl}
             transactions={position.transactions}
             aria-label="Infrastructure and on-chain proofs"
           />
-        </section>
+        </div>
+
+        {/* single global disclaimer */}
+        <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
+          Projections are conditional ranges, never a promise — they assume the
+          vault&apos;s realized APY range, simple (non-compounded), net of fees.
+          Capital protection is best-effort and structural, never guaranteed.
+        </p>
       </div>
     </div>
   );

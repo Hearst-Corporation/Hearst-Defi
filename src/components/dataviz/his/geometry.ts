@@ -62,3 +62,17 @@ export function pathD(pts: readonly HcPoint[]): string {
     .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
     .join(" ");
 }
+
+/**
+ * Round a positive value up to a "nice" axis maximum (1 / 1.5 / 2 / 3 / 4 / 5 /
+ * 6 / 8 / 10 × a power of ten). Shared so bar/line charts pick identical gridline
+ * ceilings instead of each re-deriving the same table. Non-positive / non-finite
+ * input → `1` (a safe unit axis for empty data).
+ */
+export function niceCeil(v: number): number {
+  if (!Number.isFinite(v) || v <= 0) return 1;
+  const mag = Math.pow(10, Math.floor(Math.log10(v)));
+  const norm = v / mag;
+  const steps = [1, 1.5, 2, 3, 4, 5, 6, 8, 10];
+  return (steps.find((s) => norm <= s) ?? 10) * mag;
+}
