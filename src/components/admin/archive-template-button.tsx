@@ -23,6 +23,7 @@ export function ArchiveTemplateButton({
         fd.set("id", id);
         fd.set("archived", String(!archived));
         await setAgentTemplateArchived(fd);
+        toast.success(!archived ? "Archived" : "Restored");
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         toast.error(`Failed: ${message}`);

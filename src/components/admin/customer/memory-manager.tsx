@@ -1,9 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/catalyst/badge";
+import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
@@ -41,6 +42,8 @@ export function MemoryManager({
   memory: AgentMemory[];
 }) {
   const [isPending, startTransition] = useTransition();
+  // Memory targeted for deletion; drives the confirm dialog (null = closed).
+  const [pendingDelete, setPendingDelete] = useState<AgentMemory | null>(null);
 
   function run(fn: () => Promise<void>, okMsg: string) {
     startTransition(async () => {
@@ -151,11 +154,7 @@ export function MemoryManager({
                   type="button"
                   disabled={isPending}
                   className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)] transition-colors hover:underline disabled:opacity-[var(--ct-opacity-50)]"
-                  onClick={() => {
-                    const fd = new FormData();
-                    fd.set("id", m.id);
-                    run(() => removeMemory(investorId, fd), "Deleted");
-                  }}
+                  onClick={() => setPendingDelete(m)}
                 >
                   Delete
                 </button>
@@ -164,6 +163,26 @@ export function MemoryManager({
           ))}
         </ul>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        title="Delete this memory?"
+        description="This permanently removes the fact from the customer's memory. It cannot be undone. To keep it out of the prompt without deleting, use Deactivate instead."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={async () => {
+          const target = pendingDelete;
+          if (!target) return;
+          const fd = new FormData();
+          fd.set("id", target.id);
+          await removeMemory(investorId, fd);
+          setPendingDelete(null);
+          toast.success("Deleted");
+        }}
+      />
     </div>
   );
 }

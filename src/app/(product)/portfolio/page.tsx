@@ -184,12 +184,19 @@ export default async function PortfolioPage() {
           >
             <div className="p-5 border-b border-[var(--ct-border-soft)]">
               <div className="flex items-center gap-2">
+                {/* Small static crypto icon — follows the repo convention for
+                    provider/source SVG marks (provider-logo, manufacturer-mark,
+                    construction-stepper): assumed <img> + eslint-disable, lazy +
+                    async. next/image is reserved for the branded Hearst logo in
+                    the auth/onboarding/apply shells, not 20px crypto marks. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/crypto-icons/btc.svg"
                   alt="Bitcoin"
                   width={20}
                   height={20}
+                  loading="lazy"
+                  decoding="async"
                   className="size-5 shrink-0"
                 />
                 <h2 className="ct-section-title">Account</h2>

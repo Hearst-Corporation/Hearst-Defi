@@ -1,18 +1,22 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
+import { toast } from "sonner";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { unbindWallet } from "@/lib/onboarding/actions";
 
 /**
  * Profile control to disconnect / change the bound distribution wallet.
  *
- * Two steps so the connected (or Privy-embedded) wallet does not silently
- * re-bind:
- *   1. Privy `logout()` — drops the wallet session in the browser.
+ * Guarded by a confirmation dialog: this wallet receives the monthly USDC
+ * distributions, so an accidental unbind would interrupt delivery until it is
+ * reconnected. Only after the user confirms do we run the two-step disconnect:
+ *   1. Privy `logout()` — drops the wallet session in the browser (so the
+ *      connected / Privy-embedded wallet does not silently re-bind).
  *   2. `unbindWallet()` — clears Investor.walletAddress in the DB.
  * Then refresh so the Profile row falls back to the "Connect wallet" state and
  * a different wallet can be linked.
@@ -20,32 +24,46 @@ import { unbindWallet } from "@/lib/onboarding/actions";
 export function WalletDisconnectButton() {
   const router = useRouter();
   const { ready, authenticated, logout } = usePrivy();
-  const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
 
-  function onDisconnect() {
-    startTransition(async () => {
-      if (ready && authenticated) {
-        try {
-          await logout();
-        } catch {
-          // best-effort: still clear the DB binding below
-        }
+  async function onConfirmDisconnect() {
+    if (ready && authenticated) {
+      try {
+        await logout();
+      } catch {
+        // best-effort: still clear the DB binding below
       }
-      await unbindWallet();
-      router.refresh();
-    });
+    }
+    await unbindWallet();
+    toast.success("Wallet disconnected");
+    router.refresh();
   }
 
   return (
-    <Button
-      type="button"
-      variant="danger"
-      size="md"
-      onClick={onDisconnect}
-      disabled={isPending}
-      aria-busy={isPending}
-    >
-      {isPending ? "Disconnecting…" : "Disconnect / change wallet"}
-    </Button>
+    <>
+      <Button
+        type="button"
+        variant="danger"
+        size="md"
+        onClick={() => setOpen(true)}
+      >
+        Disconnect / change wallet
+      </Button>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Disconnect wallet?"
+        description={
+          <>
+            This wallet receives your monthly USDC distributions. Disconnecting
+            it clears the link to your account — you will need to reconnect a
+            wallet before the next distribution can be delivered.
+          </>
+        }
+        confirmLabel="Disconnect wallet"
+        confirmVariant="danger"
+        onConfirm={onConfirmDisconnect}
+      />
+    </>
   );
 }
