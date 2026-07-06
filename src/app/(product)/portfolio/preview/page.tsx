@@ -13,7 +13,6 @@ import type { ReactNode } from "react";
 
 import {
   HcChartCard,
-  HcCompositionRing,
   HcValueChart,
 } from "@/components/dataviz/his";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -21,7 +20,10 @@ import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import "./_styles.css";
 import { AdvisoryFeed } from "./_charts/advisory-feed";
+import { AssetBadge } from "./_charts/asset-badge";
+import { AssetRing } from "./_charts/asset-ring";
 import { HcBullet } from "./_charts/bullet";
+import { ExitPaths } from "./_charts/exit-paths";
 import { HcHonestFan } from "./_charts/honest-fan";
 import { HcMeter } from "./_charts/meter";
 import { PocketCards } from "./_charts/pocket-cards";
@@ -30,6 +32,7 @@ import { HcRiskDimensions } from "./_charts/risk-dimensions";
 import { StatBand } from "./_charts/stat-band";
 import { HcUptimeBand } from "./_charts/uptime-band";
 import { YieldBridge } from "./_charts/yield-bridge";
+import { ASSET_COLOR, HEARST_WORDMARK, POCKET_ASSET } from "./_data/brand";
 import {
   ACCESS,
   COLLATERAL_BRIDGE,
@@ -97,12 +100,25 @@ function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }
 
 export default function PortfolioPreviewPage() {
   const pocketTotal = POCKETS.reduce((s, p) => s + p.value, 0);
+  // Per-asset ring segments (green / orange / blue) — matches the pocket-card identity colours.
+  const pocketRing = POCKETS.map((p, i) => ({
+    label: p.label,
+    value: p.value,
+    color: ASSET_COLOR[POCKET_ASSET[i] ?? "hearst"],
+  }));
 
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="flex flex-col gap-y-8 p-5 lg:p-6">
-        {/* S0 — access ribbon (one line of chips, no paragraph) */}
+        {/* S0 — access ribbon (Hearst letterhead + one line of chips) */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={HEARST_WORDMARK.src}
+            alt={HEARST_WORDMARK.alt}
+            className="mr-1 shrink-0"
+            style={{ height: 16, width: "auto", display: "block" }}
+          />
           <span
             className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[length:var(--ct-text-nano)] font-bold uppercase tracking-widest"
             style={{ borderColor: "var(--ct-status-warning-border)", color: "var(--ct-status-warning)", background: "var(--ct-status-warning-soft)" }}
@@ -185,9 +201,25 @@ export default function PortfolioPreviewPage() {
         </div>
 
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
-          <HcChartCard title="Capital · 3 pockets" subtitle="B1 mining power 35–45% · B2 wBTC · B3 USDC" source="estimated" state="ready" height={180} aria-label="Pocket allocation">
-            <div className="flex h-full items-center">
-              <HcCompositionRing segments={[...POCKETS]} centerLabel="Deployed" centerValue={formatUsdFull(pocketTotal)} bars aria-label="Pocket ring" />
+          <HcChartCard title="Capital · 3 pockets" subtitle="B1 mining power · B2 wBTC · B3 USDC" source="estimated" state="ready" height={180} aria-label="Pocket allocation">
+            <div className="flex h-full items-center gap-5">
+              <AssetRing
+                segments={pocketRing}
+                centerLabel="Deployed"
+                centerValue={formatUsdFull(pocketTotal)}
+                size={156}
+                thickness={20}
+                aria-label="Pocket allocation ring"
+              />
+              <ul className="flex flex-1 flex-col gap-2.5">
+                {POCKET_CARDS.map((p) => (
+                  <li key={p.label} className="flex items-center gap-2">
+                    <AssetBadge asset={p.asset} size={16} />
+                    <span className="min-w-0 flex-1 truncate text-[length:var(--ct-text-xs)] ct-text-body">{p.label}</span>
+                    <span className="ct-metric-value text-[length:var(--ct-text-sm)] tabular-nums">{p.pct}%</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </HcChartCard>
           <div className={`${SUPPORT} flex flex-col`}>
@@ -216,15 +248,18 @@ export default function PortfolioPreviewPage() {
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
                     <span className="ct-bento-label">Efficiency · {EFFICIENCY.value} J/TH</span>
-                    <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">target {EFFICIENCY.target}</span>
+                    <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">target {EFFICIENCY.target} · lower is better</span>
                   </div>
                   <HcBullet
-                    value={EFFICIENCY.max - EFFICIENCY.value}
+                    value={EFFICIENCY.value}
+                    min={18}
                     max={EFFICIENCY.max}
-                    target={EFFICIENCY.max - EFFICIENCY.target}
-                    ranges={[EFFICIENCY.max - EFFICIENCY.ranges[1], EFFICIENCY.max - EFFICIENCY.ranges[0]]}
-                    tone="neutral"
-                    aria-label={`Efficiency ${EFFICIENCY.value} J/TH`}
+                    target={EFFICIENCY.target}
+                    ranges={[EFFICIENCY.ranges[0], EFFICIENCY.ranges[1]]}
+                    tone={EFFICIENCY.value <= EFFICIENCY.target ? "accent" : "warning"}
+                    minLabel="18 best"
+                    maxLabel="30"
+                    aria-label={`Efficiency ${EFFICIENCY.value} J/TH, target ${EFFICIENCY.target}`}
                   />
                 </div>
               </div>
@@ -260,12 +295,15 @@ export default function PortfolioPreviewPage() {
         } />
         <div className={SUPPORT}>
           <div className="grid grid-cols-1 gap-px bg-[var(--ct-border-soft)] lg:grid-cols-[minmax(220px,0.7fr)_1.3fr]">
-            <div className="flex flex-col gap-2 bg-surface-card p-5">
+            <div className="flex flex-col gap-3 bg-surface-card p-5">
               <div className="flex items-baseline justify-between">
                 <span className="ct-bento-label">Take-profit → +24%</span>
                 <span className="ct-metric-value text-[length:var(--ct-text-lg)] tabular-nums">{VAULT.takeProfitProgressPct}%</span>
               </div>
               <HcMeter value={VAULT.takeProfitProgressPct} max={100} ticks={TAKEPROFIT_TICKS} tone="accent" aria-label="Take-profit progress" />
+              <span className="ct-metric-caption mt-auto text-[length:var(--ct-text-nano)] leading-snug">
+                Vault expires when deployed ≥ deposit ×1.24 → capital returned +24%. A maximum duration, not a fixed term.
+              </span>
             </div>
             <div className="flex flex-col gap-2 bg-surface-card p-5">
               <span className="ct-bento-label">Risk dimensions</span>
@@ -278,24 +316,9 @@ export default function PortfolioPreviewPage() {
         </div>
 
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
-          <div className={SUPPORT}>
-            <CardHeader title="Exit paths" />
-            <div className="grid grid-cols-1 gap-px bg-[var(--ct-border-soft)] sm:grid-cols-3">
-              {EXIT_PATHS.map((e) => (
-                <div key={e.label} className="flex flex-col gap-2 bg-surface-card p-4">
-                  <span
-                    aria-hidden="true"
-                    className="inline-block h-1.5 w-1.5 rounded-full"
-                    style={{
-                      background:
-                        e.tone === "accent" ? "var(--ct-accent)" : e.tone === "warning" ? "var(--ct-status-warning)" : "var(--ct-text-muted)",
-                    }}
-                  />
-                  <span className="ct-metric-value text-[length:var(--ct-text-sm)]">{e.label}</span>
-                  <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">{e.detail}</span>
-                </div>
-              ))}
-            </div>
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader title="Exit paths" trailing={<ProvenanceBadge kind="manual" variant="compact" />} />
+            <ExitPaths paths={EXIT_PATHS} />
           </div>
           <HcChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">
             <HcHonestFan bands={PROJECTION} unit="%" seedLabel="hyv-v4-2026-06" height={180} aria-label="Projection fan" />

@@ -5,6 +5,12 @@
  * low-ink horizontal row. Token-only, pure CSS (no SVG text → no distortion). Used for the
  * target-bearing KPIs: fleet uptime, efficiency (J/TH), and the distribution-coverage ratio.
  *
+ * Self-sufficient scale (optional): pass any of `minLabel` / `valueLabel` / `maxLabel` to
+ * render a thin endpoint-label row *below* the bar. This turns the component into two stacked
+ * rows so it can visually balance a legend block sitting beside it (e.g. an "uptime by cause"
+ * bar + legend), and lets the scale read cleanly (min · value · max). When none are passed the
+ * component renders exactly as before — a single bar row, zero visual change for existing callers.
+ *
  * Honesty: the featured bar reads accent-green ONLY when `tone="accent"` is passed by the
  * caller (reserved for value-clears-target AND Live/Attested evidence); otherwise neutral/warning.
  * Ref: Few — Bullet Graph Design Specification.
@@ -24,6 +30,12 @@ export interface HcBulletProps {
   ranges?: readonly number[];
   /** Featured-bar tone — accent only when honestly earned. */
   tone?: "accent" | "warning" | "neutral";
+  /** Optional scale-start label (rendered nano/muted, left of the endpoint row). */
+  minLabel?: string;
+  /** Optional scale-end label (rendered nano/muted, right of the endpoint row). */
+  maxLabel?: string;
+  /** Optional featured-value label (rendered emphasized, centered in the endpoint row). */
+  valueLabel?: string;
   className?: string;
   "aria-label": string;
 }
@@ -41,6 +53,9 @@ export function HcBullet({
   target,
   ranges = [],
   tone = "accent",
+  minLabel,
+  maxLabel,
+  valueLabel,
   className,
   ...rest
 }: HcBulletProps) {
@@ -55,13 +70,19 @@ export function HcBullet({
     return { widthPct: ((hi - lo) / span) * 100, step: i };
   });
 
-  return (
+  const hasLabelRow =
+    minLabel != null || maxLabel != null || valueLabel != null;
+
+  // The featured bar row (track + bands + measure + target tick). Rendered
+  // identically whether or not the endpoint-label row is present.
+  const bar = (
     <div
       role="img"
       aria-label={rest["aria-label"]}
       className={cn(
         "relative h-2.5 w-full overflow-hidden rounded-full",
-        className,
+        // When standalone, className styles the bar directly (unchanged behaviour).
+        !hasLabelRow && className,
       )}
       style={{ background: "var(--ct-surface-inset)" }}
     >
@@ -93,6 +114,28 @@ export function HcBullet({
           }}
         />
       ) : null}
+    </div>
+  );
+
+  // Existing callers (no labels) get the bare bar — zero visual change.
+  if (!hasLabelRow) return bar;
+
+  // Two stacked rows: bar on top, endpoint scale below. A 3-column grid keeps
+  // the value label centered regardless of which endpoint labels are present.
+  return (
+    <div className={cn("flex w-full flex-col gap-1.5", className)}>
+      {bar}
+      <div aria-hidden="true" className="grid grid-cols-3 items-center">
+        <span className="justify-self-start text-[length:var(--ct-text-nano)] ct-text-muted">
+          {minLabel ?? ""}
+        </span>
+        <span className="justify-self-center ct-text-body tabular-nums">
+          {valueLabel ?? ""}
+        </span>
+        <span className="justify-self-end text-[length:var(--ct-text-nano)] ct-text-muted">
+          {maxLabel ?? ""}
+        </span>
+      </div>
     </div>
   );
 }

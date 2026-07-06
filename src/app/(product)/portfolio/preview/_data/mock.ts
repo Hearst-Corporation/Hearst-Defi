@@ -16,6 +16,7 @@ import type { BentoKpiItem } from "@/components/catalyst/bento";
 import type { HcValuePoint, HcWaterfallStep, HcLabeledValue } from "@/components/dataviz/his";
 
 import type { AgentSignal } from "../_charts/agent-signal-card";
+import type { ExitPathRow } from "../_charts/exit-paths";
 import type { HcHonestBand } from "../_charts/honest-fan";
 import type { MeterTick } from "../_charts/meter";
 import type { PocketCard } from "../_charts/pocket-cards";
@@ -259,10 +260,10 @@ export const PROJECTION: readonly HcHonestBand[] = [
   { m: 12, p5: -1.0, p25: 9.2, p50: 18.4, p75: 25.6, p95: 32.5 },
 ];
 
-export const EXIT_PATHS: readonly { label: string; detail: string; tone: "accent" | "neutral" | "warning" }[] = [
-  { label: "Take-profit +24%", detail: "deployed ≥ deposit×1.24 → vault expires, capital +24% (even at 6 mo)", tone: "accent" },
-  { label: "Glide-path (matured, ≥0)", detail: "proactive time-based tranches, never a terminal dump", tone: "neutral" },
-  { label: "Recovery (matured, <0)", detail: "machines continue · (BTC−elec) to client · mgmt fee suspended · bounded {0% / +12mo / 48mo}", tone: "warning" },
+export const EXIT_PATHS: readonly ExitPathRow[] = [
+  { label: "Take-profit", mechanism: "Deployed ≥ deposit ×1.24 → vault expires", outcome: "+24%", kind: "take-profit" },
+  { label: "Glide-path", mechanism: "Matured ≥ 0 · time-based tranches, no dump", outcome: "≥ 0%", kind: "glide" },
+  { label: "Recovery", mechanism: "Matured < 0 · machines run on, fee paused", outcome: "best-effort", kind: "recovery" },
 ];
 
 // ── Refonte (UI V4 composition) — stat bands (no sparklines), pocket cards, meter ticks ─
@@ -277,15 +278,15 @@ export const HERO_STATS: readonly StatCell[] = [
 /** Vault-health stat band — safety / collateral / the one Live value (hashprice). */
 export const HEALTH_STATS: readonly StatCell[] = [
   { label: "Safety margin", value: `${SAFETY.value}%`, provenance: "estimated" },
-  { label: "Collateral · cbBTC + wBTC", value: "$216k", provenance: "estimated" },
+  { label: "Collateral · cbBTC + wBTC", value: "$216k", provenance: "estimated", asset: "bitcoin" },
   { label: "Hashprice · $/PH·day", value: "$46.20", provenance: "live", live: true },
 ];
 
-/** 3 pockets as metric cards (icon-less; role caption). */
+/** 3 pockets as metric cards — each carries its asset identity (green/orange/blue + logo). */
 export const POCKET_CARDS: readonly PocketCard[] = [
-  { label: "B1 · Mining power", valueUsdc: 200_000, pct: 40, role: "Buys the hashrate NFT (RWA-backed)" },
-  { label: "B2 · wBTC", valueUsdc: 185_000, pct: 37, role: "Yield + collateral" },
-  { label: "B3 · USDC", valueUsdc: 115_000, pct: 23, role: "Funds electricity first" },
+  { label: "B1 · Mining power", valueUsdc: 200_000, pct: 40, role: "Buys the hashrate NFT (RWA-backed)", asset: "hearst" },
+  { label: "B2 · wBTC", valueUsdc: 185_000, pct: 37, role: "Yield + collateral", asset: "bitcoin" },
+  { label: "B3 · USDC", valueUsdc: 115_000, pct: 23, role: "Funds electricity first", asset: "usdc" },
 ];
 
 /** Threshold ticks drawn on the safety-margin meter (replaces the caption). */

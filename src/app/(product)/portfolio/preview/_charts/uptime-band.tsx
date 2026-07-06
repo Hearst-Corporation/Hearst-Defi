@@ -89,7 +89,7 @@ export function HcUptimeBand({
               className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
               style={{ background: CAUSE_META[s.cause].dot }}
             />
-            <span className="text-[length:var(--ct-text-nano)] ct-text-muted tracking-wide">
+            <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
               {CAUSE_META[s.cause].label}
             </span>
             <span className="text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">

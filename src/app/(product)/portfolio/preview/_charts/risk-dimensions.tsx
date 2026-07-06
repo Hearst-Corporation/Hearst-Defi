@@ -74,7 +74,7 @@ export function HcRiskDimensions({
             <span className="text-[length:var(--ct-text-nano)] ct-text-muted tabular-nums">
               {d.score}/100
             </span>
-            <ProvenanceBadge kind={d.provenance} variant="compact" />
+            <ProvenanceBadge kind={d.provenance} variant="strip" />
           </div>
         </div>
       ))}

@@ -6,6 +6,7 @@
  * Tone is the whole story: the fill color says healthy/warning/danger — no prose needed. Token-only,
  * reads --ct-* (changes none). Server component. Used for safety margin (55/45/40/20) + take-profit.
  */
+import type { CSSProperties } from "react";
 import { cn } from "@/lib/cn";
 
 export interface MeterTick {
@@ -37,6 +38,22 @@ const TONE_VAR: Record<NonNullable<HcMeterProps["tone"]>, string> = {
   danger: "var(--ct-status-danger)",
   neutral: "var(--ct-text-muted)",
 };
+
+// Ticks whose track-percent falls inside these edge bands anchor flush to the rail
+// instead of centering — so a center-anchored label/line at 0% or 100% never clips.
+const EDGE_LO = 2;
+const EDGE_HI = 98;
+
+/**
+ * Edge-aware horizontal anchor for a tick LABEL sitting at track-percent `p`.
+ * At the left rail → flush-left, at the right rail → flush-right, otherwise centered.
+ */
+function labelAnchor(p: number): CSSProperties {
+  if (p <= EDGE_LO) return { left: 0, transform: "none", textAlign: "left" };
+  if (p >= EDGE_HI)
+    return { left: "auto", right: 0, transform: "none", textAlign: "right" };
+  return { left: `${p}%`, transform: "translateX(-50%)", textAlign: "center" };
+}
 
 export function HcMeter({
   value,
@@ -83,24 +100,37 @@ export function HcMeter({
             style={{ width: `${pct(value)}%`, background: fillBg, opacity: 0.95 }}
           />
         </div>
-        {/* threshold ticks (over the track) */}
-        {ticks.map((t) => (
-          <div
-            key={t.at}
-            aria-hidden="true"
-            className="absolute inset-y-0 w-px"
-            style={{ left: `${pct(t.at)}%`, background: "var(--ct-border-strong)" }}
-          />
-        ))}
-        {/* value marker */}
+        {/* threshold ticks (over the track) — a 1px line clamps to the inner right
+            rail at 100% so it stays on-track instead of rendering just off the edge. */}
+        {ticks.map((t) => {
+          const p = pct(t.at);
+          const edge: CSSProperties =
+            p >= EDGE_HI ? { left: "auto", right: 0 } : { left: `${p}%` };
+          return (
+            <div
+              key={t.at}
+              aria-hidden="true"
+              className="absolute inset-y-0 w-px"
+              style={{ ...edge, background: "var(--ct-border-strong)" }}
+            />
+          );
+        })}
+        {/* value marker — centered on its position, but clamped inside the rail at
+            value=min/max so the 12px dot is never half-cut at an edge. */}
         <div
           aria-hidden="true"
           className={cn(
-            "absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full",
+            "absolute top-1/2 h-3 w-3 rounded-full",
             live && "hyv-pulse",
           )}
           style={{
             left: `${pct(value)}%`,
+            transform:
+              pct(value) <= EDGE_LO
+                ? "translate(0, -50%)"
+                : pct(value) >= EDGE_HI
+                  ? "translate(-100%, -50%)"
+                  : "translate(-50%, -50%)",
             background: markerColor,
             color: markerColor,
             boxShadow: "var(--ct-glow-dot)",
@@ -112,8 +142,8 @@ export function HcMeter({
           {ticks.map((t) => (
             <span
               key={t.at}
-              className="absolute -translate-x-1/2 text-[length:var(--ct-text-nano)] ct-text-muted"
-              style={{ left: `${pct(t.at)}%` }}
+              className="absolute text-[length:var(--ct-text-nano)] ct-text-muted"
+              style={labelAnchor(pct(t.at))}
             >
               {t.label}
             </span>

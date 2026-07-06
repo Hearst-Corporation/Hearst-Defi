@@ -29,7 +29,7 @@ export function AdvisoryFeed({ signals }: { signals: readonly AgentSignal[] }) {
             {!last ? (
               <span
                 aria-hidden="true"
-                className="absolute bottom-0 left-[3px] top-4 w-px"
+                className="absolute bottom-0 left-[2.5px] top-2.5 w-px"
                 style={{ background: "var(--ct-border-soft)" }}
               />
             ) : null}
@@ -38,7 +38,7 @@ export function AdvisoryFeed({ signals }: { signals: readonly AgentSignal[] }) {
               className="relative mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full"
               style={{ background: SEV[s.severity], color: SEV[s.severity], boxShadow: "var(--ct-glow-dot)" }}
             />
-            <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <div className="flex min-w-0 flex-1 flex-nowrap items-baseline gap-x-2">
               <span className="ct-bento-label shrink-0">{s.agent}</span>
               <span className="min-w-0 flex-1 truncate text-[length:var(--ct-text-xs)] ct-text-body">
                 {s.headline}

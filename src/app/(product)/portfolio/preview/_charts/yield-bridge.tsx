@@ -7,12 +7,16 @@
  * labels + disclaimer.
  *
  * This is a CSS-grid row-bridge (no SVG viewBox → can never balloon): each step is one row with
- * label / bar / value in separate grid tracks (labels can never overlap); `total` rows are neutral
- * graphite anchor rails (equal width, no towering); `delta` rows are accent (+) / danger (−) scaled
- * to the largest single delta so increments stay legible; a dashed carry line ties the steps.
- * Pure presentational Server Component, token-only, zero deps. Steps are pre-computed by the caller.
+ * label / bar / value in separate grid tracks (labels can never overlap). Asset-aware colour:
+ * the two `total` rows are Bitcoin-denominated (gross mining → net cbBTC collateral) so their bar +
+ * value are Bitcoin brand orange (`ASSET_COLOR.bitcoin`, calm 0.9 opacity) — the orange anchors of
+ * the bridge; `delta` rows scale to the largest single delta so increments stay legible: the
+ * positive "+ Farming yield" is Hearst-sourced accent green (`--ct-status-success`), the negative
+ * "− Electricity" cost is neutral graphite (`--ct-text-muted`, never red). A dashed carry line ties
+ * the steps. Pure presentational Server Component, token-only, zero deps. Steps pre-computed by the caller.
  */
 import type { HcWaterfallStep } from "@/components/dataviz/his";
+import { ASSET_COLOR } from "../_data/brand";
 
 export interface YieldBridgeProps {
   steps: readonly HcWaterfallStep[];
@@ -65,14 +69,15 @@ export function YieldBridge({ steps, format = defaultFormat, ...rest }: YieldBri
         const barPct = isTotal
           ? 100
           : Math.max(6, (Math.abs(s.value) / maxAbsDelta) * 100);
-        // No red on the platform: positive = accent, negative = neutral graphite, totals = rail.
+        // Asset-aware, no red: totals are Bitcoin-denominated → orange anchors; positive delta
+        // (farming yield) = Hearst accent green; negative delta (electricity cost) = neutral graphite.
         const barColor = isTotal
-          ? "var(--ct-chart-neutral)"
+          ? ASSET_COLOR.bitcoin
           : positive
             ? "var(--ct-status-success)"
             : "var(--ct-text-muted)";
         const valueColor = isTotal
-          ? "var(--ct-text-primary)"
+          ? ASSET_COLOR.bitcoin
           : positive
             ? "var(--ct-status-success)"
             : "var(--ct-text-muted)";
@@ -107,7 +112,7 @@ export function YieldBridge({ steps, format = defaultFormat, ...rest }: YieldBri
                 style={{
                   width: `${barPct}%`,
                   background: barColor,
-                  opacity: isTotal ? 0.28 : 0.9,
+                  opacity: 0.9,
                   borderRadius: 2,
                 }}
               />

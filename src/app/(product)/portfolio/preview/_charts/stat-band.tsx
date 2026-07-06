@@ -9,6 +9,7 @@
  */
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
+import { ASSET_COLOR, type AssetKind } from "../_data/brand";
 
 export interface StatCell {
   label: string;
@@ -18,6 +19,12 @@ export interface StatCell {
   provenance: Provenance;
   /** Genuinely Live → accent value + heartbeat dot (reserved, honest). */
   live?: boolean;
+  /**
+   * Optional asset identity. When set on a non-Live cell, the provenance strip
+   * dot is replaced by a small asset-coloured identity dot (Hearst green /
+   * Bitcoin orange / USDC blue). Ignored on the Live cell (keeps its pulse).
+   */
+  asset?: AssetKind;
 }
 
 // No red anywhere on the platform: positive/negative deltas read neutral graphite.
@@ -56,6 +63,12 @@ export function StatBand({
                 aria-hidden="true"
                 className="hyv-pulse inline-block h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+              />
+            ) : it.asset ? (
+              <span
+                aria-hidden="true"
+                className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{ background: ASSET_COLOR[it.asset] }}
               />
             ) : (
               <ProvenanceBadge kind={it.provenance} variant="strip" />

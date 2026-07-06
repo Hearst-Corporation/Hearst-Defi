@@ -79,30 +79,40 @@ export function HcHonestFan({
 
   const yTicks = [yDomain[0], (yDomain[0] + yDomain[1]) / 2, yDomain[1]];
   const unitSuffix = unit === "%" ? "%" : "";
+  // Left gutter (as a % of width) matching where the gridlines start, so HTML labels sit just
+  // inside it and scale with the container — no SVG <text> (which distorts under aspect="none").
+  const leftGutterPct = (box.padX / width) * 100;
 
   return (
-    <svg
-      role="img"
-      aria-label={ariaLabel}
-      width="100%"
-      height="100%"
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      style={{ display: "block" }}
-    >
-      <defs>
-        {/* fade the fill toward the far horizon (growing uncertainty) */}
-        <linearGradient id="hc-fan-fade" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="var(--ct-chart-band-fill)" stopOpacity="1" />
-          <stop offset="100%" stopColor="var(--ct-chart-band-fill)" stopOpacity="0.35" />
-        </linearGradient>
-      </defs>
+    <div role="img" aria-label={ariaLabel} className="relative w-full" style={{ height }}>
+      <svg
+        aria-hidden="true"
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        style={{ display: "block", position: "absolute", inset: 0 }}
+      >
+        <defs>
+          {/* neutral graphite fill fading toward the far horizon (growing uncertainty) —
+              a projection is uncertain, so it is NOT blue and NOT green-as-guaranteed */}
+          <linearGradient id="hc-fan-fade" x1="0" y1="0" x2="1" y2="0">
+            <stop
+              offset="0%"
+              stopColor="color-mix(in srgb, var(--ct-text-strong) 14%, transparent)"
+            />
+            <stop
+              offset="100%"
+              stopColor="color-mix(in srgb, var(--ct-text-strong) 4%, transparent)"
+            />
+          </linearGradient>
+        </defs>
 
-      {yTicks.map((t, i) => {
-        const y = proj(xDomain[0], t).y;
-        return (
-          <g key={i}>
+        {yTicks.map((t, i) => {
+          const y = proj(xDomain[0], t).y;
+          return (
             <line
+              key={i}
               x1={box.padX}
               y1={y}
               x2={width - box.padX}
@@ -112,51 +122,51 @@ export function HcHonestFan({
               opacity="0.4"
               vectorEffect="non-scaling-stroke"
             />
-            <text
-              x={box.padX - 6}
-              y={y + 3}
-              textAnchor="end"
-              fontSize={9}
-              fill="var(--ct-text-muted)"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {t.toFixed(1)}
-              {unitSuffix}
-            </text>
-          </g>
+          );
+        })}
+
+        {/* p5–p95 outer band (neutral graphite, faded with horizon) */}
+        <path d={outer} fill="url(#hc-fan-fade)" data-hc-band="p5-p95" />
+        {/* p25–p75 inner band (denser graphite) */}
+        <path
+          d={inner}
+          fill="color-mix(in srgb, var(--ct-text-strong) 20%, transparent)"
+          data-hc-band="p25-p75"
+        />
+        {/* p50 median — MUTED + dashed, never accent green */}
+        <polyline
+          points={polyline(median)}
+          fill="none"
+          stroke="var(--ct-text-muted)"
+          strokeWidth={1.5}
+          strokeDasharray="4 3"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+          data-hc-line="p50"
+        />
+      </svg>
+
+      {/* crisp HTML axis labels (never distorted) */}
+      {yTicks.map((t, i) => {
+        const topPct = (proj(xDomain[0], t).y / height) * 100;
+        return (
+          <span
+            key={i}
+            aria-hidden="true"
+            className="pointer-events-none absolute -translate-y-1/2 text-right text-[length:var(--ct-text-nano)] ct-text-muted tabular-nums"
+            style={{ left: 0, width: `calc(${leftGutterPct}% - 6px)`, top: `${topPct}%` }}
+          >
+            {t.toFixed(1)}
+            {unitSuffix}
+          </span>
         );
       })}
-
-      {/* p5–p95 outer band (info-tinted, faded with horizon) */}
-      <path d={outer} fill="url(#hc-fan-fade)" data-hc-band="p5-p95" />
-      {/* p25–p75 inner band (denser) */}
-      <path
-        d={inner}
-        fill="var(--ct-chart-band-fill)"
-        opacity={0.9}
-        data-hc-band="p25-p75"
-      />
-      {/* p50 median — MUTED + dashed, never accent green */}
-      <polyline
-        points={polyline(median)}
-        fill="none"
-        stroke="var(--ct-text-muted)"
-        strokeWidth={1.5}
-        strokeDasharray="4 3"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-        data-hc-line="p50"
-      />
-
-      <text
-        x={width - box.padX}
-        y={height - 5}
-        textAnchor="end"
-        fontSize={9}
-        fill="var(--ct-text-faint)"
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-1 right-2 text-[length:var(--ct-text-nano)] ct-text-faint"
       >
         {seedLabel ? `seed: ${seedLabel} · ` : ""}p5/p25/p50/p75/p95 · not guaranteed
-      </text>
-    </svg>
+      </span>
+    </div>
   );
 }
