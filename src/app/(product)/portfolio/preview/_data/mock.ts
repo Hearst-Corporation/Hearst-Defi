@@ -13,7 +13,8 @@
  * NOTHING is live except hashprice (mempool.space + CoinGecko in prod); everything else Estimated/Mock.
  */
 import type { BentoKpiItem } from "@/components/catalyst/bento";
-import type { HcValuePoint, HcWaterfallStep, HcLabeledValue } from "@/components/dataviz/his";
+import type { HcValuePoint, HcLabeledValue } from "@/components/dataviz/his";
+import type { Provenance } from "@/components/ui/provenance-badge";
 
 import type { AgentSignal } from "../_charts/agent-signal-card";
 import type { ExitPathRow } from "../_charts/exit-paths";
@@ -118,22 +119,6 @@ export const UPTIME_SEGMENTS: readonly UptimeSegment[] = [
 
 /** Efficiency bullet — lower J/TH is better; target 23, current 21.5 (beats target). */
 export const EFFICIENCY = { value: 21.5, target: 23, max: 30, ranges: [22, 26] as const };
-
-/** Electricity / runway — Hearst advances the bill, reimbursed on the cbBTC produced. */
-export const ELECTRICITY = {
-  monthlyCostUsdc: 6_100,
-  netBurn: "+$8.1k/mo", // production value − electricity (positive = producing above cost)
-  runwayMonths: 14,
-  runwayStressedMonths: 9, // hashprice p5
-};
-
-// ── L3 — Mining → collateral bridge (monthly, USDC-equiv; nets to cbBTC collateral) ─
-export const COLLATERAL_BRIDGE: readonly HcWaterfallStep[] = [
-  { label: "Gross mining", value: 18_400, kind: "total" },
-  { label: "− Electricity", value: -6_100, kind: "delta" }, // reimbursed to Hearst
-  { label: "+ Farming yield", value: 1_900, kind: "delta" }, // to client
-  { label: "Net → collateral", value: 14_200, kind: "total" }, // cbBTC to client, daily
-];
 
 // ── L4 — Agent advisory: DETERMINISTIC, oracle-driven (Chainlink) rebalancing ──
 export const RISK_DIMENSIONS: readonly RiskDimension[] = [
@@ -302,3 +287,65 @@ export const TAKEPROFIT_TICKS: readonly MeterTick[] = [
   { at: 26, label: "+6.3%" },
   { at: 100, label: "+24%" },
 ];
+
+// ── Agent orchestration canvas (agent-canvas.tsx) ───────────────────────────
+// The 4 orbiting nodes are the REAL preview advisory agents (SIGNALS[0..3]: Margin / Risk / Electricity /
+// Take-Profit); the centre is the real deterministic engine (rebalancing-signal.ts, Chainlink-fed, rules
+// R1–R5 + R-BTC-1..6, no LLM); the top inlet is the oracle feed and the bottom node is the human/multisig
+// gate. Severity is green | amber | info — never red on this canvas. Data Quality is intentionally off the
+// graph (it lives in the page's global disclaimer). Advisory · deterministic · simulated (sandbox).
+export type OrchestrationSeverity = "green" | "amber" | "info";
+export type OrchestrationNodeKind = "oracle" | "engine" | "agent" | "gate";
+
+export interface OrchestrationNode {
+  readonly id: string;
+  readonly kind: OrchestrationNodeKind;
+  readonly label: string; // short nano label under the node
+  readonly severity: OrchestrationSeverity;
+  readonly x: number; // 0–100 % position in the graph box
+  readonly y: number; // 0–100 %
+}
+export interface OrchestrationEdge {
+  readonly from: string;
+  readonly to: string;
+  readonly dir: "in" | "out"; // in = feeds the engine · out = the one proposal to the gate
+  readonly delayMs: number; // stagger so pips read as independent live activity
+}
+export interface OrchestrationDecision {
+  readonly agent: string;
+  readonly action: string; // advisory only — "suggest / review …", NEVER "execute"
+  readonly provenance: Provenance;
+  readonly at: string; // relative time
+}
+export interface Orchestration {
+  readonly nodes: readonly OrchestrationNode[];
+  readonly edges: readonly OrchestrationEdge[];
+  readonly latest: OrchestrationDecision;
+}
+
+export const ORCHESTRATION: Orchestration = {
+  nodes: [
+    { id: "oracle", kind: "oracle", label: "Chainlink", severity: "green", x: 50, y: 12 },
+    { id: "engine", kind: "engine", label: "Engine · R1–R5", severity: "info", x: 50, y: 47 },
+    { id: "margin", kind: "agent", label: "Margin", severity: "green", x: 20, y: 30 },
+    { id: "risk", kind: "agent", label: "Risk", severity: "amber", x: 80, y: 30 },
+    { id: "elec", kind: "agent", label: "Electricity", severity: "green", x: 20, y: 66 },
+    { id: "takeprofit", kind: "agent", label: "Take-profit", severity: "green", x: 80, y: 66 },
+    { id: "gate", kind: "gate", label: "Human · multisig", severity: "info", x: 50, y: 87 },
+  ],
+  edges: [
+    { from: "margin", to: "engine", dir: "in", delayMs: 0 },
+    { from: "oracle", to: "engine", dir: "in", delayMs: 300 },
+    { from: "risk", to: "engine", dir: "in", delayMs: 550 },
+    { from: "elec", to: "engine", dir: "in", delayMs: 900 },
+    { from: "takeprofit", to: "engine", dir: "in", delayMs: 1300 },
+    { from: "engine", to: "gate", dir: "out", delayMs: 0 },
+  ],
+  latest: {
+    agent: "Risk Agent",
+    action:
+      "market-risk 52 (amber) → review of the safety margin suggested; deterministic de-risk only arms at the 45% band.",
+    provenance: "estimated",
+    at: "just now",
+  },
+} as const;

@@ -16,7 +16,7 @@ export interface UptimeSegment {
   pct: number;
 }
 
-const CAUSE_META: Record<
+export const CAUSE_META: Record<
   UptimeCause,
   { label: string; fill: string; dot: string }
 > = {
@@ -42,56 +42,66 @@ const CAUSE_META: Record<
   },
 };
 
-const ORDER: readonly UptimeCause[] = [
+export const ORDER: readonly UptimeCause[] = [
   "online",
   "curtailed",
   "scheduled",
   "unscheduled",
 ];
 
+/** Ordered non-zero causes, each merged with its meta (label/fill/dot). Shared source of truth. */
+export function orderedUptime(segments: readonly UptimeSegment[]) {
+  const byCause = new Map(segments.map((s) => [s.cause, s.pct]));
+  return ORDER.map((cause) => ({
+    cause,
+    pct: byCause.get(cause) ?? 0,
+    ...CAUSE_META[cause],
+  })).filter((s) => s.pct > 0);
+}
+
 export interface HcUptimeBandProps {
   segments: readonly UptimeSegment[];
   className?: string;
+  /** Render only the 100%-stacked band (no legend) — for composition inside a shared grid. */
+  bandOnly?: boolean;
   "aria-label": string;
 }
 
 export function HcUptimeBand({
   segments,
   className,
+  bandOnly = false,
   ...rest
 }: HcUptimeBandProps) {
-  const byCause = new Map(segments.map((s) => [s.cause, s.pct]));
-  const ordered = ORDER.map((cause) => ({
-    cause,
-    pct: byCause.get(cause) ?? 0,
-  })).filter((s) => s.pct > 0);
+  const ordered = orderedUptime(segments);
+
+  const band = (
+    <div
+      role="img"
+      aria-label={rest["aria-label"]}
+      className={cn("flex h-2.5 w-full overflow-hidden rounded-full", bandOnly && className)}
+      style={{ background: "var(--ct-surface-inset)" }}
+    >
+      {ordered.map((s) => (
+        <div key={s.cause} style={{ width: `${s.pct}%`, background: s.fill }} />
+      ))}
+    </div>
+  );
+
+  if (bandOnly) return band;
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <div
-        role="img"
-        aria-label={rest["aria-label"]}
-        className="flex h-2.5 w-full overflow-hidden rounded-sm"
-        style={{ background: "var(--ct-surface-inset)" }}
-      >
-        {ordered.map((s) => (
-          <div
-            key={s.cause}
-            style={{ width: `${s.pct}%`, background: CAUSE_META[s.cause].fill }}
-          />
-        ))}
-      </div>
+      {band}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         {ordered.map((s) => (
           <div key={s.cause} className="flex items-center gap-1.5">
             <span
               aria-hidden="true"
               className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: CAUSE_META[s.cause].dot }}
+              style={{ background: s.dot }}
             />
-            <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
-              {CAUSE_META[s.cause].label}
-            </span>
+            <span className="text-[length:var(--ct-text-nano)] ct-text-muted">{s.label}</span>
             <span className="text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">
               {s.pct.toFixed(1)}%
             </span>

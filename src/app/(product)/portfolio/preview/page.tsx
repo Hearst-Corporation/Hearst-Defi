@@ -20,6 +20,7 @@ import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import "./_styles.css";
 import { AdvisoryFeed } from "./_charts/advisory-feed";
+import { AgentCanvas } from "./_charts/agent-canvas";
 import { AssetBadge } from "./_charts/asset-badge";
 import { AssetRing } from "./_charts/asset-ring";
 import { HcBullet } from "./_charts/bullet";
@@ -30,18 +31,16 @@ import { PocketCards } from "./_charts/pocket-cards";
 import { HcProductionBars } from "./_charts/production-bars";
 import { HcRiskDimensions } from "./_charts/risk-dimensions";
 import { StatBand } from "./_charts/stat-band";
-import { HcUptimeBand } from "./_charts/uptime-band";
-import { YieldBridge } from "./_charts/yield-bridge";
+import { HcUptimeBand, orderedUptime } from "./_charts/uptime-band";
 import { ASSET_COLOR, HEARST_WORDMARK, POCKET_ASSET } from "./_data/brand";
 import {
   ACCESS,
-  COLLATERAL_BRIDGE,
   EFFICIENCY,
-  ELECTRICITY,
   EXIT_PATHS,
   HEALTH,
   HEALTH_STATS,
   HERO_STATS,
+  ORCHESTRATION,
   POCKETS,
   POCKET_CARDS,
   PRODUCTION,
@@ -64,10 +63,6 @@ export const metadata = {
 /** Bare-hairline support surface (no shadow — the chrome budget reserves elevation for the hero). */
 const SUPPORT = "rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden";
 const HERO_SHADOW = "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)";
-
-function formatUsdK(n: number): string {
-  return `$${Math.round(n / 1000).toLocaleString("en-US")}k`;
-}
 
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
@@ -106,6 +101,8 @@ export default function PortfolioPreviewPage() {
     value: p.value,
     color: ASSET_COLOR[POCKET_ASSET[i] ?? "hearst"],
   }));
+  const onlinePct = UPTIME_SEGMENTS.find((s) => s.cause === "online")?.pct ?? 0;
+  const uptimeCauses = orderedUptime(UPTIME_SEGMENTS).filter((s) => s.cause !== "online");
 
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
@@ -237,52 +234,85 @@ export default function PortfolioPreviewPage() {
             <CardHeader title="cbBTC produced · daily conversion" trailing={<ProvenanceBadge kind="simulated" variant="compact" />} />
             <div className="flex flex-col gap-4 p-5">
               <HcProductionBars data={PRODUCTION} height={190} aria-label="cbBTC produced monthly" />
-              <div className="grid grid-cols-1 gap-4 border-t border-[var(--ct-border-soft)] pt-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="ct-bento-label">Uptime by cause</span>
-                    <ProvenanceBadge kind="estimated" variant="compact" />
-                  </div>
-                  <HcUptimeBand segments={UPTIME_SEGMENTS} aria-label="Machine uptime by cause" />
+              {/* Operational health — availability + efficiency, one aligned spec-sheet.
+                  Both bars are the middle cell of the SAME 3-col grid template → identical x/width. */}
+              <div className="flex flex-col gap-3 border-t border-[var(--ct-border-soft)] pt-4">
+                <div className="flex items-center justify-between">
+                  <span className="ct-bento-label">Operational health</span>
+                  <ProvenanceBadge kind="estimated" variant="compact" />
                 </div>
+
+                {/* Availability */}
                 <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="ct-bento-label">Efficiency · {EFFICIENCY.value} J/TH</span>
-                    <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">target {EFFICIENCY.target} · lower is better</span>
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] items-center gap-x-4">
+                    <span className="text-[length:var(--ct-text-micro)] ct-text-muted">Availability</span>
+                    <HcUptimeBand segments={UPTIME_SEGMENTS} bandOnly aria-label="Machine uptime by cause" />
+                    <span className="justify-self-end whitespace-nowrap text-right">
+                      <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">{onlinePct.toFixed(1)}%</span>
+                      <span className="ml-1 text-[length:var(--ct-text-nano)] ct-text-muted">online</span>
+                    </span>
                   </div>
-                  <HcBullet
-                    value={EFFICIENCY.value}
-                    min={18}
-                    max={EFFICIENCY.max}
-                    target={EFFICIENCY.target}
-                    ranges={[EFFICIENCY.ranges[0], EFFICIENCY.ranges[1]]}
-                    tone={EFFICIENCY.value <= EFFICIENCY.target ? "accent" : "warning"}
-                    minLabel="18 best"
-                    maxLabel="30"
-                    aria-label={`Efficiency ${EFFICIENCY.value} J/TH, target ${EFFICIENCY.target}`}
-                  />
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] gap-x-4">
+                    <div className="col-start-2 col-end-3 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                      {uptimeCauses.map((s) => (
+                        <span key={s.cause} className="inline-flex items-center gap-1.5">
+                          <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: s.dot }} />
+                          <span className="text-[length:var(--ct-text-nano)] ct-text-muted">{s.label}</span>
+                          <span className="text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">{s.pct.toFixed(1)}%</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Efficiency */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] items-center gap-x-4">
+                    <span className="text-[length:var(--ct-text-micro)] ct-text-muted">Efficiency</span>
+                    <HcBullet
+                      value={EFFICIENCY.value}
+                      min={18}
+                      max={EFFICIENCY.max}
+                      target={EFFICIENCY.target}
+                      ranges={[EFFICIENCY.ranges[0], EFFICIENCY.ranges[1]]}
+                      tone={EFFICIENCY.value <= EFFICIENCY.target ? "accent" : "warning"}
+                      aria-label={`Efficiency ${EFFICIENCY.value} J/TH, target ${EFFICIENCY.target}`}
+                    />
+                    <span className="justify-self-end whitespace-nowrap text-right">
+                      <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">{EFFICIENCY.value}</span>
+                      <span className="ml-1 text-[length:var(--ct-text-nano)] ct-text-muted">J/TH</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] gap-x-4">
+                    <div className="col-start-2 col-end-3 flex items-center justify-between text-[length:var(--ct-text-nano)] ct-text-muted">
+                      <span>18 best</span>
+                      <span>target {EFFICIENCY.target} · lower is better</span>
+                      <span>30</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <div className={`${SUPPORT} flex flex-col`}>
-            <div className="flex items-start justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="ct-bento-label">Mining → collateral bridge</span>
-                <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                  Gross − electricity (repaid to Hearst) + farming → net cbBTC to collateral
+            <CardHeader
+              title="Agent orchestration"
+              trailing={
+                <span className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
+                  <span
+                    aria-hidden="true"
+                    className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
+                    style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+                  />
+                  Live · Chainlink
                 </span>
-              </div>
-              <ProvenanceBadge kind="estimated" variant="compact" />
-            </div>
-            <div className="flex flex-1 flex-col p-5">
-              <YieldBridge steps={[...COLLATERAL_BRIDGE]} format={formatUsdK} aria-label="Mining to collateral bridge" />
-            </div>
-            <div className="border-t border-[var(--ct-border-soft)] px-5 py-3">
-              <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                Elec advanced by Hearst, reimbursed on cbBTC produced · net burn {ELECTRICITY.netBurn} · runway {ELECTRICITY.runwayMonths}mo.
-              </span>
-            </div>
+              }
+            />
+            <AgentCanvas
+              nodes={ORCHESTRATION.nodes}
+              edges={ORCHESTRATION.edges}
+              latest={ORCHESTRATION.latest}
+            />
           </div>
         </section>
 

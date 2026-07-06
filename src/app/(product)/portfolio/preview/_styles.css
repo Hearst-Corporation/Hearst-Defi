@@ -45,3 +45,30 @@
     animation: none;
   }
 }
+
+/* ── Agent orchestration canvas — one normalized "pip" travels each connector.
+   pathLength=100 → identical visual speed on every edge, any length. Each line is drawn
+   source → destination, so a single keyframe (dashoffset 0 → -100) reads as "toward":
+   IN  = the oracle + four advisory agents feeding the deterministic engine;
+   OUT = the ONE pending proposal handed to the human / multisig gate (never executed).
+   Slightly different periods so IN and OUT never lock into sync. Simulated + advisory. */
+@keyframes hyv-flow {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+.hyv-flow-in {
+  stroke-dashoffset: 0;
+  animation: hyv-flow 2.6s linear infinite;
+}
+.hyv-flow-out {
+  stroke-dashoffset: 0;
+  animation: hyv-flow 2.15s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hyv-flow-in,
+  .hyv-flow-out {
+    animation: none; /* pip rests at its source; the graph stays fully legible frozen */
+  }
+}

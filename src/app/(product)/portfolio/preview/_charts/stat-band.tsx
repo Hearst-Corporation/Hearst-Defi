@@ -1,11 +1,11 @@
 /**
  * StatBand — edge-to-edge, borderless stat rail (Application UI V4 `stats/05` idiom).
  *
- * "Numbers are the graphics": each cell is a big tabular value + optional delta chip + optional
- * inline HcMetricSparkline + a provenance dot. Cells are separated by 1px hairlines (gap-px on the
- * border-soft bg), zero per-cell chrome — the airy, less-text KPI device. Green + heartbeat pulse
- * are reserved for genuinely-Live cells (hashprice); everything else is neutral with a provenance
- * dot. Token-only; reads --ct-* (changes none). Server component.
+ * "Numbers are the graphics": each cell is a big tabular value + optional delta chip + a provenance/
+ * asset dot. Cells are separated by 1px hairlines (gap-px on the border-soft bg), zero per-cell chrome.
+ * Values render in accent green via the admin KPI class `.ct-bento-metric--accent` (same recipe as the
+ * admin console KPI strips). The genuinely-Live cell (hashprice) additionally keeps the heartbeat pulse
+ * dot as its distinguisher. Token-only; reads --ct-* (changes none). Server component.
  */
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
@@ -76,12 +76,7 @@ export function StatBand({
             <span className="ct-bento-label min-w-0 truncate">{it.label}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span
-              className={cn(
-                "ct-metric-value tabular-nums tracking-tight text-[length:var(--ct-text-2xl)]",
-                it.live && "ct-text-accent",
-              )}
-            >
+            <span className="ct-bento-metric ct-bento-metric--accent tabular-nums">
               {it.value}
             </span>
             {it.delta ? (
