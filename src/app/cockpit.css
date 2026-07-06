@@ -195,6 +195,7 @@
 
   /* Radius tokens (alignés sur le DS) */
   --ct-radius-xs: 0.125rem; /* 2px — chart legend swatch, micro chips */
+  --ct-radius-2xs: 0.3125rem; /* 5px — manufacturer/logo chips */
   --ct-radius-sm: 0.5rem;   /* 6 → 8px */
   --ct-radius-md: 0.75rem;  /* 8 → 12px */
   --ct-radius-lg: 1rem;     /* 12 → 16px */

@@ -24,7 +24,7 @@ export function ManufacturerLogo({
     return (
       <span
         className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-[5px] bg-[var(--ct-surface-inset)]",
+          "inline-flex shrink-0 items-center justify-center rounded-[var(--ct-radius-2xs)] bg-[var(--ct-surface-inset)]",
           className,
         )}
         style={{ width: size, height: size }}
@@ -44,7 +44,7 @@ export function ManufacturerLogo({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[5px] bg-white",
+        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[var(--ct-radius-2xs)] bg-white",
         className,
       )}
       style={{ width: size, height: size, padding: Math.round(size * 0.12) }}
