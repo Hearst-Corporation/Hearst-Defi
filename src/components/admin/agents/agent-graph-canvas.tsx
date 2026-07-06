@@ -83,7 +83,12 @@ function statusBadgeColor(status: RunStatus): "green" | "red" | "amber" | "zinc"
   return "zinc";
 }
 
-const POLL_MS = 5_000;
+// Poll cadence — adaptive idle backoff (mirrors the chat-nav-bridge pattern):
+// start at POLL_BASE_MS and double on each poll that returns the SAME graph, up
+// to POLL_MAX_MS, so a quiet orchestration graph stops hammering the API. The
+// delay resets to base the moment the graph changes OR the tab regains focus.
+const POLL_BASE_MS = 5_000;
+const POLL_MAX_MS = 30_000;
 
 interface Placed extends AgentGraphNode {
   x: number;
@@ -135,26 +140,78 @@ export function AgentGraphCanvas({ initialViews }: { initialViews: AgentGraphVie
   }, [activeView]);
   const placedRef = useRef<Placed[]>([]);
 
-  // Auto-refresh: poll the live graph (paused when the tab is hidden).
+  // Auto-refresh: poll the live graph with adaptive idle backoff. The delay
+  // starts at POLL_BASE_MS and doubles (→ POLL_MAX_MS) on each poll that returns
+  // an UNCHANGED graph, so a quiet graph stops hammering /api/admin/agents/graph.
+  // It resets to base the instant the graph changes or the tab regains focus.
+  // Timer discipline mirrors chat-nav-bridge: a single `timer` id, always
+  // cleared before re-scheduling; `cancelled` short-circuits async continuations
+  // that resolve after teardown; polling is skipped while the tab is hidden.
   useEffect(() => {
     let cancelled = false;
+    let delay = POLL_BASE_MS;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    // Signature of the last graph rendered — lets us tell "changed" (reset to
+    // base) from "unchanged" (back off). Seeded from the initial server views so
+    // the first poll that returns the same graph already backs off.
+    let lastSig = JSON.stringify(initialViews.views);
+
+    const schedule = (ms: number) => {
+      if (cancelled) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => void poll(), ms);
+    };
+
     const poll = async () => {
-      if (typeof document !== "undefined" && document.hidden) return;
+      if (cancelled) return;
+      // Paused while hidden — re-arm at base cadence; the visibility handler
+      // fires a fresh poll the moment the tab is shown again.
+      if (typeof document !== "undefined" && document.hidden) {
+        delay = POLL_BASE_MS;
+        schedule(delay);
+        return;
+      }
       try {
         const res = await fetch("/api/admin/agents/graph", { cache: "no-store" });
-        if (!res.ok) return;
-        const next = (await res.json()) as AgentGraphViews;
-        if (!cancelled && Array.isArray(next.views)) setViews(next.views);
+        if (!cancelled && res.ok) {
+          const next = (await res.json()) as AgentGraphViews;
+          if (!cancelled && Array.isArray(next.views)) {
+            const sig = JSON.stringify(next.views);
+            if (sig !== lastSig) {
+              // Graph changed — render it and reset the cadence to base so we
+              // sample frequently while things are moving.
+              lastSig = sig;
+              delay = POLL_BASE_MS;
+              setViews(next.views);
+            } else {
+              // Unchanged — back off toward the ceiling.
+              delay = Math.min(delay * 2, POLL_MAX_MS);
+            }
+          }
+        }
+        // Non-ok / non-array response: keep the last graph and the current delay.
       } catch {
-        /* transient — keep last graph */
+        /* transient — keep last graph, keep backing off */
       }
+      schedule(delay);
     };
-    const id = setInterval(() => void poll(), POLL_MS);
+
+    // Reset to base + poll immediately when the tab regains focus.
+    const onVisible = () => {
+      if (cancelled || document.hidden) return;
+      delay = POLL_BASE_MS;
+      if (timer) clearTimeout(timer);
+      void poll();
+    };
+
+    schedule(delay);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
-      clearInterval(id);
+      if (timer) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [initialViews.views]);
 
   // Clear selection when switching views (ids differ across views).
   useEffect(() => {

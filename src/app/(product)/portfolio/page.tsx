@@ -24,7 +24,9 @@ import {
   type HcSourceStatus,
 } from "@/components/dataviz/his";
 import { RecentActivity } from "@/components/portfolio/recent-activity";
-import { DistributionChart } from "@/components/portfolio/distribution-chart";
+// Lazy client wrapper: code-splits recharts out of this route's entry chunk and
+// skips its SSR pass (chart is under-the-fold). FINDING #18 (P1, perf).
+import { DistributionChartLazy } from "@/components/portfolio/distribution-chart-lazy";
 import {
   loadPortfolio,
   loadAllocationDonutProps,
@@ -281,7 +283,7 @@ export default async function PortfolioPage() {
             </div>
             
             <div className="p-5 flex flex-col justify-end min-h-[180px]">
-              <DistributionChart entries={distribCalendarProps.entries} />
+              <DistributionChartLazy entries={distribCalendarProps.entries} />
             </div>
           </div>
 
