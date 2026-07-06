@@ -19,13 +19,8 @@ import { describe, it, expect } from "vitest";
 
 import type { LockMeterProps } from "../lock-meter";
 import { computeLockMeter } from "../lock-meter";
-import type { RiskPulseProps, RiskScore } from "../risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "../distrib-calendar";
 import { formatPeriod, formatUsdc } from "../distrib-calendar";
-import type { ProofPulseProps } from "../proof-pulse";
-import { computeDeltaPct, isMatch } from "../proof-pulse";
-import type { YieldStackProps } from "../yield-stack";
-import { barWidthPct, formatContribution, BUCKET_COLOR } from "../yield-stack";
 
 // ── Mock PortfolioData (mirrors DEMO_PORTFOLIO_DATA shape) ───────────────────
 
@@ -225,55 +220,6 @@ describe("LockMeter props — loadLockMeterProps shape", () => {
   });
 });
 
-// ── Widget props: RiskPulse ───────────────────────────────────────────────────
-
-describe("RiskPulse props — loadRiskPulseProps shape", () => {
-  const STUB_SCORES: RiskScore[] = [
-    { dimension: "market",         score: 38, delta30d: -2 },
-    { dimension: "mining",         score: 28, delta30d: 0  },
-    { dimension: "liquidity",      score: 44, delta30d: 1  },
-    { dimension: "smart_contract", score: 35, delta30d: 0  },
-    { dimension: "counterparty",   score: 26, delta30d: -1 },
-  ];
-
-  const props: RiskPulseProps = {
-    scores: STUB_SCORES,
-    composite: 42,
-    compositeLabel: "Low–Moderate",
-    composite30dTrend: "stable",
-  };
-
-  it("scores array has exactly 5 entries", () => {
-    expect(props.scores).toHaveLength(5);
-  });
-
-  it("all 5 canonical dimensions present", () => {
-    const dims = props.scores.map((s) => s.dimension);
-    expect(dims).toContain("market");
-    expect(dims).toContain("mining");
-    expect(dims).toContain("liquidity");
-    expect(dims).toContain("smart_contract");
-    expect(dims).toContain("counterparty");
-  });
-
-  it("composite is 0–100", () => {
-    expect(props.composite).toBeGreaterThanOrEqual(0);
-    expect(props.composite).toBeLessThanOrEqual(100);
-  });
-
-  it("compositeLabel is one of the 5 valid labels", () => {
-    const validLabels = ["Low", "Low–Moderate", "Moderate", "Elevated", "High"];
-    expect(validLabels).toContain(props.compositeLabel);
-  });
-
-  it("scores are all 0–100", () => {
-    for (const s of props.scores) {
-      expect(s.score).toBeGreaterThanOrEqual(0);
-      expect(s.score).toBeLessThanOrEqual(100);
-    }
-  });
-});
-
 // ── Widget props: DistribCalendar ─────────────────────────────────────────────
 
 describe("DistribCalendar props — loadDistribCalendarProps shape", () => {
@@ -336,141 +282,6 @@ describe("DistribCalendar props — loadDistribCalendarProps shape", () => {
   it("all amountUsdc are positive numbers", () => {
     for (const e of props.entries) {
       expect(e.amountUsdc).toBeGreaterThan(0);
-    }
-  });
-});
-
-// ── Widget props: ProofPulse ──────────────────────────────────────────────────
-
-describe("ProofPulse props — loadProofPulseProps shape", () => {
-  const TIMESTAMP = new Date("2026-05-01T09:00:00Z");
-  const props: ProofPulseProps = {
-    lastPor: {
-      timestamp: TIMESTAMP,
-      statedTvlUsdc: 42_500_000,
-      onChainTvlUsdc: 42_487_500,
-    },
-    methodologyVersion: "v1.0",
-    methodologyLocked: true,
-    nextAttestation: new Date("2026-06-01T09:00:00Z"),
-    auditor: "Spearbit",
-  };
-
-  it("lastPor.timestamp is a Date", () => {
-    expect(props.lastPor.timestamp).toBeInstanceOf(Date);
-  });
-
-  it("statedTvlUsdc and onChainTvlUsdc are positive numbers", () => {
-    expect(props.lastPor.statedTvlUsdc).toBeGreaterThan(0);
-    expect(props.lastPor.onChainTvlUsdc).toBeGreaterThan(0);
-  });
-
-  it("delta between stated and on-chain TVL is < 0.5% (match)", () => {
-    const deltaPct = computeDeltaPct(
-      props.lastPor.statedTvlUsdc,
-      props.lastPor.onChainTvlUsdc,
-    );
-    expect(isMatch(deltaPct)).toBe(true);
-  });
-
-  it("methodologyVersion is 'v1.0'", () => {
-    expect(props.methodologyVersion).toBe("v1.0");
-  });
-
-  it("methodologyLocked is true", () => {
-    expect(props.methodologyLocked).toBe(true);
-  });
-
-  it("auditor is a non-empty string", () => {
-    expect(typeof props.auditor).toBe("string");
-    expect(props.auditor.length).toBeGreaterThan(0);
-  });
-
-  it("nextAttestation is a Date when provided", () => {
-    if (props.nextAttestation !== null) {
-      expect(props.nextAttestation).toBeInstanceOf(Date);
-    }
-  });
-
-  it("no forbidden words in auditor string", () => {
-    const forbidden = ["guarantee", "promise", "certain", "will deliver", "risk-free"];
-    for (const word of forbidden) {
-      expect(props.auditor.toLowerCase()).not.toContain(word);
-    }
-  });
-});
-
-// ── Widget props: YieldStack ──────────────────────────────────────────────────
-
-describe("YieldStack props — loadYieldStackProps shape", () => {
-  const props: YieldStackProps = {
-    sources: [
-      { bucket: "mining",         label: "Mining cashflow",  contributionPct: 6.2 },
-      { bucket: "usdc_base",      label: "USDC base yield",  contributionPct: 4.8 },
-      { bucket: "btc_tactical",   label: "BTC tactical",     contributionPct: 1.5, isVolatile: true },
-      { bucket: "stable_reserve", label: "Stable reserve",   contributionPct: 0.8 },
-    ],
-    blendedLow: 9.4,
-    blendedHigh: 12.8,
-    stressedBearRange: { low: 5.2, high: 6.0 },
-    methodologyVersion: "1.0",
-  };
-
-  it("has exactly 4 sources (one per canonical bucket)", () => {
-    expect(props.sources).toHaveLength(4);
-  });
-
-  it("blendedLow < blendedHigh (range direction correct)", () => {
-    expect(props.blendedLow).toBeLessThan(props.blendedHigh);
-  });
-
-  it("blendedLow and blendedHigh match spec range 9.4–12.8%", () => {
-    expect(props.blendedLow).toBe(9.4);
-    expect(props.blendedHigh).toBe(12.8);
-  });
-
-  it("stressedBearRange.high is strictly less than blendedLow", () => {
-    expect(props.stressedBearRange.high).toBeLessThan(props.blendedLow);
-  });
-
-  it("stressedBearRange is a range, never a single point (CLAUDE.md #1)", () => {
-    expect(props.stressedBearRange.low).toBeLessThan(props.stressedBearRange.high);
-  });
-
-  it("btc_tactical is marked as volatile", () => {
-    const btc = props.sources.find((s) => s.bucket === "btc_tactical");
-    expect(btc?.isVolatile).toBe(true);
-  });
-
-  it("all bucket colours use CSS custom properties (--ct-* tokens only)", () => {
-    const buckets: Array<"mining" | "usdc_base" | "btc_tactical" | "stable_reserve"> =
-      ["mining", "usdc_base", "btc_tactical", "stable_reserve"];
-    for (const b of buckets) {
-      expect(BUCKET_COLOR[b]).toMatch(/^var\(--ct-/);
-    }
-  });
-
-  it("barWidthPct produces values 0–100 for all sources", () => {
-    const maxAbs = Math.max(...props.sources.map((s) => Math.abs(s.contributionPct)));
-    for (const s of props.sources) {
-      const w = barWidthPct(s.contributionPct, maxAbs);
-      expect(w).toBeGreaterThanOrEqual(0);
-      expect(w).toBeLessThanOrEqual(100);
-    }
-  });
-
-  it("formatContribution renders ± prefix for volatile source", () => {
-    const btc = props.sources.find((s) => s.bucket === "btc_tactical")!;
-    const formatted = formatContribution(btc.contributionPct, btc.isVolatile ?? false);
-    expect(formatted).toMatch(/^±/);
-  });
-
-  it("no forbidden words in source labels", () => {
-    const forbidden = ["guarantee", "promise", "certain", "will deliver", "risk-free"];
-    for (const s of props.sources) {
-      for (const word of forbidden) {
-        expect(s.label.toLowerCase()).not.toContain(word);
-      }
     }
   });
 });

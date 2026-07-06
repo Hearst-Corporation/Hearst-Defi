@@ -35,15 +35,8 @@ function asCachedDate(
 ): Date | undefined {
   return coercePortfolioDate(value) ?? undefined;
 }
-import {
-  METHODOLOGY_FACTORS,
-  METHODOLOGY_VERSION,
-} from "@/lib/engine/methodology";
 import type { LockMeterProps } from "@/components/portfolio/lock-meter";
-import type { RiskPulseProps } from "@/components/portfolio/risk-pulse";
 import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";
-import type { ProofPulseProps } from "@/components/portfolio/proof-pulse";
-import type { YieldStackProps } from "@/components/portfolio/yield-stack";
 import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 // ---------------------------------------------------------------------------
@@ -172,14 +165,6 @@ function toNumber(v: unknown): number {
 function bpsToApyPct(bps: number): number {
   return Math.round((bps / 100) * 10) / 10;
 }
-
-const EMPTY_RISK_SCORES: RiskPulseProps["scores"] = [
-  { dimension: "market", score: 0, delta30d: 0 },
-  { dimension: "mining", score: 0, delta30d: 0 },
-  { dimension: "liquidity", score: 0, delta30d: 0 },
-  { dimension: "smart_contract", score: 0, delta30d: 0 },
-  { dimension: "counterparty", score: 0, delta30d: 0 },
-];
 
 type InvestorTxRow = {
   id: string;
@@ -474,64 +459,6 @@ const loadLockMeterProps = cache(async (): Promise<LockMeterProps & { source: "l
 });
 
 /**
- * Build RiskPulseProps from risk-framework data.
- * Cached cross-request for 1 hour as risk scores change slowly.
- */
-const fetchRiskPulseData = unstable_cache(
-  async () => {
-    const snapshot = await prisma.vaultSnapshot.findFirst({ orderBy: { takenAt: "desc" } });
-    return snapshot;
-  },
-  ["risk-pulse-data"],
-  { revalidate: 3600, tags: ["risk"] }
-);
-
-export const loadRiskPulseProps = cache(async (): Promise<RiskPulseProps & { source: "live" | "stale"; updatedAt?: Date }> => {
-  const snapshot = await fetchRiskPulseData();
-
-  if (!snapshot) {
-    return {
-      scores: EMPTY_RISK_SCORES,
-      composite: 0,
-      compositeLabel: undefined,
-      composite30dTrend: "stable",
-      source: "stale",
-    };
-  }
-
-  const scores = EMPTY_RISK_SCORES;
-
-  // Per-dimension scores are not persisted yet — a headline composite without
-  // dimension breakdown would read as a false positive (e.g. 42 / Low–Moderate
-  // while every row is N/A).
-  const dimensionsPopulated = scores.some((s) => s.score > 0);
-  const rawComposite = snapshot.riskScore ?? 0;
-  const compositeAvailable = dimensionsPopulated && rawComposite > 0;
-
-  const composite = compositeAvailable ? rawComposite : 0;
-  const compositeLabel: RiskPulseProps["compositeLabel"] = compositeAvailable
-    ? rawComposite <= 33
-      ? "Low"
-      : rawComposite <= 50
-        ? "Low–Moderate"
-        : rawComposite <= 66
-          ? "Moderate"
-          : rawComposite <= 80
-            ? "Elevated"
-            : "High"
-    : undefined;
-
-  return {
-    scores,
-    composite,
-    compositeLabel,
-    composite30dTrend: "stable",
-    source: compositeAvailable ? "live" : "stale",
-    updatedAt: asCachedDate(snapshot.takenAt),
-  };
-});
-
-/**
  * Build DistribCalendarProps from Distribution table.
  */
 export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarProps & { source: "live" | "stale"; updatedAt?: Date }> => {
@@ -597,61 +524,6 @@ export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarP
 });
 
 /**
- * Build ProofPulseProps from the Proof table (latest PoR).
- * Cached cross-request for 1 hour.
- */
-const fetchProofData = unstable_cache(
-  async () => {
-    const latestProof = await prisma.proof.findFirst({
-      where: { proofType: "custody" },
-      orderBy: { postedAt: "desc" },
-    });
-    const snapshot = await prisma.vaultSnapshot.findFirst({
-      orderBy: { takenAt: "desc" },
-      select: { aumUsdc: true },
-    });
-    return { latestProof, snapshot };
-  },
-  ["proof-pulse-data"],
-  { revalidate: 3600, tags: ["proof"] }
-);
-
-export const loadProofPulseProps = cache(async (): Promise<ProofPulseProps & { source: "live" | "stale" | "attested"; updatedAt?: Date }> => {
-  const now = new Date();
-  const { latestProof, snapshot } = await fetchProofData();
-
-  if (!latestProof) {
-    return {
-      lastPor: { timestamp: now, statedTvlUsdc: 0, onChainTvlUsdc: 0 },
-      methodologyVersion: "",
-      methodologyLocked: false,
-      nextAttestation: null,
-      auditor: "",
-      source: "stale",
-    };
-  }
-
-  const statedTvlUsdc = snapshot ? toNumber(snapshot.aumUsdc) : 0;
-  const onChainTvlUsdc = 0; // Populated in Phase 2
-
-  const postedAt = asCachedDate(latestProof.postedAt) ?? now;
-
-  return {
-    lastPor: {
-      timestamp: postedAt,
-      statedTvlUsdc,
-      onChainTvlUsdc,
-    },
-    methodologyVersion: "",
-    methodologyLocked: false,
-    nextAttestation: null,
-    auditor: "",
-    source: "attested", // Proof exists, so it's attested
-    updatedAt: postedAt,
-  };
-});
-
-/**
  * Build YieldStackProps from vault allocation data.
  * Short-cached cross-request: allocation snapshots change at most hourly (custody
  * cron), but a 1h TTL meant a freshly-landed snapshot — or a just-cleared one —
@@ -676,58 +548,6 @@ const fetchYieldStackData = unstable_cache(
   ["yield-stack-data"],
   { revalidate: 60, tags: ["yield"] }
 );
-
-export const loadYieldStackProps = cache(async (_hasPositions: boolean = true): Promise<YieldStackProps & { source: "live" | "stale"; updatedAt?: Date }> => {
-  const snapshot = await fetchYieldStackData();
-
-  if (!snapshot || snapshot.allocations.length === 0) {
-    return {
-      sources: [],
-      blendedLow: 0,
-      blendedHigh: 0,
-      stressedBearRange: { low: 0, high: 0 },
-      methodologyVersion: METHODOLOGY_VERSION,
-      source: "stale",
-    };
-  }
-
-  const labelMap: Record<string, string> = {
-    mining: "Mining cashflow",
-    usdc_base: "USDC base yield",
-    btc_tactical: "BTC tactical",
-    stable_reserve: "Stable reserve",
-  };
-
-  const sources: YieldStackProps["sources"] = snapshot.allocations.map((alloc) => {
-    const bucket = alloc.bucket as "mining" | "usdc_base" | "btc_tactical" | "stable_reserve";
-    const contributionBps = toNumber(alloc.yieldContributionBps);
-    return {
-      bucket,
-      label: labelMap[bucket] ?? bucket,
-      contributionPct: contributionBps / 100,
-      isVolatile: bucket === "btc_tactical",
-    };
-  });
-
-  const blendedLow = toNumber(snapshot.currentApyLow);
-  const blendedHigh = toNumber(snapshot.currentApyHigh);
-  const stressedCenter = toNumber(snapshot.stressedApy);
-  const stressedHalfBand = METHODOLOGY_FACTORS.STRESSED_APY_POINT_HALF_BAND;
-  const stressedBearRange = {
-    low: Math.round((stressedCenter - stressedHalfBand) * 10) / 10,
-    high: Math.round((stressedCenter + stressedHalfBand) * 10) / 10,
-  };
-
-  return {
-    sources,
-    blendedLow,
-    blendedHigh,
-    stressedBearRange,
-    methodologyVersion: METHODOLOGY_VERSION,
-    source: "live",
-    updatedAt: asCachedDate(snapshot.takenAt),
-  };
-});
 
 export interface AllocationBucketSlice {
   bucket: "mining" | "btc_tactical" | "usdc_base" | "stable_reserve";

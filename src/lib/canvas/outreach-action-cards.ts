@@ -505,16 +505,3 @@ export function buildReviewRecipientsSection(prospectCount: number, tierBreakdow
   };
 }
 
-// ============================================================================
-// EXPORT ALL
-// ============================================================================
-
-export const outreachActionCards = {
-  buildCreateCampaignSection,
-  buildEmailDraftSection,
-  buildWhatsAppDraftSection,
-  buildLinkedInDraftSection,
-  buildSourceLeadsSection,
-  buildFollowUpSection,
-  buildReviewRecipientsSection,
-};

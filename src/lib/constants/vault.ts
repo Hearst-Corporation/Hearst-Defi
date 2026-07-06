@@ -52,17 +52,6 @@ export const VAULT_STATUS_LABEL: Record<VaultProduct["status"], string> = {
   closed: "Closed",
 };
 
-export const VAULT_STATUS_VARIANT: Record<
-  VaultProduct["status"],
-  "success" | "warning" | "default" | "danger"
-> = {
-  live: "success",
-  review: "warning",
-  draft: "default",
-  paused: "warning",
-  closed: "danger",
-};
-
 export function vaultStatusLabel(status: VaultProduct["status"]): string {
   return VAULT_STATUS_LABEL[status] ?? status;
 }

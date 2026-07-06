@@ -99,7 +99,3 @@ export const MARKET_REGIMES: MarketRegimeConfig[] = [
     maxDrawdownShockBps: 5000,
   },
 ];
-
-export function getRegime(id: string): MarketRegimeConfig | undefined {
-  return MARKET_REGIMES.find((r) => r.id === id);
-}

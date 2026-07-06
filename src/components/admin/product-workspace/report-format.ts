@@ -54,31 +54,10 @@ export function formatFanMonthLabel(value: unknown): string {
   return "Month —";
 }
 
-export function formatBtcUsd(btcUsd: number): string {
-  if (!Number.isFinite(btcUsd) || btcUsd <= 0) return "Unavailable";
-  return `$${Math.round(btcUsd).toLocaleString("en-US")}`;
-}
-
 /** Matches construction-report / construction-steps canonical hashprice display. */
 export function formatHashpriceUsd(hashpriceUsdPerThDay: number): string {
   if (!Number.isFinite(hashpriceUsdPerThDay) || hashpriceUsdPerThDay <= 0) {
     return "Unavailable";
   }
   return `$${hashpriceUsdPerThDay.toFixed(3)}/TH·d`;
-}
-
-export function formatApyFraction(n: number, digits = 1): string {
-  return `${(n * 100).toFixed(digits)}%`;
-}
-
-export function formatPercentPoint(n: number, digits = 1): string {
-  if (!Number.isFinite(n)) return "Unavailable";
-  return `${n.toFixed(digits)}%`;
-}
-
-export function formatSignedPercentPoint(n: number): string {
-  if (!Number.isFinite(n)) return "Unavailable";
-  const rounded = Math.round(n * 10) / 10;
-  const body = Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1);
-  return `${rounded >= 0 ? "+" : "−"}${body.replace("-", "")}%`;
 }
