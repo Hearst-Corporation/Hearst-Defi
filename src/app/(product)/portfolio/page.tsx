@@ -1,404 +1,362 @@
-// Investor Portfolio — bound to REAL data (loadPortfolio + loadAllocationDonut,
-// MISSION #034), rendered entirely on the Hearst Instrument System (HIS) data-viz
-// (src/components/dataviz/his — PR #160). Server Component, gated by the product
-// layout. Replaces the former 100% static mock ($509,800 / $500,000 / $9,800 /
-// $8,380 demo activity) so the investor sees the SAME truth as /profile and
-// /admin/customers (e.g. the real $11 account). No data-layer rewrite — this page
-// only BINDS the existing loader + HIS primitives. HIS guarantees honesty:
-// non-live data can never read as "Live" (source badge + fallback hatch veil).
+/**
+ * /portfolio — V4 vault-health console (recomposed on the Application UI V4 kit).
+ *
+ * The design system + --ct-* tokens are NOT modified (this page only consumes them).
+ * Composition follows the kit's master pattern: console header + ambient glow → one
+ * dominant hero (value chart + edge stat band) → acts separated by titled hairline
+ * dividers → advisory as a one-line activity feed → exit + projection → a single
+ * footer disclaimer. Chrome budget: ONE shadowed hero, every support surface is a
+ * bare hairline. Green (accent) + heartbeat pulse are reserved for the one
+ * genuinely-Live value (hashprice). Kit = frames; HIS = charts.
+ */
+import type { ReactNode } from "react";
 
-import Link from "next/link";
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/catalyst/table";
 import {
   HcChartCard,
-  HcCompositionRing,
   HcValueChart,
-  type HcSourceStatus,
 } from "@/components/dataviz/his";
-import { RecentActivity } from "@/components/portfolio/recent-activity";
-// Lazy client wrapper: code-splits recharts out of this route's entry chunk and
-// skips its SSR pass (chart is under-the-fold). FINDING #18 (P1, perf).
-import { DistributionChartLazy } from "@/components/portfolio/distribution-chart-lazy";
-import {
-  loadPortfolio,
-  loadAllocationDonutProps,
-  loadDistribCalendarProps,
-  POSITION_STATUS_CONFIG,
-} from "@/lib/data/portfolio";
-import { formatApyRange } from "@/lib/format/apy";
-import { resolvePortfolioChartWindow } from "@/lib/portfolio/value-series";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdFull } from "@/lib/vaults/product-display";
+
+import "./preview/_styles.css";
+import { AdvisoryFeed } from "./preview/_charts/advisory-feed";
+import { AgentCanvas } from "./preview/_charts/agent-canvas";
+import { AssetBadge } from "./preview/_charts/asset-badge";
+import { AssetRing } from "./preview/_charts/asset-ring";
+import { HcBullet } from "./preview/_charts/bullet";
+import { ExitPaths } from "./preview/_charts/exit-paths";
+import { HcHonestFan } from "./preview/_charts/honest-fan";
+import { HcMeter } from "./preview/_charts/meter";
+import { PocketCards } from "./preview/_charts/pocket-cards";
+import { HcProductionBars } from "./preview/_charts/production-bars";
+import { HcRiskDimensions } from "./preview/_charts/risk-dimensions";
+import { StatBand } from "./preview/_charts/stat-band";
+import { HcUptimeBand, orderedUptime } from "./preview/_charts/uptime-band";
+import { ASSET_COLOR, HEARST_WORDMARK, POCKET_ASSET } from "./preview/_data/brand";
+import {
+  ACCESS,
+  EFFICIENCY,
+  EXIT_PATHS,
+  HEALTH,
+  HEALTH_STATS,
+  HERO_STATS,
+  ORCHESTRATION,
+  POCKETS,
+  POCKET_CARDS,
+  PRODUCTION,
+  PROJECTION,
+  RISK_DIMENSIONS,
+  SAFETY,
+  SAFETY_TICKS,
+  SIGNALS,
+  TAKEPROFIT_TICKS,
+  UPTIME_SEGMENTS,
+  VALUE_POINTS,
+  VAULT,
+} from "./preview/_data/mock";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Portfolio",
-  description: "Your positions and distributions",
+  description: "Per-client V4 vault-health console.",
 };
 
-const TABLE_HEAD = "bg-transparent ct-bento-label";
-const ROW =
-  "border-transparent transition-all hover:bg-[radial-gradient(circle_at_20%_50%,var(--ct-row-hover-glow)_0%,transparent_60%)]";
-// One KPI tile in the Account card (hairline-separated cells on the black grid).
-const KPI_TILE = "flex flex-col gap-1.5 bg-surface-card p-5 min-w-0";
-const KPI_VALUE = "ct-metric-value text-[length:var(--ct-text-2xl)] tracking-tight";
+/** Bare-hairline support surface (no shadow — the chrome budget reserves elevation for the hero). */
+const SUPPORT = "rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden";
+const HERO_SHADOW = "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)";
 
-const BUCKET_LABEL: Record<string, string> = {
-  mining: "Mining cashflow",
-  usdc_base: "USDC base yield",
-  btc_tactical: "BTC tactical",
-  stable_reserve: "Stable reserve",
-};
-
-function apyLabel(low: number | null, high: number | null): string {
-  if (low === null || high === null) return "—";
-  return formatApyRange({ low, high });
-}
-
-/** Canon "See more →" link to a portfolio leaf page (token-only). */
-function SeeMore({ href }: { href: string }) {
+function MetaChip({ label, value }: { label: string; value: string }) {
   return (
-    <Link
-      href={href}
-      className="ct-bento-label group inline-flex shrink-0 items-center gap-1 transition-colors hover:text-[var(--ct-accent)]"
-    >
-      See more <span aria-hidden="true" className="transition-transform ease-out group-hover:translate-x-0.5">→</span>
-    </Link>
+    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-2 py-0.5">
+      <span className="ct-bento-label">{label}</span>
+      <span className="text-[length:var(--ct-text-xs)] ct-text-strong tabular-nums">{value}</span>
+    </span>
   );
 }
 
-export default async function PortfolioPage() {
-  // Call ONLY the two loaders this page renders (the value/positions data + the
-  // allocation ring). Avoids loadPortfolioView's extra risk/distrib/proof/yield
-  // props that this page doesn't consume — no wasted queries.
-  const [data, allocationDonutProps, distribCalendarProps] = await Promise.all([
-    loadPortfolio(),
-    loadAllocationDonutProps(),
-    loadDistribCalendarProps(),
-  ]);
-  const {
-    positions,
-    totalValueUsdc,
-    deployedUsdc,
-    accruedYieldUsdc,
-    recentTransactions,
-    hourlyValueSnapshots,
-    source,
-    updatedAt,
-  } = data;
+/** Titled hairline divider — opens an act without boxing it in a card (kills cage-in-cage). */
+function TitledDivider({ title, trailing }: { title: string; trailing?: ReactNode }) {
+  return (
+    <div className="flex items-center gap-4 pt-2">
+      <h2 className="ct-section-title shrink-0">{title}</h2>
+      <span aria-hidden="true" className="h-px flex-1" style={{ background: "var(--ct-border-soft)" }} />
+      {trailing ? <div className="shrink-0">{trailing}</div> : null}
+    </div>
+  );
+}
 
-  const hasPositions = positions.length > 0;
-  const activeCount = positions.filter((p) => p.status === "active").length;
-  const deployedPct =
-    totalValueUsdc > 0
-      ? `${((deployedUsdc / totalValueUsdc) * 100).toFixed(1)}%`
-      : "—";
+function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
+      <span className="ct-bento-label">{title}</span>
+      {trailing ? <div className="shrink-0">{trailing}</div> : null}
+    </div>
+  );
+}
 
-  // Real NAV points (with dates) feed the axed hero chart (HcValueChart). The
-  // series is real and untouched — no fake [0,0] baseline. <2 points → the chart
-  // renders its own honest empty state. A fallback-source run still gets the veil.
-  const valuePoints = hourlyValueSnapshots.map((s) => ({
-    at: s.at,
-    value: s.valueUsdc,
+export default function PortfolioPage() {
+  const pocketTotal = POCKETS.reduce((s, p) => s + p.value, 0);
+  // Per-asset ring segments (green / orange / blue) — matches the pocket-card identity colours.
+  const pocketRing = POCKETS.map((p, i) => ({
+    label: p.label,
+    value: p.value,
+    color: ASSET_COLOR[POCKET_ASSET[i] ?? "hearst"],
   }));
-  const heroState: "ready" | "fallback" =
-    source === "fallback" ? "fallback" : "ready";
-
-  // Resolve the chart's header + axis from the REAL span so the subtitle can
-  // never claim "12 months" while the x-axis shows days, and so the provenance
-  // badge reads "Live" only when the data is genuinely live (real source AND a
-  // real span). Demo data gets the explicit "Demo" pill; a seed/low balance is
-  // annotated rather than dressed up as a mature institutional book.
-  const chartWindow = resolvePortfolioChartWindow(valuePoints, source);
-  const heroSubtitle = chartWindow.isLowBalance
-    ? `${chartWindow.subtitle} · seed balance`
-    : chartWindow.subtitle;
-  const heroSource: HcSourceStatus = chartWindow.isDemo
-    ? "demo"
-    : chartWindow.isLive
-      ? "live"
-      : "estimated";
-
-  // Allocation ring — REAL vault-snapshot buckets only. No fabricated split: if
-  // there is no real allocation, the ring renders its empty track (zero stays
-  // zero, widget still visible) rather than an invented 60/25/10/5 under a badge.
-  const allocSegments = allocationDonutProps.buckets.map((b) => ({
-    label: BUCKET_LABEL[b.bucket] ?? b.bucket,
-    value: b.valueUsdc,
-  }));
-  const hasAllocation = allocSegments.length > 0;
+  const onlinePct = UPTIME_SEGMENTS.find((s) => s.cause === "online")?.pct ?? 0;
+  const uptimeCauses = orderedUptime(UPTIME_SEGMENTS).filter((s) => s.cause !== "online");
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8 relative">
-      {/* Premium ambient glow */}
-      <div
-        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[min(800px,100%)] h-[min(400px,50vw)] opacity-[0.04]"
-        style={{
-          background: "radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%)",
-        }}
-      />
+    <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
+      <div className="flex flex-col gap-y-8 p-5 lg:p-6">
+        {/* S0 — access ribbon (Hearst letterhead + one line of chips) */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={HEARST_WORDMARK.src}
+            alt={HEARST_WORDMARK.alt}
+            className="mr-1 shrink-0"
+            style={{ height: 16, width: "auto", display: "block" }}
+          />
+          <span
+            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[length:var(--ct-text-nano)] font-bold uppercase tracking-widest"
+            style={{ borderColor: "var(--ct-status-warning-border)", color: "var(--ct-status-warning)", background: "var(--ct-status-warning-soft)" }}
+          >
+            Sandbox · V4
+          </span>
+          <MetaChip label="KYC" value={ACCESS.kycStatus} />
+          <MetaChip label="Class" value={ACCESS.shareClass} />
+          <MetaChip label="Access" value="B2B · qualified" />
+        </div>
 
-      <div className="p-5 lg:p-6 flex flex-col gap-y-5 relative z-10">
-        {/* HEADER */}
-        <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[var(--ct-border-soft)] gap-4">
-          <div className="flex flex-col gap-1.5">
-            <span className="ct-bento-label">HYV · Investor Cockpit</span>
-            <h1 className="h1 shrink-0">
-              Portfolio <span className="h1-accent">Cockpit</span>
-            </h1>
+        {/* S1 — HERO: the one dominant band (glow + console header + value chart + edge stat band) */}
+        <section
+          className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
+          style={{ boxShadow: HERO_SHADOW }}
+          aria-label="Vault value"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 left-1/4 h-64 w-[min(680px,80%)] opacity-[0.07]"
+            style={{ background: "radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%)" }}
+          />
+          <div className="relative z-10 flex flex-col">
+            <div className="flex flex-wrap items-start justify-between gap-3 p-5 lg:p-6">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="ct-bento-label">Hearst Yield Vault · V4 · 1 vault = 1 client</span>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h1 className="h1 shrink-0">
+                    Vault <span className="h1-accent">Health</span>
+                  </h1>
+                  <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
+                    {formatUsdFull(VAULT.deployedValueUsdc)}
+                  </span>
+                  <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-body tabular-nums">
+                    {VAULT.totalChange}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <MetaChip label="Your hashrate" value={VAULT.allocatedHashrate} />
+                  <MetaChip label="Take-profit" value={`${VAULT.takeProfitProgressPct}% → +24%`} />
+                </div>
+              </div>
+              <span
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-body"
+                style={{ borderColor: "var(--ct-border-soft)" }}
+              >
+                <span
+                  aria-hidden="true"
+                  className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+                />
+                Active
+              </span>
+            </div>
+            <div className="px-5 lg:px-6">
+              <HcValueChart points={VALUE_POINTS} height={210} aria-label="Vault value trend" />
+            </div>
+            <div className="mt-4 border-t border-[var(--ct-border-soft)]">
+              <StatBand items={HERO_STATS} />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Act: Vault health ─────────────────────────────────────────────── */}
+        <TitledDivider title="Vault health" trailing={<ProvenanceBadge kind="estimated" variant="compact" />} />
+        <div className={SUPPORT}>
+          <StatBand items={HEALTH_STATS} />
+          <div className="flex flex-col gap-3 border-t border-[var(--ct-border-soft)] p-5">
+            <div className="flex items-center justify-between">
+              <span className="ct-bento-label">Distance to liquidation · 55 / 45 / 40 / 20</span>
+              <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">vs LLTV {HEALTH.lltvLivePct}% · deterministic · no kill-switch</span>
+            </div>
+            <HcMeter value={SAFETY.value} max={SAFETY.max} ticks={SAFETY_TICKS} gradient aria-label="Safety margin scale" />
           </div>
         </div>
 
-        {/* HERO — value instrument (HIS) + status tiles */}
-        <section className="grid grid-cols-1 lg:grid-cols-[1.6fr_minmax(256px,352px)] gap-5">
-          <HcChartCard
-            title="Portfolio value"
-            subtitle={heroSubtitle}
-            metric={formatUsdFull(totalValueUsdc)}
-            metricCompact
-            source={heroSource}
-            state={heroState}
-            height={200}
-            aria-label="Portfolio value over time"
-          >
-            <HcValueChart
-              points={valuePoints}
-              height={200}
-              xTicks={chartWindow.xTicks}
-              granularity={chartWindow.granularity}
-              aria-label="Portfolio value trend"
-            />
+        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
+          <HcChartCard title="Capital · 3 pockets" subtitle="B1 mining power · B2 wBTC · B3 USDC" source="estimated" state="ready" height={180} aria-label="Pocket allocation">
+            <div className="flex h-full items-center gap-5">
+              <AssetRing
+                segments={pocketRing}
+                centerLabel="Deployed"
+                centerValue={formatUsdFull(pocketTotal)}
+                size={156}
+                thickness={20}
+                aria-label="Pocket allocation ring"
+              />
+              <ul className="flex flex-1 flex-col gap-2.5">
+                {POCKET_CARDS.map((p) => (
+                  <li key={p.label} className="flex items-center gap-2">
+                    <AssetBadge asset={p.asset} size={16} />
+                    <span className="min-w-0 flex-1 truncate text-[length:var(--ct-text-xs)] ct-text-body">{p.label}</span>
+                    <span className="ct-metric-value text-[length:var(--ct-text-sm)] tabular-nums">{p.pct}%</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </HcChartCard>
-
-          {/* Account key-metrics card — black surface, titled header, responsive
-              KPI grid (1 col on narrow, 2 on wider). */}
-          <div 
-            className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
-            style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
-          >
-            <div className="p-5 border-b border-[var(--ct-border-soft)]">
-              <div className="flex items-center gap-2">
-                {/* Small static crypto icon — follows the repo convention for
-                    provider/source SVG marks (provider-logo, manufacturer-mark,
-                    construction-stepper): assumed <img> + eslint-disable, lazy +
-                    async. next/image is reserved for the branded Hearst logo in
-                    the auth/onboarding/apply shells, not 20px crypto marks. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/crypto-icons/btc.svg"
-                  alt="Bitcoin"
-                  width={20}
-                  height={20}
-                  loading="lazy"
-                  decoding="async"
-                  className="size-5 shrink-0"
-                />
-                <h2 className="ct-section-title">Account</h2>
-              </div>
-              <p className="ct-metric-caption">Key metrics</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)] flex-1">
-              <div className={KPI_TILE}>
-                <div className="ct-bento-label">Principal</div>
-                <div className={KPI_VALUE}>{formatUsdFull(deployedUsdc)}</div>
-                <div className="ct-metric-caption">Net deposits</div>
-              </div>
-              <div className={KPI_TILE}>
-                <div className="ct-bento-label">Positions</div>
-                <div className={KPI_VALUE}>{activeCount}</div>
-                <div className="ct-metric-caption">Active vaults</div>
-              </div>
-              <div className={KPI_TILE}>
-                <div className="ct-bento-label">Deployed</div>
-                <div className={KPI_VALUE}>{deployedPct}</div>
-                <div className="ct-metric-caption">Capital efficiency</div>
-              </div>
-              <div className={KPI_TILE}>
-                <div className="ct-bento-label">Accrued yield</div>
-                <div 
-                  className={`${KPI_VALUE} text-transparent bg-clip-text font-bold`}
-                  style={{ backgroundImage: "linear-gradient(to right, var(--ct-text-primary), var(--ct-accent))" }}
-                >
-                  {accruedYieldUsdc > 0
-                    ? `+${formatUsdFull(accruedYieldUsdc)}`
-                    : formatUsdFull(accruedYieldUsdc)}
-                </div>
-                <div className="ct-metric-caption">Since inception</div>
-              </div>
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader title="Pockets breakdown" trailing={<ProvenanceBadge kind="estimated" variant="compact" />} />
+            <div className="flex flex-1 p-4">
+              <PocketCards pockets={POCKET_CARDS} format={formatUsdFull} />
             </div>
           </div>
         </section>
 
-        {/* CAPITAL & YIELD — allocation ring (HIS) */}
-        <HcChartCard
-          title="Capital & yield"
-          subtitle="Strategy allocation by bucket"
-          source={
-            hasAllocation
-              ? allocationDonutProps.source === "live"
-                ? "live"
-                : "stale"
-              : undefined
-          }
-          state="ready"
-          height={180}
-          actions={<SeeMore href="/portfolio/yield" />}
-          aria-label="Strategy allocation"
-        >
-          <div className="flex h-full items-center">
-            <HcCompositionRing
-              segments={allocSegments}
-              centerLabel="Capital"
-              centerValue={
-                allocationDonutProps.aumUsdc
-                  ? formatUsdFull(allocationDonutProps.aumUsdc)
-                  : formatUsdFull(deployedUsdc)
+        {/* ── Act: Mining engine ────────────────────────────────────────────── */}
+        <TitledDivider title="Mining engine · your allocated power" />
+        <section className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5">
+          <div className={SUPPORT}>
+            <CardHeader title="cbBTC produced · daily conversion" trailing={<ProvenanceBadge kind="simulated" variant="compact" />} />
+            <div className="flex flex-col gap-4 p-5">
+              <HcProductionBars data={PRODUCTION} height={190} aria-label="cbBTC produced monthly" />
+              {/* Operational health — availability + efficiency, one aligned spec-sheet.
+                  Both bars are the middle cell of the SAME 3-col grid template → identical x/width. */}
+              <div className="flex flex-col gap-3 border-t border-[var(--ct-border-soft)] pt-4">
+                <div className="flex items-center justify-between">
+                  <span className="ct-bento-label">Operational health</span>
+                  <ProvenanceBadge kind="estimated" variant="compact" />
+                </div>
+
+                {/* Availability */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] items-center gap-x-4">
+                    <span className="text-[length:var(--ct-text-micro)] ct-text-muted">Availability</span>
+                    <HcUptimeBand segments={UPTIME_SEGMENTS} bandOnly aria-label="Machine uptime by cause" />
+                    <span className="justify-self-end whitespace-nowrap text-right">
+                      <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">{onlinePct.toFixed(1)}%</span>
+                      <span className="ml-1 text-[length:var(--ct-text-nano)] ct-text-muted">online</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] gap-x-4">
+                    <div className="col-start-2 col-end-3 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                      {uptimeCauses.map((s) => (
+                        <span key={s.cause} className="inline-flex items-center gap-1.5">
+                          <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: s.dot }} />
+                          <span className="text-[length:var(--ct-text-nano)] ct-text-muted">{s.label}</span>
+                          <span className="text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">{s.pct.toFixed(1)}%</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Efficiency */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] items-center gap-x-4">
+                    <span className="text-[length:var(--ct-text-micro)] ct-text-muted">Efficiency</span>
+                    <HcBullet
+                      value={EFFICIENCY.value}
+                      min={18}
+                      max={EFFICIENCY.max}
+                      target={EFFICIENCY.target}
+                      ranges={[EFFICIENCY.ranges[0], EFFICIENCY.ranges[1]]}
+                      tone={EFFICIENCY.value <= EFFICIENCY.target ? "accent" : "warning"}
+                      aria-label={`Efficiency ${EFFICIENCY.value} J/TH, target ${EFFICIENCY.target}`}
+                    />
+                    <span className="justify-self-end whitespace-nowrap text-right">
+                      <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">{EFFICIENCY.value}</span>
+                      <span className="ml-1 text-[length:var(--ct-text-nano)] ct-text-muted">J/TH</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] gap-x-4">
+                    <div className="col-start-2 col-end-3 flex items-center justify-between text-[length:var(--ct-text-nano)] ct-text-muted">
+                      <span>18 best</span>
+                      <span>target {EFFICIENCY.target} · lower is better</span>
+                      <span>30</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader
+              title="Agent orchestration"
+              trailing={
+                <span className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
+                  <span
+                    aria-hidden="true"
+                    className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
+                    style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+                  />
+                  Live · Chainlink
+                </span>
               }
-              bars
-              aria-label="Allocation composition ring"
+            />
+            <AgentCanvas
+              nodes={ORCHESTRATION.nodes}
+              edges={ORCHESTRATION.edges}
+              latest={ORCHESTRATION.latest}
             />
           </div>
-        </HcChartCard>
+        </section>
 
-        {/* DECK — Distribution calendar + Recent activity (real) */}
-        <section className="grid grid-cols-1 lg:grid-cols-[1.2fr_minmax(16rem,0.8fr)] gap-5">
-          <div 
-            className="rounded-2xl border border-[var(--ct-border)] bg-surface-card flex flex-col overflow-hidden"
-            style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
-          >
-            <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
-              <div className="flex flex-col gap-1.5">
-                <h2 className="ct-section-title">Distribution calendar</h2>
-                <p className="ct-metric-caption">12m · USDC payout history</p>
+        {/* ── Act: Advisory & exit ──────────────────────────────────────────── */}
+        <TitledDivider title="Agent advisory · deterministic rebalancing" trailing={
+          <span className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
+            <span aria-hidden="true" className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }} />
+            Live · Chainlink
+          </span>
+        } />
+        <div className={SUPPORT}>
+          <div className="grid grid-cols-1 gap-px bg-[var(--ct-border-soft)] lg:grid-cols-[minmax(220px,0.7fr)_1.3fr]">
+            <div className="flex flex-col gap-3 bg-surface-card p-5">
+              <div className="flex items-baseline justify-between">
+                <span className="ct-bento-label">Take-profit → +24%</span>
+                <span className="ct-metric-value text-[length:var(--ct-text-lg)] tabular-nums">{VAULT.takeProfitProgressPct}%</span>
               </div>
-              <SeeMore href="/portfolio/distributions" />
+              <HcMeter value={VAULT.takeProfitProgressPct} max={100} ticks={TAKEPROFIT_TICKS} tone="accent" aria-label="Take-profit progress" />
+              <span className="ct-metric-caption mt-auto text-[length:var(--ct-text-nano)] leading-snug">
+                Vault expires when deployed ≥ deposit ×1.24 → capital returned +24%. A maximum duration, not a fixed term.
+              </span>
             </div>
-            
-            <div className="p-5 flex flex-col justify-end min-h-[180px]">
-              <DistributionChartLazy entries={distribCalendarProps.entries} />
-            </div>
-          </div>
-
-          {/* Real recent activity — empty state is honest ("No transactions yet") */}
-          <RecentActivity
-            transactions={recentTransactions}
-            source={source}
-            updatedAt={updatedAt}
-            leafHref="/portfolio/activity"
-          />
-        </section>
-
-        {/* POSITIONS — real rows */}
-        <section
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden flex flex-col"
-          style={{ boxShadow: "var(--ct-shadow-soft), var(--ct-glass-bevel-subtle)" }}
-          aria-label="Active positions"
-        >
-          <div className="flex items-start justify-between gap-4 p-5 border-b border-[var(--ct-border-soft)]">
-            <div className="flex flex-col gap-1.5">
-              <h2 className="ct-section-title">Active positions</h2>
-              <p className="ct-metric-caption">Your deployed capital</p>
-            </div>
-            <div className="flex shrink-0 items-center gap-3">
-              <SeeMore href="/portfolio/positions" />
+            <div className="flex flex-col gap-2 bg-surface-card p-5">
+              <span className="ct-bento-label">Risk dimensions</span>
+              <HcRiskDimensions dims={RISK_DIMENSIONS} />
             </div>
           </div>
+          <div className="border-t border-[var(--ct-border-soft)] p-5">
+            <AdvisoryFeed signals={SIGNALS} />
+          </div>
+        </div>
 
-          {hasPositions ? (
-            <Table
-              dense
-              // Neutralize the Catalyst wrapper's -mx-(--gutter) bleed (the page
-              // sets --gutter:spacing.8): pin --gutter to 0 so the table aligns
-              // flush inside the card instead of being pulled 32px left/right
-              // (which shifted every column and clipped the Vault name).
-              className="[--gutter:0px] max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
-            >
-              <TableHead>
-                <TableRow>
-                  <TableHeader className={`${TABLE_HEAD} pl-5`}>
-                    <div className="flex items-center gap-3">
-                      <div aria-hidden="true" className="w-1 shrink-0" />
-                      <span>Vault</span>
-                    </div>
-                  </TableHeader>
-                  <TableHeader className={TABLE_HEAD}>
-                    <div className="flex items-center gap-2">
-                      <div aria-hidden="true" className="w-1.5 shrink-0" />
-                      <span>Status</span>
-                    </div>
-                  </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} text-right`}>
-                    Position
-                  </TableHeader>
-                  <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
-                    Target APY
-                  </TableHeader>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {positions.map((p) => {
-                  const statusCfg = POSITION_STATUS_CONFIG[p.status];
-                  return (
-                    <TableRow key={p.id} className={ROW}>
-                      <TableCell className="pl-5">
-                        <div className="flex items-center gap-3">
-                          <div
-                            aria-hidden="true"
-                            className="h-7 w-1 shrink-0 rounded-full bg-[var(--ct-accent)]"
-                          />
-                          <Link
-                            href={`/portfolio/${p.id}`}
-                            className="ct-metric-value min-w-0 truncate hover:underline"
-                          >
-                            {p.vaultName ?? "Hearst Yield Vault"}
-                          </Link>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div
-                            aria-hidden="true"
-                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                              p.status === "active"
-                                ? "bg-[var(--ct-accent)]"
-                                : p.status === "matured"
-                                  ? "bg-[var(--ct-status-warning)]"
-                                  : "bg-[var(--ct-text-muted)]"
-                            }`}
-                          />
-                          <span className="ct-metric-caption uppercase tracking-widest text-[length:var(--ct-text-nano)]">
-                            {statusCfg.label}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="ct-metric-value text-right">
-                        {formatUsdFull(p.valueUsdc)}
-                      </TableCell>
-                      <TableCell className="ct-metric-value text-right text-[var(--ct-accent)]">
-                        {apyLabel(p.apyLow, p.apyHigh)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="p-10 text-center">
-              <p className="ct-metric-caption">
-                No active positions yet. Once you subscribe to a vault, your
-                deployed capital appears here.
-              </p>
-            </div>
-          )}
+        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
+          <div className={`${SUPPORT} flex flex-col`}>
+            <CardHeader title="Exit paths" trailing={<ProvenanceBadge kind="manual" variant="compact" />} />
+            <ExitPaths paths={EXIT_PATHS} />
+          </div>
+          <HcChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">
+            <HcHonestFan bands={PROJECTION} unit="%" seedLabel="hyv-v4-2026-06" height={180} aria-label="Projection fan" />
+          </HcChartCard>
         </section>
+
+        {/* single global disclaimer */}
+        <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
+          Sandbox · mock/estimated data (only hashprice would be Live) · per-client vault, KYC-gated B2B / qualified ·
+          capital best-effort, never guaranteed · deterministic Chainlink advisory recommends a review, never executes.
+        </p>
       </div>
     </div>
   );
