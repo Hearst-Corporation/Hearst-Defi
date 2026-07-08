@@ -60,6 +60,12 @@ docs/audit/*.md
 # Playwright MCP screenshots / snapshots
 .playwright-mcp/
 .density-validation-screenshots/
+
+# Out-of-repo scratch projects dropped in the root (Figma export / docs vault) —
+# separate apps, never part of the connect build/typecheck.
+figma-investor-deck/
+hearst-docs-vault/
+
 advanced-metrics-fixed.png
 .vercel
 

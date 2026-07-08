@@ -4,7 +4,6 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getInvestor } from "@/lib/auth/session";
-// ... existing imports ...
 import {
   aggregateLpPnl,
   computeLpPnl,
@@ -27,6 +26,9 @@ import {
   loadHourlyValueSnapshots,
   reconstructInvestorNavSeries,
 } from "@/lib/portfolio/investor-nav-snapshot";
+import type { LockMeterProps } from "@/components/portfolio/lock-meter";
+import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";
+import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 export { resolveProvenance };
 
@@ -35,9 +37,6 @@ function asCachedDate(
 ): Date | undefined {
   return coercePortfolioDate(value) ?? undefined;
 }
-import type { LockMeterProps } from "@/components/portfolio/lock-meter";
-import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";
-import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 // ---------------------------------------------------------------------------
 // PositionDetail — extended view for the /portfolio/[positionId] page
@@ -215,15 +214,6 @@ function mapInvestorTransactionRow(t: InvestorTxRow): PositionDetailTransaction 
 // ---------------------------------------------------------------------------
 // Share-class resolution
 // ---------------------------------------------------------------------------
-
-/**
- * Resolve the share-class terms for a position.
- *
- * Source of truth: `VaultDeployment.shareClass` (one-letter code, "A" by default).
- * The actual fee / lockup terms come from the engine presets in
- * `src/lib/engine/share-class.ts` (SHARE_CLASS_A, SHARE_CLASS_B) — NEVER from
- * Prisma `@default(200)` (which is a known drift, P0-4 in the LP audit).
- *
 
 /**
  * Derive the share-class code ("A" | "B") from a position's vaultKey.

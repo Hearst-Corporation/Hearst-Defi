@@ -50,6 +50,8 @@
     "packages/**",
     "dist-electron/**",
     "release/**",
-    "scripts/**"
+    "scripts/**",
+    "figma-investor-deck/**",
+    "hearst-docs-vault/**"
   ]
 }

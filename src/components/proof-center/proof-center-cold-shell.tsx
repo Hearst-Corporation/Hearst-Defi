@@ -82,7 +82,7 @@ export function ProofCenterColdShell({
                 <item.icon className="w-3.5 h-3.5 ct-text-muted" />
                 <span className="proof-cold-list__title body-sm ct-text-primary">{item.title}</span>
               </div>
-              <span className="body-xs ct-text-muted ml-(--ct-space-5_5)">{item.detail}</span>
+              <span className="body-xs ct-text-muted ml-(--ct-space-5)">{item.detail}</span>
             </li>
           ))}
         </ul>
