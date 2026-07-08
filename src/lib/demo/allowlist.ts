@@ -13,6 +13,7 @@
 
 const DEMO_EMAILS: readonly string[] = [
   "adrien+demo@hearstcorporation.io",
+  "zand.demo@hearstcorporation.io",
 ];
 
 /** True when `email` belongs to a sanctioned demo account. */

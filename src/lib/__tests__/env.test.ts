@@ -33,6 +33,15 @@ const serverEnvSchema = z.object({
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
   RESEND_API_KEY: z.string().optional(),
   CHAINLINK_RPC_URL: z.string().url().optional(),
+  // `.catch(undefined)` mirrors the P2 fix in src/lib/env.ts: an invalid raw
+  // value degrades to `undefined` (never rejected) so one malformed optional
+  // var can't fail the whole server-env parse and 500 every route at boot.
+  NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .catch(undefined),
 });
 
 describe("env validation", () => {
@@ -198,6 +207,60 @@ describe("env validation", () => {
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(parsed.error.flatten().fieldErrors).toHaveProperty("CHAINLINK_RPC_URL");
+    }
+  });
+
+  // ── NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE (P2 fix — never throws at boot) ───────
+
+  it("allows NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE to be absent", () => {
+    const parsed = serverEnvSchema.safeParse({ DATABASE_URL: "file:./prisma/dev.db" });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE).toBeUndefined();
+    }
+  });
+
+  it("accepts a valid positive integer for NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE: "50000",
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE).toBe(50000);
+    }
+  });
+
+  it("degrades an empty-string NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE to undefined instead of failing the parse", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE: "",
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE).toBeUndefined();
+    }
+  });
+
+  it("degrades a zero NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE to undefined instead of failing the parse", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE: "0",
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE).toBeUndefined();
+    }
+  });
+
+  it("degrades a decimal NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE to undefined instead of failing the parse", () => {
+    const parsed = serverEnvSchema.safeParse({
+      DATABASE_URL: "file:./prisma/dev.db",
+      NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE: "1.5",
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE).toBeUndefined();
     }
   });
 });

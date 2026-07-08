@@ -24,6 +24,18 @@ import { shareClassCode } from "@/lib/vaults/product-display";
 //
 // Not a financial/custodial action: it only clears local demo bookkeeping rows.
 
+/**
+ * The only demo account allowed to wipe the shared `source:"demo_seed"`
+ * VaultSnapshot rows (see the comment above that deleteMany below). Both
+ * `adrien+demo@hearstcorporation.io` and `zand.demo@hearstcorporation.io` are
+ * sanctioned demo accounts (`isDemoAccount`), but only this one — the
+ * original, long-standing demo account — may trigger that destructive,
+ * non-investor-scoped delete. Newer demo accounts (Zand and any future
+ * addition) reset their own investor-scoped rows only. Case-insensitive,
+ * matched the same way as `isDemoAccount`.
+ */
+const LEGACY_DEMO_SNAPSHOT_OWNER = "adrien+demo@hearstcorporation.io";
+
 export type ResetDemoResult =
   | { ok: true }
   | { ok: false; error: string };
@@ -56,13 +68,20 @@ export async function resetDemoAccount(): Promise<ResetDemoResult> {
     prisma.investorNavSnapshot.deleteMany({ where: { investorId } }),
   ]);
 
-  // Also clear any demo-seeded vault-level snapshot (the "Capital & Yield"
-  // allocation donut). These `source:"demo_seed"` rows are created out-of-band by
-  // the demo seeding scripts, not by the app; they are NOT investor-scoped, so a
-  // reset removes them too to take the portfolio fully back to empty. Real
-  // live/computed snapshots are never matched. Allocation rows cascade. The donut
-  // read self-heals within its 60s cache window, so no cross-tenant cache bust.
-  await prisma.vaultSnapshot.deleteMany({ where: { source: "demo_seed" } });
+  // Also clear the demo-seeded vault-level snapshot (the "Capital & Yield"
+  // allocation donut, and the AUM figure shown on /vaults) — but ONLY for the
+  // legacy demo account. These `source:"demo_seed"` rows are SHARED PLATFORM
+  // data: created out-of-band by the demo seeding scripts, not by the app, and
+  // NOT investor-scoped. They are also NOT self-healing — the
+  // custody-snapshot-hourly cron skips writing a fresh VaultSnapshot while
+  // Fireblocks reports an empty vault, so once these rows are gone there is no
+  // in-app mechanism to recreate them. A newer demo account (e.g. zand.demo@…)
+  // must never be able to destroy shared platform data through its own reset
+  // button, so this delete is gated to the one historical account that has
+  // always owned it. Real live/computed snapshots are never matched.
+  if (session.email.trim().toLowerCase() === LEGACY_DEMO_SNAPSHOT_OWNER) {
+    await prisma.vaultSnapshot.deleteMany({ where: { source: "demo_seed" } });
+  }
 
   // Refresh every surface the reset touches.
   revalidatePath("/profile");

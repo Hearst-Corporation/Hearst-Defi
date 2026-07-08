@@ -4,13 +4,17 @@ import { env } from "@/lib/env";
 
 import { POR_REGISTRY_ABI, POR_REGISTRY_WRITE_ABI } from "./abis";
 import { getPoRRegistryAddress, getPublicClient } from "./client";
+import { fetchLogsChunked, resolveChunkSize } from "./get-logs-chunked";
 import { getPublisherWalletClient } from "./publisher";
 
 /**
- * eth_getLogs window guard — Alchemy free tier rejects ranges wider than
- * ~10 blocks. When no deploy-block is configured we tail the head of the
- * chain so dev still boots; set NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK to
- * widen the window (see P1-4 audit).
+ * eth_getLogs window guard — when no deploy-block is configured we tail the
+ * head of the chain so dev still boots; set NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK
+ * to widen the window (see P1-4 audit). When a deploy block IS configured,
+ * the full [deployBlock, latest] range is paginated in
+ * NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE-block windows (see get-logs-chunked.ts) —
+ * every free-tier RPC caps the range accepted per call, so a single
+ * unpaginated call over the full history always errors.
  */
 const FREE_TIER_BLOCK_WINDOW = 10n;
 
@@ -63,9 +67,9 @@ export async function fetchOnChainAttestations(
 
   try {
     const client = getPublicClient();
+    const latestBlock = await client.getBlockNumber();
 
-    // Resolve a finite `fromBlock` to stay within Alchemy free-tier limits
-    // (see P1-4 audit — `eth_getLogs` capped to ~10 blocks). Priority:
+    // Resolve a finite `fromBlock` so the range can be paginated. Priority:
     //   1. caller-supplied opts.fromBlock (bigint only — "earliest" is downgraded)
     //   2. NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK env (contract deploy block)
     //   3. fallback: latestBlock - 9 (window of 10 blocks, head of chain)
@@ -75,20 +79,29 @@ export async function fetchOnChainAttestations(
     } else if (env.NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK !== undefined) {
       fromBlock = BigInt(env.NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK);
     } else {
-      const latest = await client.getBlockNumber();
       fromBlock =
-        latest > FREE_TIER_BLOCK_WINDOW - 1n
-          ? latest - (FREE_TIER_BLOCK_WINDOW - 1n)
+        latestBlock > FREE_TIER_BLOCK_WINDOW - 1n
+          ? latestBlock - (FREE_TIER_BLOCK_WINDOW - 1n)
           : 0n;
     }
+    // Defensive clamp: a misconfigured deploy-block (or a caller-supplied
+    // fromBlock) ahead of the chain head would otherwise flip the range and
+    // throw inside computeBlockRanges.
+    if (fromBlock > latestBlock) fromBlock = latestBlock;
 
-    const logs = await client.getContractEvents({
-      address: addr,
-      abi: POR_REGISTRY_ABI,
-      eventName: "AttestationPublished",
-      fromBlock,
-      toBlock: "latest",
-    });
+    const chunkSize = resolveChunkSize(env.NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE);
+
+    const logs = await fetchLogsChunked(
+      (windowFrom, windowTo) =>
+        client.getContractEvents({
+          address: addr,
+          abi: POR_REGISTRY_ABI,
+          eventName: "AttestationPublished",
+          fromBlock: windowFrom,
+          toBlock: windowTo,
+        }),
+      { fromBlock, toBlock: latestBlock, chunkSize },
+    );
 
     const attestations: OnChainAttestation[] = [];
     for (const log of logs) {

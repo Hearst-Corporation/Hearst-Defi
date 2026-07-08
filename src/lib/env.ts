@@ -55,6 +55,23 @@ const serverEnvSchema = z.object({
   // the deploy block is configured.
   NEXT_PUBLIC_EVENT_LOGGER_DEPLOY_BLOCK: z.coerce.number().int().nonnegative().optional(),
   NEXT_PUBLIC_POR_REGISTRY_DEPLOY_BLOCK: z.coerce.number().int().nonnegative().optional(),
+  // Blocks per `getLogs`/`getContractEvents` window when paginating from
+  // deployBlock to head (free-tier RPC providers cap the range per call —
+  // measured 2k-100k depending on provider). Optional: defaults to 100,000
+  // (clamped [100, 500,000] in src/lib/chain/get-logs-chunked.ts) when unset
+  // or out of range. `.catch(undefined)` makes this field NEVER throw at
+  // boot: an invalid raw value (empty string, "0", a negative or non-integer
+  // number) falls back to `undefined` — same as if the var were absent —
+  // instead of failing the whole server-env parse (a known incident class:
+  // one malformed optional var must not 500 every route in production).
+  // `resolveChunkSize()` then applies the 100,000 default for `undefined`
+  // and clamps any in-range-but-extreme numeric value.
+  NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .catch(undefined),
   // Chainlink BTC/USD aggregator override. When unset, the BTC price loader
   // falls back to the canonical Ethereum mainnet address
   // (0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c). Override only if the RPC
