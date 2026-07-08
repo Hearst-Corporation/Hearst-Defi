@@ -4,7 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
-import { demoAdvanceTimeline, type DemoTimelineStage } from "./demo-actions";
+import { demoAdvanceTimeline, demoSeedPosition, type DemoTimelineStage } from "./demo-actions";
+
+type DemoControlStage = DemoTimelineStage | "seed";
 
 /**
  * Demo-only control: lets Adrien drive the "time machine" lifecycle
@@ -18,11 +20,17 @@ import { demoAdvanceTimeline, type DemoTimelineStage } from "./demo-actions";
  * this component for a real investor. The server action re-checks the same
  * allowlist independently (defence in depth), so even if this component were
  * somehow rendered for a non-demo session, the write would still be refused.
+ *
+ * "Subscribe $250k" closes the Reset → Advance gap: after Reset wipes every
+ * position, +12m/+24m/Expiry have nothing to age. This button calls
+ * `demoSeedPosition` to re-create a clean $250k opening position, so the full
+ * loop (Reset → Subscribe $250k → +12m/+24m/Expiry) works end-to-end from the
+ * browser without a terminal.
  */
 export function DemoTimelineControl() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [pendingStage, setPendingStage] = useState<DemoTimelineStage | null>(null);
+  const [pendingStage, setPendingStage] = useState<DemoControlStage | null>(null);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
 
   function run(stage: DemoTimelineStage) {
@@ -30,6 +38,21 @@ export function DemoTimelineControl() {
     setPendingStage(stage);
     startTransition(async () => {
       const result = await demoAdvanceTimeline(stage);
+      setPendingStage(null);
+      if (!result.ok) {
+        setFeedback({ ok: false, text: result.error });
+        return;
+      }
+      setFeedback({ ok: true, text: result.message });
+      router.refresh();
+    });
+  }
+
+  function seed() {
+    setFeedback(null);
+    setPendingStage("seed");
+    startTransition(async () => {
+      const result = await demoSeedPosition();
       setPendingStage(null);
       if (!result.ok) {
         setFeedback({ ok: false, text: result.error });
@@ -58,6 +81,16 @@ export function DemoTimelineControl() {
           aria-busy={isPending && pendingStage === "reset"}
         >
           {isPending && pendingStage === "reset" ? "Resetting…" : "Reset (0)"}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={seed}
+          disabled={isPending}
+          aria-busy={isPending && pendingStage === "seed"}
+        >
+          {isPending && pendingStage === "seed" ? "Subscribing…" : "Subscribe $250k"}
         </Button>
         <Button
           type="button"

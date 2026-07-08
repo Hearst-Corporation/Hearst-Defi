@@ -31,8 +31,13 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 const FALLBACK_APY_LOW_BPS = 940; // 9.4%
 const FALLBACK_APY_HIGH_BPS = 1280; // 12.8%
 
-/** Safety cap — subscribe amount AND any position aged by this module. */
-const MAX_PRINCIPAL_USDC = 5_000_000;
+/**
+ * Safety cap — any position aged by this module. Matches `MAX_SUBSCRIBE_USDC`
+ * in src/lib/positions/subscribe-logic.ts (the real subscription cap) so a
+ * realistic institutional ticket (e.g. $10-50M) never trips this guard — the
+ * cap exists to catch a corrupt/garbage principal, not to constrain the demo.
+ */
+const MAX_PRINCIPAL_USDC = 1_000_000_000;
 
 /** Safety cap on how far back a stage may backdate subscribedAt. */
 const MAX_MONTHS = 36;
@@ -52,8 +57,11 @@ export interface AdvanceOptions {
 
 export interface AdvanceResult {
   ok: true;
-  positionId: string;
+  /** Every position that was aged (all of the investor's active/matured positions). */
+  positionIds: string[];
+  /** Sum of distributedUsdc across every aged position (matches the aggregated cockpit total). */
   distributedUsdc: number;
+  /** Sum of accruedYieldUsdc across every aged position. */
   accruedYieldUsdc: number;
   status: FinalStatus;
 }
@@ -140,12 +148,14 @@ function assertPrincipalWithinCap(principal: number): void {
 }
 
 /**
- * Resolve the position an age stage should act on: the investor's most
- * recently subscribed active/matured position. Returns null when the
- * investor has no active/matured position at all.
+ * Resolve every position an age stage should act on: ALL of the investor's
+ * active/matured positions (the cockpit aggregates across positions, so
+ * aging only the most recent one leaves the header total and the
+ * distribution history inconsistent — see advanceInvestorTimeline). Returns
+ * an empty array when the investor has no active/matured position at all.
  */
-async function resolveTargetPosition(prisma: PrismaClient, investorId: string) {
-  return prisma.position.findFirst({
+async function resolveTargetPositions(prisma: PrismaClient, investorId: string) {
+  return prisma.position.findMany({
     where: { investorId, status: { in: ["active", "matured"] } },
     include: { vaultDeployment: true },
     orderBy: { subscribedAt: "desc" },
@@ -189,16 +199,25 @@ export async function resetInvestorTimeline(
 // ── advanceInvestorTimeline ──────────────────────────────────────────────
 
 /**
- * Ages the investor's most recent active/matured position forward by
- * `months`, optionally marking it `matured` at the end — same math as
- * `runAgeStage`'s --execute path in scripts/demo/timeline.ts:
+ * Ages EVERY one of the investor's active/matured positions forward by
+ * `months`, optionally marking each `matured` at the end. The cockpit
+ * aggregates across all of an investor's positions (header total, combined
+ * distribution history, combined NAV) — aging only the most-recent position
+ * while leaving the others untouched used to desync that aggregate from what
+ * the timeline actually produced. Each position is backdated/redistributed
+ * independently using its OWN principal and APY, then the per-position NAV
+ * contributions are summed into one investor-level snapshot per month, same
+ * math as `runAgeStage`'s --execute path in scripts/demo/timeline.ts applied
+ * per-position:
  *   - backdates `subscribedAt` to now − months (day-of-month clamped)
- *   - deletes then recreates this position's `distribution` transactions
+ *   - deletes then recreates each position's `distribution` transactions
  *     (idempotent — never touches the opening `deposit` row)
- *   - deletes then upserts this script's own NAV snapshots
- *     (source="demo_timeline" — never a cron "computed" or "dev_seed" row)
- *   - sets `distributedUsdc` / `accruedYieldUsdc` from the mid-APY monthly rate
- *   - sets `status`/`maturedAt` when `matured` is requested
+ *   - deletes then upserts this module's own NAV snapshots
+ *     (source="demo_timeline" — never a cron "computed" or "dev_seed" row),
+ *     one snapshot per month, valued as the SUM across all aged positions
+ *   - sets `distributedUsdc` / `accruedYieldUsdc` per position from its own
+ *     mid-APY monthly rate
+ *   - sets `status`/`maturedAt` on every position when `matured` is requested
  *
  * Throws when the investor has no active/matured position to age (the
  * in-app control only makes sense once a position exists — unlike the CLI
@@ -214,92 +233,103 @@ export async function advanceInvestorTimeline(
     throw new Error(`Refusing: ${months} months exceeds the safety cap of ${MAX_MONTHS} months.`);
   }
 
-  const target = await resolveTargetPosition(prisma, investorId);
-  if (!target) {
+  const targets = await resolveTargetPositions(prisma, investorId);
+  if (targets.length === 0) {
     throw new Error("No active/matured position found for this investor.");
   }
 
-  const principal = toNumber(target.principalUsdc);
-  assertPrincipalWithinCap(principal);
-
   const now = new Date();
-  const { midApyPct } = resolveApyBps(target);
-  const monthlyPayment = round2((principal * (midApyPct / 100)) / 12);
-  const distributedTotal = round2(monthlyPayment * months);
-
-  const dayOfMonth = now.getUTCDate();
-  const daysInCurrentMonth = daysInUtcMonth(now.getUTCFullYear(), now.getUTCMonth());
-  // Bounded at 50% so the "in progress" accrual reads as a small pending
-  // amount, never as almost-a-full-month already earned but undistributed.
-  const elapsedFraction = Math.min(dayOfMonth / daysInCurrentMonth, 0.5);
-  const accruedAfter = round2(monthlyPayment * elapsedFraction);
-
-  const newSubscribedAt = addMonthsUtc(now, -months);
   const finalStatus: FinalStatus = matured ? "matured" : "active";
   const maturedAt = matured ? now : null;
+  const newSubscribedAt = addMonthsUtc(now, -months);
 
   // Distribution months: the last `months` completed 1st-of-month dates —
   // most recent distribution = the start of the current month; the partial
-  // current-month accrual above is what's accrued SINCE that distribution.
+  // current-month accrual is what's accrued SINCE that distribution. Shared
+  // across every position (they're all being aged by the same `months`).
   const nowFirstOfMonth = firstOfMonthUtc(now);
   const distributionMonths: Date[] = [];
   for (let monthsAgo = months - 1; monthsAgo >= 0; monthsAgo -= 1) {
     distributionMonths.push(addMonthsUtc(nowFirstOfMonth, -monthsAgo));
   }
 
-  // Investor-level NAV baseline from every OTHER active/matured position —
-  // held flat across the backdated history (a documented simplification;
-  // those positions aren't being aged by this call).
-  const otherPositions = await prisma.position.findMany({
-    where: { investorId, status: { in: ["active", "matured"] }, NOT: { id: target.id } },
-    select: { principalUsdc: true, accruedYieldUsdc: true },
-  });
-  const otherValueUsdc = round2(
-    otherPositions.reduce((sum, p) => sum + toNumber(p.principalUsdc) + toNumber(p.accruedYieldUsdc), 0),
-  );
+  const dayOfMonth = now.getUTCDate();
+  const daysInCurrentMonth = daysInUtcMonth(now.getUTCFullYear(), now.getUTCMonth());
+  // Bounded at 50% so the "in progress" accrual reads as a small pending
+  // amount, never as almost-a-full-month already earned but undistributed.
+  const elapsedFraction = Math.min(dayOfMonth / daysInCurrentMonth, 0.5);
 
-  // Monthly NAV snapshots — value is flat at principal right after each
-  // month's distribution resets accrual to 0 (yield is DISTRIBUTED not
-  // capitalized). When `matured`, append one final snapshot at `now` carrying
-  // the partial current-month accrual, for a chart point at maturity.
+  interface PerPositionPlan {
+    id: string;
+    principal: number;
+    monthlyPayment: number;
+    distributedTotal: number;
+    accruedAfter: number;
+  }
+
+  const plans: PerPositionPlan[] = targets.map((target) => {
+    const principal = toNumber(target.principalUsdc);
+    assertPrincipalWithinCap(principal);
+    const { midApyPct } = resolveApyBps(target);
+    const monthlyPayment = round2((principal * (midApyPct / 100)) / 12);
+    const distributedTotal = round2(monthlyPayment * months);
+    const accruedAfter = round2(monthlyPayment * elapsedFraction);
+    return { id: target.id, principal, monthlyPayment, distributedTotal, accruedAfter };
+  });
+
+  // Investor-level NAV per distribution month — SUM of every aged position's
+  // principal (yield is DISTRIBUTED not capitalized, so each position's
+  // "just distributed" value is flat at its own principal). When `matured`,
+  // append one final snapshot at `now` carrying the SUM of every position's
+  // partial current-month accrual, for a chart point at maturity.
+  const principalSum = round2(plans.reduce((sum, p) => sum + p.principal, 0));
+  const accruedSum = round2(plans.reduce((sum, p) => sum + p.accruedAfter, 0));
+  const distributedSum = round2(plans.reduce((sum, p) => sum + p.distributedTotal, 0));
+
   const navSnapshotPlans: { takenAt: Date; valueUsdc: number }[] = distributionMonths.map((m) => ({
     takenAt: m,
-    valueUsdc: round2(otherValueUsdc + principal),
+    valueUsdc: principalSum,
   }));
   if (matured) {
     navSnapshotPlans.push({
       takenAt: truncateToUtcHour(now),
-      valueUsdc: round2(otherValueUsdc + principal + accruedAfter),
+      valueUsdc: round2(principalSum + accruedSum),
     });
   }
 
   const ops: Prisma.PrismaPromise<unknown>[] = [
-    // Scoped to THIS position's distribution rows only — never the opening
-    // deposit (type="deposit"), never another position's rows.
-    prisma.investorTransaction.deleteMany({ where: { positionId: target.id, type: "distribution" } }),
+    // Scoped to THESE positions' distribution rows only — never the opening
+    // deposit (type="deposit"), never another investor's rows.
+    prisma.investorTransaction.deleteMany({
+      where: { positionId: { in: plans.map((p) => p.id) }, type: "distribution" },
+    }),
     // Scoped to rows THIS module created for THIS investor — never an
     // hourly-cron "computed" snapshot or a "dev_seed" fixture row.
     prisma.investorNavSnapshot.deleteMany({ where: { investorId, source: SNAPSHOT_SOURCE } }),
-    prisma.position.update({
-      where: { id: target.id },
-      data: {
-        subscribedAt: newSubscribedAt,
-        accruedYieldUsdc: accruedAfter,
-        distributedUsdc: distributedTotal,
-        status: finalStatus,
-        maturedAt,
-        exitedAt: null,
-      },
-    }),
-    prisma.investorTransaction.createMany({
-      data: distributionMonths.map((occurredAt) => ({
-        investorId,
-        positionId: target.id,
-        type: "distribution",
-        amountUsdc: monthlyPayment,
-        occurredAt,
-      })),
-    }),
+    ...plans.map((plan) =>
+      prisma.position.update({
+        where: { id: plan.id },
+        data: {
+          subscribedAt: newSubscribedAt,
+          accruedYieldUsdc: plan.accruedAfter,
+          distributedUsdc: plan.distributedTotal,
+          status: finalStatus,
+          maturedAt,
+          exitedAt: null,
+        },
+      }),
+    ),
+    ...plans.map((plan) =>
+      prisma.investorTransaction.createMany({
+        data: distributionMonths.map((occurredAt) => ({
+          investorId,
+          positionId: plan.id,
+          type: "distribution",
+          amountUsdc: plan.monthlyPayment,
+          occurredAt,
+        })),
+      }),
+    ),
     ...navSnapshotPlans.map((snap) =>
       prisma.investorNavSnapshot.upsert({
         where: { investorId_takenAt: { investorId, takenAt: snap.takenAt } },
@@ -313,9 +343,9 @@ export async function advanceInvestorTimeline(
 
   return {
     ok: true,
-    positionId: target.id,
-    distributedUsdc: distributedTotal,
-    accruedYieldUsdc: accruedAfter,
+    positionIds: plans.map((p) => p.id),
+    distributedUsdc: distributedSum,
+    accruedYieldUsdc: accruedSum,
     status: finalStatus,
   };
 }

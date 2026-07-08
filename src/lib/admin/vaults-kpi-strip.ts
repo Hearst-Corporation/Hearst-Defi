@@ -44,7 +44,12 @@ export function buildVaultsKpiStrip(
       accent: liveCount > 0,
     },
     {
-      label: "Deployed AUM",
+      // "Deployed" implies a live, operating vault. When no vault is
+      // actually live, the sum is real principal but not yet "deployed" in
+      // that sense — label it "Active principal" instead so the KPI never
+      // implies capital is earning in a live vault when none exists. The
+      // underlying calc (sum of active-position principal) is unchanged.
+      label: liveCount > 0 ? "Deployed AUM" : "Active principal",
       value: totalAum > 0 ? formatUsdCompact(totalAum) : "—",
       sublabel: "sum of active positions",
       provenance: "manual",

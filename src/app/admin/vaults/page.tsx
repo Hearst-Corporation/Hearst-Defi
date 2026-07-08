@@ -60,9 +60,19 @@ export default async function VaultsPage({ searchParams }: PageProps) {
   const rawFilter = params["filter"];
   const activeFilter: FilterKey = isFilterKey(rawFilter) ? rawFilter : "all";
 
-  // Fetch all vaults (unfiltered) once — filter in JS so KPIs always reflect
-  // the full portfolio regardless of the active tab.
-  const allVaults = await prisma.vaultDeployment.findMany({
+  // Fetch all vaults (unfiltered by lifecycle tab) once — filter in JS so
+  // KPIs always reflect the full portfolio regardless of the active tab.
+  //
+  // Exclude Projection Studio "Single run" scratch drafts — these are
+  // one-off scenario runs saved as VaultDeployment rows for the engine, not
+  // real deployments. They were already soft-retired to status="closed" in
+  // the DB; hide them from the admin list entirely (both the default "All"
+  // tab and the explicit "Closed" tab) rather than risk resurfacing them as
+  // if they were a real closed vault lifecycle state.
+  const isSingleRunDraft = (v: { name: string; status: string }) =>
+    v.status === "closed" && v.name.trim().toLowerCase().startsWith("single run");
+
+  const allVaultsRaw = await prisma.vaultDeployment.findMany({
     orderBy: { updatedAt: "desc" },
     include: {
       positions: {
@@ -71,6 +81,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
       },
     },
   });
+  const allVaults = allVaultsRaw.filter((v) => !isSingleRunDraft(v));
 
   const vaults =
     activeFilter === "all"

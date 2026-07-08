@@ -67,6 +67,15 @@ const SUPPORT =
   "rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden";
 const HERO_SHADOW = "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)";
 
+/**
+ * Tooltip for the pockets / collateral / safety badges. They carry the
+ * "estimated" chrome, but they are a DETERMINISTIC target split of the real
+ * deposit — NOT a forward projection. This override keeps the honesty tier
+ * honest (the default "estimated" copy would wrongly say "projection").
+ */
+const DERIVED_ALLOCATION_TIP =
+  "Derived — target allocation computed deterministically from your real deposit, not a forward projection.";
+
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-2 py-0.5">
@@ -189,6 +198,26 @@ export default async function PortfolioPage() {
         value: m.realizedUsdc,
       })) ?? [];
 
+  // Next-payout range — anchored to the REALIZED run-rate, not the theoretical
+  // APY-on-principal figure. Showing an $8k–$16k APY projection next to ~$2.3k
+  // months of actually-paid distributions on the SAME chart reads as a 4–6×
+  // overstatement. Instead we build a ±15% band around the mean of the months
+  // that actually paid, so the projection sits in the same scale as the bars it
+  // extends. Falls back to the theoretical APY range only when nothing has been
+  // paid yet (no run-rate to observe).
+  const paidMonths =
+    d.yieldHistory?.months.filter((m) => m.status === "paid" && m.realizedUsdc > 0) ?? [];
+  const runRateMean =
+    paidMonths.length > 0
+      ? paidMonths.reduce((s, m) => s + m.realizedUsdc, 0) / paidMonths.length
+      : 0;
+  const nextPayout =
+    runRateMean > 0
+      ? { lo: runRateMean * 0.85, hi: runRateMean * 1.15, basis: "run-rate" as const }
+      : d.yieldHistory
+        ? { lo: d.yieldHistory.nextPayoutLo, hi: d.yieldHistory.nextPayoutHi, basis: "apy" as const }
+        : null;
+
   // Per-asset ring segments (green / orange / blue) — matches the pocket identity.
   const pocketRing = d.pockets.map((p, i) => ({
     label: p.label,
@@ -251,6 +280,10 @@ export default async function PortfolioPage() {
                   <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-body tabular-nums">
                     {d.totalChangeText}
                   </span>
+                  {/* The dominant figure is a mark-to-book Estimate — badge it in
+                      place so the provenance of the headline number is never
+                      ambiguous (non-negotiable #2). */}
+                  <ProvenanceBadge kind="estimated" />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <MetaChip label="Deposit" value={formatUsdFull(d.depositUsdc)} />
@@ -306,32 +339,56 @@ export default async function PortfolioPage() {
         {/* ── Act: Vault health ─────────────────────────────────────────────── */}
         <TitledDivider
           title="Vault health"
-          trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+          trailing={
+            <ProvenanceBadge
+              kind="estimated"
+              variant="compact"
+              description={DERIVED_ALLOCATION_TIP}
+            />
+          }
         />
         <div className={SUPPORT}>
           <StatBand items={d.healthStats} />
-          <div className="flex flex-col gap-3 border-t border-[var(--ct-border-soft)] p-5">
-            <div className="flex items-center justify-between">
-              <span className="ct-bento-label">Distance to liquidation · 55 / 45 / 40 / 20</span>
-              <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">
-                vs LLTV {d.lltvLivePct}% · pilot · deterministic · no kill-switch
+          {/* The safety gauge is a LIVE-margin reading — only draw it while the
+              vault is live. On a matured / closed position there is no live
+              collateral to margin, so a "62% healthy" gauge would be false. */}
+          {d.safetyIsLive ? (
+            <div className="flex flex-col gap-3 border-t border-[var(--ct-border-soft)] p-5">
+              <div className="flex items-center justify-between">
+                <span className="ct-bento-label">Distance to liquidation · 55 / 45 / 40 / 20</span>
+                <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">
+                  vs LLTV {d.lltvLivePct}% · pilot · deterministic · no kill-switch
+                </span>
+              </div>
+              <HcMeter
+                value={d.safetyMarginPct}
+                max={80}
+                ticks={d.safetyTicks}
+                gradient
+                aria-label="Safety margin scale (pilot)"
+              />
+            </div>
+          ) : (
+            <div className="border-t border-[var(--ct-border-soft)] p-5">
+              <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
+                No live safety margin on a {d.lifecycle} vault — there is no active
+                collateral position to margin. The figures above are historical.
               </span>
             </div>
-            <HcMeter
-              value={d.safetyMarginPct}
-              max={80}
-              ticks={d.safetyTicks}
-              gradient
-              aria-label="Safety margin scale (pilot)"
-            />
-          </div>
+          )}
         </div>
 
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
           <div className={`${SUPPORT} flex flex-col`}>
             <CardHeader
               title="Capital · 3 pockets · target allocation"
-              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+              trailing={
+                <ProvenanceBadge
+                  kind="estimated"
+                  variant="compact"
+                  description={DERIVED_ALLOCATION_TIP}
+                />
+              }
             />
             <div className="flex flex-1 items-center gap-5 p-5">
               <AssetRing
@@ -360,7 +417,13 @@ export default async function PortfolioPage() {
           <div className={`${SUPPORT} flex flex-col`}>
             <CardHeader
               title="Pockets breakdown"
-              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+              trailing={
+                <ProvenanceBadge
+                  kind="estimated"
+                  variant="compact"
+                  description={DERIVED_ALLOCATION_TIP}
+                />
+              }
             />
             <div className="flex flex-1 p-4">
               <PocketCards pockets={d.pockets} format={formatUsdFull} />
@@ -582,17 +645,19 @@ export default async function PortfolioPage() {
                 emptyMessage="No distributions paid yet"
                 aria-label="Monthly distributions paid"
               />
-              {d.yieldHistory && hasApy ? (
+              {nextPayout ? (
                 <p className="ct-metric-caption mt-4 border-t border-[var(--ct-border-soft)] pt-4 text-[length:var(--ct-text-nano)] leading-snug">
                   Next monthly payout projected at{" "}
                   <span className="tabular-nums ct-text-body">
-                    {formatUsdDetailed(d.yieldHistory.nextPayoutLo)}
+                    {formatUsdDetailed(nextPayout.lo)}
                   </span>{" "}
                   –{" "}
                   <span className="tabular-nums ct-text-body">
-                    {formatUsdDetailed(d.yieldHistory.nextPayoutHi)}
+                    {formatUsdDetailed(nextPayout.hi)}
                   </span>{" "}
-                  under stated assumptions — a range, not guaranteed.
+                  {nextPayout.basis === "run-rate"
+                    ? "— a range around your realized distribution run-rate, not guaranteed."
+                    : "under stated assumptions (target APY on principal, before any distribution has settled) — a range, not guaranteed."}
                 </p>
               ) : null}
             </div>

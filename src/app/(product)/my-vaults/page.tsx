@@ -33,8 +33,13 @@ const TABLE_HEAD = "bg-transparent ct-bento-label";
 const ROW =
   "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]";
 
-/** Relative next-distribution label from the real monthly boundary. */
-function formatNextDistribution(next: Date): string {
+/**
+ * Relative next-distribution label from a position's own boundary — or an
+ * honest "—" when the position has none (matured/exited, or zero yield).
+ * Never falls back to a portfolio-wide date: each row states its own truth.
+ */
+function formatNextDistribution(next: Date | null): string {
+  if (!next) return "—";
   const now = new Date();
   const startOfDay = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
   const days = Math.round((startOfDay(next) - startOfDay(now)) / 86_400_000);
@@ -44,9 +49,8 @@ function formatNextDistribution(next: Date): string {
 }
 
 export default async function MyVaultsPage() {
-  const { positions, nextDistributionAt } = await loadPortfolio();
+  const { positions } = await loadPortfolio();
   const hasPositions = positions.length > 0;
-  const nextDist = formatNextDistribution(nextDistributionAt);
 
   return (
     <div className="dark relative mb-8 flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page">
@@ -125,7 +129,7 @@ export default async function MyVaultsPage() {
                         </span>
                       </TableCell>
                       <TableCell className="ct-metric-caption text-[var(--ct-text-secondary)]">
-                        {nextDist}
+                        {formatNextDistribution(p.nextDistributionAt)}
                       </TableCell>
                       <TableCell className="pr-5 text-right">
                         <span aria-hidden="true" className="ct-text-muted">→</span>

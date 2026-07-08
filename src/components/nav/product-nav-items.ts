@@ -41,6 +41,13 @@ export type NavItem = {
  * The mock V4 vault-health console lives at `/portfolio/preview`
  * (see `src/app/(product)/portfolio/preview/_data/mock.ts`) — a sandbox,
  * deliberately off the rail, reachable only by direct URL.
+ *
+ * "Holdings" → `/my-vaults` (the per-position index — each row drills into
+ * `/portfolio/[positionId]`, the 6-section Vault Details page). Restored to
+ * the rail: the /portfolio cockpit (dashboard/aggregate view) has no
+ * drill-down of its own into individual positions, so without this entry
+ * `/my-vaults` — and by extension every Vault Details page — was orphaned
+ * (unreachable from in-app navigation after Portfolio moved to `/portfolio`).
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
@@ -48,6 +55,12 @@ export const PRODUCT_NAV: NavItem[] = [
     label: "Portfolio",
     href: "/portfolio",
     icon: "PieChart",
+  },
+  {
+    id: "holdings",
+    label: "Holdings",
+    href: "/my-vaults",
+    icon: "Vault",
   },
   {
     id: "invest",

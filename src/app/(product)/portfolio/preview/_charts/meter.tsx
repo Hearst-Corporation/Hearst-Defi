@@ -102,13 +102,15 @@ export function HcMeter({
         </div>
         {/* threshold ticks (over the track) — a 1px line clamps to the inner right
             rail at 100% so it stays on-track instead of rendering just off the edge. */}
-        {ticks.map((t) => {
+        {ticks.map((t, i) => {
           const p = pct(t.at);
           const edge: CSSProperties =
             p >= EDGE_HI ? { left: "auto", right: 0 } : { left: `${p}%` };
           return (
             <div
-              key={t.at}
+              // Two ticks can share the same `at` (e.g. progress 0 colliding with
+              // the fixed 0% tick) → index makes the key unique, no collision.
+              key={`${t.at}-${i}`}
               aria-hidden="true"
               className="absolute inset-y-0 w-px"
               style={{ ...edge, background: "var(--ct-border-strong)" }}
@@ -139,9 +141,9 @@ export function HcMeter({
       </div>
       {ticks.length > 0 ? (
         <div className="relative h-3">
-          {ticks.map((t) => (
+          {ticks.map((t, i) => (
             <span
-              key={t.at}
+              key={`${t.at}-${i}`}
               className="absolute text-[length:var(--ct-text-nano)] ct-text-muted"
               style={labelAnchor(pct(t.at))}
             >

@@ -3,6 +3,8 @@ import "server-only";
 import { cache } from "react";
 
 import type { HcValuePoint } from "@/components/dataviz/his";
+import { formatUsdCompact } from "@/lib/format/usd-compact";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import type { AgentSignal } from "@/app/(product)/portfolio/preview/_charts/agent-signal-card";
 import type { ExitPathRow } from "@/app/(product)/portfolio/preview/_charts/exit-paths";
@@ -110,6 +112,12 @@ export interface PortfolioCockpit {
   collateralUsdc: number;
   debtUsdc: number;
   safetyMarginPct: number;
+  /**
+   * true only while the vault is live (active / recovery). On matured / closed
+   * positions there is no live collateral to margin, so the "62% healthy" pilot
+   * reading is meaningless — consumers must render a neutral N/A state instead.
+   */
+  safetyIsLive: boolean;
   lltvLivePct: number;
   safetyTicks: readonly MeterTick[];
   takeProfitTicks: readonly MeterTick[];
@@ -162,12 +170,13 @@ const PILOT_PROJECTION: readonly HcHonestBand[] = [
   { m: 12, p5: -5.3, p25: 3.7, p50: 12.9, p75: 20.1, p95: 27.0 },
 ];
 
-const usdShort = (n: number): string => {
-  const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
-  return `$${Math.round(n)}`;
-};
+/**
+ * Single compact-USD helper for this console — the app-wide canonical formatter
+ * (src/lib/format/usd-compact.ts, casing "K"/"M", cents under $100). Keeping the
+ * SAME helper the hero and every other surface use guarantees the stat band never
+ * disagrees with the hero on scale.
+ */
+const usdShort = formatUsdCompact;
 
 function lifecycleFromStatus(
   status: PortfolioDashboard["status"],
@@ -216,68 +225,77 @@ function pilotSignals(
   deployedValueUsdc: number,
   takeProfitTargetUsdc: number,
   takeProfitProgressPct: number,
+  safetyIsLive: boolean,
 ): readonly AgentSignal[] {
-  return [
-    {
-      agent: "Margin Agent",
-      area: "safety · collateral",
-      severity: "green",
-      headline: "Safety margin healthy, above the recharge line. Debt 0.",
-      observedAt: "pilot",
-      signal:
-        "Distance to liquidation is above the 55% recharge line and the vault carries no debt. Thresholds float on the live Morpho LLTV, so no defensive sell is indicated by the deterministic rule. Pilot values pending an attested collateral feed.",
-      evidence: [
-        { label: "Safety margin", value: `${PILOT_SAFETY.value}%`, provenance: "estimated" },
-        { label: "Debt", value: "$0", provenance: "estimated" },
-      ],
-      suggestedReview: "No action — margin rule is above the recharge band",
-      reviewHref: "/portfolio",
-      impactedModule: "Vault health → safety margin",
-      status: "observed",
-      advisoryLabel: "Advisory · Estimated evidence (pilot)",
-      disclaimer: DISCLAIMER,
-    },
-    {
-      agent: "Take-Profit Agent",
-      area: "lifecycle",
-      severity: "green",
-      headline: `${takeProfitProgressPct}% of the way to the +24% take-profit expiry.`,
-      observedAt: "pilot",
-      signal:
-        `Deployed value is ${usdShort(deployedValueUsdc)} against a ${usdShort(takeProfitTargetUsdc)} take-profit target (deposit ×1.24). On reaching it the vault expires and returns capital +24%; the lock is a maximum duration, not a fixed term. Progress is real; the projection band is a pilot model.`,
-      evidence: [
-        { label: "Deployed", value: usdShort(deployedValueUsdc), provenance: "estimated" },
-        { label: "Target (+24%)", value: usdShort(takeProfitTargetUsdc), provenance: "manual" },
-      ],
-      suggestedReview: "No action — below the +24% expiry threshold",
-      reviewHref: "/portfolio",
-      impactedModule: "Lifecycle → take-profit expiry",
-      status: "observed",
-      advisoryLabel: "Advisory · Estimated evidence (pilot)",
-      disclaimer: DISCLAIMER,
-    },
-    {
-      agent: "Risk Agent",
-      area: "risk · market",
-      severity: "amber",
-      headline: "BTC drawdown would compress margin before the wall.",
-      observedAt: "pilot",
-      signal:
-        "Under the assumption BTC trades within its recent range, a further drawdown would compress the safety margin toward the 45% de-risk band before approaching the Morpho wall. Market is the most salient dimension this snapshot. Pilot risk figures.",
-      evidence: [
-        { label: "Market risk", value: "52 / amber", provenance: "estimated" },
-        { label: "Safety margin", value: `${PILOT_SAFETY.value}%`, provenance: "estimated" },
-      ],
-      suggestedReview: "Deterministic de-risk arms only at the 45% band",
-      reviewHref: "/portfolio",
-      impactedModule: "Vault health → safety margin",
-      status: "review-suggested",
-      advisoryLabel: "Advisory · Estimated evidence (pilot)",
-      disclaimer:
-        "Modeled hypothesis, not a forecast. Best-effort, never guaranteed. Past performance is not a reliable indicator.",
-    },
-    dataQualitySignal(),
-  ];
+  // The margin / market-risk signals speak about a LIVE safety margin. On a
+  // matured / closed vault there is none, so asserting "healthy 62%, debt 0"
+  // would be false — drop those two and keep only the take-profit progress
+  // (real) and the data-quality disclaimer.
+  const marginSignals: readonly AgentSignal[] = safetyIsLive
+    ? [
+        {
+          agent: "Margin Agent",
+          area: "safety · collateral",
+          severity: "green",
+          headline: "Safety margin healthy, above the recharge line. Debt 0.",
+          observedAt: "pilot",
+          signal:
+            "Distance to liquidation is above the 55% recharge line and the vault carries no debt. Thresholds float on the live Morpho LLTV, so no defensive sell is indicated by the deterministic rule. Pilot values pending an attested collateral feed.",
+          evidence: [
+            { label: "Safety margin", value: `${PILOT_SAFETY.value}%`, provenance: "estimated" },
+            { label: "Debt", value: "$0", provenance: "estimated" },
+          ],
+          suggestedReview: "No action — margin rule is above the recharge band",
+          reviewHref: "/portfolio",
+          impactedModule: "Vault health → safety margin",
+          status: "observed",
+          advisoryLabel: "Advisory · Estimated evidence (pilot)",
+          disclaimer: DISCLAIMER,
+        },
+        {
+          agent: "Risk Agent",
+          area: "risk · market",
+          severity: "amber",
+          headline: "BTC drawdown would compress margin before the wall.",
+          observedAt: "pilot",
+          signal:
+            "Under the assumption BTC trades within its recent range, a further drawdown would compress the safety margin toward the 45% de-risk band before approaching the Morpho wall. Market is the most salient dimension this snapshot. Pilot risk figures.",
+          evidence: [
+            { label: "Market risk", value: "52 / amber", provenance: "estimated" },
+            { label: "Safety margin", value: `${PILOT_SAFETY.value}%`, provenance: "estimated" },
+          ],
+          suggestedReview: "Deterministic de-risk arms only at the 45% band",
+          reviewHref: "/portfolio",
+          impactedModule: "Vault health → safety margin",
+          status: "review-suggested",
+          advisoryLabel: "Advisory · Estimated evidence (pilot)",
+          disclaimer:
+            "Modeled hypothesis, not a forecast. Best-effort, never guaranteed. Past performance is not a reliable indicator.",
+        },
+      ]
+    : [];
+
+  const takeProfitSignal: AgentSignal = {
+    agent: "Take-Profit Agent",
+    area: "lifecycle",
+    severity: "green",
+    headline: `${takeProfitProgressPct}% of the way to the +24% take-profit expiry.`,
+    observedAt: "pilot",
+    signal:
+      `Deployed value is ${usdShort(deployedValueUsdc)} against a ${usdShort(takeProfitTargetUsdc)} take-profit target (deposit ×1.24). On reaching it the vault expires and returns capital +24%; the lock is a maximum duration, not a fixed term. Progress is real; the projection band is a pilot model.`,
+    evidence: [
+      { label: "Deployed", value: usdShort(deployedValueUsdc), provenance: "estimated" },
+      { label: "Target (+24%)", value: usdShort(takeProfitTargetUsdc), provenance: "manual" },
+    ],
+    suggestedReview: "No action — below the +24% expiry threshold",
+    reviewHref: "/portfolio",
+    impactedModule: "Lifecycle → take-profit expiry",
+    status: "observed",
+    advisoryLabel: "Advisory · Estimated evidence (pilot)",
+    disclaimer: DISCLAIMER,
+  };
+
+  return [...marginSignals, takeProfitSignal, dataQualitySignal()];
 }
 
 function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
@@ -321,6 +339,7 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
     collateralUsdc: 0,
     debtUsdc: 0,
     safetyMarginPct: 0,
+    safetyIsLive: false,
     lltvLivePct: PILOT_SAFETY.lltvLivePct,
     safetyTicks: SAFETY_TICKS,
     takeProfitTicks: [],
@@ -383,10 +402,25 @@ export const loadPortfolioCockpit = cache(
     // Collateral derived from the B2 wBTC pocket (no borrow → debt 0 is REAL).
     const collateralUsdc = b2;
     const debtUsdc = 0;
-    const safetyMarginPct = PILOT_SAFETY.value;
+    // Safety margin is only a live claim while the vault runs. Matured / closed →
+    // no live collateral, so we neither assert a % nor draw the gauge.
+    const healthIsLive = lifecycle === "active" || lifecycle === "recovery";
+    const safetyMarginPct = healthIsLive ? PILOT_SAFETY.value : 0;
 
     // ── NAV series + degenerate-curve guard ────────────────────────────────────
-    const navPoints = d.navPoints;
+    // The hero title and the "Vault value over time" curve MUST describe the same
+    // number. The upstream NAV series is investor-global, but a stale / partial
+    // print can leave its last point below the header total (e.g. one position's
+    // value against the whole portfolio) — a 4× visual lie on the same figure.
+    // Reconcile by anchoring the series to the header: if the final point diverges
+    // from deployedValueUsdc by >1%, rescale the whole series by that ratio so the
+    // trend SHAPE is preserved but the last print equals the header value.
+    const rawNav = d.navPoints;
+    const lastNav = rawNav.at(-1)?.value ?? 0;
+    const navPoints: readonly HcValuePoint[] =
+      lastNav > 0 && deployed > 0 && Math.abs(lastNav - deployed) / deployed > 0.01
+        ? rawNav.map((p) => ({ ...p, value: (p.value / lastNav) * deployed }))
+        : rawNav;
     const distinctDays = new Set(
       navPoints.map((p) => {
         const t =
@@ -403,26 +437,45 @@ export const loadPortfolioCockpit = cache(
     const navImmature = distinctDays < 2;
 
     // ── Stat bands ──────────────────────────────────────────────────────────────
+    // The hero stat band mirrors the dominant hero figures, so it must render at
+    // the SAME precision as the hero title (formatUsdFull) — a compact "$1.3M"
+    // next to a full "$1,250,302" reads as a ~100k discrepancy that isn't real.
     const heroStats: readonly StatCell[] = [
-      { label: "Deposit", value: usdShort(deposit), provenance: "attested" },
+      { label: "Deposit", value: formatUsdFull(deposit), provenance: "attested" },
       {
         label: "Deployed value",
-        value: usdShort(deployed),
+        value: formatUsdFull(deployed),
         delta: { text: totalChangeText, tone: d.totalChangePct >= 0 ? "up" : "down" },
         provenance: "estimated",
       },
-      { label: "Debt", value: usdShort(debtUsdc), provenance: "attested" },
-      { label: "Accrued", value: usdShort(accrued), provenance: "estimated" },
-    ];
-    const healthStats: readonly StatCell[] = [
-      { label: "Safety margin · pilot", value: `${safetyMarginPct}%`, provenance: "estimated" },
-      { label: "Collateral · wBTC (target)", value: usdShort(collateralUsdc), provenance: "estimated", asset: "bitcoin" },
-      { label: "Debt", value: usdShort(debtUsdc), provenance: "attested" },
+      { label: "Debt", value: formatUsdFull(debtUsdc), provenance: "attested" },
+      { label: "Accrued", value: formatUsdFull(accrued), provenance: "estimated" },
     ];
 
+    // ── Vault health — only assert a live safety reading while the position is
+    // actually running. On a matured / closed vault there is no live collateral
+    // to margin, so "62% · healthy · Debt 0" would be a false statement. Show a
+    // neutral, honest "—" instead and drop the pilot safety claim.
+    const healthStats: readonly StatCell[] = healthIsLive
+      ? [
+          { label: "Safety margin · pilot", value: `${safetyMarginPct}%`, provenance: "estimated" },
+          { label: "Collateral · wBTC (target)", value: usdShort(collateralUsdc), provenance: "estimated", asset: "bitcoin" },
+          { label: "Debt", value: usdShort(debtUsdc), provenance: "attested" },
+        ]
+      : [
+          { label: `Safety margin · ${lifecycle}`, value: "—", provenance: "manual" },
+          { label: "Collateral · wBTC (target)", value: usdShort(collateralUsdc), provenance: "estimated", asset: "bitcoin" },
+          { label: "Debt", value: usdShort(debtUsdc), provenance: "attested" },
+        ];
+
+    // Take-profit meter axis = PROGRESS toward the +24% expiry (0→100%). The
+    // moving tick must therefore be labelled with the progress figure itself —
+    // NOT the total-value change (totalChangeText), which is a different metric
+    // and put two contradictory numbers on the same point. Progress in %,
+    // value-change stays on its own hero chip.
     const takeProfitTicks: readonly MeterTick[] = [
       { at: 0, label: "0%" },
-      { at: takeProfitProgressPct, label: totalChangeText },
+      { at: takeProfitProgressPct, label: `${takeProfitProgressPct}%` },
       { at: 100, label: "+24%" },
     ];
 
@@ -464,6 +517,7 @@ export const loadPortfolioCockpit = cache(
       collateralUsdc,
       debtUsdc,
       safetyMarginPct,
+      safetyIsLive: healthIsLive,
       lltvLivePct: PILOT_SAFETY.lltvLivePct,
       safetyTicks: SAFETY_TICKS,
       takeProfitTicks,
@@ -471,7 +525,7 @@ export const loadPortfolioCockpit = cache(
       uptimeSegments: PILOT_UPTIME_SEGMENTS,
       efficiency: PILOT_EFFICIENCY,
       riskDimensions: PILOT_RISK_DIMENSIONS,
-      signals: pilotSignals(deployed, takeProfitTargetUsdc, takeProfitProgressPct),
+      signals: pilotSignals(deployed, takeProfitTargetUsdc, takeProfitProgressPct, healthIsLive),
       orchestration: PILOT_ORCHESTRATION,
       exitPaths: EXIT_PATHS,
       projection: PILOT_PROJECTION,

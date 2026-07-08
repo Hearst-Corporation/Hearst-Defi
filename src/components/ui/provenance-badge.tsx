@@ -74,19 +74,28 @@ interface ProvenanceBadgeProps {
   compact?: boolean;
   /** `strip` — dot only on black hero KPI strip (no glass pill). */
   variant?: ProvenanceBadgeVariant;
+  /**
+   * Override the tooltip text. Use when the same badge KIND applies but the
+   * default description would misstate the figure — e.g. an "estimated" pocket
+   * split is a DETERMINISTIC derivation of the deposit, not a "projection based
+   * on historical performance". Keeps the chrome/label, corrects the nature.
+   */
+  description?: string;
 }
 
 export function ProvenanceBadge({
   kind,
   compact = false,
   variant,
+  description,
 }: ProvenanceBadgeProps) {
   const resolved: ProvenanceBadgeVariant =
     variant ?? (compact ? "compact" : "default");
+  const tip = description ?? descriptions[kind];
 
   if (resolved === "strip") {
     return (
-      <Tooltip content={descriptions[kind]}>
+      <Tooltip content={tip}>
         <span
           role="status"
           className={cn("provenance-badge--strip shrink-0", stripDotTone[kind])}
@@ -110,7 +119,7 @@ export function ProvenanceBadge({
   const chromed = resolved !== "compact";
 
   return (
-    <Tooltip content={descriptions[kind]}>
+    <Tooltip content={tip}>
       <Badge
         variant={chromed ? variants[kind] : "flat"}
         role="status"
@@ -131,9 +140,11 @@ export function ProvenanceBadge({
           aria-hidden
           className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
         />
-        <span className={resolved === "compact" ? "sr-only" : undefined}>
-          {labels[kind]}
-        </span>
+        {/* Label is VISIBLE for both default and compact variants — a bare dot
+            leaves provenance legible on hover only, which violates non-negotiable
+            #2 (every metric carries a readable provenance badge). The compact
+            variant keeps the tighter chrome but now shows its short label. */}
+        <span>{labels[kind]}</span>
       </Badge>
     </Tooltip>
   );

@@ -15,6 +15,8 @@
  * asset classes use `HcStackedBar` / `HcCompositionRing` with `palette="categorical"`.
  */
 
+import { formatUsdCompact } from "@/lib/format/usd-compact";
+
 import { niceCeil } from "./geometry";
 
 export interface HcBar {
@@ -43,18 +45,10 @@ const VIEW_W = 1000;
 const VIEW_H = 260;
 const PAD = { top: 16, right: 12, bottom: 26, left: 48 } as const;
 
-function defaultCompactUsd(n: number): string {
-  const abs = Math.abs(n);
-  if (abs >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
-  if (abs >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
-  if (abs >= 1e3) return `$${(n / 1e3).toFixed(n >= 1e5 ? 0 : 1)}K`;
-  return `$${Math.round(n)}`;
-}
-
 export function HcBarChart({
   bars,
   height = 240,
-  valueFormat = defaultCompactUsd,
+  valueFormat = formatUsdCompact,
   highlightLast = false,
   yTicks = 4,
   emptyMessage = "No data yet",

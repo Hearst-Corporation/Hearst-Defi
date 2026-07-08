@@ -121,6 +121,30 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   const openTxUrl = position.txHashOpen ? explorerTxUrl(position.txHashOpen) : null;
 
+  // Effective maturity anchor for the engines below. `position.maturedAt` is
+  // always null pre-Phase-2, so the mechanical horizon is `subscribedAt +
+  // softLockupDays`. For a position that is still `active` in the ledger but
+  // whose mechanical horizon already fell in the past (renewal / pending
+  // settlement — the ledger status is the source of truth, not the derived
+  // date), anchor the engines' horizon at "now + term" instead of a stale
+  // past date — otherwise the pure engines read `matured: true` and both
+  // silently drop the forward projection cone AND cap the distribution
+  // calendar's "projected" months at a horizon that already passed, which is
+  // how an active $250k position showed "Matured" plus distributions dated
+  // past its own maturity.
+  const mechanicalHorizonMs = position.maturedAt
+    ? position.maturedAt.getTime()
+    : position.softLockupDays > 0
+      ? position.subscribedAt.getTime() + position.softLockupDays * DAY_MS
+      : now.getTime() + 365 * DAY_MS;
+  const effectiveMaturityAt =
+    position.status === "active" && mechanicalHorizonMs <= now.getTime()
+      ? new Date(
+          now.getTime() +
+            (position.softLockupDays > 0 ? position.softLockupDays * DAY_MS : 365 * DAY_MS),
+        )
+      : position.maturedAt;
+
   // Engines (pure, clock injected) — the honest value cone + yield series.
   const projection = projectValueTrajectory({
     principalUsdc: position.principalUsdc,
@@ -129,7 +153,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
     realizedApyHighPct: apyHighPct,
     subscribedAt: position.subscribedAt,
     now,
-    maturityAt: position.maturedAt,
+    maturityAt: effectiveMaturityAt,
     softLockupDays: position.softLockupDays,
   });
   const yieldHistory = buildYieldHistory({
@@ -142,7 +166,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
     realizedApyLowPct: apyLowPct,
     realizedApyHighPct: apyHighPct,
     subscribedAt: position.subscribedAt,
-    maturityAt: position.maturedAt,
+    maturityAt: effectiveMaturityAt,
     now,
   });
 
@@ -150,6 +174,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
     0,
     Math.floor((now.getTime() - position.subscribedAt.getTime()) / DAY_MS),
   );
+  // Maturity label follows the position's REAL lifecycle status — with
+  // effectiveMaturityAt above, `projection.matured` is now only ever true when
+  // the position is genuinely matured/exited, so it cannot disagree with an
+  // `active` status.
   const horizonLabel =
     position.status === "matured" || projection.matured
       ? "Matured"

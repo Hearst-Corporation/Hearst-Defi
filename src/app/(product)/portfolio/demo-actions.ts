@@ -10,6 +10,7 @@ import {
   resetInvestorTimeline,
   advanceInvestorTimeline,
 } from "@/lib/demo/timeline-core";
+import { subscribe } from "@/app/actions/subscribe";
 
 // =============================================================================
 // demoAdvanceTimeline — in-app "time machine" for the current demo investor.
@@ -42,6 +43,32 @@ export type DemoTimelineResult =
   | { ok: true; message: string }
   | { ok: false; error: string };
 
+/** $250k Class A — the standard demo opening ticket (matches simulateDeposit's default). */
+const DEMO_SEED_AMOUNT_USDC = 250_000;
+const DEMO_SEED_VAULT_ID = "hearst-yield-vault";
+
+/**
+ * Client-safe error copy for the failure modes `advanceInvestorTimeline` /
+ * `resetInvestorTimeline` / `subscribe` can throw. Never surfaces a raw
+ * `error.message` to the browser (that leaked DB/jargon phrasing like
+ * "Refusing: position principal $X exceeds..." in front of a client — see
+ * fix #3). Anything unrecognized falls back to a single generic line; the
+ * real detail is only ever logged server-side via console.error below.
+ */
+function toClientMessage(stage: DemoTimelineStage | "seed", error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error);
+
+  if (raw.includes("No active/matured position found")) {
+    return "Subscribe first — there's no position yet to advance.";
+  }
+  if (raw.includes("exceeds the safety cap")) {
+    return "Could not advance the demo timeline — the position amount is out of range for this demo.";
+  }
+
+  const verb = stage === "seed" ? "seed the demo position" : "advance the demo timeline";
+  return `Could not ${verb}. Please try again.`;
+}
+
 export async function demoAdvanceTimeline(
   stage: DemoTimelineStage,
 ): Promise<DemoTimelineResult> {
@@ -69,17 +96,17 @@ export async function demoAdvanceTimeline(
       }
       case "12m": {
         const result = await advanceInvestorTimeline(prisma, investorId, 12, { matured: false });
-        message = `Advanced to +12 months. Position ${result.status}, distributed $${result.distributedUsdc.toLocaleString()}.`;
+        message = `Advanced to +12 months. ${result.positionIds.length} position(s) ${result.status}, distributed $${result.distributedUsdc.toLocaleString()}.`;
         break;
       }
       case "24m": {
         const result = await advanceInvestorTimeline(prisma, investorId, 24, { matured: false });
-        message = `Advanced to +24 months. Position ${result.status}, distributed $${result.distributedUsdc.toLocaleString()}.`;
+        message = `Advanced to +24 months. ${result.positionIds.length} position(s) ${result.status}, distributed $${result.distributedUsdc.toLocaleString()}.`;
         break;
       }
       case "expiry": {
         const result = await advanceInvestorTimeline(prisma, investorId, 24, { matured: true });
-        message = `Advanced to expiry. Position ${result.status}, distributed $${result.distributedUsdc.toLocaleString()}.`;
+        message = `Advanced to expiry. ${result.positionIds.length} position(s) ${result.status}, distributed $${result.distributedUsdc.toLocaleString()}.`;
         break;
       }
     }
@@ -87,9 +114,57 @@ export async function demoAdvanceTimeline(
     revalidatePath("/portfolio");
     return { ok: true, message };
   } catch (error) {
+    // Detail stays server-side; the client only ever gets clean, mapped copy.
+    console.error(`[demoAdvanceTimeline] stage=${stage} investorId=${investorId} failed:`, error);
+    return { ok: false, error: toClientMessage(stage, error) };
+  }
+}
+
+// =============================================================================
+// demoSeedPosition — subscribes the demo investor to a fresh $250k position.
+// =============================================================================
+//
+// Closes the Reset → Advance gap: after `demoAdvanceTimeline("reset")` wipes
+// every position, +12m/+24m/Expiry have nothing to age and throw. This gives
+// the in-app control a way to re-seed a clean opening position without a
+// terminal, completing the full Reset (0) → Subscribe $250k → +12m/+24m/Expiry
+// loop from the browser. Reuses the same audited `subscribe()` server action
+// `simulateDeposit` already uses (src/lib/demo/actions.ts) — off-chain,
+// KYC/accreditation/capacity/min-ticket all still enforced by subscribe()
+// itself, nothing bypassed except the on-chain settlement requirement.
+export async function demoSeedPosition(): Promise<DemoTimelineResult> {
+  const session = await requireInvestor("/portfolio");
+
+  if (!isDemoAccount(session.email)) {
+    // A real investor must never reach the write path below.
+    return { ok: false, error: "This action is only available on demo accounts." };
+  }
+
+  const investor = await getInvestor();
+  if (!investor) {
+    return { ok: false, error: "Authentication required." };
+  }
+
+  try {
+    const result = await subscribe(
+      DEMO_SEED_VAULT_ID,
+      DEMO_SEED_AMOUNT_USDC,
+      "A",
+      undefined,
+      { allowOffChain: true },
+    );
+    if (!result.ok) {
+      console.error(`[demoSeedPosition] investorId=${investor.id} failed:`, result.error);
+      return { ok: false, error: toClientMessage("seed", new Error(result.error)) };
+    }
+
+    revalidatePath("/portfolio");
     return {
-      ok: false,
-      error: error instanceof Error ? error.message : "Failed to advance the demo timeline.",
+      ok: true,
+      message: `Subscribed $${DEMO_SEED_AMOUNT_USDC.toLocaleString()} — position ${result.positionId} created.`,
     };
+  } catch (error) {
+    console.error(`[demoSeedPosition] investorId=${investor.id} failed:`, error);
+    return { ok: false, error: toClientMessage("seed", error) };
   }
 }

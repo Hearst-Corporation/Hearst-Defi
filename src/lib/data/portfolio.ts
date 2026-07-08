@@ -90,6 +90,15 @@ export interface PortfolioPosition {
   apyLow: number | null;
   apyHigh: number | null;
   subscribedAt: Date;
+  /**
+   * Next monthly distribution boundary for THIS position, or null when this
+   * position honestly has none coming — matured/exited (no more accrual
+   * period ahead) or a zero/unknown yield range (nothing would accrue to
+   * distribute). Never falls back to a shared portfolio-wide date: per-row
+   * honesty was the whole point (was previously identical across every row,
+   * including matured/zero-yield ones).
+   */
+  nextDistributionAt: Date | null;
 }
 
 export const POSITION_STATUS_CONFIG = {
@@ -150,6 +159,25 @@ function nextEndOfMonth(): Date {
     return utcEndOfMonth(now.getUTCFullYear(), now.getUTCMonth() + 1);
   }
   return eom;
+}
+
+/**
+ * Per-position next distribution boundary — honest, never a portfolio-wide
+ * fallback. A position only has a next distribution when it is still
+ * `active` AND carries a real (non-zero) yield range: a matured/exited
+ * position has no more accrual period ahead, and a zero/unknown-APY position
+ * would accrue nothing to distribute. Returns null in every other case so
+ * the UI can render "—" instead of a fabricated shared date.
+ */
+function nextDistributionForPosition(
+  status: "active" | "matured" | "exited",
+  apyLow: number | null,
+  apyHigh: number | null,
+): Date | null {
+  if (status !== "active") return null;
+  const hasYield = (apyLow ?? 0) > 0 || (apyHigh ?? 0) > 0;
+  if (!hasYield) return null;
+  return nextEndOfMonth();
 }
 
 function toNumber(v: unknown): number {
@@ -352,6 +380,11 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       apyLow: apyLowBps === null ? null : bpsToApyPct(apyLowBps),
       apyHigh: apyHighBps === null ? null : bpsToApyPct(apyHighBps),
       subscribedAt: p.subscribedAt,
+      nextDistributionAt: nextDistributionForPosition(
+        status,
+        apyLowBps === null ? null : bpsToApyPct(apyLowBps),
+        apyHighBps === null ? null : bpsToApyPct(apyHighBps),
+      ),
     };
   });
 

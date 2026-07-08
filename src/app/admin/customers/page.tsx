@@ -46,6 +46,19 @@ const ROW =
 const CARD =
   "flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]";
 
+// Obvious test/junk accounts that should never surface in a directory shown
+// to a bank. Display-only filter — nothing is deleted or excluded in the DB
+// query, so pagination totals/offsets from loadCustomers() are untouched;
+// this strips known test patterns from the rendered rows on the current
+// page. Patterns: @hearst.local (internal seed/dev domain), "test+" local
+// part (Typeform/onboarding test submissions), and the literal "abc@"
+// throwaway used in manual QA.
+const TEST_EMAIL_PATTERNS = [/@hearst\.local$/i, /^test\+/i, /^abc@/i];
+
+function isTestAccount(email: string): boolean {
+  return TEST_EMAIL_PATTERNS.some((pattern) => pattern.test(email));
+}
+
 export default async function CustomersPage({
   searchParams,
 }: {
@@ -59,9 +72,15 @@ export default async function CustomersPage({
     loadCustomers(page, pageSize),
     loadOrphanSubmissions(),
   ]);
-  const { data: customers, total, hasMore } = result;
+  const { data: rawCustomers, total, hasMore } = result;
+  const customers = rawCustomers.filter((c) => !isTestAccount(c.email));
+  // Pagination (page/pageSize/hasMore) stays keyed on the unfiltered `total`
+  // from the DB — the filter only hides rows on the rendered page, it does
+  // not re-derive offsets. The visible count corrects the on-page badge/KPI
+  // so they never claim a number of accounts that isn't actually rendered.
+  const visibleTotal = total - (rawCustomers.length - customers.length);
 
-  const kpiCells = buildCustomersKpiStrip(customers, total);
+  const kpiCells = buildCustomersKpiStrip(customers, visibleTotal);
 
   return (
     <AdminPageShell
@@ -78,7 +97,7 @@ export default async function CustomersPage({
             <AdminKpiStripPanel
               kpis={kpiCells}
               title="Investor Base"
-              subtitle={`${total} registered ${total === 1 ? "account" : "accounts"}`}
+              subtitle={`${visibleTotal} registered ${visibleTotal === 1 ? "account" : "accounts"}`}
               embedded
             />
           )}
@@ -89,7 +108,7 @@ export default async function CustomersPage({
               <p className="ct-metric-caption">All registered accounts</p>
             </div>
             <Badge color="zinc" className="mt-0.5 shrink-0 self-start uppercase">
-              {total} total
+              {visibleTotal} total
             </Badge>
           </div>
 
