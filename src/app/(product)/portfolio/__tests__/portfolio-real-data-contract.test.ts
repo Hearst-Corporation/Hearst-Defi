@@ -6,11 +6,17 @@ import { describe, expect, it } from "vitest";
 /**
  * MISSION #034 — /portfolio real-data contract.
  *
- * Regression cover against a static mock page. /portfolio is the investor's
- * REAL financial dashboard: it BINDS the real loader (loadPortfolioDashboard,
- * derived only from the signed-in account's persisted positions / NAV / yield)
- * and renders on HIS primitives, so the investor sees the same truth as
- * /profile & /admin/customers. The V4 mock console lives at /portfolio/preview.
+ * Regression cover against a static mock page. /portfolio is now the RICH V4
+ * vault-health console (same composition as /portfolio/preview) but it BINDS the
+ * real loader (loadPortfolioCockpit → loadPortfolioDashboard, derived only from
+ * the signed-in account's persisted positions / NAV / yield) and renders on HIS
+ * primitives, so the investor sees the same truth as /profile & /admin/customers.
+ * The MOCK V4 console (100% fabricated dataset) lives ONLY at /portfolio/preview.
+ *
+ * The console adds pockets/collateral (Estimated, derived from the real deposit)
+ * and mining/risk/agent panels (pilot sample, badged Simulated) — this contract
+ * keeps its anti-mock teeth: /portfolio must never import the sandbox mock
+ * dataset (./preview/_data/mock) and must never hardcode the mock's demo figures.
  *
  * Text assertions on the page source (same approach as the other contracts).
  */
@@ -28,8 +34,9 @@ const page = stripComments(
 describe("portfolio binds real data (no static mock)", () => {
   it("consumes the real data loader (async page, no static mock)", () => {
     expect(page).toMatch(/export default async function PortfolioPage/);
-    // Single view model derived only from the signed-in account's real data.
-    expect(page).toMatch(/loadPortfolioDashboard/);
+    // Single view model derived only from the signed-in account's real data
+    // (the cockpit loader wraps loadPortfolioDashboard — the real source).
+    expect(page).toMatch(/loadPortfolioCockpit/);
   });
 
   it("renders on HIS data-viz primitives (not a mock chart)", () => {
@@ -55,9 +62,18 @@ describe("portfolio binds real data (no static mock)", () => {
   });
 
   it("derives headline + stat band from the loader view model, not hardcodes", () => {
-    // Current value + deposit come off the derived view model `d`, never a literal.
-    expect(page).toMatch(/formatUsdFull\(d\.currentValueUsdc\)/);
+    // Deployed value + deposit come off the derived view model `d`, never a literal.
+    expect(page).toMatch(/formatUsdFull\(d\.deployedValueUsdc\)/);
     expect(page).toMatch(/formatUsdFull\(d\.depositUsdc\)/);
+  });
+
+  it("the cockpit loader itself derives from the REAL dashboard source (not mock)", () => {
+    const loader = stripComments(read("src/lib/data/portfolio-cockpit.ts"));
+    // The rich view model is built on the real loader, never the sandbox mock.
+    expect(loader).toMatch(/loadPortfolioDashboard/);
+    expect(loader).not.toMatch(/preview\/_data\/mock/);
+    // Pilot operational data is isolated in a clearly-named fixtures module.
+    expect(loader).toMatch(/_cockpit\/pilot-fixtures/);
   });
 
   it("is DS-clean: no raw hex / zinc / white-alpha / hardcoded type sizes", () => {
