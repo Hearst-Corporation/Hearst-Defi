@@ -16,7 +16,7 @@ vi.stubGlobal("document", {
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/my-vaults",
+  usePathname: () => "/portfolio",
 }));
 
 vi.mock("react", async (importOriginal) => {
@@ -65,7 +65,7 @@ describe("Product rail intra (fixed column)", () => {
     expect(html).toContain("ct-rail-intra__stack");
     expect(html).toContain('aria-label="Portfolio"');
     // Visual Direction 2026 rail: Portfolio · Invest · Profile (Proofs removed;
-    // the standalone "Vault" entry was folded into "Portfolio" → /my-vaults).
+    // "Portfolio" → /portfolio, the real financial dashboard).
     expect(html).toContain('aria-label="Invest"');
     expect(html).toContain('aria-label="Profile"');
     expect(html).not.toContain('aria-label="Proofs & Documents"');

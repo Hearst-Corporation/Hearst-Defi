@@ -6,10 +6,11 @@ import { describe, expect, it } from "vitest";
 /**
  * MISSION #034 — /portfolio real-data contract.
  *
- * Regression cover for the former 100% static mock page (hardcoded $509,800 /
- * $500,000 / $9,800 / $8,380 demo activity under a "Demo data" badge). The page
- * now BINDS the real loader (loadPortfolioView) and renders on HIS primitives,
- * so the investor sees the same truth as /profile & /admin/customers.
+ * Regression cover against a static mock page. /portfolio is the investor's
+ * REAL financial dashboard: it BINDS the real loader (loadPortfolioDashboard,
+ * derived only from the signed-in account's persisted positions / NAV / yield)
+ * and renders on HIS primitives, so the investor sees the same truth as
+ * /profile & /admin/customers. The V4 mock console lives at /portfolio/preview.
  *
  * Text assertions on the page source (same approach as the other contracts).
  */
@@ -25,23 +26,25 @@ const page = stripComments(
 );
 
 describe("portfolio binds real data (no static mock)", () => {
-  it("consumes the real data loaders (async page, no static mock)", () => {
+  it("consumes the real data loader (async page, no static mock)", () => {
     expect(page).toMatch(/export default async function PortfolioPage/);
-    expect(page).toMatch(/loadPortfolio\(\)/);
-    expect(page).toMatch(/loadAllocationDonutProps\(\)/);
+    // Single view model derived only from the signed-in account's real data.
+    expect(page).toMatch(/loadPortfolioDashboard/);
   });
 
-  it("renders on HIS data-viz primitives (not the legacy mock chart)", () => {
+  it("renders on HIS data-viz primitives (not a mock chart)", () => {
     expect(page).toMatch(/@\/components\/dataviz\/his/);
-    expect(page).toMatch(/HcChartCard/);
-    // Hero NAV chart = HcValueChart (fed by real NAV points); composition =
-    // HcCompositionRing. Both are HIS primitives — the legacy mock chart is gone.
+    // Hero NAV chart = HcValueChart (fed by real NAV points); realized
+    // distributions = HcBarChart. Both are HIS primitives.
     expect(page).toMatch(/HcValueChart/);
-    expect(page).toMatch(/HcCompositionRing/);
+    expect(page).toMatch(/HcBarChart/);
   });
 
-  it("contains NONE of the old mock literals", () => {
-    for (const lit of ["509,800", "509800", "500,000", "8,380", "9,800", "98.0%"]) {
+  it("imports NONE of the mock V4 data (that lives only under ./preview/_data)", () => {
+    // The real dashboard must never pull the sandbox mock dataset.
+    expect(page).not.toMatch(/preview\/_data\/mock/);
+    // And none of the old hardcoded demo literals survive.
+    for (const lit of ["509,800", "509800", "500,000", "8,380", "9,800", "531,400", "531.4k"]) {
       expect(page, `mock literal ${lit} must be gone`).not.toContain(lit);
     }
   });
@@ -51,9 +54,10 @@ describe("portfolio binds real data (no static mock)", () => {
     expect(page).not.toMatch(/Chart Placeholder/);
   });
 
-  it("derives headline + principal from the loader, not hardcodes", () => {
-    expect(page).toMatch(/formatUsdFull\(totalValueUsdc\)/);
-    expect(page).toMatch(/formatUsdFull\(deployedUsdc\)/);
+  it("derives headline + stat band from the loader view model, not hardcodes", () => {
+    // Current value + deposit come off the derived view model `d`, never a literal.
+    expect(page).toMatch(/formatUsdFull\(d\.currentValueUsdc\)/);
+    expect(page).toMatch(/formatUsdFull\(d\.depositUsdc\)/);
   });
 
   it("is DS-clean: no raw hex / zinc / white-alpha / hardcoded type sizes", () => {

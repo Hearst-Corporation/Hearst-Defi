@@ -416,6 +416,43 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
 });
 
 // ---------------------------------------------------------------------------
+// loadInvestorDistributions — ALL distribution transactions across ALL of the
+// investor's positions (not capped to the 5-row, all-types recentTransactions
+// feed used elsewhere). Powers the /portfolio "Yield & distributions" card,
+// which must reconcile with the header's investor-wide `distributedUsdc`.
+// ---------------------------------------------------------------------------
+
+export interface InvestorDistribution {
+  id: string;
+  amountUsdc: number;
+  occurredAt: Date;
+  txHash: string | null;
+  vaultName?: string;
+}
+
+export const loadInvestorDistributions = cache(
+  async (limit = 24): Promise<InvestorDistribution[]> => {
+    const investor = await getInvestor();
+    if (!investor) return [];
+
+    const rows = await prisma.investorTransaction.findMany({
+      where: { investorId: investor.id, type: "distribution" },
+      orderBy: { occurredAt: "desc" },
+      take: limit,
+      include: { position: { include: { vaultDeployment: true } } },
+    });
+
+    return rows.map((t) => ({
+      id: t.id,
+      amountUsdc: toNumber(t.amountUsdc),
+      occurredAt: t.occurredAt,
+      txHash: t.txHash,
+      vaultName: t.position?.vaultDeployment?.name ?? undefined,
+    }));
+  },
+);
+
+// ---------------------------------------------------------------------------
 // Widget props loaders — Section 1/2/3 new widgets
 // ---------------------------------------------------------------------------
 

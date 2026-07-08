@@ -18,11 +18,11 @@ describe("safeFrom", () => {
       ["newline control char", "/dashboard\n"],
       ["null byte", "/dashboard\x00"],
     ])("returns fallback for %s", (_label, input) => {
-      expect(safeFrom(input)).toBe("/my-vaults");
+      expect(safeFrom(input)).toBe("/portfolio");
     });
 
     it("uses custom fallback when provided", () => {
-      expect(safeFrom(null, "/portfolio")).toBe("/portfolio");
+      expect(safeFrom(null, "/my-vaults")).toBe("/my-vaults");
       expect(safeFrom("//evil.com", "/home")).toBe("/home");
     });
   });

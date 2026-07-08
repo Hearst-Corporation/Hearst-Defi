@@ -34,20 +34,19 @@ export type NavItem = {
  * "Infrastructure & Proofs" section). The `/proof-center` route stays
  * reachable (deep link + admin), just off the investor rail.
  *
- * Routing note: "Portfolio" → `/my-vaults` (the real per-account held-positions
- * index — zero state until a subscription exists, populated after) whose rows
- * open the per-position detail. The former standalone "Vault" rail entry was
- * folded into "Portfolio" — same destination, one entry. "Invest" → `/vaults`
- * (the shipped 4-step catalog/flow, kept to avoid breaking invest-routes + the
- * LLM nav whitelist). The mock V4 vault-health console still lives at
- * `/portfolio` (see `src/app/(product)/portfolio/preview/_data/mock.ts`) but is
- * deliberately off the rail — reachable only by direct URL.
+ * Routing note: "Portfolio" → `/portfolio` (the investor's REAL financial
+ * dashboard — zero state until a subscription exists, populated from the
+ * signed-in account after). "Invest" → `/vaults` (the shipped 4-step
+ * catalog/flow, kept to avoid breaking invest-routes + the LLM nav whitelist).
+ * The mock V4 vault-health console lives at `/portfolio/preview`
+ * (see `src/app/(product)/portfolio/preview/_data/mock.ts`) — a sandbox,
+ * deliberately off the rail, reachable only by direct URL.
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
     id: "portfolio",
     label: "Portfolio",
-    href: "/my-vaults",
+    href: "/portfolio",
     icon: "PieChart",
   },
   {

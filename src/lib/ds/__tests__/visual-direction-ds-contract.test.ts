@@ -147,7 +147,7 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
       join(ROOT, "src/components/nav/product-nav-items.ts"),
       "utf8",
     );
-    // PRODUCT_NAV = Portfolio (→ /my-vaults) · Invest · Profile.
+    // PRODUCT_NAV = Portfolio (→ /portfolio) · Invest · Profile.
     expect(nav).toMatch(/id:\s*"invest"/);
     expect(nav).not.toMatch(/id:\s*"proof-center"/);
   });
