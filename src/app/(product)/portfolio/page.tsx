@@ -36,6 +36,7 @@ import { loadPortfolioCockpit } from "@/lib/data/portfolio-cockpit";
 import { loadVaultRebalancings } from "@/lib/data/vault-rebalancings";
 import { isDemoAccount } from "@/lib/demo/allowlist";
 import { ZAND_FIXTURE_EMAIL } from "@/lib/demo/zand-fixture";
+import { loadMachineMarket } from "@/lib/telegram/read-machines";
 import {
   formatUsdDetailed,
   formatUsdFull,
@@ -45,12 +46,10 @@ import "./preview/_styles.css";
 import { AgentCanvas } from "./preview/_charts/agent-canvas";
 import { AssetBadge } from "./preview/_charts/asset-badge";
 import { AssetRing } from "./preview/_charts/asset-ring";
-import { HcBullet } from "./preview/_charts/bullet";
 import { HcMeter } from "./preview/_charts/meter";
 import { PocketCards } from "./preview/_charts/pocket-cards";
 import { RebalancingFeed, type RebalancingEvent } from "./preview/_charts/rebalancing-feed";
 import { StatBand } from "./preview/_charts/stat-band";
-import { HcUptimeBand, orderedUptime } from "./preview/_charts/uptime-band";
 import { ASSET_COLOR, POCKET_ASSET } from "./preview/_data/brand";
 import { DemoTimelineControl } from "./demo-timeline-control";
 
@@ -130,6 +129,11 @@ const DISTRIB_BAR_LABEL = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
+// Estimated institutional machine assumptions used to translate the B1 mining
+// allocation into an indicative "machines + total hashrate" view for LPs.
+const FALLBACK_MACHINE_PRICE_USDC = 3_500;
+const FALLBACK_MACHINE_HASHRATE_TH = 234;
+
 /**
  * Aggregate real distributions into monthly bars (label + summed amount),
  * oldest → newest. Pure/deterministic: groups by the UTC year-month of each
@@ -160,9 +164,10 @@ function buildMonthlyDistributionBars(
 }
 
 export default async function PortfolioPage() {
-  const [d, session] = await Promise.all([
+  const [d, session, machineMarket] = await Promise.all([
     loadPortfolioCockpit(),
     getSession(),
+    loadMachineMarket(),
   ]);
   // Real vault-level rebalancing feed (RebalanceEvent table), scoped to events
   // since this investor's own first active subscription. Vault-wide operations
@@ -230,23 +235,31 @@ export default async function PortfolioPage() {
           { at: anchorMs, value: d.deployedValueUsdc },
         ];
 
-  const onlinePct =
-    d.uptimeSegments.find((s) => s.cause === "online")?.pct ?? 0;
-  const uptimeCauses = orderedUptime(d.uptimeSegments).filter(
-    (s) => s.cause !== "online",
+  const b1Pocket = d.pockets.find((p) => p.label.startsWith("B1")) ?? d.pockets[0];
+  const miningAllocationUsdc = b1Pocket?.valueUsdc ?? 0;
+  const machineBasis =
+    machineMarket.rows
+      .filter((r) => r.manufacturer === "bitmain")
+      .sort((a, b) => a.landedUsd - b.landedUsd)[0] ??
+    machineMarket.rows.sort((a, b) => a.landedUsd - b.landedUsd)[0] ??
+    null;
+  const machineUnitPriceUsdc = machineBasis?.landedUsd ?? FALLBACK_MACHINE_PRICE_USDC;
+  const machineUnitHashrateTh = machineBasis?.thPerUnit ?? FALLBACK_MACHINE_HASHRATE_TH;
+  const machineManufacturerLabel =
+    machineBasis?.manufacturer === "bitmain"
+      ? "Bitmain"
+      : machineBasis?.manufacturer
+        ? machineBasis.manufacturer.charAt(0).toUpperCase() +
+          machineBasis.manufacturer.slice(1)
+        : "Bitmain";
+  const allocatedMachineCount = Math.floor(
+    miningAllocationUsdc / machineUnitPriceUsdc,
   );
-
-  // Operational pilot readings are only meaningful once the vault runs. At zero
-  // (or an empty feed) there is nothing to report yet — show "—" and drop the
-  // accent tone so a $0 vault never reads as "0 J/TH" / "0.0% online" (a false
-  // "in trouble" signal) nor lights the efficiency bullet green.
-  const availabilityPending = zero || d.uptimeSegments.length === 0 || onlinePct <= 0;
-  const efficiencyPending = zero || d.efficiency.value <= 0;
-  const efficiencyTone: "accent" | "warning" | "neutral" = efficiencyPending
-    ? "neutral"
-    : d.efficiency.value <= d.efficiency.target
-      ? "accent"
-      : "warning";
+  const allocatedHashrateTh = allocatedMachineCount * machineUnitHashrateTh;
+  const allocatedHashratePh = allocatedHashrateTh / 1_000;
+  const machineRemainderUsdc =
+    miningAllocationUsdc - allocatedMachineCount * machineUnitPriceUsdc;
+  const allocationPending = zero || allocatedMachineCount <= 0;
 
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
@@ -453,87 +466,58 @@ export default async function PortfolioPage() {
         <section className="grid grid-cols-1 @[54rem]:grid-cols-[1.3fr_1fr] gap-5">
           <div className={SUPPORT}>
             <CardHeader
-              title="Operational health"
+              title="Allocated mining power"
               trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
             />
-            <div className="flex flex-col gap-3 p-5">
-                {/* Availability */}
-                <div className="flex flex-col gap-1.5">
-                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] items-center gap-x-4">
-                    <span className="text-[length:var(--ct-text-micro)] ct-text-muted">Availability</span>
-                    <HcUptimeBand
-                      segments={d.uptimeSegments}
-                      bandOnly
-                      aria-label="Machine uptime by cause (pilot)"
-                    />
-                    <span className="justify-self-end whitespace-nowrap text-right">
-                      {availabilityPending ? (
-                        <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-muted">
-                          — <span className="text-[length:var(--ct-text-nano)]">pending</span>
+            <div className="flex flex-col gap-4 p-5">
+              {allocationPending ? (
+                <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
+                  No mining allocation yet. Once capital is allocated to B1, this
+                  panel estimates your allocated fleet power from machine cost.
+                </span>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-3 @[40rem]:grid-cols-2">
+                    <div className="rounded-xl border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-4 py-3">
+                      <span className="ct-bento-label">Estimated units</span>
+                      <div className="mt-1 flex items-baseline gap-2">
+                        <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
+                          {allocatedMachineCount.toLocaleString("en-US")}
                         </span>
-                      ) : (
-                        <>
-                          <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">
-                            {onlinePct.toFixed(1)}%
-                          </span>
-                          <span className="ml-1 text-[length:var(--ct-text-nano)] ct-text-muted">online</span>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] gap-x-4">
-                    <div className="col-start-2 col-end-3 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-                      {uptimeCauses.map((s) => (
-                        <span key={s.cause} className="inline-flex items-center gap-1.5">
-                          <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: s.dot }} />
-                          <span className="text-[length:var(--ct-text-nano)] ct-text-muted">{s.label}</span>
-                          <span className="text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">{s.pct.toFixed(1)}%</span>
+                        <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+                          machines
                         </span>
-                      ))}
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-4 py-3">
+                      <span className="ct-bento-label">Total allocated power</span>
+                      <div className="mt-1 flex items-baseline gap-2">
+                        <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
+                          {allocatedHashratePh.toFixed(1)}
+                        </span>
+                        <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+                          PH/s
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Efficiency */}
-                <div className="flex flex-col gap-1.5">
-                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] items-center gap-x-4">
-                    <span className="text-[length:var(--ct-text-micro)] ct-text-muted">Efficiency</span>
-                    <HcBullet
-                      value={efficiencyPending ? 0 : d.efficiency.value}
-                      min={18}
-                      max={d.efficiency.max}
-                      target={d.efficiency.target}
-                      ranges={[d.efficiency.ranges[0], d.efficiency.ranges[1]]}
-                      tone={efficiencyTone}
-                      aria-label={
-                        efficiencyPending
-                          ? "Efficiency pending — awaiting attested feed (pilot)"
-                          : `Efficiency ${d.efficiency.value} J/TH, target ${d.efficiency.target} (pilot)`
-                      }
-                    />
-                    <span className="justify-self-end whitespace-nowrap text-right">
-                      {efficiencyPending ? (
-                        <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-muted">
-                          — <span className="text-[length:var(--ct-text-nano)]">pending</span>
-                        </span>
-                      ) : (
-                        <>
-                          <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">
-                            {d.efficiency.value}
-                          </span>
-                          <span className="ml-1 text-[length:var(--ct-text-nano)] ct-text-muted">J/TH</span>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_5.25rem] gap-x-4">
-                    <div className="col-start-2 col-end-3 flex items-center justify-between text-[length:var(--ct-text-nano)] ct-text-muted">
-                      <span>18 best</span>
-                      <span>target {d.efficiency.target} · lower is better</span>
-                      <span>30</span>
+                  <div className="rounded-xl border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="ct-bento-label">Mining allocation model</span>
+                      <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+                        Manufacturer: {machineManufacturerLabel}
+                      </span>
+                    </div>
+                    <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[length:var(--ct-text-nano)] ct-text-muted @[40rem]:grid-cols-3">
+                      <span>B1 allocation: {formatUsdFull(miningAllocationUsdc)}</span>
+                      <span>Unit cost: {formatUsdFull(machineUnitPriceUsdc)}</span>
+                      <span>
+                        Unallocated remainder: {formatUsdFull(Math.max(0, machineRemainderUsdc))}
+                      </span>
                     </div>
                   </div>
-                </div>
+                </>
+              )}
             </div>
           </div>
           {zero ? (

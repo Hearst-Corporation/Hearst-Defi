@@ -11,6 +11,7 @@ import {
   type DestinationCountry,
 } from "./cost-model";
 import { fetchHashprice } from "@/lib/data/hashprice";
+import { prisma } from "@/lib/db";
 
 /**
  * Server-only loader: reads the latest machine price list from a Telegram
@@ -49,6 +50,109 @@ export interface MachineMarketSnapshot {
 const DEFAULT_CHANNEL = "@LetineSidonia";
 const MESSAGES_TO_SCAN = 8;
 
+function toNumber(v: unknown): number {
+  if (typeof v === "number") return v;
+  if (typeof v === "string") return Number.parseFloat(v);
+  if (v !== null && typeof v === "object" && "toNumber" in v) {
+    return (v as { toNumber(): number }).toNumber();
+  }
+  return 0;
+}
+
+async function readLatestPersistedMachineMarket(
+  channel: string,
+  destination: DestinationCountry,
+): Promise<MachineMarketSnapshot | null> {
+  const snap = await prisma.telegramMachineMarketSnapshot.findFirst({
+    where: { channel, destination },
+    orderBy: { takenAt: "desc" },
+    include: { rows: { orderBy: { landedUsd: "asc" } } },
+  });
+  if (!snap) return null;
+
+  const rows: MachineRow[] = snap.rows.map((r) => ({
+    model: r.model,
+    manufacturer: r.manufacturer as MachineRow["manufacturer"],
+    cooling: r.cooling as MachineRow["cooling"],
+    region: r.region as MachineRow["region"],
+    thPerUnit: toNumber(r.thPerUnit),
+    efficiencyJTh: r.efficiencyJTh === null ? null : toNumber(r.efficiencyJTh),
+    efficiencySource: r.efficiencySource as MachineRow["efficiencySource"],
+    exWorksUsd: toNumber(r.exWorksUsd),
+    feesUsd: toNumber(r.feesUsd),
+    landedUsd: toNumber(r.landedUsd),
+    amortMonths: r.amortMonths,
+    capexUsdPerThDay: toNumber(r.capexUsdPerThDay),
+    energyUsdPerThDay:
+      r.energyUsdPerThDay === null ? null : toNumber(r.energyUsdPerThDay),
+    totalCostUsdPerThDay:
+      r.totalCostUsdPerThDay === null ? null : toNumber(r.totalCostUsdPerThDay),
+    marginUsdPerThDay:
+      r.marginUsdPerThDay === null ? null : toNumber(r.marginUsdPerThDay),
+  }));
+
+  return {
+    configured: snap.configured,
+    channel: snap.channel,
+    destination: snap.destination as DestinationCountry,
+    listDate: snap.listDate,
+    hashpriceUsdPerThDay: toNumber(snap.hashpriceUsdPerThDay),
+    btcPriceUsd: toNumber(snap.btcPriceUsd),
+    hashpriceStale: snap.hashpriceStale,
+    energyUsdPerKwh: toNumber(snap.energyUsdPerKwh),
+    rows,
+    error: snap.error ?? undefined,
+  };
+}
+
+async function persistMachineMarketSnapshot(input: {
+  channel: string;
+  destination: DestinationCountry;
+  listDate: string | null;
+  hashpriceUsdPerThDay: number;
+  btcPriceUsd: number;
+  hashpriceStale: boolean;
+  energyUsdPerKwh: number;
+  configured: boolean;
+  rows: MachineRow[];
+  error?: string;
+  source?: string;
+}): Promise<void> {
+  await prisma.telegramMachineMarketSnapshot.create({
+    data: {
+      channel: input.channel,
+      destination: input.destination,
+      listDate: input.listDate,
+      hashpriceUsdPerThDay: input.hashpriceUsdPerThDay,
+      btcPriceUsd: input.btcPriceUsd,
+      hashpriceStale: input.hashpriceStale,
+      energyUsdPerKwh: input.energyUsdPerKwh,
+      configured: input.configured,
+      error: input.error ?? null,
+      source: input.source ?? "telegram",
+      rows: {
+        create: input.rows.map((r) => ({
+          model: r.model,
+          manufacturer: r.manufacturer,
+          cooling: r.cooling,
+          region: r.region,
+          thPerUnit: r.thPerUnit,
+          efficiencyJTh: r.efficiencyJTh,
+          efficiencySource: r.efficiencySource,
+          exWorksUsd: r.exWorksUsd,
+          feesUsd: r.feesUsd,
+          landedUsd: r.landedUsd,
+          amortMonths: r.amortMonths,
+          capexUsdPerThDay: r.capexUsdPerThDay,
+          energyUsdPerThDay: r.energyUsdPerThDay,
+          totalCostUsdPerThDay: r.totalCostUsdPerThDay,
+          marginUsdPerThDay: r.marginUsdPerThDay,
+        })),
+      },
+    },
+  });
+}
+
 export async function loadMachineMarket(
   channel: string = DEFAULT_CHANNEL,
   destination: DestinationCountry = DEFAULT_DESTINATION,
@@ -65,6 +169,15 @@ export async function loadMachineMarket(
   };
 
   if (!isTelegramConfigured()) {
+    const cached = await readLatestPersistedMachineMarket(channel, destination);
+    if (cached) {
+      return {
+        ...cached,
+        configured: true,
+        error:
+          "Telegram is not configured on this runtime. Serving latest DB-cached machine snapshot.",
+      };
+    }
     return { ...base, configured: false, listDate: null, rows: [] };
   }
 
@@ -96,8 +209,29 @@ export async function loadMachineMarket(
       return { ...econ, marginUsdPerThDay };
     });
 
+    await persistMachineMarketSnapshot({
+      channel,
+      destination,
+      listDate,
+      hashpriceUsdPerThDay: hp.usd_per_th_day,
+      btcPriceUsd: hp.btc_price_usd,
+      hashpriceStale: hp.stale,
+      energyUsdPerKwh: ENERGY_COST_USD_PER_KWH,
+      configured: true,
+      rows,
+      source: "telegram_live",
+    });
+
     return { ...base, configured: true, listDate, rows };
   } catch (err) {
+    const cached = await readLatestPersistedMachineMarket(channel, destination);
+    if (cached) {
+      return {
+        ...cached,
+        configured: true,
+        error: `Telegram read failed; serving latest DB-cached snapshot. ${err instanceof Error ? err.message : "Unknown error"}`,
+      };
+    }
     return {
       ...base,
       configured: true,
