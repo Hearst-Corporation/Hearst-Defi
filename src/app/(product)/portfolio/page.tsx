@@ -224,9 +224,13 @@ export default async function PortfolioPage() {
   // last 24h → now. A true flat line to read, not an empty cadre.
   const DAY_MS = 24 * 60 * 60 * 1000;
   const lastAt = d.navPoints.at(-1)?.at;
-  // Anchor the synthetic baseline on the last real point, else on NOW — never
-  // on the Unix epoch (which rendered "Jan 1 / Jan 2" 1970 axis labels).
-  const anchorMs = typeof lastAt === "number" ? lastAt : Date.now();
+  // Anchor the synthetic baseline on the last real point; otherwise use the
+  // subscription timestamp when available, and finally a fixed modern epoch to
+  // avoid 1970 labels while keeping render-time logic pure (no Date.now()).
+  const anchorMs =
+    typeof lastAt === "number"
+      ? lastAt
+      : d.subscribedAt?.getTime() ?? Date.parse("2026-01-01T00:00:00Z");
   const navChartPoints =
     d.navPoints.length >= 2
       ? d.navPoints

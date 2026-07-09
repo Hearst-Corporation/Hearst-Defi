@@ -23,7 +23,7 @@
  * wrap ad-hoc content in your own padded element. Token-only, dark-mode only.
  */
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -61,20 +61,18 @@ export function AccordionCard({
   const bodyId = `${reactId}-body`;
   const headerId = `${reactId}-header`;
 
-  const [open, setOpen] = useState(collapsible ? defaultOpen : true);
-
-  // Hydration-safe restore: read the stored preference only after mount so the
-  // server-rendered markup (defaultOpen) matches the first client render.
-  useEffect(() => {
-    if (!collapsible || !persistKey) return;
+  const [open, setOpen] = useState<boolean>(() => {
+    if (!collapsible) return true;
+    if (!persistKey || typeof window === "undefined") return defaultOpen;
     try {
       const stored = window.localStorage.getItem(`ct-accordion:${persistKey}`);
-      if (stored === "1") setOpen(true);
-      else if (stored === "0") setOpen(false);
+      if (stored === "1") return true;
+      if (stored === "0") return false;
     } catch {
       /* localStorage unavailable — keep defaultOpen */
     }
-  }, [collapsible, persistKey]);
+    return defaultOpen;
+  });
 
   function toggle() {
     setOpen((prev) => {
