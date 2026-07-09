@@ -6,6 +6,11 @@
       "type": "http",
       "url": "http://127.0.0.1:3845/mcp"
     },
+    "figma": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp", "--figma-api-key", "${FIGMA_TOKEN}", "--stdio"]
+    },
     "playwright": {
       "type": "stdio",
       "command": "npx",
