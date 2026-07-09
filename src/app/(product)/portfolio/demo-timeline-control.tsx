@@ -4,9 +4,14 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
-import { demoAdvanceTimeline, demoSeedPosition, type DemoTimelineStage } from "./demo-actions";
+import {
+  demoAdvanceTimeline,
+  demoSeedPosition,
+  demoSeedZandFixture,
+  type DemoTimelineStage,
+} from "./demo-actions";
 
-type DemoControlStage = DemoTimelineStage | "seed";
+type DemoControlStage = DemoTimelineStage | "seed" | "fixture";
 
 /**
  * Demo-only control: lets Adrien drive the "time machine" lifecycle
@@ -27,7 +32,12 @@ type DemoControlStage = DemoTimelineStage | "seed";
  * loop (Reset → Subscribe $250k → +12m/+24m/Expiry) works end-to-end from the
  * browser without a terminal.
  */
-export function DemoTimelineControl() {
+export function DemoTimelineControl({
+  showFixtureSeed = false,
+}: {
+  /** True only for the Zand fixture account — shows the "Seed $2M fixture" lever. */
+  showFixtureSeed?: boolean;
+} = {}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingStage, setPendingStage] = useState<DemoControlStage | null>(null);
@@ -63,80 +73,105 @@ export function DemoTimelineControl() {
     });
   }
 
-  return (
-    <div className="flex flex-col gap-2.5 rounded-2xl border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border-soft)] px-2.5 py-1 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
-          Demo control · simulated timeline
-        </span>
-      </div>
+  function seedFixture() {
+    setFeedback(null);
+    setPendingStage("fixture");
+    startTransition(async () => {
+      const result = await demoSeedZandFixture();
+      setPendingStage(null);
+      if (!result.ok) {
+        setFeedback({ ok: false, text: result.error });
+        return;
+      }
+      setFeedback({ ok: true, text: result.message });
+      router.refresh();
+    });
+  }
 
-      <div className="flex flex-wrap items-center gap-2">
+  return (
+    // Bare, discreet margin control — plain ghost levers only, no filled CTAs, so
+    // the demo time-machine sits quietly in the top margin and never competes
+    // with the console. Feedback is aria-live but visually hidden (no chrome).
+    <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => run("reset")}
+        disabled={isPending}
+        aria-busy={isPending && pendingStage === "reset"}
+      >
+        {isPending && pendingStage === "reset" ? "Resetting…" : "Reset (0)"}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={seed}
+        disabled={isPending}
+        aria-busy={isPending && pendingStage === "seed"}
+      >
+        {isPending && pendingStage === "seed" ? "Subscribing…" : "Subscribe $250k"}
+      </Button>
+      {showFixtureSeed ? (
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => run("reset")}
+          onClick={seedFixture}
           disabled={isPending}
-          aria-busy={isPending && pendingStage === "reset"}
+          aria-busy={isPending && pendingStage === "fixture"}
         >
-          {isPending && pendingStage === "reset" ? "Resetting…" : "Reset (0)"}
+          {isPending && pendingStage === "fixture" ? "Seeding…" : "Seed $2M fixture"}
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={seed}
-          disabled={isPending}
-          aria-busy={isPending && pendingStage === "seed"}
-        >
-          {isPending && pendingStage === "seed" ? "Subscribing…" : "Subscribe $250k"}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => run("12m")}
-          disabled={isPending}
-          aria-busy={isPending && pendingStage === "12m"}
-        >
-          {isPending && pendingStage === "12m" ? "Advancing…" : "+12 months"}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => run("24m")}
-          disabled={isPending}
-          aria-busy={isPending && pendingStage === "24m"}
-        >
-          {isPending && pendingStage === "24m" ? "Advancing…" : "+24 months"}
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          onClick={() => run("expiry")}
-          disabled={isPending}
-          aria-busy={isPending && pendingStage === "expiry"}
-        >
-          {isPending && pendingStage === "expiry" ? "Advancing…" : "Expiry"}
-        </Button>
-      </div>
+      ) : null}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => run("12m")}
+        disabled={isPending}
+        aria-busy={isPending && pendingStage === "12m"}
+      >
+        {isPending && pendingStage === "12m" ? "Advancing…" : "+12 months"}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => run("24m")}
+        disabled={isPending}
+        aria-busy={isPending && pendingStage === "24m"}
+      >
+        {isPending && pendingStage === "24m" ? "Advancing…" : "+24 months"}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => run("expiry")}
+        disabled={isPending}
+        aria-busy={isPending && pendingStage === "expiry"}
+      >
+        {isPending && pendingStage === "expiry" ? "Advancing…" : "Expiry"}
+      </Button>
 
-      <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-        Ages this demo position's subscription date, distributions and NAV
-        history to simulate elapsed time. Demo accounts only — never available
-        to a real investor.
-      </p>
-
+      {/* Success stays a11y-only (the refreshed console IS the feedback);
+          FAILURES must be visible — a silent no-op reads as "the button is
+          broken" (it did, live). Small danger text, no chrome. */}
       {feedback ? (
-        <p
-          className={`text-[length:var(--ct-text-nano)] leading-snug ${feedback.ok ? "ct-text-body" : "ct-status-danger"}`}
-          role={feedback.ok ? "status" : "alert"}
-        >
-          {feedback.text}
-        </p>
+        feedback.ok ? (
+          <span className="sr-only" role="status">
+            {feedback.text}
+          </span>
+        ) : (
+          <span
+            role="alert"
+            className="basis-full text-right text-[length:var(--ct-text-nano)] leading-snug ct-status-danger"
+          >
+            {feedback.text}
+          </span>
+        )
       ) : null}
     </div>
   );

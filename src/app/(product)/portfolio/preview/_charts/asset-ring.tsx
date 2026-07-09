@@ -57,13 +57,14 @@ export function AssetRing({
       role="img"
       aria-label={ariaLabel}
       className="relative"
-      style={{ width: size, height: size }}
+      style={{ width: "100%", maxWidth: size, aspectRatio: "1 / 1" }}
     >
       <svg
         aria-hidden="true"
-        width={size}
-        height={size}
+        width="100%"
+        height="100%"
         viewBox={`0 0 ${size} ${size}`}
+        preserveAspectRatio="xMidYMid meet"
         style={{ display: "block" }}
       >
         {/* full track under the segments */}

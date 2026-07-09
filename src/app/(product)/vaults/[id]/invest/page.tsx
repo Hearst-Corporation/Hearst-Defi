@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { InvestForm } from "@/components/vaults/invest-form";
+import { investProductPath } from "@/lib/vaults/invest-routes";
 import { getVault } from "@/lib/data/vaults";
 import { getInvestor, getSession } from "@/lib/auth/session";
 import { isSumsubConfigured } from "@/lib/onboarding/config";
@@ -49,6 +51,15 @@ export default async function InvestDepositPage({ params }: PageProps) {
     <InvestFlowShell
       step="deposit"
       width="full"
+      lead={
+        <Link
+          href={investProductPath(id)}
+          className="body-sm ct-link-accent"
+          aria-label="Back to term sheet"
+        >
+          ← Term sheet
+        </Link>
+      }
       titleLead="Allocate"
       titleAccent="capital"
       description={

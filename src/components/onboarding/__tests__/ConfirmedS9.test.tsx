@@ -19,22 +19,27 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, it, expect, vi } from "vitest";
 
-// The confirmed page resolves the investor server-side (to detect the demo
-// sandbox identity). Mock it to a NON-demo result so these structural tests
-// exercise the existing live-confirmation branch (unchanged) without a request
-// scope. The demo branch is covered by the demo provider tests.
+// The confirmed page resolves the investor server-side and only surfaces the
+// position when it BELONGS to that investor (the positionId query param is
+// untrusted). Resolve a real investor so the ownership-checked branch — the
+// one these structural tests assert (position ID row, progress bar, position
+// CTA) — is exercised.
 vi.mock("@/lib/auth/session", () => ({
-  getInvestor: vi.fn().mockResolvedValue(null),
+  getInvestor: vi.fn().mockResolvedValue({ id: "inv_test" }),
 }));
 
-// The page resolves the position's subscribedAt to compute the REAL elapsed
-// soft-lock day (audit I16: no fabricated 0% — the progress bar only renders
-// when a position resolves). These structural tests cover a fresh confirmation,
-// so we mock the position with subscribedAt = now → elapsed 0 → "Day 0 of 60".
+// The page resolves the position via an ownership-scoped findFirst
+// ({ id, investorId }) to compute the REAL elapsed soft-lock day (audit I16: no
+// fabricated 0% — the progress bar only renders when an OWNED position
+// resolves) and to display the DB principal as the amount (the `amount` query
+// param is untrusted). Fresh confirmation: subscribedAt = now → "Day 0 of 60".
 vi.mock("@/lib/db", () => ({
   prisma: {
     position: {
-      findUnique: vi.fn().mockResolvedValue({ subscribedAt: new Date() }),
+      findFirst: vi.fn().mockResolvedValue({
+        subscribedAt: new Date(),
+        principalUsdc: 500_000,
+      }),
     },
   },
 }));

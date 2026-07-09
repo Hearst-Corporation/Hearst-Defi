@@ -147,7 +147,7 @@ export function PorSummary({
             href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
             target="_blank"
             rel="noreferrer noopener"
-            className={explorerLinkClass}
+            className={cn(explorerLinkClass, "ct-focus-ring rounded-sm")}
             title={attestation.attestor}
             aria-label={`View attestor ${attestation.attestor} on explorer`}
           >
@@ -168,7 +168,7 @@ export function PorSummary({
           target="_blank"
           rel="noreferrer noopener"
           aria-label="View attestation transaction on Base Sepolia explorer"
-          className={bentoLinkButtonClass}
+          className={cn(bentoLinkButtonClass, "ct-focus-ring")}
         >
           View attestation tx on Base Sepolia (Testnet)
         </a>
@@ -180,7 +180,7 @@ export function PorSummary({
               target="_blank"
               rel="noreferrer noopener"
               aria-label="View evidence document on IPFS"
-              className={bentoLinkButtonClass}
+              className={cn(bentoLinkButtonClass, "ct-focus-ring")}
             >
               View evidence (IPFS)
             </a>

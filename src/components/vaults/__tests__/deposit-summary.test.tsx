@@ -48,10 +48,14 @@ describe("DepositSummary — vault panel DS patterns", () => {
       <DepositSummary vault={VAULT} amount={500_000} />,
     );
 
-    // Graphical split = accent-green segments on a graphite track (bento).
-    // Accent is the --ct-accent token now (single-green doctrine), not raw hex.
-    expect(html).toContain("bg-[var(--ct-accent)]");
+    // Graphical split on a graphite track. The projected total + principal
+    // segment are NEUTRAL (--ct-text-faint) — this is an ESTIMATED projection,
+    // and green + heartbeat are reserved for genuinely-Live values only. The
+    // yield segment keeps a muted accent tint so the two stay distinguishable.
+    expect(html).toContain("bg-[var(--ct-text-faint)]");
     expect(html).toContain("color-mix(in_srgb,var(--ct-accent)_40%,transparent)");
+    // The projected-total headline is neutral (not full-green) on estimated data.
+    expect(html).toContain("text-[var(--ct-text-strong)]");
     expect(html).toContain("9.4");
     expect(html).toContain("12.8");
     expect(html).toContain("$500,000 USDC");

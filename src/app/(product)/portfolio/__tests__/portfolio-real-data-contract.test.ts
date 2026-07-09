@@ -62,9 +62,11 @@ describe("portfolio binds real data (no static mock)", () => {
   });
 
   it("derives headline + stat band from the loader view model, not hardcodes", () => {
-    // Deployed value + deposit come off the derived view model `d`, never a literal.
-    expect(page).toMatch(/formatUsdFull\(d\.deployedValueUsdc\)/);
-    expect(page).toMatch(/formatUsdFull\(d\.depositUsdc\)/);
+    // The hero stat band and the NAV baseline both come off the derived view
+    // model `d`, never a literal. (The hero was recomposed around StatBand —
+    // deposit/value figures now flow through d.heroStats.)
+    expect(page).toMatch(/StatBand items=\{d\.heroStats\}/);
+    expect(page).toMatch(/d\.deployedValueUsdc/);
   });
 
   it("the cockpit loader itself derives from the REAL dashboard source (not mock)", () => {

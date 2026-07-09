@@ -34,6 +34,17 @@ const DELTA_COLOR: Record<"up" | "down" | "flat", string> = {
   flat: "var(--ct-text-muted)",
 };
 
+/**
+ * A value that carries no real magnitude — "$0", "$0.00", "0%", "—". Accent green
+ * is reserved for genuine, non-zero figures (and the Live pulse); a zero rendered
+ * green reads as an acquired gain (a $0 Accrued in green is a false positive). So
+ * a zero/placeholder value falls back to the neutral strong text colour.
+ */
+function isZeroValue(value: string): boolean {
+  const stripped = value.replace(/[\s$,%+]/g, "");
+  return stripped === "" || stripped === "—" || /^-?0(\.0+)?$/.test(stripped);
+}
+
 export function StatBand({
   items,
   className,
@@ -41,12 +52,16 @@ export function StatBand({
   items: readonly StatCell[];
   className?: string;
 }) {
+  // Container queries (not viewport): the grid reacts to the real width of the
+  // `product-doc` container (src/app/doc-flow.css), so it drops columns when the
+  // Assistant rail opens/expands and squeezes the centre — instead of relying on
+  // the window width and getting crushed. Each cell needs ~13rem to read cleanly.
   const cols =
     items.length >= 4
-      ? "md:grid-cols-4"
+      ? "@[34rem]:grid-cols-2 @[52rem]:grid-cols-4"
       : items.length === 3
-        ? "md:grid-cols-3"
-        : "md:grid-cols-2";
+        ? "@[26rem]:grid-cols-3"
+        : "@[26rem]:grid-cols-2";
   return (
     <div
       className={cn(
@@ -56,8 +71,8 @@ export function StatBand({
       )}
     >
       {items.map((it) => (
-        <div key={it.label} className="flex min-w-0 flex-col gap-2 bg-surface-card px-5 py-6">
-          <div className="flex items-center gap-1.5">
+        <div key={it.label} className="flex min-w-0 flex-col items-center gap-2 bg-surface-card px-5 py-6 text-center">
+          <div className="flex items-center justify-center gap-1.5">
             {it.live ? (
               <span
                 aria-hidden="true"
@@ -75,8 +90,14 @@ export function StatBand({
             )}
             <span className="ct-bento-label min-w-0 truncate">{it.label}</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="ct-bento-metric ct-bento-metric--accent tabular-nums">
+          <div className="flex items-baseline justify-center gap-2">
+            <span
+              className={cn(
+                "ct-bento-metric tabular-nums",
+                // Accent green only for real, non-zero values; zeros read neutral.
+                isZeroValue(it.value) ? "ct-text-strong" : "ct-bento-metric--accent",
+              )}
+            >
               {it.value}
             </span>
             {it.delta ? (

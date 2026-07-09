@@ -93,16 +93,18 @@ export function HcUptimeBand({
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       {band}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
         {ordered.map((s) => (
-          <div key={s.cause} className="flex items-center gap-1.5">
+          <div key={s.cause} className="flex min-w-0 items-center gap-1.5">
             <span
               aria-hidden="true"
               className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
               style={{ background: s.dot }}
             />
-            <span className="text-[length:var(--ct-text-nano)] ct-text-muted">{s.label}</span>
-            <span className="text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">
+            <span className="min-w-0 truncate text-[length:var(--ct-text-nano)] ct-text-muted">
+              {s.label}
+            </span>
+            <span className="shrink-0 text-[length:var(--ct-text-nano)] ct-text-body tabular-nums">
               {s.pct.toFixed(1)}%
             </span>
           </div>

@@ -34,7 +34,7 @@ export function HcRiskDimensions({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-[var(--ct-border-soft)] sm:grid-cols-2 lg:grid-cols-5",
+        "grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-[var(--ct-border-soft)] @[30rem]:grid-cols-2 @[52rem]:grid-cols-5",
         className,
       )}
       aria-label="Risk dimensions — small multiples"

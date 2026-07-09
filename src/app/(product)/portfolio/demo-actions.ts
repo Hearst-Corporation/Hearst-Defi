@@ -10,6 +10,7 @@ import {
   resetInvestorTimeline,
   advanceInvestorTimeline,
 } from "@/lib/demo/timeline-core";
+import { seedZandFixturePosition, ZAND_FIXTURE_EMAIL } from "@/lib/demo/zand-fixture";
 import { subscribe } from "@/app/actions/subscribe";
 
 // =============================================================================
@@ -165,6 +166,53 @@ export async function demoSeedPosition(): Promise<DemoTimelineResult> {
     };
   } catch (error) {
     console.error(`[demoSeedPosition] investorId=${investor.id} failed:`, error);
+    return { ok: false, error: toClientMessage("seed", error) };
+  }
+}
+
+// =============================================================================
+// demoSeedZandFixture — re-creates the Zand $2M institutional fixture in-app.
+// =============================================================================
+//
+// "Reset (0)" wipes to a genuinely empty portfolio (no automatic re-seed), so
+// the $2M + 12-distribution story a partner demo runs on would otherwise only
+// be recoverable via the CLI seeder (prisma/seed-zand-demo.ts). This lever
+// closes that gap from the browser. Gates:
+//   1. requireInvestor() — authenticated session.
+//   2. isDemoAccount(session.email) — demo accounts only (defence in depth).
+//   3. session email must be the Zand fixture account itself — the $2M
+//      institutional fixture belongs to that one account's story; other demo
+//      accounts keep their own $250k seed lever.
+// Idempotent: seedZandFixturePosition no-ops (created:false) when the fixture
+// deposit marker already exists. Not a financial/custodial action.
+export async function demoSeedZandFixture(): Promise<DemoTimelineResult> {
+  const session = await requireInvestor("/portfolio");
+
+  if (!isDemoAccount(session.email)) {
+    return { ok: false, error: "This action is only available on demo accounts." };
+  }
+  if (session.email.trim().toLowerCase() !== ZAND_FIXTURE_EMAIL) {
+    return { ok: false, error: "This fixture belongs to the Zand demo account." };
+  }
+
+  const investor = await getInvestor();
+  if (!investor) {
+    return { ok: false, error: "Authentication required." };
+  }
+
+  try {
+    const result = await seedZandFixturePosition(prisma, investor.id);
+
+    revalidatePath("/portfolio");
+    revalidatePath("/profile");
+    return {
+      ok: true,
+      message: result.created
+        ? `Seeded the $2,000,000 fixture — position ${result.positionId}, $${result.distributedUsdc.toLocaleString()} distributed.`
+        : "The $2M fixture already exists — nothing re-created.",
+    };
+  } catch (error) {
+    console.error(`[demoSeedZandFixture] investorId=${investor.id} failed:`, error);
     return { ok: false, error: toClientMessage("seed", error) };
   }
 }

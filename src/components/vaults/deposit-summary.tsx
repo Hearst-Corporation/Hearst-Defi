@@ -54,7 +54,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         <span
           className={cn(
             "text-[length:var(--ct-text-28)] font-medium leading-none tracking-tight tabular-nums transition-all duration-150",
-            hasAmount ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-faint)]",
+            hasAmount ? "text-[var(--ct-text-strong)]" : "text-[var(--ct-text-faint)]",
           )}
         >
           {totalAtClose !== null ? `${formatUsdFull(totalAtClose)} USDC` : "—"}
@@ -73,7 +73,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
           }
         >
           <span
-            className="h-full bg-[var(--ct-accent)] transition-all duration-150 ease-out"
+            className="h-full bg-[var(--ct-text-faint)] transition-all duration-150 ease-out"
             style={{ width: `${hasAmount ? principalShare : 100}%` }}
           />
           {hasAmount && yieldShare > 0 ? (
@@ -86,7 +86,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 transition-opacity duration-150">
-            <span className="size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] bg-[var(--ct-accent)]" />
+            <span className="size-2.5 rounded-full border-2 border-[var(--ct-surface-inset)] bg-[var(--ct-text-faint)]" />
             <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">Principal</span>
             <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
               {hasAmount ? `${formatUsdFull(amount)} USDC` : "—"}

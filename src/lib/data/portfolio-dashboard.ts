@@ -64,6 +64,8 @@ export interface PortfolioDashboard {
   lockupElapsedDays: number;
   /** Days remaining in the soft lock-up (0 once cleared). */
   lockupRemainingDays: number;
+  /** Anchor position's vault total capacity (VaultDeployment.capacityUsdc), null when unknown. Used to derive the investor's fleet share for mining tiles. */
+  vaultCapacityUsdc: number | null;
   /** Subscription date of the first active position (null when none). */
   subscribedAt: Date | null;
   /** Next scheduled distribution boundary. */
@@ -123,6 +125,7 @@ export const loadPortfolioDashboard = cache(
         lockupDays: 0,
         lockupElapsedDays: 0,
         lockupRemainingDays: 0,
+        vaultCapacityUsdc: null,
         subscribedAt: null,
         nextDistributionAt: portfolio.nextDistributionAt,
         status: null,
@@ -189,6 +192,7 @@ export const loadPortfolioDashboard = cache(
         )
       : 0;
     const lockupRemainingDays = Math.max(0, lockupDays - lockupElapsedDays);
+    const vaultCapacityUsdc = detail?.capacityUsdc ?? null;
 
     // NAV series → chart points. Real hourly prints when they vary, else the
     // deterministic reconstruction loadPortfolio already resolved. Empty stays empty.
@@ -247,6 +251,7 @@ export const loadPortfolioDashboard = cache(
       lockupDays,
       lockupElapsedDays,
       lockupRemainingDays,
+      vaultCapacityUsdc,
       subscribedAt,
       nextDistributionAt: portfolio.nextDistributionAt,
       status: anchorPosition?.status ?? null,

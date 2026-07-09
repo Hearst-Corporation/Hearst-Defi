@@ -28,8 +28,14 @@ const DEPOSIT_PCT = xPct(0);
 // three-column geometry. That makes the middle track identical in width everywhere — which is what
 // lets the ×1.00 anchor (and the take-profit right edge) land on the same x in all three rows and
 // directly under the axis tick. `minmax(0,1fr)` keeps that track from being widened by intrinsic content.
-const OUTCOME_COL = 76; // px — kept in sync with the outcome span min-width below.
-const GRID_COLS = `clamp(88px,24%,132px) minmax(0,1fr) ${OUTCOME_COL}px`;
+// Both flanking columns carry px floors; the middle track is the only elastic column, so under a
+// tight centre (Assistant rail open) it is what collapses first. We soften the two floors as far as
+// the content honestly allows — label to a 72px/20% start, outcome to 68px (the widest value, "×1.00"
+// / "+24%" at text-xs tabular-nums, still fits) — so the middle bar keeps a usable width for longer.
+// OUTCOME_COL stays the single source shared by the grid AND every outcome span's min-width, so the
+// three columns (and the axis row) remain pixel-identical → the ×1.00 anchor and +24% edge stay aligned.
+const OUTCOME_COL = 68; // px — kept in sync with the outcome span min-width below.
+const GRID_COLS = `clamp(72px,20%,132px) minmax(0,1fr) ${OUTCOME_COL}px`;
 
 /** Per-kind band geometry + colour. Positions are % on the shared axis. */
 const BAND: Record<ExitKind, { left: number; width: number; background: string; text: string }> = {
@@ -59,14 +65,14 @@ const BAND: Record<ExitKind, { left: number; width: number; background: string; 
 
 export function ExitPaths({ paths }: { paths: readonly ExitPathRow[] }) {
   return (
-    <div className="flex flex-1 flex-col justify-between gap-4 p-5">
+    <div className="@container/exitpaths flex flex-1 flex-col justify-between gap-4 p-5 max-@[26rem]/exitpaths:p-4">
       <div className="flex flex-col gap-3">
         {paths.map((p) => {
           const band = BAND[p.kind];
           return (
             <div
               key={p.label}
-              className="grid items-center gap-3"
+              className="grid items-center gap-3 max-@[26rem]/exitpaths:gap-2"
               style={{ gridTemplateColumns: GRID_COLS }}
             >
               <div className="flex min-w-0 flex-col">
@@ -111,7 +117,10 @@ export function ExitPaths({ paths }: { paths: readonly ExitPathRow[] }) {
       </div>
 
       {/* axis ticks — only the two honest anchors */}
-      <div className="grid gap-3" style={{ gridTemplateColumns: GRID_COLS }}>
+      <div
+        className="grid gap-3 max-@[26rem]/exitpaths:gap-2"
+        style={{ gridTemplateColumns: GRID_COLS }}
+      >
         <span aria-hidden="true" />
         <div className="relative h-3 text-[length:var(--ct-text-nano)] ct-text-muted">
           <span className="absolute -translate-x-1/2" style={{ left: `${DEPOSIT_PCT}%` }}>

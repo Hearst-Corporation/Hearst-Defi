@@ -17,6 +17,7 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { getPublicClient, explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
 import { readNavPerShare, formatNavPerShare, isVaultStale } from "@/lib/onchain/vault";
 import { getVault } from "@/lib/data/vaults";
+import { getInvestor } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
@@ -32,6 +33,8 @@ interface PageProps {
     tx?: string;
     amount?: string;
     positionId?: string;
+    /** "1" when the deposit was the demo-account OFF-CHAIN simulation. */
+    demo?: string;
   }>;
 }
 
@@ -46,8 +49,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const [{ id }, sp] = await Promise.all([params, searchParams]);
 
   const txHash = sp.tx ?? null;
-  const amount = formatUsdcFromParam(sp.amount);
-  const positionId = sp.positionId ?? null;
+  const isSimulated = sp.demo === "1";
 
   const hasHash = txHash !== null && !isPlaceholderTxHash(txHash);
   const baseScanHref = hasHash ? explorerTxUrl(txHash) : null;
@@ -70,19 +72,31 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const vaultForLock = await getVault(id);
   const LOCK_DAYS = vaultForLock?.softLockupDays ?? 60;
 
+  // Resolve the position ONLY if it belongs to the signed-in investor — the
+  // positionId arrives via the URL and is otherwise untrusted (a foreign or
+  // bogus id must not surface another investor's details). When owned, the DB
+  // row is also the source of truth for the displayed amount: the `amount`
+  // query param is user-editable and only ever a fallback.
+  const investor = await getInvestor();
+  const position =
+    sp.positionId && investor
+      ? await prisma.position.findFirst({
+          where: { id: sp.positionId, investorId: investor.id },
+          select: { subscribedAt: true, principalUsdc: true },
+        })
+      : null;
+  const positionId = position ? (sp.positionId ?? null) : null;
+  const amount = position
+    ? formatUsdcFromParam(position.principalUsdc.toString())
+    : formatUsdcFromParam(sp.amount);
+
   // Real elapsed lock days from the position's subscription timestamp — never a
   // fabricated 0%. If the position can't be resolved, we drop the progress bar
   // entirely rather than render a structurally-pinned 0% (audit I16).
   let currentDay: number | null = null;
-  if (positionId) {
-    const position = await prisma.position.findUnique({
-      where: { id: positionId },
-      select: { subscribedAt: true },
-    });
-    if (position) {
-      const elapsed = Math.floor((new Date().getTime() - position.subscribedAt.getTime()) / MS_PER_DAY);
-      currentDay = Math.min(LOCK_DAYS, Math.max(0, elapsed));
-    }
+  if (position) {
+    const elapsed = Math.floor((new Date().getTime() - position.subscribedAt.getTime()) / MS_PER_DAY);
+    currentDay = Math.min(LOCK_DAYS, Math.max(0, elapsed));
   }
   const unlockDate = daysFromNow(LOCK_DAYS);
   const lockPct = currentDay !== null ? Math.round((currentDay / LOCK_DAYS) * 100) : 0;
@@ -103,7 +117,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       contextLabel="Investment Flow"
       description={
         <span className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">
-          Your subscription is recorded · Base Sepolia testnet
+          {isSimulated
+            ? "Your subscription is recorded · simulated deposit (demo, off-chain)"
+            : "Your subscription is recorded · Base Sepolia testnet"}
         </span>
       }
     >
@@ -126,9 +142,11 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           )}
         </h2>
         <p className="mt-3 max-w-md text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)] leading-relaxed">
-          {hasOnChainProof
-            ? "Your position has been recorded on-chain. Details below."
-            : "Your subscription request is recorded. On-chain confirmation may still be pending."}
+          {isSimulated
+            ? "Simulated deposit — recorded off-chain for this demo account. No on-chain settlement took place."
+            : hasOnChainProof
+              ? "Your position has been recorded on-chain. Details below."
+              : "Your subscription request is recorded. On-chain confirmation may still be pending."}
         </p>
       </section>
 
@@ -138,10 +156,12 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           <div className="flex flex-col gap-1.5">
             <h2 className="ct-bento-label">Position Details</h2>
             <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] tracking-wide">
-              On-chain &amp; settlement record
+              {isSimulated ? "Off-chain demo record" : "On-chain & settlement record"}
             </p>
           </div>
-          <ProvenanceBadge kind={hasHash ? "manual" : "estimated"} />
+          <ProvenanceBadge
+            kind={isSimulated ? "simulated" : hasHash ? "manual" : "estimated"}
+          />
         </div>
 
         <dl className="flex flex-col">
@@ -150,7 +170,11 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
             <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Transaction</dt>
             <dd className="flex items-center gap-3 min-w-0">
               <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums truncate">
-                {hasHash ? abbreviateAddress(txHash) : "Pending confirmation"}
+                {hasHash
+                  ? abbreviateAddress(txHash)
+                  : isSimulated
+                    ? "Simulated — no on-chain transaction"
+                    : "Pending confirmation"}
               </span>
               {baseScanHref ? (
                 <a
@@ -285,10 +309,13 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       {/* ACTIONS */}
       <div className="flex flex-col gap-3">
         <Button variant="primary" size="lg" asChild className="w-full">
-          <Link href={positionId ? `/portfolio/${positionId}` : "/portfolio"}>
-            Go to portfolio
-          </Link>
+          <Link href="/portfolio">Go to portfolio</Link>
         </Button>
+        {positionId ? (
+          <Button variant="ghost" size="md" asChild className="w-full">
+            <Link href={`/portfolio/${positionId}`}>View this position</Link>
+          </Button>
+        ) : null}
         <Button variant="ghost" size="md" asChild className="w-full">
           <Link href={INVEST_SELECT_PATH}>View other products</Link>
         </Button>

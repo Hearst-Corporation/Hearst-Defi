@@ -13,6 +13,8 @@
  * only per-node dynamism (animationDelay) is a static inline style emitted at render. Mirrors sibling
  * _charts/* JSDoc.
  */
+import type { ReactNode } from "react";
+
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 
@@ -35,6 +37,13 @@ interface AgentCanvasProps {
   readonly nodes: readonly OrchestrationNode[];
   readonly edges: readonly OrchestrationEdge[];
   readonly latest: OrchestrationDecision;
+  /**
+   * Optional footer override. When provided, it replaces the default single-line
+   * "latest decision" footer (e.g. /portfolio passes an interactive
+   * RebalancingFeed with a scrollable history). When omitted, the sandbox
+   * default footer built from `latest` is rendered.
+   */
+  readonly footer?: ReactNode;
 }
 
 /** One node's glyph: engine = neutral deterministic core, oracle = the sole Live pulse, gate = an
@@ -81,7 +90,7 @@ function NodeGlyph({ node }: { node: OrchestrationNode }) {
   );
 }
 
-export function AgentCanvas({ nodes, edges, latest }: AgentCanvasProps) {
+export function AgentCanvas({ nodes, edges, latest, footer }: AgentCanvasProps) {
   const byId = new Map(nodes.map((n) => [n.id, n] as const));
 
   return (
@@ -144,26 +153,29 @@ export function AgentCanvas({ nodes, edges, latest }: AgentCanvasProps) {
             style={{ left: `${n.x}%`, top: `${n.y}%` }}
           >
             <NodeGlyph node={n} />
-            <span className="ct-metric-caption whitespace-nowrap text-[length:var(--ct-text-nano)] leading-none">
+            <span className="ct-metric-caption line-clamp-2 max-w-[9ch] text-balance text-[length:var(--ct-text-nano)] leading-[1.15] @[34rem]:max-w-[16ch] @[34rem]:leading-none">
               {n.label}
             </span>
           </div>
         ))}
       </div>
 
-      {/* ── latest decision (footer) — advisory, held, never executed ── */}
-      <div className="flex items-start gap-2 border-t border-[var(--ct-border-soft)] px-5 py-3">
-        <span
-          aria-hidden
-          className="hyv-breathe mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full"
-          style={{ background: "var(--ct-status-warning)" }}
-        />
-        <span className="ct-metric-caption min-w-0 flex-1 text-[length:var(--ct-text-nano)] leading-snug">
-          <span className="ct-text-body">{latest.agent}</span> — {latest.action}{" "}
-          <span className="ct-text-muted">Held for multisig · never auto-executed.</span>
-        </span>
-        <ProvenanceBadge kind={latest.provenance} variant="compact" />
-      </div>
+      {/* ── footer ── caller-provided (e.g. RebalancingFeed) or the default
+          single-line "latest decision" — advisory, held, never executed. */}
+      {footer ?? (
+        <div className="flex items-start gap-2 border-t border-[var(--ct-border-soft)] px-5 py-3">
+          <span
+            aria-hidden
+            className="hyv-breathe mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+            style={{ background: "var(--ct-status-warning)" }}
+          />
+          <span className="ct-metric-caption min-w-0 flex-1 text-[length:var(--ct-text-nano)] leading-snug">
+            <span className="ct-text-body">{latest.agent}</span> — {latest.action}{" "}
+            <span className="ct-text-muted">Held for multisig · never auto-executed.</span>
+          </span>
+          <ProvenanceBadge kind={latest.provenance} variant="compact" />
+        </div>
+      )}
     </div>
   );
 }

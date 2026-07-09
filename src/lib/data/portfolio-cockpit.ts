@@ -28,6 +28,7 @@ import {
 } from "@/app/(product)/portfolio/_cockpit/pilot-fixtures";
 
 import { loadPortfolioDashboard, type PortfolioDashboard, type PortfolioDistribution } from "./portfolio-dashboard";
+import { loadMiningMetrics } from "./mining-metrics";
 import type { YieldHistory } from "@/lib/portfolio/yield-history";
 
 /**
@@ -122,10 +123,10 @@ export interface PortfolioCockpit {
   safetyTicks: readonly MeterTick[];
   takeProfitTicks: readonly MeterTick[];
 
-  // ── Mining engine (PILOT) ────────────────────────────────────────────────────
+  // ── Mining engine (PILOT fixtures, or Estimated-derived from MiningMetric) ──
   production: readonly HcProductionDatum[];
   uptimeSegments: readonly UptimeSegment[];
-  efficiency: typeof PILOT_EFFICIENCY;
+  efficiency: { value: number; target: number; max: number; ranges: readonly [number, number] };
 
   // ── Agent advisory (PILOT) ───────────────────────────────────────────────────
   riskDimensions: readonly RiskDimension[];
@@ -141,6 +142,8 @@ export interface PortfolioCockpit {
   yieldHistory: YieldHistory | null;
   distributions: readonly PortfolioDistribution[];
   positionsCount: number;
+  /** One entry per held vault (for the 2+ vault switcher). Empty at zero. */
+  positionsSummary: readonly { id: string; vaultName: string; valueUsdc: number }[];
 }
 
 const DISCLAIMER =
@@ -315,11 +318,13 @@ function pilotSignals(
  * 37 / 23) so the "target allocation" story is legible before any capital is in.
  */
 function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
+  // Same narrative row as the funded hero, all at $0 (StatBand renders zeros in
+  // neutral graphite, never accent — so no false "gain" green on an empty vault).
   const zeroStats: readonly StatCell[] = [
     { label: "Deposit", value: formatUsdFull(0), provenance: "attested" },
-    { label: "Deployed value", value: formatUsdFull(0), provenance: "estimated" },
-    { label: "Debt", value: formatUsdFull(0), provenance: "attested" },
-    { label: "Accrued", value: formatUsdFull(0), provenance: "estimated" },
+    { label: "Today's value", value: formatUsdFull(0), provenance: "estimated" },
+    { label: "Gain", value: formatUsdFull(0), provenance: "estimated" },
+    { label: "Yield paid", value: formatUsdFull(0), provenance: "attested" },
   ];
 
   // 3 pockets at $0 but with their deterministic target-allocation percentages.
@@ -375,24 +380,48 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
       { at: 0, label: "0%" },
       { at: 100, label: "+24%" },
     ],
-    // PILOT operational tiers — same illustrative, Simulated-badged fixtures the
-    // funded view uses. These are deposit-independent and show what the console
-    // will surface once capital is deployed.
-    production: PILOT_PRODUCTION,
-    uptimeSegments: PILOT_UPTIME_SEGMENTS,
-    efficiency: PILOT_EFFICIENCY,
-    riskDimensions: PILOT_RISK_DIMENSIONS,
+    // PILOT operational tiers — the vault is NOT producing yet, so the
+    // operational feeds read EMPTY / ZERO (never the funded sample values: a
+    // mining chart or "96.4% online" at $0 deposit would falsely imply a running
+    // operation). The panels stay present with their Simulated badge and empty
+    // states, so the investor sees WHAT will be tracked, not fabricated activity.
+    production: [], // → dashed "no data yet" plot
+    uptimeSegments: [], // → empty availability band, 0.0% online
+    efficiency: { ...PILOT_EFFICIENCY, value: 0 }, // bullet at the floor, no reading
+    riskDimensions: PILOT_RISK_DIMENSIONS.map((r) => ({
+      ...r,
+      score: 0,
+      band: "green" as const,
+    })), // structure kept, every dimension at 0 (no risk feed yet)
     // At $0 the take-profit / margin advisory rows have no real progress to speak
     // to (safetyIsLive:false drops the margin signals); keep only the data-quality
     // disclaimer so the advisory act is present and honest, not empty.
     signals: [dataQualitySignal()],
-    orchestration: PILOT_ORCHESTRATION,
+    // Keep the orchestration TOPOLOGY (nodes/edges = structure of what will run)
+    // but neutralize `latest`: at $0 there is no decision in flight. The funded
+    // fixture asserts a live "Risk Agent · market-risk 52 (amber)" action over a
+    // safety margin that doesn't exist yet — that would be a fabricated
+    // operation on an empty vault, and it contradicts the risk dimensions we
+    // zero out above. Show a neutral, simulated "awaiting feed" line instead.
+    orchestration: {
+      ...PILOT_ORCHESTRATION,
+      latest: {
+        agent: "Orchestration",
+        action: "No decision in flight — awaiting the attested operational feed after your first subscription.",
+        provenance: "simulated",
+        at: "pending",
+      },
+    },
     exitPaths: EXIT_PATHS,
-    projection: PILOT_PROJECTION,
+    // Projection fan is a forward trajectory of DEPLOYED capital — there is none
+    // at $0. Empty it (HcHonestFan renders its own clean empty state) rather than
+    // draw a +24% p5/p50/p95 band for a position that doesn't exist.
+    projection: [],
     // Real history is genuinely empty until the first subscription.
     yieldHistory: null,
     distributions: [],
     positionsCount: 0,
+    positionsSummary: [],
   };
 }
 
@@ -407,6 +436,23 @@ export const loadPortfolioCockpit = cache(
     if (!d.hasPosition) {
       return emptyCockpit(d);
     }
+
+    // Real fleet telemetry (MiningMetric, Estimated-badged derivations) when
+    // available; falls back to the pilot/sample fixtures when the table is
+    // empty (fresh DB, local dev before the hourly cron has run, tests) — see
+    // src/lib/data/mining-metrics.ts for the exact derivation formulas.
+    //
+    // Hashrate/production are FLEET-WIDE readings — scale them down to the
+    // investor's own slice (principal ÷ vault capacity, e.g. $2M/$100M = 2%)
+    // before handing them to the "allocated power" tile, otherwise a $2M
+    // ticket would show the whole 182 PH/s operation as "yours". Uses the
+    // capacity already loaded by loadPortfolioDashboard → loadPosition
+    // (`d.vaultCapacityUsdc`) — no extra Prisma round-trip.
+    const mining = await loadMiningMetrics(
+      d.vaultCapacityUsdc && d.vaultCapacityUsdc > 0
+        ? { principalUsdc: d.depositUsdc, capacityUsdc: d.vaultCapacityUsdc }
+        : undefined,
+    );
 
     const deposit = d.depositUsdc;
     const deployed = d.currentValueUsdc;
@@ -479,16 +525,24 @@ export const loadPortfolioCockpit = cache(
     // The hero stat band mirrors the dominant hero figures, so it must render at
     // the SAME precision as the hero title (formatUsdFull) — a compact "$1.3M"
     // next to a full "$1,250,302" reads as a ~100k discrepancy that isn't real.
+    // Narrative performance row: what you put in → what it's worth today → what
+    // you gained ($ AND %) → what was actually paid out. Gain is the figure the
+    // hero was missing entirely (deployed − deposit), carried with its % delta.
+    const gainUsdc = deployed - deposit;
     const heroStats: readonly StatCell[] = [
       { label: "Deposit", value: formatUsdFull(deposit), provenance: "attested" },
       {
-        label: "Deployed value",
+        label: "Today's value",
         value: formatUsdFull(deployed),
+        provenance: "estimated",
+      },
+      {
+        label: "Gain",
+        value: formatUsdFull(gainUsdc),
         delta: { text: totalChangeText, tone: d.totalChangePct >= 0 ? "up" : "down" },
         provenance: "estimated",
       },
-      { label: "Debt", value: formatUsdFull(debtUsdc), provenance: "attested" },
-      { label: "Accrued", value: formatUsdFull(accrued), provenance: "estimated" },
+      { label: "Yield paid", value: formatUsdFull(d.distributedUsdc), provenance: "attested" },
     ];
 
     // ── Vault health — only assert a live safety reading while the position is
@@ -526,6 +580,19 @@ export const loadPortfolioCockpit = cache(
           ]
         : [];
 
+    // Mining tiers: real-derived (Estimated, from MiningMetric) when the
+    // fleet table has rows, otherwise the pilot/sample fixtures. Risk
+    // dimensions merge per-axis: mining/margin come from the real derivation
+    // when available, market/liquidity/counterparty keep the pilot values
+    // (no real source for those yet) — every axis stays "estimated" either way.
+    const riskDimensions: readonly RiskDimension[] = mining
+      ? PILOT_RISK_DIMENSIONS.map((dim) => {
+          if (dim.key === "mining") return mining.riskDimensions.mining;
+          if (dim.key === "margin") return mining.riskDimensions.margin;
+          return dim;
+        })
+      : PILOT_RISK_DIMENSIONS;
+
     return {
       hasPosition: true,
       kycStatus: d.kycStatus,
@@ -542,7 +609,7 @@ export const loadPortfolioCockpit = cache(
       isActive,
       takeProfitTargetUsdc,
       takeProfitProgressPct,
-      allocatedHashrate: PILOT_ALLOCATED_HASHRATE,
+      allocatedHashrate: mining?.allocatedHashrate ?? PILOT_ALLOCATED_HASHRATE,
       lockupDays: d.lockupDays,
       lockupElapsedDays: d.lockupElapsedDays,
       lockupRemainingDays: d.lockupRemainingDays,
@@ -560,10 +627,10 @@ export const loadPortfolioCockpit = cache(
       lltvLivePct: PILOT_SAFETY.lltvLivePct,
       safetyTicks: SAFETY_TICKS,
       takeProfitTicks,
-      production: PILOT_PRODUCTION,
-      uptimeSegments: PILOT_UPTIME_SEGMENTS,
-      efficiency: PILOT_EFFICIENCY,
-      riskDimensions: PILOT_RISK_DIMENSIONS,
+      production: mining && mining.production.length > 0 ? mining.production : PILOT_PRODUCTION,
+      uptimeSegments: mining ? mining.uptimeSegments : PILOT_UPTIME_SEGMENTS,
+      efficiency: mining ? mining.efficiency : PILOT_EFFICIENCY,
+      riskDimensions,
       signals: pilotSignals(deployed, takeProfitTargetUsdc, takeProfitProgressPct, healthIsLive),
       orchestration: PILOT_ORCHESTRATION,
       exitPaths: EXIT_PATHS,
@@ -571,6 +638,11 @@ export const loadPortfolioCockpit = cache(
       yieldHistory: d.yieldHistory,
       distributions: d.distributions,
       positionsCount: d.positions.length,
+      positionsSummary: d.positions.map((p) => ({
+        id: p.id,
+        vaultName: p.vaultName ?? "Yield Vault",
+        valueUsdc: p.valueUsdc,
+      })),
     };
   },
 );

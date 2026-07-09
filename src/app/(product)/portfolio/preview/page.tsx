@@ -163,14 +163,16 @@ export default function PortfolioPreviewPage() {
                   <MetaChip label="Take-profit" value={`${VAULT.takeProfitProgressPct}% → +24%`} />
                 </div>
               </div>
+              {/* Position status — NOT a Live value, so no green + no heartbeat pulse
+                  (green + pulse are reserved for the one genuinely-Live signal). */}
               <span
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-body"
                 style={{ borderColor: "var(--ct-border-soft)" }}
               >
                 <span
                   aria-hidden="true"
-                  className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
-                  style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+                  className="inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ background: "var(--ct-text-muted)" }}
                 />
                 Active
               </span>

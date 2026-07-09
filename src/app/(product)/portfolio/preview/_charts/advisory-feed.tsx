@@ -43,7 +43,7 @@ export function AdvisoryFeed({ signals }: { signals: readonly AgentSignal[] }) {
               <span className="min-w-0 flex-1 truncate text-[length:var(--ct-text-xs)] ct-text-body">
                 {s.headline}
               </span>
-              <span className="hidden shrink-0 items-center gap-1.5 sm:flex">
+              <span className="hidden shrink-0 items-center gap-1.5 @[30rem]:flex">
                 <ProvenanceBadge kind={prov} variant="compact" />
                 <span className="ct-metric-caption text-[length:var(--ct-text-nano)]">{s.observedAt}</span>
               </span>

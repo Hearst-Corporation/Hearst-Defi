@@ -1,3 +1,31 @@
+# RÈGLE ABSOLUE #0 — PAS DE RÉIMPORT NI DE MINI DESIGN SYSTEM (PRIME SUR TOUT)
+
+**Cette règle est la PREMIÈRE à lire et PRIME sur toutes les autres.** Quand Adrien
+demande une modification UI, tu corriges **le composant runtime existant dans le design
+system existant**. Point.
+
+**Tu n'as PAS le droit de :**
+- réimporter une maquette Figma ;
+- recréer une version parallèle du composant ;
+- ajouter de nouveaux tokens locaux ;
+- ajouter des hex hardcodés ;
+- créer une nouvelle couche CSS ;
+- remplacer le design system par une interprétation personnelle ;
+- modifier les assets pour corriger un problème de layout ;
+- refaire une section entière si le problème est local.
+
+**Ordre obligatoire, sans exception :**
+1. Identifier le **composant runtime réel** affiché dans Chrome.
+2. Identifier la **règle CSS / classe / token** qui cause le problème.
+3. Corriger **à la source** avec les tokens existants (`--ct-*`).
+4. Ne toucher **qu'aux fichiers nécessaires**.
+5. Valider que le rendu existant **n'est pas remplacé** par une nouvelle maquette.
+
+Figma sert **uniquement** de référence visuelle ou de source d'assets approuvés.
+**Le runtime et le design system du repo sont la SEULE source de vérité.**
+
+---
+
 # MANDATORY MULTI-AGENT WORKFLOW — WORKTREES, LOCKS, COMMIT, PUSH, MERGE
 
 This repository uses a strict multi-agent workflow.

@@ -56,6 +56,8 @@ export interface PositionDetail {
   vaultTicker: string;
   /** Soft-lockup days from the vault's share-class terms (0 when unknown). */
   softLockupDays: number;
+  /** Vault total capacity (VaultDeployment.capacityUsdc), null when unknown. Used to derive the investor's fleet share for mining tiles — never re-fetched, already in the joined row. */
+  capacityUsdc: number | null;
   status: "active" | "matured" | "exited";
   principalUsdc: number;
   accruedYieldUsdc: number;
@@ -760,6 +762,9 @@ export async function loadPosition(
   const vaultName = raw.vaultDeployment?.name ?? null;
   const vaultTicker = raw.vaultDeployment?.ticker ?? "HYV-A";
   const softLockupDays = raw.vaultDeployment?.softLockupDays ?? 0;
+  const capacityUsdc = raw.vaultDeployment
+    ? toNumber(raw.vaultDeployment.capacityUsdc)
+    : null;
 
   const transactions: PositionDetailTransaction[] = rawTxs.map(mapInvestorTransactionRow);
 
@@ -778,6 +783,7 @@ export async function loadPosition(
     vaultName,
     vaultTicker,
     softLockupDays,
+    capacityUsdc,
     status: raw.status as "active" | "matured" | "exited",
     principalUsdc: principal,
     accruedYieldUsdc: accrued,

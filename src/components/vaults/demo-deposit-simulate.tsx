@@ -43,6 +43,8 @@ export function DemoDepositSimulate({
         return;
       }
       setDone(true);
+      // Through the standard invest confirmation screen (same as a real
+      // subscription), carrying the amount + new positionId, flagged demo=1.
       router.push(
         `${investConfirmedPath(vaultId)}?amount=${amountUsdc}&positionId=${result.positionId}&demo=1`,
       );
@@ -50,23 +52,17 @@ export function DemoDepositSimulate({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-dashed border-[var(--ct-border)] bg-surface-inset p-4">
-      <span className="ct-bento-label">Demo shortcut</span>
-      <p className="body-xs ct-text-faint m-0">
-        Subscribe without an on-chain deposit — no wallet or testnet USDC needed.
-      </p>
-      <div>
-        <Button
-          type="button"
-          variant="secondary"
-          size="md"
-          onClick={onSimulate}
-          disabled={isPending || done || !(amountUsdc > 0)}
-          aria-busy={isPending}
-        >
-          {isPending || done ? "Simulating…" : "Simulate deposit"}
-        </Button>
-      </div>
+    <div className="flex flex-col items-end gap-2">
+      <Button
+        type="button"
+        variant="primary"
+        size="md"
+        onClick={onSimulate}
+        disabled={isPending || done || !(amountUsdc > 0)}
+        aria-busy={isPending}
+      >
+        {isPending || done ? "Depositing…" : "Deposit"}
+      </Button>
       {error ? (
         <p className="body-xs ct-status-danger m-0" role="alert">
           {error}

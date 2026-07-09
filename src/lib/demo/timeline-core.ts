@@ -188,6 +188,10 @@ export async function resetInvestorTimeline(
   ];
   await prisma.$transaction(ops);
 
+  // Reset wipes to an EMPTY portfolio for every investor, Zand included. No
+  // automatic fixture re-seed — "Reset (0)" means zero. The $2M Zand fixture is
+  // re-created on demand only, via the CLI seed (prisma/seed-zand-demo.ts) or
+  // the in-app Subscribe / Deposit buttons.
   return {
     ok: true,
     positionsDeleted: positionsCount,

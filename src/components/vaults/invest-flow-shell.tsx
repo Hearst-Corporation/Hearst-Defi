@@ -96,14 +96,14 @@ export function InvestFlowShell({
           >
             {media ? <div className="shrink-0">{media}</div> : null}
             {hasTitle ? (
-              <h1 className="text-2xl font-medium tracking-tight text-[var(--ct-text-strong)]">
+              <h1 className="h1">
                 {titleLead != null || titleAccent != null ? (
                   <>
                     {titleLead}
                     {titleAccent ? (
                       <>
                         {titleLead ? " " : null}
-                        <span className="text-[var(--ct-accent)]">{titleAccent}</span>
+                        <span className="h1-accent">{titleAccent}</span>
                       </>
                     ) : null}
                   </>

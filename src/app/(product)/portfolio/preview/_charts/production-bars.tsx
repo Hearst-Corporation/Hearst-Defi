@@ -62,13 +62,13 @@ export function HcProductionBars({
       style={{ height }}
     >
       {/* Plot area — bars grow from a hairline baseline */}
-      <div className="flex flex-1 items-end gap-2 border-b border-[var(--ct-border-soft)]">
+      <div className="flex w-full min-w-0 flex-1 items-end gap-2 border-b border-[var(--ct-border-soft)]">
         {data.map((d) => {
           const pct = Math.max(0, Math.min(100, (d.btc / scaleMax) * 100));
           return (
             <div
               key={d.label}
-              className="flex flex-1 flex-col items-center justify-end self-stretch"
+              className="flex min-w-0 flex-1 flex-col items-center justify-end self-stretch"
             >
               <div
                 className="w-[62%] max-w-[34px] rounded-t-[3px]"
@@ -85,11 +85,11 @@ export function HcProductionBars({
       </div>
 
       {/* Month-label row — HTML spans, one per column, centered under their bar */}
-      <div className="flex gap-2 pt-1.5">
+      <div className="flex w-full min-w-0 gap-2 pt-1.5">
         {data.map((d) => (
           <span
             key={d.label}
-            className="ct-text-muted flex-1 text-center text-[length:var(--ct-text-nano)]"
+            className="ct-text-muted min-w-0 flex-1 truncate text-center text-[length:var(--ct-text-nano)]"
           >
             {d.label}
           </span>

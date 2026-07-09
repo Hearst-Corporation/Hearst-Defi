@@ -18,6 +18,10 @@ minimumReleaseAgeExclude:
 
 # Migrated from package.json `pnpm` field (pnpm 11.5 no longer reads it there).
 overrides:
+  # MUI X Charts pulled a 2nd @types/react (19.0.7) alongside the repo's 19.2.14,
+  # which forks the global ReactNode type and breaks typecheck everywhere. Pin one.
+  "@types/react": "19.2.14"
+  "@types/react-dom": "19.2.3"
   ws: ">=8.21.0"
   js-cookie: ">=3.0.7"
   postcss: ">=8.5.10"

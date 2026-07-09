@@ -24,18 +24,17 @@ export function PocketCards({
   format: (n: number) => string;
 }) {
   return (
-    <div className="grid h-full grid-cols-1 gap-px overflow-hidden rounded-xl bg-[var(--ct-border-soft)] sm:grid-cols-3">
+    <div className="grid h-full grid-cols-1 gap-px overflow-hidden rounded-xl bg-[var(--ct-border-soft)] @[34rem]:grid-cols-3">
       {pockets.map((p) => {
         const color = ASSET_COLOR[p.asset];
         return (
-          <div key={p.label} className="flex min-w-0 flex-col gap-3 bg-surface-card p-4">
+          <div key={p.label} className="flex min-w-0 flex-col justify-center gap-3 bg-surface-card p-4">
             <div className="flex items-center gap-1.5">
               <AssetBadge asset={p.asset} size={18} />
               <span className="ct-bento-label truncate">{p.label}</span>
             </div>
-            <div className="flex items-baseline justify-between gap-2">
+            <div className="flex items-baseline gap-2">
               <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">{p.pct}%</span>
-              <span className="ct-metric-caption tabular-nums">{format(p.valueUsdc)}</span>
             </div>
             <div
               className="h-1.5 w-full overflow-hidden rounded-full"
@@ -43,7 +42,7 @@ export function PocketCards({
             >
               <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: color }} />
             </div>
-            <span className="ct-metric-caption mt-auto min-h-[2.6em] pt-1 text-[length:var(--ct-text-nano)] leading-snug line-clamp-2">{p.role}</span>
+            <span className="ct-metric-value w-full text-[length:var(--ct-text-base)] tabular-nums pt-0.5 text-center">{format(p.valueUsdc)}</span>
           </div>
         );
       })}

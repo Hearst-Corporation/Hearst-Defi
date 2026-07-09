@@ -355,7 +355,7 @@ function AmountSection({
             isCalculating={isCalculating}
             isValid={amount === 0 || amountValid}
           >
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1.5 lg:max-w-md">
               <span
                 aria-hidden
                 className="text-[length:var(--ct-text-hero-sym)] font-medium text-[var(--ct-text-faint)] tabular-nums"
@@ -374,7 +374,11 @@ function AmountSection({
                 }
                 disabled={disabled}
                 readOnly={disabled}
-                placeholder={formatUsdcGrouped(vault.minTicketUsdc)}
+                placeholder={
+                  disabled
+                    ? formatUsdcGrouped(vault.minTicketUsdc)
+                    : String(vault.minTicketUsdc)
+                }
                 aria-describedby={helperId}
                 aria-invalid={!disabled && amount > 0 && !amountValid}
                 className={cn(

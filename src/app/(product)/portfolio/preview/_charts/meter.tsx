@@ -144,7 +144,7 @@ export function HcMeter({
           {ticks.map((t, i) => (
             <span
               key={`${t.at}-${i}`}
-              className="absolute text-[length:var(--ct-text-nano)] ct-text-muted"
+              className="absolute max-w-[45%] truncate whitespace-nowrap text-[length:var(--ct-text-nano)] ct-text-muted"
               style={labelAnchor(pct(t.at))}
             >
               {t.label}

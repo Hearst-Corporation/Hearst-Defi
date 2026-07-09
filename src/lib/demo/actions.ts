@@ -83,6 +83,10 @@ export async function resetDemoAccount(): Promise<ResetDemoResult> {
     await prisma.vaultSnapshot.deleteMany({ where: { source: "demo_seed" } });
   }
 
+  // Reset wipes to an EMPTY portfolio — Zand included. No automatic fixture
+  // re-seed: "Reset" means zero. The $2M Zand fixture is re-created on demand
+  // only (CLI seed prisma/seed-zand-demo.ts, or the in-app Subscribe / Deposit).
+
   // Refresh every surface the reset touches.
   revalidatePath("/profile");
   revalidatePath("/portfolio");

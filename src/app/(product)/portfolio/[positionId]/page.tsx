@@ -10,6 +10,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { StepTimeline } from "@/components/catalyst/step-timeline";
 import { StatBand, type StatCell } from "@/app/(product)/portfolio/preview/_charts/stat-band";
 import {
@@ -31,6 +32,7 @@ import { PositionInfrastructureProofs } from "@/components/portfolio/position-in
 import { projectValueTrajectory } from "@/lib/engine/value-projection";
 import { buildYieldHistory } from "@/lib/portfolio/yield-history";
 import { explorerTxUrl } from "@/lib/chain/explorer";
+import { getInvestor } from "@/lib/auth/session";
 import { loadPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
@@ -100,7 +102,10 @@ function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }
 
 export default async function VaultDetailPage({ params }: PageProps) {
   const { positionId } = await params;
-  const position = await loadPosition(positionId);
+  const [position, investor] = await Promise.all([
+    loadPosition(positionId),
+    getInvestor(),
+  ]);
   if (!position) notFound();
 
   const now = new Date();
@@ -384,7 +389,22 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {/* ── Act: Yield history ───────────────────────────────────────────── */}
         <TitledDivider
           title="Yield history · monthly distributions"
-          trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+          trailing={
+            <div className="flex shrink-0 items-center gap-3">
+              {investor ? (
+                <Button variant="ghost" size="md" asChild>
+                  <a
+                    href={`/api/statements/${investor.id}/pdf`}
+                    download
+                    aria-label="Download investor statement (PDF)"
+                  >
+                    Download statement
+                  </a>
+                </Button>
+              ) : null}
+              <ProvenanceBadge kind="estimated" variant="compact" />
+            </div>
+          }
         />
         <div className={SUPPORT}>
           <PositionYieldHistory

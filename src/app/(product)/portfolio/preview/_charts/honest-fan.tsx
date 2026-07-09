@@ -163,7 +163,7 @@ export function HcHonestFan({
       })}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-1 right-2 text-[length:var(--ct-text-nano)] ct-text-faint"
+        className="pointer-events-none absolute bottom-1 right-2 max-w-[calc(100%-1rem)] truncate text-[length:var(--ct-text-nano)] ct-text-faint"
       >
         {seedLabel ? `seed: ${seedLabel} · ` : ""}p5/p25/p50/p75/p95 · not guaranteed
       </span>
