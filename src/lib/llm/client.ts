@@ -2,11 +2,13 @@ import "server-only";
 
 import { createHash } from "node:crypto";
 
+import { traceable } from "langsmith/traceable";
+
 import { CircuitBreaker } from "@/lib/circuit-breaker";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
 export { LLM_MODEL } from "@/lib/llm/openai";
-import { openai, LLM_MODEL } from "@/lib/llm/openai";
+import { openai, LLM_MODEL, LLM_TRACING_ENABLED } from "@/lib/llm/openai";
 import { getRequestContext } from "@/lib/request-context";
 
 /**
@@ -148,6 +150,26 @@ export interface LlmCallResult {
  * @param opts        Optional injected client, timeout or retry count
  */
 export async function callLlm(
+  agentName: string,
+  params: LlmParams,
+  opts?: {
+    client?: LlmClientLike;
+    timeoutMs?: number;
+    maxRetries?: number;
+  },
+): Promise<LlmCallResult> {
+  // LangSmith parent span `agent:<name>` — groups the (possibly retried /
+  // fallback) OpenAI child calls under one named, filterable run. Pure
+  // observability: when tracing is off we call the inner path directly.
+  if (!LLM_TRACING_ENABLED) return callLlmInner(agentName, params, opts);
+  return traceable(() => callLlmInner(agentName, params, opts), {
+    name: `agent:${agentName}`,
+    run_type: "chain",
+    metadata: { agentName, model: params.model },
+  })();
+}
+
+async function callLlmInner(
   agentName: string,
   params: LlmParams,
   opts?: {
