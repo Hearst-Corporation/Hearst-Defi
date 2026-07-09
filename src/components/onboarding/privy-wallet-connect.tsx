@@ -30,6 +30,32 @@ interface PrivyWalletConnectProps {
   surface?: "card" | "bare";
 }
 
+const WALLET_TAKEN_ERROR = "This wallet is already linked to another account.";
+
+export interface BindWalletFailureHandling {
+  message: string;
+  shouldLog: boolean;
+  keepPersistedAddress: boolean;
+}
+
+export function resolveBindWalletFailure(
+  error: string | null | undefined,
+): BindWalletFailureHandling {
+  if (error === WALLET_TAKEN_ERROR) {
+    return {
+      message:
+        "This wallet is already linked to another account. Disconnect it from that account first, then try again.",
+      shouldLog: false,
+      keepPersistedAddress: true,
+    };
+  }
+  return {
+    message: error ?? "Could not link this wallet. Please try again.",
+    shouldLog: true,
+    keepPersistedAddress: false,
+  };
+}
+
 function WalletSurface({
   surface,
   className,
@@ -91,9 +117,18 @@ function PrivyConnectInner({
     setIsBinding(true);
     void bindWallet(next).then((result) => {
       if (!result.ok) {
-        console.error("[PrivyWalletConnect] bindWallet failed:", result.error);
-        setError(result.error ?? "Could not link this wallet. Please try again.");
-        persistRef.current = null;
+        const handling = resolveBindWalletFailure(result.error);
+        if (handling.shouldLog) {
+          console.error("[PrivyWalletConnect] bindWallet failed:", result.error);
+        }
+        setError(handling.message);
+        if (handling.keepPersistedAddress) {
+          // Keep the current address memoized to avoid noisy immediate retries
+          // while Privy still exposes the same connected wallet.
+          persistRef.current = normalized;
+        } else {
+          persistRef.current = null;
+        }
         setIsBinding(false);
       } else {
         setError(null);
