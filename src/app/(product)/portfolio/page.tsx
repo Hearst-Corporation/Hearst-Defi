@@ -127,68 +127,14 @@ export default async function PortfolioPage() {
   const [d, session] = await Promise.all([loadPortfolioCockpit(), getSession()]);
   const isDemo = isDemoAccount(session?.email);
 
-  // ── ZERO STATE ─────────────────────────────────────────────────────────────
-  // A real console at zero: honest empty hero + stat band at 0 + a subscribe CTA.
-  // No fabricated Live badge, no mock chart, no pilot operational panels — the
-  // surface simply has no deployed capital yet.
-  if (!d.hasPosition) {
-    return (
-      <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
-        <div className="flex flex-col gap-y-8 p-5 lg:p-6">
-          {isDemo ? <DemoTimelineControl /> : null}
-
-          {/* access ribbon (real KYC state) */}
-          <div className="flex flex-wrap items-center gap-2">
-            <MetaChip label="KYC" value={d.kycStatus ?? "pending"} />
-            <MetaChip label="Access" value="B2B · qualified" />
-          </div>
-
-          {/* zero hero */}
-          <section
-            className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
-            style={{ boxShadow: HERO_SHADOW }}
-            aria-label="Vault value"
-          >
-            <div className="relative z-10 flex flex-col">
-              <div className="flex flex-wrap items-start justify-between gap-3 p-5 lg:p-6">
-                <div className="flex min-w-0 flex-col gap-1.5">
-                  <span className="ct-bento-label">Hearst Yield Vault</span>
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h1 className="h1 shrink-0">
-                      Vault <span className="h1-accent">Health</span>
-                    </h1>
-                    <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
-                      {formatUsdFull(0)}
-                    </span>
-                  </div>
-                  <span className="ct-metric-caption text-[length:var(--ct-text-sm)] leading-snug">
-                    No capital deployed yet. Your deposit, pockets, yield and NAV
-                    history will appear here after your first subscription.
-                  </span>
-                </div>
-                <Link
-                  href="/vaults"
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--ct-accent)] bg-[var(--ct-accent)] px-3.5 py-1.5 text-[length:var(--ct-text-xs)] font-semibold text-[var(--ct-bg-deep)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_88%,var(--ct-bg-deep))]"
-                >
-                  Subscribe to a vault →
-                </Link>
-              </div>
-              <div className="border-t border-[var(--ct-border-soft)]">
-                <StatBand items={d.heroStats} />
-              </div>
-            </div>
-          </section>
-
-          <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-            Figures reflect your own account only. Projections are not guaranteed
-            and are shown as a range under stated assumptions.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── POPULATED STATE — the full V4 cockpit, wired to the real position ────────
+  // ── FULL COCKPIT — ONE render path for EVERY state (zero → funded → matured) ─
+  // At zero the loader (emptyCockpit) returns the same full view-model with REAL
+  // figures at $0, empty real history, and the same Simulated-badged PILOT tiers
+  // the funded view shows. No stripped empty card: an investor without a deposit
+  // sees the complete console filled with zero / pending values, so they can read
+  // exactly what they'll get after subscribing. `hasPosition` only toggles honesty
+  // details (Subscribe CTA + "not funded yet" note vs the Active pulse / NAV curve).
+  const zero = !d.hasPosition;
   const hasApy = d.apyLow !== null && d.apyHigh !== null;
   const yieldBars =
     d.yieldHistory?.months
@@ -277,14 +223,23 @@ export default async function PortfolioPage() {
                   <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
                     {formatUsdFull(d.deployedValueUsdc)}
                   </span>
-                  <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-body tabular-nums">
-                    {d.totalChangeText}
-                  </span>
+                  {!zero ? (
+                    <span className="text-[length:var(--ct-text-sm)] font-semibold ct-text-body tabular-nums">
+                      {d.totalChangeText}
+                    </span>
+                  ) : null}
                   {/* The dominant figure is a mark-to-book Estimate — badge it in
                       place so the provenance of the headline number is never
                       ambiguous (non-negotiable #2). */}
                   <ProvenanceBadge kind="estimated" />
                 </div>
+                {zero ? (
+                  <span className="ct-metric-caption text-[length:var(--ct-text-sm)] leading-snug">
+                    No capital deployed yet. Your deposit, pockets, yield and NAV
+                    history fill in here after your first subscription — the panels
+                    below preview what this console will track.
+                  </span>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <MetaChip label="Deposit" value={formatUsdFull(d.depositUsdc)} />
                   <MetaChip
@@ -296,19 +251,28 @@ export default async function PortfolioPage() {
                   ) : null}
                 </div>
               </div>
-              <span
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-body"
-                style={{ borderColor: "var(--ct-border-soft)" }}
-              >
-                {d.isActive ? (
-                  <span
-                    aria-hidden="true"
-                    className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
-                    style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
-                  />
-                ) : null}
-                {d.isActive ? "Active" : (d.lifecycle ?? "—")}
-              </span>
+              {zero ? (
+                <Link
+                  href="/vaults"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--ct-accent)] bg-[var(--ct-accent)] px-3.5 py-1.5 text-[length:var(--ct-text-xs)] font-semibold text-[var(--ct-bg-deep)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-accent)_88%,var(--ct-bg-deep))]"
+                >
+                  Subscribe to a vault →
+                </Link>
+              ) : (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-body"
+                  style={{ borderColor: "var(--ct-border-soft)" }}
+                >
+                  {d.isActive ? (
+                    <span
+                      aria-hidden="true"
+                      className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
+                      style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
+                    />
+                  ) : null}
+                  {d.isActive ? "Active" : (d.lifecycle ?? "—")}
+                </span>
+              )}
             </div>
             {d.navImmature ? (
               <div className="mx-5 mb-1 flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-5 py-10 text-center lg:mx-6">
@@ -371,8 +335,9 @@ export default async function PortfolioPage() {
           ) : (
             <div className="border-t border-[var(--ct-border-soft)] p-5">
               <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                No live safety margin on a {d.lifecycle} vault — there is no active
-                collateral position to margin. The figures above are historical.
+                {zero
+                  ? "Not funded yet — there is no live collateral position to margin. Collateral, debt and the distance-to-liquidation gauge activate on your first subscription."
+                  : `No live safety margin on a ${d.lifecycle} vault — there is no active collateral position to margin. The figures above are historical.`}
               </span>
             </div>
           )}

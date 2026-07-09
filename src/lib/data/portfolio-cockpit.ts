@@ -298,19 +298,43 @@ function pilotSignals(
   return [...marginSignals, takeProfitSignal, dataQualitySignal()];
 }
 
+/**
+ * Zero-state cockpit — the SAME full V4 console structure as a funded account,
+ * only with every REAL / DERIVED figure at $0 and the real history empty. The
+ * PILOT operational tiers (mining production, uptime, efficiency, risk, agent
+ * orchestration, projection fan, exit paths) are the same illustrative,
+ * Simulated-badged fixtures the funded view shows — they don't depend on the
+ * deposit and answer the product question "what will I get after I subscribe?".
+ *
+ * Why full, not a stripped empty card: an investor with no deposit must see the
+ * complete cockpit filled with zero / pending values, never a degraded page.
+ * `hasPosition:false` and `isActive:false` stay honest (no Live pulse, no
+ * fabricated NAV curve); the page renders a Subscribe CTA into the hero.
+ *
+ * The 3 pockets show at $0 but keep their target-allocation percentages (40 /
+ * 37 / 23) so the "target allocation" story is legible before any capital is in.
+ */
 function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
   const zeroStats: readonly StatCell[] = [
-    { label: "Deposit", value: "$0", provenance: "manual" },
-    { label: "Deployed value", value: "$0", provenance: "manual" },
-    { label: "Debt", value: "$0", provenance: "manual" },
-    { label: "Accrued", value: "$0", provenance: "manual" },
+    { label: "Deposit", value: formatUsdFull(0), provenance: "attested" },
+    { label: "Deployed value", value: formatUsdFull(0), provenance: "estimated" },
+    { label: "Debt", value: formatUsdFull(0), provenance: "attested" },
+    { label: "Accrued", value: formatUsdFull(0), provenance: "estimated" },
   ];
+
+  // 3 pockets at $0 but with their deterministic target-allocation percentages.
+  const zeroPockets: readonly PocketCard[] = [
+    { label: "B1 · Mining power", valueUsdc: 0, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
+    { label: "B2 · wBTC", valueUsdc: 0, pct: POCKET_SPLIT.b2WbtcPct, role: "Yield + collateral · target allocation", asset: "bitcoin" },
+    { label: "B3 · USDC", valueUsdc: 0, pct: POCKET_SPLIT.b3UsdcPct, role: "Funds electricity first · target allocation", asset: "usdc" },
+  ];
+
   return {
     hasPosition: false,
     kycStatus: d.kycStatus,
     shareClass: null,
-    apyLow: null,
-    apyHigh: null,
+    apyLow: d.apyLow,
+    apyHigh: d.apyHigh,
     depositUsdc: 0,
     deployedValueUsdc: 0,
     accruedUsdc: 0,
@@ -321,36 +345,51 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
     isActive: false,
     takeProfitTargetUsdc: 0,
     takeProfitProgressPct: 0,
-    allocatedHashrate: "—",
+    allocatedHashrate: PILOT_ALLOCATED_HASHRATE,
     lockupDays: 0,
     lockupElapsedDays: 0,
     lockupRemainingDays: 0,
     lockupTicks: [],
     navPoints: [],
+    // No prints yet → the hero shows the clean "history builds as your position
+    // matures" state instead of a fabricated flat line.
     navImmature: true,
     heroStats: zeroStats,
+    // Not funded yet → no live safety margin to assert. Collateral / debt at $0,
+    // margin shown as "—" (never a false "62% healthy" on an empty vault).
     healthStats: [
-      { label: "Safety margin", value: "—", provenance: "manual" },
-      { label: "Collateral · cbBTC + wBTC", value: "$0", provenance: "manual" },
-      { label: "Debt", value: "$0", provenance: "manual" },
+      { label: "Safety margin · not funded", value: "—", provenance: "manual" },
+      { label: "Collateral · wBTC (target)", value: usdShort(0), provenance: "estimated", asset: "bitcoin" },
+      { label: "Debt", value: usdShort(0), provenance: "attested" },
     ],
-    pockets: [],
+    pockets: zeroPockets,
     pocketTotalUsdc: 0,
     collateralUsdc: 0,
     debtUsdc: 0,
     safetyMarginPct: 0,
+    // Empty vault → not a live margin claim (page renders a "not funded yet" note).
     safetyIsLive: false,
     lltvLivePct: PILOT_SAFETY.lltvLivePct,
     safetyTicks: SAFETY_TICKS,
-    takeProfitTicks: [],
-    production: [],
-    uptimeSegments: [],
+    takeProfitTicks: [
+      { at: 0, label: "0%" },
+      { at: 100, label: "+24%" },
+    ],
+    // PILOT operational tiers — same illustrative, Simulated-badged fixtures the
+    // funded view uses. These are deposit-independent and show what the console
+    // will surface once capital is deployed.
+    production: PILOT_PRODUCTION,
+    uptimeSegments: PILOT_UPTIME_SEGMENTS,
     efficiency: PILOT_EFFICIENCY,
-    riskDimensions: [],
-    signals: [],
+    riskDimensions: PILOT_RISK_DIMENSIONS,
+    // At $0 the take-profit / margin advisory rows have no real progress to speak
+    // to (safetyIsLive:false drops the margin signals); keep only the data-quality
+    // disclaimer so the advisory act is present and honest, not empty.
+    signals: [dataQualitySignal()],
     orchestration: PILOT_ORCHESTRATION,
     exitPaths: EXIT_PATHS,
-    projection: [],
+    projection: PILOT_PROJECTION,
+    // Real history is genuinely empty until the first subscription.
     yieldHistory: null,
     distributions: [],
     positionsCount: 0,
