@@ -1,6 +1,7 @@
 import "server-only";
 
 import OpenAI from "openai";
+import { wrapOpenAI } from "langsmith/wrappers";
 
 import { env } from "@/lib/env";
 
@@ -59,8 +60,21 @@ function createOpenAIClient(): OpenAI {
   });
 }
 
+/**
+ * LangSmith tracing wrap (observability only). Applied ONLY when
+ * LANGSMITH_TRACING === "true" AND an API key is configured — otherwise the
+ * bare client is returned untouched (zero overhead, identical behavior).
+ * Never wraps the build-phase placeholder. Tracing failures are swallowed by
+ * the langsmith SDK (background batching) and can never fail an LLM call.
+ */
+function withTracing(client: OpenAI): OpenAI {
+  if (IS_BUILD_PHASE) return client;
+  if (env.LANGSMITH_TRACING !== "true" || !env.LANGSMITH_API_KEY) return client;
+  return wrapOpenAI(client);
+}
+
 /** The OpenAI GPT-4.1 client (ADR-011) — single provider for all agents + chat. */
-export const openai: OpenAI = createOpenAIClient();
+export const openai: OpenAI = withTracing(createOpenAIClient());
 
 /** Canonical model id — `OPENAI_MODEL` env (default `gpt-4.1`). ADR-011. */
 export const LLM_MODEL: string = env.OPENAI_MODEL;

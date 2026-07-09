@@ -183,6 +183,18 @@ const serverEnvSchema = z.object({
   /** Optional secondary OpenAI model. When set, callLlm retries on it if the
    *  primary fails all retries OR the circuit breaker opens. e.g. "gpt-4o". */
   OPENAI_FALLBACK_MODEL: z.string().optional(),
+  // ── LangSmith observability (LLM tracing) ────────────────────────────────
+  // When LANGSMITH_TRACING === "true" AND an API key is present, the OpenAI
+  // client (src/lib/llm/openai.ts) is wrapped with `wrapOpenAI` so every LLM
+  // call (4 batch agents + cockpit chat) is traced to LangSmith. ALL optional:
+  // when unset (default in every env today), the wrap is skipped entirely —
+  // zero overhead, zero behavior change, no boot risk. The langsmith SDK also
+  // reads LANGSMITH_PROJECT / LANGSMITH_ENDPOINT from process.env directly;
+  // they are declared here for validation + documentation.
+  LANGSMITH_TRACING: z.string().optional(),
+  LANGSMITH_API_KEY: z.string().optional(),
+  LANGSMITH_PROJECT: z.string().optional(),
+  LANGSMITH_ENDPOINT: z.string().url().optional(),
   // ── Hugging Face (Inference) ──────────────────────────────────────────────
   // Used by the SEMANTIC compliance guard (zero-shot NLI) as a SECOND screen
   // behind the keyword guard. Two accepted names (HF_TOKEN is the SDK's

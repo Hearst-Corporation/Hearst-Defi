@@ -162,6 +162,7 @@
     "gray-matter": "^4.0.3",
     "inngest": "^4.4.0",
     "input": "^1.0.1",
+    "langsmith": "^0.8.0",
     "lucide-react": "^1.14.0",
     "next": "^16.2.6",
     "openai": "^6.38.0",
