@@ -119,6 +119,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "customers", label: "Investors", href: "/admin/customers", icon: "Users" },
       { id: "agentic", label: "Agentic Console", railLabel: "Agentic", href: "/admin/agentic", icon: "Workflow" },
       { id: "agents", label: "Agent Library", railLabel: "Agents", href: "/admin/agents", icon: "Bot" },
+      { id: "model-bench", label: "Model Bench", railLabel: "Bench", href: "/admin/model-bench", icon: "FlaskConical" },
       { id: "outreach", label: "Outreach", href: "/admin/outreach", icon: "Send" },
       { id: "onboarding-test", label: "Onboarding test", href: "/admin/onboarding-test", icon: "ClipboardCheck", hideFromSubNav: true },
       // Agent Canvas = the live workspace the agent fills in to frame a product

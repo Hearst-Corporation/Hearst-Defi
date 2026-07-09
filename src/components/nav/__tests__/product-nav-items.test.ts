@@ -105,12 +105,14 @@ describe("visibleSubNavTabs", () => {
 
     const visible = visibleSubNavTabs(dashboard!.tabs).map((t) => t.id);
     expect(visible).not.toContain("onboarding-test");
-    // Agentic Console (the visual control center) leads, then the Agent Library.
+    // Agentic Console (the visual control center) leads, then the Agent Library,
+    // then the Model Bench (agent-ops comparison arena).
     expect(visible).toEqual([
       "dashboard-overview",
       "customers",
       "agentic",
       "agents",
+      "model-bench",
       "outreach",
       "feedback",
     ]);
