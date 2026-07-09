@@ -83,6 +83,7 @@ export async function reconstructInvestorNavSeries(
   const nowMs = now.getTime();
   const earliestStart = Math.min(...anchors.map((a) => a.start));
   const startMs = Math.max(since.getTime(), earliestStart);
+  const holdingAgeMs = Math.max(0, nowMs - earliestStart);
 
   // Reconstruct each position's value as the SUM of two real, differently-shaped
   // components rather than one flat linear ramp (which renders as a featureless
@@ -102,6 +103,15 @@ export async function reconstructInvestorNavSeries(
       const yieldShape = ratio * ratio; // compounding accrual, accelerating
       return sum + a.principal * principalShape + a.accrued * yieldShape;
     }, 0);
+
+  // Very fresh positions (minutes/hours old) do not have a meaningful trend
+  // yet. Rendering a synthetic intra-day ramp from 0 → current NAV creates a
+  // false "performance curve" right after subscription (e.g. $0 → $176k →
+  // $250k on the same day). For this window, return a single honest point at
+  // the current real NAV; the consumer can display a flat baseline state.
+  if (holdingAgeMs < DAY_MS) {
+    return [{ at: new Date(nowMs), valueUsdc: round2(valueAt(nowMs)) }];
+  }
 
   // Degenerate range (all subscriptions at/after `now`, or window collapsed):
   // emit a single honest point at the current real NAV.

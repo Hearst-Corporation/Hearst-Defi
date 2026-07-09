@@ -50,14 +50,23 @@ function toneFor(status: string): RebalancingEvent["tone"] {
 export async function loadVaultRebalancings(
   vaultId: VaultId = "yield",
   limit = 12,
-): Promise<RebalancingEvent[]> {
+  options?: { since?: Date | null },
+): Promise<{ events: RebalancingEvent[]; hasPriorRebalancings: boolean }> {
+  const scopedWhere = distributionVaultScopeWhere(vaultId);
+  const since = options?.since ?? null;
+
   const rows = await prisma.rebalanceEvent.findMany({
-    where: distributionVaultScopeWhere(vaultId),
+    where: since
+      ? {
+          ...scopedWhere,
+          triggeredAt: { gte: since },
+        }
+      : scopedWhere,
     orderBy: { triggeredAt: "desc" },
     take: limit,
   });
 
-  return rows.map((r) => ({
+  const events = rows.map((r) => ({
     id: r.id,
     // Dated on triggeredAt (when the signal fired) — consistent with the sort
     // order above. executedAt is `@default(now())` set at INSERT time, so a
@@ -68,4 +77,18 @@ export async function loadVaultRebalancings(
     summary: r.actionText?.trim() || r.triggerText?.trim() || "Rebalancing recorded.",
     tone: toneFor(r.status),
   }));
+
+  let hasPriorRebalancings = false;
+  if (since) {
+    const prior = await prisma.rebalanceEvent.findFirst({
+      where: {
+        ...scopedWhere,
+        triggeredAt: { lt: since },
+      },
+      select: { id: true },
+    });
+    hasPriorRebalancings = Boolean(prior);
+  }
+
+  return { events, hasPriorRebalancings };
 }

@@ -91,6 +91,7 @@ export interface PortfolioCockpit {
   allocatedHashrate: string;
 
   // ── Lock-up (REAL) ───────────────────────────────────────────────────────────
+  subscribedAt: Date | null;
   lockupDays: number;
   lockupElapsedDays: number;
   lockupRemainingDays: number;
@@ -98,8 +99,6 @@ export interface PortfolioCockpit {
 
   // ── NAV series (REAL, degenerate-curve guarded) ──────────────────────────────
   navPoints: readonly HcValuePoint[];
-  /** true when the NAV series has <2 distinct dates → render a clean state, not a flat line. */
-  navImmature: boolean;
 
   // ── Stat bands (REAL / DERIVED) ──────────────────────────────────────────────
   heroStats: readonly StatCell[];
@@ -351,14 +350,12 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
     takeProfitTargetUsdc: 0,
     takeProfitProgressPct: 0,
     allocatedHashrate: PILOT_ALLOCATED_HASHRATE,
+    subscribedAt: null,
     lockupDays: 0,
     lockupElapsedDays: 0,
     lockupRemainingDays: 0,
     lockupTicks: [],
     navPoints: [],
-    // No prints yet → the hero shows the clean "history builds as your position
-    // matures" state instead of a fabricated flat line.
-    navImmature: true,
     heroStats: zeroStats,
     // Not funded yet → no live safety margin to assert. Collateral / debt at $0,
     // margin shown as "—" (never a false "62% healthy" on an empty vault).
@@ -506,21 +503,6 @@ export const loadPortfolioCockpit = cache(
       lastNav > 0 && deployed > 0 && Math.abs(lastNav - deployed) / deployed > 0.01
         ? rawNav.map((p) => ({ ...p, value: (p.value / lastNav) * deployed }))
         : rawNav;
-    const distinctDays = new Set(
-      navPoints.map((p) => {
-        const t =
-          p.at instanceof Date
-            ? p.at.getTime()
-            : typeof p.at === "number"
-              ? p.at
-              : new Date(p.at).getTime();
-        return Number.isFinite(t) ? Math.floor(t / 86_400_000) : NaN;
-      }),
-    ).size;
-    // <2 distinct calendar days → the position is too fresh for a trend; render a
-    // clean "history builds as your position matures" state, never a flat line.
-    const navImmature = distinctDays < 2;
-
     // ── Stat bands ──────────────────────────────────────────────────────────────
     // The hero stat band mirrors the dominant hero figures, so it must render at
     // the SAME precision as the hero title (formatUsdFull) — a compact "$1.3M"
@@ -610,12 +592,12 @@ export const loadPortfolioCockpit = cache(
       takeProfitTargetUsdc,
       takeProfitProgressPct,
       allocatedHashrate: mining?.allocatedHashrate ?? PILOT_ALLOCATED_HASHRATE,
+      subscribedAt: d.subscribedAt,
       lockupDays: d.lockupDays,
       lockupElapsedDays: d.lockupElapsedDays,
       lockupRemainingDays: d.lockupRemainingDays,
       lockupTicks,
       navPoints,
-      navImmature,
       heroStats,
       healthStats,
       pockets,

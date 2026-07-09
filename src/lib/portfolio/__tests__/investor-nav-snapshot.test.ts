@@ -202,4 +202,17 @@ describe("reconstructInvestorNavSeries", () => {
     // Final point = both positions at full current value: 110 + 55 = 165.
     expect(series[series.length - 1]?.valueUsdc).toBe(165);
   });
+
+  it("returns a single current-NAV point for very fresh subscriptions (<24h)", async () => {
+    const subscribedAt = new Date("2026-06-27T23:30:00Z"); // 30 min before NOW
+    positionFindManyMock.mockResolvedValue([
+      { principalUsdc: 250000, accruedYieldUsdc: 0, subscribedAt },
+    ]);
+
+    const series = await reconstructInvestorNavSeries("inv-1", SINCE, NOW);
+
+    expect(series).toHaveLength(1);
+    expect(series[0]?.at.toISOString()).toBe(NOW.toISOString());
+    expect(series[0]?.valueUsdc).toBe(250000);
+  });
 });

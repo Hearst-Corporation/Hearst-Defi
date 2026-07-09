@@ -160,13 +160,18 @@ function buildMonthlyDistributionBars(
 }
 
 export default async function PortfolioPage() {
-  const [d, session, vaultRebalancings] = await Promise.all([
+  const [d, session] = await Promise.all([
     loadPortfolioCockpit(),
     getSession(),
-    // Real vault-level rebalancing feed (RebalanceEvent table). Vault-wide, not
-    // per-investor — badged as such. Empty [] → honest empty state, no PILOT.
-    loadVaultRebalancings("yield"),
   ]);
+  // Real vault-level rebalancing feed (RebalanceEvent table), scoped to events
+  // since this investor's own first active subscription. Vault-wide operations
+  // can pre-date a new LP entry; those historical rows are still real but are
+  // not "your recent activity".
+  const {
+    events: vaultRebalancings,
+    hasPriorRebalancings,
+  } = await loadVaultRebalancings("yield", 12, { since: d.subscribedAt });
   const isDemo = isDemoAccount(session?.email);
 
   // Real monthly distribution bars, aggregated from the investor's OWN paid
@@ -568,9 +573,9 @@ export default async function PortfolioPage() {
                   <RebalancingFeed events={vaultRebalancings} provenance="manual" />
                 ) : (
                   <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                    No rebalancing recorded on this vault yet. Rebalancings are
-                    rare, deterministic, vault-wide operational events — they
-                    apply to the whole vault, not to your individual position.
+                    {d.subscribedAt && hasPriorRebalancings
+                      ? "No rebalancing has been recorded since your entry. This vault does have older operational rebalancing history from before your subscription."
+                      : "No rebalancing recorded on this vault yet. Rebalancings are rare, deterministic, vault-wide operational events — they apply to the whole vault, not to your individual position."}
                   </span>
                 )}
               </div>
