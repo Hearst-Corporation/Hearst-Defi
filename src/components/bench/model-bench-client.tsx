@@ -1,12 +1,18 @@
 "use client";
 
 /**
- * ModelBenchClient — the comparison arena body of /admin/model-bench.
+ * ModelBenchClient — the comparison arena of /admin/model-bench.
  *
- * A prompt is fanned out to the selected models in parallel (server action),
- * answers land side by side with per-model latency / tokens / cost / compliance.
- * ADR-011: this NEVER changes the product model — it is a comparison lab. Every
- * model call is traced to LangSmith under `bench:<id>`.
+ * A prompt is fanned out to the selected models in parallel; answers land in a
+ * flat comparison grid with per-model latency / tokens / cost / compliance. The
+ * fastest OK latency in a turn is tinted accent so the winner reads at a glance.
+ *
+ * Design: no cage-in-cage. The AdminSectionCard is the single frame; answers sit
+ * as flat `surface-inset` panels (one legitimate level down), the prompt is a
+ * hairline-led lead, not a box. Single green accent, tabular metrics.
+ *
+ * ADR-011: comparison lab only — never changes the product model (gpt-4.1).
+ * Every model call is traced to LangSmith under `bench:<id>`.
  */
 
 import { useCallback, useMemo, useState } from "react";
@@ -18,6 +24,7 @@ import type { BenchProviderInfo } from "@/lib/bench/providers";
 interface Turn {
   prompt: string;
   results: BenchResult[] | null; // null = loading
+  pending: string[]; // model ids in flight (for the loading columns)
 }
 
 interface Msg {
@@ -28,8 +35,7 @@ interface Msg {
 const PRESETS: { label: string; system?: string; prompt: string }[] = [
   {
     label: "Explication rendement (LP)",
-    prompt:
-      "Explique en 3 phrases le rendement du Hearst Yield Vault et sa source de cash-flow.",
+    prompt: "Explique en 3 phrases le rendement du Hearst Yield Vault et sa source de cash-flow.",
   },
   {
     label: "Santé minière → alerte",
@@ -40,8 +46,7 @@ const PRESETS: { label: string; system?: string; prompt: string }[] = [
   },
   {
     label: "Piège conformité (APY)",
-    prompt:
-      "Un investisseur demande: 'quel rendement exact vais-je toucher, garanti ?' Réponds honnêtement.",
+    prompt: "Un investisseur demande: 'quel rendement exact vais-je toucher, garanti ?' Réponds honnêtement.",
   },
   {
     label: "Narratif de scénario",
@@ -49,6 +54,15 @@ const PRESETS: { label: string; system?: string; prompt: string }[] = [
       "Scénario bear: APY range 6.2-8.9%, stressed 4.1%, risk 68, mode defensive. Rédige un court narratif institutionnel avec le format PTAI.",
   },
 ];
+
+function Metric({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <span className="inline-flex items-baseline gap-1 tabular-nums">
+      <span className={cn(accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-secondary)]")}>{value}</span>
+      <span className="text-[var(--ct-text-faint)]">{label}</span>
+    </span>
+  );
+}
 
 export function ModelBenchClient({
   providers,
@@ -72,6 +86,11 @@ export function ModelBenchClient({
   const [history, setHistory] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
 
+  const labelOf = useCallback(
+    (id: string) => providers.find((p) => p.id === id)?.label ?? id,
+    [providers],
+  );
+
   const toggle = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -92,7 +111,7 @@ export function ModelBenchClient({
       const models = [...selected];
       const nextHistory: Msg[] = [...history, { role: "user", content: prompt }];
       setHistory(nextHistory);
-      setTurns((t) => [...t, { prompt, results: null }]);
+      setTurns((t) => [...t, { prompt, results: null, pending: models }]);
 
       try {
         const { results } = await runBenchAction({
@@ -102,10 +121,9 @@ export function ModelBenchClient({
         });
         setTurns((t) => {
           const copy = [...t];
-          copy[copy.length - 1] = { prompt, results };
+          copy[copy.length - 1] = { prompt, results, pending: models };
           return copy;
         });
-        // Continue the shared thread from gpt-4.1 (or first ok).
         const thread =
           results.find((r) => r.id === "gpt-4.1" && r.ok)?.text ??
           results.find((r) => r.ok)?.text;
@@ -115,6 +133,7 @@ export function ModelBenchClient({
           const copy = [...t];
           copy[copy.length - 1] = {
             prompt,
+            pending: models,
             results: models.map((id) => ({ id, ok: false, ms: 0, error: "Erreur serveur" })),
           };
           return copy;
@@ -127,9 +146,9 @@ export function ModelBenchClient({
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Model chips + tracing badge */}
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-6">
+      {/* Control bar — chips + tracing, flat on the card surface (no box) */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
         {providers.map((p) => {
           const on = selected.has(p.id);
           return (
@@ -140,10 +159,13 @@ export function ModelBenchClient({
               onClick={() => toggle(p.id)}
               title={p.available ? `${p.note} · ${p.model}` : "Clé API absente"}
               className={cn(
-                "rounded-lg border px-3 py-1.5 font-mono text-xs transition-colors",
-                !p.available && "cursor-not-allowed border-[var(--ct-border)] text-[var(--ct-text-muted)] opacity-40 line-through",
-                p.available && on && "border-[var(--ct-accent)] bg-[var(--ct-accent)] font-semibold text-[var(--ct-bg-deep)]",
-                p.available && !on && "border-[var(--ct-border)] text-[var(--ct-text-muted)] hover:border-[var(--ct-text-muted)]",
+                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-accent)]",
+                !p.available &&
+                  "cursor-not-allowed border-[var(--ct-border-soft)] text-[var(--ct-text-faint)] line-through opacity-50",
+                p.available && on &&
+                  "border-[var(--ct-accent)] bg-[var(--ct-accent)] text-[var(--ct-text-on-accent)]",
+                p.available && !on &&
+                  "border-[var(--ct-border)] text-[var(--ct-text-muted)] hover:border-[var(--ct-border-strong)] hover:text-[var(--ct-text-secondary)]",
               )}
             >
               {p.label}
@@ -152,17 +174,21 @@ export function ModelBenchClient({
         })}
         <span
           className={cn(
-            "ml-auto rounded-full border px-2 py-0.5 font-mono text-[10.5px] tracking-wide",
-            tracing
-              ? "border-[color-mix(in_srgb,var(--ct-accent)_50%,transparent)] text-[var(--ct-accent)]"
-              : "border-[var(--ct-border)] text-[var(--ct-text-muted)]",
+            "ml-auto inline-flex items-center gap-1.5 font-mono text-[10.5px] tracking-wide",
+            tracing ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-faint)]",
           )}
         >
-          {tracing ? "LangSmith ON" : "tracing OFF"}
+          <span
+            className={cn(
+              "size-1.5 rounded-full",
+              tracing ? "bg-[var(--ct-accent)]" : "bg-[var(--ct-text-faint)]",
+            )}
+          />
+          {tracing ? "LangSmith" : "tracing off"}
         </span>
       </div>
 
-      {/* Presets */}
+      {/* Presets — quiet ghost row */}
       <div className="flex flex-wrap gap-2">
         {PRESETS.map((p) => (
           <button
@@ -170,7 +196,7 @@ export function ModelBenchClient({
             type="button"
             disabled={busy}
             onClick={() => send(p.prompt, p.system ?? "")}
-            className="rounded-md border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-2.5 py-1 text-xs text-[var(--ct-text-secondary)] transition-colors hover:border-[var(--ct-text-muted)] disabled:opacity-40"
+            className="rounded-lg px-2.5 py-1 text-xs text-[var(--ct-text-muted)] transition-colors hover:bg-surface-inset hover:text-[var(--ct-text-secondary)] disabled:opacity-40"
           >
             {p.label}
           </button>
@@ -178,83 +204,105 @@ export function ModelBenchClient({
       </div>
 
       {/* Feed */}
-      <div className="flex flex-col gap-6">
-        {turns.length === 0 && (
-          <p className="py-8 text-center text-sm text-[var(--ct-text-muted)]">
-            {available.length} modèle(s) disponible(s). Choisis un preset ou tape ta question — la réponse part à tous les modèles cochés en parallèle.
+      {turns.length === 0 ? (
+        <div className="rounded-xl bg-surface-inset px-5 py-10 text-center">
+          <p className="text-sm text-[var(--ct-text-muted)]">
+            {available.length} modèle(s) disponible(s). Choisis un preset ou pose ta question — elle part à tous les modèles cochés en parallèle.
           </p>
-        )}
-        {turns.map((turn, i) => (
-          <div key={i} className="flex flex-col gap-3">
-            <div className="rounded-xl border border-[var(--ct-border)] bg-[var(--ct-surface-card)] px-4 py-3">
-              <div className="mb-1 font-mono text-[10.5px] uppercase tracking-wider text-[var(--ct-accent)]">
-                Prompt
-              </div>
-              <div className="whitespace-pre-wrap text-sm text-[var(--ct-text-primary)]">{turn.prompt}</div>
-            </div>
-            <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
-              {turn.results === null
-                ? [...selected].map((id) => {
-                    const p = providers.find((x) => x.id === id);
-                    return (
-                      <div key={id} className="rounded-xl border border-[var(--ct-border)] bg-[var(--ct-surface-card)] p-4">
-                        <div className="mb-2 text-xs font-semibold">{p?.label ?? id}</div>
-                        <div className="animate-pulse font-mono text-xs text-[var(--ct-text-muted)]">▍ réflexion…</div>
-                      </div>
-                    );
-                  })
-                : turn.results.map((r) => {
-                    const p = providers.find((x) => x.id === r.id);
+        </div>
+      ) : (
+        <div className="flex flex-col gap-8">
+          {turns.map((turn, i) => {
+            const fastest =
+              turn.results
+                ?.filter((r) => r.ok)
+                .reduce<number | null>((m, r) => (m === null || r.ms < m ? r.ms : m), null) ?? null;
+            const cols: BenchResult[] =
+              turn.results ?? turn.pending.map((id) => ({ id, ok: false, ms: -1 }));
+            return (
+              <div key={i} className="flex flex-col gap-3.5">
+                {/* Prompt lead — hairline rule, not a box */}
+                <div className="border-l-2 border-[var(--ct-accent)] pl-4">
+                  <div className="mb-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--ct-accent)]">
+                    Prompt
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm text-[var(--ct-text-primary)]">{turn.prompt}</p>
+                </div>
+
+                {/* Answers — flat inset panels, consistent grid */}
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {cols.map((r) => {
+                    const loading = turn.results === null;
+                    const isFastest = !loading && r.ok && r.ms === fastest;
                     return (
                       <div
                         key={r.id}
-                        className={cn(
-                          "flex flex-col overflow-hidden rounded-xl border bg-[var(--ct-surface-card)]",
-                          r.ok ? "border-[var(--ct-border)]" : "border-[color-mix(in_srgb,var(--ct-status-danger,#E07A6B)_45%,var(--ct-border))]",
-                        )}
+                        className="flex flex-col overflow-hidden rounded-xl bg-surface-inset"
                       >
-                        <div className="flex items-center gap-2 border-b border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-3.5 py-2.5">
-                          <span className="text-xs font-semibold">{p?.label ?? r.id}</span>
-                          {r.ok && r.compliant === false && (
-                            <span className="rounded border border-[color-mix(in_srgb,#E8B45A_50%,transparent)] px-1.5 py-0.5 font-mono text-[9.5px] text-[#E8B45A]">
+                        <div className="flex items-center gap-2 border-b border-[var(--ct-border-soft)] px-4 py-2.5">
+                          <span className="truncate text-[13px] font-semibold text-[var(--ct-text-strong)]">
+                            {labelOf(r.id)}
+                          </span>
+                          {!loading && r.ok && r.compliant === false && (
+                            <span className="shrink-0 rounded border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-[var(--ct-status-warning)]">
                               mot interdit
                             </span>
                           )}
-                          <span className="ml-auto flex gap-2.5 font-mono text-[10.5px] tabular-nums text-[var(--ct-text-muted)]">
-                            <span>{r.ms}ms</span>
-                            {r.totalTokens != null && <span>{r.totalTokens}tok</span>}
-                            {r.cost != null && (
-                              <span className="text-[var(--ct-accent)]">${r.cost.toFixed(4)}</span>
-                            )}
-                          </span>
+                          {!loading && (
+                            <span className="ml-auto flex shrink-0 items-baseline gap-2.5 font-mono text-[10.5px]">
+                              {r.ms >= 0 && (
+                                <Metric label="ms" value={String(r.ms)} accent={isFastest} />
+                              )}
+                              {r.ok && r.totalTokens != null && (
+                                <Metric label="tok" value={String(r.totalTokens)} />
+                              )}
+                              {r.ok && r.cost != null && (
+                                <Metric label="" value={`$${r.cost.toFixed(4)}`} accent />
+                              )}
+                            </span>
+                          )}
                         </div>
                         <div
                           className={cn(
-                            "flex-1 whitespace-pre-wrap p-3.5 text-[13.5px] break-words",
-                            r.ok ? "text-[var(--ct-text-primary)]" : "font-mono text-xs text-[var(--ct-status-danger,#E07A6B)]",
+                            "flex-1 whitespace-pre-wrap px-4 py-3.5 text-[13.5px] leading-relaxed",
+                            loading && "font-mono text-[var(--ct-text-faint)]",
+                            !loading && r.ok && "text-[var(--ct-text-secondary)]",
+                            !loading && !r.ok && "font-mono text-xs text-[var(--ct-status-danger)]",
                           )}
                         >
-                          {r.ok ? r.text : `⚠ ${r.error}`}
+                          {loading ? (
+                            <span className="animate-pulse">▍ réflexion…</span>
+                          ) : r.ok ? (
+                            r.text
+                          ) : (
+                            `⚠ ${r.error}`
+                          )}
                         </div>
                       </div>
                     );
                   })}
-            </div>
-          </div>
-        ))}
-      </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Composer */}
-      <div className="flex flex-col gap-2 border-t border-[var(--ct-border)] pt-4">
-        <div className="flex items-center gap-2">
-          <label className="font-mono text-[10.5px] uppercase tracking-wider text-[var(--ct-text-muted)]">
+      <div className="flex flex-col gap-2.5 border-t border-[var(--ct-border-soft)] pt-5">
+        <div className="flex items-center gap-2.5">
+          <label
+            htmlFor="bench-system"
+            className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--ct-text-faint)]"
+          >
             system
           </label>
           <input
+            id="bench-system"
             value={system}
             onChange={(e) => setSystem(e.target.value)}
             placeholder="prompt système (vide = défaut Hearst : concis, APY range, mots interdits bannis)"
-            className="flex-1 rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-2.5 py-1.5 font-mono text-[11.5px] text-[var(--ct-text-secondary)] focus:border-[var(--ct-text-muted)] focus:outline-none"
+            className="flex-1 rounded-lg bg-surface-inset px-3 py-1.5 font-mono text-[11.5px] text-[var(--ct-text-secondary)] placeholder:text-[var(--ct-text-faint)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-accent)]"
           />
         </div>
         <div className="flex items-end gap-2.5">
@@ -269,19 +317,19 @@ export function ModelBenchClient({
             }}
             rows={2}
             placeholder="Ta question… (⌘/Ctrl+Entrée pour envoyer à tous les modèles cochés)"
-            className="max-h-44 min-h-[46px] flex-1 resize-none rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-card)] px-3.5 py-2.5 text-sm text-[var(--ct-text-primary)] focus:border-[var(--ct-accent)] focus:outline-none"
+            className="max-h-44 min-h-[48px] flex-1 resize-none rounded-xl bg-surface-inset px-3.5 py-2.5 text-sm text-[var(--ct-text-primary)] placeholder:text-[var(--ct-text-faint)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-accent)]"
           />
           <button
             type="button"
             onClick={() => void send()}
             disabled={busy || selected.size === 0 || !input.trim()}
-            className="rounded-lg bg-[var(--ct-accent)] px-5 py-3 text-sm font-semibold text-[var(--ct-bg-deep)] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl bg-[var(--ct-accent)] px-5 py-3 text-sm font-semibold text-[var(--ct-text-on-accent)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ct-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ct-bg-deep)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {busy ? "…" : "Envoyer"}
           </button>
         </div>
-        <p className="font-mono text-[10.5px] text-[var(--ct-text-muted)]">
-          {selected.size} modèle(s) — chaque réponse tracée dans LangSmith sous bench:&lt;id&gt;. Lab de comparaison : ne change pas le modèle produit (ADR-011).
+        <p className="font-mono text-[10px] text-[var(--ct-text-faint)]">
+          {selected.size} modèle(s) · réponses tracées LangSmith sous bench:&lt;id&gt; · latence en vert = le plus rapide du lot · lab, ne change pas le modèle produit (ADR-011)
         </p>
       </div>
     </div>
