@@ -320,10 +320,10 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
   // Same narrative row as the funded hero, all at $0 (StatBand renders zeros in
   // neutral graphite, never accent — so no false "gain" green on an empty vault).
   const zeroStats: readonly StatCell[] = [
-    { label: "Deposit", value: formatUsdFull(0), provenance: "attested" },
-    { label: "Today's value", value: formatUsdFull(0), provenance: "estimated" },
-    { label: "Gain", value: formatUsdFull(0), provenance: "estimated" },
-    { label: "Yield paid", value: formatUsdFull(0), provenance: "attested" },
+    { label: "Deposit", value: formatUsdFull(0), provenance: "attested", valueTone: "neutral" },
+    { label: "Today's value", value: formatUsdFull(0), provenance: "estimated", valueTone: "neutral" },
+    { label: "Yield paid", value: formatUsdFull(0), provenance: "attested", valueTone: "neutral" },
+    { label: "Total return", value: formatUsdFull(0), provenance: "estimated", valueTone: "neutral" },
   ];
 
   // 3 pockets at $0 but with their deterministic target-allocation percentages.
@@ -507,24 +507,51 @@ export const loadPortfolioCockpit = cache(
     // The hero stat band mirrors the dominant hero figures, so it must render at
     // the SAME precision as the hero title (formatUsdFull) — a compact "$1.3M"
     // next to a full "$1,250,302" reads as a ~100k discrepancy that isn't real.
-    // Narrative performance row: what you put in → what it's worth today → what
-    // you gained ($ AND %) → what was actually paid out. Gain is the figure the
-    // hero was missing entirely (deployed − deposit), carried with its % delta.
-    const gainUsdc = deployed - deposit;
+    // Narrative performance row: what you put in → what it's worth today →
+    // all-in return ($ AND %) → what was actually paid out.
+    // Total return includes both unrealized and realized yield:
+    // (current deployed value + already distributed) − deposit.
+    const totalReturnUsdc = deployed + d.distributedUsdc - deposit;
+    const totalReturnPct =
+      deposit > 0 ? (totalReturnUsdc / deposit) * 100 : 0;
+    const totalReturnSign = totalReturnPct >= 0 ? "+" : "";
+    const totalReturnText = `${totalReturnSign}${totalReturnPct.toFixed(1)}%`;
     const heroStats: readonly StatCell[] = [
-      { label: "Deposit", value: formatUsdFull(deposit), provenance: "attested" },
+      {
+        label: "Deposit",
+        value: formatUsdFull(deposit),
+        provenance: "attested",
+        valueTone: "neutral",
+      },
       {
         label: "Today's value",
         value: formatUsdFull(deployed),
         provenance: "estimated",
+        valueTone: "neutral",
       },
       {
-        label: "Gain",
-        value: formatUsdFull(gainUsdc),
-        delta: { text: totalChangeText, tone: d.totalChangePct >= 0 ? "up" : "down" },
+        label: "Yield paid",
+        value: formatUsdFull(d.distributedUsdc),
+        provenance: "attested",
+        valueTone: "neutral",
+      },
+      {
+        label: "Total return",
+        value: formatUsdFull(totalReturnUsdc),
+        valueTone: "accent",
+        delta: {
+          text: totalReturnText,
+          tone:
+            totalReturnPct > 0
+              ? "up"
+              : totalReturnPct < 0
+                ? "down"
+                : "flat",
+          emphasis: "strong",
+          forceAccent: true,
+        },
         provenance: "estimated",
       },
-      { label: "Yield paid", value: formatUsdFull(d.distributedUsdc), provenance: "attested" },
     ];
 
     // ── Vault health — only assert a live safety reading while the position is

@@ -84,6 +84,52 @@ model MiningMetric {
 }
 
 // =============================================================================
+// TELEGRAM — machine market snapshots (persisted cache)
+// =============================================================================
+
+model TelegramMachineMarketSnapshot {
+  id                   String                   @id @default(cuid())
+  takenAt              DateTime                 @default(now())
+  channel              String
+  destination          String
+  listDate             String?
+  hashpriceUsdPerThDay Decimal
+  btcPriceUsd          Decimal
+  hashpriceStale       Boolean                  @default(false)
+  energyUsdPerKwh      Decimal
+  configured           Boolean                  @default(true)
+  error                String?
+  source               String                   @default("telegram")
+  rows                 TelegramMachineMarketRow[]
+
+  @@index([takenAt])
+  @@index([channel, destination, takenAt])
+}
+
+model TelegramMachineMarketRow {
+  id                 String                      @id @default(cuid())
+  snapshotId         String
+  snapshot           TelegramMachineMarketSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  model              String
+  manufacturer       String
+  cooling            String
+  region             String
+  thPerUnit          Decimal
+  efficiencyJTh      Decimal?
+  efficiencySource   String
+  exWorksUsd         Decimal
+  feesUsd            Decimal
+  landedUsd          Decimal
+  amortMonths        Int
+  capexUsdPerThDay   Decimal
+  energyUsdPerThDay  Decimal?
+  totalCostUsdPerThDay Decimal?
+  marginUsdPerThDay  Decimal?
+
+  @@index([snapshotId])
+}
+
+// =============================================================================
 // SCENARIOS & BACKTESTS
 // =============================================================================
 

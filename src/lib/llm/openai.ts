@@ -61,15 +61,25 @@ function createOpenAIClient(): OpenAI {
 }
 
 /**
- * LangSmith tracing wrap (observability only). Applied ONLY when
- * LANGSMITH_TRACING === "true" AND an API key is configured — otherwise the
- * bare client is returned untouched (zero overhead, identical behavior).
- * Never wraps the build-phase placeholder. Tracing failures are swallowed by
- * the langsmith SDK (background batching) and can never fail an LLM call.
+ * Single switch for LangSmith tracing: ON only when LANGSMITH_TRACING ===
+ * "true" AND an API key is configured, never during `next build` and never
+ * under NODE_ENV=test (unit tests must not emit network traces). Read by the
+ * client wrap below and by the `agent:<name>` parent spans in client.ts.
+ */
+export const LLM_TRACING_ENABLED: boolean =
+  !IS_BUILD_PHASE &&
+  process.env.NODE_ENV !== "test" &&
+  env.LANGSMITH_TRACING === "true" &&
+  Boolean(env.LANGSMITH_API_KEY);
+
+/**
+ * LangSmith tracing wrap (observability only). When disabled the bare client
+ * is returned untouched (zero overhead, identical behavior). Tracing failures
+ * are swallowed by the langsmith SDK (background batching) and can never fail
+ * an LLM call.
  */
 function withTracing(client: OpenAI): OpenAI {
-  if (IS_BUILD_PHASE) return client;
-  if (env.LANGSMITH_TRACING !== "true" || !env.LANGSMITH_API_KEY) return client;
+  if (!LLM_TRACING_ENABLED) return client;
   return wrapOpenAI(client);
 }
 

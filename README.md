@@ -15,6 +15,18 @@ Prisma + **Postgres (Supabase prod `xrwzxhsenwmlxbwqcftz`, eu-west-1)** — SQLi
 > de test CI pur.** Le `preflight` (`pnpm preflight`) bloque tout deploy avec une
 > URL SQLite. Dev local : utiliser `.env.local` avec les vars Supabase prod (voir
 > `~/.claude/api-config/SERVICES.md` section *Hearst Connect PROD*).
+>
+> **🚨 Multi-projets Supabase (erreur critique à éviter)** : si plusieurs databases
+> existent côté compte Supabase, **toujours vérifier le `project_ref` actif avant
+> toute migration SQL**. Quand l'action passe par MCP, exiger `get_project_url` puis
+> confirmer explicitement que le ref retourné correspond à la cible (ex:
+> `xrwzxhsenwmlxbwqcftz`). **Aucune migration / aucun DDL** tant que ce check n'est
+> pas validé.
+>
+> **Telegram machine market = DB-caché** : `src/lib/telegram/read-machines.ts` persiste chaque lecture
+> du channel dans `TelegramMachineMarketSnapshot`/`Row`. Si Telegram est indisponible ou non configuré,
+> sert le dernier snapshot en base plutôt que de renvoyer un état vide — voir
+> `docs/BACKEND_CONTEXT.md`.
 
 LLM provider : **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`) — single
 model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**

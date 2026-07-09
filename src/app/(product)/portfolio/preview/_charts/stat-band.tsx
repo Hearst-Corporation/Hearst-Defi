@@ -15,8 +15,17 @@ export interface StatCell {
   label: string;
   value: string;
   /** Signed delta chip, already formatted (e.g. "+6.3%"). */
-  delta?: { text: string; tone: "up" | "down" | "flat" };
+  delta?: {
+    text: string;
+    tone: "up" | "down" | "flat";
+    /** Strong emphasis for hero KPI deltas (larger text). */
+    emphasis?: "normal" | "strong";
+    /** Force accent green regardless of tone mapping. */
+    forceAccent?: boolean;
+  };
   provenance: Provenance;
+  /** Accent (green) or neutral (white/strong body) value text. */
+  valueTone?: "accent" | "neutral";
   /** Genuinely Live → accent value + heartbeat dot (reserved, honest). */
   live?: boolean;
   /**
@@ -65,7 +74,7 @@ export function StatBand({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-px bg-[var(--ct-border-soft)]",
+        "grid grid-cols-1 gap-px bg-(--ct-border-soft)",
         cols,
         className,
       )}
@@ -95,15 +104,26 @@ export function StatBand({
               className={cn(
                 "ct-bento-metric tabular-nums",
                 // Accent green only for real, non-zero values; zeros read neutral.
-                isZeroValue(it.value) ? "ct-text-strong" : "ct-bento-metric--accent",
+                isZeroValue(it.value) || it.valueTone === "neutral"
+                  ? "ct-text-strong"
+                  : "ct-bento-metric--accent",
               )}
             >
               {it.value}
             </span>
             {it.delta ? (
               <span
-                className="text-[length:var(--ct-text-nano)] font-semibold tabular-nums"
-                style={{ color: DELTA_COLOR[it.delta.tone] }}
+                className={cn(
+                  "font-semibold tabular-nums",
+                  it.delta.emphasis === "strong"
+                    ? "text-(length:--ct-text-sm)"
+                    : "text-(length:--ct-text-nano)",
+                )}
+                style={{
+                  color: it.delta.forceAccent
+                    ? "var(--ct-accent)"
+                    : DELTA_COLOR[it.delta.tone],
+                }}
               >
                 {it.delta.text}
               </span>
