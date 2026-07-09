@@ -14,6 +14,11 @@ Ne pas charger les composants ni le CSS.
 - **Services / data** : `src/lib/data/` (portfolio 913 l., dashboard 726, cockpit 579 — fetch+derive),
   `src/lib/vaults/`, `src/lib/governance/`, `src/lib/distribution/`, `src/lib/proof-center/`,
   `src/lib/hubspot/`, `src/lib/inngest/` (jobs/crons), `src/lib/pdf/`, `src/lib/storage/` (Supabase).
+- **Telegram machine market** : `src/lib/telegram/read-machines.ts` — lit le channel Telegram, parse
+  et price la liste, joint le hashprice live. Persiste chaque lecture dans
+  `TelegramMachineMarketSnapshot`/`Row` (Prisma) ; si Telegram est non configuré ou en échec, sert le
+  dernier snapshot DB-caché au lieu de crasher (`configured: true` + `error` explicatif). Consommé par
+  `/admin/source` et `portfolio/page.tsx`.
 - **DB** : `src/lib/db.ts` (singleton Prisma), `prisma/schema.prisma`. Dev = SQLite, prod = Supabase dédié.
 
 ## Règles

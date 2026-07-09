@@ -22,6 +22,11 @@ Prisma + **Postgres (Supabase prod `xrwzxhsenwmlxbwqcftz`, eu-west-1)** — SQLi
 > confirmer explicitement que le ref retourné correspond à la cible (ex:
 > `xrwzxhsenwmlxbwqcftz`). **Aucune migration / aucun DDL** tant que ce check n'est
 > pas validé.
+>
+> **Telegram machine market = DB-caché** : `src/lib/telegram/read-machines.ts` persiste chaque lecture
+> du channel dans `TelegramMachineMarketSnapshot`/`Row`. Si Telegram est indisponible ou non configuré,
+> sert le dernier snapshot en base plutôt que de renvoyer un état vide — voir
+> `docs/BACKEND_CONTEXT.md`.
 
 LLM provider : **OpenAI GPT-4.1** (`openai@6.x` SDK, `OPENAI_API_KEY`) — single
 model for all 4 agents + cockpit chat. No Anthropic SDK. See **ADR-011**

@@ -18,10 +18,13 @@ import { prisma } from "@/lib/db";
  * channel, parses + prices it, and joins the live hashprice (revenue $/TH/day)
  * so the /admin/source table can show per-machine margins.
  *
- * NEVER throws. When Telegram is unconfigured or unreachable, returns a result
- * with `configured: false` / empty rows so the page renders a "set up" state.
- * (Mirrors the codebase convention of degrading to a provenance-flagged state
- * rather than crashing — see hashprice.ts fallback.)
+ * Every successful Telegram read is persisted to `TelegramMachineMarketSnapshot`/
+ * `Row` (Prisma). NEVER throws: when Telegram is unconfigured or the read fails,
+ * falls back to the latest DB-cached snapshot for that channel+destination
+ * (`configured: true` + an explanatory `error`) instead of degrading to an empty
+ * state — only returns `configured: false` / empty rows when there is no cache
+ * to fall back to. (Mirrors the codebase convention of degrading to a
+ * provenance-flagged state rather than crashing — see hashprice.ts fallback.)
  */
 
 export interface MachineRow extends MachineEconomics {
