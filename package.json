@@ -48,6 +48,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:backfill": "tsx prisma/backfill.ts",
     "seed:test": "tsx scripts/seed-test-user.ts",
+    "seed:document-vault-assets": "tsx scripts/seed-document-vault-assets.ts",
     "seed:test:admin": "tsx scripts/seed-test-admin.ts",
     "seed:investor-demo:reset": "tsx scripts/wipe-seeded-data.ts",
     "electron:compile": "tsc -p electron",

@@ -1424,3 +1424,57 @@ model StrategyProjectionEvent {
   @@map("strategy_projection_events")
 }
 
+// ===================================================================
+// Document Vault (hearst-docs-vault backend persistence).
+// Owner-scoped by userId (same RLS-by-column pattern as Feedback/LlmRun —
+// no formal FK relation on User to avoid editing the User model). deckJson is
+// the full SlideRenderer-compatible Deck payload.
+// ===================================================================
+
+model DocumentVaultDocument {
+  id           String   @id @default(cuid())
+  ownerId      String   @map("owner_id")
+  title        String
+  type         String   // pitch_deck | fact_sheet | product_sheet | one_pager | template
+  project      String?  // AssetProject id, nullable
+  source       String   @default("agent") // figma | blank | local | agent | template
+  status       String   @default("draft") // draft | ready | archived
+  deckJson     Json     @map("deck_json")
+  thumbnailUrl String?  @map("thumbnail_url")
+  slideCount   Int      @default(0) @map("slide_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  events DocumentVaultEvent[]
+
+  @@index([ownerId])
+  @@map("document_vault_documents")
+}
+
+model DocumentVaultAsset {
+  id           String   @id @default(cuid())
+  project      String
+  type         String
+  title        String
+  path         String
+  metadataJson Json?    @map("metadata_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([project])
+  @@map("document_vault_assets")
+}
+
+model DocumentVaultEvent {
+  id          String   @id @default(cuid())
+  documentId  String   @map("document_id")
+  actorId     String?  @map("actor_id")
+  eventType   String   @map("event_type") // created | updated | deleted | autosaved
+  payloadJson Json?    @map("payload_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  document DocumentVaultDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_vault_events")
+}
+
