@@ -15,11 +15,9 @@
  */
 
 import { Badge } from "@/components/catalyst/badge";
-import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/explorer";
 import { cn } from "@/lib/cn";
-import { PORTFOLIO_ON_CHAIN_PROOFS_EMPTY } from "@/lib/portfolio/empty-messages";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 
 type ProofTx = {
@@ -129,9 +127,7 @@ export function PositionInfrastructureProofs({
           ))}
         </div>
       ) : (
-        <div className="px-5 pb-4">
-          <EmptySurface variant="inline" {...PORTFOLIO_ON_CHAIN_PROOFS_EMPTY} />
-        </div>
+        <p className="ct-metric-caption px-5 pb-4">No on-chain proofs recorded yet.</p>
       )}
 
       {/* Mining infrastructure */}

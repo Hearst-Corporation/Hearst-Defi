@@ -9,10 +9,8 @@ import {
 
 import Link from "next/link";
 
-import { EmptySurface } from "@/components/catalyst/empty-surface";
 import type { PortfolioTransaction } from "@/lib/data/portfolio";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
-import { PORTFOLIO_TRANSACTIONS_EMPTY } from "@/lib/portfolio/empty-messages";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { relativeTime } from "@/lib/format/time";
 
@@ -137,8 +135,12 @@ export function RecentActivity({
           })}
         </ul>
       ) : (
-        <div className="p-5">
-          <EmptySurface variant="inline" {...PORTFOLIO_TRANSACTIONS_EMPTY} />
+        <div className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+          <span className="ct-section-title">No transactions yet</span>
+          <span className="ct-metric-caption max-w-xs">
+            Deposits, payouts, and withdrawals appear here once activity is
+            posted.
+          </span>
         </div>
       )}
     </section>

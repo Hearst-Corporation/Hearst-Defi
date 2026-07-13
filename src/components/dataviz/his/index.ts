@@ -6,10 +6,7 @@
  * lots (P1/P2); this lot ships the library + tests only, nothing is wired yet.
  *
  * Not yet implemented (P1+): HcLineChart, HcBandChart, HcContributionBar,
- * HcTornado, HcSourceMatrix, HcDependencyDiagram.
- * (HcBullet lives at app/(product)/portfolio/preview/_charts/bullet — a product
- * primitive already consumed by three pages; promotion into this barrel is
- * deferred to avoid churning its import sites for no visual gain.)
+ * HcHeatmap, HcTornado, HcBullet, HcSourceMatrix, HcDependencyDiagram.
  */
 
 export * from "./types";
@@ -40,13 +37,7 @@ export { HcWaterfall } from "./HcWaterfall";
 export type { HcWaterfallProps, HcWaterfallStep } from "./HcWaterfall";
 
 export { HcCompositionRing } from "./HcCompositionRing";
-export type { HcCompositionRingProps, HcCompositionSegment } from "./HcCompositionRing";
+export type { HcCompositionRingProps } from "./HcCompositionRing";
 
 export { HcAssumptionLedger } from "./HcAssumptionLedger";
 export type { HcAssumptionLedgerProps } from "./HcAssumptionLedger";
-
-export { HcHeatmap } from "./HcHeatmap";
-export type { HcHeatmapProps, HcHeatCell } from "./HcHeatmap";
-
-export { HcPlotEmpty, HC_PLOT_EMPTY_MAX_HEIGHT } from "./HcPlotEmpty";
-export type { HcPlotEmptyProps } from "./HcPlotEmpty";

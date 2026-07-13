@@ -1,8 +1,8 @@
 import { MINING_CASHFLOW_COPY } from "@/components/proof/empty-messages";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 
-import { ProofCenterCardHeader } from "./proof-center-card-header";
 import type { ProofCenterSectionLedProps } from "./proof-center-types";
 
 const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" | "stale"> = {
@@ -19,6 +19,35 @@ const HEADER = {
 
 const PANEL_CLASS =
   "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col";
+
+/** Bento section header — title (h3) + subtitle + provenance badge. */
+function BentoHeader({
+  sectionLed,
+  eyebrow,
+  title,
+  provenance,
+}: {
+  sectionLed: boolean;
+  eyebrow: string;
+  title: string;
+  provenance: "live" | "estimated" | "manual" | "stale";
+}) {
+  return (
+    <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
+      <div className="flex flex-col gap-1.5">
+        {/* sectionLed: the visible page <h2> owns the section title; the panel
+            shows only its h3 subtitle + provenance. */}
+        {!sectionLed ? (
+          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none m-0">
+            {eyebrow}
+          </h3>
+        ) : null}
+        <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide m-0">{title}</p>
+      </div>
+      <ProvenanceBadge kind={provenance} />
+    </div>
+  );
+}
 
 /** A single KPI cell on the bento grid. */
 function KpiCell({
@@ -71,12 +100,11 @@ export function MiningCashFlowEvidence({
     const pending = (
       <>
         {!bare && (
-          <ProofCenterCardHeader
+          <BentoHeader
             sectionLed={sectionLed}
             eyebrow={sectionLed ? HEADER.eyebrow : "Awaiting attestation"}
             title={sectionLed ? HEADER.title : "Mining Revenue"}
             provenance={BADGE[provenance]}
-            tone="quiet"
           />
         )}
         <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-muted)] m-0" role="status">
@@ -101,12 +129,11 @@ export function MiningCashFlowEvidence({
   const inner = (
     <>
       {!bare && (
-        <ProofCenterCardHeader
+        <BentoHeader
           sectionLed={sectionLed}
           eyebrow={sectionLed ? HEADER.eyebrow : "Yield Evidence"}
           title={sectionLed ? HEADER.title : "Mining Revenue"}
           provenance={BADGE[provenance]}
-          tone="quiet"
         />
       )}
 

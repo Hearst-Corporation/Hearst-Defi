@@ -19,8 +19,6 @@ import { HcCompositionRing } from "../HcCompositionRing";
 import { HcBarChart, type HcBar } from "../HcBarChart";
 import { HcStackedBar } from "../HcStackedBar";
 import { HcAssumptionLedger } from "../HcAssumptionLedger";
-import { HcHeatmap, type HcHeatCell } from "../HcHeatmap";
-import { HcPlotEmpty, HC_PLOT_EMPTY_MAX_HEIGHT } from "../HcPlotEmpty";
 import type { HcAssumption } from "../types";
 
 const count = (haystack: string, needle: string): number =>
@@ -87,8 +85,6 @@ describe("HcChartCard — empty state", () => {
       </HcChartCard>,
     );
     expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("ct-empty-surface--chart");
-    expect(html).toContain("No data yet");
     expect(html).not.toContain("real-chart");
     expect(html).not.toContain("<polyline");
   });
@@ -156,15 +152,6 @@ describe("HcFanChart", () => {
     expect(html.toLowerCase()).not.toContain("guaranteed return");
     expect(html).toContain("not guaranteed");
   });
-  it("renders an honest empty surface with message when fewer than 2 bands", () => {
-    const html = renderToStaticMarkup(
-      <HcFanChart bands={[]} aria-label="apy fan" emptyMessage="No projection data yet" />,
-    );
-    expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("ct-empty-surface--chart");
-    expect(html).toContain("No projection data yet");
-    expect(html).not.toContain('data-hc-line="p50"');
-  });
 });
 
 // 10 ─ HcWaterfall renders positive / negative / total steps
@@ -203,15 +190,6 @@ describe("HcWaterfall", () => {
     expect(html).toContain("min-width:560px");
     expect(html).toContain("<tspan");
   });
-  it("renders an honest empty surface when there are no steps", () => {
-    const html = renderToStaticMarkup(
-      <HcWaterfall steps={[]} aria-label="empty bridge" emptyMessage="No steps yet" />,
-    );
-    expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("ct-empty-surface--chart");
-    expect(html).toContain("No steps yet");
-    expect(html).not.toContain("<rect");
-  });
 });
 
 // 11 ─ HcCompositionRing uses multiple <circle> segments
@@ -239,35 +217,6 @@ describe("HcCompositionRing", () => {
     );
     expect(html).toContain('data-hc-ring="track"');
     expect(count(html, 'data-hc-ring="segment"')).toBe(0);
-  });
-});
-
-// 11c ─ HcCompositionRing custom segment colours + segmentGap + HTML center
-describe("HcCompositionRing — custom segments", () => {
-  it("uses per-segment colour, segmentGap butt caps, and HTML center overlay", () => {
-    const html = renderToStaticMarkup(
-      <HcCompositionRing
-        segments={[
-          { label: "Mining", value: 50, color: "var(--ct-cat-mining)" },
-          { label: "BTC", value: 50, color: "var(--ct-cat-btc)" },
-        ]}
-        segmentGap={6}
-        centerHtml
-        responsive
-        showLegend={false}
-        centerLabel="Deployed"
-        centerValue="$1.2M"
-        size={156}
-        thickness={20}
-        aria-label="pocket ring"
-      />,
-    );
-    expect(html).toContain("var(--ct-cat-mining)");
-    expect(html).toContain("var(--ct-cat-btc)");
-    expect(html).toContain('stroke-linecap="butt"');
-    expect(html).toContain("ct-metric-value");
-    expect(html).toContain("$1.2M");
-    expect(html).not.toContain("<text");
   });
 });
 
@@ -330,8 +279,6 @@ describe("HcBarChart", () => {
   it("renders an honest empty state (no bars) when the series is empty or all zero", () => {
     const empty = renderToStaticMarkup(<HcBarChart bars={[]} aria-label="yp" />);
     expect(empty).toContain('data-hc-empty="true"');
-    expect(empty).toContain("ct-empty-surface--chart");
-    expect(empty).toContain("No data yet");
     expect(empty).not.toContain("<rect");
 
     const zero = renderToStaticMarkup(
@@ -387,75 +334,5 @@ describe("HcAssumptionLedger", () => {
     // Honesty invariant: no configured assumption is dressed up as live.
     expect(html).not.toContain(">Live<");
     expect(html).not.toContain("Source: Live");
-  });
-});
-
-// 17 ─ HcHeatmap — luminance grid, honest idle, empty state
-describe("HcHeatmap", () => {
-  const cells: HcHeatCell[] = [
-    { col: 0, row: 0, value: 100, label: "Mon" },
-    { col: 1, row: 0, value: 50, label: "Tue" },
-    { col: 2, row: 0, value: 0, label: "Wed" }, // idle
-  ];
-
-  it("renders active cells on the accent ramp and idle cells on the neutral inset", () => {
-    const html = renderToStaticMarkup(
-      <HcHeatmap cells={cells} rows={1} cols={3} aria-label="activity" />,
-    );
-    // full-intensity cell hits series-1 (= accent), a mid cell a fainter stop
-    expect(html).toContain("var(--ct-chart-series-1)");
-    // idle (value 0) is the neutral surface, NEVER the faintest green
-    expect(count(html, 'data-hc-cell="idle"')).toBe(1);
-    expect(count(html, 'data-hc-cell="active"')).toBe(2);
-    expect(html).toContain("var(--ct-surface-inset)");
-  });
-
-  it("carries a native <title> per cell for zero-JS hover", () => {
-    const html = renderToStaticMarkup(
-      <HcHeatmap cells={cells} rows={1} cols={3} aria-label="activity" />,
-    );
-    expect(html).toContain("Mon:");
-  });
-
-  it("renders an honest empty state when every cell is idle", () => {
-    const allIdle: HcHeatCell[] = [
-      { col: 0, row: 0, value: 0 },
-      { col: 1, row: 0, value: 0 },
-    ];
-    const html = renderToStaticMarkup(
-      <HcHeatmap cells={allIdle} aria-label="empty" emptyMessage="No activity yet" />,
-    );
-    expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("No activity yet");
-    // no active cells painted
-    expect(count(html, 'data-hc-cell="active"')).toBe(0);
-  });
-
-  it("uses no hardcoded hex — colours come from tokens only", () => {
-    const html = renderToStaticMarkup(
-      <HcHeatmap cells={cells} rows={1} cols={3} aria-label="activity" />,
-    );
-    expect(html).not.toMatch(/#[0-9a-fA-F]{3,6}\b/);
-  });
-});
-
-// 18 ─ HcPlotEmpty — canonical chart empty wrapper
-describe("HcPlotEmpty", () => {
-  it("wraps EmptySurface chart variant with data-hc-empty and caps height", () => {
-    const html = renderToStaticMarkup(
-      <HcPlotEmpty message="Nothing here" height={400} aria-label="plot slot" />,
-    );
-    expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("ct-empty-surface--chart");
-    expect(html).toContain("Nothing here");
-    expect(html).toContain(`height:${HC_PLOT_EMPTY_MAX_HEIGHT}`);
-    expect(html).toContain('aria-label="plot slot"');
-  });
-
-  it("fills the parent slot when fill is set", () => {
-    const html = renderToStaticMarkup(<HcPlotEmpty message="No data yet" fill />);
-    expect(html).toContain('data-hc-empty="true"');
-    expect(html).toContain("h-full w-full");
-    expect(html).not.toContain("height:");
   });
 });

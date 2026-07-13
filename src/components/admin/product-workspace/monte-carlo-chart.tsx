@@ -19,7 +19,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/catalyst/card";
+} from "@/components/ui/card";
 import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 import { cn } from "@/lib/cn";
 

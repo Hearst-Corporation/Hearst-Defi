@@ -14,7 +14,6 @@
  */
 
 import type { ReactNode } from "react";
-import { HcPlotEmpty } from "./HcPlotEmpty";
 import { HcSourceBadge } from "./HcSourceBadge";
 import type { HcSourceStatus } from "./types";
 
@@ -162,23 +161,14 @@ export function HcChartCard({
         </div>
       )}
 
-      <div
-        className="relative"
-        style={{
-          marginTop: "var(--ct-space-4)",
-          // An empty/loading state should not reserve a full hero-sized plot area
-          // just to say "no data" — cap it so the card stays compact. A ready
-          // plot keeps its full requested height.
-          height: state === "empty" || state === "loading" ? Math.min(height, 132) : height,
-        }}
-      >
+      <div className="relative" style={{ marginTop: "var(--ct-space-4)", height }}>
         {state === "loading" ? (
           <div
             className="h-full w-full animate-pulse"
             style={{ borderRadius: "var(--ct-radius-md)", background: "var(--ct-surface-inset)" }}
           />
         ) : state === "empty" ? (
-          <HcPlotEmpty message="No data yet" fill />
+          <HcEmptySurface />
         ) : (
           <>
             {children}
@@ -200,6 +190,30 @@ export function HcChartCard({
         </p>
       )}
     </section>
+  );
+}
+
+function HcEmptySurface() {
+  return (
+    <div
+      data-hc-empty="true"
+      className="flex h-full w-full items-center justify-center"
+      style={{
+        borderRadius: "var(--ct-radius-md)",
+        border: "1px dashed var(--ct-border)",
+        background: "var(--ct-surface-inset)",
+      }}
+    >
+      <span
+        style={{
+          fontSize: "var(--ct-text-2xs)",
+          fontStyle: "italic",
+          color: "var(--ct-text-muted)",
+        }}
+      >
+        No data yet
+      </span>
+    </div>
   );
 }
 

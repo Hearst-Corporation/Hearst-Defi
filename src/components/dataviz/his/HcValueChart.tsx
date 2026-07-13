@@ -22,7 +22,6 @@ import {
 } from "@/lib/portfolio/value-series";
 
 import { pathD, polyline, project, type PlotBox } from "./geometry";
-import { HcPlotEmpty } from "./HcPlotEmpty";
 import { HcValueChartHover, type HcValueChartHoverSample } from "./HcValueChartHover";
 import type { HcPoint } from "./types";
 
@@ -46,8 +45,6 @@ export interface HcValueChartProps {
   endpointLabel?: string;
   /** Render the per-sample dots (default true). */
   showPointDots?: boolean;
-  /** Empty-state message when fewer than 2 points. */
-  emptyMessage?: string;
   "aria-label": string;
 }
 
@@ -112,13 +109,22 @@ export function HcValueChart({
   height = 220,
   valueFormat = formatPortfolioCurrency,
   showPointDots = true,
-  emptyMessage = "No portfolio history yet",
   "aria-label": ariaLabel,
 }: HcValueChartProps) {
   // A single point (or none) is not a trend — honest empty surface.
   if (points.length < 2) {
     return (
-      <HcPlotEmpty message={emptyMessage} height={height} aria-label={ariaLabel} />
+      <div
+        role="img"
+        data-hc-empty="true"
+        aria-label={ariaLabel}
+        className="flex items-center justify-center rounded-xl border border-dashed border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)]"
+        style={{ height }}
+      >
+        <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+          No portfolio history yet
+        </span>
+      </div>
     );
   }
 

@@ -17,7 +17,6 @@
 
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 
-import { HcPlotEmpty } from "./HcPlotEmpty";
 import { niceCeil } from "./geometry";
 
 export interface HcBar {
@@ -37,15 +36,6 @@ export interface HcBarChartProps {
   highlightLast?: boolean;
   /** Number of horizontal gridlines / y ticks (incl. 0 and max). Default 4. */
   yTicks?: number;
-  /**
-   * Bar-height scale. `linear` (default) is faithful for comparable magnitudes.
-   * `sqrt` compresses the top so a series spanning orders of magnitude
-   * (e.g. daily 0.09 vs yearly 32) stays *readable* — the small bars no longer
-   * collapse to 1px. It never distorts the numbers: the `<title>` tooltip and
-   * y-axis ticks still carry the true values; only the drawn heights are
-   * square-rooted. Opt in only when a linear plot renders some bars invisible.
-   */
-  scale?: "linear" | "sqrt";
   /** Empty-state message when there is nothing to plot. */
   emptyMessage?: string;
   "aria-label": string;
@@ -61,7 +51,6 @@ export function HcBarChart({
   valueFormat = formatUsdCompact,
   highlightLast = false,
   yTicks = 4,
-  scale = "linear",
   emptyMessage = "No data yet",
   ...rest
 }: HcBarChartProps) {
@@ -71,7 +60,15 @@ export function HcBarChart({
   // Honest empty state — never paint a baseline of zero bars.
   if (bars.length === 0 || maxValue <= 0) {
     return (
-      <HcPlotEmpty message={emptyMessage} height={height} aria-label={ariaLabel} />
+      <div
+        role="img"
+        aria-label={ariaLabel}
+        data-hc-empty="true"
+        className="flex items-center justify-center rounded-[var(--ct-radius-lg)] border border-dashed border-[var(--ct-border-soft)] bg-surface-inset"
+        style={{ height }}
+      >
+        <span className="ct-metric-caption text-[var(--ct-text-muted)]">{emptyMessage}</span>
+      </div>
     );
   }
 
@@ -87,14 +84,7 @@ export function HcBarChart({
   const bandW = plotW / n;
   const barW = Math.min(bandW * 0.56, 54);
   const cx = (i: number): number => plotLeft + (i + 0.5) * bandW;
-
-  // Position a value on the Y axis. `sqrt` compresses the top so small bars stay
-  // visible; the axis TICK LABELS still print the true (linear) values, so the
-  // scale is disclosed, never hidden. A gridline drawn through `y(v)` and a bar
-  // reaching `y(v)` share the same transform, so bars still land on their lines.
-  const norm = (v: number): number =>
-    scale === "sqrt" ? Math.sqrt(Math.max(0, v) / axisMax) : Math.max(0, v) / axisMax;
-  const y = (v: number): number => plotBottom - norm(v) * plotH;
+  const y = (v: number): number => plotBottom - (v / axisMax) * plotH;
 
   const ticks = Array.from({ length: yTicks + 1 }, (_, i) => (axisMax / yTicks) * i);
   const leftPct = (px: number): string => `${(px / VIEW_W) * 100}%`;

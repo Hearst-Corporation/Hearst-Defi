@@ -70,44 +70,31 @@ function isZeroValue(value: string): boolean {
 export function StatBand({
   items,
   className,
-  align = "center",
 }: {
   items: readonly StatCell[];
   className?: string;
-  /**
-   * Cell alignment. `center` (default) is the classic stats-rail idiom — every
-   * caller keeps its current look. `start` left-aligns the label + value so a
-   * hero/mining band reads as a strong left-anchored figure instead of a number
-   * floating in the middle of a wide card ("lost in the middle" fix).
-   */
-  align?: "center" | "start";
 }) {
-  const isStart = align === "start";
-  // Container queries scoped to this band's own width (not the full product-doc
-  // column), so nested rails reflow when their parent slot is squeezed.
+  // Container queries (not viewport): the grid reacts to the real width of the
+  // `product-doc` container (src/app/doc-flow.css), so it drops columns when the
+  // Assistant rail opens/expands and squeezes the centre — instead of relying on
+  // the window width and getting crushed. Each cell needs ~13rem to read cleanly.
   const cols =
     items.length >= 4
-      ? "@[20rem]/stat-band:grid-cols-2 @[34rem]/stat-band:grid-cols-4"
+      ? "@[34rem]:grid-cols-2 @[52rem]:grid-cols-4"
       : items.length === 3
-        ? "@[20rem]/stat-band:grid-cols-3"
-        : "@[20rem]/stat-band:grid-cols-2";
+        ? "@[26rem]:grid-cols-3"
+        : "@[26rem]:grid-cols-2";
   return (
     <div
       className={cn(
-        "@container/stat-band grid grid-cols-1 gap-px bg-(--ct-border-soft)",
+        "grid grid-cols-1 gap-px bg-(--ct-border-soft)",
         cols,
         className,
       )}
     >
       {items.map((it) => (
-        <div
-          key={it.label}
-          className={cn(
-            "flex min-w-0 flex-col gap-2 bg-surface-card px-5 py-6",
-            isStart ? "items-start text-left" : "items-center text-center",
-          )}
-        >
-          <div className={cn("flex items-center gap-1.5", isStart ? "justify-start" : "justify-center")}>
+        <div key={it.label} className="flex min-w-0 flex-col items-center gap-2 bg-surface-card px-5 py-6 text-center">
+          <div className="flex items-center justify-center gap-1.5">
             {it.live ? (
               <span
                 aria-hidden="true"
@@ -132,10 +119,10 @@ export function StatBand({
             )}
             <span className="ct-bento-label min-w-0 truncate">{it.label}</span>
           </div>
-          <div className={cn("flex min-w-0 items-baseline gap-2", isStart ? "justify-start" : "justify-center")}>
+          <div className="flex items-baseline justify-center gap-2">
             <span
               className={cn(
-                "ct-bento-metric min-w-0 truncate tabular-nums",
+                "ct-bento-metric tabular-nums",
                 it.hero && "ct-text-hero-tier",
                 // Accent green only for real, non-zero values; zeros and BTC-toned
                 // cells (identity lives in the affix/dot, never the number) read neutral.
