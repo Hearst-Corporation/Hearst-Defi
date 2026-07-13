@@ -4,6 +4,7 @@ import { listVaults, type VaultProduct } from "@/lib/data/vaults";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { ProductSelectCard } from "@/components/vaults/product-select-card";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
+import { HcCompositionRing } from "@/components/dataviz/his/HcCompositionRing";
 
 export const dynamic = "force-dynamic";
 
@@ -43,11 +44,11 @@ export default async function VaultsPage() {
       contextLabel="Investment Flow"
     >
       {/* Bitcoin Strategic Reserve framing — consultation strip above the
-          subscribe catalog. Reuses the existing card-grammar cockpit tokens
-          (ct-bento-label / ct-metric-value / surface-card) rather than
-          introducing StatBand here, since this page's grammar is card-based,
-          not row-based. Every figure keeps its own provenance badge; nothing
-          not derivable from listVaults() is invented (RULE #0). */}
+          subscribe catalog. Capital raised vs remaining capacity is now a donut
+          (HcCompositionRing) rather than two bare numbers side by side — a
+          filled proportion reads "X of Y" far faster than two text tiles.
+          Every figure keeps its own provenance badge; nothing not derivable
+          from listVaults() is invented (RULE #0). */}
       <section
         aria-label="Bitcoin Strategic Reserve — mining production overview"
         className="rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden mb-5"
@@ -63,29 +64,36 @@ export default async function VaultsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-[var(--ct-border-soft)]">
-          <div className="flex flex-col gap-1.5 bg-surface-card px-5 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-px bg-[var(--ct-border-soft)]">
+          <div className="flex flex-col gap-3 bg-surface-card px-5 py-4">
             <div className="flex items-center gap-1.5">
-              <span className="ct-bento-label">Capital raised</span>
+              <span className="ct-bento-label">Capital deployed vs. capacity</span>
               {hasCapacitySignal ? <ProvenanceBadge kind="estimated" variant="compact" /> : null}
             </div>
             {hasCapacitySignal ? (
-              <span className="ct-metric-value">{formatUsdCompact(raisedUsdc)}</span>
+              <HcCompositionRing
+                aria-label="Capital raised versus remaining capacity across live products"
+                size={120}
+                bars
+                centerLabel="Raised"
+                centerValue={formatUsdCompact(raisedUsdc)}
+                segments={[
+                  { label: "Capital raised", value: raisedUsdc },
+                  {
+                    label: "Remaining capacity",
+                    value: Math.max(0, capacityUsdc - raisedUsdc),
+                  },
+                ]}
+              />
             ) : (
               <span className="ct-metric-value text-[var(--ct-text-muted)]">—</span>
             )}
-          </div>
-
-          <div className="flex flex-col gap-1.5 bg-surface-card px-5 py-4">
-            <div className="flex items-center gap-1.5">
-              <span className="ct-bento-label">Capacity</span>
-              {hasCapacitySignal ? <ProvenanceBadge kind="manual" variant="compact" /> : null}
-            </div>
             {hasCapacitySignal ? (
-              <span className="ct-metric-value">{formatUsdCompact(capacityUsdc)}</span>
-            ) : (
-              <span className="ct-metric-value text-[var(--ct-text-muted)]">—</span>
-            )}
+              <p className="body-xs text-[var(--ct-text-faint)] leading-relaxed">
+                {formatUsdCompact(raisedUsdc)} raised of {formatUsdCompact(capacityUsdc)} total
+                capacity across live products.
+              </p>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-1.5 bg-surface-card px-5 py-4">

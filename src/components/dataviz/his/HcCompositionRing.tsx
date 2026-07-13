@@ -25,6 +25,17 @@ import type { HcLabeledValue } from "./types";
 export interface HcCompositionRingProps {
   segments: readonly HcLabeledValue[];
   size?: number;
+  /**
+   * Convenience "single proportion" mode — pass a 0..1 fraction (e.g. 0.76 for
+   * "76% raised of target") and the ring renders one filled arc (the base track
+   * circle already reads as "remaining") instead of drawing from `segments`.
+   * When set, it takes precedence over `segments` for the arc (segments is
+   * still required by the type but can be `[]`). The filled arc's colour still
+   * follows `palette` (first ramp stop) — pick `categorical` for a BTC-amber
+   * fill. `showLegend` behaves exactly as in multi-segment mode (defaults to
+   * `true`; the legend row reads "Filled — NN%").
+   */
+  progress?: number;
   centerLabel?: string;
   centerValue?: string;
   /**
@@ -68,12 +79,25 @@ export function HcCompositionRing({
   bars = false,
   showLegend = true,
   palette = "accent",
+  progress,
   ...rest
 }: HcCompositionRingProps) {
   const ariaLabel = rest["aria-label"];
   const RAMP = palette === "categorical" ? CATEGORICAL_RAMP : ACCENT_RAMP;
 
-  const total = segments.reduce((sum, s) => sum + Math.max(0, s.value), 0);
+  // `progress` mode: synthesize a filled/remaining pair instead of using `segments`.
+  // Only engaged when the caller explicitly passes a finite `progress` — every
+  // existing caller (no `progress` prop) is byte-for-byte the original code path.
+  const isProgressMode = typeof progress === "number" && Number.isFinite(progress);
+  const clampedProgress = isProgressMode ? Math.max(0, Math.min(1, progress)) : 0;
+  // Only the FILLED arc is drawn — the track circle underneath already reads as
+  // "remaining", so a second colored arc would double-paint that space.
+  const effectiveSegments: readonly HcLabeledValue[] = isProgressMode
+    ? [{ label: "Filled", value: clampedProgress || 0.0001 }]
+    : segments;
+  // In progress mode the "share of total" math must stay against the FULL 0..1
+  // scale (not renormalize the single filled segment to 100%).
+  const total = isProgressMode ? 1 : effectiveSegments.reduce((sum, s) => sum + Math.max(0, s.value), 0);
   const cx = size / 2;
   const cy = size / 2;
   const r = 66;
@@ -107,8 +131,10 @@ export function HcCompositionRing({
           data-hc-ring="track"
         />
         {total > 0 &&
-          segments.map((s, i) => {
-            const fraction = Math.max(0, s.value) / total;
+          effectiveSegments.map((s, i) => {
+            const fraction = isProgressMode
+              ? clampedProgress
+              : Math.max(0, s.value) / total;
             const arc = fraction * circumference;
             const rotation = acc * 360 - 90; // start at 12 o'clock
             acc += fraction;
@@ -158,7 +184,7 @@ export function HcCompositionRing({
 
       {showLegend ? (
       <ul className={`flex flex-col gap-2${bars ? " min-w-0 flex-1" : ""}`}>
-        {segments.map((s, i) => {
+        {effectiveSegments.map((s, i) => {
           const pct = total > 0 ? (Math.max(0, s.value) / total) * 100 : 0;
           const color = RAMP[i % RAMP.length];
           return (

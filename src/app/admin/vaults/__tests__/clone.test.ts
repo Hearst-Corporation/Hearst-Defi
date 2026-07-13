@@ -74,6 +74,15 @@ function buildDeploymentRef(): VaultRef {
       deployedAt: null,
       pausedAt: null,
       closedAt: null,
+      institutionId: null,
+      fundraisingStage: "draft",
+      targetRaiseUsdc: null,
+      minRaiseUsdc: null,
+      openingDate: null,
+      closingDate: null,
+      distributionFrequency: null,
+      capitalTransferredAt: null,
+      miningActivatedAt: null,
     },
   };
 }

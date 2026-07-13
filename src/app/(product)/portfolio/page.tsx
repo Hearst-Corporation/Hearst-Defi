@@ -29,7 +29,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { HcBarChart, HcValueChart } from "@/components/dataviz/his";
+import {
+  HcBarChart,
+  HcChartCard,
+  HcCompositionRing,
+  HcValueChart,
+  type HcSourceStatus,
+} from "@/components/dataviz/his";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { getSession } from "@/lib/auth/session";
@@ -39,6 +45,7 @@ import { loadVaultRebalancings } from "@/lib/data/vault-rebalancings";
 import { isDemoAccount } from "@/lib/demo/allowlist";
 import { ZAND_FIXTURE_EMAIL } from "@/lib/demo/zand-fixture";
 import { formatBtc, formatHashrate } from "@/lib/format/btc";
+import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
 import {
   formatUsdDetailed,
@@ -366,6 +373,34 @@ export default async function PortfolioPage() {
       ]
     : null;
 
+  // ── Chart-driven presentation of the two figures above (same numbers, richer
+  // read) — a composition ring for cost-vs-price and a period-comparison bar
+  // chart for the fleet estimate. Both are pure re-derivations for display: no
+  // new numbers, no new provenance.
+  const economicsMarginPositive =
+    !!economics && economics.value.productionMarginPerBtcUsd >= 0;
+  const economicsRingSegments = economics
+    ? [
+        { label: "Cost to produce 1 BTC", value: Math.max(0, economics.value.costToProduce1BtcUsd) },
+        { label: "Production margin", value: Math.max(0, economics.value.productionMarginPerBtcUsd) },
+      ]
+    : [];
+  // Weaker of the two feeding sources (mirrors the `btcReserveUsdProvenance`
+  // pattern above) — the ring/metric never reads stronger than its inputs.
+  const economicsSource: HcSourceStatus | undefined = economics
+    ? btcPrice.provenance === "stale"
+      ? "estimated"
+      : (economics.provenance as HcSourceStatus)
+    : undefined;
+
+  const productionBars = fleetProduction
+    ? [
+        { label: "Day", value: fleetProduction.value.btcPerDay },
+        { label: "Month", value: fleetProduction.value.btcPerMonth },
+        { label: "Year", value: fleetProduction.value.btcPerYear },
+      ]
+    : [];
+
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="flex flex-col gap-y-8 p-5 lg:p-6">
@@ -466,17 +501,52 @@ export default async function PortfolioPage() {
 
         {/* ── Act: Mining Economics — the spec calls this one of the most
             important sections: it demonstrates mining's economic value vs
-            buying BTC outright (cost to produce vs market price). Honest
+            buying BTC outright (cost to produce vs market price). Rendered as
+            a chart-first panel (composition ring + headline margin) instead
+            of four flat text cells — the same figures, a richer read. Honest
             null-guard: no reference machine-cost basis available → an
             explicit empty state, never a fabricated figure. */}
         <TitledDivider
           title="Mining Economics"
           trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
         />
-        {miningEconomicsStats ? (
-          <div className={SUPPORT}>
-            <StatBand items={miningEconomicsStats} />
-          </div>
+        {miningEconomicsStats && economics && economicsSource ? (
+          <section className="grid grid-cols-1 @[54rem]:grid-cols-[1fr_1.1fr] gap-5">
+            <HcChartCard
+              title="Cost to produce vs. production margin"
+              subtitle="Fully-loaded cost to mine 1 BTC (energy + amortized CAPEX) set against today's production margin per BTC."
+              metric={`${economicsMarginPositive ? "+" : ""}${formatUsdFull(economics.value.productionMarginPerBtcUsd)}`}
+              metricCompact
+              delta={{
+                label: "Production margin / BTC",
+                tone: economicsMarginPositive ? "positive" : "negative",
+              }}
+              source={economicsSource}
+              height={200}
+              disclaimer="Estimated — a pure derivation from live BTC price and network hashrate over a reference machine cost basis, never a measurement of your own position."
+              aria-label="Cost to produce 1 BTC vs. production margin"
+            >
+              <div className="flex h-full items-center justify-center">
+                <HcCompositionRing
+                  segments={economicsRingSegments}
+                  size={176}
+                  centerLabel="Per BTC"
+                  centerValue={formatUsdCompact(btcPrice.value)}
+                  bars
+                  aria-label="Cost to produce vs. production margin, share of BTC price"
+                />
+              </div>
+            </HcChartCard>
+            <div className={SUPPORT}>
+              <StatBand
+                items={[
+                  miningEconomicsStats[1] as StatCell,
+                  miningEconomicsStats[0] as StatCell,
+                  miningEconomicsStats[3] as StatCell,
+                ]}
+              />
+            </div>
+          </section>
         ) : (
           <div className={SUPPORT}>
             <div className="p-5">
@@ -488,16 +558,29 @@ export default async function PortfolioPage() {
           </div>
         )}
 
-        {/* ── Act: Mining Production — fleet-level BTC production estimate.
-            Honest null-guard: no MiningMetric telemetry yet → empty state. */}
-        {fleetProductionStats ? (
-          <section className={SUPPORT}>
-            <CardHeader
-              title="Mining Production"
-              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+        {/* ── Act: Mining Production — fleet-level BTC production estimate,
+            read as a period-comparison bar chart (day/month/year, same
+            underlying rate) rather than two flat stat cells — makes the
+            compounding read visually instead of only in the numbers. Honest
+            null-guard: no MiningMetric telemetry yet → empty state. */}
+        {fleetProductionStats && fleetProduction ? (
+          <HcChartCard
+            title="Mining Production"
+            subtitle="Estimated fleet BTC production at current uptime and network hashrate, by period."
+            source={fleetProduction.provenance as HcSourceStatus}
+            height={220}
+            disclaimer="Estimated — fleet-level telemetry, never a per-investor measurement."
+            aria-label="Fleet BTC production by period"
+          >
+            <HcBarChart
+              bars={productionBars}
+              height={220}
+              valueFormat={(v) => formatBtc(v, { unit: true })}
+              highlightLast={false}
+              emptyMessage="No production data yet"
+              aria-label="Estimated BTC production — day, month, year"
             />
-            <StatBand items={fleetProductionStats} />
-          </section>
+          </HcChartCard>
         ) : null}
 
         {/* S1 — HERO: the one dominant band (glow + console header + NAV chart + stat band) */}

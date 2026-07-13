@@ -35,8 +35,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
+import { HcBarChart } from "@/components/dataviz/his/HcBarChart";
 import { loadPortfolio, type PortfolioTransaction } from "@/lib/data/portfolio";
-import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
+import {
+  formatAdminDate,
+  formatAdminMonthDay,
+  formatUsdDetailed,
+} from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
 
@@ -78,6 +83,22 @@ export default async function TransactionsPage() {
     ? resolveProvenance(source, updatedAt)
     : undefined;
 
+  // Amount-trend context bar — chronological (oldest → newest) so the shape
+  // reads as a trend rather than a "most recent first" reversal. Signed
+  // in/out is preserved via each bar's tooltip; the visible set is the same
+  // capped feed the table renders (no separate/uncapped query — RULE #0).
+  const trendBars = hasTransactions
+    ? [...recentTransactions]
+        .sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime())
+        .map((tx) => ({
+          label: formatAdminMonthDay(tx.occurredAt),
+          value: tx.amountUsdc,
+          tooltip: `${flowSign(tx.type) === "out" ? "−" : "+"}${formatUsdDetailed(tx.amountUsdc)} · ${
+            TYPE_LABELS[tx.type] ?? tx.type
+          }`,
+        }))
+    : [];
+
   return (
     <div className="dark flex flex-col gap-y-8 p-5 lg:p-6">
       <PortfolioLeafHeader
@@ -85,6 +106,32 @@ export default async function TransactionsPage() {
         titleAccent="Transactions"
         kicker="LEDGER"
       />
+
+      {hasTransactions ? (
+        <section
+          className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden p-5"
+          aria-label="Transaction amount trend"
+        >
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex min-w-0 flex-col gap-1">
+              <h2 className="ct-section-title">Amount trend</h2>
+              <p className="ct-metric-caption">
+                Transaction size across your most recent activity
+              </p>
+            </div>
+            {provenance ? (
+              <ProvenanceBadge kind={provenance} variant="compact" />
+            ) : null}
+          </div>
+          <HcBarChart
+            aria-label="Transaction amounts across recent activity, oldest to newest"
+            bars={trendBars}
+            height={160}
+            highlightLast
+            yTicks={3}
+          />
+        </section>
+      ) : null}
 
       <section
         className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"

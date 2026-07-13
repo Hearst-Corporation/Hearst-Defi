@@ -25,6 +25,9 @@ import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { DistribCalendar } from "@/components/portfolio/distrib-calendar";
 import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
+import { HcMetricSparkline } from "@/components/dataviz/his/HcMetricSparkline";
+import { cn } from "@/lib/cn";
 import {
   loadDistribCalendarProps,
   loadInvestorDistributions,
@@ -99,18 +102,26 @@ export default async function RewardsPage() {
       provenance: hasDistributions ? "attested" : "stale",
     },
     {
-      label: "Lifetime BTC Earned",
-      value: formatBtc(lifetimeDistributedBtc),
-      affix: "BTC",
-      provenance: "estimated",
-      valueTone: "btc",
-    },
-    {
       label: "Current Month",
       value: formatUsdFull(currentMonthUsdc),
       provenance: currentMonthUsdc > 0 ? "attested" : "stale",
     },
   ];
+
+  // Cumulative BTC-equivalent trend — a purely presentational derivation of
+  // the already-loaded `distributions` array (no new loader, no fabricated
+  // points): sort the ledger chronologically and running-sum the per-row BTC
+  // conversion (today's spot price, same as every other BTC figure on this
+  // page). One point per distribution row — honest, not a synthetic daily
+  // series.
+  const chronological = [...distributions].sort(
+    (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
+  );
+  let running = 0;
+  const cumulativeBtcSeries = chronological.map((d) => {
+    running += usdToBtc(d.amountUsdc, btcPrice.value);
+    return running;
+  });
 
   return (
     <div className="dark flex flex-col gap-y-8 p-5 lg:p-6">
@@ -120,9 +131,32 @@ export default async function RewardsPage() {
         kicker="MONTHLY DISTRIBUTIONS"
       />
 
-      {/* ── KPI row ─────────────────────────────────────────────────────── */}
-      <div className={SUPPORT}>
-        <StatBand items={kpiStats} />
+      {/* ── KPI row + Lifetime BTC trend panel ───────────────────────────── */}
+      <div className="grid grid-cols-1 gap-4 @container lg:grid-cols-[1.4fr_1fr]">
+        <div className={cn(SUPPORT, "@container")}>
+          <StatBand items={kpiStats} />
+        </div>
+
+        <HcChartCard
+          title="Lifetime BTC Earned"
+          subtitle="Cumulative BTC-equivalent of every distribution, at today's spot price"
+          metric={formatBtc(lifetimeDistributedBtc, { unit: true })}
+          metricCompact
+          source="estimated"
+          state={cumulativeBtcSeries.length >= 2 ? "ready" : "empty"}
+          height={96}
+          compact
+          disclaimer="Derived from paid USDC distributions ÷ today's BTC price — not a historical on-chain BTC payout."
+          aria-label="Lifetime BTC earned — cumulative trend"
+        >
+          <HcMetricSparkline
+            values={cumulativeBtcSeries}
+            tone="warning"
+            area
+            responsive
+            aria-label="Cumulative BTC-equivalent earned across all distributions"
+          />
+        </HcChartCard>
       </div>
 
       {/* ── Distribution calendar — reused verbatim from /portfolio ──────── */}
@@ -133,6 +167,15 @@ export default async function RewardsPage() {
         <div className="flex items-center gap-4 pt-2">
           <h2 className="ct-section-title shrink-0">Distribution history</h2>
           <span aria-hidden="true" className="h-px flex-1" style={{ background: "var(--ct-border-soft)" }} />
+          {hasDistributions && (
+            <span className="ct-metric-caption shrink-0 tabular-nums">
+              {distributions.length} payout{distributions.length === 1 ? "" : "s"}
+              {" · "}
+              {DISTRIB_DATE.format(chronological[0]!.occurredAt)}
+              {" – "}
+              {DISTRIB_DATE.format(chronological[chronological.length - 1]!.occurredAt)}
+            </span>
+          )}
         </div>
 
         {hasDistributions ? (

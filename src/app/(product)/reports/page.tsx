@@ -13,6 +13,8 @@
 // Server Component — gated by the (product) layout (session required).
 
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { FileText, FileCheck2, Pickaxe, LineChart, CalendarDays, CalendarRange, CalendarClock } from "lucide-react";
 
 import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
@@ -27,6 +29,7 @@ export const metadata = { title: "Reports — Hearst Connect" };
 interface ReportCardBase {
   title: string;
   description: string;
+  icon: LucideIcon;
 }
 
 interface ReportCardLive extends ReportCardBase {
@@ -42,10 +45,25 @@ interface ReportCardSoon extends ReportCardBase {
 type ReportCard = ReportCardLive | ReportCardSoon;
 
 function ReportCardTile({ card }: { card: ReportCard }) {
+  const Icon = card.icon;
+
   const body = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <h3 className="ct-bento-card-title">{card.title}</h3>
+        <div className="flex items-center gap-3 min-w-0">
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+            style={{
+              background: "var(--ct-surface-inset)",
+              borderColor: "var(--ct-border-soft)",
+              color: card.status === "live" ? "var(--ct-accent)" : "var(--ct-text-faint)",
+            }}
+          >
+            <Icon className="h-5 w-5" strokeWidth={1.75} />
+          </span>
+          <h3 className="ct-bento-card-title truncate">{card.title}</h3>
+        </div>
         <ProvenanceBadge
           kind={card.status === "live" ? "live" : "estimated"}
           compact
@@ -73,7 +91,7 @@ function ReportCardTile({ card }: { card: ReportCard }) {
     return (
       <Link
         href={card.href}
-        className="group flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-card p-5 shadow-[var(--ct-shadow-soft)] transition-colors hover:border-[var(--ct-border-strong)]"
+        className="group flex flex-col gap-3 rounded-2xl border border-[var(--ct-border)] bg-surface-card p-6 shadow-[var(--ct-shadow-soft)] transition-colors hover:border-[var(--ct-border-strong)]"
       >
         {body}
       </Link>
@@ -83,7 +101,7 @@ function ReportCardTile({ card }: { card: ReportCard }) {
   return (
     <div
       aria-disabled="true"
-      className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border-soft)] bg-surface-card p-5 opacity-[var(--ct-opacity-60)]"
+      className="flex flex-col gap-3 rounded-2xl border border-[var(--ct-border-soft)] bg-surface-card p-6 opacity-[var(--ct-opacity-60)]"
     >
       {body}
     </div>
@@ -101,6 +119,7 @@ export default async function ReportsPage() {
           "Portfolio summary, positions, P&L and year-to-date distributions in a single PDF.",
         href: `/api/statements/${investor.id}/pdf`,
         cta: "Download PDF",
+        icon: FileCheck2,
       }
     : {
         status: "live",
@@ -108,6 +127,7 @@ export default async function ReportsPage() {
         description: "Available from your Portfolio once you have an active position.",
         href: "/portfolio",
         cta: "Go to Portfolio",
+        icon: FileCheck2,
       };
 
   const cards: ReportCard[] = [
@@ -117,6 +137,7 @@ export default async function ReportsPage() {
       description: "1099-INT, 1099-B and CRS year-to-date preview.",
       href: "/portfolio/tax",
       cta: "View preview",
+      icon: FileText,
     },
     statementCard,
     {
@@ -124,27 +145,32 @@ export default async function ReportsPage() {
       title: "Mining Report",
       description:
         "Hashrate allocation, production and mining-pool health for the vault's underlying operation.",
+      icon: Pickaxe,
     },
     {
       status: "coming-soon",
       title: "Performance Report",
       description:
         "Realized vs. target APY, benchmark comparison and attribution across the holding period.",
+      icon: LineChart,
     },
     {
       status: "coming-soon",
       title: "Monthly Report",
       description: "Rolling monthly summary of yield accrual and distributions.",
+      icon: CalendarDays,
     },
     {
       status: "coming-soon",
       title: "Quarterly Report",
       description: "Quarterly performance and portfolio composition summary.",
+      icon: CalendarRange,
     },
     {
       status: "coming-soon",
       title: "Annual Report",
       description: "Full-year statement covering performance, distributions and tax summary.",
+      icon: CalendarClock,
     },
   ];
 

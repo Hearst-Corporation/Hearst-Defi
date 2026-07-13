@@ -61,6 +61,15 @@ function makeDeployment(
     closedAt: null,
     createdBy: "admin",
     seededFromStudyId: null,
+    institutionId: null,
+    fundraisingStage: "draft",
+    targetRaiseUsdc: null,
+    minRaiseUsdc: null,
+    openingDate: null,
+    closingDate: null,
+    distributionFrequency: null,
+    capitalTransferredAt: null,
+    miningActivatedAt: null,
     ...overrides,
   };
 }

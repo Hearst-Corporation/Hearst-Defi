@@ -3358,6 +3358,30 @@ pre.ct-surface-1.rounded-md {
   box-shadow: none;
 }
 
+/* ── HERO GLOW UTILITIES — large chart-panel hero treatment ──────────────────
+   Extraction of the ambient-glow hero recipe duplicated inline across
+   portfolio/page.tsx, portfolio/[positionId]/page.tsx and portfolio/preview
+   (identical `HERO_SHADOW` + radial-accent-glow div in all three). Additive
+   only — existing pages keep their inline styles untouched; new large-panel
+   heroes (bitcoin-reserve / mining / vaults / rewards / transactions / reports)
+   can opt in with these two classes instead of re-pasting the inline pattern.
+   Token-only, no new hex: reuses --ct-shadow-depth + --ct-glass-bevel-subtle
+   (same recipe as HcChartCard's size="large" boxShadow) and --ct-accent. */
+.ct-hero-panel {
+  box-shadow: var(--ct-shadow-depth), var(--ct-glass-bevel-subtle);
+}
+
+.ct-hero-glow {
+  pointer-events: none;
+  position: absolute;
+  top: -6rem;
+  left: 25%;
+  height: 16rem;
+  width: min(680px, 80%);
+  opacity: 0.07;
+  background: radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%);
+}
+
 /* ── ANTI CAGE-IN-CAGE — Proof Center modules ────────────────────────────────
    Sur /admin/proof-center chaque module est DÉJÀ un .dashboard-cockpit-panel ;
    les composants (RecentDistributions, RebalancingEventsPanel, MiningCashFlow,

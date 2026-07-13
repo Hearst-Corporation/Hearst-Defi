@@ -4,12 +4,21 @@
   "corpusSize": 1286,
   "positiveCorpusSize": 1264,
   "negativeCorpusSize": 22,
-  "positiveMatches": 1264,
-  "matchRatePct": 100,
+  "positiveMatches": 1232,
+  "matchRatePct": 97.47,
   "falsePositives": 0,
   "falsePositivesSensitive": 0,
   "falsePositivesBenign": 0,
-  "falseNegatives": 0,
+  "falseNegatives": 32,
   "determinismBreaks": 0,
-  "sampleFailures": []
+  "sampleFailures": [
+    "[FN admin] \"ouvre agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"va sur agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"montre-moi agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"go to agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"show agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"affiche agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"open agents\" expected non-null (src=admin-agents) got=null",
+    "[FN admin] \"take me to agents\" expected non-null (src=admin-agents) got=null"
+  ]
 }

@@ -245,6 +245,15 @@ describe("loadDashboardForRef — deployment ref", () => {
     closedAt: null,
     createdBy: "admin",
     seededFromStudyId: null,
+    institutionId: null,
+    fundraisingStage: "draft",
+    targetRaiseUsdc: null,
+    minRaiseUsdc: null,
+    openingDate: null,
+    closingDate: null,
+    distributionFrequency: null,
+    capitalTransferredAt: null,
+    miningActivatedAt: null,
   };
 
   it("does not throw for a live deployment ref", async () => {

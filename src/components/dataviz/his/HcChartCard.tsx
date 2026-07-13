@@ -36,6 +36,12 @@ export interface HcChartCardProps {
   /** Plot height in px. */
   height?: number;
   compact?: boolean;
+  /**
+   * `default` (unchanged) or `large` — a flagship-panel variant for hero placements
+   * (e.g. one big chart per screen instead of a grid of small ones). Scales up the
+   * headline metric font and the card padding; everything else is identical.
+   */
+  size?: "default" | "large";
   children: ReactNode;
   "aria-label": string;
 }
@@ -58,9 +64,11 @@ export function HcChartCard({
   actions,
   height = 240,
   compact = false,
+  size = "default",
   children,
   ...rest
 }: HcChartCardProps) {
+  const isLarge = size === "large";
   const ariaLabel = rest["aria-label"];
 
   return (
@@ -76,7 +84,11 @@ export function HcChartCard({
         border: "1px solid var(--ct-border)",
         borderRadius: "var(--ct-radius-xl)",
         boxShadow: "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)",
-        padding: compact ? "var(--ct-space-3_5)" : "var(--ct-space-5)",
+        padding: compact
+          ? "var(--ct-space-3_5)"
+          : isLarge
+            ? "var(--ct-space-6)"
+            : "var(--ct-space-5)",
       }}
     >
       <header className="flex items-start justify-between gap-3">
@@ -122,7 +134,9 @@ export function HcChartCard({
               style={{
                 fontSize: metricCompact
                   ? "var(--ct-text-xl)"
-                  : "var(--ct-text-display-fixed)",
+                  : isLarge
+                    ? "var(--ct-text-hero)"
+                    : "var(--ct-text-display-fixed)",
                 fontWeight: 800,
                 fontVariantNumeric: "tabular-nums",
                 letterSpacing: "-0.02em",
@@ -184,7 +198,11 @@ function HcEmptySurface() {
     <div
       data-hc-empty="true"
       className="flex h-full w-full items-center justify-center"
-      style={{ borderRadius: "var(--ct-radius-md)", border: "1px dashed var(--ct-border)" }}
+      style={{
+        borderRadius: "var(--ct-radius-md)",
+        border: "1px dashed var(--ct-border)",
+        background: "var(--ct-surface-inset)",
+      }}
     >
       <span
         style={{
@@ -206,6 +224,7 @@ function HcFallbackVeil() {
       aria-hidden="true"
       data-hc-fallback-veil="true"
       className="pointer-events-none absolute inset-0 h-full w-full"
+      style={{ borderRadius: "var(--ct-radius-md)" }}
     >
       <defs>
         <pattern
@@ -226,7 +245,22 @@ function HcFallbackVeil() {
           />
         </pattern>
       </defs>
+      {/* faint base wash so the veil reads as a deliberate surface (not a thin
+          overlay of stray lines) even over large hero-sized plot areas. */}
+      <rect
+        width="100%"
+        height="100%"
+        fill="var(--ct-chart-mock)"
+        opacity="0.04"
+      />
       <rect width="100%" height="100%" fill="url(#hc-hatch)" />
+      <rect
+        width="100%"
+        height="100%"
+        fill="none"
+        stroke="var(--ct-border)"
+        strokeWidth="1"
+      />
     </svg>
   );
 }

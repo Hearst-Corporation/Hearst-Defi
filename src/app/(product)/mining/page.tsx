@@ -26,6 +26,8 @@ import {
 } from "@/components/catalyst/table";
 import { ManufacturerLogo } from "@/components/admin/source/manufacturer-mark";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
+import { HcBarChart, type HcBar } from "@/components/dataviz/his/HcBarChart";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { loadBitcoinReserveView } from "@/lib/data/bitcoin-reserve-view";
 import { loadMiningMetrics } from "@/lib/data/mining-metrics";
@@ -99,14 +101,31 @@ export default async function MiningOperationsPage() {
       provenance: fleetProduction ? fleetProduction.provenance : "estimated",
       valueTone: "btc",
     },
-    {
-      label: "BTC Produced This Month",
-      value: fleetProduction ? formatBtc(fleetProduction.value.btcPerMonth) : "—",
-      affix: fleetProduction ? "BTC" : undefined,
-      provenance: fleetProduction ? fleetProduction.provenance : "estimated",
-      valueTone: "btc",
-    },
   ];
+
+  // Real monthly cbBTC production series (oldest → newest) — the ONE genuine
+  // trend this loader exposes (vs. the other KPIs, which are latest-snapshot
+  // scalars). Becomes the headline chart for the Overview act instead of a
+  // fourth flat StatBand cell. The most recent (not-yet-closed) month is
+  // still included but never highlighted as "latest" — `highlightLast` only
+  // brightens a bar visually, it never upgrades the estimated/not-closed
+  // status carried by the ProvenanceBadge above the chart.
+  const productionBars: HcBar[] = miningMetrics
+    ? miningMetrics.production.map((d) => ({
+        label: d.label,
+        value: d.btc,
+        tooltip: `${formatBtc(d.btc)} BTC${d.estimated ? " (est. · not yet closed)" : ""}`,
+      }))
+    : [];
+
+  // Headline metric paired with the chart title (HcChartCard shows one
+  // number, not four) — the latest month's production, same series as the
+  // bars. "This Month" is intentionally NOT duplicated as its own StatBand
+  // cell below; it is now the chart's headline instead.
+  const latestMonthBtc =
+    miningMetrics && miningMetrics.production.length > 0
+      ? miningMetrics.production[miningMetrics.production.length - 1]!.btc
+      : null;
 
   // Per-unit production rate for the reference table — derived from the SAME
   // pure formula bitcoin-reserve-view.ts already uses (block-reward share at
@@ -114,6 +133,21 @@ export default async function MiningOperationsPage() {
   // when network hashrate is unavailable rather than showing a false 0.
   const btcPerThDay =
     networkHashrateThs.value > 0 ? computeBtcPerThDay(networkHashrateThs.value) : 0;
+
+  // Efficiency spread — the 5 most efficient catalog models (lowest J/TH,
+  // lower is better), read straight off the SAME rows the table below
+  // renders (no new data source). Gives the reader a visual sense of the
+  // spread before the dense per-row table. Rows with an unknown J/TH are
+  // excluded rather than plotted as a false 0.
+  const efficiencyBars: HcBar[] = [...machineMarket.rows]
+    .filter((r): r is MachineRow & { efficiencyJTh: number } => r.efficiencyJTh !== null)
+    .sort((a, b) => a.efficiencyJTh - b.efficiencyJTh)
+    .slice(0, 5)
+    .map((r) => ({
+      label: r.model,
+      value: r.efficiencyJTh,
+      tooltip: `${r.efficiencyJTh.toFixed(1)} J/TH`,
+    }));
 
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
@@ -135,6 +169,29 @@ export default async function MiningOperationsPage() {
             />
           }
         />
+        <HcChartCard
+          title="cbBTC produced · by month"
+          subtitle="This investor's allocated share of fleet-wide production, oldest → newest."
+          metric={latestMonthBtc !== null ? `${formatBtc(latestMonthBtc)} BTC` : "—"}
+          delta={
+            latestMonthBtc !== null && miningMetrics?.production.at(-1)?.estimated
+              ? { label: "not yet closed", tone: "neutral" }
+              : undefined
+          }
+          source="estimated"
+          state={productionBars.length > 0 ? "ready" : "empty"}
+          height={190}
+          aria-label="cbBTC produced by month, latest month as headline figure"
+        >
+          <HcBarChart
+            bars={productionBars}
+            height={190}
+            valueFormat={(v) => formatBtc(v)}
+            highlightLast
+            emptyMessage="No production history yet"
+            aria-label="cbBTC produced by month"
+          />
+        </HcChartCard>
         <div className={SUPPORT}>
           <StatBand items={overviewStats} />
         </div>
@@ -230,6 +287,18 @@ export default async function MiningOperationsPage() {
               profile, not a live inventory of the operation&apos;s owned units.
             </p>
           </div>
+          {efficiencyBars.length > 0 && (
+            <div className="border-b border-[var(--ct-border-soft)] p-5">
+              <p className="ct-bento-label pb-3">Most efficient models · J/TH (lower is better)</p>
+              <HcBarChart
+                bars={efficiencyBars}
+                height={170}
+                valueFormat={(v) => `${v.toFixed(0)} J/TH`}
+                yTicks={3}
+                aria-label="Most efficient catalog models, joules per terahash"
+              />
+            </div>
+          )}
           {machineMarket.rows.length > 0 ? (
             <ReferenceFleetTable rows={machineMarket.rows} btcPerThDay={btcPerThDay} />
           ) : (
