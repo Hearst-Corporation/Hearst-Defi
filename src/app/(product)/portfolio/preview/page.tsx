@@ -27,18 +27,14 @@ import { HcBullet } from "./_charts/bullet";
 import { ExitPaths } from "./_charts/exit-paths";
 import { HcHonestFan } from "./_charts/honest-fan";
 import { HcMeter } from "./_charts/meter";
-import { MonteCarloPanel } from "./_charts/monte-carlo-panel";
 import { PocketCards } from "./_charts/pocket-cards";
 import { HcProductionBars } from "./_charts/production-bars";
-import { PREVIEW_REBALANCING_EVENTS, RebalancingFeed } from "./_charts/rebalancing-feed";
 import { HcRiskDimensions } from "./_charts/risk-dimensions";
 import { StatBand } from "./_charts/stat-band";
 import { HcUptimeBand, orderedUptime } from "./_charts/uptime-band";
 import { ASSET_COLOR, HEARST_WORDMARK, POCKET_ASSET } from "./_data/brand";
-import { runVaultMonteCarlo } from "./_data/monte-carlo-preview";
 import {
   ACCESS,
-  BTC_PRICE_USD,
   EFFICIENCY,
   EXIT_PATHS,
   HEALTH,
@@ -57,7 +53,6 @@ import {
   UPTIME_SEGMENTS,
   VALUE_POINTS,
   VAULT,
-  VAULT_TERM,
 } from "./_data/mock";
 
 export const metadata = {
@@ -89,10 +84,10 @@ function TitledDivider({ title, trailing }: { title: string; trailing?: ReactNod
   );
 }
 
-function CardHeader({ title, trailing }: { title: ReactNode; trailing?: ReactNode }) {
+function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
-      <span className="ct-bento-label inline-flex min-w-0 items-center gap-2">{title}</span>
+      <span className="ct-bento-label">{title}</span>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
     </div>
   );
@@ -108,8 +103,6 @@ export default function PortfolioPreviewPage() {
   }));
   const onlinePct = UPTIME_SEGMENTS.find((s) => s.cause === "online")?.pct ?? 0;
   const uptimeCauses = orderedUptime(UPTIME_SEGMENTS).filter((s) => s.cause !== "online");
-  // Pure + deterministic (seed 20260709 / 5000 paths / 36 months). Safe to run in the server component.
-  const mc = runVaultMonteCarlo();
 
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
@@ -168,8 +161,6 @@ export default function PortfolioPreviewPage() {
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <MetaChip label="Your hashrate" value={VAULT.allocatedHashrate} />
                   <MetaChip label="Take-profit" value={`${VAULT.takeProfitProgressPct}% → +24%`} />
-                  <MetaChip label="Term" value={`up to ${VAULT_TERM.maxMonths} months`} />
-                  <MetaChip label="Soft lock-up" value={`${VAULT_TERM.softLockupDays} days`} />
                 </div>
               </div>
               {/* Position status — NOT a Live value, so no green + no heartbeat pulse
@@ -191,37 +182,6 @@ export default function PortfolioPreviewPage() {
             </div>
             <div className="mt-4 border-t border-[var(--ct-border-soft)]">
               <StatBand items={HERO_STATS} />
-            </div>
-            {/* Primary action of the screen — Invest (large, accent-filled) dominates; Withdraw is
-                a real, honest disabled control (forthcoming), never a fake flow. */}
-            <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4 border-t border-[var(--ct-border-soft)] p-5 lg:p-6">
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <span className="ct-bento-label">Ready to allocate</span>
-                <span className="text-[length:var(--ct-text-nano)] ct-text-muted leading-snug">
-                  Qualified · KYC-gated · $250k minimum ticket
-                </span>
-              </div>
-              <div className="flex flex-wrap items-start gap-3">
-                <div className="flex flex-col gap-1">
-                  <button
-                    type="button"
-                    disabled
-                    className="ct-focus-ring inline-flex cursor-not-allowed items-center justify-center rounded-xl border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-5 py-2.5 text-[length:var(--ct-text-sm)] font-semibold ct-text-muted opacity-60"
-                  >
-                    Withdraw
-                  </button>
-                  <span className="max-w-[13rem] text-[length:var(--ct-text-nano)] ct-text-faint leading-snug">
-                    Forthcoming · after the 60-day soft lock-up
-                  </span>
-                </div>
-                <Link
-                  href="/vaults"
-                  className="ct-focus-ring inline-flex items-center justify-center rounded-xl px-8 py-3.5 text-[length:var(--ct-text-base)] font-bold shadow-[var(--ct-shadow-soft)] transition-[filter] duration-150 hover:brightness-[1.04]"
-                  style={{ background: "var(--ct-accent)", color: "var(--ct-bg-deep)" }}
-                >
-                  Invest
-                </Link>
-              </div>
             </div>
           </div>
         </section>
@@ -273,20 +233,9 @@ export default function PortfolioPreviewPage() {
         <TitledDivider title="Mining engine · your allocated power" />
         <section className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5">
           <div className={SUPPORT}>
-            <CardHeader
-              title={
-                <>
-                  <AssetBadge asset="bitcoin" size={16} />
-                  cbBTC produced · daily conversion
-                </>
-              }
-              trailing={<ProvenanceBadge kind="simulated" variant="compact" />}
-            />
+            <CardHeader title="cbBTC produced · daily conversion" trailing={<ProvenanceBadge kind="simulated" variant="compact" />} />
             <div className="flex flex-col gap-4 p-5">
-              <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                Your allocated power · {VAULT.allocatedHashrate} · cbBTC produced by your hashrate share. Units Estimated.
-              </span>
-              <HcProductionBars data={PRODUCTION} height={190} btcPriceUsd={BTC_PRICE_USD} aria-label="cbBTC produced monthly" />
+              <HcProductionBars data={PRODUCTION} height={190} aria-label="cbBTC produced monthly" />
               {/* Operational health — availability + efficiency, one aligned spec-sheet.
                   Both bars are the middle cell of the SAME 3-col grid template → identical x/width. */}
               <div className="flex flex-col gap-3 border-t border-[var(--ct-border-soft)] pt-4">
@@ -396,14 +345,6 @@ export default function PortfolioPreviewPage() {
           <div className="border-t border-[var(--ct-border-soft)] p-5">
             <AdvisoryFeed signals={SIGNALS} />
           </div>
-          {/* Vault-LEVEL rebalancing ledger (bucket pictograms) — complements the agent signals above. */}
-          <div className="border-t border-[var(--ct-border-soft)] px-5 pb-1 pt-4">
-            <span className="ct-bento-label">Vault-level actions</span>
-            <p className="ct-metric-caption pt-1 text-[length:var(--ct-text-nano)] leading-snug">
-              Deterministic rebalancing ledger with USDC / BTC / Hearst bucket pictograms.
-            </p>
-          </div>
-          <RebalancingFeed events={PREVIEW_REBALANCING_EVENTS} provenance="simulated" />
         </div>
 
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
@@ -411,35 +352,15 @@ export default function PortfolioPreviewPage() {
             <CardHeader title="Exit paths" trailing={<ProvenanceBadge kind="manual" variant="compact" />} />
             <ExitPaths paths={EXIT_PATHS} />
           </div>
-          <HcChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · 36-month horizon · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">
-            <HcHonestFan
-              bands={PROJECTION}
-              unit="%"
-              seedLabel="hyv-v4-2026-06"
-              height={180}
-              baseUsd={VAULT.depositUsdc}
-              aria-label="Projection fan"
-            />
+          <HcChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">
+            <HcHonestFan bands={PROJECTION} unit="%" seedLabel="hyv-v4-2026-06" height={180} aria-label="Projection fan" />
           </HcChartCard>
         </section>
-
-        {/* ── Act: Monte Carlo ──────────────────────────────────────────────── */}
-        <TitledDivider title="Monte Carlo · 36-month outlook" trailing={<ProvenanceBadge kind="simulated" variant="compact" />} />
-        <div className={SUPPORT}>
-          <div className="@container flex flex-col gap-4 p-5">
-            <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-              How likely the strategy stays safe / creates value over the term — estimated, not a forecast.
-            </p>
-            <MonteCarloPanel result={mc} />
-          </div>
-        </div>
 
         {/* single global disclaimer */}
         <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
           Sandbox · mock/estimated data (only hashprice would be Live) · per-client vault, KYC-gated B2B / qualified ·
-          capital best-effort, never guaranteed · deterministic Chainlink advisory recommends a review, never executes ·
-          Monte Carlo outcomes are estimated / simulated, not a forecast · Withdraw is forthcoming, available after the
-          60-day soft lock-up.
+          capital best-effort, never guaranteed · deterministic Chainlink advisory recommends a review, never executes.
         </p>
       </div>
     </div>

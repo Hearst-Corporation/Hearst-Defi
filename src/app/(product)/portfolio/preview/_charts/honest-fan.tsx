@@ -1,4 +1,3 @@
-"use client";
 /**
  * HcHonestFan — projection fan done honestly (the fix the shipped HcFanChart still needs).
  *
@@ -6,13 +5,7 @@
  * fading with horizon so far-out uncertainty visibly dissolves. The median p50 is drawn MUTED
  * and dashed — NEVER accent green (green-as-guaranteed is forbidden). Reserve accent for
  * realized history only. Footer stamps the seed + "not guaranteed". Pure SVG, token-only.
- *
- * Hover reveals the value at the hovered horizon: a subtle vertical guide snaps to the nearest
- * band and a token-only tooltip surfaces the horizon, the median p50 and the p25–p75 range —
- * all muted (the median stays muted here too, never green-as-guaranteed). When the unit is "%"
- * and a base amount is provided, the median is also expressed as a USDC-equivalent estimate.
  */
-import { useState, type PointerEvent } from "react";
 import { extent, project, polyline, pathD, type PlotBox } from "@/components/dataviz/his";
 import type { HcPoint } from "@/components/dataviz/his";
 
@@ -32,13 +25,6 @@ export interface HcHonestFanProps {
   height?: number;
   unit?: string;
   seedLabel?: string;
-  /**
-   * Optional base amount (deposit). When set AND `unit === "%"`, the hover tooltip also
-   * shows a USDC-equivalent of the median: base × (1 + p50/100), rounded, thousands-separated.
-   */
-  baseUsd?: number;
-  /** Optional label for a horizon index (e.g. `(m) => "Month " + m`). Defaults to `"month " + m`. */
-  monthLabel?: (m: number) => string;
   "aria-label": string;
 }
 
@@ -48,12 +34,9 @@ export function HcHonestFan({
   height = 180,
   unit = "%",
   seedLabel,
-  baseUsd,
-  monthLabel,
   ...rest
 }: HcHonestFanProps) {
   const ariaLabel = rest["aria-label"];
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
   if (bands.length < 2) {
     return (
@@ -99,47 +82,6 @@ export function HcHonestFan({
   // Left gutter (as a % of width) matching where the gridlines start, so HTML labels sit just
   // inside it and scale with the container — no SVG <text> (which distorts under aspect="none").
   const leftGutterPct = (box.padX / width) * 100;
-
-  // ── Hover: snap to the nearest band by horizon (x), independent of vertical position ─────
-  const unitLabel = unit === "%" ? "%" : ` ${unit}`;
-  const fmt = (v: number): string => `${v.toFixed(1)}${unitLabel}`;
-
-  const handlePointer = (e: PointerEvent<HTMLDivElement>): void => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (rect.width === 0) return;
-    const px = ((e.clientX - rect.left) / rect.width) * width;
-    let best = Infinity;
-    let idx = 0;
-    bands.forEach((b, i) => {
-      const d = Math.abs(proj(b.m, b.p50).x - px);
-      if (d < best) {
-        best = d;
-        idx = i;
-      }
-    });
-    setActiveIdx(idx);
-  };
-
-  const active = activeIdx != null ? bands[activeIdx] : undefined;
-  const guideX = active ? proj(active.m, active.p50).x : 0;
-  const activeFracPct = active ? (guideX / width) * 100 : 0;
-  const activeDot = active ? proj(active.m, active.p50) : null;
-  const horizonLabel = active
-    ? monthLabel
-      ? monthLabel(active.m)
-      : `Month ${active.m}`
-    : "";
-  const usdEquiv =
-    active && unit === "%" && typeof baseUsd === "number"
-      ? `≈ $${Math.round(baseUsd * (1 + active.p50 / 100)).toLocaleString("en-US")} USDC est.`
-      : null;
-  // Anchor the tooltip so it never spills past the plot edges.
-  const tooltipAnchor =
-    activeFracPct < 22
-      ? "translateX(0)"
-      : activeFracPct > 78
-        ? "translateX(-100%)"
-        : "translateX(-50%)";
 
   return (
     <div role="img" aria-label={ariaLabel} className="relative w-full" style={{ height }}>
@@ -202,30 +144,6 @@ export function HcHonestFan({
           vectorEffect="non-scaling-stroke"
           data-hc-line="p50"
         />
-
-        {/* hover guide + median marker at the snapped horizon (muted, never green) */}
-        {active && activeDot ? (
-          <g data-hc-guide="true">
-            <line
-              x1={guideX}
-              y1={box.padY}
-              x2={guideX}
-              y2={height - box.padY}
-              stroke="var(--ct-text-muted)"
-              strokeWidth={1}
-              strokeDasharray="2 3"
-              opacity="0.55"
-              vectorEffect="non-scaling-stroke"
-            />
-            <circle
-              cx={activeDot.x}
-              cy={activeDot.y}
-              r={3}
-              fill="var(--ct-text-body)"
-              vectorEffect="non-scaling-stroke"
-            />
-          </g>
-        ) : null}
       </svg>
 
       {/* crisp HTML axis labels (never distorted) */}
@@ -249,56 +167,6 @@ export function HcHonestFan({
       >
         {seedLabel ? `seed: ${seedLabel} · ` : ""}p5/p25/p50/p75/p95 · not guaranteed
       </span>
-
-      {/* pointer capture layer (transparent) — mouse + touch */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ touchAction: "none", cursor: "crosshair" }}
-        onPointerMove={handlePointer}
-        onPointerDown={handlePointer}
-        onPointerLeave={() => setActiveIdx(null)}
-        onPointerCancel={() => setActiveIdx(null)}
-      />
-
-      {/* token-only hover tooltip — the value at the hovered horizon */}
-      {active ? (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute z-10 flex min-w-[7.5rem] flex-col gap-1 tabular-nums"
-          style={{
-            left: `${activeFracPct}%`,
-            top: 6,
-            transform: tooltipAnchor,
-            padding: "0.375rem 0.5rem",
-            borderRadius: "var(--ct-radius-sm)",
-            background: "var(--ct-surface-inset)",
-            border: "1px solid var(--ct-border)",
-            boxShadow: "var(--ct-shadow-depth)",
-          }}
-        >
-          <span className="ct-text-strong text-[length:var(--ct-text-micro)] font-semibold leading-none">
-            {horizonLabel}
-          </span>
-          <span className="flex items-baseline justify-between gap-3 leading-none">
-            <span className="ct-text-faint text-[length:var(--ct-text-nano)]">median</span>
-            <span className="ct-text-body text-[length:var(--ct-text-micro)] font-semibold">
-              {fmt(active.p50)}
-            </span>
-          </span>
-          <span className="flex items-baseline justify-between gap-3 leading-none">
-            <span className="ct-text-faint text-[length:var(--ct-text-nano)]">p25–p75</span>
-            <span className="ct-text-muted text-[length:var(--ct-text-micro)]">
-              {fmt(active.p25)}–{fmt(active.p75)}
-            </span>
-          </span>
-          {usdEquiv ? (
-            <span className="ct-text-faint text-[length:var(--ct-text-nano)] leading-none">
-              {usdEquiv}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -28,13 +28,8 @@ export interface HcBulletProps {
   target?: number;
   /** Internal qualitative-band thresholds, ascending, strictly inside (min,max). */
   ranges?: readonly number[];
-  /**
-   * Featured-bar tone — accent only when honestly earned. `btc` is additive:
-   * swaps the featured bar to `--ct-cat-btc` amber for Bitcoin-denominated
-   * comparisons (e.g. cost-to-produce vs market price), mirroring
-   * `valueTone="btc"` on `StatBand`. Default unchanged (`"accent"`).
-   */
-  tone?: "accent" | "warning" | "neutral" | "btc";
+  /** Featured-bar tone — accent only when honestly earned. */
+  tone?: "accent" | "warning" | "neutral";
   /** Optional scale-start label (rendered nano/muted, left of the endpoint row). */
   minLabel?: string;
   /** Optional scale-end label (rendered nano/muted, right of the endpoint row). */
@@ -49,7 +44,6 @@ const TONE_VAR: Record<NonNullable<HcBulletProps["tone"]>, string> = {
   accent: "var(--ct-accent)",
   warning: "var(--ct-status-warning)",
   neutral: "var(--ct-text-muted)",
-  btc: "var(--ct-cat-btc)",
 };
 
 export function HcBullet({

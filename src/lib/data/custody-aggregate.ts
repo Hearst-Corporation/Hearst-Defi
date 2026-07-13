@@ -21,24 +21,16 @@ export interface CustodyAccountBalance {
   assets: CustodyAssetBalance[];
   /** USDC-family total for this account. */
   usdcTotal: number;
-  /** BTC-family total for this account. */
-  btcTotal: number;
 }
 
 export interface CustodyAggregate {
   accounts: CustodyAccountBalance[];
   totalUsdcReserves: number;
-  totalBtcReserves: number;
 }
 
 /** Any Fireblocks asset id in the USDC family (USDC, USDC_ARB_3SBJ, …). */
 export function isUsdcAsset(assetId: string): boolean {
   return assetId.toUpperCase().includes("USDC");
-}
-
-/** Any Fireblocks asset id in the BTC family (BTC, WBTC, cbBTC, tBTC, …). */
-export function isBtcAsset(assetId: string): boolean {
-  return assetId.toUpperCase().includes("BTC");
 }
 
 function round2(n: number): number {
@@ -61,25 +53,16 @@ export function aggregateCustody(
   const selected = filter ? raw.filter((a) => filter.has(a.id)) : raw;
 
   let totalUsdcReserves = 0;
-  let totalBtcReserves = 0;
   const accounts: CustodyAccountBalance[] = selected.map((a) => {
     let usdcTotal = 0;
-    let btcTotal = 0;
     const assets: CustodyAssetBalance[] = a.assets.map((x) => {
       if (isUsdcAsset(x.id)) usdcTotal += x.total;
-      if (isBtcAsset(x.id)) btcTotal += x.total;
       return { assetId: x.id, total: x.total };
     });
     usdcTotal = round2(usdcTotal);
-    btcTotal = round2(btcTotal);
     totalUsdcReserves += usdcTotal;
-    totalBtcReserves += btcTotal;
-    return { id: a.id, name: a.name, assets, usdcTotal, btcTotal };
+    return { id: a.id, name: a.name, assets, usdcTotal };
   });
 
-  return {
-    accounts,
-    totalUsdcReserves: round2(totalUsdcReserves),
-    totalBtcReserves: round2(totalBtcReserves),
-  };
+  return { accounts, totalUsdcReserves: round2(totalUsdcReserves) };
 }

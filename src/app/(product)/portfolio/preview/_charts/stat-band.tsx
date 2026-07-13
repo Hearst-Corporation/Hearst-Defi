@@ -5,11 +5,7 @@
  * asset dot. Cells are separated by 1px hairlines (gap-px on the border-soft bg), zero per-cell chrome.
  * Values render in accent green via the admin KPI class `.ct-bento-metric--accent` (same recipe as the
  * admin console KPI strips). The genuinely-Live cell (hashprice) additionally keeps the heartbeat pulse
- * dot as its distinguisher. `valueTone="btc"` keeps the number itself neutral/white and moves the
- * Bitcoin identity (--ct-cat-btc amber) onto the affix/dot only — a solid-amber figure would read as a
- * status/warning, not an asset. `hero` lifts a cell's value to the DS hero-number tier (`.ct-text-hero-tier`,
- * --ct-text-hero 40px — the global counterpart of admin's `.ds-hero-figure__value`). Token-only; reads
- * --ct-* (changes none). Server component.
+ * dot as its distinguisher. Token-only; reads --ct-* (changes none). Server component.
  */
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
@@ -28,13 +24,8 @@ export interface StatCell {
     forceAccent?: boolean;
   };
   provenance: Provenance;
-  /**
-   * Accent (green), neutral (white/strong body), or "btc" value text. "btc" keeps
-   * the BIG NUMBER neutral/white — a solid-amber figure reads as a status/warning,
-   * not an asset identity — and pushes the Bitcoin identity (--ct-cat-btc amber)
-   * onto the unit/affix + identity dot only.
-   */
-  valueTone?: "accent" | "neutral" | "btc";
+  /** Accent (green) or neutral (white/strong body) value text. */
+  valueTone?: "accent" | "neutral";
   /** Genuinely Live → accent value + heartbeat dot (reserved, honest). */
   live?: boolean;
   /**
@@ -43,10 +34,6 @@ export interface StatCell {
    * Bitcoin orange / USDC blue). Ignored on the Live cell (keeps its pulse).
    */
   asset?: AssetKind;
-  /** Unit/affix text rendered after the value (e.g. "BTC"). Colour follows valueTone. */
-  affix?: string;
-  /** Render the value at the DS hero-number tier (--ct-text-hero, 40px) instead of the normal strip size. */
-  hero?: boolean;
 }
 
 // No red anywhere on the platform: positive/negative deltas read neutral graphite.
@@ -107,13 +94,6 @@ export function StatBand({
                 className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ background: ASSET_COLOR[it.asset] }}
               />
-            ) : it.valueTone === "btc" ? (
-              // BTC identity dot — amber, reserved for the affix/dot only (never the number).
-              <span
-                aria-hidden="true"
-                className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ background: "var(--ct-cat-btc)" }}
-              />
             ) : (
               <ProvenanceBadge kind={it.provenance} variant="strip" />
             )}
@@ -123,26 +103,14 @@ export function StatBand({
             <span
               className={cn(
                 "ct-bento-metric tabular-nums",
-                it.hero && "ct-text-hero-tier",
-                // Accent green only for real, non-zero values; zeros and BTC-toned
-                // cells (identity lives in the affix/dot, never the number) read neutral.
-                isZeroValue(it.value) || it.valueTone === "neutral" || it.valueTone === "btc"
+                // Accent green only for real, non-zero values; zeros read neutral.
+                isZeroValue(it.value) || it.valueTone === "neutral"
                   ? "ct-text-strong"
                   : "ct-bento-metric--accent",
               )}
             >
               {it.value}
             </span>
-            {it.affix ? (
-              <span
-                className={cn(
-                  "font-medium",
-                  it.valueTone === "btc" ? "ct-text-cat-btc" : "ct-text-muted",
-                )}
-              >
-                {it.affix}
-              </span>
-            ) : null}
             {it.delta ? (
               <span
                 className={cn(

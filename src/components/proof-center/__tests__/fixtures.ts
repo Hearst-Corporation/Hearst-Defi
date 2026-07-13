@@ -39,7 +39,6 @@ export function zeroReservesCustody(): CustodySnapshot {
     asOf: new Date().toISOString(),
     accountsCount: 0,
     totalUsdcReserves: 0,
-    totalBtcReserves: 0,
     accounts: [],
   };
 }

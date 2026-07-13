@@ -11,7 +11,6 @@ const loadCustodyMock = vi.fn<() => Promise<CustodySnapshot>>(async () => ({
   asOf: new Date().toISOString(),
   accountsCount: 0,
   totalUsdcReserves: 0,
-  totalBtcReserves: 0,
   accounts: [],
 }));
 
@@ -84,7 +83,6 @@ describe("custodySnapshotHourly Inngest function", () => {
       asOf:                new Date().toISOString(),
       accountsCount:       0,
       totalUsdcReserves:   0,
-      totalBtcReserves:    0,
       accounts:            [],
     });
   });
@@ -146,7 +144,6 @@ describe("custodySnapshotHourly Inngest function", () => {
       asOf:              new Date().toISOString(),
       accountsCount:     1,
       totalUsdcReserves: 0,   // zero — must still skip
-      totalBtcReserves:  0,
       accounts:          [],
     });
 
@@ -167,7 +164,6 @@ describe("custodySnapshotHourly Inngest function", () => {
       asOf:              new Date().toISOString(),
       accountsCount:     1,
       totalUsdcReserves: 500_000,
-      totalBtcReserves:  0,
       accounts:          [],
     });
 
@@ -192,8 +188,7 @@ describe("custodySnapshotHourly Inngest function", () => {
       asOf:              new Date().toISOString(),
       accountsCount:     1,
       totalUsdcReserves: LIVE_RESERVES,
-      totalBtcReserves:  0,
-      accounts:          [{ id: "86", name: "Hearst Connect", assets: [], usdcTotal: LIVE_RESERVES, btcTotal: 0 }],
+      accounts:          [{ id: "86", name: "Hearst Connect", assets: [], usdcTotal: LIVE_RESERVES }],
     });
 
     const { custodySnapshotHourlyHandler } = await import(
@@ -243,7 +238,6 @@ describe("custodySnapshotHourly Inngest function", () => {
         asOf:              new Date().toISOString(),
         accountsCount:     1,
         totalUsdcReserves: amount,
-        totalBtcReserves:  0,
         accounts:          [],
       });
 
@@ -267,7 +261,6 @@ describe("custodySnapshotHourly Inngest function", () => {
       asOf:              new Date().toISOString(),
       accountsCount:     1,
       totalUsdcReserves: 1_000_000,
-      totalBtcReserves:  0,
       accounts:          [],
     });
     vaultSnapshotFindFirstMock.mockResolvedValueOnce(null); // no prior snapshot
@@ -292,7 +285,6 @@ describe("custodySnapshotHourly Inngest function", () => {
       asOf:              new Date().toISOString(),
       accountsCount:     1,
       totalUsdcReserves: LIVE_AUM,
-      totalBtcReserves:  0,
       accounts:          [],
     });
 

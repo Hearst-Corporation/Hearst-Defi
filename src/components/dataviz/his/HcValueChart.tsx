@@ -22,7 +22,6 @@ import {
 } from "@/lib/portfolio/value-series";
 
 import { pathD, polyline, project, type PlotBox } from "./geometry";
-import { HcValueChartHover, type HcValueChartHoverSample } from "./HcValueChartHover";
 import type { HcPoint } from "./types";
 
 // ── Public API (unchanged) ────────────────────────────────────────────────────
@@ -169,17 +168,6 @@ export function HcValueChart({
   const leftPct = (px: number): string => `${(px / VIEW_W) * 100}%`;
   const topPct = (py: number): string => `${(py / VIEW_H) * 100}%`;
 
-  // Serializable feed for the client hover island — positions in %, plus the
-  // value/date already formatted server-side (never pass a function to a
-  // client component). The layer renders nothing until pointer-over, so the
-  // static SSR markup above is unaffected.
-  const hoverSamples: HcValueChartHoverSample[] = framed.map((p, i) => ({
-    leftPct: (p.x / VIEW_W) * 100,
-    topPct: (p.y / VIEW_H) * 100,
-    valueLabel: valueFormat(yRaw[i]!),
-    dateLabel: DATE_TICK.format(new Date(xRaw[i]!)),
-  }));
-
   return (
     <div className="relative w-full" style={{ height }}>
       <svg
@@ -294,10 +282,6 @@ export function HcValueChart({
           {DATE_TICK.format(new Date(xRaw[i]!))}
         </span>
       ))}
-
-      {/* Interactive hover island — renders nothing until pointer-over, so the
-          static SSR markup above (and its contract test) is untouched. */}
-      <HcValueChartHover samples={hoverSamples} />
     </div>
   );
 }

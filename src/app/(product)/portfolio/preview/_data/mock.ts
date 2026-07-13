@@ -236,35 +236,14 @@ export const SIGNALS: readonly AgentSignal[] = [
 ];
 
 // ── L5 — Exit paths (take-profit / glide-path / recovery) — replaces the calendar ─
-/**
- * Deployed-value projection fan (%, return on deployed value) toward the +24% take-profit, widening
- * with horizon over the vault's 36-month maximum term. Numbers are Estimated. The near anchors
- * (m=0..12) are the original short-horizon fan; the FAR bands (m=18,24,30,36) are estimated
- * extrapolations — the p5..p95 span widens monotonically as uncertainty grows with horizon, and p50
- * rises modestly then plateaus toward the +24% expiry cap (never beyond it).
- */
+/** Deployed-value projection fan (%) toward the +24% take-profit, widening with horizon. */
 export const PROJECTION: readonly HcHonestBand[] = [
   { m: 0, p5: 5.8, p25: 6.1, p50: 6.3, p75: 6.6, p95: 6.9 },
   { m: 3, p5: 4.9, p25: 7.2, p50: 9.4, p75: 11.8, p95: 14.1 },
   { m: 6, p5: 3.1, p25: 8.0, p50: 12.6, p75: 17.0, p95: 21.4 },
   { m: 9, p5: 1.4, p25: 8.7, p50: 15.8, p75: 21.9, p95: 27.8 },
   { m: 12, p5: -1.0, p25: 9.2, p50: 18.4, p75: 25.6, p95: 32.5 },
-  { m: 18, p5: -2.3, p25: 11.5, p50: 20.2, p75: 28.5, p95: 36.7 },
-  { m: 24, p5: -2.8, p25: 12.0, p50: 21.5, p75: 30.8, p95: 40.2 },
-  { m: 30, p5: -1.5, p25: 12.6, p50: 22.4, p75: 33.4, p95: 44.5 },
-  { m: 36, p5: 0.5, p25: 13.0, p50: 23.0, p75: 35.5, p95: 48.5 },
 ];
-
-/** 36-month maximum term (a maximum duration, not a fixed term) + 60-day soft lock-up on early exit. */
-export const VAULT_TERM = {
-  maxMonths: 36,
-  legacyMaxMonths: 24,
-  softLockupDays: 60,
-  note: "36-month maximum term — a maximum duration, not a fixed term; 60-day soft lock-up on early exit.",
-} as const;
-
-/** Estimated reference BTC spot (USD) — used only to show a USD-equivalent on the cbBTC production bars. Estimated, not Live. */
-export const BTC_PRICE_USD = 96_000;
 
 export const EXIT_PATHS: readonly ExitPathRow[] = [
   { label: "Take-profit", mechanism: "Deployed ≥ deposit ×1.24 → vault expires", outcome: "+24%", kind: "take-profit" },

@@ -44,14 +44,6 @@ export interface HashpriceData {
   btc_price_usd: number;
   /** Block reward in BTC. 3.125 since the April 2024 halving. */
   block_reward_btc: number;
-  /**
-   * Latest known block height, from the same mempool.space difficulty tuple
-   * (`[timestamp, height, difficulty, change_ratio]`, index [1]) — no extra
-   * fetch. Feeds the halving countdown (computeHalvingCountdown). Falls back
-   * to a conservative estimate (see FALLBACK_BLOCK_HEIGHT) on outage, same as
-   * every other field here.
-   */
-  block_height: number;
   /** When this snapshot was computed. */
   fetched_at: Date;
   /** True if the fallback was used or the data is > 10 minutes old. */
@@ -73,11 +65,6 @@ const STALE_THRESHOLD_MS = STALE_THRESHOLDS.hashprice;
 const FALLBACK_USD_PER_TH_DAY = 0.055;
 const FALLBACK_DIFFICULTY = 1.32e14;
 const FALLBACK_BTC_PRICE_USD = 100_000;
-// Conservative floor — a real height read off mempool.space will always be
-// higher (chain only grows); this just keeps the halving countdown numeric
-// on outage rather than throwing. Roughly the tip as of this fallback's
-// authoring; staleness is what the UI badges, not this constant's accuracy.
-const FALLBACK_BLOCK_HEIGHT = 900_000;
 
 /**
  * Latest tuple from `/api/v1/mining/difficulty-adjustments/1m` is
@@ -101,7 +88,6 @@ function fallback(fetched_at: Date): HashpriceData {
     difficulty: FALLBACK_DIFFICULTY,
     btc_price_usd: FALLBACK_BTC_PRICE_USD,
     block_reward_btc: BLOCK_REWARD_BTC,
-    block_height: FALLBACK_BLOCK_HEIGHT,
     fetched_at,
     stale: true,
   };
@@ -145,11 +131,6 @@ export async function fetchHashprice(): Promise<HashpriceData> {
       return fallback(fetched_at);
     }
 
-    const block_height = latest[1];
-    if (!Number.isFinite(block_height) || block_height <= 0) {
-      return fallback(fetched_at);
-    }
-
     // BTC price must be present and positive. `fetchBtcPrice` already
     // falls back to {usd: 0, stale: true} on its own outage — we don't
     // want to publish a $0 hashprice in that case.
@@ -171,7 +152,6 @@ export async function fetchHashprice(): Promise<HashpriceData> {
       difficulty,
       btc_price_usd: btc.usd,
       block_reward_btc: BLOCK_REWARD_BTC,
-      block_height,
       fetched_at,
       stale,
     };

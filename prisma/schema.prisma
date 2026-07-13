@@ -211,15 +211,6 @@ model Distribution {
   txHash          String?
   recipientsCount Int
   period          String // "2026-04"
-  // Bitcoin Strategic Reserve (P3): additive, nullable — a real BTC-
-  // denominated payout amount, set only once one is actually paid. Until
-  // then every BTC figure shown to an LP is DERIVED at read-time
-  // (amountUsdc ÷ spot price, badged "estimated") — this column exists so a
-  // genuine future BTC payout can be recorded as "attested" without
-  // reworking the read path. `denomination` documents which one a given row
-  // represents; existing rows default to "usdc" (unchanged behavior).
-  amountBtc       Decimal?
-  denomination    String                    @default("usdc") // usdc|btc
   // Vault reference — slug or ticker (vaultSlug(ref)) identifying which vault
   // this distribution belongs to. Optional for backward compatibility with
   // historical rows created before multi-vault support (mvp-plus, 2026-05-26).
@@ -538,29 +529,6 @@ model VaultDeployment {
   createdBy              String
   seededFromStudyId      String?
 
-  // ── Bitcoin Strategic Reserve B2B2C (P3) ──────────────────────────────────
-  // `status` stays the governance/deploy axis (draft→review→deployed→live→
-  // paused→closed, unchanged). `fundraisingStage` is a SEPARATE axis for the
-  // spec's 10-state B2B2C fundraising narrative (Draft→Fundraising→Minimum
-  // Raised→Target Reached→Fund Closed→Capital Transfer→Mining Activated→
-  // Bitcoin Production→Monthly BTC Rewards→Withdraw BTC) — overloading a
-  // single `status` string would break the existing catalog filter, the
-  // multisig deploy gate, and pause/resume transitions that already consume
-  // it. "Minimum Raised" / "Target Reached" are DERIVED predicates (compare
-  // SUM(Position.principalUsdc) against minRaiseUsdc/capacityUsdc at read
-  // time), not stored booleans — only the two irreversible milestones that
-  // can't be inferred (capital transfer, mining activation) get a timestamp.
-  institutionId        String?
-  institution          Institution? @relation(fields: [institutionId], references: [id])
-  fundraisingStage     String       @default("draft") // draft|fundraising|minimum_raised|target_reached|fund_closed|capital_transfer|mining_activated|bitcoin_production|distributing|withdrawable
-  targetRaiseUsdc      Decimal?
-  minRaiseUsdc         Decimal?
-  openingDate          DateTime?
-  closingDate          DateTime?
-  distributionFrequency String?     // monthly|quarterly
-  capitalTransferredAt DateTime?
-  miningActivatedAt    DateTime?
-
   approvals    VaultDeploymentApproval[]
   positions    Position[]
   proposals    GovernanceProposal[]
@@ -568,48 +536,6 @@ model VaultDeployment {
 
   @@index([status])
   @@index([strategy, status])
-  @@index([institutionId])
-}
-
-/**
- * Institution — the B2B2C org entity (Bitcoin Strategic Reserve, P3).
- * Hearst never manages retail investors: the institution attests it performs
- * its own KYC/AML before a vault it owns is launched (`kycStatus`). Vault
- * creation stays admin-operated on the institution's behalf in this phase —
- * self-serve creation (flipping the create/launch guard to an institution
- * role) is a later, discrete follow-up, not part of this migration.
- */
-model Institution {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  kycStatus String   @default("pending") // pending|attested|rejected
-  createdBy String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  members VaultDeployment[]
-  users   InstitutionMember[]
-
-  @@index([kycStatus])
-}
-
-/**
- * Per-institution role membership. `User.role` stays the PLATFORM gate
- * (admin|investor); institution roles are scoped here, resolved by a
- * dedicated require-institution-role guard (mirrors require-admin.ts) —
- * applicative owner-check, no Postgres RLS (see schema header note).
- */
-model InstitutionMember {
-  id            String      @id @default(cuid())
-  institutionId String
-  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
-  userId        String
-  role          String // owner|admin|finance|operator|viewer|auditor
-  createdAt     DateTime    @default(now())
-
-  @@unique([institutionId, userId])
-  @@index([userId])
 }
 
 model VaultDeploymentApproval {
@@ -1040,58 +966,6 @@ model AddressAllowlist {
   active    Boolean  @default(true)
 
   @@index([active, category])
-}
-
-/**
- * Institutional BTC withdrawal request (Bitcoin Strategic Reserve, P3).
- *
- * REQUEST-ONLY, never auto-executing — the single most sensitive custodial
- * surface in the product (non-negotiable #5: no financial/custodial action
- * from the chat, ever). An investor action creates a `pending` row and moves
- * ZERO funds. Only an admin/operator (requireAdmin-gated server action) may
- * transition pending→approved (multisig quorum, mirrors DistributionApproval)
- * and approved→completed — and `completed` requires a REAL `txHash` recorded
- * by an operator after an out-of-band custody release, never a fabricated
- * "sent" status. No Inngest job, no cron, no automatic settlement anywhere.
- * `walletAddress` must be checked against `AddressAllowlist` at request time
- * by the server action (not enforced at the schema level).
- */
-model Withdrawal {
-  id                 String    @id @default(cuid())
-  investorId         String
-  positionId         String?
-  walletAddress      String
-  network             String // bitcoin|lightning
-  amountBtc           Decimal
-  amountUsdcSnapshot  Decimal
-  btcUsdAtRequest     Decimal
-  estimatedFeeBtc     Decimal?
-  status              String    @default("pending") // pending|approved|rejected|completed
-  requiredSigners     Int       @default(2)
-  txHash              String?
-  requestedAt         DateTime  @default(now())
-  decidedAt           DateTime?
-  completedAt         DateTime?
-  decidedBy           String?
-  rejectionReason     String?
-
-  approvals WithdrawalApproval[]
-
-  @@index([investorId])
-  @@index([status])
-}
-
-/** One signer's confirmation for a pending Withdrawal — mirrors DistributionApproval's multisig-accumulation pattern. */
-model WithdrawalApproval {
-  id           String     @id @default(cuid())
-  withdrawalId String
-  withdrawal   Withdrawal @relation(fields: [withdrawalId], references: [id], onDelete: Cascade)
-  signerWallet String
-  decision     String // approve|reject
-  signedAt     DateTime   @default(now())
-  reason       String?
-
-  @@unique([withdrawalId, signerWallet])
 }
 
 // =============================================================================

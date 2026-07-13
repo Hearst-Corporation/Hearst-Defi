@@ -19,13 +19,7 @@ export interface HcMeterProps {
   max: number;
   min?: number;
   ticks?: readonly MeterTick[];
-  /**
-   * `btc` — additive tone for Bitcoin-denominated comparisons (e.g. cost-to-produce
-   * vs market price): swaps the fill/marker to `--ct-cat-btc` amber, mirroring
-   * `valueTone="btc"` on `StatBand`. Ignored when `gradient` is set (gradient stays
-   * the reserved green health ramp). Default unchanged (`"accent"`).
-   */
-  tone?: "accent" | "warning" | "danger" | "neutral" | "btc";
+  tone?: "accent" | "warning" | "danger" | "neutral";
   /**
    * Health gradient: the fill reads GREEN when the value clears the top tick, degrades to light
    * green in the mid band, and to grey as it approaches the danger end (never red). The marker
@@ -43,7 +37,6 @@ const TONE_VAR: Record<NonNullable<HcMeterProps["tone"]>, string> = {
   warning: "var(--ct-status-warning)",
   danger: "var(--ct-status-danger)",
   neutral: "var(--ct-text-muted)",
-  btc: "var(--ct-cat-btc)",
 };
 
 // Ticks whose track-percent falls inside these edge bands anchor flush to the rail
