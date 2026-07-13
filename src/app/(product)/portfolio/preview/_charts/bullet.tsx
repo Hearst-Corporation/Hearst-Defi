@@ -126,22 +126,28 @@ export function HcBullet({
   // Existing callers (no labels) get the bare bar — zero visual change.
   if (!hasLabelRow) return bar;
 
-  // Two stacked rows: bar on top, endpoint scale below. A 3-column grid keeps
-  // the value label centered regardless of which endpoint labels are present.
+  // Stacked rows. The featured-value label gets its OWN row above the bar — it
+  // can be a long descriptive string (e.g. "Cost to produce $61.6K · market
+  // $62.3K") and must never share a line with the short endpoint labels, or it
+  // overflows the centre grid cell and collides with the $min / $max ends. The
+  // endpoint row below the bar stays a clean two-end min · max scale.
+  const hasEndpoints = minLabel != null || maxLabel != null;
   return (
     <div className={cn("flex w-full flex-col gap-1.5", className)}>
+      {valueLabel != null ? (
+        <span className="ct-text-body tabular-nums leading-tight">{valueLabel}</span>
+      ) : null}
       {bar}
-      <div aria-hidden="true" className="grid grid-cols-3 items-center">
-        <span className="justify-self-start text-[length:var(--ct-text-nano)] ct-text-muted">
-          {minLabel ?? ""}
-        </span>
-        <span className="justify-self-center ct-text-body tabular-nums">
-          {valueLabel ?? ""}
-        </span>
-        <span className="justify-self-end text-[length:var(--ct-text-nano)] ct-text-muted">
-          {maxLabel ?? ""}
-        </span>
-      </div>
+      {hasEndpoints ? (
+        <div aria-hidden="true" className="flex items-center justify-between">
+          <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+            {minLabel ?? ""}
+          </span>
+          <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+            {maxLabel ?? ""}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }

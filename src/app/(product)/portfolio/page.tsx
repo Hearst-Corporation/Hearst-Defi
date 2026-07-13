@@ -37,6 +37,15 @@ import {
   type HcSourceStatus,
 } from "@/components/dataviz/his";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { PanelHairlineHeader } from "@/components/catalyst/panel-hairline-header";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { getSession } from "@/lib/auth/session";
 import { loadBitcoinReserveView } from "@/lib/data/bitcoin-reserve-view";
@@ -46,6 +55,15 @@ import { isDemoAccount } from "@/lib/demo/allowlist";
 import { ZAND_FIXTURE_EMAIL } from "@/lib/demo/zand-fixture";
 import { formatBtc, formatHashrate } from "@/lib/format/btc";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
+import {
+  PORTFOLIO_DISTRIBUTIONS_CHART_EMPTY,
+  PORTFOLIO_DISTRIBUTIONS_HISTORY_EMPTY,
+  PORTFOLIO_MINING_ALLOCATION_EMPTY,
+  PORTFOLIO_MINING_ECONOMICS_EMPTY,
+  PORTFOLIO_PRODUCTION_CHART_EMPTY,
+  PORTFOLIO_REBALANCING_EMPTY,
+  PORTFOLIO_REBALANCING_SINCE_ENTRY_EMPTY,
+} from "@/lib/portfolio/empty-messages";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
 import {
   formatUsdDetailed,
@@ -55,12 +73,11 @@ import {
 import "./preview/_styles.css";
 import { AgentCanvas } from "./preview/_charts/agent-canvas";
 import { AssetBadge } from "./preview/_charts/asset-badge";
-import { AssetRing } from "./preview/_charts/asset-ring";
 import { HcMeter } from "./preview/_charts/meter";
 import { PocketCards } from "./preview/_charts/pocket-cards";
 import { RebalancingFeed, type RebalancingEvent } from "./preview/_charts/rebalancing-feed";
 import { StatBand, type StatCell } from "./preview/_charts/stat-band";
-import { ASSET_COLOR, POCKET_ASSET } from "./preview/_data/brand";
+import { POCKET_ASSET, type AssetKind } from "./preview/_data/brand";
 import { DemoTimelineControl } from "./demo-timeline-control";
 
 export const dynamic = "force-dynamic";
@@ -74,7 +91,16 @@ export const metadata = {
 /** Bare-hairline support surface (no shadow — the chrome budget reserves elevation for the hero). */
 const SUPPORT =
   "rounded-2xl border border-[var(--ct-border)] bg-surface-card overflow-hidden";
-const HERO_SHADOW = "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)";
+
+/** StatBand nested inside SUPPORT — inherit parent surface, no double card fill. */
+const NESTED_STAT_BAND = "[&>div]:bg-inherit";
+
+const TABLE_HEAD = "bg-transparent ct-bento-label";
+const TABLE_ROW =
+  "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]";
+
+/** HcCompositionRing categorical palette order: mining → usdc → btc. */
+const CATEGORICAL_ASSET_ORDER: readonly AssetKind[] = ["hearst", "usdc", "bitcoin"];
 
 /**
  * Tooltip for the pockets / collateral / safety badges. They carry the
@@ -95,15 +121,6 @@ function TitledDivider({ title, trailing }: { title: string; trailing?: ReactNod
         className="h-px flex-1"
         style={{ background: "var(--ct-border-soft)" }}
       />
-      {trailing ? <div className="shrink-0">{trailing}</div> : null}
-    </div>
-  );
-}
-
-function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
-      <span className="ct-bento-label">{title}</span>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
     </div>
   );
@@ -226,12 +243,15 @@ export default async function PortfolioPage() {
     ? d.healthStats
     : d.healthStats.filter((s) => !s.label.startsWith("Safety margin"));
 
-  // Per-asset ring segments (green / orange / blue) — matches the pocket identity.
-  const pocketRing = d.pockets.map((p, i) => ({
-    label: p.label,
-    value: p.valueUsdc,
-    color: ASSET_COLOR[POCKET_ASSET[i] ?? "hearst"],
-  }));
+  // Per-asset ring segments — categorical palette (mining / usdc / btc hues).
+  const pocketRing = CATEGORICAL_ASSET_ORDER.map((asset) => {
+    const idx = POCKET_ASSET.indexOf(asset);
+    const pocket = d.pockets[idx];
+    return {
+      label: pocket?.label ?? asset,
+      value: pocket?.valueUsdc ?? 0,
+    };
+  });
   // NAV widget — ALWAYS render a real chart area, never a text placeholder. The
   // HcValueChart empty state (<2 points) draws a dashed "no history" box, so when
   // the real series is too short (fresh / zero position) we synthesize a flat
@@ -453,8 +473,7 @@ export default async function PortfolioPage() {
             as a warning, not an asset) — amber lives on the "BTC" affix and
             the identity dot only. */}
         <section
-          className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
-          style={{ boxShadow: HERO_SHADOW }}
+          className="ct-hero-panel relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
           aria-label="Bitcoin Strategic Reserve"
         >
           <div
@@ -476,6 +495,7 @@ export default async function PortfolioPage() {
             </div>
             <div className="px-5 pb-2 lg:px-6">
               <StatBand
+                align="start"
                 items={[
                   {
                     label: "Bitcoin Reserve",
@@ -539,6 +559,7 @@ export default async function PortfolioPage() {
             </HcChartCard>
             <div className={SUPPORT}>
               <StatBand
+                className={NESTED_STAT_BAND}
                 items={[
                   miningEconomicsStats[1] as StatCell,
                   miningEconomicsStats[0] as StatCell,
@@ -550,10 +571,7 @@ export default async function PortfolioPage() {
         ) : (
           <div className={SUPPORT}>
             <div className="p-5">
-              <EmptySurface
-                message="Mining Economics is not available yet."
-                detail="Cost to produce, production margin and break-even BTC price activate once a reference machine cost basis is available."
-              />
+              <EmptySurface variant="inline" {...PORTFOLIO_MINING_ECONOMICS_EMPTY} />
             </div>
           </div>
         )}
@@ -575,9 +593,10 @@ export default async function PortfolioPage() {
             <HcBarChart
               bars={productionBars}
               height={220}
+              scale="sqrt"
               valueFormat={(v) => formatBtc(v, { unit: true })}
               highlightLast={false}
-              emptyMessage="No production data yet"
+              emptyMessage={PORTFOLIO_PRODUCTION_CHART_EMPTY}
               aria-label="Estimated BTC production — day, month, year"
             />
           </HcChartCard>
@@ -585,18 +604,10 @@ export default async function PortfolioPage() {
 
         {/* S1 — HERO: the one dominant band (glow + console header + NAV chart + stat band) */}
         <section
-          className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
-          style={{ boxShadow: HERO_SHADOW }}
+          className="ct-hero-panel relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
           aria-label="Vault value"
         >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-24 left-1/4 h-64 w-[min(680px,80%)] opacity-[0.07]"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, var(--ct-accent) 0%, transparent 70%)",
-            }}
-          />
+          <div aria-hidden="true" className="ct-hero-glow" />
           <div className="relative z-10 flex flex-col">
             {/* Header: just the title. No chips, no badges, no CTA button — the
                 chart is the hero; the Subscribe link lives in the top margin. */}
@@ -606,12 +617,12 @@ export default async function PortfolioPage() {
             <div className="px-5 lg:px-6">
               <HcValueChart
                 points={navChartPoints}
-                height={340}
+                height={420}
                 aria-label="Vault value over time"
               />
             </div>
             <div className="mt-4 border-t border-[var(--ct-border-soft)]">
-              <StatBand items={d.heroStats} />
+              <StatBand align="start" items={d.heroStats} />
             </div>
           </div>
         </section>
@@ -628,7 +639,7 @@ export default async function PortfolioPage() {
           }
         />
         <div className={SUPPORT}>
-          <StatBand items={healthStats} />
+          <StatBand align="start" className={NESTED_STAT_BAND} items={healthStats} />
           {/* No distance-to-liquidation gauge is drawn ANYWHERE yet: the 62%
               margin was a pilot placeholder with no attested collateral / LLTV
               feed behind it, so rendering it on a live position would present a
@@ -647,7 +658,7 @@ export default async function PortfolioPage() {
           {/* Capital + pockets — no separate card: same surface, split from the
               safety block above by a single internal hairline (donut + legend on
               the left, per-pocket breakdown on the right). One card, full height. */}
-          <CardHeader
+          <PanelHairlineHeader
             title="Capital · 3 pockets · target allocation"
             trailing={
               <ProvenanceBadge
@@ -662,12 +673,13 @@ export default async function PortfolioPage() {
                 Stacks on mobile so the fixed-width ring never forces a body scroll. */}
             <div className="flex flex-col items-center gap-5 sm:flex-row">
               <div className="shrink-0">
-                <AssetRing
+                <HcCompositionRing
                   segments={pocketRing}
+                  palette="categorical"
+                  showLegend={false}
                   centerLabel="Deposit"
                   centerValue={formatUsdFull(d.pocketTotalUsdc)}
                   size={156}
-                  thickness={20}
                   aria-label="Pocket allocation ring"
                 />
               </div>
@@ -741,16 +753,13 @@ export default async function PortfolioPage() {
         />
         <section className="grid grid-cols-1 @[54rem]:grid-cols-[1.3fr_1fr] gap-5">
           <div className={SUPPORT}>
-            <CardHeader
+            <PanelHairlineHeader
               title="Allocated mining power"
               trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
             />
             <div className="flex flex-col gap-4 p-5">
               {allocationPending ? (
-                <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                  No mining allocation yet. Once capital is allocated to B1, this
-                  panel estimates your allocated fleet power from machine cost.
-                </span>
+                <EmptySurface variant="inline" {...PORTFOLIO_MINING_ALLOCATION_EMPTY} />
               ) : (
                 <>
                   <div className="grid grid-cols-1 gap-3 @[40rem]:grid-cols-2">
@@ -801,7 +810,7 @@ export default async function PortfolioPage() {
                rebalancing feed, so a not-yet-funded investor sees what the
                operational layer will look like. Clearly Simulated. */
             <div className={`${SUPPORT} flex flex-col`}>
-              <CardHeader
+              <PanelHairlineHeader
                 title="Agent orchestration · pilot"
                 trailing={<ProvenanceBadge kind="simulated" variant="compact" />}
               />
@@ -820,7 +829,7 @@ export default async function PortfolioPage() {
                console — no third-party attestation to claim). Empty [] → an
                honest empty state with no badge, never the pilot sample. */
             <div className={`${SUPPORT} flex flex-col`}>
-              <CardHeader
+              <PanelHairlineHeader
                 title="Rebalancing · vault-level"
                 trailing={
                   vaultRebalancings.length > 0 ? (
@@ -832,11 +841,12 @@ export default async function PortfolioPage() {
                 {vaultRebalancings.length > 0 ? (
                   <RebalancingFeed events={vaultRebalancings} provenance="manual" />
                 ) : (
-                  <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                    {d.subscribedAt && hasPriorRebalancings
-                      ? "No rebalancing has been recorded since your entry. This vault does have older operational rebalancing history from before your subscription."
-                      : "No rebalancing recorded on this vault yet. Rebalancings are rare, deterministic, vault-wide operational events — they apply to the whole vault, not to your individual position."}
-                  </span>
+                  <EmptySurface
+                    variant="inline"
+                    {...(d.subscribedAt && hasPriorRebalancings
+                      ? PORTFOLIO_REBALANCING_SINCE_ENTRY_EMPTY
+                      : PORTFOLIO_REBALANCING_EMPTY)}
+                  />
                 )}
               </div>
             </div>
@@ -857,7 +867,7 @@ export default async function PortfolioPage() {
               by calendar month. Real data or an honest empty chart; there is
               deliberately NO fabricated sample year in any state. */}
           <div className={SUPPORT}>
-            <CardHeader
+            <PanelHairlineHeader
               title="Distributions paid · by month"
               trailing={
                 hasRealDistributions ? (
@@ -870,86 +880,74 @@ export default async function PortfolioPage() {
                 bars={realDistributionBars}
                 height={190}
                 highlightLast
-                emptyMessage="No distributions yet"
+                emptyMessage={PORTFOLIO_DISTRIBUTIONS_CHART_EMPTY}
                 aria-label={
                   hasRealDistributions
                     ? "Monthly distributions paid"
-                    : "No distributions yet"
+                    : PORTFOLIO_DISTRIBUTIONS_CHART_EMPTY
                 }
               />
             </div>
           </div>
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader title="Distribution history" />
+            <PanelHairlineHeader title="Distribution history" />
             {/* Real distributions only. At zero / no history: a genuine empty
                 state, NOT a fabricated Simulated sample ledger. */}
             {d.distributions.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-[var(--ct-border-soft)]">
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Date</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Amount</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Currency</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Vault</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {d.distributions.map((dist) => (
-                      <tr
-                        key={dist.id}
-                        className="border-b border-[var(--ct-border-soft)] last:border-b-0 transition-colors hover:bg-[var(--ct-surface-inset)]"
-                      >
-                        {/* Date — clean full date, centered */}
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">
-                            {DISTRIB_DATE.format(dist.paidAt)}
+              <Table
+                dense
+                className="[--gutter:0px] max-w-full [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableHeader className={`${TABLE_HEAD} text-center`}>Date</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} text-center`}>Amount</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} text-center`}>Currency</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} text-center`}>Vault</TableHeader>
+                    <TableHeader className={`${TABLE_HEAD} text-center`}>Status</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {d.distributions.map((dist) => (
+                    <TableRow key={dist.id} className={TABLE_ROW}>
+                      <TableCell className="text-center">
+                        <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">
+                          {DISTRIB_DATE.format(dist.paidAt)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="text-[length:var(--ct-text-base)] font-semibold ct-text-strong tabular-nums">
+                          {formatUsdDetailed(dist.amountUsdc)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-2">
+                          <AssetBadge asset="usdc" size={18} />
+                          <span className="text-[length:var(--ct-text-xs)] font-medium ct-text-body">
+                            USDC
                           </span>
-                        </td>
-                        {/* Amount */}
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-[length:var(--ct-text-base)] font-semibold ct-text-strong tabular-nums">
-                            {formatUsdDetailed(dist.amountUsdc)}
-                          </span>
-                        </td>
-                        {/* Currency — USDC logo + label, centered */}
-                        <td className="px-5 py-4">
-                          <div className="flex items-center justify-center gap-2">
-                            <AssetBadge asset="usdc" size={18} />
-                            <span className="text-[length:var(--ct-text-xs)] font-medium ct-text-body">
-                              USDC
-                            </span>
-                          </div>
-                        </td>
-                        {/* Vault — the product the payout came from (never
-                            mislabelled as a chain/network) */}
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
-                            {dist.vaultName ?? "—"}
-                          </span>
-                        </td>
-                        {/* Status — provenance is per-row and EARNED: tx-hashed
-                            payouts are Attested, book-entry rows are Manual */}
-                        <td className="px-5 py-4">
-                          <div className="flex justify-center">
-                            <ProvenanceBadge
-                              kind={dist.txHash ? "attested" : "manual"}
-                              variant="compact"
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
+                          {dist.vaultName ?? "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center">
+                          <ProvenanceBadge
+                            kind={dist.txHash ? "attested" : "manual"}
+                            variant="compact"
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             ) : (
               <div className="p-5">
-                <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                  No distributions yet. Monthly USDC distributions appear here
-                  once your position starts paying out.
-                </span>
+                <EmptySurface variant="inline" {...PORTFOLIO_DISTRIBUTIONS_HISTORY_EMPTY} />
               </div>
             )}
           </div>

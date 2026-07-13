@@ -15,6 +15,7 @@ import {
   HcChartCard,
   HcValueChart,
 } from "@/components/dataviz/his";
+import { PanelHairlineHeader } from "@/components/catalyst/panel-hairline-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -22,7 +23,7 @@ import "./_styles.css";
 import { AdvisoryFeed } from "./_charts/advisory-feed";
 import { AgentCanvas } from "./_charts/agent-canvas";
 import { AssetBadge } from "./_charts/asset-badge";
-import { AssetRing } from "./_charts/asset-ring";
+import { HcCompositionRing } from "@/components/dataviz/his/HcCompositionRing";
 import { HcBullet } from "./_charts/bullet";
 import { ExitPaths } from "./_charts/exit-paths";
 import { HcHonestFan } from "./_charts/honest-fan";
@@ -84,15 +85,6 @@ function TitledDivider({ title, trailing }: { title: string; trailing?: ReactNod
     <div className="flex items-center gap-4 pt-2">
       <h2 className="ct-section-title shrink-0">{title}</h2>
       <span aria-hidden="true" className="h-px flex-1" style={{ background: "var(--ct-border-soft)" }} />
-      {trailing ? <div className="shrink-0">{trailing}</div> : null}
-    </div>
-  );
-}
-
-function CardHeader({ title, trailing }: { title: ReactNode; trailing?: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
-      <span className="ct-bento-label inline-flex min-w-0 items-center gap-2">{title}</span>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
     </div>
   );
@@ -242,12 +234,16 @@ export default function PortfolioPreviewPage() {
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
           <HcChartCard title="Capital · 3 pockets" subtitle="B1 mining power · B2 wBTC · B3 USDC" source="estimated" state="ready" height={180} aria-label="Pocket allocation">
             <div className="flex h-full items-center gap-5">
-              <AssetRing
+              <HcCompositionRing
                 segments={pocketRing}
                 centerLabel="Deployed"
                 centerValue={formatUsdFull(pocketTotal)}
                 size={156}
                 thickness={20}
+                segmentGap={6}
+                centerHtml
+                responsive
+                showLegend={false}
                 aria-label="Pocket allocation ring"
               />
               <ul className="flex flex-1 flex-col gap-2.5">
@@ -262,7 +258,7 @@ export default function PortfolioPreviewPage() {
             </div>
           </HcChartCard>
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader title="Pockets breakdown" trailing={<ProvenanceBadge kind="estimated" variant="compact" />} />
+            <PanelHairlineHeader title="Pockets breakdown" trailing={<ProvenanceBadge kind="estimated" variant="compact" />} />
             <div className="flex flex-1 p-4">
               <PocketCards pockets={POCKET_CARDS} format={formatUsdFull} />
             </div>
@@ -273,7 +269,7 @@ export default function PortfolioPreviewPage() {
         <TitledDivider title="Mining engine · your allocated power" />
         <section className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5">
           <div className={SUPPORT}>
-            <CardHeader
+            <PanelHairlineHeader
               title={
                 <>
                   <AssetBadge asset="bitcoin" size={16} />
@@ -348,7 +344,7 @@ export default function PortfolioPreviewPage() {
             </div>
           </div>
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader
+            <PanelHairlineHeader
               title="Agent orchestration"
               trailing={
                 <span className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
@@ -408,7 +404,7 @@ export default function PortfolioPreviewPage() {
 
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader title="Exit paths" trailing={<ProvenanceBadge kind="manual" variant="compact" />} />
+            <PanelHairlineHeader title="Exit paths" trailing={<ProvenanceBadge kind="manual" variant="compact" />} />
             <ExitPaths paths={EXIT_PATHS} />
           </div>
           <HcChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · 36-month horizon · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">

@@ -2,8 +2,8 @@
 
 /**
  * Chart gallery — shadcn/Recharts charts ported onto the Hearst DS (tokenised
- * ui/chart + ui/card). DEMO data for now; dropped into the Report Product so we
- * can see the rendering and decide which charts to wire to real vault data.
+ * ui/chart + catalyst/card). DEMO data for now; dropped into the Report Product
+ * so we can see the rendering and decide which charts to wire to real vault data.
  */
 
 import * as React from "react";
@@ -34,7 +34,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/catalyst/card";
 import {
   ChartContainer,
   ChartLegend,
@@ -128,7 +128,7 @@ export function ChartGallery() {
     <div className="grid gap-(--ct-space-5) lg:grid-cols-2">
       {/* Area — projection band */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col items-start gap-(--ct-space-1)">
           <CardTitle>Projection — area</CardTitle>
           <CardDescription>p50 vs dispersion band (demo)</CardDescription>
         </CardHeader>
@@ -158,7 +158,7 @@ export function ChartGallery() {
 
       {/* Bar — monthly distribution */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col items-start gap-(--ct-space-1)">
           <CardTitle>Monthly distribution — bar</CardTitle>
           <CardDescription>per-month target (demo)</CardDescription>
         </CardHeader>
@@ -176,7 +176,7 @@ export function ChartGallery() {
 
       {/* Pie — allocation */}
       <Card className="flex flex-col">
-        <CardHeader className="items-center pb-0">
+        <CardHeader className="flex flex-col items-center gap-(--ct-space-1) pb-0">
           <CardTitle>Allocation — pie</CardTitle>
           <CardDescription>canonical sleeves (demo)</CardDescription>
         </CardHeader>
@@ -203,7 +203,7 @@ export function ChartGallery() {
 
       {/* Radar — risk/return profile */}
       <Card>
-        <CardHeader className="items-center">
+        <CardHeader className="flex flex-col items-center gap-(--ct-space-1)">
           <CardTitle>Profile — radar</CardTitle>
           <CardDescription>risk / return axes (demo)</CardDescription>
         </CardHeader>
@@ -221,7 +221,7 @@ export function ChartGallery() {
 
       {/* Line — step */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col items-start gap-(--ct-space-1)">
           <CardTitle>Trend — line step</CardTitle>
           <CardDescription>stepped (demo)</CardDescription>
         </CardHeader>
@@ -239,7 +239,7 @@ export function ChartGallery() {
 
       {/* Line — dots */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col items-start gap-(--ct-space-1)">
           <CardTitle>Trend — line dots</CardTitle>
           <CardDescription>natural + dots (demo)</CardDescription>
         </CardHeader>
@@ -257,7 +257,7 @@ export function ChartGallery() {
 
       {/* Bar — stacked */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col items-start gap-(--ct-space-1)">
           <CardTitle>Stacked — bar</CardTitle>
           <CardDescription>two series stacked (demo)</CardDescription>
         </CardHeader>
@@ -276,7 +276,7 @@ export function ChartGallery() {
 
       {/* Radial — allocation */}
       <Card className="flex flex-col">
-        <CardHeader className="items-center pb-0">
+        <CardHeader className="flex flex-col items-center gap-(--ct-space-1) pb-0">
           <CardTitle>Allocation — radial</CardTitle>
           <CardDescription>sleeves as radial bars (demo)</CardDescription>
         </CardHeader>

@@ -7,6 +7,8 @@
  * invented totals; callers pass pre-computed steps.
  */
 
+import { HcPlotEmpty } from "./HcPlotEmpty";
+
 export interface HcWaterfallStep {
   label: string;
   /** Signed delta for `delta` steps; absolute level for `total` anchors. */
@@ -20,6 +22,7 @@ export interface HcWaterfallProps {
   height?: number;
   /** Server-provided formatter (no business logic here). */
   format?: (n: number) => string;
+  emptyMessage?: string;
   "aria-label": string;
 }
 
@@ -57,22 +60,14 @@ export function HcWaterfall({
   width = 560,
   height = 280,
   format = defaultFormat,
+  emptyMessage = "No steps yet",
   ...rest
 }: HcWaterfallProps) {
   const ariaLabel = rest["aria-label"];
 
   if (steps.length === 0) {
     return (
-      <div
-        role="img"
-        aria-label={ariaLabel}
-        data-hc-empty="true"
-        style={{
-          height,
-          borderRadius: "var(--ct-radius-md)",
-          border: "1px dashed var(--ct-border)",
-        }}
-      />
+      <HcPlotEmpty message={emptyMessage} height={height} aria-label={ariaLabel} />
     );
   }
 

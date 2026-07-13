@@ -8,6 +8,7 @@
  */
 
 import { extent, project, polyline, pathD, type PlotBox } from "./geometry";
+import { HcPlotEmpty } from "./HcPlotEmpty";
 import type { HcPoint } from "./types";
 
 export interface HcFanBand {
@@ -26,6 +27,8 @@ export interface HcFanChartProps {
   unit?: string;
   /** When set, makes the projection's reproducibility explicit. */
   seedLabel?: string;
+  /** Empty-state message when fewer than 2 bands (required for a11y). */
+  emptyMessage?: string;
   "aria-label": string;
 }
 
@@ -35,22 +38,14 @@ export function HcFanChart({
   height = 320,
   unit = "%",
   seedLabel,
+  emptyMessage = "No projection data yet",
   ...rest
 }: HcFanChartProps) {
   const ariaLabel = rest["aria-label"];
 
   if (bands.length < 2) {
     return (
-      <div
-        role="img"
-        aria-label={ariaLabel}
-        data-hc-empty="true"
-        style={{
-          height,
-          borderRadius: "var(--ct-radius-md)",
-          border: "1px dashed var(--ct-border)",
-        }}
-      />
+      <HcPlotEmpty message={emptyMessage} height={height} aria-label={ariaLabel} />
     );
   }
 

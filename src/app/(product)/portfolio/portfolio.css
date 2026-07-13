@@ -2208,57 +2208,6 @@
   color: var(--ct-text-muted);
 }
 
-/* ---- Skeletons (loading.tsx) ---- */
-@keyframes pf-skeleton-pulse {
-  0%, 100% { opacity: var(--ct-opacity-45); }
-  50% { opacity: var(--ct-opacity-80); }
-}
-
-.pf-skeleton-greeting-title,
-.pf-skeleton-greeting-ticker,
-.pf-skeleton-widget,
-.pf-skeleton-sidebar {
-  border-radius: var(--ct-radius-xl);
-  background: linear-gradient(
-    100deg,
-    color-mix(in srgb, var(--ct-surface-card) 80%, transparent) 30%,
-    color-mix(in srgb, var(--ct-surface-card) 60%, transparent) 50%,
-    color-mix(in srgb, var(--ct-surface-card) 80%, transparent) 70%
-  );
-  background-size: 200% 100%;
-  animation:
-    pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite,
-    pf-shimmer var(--ct-dur-shimmer) linear infinite;
-}
-
-.pf-skeleton-greeting-title {
-  width: 18rem;
-  max-width: 60%;
-  height: var(--ct-space-7);
-}
-
-.pf-skeleton-greeting-ticker {
-  width: min(100%, 36rem);
-  height: var(--ct-space-8);
-}
-
-.pf-skeleton-widget {
-  width: 100%;
-  height: 100%;
-  min-height: var(--ct-space-8);
-  flex: 1 1 auto;
-}
-
-.pf-skeleton-widget--md {
-  min-height: 0;
-}
-
-.pf-skeleton-sidebar {
-  width: 100%;
-  height: 100%;
-  flex: 0 0 auto;
-}
-
 /* =============================================================================
    13. ZERO-STATE OVERRIDES
    -----------------------------------------------------------------------------
@@ -2852,46 +2801,6 @@
   gap: var(--ct-space-2);
 }
 
-/* ── Zero-state skeleton primitives — muted placeholder bars/dots shared by
-   Positions, Recent Activity and the Capital & Yield ledger. They render the
-   widget's structural frame while no real data exists, then disappear as the
-   real rows fill in. No invented values, no "no data yet" phrase. ── */
-.pf-skeleton-bar,
-.pf-skeleton-glyph,
-.pf-skeleton-dot {
-  display: inline-block;
-  border-radius: var(--ct-radius-sm);
-  background: color-mix(in srgb, var(--ct-surface-card) 90%, var(--ct-text-strong) 10%);
-  animation: pf-skeleton-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
-}
-
-.pf-skeleton-glyph {
-  width: var(--ct-space-7);
-  height: var(--ct-space-7);
-  border-radius: var(--ct-radius-md);
-  flex-shrink: 0;
-}
-
-.pf-skeleton-dot {
-  width: var(--ct-space-2);
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  flex-shrink: 0;
-}
-
-.pf-skeleton-bar { height: var(--ct-space-2_5); }
-.pf-skeleton-bar--label { width: 42%; }
-.pf-skeleton-bar--meta { width: 26%; margin-top: var(--ct-space-1); opacity: var(--ct-opacity-60); }
-.pf-skeleton-bar--amt { width: var(--ct-space-10); }
-.pf-skeleton-bar--vault { width: 55%; }
-.pf-skeleton-bar--num { width: 70%; }
-
-.pf-positions__row--skeleton .pf-skeleton-bar--num { margin-left: auto; }
-.pf-activity__row--skeleton,
-.pf-positions__row--skeleton { pointer-events: none; }
-
-/* Distrib calendar skeleton bars + ValueChart flat baseline read as muted frame. */
-
 /* =============================================================================
    16. POSITION CARDS — Strong Ledger style full-width cards
    ============================================================================= */
@@ -3316,78 +3225,12 @@
   line-height: var(--ct-leading-snug);
 }
 
-.pf-activity-zero__ghost {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-3);
-  width: 100%;
-  margin-bottom: var(--ct-space-6);
-  opacity: var(--ct-opacity-35);
-}
-
-.pf-activity-zero__ghost-row {
-  display: grid;
-  grid-template-columns: var(--ct-space-8) 1fr var(--ct-space-12);
-  gap: var(--ct-space-4);
-  align-items: center;
-  padding: var(--ct-space-2) 0;
-}
-
-.pf-activity-zero__ghost-icon {
-  width: var(--ct-space-6);
-  height: var(--ct-space-6);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-inset);
-}
-
-.pf-activity-zero__ghost-bar {
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-inset);
-}
-
-.pf-activity-zero__ghost-amt {
-  height: var(--ct-space-2);
-  border-radius: var(--ct-radius-full);
-  background: var(--ct-surface-inset);
-}
-
 /* Empty state for positions */
 .pf-positions-empty-premium {
   display: flex;
   flex-direction: column;
   gap: var(--ct-space-3);
   position: relative;
-}
-
-.pf-positions-empty-premium__ghost {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-  pointer-events: none;
-  opacity: var(--ct-opacity-30);
-}
-
-.pf-positions-empty-premium__ghost-card {
-  border-radius: var(--ct-radius-lg);
-  background: color-mix(in srgb, var(--ct-surface-inset) 40%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ct-border-soft) 15%, transparent);
-  padding: var(--ct-space-3) var(--ct-space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-space-2);
-}
-
-.pf-positions-empty-premium__ghost-line {
-  height: var(--ct-space-4);
-  background: color-mix(in srgb, var(--ct-surface-inset) 70%, transparent);
-  border-radius: var(--ct-radius-sm);
-}
-
-.pf-positions-empty-premium__ghost-line--sm {
-  height: var(--ct-space-3);
-  width: 55%;
-  background: color-mix(in srgb, var(--ct-surface-inset) 50%, transparent);
 }
 
 .pf-positions-empty-premium__cta {

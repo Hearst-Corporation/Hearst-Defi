@@ -65,7 +65,7 @@ describe("portfolio binds real data (no static mock)", () => {
     // The hero stat band and the NAV baseline both come off the derived view
     // model `d`, never a literal. (The hero was recomposed around StatBand —
     // deposit/value figures now flow through d.heroStats.)
-    expect(page).toMatch(/StatBand items=\{d\.heroStats\}/);
+    expect(page).toMatch(/StatBand[^>]*items=\{d\.heroStats\}/);
     expect(page).toMatch(/d\.deployedValueUsdc/);
   });
 

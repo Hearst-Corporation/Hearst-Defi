@@ -3,6 +3,12 @@ import { cn } from '@/lib/cn'
 import React, { forwardRef } from 'react'
 import { Link } from './link'
 
+/** Canonical accent fill — prefer `color="accent"` over Tailwind green/emerald. */
+const accentColor = [
+  'text-[var(--ct-bg-deep)] [--btn-hover-overlay:color-mix(in_srgb,var(--ct-bg-deep)_12%,transparent)] [--btn-bg:var(--ct-accent)] [--btn-border:var(--ct-accent)]',
+  '[--btn-icon:var(--ct-bg-deep)] data-active:[--btn-icon:var(--ct-bg-deep)] data-hover:[--btn-icon:var(--ct-bg-deep)]',
+] as const
+
 const styles = {
   base: [
     // Base
@@ -17,94 +23,62 @@ const styles = {
     '*:data-[slot=icon]:-mx-0.5 *:data-[slot=icon]:my-0.5 *:data-[slot=icon]:size-5 *:data-[slot=icon]:shrink-0 *:data-[slot=icon]:self-center *:data-[slot=icon]:text-(--btn-icon) sm:*:data-[slot=icon]:my-1 sm:*:data-[slot=icon]:size-4 forced-colors:[--btn-icon:ButtonText] forced-colors:data-hover:[--btn-icon:ButtonText]',
   ],
   solid: [
-    // Optical border, implemented as the button background to avoid corner artifacts
-    'border-transparent bg-(--btn-border)',
-    // Dark mode: border is rendered on `after` so background is set to button background
-    'dark:bg-(--btn-bg)',
-    // Button background, implemented as foreground layer to stack on top of pseudo-border layer
-    'before:absolute before:inset-0 before:-z-10 before:rounded-[calc(var(--radius-lg)-1px)] before:bg-(--btn-bg)',
-    // Drop shadow, applied to the inset `before` layer so it blends with the border
-    'before:shadow-[var(--ct-shadow-soft)]',
-    // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
-    'dark:before:hidden',
-    // Dark mode: Subtle white outline is applied using a border
-    'dark:border-[var(--ct-border-soft)]',
-    // Shim/overlay, inset to match button foreground and used for hover state + highlight shadow
-    'after:absolute after:inset-0 after:-z-10 after:rounded-[calc(var(--radius-lg)-1px)]',
-    // Inner highlight shadow
+    // Dark-only canon: bg on control, soft border, hover via `after` overlay
+    'border-[var(--ct-border-soft)] bg-(--btn-bg)',
+    'before:hidden',
+    'after:absolute after:-inset-px after:-z-10 after:rounded-lg',
     'after:shadow-[inset_0_1px_color-mix(in_srgb,var(--ct-text-strong)_15%,transparent)]',
-    // White overlay on hover
     'data-active:after:bg-(--btn-hover-overlay) data-hover:after:bg-(--btn-hover-overlay)',
-    // Dark mode: `after` layer expands to cover entire button
-    'dark:after:-inset-px dark:after:rounded-lg',
-    // Disabled
     'data-disabled:before:shadow-none data-disabled:after:shadow-none',
   ],
   outline: [
-    // Base
-    'border-[var(--ct-border)] text-[var(--ct-text-strong)] data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
-    // Dark mode
-    'dark:border-[var(--ct-border-strong)] dark:text-[var(--ct-text-strong)] dark:[--btn-bg:transparent] dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
-    // Icon
-    '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
+    'border-[var(--ct-border-strong)] text-[var(--ct-text-strong)] [--btn-bg:transparent]',
+    'data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+    '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
   ],
   plain: [
-    // Base
-    'border-transparent text-[var(--ct-text-strong)] data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
-    // Dark mode
-    'dark:text-[var(--ct-text-strong)] dark:data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]',
-    // Icon
-    '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
+    'border-transparent text-[var(--ct-text-strong)]',
+    'data-active:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] data-hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]',
+    '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
   ],
   insetRing: [
-    // White bg with inset ring (shadow-xs)
-    'bg-[var(--ct-surface-card)] text-[var(--ct-text-strong)] shadow-xs inset-ring inset-ring-[var(--ct-border)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] border-transparent',
-    // Dark mode variants
-    'dark:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] dark:text-[var(--ct-text-strong)] dark:shadow-none dark:inset-ring-[var(--ct-border-soft)] dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]',
-    // Fully rounded
-    'rounded-full',
+    'rounded-full border-transparent bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] text-[var(--ct-text-strong)] shadow-none inset-ring inset-ring-[var(--ct-border-soft)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_20%,transparent)]',
   ],
   iconOnly: [
-    // Circular icon-only buttons with accent background
-    'rounded-full shadow-xs text-[var(--ct-bg-deep)] bg-(--btn-bg)',
-    // Dark mode logic (no shadow, specific hover)
-    'dark:shadow-none dark:text-[var(--ct-bg-deep)]',
-    // We remove the default pseudo-elements for solid buttons when used as iconOnly
-    'before:hidden after:hidden border-transparent',
-    // Force icon color to match text
+    'rounded-full border-transparent bg-(--btn-bg) text-[var(--ct-bg-deep)] shadow-none',
+    'before:hidden after:hidden',
     '[--btn-icon:currentColor] data-active:[--btn-icon:currentColor] data-hover:[--btn-icon:currentColor]',
   ],
   colors: {
     'dark/zinc': [
-      'text-[var(--ct-text-strong)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
-      'dark:text-[var(--ct-text-strong)] dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
+      'text-[var(--ct-text-strong)] [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/5',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     light: [
-      'text-[var(--ct-bg-deep)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/10 [--btn-hover-overlay:var(--ct-bg-deep)]/2.5 data-active:[--btn-border:var(--ct-border)]/15 data-hover:[--btn-border:var(--ct-border)]/15',
-      'dark:text-white dark:[--btn-hover-overlay:var(--ct-text-strong)]/5 dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
-      '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
+      'text-white [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/10 [--btn-hover-overlay:var(--ct-text-strong)]/5',
+      '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     'dark/white': [
-      'text-[var(--ct-text-strong)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
-      'dark:text-[var(--ct-bg-deep)] dark:[--btn-bg:var(--ct-text-strong)] dark:[--btn-hover-overlay:var(--ct-bg-deep)]/5',
-      '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)] dark:[--btn-icon:var(--ct-text-muted)] dark:data-active:[--btn-icon:var(--ct-text-body)] dark:data-hover:[--btn-icon:var(--ct-text-body)]',
+      'text-[var(--ct-bg-deep)] [--btn-bg:var(--ct-text-strong)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-bg-deep)]/5',
+      '[--btn-icon:var(--ct-text-muted)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     dark: [
-      'text-[var(--ct-text-strong)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/10',
-      'dark:[--btn-hover-overlay:var(--ct-text-strong)]/5 dark:[--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+      'text-[var(--ct-text-strong)] [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90 [--btn-hover-overlay:var(--ct-text-strong)]/5',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
     white: [
-      'text-[var(--ct-bg-deep)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/10 [--btn-hover-overlay:var(--ct-bg-deep)]/2.5 data-active:[--btn-border:var(--ct-border)]/15 data-hover:[--btn-border:var(--ct-border)]/15',
-      'dark:[--btn-hover-overlay:var(--ct-bg-deep)]/5',
+      'text-[var(--ct-bg-deep)] [--btn-bg:var(--ct-surface-card)] [--btn-border:var(--ct-border)]/10 [--btn-hover-overlay:var(--ct-bg-deep)]/5',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-muted)] data-hover:[--btn-icon:var(--ct-text-muted)]',
     ],
     zinc: [
-      'text-[var(--ct-text-strong)] [--btn-hover-overlay:var(--ct-text-strong)]/10 [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90',
-      'dark:[--btn-hover-overlay:var(--ct-text-strong)]/5',
+      'text-[var(--ct-text-strong)] [--btn-hover-overlay:var(--ct-text-strong)]/5 [--btn-bg:color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] [--btn-border:var(--ct-border)]/90',
       '[--btn-icon:var(--ct-text-body)] data-active:[--btn-icon:var(--ct-text-body)] data-hover:[--btn-icon:var(--ct-text-body)]',
     ],
+    accent: [...accentColor],
+    /** @deprecated Use `accent` — Tailwind green-600 clashes with `--ct-accent`. */
+    green: [...accentColor],
+    /** @deprecated Use `accent` — Tailwind emerald-600 clashes with `--ct-accent`. */
+    emerald: [...accentColor],
     indigo: [
       'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-indigo-500)] [--btn-border:var(--color-indigo-600)]/90',
       '[--btn-icon:var(--color-indigo-300)] data-active:[--btn-icon:var(--color-indigo-200)] data-hover:[--btn-icon:var(--color-indigo-200)]',
@@ -132,14 +106,6 @@ const styles = {
     lime: [
       'text-[var(--ct-bg-deep)] [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-lime-300)] [--btn-border:var(--color-lime-400)]/80',
       '[--btn-icon:var(--color-lime-600)] data-active:[--btn-icon:var(--color-lime-700)] data-hover:[--btn-icon:var(--color-lime-700)]',
-    ],
-    green: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-green-600)] [--btn-border:var(--color-green-700)]/90',
-      '[--btn-icon:var(--color-white)]/60 data-active:[--btn-icon:var(--color-white)]/80 data-hover:[--btn-icon:var(--color-white)]/80',
-    ],
-    emerald: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-emerald-600)] [--btn-border:var(--color-emerald-700)]/90',
-      '[--btn-icon:var(--color-white)]/60 data-active:[--btn-icon:var(--color-white)]/80 data-hover:[--btn-icon:var(--color-white)]/80',
     ],
     teal: [
       'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-teal-600)] [--btn-border:var(--color-teal-700)]/90',

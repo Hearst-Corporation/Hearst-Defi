@@ -4108,7 +4108,7 @@ button.ct-choice-card {
   position: fixed;
   bottom: 0;
   left: var(--ct-rail-left);
-  right: var(--ct-rail-right);
+  right: var(--ct-rail-right-eff, 0px);
   height: 4rem;
   background: linear-gradient(to bottom, transparent 0%, var(--ct-bg-deep) 100%);
   pointer-events: none;
@@ -6519,7 +6519,7 @@ main#main-content>.admin-doc.admin-doc-shell {
     padding: var(--ct-space-1) var(--ct-space-2) !important;
     background: color-mix(in srgb, var(--ct-bg-deep) 92%, transparent) !important;
     border-top: 1px solid var(--ct-border-soft) !important;
-    z-index: 2147483646 !important; /* escape: vendored chrome — max-int "above everything" mobile nav, no scale tier */
+    z-index: var(--ct-z-bottom-bar) !important; /* below modals (--ct-z-modal 1000 / overlay 1300) */
   }
 
   .ct-rail-intra__stack {
@@ -6555,14 +6555,11 @@ main#main-content>.admin-doc.admin-doc-shell {
     padding: var(--ct-space-2) var(--ct-space-3) !important;
   }
 
-  /* Bottom breathing room for the scroll tail — NOT bar clearance.
-     The fixed rail is already cleared by the legal .app-footer (sibling of the
-     scroll, padding-bottom 56px+), which sits between the scroll and the bar, so
-     the scroll content never reaches the rail. Reserving a full 56px here doubled
-     up with the footer → ~150px of dead space below the content. Plain air only. */
-  .admin-doc .admin-doc-shell,
-  .product-doc .product-doc-shell {
-    padding-bottom: var(--ct-space-6);
+  /* Scroll column — safe clearance above fixed bottom bar (shell padding removed
+     to avoid doubling; root .app-footer still lifts legal copy separately). */
+  .ct-page-area > main#main-content,
+  .ct-page-area > :has(> main#main-content) > main#main-content {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + var(--ct-space-4));
   }
 
   .ct-center-panel { margin-left: 0 !important; }

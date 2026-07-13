@@ -126,11 +126,11 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
     );
     expect(timeline).toMatch(/StepTimeline/);
 
-    const bar = readFileSync(
-      join(ROOT, "src/components/dataviz/his/HcBarChart.tsx"),
+    const plotEmpty = readFileSync(
+      join(ROOT, "src/components/dataviz/his/HcPlotEmpty.tsx"),
       "utf8",
     );
-    expect(bar).toMatch(/data-hc-empty/); // honest empty state
+    expect(plotEmpty).toMatch(/data-hc-empty/); // honest empty state (canonical HIS wrapper)
   });
 
   it("the categorical palette is declared as token aliases (no new hex, one green)", () => {

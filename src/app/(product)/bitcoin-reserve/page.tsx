@@ -289,7 +289,6 @@ export default async function BitcoinReservePage() {
                       label: "USD Equivalent",
                       value: formatUsdFull(reserveUsd),
                       provenance: reserveUsdProvenance,
-                      hero: true,
                     },
                   ]}
                 />

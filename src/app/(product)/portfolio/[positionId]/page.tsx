@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
+import { PanelHairlineHeader } from "@/components/catalyst/panel-hairline-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ValueTrajectory } from "@/components/portfolio/value-trajectory";
 import { LockArc } from "@/components/portfolio/lock-arc";
@@ -85,16 +86,6 @@ function TitledDivider({ title, trailing }: { title: string; trailing?: ReactNod
         className="h-px flex-1"
         style={{ background: "var(--ct-border-soft)" }}
       />
-      {trailing ? <div className="shrink-0">{trailing}</div> : null}
-    </div>
-  );
-}
-
-/** Hairline card header — micro label + optional trailing slot. */
-function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] px-5 py-4">
-      <span className="ct-bento-label">{title}</span>
       {trailing ? <div className="shrink-0">{trailing}</div> : null}
     </div>
   );
@@ -369,11 +360,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
         />
         <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
           <div className={SUPPORT}>
-            <CardHeader title="Lock progress" />
+            <PanelHairlineHeader title="Lock progress" />
             <LockArc daysHeld={daysHeld} lockupDays={position.softLockupDays} />
           </div>
           <div className={SUPPORT}>
-            <CardHeader
+            <PanelHairlineHeader
               title="Cumulative target"
               trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
             />
@@ -428,7 +419,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
           {/* Safeguard status + how-it-works timeline */}
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader title="Safeguard status" />
+            <PanelHairlineHeader title="Safeguard status" />
             <div className="flex flex-col gap-5 p-5">
               <div className="flex items-start gap-3 rounded-[var(--ct-radius-lg)] border border-[var(--ct-status-success-border)] bg-[var(--ct-status-success-soft)] p-4">
                 <span
@@ -491,7 +482,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
           {/* Structural safeguards + capital-at-work (real USDC figures) */}
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader title="Structural safeguards" />
+            <PanelHairlineHeader title="Structural safeguards" />
             <PositionCapitalProtection
               principalUsdc={position.principalUsdc}
               accruedYieldUsdc={position.accruedYieldUsdc}
@@ -507,7 +498,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         <TitledDivider title="Strategy allocation & transactions" />
         <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader
+            <PanelHairlineHeader
               title="Strategy allocation"
               trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
             />
@@ -515,7 +506,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           </div>
 
           <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader
+            <PanelHairlineHeader
               title="Transactions"
               trailing={<ProvenanceBadge kind="attested" variant="compact" />}
             />

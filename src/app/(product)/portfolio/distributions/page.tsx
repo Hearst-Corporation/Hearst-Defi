@@ -2,6 +2,7 @@
 // bound to real data (loadPortfolio) on the DS canon.
 
 import { Badge } from "@/components/catalyst/badge";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
 } from "@/components/catalyst/table";
 import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
 import { loadPortfolio } from "@/lib/data/portfolio";
+import { PORTFOLIO_DISTRIBUTIONS_LEAF_EMPTY } from "@/lib/portfolio/empty-messages";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 
 export const dynamic = "force-dynamic";
@@ -100,11 +102,8 @@ export default async function DistributionsPage() {
               </TableBody>
             </Table>
           ) : (
-            <div className="p-10 text-center">
-              <p className="ct-metric-caption">
-                No distributions yet. Monthly USDC payouts appear here once your
-                first cycle settles.
-              </p>
+            <div className="p-5">
+              <EmptySurface variant="inline" {...PORTFOLIO_DISTRIBUTIONS_LEAF_EMPTY} />
             </div>
           )}
         </section>
